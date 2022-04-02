@@ -93,7 +93,7 @@ class AudioService {
 
   }
 
-  void play(String path, String uuid, String name) async {
+  Future<void> play(String path, String uuid, String name) async {
     // check if this the current audio which is playing or paused recently
     // and if played recently, just resume it
     if (_audioUuid.value == uuid) {

@@ -256,7 +256,7 @@ class DataStreamServices {
         _lastActivityDao, activity.from, DateTime.now().millisecondsSinceEpoch);
   }
 
-  void handleAckMessage(MessageDeliveryAck messageDeliveryAck) async {
+  Future<void> handleAckMessage(MessageDeliveryAck messageDeliveryAck) async {
     if (messageDeliveryAck.id.toInt() == 0) {
       return;
     }

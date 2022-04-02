@@ -370,7 +370,7 @@ class _RoomPageState extends State<RoomPage> {
     super.initState();
   }
 
-  void initRoomStream() async {
+  Future<void> initRoomStream() async {
     _roomRepo.watchRoom(widget.roomId).distinct().listen((event) async {
       // Remove changed messages from cache
       if (room.lastUpdatedMessageId != null &&
@@ -466,7 +466,7 @@ class _RoomPageState extends State<RoomPage> {
     setState(() {});
   }
 
-  void _sendForwardMessage() async {
+  Future<void> _sendForwardMessage() async {
     if (widget.shareUid != null) {
       _messageRepo.sendShareUidMessage(widget.roomId.asUid(), widget.shareUid!);
     } else if (widget.forwardedMessages != null &&

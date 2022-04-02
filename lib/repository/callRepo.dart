@@ -479,7 +479,7 @@ class CallRepo {
     }
   }
 
-  void _startCallTimerAndChangeStatus() async {
+  Future<void> _startCallTimerAndChangeStatus() async {
     if (isAndroid) {
       await _initForegroundTask();
       await _startForegroundTask();
@@ -828,7 +828,7 @@ class CallRepo {
     _callId = callId;
   }
 
-  void acceptCall(Uid roomId) async {
+  Future<void> acceptCall(Uid roomId) async {
     _roomUid = roomId;
     callingStatus.add(CallStatus.ACCEPTED);
     _dataChannel = await _createDataChannel();
@@ -859,14 +859,14 @@ class CallRepo {
     await _dispose();
   }
 
-  void _receivedCallAnswer(CallAnswer callAnswer) async {
+  Future<void> _receivedCallAnswer(CallAnswer callAnswer) async {
     //set Remote Descriptions and Candidate
     await _setRemoteDescriptionAnswer(callAnswer.body);
     await _setCallCandidate(callAnswer.candidates);
   }
 
   //here we have accepted Call
-  void _receivedCallOffer(CallOffer callOffer) async {
+  Future<void> _receivedCallOffer(CallOffer callOffer) async {
     if (!_reconnectTry) {
       callingStatus.add(CallStatus.ACCEPTED);
     }
@@ -890,12 +890,12 @@ class CallRepo {
     await _setCandidate(candidates);
   }
 
-  void receivedBusyCall() async {
+  Future<void> receivedBusyCall() async {
     callingStatus.add(CallStatus.BUSY);
     await _dispose();
   }
 
-  void receivedDeclinedCall() async {
+  Future<void> receivedDeclinedCall() async {
     _logger.i("get declined");
     callingStatus.add(CallStatus.DECLINED);
     await _dispose();

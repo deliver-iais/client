@@ -113,7 +113,7 @@ class _AccountSettingsState extends State<AccountSettings> {
     }
   }
 
-  void cropAvatar(String imagePath) async {
+  Future<void> cropAvatar(String imagePath) async {
     Navigator.push(context, MaterialPageRoute(builder: (c) {
       return CropImage(imagePath, (path) {
         if (path != null) {

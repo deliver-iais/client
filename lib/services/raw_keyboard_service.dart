@@ -25,7 +25,7 @@ class RawKeyboardService {
         ClipboardData(text: controller.selection.textInside(controller.text)));
   }
 
-  void controlVHandle(TextEditingController controller, BuildContext context,
+  Future<void> controlVHandle(TextEditingController controller, BuildContext context,
       Uid roomUid) async {
     final files = await Pasteboard.files();
     final image = await Pasteboard.image;

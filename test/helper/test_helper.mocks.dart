@@ -470,9 +470,10 @@ class MockRoomRepo extends _i1.Mock implements _i24.RoomRepo {
               returnValue: Future<_i3.Uid>.value(_FakeUid_1()))
           as _i18.Future<_i3.Uid>);
   @override
-  void reportRoom(_i3.Uid? roomUid) =>
-      super.noSuchMethod(Invocation.method(#reportRoom, [roomUid]),
-          returnValueForMissingStub: null);
+  _i18.Future<void> reportRoom(_i3.Uid? roomUid) => (super.noSuchMethod(
+      Invocation.method(#reportRoom, [roomUid]),
+      returnValue: Future<void>.value(),
+      returnValueForMissingStub: Future<void>.value()) as _i18.Future<void>);
   @override
   _i18.Future<List<_i23.Room>> getAllGroups() =>
       (super.noSuchMethod(Invocation.method(#getAllGroups, []),
@@ -596,11 +597,13 @@ class MockFireBaseServices extends _i1.Mock implements _i30.FireBaseServices {
   void deleteToken() => super.noSuchMethod(Invocation.method(#deleteToken, []),
       returnValueForMissingStub: null);
   @override
-  void sendGlitchReportForFirebaseNotification(String? roomUid) =>
-      super.noSuchMethod(
-          Invocation.method(
-              #sendGlitchReportForFirebaseNotification, [roomUid]),
-          returnValueForMissingStub: null);
+  _i18.Future<void> sendGlitchReportForFirebaseNotification(String? roomUid) =>
+      (super.noSuchMethod(
+              Invocation.method(
+                  #sendGlitchReportForFirebaseNotification, [roomUid]),
+              returnValue: Future<void>.value(),
+              returnValueForMissingStub: Future<void>.value())
+          as _i18.Future<void>);
 }
 
 /// A class which mocks [FileRepo].
@@ -671,10 +674,13 @@ class MockFileRepo extends _i1.Mock implements _i31.FileRepo {
       super.noSuchMethod(Invocation.method(#initUploadProgress, [uploadId]),
           returnValueForMissingStub: null);
   @override
-  void saveFileInDownloadDir(String? uuid, String? name, String? dir) =>
-      super.noSuchMethod(
-          Invocation.method(#saveFileInDownloadDir, [uuid, name, dir]),
-          returnValueForMissingStub: null);
+  _i18.Future<void> saveFileInDownloadDir(
+          String? uuid, String? name, String? dir) =>
+      (super.noSuchMethod(
+              Invocation.method(#saveFileInDownloadDir, [uuid, name, dir]),
+              returnValue: Future<void>.value(),
+              returnValueForMissingStub: Future<void>.value())
+          as _i18.Future<void>);
 }
 
 /// A class which mocks [LiveLocationRepo].
@@ -937,9 +943,13 @@ class MockDataStreamServices extends _i1.Mock
       super.noSuchMethod(Invocation.method(#handleActivity, [activity]),
           returnValueForMissingStub: null);
   @override
-  void handleAckMessage(_i41.MessageDeliveryAck? messageDeliveryAck) => super
-      .noSuchMethod(Invocation.method(#handleAckMessage, [messageDeliveryAck]),
-          returnValueForMissingStub: null);
+  _i18.Future<void> handleAckMessage(
+          _i41.MessageDeliveryAck? messageDeliveryAck) =>
+      (super.noSuchMethod(
+              Invocation.method(#handleAckMessage, [messageDeliveryAck]),
+              returnValue: Future<void>.value(),
+              returnValueForMissingStub: Future<void>.value())
+          as _i18.Future<void>);
   @override
   void handleRoomPresenceTypeChange(
           _i43.RoomPresenceTypeChanged? roomPresenceTypeChanged) =>
@@ -2084,9 +2094,10 @@ class MockMediaRepo extends _i1.Mock implements _i68.MediaRepo {
       (super.noSuchMethod(Invocation.method(#buildJsonFromFile, [file]),
           returnValue: '') as String);
   @override
-  void updateMedia(_i8.Message? message) =>
-      super.noSuchMethod(Invocation.method(#updateMedia, [message]),
-          returnValueForMissingStub: null);
+  _i18.Future<void> updateMedia(_i8.Message? message) => (super.noSuchMethod(
+      Invocation.method(#updateMedia, [message]),
+      returnValue: Future<void>.value(),
+      returnValueForMissingStub: Future<void>.value()) as _i18.Future<void>);
   @override
   _i67.MediaType loadTypeFromString(String? type) =>
       (super.noSuchMethod(Invocation.method(#loadTypeFromString, [type]),

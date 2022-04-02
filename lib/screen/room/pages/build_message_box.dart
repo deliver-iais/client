@@ -387,7 +387,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     );
   }
 
-  void _showCustomMenu(
+  Future<void> _showCustomMenu(
     BuildContext context,
     Message message,
   ) async {

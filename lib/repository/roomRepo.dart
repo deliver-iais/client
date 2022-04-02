@@ -347,7 +347,7 @@ class RoomRepo {
     return result.uid;
   }
 
-  void reportRoom(Uid roomUid) async {
+  Future<void> reportRoom(Uid roomUid) async {
     _queryServiceClient.report(ReportReq()..uid = roomUid);
   }
 

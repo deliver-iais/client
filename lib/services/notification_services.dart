@@ -90,7 +90,7 @@ class NotificationServices {
     _notifier.cancelAll();
   }
 
-  void playSoundIn() async {}
+  Future<void> playSoundIn() async {}
 
   void playSoundOut() {
     _audioService.playSoundOut();

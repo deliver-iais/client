@@ -274,6 +274,7 @@ Future setupFlutterNotification() async {
   await Firebase.initializeApp();
 }
 
+// ignore: avoid_void_async
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 

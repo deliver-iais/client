@@ -1009,7 +1009,7 @@ class MessageRepo {
     }
   }
 
-  void sendFormResultMessage(
+  Future<void> sendFormResultMessage(
       String botUid, Map<String, String> formResultMap, int formMessageId,
       {String? forwardFromAsString}) async {
     final formResult = FormResult();
@@ -1027,7 +1027,7 @@ class MessageRepo {
     _saveAndSend(pm);
   }
 
-  void sendShareUidMessage(Uid room, message_pb.ShareUid shareUid) async {
+  Future<void> sendShareUidMessage(Uid room, message_pb.ShareUid shareUid) async {
     final json = shareUid.writeToJson();
 
     final msg =
@@ -1037,7 +1037,7 @@ class MessageRepo {
     _saveAndSend(pm);
   }
 
-  void sendPrivateMessageAccept(
+  Future<void> sendPrivateMessageAccept(
       Uid to, PrivateDataType privateDataType, String token) async {
     final sharePrivateDataAcceptance = SharePrivateDataAcceptance()
       ..data = privateDataType

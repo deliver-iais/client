@@ -375,7 +375,7 @@ class MediaRepo {
         "duration": file.duration
       });
 
-  void updateMedia(Message message) async {
+  Future<void> updateMedia(Message message) async {
     _mediaDao.save(Media(
         createdOn: DateTime.now().millisecondsSinceEpoch,
         json: buildJsonFromFile(message.json.toFile()),

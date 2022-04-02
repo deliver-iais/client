@@ -246,7 +246,7 @@ class _ScanQrCode extends State<ScanQrCode> {
     }
   }
 
-  void handleSendMsgToBot(
+  Future<void> handleSendMsgToBot(
       BuildContext context, String botId, String text) async {
     final theme = Theme.of(context);
     controller.pauseCamera();

@@ -721,7 +721,7 @@ class _ProfilePageState extends State<ProfilePage>
     }
   }
 
-  void _showInviteLinkDialog(String token) async {
+  Future<void> _showInviteLinkDialog(String token) async {
     showDialog(
         context: context,
         builder: (context) {

@@ -91,7 +91,7 @@ class FireBaseServices {
     }
   }
 
-  void sendGlitchReportForFirebaseNotification(String roomUid) async {
+  Future<void> sendGlitchReportForFirebaseNotification(String roomUid) async {
     if (!_requestedRoom.contains(roomUid)) {
       try {
         await _queryServicesClient.sendGlitch(SendGlitchReq()

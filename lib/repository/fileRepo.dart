@@ -180,7 +180,7 @@ class FileRepo {
     _fileService.initProgressBar(uploadId);
   }
 
-  void saveFileInDownloadDir(String uuid, String name, String dir) async {
+  Future<void> saveFileInDownloadDir(String uuid, String name, String dir) async {
     final path = await getFileIfExist(uuid, name);
     _fileService.saveFileInDownloadFolder(path!, name, dir);
   }

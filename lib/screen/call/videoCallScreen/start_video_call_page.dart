@@ -33,7 +33,7 @@ class _StartVideoCallPageState extends State<StartVideoCallPage> {
   final _logger = GetIt.I.get<Logger>();
 
   @override
-  void dispose() async {
+  Future<void> dispose() async {
     super.dispose();
     _logger.i("call dispose in start call status=${widget.text}");
   }

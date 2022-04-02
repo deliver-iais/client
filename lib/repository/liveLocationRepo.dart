@@ -40,7 +40,7 @@ class LiveLocationRepo {
     });
   }
 
-  void _getLatUpdateLocation(String uuid) async {
+  Future<void> _getLatUpdateLocation(String uuid) async {
     final locations = <pb.Location>[];
     final res = await _liveLocationClient.getLastUpdatedLiveLocation(
         GetLastUpdatedLiveLocationReq()..uuid = uuid);
@@ -76,7 +76,7 @@ class LiveLocationRepo {
     });
   }
 
-  void _updateLiveLocationInDb(
+  Future<void> _updateLiveLocationInDb(
       String uuid, int duration, pb.Location location) async {
     final liveL = await _liveLocationDao.getLiveLocation(uuid);
     final locations = liveL!.locations..add(location);

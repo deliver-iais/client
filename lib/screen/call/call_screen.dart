@@ -54,7 +54,7 @@ class _CallScreenState extends State<CallScreen> {
     super.initState();
   }
 
-  void startCall() async {
+  Future<void> startCall() async {
     callRepo
       ..onLocalStream = ((stream) {
         _localRenderer.srcObject = stream;

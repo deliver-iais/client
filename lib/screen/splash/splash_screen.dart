@@ -84,7 +84,7 @@ class _SplashScreenState extends State<SplashScreen>
     }));
   }
 
-  void _navigateToHomePage() async {
+  Future<void> _navigateToHomePage() async {
     _fireBaseServices.sendFireBaseToken();
     final hasProfile = await _accountRepo.profileInfoIsSet();
     if (hasProfile) {
