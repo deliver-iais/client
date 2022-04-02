@@ -1,27 +1,21 @@
 import 'dart:convert';
 
 import 'package:deliver/box/dao/shared_dao.dart';
-
 import 'package:deliver/main.dart';
-
 import 'package:deliver/services/data_stream_services.dart';
-
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/web_classes/js.dart'
+    if (dart.library.html) 'package:js/js.dart' as js;
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as pb_seen;
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-
 import 'package:get_it/get_it.dart';
-import 'package:deliver/web_classes/js.dart'
-    if (dart.library.html) 'package:js/js.dart' as js;
-
 import 'package:logger/logger.dart';
-
-import 'package:deliver/shared/extensions/uid_extension.dart';
 
 @js.JS('decodeMessageForCallFromJs')
 external set _decodeMessageForCallFromJs(void Function(dynamic s) f);

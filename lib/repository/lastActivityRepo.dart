@@ -2,10 +2,10 @@
 
 import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/last_activity.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:logger/logger.dart';
 
 class LastActivityRepo {

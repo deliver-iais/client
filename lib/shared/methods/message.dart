@@ -5,16 +5,15 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter/foundation.dart';
 import 'package:fixnum/fixnum.dart';
-
-import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:flutter/foundation.dart';
 
 class MessageBrief {
   final Uid roomUid;

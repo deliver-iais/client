@@ -1,19 +1,15 @@
-import 'package:fixnum/fixnum.dart';
-
 import 'package:deliver/box/message.dart' as db;
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart'
     as channel_pb;
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart';
-
 import 'package:deliver_public_protocol/pub/v1/group.pbgrpc.dart' as group_pb;
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-
 import 'package:deliver_public_protocol/pub/v1/models/muc.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-
+import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:logger/logger.dart';
 
 // TODO check timeout time again!!!!

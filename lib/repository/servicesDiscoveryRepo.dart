@@ -3,9 +3,9 @@
 import 'dart:core';
 
 import 'package:deliver/shared/constants.dart';
-import 'package:grpc/grpc.dart';
 import 'package:deliver/web_classes/grpc_web.dart'
     if (dart.library.html) 'package:grpc/grpc_web.dart';
+import 'package:grpc/grpc.dart';
 
 // ignore: non_constant_identifier_names
 final QueryClientChannel = ClientChannel("query.$APPLICATION_DOMAIN",

@@ -1,8 +1,8 @@
 import 'package:deliver/box/contact.dart';
-import 'package:deliver/shared/widgets/circle_avatar.dart';
-import 'package:deliver/shared/methods/name.dart';
-import 'package:flutter/material.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/name.dart';
+import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:flutter/material.dart';
 
 class ContactWidget extends StatelessWidget {
   final Contact contact;

@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:deliver/box/call_info.dart';
 import 'package:deliver/box/call_status.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -12,7 +14,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
-import 'dart:math' as math;
 
 class CallDetailPage extends StatefulWidget {
   final CallInfo callEvent;

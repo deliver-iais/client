@@ -1,5 +1,4 @@
 import 'package:deliver/box/message.dart';
-
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -9,26 +8,24 @@ import 'package:deliver/screen/room/messageWidgets/botMessageWidget/bot_form_mes
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/bot_table_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_result.dart';
 import 'package:deliver/screen/room/messageWidgets/call_message/call_message_widget.dart';
-import 'package:deliver/screen/room/messageWidgets/live_location_message.dart';
-
-import 'package:deliver/screen/room/messageWidgets/location_message.dart';
 import 'package:deliver/screen/room/messageWidgets/file_message_ui.dart';
+import 'package:deliver/screen/room/messageWidgets/live_location_message.dart';
+import 'package:deliver/screen/room/messageWidgets/location_message.dart';
 import 'package:deliver/screen/room/messageWidgets/reply_widgets/reply_brief.dart';
 import 'package:deliver/screen/room/messageWidgets/sticker_messge_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/widgets/share_private_data_accept_message_widget.dart';
 import 'package:deliver/screen/room/widgets/share_private_data_request_message_widget.dart';
 import 'package:deliver/screen/room/widgets/share_uid_message_widget.dart';
-
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 
 class BoxContent extends StatefulWidget {
   final Message message;

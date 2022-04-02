@@ -1,11 +1,11 @@
-import 'package:deliver/shared/constants.dart';
-import 'package:deliver/theme/color_scheme.dart';
-import 'package:get_it/get_it.dart';
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
-import 'package:flutter/material.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/theme/color_scheme.dart';
+import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class FormResultWidget extends StatefulWidget {
   final Message message;

@@ -2,19 +2,18 @@
 
 import 'dart:convert';
 import 'dart:io' as io;
-import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/methods/platform.dart';
-import 'package:dio/dio.dart';
-import 'package:http/http.dart' as http;
 
 import 'package:deliver/box/dao/file_dao.dart';
 import 'package:deliver/box/file_info.dart';
 import 'package:deliver/services/file_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/enum.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
-
+import 'package:dio/dio.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
+import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 

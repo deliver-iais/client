@@ -1,7 +1,7 @@
 import 'package:deliver/box/uid_id_name.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:flutter/material.dart';
 
 class MucMemberMentionWidget extends StatelessWidget {

@@ -4,12 +4,11 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/screen/room/messageWidgets/audio_and_document_file_ui.dart';
 import 'package:deliver/screen/room/messageWidgets/image_message/image_ui.dart';
-
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/video_message.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
 
 class FileMessageUi extends StatefulWidget {
   final Message message;

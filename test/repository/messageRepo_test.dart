@@ -2,36 +2,38 @@
 
 import 'dart:async';
 import 'dart:io' as dart_file;
+
 import 'package:clock/clock.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/box/sending_status.dart';
+import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
+    as location_pb;
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
+    as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
+import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:grpc/grpc.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
-import 'package:fixnum/fixnum.dart';
+
 import '../constants/constants.dart';
 import '../helper/test_helper.dart';
-import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
-    as message_pb;
-import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
-    as location_pb;
-import 'package:deliver/models/file.dart' as model;
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
-import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
-import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 
 void main() {
   group('MessageRepoTest -', () {

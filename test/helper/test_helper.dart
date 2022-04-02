@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:deliver/box/bot_info.dart';
+import 'package:deliver/box/contact.dart' as contact_pb;
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/custom_notification_dao.dart';
 import 'package:deliver/box/dao/media_dao.dart';
@@ -37,23 +38,23 @@ import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/live_location.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
 import 'package:mockito/annotations.dart';
 import 'package:mockito/mockito.dart';
 import 'package:rxdart/rxdart.dart';
+
 import '../constants/constants.dart';
 import '../helper/test_helper.mocks.dart';
-import 'package:fixnum/fixnum.dart';
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
-import 'package:deliver/box/contact.dart' as contact_pb;
 
 class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
   final T value;

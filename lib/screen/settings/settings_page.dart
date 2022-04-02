@@ -1,32 +1,28 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/account.dart';
-
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
-
 import 'package:deliver/services/routing_service.dart';
-
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
-import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/language.dart';
 import 'package:deliver/shared/methods/phone.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/url.dart';
+import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:sms_autofill/sms_autofill.dart';
 import 'package:logger/logger.dart';
+import 'package:sms_autofill/sms_autofill.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({Key? key}) : super(key: key);
@@ -362,8 +358,6 @@ class _SettingsPageState extends State<SettingsPage> {
 class NormalSettingsTitle extends SettingsTile {
   final Widget child;
 
-  @override
-  // ignore: overridden_fields
   final VoidCallback? onTap;
 
   const NormalSettingsTitle({Key? key, this.onTap, required this.child})

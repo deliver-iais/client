@@ -1,7 +1,7 @@
 import 'dart:async';
-
 import 'dart:io';
 
+import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/keyboard.dart';
@@ -11,7 +11,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pasteboard/pasteboard.dart';
-import 'package:deliver/models/file.dart' as model;
 import 'package:path_provider/path_provider.dart';
 
 class RawKeyboardService {
