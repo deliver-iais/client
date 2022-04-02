@@ -202,7 +202,7 @@ class AvatarRepo {
     }
   }
 
-  _setAvatarAtServer(file_pb.File fileInfo, int createOn, Uid uid) async {
+  Future<void> _setAvatarAtServer(file_pb.File fileInfo, int createOn, Uid uid) async {
     final avatar = avatar_pb.Avatar()
       ..createdOn = Int64.parseInt(createOn.toString())
       ..category = uid.category

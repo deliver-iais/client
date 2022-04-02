@@ -46,7 +46,7 @@ class FireBaseServices {
       _firebaseMessaging = FirebaseMessaging.instance;
       await _firebaseMessaging.requestPermission();
       await _setFirebaseSetting();
-      _sendFireBaseToken(await _firebaseMessaging.getToken());
+      _sendFirebaseToken(await _firebaseMessaging.getToken());
     }
   }
 
@@ -54,7 +54,7 @@ class FireBaseServices {
     _firebaseMessaging.deleteToken();
   }
 
-  _sendFireBaseToken(String? fireBaseToken) async {
+  Future<void> _sendFirebaseToken(String? fireBaseToken) async {
     try {
       if (!await _sharedDao.getBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET)) {
         try {
@@ -70,7 +70,7 @@ class FireBaseServices {
     }
   }
 
-  _setFirebaseSetting() async {
+  Future<void> _setFirebaseSetting() async {
     try {
       if (isWeb) {
         // For web register in  firebase-messaging-sw.js in web folder.

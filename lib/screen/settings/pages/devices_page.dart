@@ -173,7 +173,7 @@ class _DevicesPageState extends State<DevicesPage> {
     );
   }
 
-  _showTerminateSession(List<Session> sessions, BuildContext context) {
+  void _showTerminateSession(List<Session> sessions, BuildContext context) {
     showDialog(
         context: context,
         builder: (context) {

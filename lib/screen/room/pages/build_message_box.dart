@@ -573,7 +573,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     }
   }
 
-  _scrollToMessage({required int id}) {
+  void _scrollToMessage({required int id}) {
     widget.itemScrollController.scrollTo(
       index: id,
       duration: const Duration(microseconds: 1),

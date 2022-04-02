@@ -309,7 +309,7 @@ void main() async {
       persistenceProvider: const NoPersistenceProvider(), child: MyApp()));
 }
 
-_setWindowSize() {
+void _setWindowSize() {
   setWindowMinSize(const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
 }
 

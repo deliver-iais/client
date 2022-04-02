@@ -676,7 +676,7 @@ class _InputMessageWidget extends State<InputMessage> {
     return KeyEventResult.ignored;
   }
 
-  _handleCV(RawKeyEvent event) async {
+  Future<void> _handleCV(RawKeyEvent event) async {
     final files = await Pasteboard.files();
     if (files.isEmpty) {
       final data = await Clipboard.getData(Clipboard.kTextPlain);
@@ -799,7 +799,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
   double opacity() => x < 0.0 ? 1.0 : (dx - x) / dx;
 
-  _attachFileInWindowsMode() async {
+  Future<void> _attachFileInWindowsMode() async {
     try {
       final res = <File>[];
       if (isLinux) {

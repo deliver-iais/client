@@ -218,7 +218,7 @@ class CoreServices {
     }
   }
 
-  _sendPacket(ClientPacket packet, {bool forceToSend = false}) async {
+  Future<void> _sendPacket(ClientPacket packet, {bool forceToSend = false}) async {
     try {
       if (isWeb) {
         await _grpcCoreService.sendClientPacket(packet);

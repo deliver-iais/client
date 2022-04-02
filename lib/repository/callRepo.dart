@@ -209,7 +209,7 @@ class CallRepo {
     });
   }
 
-  _createPeerConnection(bool isOffer) async {
+  Future<RTCPeerConnection> _createPeerConnection(bool isOffer) async {
     final _iceServers = <String, dynamic>{
       'iceServers': [
         {'url': STUN_SERVER_URL},
@@ -472,7 +472,7 @@ class CallRepo {
     return pc;
   }
 
-  _reconnectingAfterFailedConnection() async {
+  Future<void> _reconnectingAfterFailedConnection() async {
     if (!_isCaller) {
       _logger.i("try Reconnecting ...!");
       _offerSdp = await _createOffer();
@@ -499,7 +499,7 @@ class CallRepo {
     _isConnected = true;
   }
 
-  _createDataChannel() async {
+  Future<RTCDataChannel> _createDataChannel() async {
     final dataChannelDict = RTCDataChannelInit()..maxRetransmits = 15;
 
     final dataChannel = await _peerConnection!
@@ -560,7 +560,7 @@ class CallRepo {
   /*
   * get Access from User for Camera and Microphone
   * */
-  _getUserMedia() async {
+  Future<MediaStream> _getUserMedia() async {
     // Provide your own width, height and frame rate here
     Map<String, dynamic> mediaConstraints;
     if (isWindows) {
@@ -614,7 +614,7 @@ class CallRepo {
     return stream;
   }
 
-  _getUserDisplay() async {
+  Future<MediaStream> _getUserDisplay() async {
     final mediaConstraints = <String, dynamic>{'audio': false, 'video': true};
 
     final stream =
@@ -641,7 +641,7 @@ class CallRepo {
     }
   }
 
-  _initForegroundTask() async {
+  Future<void> _initForegroundTask() async {
     await FlutterForegroundTask.init(
       androidNotificationOptions: AndroidNotificationOptions(
         channelId: 'notification_channel_id',
@@ -798,7 +798,7 @@ class CallRepo {
     }
   }
 
-  _sendStartCallEvent() {
+  void _sendStartCallEvent() {
     final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
     _messageRepo.sendCallMessageWithMemberOrCallOwnerPvp(
         CallEvent_CallStatus.CREATED,
@@ -816,7 +816,7 @@ class CallRepo {
     });
   }
 
-  _callIdGenerator() {
+  void _callIdGenerator() {
     final random = randomAlphaNumeric(10);
     final time = DateTime.now().millisecondsSinceEpoch;
     //call event id: (Epoch time milliseconds)-(Random String with alphabet and numerics with 10 characters length)
@@ -878,7 +878,7 @@ class CallRepo {
     }
   }
 
-  _setCallCandidate(String candidatesJson) async {
+  Future<void> _setCallCandidate(String candidatesJson) async {
     final candidates = (jsonDecode(candidatesJson) as List)
         .map((data) => RTCIceCandidate(
             data['candidate'], data['sdpMid'], data['sdpMlineIndex']))
@@ -958,7 +958,7 @@ class CallRepo {
     return time;
   }
 
-  _setRemoteDescriptionOffer(String remoteSdp) async {
+  Future<void> _setRemoteDescriptionOffer(String remoteSdp) async {
     final dynamic session = await jsonDecode(remoteSdp);
 
     final sdp = write(session, null);
@@ -968,7 +968,7 @@ class CallRepo {
     await _peerConnection!.setRemoteDescription(description);
   }
 
-  _setRemoteDescriptionAnswer(String remoteSdp) async {
+  Future<void> _setRemoteDescriptionAnswer(String remoteSdp) async {
     final dynamic session = await jsonDecode(remoteSdp);
 
     final sdp = write(session, null);
@@ -978,7 +978,7 @@ class CallRepo {
     await _peerConnection!.setRemoteDescription(description);
   }
 
-  _createAnswer() async {
+  Future<String> _createAnswer() async {
     final description = await _peerConnection!.createAnswer(_sdpConstraints);
 
     final session = parse(description.sdp.toString());
@@ -990,7 +990,7 @@ class CallRepo {
     return answerSdp;
   }
 
-  _createOffer() async {
+  Future<String> _createOffer() async {
     final description = await _peerConnection!.createOffer(_sdpConstraints);
     //get SDP as String
     final session = parse(description.sdp.toString());
@@ -1016,7 +1016,7 @@ class CallRepo {
     return completer.future;
   }
 
-  _calculateCandidateAndSendOffer() async {
+  Future<void> _calculateCandidateAndSendOffer() async {
     _candidateStartTime = DateTime.now().millisecondsSinceEpoch;
     //w8 till candidate gathering conditions complete
     await _waitUntilCandidateConditionDone();
@@ -1036,7 +1036,7 @@ class CallRepo {
     });
   }
 
-  _calculateCandidateAndSendAnswer() async {
+  Future<void> _calculateCandidateAndSendAnswer() async {
     _candidateStartTime = DateTime.now().millisecondsSinceEpoch;
     //w8 till candidate gathering conditions complete
     await _waitUntilCandidateConditionDone();
@@ -1067,14 +1067,14 @@ class CallRepo {
     });
   }
 
-  _setCandidate(List<RTCIceCandidate> candidates) async {
+  Future<void> _setCandidate(List<RTCIceCandidate> candidates) async {
     for (final candidate in candidates) {
       await _peerConnection!.addCandidate(candidate);
     }
   }
 
   //Windows memory leak Warning!! https://github.com/flutter-webrtc/flutter-webrtc/issues/752
-  _dispose() async {
+  Future<void> _dispose() async {
     if (isAndroid) {
       _receivePort?.close();
       await _stopForegroundTask();
@@ -1170,7 +1170,7 @@ class CallRepo {
     });
   }
 
-  _cleanLocalStream() async {
+  Future<void> _cleanLocalStream() async {
     await _stopSharingStream();
     if (_localStream != null) {
       _localStream!.getTracks().forEach((element) async {
@@ -1181,7 +1181,7 @@ class CallRepo {
     }
   }
 
-  _stopSharingStream() async {
+  Future<void> _stopSharingStream() async {
     if (_localStreamShare != null) {
       _localStreamShare!.getTracks().forEach((element) async {
         await element.stop();

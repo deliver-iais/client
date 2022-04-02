@@ -198,7 +198,7 @@ class DataStreamServices {
     }
   }
 
-  _messageEdited(Uid roomUid, int id, int time) async {
+  Future<void> _messageEdited(Uid roomUid, int id, int time) async {
     final res = await _queryServicesClient.fetchMessages(FetchMessagesReq()
       ..roomUid = roomUid
       ..limit = 1

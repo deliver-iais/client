@@ -43,7 +43,7 @@ class _ContactsPageState extends State<ContactsPage> {
     super.dispose();
   }
 
-  _syncContacts() {
+  void _syncContacts() {
     SyncContact().showSyncContactDialog(context);
   }
 

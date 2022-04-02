@@ -460,7 +460,7 @@ class MucRepo {
     }
   }
 
-  _insertToDb(Uid mucUid, String mucName, int memberCount, String info,
+  Future<void> _insertToDb(Uid mucUid, String mucName, int memberCount, String info,
       {String? channelId}) async {
     await _mucDao.save(Muc(
         uid: mucUid.asString(),
@@ -565,7 +565,7 @@ class MucRepo {
                   e.name!.toLowerCase().contains(query.toLowerCase())))
           .toList();
 
-  _checkShowPin(Uid mucUid, List<Int64> pinMessages, List<int> pm) async {
+  Future<void> _checkShowPin(Uid mucUid, List<Int64> pinMessages, List<int> pm) async {
     if (pinMessages.isEmpty) return;
     final showPin = pinMessages.last.toInt() > pm.last;
     if (showPin) {

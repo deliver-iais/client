@@ -136,13 +136,13 @@ class AccountRepo {
     }
   }
 
-  _savePhoneNumber(int countryCode, int nationalNumber) {
+  void _savePhoneNumber(int countryCode, int nationalNumber) {
     _sharedDao
       ..put(SHARED_DAO_COUNTRY_CODE, countryCode.toString())
       ..put(SHARED_DAO_NATIONAL_NUMBER, nationalNumber.toString());
   }
 
-  _saveProfilePrivateData(
+  void _saveProfilePrivateData(
       {String? username, String? firstName, String? lastName, String? email}) {
     if (username != null) _sharedDao.put(SHARED_DAO_USERNAME, username);
     _sharedDao

@@ -263,7 +263,7 @@ class _RoomPageState extends State<RoomPage> {
     );
   }
 
-  _getScrollPosition() async {
+  Future<void> _getScrollPosition() async {
     _routingService.shouldScrollInRoom.listen((shouldScroll) {
       if (shouldScroll) {
         _scrollToMessage(
@@ -425,7 +425,7 @@ class _RoomPageState extends State<RoomPage> {
     });
   }
 
-  _sendSeenMessage(List<Message> messages) {
+  void _sendSeenMessage(List<Message> messages) {
     for (final msg in messages) {
       if (!_authRepo.isCurrentUser(msg.from)) {
         _messageRepo.sendSeen(msg.id!, widget.roomId.asUid());
@@ -522,14 +522,14 @@ class _RoomPageState extends State<RoomPage> {
     FocusScope.of(context).requestFocus(_inputMessageFocusNode);
   }
 
-  _getLastSeen() async {
+  Future<void> _getLastSeen() async {
     final seen = await _roomRepo.getOthersSeen(widget.roomId);
     if (seen != null) {
       _lastSeenMessageId = seen.messageId;
     }
   }
 
-  _getLastShowMessageId() async {
+  Future<void> _getLastShowMessageId() async {
     final seen = await _roomRepo.getMySeen(widget.roomId);
 
     final room = await _roomRepo.getRoom(widget.roomId);
@@ -1008,7 +1008,7 @@ class _RoomPageState extends State<RoomPage> {
     }
   }
 
-  _addForwardMessage(Message message) {
+  void _addForwardMessage(Message message) {
     _selectedMessages.containsKey(message.id)
         ? _selectedMessages.remove(message.id)
         : _selectedMessages[message.id!] = message;
@@ -1018,13 +1018,13 @@ class _RoomPageState extends State<RoomPage> {
     setState(() {});
   }
 
-  _changeReplyMessageId(int id) {
+  void _changeReplyMessageId(int id) {
     setState(() {
       _replyMessageId = id;
     });
   }
 
-  _scrollToMessage({required int id}) {
+  void _scrollToMessage({required int id}) {
     if (_itemScrollController.isAttached) {
       _itemScrollController.scrollTo(
         index: id,

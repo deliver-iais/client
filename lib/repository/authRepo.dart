@@ -187,7 +187,7 @@ class AuthRepo {
     _setCurrentUid(accessToken);
   }
 
-  _setCurrentUid(String accessToken) {
+  void _setCurrentUid(String accessToken) {
     final decodedToken = JwtDecoder.decode(accessToken);
     currentUserUid = Uid()
       ..category = Categories.USER

@@ -83,7 +83,7 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
     );
   }
 
-  _send(Uid uid) {
+  void _send(Uid uid) {
     _routingService.openRoom(uid.asString(),
         forwardedMessages: widget.forwardedMessages ?? [],
         popAllBeforePush: true,

@@ -1061,7 +1061,7 @@ class _ProfilePageState extends State<ProfilePage>
     }
   }
 
-  _showAddBotToGroupDialog() {
+  void _showAddBotToGroupDialog() {
     final nameOfGroup = <String, String>{};
     final groups = BehaviorSubject<List<String>>.seeded([]);
 

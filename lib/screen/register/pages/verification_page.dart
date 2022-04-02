@@ -33,7 +33,7 @@ class _VerificationPageState extends State<VerificationPage> {
   // TODO ???
   final I18N _i18n = GetIt.I.get<I18N>();
 
-  _sendVerificationCode() {
+  void _sendVerificationCode() {
     if ((_verificationCode!.length) < 5) {
       setState(() => _showError = true);
       return;
@@ -62,7 +62,7 @@ class _VerificationPageState extends State<VerificationPage> {
     });
   }
 
-  _navigationToHome() async {
+  Future<void> _navigationToHome() async {
     _contactRepo.getContacts();
     if (await _accountRepo.hasProfile(retry: true)) {
       _accountRepo.fetchCurrentUserId(retry: true);
@@ -76,7 +76,7 @@ class _VerificationPageState extends State<VerificationPage> {
     }
   }
 
-  _setErrorAndResetCode() {
+  void _setErrorAndResetCode() {
     setState(() {
       _showError = true;
       _verificationCode = "";

@@ -64,7 +64,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
     super.initState();
   }
 
-  _initCamera() async {
+  Future<void> _initCamera() async {
     _cameras = await availableCameras();
     if (_cameras.isNotEmpty) {
       _controller = CameraController(_cameras[0], ResolutionPreset.max);

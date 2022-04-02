@@ -102,7 +102,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     );
   }
 
-  _setAvatar(String avatarPath) async {
+  Future<void> _setAvatar(String avatarPath) async {
     _newAvatarPath.add(avatarPath);
     await _avatarRepo.setMucAvatar(widget.roomUid, avatarPath);
     final statusCode =

@@ -275,7 +275,7 @@ class _CallScreenState extends State<CallScreen> {
         });
   }
 
-  _hangUp() async {
+  Future<void> _hangUp() async {
     _logger.i("Call hang Up ...!");
     _audioService.stopPlayBeepSound();
     // if (isDesktop) {

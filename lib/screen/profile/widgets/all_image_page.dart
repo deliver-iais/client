@@ -72,7 +72,7 @@ class _AllImagePageState extends State<AllImagePage> {
     super.initState();
   }
 
-  _getMediaMetaDataCount() async {
+  Future<void> _getMediaMetaDataCount() async {
     final res = await _mediaMetaDataDao.getAsFuture(widget.roomUid);
     if (res != null) {
       _allImageCount.add(res.imagesCount);

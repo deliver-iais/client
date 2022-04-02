@@ -93,14 +93,14 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
   }
 
-  _navigationToHome() async {
+  Future<void> _navigationToHome() async {
     _contactRepo.getContacts();
     Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (c) {
       return const HomePage();
     }), (r) => false);
   }
 
-  _loginASTestUser() {
+  void _loginASTestUser() {
     _authRepo.saveTestUserInfo();
     _navigationToHome();
   }

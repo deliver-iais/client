@@ -460,7 +460,7 @@ class MessageRepo {
     _saveAndSend(pm);
   }
 
-  _saveAndSend(PendingMessage pm) {
+  void _saveAndSend(PendingMessage pm) {
     _savePendingMessage(pm);
     _updateRoomLastMessage(pm);
     _sendMessageToServer(pm);
@@ -652,7 +652,7 @@ class MessageRepo {
     }
   }
 
-  _sendMessageToServer(PendingMessage pm) async {
+  Future<void> _sendMessageToServer(PendingMessage pm) async {
     final byClient = _createMessageByClient(pm.msg);
 
     _coreServices.sendMessage(byClient);
@@ -745,7 +745,7 @@ class MessageRepo {
         status: status,
       );
 
-  _savePendingMessage(PendingMessage pm) async {
+  Future<void> _savePendingMessage(PendingMessage pm) async {
     _messageDao.savePendingMessage(pm);
   }
 
@@ -757,7 +757,7 @@ class MessageRepo {
       ..id = Int64.parseInt(messageId.toString()));
   }
 
-  _updateRoomLastMessage(PendingMessage pm) async {
+  Future<void> _updateRoomLastMessage(PendingMessage pm) async {
     await _roomDao.updateRoom(Room(
         uid: pm.roomUid,
         lastMessage: pm.msg,
