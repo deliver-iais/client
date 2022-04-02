@@ -1,6 +1,7 @@
 // ignore_for_file: no_logic_in_create_state
 
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/language.dart';
 import 'package:flutter/material.dart';
 
 import 'slide_object.dart';
@@ -21,7 +22,7 @@ class IntroSlider extends StatefulWidget {
   final double? widthSkipBtn;
 
   /// Fire when press SKIP button
-  final Function? onSkipPress;
+  final void Function()? onSkipPress;
 
   /// Change SKIP to any text you want
   final String? nameSkipBtn;
@@ -87,7 +88,7 @@ class IntroSlider extends StatefulWidget {
   final double? widthDoneBtn;
 
   /// Fire when press DONE button
-  final Function? onDonePress;
+  final void Function()? onDonePress;
 
   /// Style for text at DONE button
   final TextStyle? styleNameDoneBtn;
@@ -121,7 +122,7 @@ class IntroSlider extends StatefulWidget {
   /// Render your own custom tabs
   final List<Widget>? listCustomTabs;
 
-  final Function? onAnimationChange;
+  final void Function(double)? onAnimationChange;
 
   // Constructor
   const IntroSlider({
@@ -255,7 +256,7 @@ class IntroSliderState extends State<IntroSlider>
   double? widthSkipBtn;
 
   /// Fire when press SKIP button
-  Function? onSkipPress;
+  void Function()? onSkipPress;
 
   /// Change SKIP to any text you want
   String? nameSkipBtn;
@@ -290,7 +291,7 @@ class IntroSliderState extends State<IntroSlider>
   double? widthDoneBtn;
 
   /// Fire when press DONE button
-  Function? onDonePress;
+  void Function()? onDonePress;
 
   /// Change DONE to any text you want
   String? nameDoneBtn;
@@ -328,7 +329,7 @@ class IntroSliderState extends State<IntroSlider>
   /// List custom tabs
   List<Widget>? listCustomTabs;
 
-  Function? onAnimationChange;
+  void Function(double)? onAnimationChange;
 
   // Constructor
   IntroSliderState({
@@ -405,7 +406,7 @@ class IntroSliderState extends State<IntroSlider>
     // Dot animation
     sizeDot ??= 8.0;
 
-    for (int i = 0; i < slides.length; i++) {
+    for (var i = 0; i < slides.length; i++) {
       if (i == 0) {
         sizeDots.add(sizeDot! * 1.5);
         opacityDots.add(1.0);
@@ -417,14 +418,14 @@ class IntroSliderState extends State<IntroSlider>
 
     tabController.animation!.addListener(() {
       setState(() {
-        onAnimationChange!.call(tabController.animation!.value);
+        onAnimationChange?.call(tabController.animation!.value);
         if (tabController.animation!.value == currentAnimationValue) {
           return;
         }
 
-        double diffValueAnimation =
+        var diffValueAnimation =
             (tabController.animation!.value - currentAnimationValue).abs();
-        int diffValueIndex = (currentTabIndex - tabController.index).abs();
+        final diffValueIndex = (currentTabIndex - tabController.index).abs();
 
         // When press skip button
         if (tabController.indexIsChanging &&
@@ -474,7 +475,7 @@ class IntroSliderState extends State<IntroSlider>
   void setupButtonDefaultValues() {
     // Skip button
     onSkipPress ??= () {
-      if (!isAnimating(tabController.animation!.value)) {
+      if (!isAnimating()) {
         tabController.animateTo(slides.length - 1);
       }
     };
@@ -517,7 +518,7 @@ class IntroSliderState extends State<IntroSlider>
     );
   }
 
-  void goToTab(index) {
+  void goToTab(int index) {
     if (index < tabController.length) {
       tabController.animateTo(index);
     }
@@ -530,13 +531,13 @@ class IntroSliderState extends State<IntroSlider>
   }
 
   // Checking if tab is animating
-  bool isAnimating(value) {
+  bool isAnimating() {
     return tabController.animation!.value -
             tabController.animation!.value.truncate() !=
         0;
   }
 
-  bool isRTLLanguage(language) {
+  bool isRTLLanguage(Language language) {
     return false;
 //    return rtlLanguages.contains(language);
   }
@@ -572,7 +573,7 @@ class IntroSliderState extends State<IntroSlider>
     } else {
       return TextButton(
         onPressed: () {
-          onSkipPress!();
+          onSkipPress?.call();
         },
         child: renderSkipBtn!,
       );
@@ -581,7 +582,7 @@ class IntroSliderState extends State<IntroSlider>
 
   Widget buildDoneButton() {
     return TextButton(
-      onPressed: () => onDonePress!(),
+      onPressed: () => onDonePress?.call(),
       child: renderDoneBtn!,
     );
   }
@@ -592,7 +593,7 @@ class IntroSliderState extends State<IntroSlider>
     } else {
       return TextButton(
         onPressed: () {
-          if (!isAnimating(tabController.animation!.value)) {
+          if (!isAnimating()) {
             tabController.animateTo(tabController.index - 1);
           }
         },
@@ -604,7 +605,7 @@ class IntroSliderState extends State<IntroSlider>
   Widget buildNextButton() {
     return TextButton(
       onPressed: () {
-        if (!isAnimating(tabController.animation!.value)) {
+        if (!isAnimating()) {
           tabController.animateTo(tabController.index + 1);
         }
       },
@@ -662,8 +663,8 @@ class IntroSliderState extends State<IntroSlider>
   }
 
   List<Widget?> renderListTabs() {
-    List<Widget?> t = [];
-    for (int i = 0; i < slides.length; i++) {
+    final t = <Widget?>[];
+    for (var i = 0; i < slides.length; i++) {
       t.add(
         renderTab(
           slides[i].widgetTitle,
@@ -737,7 +738,7 @@ class IntroSliderState extends State<IntroSlider>
     Color? backgroundOpacityColor,
     BlendMode? backgroundBlendMode,
   ) {
-    double animationSize = animationSquareSize(context);
+    final animationSize = animationSquareSize(context);
     return Container(
       padding: EdgeInsets.only(top: animationSize + 40),
       width: double.infinity,
@@ -791,7 +792,7 @@ class IntroSliderState extends State<IntroSlider>
 
   List<Widget> renderListDots() {
     dots.clear();
-    for (int i = 0; i < slides.length; i++) {
+    for (var i = 0; i < slides.length; i++) {
       dots.add(renderDot(sizeDots[i], colorDot!, opacityDots[i]));
     }
     return dots;

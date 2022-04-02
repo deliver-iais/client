@@ -89,8 +89,7 @@ class Room {
               lastUpdatedMessageId ?? this.lastUpdatedMessageId);
 
   @override
-  bool operator ==(dynamic other) {
-    return identical(this, other) ||
+  bool operator ==(Object other) => identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is Room &&
             const DeepCollectionEquality().equals(other.uid, uid) &&
@@ -108,7 +107,6 @@ class Room {
             const DeepCollectionEquality().equals(other.pinned, pinned) &&
             const DeepCollectionEquality()
                 .equals(other.lastUpdatedMessageId, lastUpdatedMessageId));
-  }
 
   @override
   int get hashCode => Object.hash(

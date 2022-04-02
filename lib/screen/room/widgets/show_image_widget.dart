@@ -54,7 +54,7 @@ class _ImageWidget extends State<ShowImagePage> {
         appBar: AppBar(
           title: FutureBuilder<String>(
             future: _roomRepo.getName(widget.roomUid),
-            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+            builder: (context, snapshot) {
               if (snapshot.data != null) {
                 return Text(
                   snapshot.data!,

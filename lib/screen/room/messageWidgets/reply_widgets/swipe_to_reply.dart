@@ -38,7 +38,7 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
         Tween<Offset>(begin: Offset.zero, end: const Offset(1.0, 0.0))
             .animate(_moveController);
 
-    var controllerValue = 0.0;
+    const controllerValue = 0.0;
     _moveController.animateTo(controllerValue);
   }
 
@@ -49,8 +49,8 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
-    var delta = details.primaryDelta;
-    var oldDragExtent = _dragExtent;
+    final delta = details.primaryDelta;
+    final oldDragExtent = _dragExtent;
     _dragExtent += delta!;
 
     if (oldDragExtent.sign != _dragExtent.sign) {
@@ -59,19 +59,19 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
       });
     }
 
-    var movePastThresholdPixels = widget.threshold;
+    final movePastThresholdPixels = widget.threshold;
     var newPos = _dragExtent.abs() / context.size!.width;
 
     if (_dragExtent.abs() > movePastThresholdPixels) {
       // how many "thresholds" past the threshold we are. 1 = the threshold 2
       // = two thresholds.
-      var n = _dragExtent.abs() / movePastThresholdPixels;
+      final n = _dragExtent.abs() / movePastThresholdPixels;
 
       // Take the number of thresholds past the threshold, and reduce this
       // number
-      var reducedThreshold = math.pow(n, 0.3);
+      final reducedThreshold = math.pow(n, 0.3);
 
-      var adjustedPixelPos = movePastThresholdPixels * reducedThreshold;
+      final adjustedPixelPos = movePastThresholdPixels * reducedThreshold;
       newPos = adjustedPixelPos / context.size!.width;
     }
     if (_dragExtent < -50) {
@@ -97,16 +97,14 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
     if (_dragExtent < -50) {
       showRightIcon = false;
       setState(() {});
-      if (widget.onSwipeLeft != null) {
-        widget.onSwipeLeft!();
-      }
+      widget.onSwipeLeft?.call();
     }
 
     _dragExtent = 0.0;
   }
 
   void _updateMoveAnimation() {
-    var end = _dragExtent.sign;
+    final end = _dragExtent.sign;
     _moveAnimation =
         Tween<Offset>(begin: const Offset(0.0, 0.0), end: Offset(end, 0.0))
             .animate(_moveController);
@@ -114,7 +112,7 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    var children = <Widget>[
+    final children = <Widget>[
       AnimatedOpacity(
           opacity: showRightIcon ? 1 : 0,
           duration: ANIMATION_DURATION,

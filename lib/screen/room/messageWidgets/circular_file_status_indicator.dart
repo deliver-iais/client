@@ -5,10 +5,10 @@ import 'package:deliver/screen/room/messageWidgets/file_message.dart/open_file_s
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
 
 class CircularFileStatusIndicator extends StatefulWidget {
   final Message message;
@@ -40,7 +40,7 @@ class _CircularFileStatusIndicatorState
 
   @override
   Widget build(BuildContext context) {
-    var file = widget.message.json.toFile();
+    final file = widget.message.json.toFile();
     return FutureBuilder<String?>(
         future: _fileRepo.getFileIfExist(file.uuid, file.name),
         builder: (c, fileSnapShot) {
@@ -64,7 +64,7 @@ class _CircularFileStatusIndicatorState
                             return LoadFileStatus(
                               fileId: file.uuid,
                               fileName: file.name,
-                              isPendingMessage: widget.message.id==null,
+                              isPendingMessage: widget.message.id == null,
                               messagePacketId: widget.message.packetId,
                               onPressed: () async {
                                 await _fileRepo.getFile(file.uuid, file.name);
@@ -78,13 +78,12 @@ class _CircularFileStatusIndicatorState
                   } else {
                     return LoadFileStatus(
                       fileId: file.uuid,
-                      isPendingMessage: widget.message.id==null,
+                      isPendingMessage: widget.message.id == null,
                       fileName: file.name,
                       messagePacketId: widget.message.packetId,
                       onPressed: () async {
                         await _fileRepo.getFile(file.uuid, file.name);
-                        setState(() {
-                        });
+                        setState(() {});
                       },
                       background: widget.backgroundColor,
                       foreground: widget.foregroundColor,

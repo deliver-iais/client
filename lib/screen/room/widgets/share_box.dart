@@ -1,7 +1,6 @@
 import 'package:android_intent/android_intent.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver/box/message.dart';
-
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
@@ -13,20 +12,19 @@ import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
-import 'package:latlong2/latlong.dart';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ShareBox extends StatefulWidget {
   final Uid currentRoomId;
   final int replyMessageId;
-  final Function resetRoomPageDetails;
-  final Function scrollToLastSentMessage;
+  final void Function() resetRoomPageDetails;
+  final void Function() scrollToLastSentMessage;
 
   const ShareBox(
       {Key? key,
@@ -69,7 +67,7 @@ class _ShareBoxState extends State<ShareBox> {
 
   BehaviorSubject<double> initialChildSize = BehaviorSubject.seeded(0.5);
 
-  var currentPage = Page.gallery;
+  Page currentPage = Page.gallery;
   final AudioPlayer _audioPlayer = AudioPlayer();
 
   I18N i18n = GetIt.I.get<I18N>();
@@ -98,8 +96,6 @@ class _ShareBoxState extends State<ShareBox> {
             return DraggableScrollableSheet(
               initialChildSize: initialSize.data!,
               minChildSize: initialSize.data!,
-              maxChildSize: 1,
-              expand: true,
               builder: (co, scrollController) {
                 return Container(
                   color: Colors.white,
@@ -160,7 +156,6 @@ class _ShareBoxState extends State<ShareBox> {
                                       ? ShareBoxGallery(
                                           replyMessageId: widget.replyMessageId,
                                           scrollController: scrollController,
-                                          selectAvatar: false,
                                           pop: () {
                                             Navigator.pop(context);
                                           },
@@ -245,8 +240,7 @@ class _ShareBoxState extends State<ShareBox> {
                                         isIOS) {
                                       if (!await Geolocator
                                           .isLocationServiceEnabled()) {
-                                        const AndroidIntent intent =
-                                            AndroidIntent(
+                                        const intent = AndroidIntent(
                                           action:
                                               'android.settings.LOCATION_SOURCE_SETTINGS',
                                         );
@@ -387,10 +381,10 @@ class _ShareBoxState extends State<ShareBox> {
         });
   }
 
-  isSelected() => finalSelected.values.isNotEmpty;
+  bool isSelected() => finalSelected.values.isNotEmpty;
 
-  liveLocation(I18N i18n, BuildContext context, Position position) {
-    BehaviorSubject<String> time = BehaviorSubject.seeded("10");
+  void liveLocation(I18N i18n, BuildContext context, Position position) {
+    final time = BehaviorSubject<String>.seeded("10");
     showDialog(
         context: context,
         builder: (context) {
@@ -483,7 +477,7 @@ class _ShareBoxState extends State<ShareBox> {
         });
   }
 
-  SettingsTile settingsTile(String data, String t, Function on) {
+  SettingsTile settingsTile(String data, String t, void Function() on) {
     return SettingsTile(
       title: t,
       leading: const Icon(
@@ -496,18 +490,18 @@ class _ShareBoxState extends State<ShareBox> {
               color: Colors.blueAccent,
             )
           : const SizedBox.shrink(),
-      onPressed: (BuildContext context) {
+      onPressed: (context) {
         on();
       },
     );
   }
 }
 
-showCaptionDialog(
+Future<void> showCaptionDialog(
     {String? type,
     List<model.File>? files,
     required Uid roomUid,
-    Function? resetRoomPageDetails,
+    void Function()? resetRoomPageDetails,
     int replyMessageId = 0,
     Message? editableMessage,
     String? caption,

@@ -1,15 +1,15 @@
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/checkbox_form_field.dart';
-import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_text_field_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_list_widget.dart';
+import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_text_field_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/cap_extension.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as proto_pb;
-import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/extensions/cap_extension.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -51,8 +51,8 @@ class _BotFormMessageState extends State<BotFormMessage> {
   @override
   void initState() {
     form = widget.message.json.toForm();
-    for (var field in form.fields) {
-      int index = form.fields.indexOf(field);
+    for (final field in form.fields) {
+      final index = form.fields.indexOf(field);
       switch (field.whichType()) {
         case proto_pb.Form_Field_Type.textField:
         case proto_pb.Form_Field_Type.numberField:
@@ -64,7 +64,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
               formFieldsKey[form.fields[index].id] = key;
             },
             setResult: (value) {
-              setResult(index, value);
+              _setResult(index, value);
             },
           ));
           break;
@@ -72,7 +72,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
           _widgets.add(CheckBoxFormField(
             formField: form.fields[index],
             selected: (value) {
-              setResult(index, value);
+              _setResult(index, value);
             },
           ));
 
@@ -85,7 +85,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
               formFieldsKey[form.fields[index].id] = key;
             },
             selected: (value) {
-              setResult(index, value);
+              _setResult(index, value);
             },
           ));
           break;
@@ -174,7 +174,6 @@ class _BotFormMessageState extends State<BotFormMessage> {
                     color: theme.backgroundColor,
                     borderRadius: secondaryBorder),
                 child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Lottie.asset(
                       "assets/animations/touch.zip",
@@ -212,9 +211,12 @@ class _BotFormMessageState extends State<BotFormMessage> {
             ),
           ),
         ),
-        TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
+        TimeAndSeenStatus(widget.message,
+            isSender: widget.isSender,
+            isSeen: widget.isSeen,
             backgroundColor: widget.colorScheme.primaryContainer,
             needsPositioned: false,
+            needsPadding: true,
             foregroundColor: widget.colorScheme.onPrimaryContainerLowlight()),
       ],
     );
@@ -259,7 +261,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
     return ElevatedButton(
       onPressed: () {
         var validate = true;
-        for (var field in formFieldsKey.values) {
+        for (final field in formFieldsKey.values) {
           if (field.currentState == null || !field.currentState!.validate()) {
             _errorText.add(
                 form.fields[formFieldsKey.values.toList().indexOf(field)].id +
@@ -281,7 +283,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
     );
   }
 
-  void setResult(int index, value) {
+  void _setResult(int index, value) {
     formResultMap[form.fields[index].id] = value;
   }
 }

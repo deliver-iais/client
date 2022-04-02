@@ -19,14 +19,14 @@ class BotTableWidget extends StatelessWidget {
   }
 
   Widget createTable() {
-    var table = message.json.toTable();
-    List<TableRow> rows = [];
-    List<Widget> columns = [];
-    Map<int, TableColumnWidth>? columnWidths = {};
+    final table = message.json.toTable();
+    final rows = <TableRow>[];
+    var columns = <Widget>[];
+    final columnWidths = <int, TableColumnWidth>{};
 
-    for (var row in table.rows) {
+    for (final row in table.rows) {
       columns = [];
-      for (int i = 0; i < row.columns.length; ++i) {
+      for (var i = 0; i < row.columns.length; ++i) {
         columnWidths[i] = FixedColumnWidth(table.columnWidths[i]);
         columns.add(Container(
           margin: const EdgeInsets.all(8),

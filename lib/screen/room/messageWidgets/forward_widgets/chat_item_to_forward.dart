@@ -6,7 +6,7 @@ import 'package:get_it/get_it.dart';
 
 class ChatItemToForward extends StatelessWidget {
   final Uid uid;
-  final Function send;
+  final void Function(Uid) send;
 
   ChatItemToForward({Key? key, required this.uid, required this.send})
       : super(key: key);
@@ -16,7 +16,7 @@ class ChatItemToForward extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
+          padding: const EdgeInsets.symmetric(vertical: 8.0),
           child: SizedBox(
               height: 50,
               child: Row(
@@ -29,9 +29,9 @@ class ChatItemToForward extends StatelessWidget {
                   const SizedBox(
                     width: 12,
                   ),
-                  FutureBuilder(
+                  FutureBuilder<String>(
                       future: _roomRepo.getName(uid),
-                      builder: (BuildContext c, AsyncSnapshot<String> snaps) {
+                      builder: (c, snaps) {
                         if (snaps.hasData && snaps.data != null) {
                           return Text(
                             snaps.data!,

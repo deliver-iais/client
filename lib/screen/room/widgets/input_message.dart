@@ -10,8 +10,8 @@ import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/room/messageWidgets/max_lenght_text_input_formatter.dart';
 import 'package:deliver/screen/room/messageWidgets/custom_text_selection_controller.dart';
+import 'package:deliver/screen/room/messageWidgets/max_lenght_text_input_formatter.dart';
 import 'package:deliver/screen/room/widgets/bot_commands.dart';
 import 'package:deliver/screen/room/widgets/emoji_keybord.dart';
 import 'package:deliver/screen/room/widgets/record_audio_animation.dart';
@@ -22,8 +22,8 @@ import 'package:deliver/screen/room/widgets/show_mention_list.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/ux_service.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/keyboard.dart';
@@ -46,11 +46,11 @@ import 'package:vibration/vibration.dart';
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
   final int replyMessageId;
-  final Function? resetRoomPageDetails;
+  final void Function()? resetRoomPageDetails;
   final bool waitingForForward;
-  final Function? sendForwardMessage;
-  final Function? showMentionList;
-  final Function scrollToLastSentMessage;
+  final void Function()? sendForwardMessage;
+  final void Function()? showMentionList;
+  final void Function() scrollToLastSentMessage;
   final Message? editableMessage;
   final FocusNode focusNode;
   final TextEditingController textController;
@@ -115,13 +115,13 @@ class _InputMessageWidget extends State<InputMessage> {
   int botCommandSelectedIndex = 0;
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
-  var record = Record();
+  final record = Record();
 
   final ValueNotifier<TextDirection> _textDir =
       ValueNotifier(TextDirection.ltr);
 
-  var botCommandRegexp = RegExp(r"([a-zA-Z0-9_])*");
-  var idRegexp = RegExp(r"([a-zA-Z0-9_])*");
+  final botCommandRegexp = RegExp(r"([a-zA-Z0-9_])*");
+  final idRegexp = RegExp(r"([a-zA-Z0-9_])*");
 
   void showButtonSheet() {
     if (isWeb || isDesktop) {
@@ -145,7 +145,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   void initState() {
-    widget.focusNode.onKey = (FocusNode node, RawKeyEvent evt) {
+    widget.focusNode.onKey = (node, evt) {
       return handleKeyPress(evt);
     };
 
@@ -185,7 +185,8 @@ class _InputMessageWidget extends State<InputMessage> {
           widget.textController.selection.start > 0) {
         mentionQuery = "-";
         final str = widget.textController.text;
-        int start = str.lastIndexOf("@", widget.textController.selection.start);
+        final start =
+            str.lastIndexOf("@", widget.textController.selection.start);
 
         if (start == -1) {
           _mentionQuery.add("-");
@@ -265,7 +266,7 @@ class _InputMessageWidget extends State<InputMessage> {
                   return BotCommands(
                     botUid: widget.currentRoom.uid.asUid(),
                     query: _botCommandData,
-                    onCommandClick: (String command) {
+                    onCommandClick: (command) {
                       onCommandClick(command);
                     },
                     botCommandSelectedIndex: botCommandSelectedIndex,
@@ -351,7 +352,6 @@ class _InputMessageWidget extends State<InputMessage> {
                                             counterText: "",
                                             hintText: i18n.get("message"),
                                           ),
-                                          autocorrect: true,
                                           textInputAction:
                                               TextInputAction.newline,
                                           minLines: 1,
@@ -491,9 +491,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                   },
                                   onLongPressStart: (dw) async {
                                     if (recordAudioPermission) {
-                                      var s =
+                                      final s =
                                           await getApplicationDocumentsDirectory();
-                                      String path = s.path +
+                                      final path = s.path +
                                           "/Deliver/${DateTime.now().millisecondsSinceEpoch}.m4a";
                                       recordSubject.add(DateTime.now());
                                       setTime();
@@ -502,8 +502,6 @@ class _InputMessageWidget extends State<InputMessage> {
                                       // Start recording
                                       await record.start(
                                         path: path,
-                                        encoder: AudioEncoder.AAC, // by default
-                                        bitRate: 128000, // by default
                                         samplingRate: 16000, // by default
                                       );
                                       setState(() {
@@ -516,7 +514,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                   },
                                   onLongPressEnd: (s) async {
                                     _tickTimer.cancel();
-                                    var res = await record.stop();
+                                    final res = await record.stop();
 
                                     // _soundRecorder.closeAudioSession();
                                     recordAudioTimer.cancel();
@@ -563,12 +561,12 @@ class _InputMessageWidget extends State<InputMessage> {
                         child: EmojiKeyboard(
                           onTap: (emoji) {
                             if (widget.textController.text.isNotEmpty) {
-                              int start =
+                              final start =
                                   widget.textController.selection.baseOffset;
-                              String block_1 = widget.textController.text
+                              var block_1 = widget.textController.text
                                   .substring(0, start);
                               block_1 = block_1.substring(0, start);
-                              String block_2 = widget.textController.text
+                              final block_2 = widget.textController.text
                                   .substring(
                                       start, widget.textController.text.length);
                               widget.textController.text =
@@ -601,15 +599,15 @@ class _InputMessageWidget extends State<InputMessage> {
     );
   }
 
-  void onMentionSelected(s) {
-    int start = widget.textController.selection.baseOffset;
+  void onMentionSelected(String? s) {
+    final start = widget.textController.selection.baseOffset;
 
-    String block_1 = widget.textController.text.substring(0, start);
-    int indexOf = block_1.lastIndexOf("@");
+    var block_1 = widget.textController.text.substring(0, start);
+    final indexOf = block_1.lastIndexOf("@");
     block_1 = block_1.substring(0, indexOf + 1);
-    String block_2 = widget.textController.text
+    final block_2 = widget.textController.text
         .substring(start, widget.textController.text.length);
-    widget.textController.text = block_1 + s + " " + block_2;
+    widget.textController.text = block_1 + (s ?? "") + " " + block_2;
     widget.textController.selection = TextSelection.fromPosition(TextPosition(
         offset: widget.textController.text.length - block_2.length));
     _mentionQuery.add("-");
@@ -619,7 +617,7 @@ class _InputMessageWidget extends State<InputMessage> {
     }
   }
 
-  onCommandClick(String command) {
+  void onCommandClick(String command) {
     widget.textController.text = "/" + command;
     widget.textController.selection = TextSelection.fromPosition(
         TextPosition(offset: widget.textController.text.length));
@@ -678,10 +676,10 @@ class _InputMessageWidget extends State<InputMessage> {
     return KeyEventResult.ignored;
   }
 
-  _handleCV(RawKeyEvent event) async {
+  Future<void> _handleCV(RawKeyEvent event) async {
     final files = await Pasteboard.files();
     if (files.isEmpty) {
-      ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
+      final data = await Clipboard.getData(Clipboard.kTextPlain);
       widget.textController.text = widget.textController.text + data!.text!;
       widget.textController.selection = TextSelection.fromPosition(
           TextPosition(offset: widget.textController.text.length));
@@ -691,8 +689,8 @@ class _InputMessageWidget extends State<InputMessage> {
     }
   }
 
-  scrollUpInBotCommand() {
-    int length = 0;
+  void scrollUpInBotCommand() {
+    var length = 0;
     if (botCommandSelectedIndex <= 0) {
       _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then((value) => {
             if (value != null)
@@ -706,7 +704,7 @@ class _InputMessageWidget extends State<InputMessage> {
     }
   }
 
-  sendBotCommandByEnter() async {
+  Future<void> sendBotCommandByEnter() async {
     _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then((value) => {
           if (value != null)
             onCommandClick(
@@ -714,18 +712,18 @@ class _InputMessageWidget extends State<InputMessage> {
         });
   }
 
-  sendMentionByEnter() async {
-    var value = await _mucRepo.getFilteredMember(widget.currentRoom.uid,
+  Future<void> sendMentionByEnter() async {
+    final value = await _mucRepo.getFilteredMember(widget.currentRoom.uid,
         query: _mentionData);
     if (value.isNotEmpty) {
-      onMentionSelected(value[mentionSelectedIndex]!.id!);
+      onMentionSelected(value[mentionSelectedIndex]!.id);
     } else {
       sendMessage();
     }
   }
 
-  scrollDownInBotCommand() {
-    int length = 0;
+  void scrollDownInBotCommand() {
+    var length = 0;
     _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then((value) => {
           if (value != null)
             value.commands!.forEach((key, value) {
@@ -738,7 +736,7 @@ class _InputMessageWidget extends State<InputMessage> {
         });
   }
 
-  scrollUpInMentions() {
+  void scrollUpInMentions() {
     if (mentionSelectedIndex <= 0) {
       _mucRepo
           .getFilteredMember(currentRoom.uid, query: _mentionData)
@@ -759,10 +757,10 @@ class _InputMessageWidget extends State<InputMessage> {
       noActivitySubject.add(ActivityType.NO_ACTIVITY);
     }
     if (widget.waitingForForward == true) {
-      widget.sendForwardMessage!()!;
+      widget.sendForwardMessage?.call();
     }
 
-    var text = widget.textController.text.trim();
+    final text = widget.textController.text.trim();
 
     if (text.isNotEmpty) {
       if (widget.replyMessageId > 0) {
@@ -799,21 +797,20 @@ class _InputMessageWidget extends State<InputMessage> {
     });
   }
 
-  opacity() => x < 0.0 ? 1.0 : (dx - x) / dx;
+  double opacity() => x < 0.0 ? 1.0 : (dx - x) / dx;
 
-  _attachFileInWindowsMode() async {
+  Future<void> _attachFileInWindowsMode() async {
     try {
-      List<File> res = [];
+      final res = <File>[];
       if (isLinux) {
         final result = await openFiles();
-        for (var file in result) {
+        for (final file in result) {
           res.add(File(file.path, file.name,
               extension: file.mimeType, size: await file.length()));
         }
       } else {
-        FilePickerResult? result =
-            await FilePicker.platform.pickFiles(allowMultiple: true);
-        for (var file in result!.files) {
+        final result = await FilePicker.platform.pickFiles(allowMultiple: true);
+        for (final file in result!.files) {
           res.add(File(
               isWeb
                   ? Uri.dataFromBytes(file.bytes!.toList()).toString()
@@ -837,7 +834,7 @@ class _InputMessageWidget extends State<InputMessage> {
     });
   }
 
-  showCaptionDialog(
+  Future<void> showCaptionDialog(
       {IconData? icons, String? type, required List<File> files}) async {
     if (files.isEmpty) return;
 
@@ -856,7 +853,7 @@ class _InputMessageWidget extends State<InputMessage> {
         });
   }
 
-  scrollDownInMentions() {
+  void scrollDownInMentions() {
     _mucRepo
         .getFilteredMember(currentRoom.uid, query: _mentionData)
         .then((value) => {
@@ -868,7 +865,7 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   String getEditableMessageContent() {
-    String text = "";
+    var text = "";
     // ignore: missing_enum_constant_in_switch
     switch (widget.editableMessage!.type) {
       case MessageType.TEXT:

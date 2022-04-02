@@ -30,7 +30,7 @@ class _CenterAvatarInCallState extends State<CenterAvatarInCall> {
             child: Column(children: [
               StreamBuilder<Object>(
                   stream: _avatarRepo.getLastAvatarFilePathStream(
-                      widget.roomUid, false),
+                      widget.roomUid),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
                       return CircleAvatarWidget(widget.roomUid, 60);

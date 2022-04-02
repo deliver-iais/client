@@ -19,7 +19,7 @@ class MusicAndAudioUi extends StatefulWidget {
   final Uid roomUid;
   final int mediaCount;
   final MediaType type;
-  final Function addSelectedMedia;
+  final void Function(Media) addSelectedMedia;
   final List<Media> selectedMedia;
 
   const MusicAndAudioUi(
@@ -50,14 +50,15 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
               future: _getMedia(index),
               builder: (c, snapShot) {
                 if (snapShot.hasData && snapShot.data != null) {
-                  var fileId = jsonDecode(snapShot.data!.json)["uuid"];
-                  var fileName = jsonDecode(snapShot.data!.json)["name"];
-                  var dur = jsonDecode(snapShot.data!.json)["duration"];
+                  final json = jsonDecode(snapShot.data!.json) as Map;
+                  final fileId = json["uuid"];
+                  final fileName = json["name"];
+                  final dur = json["duration"];
                   return GestureDetector(
                     onLongPress: () => widget.addSelectedMedia(snapShot.data!),
                     onTap: () => widget.addSelectedMedia(snapShot.data!),
                     child: Container(
-                      color: widget.selectedMedia.contains(snapShot.data!)
+                      color: widget.selectedMedia.contains(snapShot.data)
                           ? theme.hoverColor.withOpacity(0.4)
                           : theme.backgroundColor,
                       child: FutureBuilder<String?>(
@@ -95,8 +96,7 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                             MusicPlayProgress(
                                               audioUuid: fileId,
                                               duration:
-                                                  double.parse(dur.toString())
-                                                      .toDouble(),
+                                                  double.parse(dur.toString()),
                                             ),
                                           ],
                                         ),
@@ -141,9 +141,8 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                               ),
                                               MusicPlayProgress(
                                                 audioUuid: fileId,
-                                                duration:
-                                                    double.parse(dur.toString())
-                                                        .toDouble(),
+                                                duration: double.parse(
+                                                    dur.toString()),
                                               ),
                                             ],
                                           ),
@@ -172,11 +171,11 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
         _mediaCache.values.toList().length >= index) {
       return _mediaCache.values.toList().elementAt(index);
     } else {
-      int page = (index / MEDIA_PAGE_SIZE).floor();
-      var res = await _mediaQueryRepo.getMediaPage(
+      final page = (index / MEDIA_PAGE_SIZE).floor();
+      final res = await _mediaQueryRepo.getMediaPage(
           widget.roomUid.asString(), widget.type, page, index);
       if (res != null) {
-        for (Media media in res) {
+        for (final media in res) {
           _mediaCache[media.messageId] = media;
         }
       }

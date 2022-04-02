@@ -41,7 +41,10 @@ class MessageWrapper extends StatelessWidget {
         Container(
           clipBehavior: Clip.hardEdge,
           margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 2)
-              .copyWith(top: isFirstMessageInGroupedMessages ? (isSender ? 16 : 0) : 2),
+              .copyWith(
+                  top: isFirstMessageInGroupedMessages
+                      ? (isSender ? 16 : 0)
+                      : 2),
           decoration: BoxDecoration(
             borderRadius: border,
             color: color,
@@ -77,24 +80,21 @@ class OPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    var paint = Paint()..color = color;
+    final paint = Paint()..color = color;
 
-    var path = Path();
+    final path = Path();
 
     final x = size.width;
     final y = size.height;
 
-    path.moveTo(x, 0);
-
-    path.moveTo(0, 0);
-
-    path.arcToPoint(
-      Offset(x, y),
-      radius: Radius.circular(y * 2),
-      clockwise: true,
-    );
-
-    path.lineTo(x, 0);
+    path
+      ..moveTo(x, 0)
+      ..moveTo(0, 0)
+      ..arcToPoint(
+        Offset(x, y),
+        radius: Radius.circular(y * 2),
+      )
+      ..lineTo(x, 0);
 
     canvas.drawPath(path, paint);
   }

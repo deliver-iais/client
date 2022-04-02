@@ -33,10 +33,10 @@ class LinkPreview extends StatelessWidget {
 
   Future<Metadata> _fetchFromHTML(String url) async {
     // Makes a call
-    var response = await http.get(Uri.parse(url));
+    final response = await http.get(Uri.parse(url));
 
     // Covert Response to a Document. The utility function `responseToDocument` is provided or you can use own decoder/parser.
-    var document = MetadataFetch.responseToDocument(response);
+    final document = MetadataFetch.responseToDocument(response);
 
     // Get Html metadata
     return MetadataParser.twitterCard(document);

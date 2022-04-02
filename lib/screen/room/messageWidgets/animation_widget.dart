@@ -28,7 +28,7 @@ class AnimatedEmoji extends StatefulWidget {
       required this.colorScheme})
       : super(key: key);
 
-  static isAnimatedEmoji(Message message) {
+  static bool isAnimatedEmoji(Message message) {
     if (message.type != MessageType.TEXT) return false;
     final content = message.json.toText().text;
 
@@ -88,10 +88,10 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
   }
 
   Future<LottieComposition?> _loadComposition() async {
-    var assetData = await rootBundle.load(getPath());
-    Uint8List bytes = assetData.buffer.asUint8List();
+    final assetData = await rootBundle.load(getPath());
+    var bytes = assetData.buffer.asUint8List();
     bytes = GZipCodec().decode(bytes) as Uint8List;
-    return await LottieComposition.fromBytes(bytes);
+    return LottieComposition.fromBytes(bytes);
   }
 
   @override
@@ -110,7 +110,7 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
         FutureBuilder<LottieComposition?>(
             future: _composition,
             builder: (context, snapshot) {
-              var composition = snapshot.data;
+              final composition = snapshot.data;
               if (composition != null) {
                 _controller
                   ..duration = composition.duration
@@ -136,8 +136,11 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
             borderRadius: mainBorder,
             color: widget.colorScheme.primaryContainer,
           ),
-          child: TimeAndSeenStatus(widget.message, isSender, widget.isSeen,
+          child: TimeAndSeenStatus(widget.message,
+              isSender: isSender,
+              isSeen: widget.isSeen,
               needsPositioned: false,
+              needsPadding: true,
               foregroundColor: widget.colorScheme.onPrimaryContainerLowlight()),
         ),
       ],

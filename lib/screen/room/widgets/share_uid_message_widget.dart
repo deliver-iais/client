@@ -1,18 +1,17 @@
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/services/routing_service.dart';
-
-import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
+import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 
 class ShareUidMessageWidget extends StatelessWidget {
   final Message message;
@@ -35,7 +34,7 @@ class ShareUidMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var _shareUid = message.json.toShareUid();
+    final _shareUid = message.json.toShareUid();
     return Padding(
       padding: const EdgeInsets.only(top: 4.0, bottom: 2.0, left: 4, right: 4),
       child: Column(
@@ -81,7 +80,7 @@ class ShareUidMessageWidget extends StatelessWidget {
             onPressed: () async {
               if ((_shareUid.uid.category == Categories.GROUP ||
                   _shareUid.uid.category == Categories.CHANNEL)) {
-                var muc = await _mucRepo.getMuc(_shareUid.uid.asString());
+                final muc = await _mucRepo.getMuc(_shareUid.uid.asString());
                 if (muc != null) {
                   _routingServices.openRoom(_shareUid.uid.asString());
                 } else {
@@ -112,12 +111,12 @@ class ShareUidMessageWidget extends StatelessWidget {
                                             Categories.GROUP ||
                                         _shareUid.uid.category ==
                                             Categories.CHANNEL)) {
-                                      var muc = await _mucRepo
+                                      final muc = await _mucRepo
                                           .getMuc(_shareUid.uid.asString());
                                       if (muc == null) {
                                         if (_shareUid.uid.category ==
                                             Categories.GROUP) {
-                                          var res = await _mucRepo.joinGroup(
+                                          final res = await _mucRepo.joinGroup(
                                               _shareUid.uid,
                                               _shareUid.joinToken);
                                           if (res != null) {
@@ -129,9 +128,10 @@ class ShareUidMessageWidget extends StatelessWidget {
                                             Navigator.of(context).pop();
                                           }
                                         } else {
-                                          var res = await _mucRepo.joinChannel(
-                                              _shareUid.uid,
-                                              _shareUid.joinToken);
+                                          final res =
+                                              await _mucRepo.joinChannel(
+                                                  _shareUid.uid,
+                                                  _shareUid.joinToken);
                                           if (res != null) {
                                             _messageRepo.updateNewMuc(
                                                 _shareUid.uid,
@@ -163,9 +163,10 @@ class ShareUidMessageWidget extends StatelessWidget {
               }
             },
           ),
-          TimeAndSeenStatus(message, isSender, isSeen,
+          TimeAndSeenStatus(message,
+              isSender: isSender,
+              isSeen: isSeen,
               needsPositioned: false,
-              needsPadding: false,
               backgroundColor: colorScheme.primaryContainer,
               foregroundColor: colorScheme.onPrimaryContainerLowlight()),
         ],

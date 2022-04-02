@@ -138,16 +138,16 @@ class _CupertinoTextSelectionControlsToolbarState
     // Don't render the menu until the state of the clipboard is known.
     if (widget.handlePaste != null &&
         _clipboardStatus!.value == ClipboardStatus.unknown) {
-      return const SizedBox(width: 0.0, height: 0.0);
+      return const SizedBox.shrink();
     }
 
     assert(debugCheckHasMediaQuery(context));
-    final MediaQueryData mediaQuery = MediaQuery.of(context);
+    final mediaQuery = MediaQuery.of(context);
 
     // The toolbar should appear below the TextField when there is not enough
     // space above the TextField to show it, assuming there's always enough
     // space at the bottom in this case.
-    final double anchorX =
+    final anchorX =
         (widget.selectionMidpoint.dx + widget.globalEditableRegion.left).clamp(
       _kArrowScreenPadding + mediaQuery.padding.left,
       mediaQuery.size.width - mediaQuery.padding.right - _kArrowScreenPadding,
@@ -157,19 +157,19 @@ class _CupertinoTextSelectionControlsToolbarState
     // selectionMidpoint.dy, since the caller
     // (TextSelectionOverlay._buildToolbar) does not know whether the toolbar is
     // going to be facing up or down.
-    final Offset anchorAbove = Offset(
+    final anchorAbove = Offset(
       anchorX,
       widget.endpoints.first.point.dy -
           widget.textLineHeight +
           widget.globalEditableRegion.top,
     );
-    final Offset anchorBelow = Offset(
+    final anchorBelow = Offset(
       anchorX,
       widget.endpoints.last.point.dy + widget.globalEditableRegion.top,
     );
 
-    final List<Widget> items = <Widget>[];
-    final CupertinoLocalizations localizations =
+    final items = <Widget>[];
+    final localizations =
         CupertinoLocalizations.of(context);
     final Widget onePhysicalPixelVerticalDivider =
         SizedBox(width: 1.0 / MediaQuery.of(context).devicePixelRatio);
@@ -204,7 +204,7 @@ class _CupertinoTextSelectionControlsToolbarState
 
     // If there is no option available, build an empty widget.
     if (items.isEmpty) {
-      return const SizedBox(width: 0.0, height: 0.0);
+      return const SizedBox.shrink();
     }
     return CupertinoTextSelectionToolbar(
       anchorAbove: anchorAbove,

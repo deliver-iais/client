@@ -1,11 +1,11 @@
-import 'package:deliver/shared/constants.dart';
-import 'package:deliver/theme/color_scheme.dart';
-import 'package:get_it/get_it.dart';
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
-import 'package:flutter/material.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/theme/color_scheme.dart';
+import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class FormResultWidget extends StatefulWidget {
   final Message message;
@@ -30,7 +30,7 @@ class _FormResultWidgetState extends State<FormResultWidget> {
 
   @override
   Widget build(BuildContext context) {
-    var formResult = widget.message.json.toFormResult();
+    final formResult = widget.message.json.toFormResult();
 
     return PageStorage(
       bucket: PageStorage.of(context)!,
@@ -78,8 +78,9 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                     )),
                 TimeAndSeenStatus(
                   widget.message,
-                  widget.isSender,
-                  widget.isSeen,
+                  isSender: widget.isSender,
+                  isSeen: widget.isSeen,
+                  needsPadding: true,
                   needsPositioned: false,
                   foregroundColor: widget.colorScheme.onPrimaryContainer,
                 ),

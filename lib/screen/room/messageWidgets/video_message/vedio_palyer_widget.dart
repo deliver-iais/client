@@ -27,7 +27,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     super.initState();
   }
 
-  _init() async {
+  Future<void> _init() async {
     _controller = isWeb
         ? VideoPlayerController.network(widget.videoFilePath)
         : VideoPlayerController.file(File(widget.videoFilePath));

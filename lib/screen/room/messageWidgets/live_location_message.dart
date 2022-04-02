@@ -1,17 +1,17 @@
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/livelocation.dart' as box;
 import 'package:deliver/box/message.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 
 class LiveLocationMessageWidget extends StatefulWidget {
@@ -21,10 +21,10 @@ class LiveLocationMessageWidget extends StatefulWidget {
   final CustomColorScheme colorScheme;
 
   const LiveLocationMessageWidget(
-    this.message,
-    this.isSeen,
-    this.isSender, {
+    this.message, {
     Key? key,
+    required this.isSender,
+    required this.isSeen,
     required this.colorScheme,
   }) : super(key: key);
 
@@ -84,8 +84,6 @@ class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
               MarkerLayerOptions(
                 markers: [
                   Marker(
-                    width: 30.0,
-                    height: 30.0,
                     point: LatLng(location.latitude, location.longitude),
                     builder: (ctx) =>
                         CircleAvatarWidget(widget.message.from.asUid(), 20),
@@ -105,7 +103,6 @@ class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
             ),
             CircularPercentIndicator(
               radius: 40.0,
-              lineWidth: 5.0,
               percent: 1.0,
               center: Text(Duration(milliseconds: duration).toString()),
               progressColor: Colors.blueAccent,
@@ -114,8 +111,9 @@ class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
         ),
         TimeAndSeenStatus(
           widget.message,
-          widget.isSender,
-          widget.isSeen,
+          isSender: widget.isSender,
+          isSeen: widget.isSeen,
+          needsPadding: true,
           backgroundColor: widget.colorScheme.primaryContainer,
           foregroundColor: widget.colorScheme.onPrimaryContainerLowlight(),
         ),

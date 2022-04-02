@@ -107,7 +107,6 @@ class Slide {
     EdgeInsets? marginDescription,
 
     // Background color
-    Color? backgroundColor,
     Color? colorBegin,
     Color? colorEnd,
     AlignmentGeometry? directionColorBegin,
@@ -145,7 +144,6 @@ class Slide {
     this.marginDescription = marginDescription;
 
     // Background color
-    this.backgroundColor = Colors.transparent;
     this.colorBegin = colorBegin;
     this.colorEnd = colorEnd;
     this.directionColorBegin = directionColorBegin;

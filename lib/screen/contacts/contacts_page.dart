@@ -43,7 +43,7 @@ class _ContactsPageState extends State<ContactsPage> {
     super.dispose();
   }
 
-  _syncContacts() {
+  void _syncContacts() {
     SyncContact().showSyncContactDialog(context);
   }
 
@@ -61,9 +61,9 @@ class _ContactsPageState extends State<ContactsPage> {
         showStandardContainer: true,
         child: StreamBuilder<List<Contact>>(
             stream: _contactRepo.watchAll(),
-            builder: (BuildContext context,
-                AsyncSnapshot<List<Contact>> snapshot) {
-              List<Contact> contacts = snapshot.data ?? [];
+            builder:
+                (context, snapshot) {
+              final contacts = snapshot.data ?? [];
               if (!snapshot.hasData) {
                 return const Center(
                   child: CircularProgressIndicator(),
@@ -85,7 +85,7 @@ class _ContactsPageState extends State<ContactsPage> {
                           builder: (context, sna) {
                             return ListView.separated(
                               separatorBuilder:
-                                  (BuildContext context, int index) {
+                                  (context, index) {
                                 if (_authRepo
                                         .isCurrentUser(contacts[index].uid) ||
                                     searchHasResult(contacts[index])) {
@@ -95,8 +95,8 @@ class _ContactsPageState extends State<ContactsPage> {
                                 }
                               },
                               itemCount: snapshot.data!.length,
-                              itemBuilder: (BuildContext ctx, int index) {
-                                var c = contacts[index];
+                              itemBuilder: (ctx, index) {
+                                final c = contacts[index];
                                 if (searchHasResult(c)) {
                                   return const SizedBox.shrink();
                                 }
@@ -146,7 +146,7 @@ class _ContactsPageState extends State<ContactsPage> {
   }
 
   bool searchHasResult(Contact contact) {
-    var name = contact.firstName! + contact.lastName!;
+    final name = contact.firstName! + contact.lastName!;
     return !name
         .toLowerCase()
         .contains(_queryTermDebouncedSubject.value.toLowerCase());

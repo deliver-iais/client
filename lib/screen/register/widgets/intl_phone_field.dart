@@ -2,8 +2,8 @@ library intl_phone_field;
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
-import 'package:flutter/material.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 
@@ -161,7 +161,7 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
             obscureText: widget.obscureText,
             textAlign: widget.textAlign,
             onTap: () {
-              if (widget.onTap != null) widget.onTap!();
+              widget.onTap?.call();
             },
             controller: widget.controller,
             focusNode: widget.focusNode,

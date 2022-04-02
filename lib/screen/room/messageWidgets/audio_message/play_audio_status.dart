@@ -50,8 +50,7 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
                           uuid.data.toString().isNotEmpty &&
                           uuid.data.toString().contains(widget.fileId)) {
                         return IconButton(
-                          padding: const EdgeInsets.all(0),
-                          alignment: Alignment.center,
+                          padding: EdgeInsets.zero,
                           icon: Icon(
                             Icons.pause,
                             color: widget.foregroundColor,
@@ -76,7 +75,6 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
   IconButton buildPlay(BuildContext context, String audioPath) {
     return IconButton(
         padding: EdgeInsets.zero,
-        alignment: Alignment.center,
         icon: Icon(
           Icons.play_arrow,
           color: widget.foregroundColor,

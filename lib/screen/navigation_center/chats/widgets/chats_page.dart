@@ -42,18 +42,18 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   final _i18n = GetIt.I.get<I18N>();
   final _controller = AnimatedListController();
 
-  void _showCustomMenu(BuildContext context, Room room, bool canPin) {
+  void _showCustomMenu(BuildContext context, Room room, bool canBePinned) {
     this.showMenu(context: context, items: <PopupMenuEntry<OperationOnRoom>>[
       OperationOnRoomEntry(
         room: room,
         isPinned: room.pinned,
       )
-    ]).then<void>((OperationOnRoom? opr) async {
+    ]).then<void>((opr) async {
       if (opr == null) return;
       // ignore: missing_enum_constant_in_switch
       switch (opr) {
         case OperationOnRoom.PIN_ROOM:
-          onPin(room, canPin);
+          onPin(room, canBePinned: canBePinned);
           break;
         case OperationOnRoom.UN_PIN_ROOM:
           onUnPin(room);
@@ -63,11 +63,11 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   }
 
   void onUnPin(Room room) {
-    _roomDao.updateRoom(Room(uid: room.uid, pinned: false));
+    _roomDao.updateRoom(Room(uid: room.uid));
   }
 
-  void onPin(Room room, bool canPin) {
-    if (canPin) {
+  void onPin(Room room, {bool canBePinned = false}) {
+    if (canBePinned) {
       _roomDao.updateRoom(Room(uid: room.uid, pinned: true));
     } else {
       showDialog(
@@ -79,7 +79,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                 TextButton(
                     child: Text(_i18n.get("ok")),
                     onPressed: () {
-                     Navigator.of(context).pop();
+                      Navigator.of(context).pop();
                     }),
               ],
             );
@@ -94,10 +94,10 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
         builder: (context, snapshot) {
           return StreamBuilder(
             stream: _routingService.currentRouteStream,
-            builder: (BuildContext c, AsyncSnapshot<Object> s) {
+            builder: (c, s) {
               if (snapshot.hasData) {
-                var rooms = snapshot.data!.toList();
-                rearangChatItem(rooms);
+                final rooms = snapshot.data!.toList();
+                rearrangeChatItem(rooms);
                 return PageStorage(
                   bucket: PageStorage.of(context)!,
                   child: Scrollbar(
@@ -122,8 +122,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                                     b.lastUpdatedMessageId &&
                                 a.lastUpdateTime == b.lastUpdateTime &&
                                 a.draft == b.draft),
-                        itemBuilder: (BuildContext ctx, Room room,
-                            AnimatedWidgetBuilderData data) {
+                        itemBuilder: (ctx, room, data) {
                           return GestureDetector(
                             behavior: HitTestBehavior.translucent,
                             child: ChatItem(
@@ -136,7 +135,8 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                             },
                             onLongPress: () {
                               //ToDo new design for android
-                              _showCustomMenu(context, room, canPin(rooms));
+                              _showCustomMenu(
+                                  context, room, canBePinned(rooms));
                             },
                             onTapDown: storePosition,
                             onSecondaryTapDown: storePosition,
@@ -144,7 +144,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                                 ? null
                                 : () {
                                     _showCustomMenu(
-                                        context, room, canPin(rooms));
+                                        context, room, canBePinned(rooms));
                                   },
                           );
                         }),
@@ -158,17 +158,16 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
         });
   }
 
-  bool canPin(List<Room> rooms) {
-    return rooms.where((element) => element.pinned).toList().length < 5
-        ? true
-        : false;
+  bool canBePinned(List<Room> rooms) {
+    return rooms.where((element) => element.pinned).toList().length < 5;
   }
 
-  void rearangChatItem(List<Room> rooms) {
-    for (var room in rooms) {
+  void rearrangeChatItem(List<Room> rooms) {
+    for (final room in rooms) {
       if (room.pinned == true) {
-        rooms.remove(room);
-        rooms.insert(0, room);
+        rooms
+          ..remove(room)
+          ..insert(0, room);
       }
     }
   }

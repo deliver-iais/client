@@ -1,9 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
+import 'package:flutter/material.dart';
 
 class CheckBoxFormField extends StatefulWidget {
   final form_pb.Form_Field formField;
-  final Function selected;
+  final void Function(String) selected;
 
   const CheckBoxFormField(
       {Key? key, required this.formField, required this.selected})

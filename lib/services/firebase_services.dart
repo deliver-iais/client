@@ -1,31 +1,24 @@
 import 'dart:convert';
 
-
 import 'package:deliver/box/dao/shared_dao.dart';
-
 import 'package:deliver/main.dart';
-
 import 'package:deliver/services/data_stream_services.dart';
-
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/web_classes/js.dart'
+    if (dart.library.html) 'package:js/js.dart' as js;
 import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as pb_seen;
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-
 import 'package:get_it/get_it.dart';
-import 'package:deliver/web_classes/js.dart'
-    if (dart.library.html) 'package:js/js.dart' as js;
-
 import 'package:logger/logger.dart';
 
-import 'package:deliver/shared/extensions/uid_extension.dart';
-
 @js.JS('decodeMessageForCallFromJs')
-external set _decodeMessageForCallFromJs(void Function(dynamic s) f);
+external set _decodeMessageForCallFromJs(Function f);
 
 class FireBaseServices {
   final _logger = GetIt.I.get<Logger>();
@@ -35,8 +28,8 @@ class FireBaseServices {
   final List<String> _requestedRoom = [];
 
   Future<Map<String, String>> _decodeMessageForWebNotification(
-      dynamic notification) async {
-    Map<String, String> res = {};
+      notification) async {
+    final res = <String, String>{};
 
     await _backgroundRemoteMessageHandler(notification);
 
@@ -48,20 +41,20 @@ class FireBaseServices {
 
   late FirebaseMessaging _firebaseMessaging;
 
-  sendFireBaseToken() async {
+  Future<void> sendFireBaseToken() async {
     if (!isDesktop || isWeb) {
       _firebaseMessaging = FirebaseMessaging.instance;
       await _firebaseMessaging.requestPermission();
       await _setFirebaseSetting();
-      _sendFireBaseToken(await _firebaseMessaging.getToken());
+      _sendFirebaseToken(await _firebaseMessaging.getToken());
     }
   }
 
-  deleteToken() {
+  void deleteToken() {
     _firebaseMessaging.deleteToken();
   }
 
-  _sendFireBaseToken(String? fireBaseToken) async {
+  Future<void> _sendFirebaseToken(String? fireBaseToken) async {
     try {
       if (!await _sharedDao.getBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET)) {
         try {
@@ -77,7 +70,7 @@ class FireBaseServices {
     }
   }
 
-  _setFirebaseSetting() async {
+  Future<void> _setFirebaseSetting() async {
     try {
       if (isWeb) {
         // For web register in  firebase-messaging-sw.js in web folder.
@@ -98,7 +91,7 @@ class FireBaseServices {
     }
   }
 
-  void sendGlitchReportForFirebaseNotification(String roomUid) async {
+  Future<void> sendGlitchReportForFirebaseNotification(String roomUid) async {
     if (!_requestedRoom.contains(roomUid)) {
       try {
         await _queryServicesClient.sendGlitch(SendGlitchReq()
@@ -115,7 +108,7 @@ class FireBaseServices {
 
 message_pb.Message _decodeMessage(String notificationBody) {
   final dataTitle64 = base64.decode(notificationBody);
-  message_pb.Message m = message_pb.Message.fromBuffer(dataTitle64);
+  final m = message_pb.Message.fromBuffer(dataTitle64);
   return m;
 }
 
@@ -125,7 +118,7 @@ Future<void> _backgroundRemoteMessageHandler(
     try {
       await setupDI();
 
-      message_pb.Message msg = _decodeMessage(remoteMessage.data["body"]);
+      final msg = _decodeMessage(remoteMessage.data["body"]);
 
       String? roomName = remoteMessage.data['title'];
       if ((roomName ?? "").trim().isEmpty) {
@@ -142,7 +135,7 @@ Future<void> _backgroundRemoteMessageHandler(
     try {
       await setupDI();
 
-      pb_seen.Seen seen =
+      final seen =
           pb_seen.Seen.fromBuffer(base64.decode(remoteMessage.data["seen"]));
 
       return await GetIt.I.get<DataStreamServices>().handleSeen(seen);

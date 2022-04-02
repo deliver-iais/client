@@ -14,7 +14,6 @@ class SettingsTile extends StatelessWidget {
   final Widget? trailing;
   final Icon? iosChevron;
   final EdgeInsetsGeometry? iosChevronPadding;
-  final VoidCallback? onTap;
   final Function(BuildContext context)? onPressed;
   final Function(bool value)? onToggle;
   final bool? switchValue;
@@ -34,7 +33,6 @@ class SettingsTile extends StatelessWidget {
     this.trailing,
     this.iosChevron = defaultCupertinoForwardIcon,
     this.iosChevronPadding = defaultCupertinoForwardPadding,
-    @Deprecated('Use onPressed instead') this.onTap,
     this.titleTextStyle,
     this.subtitleTextStyle,
     this.enabled = true,
@@ -62,7 +60,6 @@ class SettingsTile extends StatelessWidget {
     this.subtitleTextStyle,
     this.switchActiveColor,
   })  : _tileType = _SettingsTileType.switchTile,
-        onTap = null,
         onPressed = null,
         iosChevron = null,
         iosChevronPadding = null,
@@ -99,7 +96,6 @@ class SettingsTile extends StatelessWidget {
         trailing: trailing,
         iosChevron: iosChevron,
         iosChevronPadding: iosChevronPadding,
-        hasDetails: false,
         leading: leading,
         onPress: onTapFunction(context) as void Function()?,
         labelTextStyle: titleTextStyle,
@@ -109,14 +105,9 @@ class SettingsTile extends StatelessWidget {
     }
   }
 
-  Function? onTapFunction(BuildContext context) =>
-      onTap != null || onPressed != null
-          ? () {
-              if (onPressed != null) {
-                onPressed!.call(context);
-              } else {
-                onTap!.call();
-              }
-            }
-          : null;
+  Function? onTapFunction(BuildContext context) => onPressed != null
+      ? () {
+          onPressed?.call(context);
+        }
+      : null;
 }

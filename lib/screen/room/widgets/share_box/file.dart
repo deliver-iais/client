@@ -9,10 +9,10 @@ import 'package:get_it/get_it.dart';
 
 class ShareBoxFile extends StatefulWidget {
   final ScrollController scrollController;
-  final Function onClick;
+  final void Function(int, String) onClick;
   final Map<int, bool> selectedFiles;
   final Uid roomUid;
-  final Function resetRoomPageDetails;
+  final void Function() resetRoomPageDetails;
   final int replyMessageId;
 
   const ShareBoxFile(
@@ -76,7 +76,7 @@ class _ShareBoxFileState extends State<ShareBoxFile> {
                             ],
                           ),
                           onTap: () async {
-                            FilePickerResult? result = await FilePicker.platform
+                            final result = await FilePicker.platform
                                 .pickFiles(allowMultiple: true);
                             if (result != null && result.files.isNotEmpty) {
                               showCaptionDialog(
@@ -96,15 +96,13 @@ class _ShareBoxFileState extends State<ShareBoxFile> {
                         ),
                       );
                     } else {
-                      var fileItem = files.data![index - 1];
-                      var selected = widget.selectedFiles[index - 1] ?? false;
+                      final fileItem = files.data![index - 1];
+                      final selected = widget.selectedFiles[index - 1] ?? false;
 
                       return GestureDetector(
                         child: Container(
                           color: selected ? Colors.black12 : Colors.white,
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: <Widget>[
                               IconButton(
                                 icon: const Icon(

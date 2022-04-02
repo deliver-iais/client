@@ -1,9 +1,9 @@
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -25,7 +25,7 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    var sharePrivateDataAcceptance =
+    final sharePrivateDataAcceptance =
         message.json.toSharePrivateDataAcceptance();
 
     return Row(
@@ -57,8 +57,11 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
             ],
           ),
         ),
-        TimeAndSeenStatus(message, isSender, isSeen,
+        TimeAndSeenStatus(message,
+            isSender: isSender,
+            isSeen: isSeen,
             needsPositioned: false,
+            needsPadding: true,
             backgroundColor: colorScheme.primaryContainer,
             foregroundColor: colorScheme.onPrimaryContainerLowlight()),
       ],

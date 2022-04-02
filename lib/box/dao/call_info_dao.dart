@@ -14,14 +14,14 @@ abstract class CallInfoDao {
 class CallInfoDaoImpl implements CallInfoDao {
   @override
   Future<List<CallInfo>> getAll() async {
-    var box = await _open();
+    final box = await _open();
 
     return box.values.toList();
   }
 
   @override
   Future<void> save(CallInfo callList) async {
-    var box = await _open();
+    final box = await _open();
 
     return box.put(callList.callEvent.id, callList);
   }
@@ -35,7 +35,7 @@ class CallInfoDaoImpl implements CallInfoDao {
 
   @override
   Stream<List<CallInfo>> watchAllCalls() async* {
-    var box = await _open();
+    final box = await _open();
 
     yield box.values.toList();
   }

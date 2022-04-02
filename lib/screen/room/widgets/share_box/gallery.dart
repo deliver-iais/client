@@ -17,21 +17,20 @@ import 'helper_classes.dart';
 
 class ShareBoxGallery extends StatefulWidget {
   final ScrollController scrollController;
-  final Function? setAvatar;
-  final bool selectAvatar;
   final Uid roomUid;
-  final Function pop;
   final int replyMessageId;
-  final Function? resetRoomPageDetails;
+  final void Function() pop;
+  final void Function(String)? setAvatar;
+  final void Function()? resetRoomPageDetails;
 
   const ShareBoxGallery(
       {Key? key,
-      required this.selectAvatar,
       required this.scrollController,
-      this.setAvatar,
       required this.pop,
       required this.roomUid,
-      this.replyMessageId = 0, this.resetRoomPageDetails})
+      this.setAvatar,
+      this.replyMessageId = 0,
+      this.resetRoomPageDetails})
       : super(key: key);
 
   @override
@@ -63,7 +62,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
     super.initState();
   }
 
-  _initCamera() async {
+  Future<void> _initCamera() async {
     _cameras = await availableCameras();
     if (_cameras.isNotEmpty) {
       _controller = CameraController(_cameras[0], ResolutionPreset.max);
@@ -108,8 +107,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2),
                   itemBuilder: (co, index) {
-                    StorageFile? folder =
-                        index > 0 ? folders.data![index - 1] : null;
+                    final folder = index > 0 ? folders.data![index - 1] : null;
                     if (index <= 0) {
                       return Container(
                         width: 50,
@@ -143,12 +141,11 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                 folder!,
                                 widget.roomUid,
                                 () {
-                                  if (!widget.selectAvatar) {
+                                  if (widget.setAvatar == null) {
                                     widget.pop();
                                   }
                                   Navigator.pop(context);
                                 },
-                                selectAvatar: widget.selectAvatar,
                                 setAvatar: widget.setAvatar,
                                 replyMessageId: widget.replyMessageId,
                                 resetRoomPageDetails:
@@ -203,7 +200,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
     );
   }
 
-  void openCamera(Function pop) {
+  void openCamera(void Function() pop) {
     Navigator.push(context, MaterialPageRoute(builder: (c) {
       return Scaffold(
           body: Stack(
@@ -221,8 +218,8 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
               padding: const EdgeInsets.only(bottom: 20, right: 15),
               child: IconButton(
                 onPressed: () async {
-                  XFile file = await _controller.takePicture();
-                  if (widget.selectAvatar) {
+                  final file = await _controller.takePicture();
+                  if (widget.setAvatar != null) {
                     widget.pop();
                     Navigator.pop(context);
                     widget.setAvatar!(file.path);
@@ -264,8 +261,8 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
     }));
   }
 
-  void openImage(XFile file, Function pop) {
-    String imagePath = file.path;
+  void openImage(XFile file, void Function() pop) {
+    var imagePath = file.path;
     Navigator.push(context, MaterialPageRoute(builder: (c) {
       return StatefulBuilder(builder: (con, set) {
         return Scaffold(
@@ -277,11 +274,9 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                       onPressed: () async {
                         Navigator.push(context, MaterialPageRoute(builder: (c) {
                           return CropImage(imagePath, (path) {
-                            if (path != null) {
-                              set(() {
-                                imagePath = path;
-                              });
-                            }
+                            set(() {
+                              imagePath = path;
+                            });
                           });
                         }));
                       },
@@ -334,7 +329,7 @@ Stack buildInputCaption(
     required I18N i18n,
     required TextEditingController captionEditingController,
     required BuildContext context,
-    required Function send,
+    required void Function() send,
     required int count}) {
   final theme = Theme.of(context);
   return Stack(
@@ -374,7 +369,6 @@ Stack buildInputCaption(
                     const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
               ),
               style: const TextStyle(color: Colors.black, fontSize: 17),
-              autocorrect: true,
               textInputAction: TextInputAction.newline,
               minLines: 1,
               maxLines: 15,
@@ -391,7 +385,7 @@ Stack buildInputCaption(
           children: <Widget>[
             Container(
               decoration: const BoxDecoration(
-                boxShadow: [BoxShadow(blurRadius: 20.0, spreadRadius: 0.0)],
+                boxShadow: [BoxShadow(blurRadius: 20.0)],
                 shape: BoxShape.circle,
               ),
               child: StreamBuilder<bool>(

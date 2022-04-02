@@ -4,13 +4,13 @@ import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:rxdart/rxdart.dart';
 
 class MucInfoDeterminationPage extends StatefulWidget {
@@ -51,7 +51,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
   }
 
   Future<bool> checkChannelD(String id) async {
-    var res = await _mucRepo.channelIdIsAvailable(id);
+    final res = await _mucRepo.channelIdIsAvailable(id);
     if (res) {
       showChannelIdError.add(false);
       return res;
@@ -75,18 +75,15 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
         child: Stack(
           children: [
             Column(
-              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Flexible(
                       child: Form(
                         key: mucNameKey,
                         child: TextFormField(
                             minLines: 1,
-                            maxLines: 1,
                             autofocus: autofocus,
                             validator: checkMucNameIsSet,
                             textInputAction: TextInputAction.send,
@@ -100,8 +97,8 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                 widget.isChannel
                                     ? _i18n.get("enter_channel_name")
                                     : _i18n.get("enter_group_name"),
-                                true,
-                                context)),
+                                context,
+                                isOptional: true)),
                       ),
                     ),
                   ],
@@ -109,14 +106,12 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                 const SizedBox(height: 10),
                 widget.isChannel
                     ? Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Flexible(
                               child: Form(
                             key: _channelIdKey,
                             child: TextFormField(
                               minLines: 1,
-                              maxLines: 1,
                               autofocus: autofocus,
                               textInputAction: TextInputAction.send,
                               controller: idController,
@@ -127,9 +122,8 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                 });
                               },
                               decoration: buildInputDecoration(
-                                  _i18n.get("enter_channel_id"),
-                                  true,
-                                  context),
+                                  _i18n.get("enter_channel_id"), context,
+                                  isOptional: true),
                             ),
                           )),
                         ],
@@ -152,7 +146,6 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                   height: 10,
                 ),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Flexible(
                         child: Form(
@@ -172,7 +165,6 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                               widget.isChannel
                                   ? _i18n.get("enter_channel_desc")
                                   : _i18n.get("enter_group_desc"),
-                              false,
                               context)),
                     )),
                   ],
@@ -201,8 +193,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                         }
                         return ListView.builder(
                             itemCount: snapshot.data,
-                            itemBuilder: (BuildContext context, int index) =>
-                                ContactWidget(
+                            itemBuilder: (context, index) => ContactWidget(
                                   contact: _createMucService.contacts[index],
                                 ));
                       }),
@@ -221,28 +212,26 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                           color: theme.colorScheme.primary,
                         ),
                         child: IconButton(
-                          alignment: Alignment.center,
                           padding: const EdgeInsets.all(0),
                           icon: Icon(Icons.check,
                               color: theme.colorScheme.onPrimary),
                           onPressed: () async {
-                            bool res =
+                            final res =
                                 mucNameKey.currentState?.validate() ?? false;
                             if (res) {
                               setState(() {
                                 _showIcon = false;
                               });
-                              List<Uid> memberUidList = [];
+                              final memberUidList = <Uid>[];
                               Uid? mucUid;
                               for (var i = 0;
                                   i < _createMucService.contacts.length;
                                   i++) {
-                                memberUidList.add(_createMucService
-                                    .contacts[i].uid
-                                    .asUid());
+                                memberUidList.add(
+                                    _createMucService.contacts[i].uid.asUid());
                               }
                               if (widget.isChannel) {
-                                bool result =
+                                final result =
                                     _channelIdKey.currentState?.validate() ??
                                         false;
                                 if (result) {
@@ -291,7 +280,6 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                   color: theme.primaryColor,
                 ),
                 child: IconButton(
-                  alignment: Alignment.center,
                   padding: const EdgeInsets.all(0),
                   icon: const Icon(Icons.arrow_back, color: Colors.white),
                   onPressed: () async {
@@ -306,8 +294,8 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
     );
   }
 
-  InputDecoration buildInputDecoration(
-      label, bool isOptional, BuildContext context) {
+  InputDecoration buildInputDecoration(String label, BuildContext context,
+      {bool isOptional = false}) {
     return InputDecoration(
         disabledBorder: const OutlineInputBorder(
             borderSide: BorderSide(color: Colors.red),
@@ -330,8 +318,8 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
   }
 
   String? validateUsername(String? value) {
-    Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
-    RegExp regex = RegExp(pattern.toString());
+    const Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
+    final regex = RegExp(pattern.toString());
     if (value!.isEmpty) {
       return _i18n.get("channel_id_not_empty");
     } else if (!regex.hasMatch(value)) {

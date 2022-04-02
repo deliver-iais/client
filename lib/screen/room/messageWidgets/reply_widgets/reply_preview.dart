@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 class ReplyPreview extends StatelessWidget {
   final Message message;
-  final Function() resetRoomPageDetails;
+  final void Function() resetRoomPageDetails;
 
   const ReplyPreview(
       {Key? key, required this.message, required this.resetRoomPageDetails})
@@ -23,7 +23,6 @@ class ReplyPreview extends StatelessWidget {
           right: 3,
         ),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(
               CupertinoIcons.reply,
@@ -41,7 +40,6 @@ class ReplyPreview extends StatelessWidget {
             ),
             IconButton(
               padding: const EdgeInsets.all(0),
-              alignment: Alignment.center,
               icon: const Icon(CupertinoIcons.xmark, size: 20),
               onPressed: resetRoomPageDetails,
             ),

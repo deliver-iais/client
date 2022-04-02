@@ -5,7 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
 
 class CallBottomRow extends StatefulWidget {
-  final Function hangUp;
+  final void Function() hangUp;
   final bool isIncomingCall;
 
   const CallBottomRow(
@@ -165,19 +165,19 @@ class _CallBottomRowState extends State<CallBottomRow> {
     }
   }
 
-  _switchCamera() {
+  void _switchCamera() {
     callRepo.switchCamera();
     indexSwitchCamera++;
     _switchCameraIcon = indexSwitchCamera.isOdd ? Colors.grey : Colors.black45;
     setState(() {});
   }
 
-  _muteMic() {
+  void _muteMic() {
     _muteMicIcon = callRepo.muteMicrophone() ? Colors.grey : Colors.black45;
     setState(() {});
   }
 
-  _offVideoCam() {
+  void _offVideoCam() {
     _offVideoCamIcon = callRepo.muteCamera() ? Colors.grey : Colors.black45;
     setState(() {});
   }
@@ -189,16 +189,16 @@ class _CallBottomRowState extends State<CallBottomRow> {
   //   setState(() {});
   // }
 
-  _enableSpeaker() {
+  void _enableSpeaker() {
     _speakerIcon = callRepo.enableSpeakerVoice() ? Colors.grey : Colors.black45;
     setState(() {});
   }
 
-  _acceptCall() {
+  void _acceptCall() {
     callRepo.acceptCall(callRepo.roomUid!);
   }
 
-  _declineCall() {
+  void _declineCall() {
     callRepo.declineCall();
     _routingService.pop();
   }

@@ -3,10 +3,10 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 
 class BotButtonsWidget extends StatelessWidget {
   final Message message;
@@ -27,7 +27,7 @@ class BotButtonsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var buttons = message.json.toButtons();
+    final buttons = message.json.toButtons();
     return Container(
         padding: const EdgeInsets.only(top: 4, left: 4, right: 4, bottom: 1),
         width: maxWidth,
@@ -40,8 +40,10 @@ class BotButtonsWidget extends StatelessWidget {
                 width: maxWidth,
                 margin: const EdgeInsets.only(bottom: 6),
                 child: ElevatedButton(
-                    style:
-                        ElevatedButton.styleFrom(primary: colorScheme.primary, shape: const RoundedRectangleBorder(borderRadius: tertiaryBorder)),
+                    style: ElevatedButton.styleFrom(
+                        primary: colorScheme.primary,
+                        shape: const RoundedRectangleBorder(
+                            borderRadius: tertiaryBorder)),
                     onPressed: () {
                       _messageRepo.sendTextMessage(message.from.asUid(), btn);
                     },
@@ -49,8 +51,9 @@ class BotButtonsWidget extends StatelessWidget {
               ),
             Padding(
               padding: const EdgeInsets.only(right: 6.0, left: 6.0),
-              child: TimeAndSeenStatus(message, isSender, isSeen,
-                  needsPadding: false,
+              child: TimeAndSeenStatus(message,
+                  isSender: isSender,
+                  isSeen: isSeen,
                   needsPositioned: false,
                   backgroundColor: colorScheme.primaryContainer,
                   foregroundColor: colorScheme.onPrimaryContainerLowlight()),

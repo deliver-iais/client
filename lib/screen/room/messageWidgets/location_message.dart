@@ -1,15 +1,13 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/theme/color_scheme.dart';
-
-import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 
 class LocationMessageWidget extends StatelessWidget {
   final Message message;
@@ -27,7 +25,7 @@ class LocationMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Location location = message.json.toLocation();
+    final location = message.json.toLocation();
     return Stack(
       children: [
         SizedBox(
@@ -47,8 +45,6 @@ class LocationMessageWidget extends StatelessWidget {
               MarkerLayerOptions(
                 markers: [
                   Marker(
-                    width: 30.0,
-                    height: 30.0,
                     point: LatLng(location.latitude, location.longitude),
                     builder: (ctx) =>
                         CircleAvatarWidget(message.from.asUid(), 20),
@@ -58,7 +54,10 @@ class LocationMessageWidget extends StatelessWidget {
             ],
           ),
         ),
-        TimeAndSeenStatus(message, isSender, isSeen,
+        TimeAndSeenStatus(message,
+            isSender: isSender,
+            isSeen: isSeen,
+            needsPadding: true,
             backgroundColor: colorScheme.primaryContainer,
             foregroundColor: colorScheme.onPrimaryContainerLowlight()),
       ],

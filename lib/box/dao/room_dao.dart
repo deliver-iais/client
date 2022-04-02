@@ -1,8 +1,8 @@
 import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/room.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:hive/hive.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 
 abstract class RoomDao {
   Future<void> updateRoom(Room room);
@@ -23,7 +23,7 @@ abstract class RoomDao {
 class RoomDaoImpl implements RoomDao {
   @override
   Future<void> deleteRoom(Room room) async {
-    var box = await _openRoom();
+    final box = await _openRoom();
 
     box.delete(room.uid);
   }
@@ -31,7 +31,7 @@ class RoomDaoImpl implements RoomDao {
   @override
   Future<List<Room>> getAllRooms() async {
     try {
-      var box = await _openRoom();
+      final box = await _openRoom();
 
       return sorted(box.values
           .where((element) =>
@@ -61,33 +61,28 @@ class RoomDaoImpl implements RoomDao {
         .toList()));
   }
 
-  List<Room> sorted(List<Room> list) {
-    var l = list;
-
-    l.sort((a, b) => (b.lastUpdateTime ?? 0) - (a.lastUpdateTime ?? 0));
-
-    return l;
-  }
+  List<Room> sorted(List<Room> list) =>
+      list..sort((a, b) => (b.lastUpdateTime ?? 0) - (a.lastUpdateTime ?? 0));
 
   @override
   Future<Room?> getRoom(String roomUid) async {
-    var box = await _openRoom();
+    final box = await _openRoom();
 
     return box.get(roomUid);
   }
 
   @override
   Future<void> updateRoom(Room room) async {
-    var box = await _openRoom();
+    final box = await _openRoom();
 
-    var r = box.get(room.uid) ?? room;
+    final r = box.get(room.uid) ?? room;
 
     return box.put(room.uid, r.copy(room));
   }
 
   @override
   Stream<Room> watchRoom(String roomUid) async* {
-    var box = await _openRoom();
+    final box = await _openRoom();
 
     yield box.get(roomUid) ?? Room(uid: roomUid);
 
@@ -101,16 +96,16 @@ class RoomDaoImpl implements RoomDao {
   static Future<Box<Room>> _openRoom() async {
     try {
       BoxInfo.addBox(_keyRoom());
-      return await Hive.openBox<Room>(_keyRoom());
+      return Hive.openBox<Room>(_keyRoom());
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyRoom());
-      return await Hive.openBox<Room>(_keyRoom());
+      return Hive.openBox<Room>(_keyRoom());
     }
   }
 
   @override
   Future<List<Room>> getAllGroups() async {
-    var box = await _openRoom();
+    final box = await _openRoom();
     return box.values
         .where((element) =>
             element.uid.asUid().category == Categories.GROUP &&

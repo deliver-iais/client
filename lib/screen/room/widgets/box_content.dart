@@ -1,5 +1,4 @@
 import 'package:deliver/box/message.dart';
-
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -9,58 +8,56 @@ import 'package:deliver/screen/room/messageWidgets/botMessageWidget/bot_form_mes
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/bot_table_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_result.dart';
 import 'package:deliver/screen/room/messageWidgets/call_message/call_message_widget.dart';
-import 'package:deliver/screen/room/messageWidgets/live_location_message.dart';
-
-import 'package:deliver/screen/room/messageWidgets/location_message.dart';
 import 'package:deliver/screen/room/messageWidgets/file_message_ui.dart';
+import 'package:deliver/screen/room/messageWidgets/live_location_message.dart';
+import 'package:deliver/screen/room/messageWidgets/location_message.dart';
 import 'package:deliver/screen/room/messageWidgets/reply_widgets/reply_brief.dart';
 import 'package:deliver/screen/room/messageWidgets/sticker_messge_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/widgets/share_private_data_accept_message_widget.dart';
 import 'package:deliver/screen/room/widgets/share_private_data_request_message_widget.dart';
 import 'package:deliver/screen/room/widgets/share_uid_message_widget.dart';
-
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 
 class BoxContent extends StatefulWidget {
   final Message message;
   final double maxWidth;
   final double minWidth;
   final bool isSender;
-  final Function scrollToMessage;
   final bool isSeen;
-  final Function? onUsernameClick;
-  final String? pattern;
-  final Function? onBotCommandClick;
-  final Function onArrowIconClick;
-  final void Function(TapDownDetails) storePosition;
   final bool isFirstMessageInGroupedMessages;
   final CustomColorScheme colorScheme;
+  final String? pattern;
+  final void Function(TapDownDetails) storePosition;
+  final void Function(String) onUsernameClick;
+  final void Function(String) onBotCommandClick;
+  final void Function(int) scrollToMessage;
+  final void Function() onArrowIconClick;
 
-  const BoxContent(
-      {Key? key,
-      required this.message,
-      required this.maxWidth,
-      required this.minWidth,
-      required this.isSender,
-      required this.isSeen,
-      this.pattern,
-      this.onUsernameClick,
-      this.onBotCommandClick,
-      required this.isFirstMessageInGroupedMessages,
-      required this.scrollToMessage,
-      required this.onArrowIconClick,
-      required this.colorScheme,
-      required this.storePosition})
-      : super(key: key);
+  const BoxContent({
+    Key? key,
+    required this.message,
+    required this.maxWidth,
+    required this.minWidth,
+    required this.isSender,
+    required this.isSeen,
+    required this.onBotCommandClick,
+    required this.isFirstMessageInGroupedMessages,
+    required this.scrollToMessage,
+    required this.onArrowIconClick,
+    required this.colorScheme,
+    required this.storePosition,
+    required this.onUsernameClick,
+    this.pattern,
+  }) : super(key: key);
 
   Type getState() {
     return _BoxContentState;
@@ -161,7 +158,7 @@ class _BoxContentState extends State<BoxContent> {
       ),
       child: FutureBuilder<String>(
         future: _roomRepo.getName(widget.message.forwardedFrom!.asUid()),
-        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+        builder: (context, snapshot) {
           return MouseRegion(
             cursor: SystemMouseCursors.click,
             child: GestureDetector(
@@ -210,8 +207,7 @@ class _BoxContentState extends State<BoxContent> {
           isSeen: widget.isSeen,
           colorScheme: widget.colorScheme,
           searchTerm: widget.pattern,
-          onUsernameClick: widget.onUsernameClick!,
-          isBotMessage: widget.message.from.asUid().category == Categories.BOT,
+          onUsernameClick: widget.onUsernameClick,
           onBotCommandClick: widget.onBotCommandClick,
         );
       case MessageType.FILE:
@@ -219,6 +215,7 @@ class _BoxContentState extends State<BoxContent> {
           message: widget.message,
           maxWidth: widget.maxWidth,
           minWidth: widget.minWidth,
+          onUsernameClick: widget.onUsernameClick,
           colorScheme: widget.colorScheme,
           isSender: widget.isSender,
           isSeen: widget.isSeen,
@@ -227,8 +224,8 @@ class _BoxContentState extends State<BoxContent> {
       case MessageType.STICKER:
         return StickerMessageWidget(
           widget.message,
-          widget.isSender,
-          widget.isSeen,
+          isSeen: widget.isSeen,
+          isSender: widget.isSender,
           colorScheme: widget.colorScheme,
         );
 
@@ -243,8 +240,8 @@ class _BoxContentState extends State<BoxContent> {
       case MessageType.LIVE_LOCATION:
         return LiveLocationMessageWidget(
           widget.message,
-          widget.isSender,
-          widget.isSeen,
+          isSeen: widget.isSeen,
+          isSender: widget.isSender,
           colorScheme: widget.colorScheme,
         );
 
@@ -313,8 +310,6 @@ class _BoxContentState extends State<BoxContent> {
           message: widget.message,
           colorScheme: widget.colorScheme,
         );
-      default:
-        break;
     }
     return Container();
   }

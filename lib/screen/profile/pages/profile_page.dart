@@ -1,4 +1,3 @@
-
 import 'dart:math';
 import 'package:badges/badges.dart';
 import 'package:deliver/box/bot_info.dart';
@@ -102,14 +101,14 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: _buildAppBar(context),
       body: FluidContainerWidget(
         child: StreamBuilder<MediaMetaData?>(
             stream:
                 _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
-            builder: (context, AsyncSnapshot<MediaMetaData?> snapshot) {
+            builder: (context, snapshot) {
               _tabsCount = 0;
               if (snapshot.hasData && snapshot.data != null) {
                 if (snapshot.data!.imagesCount != 0) {
@@ -155,7 +154,7 @@ class _ProfilePageState extends State<ProfilePage>
                       : _tabsCount,
                   child: NestedScrollView(
                       headerSliverBuilder:
-                          (BuildContext context, bool innerBoxIsScrolled) {
+                          (context, innerBoxIsScrolled) {
                         return <Widget>[
                           _buildInfo(context),
                           SliverPersistentHeader(
@@ -389,7 +388,7 @@ class _ProfilePageState extends State<ProfilePage>
         if (!widget.roomUid.isGroup())
           FutureBuilder<String?>(
             future: _roomRepo.getId(widget.roomUid),
-            builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
+            builder: (context, snapshot) {
               if (snapshot.data != null) {
                 return Padding(
                   padding: const EdgeInsets.only(top: 8.0),
@@ -411,7 +410,7 @@ class _ProfilePageState extends State<ProfilePage>
         if (widget.roomUid.isUser())
           FutureBuilder<Contact?>(
             future: _contactRepo.getContact(widget.roomUid),
-            builder: (BuildContext context, AsyncSnapshot<Contact?> snapshot) {
+            builder: (context, snapshot) {
               if (snapshot.data != null) {
                 return Padding(
                   padding: const EdgeInsets.only(top: 8.0),
@@ -452,7 +451,7 @@ class _ProfilePageState extends State<ProfilePage>
                       child: SettingsTile(
                         title: _i18n.get("custom_notifications"),
                         leading: const Icon(Icons.music_note_sharp),
-                        subtitle: snapshot.data!,
+                        subtitle: snapshot.data,
                         subtitleTextStyle:
                             TextStyle(color: theme.primaryColor, fontSize: 16),
                         onPressed: (_) async {
@@ -466,7 +465,7 @@ class _ProfilePageState extends State<ProfilePage>
               }),
         StreamBuilder<bool>(
           stream: _roomRepo.watchIsRoomMuted(widget.roomUid.asString()),
-          builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+          builder: (context, snapshot) {
             if (snapshot.hasData && snapshot.data != null) {
               return Padding(
                 padding: const EdgeInsets.only(top: 8.0),
@@ -549,7 +548,7 @@ class _ProfilePageState extends State<ProfilePage>
           child: FutureBuilder<String>(
             initialData: _roomRepo.fastForwardName(widget.roomUid),
             future: _roomRepo.getName(widget.roomUid),
-            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+            builder: (context, snapshot) {
               _roomName = snapshot.data ?? "Loading..."; // TODO add i18n
               return RoomName(uid: widget.roomUid, name: _roomName);
             },
@@ -570,7 +569,6 @@ class _ProfilePageState extends State<ProfilePage>
         if (widget.roomUid.isMuc() && _isMucOwner)
           PopupMenuItem<String>(
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const Icon(Icons.add_link_outlined),
                   const SizedBox(width: 8),
@@ -593,7 +591,6 @@ class _ProfilePageState extends State<ProfilePage>
         if (!_isMucOwner)
           PopupMenuItem<String>(
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   Icon(widget.roomUid.isMuc()
                       ? Icons.arrow_back_outlined
@@ -612,7 +609,6 @@ class _ProfilePageState extends State<ProfilePage>
         if (widget.roomUid.isMuc() && _isMucOwner)
           PopupMenuItem<String>(
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   const Icon(Icons.delete),
                   const SizedBox(width: 8),
@@ -701,11 +697,11 @@ class _ProfilePageState extends State<ProfilePage>
     setState(() {});
   }
 
-  createInviteLink() async {
-    Muc? muc = await _mucRepo.getMuc(widget.roomUid.asString());
+  Future<void> createInviteLink() async {
+    final muc = await _mucRepo.getMuc(widget.roomUid.asString());
     if (muc != null && muc.token != null) {
-      String? token = muc.token!;
-      if (token.isEmpty || token.isEmpty) {
+      var token = muc.token;
+      if (token!.isEmpty || token.isEmpty) {
         if (widget.roomUid.category == Categories.GROUP) {
           token = await _mucRepo.getGroupJointToken(groupUid: widget.roomUid);
         } else {
@@ -722,7 +718,7 @@ class _ProfilePageState extends State<ProfilePage>
     }
   }
 
-  void _showInviteLinkDialog(String token) async {
+  Future<void> _showInviteLinkDialog(String token) async {
     showDialog(
         context: context,
         builder: (context) {
@@ -733,7 +729,6 @@ class _ProfilePageState extends State<ProfilePage>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         CircleAvatarWidget(widget.roomUid, 25),
                         const SizedBox(width: 5),
@@ -783,7 +778,7 @@ class _ProfilePageState extends State<ProfilePage>
         });
   }
 
-  generateInviteLink(String token) {
+  String generateInviteLink(String token) {
     return "https://$APPLICATION_DOMAIN/join/${widget.roomUid.category}/${widget.roomUid.node}/$token";
   }
 
@@ -801,14 +796,14 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   void showManageDialog() {
-    var channelIdFormKey = GlobalKey<FormState>();
-    var nameFormKey = GlobalKey<FormState>();
-    String _currentName = "";
-    String _currentId = "";
+    final channelIdFormKey = GlobalKey<FormState>();
+    final nameFormKey = GlobalKey<FormState>();
+    var _currentName = "";
+    var _currentId = "";
     String? mucName;
-    String mucInfo = "";
-    String channelId = "";
-    BehaviorSubject<bool> newChange = BehaviorSubject.seeded(false);
+    var mucInfo = "";
+    var channelId = "";
+    final newChange = BehaviorSubject<bool>.seeded(false);
     showDialog(
         context: context,
         builder: (context) {
@@ -908,7 +903,7 @@ class _ProfilePageState extends State<ProfilePage>
                     if (muc.hasData && muc.data != null) {
                       mucInfo = muc.data!.info!;
                       return TextFormField(
-                        initialValue: muc.data!.info!,
+                        initialValue: muc.data!.info,
                         minLines: muc.data!.info!.isNotEmpty
                             ? muc.data!.info!.split("\n").length
                             : 1,
@@ -999,7 +994,7 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   Future<bool> checkChannelD(String id) async {
-    var res = await _mucRepo.channelIdIsAvailable(id);
+    final res = await _mucRepo.channelIdIsAvailable(id);
     if (res) {
       _showChannelIdError.add(false);
       return res;
@@ -1011,8 +1006,8 @@ class _ProfilePageState extends State<ProfilePage>
 
   String? validateChannelId(String? value) {
     if (value == null) return null;
-    Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
-    RegExp regex = RegExp(pattern.toString());
+    const Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
+    final regex = RegExp(pattern.toString());
     if (value.isEmpty) {
       return _i18n.get("channel_id_not_empty");
     } else if (!regex.hasMatch(value)) {
@@ -1022,7 +1017,7 @@ class _ProfilePageState extends State<ProfilePage>
     }
   }
 
-  onSelected(String selected) {
+  void onSelected(String selected) {
     switch (selected) {
       case "delete_room":
         showDialog(
@@ -1066,9 +1061,9 @@ class _ProfilePageState extends State<ProfilePage>
     }
   }
 
-  _showAddBotToGroupDialog() {
-    Map<String, String> nameOfGroup = {};
-    BehaviorSubject<List<String>> groups = BehaviorSubject.seeded([]);
+  void _showAddBotToGroupDialog() {
+    final nameOfGroup = <String, String>{};
+    final groups = BehaviorSubject<List<String>>.seeded([]);
 
     showDialog(
         context: context,
@@ -1081,8 +1076,8 @@ class _ProfilePageState extends State<ProfilePage>
                 if (mucs.hasData &&
                     mucs.data != null &&
                     mucs.data!.isNotEmpty) {
-                  List<String> s = [];
-                  for (var room in mucs.data!) {
+                  final s = <String>[];
+                  for (final room in mucs.data!) {
                     s.add(room.uid);
                   }
                   groups.add(s);
@@ -1100,8 +1095,8 @@ class _ProfilePageState extends State<ProfilePage>
                               children: [
                                 TextField(
                                   onChanged: (str) {
-                                    List<String> searchRes = [];
-                                    for (var uid in nameOfGroup.keys) {
+                                    final searchRes = <String>[];
+                                    for (final uid in nameOfGroup.keys) {
                                       if (nameOfGroup[uid]!.contains(str) ||
                                           nameOfGroup[uid] == str) {
                                         searchRes.add(uid);
@@ -1129,9 +1124,6 @@ class _ProfilePageState extends State<ProfilePage>
                                                 return SizedBox(
                                                     height: 50,
                                                     child: Row(
-                                                      mainAxisAlignment:
-                                                          MainAxisAlignment
-                                                              .start,
                                                       children: [
                                                         CircleAvatarWidget(
                                                             snapshot.data![i]
@@ -1192,7 +1184,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                           TextButton(
                                                               onPressed:
                                                                   () async {
-                                                                var res = await _mucRepo
+                                                                final res = await _mucRepo
                                                                     .sendMembers(
                                                                         snapshot
                                                                             .data![i]

@@ -16,7 +16,7 @@ class MediaMetaDataDaoImpl implements MediaMetaDataDao {
   @override
   Stream<MediaMetaData?> get(String roomUid) async* {
     try {
-      var box = await _open();
+      final box = await _open();
       yield box.values
           .where((element) => element.roomId.contains(roomUid))
           .first;
@@ -25,7 +25,7 @@ class MediaMetaDataDaoImpl implements MediaMetaDataDao {
 
   @override
   Future<void> save(MediaMetaData mediaMetaData) async {
-    var box = await _open();
+    final box = await _open();
     box.put(mediaMetaData.roomId, mediaMetaData);
   }
 
@@ -38,7 +38,7 @@ class MediaMetaDataDaoImpl implements MediaMetaDataDao {
 
   @override
   Future<MediaMetaData?> getAsFuture(String roomUid) async {
-    var box = await _open();
+    final box = await _open();
     try {
       return box.values.firstWhere((element) => element.roomId == roomUid);
     } catch (e) {
@@ -48,7 +48,7 @@ class MediaMetaDataDaoImpl implements MediaMetaDataDao {
 
   @override
   Future clear(String roomUid) async {
-    var box = await _open();
+    final box = await _open();
     await box.delete(roomUid);
   }
 }

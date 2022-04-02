@@ -7,8 +7,8 @@ class InputMessageTextController extends TextEditingController {
       {required BuildContext context,
       TextStyle? style,
       required bool withComposing}) {
-    List<Block> blocks = [Block(text: text)];
-    List<Parser> parsers = [
+    var blocks = <Block>[Block(text: text)];
+    final parsers = <Parser>[
       EmojiParser(fontSize: 16),
       // BoldTextParser(),
       // ItalicTextParser()

@@ -45,7 +45,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                     title: _i18n.get("enable_local_lock"),
                     leading: const Icon(CupertinoIcons.lock),
                     switchValue: _authRepo.isLocalLockEnabled(),
-                    onToggle: (bool enabled) {
+                    onToggle: (enabled) {
                       if (enabled) {
                         showDialog(
                             context: context,
@@ -65,7 +65,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                     SettingsTile(
                       title: _i18n.get("edit_password"),
                       leading: const Icon(CupertinoIcons.square_arrow_left),
-                      onPressed: (BuildContext c) {
+                      onPressed: (c) {
                         showDialog(
                             context: context,
                             builder: (context) {
@@ -84,7 +84,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
   Widget disablePassword() {
     return StatefulBuilder(
       builder: (context, setState2) => AlertDialog(
-        titlePadding: const EdgeInsets.only(left: 0, right: 0, top: 0),
+        titlePadding: EdgeInsets.zero,
         actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
         content: TextField(
           onChanged: (p) => setState2(() => _currentPass = p),
@@ -125,7 +125,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
     final checkCurrentPassword = _authRepo.isLocalLockEnabled();
     return StatefulBuilder(
       builder: (context, setState2) => AlertDialog(
-        titlePadding: const EdgeInsets.only(left: 0, right: 0, top: 0),
+        titlePadding: EdgeInsets.zero,
         actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
         content: Column(
           mainAxisSize: MainAxisSize.min,

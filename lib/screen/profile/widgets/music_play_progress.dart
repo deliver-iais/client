@@ -32,17 +32,11 @@ class MusicPlayProgress extends StatelessWidget {
                             duration: duration,
                           );
                         } else {
-                          return const SizedBox(
-                            width: 0,
-                            height: 0,
-                          );
+                          return const SizedBox.shrink();
                         }
                       });
                 } else {
-                  return const SizedBox(
-                    width: 0,
-                    height: 0,
-                  );
+                  return const SizedBox.shrink();
                 }
               }),
         ),

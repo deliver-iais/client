@@ -10,7 +10,6 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as model;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -119,7 +118,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 builder: (c, fe) {
                   if (fe.hasData && fe.data != null) {
                     _fileIsExist.add(true);
-                    model.File f = widget.message.json.toFile();
+                    final f = widget.message.json.toFile();
                     return PopupMenuItem(
                         value: f.type.contains("image")
                             ? OperationOnMessage.SAVE_TO_GALLERY
@@ -266,9 +265,9 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
 }
 
 void showDeleteMsgDialog(
-    List<Message> messages, BuildContext context, Function? onDelete) {
-  var _i18n = GetIt.I.get<I18N>();
-  var _messageRepo = GetIt.I.get<MessageRepo>();
+    List<Message> messages, BuildContext context, void Function() onDelete) {
+  final _i18n = GetIt.I.get<I18N>();
+  final _messageRepo = GetIt.I.get<MessageRepo>();
   showDialog(
       context: context,
       builder: (c) => AlertDialog(
@@ -283,7 +282,7 @@ void showDeleteMsgDialog(
               TextButton(
                   child: Text(_i18n.get("cancel")),
                   onPressed: () {
-                    onDelete!();
+                    onDelete();
                     Navigator.pop(c);
                   }),
               TextButton(
@@ -293,7 +292,7 @@ void showDeleteMsgDialog(
                 onPressed: () {
                   _messageRepo.deleteMessage(messages);
 
-                  onDelete!();
+                  onDelete();
                   Navigator.pop(c);
                 },
               ),

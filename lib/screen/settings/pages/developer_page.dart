@@ -47,7 +47,7 @@ class _DeveloperPageState extends State<DeveloperPage> {
                                   GetIt.I.get<DeliverLogFilter>().level
                               ? const Icon(Icons.done)
                               : const SizedBox.shrink(),
-                          onPressed: (BuildContext context) {
+                          onPressed: (context) {
                             setState(() {
                               _uxService.changeLogLevel(level);
                             });

@@ -28,11 +28,11 @@ class Debug extends StatelessWidget {
                 toastContext: context);
           },
           child: Container(
-              constraints: const BoxConstraints(maxWidth: 350, minWidth: 0),
+              constraints: const BoxConstraints(maxWidth: 350),
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 borderRadius: mainBorder,
-                border: Border.all(width: 1, color: Colors.red),
+                border: Border.all(color: Colors.red),
                 color: const Color(0xAAFFE8E8),
               ),
               child: Text("$label: $text"))),
@@ -82,7 +82,7 @@ class _DebugCState extends State<DebugC> {
     }
     return Container(
         margin: const EdgeInsets.all(4),
-        constraints: const BoxConstraints(maxWidth: 350, minWidth: 0),
+        constraints: const BoxConstraints(maxWidth: 350),
         decoration: BoxDecoration(
           borderRadius: mainBorder,
           border: Border.all(width: 2, color: Colors.red),

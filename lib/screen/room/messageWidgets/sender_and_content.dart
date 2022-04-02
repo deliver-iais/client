@@ -17,7 +17,6 @@ class SenderAndContent extends StatelessWidget {
 
     return LastMessage(
       message: messages.first,
-      hasMentioned: false,
       showSender: true,
       showSenderInSeparatedLine: true,
       showSeenStatus: false,

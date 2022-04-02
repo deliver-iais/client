@@ -14,20 +14,21 @@ abstract class SharedDao {
 
   Stream<bool> getBooleanStream(String key, {bool defaultValue = false});
 
+  // ignore: avoid_positional_boolean_parameters
   Future<void> putBoolean(String key, bool value);
 }
 
 class SharedDaoImpl implements SharedDao {
   @override
   Future<String?> get(String key) async {
-    var box = await _open();
+    final box = await _open();
 
     return box.get(key);
   }
 
   @override
   Stream<String?> getStream(String key, {String? defaultValue}) async* {
-    var box = await _open();
+    final box = await _open();
 
     yield box.get(key, defaultValue: defaultValue).toString();
 
@@ -36,14 +37,14 @@ class SharedDaoImpl implements SharedDao {
 
   @override
   Future<void> put(String key, String value) async {
-    var box = await _open();
+    final box = await _open();
 
     box.put(key, value);
   }
 
   @override
   Future<void> remove(String key) async {
-    var box = await _open();
+    final box = await _open();
 
     box.delete(key);
   }

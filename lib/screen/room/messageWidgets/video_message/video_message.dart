@@ -4,12 +4,12 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/video_ui.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 
@@ -52,11 +52,11 @@ class _VideoMessageState extends State<VideoMessage> {
 
   @override
   Widget build(BuildContext context) {
-    Color background = widget.colorScheme.onPrimary;
-    Color foreground = widget.colorScheme.primary;
-    File video = widget.message.json.toFile();
-    Duration duration = Duration(seconds: video.duration.round());
-    String videoLength = formatDuration(duration);
+    final background = widget.colorScheme.onPrimary;
+    final foreground = widget.colorScheme.primary;
+    final video = widget.message.json.toFile();
+    final duration = Duration(seconds: video.duration.round());
+    final videoLength = formatDuration(duration);
     return Container(
       constraints: BoxConstraints(
           minWidth: widget.minWidth,
@@ -226,13 +226,17 @@ class _VideoMessageState extends State<VideoMessage> {
                 ? const SizedBox.shrink()
                 : TimeAndSeenStatus(
                     widget.message,
-                    widget.isSender,
-                    widget.isSeen,
+                    isSender: widget.isSender,
+                    isSeen: widget.isSeen,
+                    needsPadding: true,
                     foregroundColor: widget.colorScheme.onPrimaryContainer,
                   )
             : Container(),
         if (video.caption.isEmpty)
-          TimeAndSeenStatus(widget.message, widget.isSender, widget.isSeen,
+          TimeAndSeenStatus(widget.message,
+              isSender: widget.isSender,
+              isSeen: widget.isSeen,
+              needsPadding: true,
               backgroundColor: widget.colorScheme.onPrimaryContainerLowlight(),
               foregroundColor: widget.colorScheme.primaryContainer)
       ],
@@ -264,7 +268,7 @@ class _VideoMessageState extends State<VideoMessage> {
     final minutes = seconds ~/ Duration.secondsPerMinute;
     seconds -= minutes * Duration.secondsPerMinute;
 
-    final List<String> tokens = [];
+    final tokens = <String>[];
     if (days != 0) {
       tokens.add('${days}d');
     }

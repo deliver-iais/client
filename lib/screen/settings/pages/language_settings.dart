@@ -1,7 +1,7 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/language.dart';
+import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -15,16 +15,16 @@ class LanguageSettingsPage extends StatefulWidget {
 
 class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
   final _routingService = GetIt.I.get<RoutingService>();
+  final _i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
-    I18N i18n = GetIt.I.get<I18N>();
     return Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),
           child: AppBar(
             titleSpacing: 8,
-            title: Text(i18n.get("language")),
+            title: Text(_i18n.get("language")),
             leading: _routingService.backButtonLeading(),
           ),
         ),
@@ -43,7 +43,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
                               english.languageCode
                           ? const Icon(Icons.done)
                           : const SizedBox.shrink(),
-                      onPressed: (BuildContext context) {
+                      onPressed: (context) {
                         setState(() {
                           I18N.of(context)!.changeLanguage(english);
                         });
@@ -56,7 +56,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
                               farsi.languageCode
                           ? const Icon(Icons.done)
                           : const SizedBox.shrink(),
-                      onPressed: (BuildContext context) {
+                      onPressed: (context) {
                         setState(() {
                           I18N.of(context)!.changeLanguage(farsi);
                         });

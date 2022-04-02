@@ -1,10 +1,3 @@
-name: deliver
-description: Messenger App
-
-# The following line prevents the package from being accidentally published to
-# pub.dev using `pub publish`. This is preferred for private packages.
-publish_to: 'none' # Remove this line if you wish to publish to pub.dev
-
 # The following defines the version and build number for your application.
 # A version number is three numbers separated by dots, like 1.2.43
 # followed by an optional build number separated by a +.
@@ -18,215 +11,175 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 # build appbundle --target-platform android-arm,android-arm64,android-x64
 
-version: 2.0.1  #if change the version , is necessary to change VERSION  in constants.dart
+name: deliver
+description: Messenger App
+
+# PUBSPEC VERSION
+version: 2.1.0  #if change the version , is necessary to change VERSION  in constants.dart
+
+publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
   flutter: ">=2.10.0-0"
 
-# subject=C = IR, ST = Deliver, L = TE, O = IAIS, OU = Deliver, CN = Deliver, emailAddress = e.dansi.111@gmail.com
-#msix_config:
-#  display_name: Deliver
-#  publisher_display_name: Deliver
-#  identity_name: Deiver
-#  msix_version: 1.0.0.0
-#
-#  publisher: CN=Deliver, O=IAIS, C=IR
-#  logo_path: C:\Deliver\deliver.png
-#  start_menu_icon_path: C:\Deliver\deliver.png
-#  tile_icon_path: C:\Deliver\deliver.png
-#  architecture: x64
-
-#  msix_config:
-#  display_name: Deliver
-#  publisher_display_name: Deliver
-#  identity_name: Deliver
-#    certificate_path: C:\Deliver\CERTIFICATE.pfx
-#    certificate_password: 96112049
-#    msix_version: 1.0.0.0
-#    logo_path: \Deliver\deliver.png
-#    capabilities: "internetClient,location,microphone,webcam"
-
 dependencies:
-  flutter:
-    sdk: flutter
-  flutter_localizations:
-    sdk: flutter
-  win_toast:
-    git:
-      url: git://github.com/AmirhosseinShk/flutter-plugins.git
-      path: packages/win_toast
-      ref: 5357c2a594a20534bf759eb28c86f8669d3914f3
-
-  flare_flutter: 3.0.2 # Animation Viewer Library
-  lottie: 1.2.2
-  date_time_format: 2.0.1
-  permission_handler: 9.2.0 # ANDROID ONLY SUPPORTED
-  synchronized: 3.0.0+2
-  path_provider: 2.0.7
-  path_provider_android: 2.0.11
-  path: 1.8.0
-  # The following adds the Cupertino Icons font to your application.
-  # Use with the CupertinoIcons class for iOS style icons.
-  get_it: 7.2.0 # Dependency Injector Library
-  rxdart: 0.27.3 # State Management Library & Advanced Streaming Library
-  url_launcher: 6.0.20
-  qr_code_scanner: 0.7.0
-  uni_links: 0.5.1
-  flutter_map: 0.14.0
-  geolocator: 7.7.1
-  flutter_image_compress: 1.1.0
-  image_compression_flutter: 1.0.2
-  file_picker: 4.5.1
-  logger: 1.1.0
   android_intent: 2.0.2
-  record: 3.0.4
-  window_size: # (DESKTOP ONLY) Setting min and max window size in desktop
-    git:
-      url: git://github.com/google/flutter-desktop-embedding.git
-      path: plugins/window_size
-      ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
-  dio: 4.0.3 # HTTP Invoker Library
-  mime_type: 1.0.0 # Get mime type of file path
-  jwt_decoder: 2.0.1 # TODO, read documentation and update it
-  deliver_public_protocol: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
-    git:
-      url: https://github.com/deliver-iais/pub-dart-artifactory
-      ref: tags/v1.11.23
-
-  grpc: # DELIVER PROJECT PUBLIC GRPC PROTOCOL
-    git:
-      url: https://github.com/deliver-iais/grpc-dart
-      ref: 29af7df647c0999a41c6b4186de8709574d81de5
-
-  desktop_window: # CHANG TOP PAGE IN WINDOWS
-    git:
-      url: https://github.com/deliver-iais/desktop_window.git
-      ref: main
-
-  firebase_messaging:
-    git:
-      url: https://github.com/deliver-iais/firebase-messaging.git
-      ref: 7fcaebdf56e7285014422e7e484ce0c2ec403d24
-
-  ## (WEB NOT SUPPORTED BI-Directional Streaming)
-  image_picker: 0.8.4+11 # (DESKTOP NOT SUPPORTED, BACKUP PLAN: ?) -> CAMERA
-  vibration: 1.7.4-nullsafety.0  # (DESKTOP NOT SUPPORTED, NO BACKUP NEEDED)
-  dcache: 0.4.0
-  image_size_getter: 1.0.0
   audioplayers: 0.20.1
-  open_file: 3.2.1 # Open file in OS
-  contacts_service: 0.6.3
-  http: 0.13.4
-  random_string: 2.3.1
-  flutter_local_notifications: 9.1.4
-  percent_indicator: 3.4.0
-  package_info_plus: 1.4.0
-  sms_autofill: 2.2.0
-  scrollable_positioned_list: 0.2.3
-  share: 2.0.4
-  fluttertoast: 8.0.8
-  firebase_core: 1.12.0
-  card_swiper: 2.0.3
-  desktop_drop: 0.3.3
   badges: 2.0.2
-  modal_bottom_sheet: 2.0.1
-  receive_sharing_intent: 1.4.5
-  qr_flutter: 4.0.0
-  device_info: 2.0.3
-  hive: 2.0.4
-  flutter_blurhash: 0.6.4
-  hive_flutter: 1.1.0
-  marquee: 2.2.1
-  metadata_fetch: 0.4.1
-  process_run: 0.12.3+2
-  google_fonts: 2.3.1
-  video_player: 2.3.0
-  chewie: 1.3.1
-  hovering: 1.0.4
   camera: 0.9.4+17
-  file_selector_linux: 0.0.2+1
-  file_selector: 0.8.2+1
-  service_worker: 0.2.4
-  meta: 1.7.0
-  flutter_dropzone: 3.0.3
-  universal_html: 2.0.8
-  js: 0.6.3
-  platform_detect: 2.0.0
-  flutter_keyboard_visibility: 5.1.1
-  feature_discovery: 0.14.1
-  collection: 1.15.0
-  tuple: 2.0.0
-  great_list_view: 0.1.4
-  material_color_utilities: 0.1.3
-
+  card_swiper: 2.0.3
+  chewie: 1.3.1
   clock: 1.1.0
-  desktop_lifecycle: 0.1.0
-
-  sdp_transform: 0.3.2
-  flutter_webrtc: 0.8.4
+  collection: 1.15.0
   connectycube_flutter_call_kit:
     git:
-      url: https://github.com/deliver-iais/connectycube_flutter_call_kit-0.1.0-dev.2.git
       ref: master
-  flutter_foreground_task: 3.5.5
+      url: https://github.com/deliver-iais/connectycube_flutter_call_kit-0.1.0-dev.2.git
+  contacts_service: 0.6.3
   custom_image_crop: 0.0.4
-  persian_datetime_picker: 2.4.0
-  pasteboard: 0.0.3
+  date_time_format: 2.0.1
+  dcache: 0.4.0
+  deliver_public_protocol:
+    git:
+      ref: tags/v1.11.28
+      url: https://github.com/deliver-iais/pub-dart-artifactory
+  desktop_drop: 0.3.3
+  desktop_lifecycle: 0.1.0
+  desktop_window:
+    git:
+      ref: main
+      url: https://github.com/deliver-iais/desktop_window.git
+  device_info: 2.0.3
+  dio: 4.0.3
   expandable: 5.0.1
+  feature_discovery: 0.14.1
+  file_picker: 4.5.1
+  file_selector: 0.8.2+1
+  file_selector_linux: 0.0.2+1
+  firebase_core: 1.12.0
+  firebase_messaging:
+    git:
+      ref: 7fcaebdf56e7285014422e7e484ce0c2ec403d24
+      url: https://github.com/deliver-iais/firebase-messaging.git
+  flare_flutter: 3.0.2
+  flutter:
+    sdk: flutter
+  flutter_blurhash: 0.6.4
+  flutter_dropzone: 3.0.3
+  flutter_foreground_task: 3.5.5
+  flutter_image_compress: 1.1.0
+  flutter_keyboard_visibility: 5.1.1
+  flutter_local_notifications: 9.1.4
+  flutter_localizations:
+    sdk: flutter
+  flutter_map: 0.14.0
+  flutter_webrtc: 0.8.4
+  fluttertoast: 8.0.8
+  geolocator: 7.7.1
+  get_it: 7.2.0
+  google_fonts: 2.3.1
+  great_list_view: 0.1.4
+  grpc:
+    git:
+      ref: 29af7df647c0999a41c6b4186de8709574d81de5
+      url: https://github.com/deliver-iais/grpc-dart
+  hive: 2.0.4
+  hive_flutter: 1.1.0
+  hovering: 1.0.4
+  http: 0.13.4
+  image_compression_flutter: 1.0.2
+  image_picker: 0.8.4+11
+  image_size_getter: 1.0.0
+  js: 0.6.3
+  jwt_decoder: 2.0.1
+  logger: 1.1.0
+  lottie: 1.2.2
+  marquee: 2.2.1
+  material_color_utilities: 0.1.3
+  meta: 1.7.0
+  metadata_fetch: 0.4.1
+  mime_type: 1.0.0
+  modal_bottom_sheet: 2.0.1
+  open_file: 3.2.1
+  package_info_plus: 1.4.0
+  pasteboard: 0.0.3
+  path: 1.8.0
+  path_provider: 2.0.7
+  path_provider_android: 2.0.11
+  percent_indicator: 3.4.0
+  permission_handler: 9.2.0
+  persian_datetime_picker: 2.4.0
+  platform_detect: 2.0.0
+  process_run: 0.12.3+2
+  qr_code_scanner: 0.7.0
+  qr_flutter: 4.0.0
+  random_string: 2.3.1
+  receive_sharing_intent: 1.4.5
+  record: 3.0.4
+  rxdart: 0.27.3
+  scrollable_positioned_list: 0.2.3
+  sdp_transform: 0.3.2
+  service_worker: 0.2.4
+  share: 2.0.4
+  sms_autofill: 2.2.0
+  synchronized: 3.0.0+2
+  tuple: 2.0.0
+  uni_links: 0.5.1
+  universal_html: 2.0.8
+  url_launcher: 6.0.20
+  vibration: 1.7.4-nullsafety.0
+  video_player: 2.3.0
+  win_toast:
+    git:
+      path: packages/win_toast
+      ref: 5357c2a594a20534bf759eb28c86f8669d3914f3
+      url: https://github.com/AmirhosseinShk/flutter-plugins.git
+  window_size:
+    git:
+      path: plugins/window_size
+      ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
+      url: https://github.com/google/flutter-desktop-embedding.git
 
 dev_dependencies:
+  build_runner: 2.1.8
+  dependency_validator: 3.1.2  # flutter pub run dependency_validator
+  flutter_lints: 1.0.4
+  hive_generator: 1.1.2
+  mockito: 5.1.0
   msix: 3.1.0
-  build_runner: ^2.1.5
-  test:
-  mockito:
-  hive_generator: ^1.1.1
-  flutter_lints: ^1.0.0
-  dependency_validator: ^3.1.2  # flutter pub run dependency_validator
-
-# For information on the generic Dart part of this file, see the
-# following page: https://dart.dev/tools/pub/pubspec
+  test: 1.20.2
 
 # The following section is specific to Flutter.
 flutter:
-
-  # The following line ensures that the Material Icons font is
-  # included with your application, so that you can use the icons in
-  # the material Icons class.
   uses-material-design: true
-  #
-  #  plugin:
-  #    androidPackage: storagepath
-  #    pluginClass: StoragePathPlugin
-
 
   # To add assets to your application, add an assets section, like this:
   assets:
-    - assets/images/a.flr
-    - assets/images/logo.png
-    - assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png
-    - assets/images/wave.png
-    - assets/audios/sound_in.wav
-    - assets/audios/sound_out.wav
-    - assets/audios/incoming-msg.mp3
-    - lib/lang/fa.json
-    - lib/lang/en.json
-    - assets/backgrounds/
-    - assets/emoji/
     - android/app/src/main/res/raw/
-    - assets/images/no-profile-pic.png
+    - assets/animations/accept_call.json
+    - assets/animations/arrow.json
+    - assets/animations/audio_wave.tgs
+    - assets/animations/clock.json
+    - assets/animations/done.tgs
+    - assets/animations/file-save.json
+    - assets/animations/not-found.tgs
+    - assets/animations/touch.zip
+    - assets/animations/unlock.tgs
     - assets/audios/beep_ringing_calling_sound.mp3
     - assets/audios/busy_sound.mp3
-    - assets/animations/done.tgs
-    - assets/animations/clock.json
-    - assets/animations/not-found.tgs
-    - assets/animations/unlock.tgs
-    - assets/animations/audio_wave.tgs
-    - assets/animations/accept_call.json
-    - assets/animations/file-save.json
-    - assets/animations/arrow.json
-    - assets/animations/touch.zip
-
+    - assets/audios/incoming-msg.mp3
+    - assets/audios/sound_in.wav
+    - assets/audios/sound_out.wav
+    - assets/backgrounds/
+    - assets/emoji/
+    - assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png
+    - assets/images/a.flr
+    - assets/images/logo.png
+    - assets/images/no-profile-pic.png
+    - assets/images/wave.png
+    - lib/lang/en.json
+    - lib/lang/fa.json
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 
@@ -241,10 +194,3 @@ flutter:
     - family: Vazir
       fonts:
         - asset: assets/fonts/vazir/Vazir-Variable.ttf
-
-  # For details regarding fonts from package dependencies,
-  # see https://flutter.dev/custom-fonts/#from-packages
-#analyzer:
-#  strong-mode: true
-#  language:
-#    enableSuperMixins: true

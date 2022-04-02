@@ -51,30 +51,27 @@ class _CallListPageState extends State<CallListPage> {
                 stream: _callListDao.watchAllCalls(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData && snapshot.data != null) {
-                    var calls = snapshot.data!.reversed.toList();
+                    final calls = snapshot.data!.reversed.toList();
                     if (snapshot.data!.isEmpty) {
                       return const TGS.asset(
                         'assets/animations/not-found.tgs',
                         width: 180,
                         height: 150,
-                        repeat: true,
                       );
                     }
                     return Scrollbar(
                         child: ListView.separated(
-                            separatorBuilder:
-                                (BuildContext context, int index) {
+                            separatorBuilder: (context, index) {
                               return const Divider();
                             },
                             itemCount: calls.length,
-                            itemBuilder: (BuildContext ctx, int index) {
+                            itemBuilder: (ctx, index) {
                               final DateTime time;
                               final bool isIncomingCall;
                               final Uid caller;
                               final String monthName;
                               time = DateTime.fromMillisecondsSinceEpoch(
-                                  calls[index].callEvent.endOfCallTime,
-                                  isUtc: false);
+                                  calls[index].callEvent.endOfCallTime);
                               monthName = DateFormat('MMMM').format(time);
                               isIncomingCall = calls[index]
                                           .callEvent
@@ -101,7 +98,8 @@ class _CallListPageState extends State<CallListPage> {
                                       monthName: monthName),
                                   collapsed: const SizedBox.shrink(),
                                   expanded: Padding(
-                                    padding: const EdgeInsets.only(bottom: 16.0),
+                                    padding:
+                                        const EdgeInsets.only(bottom: 16.0),
                                     child: CallDetailPage(
                                         callEvent: calls[index],
                                         caller: caller,

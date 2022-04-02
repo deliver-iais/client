@@ -13,7 +13,7 @@ abstract class FileDao {
 class FileDaoImpl implements FileDao {
   @override
   Future<FileInfo?> get(String uuid, String sizeType) async {
-    var box = await _open(sizeType);
+    final box = await _open(sizeType);
 
     if (uuid.isEmpty) {
       return null;
@@ -24,14 +24,14 @@ class FileDaoImpl implements FileDao {
 
   @override
   Future<void> save(FileInfo fileInfo) async {
-    var box = await _open(fileInfo.sizeType);
+    final box = await _open(fileInfo.sizeType);
 
     box.put(fileInfo.uuid, fileInfo);
   }
 
   @override
   Future<void> remove(FileInfo fileInfo) async {
-    var box = await _open(fileInfo.sizeType);
+    final box = await _open(fileInfo.sizeType);
 
     box.delete(fileInfo.uuid);
   }

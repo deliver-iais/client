@@ -19,14 +19,14 @@ abstract class SeenDao {
 class SeenDaoImpl implements SeenDao {
   @override
   Future<Seen?> getOthersSeen(String uid) async {
-    var box = await _openOthersSeen();
+    final box = await _openOthersSeen();
 
     return box.get(uid);
   }
 
   @override
   Stream<Seen?> watchOthersSeen(String uid) async* {
-    var box = await _openOthersSeen();
+    final box = await _openOthersSeen();
 
     yield box.get(uid);
 
@@ -35,14 +35,14 @@ class SeenDaoImpl implements SeenDao {
 
   @override
   Future<Seen> getMySeen(String uid) async {
-    var box = await _openMySeen();
+    final box = await _openMySeen();
 
     return box.get(uid) ?? Seen(uid: uid, messageId: -1);
   }
 
   @override
   Stream<Seen> watchMySeen(String uid) async* {
-    var box = await _openMySeen();
+    final box = await _openMySeen();
 
     yield box.get(uid) ?? Seen(uid: uid, messageId: 0);
 
@@ -53,9 +53,9 @@ class SeenDaoImpl implements SeenDao {
 
   @override
   Future<void> saveOthersSeen(Seen seen) async {
-    var box = await _openOthersSeen();
+    final box = await _openOthersSeen();
 
-    var othersSeen = box.get(seen.uid);
+    final othersSeen = box.get(seen.uid);
 
     if (othersSeen == null || othersSeen.messageId < seen.messageId) {
       box.put(seen.uid, seen);
@@ -64,9 +64,9 @@ class SeenDaoImpl implements SeenDao {
 
   @override
   Future<void> saveMySeen(Seen seen) async {
-    var box = await _openMySeen();
+    final box = await _openMySeen();
 
-    var mySeen = box.get(seen.uid);
+    final mySeen = box.get(seen.uid);
 
     if (mySeen == null ||
         mySeen.messageId < seen.messageId ||

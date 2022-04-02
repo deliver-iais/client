@@ -7,6 +7,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/methods/phone.dart';
@@ -19,13 +20,11 @@ import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart'
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
-
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
-import 'package:fixnum/fixnum.dart';
 
 class ScanQrCode extends StatefulWidget {
   @override
@@ -46,20 +45,18 @@ class _ScanQrCode extends State<ScanQrCode> {
 
   @override
   void reassemble() {
-    try{
+    try {
       super.reassemble();
       if (isAndroid) {
         controller.pauseCamera();
       }
       controller.resumeCamera();
-    }catch(_){
-    }
-
+    } catch (_) {}
   }
 
   @override
   Widget build(BuildContext context) {
-    I18N i18n = GetIt.I.get<I18N>();
+    final i18n = GetIt.I.get<I18N>();
     return Scaffold(
       appBar: AppBar(
         title: Text(i18n.get("scan_qr_code")),
@@ -76,7 +73,7 @@ class _ScanQrCode extends State<ScanQrCode> {
 
   Widget _buildQrView(BuildContext context) {
     final theme = Theme.of(context);
-    var scanArea = (MediaQuery.of(context).size.width < 400 ||
+    final scanArea = (MediaQuery.of(context).size.width < 400 ||
             MediaQuery.of(context).size.height < 400)
         ? 250.0
         : 350.0;
@@ -84,8 +81,7 @@ class _ScanQrCode extends State<ScanQrCode> {
     return QRView(
       key: qrKey,
       overlayMargin: const EdgeInsets.all(24.0).copyWith(bottom: 100),
-      onQRViewCreated: (QRViewController controller) =>
-          _onQRViewCreated(controller, context),
+      onQRViewCreated: (controller) => _onQRViewCreated(controller, context),
       overlay: QrScannerOverlayShape(
           borderColor: theme.primaryColor,
           borderRadius: 10,
@@ -114,22 +110,22 @@ class _ScanQrCode extends State<ScanQrCode> {
   }
 
   void _parseQrCode(String url, BuildContext context) {
-    Uri uri = Uri.parse(url);
+    final uri = Uri.parse(url);
 
     if (uri.host != APPLICATION_DOMAIN) {
       return;
     }
 
-    var segments =
+    final segments =
         uri.pathSegments.where((e) => e != APPLICATION_DOMAIN).toList();
 
     if (segments.first == "ac") {
       handleAddContact(
           context: context,
-          countryCode: uri.queryParameters["cc"]!,
-          nationalNumber: uri.queryParameters["nn"]!,
-          firstName: uri.queryParameters["fn"]!,
-          lastName: uri.queryParameters["ln"]!);
+          countryCode: uri.queryParameters["cc"],
+          nationalNumber: uri.queryParameters["nn"],
+          firstName: uri.queryParameters["fn"],
+          lastName: uri.queryParameters["ln"]);
     } else if (segments.first == SPDA) {
       handleSendPrivateDateAcceptance(context, uri.queryParameters["type"]!,
           uri.queryParameters["botId"]!, uri.queryParameters["token"]!);
@@ -145,7 +141,7 @@ class _ScanQrCode extends State<ScanQrCode> {
 
   Future<void> handleLogin(BuildContext context, String token) async {
     _logger.wtf(token);
-    bool verified = await _accountRepo.verifyQrCodeToken(token);
+    final verified = await _accountRepo.verifyQrCodeToken(token);
 
     if (verified) {
       Timer(const Duration(milliseconds: 500), () {
@@ -153,7 +149,7 @@ class _ScanQrCode extends State<ScanQrCode> {
         showFloatingModalBottomSheet(
             context: context,
             isDismissible: false,
-            builder: (BuildContext ctx) {
+            builder: (ctx) {
               return Container(
                   padding: const EdgeInsets.symmetric(vertical: 40),
                   child: const TGS.asset(
@@ -178,7 +174,8 @@ class _ScanQrCode extends State<ScanQrCode> {
       String? nationalNumber,
       required BuildContext context}) async {
     final theme = Theme.of(context);
-    var res = await _contactRepo.contactIsExist(countryCode!, nationalNumber!);
+    final res =
+        await _contactRepo.contactIsExist(countryCode!, nationalNumber!);
     if (res) {
       ToastDisplay.showToast(
           toastText:
@@ -204,8 +201,7 @@ class _ScanQrCode extends State<ScanQrCode> {
               ),
               Text(
                 buildName(firstName, lastName),
-                style: TextStyle(
-                    color:theme.primaryColor, fontSize: 20),
+                style: TextStyle(color: theme.primaryColor, fontSize: 20),
               ),
               Text(
                 buildPhoneNumber(countryCode, nationalNumber),
@@ -222,7 +218,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                       child: Text(_i18n.get("skip"))),
                   TextButton(
                     onPressed: () async {
-                      var newContactAdded = await _contactRepo.sendNewContact(
+                      final newContactAdded = await _contactRepo.sendNewContact(
                           contact_pb.Contact()
                             ..firstName = firstName!
                             ..lastName = lastName!
@@ -249,7 +245,7 @@ class _ScanQrCode extends State<ScanQrCode> {
     }
   }
 
-  void handleSendMsgToBot(
+  Future<void> handleSendMsgToBot(
       BuildContext context, String botId, String text) async {
     final theme = Theme.of(context);
     controller.pauseCamera();
@@ -321,7 +317,7 @@ class _ScanQrCode extends State<ScanQrCode> {
     controller.pauseCamera();
 
     PrivateDataType privateDataType;
-    String type = pdType;
+    final type = pdType;
     type.contains("PHONE_NUMBER")
         ? privateDataType = PrivateDataType.PHONE_NUMBER
         : type.contains("USERNAME")

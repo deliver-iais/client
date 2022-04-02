@@ -1,6 +1,6 @@
 extension IsPersian on String {
   bool isPersian() {
-    String temp = trim();
+    final temp = trim();
     for (var i = 0; i < temp.length; i++) {
       if (temp[i] == '+' ||
           temp[i] == '-' ||
@@ -35,7 +35,7 @@ extension IsPersian on String {
           temp[i] == '}') {
         continue;
       } else {
-        RegExp eng = RegExp(r'^[a-zA-Z0-9@]+$');
+        final eng = RegExp(r'^[a-zA-Z0-9@]+$');
         return !(eng.hasMatch(temp[i]));
       }
     }

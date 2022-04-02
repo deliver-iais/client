@@ -47,11 +47,11 @@ class _AllVideoPageState extends State<AllVideoPage> {
         _mediaCache.values.toList().length >= index) {
       return _mediaCache.values.toList().elementAt(index);
     } else {
-      int page = (index / MEDIA_PAGE_SIZE).floor();
-      var res = await _mediaQueryRepo.getMediaPage(
+      final page = (index / MEDIA_PAGE_SIZE).floor();
+      final res = await _mediaQueryRepo.getMediaPage(
           widget.roomUid, MediaType.VIDEO, page, index);
       if (res != null) {
-        for (Media media in res) {
+        for (final media in res) {
           _mediaCache[media.messageId] = media;
         }
       }
@@ -78,7 +78,6 @@ class _AllVideoPageState extends State<AllVideoPage> {
         children: [
           Row(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               if (isDesktop)
                 StreamBuilder<int>(
@@ -104,7 +103,6 @@ class _AllVideoPageState extends State<AllVideoPage> {
                     itemCount: widget.videoCount,
                     controller: _swiperController,
                     index: widget.initIndex,
-                    viewportFraction: 1.0,
                     scale: 0.9,
                     loop: false,
                     onIndexChanged: (index) => _currentIndex.add(index),
@@ -112,21 +110,19 @@ class _AllVideoPageState extends State<AllVideoPage> {
                       return FutureBuilder<Media?>(
                         future: _getMedia(index),
                         builder: (c, mediaSnapShot) {
-                          if (mediaSnapShot.hasData &&
-                              mediaSnapShot.data != null) {
+                          if (mediaSnapShot.hasData) {
+                            final json =
+                                jsonDecode(mediaSnapShot.data!.json) as Map;
                             return FutureBuilder<String?>(
                                 initialData: _fileCache.get(index),
                                 future: _fileRepo.getFile(
-                                    jsonDecode(
-                                        mediaSnapShot.data!.json)["uuid"],
-                                    jsonDecode(
-                                        mediaSnapShot.data!.json)["name"]),
+                                    json['uuid'], json['name']),
                                 builder: (c, filePath) {
                                   if (filePath.hasData &&
                                       filePath.data != null) {
-                                    _fileCache.set(index, filePath.data!);
+                                    _fileCache.set(index, filePath.data);
                                     if (isDesktop) {
-                                      OpenFile.open(filePath.data!);
+                                      OpenFile.open(filePath.data);
                                       _routingServices.pop();
                                       return const SizedBox.shrink();
                                     } else {
@@ -181,11 +177,10 @@ class _AllVideoPageState extends State<AllVideoPage> {
                   return FutureBuilder<Media?>(
                       future: _getMedia(index.data!),
                       builder: (c, mediaSnapShot) {
-                        if (mediaSnapShot.hasData &&
-                            mediaSnapShot.data != null) {
-                          if ((jsonDecode(mediaSnapShot.data!.json)["caption"])
-                              .toString()
-                              .isNotEmpty) {
+                        if (mediaSnapShot.hasData) {
+                          final json =
+                              jsonDecode(mediaSnapShot.data!.json) as Map;
+                          if (json['caption'].toString().isNotEmpty) {
                             return Align(
                                 alignment: Alignment.bottomCenter,
                                 child: Padding(
@@ -196,8 +191,7 @@ class _AllVideoPageState extends State<AllVideoPage> {
                                         color: theme.hoverColor.withAlpha(100),
                                         borderRadius: BorderRadius.circular(5)),
                                     child: Text(
-                                      jsonDecode(
-                                          mediaSnapShot.data!.json)["caption"],
+                                      json['caption'],
                                       style: theme.textTheme.bodyText2!
                                           .copyWith(
                                               height: 1, color: Colors.white),

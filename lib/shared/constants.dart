@@ -1,5 +1,3 @@
-// ignore_for_file: constant_identifier_names
-
 import 'dart:math';
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -7,6 +5,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
 const APPLICATION_NAME = "We";
+const app_name2 = "We";
 const APPLICATION_DOMAIN = "deliver-co.ir";
 // const APPLICATION_DOMAIN = "wemessenger.ir";
 const SPDA = "spda";
@@ -141,9 +140,9 @@ const double MIN_WIDTH = 200;
 const double MAX_FILE_SIZE_BYTE = 104857600; //100MB
 
 //FEATURE DISCOVERY ID
-const String feature1 = 'feature1',
-    feature2 = 'feature2',
-    feature3 = 'feature3';
+const feature1 = 'feature1';
+const feature2 = 'feature2';
+const feature3 = 'feature3';
 
 const mainBorder = BorderRadius.all(Radius.circular(28));
 
