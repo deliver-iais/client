@@ -198,9 +198,9 @@ class AvatarRepo {
 
   Future<void> uploadAvatar(String path, Uid uid) async {
     await _fileRepo.cloneFileInLocalDirectory(File(path), uid.node, path);
-    file_pb.File? fileInfo = await _fileRepo.uploadClonedFile(uid.node, path);
+    final fileInfo = await _fileRepo.uploadClonedFile(uid.node, path);
     if (fileInfo != null) {
-      int createdOn = DateTime.now().millisecondsSinceEpoch;
+      final createdOn = DateTime.now().millisecondsSinceEpoch;
       await _setAvatarAtServer(fileInfo, createdOn, uid);
     }
   }

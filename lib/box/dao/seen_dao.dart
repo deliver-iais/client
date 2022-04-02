@@ -66,7 +66,7 @@ class SeenDaoImpl implements SeenDao {
   Future<void> saveMySeen(Seen seen) async {
     var box = await _openMySeen();
 
-    var mySeen = box.get(seen.uid);
+    final mySeen = box.get(seen.uid);
 
     if (mySeen == null ||
         mySeen.messageId < seen.messageId ||

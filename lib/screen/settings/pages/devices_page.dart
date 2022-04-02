@@ -223,7 +223,7 @@ class _DevicesPageState extends State<DevicesPage> {
                         }
                       }
                       List<String> sessionIds = [];
-                      for (var element in sessions) {
+                      for (final element in sessions) {
                         sessionIds.add(element.sessionId.toString());
                       }
                     },

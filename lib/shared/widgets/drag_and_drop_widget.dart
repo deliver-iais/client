@@ -74,7 +74,7 @@ class DragDropWidget extends StatelessWidget {
             child: child,
             onDragDone: (d) async {
               List<model.File> files = [];
-              for (var element in d.files) {
+              for (final element in d.files) {
                 files.add(model.File(element.path, element.name,
                     extension: element.mimeType, size: await element.length()));
               }

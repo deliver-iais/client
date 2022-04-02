@@ -417,7 +417,7 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
           lastUpdate != null ? Int64(lastUpdate) : null,
       lastUpdate: null,
       presenceType: presenceType);
-  Iterable<RoomMetadata>? roomsMeta = {roomMetadata};
+  final Iterable<RoomMetadata>? roomsMeta = {roomMetadata};
   when(service.getAllUserRoomMeta(GetAllUserRoomMetaReq()
         ..pointer = 0
         ..limit = 10))

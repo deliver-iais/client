@@ -94,7 +94,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     ReceiveSharingIntent.getInitialMedia().then((List<SharedMediaFile> value) {
       if (value.isNotEmpty) {
         List<String> paths = [];
-        for (var path in value) {
+        for (final path in value) {
           paths.add(path.path);
         }
         _routingService.openShareFile(path: paths);

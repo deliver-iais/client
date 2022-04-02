@@ -7,7 +7,7 @@ class BoxInfo {
 
   static Future<void> addBox(String key) async {
     try {
-      var box = await Hive.openBox<String>(_key());
+      final box = await Hive.openBox<String>(_key());
       box.put(key, key);
     } catch (_) {
       //  _logger.e(e);
@@ -25,7 +25,7 @@ class BoxInfo {
   static String _key() => "box_info";
 
   static Future<void> deleteAllBox() async {
-    var box = await Hive.openBox<String>(_key());
+    final box = await Hive.openBox<String>(_key());
     box.values.toList().forEach((key) async {
       await _deleteBox(key);
     });

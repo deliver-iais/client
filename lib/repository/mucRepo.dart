@@ -83,7 +83,7 @@ class MucRepo {
       while (i <= len || !finish) {
         var result = await _mucServices.getGroupMembers(groupUid, 15, i);
         membersSize = membersSize + result.members.length;
-        for (muc_pb.Member member in result.members) {
+        for (final member in result.members) {
           try {
             members.add(Member(
                 mucUid: groupUid.asString(),
@@ -123,7 +123,7 @@ class MucRepo {
         var result = await _mucServices.getChannelMembers(channelUid, 15, i);
         if (result != null) {
           membersSize = membersSize + result.members.length;
-          for (muc_pb.Member member in result.members) {
+          for (final member in result.members) {
             try {
               members.add(Member(
                   mucUid: channelUid.asString(),
@@ -349,7 +349,7 @@ class MucRepo {
         members, groupMembers[0].mucUid.asUid());
 
     if (result) {
-      for (Member member in groupMembers) {
+      for (final member in groupMembers) {
         _mucDao.deleteMember(member);
       }
       return true;
@@ -358,15 +358,15 @@ class MucRepo {
   }
 
   Future<bool> kickChannelMembers(List<Member> channelMembers) async {
-    List<muc_pb.Member> members = channelMembers
+    final members = channelMembers
         .map((m) => muc_pb.Member()
           ..uid = m.memberUid.asUid()
           ..role = getRole(m.role!))
         .toList();
-    var result = await _mucServices.kickChannelMembers(
+    final result = await _mucServices.kickChannelMembers(
         members, channelMembers[0].mucUid.asUid());
     if (result) {
-      for (Member member in channelMembers) {
+      for (final member in channelMembers) {
         _mucDao.deleteMember(member);
       }
       return true;
@@ -480,7 +480,7 @@ class MucRepo {
     try {
       bool usersAdd = false;
       List<muc_pb.Member> members = [];
-      for (Uid uid in memberUids) {
+      for (final uid in memberUids) {
         members.add(muc_pb.Member()
           ..uid = uid
           ..role = mucUid.isChannel() ? muc_pb.Role.NONE : muc_pb.Role.MEMBER);
@@ -511,7 +511,7 @@ class MucRepo {
     if (members.isNotEmpty) {
       await _mucDao.deleteAllMembers(mucUid.asString());
     }
-    for (Member member in members) {
+    for (final member in members) {
       _mucDao.saveMember(member);
       _contactRepo.fetchMemberId(member);
     }

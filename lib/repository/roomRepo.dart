@@ -126,7 +126,7 @@ class RoomRepo {
         _uidIdNameDao.update(uid.asString(), name: name);
         return name;
       } else {
-        var name = await _contactRepo.getContactFromServer(uid);
+        final name = await _contactRepo.getContactFromServer(uid);
         if (name != null) {
           roomNameCache.set(uid.asString(), name);
           return name;
@@ -295,7 +295,7 @@ class RoomRepo {
 
   Future<void> fetchBlockedRoom() async {
     var result = await _queryServiceClient.getBlockedList(GetBlockedListReq());
-    for (var uid in result.uidList) {
+    for (final uid in result.uidList) {
       _blockDao.block(uid.asString());
     }
   }
@@ -303,7 +303,7 @@ class RoomRepo {
   Future<List<Uid>> getAllRooms() async {
     Map<Uid, Uid> finalList = {};
     var res = await _roomDao.getAllRooms();
-    for (var room in res) {
+    for (final room in res) {
       Uid uid = room.uid.asUid();
       finalList[uid] = uid;
     }
@@ -316,8 +316,8 @@ class RoomRepo {
     }
 
     List<Uid> searchResult = [];
-    var res = await _uidIdNameDao.search(text);
-    for (var element in res) {
+    final res = await _uidIdNameDao.search(text);
+    for (final element in res) {
       if (!element.uid.isUser() ||
           (element.uid.isUser() &&
               element.name != null &&

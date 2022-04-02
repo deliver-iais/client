@@ -58,7 +58,7 @@ class _CustomNotificationSoundSelectionState
                 onPressed: () {
                   var index = 0;
                   if (selectedFlag.containsValue(true)) {
-                    for (int key in selectedFlag.keys) {
+                    for (final key in selectedFlag.keys) {
                       if (selectedFlag[key] == true) index = key;
                     }
                     _roomRepo.setRoomCustomNotification(

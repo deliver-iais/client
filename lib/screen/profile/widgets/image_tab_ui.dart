@@ -46,7 +46,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
       var res = await _mediaQueryRepo.getMediaPage(
           widget.roomUid.asString(), MediaType.IMAGE, page, index);
       if (res != null) {
-        for (Media media in res) {
+        for (final media in res) {
           _mediaCache[media.messageId] = media;
         }
       }

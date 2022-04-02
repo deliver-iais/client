@@ -70,7 +70,7 @@ class StickerRepo {
   }
 
   Future<proto.StickerPack> downloadStickerPackByPackId(String packId) async {
-    var result = await _stickerServices
+    final result = await _stickerServices
         .getStickerPackByID(proto.GetStickerPackByIDReq()..id = packId);
     return result.pack;
   }

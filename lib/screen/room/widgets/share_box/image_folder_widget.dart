@@ -164,9 +164,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
     _messageRepo.sendMultipleFilesMessages(widget.roomUid,
         _selectedImage.map((e) => model.File(e, e.split(".").last)).toList(),
         replyToId: widget.replyMessageId, caption: _textEditingController.text);
-    if (widget.resetRoomPageDetails != null) {
-      widget.resetRoomPageDetails!();
-    }
+    widget.resetRoomPageDetails?.call();
   }
 
   void onTap(String imagePath) {

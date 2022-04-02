@@ -67,7 +67,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
     _isFileSizeAccept = widget.editableMessage != null;
     if (widget.editableMessage == null) {
       _type = widget.type!;
-      for (var element in widget.files!) {
+      for (final element in widget.files!) {
         element.path = element.path.replaceAll("\\", "/");
         _isFileFormatAccept = _fileService.isFileFormatAccepted(
             element.extension ?? element.name.split(".").last);
@@ -250,7 +250,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                 FilePickerResult? res =
                                     await getFile(allowMultiple: true);
                                 if (res != null) {
-                                  for (var element in res.files) {
+                                  for (final element in res.files) {
                                     widget.files!.add(model.File(
                                         isWeb
                                             ? Uri.dataFromBytes(
@@ -319,7 +319,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
             widget.currentRoom, widget.files!,
             replyToId: widget.replyMessageId,
             caption: _editingController.text.toString());
-    if (widget.resetRoomPageDetails != null) widget.resetRoomPageDetails!();
+    widget.resetRoomPageDetails?.call();
   }
 
   Row buildRow(int index, {bool showManage = true}) {
@@ -421,7 +421,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
     FilePickerResult? result = await FilePicker.platform.pickFiles(
       allowMultiple: allowMultiple,
     );
-    for (var element in result!.files) {
+    for (final element in result!.files) {
       _isFileFormatAccept =
           _fileService.isFileFormatAccepted(element.extension ?? element.name);
       _isFileSizeAccept = element.size < MAX_FILE_SIZE_BYTE;

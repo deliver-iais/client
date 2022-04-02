@@ -40,7 +40,7 @@ class AudioItem extends FileBasic {
     List<dynamic> paths = json.decode(storageFiles);
 
     List<File> files = [];
-    for (var path in paths) {
+    for (final path in paths) {
       try {
         files.add(File(path.toString()));
       } catch (e) {
@@ -67,7 +67,7 @@ class FileItem extends FileBasic {
       var storageFiles = await StoragePath.filePath;
       List<dynamic> filesPath = json.decode(storageFiles);
       List<String> result = [];
-      for (var path in filesPath) {
+      for (final path in filesPath) {
         result.add(path.toString());
       }
       return result;

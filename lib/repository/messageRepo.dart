@@ -157,7 +157,7 @@ class MessageRepo {
               ..limit = 10);
         finished = getAllUserRoomMetaRes.finished;
         if (finished) _sharedDao.put(SHARED_DAO_FETCH_ALL_ROOM, "true");
-        for (RoomMetadata roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
+        for (final roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
           _allRoomMetaData[roomMetadata.roomUid.asString()] = roomMetadata;
           var room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
           if (room == null) {
@@ -228,7 +228,7 @@ class MessageRepo {
 
   Future<void> updatingLastSeen() async {
     var rooms = await _roomDao.getAllRooms();
-    for (var r in rooms) {
+    for (final r in rooms) {
       if (r.lastMessage == null) return;
       var category = r.lastMessage!.to.asUid().category;
       if (r.lastMessage!.id == null) return;
@@ -343,7 +343,7 @@ class MessageRepo {
         options: CallOptions(timeout: const Duration(seconds: 3)));
     List<Message> messages =
         await _saveFetchMessages(fetchMessagesRes.messages);
-    for (var element in messages) {
+    for (final element in messages) {
       if (firstMessageId != null && element.id! <= firstMessageId) {
         lastMessage = element.copyWith(json: DELETED_ROOM_MESSAGE);
         break;
@@ -526,17 +526,17 @@ class MessageRepo {
           ..latitude = locationData.latitude)
         .writeToJson();
 
-    Message msg =
+    final msg =
         _createMessage(room, replyId: replyId, forwardedFrom: forwardedFrom)
             .copyWith(type: MessageType.LOCATION, json: json);
 
-    var pm = _createPendingMessage(msg, SendingStatus.PENDING);
+    final pm = _createPendingMessage(msg, SendingStatus.PENDING);
     _saveAndSend(pm);
   }
 
   Future<void> sendMultipleFilesMessages(Uid room, List<model.File> files,
       {String? caption, int replyToId = 0}) async {
-    for (var file in files) {
+    for (final file in files) {
       if (files.last.path == file.path) {
         await sendFileMessage(room, file,
             caption: caption, replyToId: replyToId);
@@ -720,7 +720,7 @@ class MessageRepo {
   Future<void> sendPendingMessages() async {
     List<PendingMessage> pendingMessages =
         await _messageDao.getAllPendingMessages();
-    for (var pendingMessage in pendingMessages) {
+    for (final pendingMessage in pendingMessages) {
       if (!pendingMessage.failed) {
         switch (pendingMessage.status) {
           case SendingStatus.UPLOAD_FILE_INPROGRSS:
@@ -772,7 +772,7 @@ class MessageRepo {
 
   Future<void> sendForwardedMessage(
       Uid room, List<Message> forwardedMessage) async {
-    for (Message forwardedMessage in forwardedMessage) {
+    for (final forwardedMessage in forwardedMessage) {
       Message msg = _createMessage(room, forwardedFrom: forwardedMessage.from)
           .copyWith(type: forwardedMessage.type, json: forwardedMessage.json);
 
@@ -783,7 +783,7 @@ class MessageRepo {
   }
 
   void sendForwardedMediaMessage(Uid roomUid, List<Media> forwardedMedias) {
-    for (Media media in forwardedMedias) {
+    for (final media in forwardedMedias) {
       var json = jsonDecode(media.json);
       file_pb.File file = file_pb.File()
         ..type = json["type"]
@@ -881,7 +881,7 @@ class MessageRepo {
   Future<List<Message>> _saveFetchMessages(
       List<message_pb.Message> messages) async {
     List<Message> msgList = [];
-    for (message_pb.Message message in messages) {
+    for (final message in messages) {
       _messageDao.deletePendingMessage(message.packetId);
       try {
         if (message.whichType() == message_pb.Message_Type.persistEvent) {
@@ -1020,7 +1020,7 @@ class MessageRepo {
       String botUid, Map<String, String> formResultMap, int formMessageId,
       {String? forwardFromAsString}) async {
     FormResult formResult = FormResult();
-    for (var fileId in formResultMap.keys) {
+    for (final fileId in formResultMap.keys) {
       formResult.values[fileId] = formResultMap[fileId]!;
     }
     String jsonString = (formResult).writeToJson();
@@ -1142,7 +1142,7 @@ class MessageRepo {
 
   Future<void> deleteMessage(List<Message> messages) async {
     try {
-      for (var msg in messages) {
+      for (final msg in messages) {
         if (msg.type == MessageType.FILE && msg.id != null) {
           _mediaDao.deleteMedia(msg.roomUid, msg.id!);
         }
@@ -1243,7 +1243,7 @@ class MessageRepo {
       GetBlockedListRes res =
           await _queryServiceClient.getBlockedList(GetBlockedListReq());
       if (res.uidList.isNotEmpty) {
-        for (var uid in res.uidList) {
+        for (final uid in res.uidList) {
           _blockDao.block(uid.asString());
         }
       }

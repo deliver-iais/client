@@ -16,7 +16,7 @@ class LastActivityRepo {
       GetIt.I.get<QueryServiceClient>();
 
   Future<void> updateLastActivity(Uid userUId) async {
-    var la = await _lastActivityDao.get(userUId.asString());
+    final la = await _lastActivityDao.get(userUId.asString());
     if (la != null &&
         DateTime.now().millisecondsSinceEpoch - la.lastUpdate < 10 * 60) {
       return;

@@ -426,7 +426,7 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   _sendSeenMessage(List<Message> messages) {
-    for (var msg in messages) {
+    for (final msg in messages) {
       if (!_authRepo.isCurrentUser(msg.from)) {
         _messageRepo.sendSeen(msg.id!, widget.roomId.asUid());
       }
@@ -1054,7 +1054,7 @@ class _RoomPageState extends State<RoomPage> {
   Widget _selectMultiMessageAppBar() {
     final theme = Theme.of(context);
     bool _hasPermissionToDeleteMsg = true;
-    for (Message message in _selectedMessages.values.toList()) {
+    for (final message in _selectedMessages.values.toList()) {
       if ((_authRepo.isCurrentUserSender(message) ||
               (message.roomUid.isChannel() && _hasPermissionInChannel.value) ||
               (message.roomUid.isGroup() && _hasPermissionInGroup.value)) ==
@@ -1107,7 +1107,7 @@ class _RoomPageState extends State<RoomPage> {
                       : b.id == null
                           ? -1
                           : a.id!.compareTo(b.id!));
-                  for (Message message in messages) {
+                  for (final message in messages) {
                     if (message.type == MessageType.TEXT) {
                       copyText = copyText +
                           await _roomRepo.getName(message.from.asUid()) +

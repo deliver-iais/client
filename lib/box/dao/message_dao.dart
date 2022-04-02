@@ -34,28 +34,28 @@ abstract class MessageDao {
 class MessageDaoImpl implements MessageDao {
   @override
   Future<void> deleteMessage(Message message) async {
-    var box = await _openMessages(message.roomUid);
+    final box = await _openMessages(message.roomUid);
 
     box.delete(message.id);
   }
 
   @override
   Future<void> deletePendingMessage(String packetId) async {
-    var box = await _openPending();
+    final box = await _openPending();
 
     box.delete(packetId);
   }
 
   @override
   Future<Message?> getMessage(String roomUid, int id) async {
-    var box = await _openMessages(roomUid);
+    final box = await _openMessages(roomUid);
 
     return box.get(id);
   }
 
   @override
   Future<List<PendingMessage>> getAllPendingMessages() async {
-    var box = await _openPending();
+    final box = await _openPending();
 
     return box.values.toList();
   }
@@ -63,7 +63,7 @@ class MessageDaoImpl implements MessageDao {
   @override
   Future<List<Message?>>? getMessagePage(String roomUid, int page,
       {int pageSize = 16}) async {
-    var box = await _openMessages(roomUid);
+    final box = await _openMessages(roomUid);
 
     return Iterable<int>.generate(pageSize)
         .map((e) => page * pageSize + e)
@@ -74,14 +74,14 @@ class MessageDaoImpl implements MessageDao {
 
   @override
   Future<List<PendingMessage>> getPendingMessages(String roomUid) async {
-    var box = await _openPending();
+    final box = await _openPending();
 
     return box.values.where((element) => element.roomUid == roomUid).toList();
   }
 
   @override
   Stream<List<PendingMessage>> watchPendingMessages(String roomUid) async* {
-    var box = await _openPending();
+    final box = await _openPending();
 
     yield box.values
         .where((element) => element.roomUid == roomUid)
@@ -102,7 +102,7 @@ class MessageDaoImpl implements MessageDao {
 
   @override
   Future<PendingMessage?> getPendingMessage(String packetId) async {
-    var box = await _openPending();
+    final box = await _openPending();
 
     return box.get(packetId);
   }

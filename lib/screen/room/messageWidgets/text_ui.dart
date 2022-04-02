@@ -272,7 +272,7 @@ List<Block> parseText(
 
   var result = <Block>[];
 
-  for (var match in matches) {
+  for (final match in matches) {
     result.add(Block(text: transformer(text.substring(start, match.start))));
     result.add(Block(
         text: transformer(match[0] as String),
@@ -291,7 +291,7 @@ List<Block> parseText(
 String same(String m) => m;
 
 Iterable<T> flatten<T>(Iterable<Iterable<T>> items) sync* {
-  for (var i in items) {
+  for (final i in items) {
     yield* i;
   }
 }

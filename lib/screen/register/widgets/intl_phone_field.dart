@@ -161,7 +161,7 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
             obscureText: widget.obscureText,
             textAlign: widget.textAlign,
             onTap: () {
-              if (widget.onTap != null) widget.onTap!();
+              widget.onTap?.call();
             },
             controller: widget.controller,
             focusNode: widget.focusNode,

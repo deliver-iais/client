@@ -40,7 +40,7 @@ class MucServices {
       {bool retry = false}) async {
     group_pb.AddMembersReq addMemberRequest =
         group_pb.AddMembersReq();
-    for (Member member in members) {
+    for (final member in members) {
       addMemberRequest.members.add(member);
     }
     addMemberRequest.group = groupUid;
@@ -111,7 +111,7 @@ class MucServices {
 
   Future<bool> kickGroupMembers(List<Member> members, Uid groupUid) async {
     var kickMembersReq = group_pb.KickMembersReq();
-    for (Member member in members) {
+    for (final member in members) {
       kickMembersReq.members.add(member.uid);
     }
     kickMembersReq.group = groupUid;
@@ -196,7 +196,7 @@ class MucServices {
     try {
       channel_pb.AddMembersReq addMemberRequest =
           channel_pb.AddMembersReq();
-      for (Member member in members) {
+      for (final member in members) {
         addMemberRequest.members.add(member);
       }
       addMemberRequest.channel = mucUid;
@@ -266,7 +266,7 @@ class MucServices {
 
   Future<bool> kickChannelMembers(List<Member> members, Uid channelUid) async {
     var kickMembersReq = channel_pb.KickMembersReq();
-    for (Member member in members) {
+    for (final member in members) {
       kickMembersReq.members.add(member.uid);
     }
     kickMembersReq.channel = channelUid;

@@ -57,8 +57,8 @@ class ContactRepo {
                   orderByGivenName: false,
                   iOSLocalizedLabels: false);
 
-          for (contacts_service_pb.Contact phoneContact in phoneContacts) {
-            for (var p in phoneContact.phones!) {
+          for (final phoneContact in phoneContacts) {
+            for (final p in phoneContact.phones!) {
               try {
                 String contactPhoneNumber = p.value.toString();
                 PhoneNumber phoneNumber = _getPhoneNumber(
@@ -120,7 +120,7 @@ class ContactRepo {
   Future<bool> _sendContacts(List<Contact> contacts) async {
     try {
       var sendContacts = SaveContactsReq();
-      for (var element in contacts) {
+      for (final element in contacts) {
         sendContacts.contactList.add(element);
       }
       await _contactServices.saveContacts(sendContacts);
@@ -146,7 +146,7 @@ class ContactRepo {
   }
 
   void _saveContact(List<UserAsContact> users) {
-    for (var contact in users) {
+    for (final contact in users) {
       _contactDao.save(contact_pb.Contact(
           uid: contact.uid.asString(),
           countryCode: contact.phoneNumber.countryCode.toString(),
@@ -164,7 +164,7 @@ class ContactRepo {
   Future<String?> getUserIdByUid(Uid uid) async {
     try {
       // For now, Group and Bot not supported in server side!!
-      var result =
+      final result =
           await _queryServiceClient.getIdByUid(GetIdByUidReq()..uid = uid);
       _uidIdNameDao.update(uid.asString(), id: result.id);
       return result.id;
@@ -192,7 +192,7 @@ class ContactRepo {
         ..category = Categories.USER
         ..filterByCategory = false);
       List<Uid> searchResult = [];
-      for (var room in result.itemList) {
+      for (final room in result.itemList) {
         searchResult.add(room.uid);
       }
       return searchResult;

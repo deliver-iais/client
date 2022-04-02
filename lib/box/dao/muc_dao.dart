@@ -89,20 +89,20 @@ class MucDaoImpl implements MucDao {
 
   @override
   Future<Member?> getMember(String memberUid, String mucUid) async {
-    var box = await _openMembers(mucUid);
+    final box = await _openMembers(mucUid);
     return box.get(memberUid);
   }
 
   @override
   Future<void> saveMember(Member member) async {
-    var box = await _openMembers(member.mucUid);
+    final box = await _openMembers(member.mucUid);
 
     box.put(member.memberUid, member);
   }
 
   @override
   Stream<List<Member>> watchAllMembers(String mucUid) async* {
-    var box = await _openMembers(mucUid);
+    final box = await _openMembers(mucUid);
 
     yield box.values.toList();
 

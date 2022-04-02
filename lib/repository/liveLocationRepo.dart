@@ -46,7 +46,7 @@ class LiveLocationRepo {
     List<pb.Location> locations = [];
     var res = await _liveLocationClient.getLastUpdatedLiveLocation(
         GetLastUpdatedLiveLocationReq()..uuid = uuid);
-    for (var liveLocation in res.liveLocations) {
+    for (final liveLocation in res.liveLocations) {
       locations.add(liveLocation.location);
     }
     _liveLocationDao.saveLiveLocation(LiveLocation(
@@ -81,8 +81,8 @@ class LiveLocationRepo {
 
   void _updateLiveLocationInDb(
       String uuid, int duration, pb.Location location) async {
-    LiveLocation? liveL = await _liveLocationDao.getLiveLocation(uuid);
-    List<pb.Location> locations = liveL!.locations;
+    final liveL = await _liveLocationDao.getLiveLocation(uuid);
+    final locations = liveL!.locations;
     locations.add(location);
     _liveLocationDao.saveLiveLocation(LiveLocation(
         uuid: uuid,

@@ -165,7 +165,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   }
 
   void rearangChatItem(List<Room> rooms) {
-    for (var room in rooms) {
+    for (final room in rooms) {
       if (room.pinned == true) {
         rooms.remove(room);
         rooms.insert(0, room);

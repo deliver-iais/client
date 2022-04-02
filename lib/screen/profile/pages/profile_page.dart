@@ -1081,7 +1081,7 @@ class _ProfilePageState extends State<ProfilePage>
                     mucs.data != null &&
                     mucs.data!.isNotEmpty) {
                   List<String> s = [];
-                  for (var room in mucs.data!) {
+                  for (final room in mucs.data!) {
                     s.add(room.uid);
                   }
                   groups.add(s);
@@ -1100,7 +1100,7 @@ class _ProfilePageState extends State<ProfilePage>
                                 TextField(
                                   onChanged: (str) {
                                     List<String> searchRes = [];
-                                    for (var uid in nameOfGroup.keys) {
+                                    for (final uid in nameOfGroup.keys) {
                                       if (nameOfGroup[uid]!.contains(str) ||
                                           nameOfGroup[uid] == str) {
                                         searchRes.add(uid);

@@ -47,7 +47,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
       var res = await _mediaQueryRepo.getMediaPage(
           widget.roomUid.asString(), widget.type, page, index);
       if (res != null) {
-        for (Media media in res) {
+        for (final media in res) {
           _mediaCache[media.messageId] = media;
         }
       }

@@ -60,7 +60,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
 
   Future<void> getMembers() async {
     var res = await _mucRepo.getAllMembers(widget.mucUid!.asString());
-    for (var element in res) {
+    for (final element in res) {
       members.add(element!.memberUid);
     }
   }
@@ -69,7 +69,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
     query = query.replaceAll(RegExp(r"\s\b|\b\s"), "").toLowerCase();
     if (query.isNotEmpty) {
       List<Contact> dummyListData = [];
-      for (var item in contacts) {
+      for (final item in contacts) {
         var searchTerm = '${item.firstName}${item.lastName}'
             .replaceAll(RegExp(r"\s\b|\b\s"), "")
             .toLowerCase();
@@ -178,7 +178,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                             padding: const EdgeInsets.all(0),
                             onPressed: () async {
                               List<Uid> users = [];
-                              for (Contact contact
+                              for (final contact
                                   in _createMucService.contacts) {
                                 users.add(contact.uid.asUid());
                               }

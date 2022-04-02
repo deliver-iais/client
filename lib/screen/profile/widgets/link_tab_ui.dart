@@ -34,7 +34,7 @@ class _LinkTabUiState extends State<LinkTabUi> {
       var res = await _mediaQueryRepo.getMediaPage(
           widget.roomUid.asString(), MediaType.LINK, page, index);
       if (res != null) {
-        for (Media media in res) {
+        for (final media in res) {
           _mediaCache[media.messageId] = media;
         }
       }

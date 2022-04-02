@@ -109,17 +109,17 @@ class FileRepo {
 
   Future<String?> getFile(String uuid, String filename,
       {ThumbnailSize? thumbnailSize, bool intiProgressBar = true}) async {
-    String? path =
+    final path =
         await getFileIfExist(uuid, filename, thumbnailSize: thumbnailSize);
     if (path != null) {
       return isWeb ? Uri.parse(path).toString() : path;
     }
-    var downloadedFileUri =
+    final downloadedFileUri =
         await _fileService.getFile(uuid, filename, size: thumbnailSize);
     if (downloadedFileUri != null) {
       if (isWeb) {
-        var res = await http.get(Uri.parse(downloadedFileUri));
-        String bytes = Uri.dataFromBytes(res.bodyBytes.toList()).toString();
+        final res = await http.get(Uri.parse(downloadedFileUri));
+        final bytes = Uri.dataFromBytes(res.bodyBytes.toList()).toString();
         await _saveFileInfo(uuid, bytes, filename,
             thumbnailSize != null ? enumToString(thumbnailSize) : 'real');
         if (intiProgressBar) {

@@ -34,7 +34,7 @@ class RawKeyboardService {
     List<model.File> fileList = [];
     String name = "";
     if (files.isNotEmpty) {
-      for (var file in files) {
+      for (final file in files) {
         name = file.replaceAll("\\", "/").split("/").last;
         fileList.add(model.File(file, name, extension: name.split(".").last));
       }

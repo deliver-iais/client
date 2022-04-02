@@ -30,14 +30,14 @@ class MuteDaoImpl implements MuteDao {
 
   @override
   Future<void> mute(String uid) async {
-    var box = await _open();
+    final box = await _open();
 
     box.put(uid, true);
   }
 
   @override
   Future<void> unmute(String uid) async {
-    var box = await _open();
+    final box = await _open();
 
     box.delete(uid);
   }

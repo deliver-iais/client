@@ -47,7 +47,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
             obtainMyRole(snapshot.data!);
             List<Widget> widgets = [];
 
-            for (var member in snapshot.data!) {
+            for (final member in snapshot.data!) {
               widgets.add(const Divider());
               widgets.add(GestureDetector(
                   onTap: () {
@@ -195,7 +195,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
   }
 
   void obtainMyRole(List<Member?> members) {
-    for (Member? member in members) {
+    for (final member in members) {
       if (member != null && _authRepo.isCurrentUser(member.memberUid)) {
         _myRoleInThisRoom = member.role!;
       }

@@ -49,7 +49,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
       var res = await _mediaQueryRepo.getMediaPage(
           widget.roomUid.asString(), MediaType.VIDEO, page, index);
       if (res != null) {
-        for (Media media in res) {
+        for (final media in res) {
           _mediaCache[media.messageId] = media;
         }
       }

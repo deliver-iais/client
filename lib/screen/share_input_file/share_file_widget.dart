@@ -28,7 +28,7 @@ class ChatItemToShareFile extends StatelessWidget {
         child: GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () {
-            for (String path in sharedFilePath) {
+            for (final path in sharedFilePath) {
               _messageRepo.sendFileMessage(
                   uid, File(path, path.split(".").last));
             }

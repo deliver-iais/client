@@ -240,9 +240,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
               });
             }
 
-            if (widget.onPress != null) {
-              widget.onPress!();
-            }
+            widget.onPress?.call();
 
             Future.delayed(const Duration(milliseconds: 100), () {
               if (mounted) {

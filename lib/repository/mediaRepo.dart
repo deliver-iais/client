@@ -222,11 +222,11 @@ class MediaRepo {
 
   Future<List<Media>> _saveFetchedMedias(List<media_pb.Media> getMedias,
       Uid roomUid, FetchMediasReq_MediaType mediaType) async {
-    List<Media> mediaList = [];
-    for (media_pb.Media media in getMedias) {
-      MediaType type = findFetchedMediaType(mediaType);
-      String json = findFetchedMediaJson(media);
-      Media insertedMedia = Media(
+    final List<Media> mediaList = [];
+    for (final media in getMedias) {
+      final type = findFetchedMediaType(mediaType);
+      final json = findFetchedMediaJson(media);
+      final insertedMedia = Media(
           createdOn: media.createdOn.toInt(),
           createdBy: media.createdBy.asString(),
           messageId: media.messageId.toInt(),

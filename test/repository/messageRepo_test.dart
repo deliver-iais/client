@@ -69,7 +69,7 @@ void main() {
           () async {
         getAndRegisterCoreServices(
             connectionStatus: ConnectionStatus.Disconnected);
-        MessageRepo messageRepo = await getAndRegisterMessageRepo();
+        final messageRepo = await getAndRegisterMessageRepo();
         expect(messageRepo.updatingStatus.value,
             TitleStatusConditions.Disconnected);
       });

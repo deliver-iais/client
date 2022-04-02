@@ -97,9 +97,7 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
     if (_dragExtent < -50) {
       showRightIcon = false;
       setState(() {});
-      if (widget.onSwipeLeft != null) {
-        widget.onSwipeLeft!();
-      }
+      widget.onSwipeLeft?.call();
     }
 
     _dragExtent = 0.0;

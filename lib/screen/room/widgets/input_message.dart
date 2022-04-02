@@ -806,14 +806,14 @@ class _InputMessageWidget extends State<InputMessage> {
       List<File> res = [];
       if (isLinux) {
         final result = await openFiles();
-        for (var file in result) {
+        for (final file in result) {
           res.add(File(file.path, file.name,
               extension: file.mimeType, size: await file.length()));
         }
       } else {
         FilePickerResult? result =
             await FilePicker.platform.pickFiles(allowMultiple: true);
-        for (var file in result!.files) {
+        for (final file in result!.files) {
           res.add(File(
               isWeb
                   ? Uri.dataFromBytes(file.bytes!.toList()).toString()

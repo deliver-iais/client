@@ -51,7 +51,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
   @override
   void initState() {
     form = widget.message.json.toForm();
-    for (var field in form.fields) {
+    for (final field in form.fields) {
       int index = form.fields.indexOf(field);
       switch (field.whichType()) {
         case proto_pb.Form_Field_Type.textField:
@@ -259,7 +259,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
     return ElevatedButton(
       onPressed: () {
         var validate = true;
-        for (var field in formFieldsKey.values) {
+        for (final field in formFieldsKey.values) {
           if (field.currentState == null || !field.currentState!.validate()) {
             _errorText.add(
                 form.fields[formFieldsKey.values.toList().indexOf(field)].id +

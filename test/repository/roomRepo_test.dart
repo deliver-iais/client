@@ -376,7 +376,7 @@ void main() {
     group('watchRoom -', () {
       test('When called should return room stream', () async {
         final roomDao = getAndRegisterRoomDao();
-        var value = await RoomRepo().watchRoom(testUid.asString()).first;
+        final value = await RoomRepo().watchRoom(testUid.asString()).first;
         expect(value, testRoom);
         verify(roomDao.watchRoom(testUid.asString()));
       });

@@ -358,7 +358,7 @@ class MyApp extends StatelessWidget {
                 ],
                 home: const SplashScreen(),
                 localeResolutionCallback: (deviceLocale, supportedLocale) {
-                  for (var locale in supportedLocale) {
+                  for (final locale in supportedLocale) {
                     if (locale.languageCode == deviceLocale!.languageCode &&
                         locale.countryCode == deviceLocale.countryCode) {
                       return deviceLocale;

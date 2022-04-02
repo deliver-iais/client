@@ -24,7 +24,7 @@ class BotTableWidget extends StatelessWidget {
     List<Widget> columns = [];
     Map<int, TableColumnWidth>? columnWidths = {};
 
-    for (var row in table.rows) {
+    for (final row in table.rows) {
       columns = [];
       for (int i = 0; i < row.columns.length; ++i) {
         columnWidths[i] = FixedColumnWidth(table.columnWidths[i]);

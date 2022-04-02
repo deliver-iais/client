@@ -195,7 +195,7 @@ class AuthRepo {
   }
 
   _setCurrentUid(String accessToken) {
-    Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
+    final Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
     currentUserUid = Uid()
       ..category = Categories.USER
       ..node = decodedToken["sub"]

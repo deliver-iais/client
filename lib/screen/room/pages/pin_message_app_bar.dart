@@ -37,7 +37,7 @@ class PinMessageAppBar extends StatelessWidget {
         builder: (c, id) {
           if (id.hasData && id.data! > 0) {
             Message? mes;
-            for (var m in pinMessages) {
+            for (final m in pinMessages) {
               if (m.id == id.data) {
                 mes = m;
               }

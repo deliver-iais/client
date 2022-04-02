@@ -254,7 +254,7 @@ class WindowsNotifier implements Notifier {
   Future<void> cancel(int id, String roomUid) async {
     if (toastByRoomId.containsKey(roomUid)) {
       var roomIdToast = toastByRoomId[roomUid];
-      for (var element in roomIdToast!.keys.toList()) {
+      for (final element in roomIdToast!.keys.toList()) {
         roomIdToast[element]!.clear();
         roomIdToast.remove(element);
       }
@@ -509,7 +509,7 @@ class AndroidNotifier implements Notifier {
     try {
       List<ActiveNotification>? activeNotification =
           await _flutterLocalNotificationsPlugin.getActiveNotifications();
-      for (var element in activeNotification!) {
+      for (final element in activeNotification!) {
         if (element.channelId!.contains(roomUid) && element.id != 0) {
           await _flutterLocalNotificationsPlugin.cancel(element.id);
         }

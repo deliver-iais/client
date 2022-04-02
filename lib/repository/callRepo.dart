@@ -991,7 +991,7 @@ class CallRepo {
   }
 
   _createAnswer() async {
-    RTCSessionDescription description =
+    final description =
         await _peerConnection!.createAnswer(_sdpConstraints);
 
     var session = parse(description.sdp.toString());
@@ -1082,7 +1082,7 @@ class CallRepo {
   }
 
   _setCandidate(List<RTCIceCandidate> candidates) async {
-    for (var candidate in candidates) {
+    for (final candidate in candidates) {
       await _peerConnection!.addCandidate(candidate);
     }
   }
@@ -1225,7 +1225,7 @@ class CallRepo {
                 FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH
             ..month = month - 1
             ..year = year);
-      for (var call in callLists.cellEvents) {
+      for (final call in callLists.cellEvents) {
         call_event.CallEvent callEvent = call_event.CallEvent(
             callDuration: call.callEvent.callDuration.toInt(),
             endOfCallTime: call.callEvent.endOfCallTime.toInt(),

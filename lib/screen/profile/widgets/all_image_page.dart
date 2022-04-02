@@ -58,7 +58,7 @@ class _AllImagePageState extends State<AllImagePage> {
       var res = await _mediaQueryRepo.getMediaPage(
           widget.roomUid, MediaType.IMAGE, page, index);
       if (res != null) {
-        for (Media media in res) {
+        for (final media in res) {
           _mediaCache[media.messageId] = media;
         }
       }

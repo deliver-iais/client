@@ -158,7 +158,7 @@ class AccountRepo {
   }
 
   Future<void> checkUpdatePlatformSessionInformation() async {
-    String? pv = await _sharedDao.get(SHARED_DAO_APP_VERSION);
+    final String? pv = await _sharedDao.get(SHARED_DAO_APP_VERSION);
     if (pv != null) {
       // Migrations
       if (shouldRemoveDB(pv)) {
