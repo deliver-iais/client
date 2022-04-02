@@ -22,7 +22,7 @@ class MediaDaoImpl implements MediaDao {
   @override
   Future<List<Media>> get(String roomId, MediaType type, int limit, int offset) async {
     final box = await _open(roomId);
-    final List<Media> res = [];
+    final res = <Media>[];
     final medias = box.values
         .where((element) =>
             element.roomId.contains(roomId) && element.type == type)

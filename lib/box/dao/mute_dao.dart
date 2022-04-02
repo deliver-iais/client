@@ -14,14 +14,14 @@ abstract class MuteDao {
 class MuteDaoImpl implements MuteDao {
   @override
   Future<bool> isMuted(String uid) async {
-    var box = await _open();
+    final box = await _open();
 
     return box.get(uid) ?? false;
   }
 
   @override
   Stream<bool> watchIsMuted(String uid) async* {
-    var box = await _open();
+    final box = await _open();
 
     yield box.get(uid) ?? false;
 

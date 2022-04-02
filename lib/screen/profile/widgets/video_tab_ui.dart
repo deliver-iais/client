@@ -45,8 +45,8 @@ class _VideoTabUiState extends State<VideoTabUi> {
         _mediaCache.values.toList().length >= index) {
       return _mediaCache.values.toList().elementAt(index);
     } else {
-      int page = (index / MEDIA_PAGE_SIZE).floor();
-      var res = await _mediaQueryRepo.getMediaPage(
+      final page = (index / MEDIA_PAGE_SIZE).floor();
+      final res = await _mediaQueryRepo.getMediaPage(
           widget.roomUid.asString(), MediaType.VIDEO, page, index);
       if (res != null) {
         for (final media in res) {
@@ -89,9 +89,9 @@ class _VideoTabUiState extends State<VideoTabUi> {
   }
 
   Container buildMediaWidget(Media media, int index, ThemeData theme) {
-    double duration =
+    final duration =
         double.parse(jsonDecode(media.json)["duration"].toString());
-    var dur = Duration(seconds: duration.ceil());
+    final dur = Duration(seconds: duration.ceil());
     return Container(
       decoration: BoxDecoration(
         border: Border.all(

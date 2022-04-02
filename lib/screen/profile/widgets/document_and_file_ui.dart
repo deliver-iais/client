@@ -43,8 +43,8 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
         _mediaCache.values.toList().length >= index) {
       return _mediaCache.values.toList().elementAt(index);
     } else {
-      int page = (index / MEDIA_PAGE_SIZE).floor();
-      var res = await _mediaQueryRepo.getMediaPage(
+      final page = (index / MEDIA_PAGE_SIZE).floor();
+      final res = await _mediaQueryRepo.getMediaPage(
           widget.roomUid.asString(), widget.type, page, index);
       if (res != null) {
         for (final media in res) {
@@ -70,10 +70,9 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                           widget.addSelectedMedia(mediaSnapshot.data!),
                       onTap: () => widget.addSelectedMedia(mediaSnapshot.data),
                       child: Container(
-                        color:
-                            widget.selectedMedia.contains(mediaSnapshot.data)
-                                ? theme.hoverColor.withOpacity(0.4)
-                                : theme.backgroundColor,
+                        color: widget.selectedMedia.contains(mediaSnapshot.data)
+                            ? theme.hoverColor.withOpacity(0.4)
+                            : theme.backgroundColor,
                         child: FutureBuilder<String?>(
                             future: _fileRepo.getFileIfExist(
                                 jsonDecode(mediaSnapshot.data!.json)["uuid"],

@@ -48,7 +48,7 @@ class MediaMetaDataDaoImpl implements MediaMetaDataDao {
 
   @override
   Future clear(String roomUid) async {
-    var box = await _open();
+    final box = await _open();
     await box.delete(roomUid);
   }
 }

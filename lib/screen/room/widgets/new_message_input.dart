@@ -38,7 +38,7 @@ class NewMessageInput extends StatelessWidget {
         stream: _roomRepo.watchRoom(currentRoomId),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            Room currentRoom = snapshot.data!;
+            final currentRoom = snapshot.data!;
             return InputMessage(
               currentRoom: currentRoom,
               replyMessageId: replyMessageId,

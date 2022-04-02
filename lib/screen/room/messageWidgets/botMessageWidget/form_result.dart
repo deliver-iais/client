@@ -30,7 +30,7 @@ class _FormResultWidgetState extends State<FormResultWidget> {
 
   @override
   Widget build(BuildContext context) {
-    var formResult = widget.message.json.toFormResult();
+    final formResult = widget.message.json.toFormResult();
 
     return PageStorage(
       bucket: PageStorage.of(context)!,

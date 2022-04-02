@@ -156,9 +156,9 @@ class PersistentEventMessage extends StatelessWidget {
       BuildContext context) async {
     switch (persistentEventMessage.whichType()) {
       case PersistentEvent_Type.mucSpecificPersistentEvent:
-        String? issuer = await _roomRepo.getSlangName(
+        final issuer = await _roomRepo.getSlangName(
             persistentEventMessage.mucSpecificPersistentEvent.issuer);
-        Widget issuerWidget = MouseRegion(
+        final Widget issuerWidget = MouseRegion(
             cursor: SystemMouseCursors.click,
             child: GestureDetector(
               child: Text(
@@ -178,7 +178,7 @@ class PersistentEventMessage extends StatelessWidget {
           MucSpecificPersistentEvent_Issue.MUC_CREATED,
           MucSpecificPersistentEvent_Issue.KICK_USER
         }.contains(persistentEventMessage.mucSpecificPersistentEvent.issue)) {
-          String assignee = await _roomRepo.getSlangName(
+          final assignee = await _roomRepo.getSlangName(
               persistentEventMessage.mucSpecificPersistentEvent.assignee);
           assigneeWidget = MouseRegion(
             cursor: SystemMouseCursors.click,
@@ -199,7 +199,7 @@ class PersistentEventMessage extends StatelessWidget {
         Widget? pinedMessageWidget;
         if (persistentEventMessage.mucSpecificPersistentEvent.issue ==
             MucSpecificPersistentEvent_Issue.PIN_MESSAGE) {
-          var content = await getPinnedMessageContent();
+          final content = await getPinnedMessageContent();
           pinedMessageWidget = MouseRegion(
             cursor: SystemMouseCursors.click,
             child: GestureDetector(
@@ -217,7 +217,7 @@ class PersistentEventMessage extends StatelessWidget {
           );
         }
 
-        var issueWidget = Text(
+        final issueWidget = Text(
           getMucSpecificPersistentEventIssue(persistentEventMessage, isChannel),
           overflow: TextOverflow.ellipsis,
           softWrap: false,
@@ -305,7 +305,7 @@ class PersistentEventMessage extends StatelessWidget {
   }
 
   Future<String> getPinnedMessageContent() async {
-    Message? m = await _messageDao.getMessage(message.roomUid,
+    final m = await _messageDao.getMessage(message.roomUid,
         persistentEventMessage.mucSpecificPersistentEvent.messageId.toInt());
     if (m != null) {
       switch (m.type) {

@@ -37,7 +37,7 @@ class ShowCaptionDialog extends StatefulWidget {
       this.editableMessage,
       required this.resetRoomPageDetails,
       required this.replyMessageId,
-        this.caption})
+      this.caption})
       : super(key: key);
 
   @override
@@ -71,7 +71,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
         element.path = element.path.replaceAll("\\", "/");
         _isFileFormatAccept = _fileService.isFileFormatAccepted(
             element.extension ?? element.name.split(".").last);
-        int size = element.size ?? 0;
+        final size = element.size ?? 0;
         _isFileSizeAccept = size < MAX_FILE_SIZE_BYTE;
         if (!_isFileFormatAccept) {
           _invalidFormatFileName = element.name;
@@ -247,8 +247,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                           if (widget.editableMessage == null)
                             GestureDetector(
                               onTap: () async {
-                                FilePickerResult? res =
-                                    await getFile(allowMultiple: true);
+                                final res = await getFile(allowMultiple: true);
                                 if (res != null) {
                                   for (final element in res.files) {
                                     widget.files!.add(model.File(
@@ -363,7 +362,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
       children: [
         IconButton(
             onPressed: () async {
-              FilePickerResult? result = await getFile(allowMultiple: false);
+              final result = await getFile(allowMultiple: false);
 
               if (result != null && result.files.isNotEmpty) {
                 if (widget.editableMessage != null) {
@@ -418,7 +417,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
   }
 
   Future<FilePickerResult?> getFile({required bool allowMultiple}) async {
-    FilePickerResult? result = await FilePicker.platform.pickFiles(
+    final result = await FilePicker.platform.pickFiles(
       allowMultiple: allowMultiple,
     );
     for (final element in result!.files) {

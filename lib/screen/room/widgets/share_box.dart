@@ -245,8 +245,7 @@ class _ShareBoxState extends State<ShareBox> {
                                         isIOS) {
                                       if (!await Geolocator
                                           .isLocationServiceEnabled()) {
-                                        const AndroidIntent intent =
-                                            AndroidIntent(
+                                        const intent = AndroidIntent(
                                           action:
                                               'android.settings.LOCATION_SOURCE_SETTINGS',
                                         );
@@ -390,7 +389,7 @@ class _ShareBoxState extends State<ShareBox> {
   bool isSelected() => finalSelected.values.isNotEmpty;
 
   void liveLocation(I18N i18n, BuildContext context, Position position) {
-    BehaviorSubject<String> time = BehaviorSubject.seeded("10");
+    final time = BehaviorSubject<String>.seeded("10");
     showDialog(
         context: context,
         builder: (context) {

@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
-import 'package:deliver/box/avatar.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
@@ -65,7 +64,7 @@ class NotificationServices {
 
   Future<void> showIncomingCallNotification(String roomUid,
       {String? roomName}) async {
-    var rn = roomName ?? await _roomRepo.getSlangName(roomUid.asUid());
+    final rn = roomName ?? await _roomRepo.getSlangName(roomUid.asUid());
 
     _notifier.notifyIncomingCall(roomUid, rn);
   }
@@ -160,10 +159,10 @@ class WindowsNotifier implements Notifier {
       toastByRoomId[message.roomUid.node] = {};
     }
     try {
-      Avatar? lastAvatar =
+      final lastAvatar =
           await _avatarRepo.getLastAvatar(message.roomUid, false);
       if (lastAvatar != null && lastAvatar.fileId != null) {
-        String? file = await _fileRepo.getFile(
+        final file = await _fileRepo.getFile(
             lastAvatar.fileId!, lastAvatar.fileName!,
             thumbnailSize: ThumbnailSize.medium);
         toast = await WinToast.instance().showToast(
@@ -172,7 +171,7 @@ class WindowsNotifier implements Notifier {
             subtitle: createNotificationTextFromMessageBrief(message),
             imagePath: file!);
       } else {
-        var deliverIcon = await _fileServices.getDeliverIcon();
+        final deliverIcon = await _fileServices.getDeliverIcon();
         if (deliverIcon != null && deliverIcon.existsSync()) {
           toast = await WinToast.instance().showToast(
             type: ToastType.imageAndText02,
@@ -182,14 +181,14 @@ class WindowsNotifier implements Notifier {
           );
         }
       }
-      var roomIdToast = toastByRoomId[message.roomUid.node];
+      final roomIdToast = toastByRoomId[message.roomUid.node];
       roomIdToast![message.id!] = toast!;
       toast.eventStream.listen((event) {
         if (event is ActivatedEvent) {
           _routingService.openRoom(message.roomUid.asString());
           DesktopWindow.focus();
         }
-        var roomIdToast = toastByRoomId[message.roomUid.node];
+        final roomIdToast = toastByRoomId[message.roomUid.node];
         roomIdToast?.remove(message.id);
       });
     } catch (e) {
@@ -199,16 +198,16 @@ class WindowsNotifier implements Notifier {
 
   @override
   Future<void> notifyIncomingCall(String roomUid, String roomName) async {
-    List<String> actions = ['Accept', 'Decline'];
+    final actions = <String>['Accept', 'Decline'];
     Toast? toast;
     if (!toastByRoomId.containsKey(roomUid.asUid().node)) {
       toastByRoomId[roomUid.asUid().node] = {};
     }
     try {
-      Avatar? lastAvatar =
+      final lastAvatar =
           await _avatarRepo.getLastAvatar(roomUid.asUid(), false);
       if (lastAvatar != null && lastAvatar.fileId != null) {
-        String? file = await _fileRepo.getFile(
+        final file = await _fileRepo.getFile(
             lastAvatar.fileId!, lastAvatar.fileName!,
             thumbnailSize: ThumbnailSize.medium);
         toast = await WinToast.instance().showToast(
@@ -218,7 +217,7 @@ class WindowsNotifier implements Notifier {
             subtitle: "Incoming Call",
             imagePath: file!);
       } else {
-        var deliverIcon = await _fileServices.getDeliverIcon();
+        final deliverIcon = await _fileServices.getDeliverIcon();
         if (deliverIcon != null && deliverIcon.existsSync()) {
           toast = await WinToast.instance().showToast(
             type: ToastType.imageAndText02,
@@ -229,7 +228,7 @@ class WindowsNotifier implements Notifier {
           );
         }
       }
-      var roomIdToast = toastByRoomId[roomUid.asUid().node];
+      final roomIdToast = toastByRoomId[roomUid.asUid().node];
       roomIdToast![-1] = toast!;
       toast.eventStream.listen((event) {
         if (event is ActivatedEvent) {
@@ -242,7 +241,7 @@ class WindowsNotifier implements Notifier {
             Notifier.onCallAccept(roomUid);
           }
         }
-        var roomIdToast = toastByRoomId[roomUid.asUid().node];
+        final roomIdToast = toastByRoomId[roomUid.asUid().node];
         roomIdToast?.remove(-1);
       });
     } catch (e) {
@@ -253,7 +252,7 @@ class WindowsNotifier implements Notifier {
   @override
   Future<void> cancel(int id, String roomUid) async {
     if (toastByRoomId.containsKey(roomUid)) {
-      var roomIdToast = toastByRoomId[roomUid];
+      final roomIdToast = toastByRoomId[roomUid];
       for (final element in roomIdToast!.keys.toList()) {
         roomIdToast[element]!.clear();
         roomIdToast.remove(element);
@@ -300,8 +299,8 @@ class LinuxNotifier implements Notifier {
   Future<void> cancelById(int id) async {}
 
   LinuxNotifier() {
-    var notificationSetting =
-        const LinuxInitializationSettings(defaultActionName: "");
+    const notificationSetting =
+        LinuxInitializationSettings(defaultActionName: "");
 
     _flutterLocalNotificationsPlugin.initialize(notificationSetting,
         onSelectNotification: (room) {
@@ -320,10 +319,10 @@ class LinuxNotifier implements Notifier {
     LinuxNotificationIcon icon = AssetsLinuxIcon(
         'assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
 
-    var la = await _avatarRepo.getLastAvatar(message.roomUid, false);
+    final la = await _avatarRepo.getLastAvatar(message.roomUid, false);
 
     if (la != null && la.fileId != null) {
-      var path = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
+      final path = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
           thumbnailSize: ThumbnailSize.medium);
 
       if (path != null && path.isNotEmpty) {
@@ -331,7 +330,7 @@ class LinuxNotifier implements Notifier {
       }
     }
 
-    var platformChannelSpecifics = LinuxNotificationDetails(icon: icon);
+    final platformChannelSpecifics = LinuxNotificationDetails(icon: icon);
 
     _flutterLocalNotificationsPlugin.show(message.roomUid.asString().hashCode,
         message.roomName, createNotificationTextFromMessageBrief(message),
@@ -383,8 +382,8 @@ class AndroidNotifier implements Notifier {
 
     _flutterLocalNotificationsPlugin.createNotificationChannel(channel);
 
-    var notificationSetting =
-        const AndroidInitializationSettings('@mipmap/ic_launcher');
+    const notificationSetting =
+        AndroidInitializationSettings('@mipmap/ic_launcher');
 
     _flutterLocalNotificationsPlugin.initialize(notificationSetting,
         onSelectNotification: androidOnSelectNotification);
@@ -437,12 +436,12 @@ class AndroidNotifier implements Notifier {
   Future<void> notifyText(MessageBrief message) async {
     if (message.ignoreNotification) return;
     AndroidBitmap<Object>? largeIcon;
-    String selectedNotificationSound = "that_was_quick";
-    var selectedSound =
+    var selectedNotificationSound = "that_was_quick";
+    final selectedSound =
         await _roomRepo.getRoomCustomNotification(message.roomUid.asString());
-    var la = await _avatarRepo.getLastAvatar(message.roomUid, false);
+    final la = await _avatarRepo.getLastAvatar(message.roomUid, false);
     if (la != null && la.fileId != null && la.fileName != null) {
-      var path = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
+      final path = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
           thumbnailSize: ThumbnailSize.medium);
 
       if (path != null && path.isNotEmpty) {
@@ -455,25 +454,22 @@ class AndroidNotifier implements Notifier {
       }
     }
 
-    InboxStyleInformation inboxStyleInformation =
-        const InboxStyleInformation([], contentTitle: 'new messages');
+    const inboxStyleInformation =
+        InboxStyleInformation([], contentTitle: 'new messages');
 
-    AndroidNotificationDetails androidNotificationDetails =
-        AndroidNotificationDetails(
-            selectedNotificationSound + message.roomUid.asString(),
-            channel.name,
-            channelDescription: channel.description,
-            styleInformation: inboxStyleInformation,
-            groupKey: channel.groupId,
-            playSound: true,
-            sound:
-                RawResourceAndroidNotificationSound(selectedNotificationSound),
-            setAsGroupSummary: true);
+    final androidNotificationDetails = AndroidNotificationDetails(
+        selectedNotificationSound + message.roomUid.asString(), channel.name,
+        channelDescription: channel.description,
+        styleInformation: inboxStyleInformation,
+        groupKey: channel.groupId,
+        playSound: true,
+        sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
+        setAsGroupSummary: true);
     _flutterLocalNotificationsPlugin.show(
         message.roomUid.hashCode, 'Attention', 'new messages',
         notificationDetails: androidNotificationDetails);
 
-    var platformChannelSpecifics = AndroidNotificationDetails(
+    final platformChannelSpecifics = AndroidNotificationDetails(
       selectedNotificationSound + message.roomUid.asString(),
       channel.name,
       channelDescription: channel.description,
@@ -507,7 +503,7 @@ class AndroidNotifier implements Notifier {
   @override
   Future<void> cancel(int id, String roomUid) async {
     try {
-      List<ActiveNotification>? activeNotification =
+      final activeNotification =
           await _flutterLocalNotificationsPlugin.getActiveNotifications();
       for (final element in activeNotification!) {
         if (element.channelId!.contains(roomUid) && element.id != 0) {
@@ -538,7 +534,7 @@ class MacOSNotifier implements Notifier {
   final _routingService = GetIt.I.get<RoutingService>();
 
   MacOSNotifier() {
-    var macNotificationSetting = const MacOSInitializationSettings();
+    const macNotificationSetting = MacOSInitializationSettings();
 
     _flutterLocalNotificationsPlugin.initialize(macNotificationSetting,
         onSelectNotification: (room) {
@@ -553,12 +549,12 @@ class MacOSNotifier implements Notifier {
   Future<void> notifyText(MessageBrief message) async {
     if (message.ignoreNotification) return;
 
-    List<MacOSNotificationAttachment> attachments = [];
+    final attachments = <MacOSNotificationAttachment>[];
 
-    var la = await _avatarRepo.getLastAvatar(message.roomUid, false);
+    final la = await _avatarRepo.getLastAvatar(message.roomUid, false);
 
     if (la != null) {
-      var path = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
+      final path = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
           thumbnailSize: ThumbnailSize.medium);
 
       if (path != null && path.isNotEmpty) {
@@ -566,7 +562,7 @@ class MacOSNotifier implements Notifier {
       }
     }
 
-    var macOSPlatformChannelSpecifics =
+    final macOSPlatformChannelSpecifics =
         MacOSNotificationDetails(attachments: attachments, badgeNumber: 0);
     _flutterLocalNotificationsPlugin.show(message.roomUid.asString().hashCode,
         message.roomName, createNotificationTextFromMessageBrief(message),

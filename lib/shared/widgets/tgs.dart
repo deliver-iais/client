@@ -46,7 +46,7 @@ class _TGSState extends State<TGS> {
   late Future<LottieComposition?> _composition;
 
   Future<LottieComposition> _loadAssetsComposition() async {
-    var assetData = await rootBundle.load(widget.assetsPath!);
+    final assetData = await rootBundle.load(widget.assetsPath!);
 
     var bytes = assetData.buffer.asUint8List();
 
@@ -84,7 +84,7 @@ class _TGSState extends State<TGS> {
     return FutureBuilder<LottieComposition?>(
         future: _composition,
         builder: (context, snapshot) {
-          var composition = snapshot.data;
+          final composition = snapshot.data;
 
           if (composition != null) {
             if (widget.controller != null) {

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/message_type.dart';
-import 'package:deliver/box/muc.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
@@ -65,7 +64,7 @@ class DataStreamServices {
 
   Future<void> handleIncomingMessage(Message message,
       {String? roomName}) async {
-    Uid roomUid = getRoomUid(_authRepo, message);
+    final roomUid = getRoomUid(_authRepo, message);
     if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
       return;
     }
@@ -78,8 +77,8 @@ class DataStreamServices {
               return;
             case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
               {
-                Muc? muc = await _mucDao.get(roomUid.asString());
-                var pinMessages = muc!.pinMessagesIdList;
+                final muc = await _mucDao.get(roomUid.asString());
+                final pinMessages = muc!.pinMessagesIdList;
                 pinMessages!.add(message
                     .persistEvent.mucSpecificPersistentEvent.messageId
                     .toInt());
@@ -144,7 +143,7 @@ class DataStreamServices {
                   message.time.toInt());
               return;
             case MessageManipulationPersistentEvent_Action.DELETED:
-              var mes = await _messageDao.getMessage(
+              final mes = await _messageDao.getMessage(
                   roomUid.asString(),
                   message
                       .persistEvent.messageManipulationPersistentEvent.messageId
@@ -171,7 +170,7 @@ class DataStreamServices {
           break;
       }
     } else if (message.whichType() == Message_Type.callEvent) {
-      var callEvents = CallEvents.callEvent(message.callEvent,
+      final callEvents = CallEvents.callEvent(message.callEvent,
           roomUid: message.from, callId: message.callEvent.id);
       if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
           message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
@@ -200,14 +199,14 @@ class DataStreamServices {
   }
 
   _messageEdited(Uid roomUid, int id, int time) async {
-    var res = await _queryServicesClient.fetchMessages(FetchMessagesReq()
+    final res = await _queryServicesClient.fetchMessages(FetchMessagesReq()
       ..roomUid = roomUid
       ..limit = 1
       ..pointer = Int64(id)
       ..type = FetchMessagesReq_Type.FORWARD_FETCH);
-    var msg = await saveMessageInMessagesDB(
+    final msg = await saveMessageInMessagesDB(
         _authRepo, _messageDao, res.messages.first);
-    var room = await _roomDao.getRoom(roomUid.asString());
+    final room = await _roomDao.getRoom(roomUid.asString());
     if (room!.lastMessageId != id) {
       _roomDao.updateRoom(room.copyWith(
           lastUpdateTime: time,
@@ -261,13 +260,13 @@ class DataStreamServices {
     if (messageDeliveryAck.id.toInt() == 0) {
       return;
     }
-    var packetId = messageDeliveryAck.packetId;
-    var id = messageDeliveryAck.id.toInt();
-    var time = messageDeliveryAck.time.toInt();
+    final packetId = messageDeliveryAck.packetId;
+    final id = messageDeliveryAck.id.toInt();
+    final time = messageDeliveryAck.time.toInt();
 
-    var pm = await _messageDao.getPendingMessage(packetId);
+    final pm = await _messageDao.getPendingMessage(packetId);
     if (pm != null) {
-      var msg = pm.msg.copyWith(id: id, time: time);
+      final msg = pm.msg.copyWith(id: id, time: time);
       try {
         _messageDao.deletePendingMessage(packetId);
       } catch (e) {
@@ -296,7 +295,7 @@ class DataStreamServices {
 
   void handleRoomPresenceTypeChange(
       RoomPresenceTypeChanged roomPresenceTypeChanged) {
-    PresenceType type = roomPresenceTypeChanged.presenceType;
+    final type = roomPresenceTypeChanged.presenceType;
     _roomDao.updateRoom(Room(
         uid: roomPresenceTypeChanged.uid.asString(),
         deleted: type == PresenceType.BANNED ||
@@ -307,7 +306,7 @@ class DataStreamServices {
   }
 
   void handleCallOffer(call_pb.CallOffer callOffer) {
-    var callEvents = CallEvents.callOffer(callOffer,
+    final callEvents = CallEvents.callOffer(callOffer,
         roomUid: getRoomUidOf(_authRepo, callOffer.from, callOffer.to),
         callId: callOffer.id);
     if (callOffer.callType == call_pb.CallEvent_CallType.GROUP_AUDIO ||
@@ -319,7 +318,7 @@ class DataStreamServices {
   }
 
   void handleCallAnswer(call_pb.CallAnswer callAnswer) {
-    var callEvents = CallEvents.callAnswer(callAnswer,
+    final callEvents = CallEvents.callAnswer(callAnswer,
         roomUid: getRoomUidOf(_authRepo, callAnswer.from, callAnswer.to),
         callId: callAnswer.id);
     if (callAnswer.callType == call_pb.CallEvent_CallType.GROUP_AUDIO ||
@@ -362,9 +361,9 @@ class DataStreamServices {
 
   Future<message_model.Message> saveMessage(
       Message message, Uid roomUid) async {
-    var msg = await saveMessageInMessagesDB(_authRepo, _messageDao, message);
+    final msg = await saveMessageInMessagesDB(_authRepo, _messageDao, message);
 
-    bool isMention = false;
+    var isMention = false;
     if (roomUid.category == Categories.GROUP) {
       // TODO, bug: username1 = hasan , username2 = hasan2 => isMention will be triggered if @hasan2 be into the text.
       if (message.text.text
@@ -390,7 +389,7 @@ class DataStreamServices {
   }
 
   Future<void> fetchSeen(String roomUid) async {
-    var res = await _seenDao.getMySeen(roomUid);
+    final res = await _seenDao.getMySeen(roomUid);
     if (res.messageId == -1) {
       _seenDao.saveMySeen(Seen(uid: roomUid, messageId: 0));
     }
@@ -400,11 +399,11 @@ class DataStreamServices {
   Future<void> _updateRoomMediaMetadata(
       String roomUid, message_model.Message message) async {
     try {
-      var file = message.json.toFile();
+      final file = message.json.toFile();
       if (file.type.contains("image") ||
           file.type.contains("jpg") ||
           file.type.contains("png")) {
-        var mediaMetaData = await _mediaQueryRepo.getMediaMetaData(roomUid);
+        final mediaMetaData = await _mediaQueryRepo.getMediaMetaData(roomUid);
         if (mediaMetaData != null) {
           _mediaQueryRepo.saveMediaMetaData(mediaMetaData.copyWith(
               lastUpdateTime: message.time.toInt(),

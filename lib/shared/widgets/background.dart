@@ -40,7 +40,7 @@ class Background extends StatelessWidget {
         ? const Color(0x0075ba94)
         : const Color(0x00000C11);
 
-    const List<Alignment> pp = [
+    const pp = <Alignment>[
       Alignment(-0.9, -1),
       Alignment(-0.3, -.8),
       Alignment(0, -.8),

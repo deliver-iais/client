@@ -36,7 +36,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
   final _authRepo = GetIt.I.get<AuthRepo>();
 
   Future<void> onDeleteRoom(String selected) async {
-    String? roomName = await _roomRepo.getName(widget.room.uid.asUid());
+    final roomName = await _roomRepo.getName(widget.room.uid.asUid());
     showDialog(
         context: context,
         builder: (context) {

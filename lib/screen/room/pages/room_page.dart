@@ -271,7 +271,7 @@ class _RoomPageState extends State<RoomPage> {
         _lastShowedMessageId = -1;
       }
     });
-    String? scrollPosition =
+    final scrollPosition =
         await _sharedDao.get('$SHARED_DAO_SCROLL_POSITION-${widget.roomId}');
 
     if (scrollPosition != null) {
@@ -311,14 +311,14 @@ class _RoomPageState extends State<RoomPage> {
 
     // Listen on scroll
     _itemPositionsListener.itemPositions.addListener(() {
-      var position = _itemPositionsListener.itemPositions.value;
+      final position = _itemPositionsListener.itemPositions.value;
       if (position.isNotEmpty) {
         if (_itemCount - position.first.index > 20) {
           _scrollEvent.add(true);
         } else {
           _scrollEvent.add(false);
         }
-        ItemPosition firstItem = position
+        final firstItem = position
             .where((ItemPosition position) => position.itemLeadingEdge > 0)
             .reduce((ItemPosition first, ItemPosition position) =>
                 position.itemLeadingEdge > first.itemLeadingEdge
@@ -414,7 +414,7 @@ class _RoomPageState extends State<RoomPage> {
         .debounceTime(const Duration(milliseconds: 100))
         .listen((event) async {
       if (room.lastMessageId != null) {
-        var msg = await _getMessage(event);
+        final msg = await _getMessage(event);
         if (msg == null) return;
         if (_appIsActive) {
           _sendSeenMessage([msg]);
@@ -437,15 +437,15 @@ class _RoomPageState extends State<RoomPage> {
   Future<Message?> _getMessage(int id, {useCache = true}) async {
     if (id <= 0) return null;
     if (room.lastMessageId != null) {
-      var msg = _messageCache.get(id);
+      final msg = _messageCache.get(id);
       if (msg != null && useCache) {
         return msg;
       }
-      int page = (id / PAGE_SIZE).floor();
-      List<Message?> messages = await _messageRepo.getPage(
+      final page = (id / PAGE_SIZE).floor();
+      final messages = await _messageRepo.getPage(
           page, widget.roomId, id, room.lastMessageId!,
           pageSize: PAGE_SIZE);
-      for (int i = 0; i < messages.length; i = i + 1) {
+      for (var i = 0; i < messages.length; i = i + 1) {
         _messageCache.set(messages[i]!.id!, messages[i]!);
       }
       return _messageCache.get(id);
@@ -491,7 +491,7 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Future<void> onUnPin(Message message) async {
-    var res = await _messageRepo.unpinMessage(message);
+    final res = await _messageRepo.unpinMessage(message);
     if (res) {
       _pinMessages.remove(message);
       _lastPinedMessage
@@ -500,7 +500,7 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Future<void> onPin(Message message) async {
-    var isPin = await _messageRepo.pinMessage(message);
+    final isPin = await _messageRepo.pinMessage(message);
     if (isPin) {
       _pinMessages.add(message);
       _lastPinedMessage.add(_pinMessages.last.id!);
@@ -524,16 +524,16 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   _getLastSeen() async {
-    Seen? seen = await _roomRepo.getOthersSeen(widget.roomId);
+    final seen = await _roomRepo.getOthersSeen(widget.roomId);
     if (seen != null) {
       _lastSeenMessageId = seen.messageId;
     }
   }
 
   _getLastShowMessageId() async {
-    var seen = await _roomRepo.getMySeen(widget.roomId);
+    final seen = await _roomRepo.getMySeen(widget.roomId);
 
-    var room = await _roomRepo.getRoom(widget.roomId);
+    final room = await _roomRepo.getRoom(widget.roomId);
 
     _lastShowedMessageId = seen.messageId;
     if (room != null) {
@@ -549,12 +549,12 @@ class _RoomPageState extends State<RoomPage> {
   Future<void> watchPinMessages() async {
     _mucRepo.watchMuc(widget.roomId).listen((muc) {
       if (muc != null && (muc.showPinMessage == null || muc.showPinMessage!)) {
-        List<int>? pm = muc.pinMessagesIdList;
+        final pm = muc.pinMessagesIdList;
         _pinMessages.clear();
         if (pm != null && pm.isNotEmpty) {
           pm.reversed.toList().forEach((element) async {
             try {
-              var m = await _getMessage(element);
+              final m = await _getMessage(element);
               _pinMessages.add(m!);
               _pinMessages.sort((a, b) => a.time - b.time);
               _lastPinedMessage.add(_pinMessages.last.id!);
@@ -569,19 +569,19 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Future<void> checkChannelRole() async {
-    var res = await _mucRepo.isMucAdminOrOwner(
+    final res = await _mucRepo.isMucAdminOrOwner(
         _authRepo.currentUserUid.asString(), widget.roomId);
     _hasPermissionInChannel.add(res);
   }
 
   Future<void> checkGroupRole() async {
-    var res = await _mucRepo.isMucAdminOrOwner(
+    final res = await _mucRepo.isMucAdminOrOwner(
         _authRepo.currentUserUid.asString(), widget.roomId);
     _hasPermissionInGroup.add(res);
   }
 
   Future<void> fetchMucInfo(Uid uid) async {
-    var muc = await _mucRepo.fetchMucInfo(widget.roomId.asUid());
+    final muc = await _mucRepo.fetchMucInfo(widget.roomId.asUid());
     if (muc != null) {
       _roomRepo.updateRoomName(uid, muc.name!);
     }
@@ -656,8 +656,8 @@ class _RoomPageState extends State<RoomPage> {
 
   PreferredSizeWidget buildAppbar() {
     final theme = Theme.of(context);
-    TextEditingController controller = TextEditingController();
-    BehaviorSubject<bool> checkSearchResult = BehaviorSubject.seeded(false);
+    final controller = TextEditingController();
+    final checkSearchResult = BehaviorSubject<bool>.seeded(false);
     return UltimateAppBar(
       preferredSize: const Size.fromHeight(54.0),
       child: AppBar(
@@ -805,14 +805,14 @@ class _RoomPageState extends State<RoomPage> {
       return const SizedBox.shrink();
     }
 
-    int scrollIndex = (_itemCount > 0
+    final scrollIndex = (_itemCount > 0
         ? (_lastShowedMessageId != -1)
             ? _lastShowedMessageId
             : _itemCount
         : 0);
 
-    int initialScrollIndex = scrollIndex;
-    double initialAlignment = 1;
+    var initialScrollIndex = scrollIndex;
+    var initialAlignment = 1.0;
 
     if (_lastScrollPositionIndex < scrollIndex &&
         _lastScrollPositionIndex != -1) {
@@ -836,7 +836,7 @@ class _RoomPageState extends State<RoomPage> {
       itemBuilder: (context, index) =>
           _buildMessage(index + room.firstMessageId),
       separatorBuilder: (context, index) {
-        int firstIndex = index + room.firstMessageId;
+        final firstIndex = index + room.firstMessageId;
 
         index = index + (room.firstMessageId);
 
@@ -1053,7 +1053,7 @@ class _RoomPageState extends State<RoomPage> {
 
   Widget _selectMultiMessageAppBar() {
     final theme = Theme.of(context);
-    bool _hasPermissionToDeleteMsg = true;
+    var _hasPermissionToDeleteMsg = true;
     for (final message in _selectedMessages.values.toList()) {
       if ((_authRepo.isCurrentUserSender(message) ||
               (message.roomUid.isChannel() && _hasPermissionInChannel.value) ||
@@ -1100,8 +1100,8 @@ class _RoomPageState extends State<RoomPage> {
                 color: Theme.of(context).primaryColor,
                 icon: const Icon(CupertinoIcons.doc_on_clipboard),
                 onPressed: () async {
-                  String copyText = "";
-                  List<Message> messages = _selectedMessages.values.toList();
+                  var copyText = "";
+                  final messages = _selectedMessages.values.toList();
                   messages.sort((a, b) => a.id == null
                       ? 1
                       : b.id == null
@@ -1145,10 +1145,10 @@ class _RoomPageState extends State<RoomPage> {
 
   Future<void> onUsernameClick(String username) async {
     if (username.contains("_bot")) {
-      String roomId = "4:${username.substring(1)}";
+      final roomId = "4:${username.substring(1)}";
       _routingService.openRoom(roomId);
     } else {
-      String roomId = await _roomRepo.getUidById(username);
+      final roomId = await _roomRepo.getUidById(username);
       _routingService.openRoom(roomId);
     }
   }

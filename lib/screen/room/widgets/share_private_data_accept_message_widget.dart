@@ -25,7 +25,7 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    var sharePrivateDataAcceptance =
+    final sharePrivateDataAcceptance =
         message.json.toSharePrivateDataAcceptance();
 
     return Row(

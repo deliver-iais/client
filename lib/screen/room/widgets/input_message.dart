@@ -185,7 +185,8 @@ class _InputMessageWidget extends State<InputMessage> {
           widget.textController.selection.start > 0) {
         mentionQuery = "-";
         final str = widget.textController.text;
-        int start = str.lastIndexOf("@", widget.textController.selection.start);
+        final start =
+            str.lastIndexOf("@", widget.textController.selection.start);
 
         if (start == -1) {
           _mentionQuery.add("-");
@@ -491,9 +492,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                   },
                                   onLongPressStart: (dw) async {
                                     if (recordAudioPermission) {
-                                      var s =
+                                      final s =
                                           await getApplicationDocumentsDirectory();
-                                      String path = s.path +
+                                      final path = s.path +
                                           "/Deliver/${DateTime.now().millisecondsSinceEpoch}.m4a";
                                       recordSubject.add(DateTime.now());
                                       setTime();
@@ -516,7 +517,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                   },
                                   onLongPressEnd: (s) async {
                                     _tickTimer.cancel();
-                                    var res = await record.stop();
+                                    final res = await record.stop();
 
                                     // _soundRecorder.closeAudioSession();
                                     recordAudioTimer.cancel();
@@ -563,12 +564,12 @@ class _InputMessageWidget extends State<InputMessage> {
                         child: EmojiKeyboard(
                           onTap: (emoji) {
                             if (widget.textController.text.isNotEmpty) {
-                              int start =
+                              final start =
                                   widget.textController.selection.baseOffset;
-                              String block_1 = widget.textController.text
+                              var block_1 = widget.textController.text
                                   .substring(0, start);
                               block_1 = block_1.substring(0, start);
-                              String block_2 = widget.textController.text
+                              final block_2 = widget.textController.text
                                   .substring(
                                       start, widget.textController.text.length);
                               widget.textController.text =
@@ -602,12 +603,12 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   void onMentionSelected(String? s) {
-    int start = widget.textController.selection.baseOffset;
+    final start = widget.textController.selection.baseOffset;
 
-    String block_1 = widget.textController.text.substring(0, start);
-    int indexOf = block_1.lastIndexOf("@");
+    var block_1 = widget.textController.text.substring(0, start);
+    final indexOf = block_1.lastIndexOf("@");
     block_1 = block_1.substring(0, indexOf + 1);
-    String block_2 = widget.textController.text
+    final block_2 = widget.textController.text
         .substring(start, widget.textController.text.length);
     widget.textController.text = block_1 + (s ?? "") + " " + block_2;
     widget.textController.selection = TextSelection.fromPosition(TextPosition(
@@ -681,7 +682,7 @@ class _InputMessageWidget extends State<InputMessage> {
   _handleCV(RawKeyEvent event) async {
     final files = await Pasteboard.files();
     if (files.isEmpty) {
-      ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
+      final data = await Clipboard.getData(Clipboard.kTextPlain);
       widget.textController.text = widget.textController.text + data!.text!;
       widget.textController.selection = TextSelection.fromPosition(
           TextPosition(offset: widget.textController.text.length));
@@ -692,7 +693,7 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   void scrollUpInBotCommand() {
-    int length = 0;
+    var length = 0;
     if (botCommandSelectedIndex <= 0) {
       _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then((value) => {
             if (value != null)
@@ -715,7 +716,7 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   Future<void> sendMentionByEnter() async {
-    var value = await _mucRepo.getFilteredMember(widget.currentRoom.uid,
+    final value = await _mucRepo.getFilteredMember(widget.currentRoom.uid,
         query: _mentionData);
     if (value.isNotEmpty) {
       onMentionSelected(value[mentionSelectedIndex]!.id);
@@ -725,7 +726,7 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   void scrollDownInBotCommand() {
-    int length = 0;
+    var length = 0;
     _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then((value) => {
           if (value != null)
             value.commands!.forEach((key, value) {
@@ -762,7 +763,7 @@ class _InputMessageWidget extends State<InputMessage> {
       widget.sendForwardMessage!()!;
     }
 
-    var text = widget.textController.text.trim();
+    final text = widget.textController.text.trim();
 
     if (text.isNotEmpty) {
       if (widget.replyMessageId > 0) {
@@ -803,7 +804,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
   _attachFileInWindowsMode() async {
     try {
-      List<File> res = [];
+      final res = <File>[];
       if (isLinux) {
         final result = await openFiles();
         for (final file in result) {
@@ -811,8 +812,7 @@ class _InputMessageWidget extends State<InputMessage> {
               extension: file.mimeType, size: await file.length()));
         }
       } else {
-        FilePickerResult? result =
-            await FilePicker.platform.pickFiles(allowMultiple: true);
+        final result = await FilePicker.platform.pickFiles(allowMultiple: true);
         for (final file in result!.files) {
           res.add(File(
               isWeb
@@ -868,7 +868,7 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   String getEditableMessageContent() {
-    String text = "";
+    var text = "";
     // ignore: missing_enum_constant_in_switch
     switch (widget.editableMessage!.type) {
       case MessageType.TEXT:

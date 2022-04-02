@@ -38,13 +38,13 @@ class FileMessageUi extends StatefulWidget {
 class _FileMessageUiState extends State<FileMessageUi> {
   @override
   Widget build(BuildContext context) {
-    var file = widget.message.json.toFile();
-    var type = file.type;
-    var caption = file.caption;
-    var dimensions =
+    final file = widget.message.json.toFile();
+    final type = file.type;
+    final caption = file.caption;
+    final dimensions =
         getImageDimensions(file.width.toDouble(), file.height.toDouble());
 
-    double width = dimensions.width;
+    final width = dimensions.width;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -103,14 +103,14 @@ class _FileMessageUiState extends State<FileMessageUi> {
   }
 
   Size getImageDimensions(double width, double height) {
-    double maxWidth = widget.maxWidth;
+    final maxWidth = widget.maxWidth;
     if (width == 0 || height == 0) {
       width = maxWidth;
       height = maxWidth;
     }
-    double aspect = width / height;
-    double w = 0;
-    double h = 0;
+    final aspect = width / height;
+    var w = 0.0;
+    var h = 0.0;
     if (aspect > 1) {
       w = min(width, maxWidth);
       h = w / aspect;

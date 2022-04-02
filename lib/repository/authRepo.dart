@@ -6,8 +6,6 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart'
-    as platform_pb;
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
@@ -57,20 +55,20 @@ class AuthRepo {
   Future<void> init() async {
     try {
       _localPassword = await _sharedDao.get(SHARED_DAO_LOCAL_PASSWORD) ?? "";
-      var accessToken = await _sharedDao.get(SHARED_DAO_ACCESS_TOKEN_KEY);
-      var refreshToken = await _sharedDao.get(SHARED_DAO_REFRESH_TOKEN_KEY);
+      final accessToken = await _sharedDao.get(SHARED_DAO_ACCESS_TOKEN_KEY);
+      final refreshToken = await _sharedDao.get(SHARED_DAO_REFRESH_TOKEN_KEY);
       _setTokensAndCurrentUserUid(accessToken, refreshToken);
     } catch (_) {}
   }
 
   Future<void> setCurrentUserUid() async {
     init();
-    String? res = await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID);
+    final res = await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID);
     if (res != null) currentUserUid = (res).asUid();
   }
 
   Future<bool> getVerificationCode(PhoneNumber p) async {
-    platform_pb.Platform platform = await getPlatformPB();
+    final platform = await getPlatformPB();
 
     try {
       _tmpPhoneNumber = p;
@@ -86,11 +84,11 @@ class AuthRepo {
   }
 
   Future<AccessTokenRes> sendVerificationCode(String code) async {
-    platform_pb.Platform platform = await getPlatformPB();
+    final platform = await getPlatformPB();
 
-    String device = await getDeviceName();
+    final device = await getDeviceName();
 
-    var res = await _authServiceClient.verifyAndGetToken(VerifyCodeReq()
+    final res = await _authServiceClient.verifyAndGetToken(VerifyCodeReq()
       ..phoneNumber = _tmpPhoneNumber
       ..code = code
       ..device = device
@@ -106,11 +104,11 @@ class AuthRepo {
   }
 
   Future<AccessTokenRes> checkQrCodeToken(String token) async {
-    platform_pb.Platform platform = await getPlatformPB();
+    final platform = await getPlatformPB();
 
-    String device = await getDeviceName();
+    final device = await getDeviceName();
 
-    var res = await _authServiceClient
+    final res = await _authServiceClient
         .checkQrCodeIsVerifiedAndLogin(CheckQrCodeIsVerifiedAndLoginReq()
           ..token = token
           ..device = device
@@ -125,29 +123,28 @@ class AuthRepo {
     return res;
   }
 
-  Future _getAccessToken(String refreshToken) async {
-    return requestLock.synchronized(() async {
-      try {
-        return await _authServiceClient.renewAccessToken(RenewAccessTokenReq()
-          ..refreshToken = refreshToken
-          ..platform = await getPlatformPB());
-      } on GrpcError catch (e) {
-        _logger.e(e);
-        if (_refreshToken != null && e.code == StatusCode.unauthenticated) {
-          GetIt.I.get<RoutingService>().logout();
+  Future _getAccessToken(String refreshToken) async =>
+      requestLock.synchronized(() async {
+        try {
+          return await _authServiceClient.renewAccessToken(RenewAccessTokenReq()
+            ..refreshToken = refreshToken
+            ..platform = await getPlatformPB());
+        } on GrpcError catch (e) {
+          _logger.e(e);
+          if (_refreshToken != null && e.code == StatusCode.unauthenticated) {
+            GetIt.I.get<RoutingService>().logout();
+          }
+        } catch (e) {
+          _logger.e(e);
         }
-      } catch (e) {
-        _logger.e(e);
-      }
-    });
-  }
+      });
 
   Future<String> getAccessToken() async {
     if (_isExpired(_accessToken)) {
       if (_refreshToken == null) {
         return "";
       }
-      RenewAccessTokenRes renewAccessTokenRes =
+      final RenewAccessTokenRes renewAccessTokenRes =
           await _getAccessToken(_refreshToken!);
       _saveTokens(renewAccessTokenRes);
       return renewAccessTokenRes.accessToken;
@@ -195,7 +192,7 @@ class AuthRepo {
   }
 
   _setCurrentUid(String accessToken) {
-    final Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
+    final decodedToken = JwtDecoder.decode(accessToken);
     currentUserUid = Uid()
       ..category = Categories.USER
       ..node = decodedToken["sub"]
@@ -233,7 +230,7 @@ class DeliverClientInterceptor implements ClientInterceptor {
 
   Future<void> metadataProvider(
       Map<String, String> metadata, String uri) async {
-    var token = await _authRepo.isTestUser()
+    final token = await _authRepo.isTestUser()
         ? TEST_USER_ACCESS_TOKEN
         : await _authRepo.getAccessToken();
     metadata['access_token'] = token;
@@ -241,18 +238,16 @@ class DeliverClientInterceptor implements ClientInterceptor {
 
   @override
   ResponseFuture<R> interceptUnary<Q, R>(ClientMethod<Q, R> method, Q request,
-      CallOptions options, ClientUnaryInvoker<Q, R> invoker) {
-    return invoker(method, request,
-        options.mergedWith(CallOptions(providers: [metadataProvider])));
-  }
+          CallOptions options, ClientUnaryInvoker<Q, R> invoker) =>
+      invoker(method, request,
+          options.mergedWith(CallOptions(providers: [metadataProvider])));
 
   @override
   ResponseStream<R> interceptStreaming<Q, R>(
-      ClientMethod<Q, R> method,
-      Stream<Q> requests,
-      CallOptions options,
-      ClientStreamingInvoker<Q, R> invoker) {
-    return invoker(method, requests,
-        options.mergedWith(CallOptions(providers: [metadataProvider])));
-  }
+          ClientMethod<Q, R> method,
+          Stream<Q> requests,
+          CallOptions options,
+          ClientStreamingInvoker<Q, R> invoker) =>
+      invoker(method, requests,
+          options.mergedWith(CallOptions(providers: [metadataProvider])));
 }

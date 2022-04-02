@@ -13,7 +13,7 @@ class SyncContact {
   final _i18n = GetIt.I.get<I18N>();
 
   Future<void> showSyncContactDialog(BuildContext context) async {
-    bool isAlreadyContactAccessTipShowed =
+    final isAlreadyContactAccessTipShowed =
         await _sharedDao.getBoolean(SHARED_DAO_SHOW_CONTACT_DIALOG);
     if (!isAlreadyContactAccessTipShowed && !isDesktop && !isWeb) {
       return showDialog(

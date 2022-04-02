@@ -57,7 +57,7 @@ class _ScanQrCode extends State<ScanQrCode> {
 
   @override
   Widget build(BuildContext context) {
-    I18N i18n = GetIt.I.get<I18N>();
+    final i18n = GetIt.I.get<I18N>();
     return Scaffold(
       appBar: AppBar(
         title: Text(i18n.get("scan_qr_code")),
@@ -74,7 +74,7 @@ class _ScanQrCode extends State<ScanQrCode> {
 
   Widget _buildQrView(BuildContext context) {
     final theme = Theme.of(context);
-    var scanArea = (MediaQuery.of(context).size.width < 400 ||
+    final scanArea = (MediaQuery.of(context).size.width < 400 ||
             MediaQuery.of(context).size.height < 400)
         ? 250.0
         : 350.0;
@@ -112,13 +112,13 @@ class _ScanQrCode extends State<ScanQrCode> {
   }
 
   void _parseQrCode(String url, BuildContext context) {
-    Uri uri = Uri.parse(url);
+    final uri = Uri.parse(url);
 
     if (uri.host != APPLICATION_DOMAIN) {
       return;
     }
 
-    var segments =
+    final segments =
         uri.pathSegments.where((e) => e != APPLICATION_DOMAIN).toList();
 
     if (segments.first == "ac") {
@@ -143,7 +143,7 @@ class _ScanQrCode extends State<ScanQrCode> {
 
   Future<void> handleLogin(BuildContext context, String token) async {
     _logger.wtf(token);
-    bool verified = await _accountRepo.verifyQrCodeToken(token);
+    final verified = await _accountRepo.verifyQrCodeToken(token);
 
     if (verified) {
       Timer(const Duration(milliseconds: 500), () {
@@ -176,7 +176,8 @@ class _ScanQrCode extends State<ScanQrCode> {
       String? nationalNumber,
       required BuildContext context}) async {
     final theme = Theme.of(context);
-    var res = await _contactRepo.contactIsExist(countryCode!, nationalNumber!);
+    final res =
+        await _contactRepo.contactIsExist(countryCode!, nationalNumber!);
     if (res) {
       ToastDisplay.showToast(
           toastText:
@@ -219,7 +220,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                       child: Text(_i18n.get("skip"))),
                   TextButton(
                     onPressed: () async {
-                      var newContactAdded = await _contactRepo.sendNewContact(
+                      final newContactAdded = await _contactRepo.sendNewContact(
                           contact_pb.Contact()
                             ..firstName = firstName!
                             ..lastName = lastName!
@@ -318,7 +319,7 @@ class _ScanQrCode extends State<ScanQrCode> {
     controller.pauseCamera();
 
     PrivateDataType privateDataType;
-    String type = pdType;
+    final type = pdType;
     type.contains("PHONE_NUMBER")
         ? privateDataType = PrivateDataType.PHONE_NUMBER
         : type.contains("USERNAME")

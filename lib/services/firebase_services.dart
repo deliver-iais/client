@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-
 import 'package:deliver/box/dao/shared_dao.dart';
 
 import 'package:deliver/main.dart';
@@ -36,7 +35,7 @@ class FireBaseServices {
 
   Future<Map<String, String>> _decodeMessageForWebNotification(
       dynamic notification) async {
-    Map<String, String> res = {};
+    final res = <String, String>{};
 
     await _backgroundRemoteMessageHandler(notification);
 
@@ -115,7 +114,7 @@ class FireBaseServices {
 
 message_pb.Message _decodeMessage(String notificationBody) {
   final dataTitle64 = base64.decode(notificationBody);
-  message_pb.Message m = message_pb.Message.fromBuffer(dataTitle64);
+  final m = message_pb.Message.fromBuffer(dataTitle64);
   return m;
 }
 
@@ -125,7 +124,7 @@ Future<void> _backgroundRemoteMessageHandler(
     try {
       await setupDI();
 
-      message_pb.Message msg = _decodeMessage(remoteMessage.data["body"]);
+      final msg = _decodeMessage(remoteMessage.data["body"]);
 
       String? roomName = remoteMessage.data['title'];
       if ((roomName ?? "").trim().isEmpty) {
@@ -142,7 +141,7 @@ Future<void> _backgroundRemoteMessageHandler(
     try {
       await setupDI();
 
-      pb_seen.Seen seen =
+      final seen =
           pb_seen.Seen.fromBuffer(base64.decode(remoteMessage.data["seen"]));
 
       return await GetIt.I.get<DataStreamServices>().handleSeen(seen);

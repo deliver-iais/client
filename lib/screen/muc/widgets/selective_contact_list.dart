@@ -59,7 +59,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
   }
 
   Future<void> getMembers() async {
-    var res = await _mucRepo.getAllMembers(widget.mucUid!.asString());
+    final res = await _mucRepo.getAllMembers(widget.mucUid!.asString());
     for (final element in res) {
       members.add(element!.memberUid);
     }
@@ -68,9 +68,9 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
   void filterSearchResults(String query) {
     query = query.replaceAll(RegExp(r"\s\b|\b\s"), "").toLowerCase();
     if (query.isNotEmpty) {
-      List<Contact> dummyListData = [];
+      final dummyListData = <Contact>[];
       for (final item in contacts) {
-        var searchTerm = '${item.firstName}${item.lastName}'
+        final searchTerm = '${item.firstName}${item.lastName}'
             .replaceAll(RegExp(r"\s\b|\b\s"), "")
             .toLowerCase();
         if (searchTerm.contains(query) ||
@@ -177,12 +177,12 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                             alignment: Alignment.center,
                             padding: const EdgeInsets.all(0),
                             onPressed: () async {
-                              List<Uid> users = [];
+                              final users = <Uid>[];
                               for (final contact
                                   in _createMucService.contacts) {
                                 users.add(contact.uid.asUid());
                               }
-                              bool usersAdd = await _mucRepo.sendMembers(
+                              final usersAdd = await _mucRepo.sendMembers(
                                   widget.mucUid!, users);
                               if (usersAdd) {
                                 _routingService.openRoom(

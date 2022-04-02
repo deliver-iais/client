@@ -42,7 +42,7 @@ class CircleAvatarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var scheme =
+    final scheme =
         ExtraTheme.of(context).messageColorScheme(contactUid.asString());
 
     return HeroMode(
@@ -77,8 +77,7 @@ class CircleAvatarWidget extends StatelessWidget {
       return StreamBuilder<String?>(
           key: _streamKey,
           initialData: _avatarRepo.fastForwardAvatarFilePath(contactUid),
-          stream: _avatarRepo
-              .getLastAvatarFilePathStream(contactUid, false),
+          stream: _avatarRepo.getLastAvatarFilePathStream(contactUid, false),
           builder: (context, snapshot) =>
               builder(context, snapshot, textColor));
     }
@@ -110,7 +109,7 @@ class CircleAvatarWidget extends StatelessWidget {
         key: _futureKey,
         builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
           if (snapshot.data != null) {
-            String name = snapshot.data!.trim();
+            final name = snapshot.data!.trim();
             return avatarAlt(name.trim(), textColor);
           } else {
             return const SizedBox.shrink();

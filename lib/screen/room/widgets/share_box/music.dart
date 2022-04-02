@@ -45,8 +45,8 @@ class _ShareBoxMusicState extends State<ShareBoxMusic> {
                 controller: widget.scrollController,
                 itemCount: audios.data!.length,
                 itemBuilder: (ctx, index) {
-                  var fileItem = audios.data![index];
-                  var selected = widget.selectedAudio[index] ?? false;
+                  final fileItem = audios.data![index];
+                  final selected = widget.selectedAudio[index] ?? false;
                   return GestureDetector(
                     child: Container(
                       color: selected ? Colors.black12 : Colors.white,

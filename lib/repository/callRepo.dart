@@ -134,7 +134,7 @@ class CallRepo {
           _receivedCallOffer(event.callOffer!);
           break;
         case CallTypes.Event:
-          var callEvent = event.callEvent;
+          final callEvent = event.callEvent;
           switch (callEvent!.newStatus) {
             case CallEvent_CallStatus.IS_RINGING:
               if (_callId == callEvent.id) {
@@ -156,7 +156,7 @@ class CallRepo {
                 }
                 _incomingCall(event.roomUid!);
               } else {
-                var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
+                final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
                 _messageRepo.sendCallMessage(
                     CallEvent_CallStatus.BUSY,
                     event.roomUid!,
@@ -210,7 +210,7 @@ class CallRepo {
   }
 
   _createPeerConnection(bool isOffer) async {
-    Map<String, dynamic> _iceServers = {
+    final _iceServers = <String, dynamic>{
       'iceServers': [
         {'url': STUN_SERVER_URL},
         {'url': STUN_SERVER_URL_2},
@@ -227,7 +227,7 @@ class CallRepo {
       ]
     };
 
-    final Map<String, dynamic> _config = {
+    final _config = <String, dynamic>{
       'mandatory': {},
       'optional': [
         {'DtlsSrtpKeyAgreement': true},
@@ -245,16 +245,16 @@ class CallRepo {
 
     _localStream = await _getUserMedia();
 
-    RTCPeerConnection pc = await createPeerConnection(_iceServers, _config);
+    final pc = await createPeerConnection(_iceServers, _config);
 
-    var camAudioTrack = _localStream!.getAudioTracks()[0];
+    final camAudioTrack = _localStream!.getAudioTracks()[0];
     if (!isWindows) {
       camAudioTrack.enableSpeakerphone(false);
     }
     _audioSender = await pc.addTrack(camAudioTrack, _localStream!);
 
     if (_isVideo) {
-      var camVideoTrack = _localStream!.getVideoTracks()[0];
+      final camVideoTrack = _localStream!.getVideoTracks()[0];
       _videoSender = await pc.addTrack(camVideoTrack, _localStream!);
     }
 
@@ -419,7 +419,7 @@ class CallRepo {
       //it means Connection is Connected
       _startCallTimerAndChangeStatus();
       _dataChannel!.onMessage = (RTCDataChannelMessage data) async {
-        var status = data.text;
+        final status = data.text;
         _logger.i(status);
         // we need Decision making by state
         switch (status) {
@@ -505,14 +505,13 @@ class CallRepo {
   }
 
   _createDataChannel() async {
-    RTCDataChannelInit dataChannelDict = RTCDataChannelInit()
-      ..maxRetransmits = 15;
+    final dataChannelDict = RTCDataChannelInit()..maxRetransmits = 15;
 
-    RTCDataChannel dataChannel = await _peerConnection!
+    final dataChannel = await _peerConnection!
         .createDataChannel("stateTransfer", dataChannelDict);
 
     dataChannel.onMessage = (RTCDataChannelMessage data) async {
-      var status = data.text;
+      final status = data.text;
       _logger.i(status);
       // we need Decision making by state
       switch (status) {
@@ -613,7 +612,7 @@ class CallRepo {
       };
     }
 
-    var stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
+    final stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
 
     onLocalStream?.call(stream);
 
@@ -621,12 +620,10 @@ class CallRepo {
   }
 
   _getUserDisplay() async {
-    final Map<String, dynamic> mediaConstraints = {
-      'audio': false,
-      'video': true
-    };
+    final mediaConstraints = <String, dynamic>{'audio': false, 'video': true};
 
-    var stream = await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
+    final stream =
+        await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
     return stream;
   }
 
@@ -635,13 +632,13 @@ class CallRepo {
   Future<void> shareScreen() async {
     if (!_isSharing) {
       _localStreamShare = await _getUserDisplay();
-      var screenVideoTrack = _localStreamShare!.getVideoTracks()[0];
+      final screenVideoTrack = _localStreamShare!.getVideoTracks()[0];
       await _videoSender!.replaceTrack(screenVideoTrack);
       onLocalStream?.call(_localStreamShare!);
       _isSharing = true;
       _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_SCREEN));
     } else {
-      var camVideoTrack = _localStream!.getVideoTracks()[0];
+      final camVideoTrack = _localStream!.getVideoTracks()[0];
       await _videoSender!.replaceTrack(camVideoTrack);
       onLocalStream?.call(_localStream!);
       _isSharing = false;
@@ -709,16 +706,15 @@ class CallRepo {
     return false;
   }
 
-  Future<bool> _stopForegroundTask() async {
-    return FlutterForegroundTask.stopService();
-  }
+  Future<bool> _stopForegroundTask() async =>
+      FlutterForegroundTask.stopService();
 
   /*
   * For Close Microphone
   * */
   bool muteMicrophone() {
     if (_localStream != null) {
-      bool enabled = _localStream!.getAudioTracks()[0].enabled;
+      final enabled = _localStream!.getAudioTracks()[0].enabled;
       if (_isConnected) {
         if (enabled) {
           _dataChannel!.send(RTCDataChannelMessage(STATUS_MIC_CLOSE));
@@ -734,7 +730,7 @@ class CallRepo {
 
   bool enableSpeakerVoice() {
     if (_localStream != null) {
-      var camAudioTrack = _localStream!.getAudioTracks()[0];
+      final camAudioTrack = _localStream!.getAudioTracks()[0];
       if (_isSpeaker) {
         camAudioTrack.enableSpeakerphone(false);
       } else {
@@ -757,7 +753,7 @@ class CallRepo {
   * */
   bool muteCamera() {
     if (_localStream != null) {
-      bool enabled = _localStream!.getVideoTracks()[0].enabled;
+      final enabled = _localStream!.getVideoTracks()[0].enabled;
       if (_isConnected) {
         if (enabled) {
           _dataChannel!.send(RTCDataChannelMessage(STATUS_CAMERA_CLOSE));
@@ -774,7 +770,7 @@ class CallRepo {
   void _incomingCall(Uid roomId) {
     _roomUid = roomId;
     callingStatus.add(CallStatus.CREATED);
-    var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
+    final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
     _messageRepo.sendCallMessage(
         CallEvent_CallStatus.IS_RINGING,
         _roomUid!,
@@ -812,7 +808,7 @@ class CallRepo {
   }
 
   _sendStartCallEvent() {
-    var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
+    final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
     _messageRepo.sendCallMessageWithMemberOrCallOwnerPvp(
         CallEvent_CallStatus.CREATED,
         _roomUid!,
@@ -830,10 +826,10 @@ class CallRepo {
   }
 
   _callIdGenerator() {
-    var random = randomAlphaNumeric(10);
-    var time = DateTime.now().millisecondsSinceEpoch;
+    final random = randomAlphaNumeric(10);
+    final time = DateTime.now().millisecondsSinceEpoch;
     //call event id: (Epoch time milliseconds)-(Random String with alphabet and numerics with 10 characters length)
-    var callId = time.toString() + "-" + random;
+    final callId = time.toString() + "-" + random;
     _callId = callId;
   }
 
@@ -857,7 +853,7 @@ class CallRepo {
   Future<void> declineCall() async {
     _logger.i("declineCall");
     callingStatus.add(CallStatus.DECLINED);
-    var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
+    final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
     _messageRepo.sendCallMessage(
         CallEvent_CallStatus.DECLINED,
         _roomUid!,
@@ -892,7 +888,7 @@ class CallRepo {
   }
 
   _setCallCandidate(String candidatesJson) async {
-    List<RTCIceCandidate> candidates = (jsonDecode(candidatesJson) as List)
+    final candidates = (jsonDecode(candidatesJson) as List)
         .map((data) => RTCIceCandidate(
             data['candidate'], data['sdpMid'], data['sdpMlineIndex']))
         .toList();
@@ -912,7 +908,7 @@ class CallRepo {
 
   Future<void> receivedEndCall(int callDuration, bool isForce) async {
     _logger.i("Call Duration Received: " + callDuration.toString());
-    String? sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
+    final sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
     ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
     ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
     if (isWindows) {
@@ -921,7 +917,7 @@ class CallRepo {
     if (isForce || (_isCaller && callDuration == 0)) {
       _callDuration = calculateCallEndTime();
       _logger.i("Call Duration on Caller(1): " + _callDuration.toString());
-      var endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
+      final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
       if (callingStatus.value == CallStatus.NO_ANSWER && !_isConnected) {
         // it means call Not Answered
         _callDuration = -1;
@@ -971,31 +967,30 @@ class CallRepo {
   }
 
   _setRemoteDescriptionOffer(String remoteSdp) async {
-    dynamic session = await jsonDecode(remoteSdp);
+    final dynamic session = await jsonDecode(remoteSdp);
 
-    String sdp = write(session, null);
+    final sdp = write(session, null);
 
-    RTCSessionDescription description = RTCSessionDescription(sdp, 'offer');
+    final description = RTCSessionDescription(sdp, 'offer');
 
     await _peerConnection!.setRemoteDescription(description);
   }
 
   _setRemoteDescriptionAnswer(String remoteSdp) async {
-    dynamic session = await jsonDecode(remoteSdp);
+    final dynamic session = await jsonDecode(remoteSdp);
 
-    String sdp = write(session, null);
+    final sdp = write(session, null);
 
-    RTCSessionDescription description = RTCSessionDescription(sdp, 'answer');
+    final description = RTCSessionDescription(sdp, 'answer');
 
     await _peerConnection!.setRemoteDescription(description);
   }
 
   _createAnswer() async {
-    final description =
-        await _peerConnection!.createAnswer(_sdpConstraints);
+    final description = await _peerConnection!.createAnswer(_sdpConstraints);
 
-    var session = parse(description.sdp.toString());
-    var answerSdp = json.encode(session);
+    final session = parse(description.sdp.toString());
+    final answerSdp = json.encode(session);
     _logger.i("Answer: \n" + answerSdp);
 
     _peerConnection!.setLocalDescription(description);
@@ -1004,11 +999,10 @@ class CallRepo {
   }
 
   _createOffer() async {
-    RTCSessionDescription description =
-        await _peerConnection!.createOffer(_sdpConstraints);
+    final description = await _peerConnection!.createOffer(_sdpConstraints);
     //get SDP as String
-    var session = parse(description.sdp.toString());
-    var offerSdp = json.encode(session);
+    final session = parse(description.sdp.toString());
+    final offerSdp = json.encode(session);
     _logger.i("Offer: \n" + offerSdp);
     _peerConnection!.setLocalDescription(description);
     return offerSdp;
@@ -1036,9 +1030,9 @@ class CallRepo {
     await _waitUntilCandidateConditionDone();
     _logger.i("Candidate Number is :" + _candidate.length.toString());
     // Send Candidate to Receiver
-    var jsonCandidates = jsonEncode(_candidate);
+    final jsonCandidates = jsonEncode(_candidate);
     //Send offer and Candidate as message to Receiver
-    var callOfferByClient = (CallOfferByClient()
+    final callOfferByClient = (CallOfferByClient()
       ..id = _callId
       ..body = _offerSdp
       ..candidates = jsonCandidates
@@ -1056,9 +1050,9 @@ class CallRepo {
     await _waitUntilCandidateConditionDone();
     _logger.i("Candidate Number is :" + _candidate.length.toString());
     // Send Candidate back to Sender
-    var jsonCandidates = jsonEncode(_candidate);
+    final jsonCandidates = jsonEncode(_candidate);
     //Send Answer and Candidate as message to Sender
-    var callAnswerByClient = (CallAnswerByClient()
+    final callAnswerByClient = (CallAnswerByClient()
       ..id = _callId
       ..body = _answerSdp
       ..candidates = jsonCandidates
@@ -1216,7 +1210,7 @@ class CallRepo {
     int year,
   ) async {
     try {
-      FetchUserCallsRes callLists =
+      final callLists =
           await _queryServiceClient.fetchUserCalls(FetchUserCallsReq()
             ..roomUid = roomUid
             ..limit = 200
@@ -1226,13 +1220,13 @@ class CallRepo {
             ..month = month - 1
             ..year = year);
       for (final call in callLists.cellEvents) {
-        call_event.CallEvent callEvent = call_event.CallEvent(
+        final callEvent = call_event.CallEvent(
             callDuration: call.callEvent.callDuration.toInt(),
             endOfCallTime: call.callEvent.endOfCallTime.toInt(),
             callType: findCallEventType(call.callEvent.callType),
             newStatus: findCallEventStatus(call.callEvent.newStatus),
             id: call.callEvent.id);
-        call_info.CallInfo callList = call_info.CallInfo(
+        final callList = call_info.CallInfo(
             callEvent: callEvent,
             from: call.from.asString(),
             to: call.to.asString());

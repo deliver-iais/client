@@ -35,10 +35,10 @@ class I18N {
   }
 
   Future<void> _loadLanguageResource(Language language) async {
-    String jsonValues =
+    final jsonValues =
         await rootBundle.loadString('lib/lang/${language.languageCode}.json');
 
-    Map<String, dynamic> mappedJson = json.decode(jsonValues);
+    final Map<String, dynamic> mappedJson = json.decode(jsonValues);
 
     _values = mappedJson.map((key, value) => MapEntry(key, value.toString()));
   }

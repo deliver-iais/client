@@ -105,7 +105,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       return const SizedBox.shrink();
     }
 
-    bool isFirstMsgOfOnePerson = isFirstMessageOfOneDirection(msgBefore, msg);
+    final isFirstMsgOfOnePerson = isFirstMessageOfOneDirection(msgBefore, msg);
 
     if (msg.type == MessageType.PERSISTENT_EVENT) {
       return _createPersistentEventMessageWidget(context, msg);
@@ -134,7 +134,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   Widget _createCallMessageWidget(BuildContext context, Message msg) {
-    var colorsScheme = ExtraTheme.of(context).secondaryColorsScheme;
+    final colorsScheme = ExtraTheme.of(context).secondaryColorsScheme;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -262,7 +262,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   Widget showSentMessage(
       Message message, bool isFirstMessageInGroupedMessages) {
-    var messageWidget = SentMessageBox(
+    final messageWidget = SentMessageBox(
         message: message,
         onArrowIconClick: () => _showCustomMenu(context, message),
         isSeen: message.id != null && message.id! <= widget.lastSeenMessageId,
@@ -391,7 +391,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     BuildContext context,
     Message message,
   ) async {
-    var selectedValue = await this
+    final selectedValue = await this
         .showMenu(context: context, items: <PopupMenuEntry<OperationOnMessage>>[
       OperationOnMessageEntry(message,
           hasPermissionInChannel: widget.hasPermissionInChannel.value,
@@ -444,7 +444,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         widget.onUnPin();
         break;
       case OperationOnMessage.SHOW_IN_FOLDER:
-        var path = await _fileRepo.getFileIfExist(
+        final path = await _fileRepo.getFileIfExist(
             widget.message.json.toFile().uuid,
             widget.message.json.toFile().name);
         if (path != null) onShowInFolder(path);
@@ -532,7 +532,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   Future<void> onShare() async {
     try {
-      String? result = await _fileRepo.getFileIfExist(
+      final result = await _fileRepo.getFileIfExist(
           widget.message.json.toFile().uuid, widget.message.json.toFile().name);
       if (result!.isNotEmpty) {
         Share.shareFiles([(result)],
@@ -544,7 +544,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   void onSaveTOGallery(BuildContext context) {
-    var file = widget.message.json.toFile();
+    final file = widget.message.json.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.pictures);
     ToastDisplay.showToast(
         toastContext: context,
@@ -553,7 +553,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   void onSaveTODownloads() {
-    var file = widget.message.json.toFile();
+    final file = widget.message.json.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.download);
     ToastDisplay.showToast(
         toastContext: context,
@@ -562,7 +562,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   void onSaveToMusic() {
-    var file = widget.message.json.toFile();
+    final file = widget.message.json.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.music);
     ToastDisplay.showToast(
         toastContext: context,
@@ -588,7 +588,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   Future<void> onShowInFolder(String path) async {
-    var shell = Shell();
+    final shell = Shell();
     if (isWindows) {
       await shell.run('start "" "$path"');
     } else if (isLinux) {
@@ -618,10 +618,10 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   Future<void> onUsernameClick(String username) async {
     if (username.contains("_bot")) {
-      String roomId = "4:${username.substring(1)}";
+      final roomId = "4:${username.substring(1)}";
       _routingServices.openRoom(roomId);
     } else {
-      String roomId = await _roomRepo.getUidById(username);
+      final roomId = await _roomRepo.getUidById(username);
       _routingServices.openRoom(roomId);
     }
   }

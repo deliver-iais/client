@@ -50,9 +50,9 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
               future: _getMedia(index),
               builder: (c, snapShot) {
                 if (snapShot.hasData && snapShot.data != null) {
-                  var fileId = jsonDecode(snapShot.data!.json)["uuid"];
-                  var fileName = jsonDecode(snapShot.data!.json)["name"];
-                  var dur = jsonDecode(snapShot.data!.json)["duration"];
+                  final fileId = jsonDecode(snapShot.data!.json)["uuid"];
+                  final fileName = jsonDecode(snapShot.data!.json)["name"];
+                  final dur = jsonDecode(snapShot.data!.json)["duration"];
                   return GestureDetector(
                     onLongPress: () => widget.addSelectedMedia(snapShot.data!),
                     onTap: () => widget.addSelectedMedia(snapShot.data!),
@@ -172,8 +172,8 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
         _mediaCache.values.toList().length >= index) {
       return _mediaCache.values.toList().elementAt(index);
     } else {
-      int page = (index / MEDIA_PAGE_SIZE).floor();
-      var res = await _mediaQueryRepo.getMediaPage(
+      final page = (index / MEDIA_PAGE_SIZE).floor();
+      final res = await _mediaQueryRepo.getMediaPage(
           widget.roomUid.asString(), widget.type, page, index);
       if (res != null) {
         for (final media in res) {

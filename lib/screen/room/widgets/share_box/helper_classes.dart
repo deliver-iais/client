@@ -36,10 +36,10 @@ class AudioItem extends FileBasic {
   AudioItem({required String path, required this.title}) : super(path);
 
   static Future<List<File>> getAudios() async {
-    var storageFiles = await StoragePath.audioPath;
-    List<dynamic> paths = json.decode(storageFiles);
+    final storageFiles = await StoragePath.audioPath;
+    final List<dynamic> paths = json.decode(storageFiles);
 
-    List<File> files = [];
+    final files = <File>[];
     for (final path in paths) {
       try {
         files.add(File(path.toString()));
@@ -64,9 +64,9 @@ class FileItem extends FileBasic {
 
   static Future<List<String>> getFiles() async {
     try {
-      var storageFiles = await StoragePath.filePath;
-      List<dynamic> filesPath = json.decode(storageFiles);
-      List<String> result = [];
+      final storageFiles = await StoragePath.filePath;
+      final List<dynamic> filesPath = json.decode(storageFiles);
+      final result = <String>[];
       for (final path in filesPath) {
         result.add(path.toString());
       }

@@ -47,8 +47,8 @@ class _AllVideoPageState extends State<AllVideoPage> {
         _mediaCache.values.toList().length >= index) {
       return _mediaCache.values.toList().elementAt(index);
     } else {
-      int page = (index / MEDIA_PAGE_SIZE).floor();
-      var res = await _mediaQueryRepo.getMediaPage(
+      final page = (index / MEDIA_PAGE_SIZE).floor();
+      final res = await _mediaQueryRepo.getMediaPage(
           widget.roomUid, MediaType.VIDEO, page, index);
       if (res != null) {
         for (final media in res) {

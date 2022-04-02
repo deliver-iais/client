@@ -88,8 +88,8 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
   }
 
   Future<LottieComposition?> _loadComposition() async {
-    var assetData = await rootBundle.load(getPath());
-    Uint8List bytes = assetData.buffer.asUint8List();
+    final assetData = await rootBundle.load(getPath());
+    var bytes = assetData.buffer.asUint8List();
     bytes = GZipCodec().decode(bytes) as Uint8List;
     return LottieComposition.fromBytes(bytes);
   }
@@ -110,7 +110,7 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
         FutureBuilder<LottieComposition?>(
             future: _composition,
             builder: (context, snapshot) {
-              var composition = snapshot.data;
+              final composition = snapshot.data;
               if (composition != null) {
                 _controller
                   ..duration = composition.duration

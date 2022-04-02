@@ -47,15 +47,15 @@ class DragDropWidget extends StatelessWidget {
                   onHover: () {},
                   onDrop: (blob) async {
                     try {
-                      File file = blob as File;
-                      String url = Url.createObjectUrlFromBlob(file.slice());
-                      var modelFile = model.File(url, file.name,
+                      final file = blob as File;
+                      final url = Url.createObjectUrlFromBlob(file.slice());
+                      final modelFile = model.File(url, file.name,
                           extension: file.type, size: file.size);
                       if (!roomUid.asUid().isChannel()) {
                         showDialogInDesktop([modelFile], context, file.type,
                             replyMessageId, resetRoomPageDetails);
                       } else {
-                        var res = await _mucRepo.isMucAdminOrOwner(
+                        final res = await _mucRepo.isMucAdminOrOwner(
                             _authRepo.currentUserUid.asString(), roomUid);
                         if (res) {
                           showDialogInDesktop([modelFile], context, file.type,
@@ -73,7 +73,7 @@ class DragDropWidget extends StatelessWidget {
         : DropTarget(
             child: child,
             onDragDone: (d) async {
-              List<model.File> files = [];
+              final files = <model.File>[];
               for (final element in d.files) {
                 files.add(model.File(element.path, element.name,
                     extension: element.mimeType, size: await element.length()));
@@ -86,7 +86,7 @@ class DragDropWidget extends StatelessWidget {
                     replyMessageId,
                     resetRoomPageDetails);
               } else {
-                var res = await _mucRepo.isMucAdminOrOwner(
+                final res = await _mucRepo.isMucAdminOrOwner(
                     _authRepo.currentUserUid.asString(), roomUid);
                 if (res) {
                   showDialogInDesktop(

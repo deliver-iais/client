@@ -49,12 +49,8 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
             return CircleAvatar(
               radius: 40,
               backgroundImage: isWeb
-                  ? Image
-                  .network(s.data!)
-                  .image
-                  : Image
-                  .file(File(s.data!))
-                  .image,
+                  ? Image.network(s.data!).image
+                  : Image.file(File(s.data!)).image,
               child: const Center(
                 child: SizedBox(
                     height: 20.0,
@@ -79,7 +75,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                         showSavedMessageLogoIfNeeded: true,
                       ),
                       onTap: () async {
-                        var lastAvatar = await _avatarRepo.getLastAvatar(
+                        final lastAvatar = await _avatarRepo.getLastAvatar(
                             widget.roomUid, false);
                         if (lastAvatar?.createdOn != null &&
                             lastAvatar!.createdOn > 0) {
@@ -111,7 +107,8 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   _setAvatar(String avatarPath) async {
     _newAvatarPath.add(avatarPath);
     await _avatarRepo.setMucAvatar(widget.roomUid, avatarPath);
-    var statusCode = _fileRepo.uploadFileStatusCode[widget.roomUid.node]?.value;
+    final statusCode =
+        _fileRepo.uploadFileStatusCode[widget.roomUid.node]?.value;
     if (statusCode != 200) {
       ToastDisplay.showToast(
           toastContext: context, toastText: _i18n.get("error_in_uploading"));
@@ -123,7 +120,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     if (isWeb || isDesktop) {
       if (isLinux) {
         final typeGroup =
-        XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
+            XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
         final file = await openFile(
           acceptedTypeGroups: [typeGroup],
         );
@@ -131,7 +128,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           _setAvatar(file.path);
         }
       } else {
-        FilePickerResult? result = await FilePicker.platform.pickFiles(
+        final result = await FilePicker.platform.pickFiles(
           type: FileType.image,
           allowMultiple: false,
         );

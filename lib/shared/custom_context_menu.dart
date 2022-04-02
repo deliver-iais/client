@@ -23,7 +23,7 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
     bool captureInheritedThemes = true,
     bool useRootNavigator = false,
   }) {
-    RenderObject? overlay = Overlay.of(context)!.context.findRenderObject();
+    final overlay = Overlay.of(context)!.context.findRenderObject();
 
     return material.showMenu<T>(
       context: context,

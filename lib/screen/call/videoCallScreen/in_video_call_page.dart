@@ -38,8 +38,8 @@ class _InVideoCallPageState extends State<InVideoCallPage> {
 
   @override
   Widget build(BuildContext context) {
-    var x = MediaQuery.of(context).size.width;
-    var y = MediaQuery.of(context).size.height;
+    final x = MediaQuery.of(context).size.width;
+    final y = MediaQuery.of(context).size.height;
     return Stack(
       children: <Widget>[
         StreamBuilder<bool>(

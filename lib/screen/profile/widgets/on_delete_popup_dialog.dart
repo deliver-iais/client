@@ -175,17 +175,17 @@ class _OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
   }
 
   _leftMuc() async {
-    var result = await _mucRepo.leaveMuc(widget.roomUid);
+    final result = await _mucRepo.leaveMuc(widget.roomUid);
     if (result) _navigateHomePage();
   }
 
   _deleteRoom() async {
-    var res = await _roomRepo.deleteRoom(widget.roomUid);
+    final res = await _roomRepo.deleteRoom(widget.roomUid);
     if (res) _navigateHomePage();
   }
 
   _deleteMuc() async {
-    var result = await _mucRepo.removeMuc(widget.roomUid);
+    final result = await _mucRepo.removeMuc(widget.roomUid);
     if (result) {
       _navigateHomePage();
     }

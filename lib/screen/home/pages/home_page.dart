@@ -34,7 +34,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   Future<void> initUniLinks(BuildContext context) async {
     try {
-      String? initialLink = await getInitialLink();
+      final initialLink = await getInitialLink();
       if (initialLink != null && initialLink.isNotEmpty) {
         await handleJoinUri(context, initialLink);
       }
@@ -93,7 +93,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   void checkShareFile(BuildContext context) {
     ReceiveSharingIntent.getInitialMedia().then((List<SharedMediaFile> value) {
       if (value.isNotEmpty) {
-        List<String> paths = [];
+        final paths = <String>[];
         for (final path in value) {
           paths.add(path.path);
         }
@@ -117,7 +117,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
               child: _routingService.outlet(context)),
         ));
   }
-
 
   void checkIfVersionChange() async {
     if (await _accountRepo.shouldShowNewFeatureDialog()) {

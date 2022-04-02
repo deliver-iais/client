@@ -17,9 +17,8 @@ class BotRepo {
   final _botDao = GetIt.I.get<BotDao>();
 
   Future<BotInfo> fetchBotInfo(Uid botUid) async {
-    GetInfoRes result =
-        await _botServiceClient.getInfo(GetInfoReq()..bot = botUid);
-    var botInfo = BotInfo(
+    final result = await _botServiceClient.getInfo(GetInfoReq()..bot = botUid);
+    final botInfo = BotInfo(
         description: result.description,
         uid: botUid.asString(),
         name: result.name,
@@ -54,7 +53,7 @@ class BotRepo {
 
   Future<BotInfo?> getBotInfo(Uid botUid) async {
     if (!botUid.isBot()) return null;
-    var botInfo = await _botDao.get(botUid.asString());
+    final botInfo = await _botDao.get(botUid.asString());
     // TODO add lastUpdate field in model and check it later in here!
     if (botInfo != null) {
       return botInfo;
@@ -69,9 +68,9 @@ class BotRepo {
 
     //Todo complete search in bot
     // var result = await _botServiceClient.searchByName(SearchByNameReq()..name = name);
-    List<Uid> searchInBots = [];
+    final searchInBots = <Uid>[];
     if (name.contains("father")) {
-      Uid uid = Uid();
+      final uid = Uid();
       uid.category = Categories.BOT;
       uid.node = "father_bot";
       searchInBots.add(uid);

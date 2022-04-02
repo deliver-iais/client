@@ -45,7 +45,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
               snapshot.data != null &&
               snapshot.data!.isNotEmpty) {
             obtainMyRole(snapshot.data!);
-            List<Widget> widgets = [];
+            final widgets = <Widget>[];
 
             for (final member in snapshot.data!) {
               widgets.add(const Divider());
@@ -175,12 +175,12 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
         break;
       case DELETE:
         if (widget.mucUid.isGroup()) {
-          var res = await _mucRepo.kickGroupMembers([member]);
+          final res = await _mucRepo.kickGroupMembers([member]);
           if (res) {
             setState(() {});
           }
         } else {
-          var res = await _mucRepo.kickChannelMembers([member]);
+          final res = await _mucRepo.kickChannelMembers([member]);
           if (res) {
             setState(() {});
           }

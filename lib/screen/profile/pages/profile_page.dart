@@ -101,7 +101,7 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   Widget build(BuildContext context) {
-    ThemeData theme = Theme.of(context);
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: _buildAppBar(context),
       body: FluidContainerWidget(
@@ -701,9 +701,9 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   Future<void> createInviteLink() async {
-    Muc? muc = await _mucRepo.getMuc(widget.roomUid.asString());
+    final muc = await _mucRepo.getMuc(widget.roomUid.asString());
     if (muc != null && muc.token != null) {
-      String? token = muc.token;
+      var token = muc.token;
       if (token!.isEmpty || token.isEmpty) {
         if (widget.roomUid.category == Categories.GROUP) {
           token = await _mucRepo.getGroupJointToken(groupUid: widget.roomUid);
@@ -800,14 +800,14 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   void showManageDialog() {
-    var channelIdFormKey = GlobalKey<FormState>();
-    var nameFormKey = GlobalKey<FormState>();
-    String _currentName = "";
-    String _currentId = "";
+    final channelIdFormKey = GlobalKey<FormState>();
+    final nameFormKey = GlobalKey<FormState>();
+    var _currentName = "";
+    var _currentId = "";
     String? mucName;
-    String mucInfo = "";
-    String channelId = "";
-    BehaviorSubject<bool> newChange = BehaviorSubject.seeded(false);
+    var mucInfo = "";
+    var channelId = "";
+    final newChange = BehaviorSubject<bool>.seeded(false);
     showDialog(
         context: context,
         builder: (context) {
@@ -998,7 +998,7 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   Future<bool> checkChannelD(String id) async {
-    var res = await _mucRepo.channelIdIsAvailable(id);
+    final res = await _mucRepo.channelIdIsAvailable(id);
     if (res) {
       _showChannelIdError.add(false);
       return res;
@@ -1010,8 +1010,8 @@ class _ProfilePageState extends State<ProfilePage>
 
   String? validateChannelId(String? value) {
     if (value == null) return null;
-    Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
-    RegExp regex = RegExp(pattern.toString());
+    const Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
+    final regex = RegExp(pattern.toString());
     if (value.isEmpty) {
       return _i18n.get("channel_id_not_empty");
     } else if (!regex.hasMatch(value)) {
@@ -1066,8 +1066,8 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   _showAddBotToGroupDialog() {
-    Map<String, String> nameOfGroup = {};
-    BehaviorSubject<List<String>> groups = BehaviorSubject.seeded([]);
+    final nameOfGroup = <String, String>{};
+    final groups = BehaviorSubject<List<String>>.seeded([]);
 
     showDialog(
         context: context,
@@ -1080,7 +1080,7 @@ class _ProfilePageState extends State<ProfilePage>
                 if (mucs.hasData &&
                     mucs.data != null &&
                     mucs.data!.isNotEmpty) {
-                  List<String> s = [];
+                  final s = <String>[];
                   for (final room in mucs.data!) {
                     s.add(room.uid);
                   }
@@ -1099,7 +1099,7 @@ class _ProfilePageState extends State<ProfilePage>
                               children: [
                                 TextField(
                                   onChanged: (str) {
-                                    List<String> searchRes = [];
+                                    final searchRes = <String>[];
                                     for (final uid in nameOfGroup.keys) {
                                       if (nameOfGroup[uid]!.contains(str) ||
                                           nameOfGroup[uid] == str) {
@@ -1191,7 +1191,7 @@ class _ProfilePageState extends State<ProfilePage>
                                                           TextButton(
                                                               onPressed:
                                                                   () async {
-                                                                var res = await _mucRepo
+                                                                final res = await _mucRepo
                                                                     .sendMembers(
                                                                         snapshot
                                                                             .data![i]

@@ -101,8 +101,8 @@ MockCoreServices getAndRegisterCoreServices(
   _removeRegistrationIfExists<CoreServices>();
   final service = MockCoreServices();
   GetIt.I.registerSingleton<CoreServices>(service);
-  BehaviorSubject<ConnectionStatus> _connectionStatus =
-      BehaviorSubject.seeded(ConnectionStatus.Connecting);
+  final _connectionStatus =
+      BehaviorSubject<ConnectionStatus>.seeded(ConnectionStatus.Connecting);
   _connectionStatus.add(connectionStatus);
   when(service.connectionStatus)
       .thenAnswer((realInvocation) => _connectionStatus);
@@ -409,7 +409,7 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
   _removeRegistrationIfExists<QueryServiceClient>();
   final service = MockQueryServiceClient();
   GetIt.I.registerSingleton<QueryServiceClient>(service);
-  RoomMetadata roomMetadata = RoomMetadata(
+  final roomMetadata = RoomMetadata(
       roomUid: testUid,
       lastMessageId: lastMessageId != null ? Int64(lastMessageId) : null,
       firstMessageId: null,
@@ -421,29 +421,23 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
   when(service.getAllUserRoomMeta(GetAllUserRoomMetaReq()
         ..pointer = 0
         ..limit = 10))
-      .thenAnswer((realInvocation) {
-    return MockResponseFuture<GetAllUserRoomMetaRes>(
-        GetAllUserRoomMetaRes(roomsMeta: roomsMeta, finished: finished));
-  });
+      .thenAnswer((realInvocation) => MockResponseFuture<GetAllUserRoomMetaRes>(
+          GetAllUserRoomMetaRes(roomsMeta: roomsMeta, finished: finished)));
   when(service.getUserRoomMeta(GetUserRoomMetaReq()..roomUid = testUid))
-      .thenAnswer((realInvocation) {
-    return MockResponseFuture<GetUserRoomMetaRes>(
-        GetUserRoomMetaRes(roomMeta: roomMetadata));
-  });
+      .thenAnswer((realInvocation) => MockResponseFuture<GetUserRoomMetaRes>(
+          GetUserRoomMetaRes(roomMeta: roomMetadata)));
   when(service.fetchCurrentUserSeenData(
           FetchCurrentUserSeenDataReq()..roomUid = testUid))
-      .thenAnswer((realInvocation) {
-    return MockResponseFuture<FetchCurrentUserSeenDataRes>(
-        FetchCurrentUserSeenDataRes(
-            seen: seen_pb.Seen(from: testUid, to: testUid)));
-  });
+      .thenAnswer((realInvocation) =>
+          MockResponseFuture<FetchCurrentUserSeenDataRes>(
+              FetchCurrentUserSeenDataRes(
+                  seen: seen_pb.Seen(from: testUid, to: testUid))));
   when(service.fetchLastOtherUserSeenData(
           FetchLastOtherUserSeenDataReq()..roomUid = testUid))
-      .thenAnswer((realInvocation) {
-    return MockResponseFuture<FetchLastOtherUserSeenDataRes>(
-        FetchLastOtherUserSeenDataRes(
-            seen: seen_pb.Seen(from: testUid, to: testUid)));
-  });
+      .thenAnswer((realInvocation) =>
+          MockResponseFuture<FetchLastOtherUserSeenDataRes>(
+              FetchLastOtherUserSeenDataRes(
+                  seen: seen_pb.Seen(from: testUid, to: testUid))));
   countIsHiddenMessagesGetError
       ? when(service.countIsHiddenMessages(CountIsHiddenMessagesReq()
             ..roomUid = testUid
@@ -493,7 +487,7 @@ MockQueryServiceClient getAndRegisterQueryServiceClient(
         ..roomUid = testUid))
       .thenAnswer((realInvocation) =>
           MockResponseFuture<DeleteMessageRes>(DeleteMessageRes()));
-  var updatedMessage = message_pb.MessageByClient()
+  final updatedMessage = message_pb.MessageByClient()
     ..to = testMessage.to.asUid()
     ..replyToId = Int64(testMessage.replyToId)
     ..text = message_pb.Text(text: "test");
@@ -558,7 +552,7 @@ MockSharedDao getAndRegisterSharedDao() {
 Future<MessageRepo> getAndRegisterMessageRepo() async {
   _removeRegistrationIfExists<MessageRepo>();
   GetIt.I.registerSingleton<MessageRepo>(MessageRepo());
-  MessageRepo service = GetIt.I.get<MessageRepo>();
+  final service = GetIt.I.get<MessageRepo>();
   return service;
 }
 

@@ -5,8 +5,7 @@ import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart'
     as channel_pb;
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart';
 
-import 'package:deliver_public_protocol/pub/v1/group.pbgrpc.dart'
-    as group_pb;
+import 'package:deliver_public_protocol/pub/v1/group.pbgrpc.dart' as group_pb;
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/muc.pb.dart';
@@ -26,10 +25,9 @@ class MucServices {
 
   Future<Uid?> createNewGroup(String groupName, String info) async {
     try {
-      var request =
-          await groupServices.createGroup(group_pb.CreateGroupReq()
-            ..name = groupName
-            ..info = info);
+      final request = await groupServices.createGroup(group_pb.CreateGroupReq()
+        ..name = groupName
+        ..info = info);
       return request.uid;
     } catch (e) {
       return null;
@@ -38,8 +36,7 @@ class MucServices {
 
   Future<bool> addGroupMembers(List<Member> members, Uid groupUid,
       {bool retry = false}) async {
-    group_pb.AddMembersReq addMemberRequest =
-        group_pb.AddMembersReq();
+    final addMemberRequest = group_pb.AddMembersReq();
     for (final member in members) {
       addMemberRequest.members.add(member);
     }
@@ -61,8 +58,8 @@ class MucServices {
 
   Future<group_pb.GetGroupRes?> getGroup(Uid groupUid) async {
     try {
-      var request = await groupServices
-          .getGroup(group_pb.GetGroupReq()..uid = groupUid);
+      final request =
+          await groupServices.getGroup(group_pb.GetGroupReq()..uid = groupUid);
       return request;
     } catch (e) {
       return null;
@@ -92,7 +89,7 @@ class MucServices {
 
   Future<group_pb.GetMembersRes> getGroupMembers(
       Uid groupUid, int limit, int pointer) async {
-    var request = await groupServices.getMembers(group_pb.GetMembersReq()
+    final request = await groupServices.getMembers(group_pb.GetMembersReq()
       ..uid = groupUid
       ..pointer = pointer
       ..limit = limit);
@@ -110,7 +107,7 @@ class MucServices {
   }
 
   Future<bool> kickGroupMembers(List<Member> members, Uid groupUid) async {
-    var kickMembersReq = group_pb.KickMembersReq();
+    final kickMembersReq = group_pb.KickMembersReq();
     for (final member in members) {
       kickMembersReq.members.add(member.uid);
     }
@@ -174,7 +171,7 @@ class MucServices {
       String channelName, ChannelType type, String channelId, String info,
       {bool retry = true}) async {
     try {
-      var request = await channelServices.createChannel(
+      final request = await channelServices.createChannel(
           CreateChannelReq()
             ..name = channelName
             ..info = info
@@ -194,8 +191,7 @@ class MucServices {
 
   Future<bool> addChannelMembers(List<Member> members, Uid mucUid) async {
     try {
-      channel_pb.AddMembersReq addMemberRequest =
-          channel_pb.AddMembersReq();
+      final addMemberRequest = channel_pb.AddMembersReq();
       for (final member in members) {
         addMemberRequest.members.add(member);
       }
@@ -210,7 +206,7 @@ class MucServices {
 
   Future<channel_pb.GetChannelRes?> getChannel(Uid channelUid) async {
     try {
-      var request = await channelServices
+      final request = await channelServices
           .getChannel(channel_pb.GetChannelReq()..uid = channelUid);
       return request;
     } catch (e) {
@@ -242,7 +238,7 @@ class MucServices {
   Future<channel_pb.GetMembersRes?> getChannelMembers(
       Uid channelUid, int limit, int pointer) async {
     try {
-      var request =
+      final request =
           await channelServices.getMembers(channel_pb.GetMembersReq()
             ..uid = channelUid
             ..limit = limit
@@ -255,8 +251,8 @@ class MucServices {
 
   Future<bool> leaveChannel(Uid channelUid) async {
     try {
-      await channelServices.leaveChannel(
-          channel_pb.LeaveChannelReq()..channel = channelUid);
+      await channelServices
+          .leaveChannel(channel_pb.LeaveChannelReq()..channel = channelUid);
       return true;
     } catch (e) {
       _logger.e(e);
@@ -265,7 +261,7 @@ class MucServices {
   }
 
   Future<bool> kickChannelMembers(List<Member> members, Uid channelUid) async {
-    var kickMembersReq = channel_pb.KickMembersReq();
+    final kickMembersReq = channel_pb.KickMembersReq();
     for (final member in members) {
       kickMembersReq.members.add(member.uid);
     }
@@ -344,7 +340,7 @@ class MucServices {
 
   Future<String?> getGroupJointToken({required Uid groupUid}) async {
     try {
-      var res = await groupServices.createToken(group_pb.CreateTokenReq()
+      final res = await groupServices.createToken(group_pb.CreateTokenReq()
         ..uid = groupUid
         ..validUntil = Int64(-1)
         ..numberOfAvailableJoins = Int64(-1));
@@ -356,10 +352,9 @@ class MucServices {
 
   Future<String?> getChannelJointToken({required Uid channelUid}) async {
     try {
-      var res =
-          await channelServices.createToken(channel_pb.CreateTokenReq()
-            ..uid = channelUid
-            ..validUntil = Int64(-1));
+      final res = await channelServices.createToken(channel_pb.CreateTokenReq()
+        ..uid = channelUid
+        ..validUntil = Int64(-1));
       return res.joinToken;
     } catch (e) {
       return null;

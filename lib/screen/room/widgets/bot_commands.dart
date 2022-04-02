@@ -32,7 +32,7 @@ class _BotCommandsState extends State<BotCommands> {
       future: _botRepo.getBotInfo(widget.botUid),
       builder: (c, botInfo) {
         if (botInfo.hasData && botInfo.data != null) {
-          Map<String, String> botCommands = {};
+          final botCommands = <String, String>{};
           botInfo.data!.commands!.forEach((key, value) {
             if (key.contains(widget.query!)) {
               botCommands.putIfAbsent(key, () => value);
@@ -40,16 +40,16 @@ class _BotCommandsState extends State<BotCommands> {
           });
           return AnimatedContainer(
             duration: const Duration(milliseconds: 100),
-            color:theme.backgroundColor,
+            color: theme.backgroundColor,
             height: botCommands.keys.length * (24.0 + 16),
             child: Scrollbar(
                 child: ListView.separated(
               itemCount: botCommands.length,
               itemBuilder: (c, index) {
-                Color _botCommandItemColor = Colors.transparent;
+                var _botCommandItemColor = Colors.transparent;
                 if (widget.botCommandSelectedIndex == index &&
                     widget.botCommandSelectedIndex != -1) {
-                  _botCommandItemColor =theme.focusColor;
+                  _botCommandItemColor = theme.focusColor;
                 }
                 return Container(
                   color: _botCommandItemColor,
@@ -65,7 +65,7 @@ class _BotCommandsState extends State<BotCommands> {
                           children: [
                             Text(
                               "/" + botCommands.keys.toList()[index],
-                              style:theme.textTheme.subtitle1,
+                              style: theme.textTheme.subtitle1,
                             ),
                             const SizedBox(width: 10),
                             Expanded(
@@ -73,7 +73,7 @@ class _BotCommandsState extends State<BotCommands> {
                                 opacity: 0.6,
                                 child: Text(
                                   botCommands.values.toList()[index],
-                                  style:theme.textTheme.bodyText2,
+                                  style: theme.textTheme.bodyText2,
                                 ),
                               ),
                             ),

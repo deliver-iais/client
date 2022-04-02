@@ -33,7 +33,7 @@ class FileRepo {
       {Function? sendActivity}) async {
     final clonedFilePath = await _fileDao.get(uploadKey, "real");
     if (uploadFileStatusCode[uploadKey] == null) {
-      BehaviorSubject<int> d = BehaviorSubject.seeded(0);
+      final d = BehaviorSubject<int>.seeded(0);
       uploadFileStatusCode[uploadKey] = d;
     }
     Response? value;
@@ -47,7 +47,7 @@ class FileRepo {
       _logger.e(e);
     }
     if (value != null) {
-      var json = jsonDecode(value.toString());
+      final json = jsonDecode(value.toString());
       uploadFileStatusCode[uploadKey]!.add(value.statusCode);
       try {
         var uploadedFile = file_pb.File();
@@ -77,11 +77,11 @@ class FileRepo {
 
   Future<bool> isExist(String uuid, String filename,
       {ThumbnailSize? thumbnailSize}) async {
-    FileInfo? fileInfo = await _getFileInfoInDB(
+    final fileInfo = await _getFileInfoInDB(
         (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize), uuid);
     if (fileInfo != null) {
       if (isWeb) return fileInfo.path.isNotEmpty;
-      io.File file = io.File(fileInfo.path);
+      final file = io.File(fileInfo.path);
       return file.exists();
     }
     return false;
@@ -92,13 +92,13 @@ class FileRepo {
 
   Future<String?> getFileIfExist(String uuid, String filename,
       {ThumbnailSize? thumbnailSize}) async {
-    FileInfo? fileInfo = await _getFileInfoInDB(
+    final fileInfo = await _getFileInfoInDB(
         (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize), uuid);
     if (fileInfo != null) {
       if (isWeb) {
         return Uri.parse(fileInfo.path).toString();
       } else {
-        io.File file = io.File(fileInfo.path);
+        final file = io.File(fileInfo.path);
         if (await file.exists()) {
           return file.path;
         }
@@ -147,7 +147,7 @@ class FileRepo {
 
   Future<FileInfo> _saveFileInfo(
       String fileId, String filePath, String name, String sizeType) async {
-    FileInfo fileInfo = FileInfo(
+    final fileInfo = FileInfo(
       uuid: fileId,
       name: name,
       path: filePath,
@@ -159,8 +159,8 @@ class FileRepo {
 
   Future<void> _updateFileInfoWithRealUuid(
       String uploadKey, String uuid) async {
-    var real = await _getFileInfoInDB("real", uploadKey);
-    var medium = await _getFileInfoInDB("medium", uploadKey);
+    final real = await _getFileInfoInDB("real", uploadKey);
+    final medium = await _getFileInfoInDB("medium", uploadKey);
 
     await _fileDao.remove(real!);
     if (medium != null) {
@@ -174,16 +174,15 @@ class FileRepo {
     }
   }
 
-  Future<FileInfo?> _getFileInfoInDB(String size, String uuid) async {
-    return _fileDao.get(uuid, enumToString(size));
-  }
+  Future<FileInfo?> _getFileInfoInDB(String size, String uuid) async =>
+      _fileDao.get(uuid, enumToString(size));
 
   void initUploadProgress(String uploadId) {
     _fileService.initProgressBar(uploadId);
   }
 
   void saveFileInDownloadDir(String uuid, String name, String dir) async {
-    String? path = await getFileIfExist(uuid, name);
+    final path = await getFileIfExist(uuid, name);
     _fileService.saveFileInDownloadFolder(path!, name, dir);
   }
 }

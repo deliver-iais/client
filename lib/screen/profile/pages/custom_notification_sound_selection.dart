@@ -78,9 +78,9 @@ class _CustomNotificationSoundSelectionState
           if (snapshot.hasData) {
             return ListView.builder(
               itemBuilder: (builder, index) {
-                String data = staticData[index];
+                final data = staticData[index];
                 selectedFlag[index] = selectedFlag[index] ?? false;
-                bool isSelected = selectedFlag[index]!;
+                final isSelected = selectedFlag[index]!;
                 return ListTile(
                   onLongPress: () => onLongPress(isSelected, index),
                   onTap: () => onTap(isSelected, index),
@@ -125,19 +125,19 @@ class _CustomNotificationSoundSelectionState
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   if (isSelected && snapshot.data == PlayerState.PLAYING)
-                     const TGS.asset(
-                          'assets/animations/audio_wave.tgs',
-                          autoPlay: true,
-                          width: 40,
-                          height: 60,
-                        ),
+                    const TGS.asset(
+                      'assets/animations/audio_wave.tgs',
+                      autoPlay: true,
+                      width: 40,
+                      height: 60,
+                    ),
                   Padding(
                     padding: const EdgeInsets.only(left: 8.0),
                     child: Icon(
                       isSelected
                           ? Icons.radio_button_checked_outlined
                           : Icons.radio_button_off,
-                      color:theme.primaryColor,
+                      color: theme.primaryColor,
                     ),
                   )
                 ],

@@ -14,8 +14,6 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 
-
-
 class VerificationPage extends StatefulWidget {
   const VerificationPage({Key? key}) : super(key: key);
 
@@ -43,7 +41,7 @@ class _VerificationPageState extends State<VerificationPage> {
     }
     setState(() => _showError = false);
     FocusScope.of(context).requestFocus(FocusNode());
-    var result = _authRepo.sendVerificationCode(_verificationCode!);
+    final result = _authRepo.sendVerificationCode(_verificationCode!);
     result.then((accessTokenResponse) {
       if (accessTokenResponse.status == AccessTokenRes_Status.OK) {
         _fireBaseServices.sendFireBaseToken();

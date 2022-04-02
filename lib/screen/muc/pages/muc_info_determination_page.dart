@@ -51,7 +51,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
   }
 
   Future<bool> checkChannelD(String id) async {
-    var res = await _mucRepo.channelIdIsAvailable(id);
+    final res = await _mucRepo.channelIdIsAvailable(id);
     if (res) {
       showChannelIdError.add(false);
       return res;
@@ -127,9 +127,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                 });
                               },
                               decoration: buildInputDecoration(
-                                  _i18n.get("enter_channel_id"),
-                                  true,
-                                  context),
+                                  _i18n.get("enter_channel_id"), true, context),
                             ),
                           )),
                         ],
@@ -226,23 +224,22 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                           icon: Icon(Icons.check,
                               color: theme.colorScheme.onPrimary),
                           onPressed: () async {
-                            bool res =
+                            final res =
                                 mucNameKey.currentState?.validate() ?? false;
                             if (res) {
                               setState(() {
                                 _showIcon = false;
                               });
-                              List<Uid> memberUidList = [];
+                              final memberUidList = <Uid>[];
                               Uid? mucUid;
                               for (var i = 0;
                                   i < _createMucService.contacts.length;
                                   i++) {
-                                memberUidList.add(_createMucService
-                                    .contacts[i].uid
-                                    .asUid());
+                                memberUidList.add(
+                                    _createMucService.contacts[i].uid.asUid());
                               }
                               if (widget.isChannel) {
-                                bool result =
+                                final result =
                                     _channelIdKey.currentState?.validate() ??
                                         false;
                                 if (result) {
@@ -330,8 +327,8 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
   }
 
   String? validateUsername(String? value) {
-    Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
-    RegExp regex = RegExp(pattern.toString());
+    const Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
+    final regex = RegExp(pattern.toString());
     if (value!.isEmpty) {
       return _i18n.get("channel_id_not_empty");
     } else if (!regex.hasMatch(value)) {

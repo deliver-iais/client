@@ -35,7 +35,7 @@ class ShareUidMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var _shareUid = message.json.toShareUid();
+    final _shareUid = message.json.toShareUid();
     return Padding(
       padding: const EdgeInsets.only(top: 4.0, bottom: 2.0, left: 4, right: 4),
       child: Column(
@@ -81,7 +81,7 @@ class ShareUidMessageWidget extends StatelessWidget {
             onPressed: () async {
               if ((_shareUid.uid.category == Categories.GROUP ||
                   _shareUid.uid.category == Categories.CHANNEL)) {
-                var muc = await _mucRepo.getMuc(_shareUid.uid.asString());
+                final muc = await _mucRepo.getMuc(_shareUid.uid.asString());
                 if (muc != null) {
                   _routingServices.openRoom(_shareUid.uid.asString());
                 } else {
@@ -112,12 +112,12 @@ class ShareUidMessageWidget extends StatelessWidget {
                                             Categories.GROUP ||
                                         _shareUid.uid.category ==
                                             Categories.CHANNEL)) {
-                                      var muc = await _mucRepo
+                                      final muc = await _mucRepo
                                           .getMuc(_shareUid.uid.asString());
                                       if (muc == null) {
                                         if (_shareUid.uid.category ==
                                             Categories.GROUP) {
-                                          var res = await _mucRepo.joinGroup(
+                                          final res = await _mucRepo.joinGroup(
                                               _shareUid.uid,
                                               _shareUid.joinToken);
                                           if (res != null) {
@@ -129,9 +129,10 @@ class ShareUidMessageWidget extends StatelessWidget {
                                             Navigator.of(context).pop();
                                           }
                                         } else {
-                                          var res = await _mucRepo.joinChannel(
-                                              _shareUid.uid,
-                                              _shareUid.joinToken);
+                                          final res =
+                                              await _mucRepo.joinChannel(
+                                                  _shareUid.uid,
+                                                  _shareUid.joinToken);
                                           if (res != null) {
                                             _messageRepo.updateNewMuc(
                                                 _shareUid.uid,

@@ -1,6 +1,5 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
-import 'package:deliver/box/muc.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -20,17 +19,17 @@ String buildShareUserUrl(String countryCode, String nationalNumber,
 //https://deliver-co.ir/text?botId="bdff_bot" & text="/start"
 
 Future<void> handleJoinUri(BuildContext context, String initialLink) async {
-  var _mucDao = GetIt.I.get<MucDao>();
-  var _messageRepo = GetIt.I.get<MessageRepo>();
-  var _mucRepo = GetIt.I.get<MucRepo>();
+  final _mucDao = GetIt.I.get<MucDao>();
+  final _messageRepo = GetIt.I.get<MessageRepo>();
+  final _mucRepo = GetIt.I.get<MucRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
 
   Uid? roomUid;
-  Uri uri = Uri.parse(initialLink);
-  List<String?> segments =
+  final uri = Uri.parse(initialLink);
+  final List<String?> segments =
       uri.pathSegments.where((e) => e != APPLICATION_DOMAIN).toList();
   if (segments.first == "text") {
-    String? botId = uri.queryParameters["botId"];
+    final botId = uri.queryParameters["botId"];
     if (botId != null) {
       _routingService.openRoom((Uid.create()
             ..node = botId
@@ -49,7 +48,7 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
     }
 
     if (roomUid != null) {
-      var muc = await _mucDao.get(roomUid.asString());
+      final muc = await _mucDao.get(roomUid.asString());
       if (muc != null) {
         _routingService.openRoom(roomUid.asString());
       } else {
@@ -73,7 +72,7 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
                         color: Colors.blueAccent,
                         onPressed: () async {
                           if (roomUid!.category == Categories.GROUP) {
-                            Muc? muc = await _mucRepo.joinGroup(
+                            final muc = await _mucRepo.joinGroup(
                                 roomUid, segments[3].toString());
                             if (muc != null) {
                               Navigator.of(context).pop();
@@ -83,7 +82,7 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
                               _routingService.openRoom(roomUid.asString());
                             }
                           } else {
-                            Muc? muc = await _mucRepo.joinChannel(
+                            final muc = await _mucRepo.joinChannel(
                                 roomUid, segments[3].toString());
                             if (muc != null) {
                               Navigator.of(context).pop();

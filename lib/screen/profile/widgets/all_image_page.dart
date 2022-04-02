@@ -54,8 +54,8 @@ class _AllImagePageState extends State<AllImagePage> {
         _mediaCache.values.toList().length >= index) {
       return _mediaCache.values.toList().elementAt(index);
     } else {
-      int page = (index / MEDIA_PAGE_SIZE).floor();
-      var res = await _mediaQueryRepo.getMediaPage(
+      final page = (index / MEDIA_PAGE_SIZE).floor();
+      final res = await _mediaQueryRepo.getMediaPage(
           widget.roomUid, MediaType.IMAGE, page, index);
       if (res != null) {
         for (final media in res) {
@@ -73,7 +73,7 @@ class _AllImagePageState extends State<AllImagePage> {
   }
 
   _getMediaMetaDataCount() async {
-    var res = await _mediaMetaDataDao.getAsFuture(widget.roomUid);
+    final res = await _mediaMetaDataDao.getAsFuture(widget.roomUid);
     if (res != null) {
       _allImageCount.add(res.imagesCount);
     }

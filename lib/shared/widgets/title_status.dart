@@ -92,7 +92,7 @@ class _TitleStatusState extends State<TitleStatus> {
                   style: widget.style.copyWith(color: theme.primaryColor),
                 );
               } else {
-                String lastActivityTime =
+                final lastActivityTime =
                     dateTimeFormat(date(userInfo.data!.time));
                 return Text(
                     "${i18n.get("last_seen")} ${lastActivityTime.contains("just now") ? i18n.get("just_now") : lastActivityTime} ",

@@ -5,7 +5,6 @@ import 'dart:io' as dart_file;
 import 'package:clock/clock.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
-import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/box/sending_status.dart';
@@ -59,7 +58,7 @@ void main() {
           () async {
         getAndRegisterCoreServices(
             connectionStatus: ConnectionStatus.Connected);
-        MessageRepo messageRepo = await getAndRegisterMessageRepo();
+        final messageRepo = await getAndRegisterMessageRepo();
         expect(
             messageRepo.updatingStatus.value, TitleStatusConditions.Updating);
       });
@@ -79,7 +78,7 @@ void main() {
           () async {
         getAndRegisterCoreServices(
             connectionStatus: ConnectionStatus.Connecting);
-        MessageRepo messageRepo = await getAndRegisterMessageRepo();
+        final messageRepo = await getAndRegisterMessageRepo();
         expect(
             messageRepo.updatingStatus.value, TitleStatusConditions.Connecting);
       });
@@ -123,7 +122,7 @@ void main() {
         final queryServiceClient = getAndRegisterQueryServiceClient();
         final sharedDao = getAndRegisterSharedDao();
         await MessageRepo().updatingMessages();
-        var getAllUserRoomMetaRes =
+        final getAllUserRoomMetaRes =
             await queryServiceClient.getAllUserRoomMeta(GetAllUserRoomMetaReq()
               ..pointer = 0
               ..limit = 10);
@@ -137,7 +136,7 @@ void main() {
             getAndRegisterQueryServiceClient(finished: false);
         final sharedDao = getAndRegisterSharedDao();
         await MessageRepo().updatingMessages();
-        var getAllUserRoomMetaRes =
+        final getAllUserRoomMetaRes =
             await queryServiceClient.getAllUserRoomMeta(GetAllUserRoomMetaReq()
               ..pointer = 0
               ..limit = 10);
@@ -213,7 +212,7 @@ void main() {
           () async {
         final roomDao = getAndRegisterRoomDao(
             rooms: [Room(uid: testUid.asString(), lastMessage: testMessage)]);
-        var rooms = await roomDao.getAllRooms();
+        final rooms = await roomDao.getAllRooms();
         MessageRepo().updatingLastSeen();
         expect(rooms.first.lastMessage!.to.asUid().category, Categories.USER);
       });
@@ -284,7 +283,7 @@ void main() {
       test('When called should getMySeen and should save it', () async {
         final seenDo = getAndRegisterSeenDao();
         await MessageRepo().fetchHiddenMessageCount(testUid, 0);
-        var s = await seenDo.getMySeen(testUid.asString());
+        final s = await seenDo.getMySeen(testUid.asString());
         verify(seenDo.saveMySeen(s.copy(
             newUid: testUid.asString(),
             newMessageId: 0,
@@ -295,7 +294,7 @@ void main() {
         getAndRegisterQueryServiceClient(countIsHiddenMessagesGetError: true);
         await MessageRepo().fetchHiddenMessageCount(testUid, 0);
         verifyNever(seenDo.getMySeen(testUid.asString()));
-        var s = await seenDo.getMySeen(testUid.asString());
+        final s = await seenDo.getMySeen(testUid.asString());
         verifyNever(seenDo.saveMySeen(s.copy(
             newUid: testUid.asString(),
             newMessageId: 0,
@@ -409,7 +408,7 @@ void main() {
       test(
           'When called should getMessage from messageDao if msg not be null and firstMessageId be greater then  message id  should updateRoom with json "{DELETED}" and return it',
           () async {
-        Message message = Message(
+        final message = Message(
             id: 0,
             from: testUid.asString(),
             to: testUid.asString(),
@@ -451,7 +450,7 @@ void main() {
       test(
           'When called should getMessage from messageDao if msg not be null and message json not be {}  should updateRoom without no chang in lastMessage and return it',
           () async {
-        Message message = Message(
+        final message = Message(
             id: 3,
             from: testUid.asString(),
             to: testUid.asString(),
@@ -529,7 +528,7 @@ void main() {
     });
 
     group('getLastMessageFromServer -', () {
-      Message message = Message(
+      final message = Message(
           roomUid: testUid.asString(),
           packetId: "",
           time: 0,
@@ -597,7 +596,7 @@ void main() {
       });
     });
     group('fetchCurrentUserLastSeen -', () {
-      RoomMetadata roomMetadata = RoomMetadata(
+      final roomMetadata = RoomMetadata(
           roomUid: testUid,
           lastMessageId: null,
           firstMessageId: null,
@@ -655,7 +654,7 @@ void main() {
       });
     });
     group('sendTextMessage -', () {
-      PendingMessage pm = testPendingMessage.copyWith(
+      final pm = testPendingMessage.copyWith(
           msg: testPendingMessage.msg.copyWith(
               type: MessageType.TEXT,
               time: 946672200000,
@@ -695,7 +694,7 @@ void main() {
             final coreServices = getAndRegisterCoreServices();
             // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
             await MessageRepo().sendTextMessage(testUid, "test");
-            message_pb.MessageByClient byClient = message_pb.MessageByClient()
+            final byClient = message_pb.MessageByClient()
               ..packetId = pm.msg.packetId
               ..to = pm.msg.to.asUid()
               ..replyToId = Int64(pm.msg.replyToId)
@@ -706,7 +705,7 @@ void main() {
       });
     });
     group('sendLocationMessage -', () {
-      PendingMessage pm = testPendingMessage.copyWith(
+      final pm = testPendingMessage.copyWith(
         msg: testPendingMessage.msg.copyWith(
             type: MessageType.LOCATION, json: "{\"1\":0.0,\"2\":0.0}"),
       );
@@ -745,7 +744,7 @@ void main() {
             final coreServices = getAndRegisterCoreServices();
             // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
             await MessageRepo().sendLocationMessage(testPosition, testUid);
-            message_pb.MessageByClient byClient = message_pb.MessageByClient()
+            final byClient = message_pb.MessageByClient()
               ..packetId = pm.msg.packetId
               ..to = pm.msg.to.asUid()
               ..replyToId = Int64(pm.msg.replyToId)
@@ -756,7 +755,7 @@ void main() {
       });
     });
     group('sendMultipleFilesMessages -', () {
-      PendingMessage pm = testPendingMessage.copyWith(
+      final pm = testPendingMessage.copyWith(
           msg: testPendingMessage.msg.copyWith(type: MessageType.FILE),
           status: SendingStatus.UPLOAD_FILE_INPROGRSS,
           failed: false);
@@ -792,7 +791,7 @@ void main() {
         withClock(
           Clock.fixed(DateTime(2000)),
           () async {
-            file_pb.File sendingFakeFile = file_pb.File()
+            final sendingFakeFile = file_pb.File()
               ..uuid = pm.packetId
               ..caption = "test"
               ..width = 0
@@ -826,7 +825,7 @@ void main() {
             await MessageRepo().sendMultipleFilesMessages(
                 testUid, [model.File("test", "test")],
                 caption: "test");
-            message_pb.MessageByClient byClient = message_pb.MessageByClient()
+            final byClient = message_pb.MessageByClient()
               ..packetId = pm.msg.packetId
               ..to = pm.msg.to.asUid()
               ..replyToId = Int64(pm.msg.replyToId)
@@ -838,7 +837,7 @@ void main() {
       });
     });
     group('sendPendingMessages -', () {
-      PendingMessage pm = testPendingMessage.copyWith(
+      final pm = testPendingMessage.copyWith(
           msg: testPendingMessage.msg.copyWith(
             type: MessageType.FILE,
             json:
@@ -900,7 +899,7 @@ void main() {
                 uuid: testUid.asString(), caption: "test", name: "test"));
         getAndRegisterMessageDao(allPendingMessage: pm);
         await MessageRepo().sendPendingMessages();
-        message_pb.MessageByClient byClient = message_pb.MessageByClient()
+        final byClient = message_pb.MessageByClient()
           ..packetId = pm.msg.packetId
           ..to = pm.msg.to.asUid()
           ..replyToId = Int64(pm.msg.replyToId)
@@ -916,7 +915,7 @@ void main() {
         final roomDao = getAndRegisterRoomDao();
         final messageDao = getAndRegisterMessageDao();
         await MessageRepo().sendPendingMessages();
-        message_pb.MessageByClient byClient = message_pb.MessageByClient()
+        final byClient = message_pb.MessageByClient()
           ..packetId = pm.msg.packetId
           ..to = pm.msg.to.asUid()
           ..replyToId = Int64(pm.msg.replyToId)
@@ -947,7 +946,7 @@ void main() {
         final roomDao = getAndRegisterRoomDao();
         final messageDao = getAndRegisterMessageDao(allPendingMessage: pm);
         await MessageRepo().sendPendingMessages();
-        message_pb.MessageByClient byClient = message_pb.MessageByClient()
+        final byClient = message_pb.MessageByClient()
           ..packetId = pm.msg.packetId
           ..to = pm.msg.to.asUid()
           ..replyToId = Int64(pm.msg.replyToId)
@@ -977,7 +976,7 @@ void main() {
         getAndRegisterMessageDao(
             allPendingMessage: pm.copyWith(status: SendingStatus.PENDING));
         await MessageRepo().sendPendingMessages();
-        message_pb.MessageByClient byClient = message_pb.MessageByClient()
+        final byClient = message_pb.MessageByClient()
           ..packetId = pm.msg.packetId
           ..to = pm.msg.to.asUid()
           ..replyToId = Int64(pm.msg.replyToId)
@@ -1021,7 +1020,7 @@ void main() {
       });
     });
     group('sendForwardedMessage -', () {
-      PendingMessage pm = testPendingMessage.copyWith(
+      final pm = testPendingMessage.copyWith(
           msg: testPendingMessage.msg.copyWith(
         forwardedFrom: testUid.asString(),
       ));
@@ -1053,7 +1052,7 @@ void main() {
           () async {
             final coreServices = getAndRegisterCoreServices();
             MessageRepo().sendForwardedMessage(testUid, [testMessage]);
-            message_pb.MessageByClient byClient = message_pb.MessageByClient()
+            final byClient = message_pb.MessageByClient()
               ..packetId = pm.msg.packetId
               ..to = pm.msg.to.asUid()
               ..replyToId = Int64(pm.msg.replyToId)
@@ -1067,7 +1066,8 @@ void main() {
       test('When called if element!.id == containsId should return message',
           () async {
         final messageDao = getAndRegisterMessageDao();
-        var messages = await MessageRepo().getPage(0, testUid.asString(), 0, 0);
+        final messages =
+            await MessageRepo().getPage(0, testUid.asString(), 0, 0);
         expect(messages.first, testMessage.copyWith(id: 0));
         verify(messageDao.getMessagePage(testUid.asString(), 0));
       });
@@ -1182,7 +1182,7 @@ void main() {
             fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH);
         await MessageRepo()
             .getMessages(testUid.asString(), 0, 16, Completer(), 10);
-        var mes = await messageDao.getMessage(testUid.asString(), 0);
+        final mes = await messageDao.getMessage(testUid.asString(), 0);
         verify(messageDao.getMessage(testUid.asString(), 0));
         verify(messageDao.saveMessage(mes!..json = EMPTY_MESSAGE));
       });
@@ -1283,7 +1283,7 @@ void main() {
         withClock(Clock.fixed(DateTime(2000)), () async {
           final coreServices = getAndRegisterCoreServices();
           MessageRepo().sendActivity(testUid, ActivityType.TYPING);
-          ActivityByClient activityByClient = ActivityByClient()
+          final activityByClient = ActivityByClient()
             ..typeOfActivity = ActivityType.TYPING
             ..to = testUid;
           verify(
@@ -1292,7 +1292,7 @@ void main() {
       });
     });
     group('sendFormResultMessage -', () {
-      PendingMessage pm = testPendingMessage.copyWith(
+      final pm = testPendingMessage.copyWith(
           msg: testPendingMessage.msg.copyWith(
               type: MessageType.FORM_RESULT,
               json: "{\"2\":[{\"1\":\"test\",\"2\":\"test\"}]}"));
@@ -1322,7 +1322,7 @@ void main() {
           final coreServices = getAndRegisterCoreServices();
           MessageRepo()
               .sendFormResultMessage(testUid.asString(), {"test": "test"}, 0);
-          message_pb.MessageByClient byClient = message_pb.MessageByClient()
+          final byClient = message_pb.MessageByClient()
             ..packetId = pm.msg.packetId
             ..to = pm.msg.to.asUid()
             ..replyToId = Int64(pm.msg.replyToId)
@@ -1332,7 +1332,7 @@ void main() {
       });
     });
     group('sendShareUidMessage -', () {
-      PendingMessage pm = testPendingMessage.copyWith(
+      final pm = testPendingMessage.copyWith(
           msg: testPendingMessage.msg.copyWith(
               type: MessageType.SHARE_UID,
               json:
@@ -1363,7 +1363,7 @@ void main() {
           final coreServices = getAndRegisterCoreServices();
           MessageRepo()
               .sendShareUidMessage(testUid, message_pb.ShareUid(uid: testUid));
-          message_pb.MessageByClient byClient = message_pb.MessageByClient()
+          final byClient = message_pb.MessageByClient()
             ..packetId = pm.msg.packetId
             ..to = pm.msg.to.asUid()
             ..replyToId = Int64(pm.msg.replyToId)
@@ -1373,7 +1373,7 @@ void main() {
       });
     });
     group('sendPrivateMessageAccept -', () {
-      PendingMessage pm = testPendingMessage.copyWith(
+      final pm = testPendingMessage.copyWith(
         msg: testPendingMessage.msg.copyWith(
             type: MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE,
             json: "{\"1\":2,\"2\":\"test\"}"),
@@ -1404,7 +1404,7 @@ void main() {
           final coreServices = getAndRegisterCoreServices();
           MessageRepo()
               .sendPrivateMessageAccept(testUid, PrivateDataType.EMAIL, "test");
-          message_pb.MessageByClient byClient = message_pb.MessageByClient()
+          final byClient = message_pb.MessageByClient()
             ..packetId = pm.msg.packetId
             ..to = pm.msg.to.asUid()
             ..replyToId = Int64(pm.msg.replyToId)
@@ -1479,7 +1479,7 @@ void main() {
             lastMessageId: testPendingMessage.msg.id,
             deleted: false,
             lastUpdateTime: testPendingMessage.msg.time)));
-        message_pb.MessageByClient byClient = message_pb.MessageByClient()
+        final byClient = message_pb.MessageByClient()
           ..packetId = testPendingMessage.msg.packetId
           ..to = testPendingMessage.msg.to.asUid()
           ..replyToId = Int64(testPendingMessage.msg.replyToId);
@@ -1527,16 +1527,16 @@ void main() {
       });
     });
     group('sendLiveLocationMessage -', () {
-      location_pb.Location location = location_pb.Location(
+      final location = location_pb.Location(
           longitude: testPosition.longitude, latitude: testPosition.latitude);
-      String json = (location_pb.LiveLocation()
+      final json = (location_pb.LiveLocation()
             ..location = location
             ..from = testUid
             ..uuid = testUid.asString()
             ..to = testUid
             ..time = Int64(0))
           .writeToJson();
-      PendingMessage pm = testPendingMessage.copyWith(
+      final pm = testPendingMessage.copyWith(
           msg: testPendingMessage.msg.copyWith(
               replyToId: 0, type: MessageType.LIVE_LOCATION, json: json));
       test('When called should createLiveLocation', () async {
@@ -1558,7 +1558,7 @@ void main() {
               lastMessageId: pm.msg.id,
               deleted: false,
               lastUpdateTime: pm.msg.time)));
-          message_pb.MessageByClient byClient = message_pb.MessageByClient()
+          final byClient = message_pb.MessageByClient()
             ..packetId = pm.msg.packetId
             ..to = pm.msg.to.asUid()
             ..replyToId = Int64(pm.msg.replyToId);
@@ -1657,7 +1657,7 @@ void main() {
       test('When called should updateMessage in queryServiceClient', () async {
         final queryServiceClient = getAndRegisterQueryServiceClient();
         await MessageRepo().editTextMessage(testUid, testMessage, "test", 0);
-        var updatedMessage = message_pb.MessageByClient()
+        final updatedMessage = message_pb.MessageByClient()
           ..to = testMessage.to.asUid()
           ..replyToId = Int64(testMessage.replyToId)
           ..text = message_pb.Text(text: "test");
@@ -1701,7 +1701,7 @@ void main() {
       });
     });
     group('editFileMessage -', () {
-      var updatedMessage = message_pb.MessageByClient()
+      final updatedMessage = message_pb.MessageByClient()
         ..to = testMessage.to.asUid()
         ..file = file_pb.File(
             uuid: testUid.asString(), caption: "test", name: "test");

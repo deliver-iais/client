@@ -31,7 +31,8 @@ class ShareBoxGallery extends StatefulWidget {
       this.setAvatar,
       required this.pop,
       required this.roomUid,
-      this.replyMessageId = 0, this.resetRoomPageDetails})
+      this.replyMessageId = 0,
+      this.resetRoomPageDetails})
       : super(key: key);
 
   @override
@@ -108,8 +109,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                   gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: 2),
                   itemBuilder: (co, index) {
-                    StorageFile? folder =
-                        index > 0 ? folders.data![index - 1] : null;
+                    final folder = index > 0 ? folders.data![index - 1] : null;
                     if (index <= 0) {
                       return Container(
                         width: 50,
@@ -221,7 +221,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
               padding: const EdgeInsets.only(bottom: 20, right: 15),
               child: IconButton(
                 onPressed: () async {
-                  XFile file = await _controller.takePicture();
+                  final file = await _controller.takePicture();
                   if (widget.selectAvatar) {
                     widget.pop();
                     Navigator.pop(context);
@@ -265,7 +265,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
   }
 
   void openImage(XFile file, Function pop) {
-    String imagePath = file.path;
+    var imagePath = file.path;
     Navigator.push(context, MaterialPageRoute(builder: (c) {
       return StatefulBuilder(builder: (con, set) {
         return Scaffold(

@@ -30,7 +30,7 @@ class LastActivityRepo {
   Stream<LastActivity?> watch(String uid) => _lastActivityDao.watch(uid);
 
   Future<void> _getLastActivityTime(Uid currentUserUid) async {
-    var lastActivityTime = await _queryServiceClient
+    final lastActivityTime = await _queryServiceClient
         .getLastActivity(GetLastActivityReq()..uid = currentUserUid);
     _logger.v(lastActivityTime.toString());
 

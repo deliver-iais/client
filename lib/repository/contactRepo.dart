@@ -48,9 +48,9 @@ class ContactRepo {
       if (await _checkPermission.checkContactPermission() ||
           isDesktop ||
           isIOS) {
-        List<Contact> contacts = [];
+        final contacts = <Contact>[];
         if (!isDesktop) {
-          Iterable<contacts_service_pb.Contact> phoneContacts =
+          final Iterable<contacts_service_pb.Contact> phoneContacts =
               await contacts_service_pb.ContactsService.getContacts(
                   withThumbnails: false,
                   photoHighResolution: false,
@@ -60,11 +60,11 @@ class ContactRepo {
           for (final phoneContact in phoneContacts) {
             for (final p in phoneContact.phones!) {
               try {
-                String contactPhoneNumber = p.value.toString();
-                PhoneNumber phoneNumber = _getPhoneNumber(
+                final contactPhoneNumber = p.value.toString();
+                final phoneNumber = _getPhoneNumber(
                     contactPhoneNumber, phoneContact.displayName!);
                 _contactsDisplayName[phoneNumber] = phoneContact.displayName!;
-                Contact contact = Contact()
+                final contact = Contact()
                   ..lastName = phoneContact.displayName!
                   ..phoneNumber = phoneNumber;
                 contacts.add(contact);
@@ -80,7 +80,7 @@ class ContactRepo {
   }
 
   PhoneNumber _getPhoneNumber(String phone, String name) {
-    PhoneNumber? p = getPhoneNumber(phone);
+    final p = getPhoneNumber(phone);
 
     if (p == null) {
       throw Exception("Not Valid Number  $name ***** $phone");
@@ -91,7 +91,7 @@ class ContactRepo {
 
   Future sendContacts(List<Contact> contacts) async {
     try {
-      int i = 0;
+      var i = 0;
       while (i <= contacts.length) {
         _sendContacts(contacts.sublist(
             i, contacts.length > i + 79 ? i + 79 : contacts.length));
@@ -106,7 +106,7 @@ class ContactRepo {
 
   Future<bool> sendNewContact(Contact contact) async {
     try {
-      var res = await _contactServices.saveContacts(SaveContactsReq()
+      final res = await _contactServices.saveContacts(SaveContactsReq()
         ..contactList.add(contact)
         ..returnUserContactByPhoneNumberList.add(contact.phoneNumber));
       _saveContact(res.userList);
@@ -119,7 +119,7 @@ class ContactRepo {
 
   Future<bool> _sendContacts(List<Contact> contacts) async {
     try {
-      var sendContacts = SaveContactsReq();
+      final sendContacts = SaveContactsReq();
       for (final element in contacts) {
         sendContacts.contactList.add(element);
       }
@@ -137,7 +137,7 @@ class ContactRepo {
 
   Future<void> getContacts() async {
     try {
-      var result =
+      final result =
           await _contactServices.getContactListUsers(GetContactListUsersReq());
       _saveContact(result.userList);
     } catch (e) {
@@ -176,7 +176,7 @@ class ContactRepo {
 
   Future<void> fetchMemberId(Member member) async {
     if (!member.memberUid.asUid().isUser()) return;
-    var m = await _uidIdNameDao.getByUid(member.memberUid);
+    final m = await _uidIdNameDao.getByUid(member.memberUid);
     if (m == null || m.id == null) getUserIdByUid(member.memberUid.asUid());
   }
 
@@ -186,12 +186,12 @@ class ContactRepo {
     }
 
     try {
-      var result = await _queryServiceClient.searchUid(SearchUidReq()
+      final result = await _queryServiceClient.searchUid(SearchUidReq()
         ..text = query
         ..justSearchInId = true
         ..category = Categories.USER
         ..filterByCategory = false);
-      List<Uid> searchResult = [];
+      final searchResult = <Uid>[];
       for (final room in result.itemList) {
         searchResult.add(room.uid);
       }
@@ -204,21 +204,20 @@ class ContactRepo {
 
   // TODO needs to be refactored!
   Future<contact_pb.Contact?> getContact(Uid userUid) async {
-    contact_pb.Contact? contact =
-        await _contactDao.getByUid(userUid.asString());
+    final contact = await _contactDao.getByUid(userUid.asString());
     return contact;
   }
 
   Future<bool> contactIsExist(String countryCode, String nationalNumber) async {
-    var result = await _contactDao.get(countryCode, nationalNumber);
+    final result = await _contactDao.get(countryCode, nationalNumber);
     return result != null;
   }
 
   Future<String?> getContactFromServer(Uid contactUid) async {
     try {
-      var contact = await _contactServices
+      final contact = await _contactServices
           .getUserByUid(GetUserByUidReq()..uid = contactUid);
-      var name = buildName(contact.user.firstName, contact.user.lastName);
+      final name = buildName(contact.user.firstName, contact.user.lastName);
       _uidIdNameDao.update(contactUid.asString(), name: name);
       return name;
     } catch (e) {

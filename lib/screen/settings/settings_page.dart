@@ -69,7 +69,7 @@ class _SettingsPageState extends State<SettingsPage> {
                         children: <Widget>[
                           GestureDetector(
                               onTap: () async {
-                                var lastAvatar =
+                                final lastAvatar =
                                     await _avatarRepo.getLastAvatar(
                                         _authRepo.currentUserUid, false);
                                 if (lastAvatar?.createdOn != null &&
@@ -137,7 +137,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: _i18n.get("qr_share"),
                     leading: const Icon(CupertinoIcons.qrcode),
                     onPressed: (BuildContext context) async {
-                      var account = await _accountRepo.getAccount();
+                      final account = await _accountRepo.getAccount();
                       showQrCode(
                           context,
                           buildShareUserUrl(
@@ -330,7 +330,7 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   Widget color(Color color, int index) {
-    bool isSelected = _uxService.themeIndex == index;
+    final isSelected = _uxService.themeIndex == index;
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(

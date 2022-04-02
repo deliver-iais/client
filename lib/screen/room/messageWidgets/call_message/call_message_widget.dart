@@ -36,7 +36,8 @@ class CallMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool isIncomingCall = (_callEvent == CallEvent_CallStatus.DECLINED || _callEvent == CallEvent_CallStatus.BUSY)
+    final isIncomingCall = (_callEvent == CallEvent_CallStatus.DECLINED ||
+            _callEvent == CallEvent_CallStatus.BUSY)
         ? _authRepo.isCurrentUser(message.to)
         : _authRepo.isCurrentUser(message.from);
     return Container(

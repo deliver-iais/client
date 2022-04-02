@@ -40,7 +40,7 @@ class _CircularFileStatusIndicatorState
 
   @override
   Widget build(BuildContext context) {
-    var file = widget.message.json.toFile();
+    final file = widget.message.json.toFile();
     return FutureBuilder<String?>(
         future: _fileRepo.getFileIfExist(file.uuid, file.name),
         builder: (c, fileSnapShot) {
@@ -64,7 +64,7 @@ class _CircularFileStatusIndicatorState
                             return LoadFileStatus(
                               fileId: file.uuid,
                               fileName: file.name,
-                              isPendingMessage: widget.message.id==null,
+                              isPendingMessage: widget.message.id == null,
                               messagePacketId: widget.message.packetId,
                               onPressed: () async {
                                 await _fileRepo.getFile(file.uuid, file.name);
@@ -78,13 +78,12 @@ class _CircularFileStatusIndicatorState
                   } else {
                     return LoadFileStatus(
                       fileId: file.uuid,
-                      isPendingMessage: widget.message.id==null,
+                      isPendingMessage: widget.message.id == null,
                       fileName: file.name,
                       messagePacketId: widget.message.packetId,
                       onPressed: () async {
                         await _fileRepo.getFile(file.uuid, file.name);
-                        setState(() {
-                        });
+                        setState(() {});
                       },
                       background: widget.backgroundColor,
                       foreground: widget.foregroundColor,

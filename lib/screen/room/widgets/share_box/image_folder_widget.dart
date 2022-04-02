@@ -84,7 +84,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3),
             itemBuilder: (c, index) {
-              String imagePath = widget.storageFile.files[index];
+              final String imagePath = widget.storageFile.files[index];
               return GestureDetector(
                   onTap: () {
                     if (widget.selectAvatar) {

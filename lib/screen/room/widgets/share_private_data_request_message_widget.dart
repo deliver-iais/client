@@ -30,7 +30,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var sharePrivateDataRequest = message.json.toSharePrivateDataRequest();
+    final sharePrivateDataRequest = message.json.toSharePrivateDataRequest();
     return Stack(
       children: [
         Container(

@@ -29,7 +29,7 @@ class AccountRepo {
       return true;
     }
     try {
-      var result =
+      final result =
           await _profileServiceClient.getUserProfile(GetUserProfileReq());
       _savePhoneNumber(result.profile.phoneNumber.countryCode,
           result.profile.phoneNumber.nationalNumber.toInt());
@@ -54,7 +54,7 @@ class AccountRepo {
   }
 
   Future<bool> profileInfoIsSet() async {
-    bool isSet = await hasProfile(retry: true);
+    final isSet = await hasProfile(retry: true);
     if (!isSet) {
       return false;
     } else {
@@ -64,11 +64,11 @@ class AccountRepo {
 
   Future<bool> fetchCurrentUserId({bool retry = false}) async {
     try {
-      var res = await _sharedDao.get(SHARED_DAO_USERNAME);
+      final res = await _sharedDao.get(SHARED_DAO_USERNAME);
       if (res != null) {
         return true;
       }
-      var getIdRequest = await _queryServiceClient
+      final getIdRequest = await _queryServiceClient
           .getIdByUid(GetIdByUidReq()..uid = _authRepo.currentUserUid);
       if (getIdRequest.id.isNotEmpty) {
         _sharedDao.put(SHARED_DAO_USERNAME, getIdRequest.id);
@@ -86,21 +86,18 @@ class AccountRepo {
     }
   }
 
-  Future<Account> getAccount() async {
-    return Account()
-      ..countryCode = (await _sharedDao.get(SHARED_DAO_COUNTRY_CODE) ?? "")
-      ..nationalNumber =
-          (await _sharedDao.get(SHARED_DAO_NATIONAL_NUMBER) ?? "")
-      ..userName = await _sharedDao.get(SHARED_DAO_USERNAME) ?? ""
-      ..firstName = await _sharedDao.get(SHARED_DAO_FIRST_NAME) ?? ""
-      ..lastName = await _sharedDao.get(SHARED_DAO_LAST_NAME)
-      ..email = await _sharedDao.get(SHARED_DAO_EMAIL)
-      ..password = await _sharedDao.get(SHARED_DAO_PASSWORD)
-      ..description = await _sharedDao.get(SHARED_DAO_DESCRIPTION);
-  }
+  Future<Account> getAccount() async => Account()
+    ..countryCode = (await _sharedDao.get(SHARED_DAO_COUNTRY_CODE) ?? "")
+    ..nationalNumber = (await _sharedDao.get(SHARED_DAO_NATIONAL_NUMBER) ?? "")
+    ..userName = await _sharedDao.get(SHARED_DAO_USERNAME) ?? ""
+    ..firstName = await _sharedDao.get(SHARED_DAO_FIRST_NAME) ?? ""
+    ..lastName = await _sharedDao.get(SHARED_DAO_LAST_NAME)
+    ..email = await _sharedDao.get(SHARED_DAO_EMAIL)
+    ..password = await _sharedDao.get(SHARED_DAO_PASSWORD)
+    ..description = await _sharedDao.get(SHARED_DAO_DESCRIPTION);
 
   Future<bool> checkUserName(String username) async {
-    var checkUsernameRes = await _queryServiceClient
+    final checkUsernameRes = await _queryServiceClient
         .idIsAvailable(IdIsAvailableReq()..id = username);
     return checkUsernameRes.isAvailable;
   }
@@ -114,7 +111,7 @@ class AccountRepo {
     try {
       _queryServiceClient.setId(SetIdReq()..id = username!);
 
-      SaveUserProfileReq saveUserProfileReq = SaveUserProfileReq();
+      final saveUserProfileReq = SaveUserProfileReq();
       if (firstName != null) {
         saveUserProfileReq.firstName = firstName;
       }
@@ -153,12 +150,12 @@ class AccountRepo {
   }
 
   Future<List<Session>> getSessions() async {
-    var res = await _sessionServicesClient.getMySessions(GetMySessionsReq());
+    final res = await _sessionServicesClient.getMySessions(GetMySessionsReq());
     return res.sessions;
   }
 
   Future<void> checkUpdatePlatformSessionInformation() async {
-    final String? pv = await _sharedDao.get(SHARED_DAO_APP_VERSION);
+    final pv = await _sharedDao.get(SHARED_DAO_APP_VERSION);
     if (pv != null) {
       // Migrations
       if (shouldRemoveDB(pv)) {
@@ -180,21 +177,15 @@ class AccountRepo {
     }
   }
 
-  bool shouldRemoveDB(String? previousVersion) {
-    return previousVersion != VERSION;
-  }
+  bool shouldRemoveDB(String? previousVersion) => previousVersion != VERSION;
 
-  bool shouldMigrateDB(String? previousVersion) {
-    return false;
-  }
+  bool shouldMigrateDB(String? previousVersion) => false;
 
-  bool shouldUpdateSessionPlatformInformation(String previousVersion) {
-    return previousVersion != VERSION;
-  }
+  bool shouldUpdateSessionPlatformInformation(String previousVersion) =>
+      previousVersion != VERSION;
 
-  bool shouldShowNewFeaturesDialog(String? previousVersion) {
-    return previousVersion != VERSION;
-  }
+  bool shouldShowNewFeaturesDialog(String? previousVersion) =>
+      previousVersion != VERSION;
 
   Future<bool> verifyQrCodeToken(String token) async {
     try {
@@ -240,7 +231,7 @@ class AccountRepo {
   }
 
   Future<bool> shouldShowNewFeatureDialog() async {
-    String? pv = await _sharedDao.get(SHARED_DAO_APP_VERSION);
+    final pv = await _sharedDao.get(SHARED_DAO_APP_VERSION);
     return shouldShowNewFeaturesDialog(pv);
   }
 }

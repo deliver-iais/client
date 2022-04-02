@@ -30,6 +30,7 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
   final BehaviorSubject<String> _queryTermDebouncedSubject =
       BehaviorSubject<String>.seeded("");
   final _routingService = GetIt.I.get<RoutingService>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
 
   @override
   void dispose() {
@@ -40,8 +41,6 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    var _roomRepo = GetIt.I.get<RoomRepo>();
-
     return Scaffold(
       backgroundColor: theme.backgroundColor,
       appBar: PreferredSize(
@@ -89,7 +88,7 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
     _routingService.openRoom(uid.asString(),
         forwardedMessages: widget.forwardedMessages ?? [],
         popAllBeforePush: true,
-        forwardedMedia: widget.medias??[],
+        forwardedMedia: widget.medias ?? [],
         shareUid: widget.shareUid);
   }
 

@@ -52,7 +52,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
   void initState() {
     form = widget.message.json.toForm();
     for (final field in form.fields) {
-      int index = form.fields.indexOf(field);
+      final index = form.fields.indexOf(field);
       switch (field.whichType()) {
         case proto_pb.Form_Field_Type.textField:
         case proto_pb.Form_Field_Type.numberField:

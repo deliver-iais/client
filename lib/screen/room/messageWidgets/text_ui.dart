@@ -44,9 +44,9 @@ class TextUI extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    String text = extractText(message);
-    List<Block> blocks = extractBlocks(text, context);
-    List<TextSpan> spans = blocks.map<TextSpan>((b) {
+    final text = extractText(message);
+    final blocks = extractBlocks(text, context);
+    final spans = blocks.map<TextSpan>((b) {
       return TextSpan(
           text: b.text,
           style: b.style,
@@ -61,7 +61,7 @@ class TextUI extends StatelessWidget {
       link = "";
     }
 
-    double linkPreviewMaxWidth = min(
+    final double linkPreviewMaxWidth = min(
         blocks
                 .map((b) => b.text.length)
                 .reduce((value, element) => value < element ? element : value) *
@@ -112,8 +112,8 @@ class TextUI extends StatelessWidget {
   }
 
   List<Block> extractBlocks(String text, BuildContext context) {
-    List<Block> blocks = [Block(text: text)];
-    List<Parser> parsers = [
+    var blocks = <Block>[Block(text: text)];
+    final parsers = <Parser>[
       EmojiParser(),
       if (searchTerm != null && searchTerm!.isNotEmpty)
         SearchTermParser(searchTerm!),
@@ -268,9 +268,9 @@ List<Block> parseText(
     {String Function(String) transformer = same}) {
   var start = 0;
 
-  Iterable<RegExpMatch> matches = regex.allMatches(text);
+  final matches = regex.allMatches(text);
 
-  var result = <Block>[];
+  final result = <Block>[];
 
   for (final match in matches) {
     result.add(Block(text: transformer(text.substring(start, match.start))));

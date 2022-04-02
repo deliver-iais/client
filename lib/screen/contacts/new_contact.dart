@@ -84,10 +84,11 @@ class _NewContactState extends State<NewContact> {
                       child: Text(_i18n.get("save")),
                       onPressed: () async {
                         if (_phoneNumber != null) {
-                          var res = await _contactRepo.sendNewContact(Contact()
-                            ..phoneNumber = _phoneNumber!
-                            ..firstName = _firstName
-                            ..lastName = _lastName);
+                          final res =
+                              await _contactRepo.sendNewContact(Contact()
+                                ..phoneNumber = _phoneNumber!
+                                ..firstName = _firstName
+                                ..lastName = _lastName);
                           showResult(res);
                           if (res) _routingServices.pop();
                         }

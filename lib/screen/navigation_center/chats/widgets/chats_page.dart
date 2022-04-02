@@ -79,7 +79,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                 TextButton(
                     child: Text(_i18n.get("ok")),
                     onPressed: () {
-                     Navigator.of(context).pop();
+                      Navigator.of(context).pop();
                     }),
               ],
             );
@@ -96,7 +96,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
             stream: _routingService.currentRouteStream,
             builder: (BuildContext c, AsyncSnapshot<Object> s) {
               if (snapshot.hasData) {
-                var rooms = snapshot.data!.toList();
+                final rooms = snapshot.data!.toList();
                 rearangChatItem(rooms);
                 return PageStorage(
                   bucket: PageStorage.of(context)!,

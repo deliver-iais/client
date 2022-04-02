@@ -7,7 +7,8 @@ class EmojiKeyboard extends StatefulWidget {
   final Function onTap;
   final Function? onStickerTap;
 
-  const EmojiKeyboard({Key? key, required this.onTap, this.onStickerTap}) : super(key: key);
+  const EmojiKeyboard({Key? key, required this.onTap, this.onStickerTap})
+      : super(key: key);
 
   @override
   _EmojiKeyboard createState() => _EmojiKeyboard();
@@ -40,7 +41,7 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
             children: <Widget>[
               const Divider(),
               Container(
-                color:theme.scaffoldBackgroundColor,
+                color: theme.scaffoldBackgroundColor,
                 child: DefaultTextStyle(
                   style: const TextStyle(fontSize: 20),
                   child: SizedBox(
@@ -51,7 +52,7 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                       children: <Widget>[
                         Container(
                           color: selectedGroupIndex == 1
-                              ?theme.dividerColor.withOpacity(0.3)
+                              ? theme.dividerColor.withOpacity(0.3)
                               : Colors.transparent,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8.0, vertical: 4.0),
@@ -71,7 +72,7 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                         ),
                         Container(
                           color: selectedGroupIndex == 2
-                              ?theme.dividerColor.withOpacity(0.3)
+                              ? theme.dividerColor.withOpacity(0.3)
                               : Colors.transparent,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8.0, vertical: 4.0),
@@ -92,7 +93,7 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                         ),
                         Container(
                           color: selectedGroupIndex == 3
-                              ?theme.dividerColor.withOpacity(0.3)
+                              ? theme.dividerColor.withOpacity(0.3)
                               : Colors.transparent,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8.0, vertical: 4.0),
@@ -111,7 +112,7 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                         ),
                         Container(
                           color: selectedGroupIndex == 4
-                              ?theme.dividerColor.withOpacity(0.3)
+                              ? theme.dividerColor.withOpacity(0.3)
                               : Colors.transparent,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8.0, vertical: 4.0),
@@ -133,7 +134,7 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                         ),
                         Container(
                           color: selectedGroupIndex == 5
-                              ?theme.dividerColor.withOpacity(0.3)
+                              ? theme.dividerColor.withOpacity(0.3)
                               : Colors.transparent,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8.0, vertical: 4.0),
@@ -152,7 +153,7 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                         ),
                         Container(
                           color: selectedGroupIndex == 6
-                              ?theme.dividerColor.withOpacity(0.3)
+                              ? theme.dividerColor.withOpacity(0.3)
                               : Colors.transparent,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8.0, vertical: 4.0),
@@ -169,7 +170,7 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                         ),
                         Container(
                           color: selectedGroupIndex == 7
-                              ?theme.dividerColor.withOpacity(0.3)
+                              ? theme.dividerColor.withOpacity(0.3)
                               : Colors.transparent,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8.0, vertical: 4.0),
@@ -188,7 +189,7 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                         ),
                         Container(
                           color: selectedGroupIndex == 8
-                              ?theme.dividerColor.withOpacity(0.3)
+                              ? theme.dividerColor.withOpacity(0.3)
                               : Colors.transparent,
                           padding: const EdgeInsets.symmetric(
                               horizontal: 8.0, vertical: 4.0),
@@ -212,7 +213,7 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
               ),
               Expanded(
                 child: Container(
-                  color:theme.backgroundColor,
+                  color: theme.backgroundColor,
                   child: GridView.builder(
                       itemCount: emojis.length,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -222,7 +223,7 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                                       : 0)) ~/
                               50),
                       itemBuilder: (context, index) {
-                        var emoji = emojis.elementAt(index);
+                        final emoji = emojis.elementAt(index);
 
                         return GestureDetector(
                           behavior: HitTestBehavior.translucent,

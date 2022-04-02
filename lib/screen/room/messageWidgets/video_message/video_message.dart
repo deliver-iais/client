@@ -52,11 +52,11 @@ class _VideoMessageState extends State<VideoMessage> {
 
   @override
   Widget build(BuildContext context) {
-    Color background = widget.colorScheme.onPrimary;
-    Color foreground = widget.colorScheme.primary;
-    File video = widget.message.json.toFile();
-    Duration duration = Duration(seconds: video.duration.round());
-    String videoLength = formatDuration(duration);
+    final background = widget.colorScheme.onPrimary;
+    final foreground = widget.colorScheme.primary;
+    final video = widget.message.json.toFile();
+    final duration = Duration(seconds: video.duration.round());
+    final videoLength = formatDuration(duration);
     return Container(
       constraints: BoxConstraints(
           minWidth: widget.minWidth,
@@ -264,7 +264,7 @@ class _VideoMessageState extends State<VideoMessage> {
     final minutes = seconds ~/ Duration.secondsPerMinute;
     seconds -= minutes * Duration.secondsPerMinute;
 
-    final List<String> tokens = [];
+    final tokens = <String>[];
     if (days != 0) {
       tokens.add('${days}d');
     }

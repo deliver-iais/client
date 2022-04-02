@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -30,9 +29,9 @@ class RawKeyboardService {
   void controlVHandle(TextEditingController controller, BuildContext context,
       Uid roomUid) async {
     final files = await Pasteboard.files();
-    Uint8List? image = await Pasteboard.image;
-    List<model.File> fileList = [];
-    String name = "";
+    final image = await Pasteboard.image;
+    final fileList = <model.File>[];
+    var name = "";
     if (files.isNotEmpty) {
       for (final file in files) {
         name = file.replaceAll("\\", "/").split("/").last;
@@ -40,7 +39,7 @@ class RawKeyboardService {
       }
     } else if (image != null) {
       final tempDir = await getTemporaryDirectory();
-      File file = await File(
+      final file = await File(
               '${tempDir.path}/screenshot-${DateTime.now().hashCode}.png')
           .create();
       file.writeAsBytesSync(image);
@@ -48,7 +47,7 @@ class RawKeyboardService {
       fileList
           .add(model.File(file.path, name, extension: name.split(".").last));
     } else {
-      ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
+      final data = await Clipboard.getData(Clipboard.kTextPlain);
       controller.text = controller.text + data!.text!;
       controller.selection = TextSelection.fromPosition(
           TextPosition(offset: controller.text.length));

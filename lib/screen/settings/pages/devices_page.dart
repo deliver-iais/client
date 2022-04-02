@@ -39,13 +39,13 @@ class _DevicesPageState extends State<DevicesPage> {
         future: _accountRepo.getSessions(),
         builder: (c, sessionData) {
           if (sessionData.hasData && sessionData.data != null) {
-            Session currentSession = sessionData.data!.firstWhere(
+            final currentSession = sessionData.data!.firstWhere(
                 (s) => s.sessionId == _authRepo.currentUserUid.sessionId,
                 orElse: () => Session()
                   ..node = _authRepo.currentUserUid.node
                   ..sessionId = _authRepo.currentUserUid.sessionId);
 
-            List<Session> otherSessions = sessionData.data!
+            final otherSessions = sessionData.data!
                 .where((s) => s.sessionId != _authRepo.currentUserUid.sessionId)
                 .toList();
 
@@ -205,24 +205,28 @@ class _DevicesPageState extends State<DevicesPage> {
                     style: TextButton.styleFrom(primary: Colors.red),
                     onPressed: () async {
                       if (sessions.length > 1) {
-                        var res = await _accountRepo.revokeAllOtherSession();
+                        final res = await _accountRepo.revokeAllOtherSession();
                         Navigator.pop(context);
                         if (res) {
                           setState(() {});
-                        }else{
-                          ToastDisplay.showToast(toastContext: context, toastText:_i18n.get("error_occurred"));
+                        } else {
+                          ToastDisplay.showToast(
+                              toastContext: context,
+                              toastText: _i18n.get("error_occurred"));
                         }
                       } else {
-                        var res = await _accountRepo
+                        final res = await _accountRepo
                             .revokeSession(sessions.first.sessionId.toString());
                         Navigator.pop(context);
                         if (res) {
                           setState(() {});
-                        }else{
-                          ToastDisplay.showToast(toastContext: context, toastText:_i18n.get("error_occurred"));
+                        } else {
+                          ToastDisplay.showToast(
+                              toastContext: context,
+                              toastText: _i18n.get("error_occurred"));
                         }
                       }
-                      List<String> sessionIds = [];
+                      final sessionIds = <String>[];
                       for (final element in sessions) {
                         sessionIds.add(element.sessionId.toString());
                       }

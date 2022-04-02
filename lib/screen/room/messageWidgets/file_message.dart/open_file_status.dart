@@ -41,9 +41,9 @@ class OpenFileStatus extends StatelessWidget {
           ),
           onPressed: () async {
             if (isWeb) {
-              var res = await http.get(Uri.parse(filePath));
-              var blob = Blob([res.bodyBytes], file.type);
-              var fileUrl = html.Url.createObjectUrl(blob);
+              final res = await http.get(Uri.parse(filePath));
+              final blob = Blob([res.bodyBytes], file.type);
+              final fileUrl = html.Url.createObjectUrl(blob);
               window.open(fileUrl, "_");
             } else {
               OpenFile.open(filePath);

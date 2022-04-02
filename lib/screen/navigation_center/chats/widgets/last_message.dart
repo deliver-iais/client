@@ -44,7 +44,7 @@ class LastMessage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    var isReceivedMessage = !_authRepo.isCurrentUser(message.from);
+    final isReceivedMessage = !_authRepo.isCurrentUser(message.from);
 
     return FutureBuilder<MessageBrief>(
         future: extractMessageBrief(
@@ -138,8 +138,8 @@ class LastMessage extends StatelessWidget {
           .toList();
 
   List<Block> extractBlocks(String text, BuildContext context) {
-    List<Block> blocks = [Block(text: text)];
-    List<Parser> parsers = [
+    var blocks = <Block>[Block(text: text)];
+    final parsers = <Parser>[
       EmojiParser(fontSize: 16),
       BoldTextParser(),
       ItalicTextParser()

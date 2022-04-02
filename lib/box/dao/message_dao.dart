@@ -109,7 +109,7 @@ class MessageDaoImpl implements MessageDao {
 
   @override
   Stream<PendingMessage?> watchPendingMessage(String packetId) async* {
-    var box = await _openPending();
+    final box = await _openPending();
 
     yield box.get(packetId);
 
@@ -118,14 +118,14 @@ class MessageDaoImpl implements MessageDao {
 
   @override
   Future<void> saveMessage(Message message) async {
-    var box = await _openMessages(message.roomUid);
+    final box = await _openMessages(message.roomUid);
 
     box.put(message.id, message);
   }
 
   @override
   Future<void> savePendingMessage(PendingMessage pm) async {
-    var box = await _openPending();
+    final box = await _openPending();
 
     box.put(pm.packetId, pm);
   }
@@ -137,13 +137,12 @@ class MessageDaoImpl implements MessageDao {
   static Future<Box<Message>> _openMessages(String uid) async {
     try {
       BoxInfo.addBox(_keyMessages(uid.replaceAll(":", "-")));
-      var res =
+      final res =
           await Hive.openBox<Message>(_keyMessages(uid.replaceAll(":", "-")));
       return res;
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyMessages(uid.replaceAll(":", "-")));
-      return Hive.openBox<Message>(
-          _keyMessages(uid.replaceAll(":", "-")));
+      return Hive.openBox<Message>(_keyMessages(uid.replaceAll(":", "-")));
     }
   }
 

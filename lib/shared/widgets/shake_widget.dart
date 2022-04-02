@@ -36,7 +36,7 @@ class _ShakeWidgetState extends State<ShakeWidget>
 
   @override
   Widget build(BuildContext context) {
-    final Animation<double> offsetAnimation =
+    final offsetAnimation =
         Tween(begin: 0.0, end: widget.animationRange)
             .chain(CurveTween(curve: Curves.elasticIn))
             .animate(animationController)

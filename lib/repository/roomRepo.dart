@@ -4,7 +4,6 @@ import 'dart:async';
 
 import 'package:clock/clock.dart';
 import 'package:dcache/dcache.dart';
-import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/custom_notification_dao.dart';
 import 'package:deliver/box/dao/media_dao.dart';
@@ -13,7 +12,6 @@ import 'package:deliver/box/dao/mute_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
-import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -69,13 +67,11 @@ class RoomRepo {
     }
   }
 
-  Future<bool> isVerified(Uid uid) async {
-    // TODO, add dynamic verification later on
-    return uid.isSystem() || (uid.isBot() && uid.node == "father_bot");
-  }
+  Future<bool> isVerified(Uid uid) async =>
+      uid.isSystem() || (uid.isBot() && uid.node == "father_bot");
 
   String? fastForwardName(Uid uid) {
-    String? name = roomNameCache.get(uid.asString());
+    final name = roomNameCache.get(uid.asString());
     if (name != null && name.isNotEmpty && !name.contains("null")) {
       return name;
     }
@@ -96,13 +92,13 @@ class RoomRepo {
     }
 
     // Is in cache
-    String? name = roomNameCache.get(uid.asString());
+    final name = roomNameCache.get(uid.asString());
     if (name != null && name.isNotEmpty && !name.contains("null")) {
       return name;
     }
 
     // Is in UidIdName Table
-    var uidIdName = await _uidIdNameDao.getByUid(uid.asString());
+    final uidIdName = await _uidIdNameDao.getByUid(uid.asString());
     if (uidIdName != null &&
         ((uidIdName.id != null && uidIdName.id!.isNotEmpty) ||
             uidIdName.name != null && uidIdName.name!.isNotEmpty)) {
@@ -117,11 +113,11 @@ class RoomRepo {
       // TODO needs to be refactored!
       // TODO MIGRATION NEEDS
 
-      var contact = await _contactRepo.getContact(uid);
+      final contact = await _contactRepo.getContact(uid);
       if (contact != null &&
           ((contact.firstName != null && contact.firstName!.isNotEmpty) ||
               (contact.lastName != null && contact.lastName!.isNotEmpty))) {
-        var name = buildName(contact.firstName, contact.lastName);
+        final name = buildName(contact.firstName, contact.lastName);
         roomNameCache.set(uid.asString(), name);
         _uidIdNameDao.update(uid.asString(), name: name);
         return name;
@@ -137,7 +133,7 @@ class RoomRepo {
     // Is Group or Channel
     if (uid.category == Categories.GROUP ||
         uid.category == Categories.CHANNEL) {
-      Muc? muc = await _mucRepo.fetchMucInfo(uid);
+      final muc = await _mucRepo.fetchMucInfo(uid);
       if (muc != null && muc.name != null && muc.name!.isNotEmpty) {
         roomNameCache.set(uid.asString(), muc.name!);
         _uidIdNameDao.update(uid.asString(), name: muc.name);
@@ -148,7 +144,7 @@ class RoomRepo {
 
     // Is bot
     if (uid.isBot()) {
-      BotInfo? botInfo = await _botRepo.getBotInfo(uid);
+      final botInfo = await _botRepo.getBotInfo(uid);
       if (botInfo != null && botInfo.name!.isNotEmpty) {
         roomNameCache.set(uid.asString(), botInfo.name!);
         _uidIdNameDao.update(uid.asString(), name: botInfo.name, id: uid.node);
@@ -157,7 +153,7 @@ class RoomRepo {
       return uid.node;
     }
 
-    String? username = await getIdByUid(uid);
+    final username = await getIdByUid(uid);
 
     if (username != null) {
       roomNameCache.set(uid.asString(), username);
@@ -170,11 +166,11 @@ class RoomRepo {
   Future<String?>? getId(Uid uid) async {
     if (uid.isBot()) return uid.node;
 
-    var userInfo = await _uidIdNameDao.getByUid(uid.asString());
+    final userInfo = await _uidIdNameDao.getByUid(uid.asString());
     if (userInfo != null && userInfo.id != null) {
       return userInfo.id!;
     } else {
-      var res = await getIdByUid(uid);
+      final res = await getIdByUid(uid);
       return res;
     }
   }
@@ -183,7 +179,7 @@ class RoomRepo {
     try {
       await _queryServiceClient
           .removePrivateRoom(RemovePrivateRoomReq()..roomUid = roomUid);
-      var room = await _roomDao.getRoom(roomUid.asString());
+      final room = await _roomDao.getRoom(roomUid.asString());
       _mediaDao.clear(roomUid.asString());
       _mediaMetaDataDao.clear(roomUid.asString());
       _roomDao.updateRoom(Room(
@@ -200,7 +196,7 @@ class RoomRepo {
 
   Future<String?> getIdByUid(Uid uid) async {
     try {
-      var result =
+      final result =
           await _queryServiceClient.getIdByUid(GetIdByUidReq()..uid = uid);
       _uidIdNameDao.update(uid.asString(), id: result.id);
       return result.id;
@@ -211,17 +207,17 @@ class RoomRepo {
   }
 
   void updateActivity(Activity activity) {
-    Uid roomUid =
+    final roomUid =
         activity.to.category == Categories.GROUP ? activity.to : activity.from;
     if (activityObject[roomUid.node] == null) {
-      BehaviorSubject<Activity> subject = BehaviorSubject();
+      final subject = BehaviorSubject<Activity>();
       subject.add(activity);
       activityObject[roomUid.node] = subject;
     } else {
       activityObject[roomUid.node]!.add(activity);
       if (activity.typeOfActivity != ActivityType.NO_ACTIVITY) {
         Timer(const Duration(seconds: 10), () {
-          Activity noActivity = Activity()
+          final noActivity = Activity()
             ..from = activity.from
             ..typeOfActivity = ActivityType.NO_ACTIVITY
             ..to = activity.to;
@@ -233,7 +229,7 @@ class RoomRepo {
 
   void initActivity(String roomId) {
     if (activityObject[roomId] == null) {
-      BehaviorSubject<Activity> subject = BehaviorSubject();
+      final subject = BehaviorSubject<Activity>();
       activityObject[roomId] = subject;
     }
   }
@@ -294,17 +290,18 @@ class RoomRepo {
   }
 
   Future<void> fetchBlockedRoom() async {
-    var result = await _queryServiceClient.getBlockedList(GetBlockedListReq());
+    final result =
+        await _queryServiceClient.getBlockedList(GetBlockedListReq());
     for (final uid in result.uidList) {
       _blockDao.block(uid.asString());
     }
   }
 
   Future<List<Uid>> getAllRooms() async {
-    Map<Uid, Uid> finalList = {};
-    var res = await _roomDao.getAllRooms();
+    final finalList = <Uid, Uid>{};
+    final res = await _roomDao.getAllRooms();
     for (final room in res) {
-      Uid uid = room.uid.asUid();
+      final uid = room.uid.asUid();
       finalList[uid] = uid;
     }
     return finalList.values.toList();
@@ -315,7 +312,7 @@ class RoomRepo {
       return [];
     }
 
-    List<Uid> searchResult = [];
+    final searchResult = <Uid>[];
     final res = await _uidIdNameDao.search(text);
     for (final element in res) {
       if (!element.uid.isUser() ||
@@ -334,18 +331,18 @@ class RoomRepo {
       id = id.substring(id.indexOf('@') + 1, id.length);
     }
 
-    var uid = await _uidIdNameDao.getUidById(id);
+    final uid = await _uidIdNameDao.getUidById(id);
     if (uid != null) {
       return uid;
     } else {
-      var uid = await fetchUidById(id);
+      final uid = await fetchUidById(id);
       _uidIdNameDao.update(uid.asString(), id: id);
       return uid.asString();
     }
   }
 
   Future<Uid> fetchUidById(String username) async {
-    var result =
+    final result =
         await _queryServiceClient.getUidById(GetUidByIdReq()..id = username);
 
     return result.uid;
@@ -355,16 +352,14 @@ class RoomRepo {
     _queryServiceClient.report(ReportReq()..uid = roomUid);
   }
 
-  Future<List<Room>> getAllGroups() async {
-    return _roomDao.getAllGroups();
-  }
+  Future<List<Room>> getAllGroups() async => _roomDao.getAllGroups();
 
   void updateRoomDraft(String roomUid, String draft) {
     _roomDao.updateRoom(Room(uid: roomUid).copyWith(draft: draft));
   }
 
   Future<bool> isDeletedRoom(String roomUid) async {
-    var room = await _roomDao.getRoom(roomUid);
+    final room = await _roomDao.getRoom(roomUid);
     return room?.deleted ?? false;
   }
 }

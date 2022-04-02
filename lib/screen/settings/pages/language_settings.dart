@@ -15,16 +15,16 @@ class LanguageSettingsPage extends StatefulWidget {
 
 class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
   final _routingService = GetIt.I.get<RoutingService>();
+  final _i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
-    I18N i18n = GetIt.I.get<I18N>();
     return Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),
           child: AppBar(
             titleSpacing: 8,
-            title: Text(i18n.get("language")),
+            title: Text(_i18n.get("language")),
             leading: _routingService.backButtonLeading(),
           ),
         ),

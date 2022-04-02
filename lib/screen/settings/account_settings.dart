@@ -66,7 +66,7 @@ class _AccountSettingsState extends State<AccountSettings> {
           path = file.path;
         }
       } else {
-        FilePickerResult? result = await FilePicker.platform
+        final result = await FilePicker.platform
             .pickFiles(type: FileType.image, allowMultiple: true);
         if (result != null && result.files.isNotEmpty) {
           path = isWeb
@@ -140,7 +140,7 @@ class _AccountSettingsState extends State<AccountSettings> {
         _usernameFormKey.currentState?.validate();
         if (_userNameCorrect) {
           if (_lastUserName != username) {
-            bool validUsername = await _accountRepo.checkUserName(username);
+            final validUsername = await _accountRepo.checkUserName(username);
             setState(() {
               usernameIsAvailable = validUsername;
             });
@@ -412,8 +412,8 @@ class _AccountSettingsState extends State<AccountSettings> {
   }
 
   String? validateUsername(String? value) {
-    Pattern? pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
-    RegExp? regex = RegExp(pattern.toString());
+    const Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
+    final regex = RegExp(pattern.toString());
     if (value!.isEmpty) {
       setState(() {
         _userNameCorrect = false;
@@ -435,9 +435,9 @@ class _AccountSettingsState extends State<AccountSettings> {
   }
 
   String? validateEmail(String? value) {
-    Pattern pattern =
+    const Pattern pattern =
         r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
-    RegExp regex = RegExp(pattern.toString());
+    final regex = RegExp(pattern.toString());
     if (value!.isEmpty) {
       return null;
     } else if (!regex.hasMatch(value)) {
@@ -447,21 +447,22 @@ class _AccountSettingsState extends State<AccountSettings> {
   }
 
   Future<void> checkAndSend() async {
-    bool checkUserName = _usernameFormKey.currentState?.validate() ?? false;
+    final checkUserName = _usernameFormKey.currentState?.validate() ?? false;
     if (checkUserName) {
-      bool isValidated = _formKey.currentState?.validate() ?? false;
+      final isValidated = _formKey.currentState?.validate() ?? false;
       if (isValidated) {
         if (usernameIsAvailable) {
-          bool setPrivateInfo = await _accountRepo.setAccountDetails(
+          final setPrivateInfo = await _accountRepo.setAccountDetails(
               _username.isNotEmpty ? _username : _account!.userName,
               _firstName.isNotEmpty ? _firstName : _account!.firstName,
               _lastName.isNotEmpty ? _lastName : _account!.lastName,
               _email.isNotEmpty ? _email : _account!.email);
           if (setPrivateInfo) {
             if (widget.forceToSetUsernameAndName) {
-              Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (c) {
+              Navigator.pushAndRemoveUntil(context,
+                  MaterialPageRoute(builder: (c) {
                 return const HomePage();
-              }),(r)=>false);
+              }), (r) => false);
             } else {
               _routingService.pop();
             }

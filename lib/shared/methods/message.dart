@@ -42,44 +42,43 @@ class MessageBrief {
   });
 
   MessageBrief copyWith(
-      {Uid? roomUid,
-      String? sender,
-      String? roomName,
-      bool? senderIsAUserOrBot,
-      MessageType? type,
-      String? typeDetails,
-      String? text,
-      bool? ignoreNotification,
-      int? id}) {
-    return MessageBrief(
-        roomUid: roomUid ?? this.roomUid,
-        sender: sender ?? this.sender,
-        roomName: roomName ?? this.roomName,
-        senderIsAUserOrBot: senderIsAUserOrBot ?? this.senderIsAUserOrBot,
-        type: type ?? this.type,
-        typeDetails: typeDetails ?? this.typeDetails,
-        text: text ?? this.text,
-        id: id ?? this.id,
-        ignoreNotification: ignoreNotification ?? this.ignoreNotification);
-  }
+          {Uid? roomUid,
+          String? sender,
+          String? roomName,
+          bool? senderIsAUserOrBot,
+          MessageType? type,
+          String? typeDetails,
+          String? text,
+          bool? ignoreNotification,
+          int? id}) =>
+      MessageBrief(
+          roomUid: roomUid ?? this.roomUid,
+          sender: sender ?? this.sender,
+          roomName: roomName ?? this.roomName,
+          senderIsAUserOrBot: senderIsAUserOrBot ?? this.senderIsAUserOrBot,
+          type: type ?? this.type,
+          typeDetails: typeDetails ?? this.typeDetails,
+          text: text ?? this.text,
+          id: id ?? this.id,
+          ignoreNotification: ignoreNotification ?? this.ignoreNotification);
 }
 
 Future<MessageBrief> extractMessageBrief(I18N i18n, RoomRepo roomRepo,
     AuthRepo authRepo, message_pb.Message msg) async {
-  Uid roomUid = getRoomUid(authRepo, msg);
-  String roomName = await roomRepo.getSlangName(roomUid);
-  String sender = await roomRepo.getSlangName(msg.from);
-  MessageType type = getMessageType(msg.whichType());
-  String typeDetails = "";
-  String text = "";
-  bool ignoreNotification = authRepo.isCurrentUser(msg.from.asString());
+  final roomUid = getRoomUid(authRepo, msg);
+  final roomName = await roomRepo.getSlangName(roomUid);
+  final sender = await roomRepo.getSlangName(msg.from);
+  final type = getMessageType(msg.whichType());
+  var typeDetails = "";
+  var text = "";
+  var ignoreNotification = authRepo.isCurrentUser(msg.from.asString());
 
   switch (msg.whichType()) {
     case message_pb.Message_Type.text:
       text = msg.text.text;
       break;
     case message_pb.Message_Type.file:
-      var type = msg.file.type.split("/").first;
+      final type = msg.file.type.split("/").first;
       if (type == "application") {
         typeDetails = msg.file.name;
       } else {
@@ -166,9 +165,9 @@ Future<String> getPersistentEventText(I18N i18n, RoomRepo roomRepo,
     AuthRepo authRepo, PersistentEvent pe, bool isChannel) async {
   switch (pe.whichType()) {
     case PersistentEvent_Type.mucSpecificPersistentEvent:
-      String? issuer =
+      final String? issuer =
           await roomRepo.getSlangName(pe.mucSpecificPersistentEvent.issuer);
-      String? assignee =
+      final String? assignee =
           await roomRepo.getSlangName(pe.mucSpecificPersistentEvent.assignee);
       switch (pe.mucSpecificPersistentEvent.issue) {
         case MucSpecificPersistentEvent_Issue.ADD_USER:
@@ -364,7 +363,7 @@ Message extractMessage(AuthRepo authRepo, message_pb.Message message) {
 }
 
 String messageBodyToJson(message_pb.Message message) {
-  var type = getMessageType(message.whichType());
+  final type = getMessageType(message.whichType());
   switch (type) {
     case MessageType.TEXT:
       return message.text.writeToJson();
@@ -469,12 +468,8 @@ MessageType getMessageType(message_pb.Message_Type messageType) {
   }
 }
 
-Uid getRoomUid(AuthRepo authRepo, message_pb.Message message) {
-  return getRoomUidOf(authRepo, message.from, message.to);
-}
+Uid getRoomUid(AuthRepo authRepo, message_pb.Message message) =>
+    getRoomUidOf(authRepo, message.from, message.to);
 
-Uid getRoomUidOf(AuthRepo authRepo, Uid from, Uid to) {
-  return authRepo.isCurrentUser(from.asString())
-      ? to
-      : (to.isUser() ? from : to);
-}
+Uid getRoomUidOf(AuthRepo authRepo, Uid from, Uid to) =>
+    authRepo.isCurrentUser(from.asString()) ? to : (to.isUser() ? from : to);

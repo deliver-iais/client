@@ -76,7 +76,7 @@ class _ShareBoxFileState extends State<ShareBoxFile> {
                             ],
                           ),
                           onTap: () async {
-                            FilePickerResult? result = await FilePicker.platform
+                            final result = await FilePicker.platform
                                 .pickFiles(allowMultiple: true);
                             if (result != null && result.files.isNotEmpty) {
                               showCaptionDialog(
@@ -96,8 +96,8 @@ class _ShareBoxFileState extends State<ShareBoxFile> {
                         ),
                       );
                     } else {
-                      var fileItem = files.data![index - 1];
-                      var selected = widget.selectedFiles[index - 1] ?? false;
+                      final fileItem = files.data![index - 1];
+                      final selected = widget.selectedFiles[index - 1] ?? false;
 
                       return GestureDetector(
                         child: Container(

@@ -27,7 +27,7 @@ class BotButtonsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var buttons = message.json.toButtons();
+    final buttons = message.json.toButtons();
     return Container(
         padding: const EdgeInsets.only(top: 4, left: 4, right: 4, bottom: 1),
         width: maxWidth,
@@ -40,8 +40,10 @@ class BotButtonsWidget extends StatelessWidget {
                 width: maxWidth,
                 margin: const EdgeInsets.only(bottom: 6),
                 child: ElevatedButton(
-                    style:
-                        ElevatedButton.styleFrom(primary: colorScheme.primary, shape: const RoundedRectangleBorder(borderRadius: tertiaryBorder)),
+                    style: ElevatedButton.styleFrom(
+                        primary: colorScheme.primary,
+                        shape: const RoundedRectangleBorder(
+                            borderRadius: tertiaryBorder)),
                     onPressed: () {
                       _messageRepo.sendTextMessage(message.from.asUid(), btn);
                     },

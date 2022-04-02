@@ -23,7 +23,7 @@ abstract class RoomDao {
 class RoomDaoImpl implements RoomDao {
   @override
   Future<void> deleteRoom(Room room) async {
-    var box = await _openRoom();
+    final box = await _openRoom();
 
     box.delete(room.uid);
   }
@@ -31,7 +31,7 @@ class RoomDaoImpl implements RoomDao {
   @override
   Future<List<Room>> getAllRooms() async {
     try {
-      var box = await _openRoom();
+      final box = await _openRoom();
 
       return sorted(box.values
           .where((element) =>
@@ -62,7 +62,7 @@ class RoomDaoImpl implements RoomDao {
   }
 
   List<Room> sorted(List<Room> list) {
-    var l = list;
+    final l = list;
 
     l.sort((a, b) => (b.lastUpdateTime ?? 0) - (a.lastUpdateTime ?? 0));
 
@@ -71,23 +71,23 @@ class RoomDaoImpl implements RoomDao {
 
   @override
   Future<Room?> getRoom(String roomUid) async {
-    var box = await _openRoom();
+    final box = await _openRoom();
 
     return box.get(roomUid);
   }
 
   @override
   Future<void> updateRoom(Room room) async {
-    var box = await _openRoom();
+    final box = await _openRoom();
 
-    var r = box.get(room.uid) ?? room;
+    final r = box.get(room.uid) ?? room;
 
     return box.put(room.uid, r.copy(room));
   }
 
   @override
   Stream<Room> watchRoom(String roomUid) async* {
-    var box = await _openRoom();
+    final box = await _openRoom();
 
     yield box.get(roomUid) ?? Room(uid: roomUid);
 
@@ -110,7 +110,7 @@ class RoomDaoImpl implements RoomDao {
 
   @override
   Future<List<Room>> getAllGroups() async {
-    var box = await _openRoom();
+    final box = await _openRoom();
     return box.values
         .where((element) =>
             element.uid.asUid().category == Categories.GROUP &&

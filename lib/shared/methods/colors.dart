@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 // ........................................................
 Color darken(Color c, [int percent = 10]) {
   assert(1 <= percent && percent <= 100);
-  var f = 1 - percent / 100;
+  final f = 1 - percent / 100;
   return Color.fromARGB(c.alpha, (c.red * f).round(), (c.green * f).round(),
       (c.blue * f).round());
 }
@@ -15,7 +15,7 @@ Color darken(Color c, [int percent = 10]) {
 // ........................................................
 Color lighten(Color c, [int percent = 10]) {
   assert(1 <= percent && percent <= 100);
-  var p = percent / 100;
+  final p = percent / 100;
   return Color.fromARGB(
       c.alpha,
       c.red + ((255 - c.red) * p).round(),
@@ -24,7 +24,9 @@ Color lighten(Color c, [int percent = 10]) {
 }
 
 Color changeColor(Color color,
-        {double saturation = 0.5, double lightness = 0.5, double alpha = 1.0}) =>
+        {double saturation = 0.5,
+        double lightness = 0.5,
+        double alpha = 1.0}) =>
     HSLColor.fromColor(color)
         .withSaturation(saturation)
         .withLightness(lightness)
@@ -95,18 +97,15 @@ class RandomColor {
         const ColorBrightness.custom(Range(45, 55)).returnBrightness(_random);
 
     /// Middle color
-    final Color _baseColor = _getColor(hue, saturation, brightness);
+    final _baseColor = _getColor(hue, saturation, brightness);
 
-    Color _getLighterColor(int lighterShade) {
-      return _getColor(hue, saturation, brightness + (lighterShade * 5));
-    }
+    Color _getLighterColor(int lighterShade) =>
+        _getColor(hue, saturation, brightness + (lighterShade * 5));
 
-    Color _getDarkerColor(int darkerShade) {
-      return _getColor(hue, saturation, brightness - (darkerShade * 5));
-    }
+    Color _getDarkerColor(int darkerShade) =>
+        _getColor(hue, saturation, brightness - (darkerShade * 5));
 
-    final MaterialColor _finishedColor =
-        MaterialColor(_baseColor.value, <int, Color>{
+    final _finishedColor = MaterialColor(_baseColor.value, <int, Color>{
       50: _getLighterColor(5),
       100: _getLighterColor(4),
       200: _getLighterColor(3),
@@ -132,9 +131,9 @@ class RandomColor {
     ColorBrightness? colorBrightness,
     bool debug = false,
   }) {
-    final List<Color> colors = <Color>[];
+    final colors = <Color>[];
 
-    for (int i = 0; i < count; i++) {
+    for (var i = 0; i < count; i++) {
       colors.add(randomColor(
           colorHue: colorHue!,
           colorSaturation: colorSaturation!,
@@ -148,10 +147,10 @@ class RandomColor {
   /// Need to get RGB from hsv values and make new color from them.
   /// Ported to dart from: https://stackoverflow.com/a/25964657/3700909
   Color _getColor(int hue, int saturation, int brightness) {
-    final double s = saturation / 100;
-    final double v = brightness / 100;
+    final s = saturation / 100;
+    final v = brightness / 100;
 
-    final Color _color = HSLColor.fromAHSL(1.0, hue.toDouble(), s, v).toColor();
+    final _color = HSLColor.fromAHSL(1.0, hue.toDouble(), s, v).toColor();
 
     return _color;
   }
@@ -194,9 +193,7 @@ class ColorBrightness {
 
   const ColorBrightness._(this._brightness, this.type);
 
-  int returnBrightness(Random random) {
-    return _brightness.randomWithin(random);
-  }
+  int returnBrightness(Random random) => _brightness.randomWithin(random);
 
   @override
   String toString() {
@@ -270,7 +267,7 @@ class ColorHue {
   const ColorHue._(this._hue, this.type);
 
   int returnHue(Random random) {
-    int _h = _hue.randomWithin(random);
+    var _h = _hue.randomWithin(random);
 
     if (_h < 0) {
       _h = 360 + _h;
@@ -349,9 +346,7 @@ class ColorSaturation {
 
   const ColorSaturation._(this._saturation, this.type);
 
-  int returnSaturation(Random random) {
-    return _saturation.randomWithin(random);
-  }
+  int returnSaturation(Random random) => _saturation.randomWithin(random);
 
   @override
   String toString() {
@@ -405,17 +400,12 @@ class Range {
       : start = 0,
         end = 0;
 
-  Range operator +(Range range) {
-    return Range((start + range.start) ~/ 2, end);
-  }
+  Range operator +(Range range) => Range((start + range.start) ~/ 2, end);
 
-  bool contain(int value) {
-    return value >= start && value <= end;
-  }
+  bool contain(int value) => value >= start && value <= end;
 
-  int randomWithin(Random random) {
-    return (start + random.nextDouble() * (end - start)).round();
-  }
+  int randomWithin(Random random) =>
+      (start + random.nextDouble() * (end - start)).round();
 
   @override
   bool operator ==(Object other) =>

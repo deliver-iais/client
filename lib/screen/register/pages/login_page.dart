@@ -60,7 +60,7 @@ class _LoginPageState extends State<LoginPage> {
     if (isDesktop) {
       checkTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
         try {
-          var res = await _authRepo.checkQrCodeToken(loginToken.value);
+          final res = await _authRepo.checkQrCodeToken(loginToken.value);
           if (res.status == AccessTokenRes_Status.OK) {
             _fireBaseServices.sendFireBaseToken();
             _navigationToHome();
@@ -80,7 +80,7 @@ class _LoginPageState extends State<LoginPage> {
     } else if (isAndroid && !kDebugMode) {
       SmsAutoFill().hint.then((value) {
         if (value != null) {
-          final PhoneNumber? p = getPhoneNumber(value);
+          final p = getPhoneNumber(value);
           if (p != null) {
             phoneNumber = p;
             controller.text = p.nationalNumber.toString();
@@ -119,11 +119,11 @@ class _LoginPageState extends State<LoginPage> {
       _logger.e("login as test user ");
       _loginASTestUser();
     } else {
-      var isValidated = _formKey.currentState?.validate() ?? false;
+      final isValidated = _formKey.currentState?.validate() ?? false;
       if ((doNotCheckValidator || isValidated) && phoneNumber != null) {
         _isLoading.add(true);
         try {
-          var isSent = await _authRepo.getVerificationCode(phoneNumber!);
+          final isSent = await _authRepo.getVerificationCode(phoneNumber!);
           if (isSent) {
             Navigator.push(context, MaterialPageRoute(builder: (c) {
               return const VerificationPage();

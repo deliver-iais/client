@@ -155,7 +155,7 @@ class CoreServices {
 
   Future<void> sendMessage(MessageByClient message) async {
     try {
-      ClientPacket clientPacket = ClientPacket()
+      final clientPacket = ClientPacket()
         ..message = message
         ..id = DateTime.now().microsecondsSinceEpoch.toString();
       _sendPacket(clientPacket);
@@ -167,7 +167,7 @@ class CoreServices {
   }
 
   Future<void> _checkPendingStatus(String packetId) async {
-    var pm = await _messageDao.getPendingMessage(packetId);
+    final pm = await _messageDao.getPendingMessage(packetId);
     if (pm != null) {
       await _messageDao.savePendingMessage(pm.copyWith(
         failed: true,
@@ -179,29 +179,29 @@ class CoreServices {
   }
 
   void sendPing() {
-    var ping = Ping()..lastPongTime = Int64(_lastPongTime);
-    var clientPacket = ClientPacket()
+    final ping = Ping()..lastPongTime = Int64(_lastPongTime);
+    final clientPacket = ClientPacket()
       ..ping = ping
       ..id = DateTime.now().microsecondsSinceEpoch.toString();
     _sendPacket(clientPacket, forceToSend: true);
   }
 
   void sendSeen(seen_pb.SeenByClient seen) {
-    ClientPacket clientPacket = ClientPacket()
+    final clientPacket = ClientPacket()
       ..seen = seen
       ..id = seen.id.toString();
     _sendPacket(clientPacket);
   }
 
   void sendCallAnswer(call_pb.CallAnswerByClient callAnswerByClient) {
-    ClientPacket clientPacket = ClientPacket()
+    final clientPacket = ClientPacket()
       ..callAnswer = callAnswerByClient
       ..id = callAnswerByClient.id.toString();
     _sendPacket(clientPacket);
   }
 
   void sendCallOffer(call_pb.CallOfferByClient callOfferByClient) {
-    ClientPacket clientPacket = ClientPacket()
+    final clientPacket = ClientPacket()
       ..callOffer = callOfferByClient
       ..id = callOfferByClient.id.toString();
     _sendPacket(clientPacket);
@@ -209,7 +209,7 @@ class CoreServices {
 
   void sendActivity(ActivityByClient activity, String id) {
     if (!_authRepo.isCurrentUser(activity.to.toString())) {
-      ClientPacket clientPacket = ClientPacket()
+      final clientPacket = ClientPacket()
         ..activity = activity
         ..id = id;
       if (!_authRepo.isCurrentUser(activity.to.asString())) {
