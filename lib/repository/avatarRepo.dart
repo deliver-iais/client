@@ -241,16 +241,16 @@ class AvatarRepo {
   }
 
   Future<void> deleteAvatar(Avatar avatar) async {
-    final deleteAvatar = avatar_pb.Avatar();
-    deleteAvatar.fileUuid = avatar.fileId!;
-    deleteAvatar.fileName = avatar.fileName!;
-    deleteAvatar.node = avatar.uid.isBot()
-        ? avatar.uid.asUid().node
-        : _authRepo.currentUserUid.node;
-    deleteAvatar.createdOn = Int64.parseInt(avatar.createdOn.toRadixString(10));
-    deleteAvatar.category = avatar.uid.isBot()
-        ? avatar.uid.asUid().category
-        : _authRepo.currentUserUid.category;
+    final deleteAvatar = avatar_pb.Avatar()
+      ..fileUuid = avatar.fileId!
+      ..fileName = avatar.fileName!
+      ..node = avatar.uid.isBot()
+          ? avatar.uid.asUid().node
+          : _authRepo.currentUserUid.node
+      ..createdOn = Int64.parseInt(avatar.createdOn.toRadixString(10))
+      ..category = avatar.uid.isBot()
+          ? avatar.uid.asUid().category
+          : _authRepo.currentUserUid.category;
     final removeAvatarReq = query.RemoveAvatarReq()..avatar = deleteAvatar;
     if (avatar.uid.isBot()) {
       _botRepo.removeBotAvatar(deleteAvatar);

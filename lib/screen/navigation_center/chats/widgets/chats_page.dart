@@ -97,7 +97,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
             builder: (BuildContext c, AsyncSnapshot<Object> s) {
               if (snapshot.hasData) {
                 final rooms = snapshot.data!.toList();
-                rearangChatItem(rooms);
+                rearrangeChatItem(rooms);
                 return PageStorage(
                   bucket: PageStorage.of(context)!,
                   child: Scrollbar(
@@ -164,11 +164,12 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
         : false;
   }
 
-  void rearangChatItem(List<Room> rooms) {
+  void rearrangeChatItem(List<Room> rooms) {
     for (final room in rooms) {
       if (room.pinned == true) {
-        rooms.remove(room);
-        rooms.insert(0, room);
+        rooms
+          ..remove(room)
+          ..insert(0, room);
       }
     }
   }

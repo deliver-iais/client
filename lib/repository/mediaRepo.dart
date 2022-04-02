@@ -199,13 +199,13 @@ class MediaRepo {
       FetchMediasReq_MediaType mediaType,
       int pointer,
       FetchMediasReq_FetchingDirectionType directionType) async {
-    final getMediaReq = FetchMediasReq();
-    getMediaReq.roomUid = roomId;
-    getMediaReq.pointer = Int64(pointer);
-    getMediaReq.year = DateTime.now().year;
-    getMediaReq.mediaType = mediaType;
-    getMediaReq.fetchingDirectionType = directionType;
-    getMediaReq.limit = 30;
+    final getMediaReq = FetchMediasReq()
+      ..roomUid = roomId
+      ..pointer = Int64(pointer)
+      ..year = DateTime.now().year
+      ..mediaType = mediaType
+      ..fetchingDirectionType = directionType
+      ..limit = 30;
     try {
       final getMediasRes = await _queryServiceClient.fetchMedias(getMediaReq);
       final medias =

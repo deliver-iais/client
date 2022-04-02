@@ -10,8 +10,7 @@ class ToastDisplay {
       bool isSaveToast = false,
       required BuildContext toastContext,
       required String toastText}) {
-    final fToast = FToast();
-    fToast.init(toastContext);
+    final fToast = FToast()..init(toastContext);
     toastColor ??= Theme.of(toastContext).colorScheme.surface;
     final Widget toast = Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

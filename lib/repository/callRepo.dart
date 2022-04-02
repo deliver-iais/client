@@ -258,190 +258,65 @@ class CallRepo {
       _videoSender = await pc.addTrack(camVideoTrack, _localStream!);
     }
 
-    pc.onIceConnectionState = (e) {
-      _logger.i(e);
-      // we can do special work on every change in candidate Connection State
-      switch (e) {
-        case RTCIceConnectionState.RTCIceConnectionStateFailed:
-          if (!_reconnectTry) {
-            _reconnectTry = true;
-            callingStatus.add(CallStatus.RECONNECTING);
-            _reconnectingAfterFailedConnection();
-            timerDisconnected = Timer(const Duration(seconds: 10), () {
-              if (callingStatus.value == CallStatus.RECONNECTING) {
-                callingStatus.add(CallStatus.NO_ANSWER);
-                _logger.i("Disconnected and Call End!");
-                endCall(true);
-              }
-            });
-          }
-          break;
-        //   case RTCIceConnectionState.RTCIceConnectionStateCompleted:
-        //     //The ICE agent has finished gathering candidates, has checked all pairs against one another, and has found a connection for all components.
-        //     break;
-        case RTCIceConnectionState.RTCIceConnectionStateConnected:
-          callingStatus.add(CallStatus.CONNECTED);
-          if (_reconnectTry) {
-            _reconnectTry = false;
-            timerDisconnected?.cancel();
-          } else if (_isCaller) {
-            timerResendAnswer!.cancel();
-          }
-          break;
-        case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
-          if (!_reconnectTry) {
-            callingStatus.add(CallStatus.DISCONNECTED);
-          }
-          break;
-        case RTCIceConnectionState.RTCIceConnectionStateNew:
-          // TODO: Handle this case.
-          break;
-        case RTCIceConnectionState.RTCIceConnectionStateChecking:
-          // TODO: Handle this case.
-          break;
-        case RTCIceConnectionState.RTCIceConnectionStateCompleted:
-          // TODO: Handle this case.
-          break;
-        case RTCIceConnectionState.RTCIceConnectionStateCount:
-          // TODO: Handle this case.
-          break;
-        case RTCIceConnectionState.RTCIceConnectionStateClosed:
-          // TODO: Handle this case.
-          break;
-      }
-    };
-
-    //https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/connectionState
-    pc.onConnectionState = (RTCPeerConnectionState state) async {
-      _logger.i("onConnectionState");
-      _logger.i(state);
-      switch (state) {
-        case RTCPeerConnectionState.RTCPeerConnectionStateConnected:
-          //when connection Connected Status we Set some limit on bitRate
-          // var params = _videoSender.parameters;
-          // if (params.encodings.isEmpty) {
-          //   params.encodings = [];
-          //   params.encodings.add(new RTCRtpEncoding());
-          // }
-          //
-          // params.encodings[0].maxBitrate =
-          //     WEBRTC_MAX_BITRATE; // 256 kbps and use less about 150-160 kbps
-          // params.encodings[0].minBitrate = WEBRTC_MIN_BITRATE; // 128 kbps
-          // params.encodings[0].maxFramerate = WEBRTC_MAX_FRAME_RATE;
-          //     params.encodings[0].scaleResolutionDownBy = 2;
-          // await _videoSender.setParameters(params);
-          callingStatus.add(CallStatus.CONNECTED);
-          if (_reconnectTry) {
-            _reconnectTry = false;
-            timerDisconnected?.cancel();
-          } else if (_isCaller) {
-            timerResendAnswer!.cancel();
-          }
-          if (!isWeb) {
-            _startCallTimerAndChangeStatus();
-          }
-          break;
-        case RTCPeerConnectionState.RTCPeerConnectionStateDisconnected:
-          if (!_reconnectTry) {
-            callingStatus.add(CallStatus.DISCONNECTED);
-          }
-          break;
-        case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
-          //Try reconnect
-          if (!_reconnectTry) {
-            _reconnectTry = true;
-            callingStatus.add(CallStatus.RECONNECTING);
-            _reconnectingAfterFailedConnection();
-            timerDisconnected = Timer(const Duration(seconds: 15), () {
-              if (callingStatus.value == CallStatus.RECONNECTING) {
-                callingStatus.add(CallStatus.NO_ANSWER);
-                _logger.i("Disconnected and Call End!");
-                endCall(true);
-              }
-            });
-          }
-          break;
-        case RTCPeerConnectionState.RTCPeerConnectionStateClosed:
-          // TODO: Handle this case.
-          break;
-        case RTCPeerConnectionState.RTCPeerConnectionStateNew:
-          // TODO: Handle this case.
-          break;
-        case RTCPeerConnectionState.RTCPeerConnectionStateConnecting:
-          // TODO: Handle this case.
-          break;
-      }
-    };
-
-    pc.onIceCandidate = (e) {
-      if (e.candidate != null) {
-        _candidate.add({
-          'candidate': e.candidate.toString(),
-          'sdpMid': e.sdpMid.toString(),
-          'sdpMlineIndex': e.sdpMLineIndex!,
-        });
-      }
-    };
-
-    pc.onIceGatheringState = (RTCIceGatheringState state) {
-      if (state == RTCIceGatheringState.RTCIceGatheringStateGathering) {
-        //when we go on this stage after about 2 sec all candidate revived and we can sending them all
-        _logger.i("RTCIceGatheringStateGathering");
-        if (isOffer) {
-          _calculateCandidateAndSendOffer();
-        } else {
-          _calculateCandidateAndSendAnswer();
+    pc
+      ..onIceConnectionState = (e) {
+        _logger.i(e);
+        // we can do special work on every change in candidate Connection State
+        switch (e) {
+          case RTCIceConnectionState.RTCIceConnectionStateFailed:
+            if (!_reconnectTry) {
+              _reconnectTry = true;
+              callingStatus.add(CallStatus.RECONNECTING);
+              _reconnectingAfterFailedConnection();
+              timerDisconnected = Timer(const Duration(seconds: 10), () {
+                if (callingStatus.value == CallStatus.RECONNECTING) {
+                  callingStatus.add(CallStatus.NO_ANSWER);
+                  _logger.i("Disconnected and Call End!");
+                  endCall(true);
+                }
+              });
+            }
+            break;
+          //   case RTCIceConnectionState.RTCIceConnectionStateCompleted:
+          //     //The ICE agent has finished gathering candidates, has checked all pairs against one another, and has found a connection for all components.
+          //     break;
+          case RTCIceConnectionState.RTCIceConnectionStateConnected:
+            callingStatus.add(CallStatus.CONNECTED);
+            if (_reconnectTry) {
+              _reconnectTry = false;
+              timerDisconnected?.cancel();
+            } else if (_isCaller) {
+              timerResendAnswer!.cancel();
+            }
+            break;
+          case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
+            if (!_reconnectTry) {
+              callingStatus.add(CallStatus.DISCONNECTED);
+            }
+            break;
+          case RTCIceConnectionState.RTCIceConnectionStateNew:
+            // TODO: Handle this case.
+            break;
+          case RTCIceConnectionState.RTCIceConnectionStateChecking:
+            // TODO: Handle this case.
+            break;
+          case RTCIceConnectionState.RTCIceConnectionStateCompleted:
+            // TODO: Handle this case.
+            break;
+          case RTCIceConnectionState.RTCIceConnectionStateCount:
+            // TODO: Handle this case.
+            break;
+          case RTCIceConnectionState.RTCIceConnectionStateClosed:
+            // TODO: Handle this case.
+            break;
         }
       }
-      if (state == RTCIceGatheringState.RTCIceGatheringStateNew) {
-        _logger.i("RTCIceGatheringStateNew");
-      }
-      if (state == RTCIceGatheringState.RTCIceGatheringStateComplete) {
-        //take too long about 40 sec to Enter on this stage
-        //then we move calculate candidate and send them to RTCIceGatheringStateGathering stage
-        _logger.i("RTCIceGatheringStateComplete");
-      }
-    };
 
-    pc.onAddStream = (stream) {
-      _logger.i('addStream: ' + stream.id);
-      onAddRemoteStream?.call(stream);
-    };
-
-    pc.onRemoveStream = (stream) {
-      onRemoveRemoteStream?.call(stream);
-    };
-
-    pc.onDataChannel = (channel) {
-      _logger.i("data Channel Received!!");
-      _dataChannel = channel;
-      _isDCRecived = true;
-      //it means Connection is Connected
-      _startCallTimerAndChangeStatus();
-      _dataChannel!.onMessage = (RTCDataChannelMessage data) async {
-        final status = data.text;
-        _logger.i(status);
-        // we need Decision making by state
-        switch (status) {
-          case STATUS_CAMERA_OPEN:
-            mute_camera.add(true);
-            break;
-          case STATUS_CAMERA_CLOSE:
-            mute_camera.add(false);
-            break;
-          case STATUS_MIC_OPEN:
-            break;
-          case STATUS_MIC_CLOSE:
-            break;
-          case STATUS_SHARE_SCREEN:
-            break;
-          case STATUS_SHARE_VIDEO:
-            break;
-          case STATUS_CONNECTION_FAILED:
-            break;
-          case STATUS_CONNECTION_DISCONNECTED:
-            break;
-          case STATUS_CONNECTION_CONNECTED:
+      //https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/connectionState
+      ..onConnectionState = (RTCPeerConnectionState state) async {
+        _logger.i("onConnectionState $state");
+        switch (state) {
+          case RTCPeerConnectionState.RTCPeerConnectionStateConnected:
             //when connection Connected Status we Set some limit on bitRate
             // var params = _videoSender.parameters;
             // if (params.encodings.isEmpty) {
@@ -455,24 +330,144 @@ class CallRepo {
             // params.encodings[0].maxFramerate = WEBRTC_MAX_FRAME_RATE;
             //     params.encodings[0].scaleResolutionDownBy = 2;
             // await _videoSender.setParameters(params);
-            if (!_reconnectTry) {
-              _startCallTimerAndChangeStatus();
-            } else {
-              callingStatus.add(CallStatus.CONNECTED);
+            callingStatus.add(CallStatus.CONNECTED);
+            if (_reconnectTry) {
               _reconnectTry = false;
+              timerDisconnected?.cancel();
+            } else if (_isCaller) {
+              timerResendAnswer!.cancel();
+            }
+            if (!isWeb) {
+              _startCallTimerAndChangeStatus();
             }
             break;
-          case STATUS_CONNECTION_CONNECTING:
-            callingStatus.add(CallStatus.CONNECTING);
+          case RTCPeerConnectionState.RTCPeerConnectionStateDisconnected:
+            if (!_reconnectTry) {
+              callingStatus.add(CallStatus.DISCONNECTED);
+            }
             break;
-          case STATUS_CONNECTION_ENDED:
-            //received end from Calle
-            //receivedEndCall(0);
-            endCall(false);
+          case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
+            //Try reconnect
+            if (!_reconnectTry) {
+              _reconnectTry = true;
+              callingStatus.add(CallStatus.RECONNECTING);
+              _reconnectingAfterFailedConnection();
+              timerDisconnected = Timer(const Duration(seconds: 15), () {
+                if (callingStatus.value == CallStatus.RECONNECTING) {
+                  callingStatus.add(CallStatus.NO_ANSWER);
+                  _logger.i("Disconnected and Call End!");
+                  endCall(true);
+                }
+              });
+            }
+            break;
+          case RTCPeerConnectionState.RTCPeerConnectionStateClosed:
+            // TODO: Handle this case.
+            break;
+          case RTCPeerConnectionState.RTCPeerConnectionStateNew:
+            // TODO: Handle this case.
+            break;
+          case RTCPeerConnectionState.RTCPeerConnectionStateConnecting:
+            // TODO: Handle this case.
             break;
         }
+      }
+      ..onIceCandidate = (e) {
+        if (e.candidate != null) {
+          _candidate.add({
+            'candidate': e.candidate.toString(),
+            'sdpMid': e.sdpMid.toString(),
+            'sdpMlineIndex': e.sdpMLineIndex!,
+          });
+        }
+      }
+      ..onIceGatheringState = (RTCIceGatheringState state) {
+        if (state == RTCIceGatheringState.RTCIceGatheringStateGathering) {
+          //when we go on this stage after about 2 sec all candidate revived and we can sending them all
+          _logger.i("RTCIceGatheringStateGathering");
+          if (isOffer) {
+            _calculateCandidateAndSendOffer();
+          } else {
+            _calculateCandidateAndSendAnswer();
+          }
+        }
+        if (state == RTCIceGatheringState.RTCIceGatheringStateNew) {
+          _logger.i("RTCIceGatheringStateNew");
+        }
+        if (state == RTCIceGatheringState.RTCIceGatheringStateComplete) {
+          //take too long about 40 sec to Enter on this stage
+          //then we move calculate candidate and send them to RTCIceGatheringStateGathering stage
+          _logger.i("RTCIceGatheringStateComplete");
+        }
+      }
+      ..onAddStream = (stream) {
+        _logger.i('addStream: ' + stream.id);
+        onAddRemoteStream?.call(stream);
+      }
+      ..onRemoveStream = (stream) {
+        onRemoveRemoteStream?.call(stream);
+      }
+      ..onDataChannel = (channel) {
+        _logger.i("data Channel Received!!");
+        _dataChannel = channel;
+        _isDCRecived = true;
+        //it means Connection is Connected
+        _startCallTimerAndChangeStatus();
+        _dataChannel!.onMessage = (RTCDataChannelMessage data) async {
+          final status = data.text;
+          _logger.i(status);
+          // we need Decision making by state
+          switch (status) {
+            case STATUS_CAMERA_OPEN:
+              mute_camera.add(true);
+              break;
+            case STATUS_CAMERA_CLOSE:
+              mute_camera.add(false);
+              break;
+            case STATUS_MIC_OPEN:
+              break;
+            case STATUS_MIC_CLOSE:
+              break;
+            case STATUS_SHARE_SCREEN:
+              break;
+            case STATUS_SHARE_VIDEO:
+              break;
+            case STATUS_CONNECTION_FAILED:
+              break;
+            case STATUS_CONNECTION_DISCONNECTED:
+              break;
+            case STATUS_CONNECTION_CONNECTED:
+              //when connection Connected Status we Set some limit on bitRate
+              // var params = _videoSender.parameters;
+              // if (params.encodings.isEmpty) {
+              //   params.encodings = [];
+              //   params.encodings.add(new RTCRtpEncoding());
+              // }
+              //
+              // params.encodings[0].maxBitrate =
+              //     WEBRTC_MAX_BITRATE; // 256 kbps and use less about 150-160 kbps
+              // params.encodings[0].minBitrate = WEBRTC_MIN_BITRATE; // 128 kbps
+              // params.encodings[0].maxFramerate = WEBRTC_MAX_FRAME_RATE;
+              //     params.encodings[0].scaleResolutionDownBy = 2;
+              // await _videoSender.setParameters(params);
+              if (!_reconnectTry) {
+                _startCallTimerAndChangeStatus();
+              } else {
+                callingStatus.add(CallStatus.CONNECTED);
+                _reconnectTry = false;
+              }
+              break;
+            case STATUS_CONNECTION_CONNECTING:
+              callingStatus.add(CallStatus.CONNECTING);
+              break;
+            case STATUS_CONNECTION_ENDED:
+              //received end from Calle
+              //receivedEndCall(0);
+              endCall(false);
+              break;
+          }
+        };
       };
-    };
 
     return pc;
   }
@@ -782,8 +777,9 @@ class CallRepo {
   Future<void> startCall(Uid roomId, bool isVideo) async {
     if (_callService.getUserCallState == UserCallState.NOCALL) {
       //can't call another ppl or received any call notification
-      _callService.setCallNotification = true;
-      _callService.setUserCallState = UserCallState.INUSERCALL;
+      _callService
+        ..setCallNotification = true
+        ..setUserCallState = UserCallState.INUSERCALL;
 
       _isCaller = true;
       _isVideo = isVideo;
@@ -1130,8 +1126,9 @@ class CallRepo {
       if (_isInitRenderer) {
         await disposeRenderer();
       }
-      _callService.setUserCallState = UserCallState.NOCALL;
-      _callService.setCallNotification = false;
+      _callService
+        ..setUserCallState = UserCallState.NOCALL
+        ..setCallNotification = false;
     });
   }
 

@@ -555,12 +555,12 @@ class _RoomPageState extends State<RoomPage> {
           pm.reversed.toList().forEach((element) async {
             try {
               final m = await _getMessage(element);
-              _pinMessages.add(m!);
-              _pinMessages.sort((a, b) => a.time - b.time);
+              _pinMessages
+                ..add(m!)
+                ..sort((a, b) => a.time - b.time);
               _lastPinedMessage.add(_pinMessages.last.id!);
             } catch (e) {
-              _logger.e(e);
-              _logger.d(element);
+              _logger.e("element: $element, e: $e");
             }
           });
         }
@@ -1101,12 +1101,12 @@ class _RoomPageState extends State<RoomPage> {
                 icon: const Icon(CupertinoIcons.doc_on_clipboard),
                 onPressed: () async {
                   var copyText = "";
-                  final messages = _selectedMessages.values.toList();
-                  messages.sort((a, b) => a.id == null
-                      ? 1
-                      : b.id == null
-                          ? -1
-                          : a.id!.compareTo(b.id!));
+                  final messages = _selectedMessages.values.toList()
+                    ..sort((a, b) => a.id == null
+                        ? 1
+                        : b.id == null
+                            ? -1
+                            : a.id!.compareTo(b.id!));
                   for (final message in messages) {
                     if (message.type == MessageType.TEXT) {
                       copyText = copyText +

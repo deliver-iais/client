@@ -1,5 +1,3 @@
-// ignore_for_file: constant_identifier_names
-
 import 'dart:math';
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -7,6 +5,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
 const APPLICATION_NAME = "We";
+const app_name2 = "We";
 const APPLICATION_DOMAIN = "deliver-co.ir";
 // const APPLICATION_DOMAIN = "wemessenger.ir";
 const SPDA = "spda";

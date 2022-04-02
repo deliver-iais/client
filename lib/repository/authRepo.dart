@@ -181,8 +181,9 @@ class AuthRepo {
     }
     _accessToken = accessToken;
     _refreshToken = refreshToken;
-    _sharedDao.put(SHARED_DAO_REFRESH_TOKEN_KEY, refreshToken);
-    _sharedDao.put(SHARED_DAO_ACCESS_TOKEN_KEY, accessToken);
+    _sharedDao
+      ..put(SHARED_DAO_REFRESH_TOKEN_KEY, refreshToken)
+      ..put(SHARED_DAO_ACCESS_TOKEN_KEY, accessToken);
     _setCurrentUid(accessToken);
   }
 

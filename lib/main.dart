@@ -110,29 +110,30 @@ Future<void> setupDI() async {
 
   await Hive.initFlutter("db");
 
-  Hive.registerAdapter(AvatarAdapter());
-  Hive.registerAdapter(LastActivityAdapter());
-  Hive.registerAdapter(ContactAdapter());
-  Hive.registerAdapter(UidIdNameAdapter());
-  Hive.registerAdapter(SeenAdapter());
-  Hive.registerAdapter(FileInfoAdapter());
-  Hive.registerAdapter(MucAdapter());
-  Hive.registerAdapter(MucRoleAdapter());
-  Hive.registerAdapter(MemberAdapter());
-  Hive.registerAdapter(BotInfoAdapter());
-  Hive.registerAdapter(RoomAdapter());
-  Hive.registerAdapter(PendingMessageAdapter());
-  Hive.registerAdapter(MessageAdapter());
-  Hive.registerAdapter(MessageTypeAdapter());
-  Hive.registerAdapter(SendingStatusAdapter());
-  Hive.registerAdapter(MediaAdapter());
-  Hive.registerAdapter(MediaMetaDataAdapter());
-  Hive.registerAdapter(MediaTypeAdapter());
-  Hive.registerAdapter(LiveLocationAdapter());
-  Hive.registerAdapter(CallInfoAdapter());
-  Hive.registerAdapter(CallEventAdapter());
-  Hive.registerAdapter(CallStatusAdapter());
-  Hive.registerAdapter(CallTypeAdapter());
+  Hive
+    ..registerAdapter(AvatarAdapter())
+    ..registerAdapter(LastActivityAdapter())
+    ..registerAdapter(ContactAdapter())
+    ..registerAdapter(UidIdNameAdapter())
+    ..registerAdapter(SeenAdapter())
+    ..registerAdapter(FileInfoAdapter())
+    ..registerAdapter(MucAdapter())
+    ..registerAdapter(MucRoleAdapter())
+    ..registerAdapter(MemberAdapter())
+    ..registerAdapter(BotInfoAdapter())
+    ..registerAdapter(RoomAdapter())
+    ..registerAdapter(PendingMessageAdapter())
+    ..registerAdapter(MessageAdapter())
+    ..registerAdapter(MessageTypeAdapter())
+    ..registerAdapter(SendingStatusAdapter())
+    ..registerAdapter(MediaAdapter())
+    ..registerAdapter(MediaMetaDataAdapter())
+    ..registerAdapter(MediaTypeAdapter())
+    ..registerAdapter(LiveLocationAdapter())
+    ..registerAdapter(CallInfoAdapter())
+    ..registerAdapter(CallEventAdapter())
+    ..registerAdapter(CallStatusAdapter())
+    ..registerAdapter(CallTypeAdapter());
 
   GetIt.I.registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
   GetIt.I.registerSingleton<AvatarDao>(AvatarDaoImpl());
@@ -333,8 +334,9 @@ class MyApp extends StatelessWidget {
           child: Focus(
               focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
               onKey: (_, RawKeyEvent event) {
-                _rawKeyboardService.escapeHandling(event);
-                _rawKeyboardService.searchHandling(event);
+                _rawKeyboardService
+                  ..escapeHandling(event)
+                  ..searchHandling(event);
                 return event.physicalKey == PhysicalKeyboardKey.shiftRight
                     ? KeyEventResult.handled
                     : KeyEventResult.ignored;

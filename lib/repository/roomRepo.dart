@@ -210,8 +210,7 @@ class RoomRepo {
     final roomUid =
         activity.to.category == Categories.GROUP ? activity.to : activity.from;
     if (activityObject[roomUid.node] == null) {
-      final subject = BehaviorSubject<Activity>();
-      subject.add(activity);
+      final subject = BehaviorSubject<Activity>()..add(activity);
       activityObject[roomUid.node] = subject;
     } else {
       activityObject[roomUid.node]!.add(activity);

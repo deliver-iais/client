@@ -273,13 +273,14 @@ List<Block> parseText(
   final result = <Block>[];
 
   for (final match in matches) {
-    result.add(Block(text: transformer(text.substring(start, match.start))));
-    result.add(Block(
-        text: transformer(match[0] as String),
-        onTap: onTap,
-        style: style,
-        type: type,
-        locked: true));
+    result
+      ..add(Block(text: transformer(text.substring(start, match.start))))
+      ..add(Block(
+          text: transformer(match[0]!),
+          onTap: onTap,
+          style: style,
+          type: type,
+          locked: true));
     start = match.end;
   }
 

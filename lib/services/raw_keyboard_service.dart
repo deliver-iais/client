@@ -47,9 +47,10 @@ class RawKeyboardService {
           .add(model.File(file.path, name, extension: name.split(".").last));
     } else {
       final data = await Clipboard.getData(Clipboard.kTextPlain);
-      controller.text = controller.text + data!.text!;
-      controller.selection = TextSelection.fromPosition(
-          TextPosition(offset: controller.text.length));
+      controller
+        ..text = controller.text + data!.text!
+        ..selection = TextSelection.fromPosition(
+            TextPosition(offset: controller.text.length));
     }
     if (fileList.isNotEmpty) {
       showCaptionDialog(

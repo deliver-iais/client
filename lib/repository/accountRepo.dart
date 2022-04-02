@@ -137,16 +137,18 @@ class AccountRepo {
   }
 
   _savePhoneNumber(int countryCode, int nationalNumber) {
-    _sharedDao.put(SHARED_DAO_COUNTRY_CODE, countryCode.toString());
-    _sharedDao.put(SHARED_DAO_NATIONAL_NUMBER, nationalNumber.toString());
+    _sharedDao
+      ..put(SHARED_DAO_COUNTRY_CODE, countryCode.toString())
+      ..put(SHARED_DAO_NATIONAL_NUMBER, nationalNumber.toString());
   }
 
   _saveProfilePrivateData(
       {String? username, String? firstName, String? lastName, String? email}) {
     if (username != null) _sharedDao.put(SHARED_DAO_USERNAME, username);
-    _sharedDao.put(SHARED_DAO_FIRST_NAME, firstName!);
-    _sharedDao.put(SHARED_DAO_LAST_NAME, lastName!);
-    _sharedDao.put(SHARED_DAO_EMAIL, email!);
+    _sharedDao
+      ..put(SHARED_DAO_FIRST_NAME, firstName!)
+      ..put(SHARED_DAO_LAST_NAME, lastName!)
+      ..put(SHARED_DAO_EMAIL, email!);
   }
 
   Future<List<Session>> getSessions() async {

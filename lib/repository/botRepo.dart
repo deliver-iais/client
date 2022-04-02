@@ -69,9 +69,9 @@ class BotRepo {
     // var result = await _botServiceClient.searchByName(SearchByNameReq()..name = name);
     final searchInBots = <Uid>[];
     if (name.contains("father")) {
-      final uid = Uid();
-      uid.category = Categories.BOT;
-      uid.node = "father_bot";
+      final uid = Uid()
+        ..category = Categories.BOT
+        ..node = "father_bot";
       searchInBots.add(uid);
     }
 

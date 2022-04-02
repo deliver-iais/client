@@ -61,13 +61,8 @@ class RoomDaoImpl implements RoomDao {
         .toList()));
   }
 
-  List<Room> sorted(List<Room> list) {
-    final l = list;
-
-    l.sort((a, b) => (b.lastUpdateTime ?? 0) - (a.lastUpdateTime ?? 0));
-
-    return l;
-  }
+  List<Room> sorted(List<Room> list) =>
+      list..sort((a, b) => (b.lastUpdateTime ?? 0) - (a.lastUpdateTime ?? 0));
 
   @override
   Future<Room?> getRoom(String roomUid) async {

@@ -48,85 +48,91 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
             final widgets = <Widget>[];
 
             for (final member in snapshot.data!) {
-              widgets.add(const Divider());
-              widgets.add(GestureDetector(
-                  onTap: () {
-                    _routingServices.openRoom(member!.memberUid);
-                  },
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          CircleAvatarWidget(member!.memberUid.asUid(), 18),
-                          const SizedBox(width: 10),
-                          Expanded(
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: FutureBuilder<String>(
-                                      future: _roomRepo
-                                          .getName(member.memberUid.asUid()),
-                                      builder: (context, snapshot) {
-                                        return Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(
-                                              (snapshot.data ?? "Unknown")
-                                                  .trim(),
-                                              overflow: TextOverflow.fade,
-                                              maxLines: 1,
-                                              softWrap: false,
-                                              style: const TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.w500),
-                                            ),
-                                            const SizedBox(height: 4),
-                                            showMemberRole(member),
-                                          ],
-                                        );
-                                      }),
-                                ),
-                                if (!_authRepo
-                                        .isCurrentUser(member.memberUid) &&
-                                    (_myRoleInThisRoom == MucRole.ADMIN ||
-                                        _myRoleInThisRoom == MucRole.OWNER) &&
-                                    member.role != MucRole.OWNER)
-                                  PopupMenuButton(
-                                    icon: const Icon(Icons.more_vert, size: 18),
-                                    itemBuilder: (_) => <PopupMenuItem<String>>[
-                                      if (_myRoleInThisRoom == MucRole.OWNER)
-                                        PopupMenuItem<String>(
-                                            child: member.role == MucRole.MEMBER
-                                                ? Text(_i18n.get(
-                                                    "change_role_to_admin"))
-                                                : Text(_i18n.get(
-                                                    "change_role_to_member")),
-                                            value: CHANGE_ROLE),
-                                      PopupMenuItem<String>(
-                                          child: Text(_i18n.get("kick")),
-                                          value: DELETE),
-                                      PopupMenuItem<String>(
-                                          child: Text(_i18n.get("ban")),
-                                          value: BAN),
-                                    ],
-                                    onSelected: (key) {
-                                      onSelected(key.toString(), member);
-                                    },
+              widgets
+                ..add(const Divider())
+                ..add(GestureDetector(
+                    onTap: () {
+                      _routingServices.openRoom(member!.memberUid);
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            CircleAvatarWidget(member!.memberUid.asUid(), 18),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    child: FutureBuilder<String>(
+                                        future: _roomRepo
+                                            .getName(member.memberUid.asUid()),
+                                        builder: (context, snapshot) {
+                                          return Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                (snapshot.data ?? "Unknown")
+                                                    .trim(),
+                                                overflow: TextOverflow.fade,
+                                                maxLines: 1,
+                                                softWrap: false,
+                                                style: const TextStyle(
+                                                    fontSize: 15,
+                                                    fontWeight:
+                                                        FontWeight.w500),
+                                              ),
+                                              const SizedBox(height: 4),
+                                              showMemberRole(member),
+                                            ],
+                                          );
+                                        }),
                                   ),
-                                if (_authRepo.isCurrentUser(member.memberUid) &&
-                                        (_myRoleInThisRoom == MucRole.ADMIN ||
-                                            _myRoleInThisRoom ==
-                                                MucRole.OWNER) ||
-                                    (_myRoleInThisRoom == MucRole.ADMIN &&
-                                        member.role == MucRole.OWNER))
-                                  const SizedBox(width: 40)
-                              ],
-                            ),
-                          )
-                        ]),
-                  )));
+                                  if (!_authRepo
+                                          .isCurrentUser(member.memberUid) &&
+                                      (_myRoleInThisRoom == MucRole.ADMIN ||
+                                          _myRoleInThisRoom == MucRole.OWNER) &&
+                                      member.role != MucRole.OWNER)
+                                    PopupMenuButton(
+                                      icon:
+                                          const Icon(Icons.more_vert, size: 18),
+                                      itemBuilder: (_) =>
+                                          <PopupMenuItem<String>>[
+                                        if (_myRoleInThisRoom == MucRole.OWNER)
+                                          PopupMenuItem<String>(
+                                              child: member.role ==
+                                                      MucRole.MEMBER
+                                                  ? Text(_i18n.get(
+                                                      "change_role_to_admin"))
+                                                  : Text(_i18n.get(
+                                                      "change_role_to_member")),
+                                              value: CHANGE_ROLE),
+                                        PopupMenuItem<String>(
+                                            child: Text(_i18n.get("kick")),
+                                            value: DELETE),
+                                        PopupMenuItem<String>(
+                                            child: Text(_i18n.get("ban")),
+                                            value: BAN),
+                                      ],
+                                      onSelected: (key) {
+                                        onSelected(key.toString(), member);
+                                      },
+                                    ),
+                                  if (_authRepo.isCurrentUser(
+                                              member.memberUid) &&
+                                          (_myRoleInThisRoom == MucRole.ADMIN ||
+                                              _myRoleInThisRoom ==
+                                                  MucRole.OWNER) ||
+                                      (_myRoleInThisRoom == MucRole.ADMIN &&
+                                          member.role == MucRole.OWNER))
+                                    const SizedBox(width: 40)
+                                ],
+                              ),
+                            )
+                          ]),
+                    )));
             }
 
             return Column(

@@ -55,17 +55,16 @@ class _CallScreenState extends State<CallScreen> {
   }
 
   void startCall() async {
-    callRepo.onLocalStream = ((stream) {
-      _localRenderer.srcObject = stream;
-    });
-
-    callRepo.onAddRemoteStream = ((stream) {
-      _remoteRenderer.srcObject = stream;
-    });
-
-    callRepo.onRemoveRemoteStream = ((stream) {
-      _remoteRenderer.srcObject = null;
-    });
+    callRepo
+      ..onLocalStream = ((stream) {
+        _localRenderer.srcObject = stream;
+      })
+      ..onAddRemoteStream = ((stream) {
+        _remoteRenderer.srcObject = stream;
+      })
+      ..onRemoveRemoteStream = ((stream) {
+        _remoteRenderer.srcObject = null;
+      });
 
     //True means its VideoCall and false means AudioCall
 
@@ -135,28 +134,28 @@ class _CallScreenState extends State<CallScreen> {
               _audioService.stopPlayBeepSound();
               return widget.isVideoCall
                   ? InVideoCallPage(
-                localRenderer: _localRenderer,
-                remoteRenderer: _remoteRenderer,
-                roomUid: widget.roomUid,
-                hangUp: _hangUp,
-              )
+                      localRenderer: _localRenderer,
+                      remoteRenderer: _remoteRenderer,
+                      roomUid: widget.roomUid,
+                      hangUp: _hangUp,
+                    )
                   : AudioCallScreen(
-                  roomUid: widget.roomUid,
-                  callStatus: "Connecting",
-                  hangUp: _hangUp);
+                      roomUid: widget.roomUid,
+                      callStatus: "Connecting",
+                      hangUp: _hangUp);
             case CallStatus.RECONNECTING:
               _audioService.stopPlayBeepSound();
               return widget.isVideoCall
                   ? InVideoCallPage(
-                localRenderer: _localRenderer,
-                remoteRenderer: _remoteRenderer,
-                roomUid: widget.roomUid,
-                hangUp: _hangUp,
-              )
+                      localRenderer: _localRenderer,
+                      remoteRenderer: _remoteRenderer,
+                      roomUid: widget.roomUid,
+                      hangUp: _hangUp,
+                    )
                   : AudioCallScreen(
-                  roomUid: widget.roomUid,
-                  callStatus: "Reconnecting",
-                  hangUp: _hangUp);
+                      roomUid: widget.roomUid,
+                      callStatus: "Reconnecting",
+                      hangUp: _hangUp);
             case CallStatus.FAILED:
               _audioService.stopPlayBeepSound();
               return widget.isVideoCall

@@ -103,8 +103,8 @@ MockCoreServices getAndRegisterCoreServices(
   final service = MockCoreServices();
   GetIt.I.registerSingleton<CoreServices>(service);
   final _connectionStatus =
-      BehaviorSubject<ConnectionStatus>.seeded(ConnectionStatus.Connecting);
-  _connectionStatus.add(connectionStatus);
+      BehaviorSubject<ConnectionStatus>.seeded(ConnectionStatus.Connecting)
+        ..add(connectionStatus);
   when(service.connectionStatus)
       .thenAnswer((realInvocation) => _connectionStatus);
   return service;

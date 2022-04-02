@@ -314,10 +314,7 @@ class MessageRepo {
         lastUpdateTime: lastUpdateTime,
         lastMessageId: lastMessageId,
       ));
-      _logger.wtf(roomUid);
-      _logger.wtf(room);
-
-      _logger.e(e);
+      _logger.wtf("roomUid: $roomUid, room: $room, e: $e");
       return null;
     }
   }
@@ -666,9 +663,8 @@ class MessageRepo {
   message_pb.MessageByClient _createMessageByClient(Message message) {
     final byClient = message_pb.MessageByClient()
       ..packetId = message.packetId
-      ..to = message.to.asUid();
-
-    byClient.replyToId = Int64(message.replyToId);
+      ..to = message.to.asUid()
+      ..replyToId = Int64(message.replyToId);
 
     if (message.forwardedFrom != null) {
       byClient.forwardFrom = message.forwardedFrom!.asUid();
@@ -869,8 +865,9 @@ class MessageRepo {
         getMessages(roomId, page, pageSize, completer, lastMessageId,
             retry: false);
       } else {
-        completer.complete([]);
-        completer.completeError(e);
+        completer
+          ..complete([])
+          ..completeError(e);
       }
     }
   }
@@ -1174,8 +1171,9 @@ class MessageRepo {
       await _queryServiceClient.updateMessage(UpdateMessageReq()
         ..message = updatedMessage
         ..messageId = Int64(editableMessage.id ?? 0));
-      editableMessage.json = (message_pb.Text()..text = text).writeToJson();
-      editableMessage.edited = true;
+      editableMessage
+        ..json = (message_pb.Text()..text = text).writeToJson()
+        ..edited = true;
       _messageDao.saveMessage(editableMessage);
       _roomDao.updateRoom(Room(
           uid: roomUid.asString(), lastUpdatedMessageId: editableMessage.id));
@@ -1222,8 +1220,9 @@ class MessageRepo {
     await _queryServiceClient.updateMessage(UpdateMessageReq()
       ..message = updatedMessage
       ..messageId = Int64(editableMessage.id ?? 0));
-    editableMessage.json = updatedFile.writeToJson();
-    editableMessage.edited = true;
+    editableMessage
+      ..json = updatedFile.writeToJson()
+      ..edited = true;
     _messageDao.saveMessage(editableMessage);
     _mediaRepo.updateMedia(editableMessage);
     _roomDao.updateRoom(Room(

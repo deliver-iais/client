@@ -224,7 +224,7 @@ class RoutingService {
   }
 
   void _push(Widget widget, {bool popAllBeforePush = false}) {
-    final path = (widget.key as ValueKey).value;
+    final path = (widget.key! as ValueKey).value;
 
     _analyticsRepo.incPVF(path);
 

@@ -20,7 +20,8 @@ abstract class MediaDao {
 
 class MediaDaoImpl implements MediaDao {
   @override
-  Future<List<Media>> get(String roomId, MediaType type, int limit, int offset) async {
+  Future<List<Media>> get(
+      String roomId, MediaType type, int limit, int offset) async {
     final box = await _open(roomId);
     final res = <Media>[];
     final medias = box.values
@@ -28,9 +29,9 @@ class MediaDaoImpl implements MediaDao {
             element.roomId.contains(roomId) && element.type == type)
         .toList()
         .sublist(offset, offset + limit);
-    res.addAll(medias);
-    res.sort((a, b) => a.createdOn - b.createdOn);
-    return res;
+    return res
+      ..addAll(medias)
+      ..sort((a, b) => a.createdOn - b.createdOn);
   }
 
   @override

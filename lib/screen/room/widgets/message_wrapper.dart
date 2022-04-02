@@ -87,17 +87,15 @@ class OPainter extends CustomPainter {
     final x = size.width;
     final y = size.height;
 
-    path.moveTo(x, 0);
-
-    path.moveTo(0, 0);
-
-    path.arcToPoint(
-      Offset(x, y),
-      radius: Radius.circular(y * 2),
-      clockwise: true,
-    );
-
-    path.lineTo(x, 0);
+    path
+      ..moveTo(x, 0)
+      ..moveTo(0, 0)
+      ..arcToPoint(
+        Offset(x, y),
+        radius: Radius.circular(y * 2),
+        clockwise: true,
+      )
+      ..lineTo(x, 0);
 
     canvas.drawPath(path, paint);
   }

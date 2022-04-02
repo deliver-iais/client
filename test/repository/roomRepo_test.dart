@@ -270,8 +270,7 @@ void main() {
           'When called if activityObject[roomUid.node] be null should set it with new Activity',
           () async {
         final roomRepo = getAndRegisterRealRoomRepo();
-        final subject = BehaviorSubject<Activity>();
-        subject.add(testActivity);
+        final subject = BehaviorSubject<Activity>()..add(testActivity);
         roomRepo.updateActivity(testActivity);
         expect(roomRepo.activityObject[testUid.node]?.value, subject.value);
       });
@@ -279,8 +278,7 @@ void main() {
           'When called if activityObject[roomUid.node] not be null should set it with new Activity and after 10 seconds should set it with noActivity',
           () async {
         final roomRepo = getAndRegisterRealRoomRepo();
-        final subject = BehaviorSubject<Activity>();
-        subject.add(testActivity);
+        final subject = BehaviorSubject<Activity>()..add(testActivity);
         roomRepo.activityObject[testUid.node] = subject;
         roomRepo.updateActivity(testActivity);
         expect(roomRepo.activityObject[testUid.node]?.value, subject.value);
@@ -305,8 +303,7 @@ void main() {
     });
     group('updateRoomName -', () {
       test('When called should set name to roomNameCache', () async {
-        final roomRepo = getAndRegisterRealRoomRepo();
-        roomRepo.updateRoomName(testUid, "test");
+        getAndRegisterRealRoomRepo().updateRoomName(testUid, "test");
         expect(roomNameCache[testUid.asString()], "test");
       });
     });

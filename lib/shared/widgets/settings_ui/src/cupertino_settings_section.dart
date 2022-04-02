@@ -51,11 +51,12 @@ class CupertinoSection extends StatelessWidget {
           ? 15.0
           : 54.0;
       if (i < items.length - 1) {
-        itemsWithDividers.add(items[i]);
-        itemsWithDividers.add(Divider(
-          height: 0.2,
-          indent: leftPadding,
-        ));
+        itemsWithDividers
+          ..add(items[i])
+          ..add(Divider(
+            height: 0.2,
+            indent: leftPadding,
+          ));
       } else {
         itemsWithDividers.add(items[i]);
       }
