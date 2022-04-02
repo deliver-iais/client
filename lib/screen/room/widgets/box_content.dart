@@ -313,8 +313,6 @@ class _BoxContentState extends State<BoxContent> {
           message: widget.message,
           colorScheme: widget.colorScheme,
         );
-      default:
-        break;
     }
     return Container();
   }

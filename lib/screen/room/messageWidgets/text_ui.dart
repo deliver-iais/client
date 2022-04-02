@@ -143,9 +143,9 @@ class UrlParser implements Parser {
   @override
   List<Block> parse(List<Block> blocks, BuildContext context) =>
       parseBlocks(blocks, regex, "url", onTap: (uri) async {
-        if (uri.toString().contains("$APPLICATION_DOMAIN/$JOIN".toString()) ||
-            uri.toString().contains("$APPLICATION_DOMAIN/$SPDA".toString()) ||
-            uri.toString().contains("$APPLICATION_DOMAIN/$TEXT".toString())) {
+        if (uri.toString().contains("$APPLICATION_DOMAIN/$JOIN") ||
+            uri.toString().contains("$APPLICATION_DOMAIN/$SPDA") ||
+            uri.toString().contains("$APPLICATION_DOMAIN/$TEXT")) {
           handleJoinUri(context, uri);
         } else {
           await launch(uri);

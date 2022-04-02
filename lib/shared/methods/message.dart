@@ -139,8 +139,13 @@ Future<MessageBrief> extractMessageBrief(I18N i18n, RoomRepo roomRepo,
     case message_pb.Message_Type.callEvent:
       ignoreNotification = true;
       typeDetails = i18n.get("call");
+      // TODO: add more details in here
       break;
-    default:
+
+    case message_pb.Message_Type.table:
+      typeDetails = i18n.get("table");
+      break;
+    case message_pb.Message_Type.notSet:
       ignoreNotification = true;
       if (kDebugMode) {
         text = "____NO_TYPE_OF_MESSAGE_PROVIDED____";
@@ -262,8 +267,7 @@ Future<String> getPersistentEventText(I18N i18n, RoomRepo roomRepo,
         default:
           return "";
       }
-
-    default:
+    case PersistentEvent_Type.notSet:
       return "";
   }
   return "";
@@ -332,8 +336,6 @@ message_pb.Message extractProtocolBufferMessage(Message message) {
       break;
     case MessageType.Table:
       msg.table = message.json.toTable();
-      break;
-    default:
       break;
   }
 
@@ -419,9 +421,16 @@ String messageBodyToJson(message_pb.Message message) {
         case CallEvent_CallStatus.DECLINED:
         case CallEvent_CallStatus.ENDED:
           return message.callEvent.writeToJson();
-        default:
+
+        case CallEvent_CallStatus.CREATED:
+        case CallEvent_CallStatus.INVITE:
+        case CallEvent_CallStatus.IS_RINGING:
+        case CallEvent_CallStatus.JOINED:
+        case CallEvent_CallStatus.KICK:
+        case CallEvent_CallStatus.LEFT:
           return EMPTY_MESSAGE;
       }
+      return EMPTY_MESSAGE;
 
     case MessageType.Table:
       return message.table.writeToJson();
@@ -463,7 +472,9 @@ MessageType getMessageType(message_pb.Message_Type messageType) {
       return MessageType.CALL;
     case message_pb.Message_Type.table:
       return MessageType.Table;
-    default:
+    case message_pb.Message_Type.transaction:
+      return MessageType.NOT_SET;
+    case message_pb.Message_Type.notSet:
       return MessageType.NOT_SET;
   }
 }

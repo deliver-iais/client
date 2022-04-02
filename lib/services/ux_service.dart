@@ -36,8 +36,6 @@ class LogLevelHelper {
         return "WTF";
       case Level.nothing:
         return "NOTHING";
-      default:
-        return "DEBUG";
     }
   }
 

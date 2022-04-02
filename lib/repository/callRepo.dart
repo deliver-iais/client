@@ -736,8 +736,7 @@ class CallRepo {
       } else {
         camAudioTrack.enableSpeakerphone(true);
       }
-      _isSpeaker = !_isSpeaker;
-      return _isSpeaker;
+      return _isSpeaker = !_isSpeaker;
     }
     return false;
   }

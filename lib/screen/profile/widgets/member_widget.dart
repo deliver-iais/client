@@ -146,7 +146,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
         return Text(_i18n.get("admin"), style: const TextStyle(fontSize: 11));
       case MucRole.MEMBER:
         return Text(_i18n.get("member"), style: const TextStyle(fontSize: 11));
-      default:
+      case MucRole.NONE:
         return const Text("", style: TextStyle(fontSize: 11));
     }
   }
@@ -197,7 +197,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
   void obtainMyRole(List<Member?> members) {
     for (final member in members) {
       if (member != null && _authRepo.isCurrentUser(member.memberUid)) {
-        _myRoleInThisRoom = member.role!;
+        _myRoleInThisRoom = member.role;
       }
     }
   }

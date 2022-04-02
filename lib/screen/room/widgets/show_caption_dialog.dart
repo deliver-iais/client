@@ -316,8 +316,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
             caption: _editingController.text, file: _editedFile)
         : _messageRepo.sendMultipleFilesMessages(
             widget.currentRoom, widget.files!,
-            replyToId: widget.replyMessageId,
-            caption: _editingController.text.toString());
+            replyToId: widget.replyMessageId, caption: _editingController.text);
     widget.resetRoomPageDetails?.call();
   }
 

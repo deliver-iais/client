@@ -216,7 +216,7 @@ class _DevicesPageState extends State<DevicesPage> {
                         }
                       } else {
                         final res = await _accountRepo
-                            .revokeSession(sessions.first.sessionId.toString());
+                            .revokeSession(sessions.first.sessionId);
                         Navigator.pop(context);
                         if (res) {
                           setState(() {});
@@ -228,7 +228,7 @@ class _DevicesPageState extends State<DevicesPage> {
                       }
                       final sessionIds = <String>[];
                       for (final element in sessions) {
-                        sessionIds.add(element.sessionId.toString());
+                        sessionIds.add(element.sessionId);
                       }
                     },
                   ),

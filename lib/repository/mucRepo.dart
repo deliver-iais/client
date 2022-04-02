@@ -280,7 +280,7 @@ class MucRepo {
   Future<void> changeGroupMemberRole(Member groupMember) async {
     final member = muc_pb.Member()
       ..uid = groupMember.memberUid.asUid()
-      ..role = getRole(groupMember.role!);
+      ..role = getRole(groupMember.role);
     final result =
         await _mucServices.changeGroupRole(member, groupMember.mucUid.asUid());
     if (result) {
@@ -291,7 +291,7 @@ class MucRepo {
   Future<void> changeChannelMemberRole(Member channelMember) async {
     final member = muc_pb.Member()
       ..uid = channelMember.memberUid.asUid()
-      ..role = getRole(channelMember.role!);
+      ..role = getRole(channelMember.role);
     final result = await _mucServices.changeCahnnelRole(
         member, channelMember.mucUid.asUid());
     if (result) {
@@ -337,7 +337,7 @@ class MucRepo {
     final members = groupMembers
         .map((m) => muc_pb.Member()
           ..uid = m.memberUid.asUid()
-          ..role = getRole(m.role!))
+          ..role = getRole(m.role))
         .toList();
 
     final result = await _mucServices.kickGroupMembers(
@@ -356,7 +356,7 @@ class MucRepo {
     final members = channelMembers
         .map((m) => muc_pb.Member()
           ..uid = m.memberUid.asUid()
-          ..role = getRole(m.role!))
+          ..role = getRole(m.role))
         .toList();
     final result = await _mucServices.kickChannelMembers(
         members, channelMembers[0].mucUid.asUid());
@@ -373,7 +373,7 @@ class MucRepo {
   Future<void> banGroupMember(Member groupMember) async {
     final member = muc_pb.Member()
       ..uid = groupMember.memberUid.asUid()
-      ..role = getRole(groupMember.role!);
+      ..role = getRole(groupMember.role);
     if (await _mucServices
         .kickGroupMembers([member], groupMember.mucUid.asUid())) {
       if (await _mucServices.banGroupMember(
@@ -386,7 +386,7 @@ class MucRepo {
   Future<void> banChannelMember(Member channelMember) async {
     final member = muc_pb.Member()
       ..uid = channelMember.memberUid.asUid()
-      ..role = getRole(channelMember.role!);
+      ..role = getRole(channelMember.role);
     if (await _mucServices
         .kickChannelMembers([member], channelMember.mucUid.asUid())) {
       if (await _mucServices.banChannelMember(
@@ -399,7 +399,7 @@ class MucRepo {
   Future<void> unBanGroupMember(Member groupMember) async {
     final member = muc_pb.Member()
       ..uid = groupMember.memberUid.asUid()
-      ..role = getRole(groupMember.role!);
+      ..role = getRole(groupMember.role);
     await _mucServices.banGroupMember(member, groupMember.mucUid.asUid());
     //todo change database
   }
@@ -407,7 +407,7 @@ class MucRepo {
   Future<void> unBanChannelMember(Member channelMember) async {
     final member = muc_pb.Member()
       ..uid = channelMember.memberUid.asUid()
-      ..role = getRole(channelMember.role!);
+      ..role = getRole(channelMember.role);
     await _mucServices.unbanChannelMember(member, channelMember.mucUid.asUid());
     //todo change database
   }

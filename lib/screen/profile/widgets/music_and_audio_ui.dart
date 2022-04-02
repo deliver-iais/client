@@ -95,8 +95,7 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                             MusicPlayProgress(
                                               audioUuid: fileId,
                                               duration:
-                                                  double.parse(dur.toString())
-                                                      .toDouble(),
+                                                  double.parse(dur.toString()),
                                             ),
                                           ],
                                         ),
@@ -141,9 +140,8 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                               ),
                                               MusicPlayProgress(
                                                 audioUuid: fileId,
-                                                duration:
-                                                    double.parse(dur.toString())
-                                                        .toDouble(),
+                                                duration: double.parse(
+                                                    dur.toString()),
                                               ),
                                             ],
                                           ),

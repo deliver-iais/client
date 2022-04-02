@@ -199,7 +199,7 @@ class PersistentEventMessage extends StatelessWidget {
         Widget? pinedMessageWidget;
         if (persistentEventMessage.mucSpecificPersistentEvent.issue ==
             MucSpecificPersistentEvent_Issue.PIN_MESSAGE) {
-          final content = await getPinnedMessageContent();
+          final content = await getPinnedMessageBriefContent();
           pinedMessageWidget = MouseRegion(
             cursor: SystemMouseCursors.click,
             child: GestureDetector(
@@ -243,8 +243,8 @@ class PersistentEventMessage extends StatelessWidget {
           default:
             return null;
         }
-
-      default:
+      case PersistentEvent_Type.botSpecificPersistentEvent:
+      case PersistentEvent_Type.notSet:
         return null;
     }
   }
@@ -299,12 +299,13 @@ class PersistentEventMessage extends StatelessWidget {
             isFirstPerson: _authRepo.isCurrentUser(persistentEventMessage
                 .mucSpecificPersistentEvent.issuer
                 .asString()));
-      default:
+      case MucSpecificPersistentEvent_Issue.DELETED:
         return "";
     }
+    return "";
   }
 
-  Future<String> getPinnedMessageContent() async {
+  Future<String> getPinnedMessageBriefContent() async {
     final m = await _messageDao.getMessage(message.roomUid,
         persistentEventMessage.mucSpecificPersistentEvent.messageId.toInt());
     if (m != null) {
@@ -315,52 +316,26 @@ class PersistentEventMessage extends StatelessWidget {
         case MessageType.FILE:
           return m.json.toFile().caption;
 
-        case MessageType.STICKER:
-          // TODO: Handle this case.
-          return "";
-
         case MessageType.LOCATION:
           return _i18n.get("location");
 
         case MessageType.LIVE_LOCATION:
           return _i18n.get("live_location");
 
-        case MessageType.POLL:
-          // TODO: Handle this case.
-          return "";
-
         case MessageType.FORM:
           return _i18n.get("form");
 
+        case MessageType.STICKER:
+        case MessageType.POLL:
         case MessageType.PERSISTENT_EVENT:
-          // TODO: Handle this case.
-          return "";
-
-        case MessageType.NOT_SET:
-          // TODO: Handle this case.
-          return "";
-
         case MessageType.BUTTONS:
-          // TODO: Handle this case.
-          return "";
-
         case MessageType.SHARE_UID:
-          // TODO: Handle this case.
-          return "";
-
         case MessageType.FORM_RESULT:
-          // TODO: Handle this case.
-          return "";
-
         case MessageType.SHARE_PRIVATE_DATA_REQUEST:
-          // TODO: Handle this case.
-          return "";
-
         case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
-          // TODO: Handle this case.
-          return "";
-
-        default:
+        case MessageType.CALL:
+        case MessageType.Table:
+        case MessageType.NOT_SET:
           return "";
       }
     }

@@ -273,7 +273,7 @@ class MediaRepo {
         return FetchMediasReq_MediaType.DOCUMENTS;
       case MediaType.LINK:
         return FetchMediasReq_MediaType.LINKS;
-      default:
+      case MediaType.NOT_SET:
         return FetchMediasReq_MediaType.FILES;
     }
   }

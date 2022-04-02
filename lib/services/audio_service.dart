@@ -174,8 +174,6 @@ class NormalAudioPlayer implements AudioPlayerModule {
             return AudioPlayerState.PAUSED;
           case PlayerState.COMPLETED:
             return AudioPlayerState.COMPLETED;
-          default:
-            return AudioPlayerState.STOPPED;
         }
       });
 

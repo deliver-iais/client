@@ -406,7 +406,7 @@ class DataStreamServices {
         final mediaMetaData = await _mediaQueryRepo.getMediaMetaData(roomUid);
         if (mediaMetaData != null) {
           _mediaQueryRepo.saveMediaMetaData(mediaMetaData.copyWith(
-              lastUpdateTime: message.time.toInt(),
+              lastUpdateTime: message.time,
               imagesCount: mediaMetaData.imagesCount + 1));
         } else {
           _mediaQueryRepo.saveMediaMetaData(MediaMetaData(
@@ -418,7 +418,7 @@ class DataStreamServices {
               documentsCount: 0,
               filesCount: 0,
               linkCount: 0,
-              lastUpdateTime: message.time.toInt()));
+              lastUpdateTime: message.time));
         }
         _mediaQueryRepo.saveMediaFromMessage(message);
       }

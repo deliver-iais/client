@@ -302,7 +302,7 @@ class MessageRepo {
       if (lastMessage != null) {
         _roomDao.updateRoom(Room(
           uid: roomUid.asString(),
-          firstMessageId: firstMessageId != null ? firstMessageId.toInt() : 0,
+          firstMessageId: firstMessageId ?? 0,
           lastUpdateTime: lastMessage.time,
           lastMessageId: lastMessageId,
           lastMessage: lastMessage,
@@ -313,9 +313,9 @@ class MessageRepo {
     } catch (e) {
       _roomDao.updateRoom(Room(
         uid: roomUid.asString(),
-        firstMessageId: firstMessageId!.toInt(),
+        firstMessageId: firstMessageId!,
         lastUpdateTime: lastUpdateTime,
-        lastMessageId: lastMessageId.toInt(),
+        lastMessageId: lastMessageId,
       ));
       _logger.wtf(roomUid);
       _logger.wtf(room);
@@ -709,7 +709,13 @@ class MessageRepo {
       case MessageType.Table:
         byClient.table = form_pb.Table.fromJson(message.json);
         break;
-      default:
+      case MessageType.LIVE_LOCATION:
+      case MessageType.POLL:
+      case MessageType.PERSISTENT_EVENT:
+      case MessageType.NOT_SET:
+      case MessageType.BUTTONS:
+      case MessageType.SHARE_PRIVATE_DATA_REQUEST:
+        // TODO: Handle this case.
         break;
     }
     return byClient;
@@ -947,8 +953,10 @@ class MessageRepo {
                   break;
               }
               break;
-
-            default:
+            case PersistentEvent_Type.adminSpecificPersistentEvent:
+            case PersistentEvent_Type.botSpecificPersistentEvent:
+            case PersistentEvent_Type.notSet:
+              // TODO: Handle this case.
               break;
           }
         }

@@ -196,14 +196,14 @@ class CoreServices {
   void sendCallAnswer(call_pb.CallAnswerByClient callAnswerByClient) {
     final clientPacket = ClientPacket()
       ..callAnswer = callAnswerByClient
-      ..id = callAnswerByClient.id.toString();
+      ..id = callAnswerByClient.id;
     _sendPacket(clientPacket);
   }
 
   void sendCallOffer(call_pb.CallOfferByClient callOfferByClient) {
     final clientPacket = ClientPacket()
       ..callOffer = callOfferByClient
-      ..id = callOfferByClient.id.toString();
+      ..id = callOfferByClient.id;
     _sendPacket(clientPacket);
   }
 

@@ -22,6 +22,15 @@ linter:
   # `// ignore_for_file: name_of_lint` syntax on the line or in the file
   # producing the lint.
   rules:
+    flutter_style_todos: true
+    exhaustive_cases: true
+    join_return_with_assignment: true
+    missing_whitespace_between_adjacent_strings: true
+    no_default_cases: true
+    no_runtimeType_toString: true
+    noop_primitive_operations: true
+    null_check_on_nullable_type_parameter: true
+    null_closures: true
     omit_local_variable_types: true
     package_prefixed_library_names: true
     prefer_collection_literals: true

@@ -15,7 +15,10 @@ class Member {
   String memberUid;
 
   @HiveField(2)
-  MucRole? role;
+  MucRole role;
 
-  Member({required this.mucUid, required this.memberUid, this.role});
+  Member(
+      {required this.mucUid,
+      required this.memberUid,
+      this.role = MucRole.NONE});
 }

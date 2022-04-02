@@ -486,42 +486,20 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
             context: context);
         break;
       case MessageType.STICKER:
-        // TODO: Handle this case.
-        break;
       case MessageType.LOCATION:
-        // TODO: Handle this case.
-        break;
       case MessageType.LIVE_LOCATION:
-        // TODO: Handle this case.
-        break;
       case MessageType.POLL:
-        // TODO: Handle this case.
-        break;
       case MessageType.FORM:
-        // TODO: Handle this case.
-        break;
       case MessageType.PERSISTENT_EVENT:
-        // TODO: Handle this case.
-        break;
       case MessageType.NOT_SET:
-        // TODO: Handle this case.
-        break;
       case MessageType.BUTTONS:
-        // TODO: Handle this case.
-        break;
       case MessageType.SHARE_UID:
-        // TODO: Handle this case.
-        break;
       case MessageType.FORM_RESULT:
-        // TODO: Handle this case.
-        break;
       case MessageType.SHARE_PRIVATE_DATA_REQUEST:
-        // TODO: Handle this case.
-        break;
       case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
-        // TODO: Handle this case.
-        break;
-      default:
+      case MessageType.CALL:
+      case MessageType.Table:
+        // TODO: Handle these cases.
         break;
     }
   }
