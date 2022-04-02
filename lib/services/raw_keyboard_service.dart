@@ -79,27 +79,27 @@ class RawKeyboardService {
         baseOffset: 0, extentOffset: controller.value.text.length);
   }
 
-  void scrollDownInMentions(Function scrollDownInMention) {
+  void scrollDownInMentions(void Function() scrollDownInMention) {
     scrollDownInMention();
   }
 
-  void scrollUpInMentions(Function scrollUpInMention) {
+  void scrollUpInMentions(void Function() scrollUpInMention) {
     scrollUpInMention();
   }
 
-  void sendMention(Function showMention) {
+  void sendMention(void Function() showMention) {
     showMention();
   }
 
-  void scrollUpInBotCommand(Function scrollUpInBotCommands) {
+  void scrollUpInBotCommand(void Function() scrollUpInBotCommands) {
     scrollUpInBotCommands();
   }
 
-  void sendBotCommandsByEnter(Function sendBotCommentByEnter) {
+  void sendBotCommandsByEnter(void Function() sendBotCommentByEnter) {
     sendBotCommentByEnter();
   }
 
-  void scrollDownInBotCommand(Function scrollDownInBotCommands) {
+  void scrollDownInBotCommand(void Function() scrollDownInBotCommands) {
     scrollDownInBotCommands();
   }
 
@@ -115,8 +115,8 @@ class RawKeyboardService {
     }
   }
 
-  void navigateInMentions(String mentionData, Function scrollDownInMention,
-      RawKeyEvent event, int mentionSelectedIndex, Function scrollUpInMention) {
+  void navigateInMentions(String mentionData, void Function() scrollDownInMention,
+      RawKeyEvent event, int mentionSelectedIndex, void Function() scrollUpInMention) {
     if (isKeyPressed(event, PhysicalKeyboardKey.arrowUp) &&
         !event.isAltPressed &&
         mentionData != "-") {
@@ -131,9 +131,9 @@ class RawKeyboardService {
 
   void navigateInBotCommand(
       RawKeyEvent event,
-      Function scrollDownInBotCommands,
-      Function scrollUpInBotCommands,
-      Function sendBotCommandByEnter,
+      void Function() scrollDownInBotCommands,
+      void Function() scrollUpInBotCommands,
+      void Function() sendBotCommandByEnter,
       String botCommandData) {
     if (isKeyPressed(event, PhysicalKeyboardKey.arrowDown)) {
       scrollDownInBotCommand(scrollDownInBotCommands);

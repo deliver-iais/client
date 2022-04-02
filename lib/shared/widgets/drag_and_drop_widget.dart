@@ -17,7 +17,7 @@ class DragDropWidget extends StatelessWidget {
   final Widget child;
   final String roomUid;
   final double height;
-  final Function? resetRoomPageDetails;
+  final void Function()? resetRoomPageDetails;
   final int? replyMessageId;
 
   DragDropWidget(
@@ -103,7 +103,7 @@ class DragDropWidget extends StatelessWidget {
   }
 
   void showDialogInDesktop(List<model.File> files, BuildContext context,
-      String type, int? replyMessageId, Function? resetRoomPageDetails) {
+      String type, int? replyMessageId, void Function()? resetRoomPageDetails) {
     showCaptionDialog(
         type: type,
         context: context,

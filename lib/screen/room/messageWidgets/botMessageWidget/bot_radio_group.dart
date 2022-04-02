@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class BotRadioGroup extends FormField<String> {
   final form_pb.Form_Field formField;
-  final Function onChange;
+  final void Function(String?) onChange;
 
   BotRadioGroup(
       {Key? key, required this.formField, required this.onChange, validator})

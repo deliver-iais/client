@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 class OnEditMessageWidget extends StatelessWidget {
   final Message message;
-  final Function() resetRoomPageDetails;
+  final void Function() resetRoomPageDetails;
 
   const OnEditMessageWidget(
       {Key? key, required this.message, required this.resetRoomPageDetails})

@@ -1082,12 +1082,7 @@ class _RoomPageState extends State<RoomPage> {
                   icon: const Icon(CupertinoIcons.delete),
                   onPressed: () {
                     showDeleteMsgDialog(
-                      _selectedMessages.values.toList(),
-                      context,
-                      () {
-                        onDelete();
-                      },
-                    );
+                        _selectedMessages.values.toList(), context, onDelete);
                     _selectedMessages.clear();
                   }),
             ),

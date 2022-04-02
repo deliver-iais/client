@@ -299,10 +299,10 @@ class RoutingService {
     popAll();
   }
 
-  Widget backButtonLeading({Function? back}) {
+  Widget backButtonLeading({void Function()? back}) {
     return BackButton(
       onPressed: () {
-        if (back != null) back();
+        back?.call();
         pop();
       },
     );

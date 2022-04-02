@@ -229,7 +229,7 @@ class FileService {
 
   // TODO, refactoring needed
   Future<Response<dynamic>?> uploadFile(String filePath, String filename,
-      {String? uploadKey, Function? sendActivity}) async {
+      {String? uploadKey, void Function(int)? sendActivity}) async {
     try {
       if (!isWeb) {
         try {
@@ -271,7 +271,7 @@ class FileService {
       _dio.interceptors
           .add(InterceptorsWrapper(onRequest: (options, handler) async {
         options.onSendProgress = (i, j) {
-          if (sendActivity != null) sendActivity(i);
+          sendActivity?.call(i);
           if (filesProgressBarStatus[uploadKey] == null) {
             final d = BehaviorSubject<double>();
             filesProgressBarStatus[uploadKey] = d;

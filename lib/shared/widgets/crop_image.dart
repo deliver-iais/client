@@ -11,7 +11,7 @@ import 'package:rxdart/rxdart.dart';
 
 class CropImage extends StatefulWidget {
   final String imagePath;
-  final Function crop;
+  final void Function(String) crop;
 
   const CropImage(this.imagePath, this.crop, {Key? key}) : super(key: key);
 

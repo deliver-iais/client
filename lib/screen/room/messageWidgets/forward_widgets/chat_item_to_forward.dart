@@ -6,7 +6,7 @@ import 'package:get_it/get_it.dart';
 
 class ChatItemToForward extends StatelessWidget {
   final Uid uid;
-  final Function send;
+  final void Function(Uid) send;
 
   ChatItemToForward({Key? key, required this.uid, required this.send})
       : super(key: key);

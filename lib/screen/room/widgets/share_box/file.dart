@@ -9,10 +9,10 @@ import 'package:get_it/get_it.dart';
 
 class ShareBoxFile extends StatefulWidget {
   final ScrollController scrollController;
-  final Function onClick;
+  final void Function(int, String) onClick;
   final Map<int, bool> selectedFiles;
   final Uid roomUid;
-  final Function resetRoomPageDetails;
+  final void Function() resetRoomPageDetails;
   final int replyMessageId;
 
   const ShareBoxFile(

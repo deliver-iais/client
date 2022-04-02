@@ -11,7 +11,7 @@ import 'package:rxdart/rxdart.dart';
 class DownloadVideoWidget extends StatefulWidget {
   final String uuid;
   final String name;
-  final Function download;
+  final void Function() download;
   final Color background;
   final Color foreground;
 

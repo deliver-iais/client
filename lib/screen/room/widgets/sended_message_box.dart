@@ -12,12 +12,12 @@ import 'package:flutter/material.dart';
 
 class SentMessageBox extends StatelessWidget {
   final Message message;
-  final Function scrollToMessage;
+  final void Function(int) scrollToMessage;
   final bool isSeen;
   final bool isFirstMessageInGroupedMessages;
-  final Function omUsernameClick;
+  final void Function(String) onUsernameClick;
   final String? pattern;
-  final Function onArrowIconClick;
+  final void Function() onArrowIconClick;
   final void Function(TapDownDetails) storePosition;
 
   const SentMessageBox(
@@ -27,7 +27,7 @@ class SentMessageBox extends StatelessWidget {
       required this.isFirstMessageInGroupedMessages,
       required this.scrollToMessage,
       this.pattern,
-      required this.omUsernameClick,
+      required this.onUsernameClick,
       required this.storePosition,
       required this.onArrowIconClick})
       : super(key: key);
@@ -50,10 +50,11 @@ class SentMessageBox extends StatelessWidget {
       minWidth: minWidthOfMessage(context),
       isSender: true,
       scrollToMessage: scrollToMessage,
+      onBotCommandClick: (str) => {},
       isSeen: isSeen,
       pattern: pattern,
       isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
-      onUsernameClick: omUsernameClick,
+      onUsernameClick: onUsernameClick,
       onArrowIconClick: onArrowIconClick,
       colorScheme: colorScheme,
       storePosition: storePosition,

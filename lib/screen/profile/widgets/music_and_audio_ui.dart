@@ -19,7 +19,7 @@ class MusicAndAudioUi extends StatefulWidget {
   final Uid roomUid;
   final int mediaCount;
   final MediaType type;
-  final Function addSelectedMedia;
+  final void Function(Media) addSelectedMedia;
   final List<Media> selectedMedia;
 
   const MusicAndAudioUi(
@@ -50,9 +50,10 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
               future: _getMedia(index),
               builder: (c, snapShot) {
                 if (snapShot.hasData && snapShot.data != null) {
-                  final fileId = jsonDecode(snapShot.data!.json)["uuid"];
-                  final fileName = jsonDecode(snapShot.data!.json)["name"];
-                  final dur = jsonDecode(snapShot.data!.json)["duration"];
+                  final json = jsonDecode(snapShot.data!.json) as Map;
+                  final fileId = json["uuid"];
+                  final fileName = json["name"];
+                  final dur = json["duration"];
                   return GestureDetector(
                     onLongPress: () => widget.addSelectedMedia(snapShot.data!),
                     onTap: () => widget.addSelectedMedia(snapShot.data!),

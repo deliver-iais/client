@@ -15,7 +15,7 @@ import 'package:get_it/get_it.dart';
 class AudioCallScreen extends StatefulWidget {
   final Uid roomUid;
   final String callStatus;
-  final Function hangUp;
+  final void Function() hangUp;
   final bool isIncomingCall;
 
   const AudioCallScreen(

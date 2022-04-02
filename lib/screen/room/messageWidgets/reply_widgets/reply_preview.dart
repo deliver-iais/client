@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 
 class ReplyPreview extends StatelessWidget {
   final Message message;
-  final Function() resetRoomPageDetails;
+  final void Function() resetRoomPageDetails;
 
   const ReplyPreview(
       {Key? key, required this.message, required this.resetRoomPageDetails})

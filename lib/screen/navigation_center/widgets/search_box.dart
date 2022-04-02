@@ -6,8 +6,8 @@ import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SearchBox extends StatefulWidget {
-  final Function(String) onChange;
-  final Function? onCancel;
+  final void Function(String) onChange;
+  final void Function()? onCancel;
   late final TextEditingController controller;
 
   SearchBox(
@@ -80,7 +80,7 @@ class _SearchBoxState extends State<SearchBox> {
                     _hasText.add(false);
                     widget.controller.clear();
                     _focusNode.unfocus();
-                    widget.onCancel!();
+                    widget.onCancel?.call();
                   },
                 );
               } else {

@@ -22,7 +22,7 @@ class IntroSlider extends StatefulWidget {
   final double? widthSkipBtn;
 
   /// Fire when press SKIP button
-  final Function? onSkipPress;
+  final void Function()? onSkipPress;
 
   /// Change SKIP to any text you want
   final String? nameSkipBtn;
@@ -88,7 +88,7 @@ class IntroSlider extends StatefulWidget {
   final double? widthDoneBtn;
 
   /// Fire when press DONE button
-  final Function? onDonePress;
+  final void Function()? onDonePress;
 
   /// Style for text at DONE button
   final TextStyle? styleNameDoneBtn;
@@ -122,7 +122,7 @@ class IntroSlider extends StatefulWidget {
   /// Render your own custom tabs
   final List<Widget>? listCustomTabs;
 
-  final Function? onAnimationChange;
+  final void Function(double)? onAnimationChange;
 
   // Constructor
   const IntroSlider({
@@ -256,7 +256,7 @@ class IntroSliderState extends State<IntroSlider>
   double? widthSkipBtn;
 
   /// Fire when press SKIP button
-  Function? onSkipPress;
+  void Function()? onSkipPress;
 
   /// Change SKIP to any text you want
   String? nameSkipBtn;
@@ -291,7 +291,7 @@ class IntroSliderState extends State<IntroSlider>
   double? widthDoneBtn;
 
   /// Fire when press DONE button
-  Function? onDonePress;
+  void Function()? onDonePress;
 
   /// Change DONE to any text you want
   String? nameDoneBtn;
@@ -329,7 +329,7 @@ class IntroSliderState extends State<IntroSlider>
   /// List custom tabs
   List<Widget>? listCustomTabs;
 
-  Function? onAnimationChange;
+  void Function(double)? onAnimationChange;
 
   // Constructor
   IntroSliderState({
@@ -418,7 +418,7 @@ class IntroSliderState extends State<IntroSlider>
 
     tabController.animation!.addListener(() {
       setState(() {
-        onAnimationChange!.call(tabController.animation!.value);
+        onAnimationChange?.call(tabController.animation!.value);
         if (tabController.animation!.value == currentAnimationValue) {
           return;
         }
@@ -573,7 +573,7 @@ class IntroSliderState extends State<IntroSlider>
     } else {
       return TextButton(
         onPressed: () {
-          onSkipPress!();
+          onSkipPress?.call();
         },
         child: renderSkipBtn!,
       );
@@ -582,7 +582,7 @@ class IntroSliderState extends State<IntroSlider>
 
   Widget buildDoneButton() {
     return TextButton(
-      onPressed: () => onDonePress!(),
+      onPressed: () => onDonePress?.call(),
       child: renderDoneBtn!,
     );
   }

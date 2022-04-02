@@ -32,32 +32,32 @@ class BoxContent extends StatefulWidget {
   final double maxWidth;
   final double minWidth;
   final bool isSender;
-  final Function scrollToMessage;
   final bool isSeen;
-  final Function? onUsernameClick;
-  final String? pattern;
-  final Function? onBotCommandClick;
-  final Function onArrowIconClick;
-  final void Function(TapDownDetails) storePosition;
   final bool isFirstMessageInGroupedMessages;
   final CustomColorScheme colorScheme;
+  final String? pattern;
+  final void Function(TapDownDetails) storePosition;
+  final void Function(String) onUsernameClick;
+  final void Function(String) onBotCommandClick;
+  final void Function(int) scrollToMessage;
+  final void Function() onArrowIconClick;
 
-  const BoxContent(
-      {Key? key,
-      required this.message,
-      required this.maxWidth,
-      required this.minWidth,
-      required this.isSender,
-      required this.isSeen,
-      this.pattern,
-      this.onUsernameClick,
-      this.onBotCommandClick,
-      required this.isFirstMessageInGroupedMessages,
-      required this.scrollToMessage,
-      required this.onArrowIconClick,
-      required this.colorScheme,
-      required this.storePosition})
-      : super(key: key);
+  const BoxContent({
+    Key? key,
+    required this.message,
+    required this.maxWidth,
+    required this.minWidth,
+    required this.isSender,
+    required this.isSeen,
+    required this.onBotCommandClick,
+    required this.isFirstMessageInGroupedMessages,
+    required this.scrollToMessage,
+    required this.onArrowIconClick,
+    required this.colorScheme,
+    required this.storePosition,
+    required this.onUsernameClick,
+    this.pattern,
+  }) : super(key: key);
 
   Type getState() {
     return _BoxContentState;
@@ -208,7 +208,6 @@ class _BoxContentState extends State<BoxContent> {
           colorScheme: widget.colorScheme,
           searchTerm: widget.pattern,
           onUsernameClick: widget.onUsernameClick,
-          isBotMessage: widget.message.from.asUid().category == Categories.BOT,
           onBotCommandClick: widget.onBotCommandClick,
         );
       case MessageType.FILE:
@@ -216,6 +215,7 @@ class _BoxContentState extends State<BoxContent> {
           message: widget.message,
           maxWidth: widget.maxWidth,
           minWidth: widget.minWidth,
+          onUsernameClick: widget.onUsernameClick,
           colorScheme: widget.colorScheme,
           isSender: widget.isSender,
           isSeen: widget.isSeen,

@@ -11,21 +11,21 @@ import 'package:rxdart/rxdart.dart';
 class LoadFileStatus extends StatefulWidget {
   final String fileId;
   final String fileName;
-  final String? messagePacketId; // TODO Needs to be refactored
-  final Function onPressed;
   final Color background;
   final bool isPendingMessage;
   final Color foreground;
+  final String? messagePacketId; // TODO Needs to be refactored
+  final void Function() onPressed;
 
   const LoadFileStatus({
     Key? key,
     required this.fileId,
     required this.fileName,
-    this.messagePacketId,
     required this.onPressed,
     required this.background,
     required this.isPendingMessage,
     required this.foreground,
+    this.messagePacketId,
   }) : super(key: key);
 
   @override
@@ -36,7 +36,6 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _fileService = GetIt.I.get<FileService>();
   final BehaviorSubject<bool> _starDownload = BehaviorSubject.seeded(false);
-
 
   @override
   void initState() {
@@ -53,7 +52,6 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
             BoxDecoration(shape: BoxShape.circle, color: widget.background),
         child: widget.isPendingMessage ? buildUpload() : buildDownload());
   }
-
 
   Widget buildUpload() {
     return StreamBuilder<double?>(

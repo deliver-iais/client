@@ -23,8 +23,8 @@ import 'package:rxdart/rxdart.dart';
 class ShareBox extends StatefulWidget {
   final Uid currentRoomId;
   final int replyMessageId;
-  final Function resetRoomPageDetails;
-  final Function scrollToLastSentMessage;
+  final void Function() resetRoomPageDetails;
+  final void Function() scrollToLastSentMessage;
 
   const ShareBox(
       {Key? key,
@@ -156,7 +156,6 @@ class _ShareBoxState extends State<ShareBox> {
                                       ? ShareBoxGallery(
                                           replyMessageId: widget.replyMessageId,
                                           scrollController: scrollController,
-                                          selectAvatar: false,
                                           pop: () {
                                             Navigator.pop(context);
                                           },
@@ -478,7 +477,7 @@ class _ShareBoxState extends State<ShareBox> {
         });
   }
 
-  SettingsTile settingsTile(String data, String t, Function on) {
+  SettingsTile settingsTile(String data, String t, void Function() on) {
     return SettingsTile(
       title: t,
       leading: const Icon(
@@ -502,7 +501,7 @@ Future<void> showCaptionDialog(
     {String? type,
     List<model.File>? files,
     required Uid roomUid,
-    Function? resetRoomPageDetails,
+    void Function()? resetRoomPageDetails,
     int replyMessageId = 0,
     Message? editableMessage,
     String? caption,

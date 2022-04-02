@@ -17,20 +17,18 @@ import 'helper_classes.dart';
 
 class ShareBoxGallery extends StatefulWidget {
   final ScrollController scrollController;
-  final Function? setAvatar;
-  final bool selectAvatar;
   final Uid roomUid;
-  final Function pop;
   final int replyMessageId;
-  final Function? resetRoomPageDetails;
+  final void Function() pop;
+  final void Function(String)? setAvatar;
+  final void Function()? resetRoomPageDetails;
 
   const ShareBoxGallery(
       {Key? key,
-      required this.selectAvatar,
       required this.scrollController,
-      this.setAvatar,
       required this.pop,
       required this.roomUid,
+      this.setAvatar,
       this.replyMessageId = 0,
       this.resetRoomPageDetails})
       : super(key: key);
@@ -143,12 +141,11 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                 folder!,
                                 widget.roomUid,
                                 () {
-                                  if (!widget.selectAvatar) {
+                                  if (widget.setAvatar == null) {
                                     widget.pop();
                                   }
                                   Navigator.pop(context);
                                 },
-                                selectAvatar: widget.selectAvatar,
                                 setAvatar: widget.setAvatar,
                                 replyMessageId: widget.replyMessageId,
                                 resetRoomPageDetails:
@@ -203,7 +200,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
     );
   }
 
-  void openCamera(Function pop) {
+  void openCamera(void Function() pop) {
     Navigator.push(context, MaterialPageRoute(builder: (c) {
       return Scaffold(
           body: Stack(
@@ -222,7 +219,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
               child: IconButton(
                 onPressed: () async {
                   final file = await _controller.takePicture();
-                  if (widget.selectAvatar) {
+                  if (widget.setAvatar != null) {
                     widget.pop();
                     Navigator.pop(context);
                     widget.setAvatar!(file.path);
@@ -264,7 +261,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
     }));
   }
 
-  void openImage(XFile file, Function pop) {
+  void openImage(XFile file, void Function() pop) {
     var imagePath = file.path;
     Navigator.push(context, MaterialPageRoute(builder: (c) {
       return StatefulBuilder(builder: (con, set) {
@@ -277,11 +274,9 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                       onPressed: () async {
                         Navigator.push(context, MaterialPageRoute(builder: (c) {
                           return CropImage(imagePath, (path) {
-                            if (path != null) {
-                              set(() {
-                                imagePath = path;
-                              });
-                            }
+                            set(() {
+                              imagePath = path;
+                            });
                           });
                         }));
                       },
@@ -334,7 +329,7 @@ Stack buildInputCaption(
     required I18N i18n,
     required TextEditingController captionEditingController,
     required BuildContext context,
-    required Function send,
+    required void Function() send,
     required int count}) {
   final theme = Theme.of(context);
   return Stack(

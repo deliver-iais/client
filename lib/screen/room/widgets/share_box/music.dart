@@ -8,9 +8,9 @@ import 'helper_classes.dart';
 
 class ShareBoxMusic extends StatefulWidget {
   final ScrollController scrollController;
-  final Function onClick;
+  final void Function(int, String) onClick;
   final Map<int, bool> selectedAudio;
-  final Function playMusic;
+  final void Function(int, String) playMusic;
   final Map<int, IconData> icons;
 
   const ShareBoxMusic(

@@ -110,15 +110,13 @@ class _AllVideoPageState extends State<AllVideoPage> {
                       return FutureBuilder<Media?>(
                         future: _getMedia(index),
                         builder: (c, mediaSnapShot) {
-                          if (mediaSnapShot.hasData &&
-                              mediaSnapShot.data != null) {
+                          if (mediaSnapShot.hasData) {
+                            final json =
+                                jsonDecode(mediaSnapShot.data!.json) as Map;
                             return FutureBuilder<String?>(
                                 initialData: _fileCache.get(index),
                                 future: _fileRepo.getFile(
-                                    jsonDecode(
-                                        mediaSnapShot.data!.json)["uuid"],
-                                    jsonDecode(
-                                        mediaSnapShot.data!.json)["name"]),
+                                    json['uuid'], json['name']),
                                 builder: (c, filePath) {
                                   if (filePath.hasData &&
                                       filePath.data != null) {
@@ -179,11 +177,10 @@ class _AllVideoPageState extends State<AllVideoPage> {
                   return FutureBuilder<Media?>(
                       future: _getMedia(index.data!),
                       builder: (c, mediaSnapShot) {
-                        if (mediaSnapShot.hasData &&
-                            mediaSnapShot.data != null) {
-                          if ((jsonDecode(mediaSnapShot.data!.json)["caption"])
-                              .toString()
-                              .isNotEmpty) {
+                        if (mediaSnapShot.hasData) {
+                          final json =
+                              jsonDecode(mediaSnapShot.data!.json) as Map;
+                          if (json['caption'].toString().isNotEmpty) {
                             return Align(
                                 alignment: Alignment.bottomCenter,
                                 child: Padding(
@@ -194,8 +191,7 @@ class _AllVideoPageState extends State<AllVideoPage> {
                                         color: theme.hoverColor.withAlpha(100),
                                         borderRadius: BorderRadius.circular(5)),
                                     child: Text(
-                                      jsonDecode(
-                                          mediaSnapShot.data!.json)["caption"],
+                                      json['caption'],
                                       style: theme.textTheme.bodyText2!
                                           .copyWith(
                                               height: 1, color: Colors.white),

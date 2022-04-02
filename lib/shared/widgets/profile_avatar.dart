@@ -158,7 +158,6 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                           setAvatar: (imagePath) async {
                             cropAvatar(imagePath);
                           },
-                          selectAvatar: true,
                           roomUid: widget.roomUid,
                         ),
                       ),
@@ -172,9 +171,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   Future<void> cropAvatar(String imagePath) async {
     Navigator.push(context, MaterialPageRoute(builder: (c) {
       return CropImage(imagePath, (path) {
-        if (path != null) {
-          imagePath = path;
-        }
+        imagePath = path;
         _setAvatar(imagePath);
       });
     }));

@@ -46,11 +46,11 @@ import 'package:vibration/vibration.dart';
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
   final int replyMessageId;
-  final Function? resetRoomPageDetails;
+  final void Function()? resetRoomPageDetails;
   final bool waitingForForward;
-  final Function? sendForwardMessage;
-  final Function? showMentionList;
-  final Function scrollToLastSentMessage;
+  final void Function()? sendForwardMessage;
+  final void Function()? showMentionList;
+  final void Function() scrollToLastSentMessage;
   final Message? editableMessage;
   final FocusNode focusNode;
   final TextEditingController textController;
@@ -757,7 +757,7 @@ class _InputMessageWidget extends State<InputMessage> {
       noActivitySubject.add(ActivityType.NO_ACTIVITY);
     }
     if (widget.waitingForForward == true) {
-      widget.sendForwardMessage!()!;
+      widget.sendForwardMessage?.call();
     }
 
     final text = widget.textController.text.trim();

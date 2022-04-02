@@ -18,7 +18,7 @@ import 'package:open_file/open_file.dart';
 class VideoTabUi extends StatefulWidget {
   final Uid roomUid;
   final int videoCount;
-  final Function addSelectedMedia;
+  final void Function(Media) addSelectedMedia;
   final List<Media> selectedMedia;
 
   const VideoTabUi(
@@ -89,8 +89,9 @@ class _VideoTabUiState extends State<VideoTabUi> {
   }
 
   Container buildMediaWidget(Media media, int index, ThemeData theme) {
-    final duration =
-        double.parse(jsonDecode(media.json)["duration"].toString());
+    final json = jsonDecode(media.json) as Map;
+
+    final duration = double.parse(json["duration"].toString());
     final dur = Duration(seconds: duration.ceil());
     return Container(
       decoration: BoxDecoration(
@@ -101,8 +102,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
       child: Stack(
         children: [
           FutureBuilder<String?>(
-              future: _fileRepo.getFileIfExist(jsonDecode(media.json)["uuid"],
-                  jsonDecode(media.json)["name"]),
+              future: _fileRepo.getFileIfExist(json["uuid"], json["name"]),
               builder: (context, snapshot) {
                 if (snapshot.hasData && snapshot.data != null) {
                   return GestureDetector(
@@ -132,7 +132,7 @@ class _VideoTabUiState extends State<VideoTabUi> {
                     ),
                   );
                 } else {
-                  _fileServices.initProgressBar(jsonDecode(media.json)["uuid"]);
+                  _fileServices.initProgressBar(json["uuid"]);
                   return downloadVideo(media, theme);
                 }
               }),
@@ -160,12 +160,12 @@ class _VideoTabUiState extends State<VideoTabUi> {
   }
 
   Widget downloadVideo(Media media, ThemeData theme) {
+    final json = jsonDecode(media.json) as Map;
     return DownloadVideoWidget(
-      name: jsonDecode(media.json)["name"],
-      uuid: jsonDecode(media.json)["uuid"],
+      name: json["name"],
+      uuid: json["uuid"],
       download: () async {
-        await _fileRepo.getFile(
-            jsonDecode(media.json)["uuid"], jsonDecode(media.json)["name"]);
+        await _fileRepo.getFile(json["uuid"], json["name"]);
         setState(() {});
       },
       background: theme.colorScheme.onPrimary,

@@ -57,10 +57,12 @@ class _LinkTabUiState extends State<LinkTabUi> {
                 return FutureBuilder<Media?>(
                     future: _getMedia(index),
                     builder: (c, mediaSnapShot) {
-                      if (mediaSnapShot.hasData && mediaSnapShot.data != null) {
+                      if (mediaSnapShot.hasData) {
+                        final json =
+                            jsonDecode(mediaSnapShot.data!.json) as Map;
                         return SizedBox(
                           child: LinkPreview(
-                            link: jsonDecode(mediaSnapShot.data!.json)["url"],
+                            link: json["url"],
                             maxWidth: 100,
                             isProfile: true,
                           ),

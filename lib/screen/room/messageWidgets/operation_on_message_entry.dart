@@ -265,7 +265,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
 }
 
 void showDeleteMsgDialog(
-    List<Message> messages, BuildContext context, Function? onDelete) {
+    List<Message> messages, BuildContext context, void Function() onDelete) {
   final _i18n = GetIt.I.get<I18N>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
   showDialog(
@@ -282,7 +282,7 @@ void showDeleteMsgDialog(
               TextButton(
                   child: Text(_i18n.get("cancel")),
                   onPressed: () {
-                    onDelete!();
+                    onDelete();
                     Navigator.pop(c);
                   }),
               TextButton(
@@ -292,7 +292,7 @@ void showDeleteMsgDialog(
                 onPressed: () {
                   _messageRepo.deleteMessage(messages);
 
-                  onDelete!();
+                  onDelete();
                   Navigator.pop(c);
                 },
               ),

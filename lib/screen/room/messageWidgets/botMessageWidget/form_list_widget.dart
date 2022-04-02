@@ -7,8 +7,8 @@ import 'package:get_it/get_it.dart';
 
 class FormListWidget extends StatelessWidget {
   final form_pb.Form_Field formField;
-  final Function selected;
-  final Function setFormKey;
+  final void Function(String?) selected;
+  final void Function(GlobalKey<FormState>) setFormKey;
   final _i18n = GetIt.I.get<I18N>();
   final _formKey = GlobalKey<FormState>();
 

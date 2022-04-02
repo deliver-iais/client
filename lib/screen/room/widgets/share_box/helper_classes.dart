@@ -19,7 +19,7 @@ class StorageFile {
 }
 
 List<StorageFile> _storageFiles(String json) {
-  return jsonDecode(json)
+  return (jsonDecode(json) as List)
       .map<StorageFile>((json) => StorageFile.fromJson(json))
       .toList();
 }

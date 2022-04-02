@@ -26,14 +26,14 @@ class PersistentEventMessage extends StatelessWidget {
   final _i18n = GetIt.I.get<I18N>();
   final _routingServices = GetIt.I.get<RoutingService>();
   final _messageDao = GetIt.I.get<MessageDao>();
-  final Function? onPinMessageClick;
+  final void Function(int) onPinMessageClick;
   final PersistentEvent persistentEventMessage;
   final double maxWidth;
 
   PersistentEventMessage(
       {Key? key,
       required this.message,
-      this.onPinMessageClick,
+      required this.onPinMessageClick,
       required this.maxWidth})
       : persistentEventMessage = message.json.toPersistentEvent(),
         super(key: key);
@@ -209,7 +209,7 @@ class PersistentEventMessage extends StatelessWidget {
                 style: const TextStyle(
                     fontSize: 14, fontWeight: FontWeight.bold, height: 1),
               ),
-              onTap: () => onPinMessageClick!(persistentEventMessage
+              onTap: () => onPinMessageClick(persistentEventMessage
                   .mucSpecificPersistentEvent.messageId
                   .toInt()),
             ),

@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class EmojiKeyboard extends StatefulWidget {
-  final Function onTap;
+  final void Function(String) onTap;
   final Function? onStickerTap;
 
   const EmojiKeyboard({Key? key, required this.onTap, this.onStickerTap})
@@ -16,7 +16,6 @@ class EmojiKeyboard extends StatefulWidget {
 
 class _EmojiKeyboard extends State<EmojiKeyboard> {
   List<Emoji> emojis = [];
-  late Function onTap;
 
   int selectedGroupIndex = 1;
 
@@ -25,7 +24,6 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
   @override
   void initState() {
     emojis = Emoji.byGroup(EmojiGroup.smileysEmotion).toList();
-    onTap = widget.onTap;
     super.initState();
   }
 
@@ -228,7 +226,7 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                         return GestureDetector(
                           behavior: HitTestBehavior.translucent,
                           onTap: () {
-                            onTap(emoji.toString());
+                            widget.onTap(emoji.toString());
                           },
                           child: Center(
                             child: Text(

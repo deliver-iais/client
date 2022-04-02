@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class CheckBoxFormField extends StatefulWidget {
   final form_pb.Form_Field formField;
-  final Function selected;
+  final void Function(String) selected;
 
   const CheckBoxFormField(
       {Key? key, required this.formField, required this.selected})

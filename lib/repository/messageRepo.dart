@@ -780,7 +780,7 @@ class MessageRepo {
 
   void sendForwardedMediaMessage(Uid roomUid, List<Media> forwardedMedias) {
     for (final media in forwardedMedias) {
-      final json = jsonDecode(media.json);
+      final json = jsonDecode(media.json) as Map;
       final file = file_pb.File()
         ..type = json["type"]
         ..name = json["name"]

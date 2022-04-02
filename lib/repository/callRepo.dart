@@ -879,7 +879,7 @@ class CallRepo {
   }
 
   Future<void> _setCallCandidate(String candidatesJson) async {
-    final candidates = (jsonDecode(candidatesJson) as List)
+    final candidates = (jsonDecode(candidatesJson) as List<Map>)
         .map((data) => RTCIceCandidate(
             data['candidate'], data['sdpMid'], data['sdpMlineIndex']))
         .toList();

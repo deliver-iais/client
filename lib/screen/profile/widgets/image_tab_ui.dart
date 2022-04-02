@@ -18,7 +18,7 @@ import 'package:get_it/get_it.dart';
 class ImageTabUi extends StatefulWidget {
   final int imagesCount;
   final Uid roomUid;
-  final Function addSelectedMedia;
+  final void Function(Media) addSelectedMedia;
   final List<Media> selectedMedia;
 
   const ImageTabUi(this.imagesCount, this.roomUid,
@@ -67,7 +67,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
                 return FutureBuilder<Media?>(
                   future: _getMedia(index),
                   builder: (c, mediaSnapShot) {
-                    if (mediaSnapShot.hasData && mediaSnapShot.data != null) {
+                    if (mediaSnapShot.hasData) {
                       return buildMediaWidget(mediaSnapShot.data!, index);
                     } else {
                       return const SizedBox.shrink();
@@ -79,6 +79,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
   }
 
   Container buildMediaWidget(Media media, int index) {
+    final json = jsonDecode(media.json) as Map;
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
@@ -94,13 +95,11 @@ class _ImageTabUiState extends State<ImageTabUi> {
                   initIndex: index),
               onLongPress: () => _addSelectedMedia(media),
               child: FutureBuilder<String?>(
-                  future: _fileRepo.getFileIfExist(
-                      jsonDecode(media.json)["uuid"],
-                      jsonDecode(media.json)["name"]),
+                  future: _fileRepo.getFileIfExist(json["uuid"], json["name"]),
                   builder: (c, filePath) {
                     if (filePath.hasData && filePath.data != null) {
                       return Hero(
-                        tag: jsonDecode(media.json)["uuid"],
+                        tag: json["uuid"],
                         child: Container(
                             decoration: BoxDecoration(
                           image: DecorationImage(
@@ -115,9 +114,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
                         transitionOnUserGestures: true,
                       );
                     } else {
-                      return SizedBox(
-                          child: BlurHash(
-                              hash: jsonDecode(media.json)["blurHash"]));
+                      return SizedBox(child: BlurHash(hash: json["blurHash"]));
                     }
                   })),
           if (widget.selectedMedia.isNotEmpty)

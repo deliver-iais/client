@@ -29,7 +29,7 @@ class FileRepo {
   }
 
   Future<file_pb.File?> uploadClonedFile(String uploadKey, String name,
-      {Function? sendActivity}) async {
+      {void Function(int)? sendActivity}) async {
     final clonedFilePath = await _fileDao.get(uploadKey, "real");
     if (uploadFileStatusCode[uploadKey] == null) {
       final d = BehaviorSubject<int>.seeded(0);
@@ -46,7 +46,7 @@ class FileRepo {
       _logger.e(e);
     }
     if (value != null) {
-      final json = jsonDecode(value.toString());
+      final json = jsonDecode(value.toString()) as Map;
       uploadFileStatusCode[uploadKey]!.add(value.statusCode);
       try {
         var uploadedFile = file_pb.File();

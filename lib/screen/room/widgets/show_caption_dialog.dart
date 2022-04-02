@@ -25,7 +25,7 @@ class ShowCaptionDialog extends StatefulWidget {
   final Message? editableMessage;
   final bool showSelectedImage;
   final int replyMessageId;
-  final Function? resetRoomPageDetails;
+  final void Function()? resetRoomPageDetails;
   final String? caption;
 
   const ShowCaptionDialog(

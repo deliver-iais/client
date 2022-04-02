@@ -6,6 +6,7 @@ import 'package:deliver/screen/room/messageWidgets/link_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:deliver/theme/color_scheme.dart';
@@ -21,24 +22,26 @@ class TextUI extends StatelessWidget {
   final bool isSender;
   final bool isSeen;
   final String? searchTerm;
-  final Function? onUsernameClick;
+  final void Function(String) onUsernameClick;
+  final void Function(String) onBotCommandClick;
   final bool isBotMessage;
-  final Function? onBotCommandClick;
+  final bool isGroupMessage;
   final CustomColorScheme colorScheme;
 
-  const TextUI(
-      {Key? key,
-      required this.message,
-      required this.maxWidth,
-      this.minWidth = 0,
-      this.isSender = false,
-      this.isSeen = false,
-      this.searchTerm,
-      this.onUsernameClick,
-      this.isBotMessage = false,
-      required this.colorScheme,
-      this.onBotCommandClick})
-      : super(key: key);
+  TextUI({
+    Key? key,
+    required this.message,
+    required this.maxWidth,
+    required this.colorScheme,
+    required this.onBotCommandClick,
+    required this.onUsernameClick,
+    this.minWidth = 0,
+    this.isSender = false,
+    this.isSeen = false,
+    this.searchTerm,
+  })  : isBotMessage = message.roomUid.asUid().isBot(),
+        isGroupMessage = message.roomUid.asUid().isGroup(),
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -117,8 +120,8 @@ class TextUI extends StatelessWidget {
       if (searchTerm != null && searchTerm!.isNotEmpty)
         SearchTermParser(searchTerm!),
       UrlParser(),
-      if (onUsernameClick != null) IdParser(onUsernameClick!),
-      if (isBotMessage) BotCommandParser(onBotCommandClick!),
+      if (isGroupMessage) IdParser(onUsernameClick),
+      if (isBotMessage) BotCommandParser(onBotCommandClick),
       BoldTextParser(),
       ItalicTextParser()
     ];
@@ -142,9 +145,9 @@ class UrlParser implements Parser {
   @override
   List<Block> parse(List<Block> blocks, BuildContext context) =>
       parseBlocks(blocks, regex, "url", onTap: (uri) async {
-        if (uri.toString().contains("$APPLICATION_DOMAIN/$JOIN") ||
-            uri.toString().contains("$APPLICATION_DOMAIN/$SPDA") ||
-            uri.toString().contains("$APPLICATION_DOMAIN/$TEXT")) {
+        if (uri.contains("$APPLICATION_DOMAIN/$JOIN") ||
+            uri.contains("$APPLICATION_DOMAIN/$SPDA") ||
+            uri.contains("$APPLICATION_DOMAIN/$TEXT")) {
           handleJoinUri(context, uri);
         } else {
           await launch(uri);
@@ -153,7 +156,7 @@ class UrlParser implements Parser {
 }
 
 class IdParser implements Parser {
-  final Function onUsernameClick;
+  final void Function(String) onUsernameClick;
   final RegExp regex = RegExp(r"[@][a-zA-Z]([a-zA-Z0-9_]){4,19}");
 
   IdParser(this.onUsernameClick);
@@ -209,7 +212,7 @@ class EmojiParser implements Parser {
 }
 
 class BotCommandParser implements Parser {
-  final Function onBotCommandClick;
+  final void Function(String) onBotCommandClick;
   final RegExp regex = RegExp(r"[/]([a-zA-Z0-9_-]){5,40}");
 
   BotCommandParser(this.onBotCommandClick);
@@ -235,7 +238,7 @@ class SearchTermParser implements Parser {
 class Block {
   final String text;
   final bool locked;
-  final Function? onTap;
+  final void Function(String)? onTap;
   final TextStyle? style;
   final String? type;
 
@@ -248,7 +251,7 @@ class Block {
 }
 
 List<Block> parseBlocks(List<Block> blocks, RegExp regex, String type,
-        {Function? onTap,
+        {void Function(String)? onTap,
         TextStyle? style,
         String Function(String) transformer = same}) =>
     flatten(blocks.map<Iterable<Block>>((b) {
@@ -260,8 +263,8 @@ List<Block> parseBlocks(List<Block> blocks, RegExp regex, String type,
       }
     })).toList();
 
-List<Block> parseText(
-    String text, RegExp regex, Function? onTap, TextStyle style, String type,
+List<Block> parseText(String text, RegExp regex, void Function(String)? onTap,
+    TextStyle style, String type,
     {String Function(String) transformer = same}) {
   var start = 0;
 

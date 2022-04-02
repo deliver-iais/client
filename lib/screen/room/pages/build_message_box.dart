@@ -56,7 +56,7 @@ class BuildMessageBox extends StatefulWidget {
   final BehaviorSubject<bool> hasPermissionInChannel;
   final BehaviorSubject<bool> selectMultiMessageSubject;
   final void Function(int) changeReplyMessageId;
-  final Function resetRoomPageDetails;
+  final void Function() resetRoomPageDetails;
 
   const BuildMessageBox(
       {Key? key,
@@ -271,7 +271,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           _scrollToMessage(id: id);
         },
         isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
-        omUsernameClick: onUsernameClick,
+        onUsernameClick: onUsernameClick,
         storePosition: storePosition);
 
     return Row(

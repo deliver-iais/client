@@ -101,7 +101,6 @@ class _AccountSettingsState extends State<AccountSettings> {
                           setAvatar: (filePath) async {
                             cropAvatar(filePath);
                           },
-                          selectAvatar: true,
                           roomUid: _authRepo.currentUserUid,
                         ),
                       ),
@@ -115,9 +114,7 @@ class _AccountSettingsState extends State<AccountSettings> {
   Future<void> cropAvatar(String imagePath) async {
     Navigator.push(context, MaterialPageRoute(builder: (c) {
       return CropImage(imagePath, (path) {
-        if (path != null) {
-          imagePath = path;
-        }
+        imagePath = path;
         setAvatar(imagePath);
       });
     }));

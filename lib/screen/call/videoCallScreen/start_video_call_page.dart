@@ -12,7 +12,7 @@ class StartVideoCallPage extends StatefulWidget {
   final RTCVideoRenderer localRenderer;
   final String text;
   final RTCVideoRenderer remoteRenderer;
-  final Function hangUp;
+  final void Function() hangUp;
   final bool isIncomingCall;
 
   const StartVideoCallPage(

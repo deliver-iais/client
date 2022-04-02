@@ -8,8 +8,8 @@ import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 
 class FormInputTextFieldWidget extends StatefulWidget {
   final form_pb.Form_Field formField;
-  final Function setResult;
-  final Function setFormKey;
+  final void Function(String) setResult;
+  final void Function(GlobalKey<FormState>) setFormKey;
 
   const FormInputTextFieldWidget(
       {Key? key,

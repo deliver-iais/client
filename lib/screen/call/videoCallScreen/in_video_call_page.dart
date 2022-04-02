@@ -11,7 +11,7 @@ import '../call_bottom_icons.dart';
 class InVideoCallPage extends StatefulWidget {
   final RTCVideoRenderer localRenderer;
   final RTCVideoRenderer remoteRenderer;
-  final Function hangUp;
+  final void Function() hangUp;
   final Uid roomUid;
 
   const InVideoCallPage(

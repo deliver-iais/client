@@ -5,7 +5,7 @@ import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
 
 class CallBottomRow extends StatefulWidget {
-  final Function hangUp;
+  final void Function() hangUp;
   final bool isIncomingCall;
 
   const CallBottomRow(

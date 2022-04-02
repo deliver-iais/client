@@ -22,6 +22,10 @@ linter:
   # `// ignore_for_file: name_of_lint` syntax on the line or in the file
   # producing the lint.
   rules:
+    avoid_dynamic_calls: true
+    avoid_empty_else: true
+    avoid_print: true
+    avoid_returning_null_for_future: true
     avoid_slow_async_io: true
     avoid_type_to_string: true
     avoid_types_as_parameter_names: true
@@ -136,7 +140,6 @@ linter:
     use_rethrow_when_possible: true
     void_checks: true
     lowercase_with_underscores: true
-    avoid_print: false  # Uncomment to disable the `avoid_print` rule
     secure_pubspec_urls: true
     sort_pub_dependencies: true
     #TODO

@@ -15,7 +15,7 @@ class FileMessageUi extends StatefulWidget {
   final double maxWidth;
   final double minWidth;
   final bool isSender;
-  final Function? onUsernameClick;
+  final void Function(String) onUsernameClick;
   final bool isSeen;
   final CustomColorScheme colorScheme;
 
@@ -25,7 +25,7 @@ class FileMessageUi extends StatefulWidget {
       required this.maxWidth,
       required this.minWidth,
       required this.isSender,
-      this.onUsernameClick,
+      required this.onUsernameClick,
       required this.colorScheme,
       required this.isSeen})
       : super(key: key);
@@ -57,13 +57,13 @@ class _FileMessageUiState extends State<FileMessageUi> {
             child: Padding(
                 padding: const EdgeInsets.only(top: 4),
                 child: TextUI(
-                  message: widget.message,
-                  maxWidth: widget.maxWidth,
-                  isSender: widget.isSender,
-                  isSeen: widget.isSeen,
-                  colorScheme: widget.colorScheme,
-                  onUsernameClick: widget.onUsernameClick,
-                )),
+                    message: widget.message,
+                    maxWidth: widget.maxWidth,
+                    isSender: widget.isSender,
+                    isSeen: widget.isSeen,
+                    colorScheme: widget.colorScheme,
+                    onUsernameClick: widget.onUsernameClick,
+                    onBotCommandClick: (str) => {})),
           )
       ],
     );

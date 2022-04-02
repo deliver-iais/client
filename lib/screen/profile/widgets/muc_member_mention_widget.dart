@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 class MucMemberMentionWidget extends StatelessWidget {
   final UidIdName member;
-  final Function onSelected;
+  final void Function(String) onSelected;
 
   const MucMemberMentionWidget(this.member, this.onSelected, {Key? key})
       : super(key: key);

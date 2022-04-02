@@ -17,7 +17,7 @@ class DocumentAndFileUi extends StatefulWidget {
   final Uid roomUid;
   final int documentCount;
   final MediaType type;
-  final Function addSelectedMedia;
+  final void Function(Media) addSelectedMedia;
   final List<Media> selectedMedia;
 
   const DocumentAndFileUi(
@@ -38,7 +38,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _mediaCache = <int, Media>{};
 
-  Future<Media?> _getMedia(int index) async {
+  Future<Media> _getMedia(int index) async {
     if (_mediaCache.values.toList().isNotEmpty &&
         _mediaCache.values.toList().length >= index) {
       return _mediaCache.values.toList().elementAt(index);
@@ -61,22 +61,22 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
     return ListView.builder(
         itemCount: widget.documentCount,
         itemBuilder: (c, index) {
-          return FutureBuilder<Media?>(
+          return FutureBuilder<Media>(
               future: _getMedia(index),
               builder: (c, mediaSnapshot) {
-                if (mediaSnapshot.hasData && mediaSnapshot.data != null) {
+                if (mediaSnapshot.hasData) {
+                  final json = jsonDecode(mediaSnapshot.data!.json) as Map;
                   return GestureDetector(
                       onLongPress: () =>
                           widget.addSelectedMedia(mediaSnapshot.data!),
-                      onTap: () => widget.addSelectedMedia(mediaSnapshot.data),
+                      onTap: () => widget.addSelectedMedia(mediaSnapshot.data!),
                       child: Container(
                         color: widget.selectedMedia.contains(mediaSnapshot.data)
                             ? theme.hoverColor.withOpacity(0.4)
                             : theme.backgroundColor,
                         child: FutureBuilder<String?>(
                             future: _fileRepo.getFileIfExist(
-                                jsonDecode(mediaSnapshot.data!.json)["uuid"],
-                                jsonDecode(mediaSnapshot.data!.json)["name"]),
+                                json["uuid"], json["name"]),
                             builder: (context, filePath) {
                               if (filePath.hasData && filePath.data != null) {
                                 return Column(
@@ -121,9 +121,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                                   padding:
                                                       const EdgeInsets.only(
                                                           left: 15.0, top: 3),
-                                                  child: Text(
-                                                      jsonDecode(mediaSnapshot
-                                                          .data!.json)["name"],
+                                                  child: Text(json["name"],
                                                       style: const TextStyle(
                                                           fontSize: 14,
                                                           fontWeight:
@@ -146,17 +144,12 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                     ListTile(
                                       title: Row(children: <Widget>[
                                         LoadFileStatus(
-                                          fileId: jsonDecode(
-                                              mediaSnapshot.data!.json)["uuid"],
-                                          fileName: jsonDecode(
-                                              mediaSnapshot.data!.json)["name"],
+                                          fileId: json["uuid"],
+                                          fileName: json["name"],
                                           isPendingMessage: false,
                                           onPressed: () async {
                                             await _fileRepo.getFile(
-                                                jsonDecode(mediaSnapshot
-                                                    .data!.json)["uuid"],
-                                                jsonDecode(mediaSnapshot
-                                                    .data!.json)["name"]);
+                                                json["uuid"], json["name"]);
                                             setState(() {});
                                           },
                                           background: theme.colorScheme.primary,
@@ -169,9 +162,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                               Padding(
                                                 padding: const EdgeInsets.only(
                                                     left: 15.0, top: 3),
-                                                child: Text(
-                                                    jsonDecode(mediaSnapshot
-                                                        .data!.json)["name"],
+                                                child: Text(json["name"],
                                                     style: const TextStyle(
                                                         fontSize: 14,
                                                         fontWeight:

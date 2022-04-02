@@ -7,7 +7,7 @@ import 'package:get_it/get_it.dart';
 class BotCommands extends StatefulWidget {
   final Uid botUid;
   final String? query;
-  final Function onCommandClick;
+  final void Function(String) onCommandClick;
   final int botCommandSelectedIndex;
 
   const BotCommands(
