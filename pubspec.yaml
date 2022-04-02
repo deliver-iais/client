@@ -130,6 +130,7 @@ dependencies:
   url_launcher: 6.0.20
   vibration: 1.7.4-nullsafety.0
   video_player: 2.3.0
+  screenshot: ^1.2.3
   win_toast:
     git:
       path: packages/win_toast
@@ -141,7 +142,6 @@ dependencies:
       ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
       url: https://github.com/google/flutter-desktop-embedding.git
 
- screenshot: ^1.2.3
 
 dev_dependencies:
   build_runner: 2.1.8
