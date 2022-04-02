@@ -58,7 +58,7 @@ class _ShareInputFileState extends State<ShareInputFile> {
                           snapshot.data!.isNotEmpty) {
                         return ListView.builder(
                           itemCount: snapshot.data!.length,
-                          itemBuilder: (BuildContext ctx, int index) {
+                          itemBuilder: (ctx, index) {
                             return ChatItemToShareFile(
                               uid: snapshot.data![index],
                               sharedFilePath: widget.inputSharedFilePath,

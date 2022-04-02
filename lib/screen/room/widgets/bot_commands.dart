@@ -88,7 +88,7 @@ class _BotCommandsState extends State<BotCommands> {
                   ),
                 );
               },
-              separatorBuilder: (BuildContext context, int index) =>
+              separatorBuilder: (context, index) =>
                   const Divider(),
             )),
           );

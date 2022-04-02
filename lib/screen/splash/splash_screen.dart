@@ -139,7 +139,7 @@ class _SplashScreenState extends State<SplashScreen>
                   autocorrect: false,
                   controller: _textEditingController,
                   focusNode: _focusNode,
-                  onChanged: (String pass) =>
+                  onChanged: (pass) =>
                       {if (pass.isEmpty || pass.length == 1) setState(() {})},
                   onSubmitted: (pass) {
                     checkPassword(pass);

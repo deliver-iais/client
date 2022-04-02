@@ -158,7 +158,7 @@ class _BoxContentState extends State<BoxContent> {
       ),
       child: FutureBuilder<String>(
         future: _roomRepo.getName(widget.message.forwardedFrom!.asUid()),
-        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+        builder: (context, snapshot) {
           return MouseRegion(
             cursor: SystemMouseCursors.click,
             child: GestureDetector(

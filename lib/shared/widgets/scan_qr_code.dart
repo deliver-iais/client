@@ -81,8 +81,7 @@ class _ScanQrCode extends State<ScanQrCode> {
     return QRView(
       key: qrKey,
       overlayMargin: const EdgeInsets.all(24.0).copyWith(bottom: 100),
-      onQRViewCreated: (QRViewController controller) =>
-          _onQRViewCreated(controller, context),
+      onQRViewCreated: (controller) => _onQRViewCreated(controller, context),
       overlay: QrScannerOverlayShape(
           borderColor: theme.primaryColor,
           borderRadius: 10,
@@ -150,7 +149,7 @@ class _ScanQrCode extends State<ScanQrCode> {
         showFloatingModalBottomSheet(
             context: context,
             isDismissible: false,
-            builder: (BuildContext ctx) {
+            builder: (ctx) {
               return Container(
                   padding: const EdgeInsets.symmetric(vertical: 40),
                   child: const TGS.asset(

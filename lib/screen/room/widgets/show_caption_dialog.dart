@@ -207,7 +207,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                   );
                                 },
                                 separatorBuilder:
-                                    (BuildContext context, int index) {
+                                    (context, index) {
                                   return const SizedBox(
                                     height: 6,
                                   );

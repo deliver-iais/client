@@ -631,7 +631,7 @@ class MessageRepo {
     // Upload to file server
     final fileInfo = await _fileRepo.uploadClonedFile(
         packetId, fakeFileInfo.name,
-        sendActivity: (int i) => _sendActivitySubject.add(i));
+        sendActivity: (i) => _sendActivitySubject.add(i));
     if (fileInfo != null) {
       fileInfo.caption = fakeFileInfo.caption;
 

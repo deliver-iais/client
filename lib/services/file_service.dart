@@ -69,14 +69,13 @@ class FileService {
   FileService() {
     if (!isWeb) {
       (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-          (HttpClient client) {
-        client.badCertificateCallback =
-            (X509Certificate cert, String host, int port) => true;
+          (client) {
+        client.badCertificateCallback = (cert, host, port) => true;
         return client;
       };
     }
-    _dio.interceptors.add(InterceptorsWrapper(onRequest:
-        (RequestOptions options, RequestInterceptorHandler handler) async {
+    _dio.interceptors
+        .add(InterceptorsWrapper(onRequest: (options, handler) async {
       options.baseUrl = FileServiceBaseUrl;
       options.headers["Authorization"] = await _authRepo.getAccessToken();
 
@@ -271,9 +270,9 @@ class FileService {
         });
       }
 
-      _dio.interceptors.add(InterceptorsWrapper(onRequest:
-          (RequestOptions options, RequestInterceptorHandler handler) async {
-        options.onSendProgress = (int i, int j) {
+      _dio.interceptors
+          .add(InterceptorsWrapper(onRequest: (options, handler) async {
+        options.onSendProgress = (i, j) {
           if (sendActivity != null) sendActivity(i);
           if (filesProgressBarStatus[uploadKey] == null) {
             final d = BehaviorSubject<double>();

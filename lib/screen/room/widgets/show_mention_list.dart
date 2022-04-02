@@ -55,7 +55,7 @@ class ShowMentionList extends StatelessWidget {
                                   members.data![i]!, onSelected),
                             );
                           },
-                          separatorBuilder: (BuildContext context, int index) =>
+                          separatorBuilder: (context, index) =>
                               const Divider(),
                         )))),
           ]);

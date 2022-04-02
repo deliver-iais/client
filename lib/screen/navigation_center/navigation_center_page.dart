@@ -245,7 +245,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
     return Expanded(
         child: FutureBuilder<List<List<Uid>>>(
             future: searchUidList(query),
-            builder: (BuildContext c, AsyncSnapshot<List<List<Uid>>> snaps) {
+            builder: (c, snaps) {
               if (!snaps.hasData || snaps.data!.isEmpty) {
                 return const Center(child: CircularProgressIndicator());
               }
@@ -340,9 +340,9 @@ class _NavigationCenterState extends State<NavigationCenter> {
             const SizedBox(
               width: 20,
             ),
-            FutureBuilder(
+            FutureBuilder<String>(
                 future: _roomRepo.getName(uid),
-                builder: (BuildContext c, AsyncSnapshot<String> snaps) {
+                builder: (c, snaps) {
                   return Text(
                     snaps.data ?? "",
                     style: theme.textTheme.subtitle1,

@@ -111,10 +111,9 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                   controller: editingController),
             ),
             Expanded(
-                child: FutureBuilder(
+                child: FutureBuilder<List<Contact>>(
                     future: _contactRepo.getAll(),
-                    builder: (BuildContext context,
-                        AsyncSnapshot<List<Contact>> snapshot) {
+                    builder: (context, snapshot) {
                       if (snapshot.hasData &&
                           snapshot.data != null &&
                           snapshot.data!.isNotEmpty) {

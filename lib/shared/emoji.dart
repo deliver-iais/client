@@ -114309,37 +114309,37 @@ class Emoji {
   /// Returns Emoji by [char] and character
   factory Emoji.byChar(String char) {
     return _emojis.firstWhere(
-      (Emoji emoji) => emoji.char == char,
+      (emoji) => emoji.char == char,
     );
   }
 
   /// Returns Emoji by [name]
   factory Emoji.byName(String name) {
     name = name.toLowerCase(); // todo: searchable name
-    return _emojis.firstWhere((Emoji emoji) => emoji.name == name);
+    return _emojis.firstWhere((emoji) => emoji.name == name);
   }
 
   /// Returns Emoji by [name] as short name.
   factory Emoji.byShortName(String name) {
     return _emojis.firstWhere(
-      (Emoji emoji) => emoji.char == name,
+      (emoji) => emoji.char == name,
     );
   }
 
   /// Returns list of Emojis in a same [group]
   static Iterable<Emoji> byGroup(EmojiGroup group) {
-    return _emojis.where((Emoji emoji) => emoji.emojiGroup == group);
+    return _emojis.where((emoji) => emoji.emojiGroup == group);
   }
 
   /// Returns list of Emojis in a same [subgroup]
   static Iterable<Emoji> bySubgroup(EmojiSubgroup subgroup) {
-    return _emojis.where((Emoji emoji) => emoji.emojiSubgroup == subgroup);
+    return _emojis.where((emoji) => emoji.emojiSubgroup == subgroup);
   }
 
   /// Returns List of Emojis with Specific [keyword]
   static Iterable<Emoji> byKeyword(String keyword) {
     keyword = keyword.toLowerCase();
-    return _emojis.where((Emoji emoji) => emoji.keywords.contains(keyword));
+    return _emojis.where((emoji) => emoji.keywords.contains(keyword));
   }
 
   /// disassemble [emoji] to list of emojis, without skin tones if [noSkin] be `true`.

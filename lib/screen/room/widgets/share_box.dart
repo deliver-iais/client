@@ -493,7 +493,7 @@ class _ShareBoxState extends State<ShareBox> {
               color: Colors.blueAccent,
             )
           : const SizedBox.shrink(),
-      onPressed: (BuildContext context) {
+      onPressed: (context) {
         on();
       },
     );

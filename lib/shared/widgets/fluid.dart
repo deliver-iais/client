@@ -21,7 +21,7 @@ class FluidWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return LayoutBuilder(
-      builder: (BuildContext context, BoxConstraints constraints) {
+      builder: (context, constraints) {
         return Container(
           decoration: boxDecoration,
           child: Center(

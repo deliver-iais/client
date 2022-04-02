@@ -145,7 +145,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
   @override
   void initState() {
-    widget.focusNode.onKey = (FocusNode node, RawKeyEvent evt) {
+    widget.focusNode.onKey = (node, evt) {
       return handleKeyPress(evt);
     };
 
@@ -266,7 +266,7 @@ class _InputMessageWidget extends State<InputMessage> {
                   return BotCommands(
                     botUid: widget.currentRoom.uid.asUid(),
                     query: _botCommandData,
-                    onCommandClick: (String command) {
+                    onCommandClick: (command) {
                       onCommandClick(command);
                     },
                     botCommandSelectedIndex: botCommandSelectedIndex,

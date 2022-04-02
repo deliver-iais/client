@@ -63,11 +63,11 @@ class _CallListPageState extends State<CallListPage> {
                     return Scrollbar(
                         child: ListView.separated(
                             separatorBuilder:
-                                (BuildContext context, int index) {
+                                (context, index) {
                               return const Divider();
                             },
                             itemCount: calls.length,
-                            itemBuilder: (BuildContext ctx, int index) {
+                            itemBuilder: (ctx, index) {
                               final DateTime time;
                               final bool isIncomingCall;
                               final Uid caller;

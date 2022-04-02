@@ -43,7 +43,7 @@ class DragDropWidget extends StatelessWidget {
               child: DropzoneView(
                   operation: DragOperation.copy,
                   cursor: CursorType.grab,
-                  onCreated: (DropzoneViewController ctrl) {},
+                  onCreated: (ctrl) {},
                   onHover: () {},
                   onDrop: (blob) async {
                     try {

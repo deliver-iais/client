@@ -18,10 +18,10 @@ class AudioPlayerAppBar extends StatelessWidget {
             return Container(
               height: 45,
               decoration: BoxDecoration(
-                color:theme.appBarTheme.backgroundColor,
+                color: theme.appBarTheme.backgroundColor,
                 boxShadow: [
                   BoxShadow(
-                    color:theme.dividerColor,
+                    color: theme.dividerColor,
                     blurRadius: 2,
                     offset: const Offset(1, 1), // Shadow position
                   ),
@@ -53,9 +53,7 @@ class AudioPlayerAppBar extends StatelessWidget {
                       child: SizedBox(
                         height: 20,
                         child: LayoutBuilder(
-                            builder: (BuildContext context,
-                                    BoxConstraints constraints) =>
-                                RepaintBoundary(
+                            builder: (context, constraints) => RepaintBoundary(
                                   child: audioPlayerService.audioName.length >
                                           (constraints.maxWidth / 10)
                                       ? Marquee(
@@ -66,7 +64,8 @@ class AudioPlayerAppBar extends StatelessWidget {
                                               CrossAxisAlignment.start,
                                           blankSpace: constraints.maxWidth / 2,
                                           velocity: 100.0,
-                                          pauseAfterRound: const Duration(seconds: 1),
+                                          pauseAfterRound:
+                                              const Duration(seconds: 1),
                                           accelerationDuration:
                                               const Duration(seconds: 1),
                                           decelerationDuration:
@@ -79,7 +78,8 @@ class AudioPlayerAppBar extends StatelessWidget {
                                               maxLines: 1,
                                               overflow: TextOverflow.fade,
                                               softWrap: false,
-                                              style: const TextStyle(fontSize: 16)),
+                                              style: const TextStyle(
+                                                  fontSize: 16)),
                                         ),
                                 )),
                       ),

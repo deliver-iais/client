@@ -48,7 +48,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
         room: room,
         isPinned: room.pinned,
       )
-    ]).then<void>((OperationOnRoom? opr) async {
+    ]).then<void>((opr) async {
       if (opr == null) return;
       // ignore: missing_enum_constant_in_switch
       switch (opr) {
@@ -94,7 +94,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
         builder: (context, snapshot) {
           return StreamBuilder(
             stream: _routingService.currentRouteStream,
-            builder: (BuildContext c, AsyncSnapshot<Object> s) {
+            builder: (c, s) {
               if (snapshot.hasData) {
                 final rooms = snapshot.data!.toList();
                 rearrangeChatItem(rooms);
@@ -122,8 +122,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                                     b.lastUpdatedMessageId &&
                                 a.lastUpdateTime == b.lastUpdateTime &&
                                 a.draft == b.draft),
-                        itemBuilder: (BuildContext ctx, Room room,
-                            AnimatedWidgetBuilderData data) {
+                        itemBuilder: (ctx, room, data) {
                           return GestureDetector(
                             behavior: HitTestBehavior.translucent,
                             child: ChatItem(

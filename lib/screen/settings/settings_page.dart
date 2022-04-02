@@ -82,8 +82,8 @@ class _SettingsPageState extends State<SettingsPage> {
                           Expanded(
                             child: FutureBuilder<Account?>(
                               future: _accountRepo.getAccount(),
-                              builder: (BuildContext context,
-                                  AsyncSnapshot<Account?> snapshot) {
+                              builder: (context,
+                                  snapshot) {
                                 if (snapshot.data != null) {
                                   return Column(
                                     crossAxisAlignment: CrossAxisAlignment.end,
@@ -132,7 +132,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   SettingsTile(
                     title: _i18n.get("qr_share"),
                     leading: const Icon(CupertinoIcons.qrcode),
-                    onPressed: (BuildContext context) async {
+                    onPressed: (context) async {
                       final account = await _accountRepo.getAccount();
                       showQrCode(
                           context,
@@ -146,7 +146,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   SettingsTile(
                     title: _i18n.get("saved_message"),
                     leading: const Icon(CupertinoIcons.bookmark),
-                    onPressed: (BuildContext context) {
+                    onPressed: (context) {
                       _routingService
                           .openRoom(_authRepo.currentUserUid.asString());
                     },
@@ -154,14 +154,14 @@ class _SettingsPageState extends State<SettingsPage> {
                   SettingsTile(
                     title: _i18n.get("contacts"),
                     leading: const Icon(CupertinoIcons.person_2),
-                    onPressed: (BuildContext context) {
+                    onPressed: (context) {
                       _routingService.openContacts();
                     },
                   ),
                   SettingsTile(
                     title: _i18n.get("calls"),
                     leading: const Icon(CupertinoIcons.phone),
-                    onPressed: (BuildContext context) {
+                    onPressed: (context) {
                       _routingService.openCallsList();
                     },
                   )
@@ -181,14 +181,14 @@ class _SettingsPageState extends State<SettingsPage> {
                     title: _i18n.get("language"),
                     subtitle: I18N.of(context)!.locale.language().name,
                     leading: const Icon(CupertinoIcons.textformat_abc),
-                    onPressed: (BuildContext context) {
+                    onPressed: (context) {
                       _routingService.openLanguageSettings();
                     },
                   ),
                   SettingsTile(
                     title: _i18n.get("security"),
                     leading: const Icon(CupertinoIcons.shield_lefthalf_fill),
-                    onPressed: (BuildContext context) =>
+                    onPressed: (context) =>
                         _routingService.openSecuritySettings(),
                     trailing: const SizedBox.shrink(),
                   ),
@@ -204,7 +204,7 @@ class _SettingsPageState extends State<SettingsPage> {
                       title: _i18n.get("send_by_shift_enter"),
                       leading: const Icon(CupertinoIcons.keyboard),
                       switchValue: !_uxService.sendByEnter,
-                      onToggle: (bool value) {
+                      onToggle: (value) {
                         setState(() => _uxService.toggleSendByEnter());
                       },
                     )
@@ -258,7 +258,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           LogLevelHelper.levelToString(
                               GetIt.I.get<DeliverLogFilter>().level!),
                       leading: const Icon(Icons.bug_report_rounded),
-                      onPressed: (BuildContext context) {
+                      onPressed: (context) {
                         _routingService.openDeveloperPage();
                       },
                     )
@@ -288,7 +288,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   SettingsTile(
                     title: _i18n.get("logout"),
                     leading: const Icon(CupertinoIcons.square_arrow_left),
-                    onPressed: (BuildContext context) =>
+                    onPressed: (context) =>
                         openLogoutAlertDialog(context, _i18n),
                     trailing: const SizedBox.shrink(),
                   ),

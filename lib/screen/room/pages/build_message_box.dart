@@ -191,7 +191,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
             child: PersistentEventMessage(
               message: msg,
               maxWidth: maxWidthOfMessage(context),
-              onPinMessageClick: (int id) {
+              onPinMessageClick: (id) {
                 widget.changeReplyMessageId(id);
                 widget.itemScrollController.scrollTo(
                     alignment: .5,
@@ -268,7 +268,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         isSeen: message.id != null && message.id! <= widget.lastSeenMessageId,
         pattern: "",
         //todo add search message
-        scrollToMessage: (int id) {
+        scrollToMessage: (id) {
           _scrollToMessage(id: id);
         },
         isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
@@ -342,7 +342,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       pattern: "",
       colorScheme: colorScheme,
       onBotCommandClick: onBotCommandClick,
-      scrollToMessage: (int id) => _scrollToMessage(id: id),
+      scrollToMessage: (id) => _scrollToMessage(id: id),
       onUsernameClick: onUsernameClick,
       isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
       onArrowIconClick: () => _showCustomMenu(context, message),

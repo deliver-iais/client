@@ -156,11 +156,8 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
             child: CupertinoSwitch(
               value: widget.switchValue!,
               activeColor: theme.primaryColor,
-              onChanged: !widget.enabled
-                  ? null
-                  : (bool value) {
-                      widget.onToggle!(value);
-                    },
+              onChanged:
+                  !widget.enabled ? null : (value) => widget.onToggle!(value),
             ),
           ),
         );

@@ -35,7 +35,7 @@ class MuteAndUnMuteRoomWidget extends StatelessWidget {
                   child: GestureDetector(
                 child: StreamBuilder<bool>(
                   stream: _roomRepo.watchIsRoomMuted(roomId),
-                  builder: (BuildContext context, AsyncSnapshot<bool> isMuted) {
+                  builder: (context, isMuted) {
                     if (isMuted.data != null) {
                       if (isMuted.data!) {
                         return GestureDetector(

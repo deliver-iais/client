@@ -92,7 +92,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   void checkShareFile(BuildContext context) {
-    ReceiveSharingIntent.getInitialMedia().then((List<SharedMediaFile> value) {
+    ReceiveSharingIntent.getInitialMedia().then((value) {
       if (value.isNotEmpty) {
         final paths = <String>[];
         for (final path in value) {

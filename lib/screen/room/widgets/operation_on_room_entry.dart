@@ -83,7 +83,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                 ])),
           StreamBuilder<bool>(
             stream: _roomRepo.watchIsRoomMuted(widget.room.uid),
-            builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+            builder: (context, snapshot) {
               if (snapshot.hasData) {
                 if (snapshot.data!) {
                   return PopupMenuItem(

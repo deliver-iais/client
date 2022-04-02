@@ -94,7 +94,7 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
   ListView buildListView(List<Uid> uids) {
     return ListView.builder(
       itemCount: uids.length,
-      itemBuilder: (BuildContext ctx, int index) {
+      itemBuilder: (ctx, index) {
         return ChatItemToForward(
           uid: uids[index],
           send: _send,

@@ -99,7 +99,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                         child: ShareBoxGallery(
                           pop: () => Navigator.pop(context),
                           scrollController: scrollController,
-                          setAvatar: (String filePath) async {
+                          setAvatar: (filePath) async {
                             cropAvatar(filePath);
                           },
                           selectAvatar: true,
@@ -184,7 +184,7 @@ class _AccountSettingsState extends State<AccountSettings> {
         body: FluidContainerWidget(
           child: FutureBuilder<Account>(
             future: _accountRepo.getAccount(),
-            builder: (BuildContext c, AsyncSnapshot<Account> snapshot) {
+            builder: (c, snapshot) {
               if (!snapshot.hasData || snapshot.data == null) {
                 return const SizedBox.shrink();
               }

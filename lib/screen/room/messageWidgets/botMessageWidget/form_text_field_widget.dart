@@ -110,7 +110,7 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
           initialDate: _selectedDate ?? DateTime.now(),
           firstDate: DateTime(1900),
           lastDate: DateTime(2070),
-          builder: (BuildContext context, Widget? child) {
+          builder: (context, child) {
             return child!;
           });
 

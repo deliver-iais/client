@@ -62,7 +62,7 @@ class _ContactsPageState extends State<ContactsPage> {
         child: StreamBuilder<List<Contact>>(
             stream: _contactRepo.watchAll(),
             builder:
-                (BuildContext context, AsyncSnapshot<List<Contact>> snapshot) {
+                (context, snapshot) {
               final contacts = snapshot.data ?? [];
               if (!snapshot.hasData) {
                 return const Center(
@@ -85,7 +85,7 @@ class _ContactsPageState extends State<ContactsPage> {
                           builder: (context, sna) {
                             return ListView.separated(
                               separatorBuilder:
-                                  (BuildContext context, int index) {
+                                  (context, index) {
                                 if (_authRepo
                                         .isCurrentUser(contacts[index].uid) ||
                                     searchHasResult(contacts[index])) {
@@ -95,7 +95,7 @@ class _ContactsPageState extends State<ContactsPage> {
                                 }
                               },
                               itemCount: snapshot.data!.length,
-                              itemBuilder: (BuildContext ctx, int index) {
+                              itemBuilder: (ctx, index) {
                                 final c = contacts[index];
                                 if (searchHasResult(c)) {
                                   return const SizedBox.shrink();

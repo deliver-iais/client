@@ -313,7 +313,7 @@ class CallRepo {
       }
 
       //https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/connectionState
-      ..onConnectionState = (RTCPeerConnectionState state) async {
+      ..onConnectionState = (state) async {
         _logger.i("onConnectionState $state");
         switch (state) {
           case RTCPeerConnectionState.RTCPeerConnectionStateConnected:
@@ -381,7 +381,7 @@ class CallRepo {
           });
         }
       }
-      ..onIceGatheringState = (RTCIceGatheringState state) {
+      ..onIceGatheringState = (state) {
         if (state == RTCIceGatheringState.RTCIceGatheringStateGathering) {
           //when we go on this stage after about 2 sec all candidate revived and we can sending them all
           _logger.i("RTCIceGatheringStateGathering");
@@ -413,7 +413,7 @@ class CallRepo {
         _isDCRecived = true;
         //it means Connection is Connected
         _startCallTimerAndChangeStatus();
-        _dataChannel!.onMessage = (RTCDataChannelMessage data) async {
+        _dataChannel!.onMessage = (data) async {
           final status = data.text;
           _logger.i(status);
           // we need Decision making by state
@@ -505,7 +505,7 @@ class CallRepo {
     final dataChannel = await _peerConnection!
         .createDataChannel("stateTransfer", dataChannelDict);
 
-    dataChannel.onMessage = (RTCDataChannelMessage data) async {
+    dataChannel.onMessage = (data) async {
       final status = data.text;
       _logger.i(status);
       // we need Decision making by state
@@ -1158,7 +1158,7 @@ class CallRepo {
       timer!.cancel();
     }
     const oneSec = Duration(seconds: 1);
-    timer = Timer.periodic(oneSec, (Timer timer) {
+    timer = Timer.periodic(oneSec, (timer) {
       callTimer.value.seconds = callTimer.value.seconds + 1;
       if (callTimer.value.seconds > 59) {
         callTimer.value.minutes += 1;

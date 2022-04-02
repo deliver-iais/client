@@ -40,7 +40,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
   Widget build(BuildContext context) {
     return StreamBuilder<List<Member?>>(
         stream: _mucRepo.watchAllMembers(widget.mucUid.asString()),
-        builder: (BuildContext context, AsyncSnapshot<List<Member?>> snapshot) {
+        builder: (context, snapshot) {
           if (snapshot.hasData &&
               snapshot.data != null &&
               snapshot.data!.isNotEmpty) {

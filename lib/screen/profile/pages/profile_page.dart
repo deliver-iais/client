@@ -108,7 +108,7 @@ class _ProfilePageState extends State<ProfilePage>
         child: StreamBuilder<MediaMetaData?>(
             stream:
                 _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
-            builder: (context, AsyncSnapshot<MediaMetaData?> snapshot) {
+            builder: (context, snapshot) {
               _tabsCount = 0;
               if (snapshot.hasData && snapshot.data != null) {
                 if (snapshot.data!.imagesCount != 0) {
@@ -154,7 +154,7 @@ class _ProfilePageState extends State<ProfilePage>
                       : _tabsCount,
                   child: NestedScrollView(
                       headerSliverBuilder:
-                          (BuildContext context, bool innerBoxIsScrolled) {
+                          (context, innerBoxIsScrolled) {
                         return <Widget>[
                           _buildInfo(context),
                           SliverPersistentHeader(
@@ -388,7 +388,7 @@ class _ProfilePageState extends State<ProfilePage>
         if (!widget.roomUid.isGroup())
           FutureBuilder<String?>(
             future: _roomRepo.getId(widget.roomUid),
-            builder: (BuildContext context, AsyncSnapshot<String?> snapshot) {
+            builder: (context, snapshot) {
               if (snapshot.data != null) {
                 return Padding(
                   padding: const EdgeInsets.only(top: 8.0),
@@ -410,7 +410,7 @@ class _ProfilePageState extends State<ProfilePage>
         if (widget.roomUid.isUser())
           FutureBuilder<Contact?>(
             future: _contactRepo.getContact(widget.roomUid),
-            builder: (BuildContext context, AsyncSnapshot<Contact?> snapshot) {
+            builder: (context, snapshot) {
               if (snapshot.data != null) {
                 return Padding(
                   padding: const EdgeInsets.only(top: 8.0),
@@ -465,7 +465,7 @@ class _ProfilePageState extends State<ProfilePage>
               }),
         StreamBuilder<bool>(
           stream: _roomRepo.watchIsRoomMuted(widget.roomUid.asString()),
-          builder: (BuildContext context, AsyncSnapshot<bool> snapshot) {
+          builder: (context, snapshot) {
             if (snapshot.hasData && snapshot.data != null) {
               return Padding(
                 padding: const EdgeInsets.only(top: 8.0),
@@ -548,7 +548,7 @@ class _ProfilePageState extends State<ProfilePage>
           child: FutureBuilder<String>(
             initialData: _roomRepo.fastForwardName(widget.roomUid),
             future: _roomRepo.getName(widget.roomUid),
-            builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+            builder: (context, snapshot) {
               _roomName = snapshot.data ?? "Loading..."; // TODO add i18n
               return RoomName(uid: widget.roomUid, name: _roomName);
             },

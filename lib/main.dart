@@ -334,7 +334,7 @@ class MyApp extends StatelessWidget {
           extraThemeData: _uxService.extraTheme,
           child: Focus(
               focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
-              onKey: (_, RawKeyEvent event) {
+              onKey: (_, event) {
                 _rawKeyboardService
                   ..escapeHandling(event)
                   ..searchHandling(event);

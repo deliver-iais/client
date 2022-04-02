@@ -29,9 +29,9 @@ class ChatItemToForward extends StatelessWidget {
                   const SizedBox(
                     width: 12,
                   ),
-                  FutureBuilder(
+                  FutureBuilder<String>(
                       future: _roomRepo.getName(uid),
-                      builder: (BuildContext c, AsyncSnapshot<String> snaps) {
+                      builder: (c, snaps) {
                         if (snaps.hasData && snaps.data != null) {
                           return Text(
                             snaps.data!,

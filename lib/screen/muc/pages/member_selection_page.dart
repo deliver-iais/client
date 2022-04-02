@@ -36,8 +36,7 @@ class MemberSelectionPage extends StatelessWidget {
               mucUid != null
                   ? FutureBuilder<String?>(
                       future: _roomRepo.getName(mucUid!),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<String?> snapshot) {
+                      builder: (context, snapshot) {
                         if (snapshot.data != null) {
                           return Text(snapshot.data!);
                         } else {

@@ -199,8 +199,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                         }
                         return ListView.builder(
                             itemCount: snapshot.data,
-                            itemBuilder: (BuildContext context, int index) =>
-                                ContactWidget(
+                            itemBuilder: (context, index) => ContactWidget(
                                   contact: _createMucService.contacts[index],
                                 ));
                       }),

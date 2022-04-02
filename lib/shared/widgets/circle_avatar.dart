@@ -107,7 +107,7 @@ class CircleAvatarWidget extends StatelessWidget {
         initialData: _roomRepo.fastForwardName(contactUid),
         future: _roomRepo.getName(contactUid),
         key: _futureKey,
-        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+        builder: (context, snapshot) {
           if (snapshot.data != null) {
             final name = snapshot.data!.trim();
             return avatarAlt(name.trim(), textColor);

@@ -319,8 +319,8 @@ class _RoomPageState extends State<RoomPage> {
           _scrollEvent.add(false);
         }
         final firstItem = position
-            .where((ItemPosition position) => position.itemLeadingEdge > 0)
-            .reduce((ItemPosition first, ItemPosition position) =>
+            .where((position) => position.itemLeadingEdge > 0)
+            .reduce((first, position) =>
                 position.itemLeadingEdge > first.itemLeadingEdge
                     ? position
                     : first);

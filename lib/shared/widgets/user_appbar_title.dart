@@ -56,8 +56,7 @@ class UserAppbarTitle extends StatelessWidget {
                 : Expanded(
                     child: FutureBuilder<String>(
                       future: _roomRepo.getName(userUid),
-                      builder: (BuildContext context,
-                          AsyncSnapshot<String> snapshot) {
+                      builder: (context, snapshot) {
                         if (snapshot.data != null) {
                           return Column(
                             crossAxisAlignment: CrossAxisAlignment.start,

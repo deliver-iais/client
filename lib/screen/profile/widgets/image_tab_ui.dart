@@ -97,7 +97,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
                   future: _fileRepo.getFileIfExist(
                       jsonDecode(media.json)["uuid"],
                       jsonDecode(media.json)["name"]),
-                  builder: (BuildContext c, AsyncSnapshot<String?> filePath) {
+                  builder: (c, filePath) {
                     if (filePath.hasData && filePath.data != null) {
                       return Hero(
                         tag: jsonDecode(media.json)["uuid"],

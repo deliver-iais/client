@@ -43,7 +43,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
                               english.languageCode
                           ? const Icon(Icons.done)
                           : const SizedBox.shrink(),
-                      onPressed: (BuildContext context) {
+                      onPressed: (context) {
                         setState(() {
                           I18N.of(context)!.changeLanguage(english);
                         });
@@ -56,7 +56,7 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
                               farsi.languageCode
                           ? const Icon(Icons.done)
                           : const SizedBox.shrink(),
-                      onPressed: (BuildContext context) {
+                      onPressed: (context) {
                         setState(() {
                           I18N.of(context)!.changeLanguage(farsi);
                         });
