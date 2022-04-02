@@ -101,10 +101,10 @@ class RoomDaoImpl implements RoomDao {
   static Future<Box<Room>> _openRoom() async {
     try {
       BoxInfo.addBox(_keyRoom());
-      return await Hive.openBox<Room>(_keyRoom());
+      return Hive.openBox<Room>(_keyRoom());
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyRoom());
-      return await Hive.openBox<Room>(_keyRoom());
+      return Hive.openBox<Room>(_keyRoom());
     }
   }
 

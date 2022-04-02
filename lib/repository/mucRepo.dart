@@ -106,11 +106,11 @@ class MucRepo {
   }
 
   Future<String?> getGroupJointToken({required Uid groupUid}) async {
-    return await _mucServices.getGroupJointToken(groupUid: groupUid);
+    return _mucServices.getGroupJointToken(groupUid: groupUid);
   }
 
   Future<String?> getChannelJointToken({required Uid channelUid}) async {
-    return await _mucServices.getChannelJointToken(channelUid: channelUid);
+    return _mucServices.getChannelJointToken(channelUid: channelUid);
   }
 
   fetchChannelMembers(Uid channelUid, int len) async {
@@ -281,7 +281,7 @@ class MucRepo {
   }
 
   Future<GetChannelRes?> getChannelInfo(Uid channelUid) async {
-    return await _mucServices.getChannel(channelUid);
+    return _mucServices.getChannel(channelUid);
   }
 
   changeGroupMemberRole(Member groupMember) async {
@@ -415,7 +415,7 @@ class MucRepo {
   Future<Muc?> joinGroup(Uid groupUid, String token) async {
     var result = await _mucServices.joinGroup(groupUid, token);
     if (result) {
-      return await fetchMucInfo(groupUid);
+      return fetchMucInfo(groupUid);
     }
     return null;
   }
@@ -423,7 +423,7 @@ class MucRepo {
   Future<Muc?> joinChannel(Uid channelUid, String token) async {
     var result = await _mucServices.joinChannel(channelUid, token);
     if (result) {
-      return await fetchMucInfo(channelUid);
+      return fetchMucInfo(channelUid);
     }
     return null;
   }

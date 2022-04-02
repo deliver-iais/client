@@ -91,7 +91,7 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
     var assetData = await rootBundle.load(getPath());
     Uint8List bytes = assetData.buffer.asUint8List();
     bytes = GZipCodec().decode(bytes) as Uint8List;
-    return await LottieComposition.fromBytes(bytes);
+    return LottieComposition.fromBytes(bytes);
   }
 
   @override

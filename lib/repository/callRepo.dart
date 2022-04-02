@@ -710,7 +710,7 @@ class CallRepo {
   }
 
   Future<bool> _stopForegroundTask() async {
-    return await FlutterForegroundTask.stopService();
+    return FlutterForegroundTask.stopService();
   }
 
   /*

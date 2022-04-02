@@ -92,7 +92,7 @@ class RoomRepo {
 
     // Is Current User
     if (_authRepo.isCurrentUser(uid.asString())) {
-      return await _accountRepo.getName();
+      return _accountRepo.getName();
     }
 
     // Is in cache
@@ -356,7 +356,7 @@ class RoomRepo {
   }
 
   Future<List<Room>> getAllGroups() async {
-    return await _roomDao.getAllGroups();
+    return _roomDao.getAllGroups();
   }
 
   void updateRoomDraft(String roomUid, String draft) {

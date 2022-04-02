@@ -52,7 +52,7 @@ class _TGSState extends State<TGS> {
 
     bytes = GZipCodec().decode(bytes) as Uint8List;
 
-    return await LottieComposition.fromBytes(bytes);
+    return LottieComposition.fromBytes(bytes);
   }
 
   Future<LottieComposition?> _loadFileComposition() async {
@@ -60,8 +60,7 @@ class _TGSState extends State<TGS> {
 
     bytes = GZipCodec().decode(bytes) as Uint8List;
 
-    var res = await  LottieComposition.fromBytes(bytes);
-    return res;
+    return LottieComposition.fromBytes(bytes);
   }
 
   @override

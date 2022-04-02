@@ -19,7 +19,7 @@ class LiveLocationRepo {
   }
 
   Future<LiveLocation?> getLiveLocation(String uuid) async {
-    return await _liveLocationDao.getLiveLocation(uuid);
+    return _liveLocationDao.getLiveLocation(uuid);
   }
 
   Stream<LiveLocation?> watchLiveLocation(String uuid) {

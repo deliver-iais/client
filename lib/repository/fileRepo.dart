@@ -82,7 +82,7 @@ class FileRepo {
     if (fileInfo != null) {
       if (isWeb) return fileInfo.path.isNotEmpty;
       io.File file = io.File(fileInfo.path);
-      return await file.exists();
+      return file.exists();
     }
     return false;
   }
@@ -175,7 +175,7 @@ class FileRepo {
   }
 
   Future<FileInfo?> _getFileInfoInDB(String size, String uuid) async {
-    return await _fileDao.get(uuid, enumToString(size));
+    return _fileDao.get(uuid, enumToString(size));
   }
 
   void initUploadProgress(String uploadId) {

@@ -22,6 +22,8 @@ linter:
   # `// ignore_for_file: name_of_lint` syntax on the line or in the file
   # producing the lint.
   rules:
+    unnecessary_await_in_return: true
+    unnecessary_brace_in_string_interps: true
     unnecessary_const: true
     unnecessary_null_checks: true
     unnecessary_new: true

@@ -142,7 +142,7 @@ class MessageDaoImpl implements MessageDao {
       return res;
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyMessages(uid.replaceAll(":", "-")));
-      return await Hive.openBox<Message>(
+      return Hive.openBox<Message>(
           _keyMessages(uid.replaceAll(":", "-")));
     }
   }

@@ -127,7 +127,7 @@ class AuthRepo {
   }
 
   Future _getAccessToken(String refreshToken) async {
-    return await requestLock.synchronized(() async {
+    return requestLock.synchronized(() async {
       try {
         return await _authServiceClient.renewAccessToken(RenewAccessTokenReq()
           ..refreshToken = refreshToken
