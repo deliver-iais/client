@@ -12,7 +12,6 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
 
-// TODO check timeout time again!!!!
 class MucServices {
   final _logger = GetIt.I.get<Logger>();
 

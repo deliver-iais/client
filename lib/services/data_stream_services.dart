@@ -453,7 +453,7 @@ class DataStreamServices {
     }
   }
 
-  // TODO: Maybe remove this later on, WHY just working with images ?!?!?!?!??!
+  // TODO(hasan): Maybe remove this later on, WHY just working with images ?!?!?!?!??!, https://gitlab.iais.co/deliver/wiki/-/issues/410
   Future<void> _updateRoomMediaMetadata(
     String roomUid,
     message_model.Message message,

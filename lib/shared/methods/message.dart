@@ -149,7 +149,7 @@ Future<MessageBrief> extractMessageBrief(
     case message_pb.Message_Type.callEvent:
       ignoreNotification = true;
       typeDetails = i18n.get("call");
-      // TODO: add more details in here
+      // TODO(hasan): add more details in here, https://gitlab.iais.co/deliver/wiki/-/issues/386
       break;
 
     case message_pb.Message_Type.table:

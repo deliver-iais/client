@@ -17,7 +17,6 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
-// TODO Move to profile folder, it is not shared widget
 class ProfileAvatar extends StatefulWidget {
   @required
   final Uid roomUid;

@@ -141,7 +141,7 @@ class CoreServices {
             break;
           case ServerPacket_Type.liveLocationStatusChanged:
           case ServerPacket_Type.error:
-            // TODO: Handle these cases.
+            // TODO(hasan): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/411
             break;
           case ServerPacket_Type.notSet:
           case ServerPacket_Type.expletivePacket:
