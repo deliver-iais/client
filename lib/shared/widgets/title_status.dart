@@ -94,7 +94,7 @@ class _TitleStatusState extends State<TitleStatus> {
               );
             } else {
               final lastActivityTime =
-                  dateTimeFormat(date(userInfo.data!.time));
+                  dateTimeFromNowFormat(date(userInfo.data!.time));
               return Text(
                 "${i18n.get("last_seen")} ${lastActivityTime.contains("just now") ? i18n.get("just_now") : lastActivityTime} ",
                 maxLines: 1,
