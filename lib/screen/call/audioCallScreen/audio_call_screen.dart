@@ -41,7 +41,7 @@ class _AudioCallScreenState extends State<AudioCallScreen>
   @override
   void initState() {
     _animationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 600));
+        vsync: this, duration: const Duration(milliseconds: 600),);
     _animationController.repeat(reverse: true);
     super.initState();
   }
@@ -72,13 +72,13 @@ class _AudioCallScreenState extends State<AudioCallScreen>
                         image: AssetImage("assets/images/no-profile-pic.png"),
                       );
                     }
-                  });
+                  },);
             } else {
               return const FadeAudioCallBackground(
                 image: AssetImage("assets/images/no-profile-pic.png"),
               );
             }
-          }),
+          },),
       Column(
         children: [
           CenterAvatarInCall(
@@ -93,7 +93,7 @@ class _AudioCallScreenState extends State<AudioCallScreen>
                   } else {
                     return const SizedBox.shrink();
                   }
-                })
+                },)
           else if (widget.callStatus == "Ended")
             FadeTransition(
                 opacity: _animationController,
@@ -101,32 +101,30 @@ class _AudioCallScreenState extends State<AudioCallScreen>
                         callRepo.callTimer.value.minutes == 0 &&
                         callRepo.callTimer.value.hours == 0
                     ? Text(widget.callStatus,
-                        style: const TextStyle(color: Colors.white70))
-                    : callTimerWidget(callRepo.callTimer.value))
+                        style: const TextStyle(color: Colors.white70),)
+                    : callTimerWidget(callRepo.callTimer.value),)
           else
             Text(widget.callStatus,
-                style: const TextStyle(color: Colors.white70))
+                style: const TextStyle(color: Colors.white70),)
         ],
       ),
-      widget.callStatus == "Ended"
-          ? Padding(
+      if (widget.callStatus == "Ended") Padding(
               padding: const EdgeInsets.only(bottom: 25, right: 25, left: 25),
               child: Align(
                 alignment: Alignment.bottomCenter,
                 child: Lottie.asset('assets/animations/end_of_call.json',
-                    width: 150),
-              ))
-          : CallBottomRow(
+                    width: 150,),
+              ),) else CallBottomRow(
               hangUp: widget.hangUp,
               isIncomingCall: widget.isIncomingCall,
             ),
-    ]));
+    ],),);
   }
 
   Text callTimerWidget(CallTimer callTimer) {
-    String callHour = callTimer.hours.toString();
-    String callMin = callTimer.minutes.toString();
-    String callSecond = callTimer.seconds.toString();
+    var callHour = callTimer.hours.toString();
+    var callMin = callTimer.minutes.toString();
+    var callSecond = callTimer.seconds.toString();
     callHour = callHour.length != 2 ? '0' + callHour : callHour;
     callMin = callMin.length != 2 ? '0' + callMin : callMin;
     callSecond = callSecond.length != 2 ? '0' + callSecond : callSecond;

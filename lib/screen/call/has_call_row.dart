@@ -19,7 +19,7 @@ class _HasCallRowState extends State<HasCallRow> {
 
   @override
   Widget build(BuildContext context) {
-    final ThemeData theme = Theme.of(context);
+    final theme = Theme.of(context);
     return StreamBuilder(
         stream: callRepo.callingStatus,
         builder: (context, snapshot) {
@@ -30,11 +30,11 @@ class _HasCallRowState extends State<HasCallRow> {
                       !callRepo.isCaller) {
                     _routingService.openCallScreen(callRepo.roomUid!,
                         isIncomingCall: true,
-                        isVideoCall: callRepo.isVideo);
+                        isVideoCall: callRepo.isVideo,);
                   } else {
                     _routingService.openCallScreen(callRepo.roomUid!,
                         isCallInitialized: true,
-                        isVideoCall: callRepo.isVideo);
+                        isVideoCall: callRepo.isVideo,);
                   }
                 },
                 child: callRepo.roomUid != null
@@ -42,13 +42,11 @@ class _HasCallRowState extends State<HasCallRow> {
                         margin: const EdgeInsets.only(bottom: 4),
                         decoration: BoxDecoration(
                             gradient: LinearGradient(
-                          begin: Alignment.centerLeft,
-                          end: Alignment.centerRight,
                           colors: [
                             theme.colorScheme.primary,
                             theme.colorScheme.primary.withAlpha(100),
                           ],
-                        )),
+                        ),),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 15),
                           child: Row(
@@ -61,19 +59,19 @@ class _HasCallRowState extends State<HasCallRow> {
                                       return Text(
                                         name.data!,
                                         style: const TextStyle(
-                                            color: Colors.white),
+                                            color: Colors.white,),
                                       );
                                     } else {
                                       return const SizedBox.shrink();
                                     }
-                                  }),
+                                  },),
                               Row(
                                 children: [
                                   Icon(
                                       callRepo.isVideo
                                           ? Icons.videocam
                                           : Icons.call,
-                                      color: Colors.white),
+                                      color: Colors.white,),
                                   const SizedBox(
                                     width: 5,
                                   ),
@@ -92,12 +90,12 @@ class _HasCallRowState extends State<HasCallRow> {
                                                   snapshot.data!.seconds
                                                       .toString(),
                                               style: const TextStyle(
-                                                  color: Colors.white54),
+                                                  color: Colors.white54,),
                                             );
                                           } else {
                                             return const SizedBox.shrink();
                                           }
-                                        }),
+                                        },),
                                 ],
                               ),
                             ],
@@ -106,10 +104,10 @@ class _HasCallRowState extends State<HasCallRow> {
                         width: MediaQuery.of(context).size.width,
                         height: 40,
                       )
-                    : const SizedBox.shrink());
+                    : const SizedBox.shrink(),);
           } else {
             return const SizedBox.shrink();
           }
-        });
+        },);
   }
 }

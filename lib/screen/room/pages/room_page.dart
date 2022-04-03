@@ -727,6 +727,7 @@ class _RoomPageState extends State<RoomPage> {
         actions: [
           if (room.uid.asUid().isUser() &&
               !isLinux &&
+              !_authRepo.isCurrentUser(room.uid) &&
               accessToCallUidList.values
                   .contains(_authRepo.currentUserUid.asString()))
             IconButton(

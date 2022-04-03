@@ -473,7 +473,6 @@ class AndroidNotifier implements Notifier {
 
       if (path != null && path.isNotEmpty) {
         largeIcon = FilePathAndroidBitmap(path);
-        filePath = path;
       }
     }
     if (selectedSound != null) {
@@ -521,10 +520,20 @@ class AndroidNotifier implements Notifier {
 
   @override
   Future<void> notifyIncomingCall(String roomUid, String roomName) async {
+    final la = await _avatarRepo.getLastAvatar(roomUid.asUid());
+    String? path;
+    if (la != null && la.fileId != null && la.fileName != null) {
+      path = await _fileRepo.getFileIfExist(
+        la.fileId!,
+        la.fileName!,
+        thumbnailSize: ThumbnailSize.medium,
+      );
+    }
     ConnectycubeFlutterCallKit.showCallNotification(
       sessionId: "123456789",
       callerId: 123456789,
       callType: 1,
+      path: path,
       callerName: roomName,
       userInfo: {"uid": roomUid},
       opponentsIds: {1},

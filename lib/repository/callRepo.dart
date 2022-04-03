@@ -16,7 +16,6 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
@@ -652,11 +651,11 @@ class CallRepo {
   Future<void> _initForegroundTask() async {
     final _avatarRepo = GetIt.I.get<AvatarRepo>();
     final _fileRepo = GetIt.I.get<FileRepo>();
-    var la = await _avatarRepo.getLastAvatar(roomUid!, false);
+    final la = await _avatarRepo.getLastAvatar(roomUid!);
     String? avatarPath;
     if (la != null && la.fileId != null && la.fileName != null) {
       avatarPath = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
-          thumbnailSize: ThumbnailSize.medium);
+          thumbnailSize: ThumbnailSize.medium,);
     }
     await FlutterForegroundTask.init(
       androidNotificationOptions: AndroidNotificationOptions(
