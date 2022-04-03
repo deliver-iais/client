@@ -71,11 +71,12 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
                       MaterialButton(
                         color: Colors.blueAccent,
                         onPressed: () async {
+                          final navigatorState = Navigator.of(context);
                           if (roomUid!.category == Categories.GROUP) {
                             final muc = await _mucRepo.joinGroup(
                                 roomUid, segments[3].toString());
                             if (muc != null) {
-                              Navigator.of(context).pop();
+                              navigatorState.pop();
                               _messageRepo.updateNewMuc(
                                   roomUid, muc.lastMessageId!);
 
@@ -85,7 +86,7 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
                             final muc = await _mucRepo.joinChannel(
                                 roomUid, segments[3].toString());
                             if (muc != null) {
-                              Navigator.of(context).pop();
+                              navigatorState.pop();
                               _messageRepo.updateNewMuc(
                                   roomUid, muc.lastMessageId!);
                               _routingService.openRoom(roomUid.asString());
