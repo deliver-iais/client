@@ -54,7 +54,7 @@ class InputMessage extends StatefulWidget {
   final Message? editableMessage;
   final FocusNode focusNode;
   final TextEditingController textController;
-  final Function handleScrollToMessage;
+  final Function(int dir) handleScrollToMessage;
 
   @override
   _InputMessageWidget createState() => _InputMessageWidget();

@@ -10,14 +10,14 @@ import 'package:get_it/get_it.dart';
 class MuteAndUnMuteRoomWidget extends StatefulWidget {
   final String roomId;
   final Widget inputMessage;
-  final Function scrollToMessage;
+  final void Function(int dir) scrollToMessage;
 
-  const MuteAndUnMuteRoomWidget(
-      {Key? key,
-      required this.roomId,
-      required this.scrollToMessage,
-      required this.inputMessage})
-      : super(key: key);
+  const MuteAndUnMuteRoomWidget({
+    Key? key,
+    required this.roomId,
+    required this.scrollToMessage,
+    required this.inputMessage,
+  }) : super(key: key);
 
   @override
   State<MuteAndUnMuteRoomWidget> createState() =>
@@ -29,14 +29,7 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _i18n = GetIt.I.get<I18N>();
-  final String roomId;
-  final Widget inputMessage;
 
-  MuteAndUnMuteRoomWidget({
-    Key? key,
-    required this.roomId,
-    required this.inputMessage,
-  }) : super(key: key);
   final FocusNode _focusNode = FocusNode();
 
   @override
@@ -59,29 +52,33 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return FutureBuilder<bool>(
-        future: _mucRepo.isMucAdminOrOwner(
-            _authRepo.currentUserUid.asString(), widget.roomId),
-        builder: (c, s) {
-          if (s.hasData && s.data!) {
-            return widget.inputMessage;
-          } else {
-            return Container(
-              color: theme.primaryColor,
-              height: 45,
-              child: Center(
-                  child: GestureDetector(
+      future: _mucRepo.isMucAdminOrOwner(
+        _authRepo.currentUserUid.asString(),
+        widget.roomId,
+      ),
+      builder: (c, s) {
+        if (s.hasData && s.data!) {
+          return widget.inputMessage;
+        } else {
+          return Container(
+            color: theme.primaryColor,
+            height: 45,
+            child: Center(
+              child: GestureDetector(
                 child:
                     Focus(focusNode: _focusNode, child: buildStreamBuilder()),
-              )),
-            );
-          }
-        });
+              ),
+            ),
+          );
+        }
+      },
+    );
   }
 
   StreamBuilder<bool> buildStreamBuilder() {
     return StreamBuilder<bool>(
       stream: _roomRepo.watchIsRoomMuted(widget.roomId),
-      builder: (BuildContext context, AsyncSnapshot<bool> isMuted) {
+      builder: (context, isMuted) {
         if (isMuted.data != null) {
           if (isMuted.data!) {
             return GestureDetector(

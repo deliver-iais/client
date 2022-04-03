@@ -12,13 +12,13 @@ class ScrollMessageList extends StatefulWidget {
   final ItemScrollController controller;
   final ItemPositionsListener itemPositionsListener;
 
-  const ScrollMessageList(
-      {Key? key,
-      required this.child,
-      required this.itemCount,
-      required this.controller,
-      required this.itemPositionsListener})
-      : super(key: key);
+  const ScrollMessageList({
+    Key? key,
+    required this.child,
+    required this.itemCount,
+    required this.controller,
+    required this.itemPositionsListener,
+  }) : super(key: key);
 
   @override
   _ScrollMessageListState createState() => _ScrollMessageListState();
@@ -39,30 +39,29 @@ class _ScrollMessageListState extends State<ScrollMessageList> {
     });
   }
 
-  _restPosition() {
-    List<ItemPosition> pos =
-        widget.itemPositionsListener.itemPositions.value.toList();
-    pos.sort((a, b) => (b.index) - (a.index));
-    double h = ((((widget.itemCount - (pos.first.index+1)) / widget.itemCount) *
+  void _restPosition() {
+    var pos = widget.itemPositionsListener.itemPositions.value.toList();
+    pos = pos..sort((a, b) => (b.index) - (a.index));
+    var h = ((((widget.itemCount - (pos.first.index + 1)) / widget.itemCount) *
         MediaQuery.of(context).size.height));
     _barOffset = h;
-    if (widget.itemCount<40 && widget.itemCount - pos.first.index < 30) {
+    if (widget.itemCount < 40 && widget.itemCount - pos.first.index < 30) {
       h = 0.0;
     }
     _bottom.add(h);
   }
 
   void _onVerticalDragUpdate(DragUpdateDetails details) {
-    var h = MediaQuery.of(context).size.height;
+    final h = MediaQuery.of(context).size.height;
     _startScroll = true;
     _barOffset = min(_barOffset - details.delta.dy, h - height);
 
     if (_barOffset >= 0) {
-      double k = h - _barOffset;
+      var k = h - _barOffset;
       if (details.delta.dy < 0) {
         k = k - height;
       }
-      int _index = max((((k) / h) * widget.itemCount).ceil(), 1);
+      final _index = max((((k) / h) * widget.itemCount).ceil(), 1);
       _bottom.add(_barOffset);
       widget.controller.jumpTo(index: _index, alignment: 0.5);
     }
@@ -71,13 +70,14 @@ class _ScrollMessageListState extends State<ScrollMessageList> {
   @override
   Widget build(BuildContext context) {
     return (isDesktop || kIsWeb) && widget.itemCount > 40
-        ? Stack(children: <Widget>[
-            ScrollConfiguration(
-              behavior:
-                  ScrollConfiguration.of(context).copyWith(scrollbars: false),
-              child: widget.child,
-            ),
-            StreamBuilder<double>(
+        ? Stack(
+            children: <Widget>[
+              ScrollConfiguration(
+                behavior:
+                    ScrollConfiguration.of(context).copyWith(scrollbars: false),
+                child: widget.child,
+              ),
+              StreamBuilder<double>(
                 stream: _bottom.stream,
                 builder: (context, snapshot) {
                   if (snapshot.hasData && snapshot.data != null) {
@@ -86,24 +86,29 @@ class _ScrollMessageListState extends State<ScrollMessageList> {
                       top: 55,
                       child: Padding(
                         padding: EdgeInsets.only(
-                            top: max(
-                                MediaQuery.of(context).size.height -
-                                    snapshot.data! -
-                                    height,
-                                2),
-                            bottom: snapshot.data!),
+                          top: max(
+                            MediaQuery.of(context).size.height -
+                                snapshot.data! -
+                                height,
+                            2,
+                          ),
+                          bottom: snapshot.data!,
+                        ),
                         child: GestureDetector(
-                            onVerticalDragUpdate: _onVerticalDragUpdate,
-                            onVerticalDragEnd: (d) => _startScroll = false,
-                            onVerticalDragCancel: () => _startScroll = false,
-                            onVerticalDragDown: (d) => _startScroll = false,
-                            child: _buildScroll()),
+                          onVerticalDragUpdate: _onVerticalDragUpdate,
+                          onVerticalDragEnd: (d) => _startScroll = false,
+                          onVerticalDragCancel: () => _startScroll = false,
+                          onVerticalDragDown: (d) => _startScroll = false,
+                          child: _buildScroll(),
+                        ),
                       ),
                     );
                   }
                   return const SizedBox.shrink();
-                }),
-          ])
+                },
+              ),
+            ],
+          )
         : widget.child;
   }
 

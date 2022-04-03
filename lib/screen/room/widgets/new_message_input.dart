@@ -17,7 +17,7 @@ class NewMessageInput extends StatelessWidget {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final void Function() scrollToLastSentMessage;
   final FocusNode focusNode;
-  final void Function handleScrollToMessage;
+  final void Function(int dir) handleScrollToMessage;
   final TextEditingController textController;
 
   NewMessageInput({
@@ -45,10 +45,10 @@ class NewMessageInput extends StatelessWidget {
               replyMessageId: replyMessageId,
               handleScrollToMessage: handleScrollToMessage,
               resetRoomPageDetails: resetRoomPageDetails,
-              waitingForForward: waitingForForward!,
+              waitingForForward: waitingForForward,
               editableMessage: editableMessage,
-              sendForwardMessage: sendForwardMessage!,
-              scrollToLastSentMessage: scrollToLastSentMessage!,
+              sendForwardMessage: sendForwardMessage,
+              scrollToLastSentMessage: scrollToLastSentMessage,
               focusNode: focusNode,
               textController: textController,
             );
@@ -56,6 +56,6 @@ class NewMessageInput extends StatelessWidget {
             _roomRepo.createRoomIfNotExist(currentRoomId);
             return const SizedBox.shrink();
           }
-        });
+        },);
   }
 }
