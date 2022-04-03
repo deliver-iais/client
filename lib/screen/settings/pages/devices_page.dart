@@ -175,7 +175,7 @@ class _DevicesPageState extends State<DevicesPage> {
                     Text(
                       session.createdOn.toInt() == 0
                           ? "No Time Provided"
-                          : dateTimeFormat(date(session.createdOn.toInt())),
+                          : dateTimeFromNowFormat(date(session.createdOn.toInt())),
                     ),
                   ],
                 ),

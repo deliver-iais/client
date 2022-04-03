@@ -176,7 +176,7 @@ class _ChatItemState extends State<ChatItem> {
                                 ),
                                 if (widget.room.lastUpdateTime != null)
                                   Text(
-                                    dateTimeFormat(
+                                    dateTimeFromNowFormat(
                                       date(
                                         widget.room.lastUpdateTime!,
                                       ),

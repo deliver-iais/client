@@ -19,13 +19,11 @@ class CallDetailPage extends StatefulWidget {
   final CallInfo callEvent;
   final bool isIncomingCall;
   final Uid caller;
-  final String monthName;
 
   const CallDetailPage({
     Key? key,
     required this.isIncomingCall,
     required this.caller,
-    required this.monthName,
     required this.callEvent,
   }) : super(key: key);
 

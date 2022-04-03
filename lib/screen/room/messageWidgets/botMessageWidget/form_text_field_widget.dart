@@ -1,9 +1,9 @@
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
 import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 
 class FormInputTextFieldWidget extends StatefulWidget {
@@ -124,7 +124,7 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
         widget.setResult(newSelectedDate.microsecondsSinceEpoch.toString());
         _selectedDate = newSelectedDate;
         _textEditingController
-          ..text = DateFormat.yMMMd().format(_selectedDate!)
+          ..text = dateTimeFormat(_selectedDate!)
           ..selection = TextSelection.fromPosition(
             TextPosition(
               offset: _textEditingController.text.length,

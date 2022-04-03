@@ -14,12 +14,10 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:expandable/expandable.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
 
 class CallListPage extends StatefulWidget {
   const CallListPage({Key? key}) : super(key: key);
@@ -66,19 +64,14 @@ class _CallListPageState extends State<CallListPage> {
                   },
                   itemCount: calls.length,
                   itemBuilder: (ctx, index) {
-                    final DateTime time;
-                    final bool isIncomingCall;
-                    final Uid caller;
-                    final String monthName;
-                    time = DateTime.fromMillisecondsSinceEpoch(
+                    final time = DateTime.fromMillisecondsSinceEpoch(
                       calls[index].callEvent.endOfCallTime,
                     );
-                    monthName = DateFormat('MMMM').format(time);
-                    isIncomingCall =
+                    final isIncomingCall =
                         calls[index].callEvent.newStatus == CallStatus.DECLINED
                             ? _authRepo.isCurrentUser(calls[index].to)
                             : _authRepo.isCurrentUser(calls[index].from);
-                    caller = _authRepo.isCurrentUser(calls[index].to)
+                    final caller = _authRepo.isCurrentUser(calls[index].to)
                         ? calls[index].from.asUid()
                         : calls[index].to.asUid();
                     return ExpandableTheme(
@@ -94,7 +87,6 @@ class _CallListPageState extends State<CallListPage> {
                           time: time,
                           caller: caller,
                           isIncomingCall: isIncomingCall,
-                          monthName: monthName,
                         ),
                         collapsed: const SizedBox.shrink(),
                         expanded: Padding(
@@ -103,7 +95,6 @@ class _CallListPageState extends State<CallListPage> {
                             callEvent: calls[index],
                             caller: caller,
                             isIncomingCall: isIncomingCall,
-                            monthName: monthName,
                           ),
                         ),
                       ),

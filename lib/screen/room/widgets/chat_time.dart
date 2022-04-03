@@ -19,7 +19,7 @@ class ChatTime extends StatelessWidget {
         currentMonth == currentMessageTime.month) {
       outT = 'Yesterday';
     } else {
-      outT = dateTimeFormat(currentMessageTime, weekFormat: 'l');
+      outT = dateTimeFromNowFormat(currentMessageTime, weekFormat: 'l');
     }
     return Padding(
       padding: const EdgeInsets.only(top: 20.0),

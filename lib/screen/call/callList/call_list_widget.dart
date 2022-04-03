@@ -1,6 +1,7 @@
 import 'package:deliver/box/call_info.dart';
 import 'package:deliver/box/call_type.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:expandable/expandable.dart';
@@ -12,14 +13,12 @@ class CallListWidget extends StatelessWidget {
   final DateTime time;
   final bool isIncomingCall;
   final Uid caller;
-  final String monthName;
 
   CallListWidget({
     Key? key,
     required this.time,
     required this.isIncomingCall,
     required this.caller,
-    required this.monthName,
     required this.callEvent,
   }) : super(key: key);
   final _roomRepo = GetIt.I.get<RoomRepo>();
@@ -73,14 +72,7 @@ class CallListWidget extends StatelessWidget {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      " " +
-                          monthName +
-                          " " +
-                          time.day.toString() +
-                          " at " +
-                          time.hour.toString() +
-                          ":" +
-                          time.minute.toString(),
+                      dateTimeFromNowFormat(time),
                       style: TextStyle(
                         color: theme.colorScheme.primary.withAlpha(130),
                         fontSize: 12,

@@ -16,7 +16,7 @@ String durationTimeFormat(Duration duration) {
   return "${twoDigits(duration.inHours)}:$twoDigitMinutes:$twoDigitSeconds";
 }
 
-String dateTimeFormat(DateTime time, {String weekFormat = 'D'}) {
+String dateTimeFromNowFormat(DateTime time, {String weekFormat = 'D'}) {
   final now = DateTime.now();
   final difference = now.difference(time);
   if (difference.inDays < 1 && time.day == now.day) {
@@ -26,4 +26,11 @@ String dateTimeFormat(DateTime time, {String weekFormat = 'D'}) {
   } else {
     return DateTimeFormat.format(time, format: 'M j');
   }
+}
+
+String dateTimeFormat(DateTime time) {
+  return DateTimeFormat.format(
+    time,
+    format: AmericanDateFormats.standardAbbrWithComma,
+  );
 }
