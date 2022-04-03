@@ -533,7 +533,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
       case MessageType.CALL:
       case MessageType.Table:
-        // TODO: Handle these cases.
         break;
     }
   }
