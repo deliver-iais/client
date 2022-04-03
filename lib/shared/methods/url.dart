@@ -22,6 +22,7 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
   final _mucDao = GetIt.I.get<MucDao>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _mucRepo = GetIt.I.get<MucRepo>();
+  final _i18n = GetIt.I.get<I18N>();
   final _routingService = GetIt.I.get<RoutingService>();
 
   Uid? roomUid;
@@ -67,7 +68,7 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
                       MaterialButton(
                           color: Colors.blueAccent,
                           onPressed: () => Navigator.of(context).pop(),
-                          child: Text(I18N.of(context)!.get("skip"))),
+                          child: Text(_i18n.get("skip"))),
                       MaterialButton(
                         color: Colors.blueAccent,
                         onPressed: () async {
@@ -93,7 +94,7 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
                             }
                           }
                         },
-                        child: Text(I18N.of(context)!.get("join")),
+                        child: Text(_i18n.get("join")),
                       ),
                     ],
                   ),

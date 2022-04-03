@@ -153,8 +153,7 @@ class _ProfilePageState extends State<ProfilePage>
                       ? _tabsCount + 1
                       : _tabsCount,
                   child: NestedScrollView(
-                      headerSliverBuilder:
-                          (context, innerBoxIsScrolled) {
+                      headerSliverBuilder: (context, innerBoxIsScrolled) {
                         return <Widget>[
                           _buildInfo(context),
                           SliverPersistentHeader(
@@ -1084,12 +1083,11 @@ class _ProfilePageState extends State<ProfilePage>
                   return StreamBuilder<List<String>>(
                       stream: groups.stream,
                       builder: (context, snapshot) {
-                        if (snapshot.hasData &&
-                            snapshot.data != null &&
-                            snapshot.data!.isNotEmpty) {
+                        if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                          final filteredGroupList = snapshot.data!;
                           return SizedBox(
                             height: min(MediaQuery.of(context).size.height / 2,
-                                groups.value.length * 100.toDouble()),
+                                filteredGroupList.length * 100.toDouble()),
                             width: MediaQuery.of(context).size.width / 2,
                             child: Column(
                               children: [
@@ -1115,18 +1113,19 @@ class _ProfilePageState extends State<ProfilePage>
                                         return GestureDetector(
                                           child: FutureBuilder<String>(
                                             future: _roomRepo.getName(
-                                                snapshot.data![i].asUid()),
+                                                filteredGroupList[i].asUid()),
                                             builder: (c, name) {
                                               if (name.hasData &&
                                                   name.data != null) {
-                                                nameOfGroup[snapshot.data![i]] =
+                                                nameOfGroup[
+                                                        filteredGroupList[i]] =
                                                     name.data!;
                                                 return SizedBox(
                                                     height: 50,
                                                     child: Row(
                                                       children: [
                                                         CircleAvatarWidget(
-                                                            snapshot.data![i]
+                                                            filteredGroupList[i]
                                                                 .asUid(),
                                                             20),
                                                         const SizedBox(
@@ -1141,78 +1140,13 @@ class _ProfilePageState extends State<ProfilePage>
                                               }
                                             },
                                           ),
-                                          onTap: () async {
-                                            showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return AlertDialog(
-                                                    title: const Icon(
-                                                        Icons.person_add),
-                                                    content: FutureBuilder<
-                                                            String>(
-                                                        future:
-                                                            _roomRepo.getName(
-                                                                widget.roomUid),
-                                                        builder: (c, name) {
-                                                          if (name.hasData &&
-                                                              name.data !=
-                                                                  null &&
-                                                              name.data!
-                                                                  .isNotEmpty) {
-                                                            return Text(
-                                                                "${_i18n.get("add")} ${name.data} ${_i18n.get("to")} ${nameOfGroup[snapshot.data![i]]}");
-                                                          } else {
-                                                            return const SizedBox
-                                                                .shrink();
-                                                          }
-                                                        }),
-                                                    actions: [
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          TextButton(
-                                                              onPressed: () {
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .pop();
-                                                              },
-                                                              child: Text(
-                                                                  _i18n.get(
-                                                                      "cancel"))),
-                                                          TextButton(
-                                                              onPressed:
-                                                                  () async {
-                                                                final res = await _mucRepo
-                                                                    .sendMembers(
-                                                                        snapshot
-                                                                            .data![i]
-                                                                            .asUid(),
-                                                                        [
-                                                                      widget
-                                                                          .roomUid
-                                                                    ]);
-                                                                if (res) {
-                                                                  Navigator.pop(
-                                                                      context);
-                                                                  Navigator.pop(
-                                                                      c1);
-                                                                  _routingService
-                                                                      .openRoom(
-                                                                    snapshot
-                                                                        .data![i],
-                                                                  );
-                                                                }
-                                                              },
-                                                              child: Text(_i18n
-                                                                  .get("add"))),
-                                                        ],
-                                                      )
-                                                    ],
-                                                  );
-                                                });
-                                          },
+                                          onTap: () =>
+                                              _addBotToGroupButtonOnTab(
+                                            context,
+                                            c1,
+                                            filteredGroupList[i],
+                                            nameOfGroup[filteredGroupList[i]],
+                                          ),
                                         );
                                       },
                                       separatorBuilder: (c, i) {
@@ -1233,6 +1167,57 @@ class _ProfilePageState extends State<ProfilePage>
                 return const Center(child: CircularProgressIndicator());
               },
             ),
+          );
+        });
+  }
+
+  Future<void> _addBotToGroupButtonOnTab(
+      BuildContext context, BuildContext c1, String uid, String? name) async {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            title: const Icon(Icons.person_add),
+            content: FutureBuilder<String>(
+                future: _roomRepo.getName(widget.roomUid),
+                builder: (c, name) {
+                  if (name.hasData &&
+                      name.data != null &&
+                      name.data!.isNotEmpty) {
+                    return Text(
+                        "${_i18n.get("add")} ${name.data} ${_i18n.get("to")} $name");
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                }),
+            actions: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(_i18n.get("cancel"))),
+                  TextButton(
+                      onPressed: () async {
+                        final basicNavigatorState = Navigator.of(context);
+                        final c1NavigatorState = Navigator.of(c1);
+
+                        final res = await _mucRepo
+                            .sendMembers(uid.asUid(), [widget.roomUid]);
+                        if (res) {
+                          basicNavigatorState.pop();
+                          c1NavigatorState.pop();
+                          _routingService.openRoom(
+                            uid,
+                          );
+                        }
+                      },
+                      child: Text(_i18n.get("add"))),
+                ],
+              )
+            ],
           );
         });
   }

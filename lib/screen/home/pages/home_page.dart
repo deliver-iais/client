@@ -37,6 +37,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     try {
       final initialLink = await getInitialLink();
       if (initialLink != null && initialLink.isNotEmpty) {
+        // ignore: use_build_context_synchronously
         await handleJoinUri(context, initialLink);
       }
     } catch (e) {

@@ -443,6 +443,7 @@ class _AccountSettingsState extends State<AccountSettings> {
   }
 
   Future<void> checkAndSend() async {
+    final navigatorState = Navigator.of(context);
     final checkUserName = _usernameFormKey.currentState?.validate() ?? false;
     if (checkUserName) {
       final isValidated = _formKey.currentState?.validate() ?? false;
@@ -455,8 +456,7 @@ class _AccountSettingsState extends State<AccountSettings> {
               _email.isNotEmpty ? _email : _account!.email);
           if (setPrivateInfo) {
             if (widget.forceToSetUsernameAndName) {
-              Navigator.pushAndRemoveUntil(context,
-                  MaterialPageRoute(builder: (c) {
+              navigatorState.pushAndRemoveUntil(MaterialPageRoute(builder: (c) {
                 return const HomePage();
               }), (r) => false);
             } else {

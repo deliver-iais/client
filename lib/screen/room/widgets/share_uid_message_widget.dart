@@ -106,7 +106,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                                   child: Text(_i18n.get("skip"))),
                               MaterialButton(
                                   onPressed: () async {
-                                    // Navigator.of(context).pop();
+                                    final navigatorState = Navigator.of(context);
                                     if ((_shareUid.uid.category ==
                                             Categories.GROUP ||
                                         _shareUid.uid.category ==
@@ -125,7 +125,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                                                 res.lastMessageId!);
                                             _routingServices.openRoom(
                                                 _shareUid.uid.asString());
-                                            Navigator.of(context).pop();
+                                            navigatorState.pop();
                                           }
                                         } else {
                                           final res =
@@ -138,7 +138,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                                                 res.lastMessageId!);
                                             _routingServices.openRoom(
                                                 _shareUid.uid.asString());
-                                            Navigator.of(context).pop();
+                                            navigatorState.pop();
                                           }
                                         }
                                       } else {

@@ -116,7 +116,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
               ],
             ),
             titleSpacing: 8.0,
-            title: Text(I18N.of(context)!.get("chats"),
+            title: Text(_i18n.get("chats"),
                 style: theme.textTheme.headline6,
                 key: ValueKey(randomString(10))),
             actions: [

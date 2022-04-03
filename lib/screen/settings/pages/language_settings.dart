@@ -39,26 +39,26 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
                     SettingsTile(
                       title: 'English',
                       leading: const Icon(Icons.language),
-                      trailing: I18N.of(context)!.locale.languageCode ==
+                      trailing: _i18n.locale.languageCode ==
                               english.languageCode
                           ? const Icon(Icons.done)
                           : const SizedBox.shrink(),
                       onPressed: (context) {
                         setState(() {
-                          I18N.of(context)!.changeLanguage(english);
+                          _i18n.changeLanguage(english);
                         });
                       },
                     ),
                     SettingsTile(
                       title: 'فارسی',
                       leading: const Icon(Icons.language),
-                      trailing: I18N.of(context)!.locale.languageCode ==
+                      trailing: _i18n.locale.languageCode ==
                               farsi.languageCode
                           ? const Icon(Icons.done)
                           : const SizedBox.shrink(),
                       onPressed: (context) {
                         setState(() {
-                          I18N.of(context)!.changeLanguage(farsi);
+                          _i18n.changeLanguage(farsi);
                         });
                       },
                     ),

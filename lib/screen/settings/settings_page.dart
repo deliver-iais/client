@@ -132,6 +132,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     leading: const Icon(CupertinoIcons.qrcode),
                     onPressed: (context) async {
                       final account = await _accountRepo.getAccount();
+                      // ignore: use_build_context_synchronously
                       showQrCode(
                           context,
                           buildShareUserUrl(
@@ -177,7 +178,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   ),
                   SettingsTile(
                     title: _i18n.get("language"),
-                    subtitle: I18N.of(context)!.locale.language().name,
+                    subtitle: _i18n.locale.language().name,
                     leading: const Icon(CupertinoIcons.textformat_abc),
                     onPressed: (context) {
                       _routingService.openLanguageSettings();

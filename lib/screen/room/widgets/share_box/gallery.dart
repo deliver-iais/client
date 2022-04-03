@@ -218,10 +218,11 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
               padding: const EdgeInsets.only(bottom: 20, right: 15),
               child: IconButton(
                 onPressed: () async {
+                  final navigatorState = Navigator.of(context);
                   final file = await _controller.takePicture();
                   if (widget.setAvatar != null) {
                     widget.pop();
-                    Navigator.pop(context);
+                    navigatorState.pop();
                     widget.setAvatar!(file.path);
                   } else {
                     openImage(file, pop);

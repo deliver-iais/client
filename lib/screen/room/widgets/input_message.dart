@@ -677,6 +677,7 @@ class _InputMessageWidget extends State<InputMessage> {
       widget.textController.selection = TextSelection.fromPosition(
           TextPosition(offset: widget.textController.text.length));
     } else {
+      // ignore: use_build_context_synchronously
       _rawKeyboardService.controlVHandle(
           widget.textController, context, widget.currentRoom.uid.asUid());
     }
