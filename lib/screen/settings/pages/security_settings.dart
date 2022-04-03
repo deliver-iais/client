@@ -116,7 +116,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                         setState(() {});
                         Navigator.of(context).pop();
                       } else {
-                        // TODO, show error
+                        // TODO(hasan): show error, https://gitlab.iais.co/deliver/wiki/-/issues/418
                       }
                     }
                   : null,

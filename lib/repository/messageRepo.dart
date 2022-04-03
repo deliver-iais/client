@@ -1022,19 +1022,11 @@ class MessageRepo {
                   _avatarRepo.fetchAvatar(message.from, forceToUpdate: true);
                   break;
                 case MucSpecificPersistentEvent_Issue.JOINED_USER:
-                  // TODO: Handle this case.
-                  break;
                 case MucSpecificPersistentEvent_Issue.LEAVE_USER:
-                  // TODO: Handle this case.
-                  break;
                 case MucSpecificPersistentEvent_Issue.MUC_CREATED:
-                  // TODO: Handle this case.
-                  break;
                 case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
-                  // TODO: Handle this case.
-                  break;
                 case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
-                  // TODO: Handle this case.
+                  // TODO(dansi): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/417
                   break;
               }
               break;

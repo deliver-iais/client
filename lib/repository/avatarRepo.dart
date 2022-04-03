@@ -128,7 +128,6 @@ class AvatarRepo {
     yield* _avatarDao.watchAvatars(userUid.asString());
   }
 
-  // TODO, change function signature
   Future<Avatar?> getLastAvatar(
     Uid userUid, {
     bool forceToUpdate = false,

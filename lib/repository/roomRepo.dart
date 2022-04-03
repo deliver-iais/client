@@ -327,19 +327,25 @@ class RoomRepo {
   }
 
   Future<String> getUidById(String id) async {
-    // TODO MIGRATION NEEDS
-    // TODO move string manipulation logic out of this function
-    if (id.contains('@')) {
-      id = id.substring(id.indexOf('@') + 1, id.length);
-    }
+    final synthesizeId = _extractId(id);
 
-    final uid = await _uidIdNameDao.getUidById(id);
+    final uid = await _uidIdNameDao.getUidById(synthesizeId);
     if (uid != null) {
       return uid;
     } else {
-      final uid = await fetchUidById(id);
-      _uidIdNameDao.update(uid.asString(), id: id);
+      final uid = await fetchUidById(synthesizeId);
+      _uidIdNameDao.update(uid.asString(), id: synthesizeId);
       return uid.asString();
+    }
+  }
+
+  String _extractId(String id) {
+    final sid = id.trim();
+
+    if (sid.contains('@')) {
+      return sid.substring(sid.indexOf('@') + 1, sid.length);
+    } else {
+      return sid;
     }
   }
 

@@ -617,7 +617,7 @@ class MucRepo {
             }
           })
           .where((e) => e.id != null && e.id!.isNotEmpty)
-          // TODO better pattern matching maybe be helpful
+          // TODO(hasan): more advanced pattern matching maybe be helpful, https://gitlab.iais.co/deliver/wiki/-/issues/414
           .where(
             (e) =>
                 query!.isEmpty ||

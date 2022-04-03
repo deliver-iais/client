@@ -296,19 +296,11 @@ class CallRepo {
             }
             break;
           case RTCIceConnectionState.RTCIceConnectionStateNew:
-            // TODO: Handle this case.
-            break;
           case RTCIceConnectionState.RTCIceConnectionStateChecking:
-            // TODO: Handle this case.
-            break;
           case RTCIceConnectionState.RTCIceConnectionStateCompleted:
-            // TODO: Handle this case.
-            break;
           case RTCIceConnectionState.RTCIceConnectionStateCount:
-            // TODO: Handle this case.
-            break;
           case RTCIceConnectionState.RTCIceConnectionStateClosed:
-            // TODO: Handle this case.
+            // TODO(AmirHossein): Handle these cases.
             break;
         }
       }
