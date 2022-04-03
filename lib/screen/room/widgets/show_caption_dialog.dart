@@ -18,7 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 
-/// TODO refactor this class
+// TODO(hasan): refactor ShowCaptionDialog class, https://gitlab.iais.co/deliver/wiki/-/issues/432
 class ShowCaptionDialog extends StatefulWidget {
   final String? type;
   final List<model.File>? files;

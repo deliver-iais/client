@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import 'package:badges/badges.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart';
@@ -20,6 +21,7 @@ import 'package:deliver/screen/profile/widgets/link_tab_ui.dart';
 import 'package:deliver/screen/profile/widgets/member_widget.dart';
 import 'package:deliver/screen/profile/widgets/music_and_audio_ui.dart';
 import 'package:deliver/screen/profile/widgets/on_delete_popup_dialog.dart';
+import 'package:deliver/screen/profile/widgets/profile_avatar.dart';
 import 'package:deliver/screen/profile/widgets/video_tab_ui.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -31,7 +33,6 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/box.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
-import 'package:deliver/shared/widgets/profile_avatar.dart';
 import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -558,7 +559,7 @@ class _ProfilePageState extends State<ProfilePage>
             initialData: _roomRepo.fastForwardName(widget.roomUid),
             future: _roomRepo.getName(widget.roomUid),
             builder: (context, snapshot) {
-              _roomName = snapshot.data ?? "Loading..."; // TODO add i18n
+              _roomName = snapshot.data ?? _i18n.get("loading");
               return RoomName(uid: widget.roomUid, name: _roomName);
             },
           ),
@@ -793,7 +794,6 @@ class _ProfilePageState extends State<ProfilePage>
                 ),
                 TextButton(
                   onPressed: () {
-                    // TODO set name for share uid
                     Navigator.pop(context);
                     _routingService.openSelectForwardMessage(
                       sharedUid: proto.ShareUid()

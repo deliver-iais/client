@@ -14,13 +14,6 @@ final List<HctColor> _customHctColors = [
   HctColor.fromInt(Colors.purple.value)
 ];
 
-// TODO remove these
-// ignore: constant_identifier_names
-const LightThemeName = "Light";
-
-// ignore: constant_identifier_names
-const DarkThemeName = "Dark";
-
 final palettes = [
   const Color(0xFF0060a7),
   const Color(0xff5c00a7),

@@ -8,6 +8,7 @@ import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:rxdart/rxdart.dart';
 
+// TODO(hasan): Migrate from Download*Widget to LoadFileStatus instead of this if it is possible, https://gitlab.iais.co/deliver/wiki/-/issues/434
 class DownloadVideoWidget extends StatefulWidget {
   final String uuid;
   final String name;
@@ -52,7 +53,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
                 image: Image.file(File(thumbnail.data!)).image,
                 fit: BoxFit.cover,
               ),
-              color: Colors.black.withOpacity(0.5), //TODO check
+              color: Colors.black.withOpacity(0.5),
             ),
             child: Center(child: buildStreamBuilder()),
           );

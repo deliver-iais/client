@@ -215,16 +215,9 @@ class ContactRepo {
     }
   }
 
-  // TODO needs to be refactored!
-  Future<contact_pb.Contact?> getContact(Uid userUid) async {
-    final contact = await _contactDao.getByUid(userUid.asString());
-    return contact;
-  }
-
-  Future<bool> contactIsExist(String countryCode, String nationalNumber) async {
-    final result = await _contactDao.get(countryCode, nationalNumber);
-    return result != null;
-  }
+  // TODO(hasan): we should merge getContact and getContactFromServer functions together and refactor usages too, https://gitlab.iais.co/deliver/wiki/-/issues/421
+  Future<contact_pb.Contact?> getContact(Uid userUid) =>
+      _contactDao.getByUid(userUid.asString());
 
   Future<String?> getContactFromServer(Uid contactUid) async {
     try {
@@ -237,5 +230,10 @@ class ContactRepo {
       _logger.e(e);
       return null;
     }
+  }
+
+  Future<bool> contactIsExist(String countryCode, String nationalNumber) async {
+    final result = await _contactDao.get(countryCode, nationalNumber);
+    return result != null;
   }
 }

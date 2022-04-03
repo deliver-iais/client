@@ -257,7 +257,6 @@ class _BoxContentState extends State<BoxContent> {
         );
 
       case MessageType.POLL:
-        // TODO: Handle this case.
         break;
       case MessageType.FORM_RESULT:
         return FormResultWidget(
@@ -313,8 +312,7 @@ class _BoxContentState extends State<BoxContent> {
           colorScheme: widget.colorScheme,
         );
       case MessageType.NOT_SET:
-        // TODO: Show not supported in this version...
-        // TODO: Handle this case.
+        // TODO(hasan): Show not supported in this version... in MessageType.NOT_SET, https://gitlab.iais.co/deliver/wiki/-/issues/433
         break;
       case MessageType.CALL:
         return CallMessageWidget(

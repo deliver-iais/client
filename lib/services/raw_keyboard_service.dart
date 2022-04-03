@@ -17,7 +17,6 @@ class RawKeyboardService {
   final _routingService = GetIt.I.get<RoutingService>();
 
   void controlFHandle() {
-    // TODO: should be implemented
   }
 
   void controlCHandle(TextEditingController controller) {

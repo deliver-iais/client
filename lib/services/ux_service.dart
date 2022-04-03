@@ -102,18 +102,13 @@ class UxService {
         .getBooleanStream(SHARED_DAO_SEND_BY_ENTER, defaultValue: isDesktop)
         .distinct()
         .listen((sbn) => _sendByEnter.add(sbn));
-    _sharedDao.get(SHARED_DAO_THEME).then((event) {
-      if (event != null) {
-        if (event.contains(DarkThemeName)) {
-          _themeIsDark.add(true);
-        } else {
-          _themeIsDark.add(false);
-        }
-      } else if (isAutoNightModeEnable &&
-          window.platformBrightness == Brightness.dark) {
-        _themeIsDark.add(true);
-      }
-    });
+    _sharedDao
+        .getBoolean(
+          SHARED_DAO_THEME_IS_DARK,
+          defaultValue: isAutoNightModeEnable &&
+              window.platformBrightness == Brightness.dark,
+        )
+        .then(_themeIsDark.add);
     _sharedDao.get(SHARED_DAO_THEME_COLOR).then((event) {
       if (event != null) {
         try {
@@ -158,17 +153,17 @@ class UxService {
 
   void toggleThemeToLightMode() {
     SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(systemNavigationBarColor: Colors.white),
+      SystemUiOverlayStyle.light,
     );
-    _sharedDao.put(SHARED_DAO_THEME, LightThemeName);
+    _sharedDao.putBoolean(SHARED_DAO_THEME_IS_DARK, false);
     _themeIsDark.add(false);
   }
 
   void toggleThemeToDarkMode() {
     SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(systemNavigationBarColor: Colors.black45),
+      SystemUiOverlayStyle.dark,
     );
-    _sharedDao.put(SHARED_DAO_THEME, DarkThemeName);
+    _sharedDao.putBoolean(SHARED_DAO_THEME_IS_DARK, true);
     _themeIsDark.add(true);
   }
 
@@ -203,7 +198,7 @@ class UxService {
     _sharedDao.put(SHARED_DAO_LOG_LEVEL, level);
   }
 
-  // TODO ???
+  // TODO(hasan): tabIndex should not be store in UX service https://gitlab.iais.co/deliver/wiki/-/issues/409
   final Map _tabIndexMap = <String, int>{};
 
   int? getTabIndex(String fileId) {

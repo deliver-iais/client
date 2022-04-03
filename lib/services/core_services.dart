@@ -25,7 +25,6 @@ const MIN_BACKOFF_TIME = isWeb ? 16 : 4;
 const MAX_BACKOFF_TIME = isWeb ? 16 : 8;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
-// TODO Change to StreamRepo, it is not a service, it is repo now!!!
 class CoreServices {
   final _logger = GetIt.I.get<Logger>();
   final _grpcCoreService = GetIt.I.get<CoreServiceClient>();
@@ -52,7 +51,6 @@ class CoreServices {
   final BehaviorSubject<ConnectionStatus> _connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Connecting);
 
-  //TODO test
   Future<void> initStreamConnection() async {
     if (_connectionTimer != null && _connectionTimer!.isActive) {
       return;
@@ -141,7 +139,7 @@ class CoreServices {
             break;
           case ServerPacket_Type.liveLocationStatusChanged:
           case ServerPacket_Type.error:
-            // TODO: Handle these cases.
+            // TODO(hasan): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/411
             break;
           case ServerPacket_Type.notSet:
           case ServerPacket_Type.expletivePacket:

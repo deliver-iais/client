@@ -10,7 +10,6 @@ import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-// TODO, change accessibility and improve UI
 class NewContact extends StatefulWidget {
   const NewContact({Key? key}) : super(key: key);
 

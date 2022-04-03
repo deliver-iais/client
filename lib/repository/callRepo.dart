@@ -190,12 +190,11 @@ class CallRepo {
             case CallEvent_CallStatus.JOINED:
             case CallEvent_CallStatus.KICK:
             case CallEvent_CallStatus.LEFT:
-              // TODO: Handle this case.
+              // TODO(AmirHossein): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/416
               break;
           }
           break;
         case CallTypes.None:
-          // TODO: Handle this case.
           break;
       }
     });
@@ -296,19 +295,11 @@ class CallRepo {
             }
             break;
           case RTCIceConnectionState.RTCIceConnectionStateNew:
-            // TODO: Handle this case.
-            break;
           case RTCIceConnectionState.RTCIceConnectionStateChecking:
-            // TODO: Handle this case.
-            break;
           case RTCIceConnectionState.RTCIceConnectionStateCompleted:
-            // TODO: Handle this case.
-            break;
           case RTCIceConnectionState.RTCIceConnectionStateCount:
-            // TODO: Handle this case.
-            break;
           case RTCIceConnectionState.RTCIceConnectionStateClosed:
-            // TODO: Handle this case.
+            // TODO(AmirHossein): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/416
             break;
         }
       }
@@ -363,13 +354,9 @@ class CallRepo {
             }
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateClosed:
-            // TODO: Handle this case.
-            break;
           case RTCPeerConnectionState.RTCPeerConnectionStateNew:
-            // TODO: Handle this case.
-            break;
           case RTCPeerConnectionState.RTCPeerConnectionStateConnecting:
-            // TODO: Handle this case.
+            // TODO(AmirHossein): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/416
             break;
         }
       }
