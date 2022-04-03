@@ -113,72 +113,74 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: <Widget>[
-                      isSingleImage()
-                          ? imageUi(null)
-                          : SizedBox(
-                              height: widget.editableMessage != null
-                                  ? 50
-                                  : widget.files!.length * 100.toDouble() >
-                                          MediaQuery.of(context).size.height -
-                                              300
-                                      ? MediaQuery.of(context).size.height - 300
-                                      : widget.files!.length * 100.toDouble(),
-                              width: 350,
-                              child: ListView.separated(
-                                shrinkWrap: true,
-                                itemCount: widget.editableMessage != null
-                                    ? 1
-                                    : widget.files!.length,
-                                itemBuilder: (c, index) {
-                                  if (isImageFile(index)) {
-                                    return imageUi(index);
-                                  }
-                                  return Row(
-                                    children: [
-                                      ClipOval(
-                                        child: Material(
-                                            color: theme
-                                                .primaryColor, // button color
-                                            child: const InkWell(
-                                                splashColor: Colors
-                                                    .blue, // inkwell color
-                                                child: SizedBox(
-                                                  width: 30,
-                                                  height: 40,
-                                                  child: Icon(
-                                                    Icons.insert_drive_file,
-                                                    size: 20,
-                                                  ),
-                                                ))),
-                                      ),
-                                      const SizedBox(
-                                        width: 3,
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          widget.editableMessage != null
-                                              ? _editedFile != null
-                                                  ? _editedFile!.name
-                                                  : widget.editableMessage!.json
-                                                      .toFile()
-                                                      .name
-                                              : widget.files![index].name,
-                                          overflow: TextOverflow.ellipsis,
+                      if (isSingleImage())
+                        imageUi(null)
+                      else
+                        SizedBox(
+                          height: widget.editableMessage != null
+                              ? 50
+                              : widget.files!.length * 100.toDouble() >
+                                      MediaQuery.of(context).size.height - 300
+                                  ? MediaQuery.of(context).size.height - 300
+                                  : widget.files!.length * 100.toDouble(),
+                          width: 350,
+                          child: ListView.separated(
+                            shrinkWrap: true,
+                            itemCount: widget.editableMessage != null
+                                ? 1
+                                : widget.files!.length,
+                            itemBuilder: (c, index) {
+                              if (isImageFile(index)) {
+                                return imageUi(index);
+                              }
+                              return Row(
+                                children: [
+                                  ClipOval(
+                                    child: Material(
+                                      color: theme.primaryColor, // button color
+                                      child: const InkWell(
+                                        splashColor:
+                                            Colors.blue, // inkwell color
+                                        child: SizedBox(
+                                          width: 30,
+                                          height: 40,
+                                          child: Icon(
+                                            Icons.insert_drive_file,
+                                            size: 20,
+                                          ),
                                         ),
                                       ),
-                                      Align(
-                                          alignment: Alignment.topRight,
-                                          child: buildManage(index: index))
-                                    ],
-                                  );
-                                },
-                                separatorBuilder: (context, index) {
-                                  return const SizedBox(
-                                    height: 6,
-                                  );
-                                },
-                              ),
-                            ),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    width: 3,
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      widget.editableMessage != null
+                                          ? _editedFile != null
+                                              ? _editedFile!.name
+                                              : widget.editableMessage!.json
+                                                  .toFile()
+                                                  .name
+                                          : widget.files![index].name,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                  Align(
+                                    alignment: Alignment.topRight,
+                                    child: buildManage(index: index),
+                                  )
+                                ],
+                              );
+                            },
+                            separatorBuilder: (context, index) {
+                              return const SizedBox(
+                                height: 6,
+                              );
+                            },
+                          ),
+                        ),
                       const SizedBox(
                         height: 5,
                       ),
@@ -295,33 +297,26 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
         widget.files![index].path.contains("jpeg");
   }
 
-  bool isSingleImage() {
-    return ((widget.editableMessage != null || widget.files!.length <= 1) &&
-        (_type.contains("image") ||
-            _type.contains("jpg") ||
-            _type.contains("png") ||
-            _type.contains("jfif") ||
-            _type.contains("jpeg")));
-  }
-
-  Widget imageUi(int? index) {
-    //if index==null isSingleImage
-    return GestureDetector(
-      onTap: () async {
-        String? path = "";
-        if (widget.files!.isEmpty && _editedFile == null) {
-          path = await _fileRepo.getFileIfExist(
-              _editableFile.uuid, _editableFile.name);
-        }
-        if (widget.files!.isNotEmpty || _editedFile != null || path != null) {
-          Navigator.push(context, MaterialPageRoute(builder: (c) {
+  Future<void> openEditImagePage(int? index) async {
+    String? path = "";
+    if (widget.files!.isEmpty && _editedFile == null) {
+      path = await _fileRepo.getFileIfExist(
+        _editableFile.uuid,
+        _editableFile.name,
+      );
+    }
+    if (widget.files!.isNotEmpty || _editedFile != null || path != null) {
+      // ignore: use_build_context_synchronously
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (c) {
             return OpenImagePage(
               onEditEnd: (path) {
                 widget.files!.isEmpty
                     ? _editedFile != null
                         ? _editedFile!.path = path
-                        : _editedFile =
-                            model.File(path, path.split(".").last)
+                        : _editedFile = model.File(path, path.split(".").last)
                     : index == null
                         ? widget.files!.first.path = path
                         : widget.files![index].path = path;
@@ -336,39 +331,70 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                       ? widget.files!.first.path
                       : widget.files![index].path,
             );
-          }));
-        }
+          },
+        ),
+      );
+    }
+  }
+
+  bool isSingleImage() {
+    return ((widget.editableMessage != null || widget.files!.length <= 1) &&
+        (_type.contains("image") ||
+            _type.contains("jpg") ||
+            _type.contains("png") ||
+            _type.contains("jfif") ||
+            _type.contains("jpeg")));
+  }
+
+  Widget imageUi(int? index) {
+    //if index==null isSingleImage
+    return GestureDetector(
+      onTap: () async {
+        openEditImagePage(index);
       },
       child: SizedBox(
         height: index == null ? MediaQuery.of(context).size.height / 3 : null,
         child: Stack(
           children: [
             Center(
-                child: widget.files!.isNotEmpty
-                    ? isWeb
-                        ? Image.network(index == null
-                            ? widget.files!.first.path
-                            : widget.files![index].path)
-                        : Image.file(File(index == null
-                            ? widget.files!.first.path
-                            : widget.files![index].path))
-                    : _editedFile != null
-                        ? Image.file(File(_editedFile!.path))
-                        : FutureBuilder<String?>(
-                            future: _fileRepo.getFileIfExist(
-                                _editableFile.uuid, _editableFile.name),
-                            builder: (c, s) {
-                              if (s.hasData && s.data != null) {
-                                return Image.file(File(s.data!));
-                              } else {
-                                return buildRow(0, showManage: false);
-                              }
-                            })),
+              child: widget.files!.isNotEmpty
+                  ? isWeb
+                      ? Image.network(
+                          index == null
+                              ? widget.files!.first.path
+                              : widget.files![index].path,
+                        )
+                      : Image.file(
+                          File(
+                            index == null
+                                ? widget.files!.first.path
+                                : widget.files![index].path,
+                          ),
+                        )
+                  : _editedFile != null
+                      ? Image.file(File(_editedFile!.path))
+                      : FutureBuilder<String?>(
+                          future: _fileRepo.getFileIfExist(
+                            _editableFile.uuid,
+                            _editableFile.name,
+                          ),
+                          builder: (c, s) {
+                            if (s.hasData && s.data != null) {
+                              return Image.file(File(s.data!));
+                            } else {
+                              return buildRow(0, showManage: false);
+                            }
+                          },
+                        ),
+            ),
             Positioned(
-                right: 5,
-                top: 2,
-                child: Container(
-                    color: Colors.black12, child: buildManage(index: 0))),
+              right: 5,
+              top: 2,
+              child: Container(
+                color: Colors.black12,
+                child: buildManage(index: 0),
+              ),
+            ),
           ],
         ),
       ),
@@ -486,6 +512,17 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
             },
             icon: const Icon(
               Icons.delete,
+              color: Colors.blue,
+              size: 16,
+            ),
+          ),
+        if (widget.editableMessage == null)
+          IconButton(
+            onPressed: () {
+              openEditImagePage(index);
+            },
+            icon: const Icon(
+              Icons.edit,
               color: Colors.blue,
               size: 16,
             ),
