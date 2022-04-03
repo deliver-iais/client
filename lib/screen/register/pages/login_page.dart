@@ -140,7 +140,7 @@ class _LoginPageState extends State<LoginPage> {
             _isLoading.add(false);
           } else {
             ToastDisplay.showToast(
-//          TODO more detailed error message needed here.
+              // TODO(dansi): more detailed error message needed here, https://gitlab.iais.co/deliver/wiki/-/issues/422
               toastText: _i18n.get("error_occurred"),
               toastContext: context,
             );
@@ -150,7 +150,7 @@ class _LoginPageState extends State<LoginPage> {
           _isLoading.add(false);
           _logger.e(e);
           ToastDisplay.showToast(
-//          TODO more detailed error message needed here.
+            // TODO(dansi): more detailed error message needed here, https://gitlab.iais.co/deliver/wiki/-/issues/422
             toastText: _i18n.get("error_occurred"),
             toastContext: context,
           );

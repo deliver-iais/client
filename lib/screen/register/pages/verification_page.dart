@@ -51,7 +51,7 @@ class _VerificationPageState extends State<VerificationPage> {
           toastText: "PASSWORD_PROTECTED",
           toastContext: context,
         );
-        // TODO navigate to password validation page
+        // TODO(dansi): navigate to password validation page, https://gitlab.iais.co/deliver/wiki/-/issues/419
       } else {
         ToastDisplay.showToast(
           toastText: _i18n.get("verification_code_not_valid"),
