@@ -4,21 +4,49 @@ import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 
-class MuteAndUnMuteRoomWidget extends StatelessWidget {
+class MuteAndUnMuteRoomWidget extends StatefulWidget {
+  final String roomId;
+  final Widget inputMessage;
+  final void Function(int dir) scrollToMessage;
+
+  const MuteAndUnMuteRoomWidget({
+    Key? key,
+    required this.roomId,
+    required this.scrollToMessage,
+    required this.inputMessage,
+  }) : super(key: key);
+
+  @override
+  State<MuteAndUnMuteRoomWidget> createState() =>
+      _MuteAndUnMuteRoomWidgetState();
+}
+
+class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _i18n = GetIt.I.get<I18N>();
-  final String roomId;
-  final Widget inputMessage;
 
-  MuteAndUnMuteRoomWidget({
-    Key? key,
-    required this.roomId,
-    required this.inputMessage,
-  }) : super(key: key);
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode.onKey = (c, event) {
+      if (event is RawKeyUpEvent &&
+          event.physicalKey == PhysicalKeyboardKey.arrowUp) {
+        widget.scrollToMessage(-1);
+      }
+      if (event is RawKeyUpEvent &&
+          event.physicalKey == PhysicalKeyboardKey.arrowDown) {
+        widget.scrollToMessage(1);
+      }
+      return KeyEventResult.handled;
+    };
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -26,50 +54,55 @@ class MuteAndUnMuteRoomWidget extends StatelessWidget {
     return FutureBuilder<bool>(
       future: _mucRepo.isMucAdminOrOwner(
         _authRepo.currentUserUid.asString(),
-        roomId,
+        widget.roomId,
       ),
       builder: (c, s) {
         if (s.hasData && s.data!) {
-          return inputMessage;
+          return widget.inputMessage;
         } else {
           return Container(
             color: theme.primaryColor,
             height: 45,
             child: Center(
               child: GestureDetector(
-                child: StreamBuilder<bool>(
-                  stream: _roomRepo.watchIsRoomMuted(roomId),
-                  builder: (context, isMuted) {
-                    if (isMuted.data != null) {
-                      if (isMuted.data!) {
-                        return GestureDetector(
-                          child: Text(
-                            _i18n.get("un_mute"),
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          onTap: () {
-                            _roomRepo.unmute(roomId);
-                          },
-                        );
-                      } else {
-                        return GestureDetector(
-                          child: Text(
-                            _i18n.get("mute"),
-                            style: const TextStyle(color: Colors.white),
-                          ),
-                          onTap: () {
-                            _roomRepo.mute(roomId);
-                          },
-                        );
-                      }
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  },
-                ),
+                child:
+                    Focus(focusNode: _focusNode, child: buildStreamBuilder()),
               ),
             ),
           );
+        }
+      },
+    );
+  }
+
+  StreamBuilder<bool> buildStreamBuilder() {
+    return StreamBuilder<bool>(
+      stream: _roomRepo.watchIsRoomMuted(widget.roomId),
+      builder: (context, isMuted) {
+        if (isMuted.data != null) {
+          if (isMuted.data!) {
+            return GestureDetector(
+              child: Text(
+                _i18n.get("un_mute"),
+                style: const TextStyle(color: Colors.white),
+              ),
+              onTap: () {
+                _roomRepo.unmute(widget.roomId);
+              },
+            );
+          } else {
+            return GestureDetector(
+              child: Text(
+                _i18n.get("mute"),
+                style: const TextStyle(color: Colors.white),
+              ),
+              onTap: () {
+                _roomRepo.mute(widget.roomId);
+              },
+            );
+          }
+        } else {
+          return const SizedBox.shrink();
         }
       },
     );
