@@ -190,12 +190,11 @@ class CallRepo {
             case CallEvent_CallStatus.JOINED:
             case CallEvent_CallStatus.KICK:
             case CallEvent_CallStatus.LEFT:
-              // TODO: Handle this case.
+              // TODO(AmirHossein): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/416
               break;
           }
           break;
         case CallTypes.None:
-          // TODO: Handle this case.
           break;
       }
     });

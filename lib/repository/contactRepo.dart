@@ -215,7 +215,7 @@ class ContactRepo {
     }
   }
 
-  // TODO(hasan): we should merge getContact and getContactFromServer functions together, https://gitlab.iais.co/deliver/wiki/-/issues/421
+  // TODO(hasan): we should merge getContact and getContactFromServer functions together and refactor usages too, https://gitlab.iais.co/deliver/wiki/-/issues/421
   Future<contact_pb.Contact?> getContact(Uid userUid) =>
       _contactDao.getByUid(userUid.asString());
 

@@ -110,9 +110,6 @@ class RoomRepo {
 
     // Is User
     if (uid.category == Categories.USER) {
-      // TODO needs to be refactored!
-      // TODO MIGRATION NEEDS
-
       final contact = await _contactRepo.getContact(uid);
       if (contact != null &&
           ((contact.firstName != null && contact.firstName!.isNotEmpty) ||

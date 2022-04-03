@@ -422,7 +422,6 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   void subscribeOnPositionToSendSeen() {
-    // TODO Channel is different from groups and private chats !!!
     _positionSubject
         .where(
           (_) => ModalRoute.of(context)?.isCurrent ?? false,

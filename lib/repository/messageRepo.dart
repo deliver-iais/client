@@ -742,7 +742,7 @@ class MessageRepo {
     final byClient = _createMessageByClient(pm.msg);
 
     _coreServices.sendMessage(byClient);
-    // TODO remove later, we don't need send no activity after sending messages, every time we received message we should set activity of room as no activity
+    // TODO(dansi): remove later, we don't need send no activity after sending messages, every time we received message we should set activity of room as no activity, https://gitlab.iais.co/deliver/wiki/-/issues/427
     sendActivity(byClient.to, ActivityType.NO_ACTIVITY);
   }
 
@@ -794,7 +794,6 @@ class MessageRepo {
       case MessageType.NOT_SET:
       case MessageType.BUTTONS:
       case MessageType.SHARE_PRIVATE_DATA_REQUEST:
-        // TODO: Handle this case.
         break;
     }
     return byClient;
@@ -987,6 +986,7 @@ class MessageRepo {
     }
   }
 
+  // TODO(hasan): Some parts of this function should be transform to DataStreamServices class, https://gitlab.iais.co/deliver/wiki/-/issues/428
   Future<List<Message>> _saveFetchMessages(
     List<message_pb.Message> messages,
   ) async {
@@ -1068,25 +1068,9 @@ class MessageRepo {
             case PersistentEvent_Type.adminSpecificPersistentEvent:
             case PersistentEvent_Type.botSpecificPersistentEvent:
             case PersistentEvent_Type.notSet:
-              // TODO: Handle this case.
               break;
           }
-        }
-        //TODO after refactor fetchLastMessages i should place it on this functions
-        // else if (_callService.getUserCallState != UserCallState.NOCALL
-        //     && message.whichType() == message_pb.Message_Type.callEvent) {
-        //   _logger.i("its fetch from message Repo");
-        //   var callEvents =
-        //   CallEvents.callEvent(message.callEvent, roomUid: message.from, callId: message.callEvent.id);
-        //   if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
-        //       message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
-        //     // its group Call
-        //     _callService.addGroupCallEvent(callEvents);
-        //   } else {
-        //     _callService.addCallEvent(callEvents);
-        //   }
-        // }
-        else {}
+        } else {}
       } catch (e) {
         _logger.e(e);
       }

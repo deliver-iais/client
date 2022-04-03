@@ -112,7 +112,7 @@ class AuthRepo {
         ..token = token
         ..device = device
         ..platform = platform
-        //  TODO add password mechanism
+        // TODO(dansi): add password mechanism, https://gitlab.iais.co/deliver/wiki/-/issues/419
         ..password = "",
     );
 

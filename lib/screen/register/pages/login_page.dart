@@ -69,7 +69,7 @@ class _LoginPageState extends State<LoginPage> {
               toastText: "PASSWORD_PROTECTED",
               toastContext: context,
             );
-            // TODO navigate to password validation page
+            // TODO(dansi): navigate to password validation page, https://gitlab.iais.co/deliver/wiki/-/issues/419
           }
         } catch (e) {
           _logger.e(e);

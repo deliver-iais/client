@@ -153,7 +153,7 @@ class UxService {
 
   void toggleThemeToLightMode() {
     SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(systemNavigationBarColor: Colors.white),
+      SystemUiOverlayStyle.light,
     );
     _sharedDao.putBoolean(SHARED_DAO_THEME_IS_DARK, false);
     _themeIsDark.add(false);
@@ -161,7 +161,7 @@ class UxService {
 
   void toggleThemeToDarkMode() {
     SystemChrome.setSystemUIOverlayStyle(
-      const SystemUiOverlayStyle(systemNavigationBarColor: Colors.black45),
+      SystemUiOverlayStyle.dark,
     );
     _sharedDao.putBoolean(SHARED_DAO_THEME_IS_DARK, true);
     _themeIsDark.add(true);

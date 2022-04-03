@@ -559,7 +559,7 @@ class _ProfilePageState extends State<ProfilePage>
             initialData: _roomRepo.fastForwardName(widget.roomUid),
             future: _roomRepo.getName(widget.roomUid),
             builder: (context, snapshot) {
-              _roomName = snapshot.data ?? "Loading..."; // TODO add i18n
+              _roomName = snapshot.data ?? _i18n.get("loading");
               return RoomName(uid: widget.roomUid, name: _roomName);
             },
           ),
@@ -794,7 +794,6 @@ class _ProfilePageState extends State<ProfilePage>
                 ),
                 TextButton(
                   onPressed: () {
-                    // TODO set name for share uid
                     Navigator.pop(context);
                     _routingService.openSelectForwardMessage(
                       sharedUid: proto.ShareUid()

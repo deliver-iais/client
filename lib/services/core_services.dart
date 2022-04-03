@@ -52,7 +52,6 @@ class CoreServices {
   final BehaviorSubject<ConnectionStatus> _connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Connecting);
 
-  //TODO test
   Future<void> initStreamConnection() async {
     if (_connectionTimer != null && _connectionTimer!.isActive) {
       return;
