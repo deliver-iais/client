@@ -49,22 +49,29 @@ class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<box.LiveLocation?>(
-        stream: _liveLocationRepo.watchLiveLocation(liveLocation.uuid),
-        builder: (c, liveLocationsnapshot) {
-          if (liveLocationsnapshot.hasData &&
-              liveLocationsnapshot.data != null) {
-            return liveLocationMessageWidgetBuilder(
-                liveLocationsnapshot.data!.locations.last,
-                _i18n,
-                liveLocation.time.toInt());
-          }
+      stream: _liveLocationRepo.watchLiveLocation(liveLocation.uuid),
+      builder: (c, liveLocationsnapshot) {
+        if (liveLocationsnapshot.hasData && liveLocationsnapshot.data != null) {
           return liveLocationMessageWidgetBuilder(
-              liveLocation.location, _i18n, liveLocation.time.toInt());
-        });
+            liveLocationsnapshot.data!.locations.last,
+            _i18n,
+            liveLocation.time.toInt(),
+          );
+        }
+        return liveLocationMessageWidgetBuilder(
+          liveLocation.location,
+          _i18n,
+          liveLocation.time.toInt(),
+        );
+      },
+    );
   }
 
   Widget liveLocationMessageWidgetBuilder(
-      Location location, I18N _i18n, int duration) {
+    Location location,
+    I18N _i18n,
+    int duration,
+  ) {
     return Stack(
       children: [
         SizedBox(
@@ -77,10 +84,11 @@ class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
             ),
             layers: [
               TileLayerOptions(
-                  tileProvider: NetworkTileProvider(),
-                  urlTemplate:
-                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                  subdomains: ['a', 'b', 'c']),
+                tileProvider: NetworkTileProvider(),
+                urlTemplate:
+                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                subdomains: ['a', 'b', 'c'],
+              ),
               MarkerLayerOptions(
                 markers: [
                   Marker(

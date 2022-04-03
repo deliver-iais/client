@@ -21,12 +21,12 @@ class AnimatedEmoji extends StatefulWidget {
 
   static final _authRepo = GetIt.I.get<AuthRepo>();
 
-  const AnimatedEmoji(
-      {Key? key,
-      required this.message,
-      required this.isSeen,
-      required this.colorScheme})
-      : super(key: key);
+  const AnimatedEmoji({
+    Key? key,
+    required this.message,
+    required this.isSeen,
+    required this.colorScheme,
+  }) : super(key: key);
 
   static bool isAnimatedEmoji(Message message) {
     if (message.type != MessageType.TEXT) return false;
@@ -108,40 +108,45 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
     return Column(
       children: [
         FutureBuilder<LottieComposition?>(
-            future: _composition,
-            builder: (context, snapshot) {
-              final composition = snapshot.data;
-              if (composition != null) {
-                _controller
-                  ..duration = composition.duration
-                  ..forward();
-                return GestureDetector(
-                  onTap: () => _controller.forward(from: 0),
-                  child: SizedBox(
-                      child: Lottie(
-                          composition: composition,
-                          controller: _controller,
-                          width: 120,
-                          height: 120,
-                          repeat: false),
-                      width: 120,
-                      height: 120),
-                );
-              } else {
-                return const SizedBox(width: 120, height: 120);
-              }
-            }),
+          future: _composition,
+          builder: (context, snapshot) {
+            final composition = snapshot.data;
+            if (composition != null) {
+              _controller
+                ..duration = composition.duration
+                ..forward();
+              return GestureDetector(
+                onTap: () => _controller.forward(from: 0),
+                child: SizedBox(
+                  child: Lottie(
+                    composition: composition,
+                    controller: _controller,
+                    width: 120,
+                    height: 120,
+                    repeat: false,
+                  ),
+                  width: 120,
+                  height: 120,
+                ),
+              );
+            } else {
+              return const SizedBox(width: 120, height: 120);
+            }
+          },
+        ),
         Container(
           decoration: BoxDecoration(
             borderRadius: mainBorder,
             color: widget.colorScheme.primaryContainer,
           ),
-          child: TimeAndSeenStatus(widget.message,
-              isSender: isSender,
-              isSeen: widget.isSeen,
-              needsPositioned: false,
-              needsPadding: true,
-              foregroundColor: widget.colorScheme.onPrimaryContainerLowlight()),
+          child: TimeAndSeenStatus(
+            widget.message,
+            isSender: isSender,
+            isSeen: widget.isSeen,
+            needsPositioned: false,
+            needsPadding: true,
+            foregroundColor: widget.colorScheme.onPrimaryContainerLowlight(),
+          ),
         ),
       ],
     );
@@ -172,10 +177,11 @@ class AnimationLocal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        child: Lottie.file(
-      File(path),
-      width: 100,
-      height: 100,
-    ));
+      child: Lottie.file(
+        File(path),
+        width: 100,
+        height: 100,
+      ),
+    );
   }
 }

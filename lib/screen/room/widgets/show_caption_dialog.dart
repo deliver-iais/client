@@ -19,6 +19,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 
+/// TODO refactor this class
 class ShowCaptionDialog extends StatefulWidget {
   final String? type;
   final List<model.File>? files;
@@ -29,17 +30,17 @@ class ShowCaptionDialog extends StatefulWidget {
   final void Function()? resetRoomPageDetails;
   final String? caption;
 
-  const ShowCaptionDialog(
-      {Key? key,
-      this.files,
-      this.type,
-      required this.currentRoom,
-      this.showSelectedImage = false,
-      this.editableMessage,
-      required this.resetRoomPageDetails,
-      required this.replyMessageId,
-      this.caption})
-      : super(key: key);
+  const ShowCaptionDialog({
+    Key? key,
+    this.files,
+    this.type,
+    required this.currentRoom,
+    this.showSelectedImage = false,
+    this.editableMessage,
+    required this.resetRoomPageDetails,
+    required this.replyMessageId,
+    this.caption,
+  }) : super(key: key);
 
   @override
   _ShowCaptionDialogState createState() => _ShowCaptionDialogState();
@@ -71,7 +72,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
       for (final element in widget.files!) {
         element.path = element.path.replaceAll("\\", "/");
         _isFileFormatAccept = _fileService.isFileFormatAccepted(
-            element.extension ?? element.name.split(".").last);
+          element.extension ?? element.name.split(".").last,
+        );
         final size = element.size ?? 0;
         _isFileSizeAccept = size < MAX_FILE_SIZE_BYTE;
         if (!_isFileFormatAccept) {
@@ -101,7 +103,8 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
         ? FileErrorDialog(
             isFileFormatAccept: _isFileFormatAccept,
             invalidFormatFileName: _invalidFormatFileName,
-            invalidSizeFileName: _invalidSizeFileName)
+            invalidSizeFileName: _invalidSizeFileName,
+          )
         : (widget.files != null && widget.files!.isNotEmpty) ||
                 widget.editableMessage != null
             ? SingleChildScrollView(
@@ -187,15 +190,18 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                           }
                         },
                         child: TextFormField(
-                            controller: _editingController,
-                            keyboardType: TextInputType.multiline,
-                            minLines: 1,
-                            maxLines: 5,
-                            autofocus: true,
-                            style: const TextStyle(fontSize: 15),
-                            decoration: InputDecoration(
-                              labelText: _i18n.get("caption"),
-                            )),
+                          controller: _editingController,
+                          keyboardType: TextInputType.multiline,
+                          minLines: 1,
+                          maxLines: 5,
+                          autofocus: true,
+                          style: const TextStyle(
+                            fontSize: 15,
+                          ),
+                          decoration: InputDecoration(
+                            labelText: _i18n.get("caption"),
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -211,15 +217,18 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                 final res = await getFile(allowMultiple: true);
                                 if (res != null) {
                                   for (final element in res.files) {
-                                    widget.files!.add(model.File(
+                                    widget.files!.add(
+                                      model.File(
                                         isWeb
                                             ? Uri.dataFromBytes(
-                                                    element.bytes!.toList())
-                                                .toString()
+                                                element.bytes!.toList(),
+                                              ).toString()
                                             : element.path!,
                                         element.name,
                                         extension: element.extension,
-                                        size: element.size));
+                                        size: element.size,
+                                      ),
+                                    );
                                   }
                                   setState(() {});
                                 }
@@ -227,7 +236,9 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                               child: Text(
                                 _i18n.get("add"),
                                 style: const TextStyle(
-                                    fontSize: 16, color: Colors.blue),
+                                  fontSize: 16,
+                                  color: Colors.blue,
+                                ),
                               ),
                             ),
                           if (widget.editableMessage != null)
@@ -244,19 +255,26 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                 child: Text(
                                   _i18n.get("cancel"),
                                   style: const TextStyle(
-                                      color: Colors.blue, fontSize: 15),
+                                    color: Colors.blue,
+                                    fontSize: 15,
+                                  ),
                                 ),
                               ),
                               const SizedBox(
                                 width: 16,
                               ),
                               GestureDetector(
-                                  onTap: () {
-                                    send();
-                                  },
-                                  child: Text(_i18n.get("send"),
-                                      style: const TextStyle(
-                                          color: Colors.blue, fontSize: 16))),
+                                onTap: () {
+                                  send();
+                                },
+                                child: Text(
+                                  _i18n.get("send"),
+                                  style: const TextStyle(
+                                    color: Colors.blue,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
                               const SizedBox(width: 10)
                             ],
                           )
@@ -361,11 +379,17 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
     Navigator.pop(context);
     widget.editableMessage != null
         ? _messageRepo.editFileMessage(
-            widget.editableMessage!.roomUid.asUid(), widget.editableMessage!,
-            caption: _editingController.text, file: _editedFile)
+            widget.editableMessage!.roomUid.asUid(),
+            widget.editableMessage!,
+            caption: _editingController.text,
+            file: _editedFile,
+          )
         : _messageRepo.sendMultipleFilesMessages(
-            widget.currentRoom, widget.files!,
-            replyToId: widget.replyMessageId, caption: _editingController.text);
+            widget.currentRoom,
+            widget.files!,
+            replyToId: widget.replyMessageId,
+            caption: _editingController.text,
+          );
     widget.resetRoomPageDetails?.call();
   }
 
@@ -375,18 +399,20 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
       children: [
         ClipOval(
           child: Material(
-              color: theme.primaryColor, // button color
-              child: const InkWell(
-                  splashColor: Colors.blue, // inkwell color
-                  child: SizedBox(
-                    width: 30,
-                    height: 40,
-                    child: Icon(
-                      Icons.insert_drive_file,
-                      size: 20,
-                      color: Colors.white,
-                    ),
-                  ))),
+            color: theme.primaryColor, // button color
+            child: const InkWell(
+              splashColor: Colors.blue, // inkwell color
+              child: SizedBox(
+                width: 30,
+                height: 40,
+                child: Icon(
+                  Icons.insert_drive_file,
+                  size: 20,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ),
         ),
         const SizedBox(
           width: 3,
@@ -409,57 +435,61 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
     return Row(
       children: [
         IconButton(
-            onPressed: () async {
-              final result = await getFile(allowMultiple: false);
+          onPressed: () async {
+            final result = await getFile(allowMultiple: false);
 
-              if (result != null && result.files.isNotEmpty) {
-                if (widget.editableMessage != null) {
-                  _editedFile = model.File(
-                      isWeb
-                          ? Uri.dataFromBytes(
-                              result.files.first.bytes!.toList(),
-                            ).toString()
-                          : result.files.first.path!,
-                      result.files.first.name,
-                      extension: result.files.first.extension,
-                      size: result.files.first.size);
-                  _type = _editedFile!.extension.toString();
-                } else {
-                  widget.files![index] = model.File(
-                      isWeb
-                          ? Uri.dataFromBytes(
-                              result.files.first.bytes!.toList(),
-                            ).toString()
-                          : result.files.first.path!,
-                      result.files.first.name,
-                      extension: result.files.first.extension,
-                      size: result.files.first.size);
+            if (result != null && result.files.isNotEmpty) {
+              if (widget.editableMessage != null) {
+                _editedFile = model.File(
+                  isWeb
+                      ? Uri.dataFromBytes(
+                          result.files.first.bytes!.toList(),
+                        ).toString()
+                      : result.files.first.path!,
+                  result.files.first.name,
+                  extension: result.files.first.extension,
+                  size: result.files.first.size,
+                );
+                _type = _editedFile!.extension.toString();
+              } else {
+                widget.files![index] = model.File(
+                  isWeb
+                      ? Uri.dataFromBytes(
+                          result.files.first.bytes!.toList(),
+                        ).toString()
+                      : result.files.first.path!,
+                  result.files.first.name,
+                  extension: result.files.first.extension,
+                  size: result.files.first.size,
+                );
 
-                  _type = result.files.first.extension!;
-                }
-
-                setState(() {});
+                _type = result.files.first.extension!;
               }
-            },
-            icon: const Icon(
-              Icons.wifi_protected_setup,
-              color: Colors.blue,
-              size: 16,
-            )),
+
+              setState(() {});
+            }
+          },
+          icon: const Icon(
+            Icons.wifi_protected_setup,
+            color: Colors.blue,
+            size: 16,
+          ),
+        ),
         if (widget.editableMessage == null)
           IconButton(
-              onPressed: () {
-                widget.files!.removeAt(index);
-                if (widget.files == null || widget.files!.isEmpty) {
-                  Navigator.pop(context);
-                }
-                setState(() {});
-              },
-              icon: const Icon(
-                Icons.delete,
-                color: Colors.blue,
-                size: 16,
-              ))
+            onPressed: () {
+              widget.files!.removeAt(index);
+              if (widget.files == null || widget.files!.isEmpty) {
+                Navigator.pop(context);
+              }
+              setState(() {});
+            },
+            icon: const Icon(
+              Icons.delete,
+              color: Colors.blue,
+              size: 16,
+            ),
+          )
       ],
     );
   }
@@ -486,10 +516,11 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
     } else {
       if (isDesktop) {
         ToastDisplay.showToast(
-            toastText: !_isFileFormatAccept
-                ? _i18n.get("cant_sent") + " " + _invalidFormatFileName
-                : _i18n.get("file_size_error"),
-            toastContext: context);
+          toastText: !_isFileFormatAccept
+              ? _i18n.get("cant_sent") + " " + _invalidFormatFileName
+              : _i18n.get("file_size_error"),
+          toastContext: context,
+        );
       }
       return null;
     }

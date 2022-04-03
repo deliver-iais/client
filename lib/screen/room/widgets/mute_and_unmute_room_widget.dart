@@ -14,25 +14,29 @@ class MuteAndUnMuteRoomWidget extends StatelessWidget {
   final String roomId;
   final Widget inputMessage;
 
-  MuteAndUnMuteRoomWidget(
-      {Key? key, required this.roomId, required this.inputMessage})
-      : super(key: key);
+  MuteAndUnMuteRoomWidget({
+    Key? key,
+    required this.roomId,
+    required this.inputMessage,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return FutureBuilder<bool>(
-        future: _mucRepo.isMucAdminOrOwner(
-            _authRepo.currentUserUid.asString(), roomId),
-        builder: (c, s) {
-          if (s.hasData && s.data!) {
-            return inputMessage;
-          } else {
-            return Container(
-              color:theme.primaryColor,
-              height: 45,
-              child: Center(
-                  child: GestureDetector(
+      future: _mucRepo.isMucAdminOrOwner(
+        _authRepo.currentUserUid.asString(),
+        roomId,
+      ),
+      builder: (c, s) {
+        if (s.hasData && s.data!) {
+          return inputMessage;
+        } else {
+          return Container(
+            color: theme.primaryColor,
+            height: 45,
+            child: Center(
+              child: GestureDetector(
                 child: StreamBuilder<bool>(
                   stream: _roomRepo.watchIsRoomMuted(roomId),
                   builder: (context, isMuted) {
@@ -63,9 +67,11 @@ class MuteAndUnMuteRoomWidget extends StatelessWidget {
                     }
                   },
                 ),
-              )),
-            );
-          }
-        });
+              ),
+            ),
+          );
+        }
+      },
+    );
   }
 }

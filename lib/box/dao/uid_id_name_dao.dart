@@ -71,11 +71,13 @@ class UidIdNameDaoImpl implements UidIdNameDao {
     final text = term.toLowerCase();
     final box = await _open();
     final res = box.values
-        .where((element) =>
-            (element.id != null &&
-                element.id.toString().toLowerCase().contains(text)) ||
-            (element.name != null &&
-                element.name!.toLowerCase().contains(text)))
+        .where(
+          (element) =>
+              (element.id != null &&
+                  element.id.toString().toLowerCase().contains(text)) ||
+              (element.name != null &&
+                  element.name!.toLowerCase().contains(text)),
+        )
         .toList();
     return res;
   }

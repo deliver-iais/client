@@ -9,9 +9,11 @@ class VideoPlayerWidget extends StatefulWidget {
   final String videoFilePath;
   final bool showAppBar;
 
-  const VideoPlayerWidget(
-      {Key? key, required this.videoFilePath, required this.showAppBar})
-      : super(key: key);
+  const VideoPlayerWidget({
+    Key? key,
+    required this.videoFilePath,
+    required this.showAppBar,
+  }) : super(key: key);
 
   @override
   State<VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
@@ -53,25 +55,28 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
     return Scaffold(
       appBar: widget.showAppBar ? AppBar() : null,
       body: Container(
-          decoration: const BoxDecoration(
-            color: Colors.black,
-            borderRadius: secondaryBorder,
+        decoration: const BoxDecoration(
+          color: Colors.black,
+          borderRadius: secondaryBorder,
+        ),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+          child: Stack(
+            children: [
+              Center(
+                child: _controller.value.isInitialized
+                    ? AspectRatio(
+                        aspectRatio: _controller.value.aspectRatio,
+                        child: Chewie(
+                          controller: _chewieController,
+                        ),
+                      )
+                    : Container(),
+              ),
+            ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-            child: Stack(
-              children: [
-                Center(
-                    child: _controller.value.isInitialized
-                        ? AspectRatio(
-                            aspectRatio: _controller.value.aspectRatio,
-                            child: Chewie(
-                              controller: _chewieController,
-                            ))
-                        : Container()),
-              ],
-            ),
-          )),
+        ),
+      ),
     );
   }
 }

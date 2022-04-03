@@ -40,30 +40,36 @@ class MessageBrief {
     this.id,
   });
 
-  MessageBrief copyWith(
-          {Uid? roomUid,
-          String? sender,
-          String? roomName,
-          bool? senderIsAUserOrBot,
-          MessageType? type,
-          String? typeDetails,
-          String? text,
-          bool? ignoreNotification,
-          int? id}) =>
+  MessageBrief copyWith({
+    Uid? roomUid,
+    String? sender,
+    String? roomName,
+    bool? senderIsAUserOrBot,
+    MessageType? type,
+    String? typeDetails,
+    String? text,
+    bool? ignoreNotification,
+    int? id,
+  }) =>
       MessageBrief(
-          roomUid: roomUid ?? this.roomUid,
-          sender: sender ?? this.sender,
-          roomName: roomName ?? this.roomName,
-          senderIsAUserOrBot: senderIsAUserOrBot ?? this.senderIsAUserOrBot,
-          type: type ?? this.type,
-          typeDetails: typeDetails ?? this.typeDetails,
-          text: text ?? this.text,
-          id: id ?? this.id,
-          ignoreNotification: ignoreNotification ?? this.ignoreNotification);
+        roomUid: roomUid ?? this.roomUid,
+        sender: sender ?? this.sender,
+        roomName: roomName ?? this.roomName,
+        senderIsAUserOrBot: senderIsAUserOrBot ?? this.senderIsAUserOrBot,
+        type: type ?? this.type,
+        typeDetails: typeDetails ?? this.typeDetails,
+        text: text ?? this.text,
+        id: id ?? this.id,
+        ignoreNotification: ignoreNotification ?? this.ignoreNotification,
+      );
 }
 
-Future<MessageBrief> extractMessageBrief(I18N i18n, RoomRepo roomRepo,
-    AuthRepo authRepo, message_pb.Message msg) async {
+Future<MessageBrief> extractMessageBrief(
+  I18N i18n,
+  RoomRepo roomRepo,
+  AuthRepo authRepo,
+  message_pb.Message msg,
+) async {
   final roomUid = getRoomUid(authRepo, msg);
   final roomName = await roomRepo.getSlangName(roomUid);
   final sender = await roomRepo.getSlangName(msg.from);
@@ -130,8 +136,12 @@ Future<MessageBrief> extractMessageBrief(I18N i18n, RoomRepo roomRepo,
       break;
     case message_pb.Message_Type.persistEvent:
       typeDetails = await getPersistentEventText(
-          i18n, roomRepo, authRepo, msg.persistEvent,
-          isChannel: msg.to.isChannel());
+        i18n,
+        roomRepo,
+        authRepo,
+        msg.persistEvent,
+        isChannel: msg.to.isChannel(),
+      );
       if (typeDetails.trim().isEmpty) {
         ignoreNotification = true;
       }
@@ -167,8 +177,12 @@ Future<MessageBrief> extractMessageBrief(I18N i18n, RoomRepo roomRepo,
 }
 
 Future<String> getPersistentEventText(
-    I18N i18n, RoomRepo roomRepo, AuthRepo authRepo, PersistentEvent pe,
-    {bool isChannel = false}) async {
+  I18N i18n,
+  RoomRepo roomRepo,
+  AuthRepo authRepo,
+  PersistentEvent pe, {
+  bool isChannel = false,
+}) async {
   switch (pe.whichType()) {
     case PersistentEvent_Type.mucSpecificPersistentEvent:
       final String? issuer =
@@ -179,9 +193,12 @@ Future<String> getPersistentEventText(
         case MucSpecificPersistentEvent_Issue.ADD_USER:
           return [
             issuer,
-            i18n.verb("added",
-                isFirstPerson: authRepo.isCurrentUser(
-                    pe.mucSpecificPersistentEvent.issuer.asString())),
+            i18n.verb(
+              "added",
+              isFirstPerson: authRepo.isCurrentUser(
+                pe.mucSpecificPersistentEvent.issuer.asString(),
+              ),
+            ),
             assignee
           ].join(" ").trim();
 
@@ -189,63 +206,83 @@ Future<String> getPersistentEventText(
           return [
             issuer,
             i18n.verb(
-                isChannel ? "change_channel_avatar" : "change_group_avatar",
-                isFirstPerson: authRepo.isCurrentUser(
-                    pe.mucSpecificPersistentEvent.issuer.asString())),
+              isChannel ? "change_channel_avatar" : "change_group_avatar",
+              isFirstPerson: authRepo.isCurrentUser(
+                pe.mucSpecificPersistentEvent.issuer.asString(),
+              ),
+            ),
             // assignee
           ].join(" ").trim();
 
         case MucSpecificPersistentEvent_Issue.JOINED_USER:
           return [
             issuer,
-            i18n.verb("joined",
-                isFirstPerson: authRepo.isCurrentUser(
-                    pe.mucSpecificPersistentEvent.issuer.asString())),
+            i18n.verb(
+              "joined",
+              isFirstPerson: authRepo.isCurrentUser(
+                pe.mucSpecificPersistentEvent.issuer.asString(),
+              ),
+            ),
             // assignee
           ].join(" ").trim();
 
         case MucSpecificPersistentEvent_Issue.KICK_USER:
           return [
             issuer,
-            i18n.verb("kicked",
-                isFirstPerson: authRepo.isCurrentUser(
-                    pe.mucSpecificPersistentEvent.issuer.asString())),
+            i18n.verb(
+              "kicked",
+              isFirstPerson: authRepo.isCurrentUser(
+                pe.mucSpecificPersistentEvent.issuer.asString(),
+              ),
+            ),
             assignee
           ].join(" ").trim();
 
         case MucSpecificPersistentEvent_Issue.LEAVE_USER:
           return [
             issuer,
-            i18n.verb("left",
-                isFirstPerson: authRepo.isCurrentUser(
-                    pe.mucSpecificPersistentEvent.issuer.asString())),
+            i18n.verb(
+              "left",
+              isFirstPerson: authRepo.isCurrentUser(
+                pe.mucSpecificPersistentEvent.issuer.asString(),
+              ),
+            ),
             // assignee
           ].join(" ").trim();
 
         case MucSpecificPersistentEvent_Issue.MUC_CREATED:
           return [
             issuer,
-            i18n.verb("created",
-                isFirstPerson: authRepo.isCurrentUser(
-                    pe.mucSpecificPersistentEvent.issuer.asString())),
+            i18n.verb(
+              "created",
+              isFirstPerson: authRepo.isCurrentUser(
+                pe.mucSpecificPersistentEvent.issuer.asString(),
+              ),
+            ),
             assignee
           ].join(" ").trim();
 
         case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
           return [
             issuer,
-            i18n.verb("changed_name",
-                isFirstPerson: authRepo.isCurrentUser(
-                    pe.mucSpecificPersistentEvent.issuer.asString())),
+            i18n.verb(
+              "changed_name",
+              isFirstPerson: authRepo.isCurrentUser(
+                pe.mucSpecificPersistentEvent.issuer.asString(),
+              ),
+            ),
             assignee
           ].join(" ").trim();
 
         case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
           return [
             issuer,
-            i18n.verb("pinned",
-                isFirstPerson: authRepo.isCurrentUser(
-                    pe.mucSpecificPersistentEvent.issuer.asString())),
+            i18n.verb(
+              "pinned",
+              isFirstPerson: authRepo.isCurrentUser(
+                pe.mucSpecificPersistentEvent.issuer.asString(),
+              ),
+            ),
             assignee
           ].join(" ").trim();
         case MucSpecificPersistentEvent_Issue.DELETED:
@@ -351,18 +388,19 @@ Message extractMessage(AuthRepo authRepo, message_pb.Message message) {
   } catch (_) {}
 
   return Message(
-      id: message.id.toInt(),
-      roomUid: getRoomUid(authRepo, message).asString(),
-      packetId: message.packetId,
-      time: message.time.toInt(),
-      to: message.to.asString(),
-      from: message.from.asString(),
-      replyToId: message.replyToId.toInt(),
-      forwardedFrom: message.forwardFrom.asString(),
-      json: body,
-      edited: message.edited,
-      encrypted: message.encrypted,
-      type: getMessageType(message.whichType()));
+    id: message.id.toInt(),
+    roomUid: getRoomUid(authRepo, message).asString(),
+    packetId: message.packetId,
+    time: message.time.toInt(),
+    to: message.to.asString(),
+    from: message.from.asString(),
+    replyToId: message.replyToId.toInt(),
+    forwardedFrom: message.forwardFrom.asString(),
+    json: body,
+    edited: message.edited,
+    encrypted: message.encrypted,
+    type: getMessageType(message.whichType()),
+  );
 }
 
 String messageBodyToJson(message_pb.Message message) {

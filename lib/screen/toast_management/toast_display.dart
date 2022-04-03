@@ -4,12 +4,13 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lottie/lottie.dart';
 
 class ToastDisplay {
-  static void showToast(
-      {IconData? toastIcon,
-      Color? toastColor,
-      bool isSaveToast = false,
-      required BuildContext toastContext,
-      required String toastText}) {
+  static void showToast({
+    IconData? toastIcon,
+    Color? toastColor,
+    bool isSaveToast = false,
+    required BuildContext toastContext,
+    required String toastText,
+  }) {
     final fToast = FToast()..init(toastContext);
     toastColor ??= Theme.of(toastContext).colorScheme.surface;
     final Widget toast = Container(

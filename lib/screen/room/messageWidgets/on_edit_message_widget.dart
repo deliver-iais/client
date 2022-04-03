@@ -6,16 +6,18 @@ class OnEditMessageWidget extends StatelessWidget {
   final Message message;
   final void Function() resetRoomPageDetails;
 
-  const OnEditMessageWidget(
-      {Key? key, required this.message, required this.resetRoomPageDetails})
-      : super(key: key);
+  const OnEditMessageWidget({
+    Key? key,
+    required this.message,
+    required this.resetRoomPageDetails,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
       width: double.infinity,
-      color:theme.colorScheme.surface.withAlpha(200),
+      color: theme.colorScheme.surface.withAlpha(200),
       child: Padding(
         padding: const EdgeInsets.only(
           left: 15,
@@ -25,7 +27,7 @@ class OnEditMessageWidget extends StatelessWidget {
           children: [
             Icon(
               Icons.edit,
-              color:theme.primaryColor,
+              color: theme.primaryColor,
               size: 25,
             ),
             const SizedBox(width: 10),

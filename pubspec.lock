@@ -500,7 +500,7 @@ packages:
     source: hosted
     version: "2.2.7"
   fixnum:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: fixnum
       url: "https://pub.dartlang.org"
@@ -818,7 +818,7 @@ packages:
     source: hosted
     version: "3.2.0"
   http_parser:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: http_parser
       url: "https://pub.dartlang.org"
@@ -909,7 +909,7 @@ packages:
     source: hosted
     version: "2.0.1"
   latlong2:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: latlong2
       url: "https://pub.dartlang.org"

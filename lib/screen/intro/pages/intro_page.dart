@@ -53,9 +53,15 @@ class _IntroPageState extends State<IntroPage> {
   }
 
   void navigateToLoginPage() {
-    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (c) {
-      return const LoginPage();
-    }), (r) => false);
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (c) {
+          return const LoginPage();
+        },
+      ),
+      (r) => false,
+    );
   }
 
   @override

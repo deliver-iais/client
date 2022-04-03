@@ -10,12 +10,12 @@ class SearchBox extends StatefulWidget {
   final void Function()? onCancel;
   late final TextEditingController controller;
 
-  SearchBox(
-      {Key? key,
-      required this.onChange,
-      this.onCancel,
-      TextEditingController? controller})
-      : super(key: key) {
+  SearchBox({
+    Key? key,
+    required this.onChange,
+    this.onCancel,
+    TextEditingController? controller,
+  }) : super(key: key) {
     this.controller = controller ?? TextEditingController();
   }
 

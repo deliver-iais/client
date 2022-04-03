@@ -106,257 +106,247 @@ class _ProfilePageState extends State<ProfilePage>
       appBar: _buildAppBar(context),
       body: FluidContainerWidget(
         child: StreamBuilder<MediaMetaData?>(
-            stream:
-                _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
-            builder: (context, snapshot) {
-              _tabsCount = 0;
-              if (snapshot.hasData && snapshot.data != null) {
-                if (snapshot.data!.imagesCount != 0) {
-                  _tabsCount++;
-                }
-                if (snapshot.data!.videosCount != 0) {
-                  _tabsCount++;
-                }
-                if (snapshot.data!.linkCount != 0) {
-                  _tabsCount++;
-                }
-                if (snapshot.data!.filesCount != 0) {
-                  _tabsCount++;
-                }
-                if (snapshot.data!.documentsCount != 0) {
-                  _tabsCount++;
-                }
-                if (snapshot.data!.musicsCount != 0) {
-                  _tabsCount++;
-                }
-                if (snapshot.data!.audiosCount != 0) {
-                  _tabsCount++;
-                }
+          stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
+          builder: (context, snapshot) {
+            _tabsCount = 0;
+            if (snapshot.hasData && snapshot.data != null) {
+              if (snapshot.data!.imagesCount != 0) {
+                _tabsCount++;
               }
+              if (snapshot.data!.videosCount != 0) {
+                _tabsCount++;
+              }
+              if (snapshot.data!.linkCount != 0) {
+                _tabsCount++;
+              }
+              if (snapshot.data!.filesCount != 0) {
+                _tabsCount++;
+              }
+              if (snapshot.data!.documentsCount != 0) {
+                _tabsCount++;
+              }
+              if (snapshot.data!.musicsCount != 0) {
+                _tabsCount++;
+              }
+              if (snapshot.data!.audiosCount != 0) {
+                _tabsCount++;
+              }
+            }
 
-              _tabController = TabController(
-                  length: (widget.roomUid.isGroup() ||
-                          (widget.roomUid.isChannel() && _isMucAdminOrOwner))
-                      ? _tabsCount + 1
-                      : _tabsCount,
-                  vsync: this,
-                  initialIndex:
-                      _uxService.getTabIndex(widget.roomUid.asString())!);
-              _tabController.addListener(() {
-                _uxService.setTabIndex(
-                    widget.roomUid.asString(), _tabController.index);
-              });
+            _tabController = TabController(
+              length: (widget.roomUid.isGroup() ||
+                      (widget.roomUid.isChannel() && _isMucAdminOrOwner))
+                  ? _tabsCount + 1
+                  : _tabsCount,
+              vsync: this,
+              initialIndex: _uxService.getTabIndex(widget.roomUid.asString())!,
+            );
+            _tabController.addListener(() {
+              _uxService.setTabIndex(
+                widget.roomUid.asString(),
+                _tabController.index,
+              );
+            });
 
-              return DefaultTabController(
-                  length: (widget.roomUid.isGroup() ||
-                          (widget.roomUid.isChannel() && _isMucAdminOrOwner))
-                      ? _tabsCount + 1
-                      : _tabsCount,
-                  child: NestedScrollView(
-                      headerSliverBuilder:
-                          (context, innerBoxIsScrolled) {
-                        return <Widget>[
-                          _buildInfo(context),
-                          SliverPersistentHeader(
-                            pinned: true,
-                            delegate: _SliverAppBarDelegate(
-                                maxHeight: 45,
-                                minHeight: 45,
-                                child: Box(
-                                  borderRadius: BorderRadius.zero,
-                                  child: StreamBuilder<bool>(
-                                      stream: _selectMediasForForward.stream,
-                                      builder: (context, selectMediaToForward) {
-                                        if (selectMediaToForward.hasData &&
-                                            selectMediaToForward.data != null &&
-                                            selectMediaToForward.data!) {
-                                          return Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 20, right: 20),
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment
-                                                        .spaceBetween,
-                                                children: [
-                                                  Badge(
-                                                    child: IconButton(
-                                                        color:
-                                                            theme.primaryColor,
-                                                        icon: const Icon(
-                                                          Icons.clear,
-                                                          size: 25,
-                                                        ),
-                                                        onPressed: () {
-                                                          _selectMediasForForward
-                                                              .add(false);
-                                                          _selectedMedia
-                                                              .clear();
-                                                          setState(() {});
-                                                        }),
-                                                    badgeColor:
-                                                        theme.primaryColor,
-                                                    badgeContent: Text(
-                                                      _selectedMedia.length
-                                                          .toString(),
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          color: theme
-                                                              .colorScheme
-                                                              .onPrimary),
-                                                    ),
-                                                  ),
-                                                  Tooltip(
-                                                      message:
-                                                          _i18n.get("forward"),
-                                                      child: IconButton(
-                                                          color: theme
-                                                              .primaryColor,
-                                                          icon: const Icon(
-                                                            Icons.forward,
-                                                            size: 25,
-                                                          ),
-                                                          onPressed: () {
-                                                            _routingService
-                                                                .openSelectForwardMessage(
-                                                                    medias:
-                                                                        _selectedMedia);
-                                                          })),
-                                                ],
-                                              ));
-                                        } else {
-                                          return TabBar(
-                                            onTap: (index) {
-                                              _uxService.setTabIndex(
-                                                  widget.roomUid.asString(),
-                                                  index);
-                                            },
-                                            tabs: [
-                                              if (widget.roomUid.isGroup() ||
-                                                  (widget.roomUid.isChannel() &&
-                                                      _isMucAdminOrOwner))
-                                                Tab(
-                                                  text: _i18n.get("members"),
-                                                ),
-                                              if (snapshot.hasData &&
-                                                  snapshot.data!.imagesCount !=
-                                                      0)
-                                                Tab(
-                                                  text: _i18n.get("images"),
-                                                ),
-                                              if (snapshot.hasData &&
-                                                  snapshot.data!.videosCount !=
-                                                      0)
-                                                Tab(
-                                                  text: _i18n.get("videos"),
-                                                ),
-                                              if (snapshot.hasData &&
-                                                  snapshot.data!.filesCount !=
-                                                      0)
-                                                Tab(
-                                                  text: _i18n.get("file"),
-                                                ),
-                                              if (snapshot.hasData &&
-                                                  snapshot.data!.linkCount != 0)
-                                                Tab(text: _i18n.get("links")),
-                                              if (snapshot.hasData &&
-                                                  snapshot.data!
-                                                          .documentsCount !=
-                                                      0)
-                                                Tab(
-                                                    text:
-                                                        _i18n.get("documents")),
-                                              if (snapshot.hasData &&
-                                                  snapshot.data!.musicsCount !=
-                                                      0)
-                                                Tab(text: _i18n.get("musics")),
-                                              if (snapshot.hasData &&
-                                                  snapshot.data!.audiosCount !=
-                                                      0)
-                                                Tab(text: _i18n.get("audios")),
-                                            ],
-                                            controller: _tabController,
-                                          );
-                                        }
-                                      }),
-                                )),
+            return DefaultTabController(
+              length: (widget.roomUid.isGroup() ||
+                      (widget.roomUid.isChannel() && _isMucAdminOrOwner))
+                  ? _tabsCount + 1
+                  : _tabsCount,
+              child: NestedScrollView(
+                headerSliverBuilder: (context, innerBoxIsScrolled) {
+                  return <Widget>[
+                    _buildInfo(context),
+                    SliverPersistentHeader(
+                      pinned: true,
+                      delegate: _SliverAppBarDelegate(
+                        maxHeight: 45,
+                        minHeight: 45,
+                        child: Box(
+                          borderRadius: BorderRadius.zero,
+                          child: StreamBuilder<bool>(
+                            stream: _selectMediasForForward.stream,
+                            builder: (context, selectMediaToForward) {
+                              if (selectMediaToForward.hasData &&
+                                  selectMediaToForward.data != null &&
+                                  selectMediaToForward.data!) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(
+                                    left: 20,
+                                    right: 20,
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Badge(
+                                        child: IconButton(
+                                          color: theme.primaryColor,
+                                          icon: const Icon(
+                                            Icons.clear,
+                                            size: 25,
+                                          ),
+                                          onPressed: () {
+                                            _selectMediasForForward.add(false);
+                                            _selectedMedia.clear();
+                                            setState(() {});
+                                          },
+                                        ),
+                                        badgeColor: theme.primaryColor,
+                                        badgeContent: Text(
+                                          _selectedMedia.length.toString(),
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: theme.colorScheme.onPrimary,
+                                          ),
+                                        ),
+                                      ),
+                                      Tooltip(
+                                        message: _i18n.get("forward"),
+                                        child: IconButton(
+                                          color: theme.primaryColor,
+                                          icon: const Icon(
+                                            Icons.forward,
+                                            size: 25,
+                                          ),
+                                          onPressed: () {
+                                            _routingService
+                                                .openSelectForwardMessage(
+                                              medias: _selectedMedia,
+                                            );
+                                          },
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              } else {
+                                return TabBar(
+                                  onTap: (index) {
+                                    _uxService.setTabIndex(
+                                      widget.roomUid.asString(),
+                                      index,
+                                    );
+                                  },
+                                  tabs: [
+                                    if (widget.roomUid.isGroup() ||
+                                        (widget.roomUid.isChannel() &&
+                                            _isMucAdminOrOwner))
+                                      Tab(
+                                        text: _i18n.get("members"),
+                                      ),
+                                    if (snapshot.hasData &&
+                                        snapshot.data!.imagesCount != 0)
+                                      Tab(
+                                        text: _i18n.get("images"),
+                                      ),
+                                    if (snapshot.hasData &&
+                                        snapshot.data!.videosCount != 0)
+                                      Tab(
+                                        text: _i18n.get("videos"),
+                                      ),
+                                    if (snapshot.hasData &&
+                                        snapshot.data!.filesCount != 0)
+                                      Tab(
+                                        text: _i18n.get("file"),
+                                      ),
+                                    if (snapshot.hasData &&
+                                        snapshot.data!.linkCount != 0)
+                                      Tab(text: _i18n.get("links")),
+                                    if (snapshot.hasData &&
+                                        snapshot.data!.documentsCount != 0)
+                                      Tab(
+                                        text: _i18n.get("documents"),
+                                      ),
+                                    if (snapshot.hasData &&
+                                        snapshot.data!.musicsCount != 0)
+                                      Tab(text: _i18n.get("musics")),
+                                    if (snapshot.hasData &&
+                                        snapshot.data!.audiosCount != 0)
+                                      Tab(text: _i18n.get("audios")),
+                                  ],
+                                  controller: _tabController,
+                                );
+                              }
+                            },
                           ),
-                        ];
-                      },
-                      body: Box(
-                        borderRadius: BorderRadius.zero,
-                        child: TabBarView(
-                          physics: const NeverScrollableScrollPhysics(),
-                          children: [
-                            if (widget.roomUid.isGroup() ||
-                                (widget.roomUid.isChannel() &&
-                                    _isMucAdminOrOwner))
-                              SingleChildScrollView(
-                                child: MucMemberWidget(
-                                  mucUid: widget.roomUid,
-                                ),
-                              ),
-                            if (snapshot.hasData &&
-                                snapshot.data!.imagesCount != 0)
-                              ImageTabUi(
-                                  snapshot.data!.imagesCount, widget.roomUid,
-                                  selectedMedia: _selectedMedia,
-                                  addSelectedMedia: (media) =>
-                                      _addSelectedMedia(media)),
-                            if (snapshot.hasData &&
-                                snapshot.data!.videosCount != 0)
-                              VideoTabUi(
-                                  roomUid: widget.roomUid,
-                                  addSelectedMedia: (media) =>
-                                      _addSelectedMedia(media),
-                                  selectedMedia: _selectedMedia,
-                                  videoCount: snapshot.data!.videosCount),
-                            if (snapshot.hasData &&
-                                snapshot.data!.filesCount != 0)
-                              DocumentAndFileUi(
-                                roomUid: widget.roomUid,
-                                selectedMedia: _selectedMedia,
-                                addSelectedMedia: (media) =>
-                                    _addSelectedMedia(media),
-                                documentCount: snapshot.data!.filesCount,
-                                type: MediaType.FILE,
-                              ),
-                            if (snapshot.hasData &&
-                                snapshot.data!.linkCount != 0)
-                              LinkTabUi(
-                                  snapshot.data!.linkCount, widget.roomUid),
-                            if (snapshot.hasData &&
-                                snapshot.data!.documentsCount != 0)
-                              DocumentAndFileUi(
-                                selectedMedia: _selectedMedia,
-                                addSelectedMedia: (media) =>
-                                    _addSelectedMedia(media),
-                                roomUid: widget.roomUid,
-                                documentCount: snapshot.data!.documentsCount,
-                                type: MediaType.DOCUMENT,
-                              ),
-                            if (snapshot.hasData &&
-                                snapshot.data!.musicsCount != 0)
-                              MusicAndAudioUi(
-                                  roomUid: widget.roomUid,
-                                  type: MediaType.MUSIC,
-                                  selectedMedia: _selectedMedia,
-                                  addSelectedMedia: (media) =>
-                                      _addSelectedMedia(media),
-                                  mediaCount: snapshot.data!.musicsCount),
-                            if (snapshot.hasData &&
-                                snapshot.data!.audiosCount != 0)
-                              MusicAndAudioUi(
-                                  roomUid: widget.roomUid,
-                                  selectedMedia: _selectedMedia,
-                                  addSelectedMedia: (media) =>
-                                      _addSelectedMedia(media),
-                                  type: MediaType.AUDIO,
-                                  mediaCount: snapshot.data!.audiosCount),
-                          ],
-                          controller: _tabController,
                         ),
-                      )));
-            }),
+                      ),
+                    ),
+                  ];
+                },
+                body: Box(
+                  borderRadius: BorderRadius.zero,
+                  child: TabBarView(
+                    physics: const NeverScrollableScrollPhysics(),
+                    children: [
+                      if (widget.roomUid.isGroup() ||
+                          (widget.roomUid.isChannel() && _isMucAdminOrOwner))
+                        SingleChildScrollView(
+                          child: MucMemberWidget(
+                            mucUid: widget.roomUid,
+                          ),
+                        ),
+                      if (snapshot.hasData && snapshot.data!.imagesCount != 0)
+                        ImageTabUi(
+                          snapshot.data!.imagesCount,
+                          widget.roomUid,
+                          selectedMedia: _selectedMedia,
+                          addSelectedMedia: (media) => _addSelectedMedia(media),
+                        ),
+                      if (snapshot.hasData && snapshot.data!.videosCount != 0)
+                        VideoTabUi(
+                          roomUid: widget.roomUid,
+                          addSelectedMedia: (media) => _addSelectedMedia(media),
+                          selectedMedia: _selectedMedia,
+                          videoCount: snapshot.data!.videosCount,
+                        ),
+                      if (snapshot.hasData && snapshot.data!.filesCount != 0)
+                        DocumentAndFileUi(
+                          roomUid: widget.roomUid,
+                          selectedMedia: _selectedMedia,
+                          addSelectedMedia: (media) => _addSelectedMedia(media),
+                          documentCount: snapshot.data!.filesCount,
+                          type: MediaType.FILE,
+                        ),
+                      if (snapshot.hasData && snapshot.data!.linkCount != 0)
+                        LinkTabUi(
+                          snapshot.data!.linkCount,
+                          widget.roomUid,
+                        ),
+                      if (snapshot.hasData &&
+                          snapshot.data!.documentsCount != 0)
+                        DocumentAndFileUi(
+                          selectedMedia: _selectedMedia,
+                          addSelectedMedia: (media) => _addSelectedMedia(media),
+                          roomUid: widget.roomUid,
+                          documentCount: snapshot.data!.documentsCount,
+                          type: MediaType.DOCUMENT,
+                        ),
+                      if (snapshot.hasData && snapshot.data!.musicsCount != 0)
+                        MusicAndAudioUi(
+                          roomUid: widget.roomUid,
+                          type: MediaType.MUSIC,
+                          selectedMedia: _selectedMedia,
+                          addSelectedMedia: (media) => _addSelectedMedia(media),
+                          mediaCount: snapshot.data!.musicsCount,
+                        ),
+                      if (snapshot.hasData && snapshot.data!.audiosCount != 0)
+                        MusicAndAudioUi(
+                          roomUid: widget.roomUid,
+                          selectedMedia: _selectedMedia,
+                          addSelectedMedia: (media) => _addSelectedMedia(media),
+                          type: MediaType.AUDIO,
+                          mediaCount: snapshot.data!.audiosCount,
+                        ),
+                    ],
+                    controller: _tabController,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
       ),
     );
   }
@@ -372,81 +362,89 @@ class _ProfilePageState extends State<ProfilePage>
   Widget _buildInfo(BuildContext context) {
     final theme = Theme.of(context);
     return SliverList(
-        delegate: SliverChildListDelegate([
-      BoxList(largePageBorderRadius: BorderRadius.zero, children: [
-        const Divider(),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      delegate: SliverChildListDelegate([
+        BoxList(
+          largePageBorderRadius: BorderRadius.zero,
           children: [
-            ProfileAvatar(
-              roomUid: widget.roomUid,
-              canSetAvatar: _isMucAdminOrOwner || _isBotOwner,
+            const Divider(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ProfileAvatar(
+                  roomUid: widget.roomUid,
+                  canSetAvatar: _isMucAdminOrOwner || _isBotOwner,
+                ),
+                // _buildMenu(context)
+              ],
             ),
-            // _buildMenu(context)
-          ],
-        ),
-        if (!widget.roomUid.isGroup())
-          FutureBuilder<String?>(
-            future: _roomRepo.getId(widget.roomUid),
-            builder: (context, snapshot) {
-              if (snapshot.data != null) {
-                return Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: SettingsTile(
-                    title: _i18n.get("username"),
-                    subtitle: "${snapshot.data}",
-                    leading: const Icon(Icons.alternate_email),
-                    trailing: const Icon(Icons.copy),
-                    subtitleTextStyle: TextStyle(color: theme.primaryColor),
-                    onPressed: (_) => Clipboard.setData(
-                        ClipboardData(text: "@${snapshot.data}")),
-                  ),
-                );
-              } else {
-                return const SizedBox.shrink();
-              }
-            },
-          ),
-        if (widget.roomUid.isUser())
-          FutureBuilder<Contact?>(
-            future: _contactRepo.getContact(widget.roomUid),
-            builder: (context, snapshot) {
-              if (snapshot.data != null) {
-                return Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: SettingsTile(
-                    title: _i18n.get("phone"),
-                    subtitle: buildPhoneNumber(snapshot.data!.countryCode,
-                        snapshot.data!.nationalNumber),
-                    subtitleTextStyle: TextStyle(color: theme.primaryColor),
-                    leading: const Icon(Icons.phone),
-                    trailing: const Icon(Icons.call),
-                    onPressed: (_) => launch(
-                        "tel:${snapshot.data!.countryCode}${snapshot.data!.nationalNumber}"),
-                  ),
-                );
-              } else {
-                return const SizedBox.shrink();
-              }
-            },
-          ),
-        if (!widget.roomUid.isChannel() || _isMucAdminOrOwner)
-          Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: SettingsTile(
-                title: _i18n.get("send_message"),
-                leading: const Icon(Icons.message),
-                onPressed: (_) => _routingService.openRoom(
+            if (!widget.roomUid.isGroup())
+              FutureBuilder<String?>(
+                future: _roomRepo.getId(widget.roomUid),
+                builder: (context, snapshot) {
+                  if (snapshot.data != null) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: SettingsTile(
+                        title: _i18n.get("username"),
+                        subtitle: "${snapshot.data}",
+                        leading: const Icon(Icons.alternate_email),
+                        trailing: const Icon(Icons.copy),
+                        subtitleTextStyle: TextStyle(color: theme.primaryColor),
+                        onPressed: (_) => Clipboard.setData(
+                          ClipboardData(text: "@${snapshot.data}"),
+                        ),
+                      ),
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
+            if (widget.roomUid.isUser())
+              FutureBuilder<Contact?>(
+                future: _contactRepo.getContact(widget.roomUid),
+                builder: (context, snapshot) {
+                  if (snapshot.data != null) {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: SettingsTile(
+                        title: _i18n.get("phone"),
+                        subtitle: buildPhoneNumber(
+                          snapshot.data!.countryCode,
+                          snapshot.data!.nationalNumber,
+                        ),
+                        subtitleTextStyle: TextStyle(color: theme.primaryColor),
+                        leading: const Icon(Icons.phone),
+                        trailing: const Icon(Icons.call),
+                        onPressed: (_) => launch(
+                          "tel:${snapshot.data!.countryCode}${snapshot.data!.nationalNumber}",
+                        ),
+                      ),
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
+            if (!widget.roomUid.isChannel() || _isMucAdminOrOwner)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: SettingsTile(
+                  title: _i18n.get("send_message"),
+                  leading: const Icon(Icons.message),
+                  onPressed: (_) => _routingService.openRoom(
                     widget.roomUid.asString(),
-                    forceToOpenRoom: true)),
-          ),
-        if (isAndroid)
-          FutureBuilder<String?>(
-              future: _roomRepo
-                  .getRoomCustomNotification(widget.roomUid.asString()),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return Padding(
+                    forceToOpenRoom: true,
+                  ),
+                ),
+              ),
+            if (isAndroid)
+              FutureBuilder<String?>(
+                future: _roomRepo
+                    .getRoomCustomNotification(widget.roomUid.asString()),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: SettingsTile(
                         title: _i18n.get("custom_notifications"),
@@ -456,85 +454,96 @@ class _ProfilePageState extends State<ProfilePage>
                             TextStyle(color: theme.primaryColor, fontSize: 16),
                         onPressed: (_) async {
                           _routingService.openCustomNotificationSoundSelection(
-                              widget.roomUid.asString());
+                            widget.roomUid.asString(),
+                          );
                         },
-                      ));
+                      ),
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
+            StreamBuilder<bool>(
+              stream: _roomRepo.watchIsRoomMuted(widget.roomUid.asString()),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data != null) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: SettingsTile.switchTile(
+                      title: _i18n.get("notification"),
+                      leading: const Icon(Icons.notifications_active),
+                      switchValue: !snapshot.data!,
+                      onToggle: (state) {
+                        if (state) {
+                          _roomRepo.unmute(widget.roomUid.asString());
+                        } else {
+                          _roomRepo.mute(widget.roomUid.asString());
+                        }
+                      },
+                    ),
+                  );
                 } else {
                   return const SizedBox.shrink();
                 }
-              }),
-        StreamBuilder<bool>(
-          stream: _roomRepo.watchIsRoomMuted(widget.roomUid.asString()),
-          builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data != null) {
-              return Padding(
-                padding: const EdgeInsets.only(top: 8.0),
-                child: SettingsTile.switchTile(
-                    title: _i18n.get("notification"),
-                    leading: const Icon(Icons.notifications_active),
-                    switchValue: !snapshot.data!,
-                    onToggle: (state) {
-                      if (state) {
-                        _roomRepo.unmute(widget.roomUid.asString());
-                      } else {
-                        _roomRepo.mute(widget.roomUid.asString());
-                      }
-                    }),
-              );
-            } else {
-              return const SizedBox.shrink();
-            }
-          },
-        ),
-        if (widget.roomUid.isBot())
-          FutureBuilder<BotInfo?>(
-              future: _botRepo.getBotInfo(widget.roomUid),
-              builder: (c, s) {
-                if (s.hasData &&
-                    s.data != null &&
-                    s.data!.description!.isNotEmpty) {
-                  return description(s.data!.description!, context);
-                } else {
-                  return const SizedBox.shrink();
-                }
-              }),
-        if (widget.roomUid.isMuc())
-          StreamBuilder<Muc?>(
-              stream: _mucRepo.watchMuc(widget.roomUid.asString()),
-              builder: (c, muc) {
-                if (muc.hasData &&
-                    muc.data != null &&
-                    muc.data!.info!.isNotEmpty) {
-                  return description(muc.data!.info!, context);
-                } else {
-                  return const SizedBox.shrink();
-                }
-              }),
-        if (widget.roomUid.isGroup() || _isMucAdminOrOwner)
-          Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: SettingsTile(
-              title: _i18n.get("add_member"),
-              leading: const Icon(Icons.person_add),
-              onPressed: (_) => _routingService.openMemberSelection(
-                  isChannel: true, mucUid: widget.roomUid),
+              },
             ),
-          ),
-        const Divider(height: 4, thickness: 4)
-      ])
-    ]));
+            if (widget.roomUid.isBot())
+              FutureBuilder<BotInfo?>(
+                future: _botRepo.getBotInfo(widget.roomUid),
+                builder: (c, s) {
+                  if (s.hasData &&
+                      s.data != null &&
+                      s.data!.description!.isNotEmpty) {
+                    return description(s.data!.description!, context);
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
+            if (widget.roomUid.isMuc())
+              StreamBuilder<Muc?>(
+                stream: _mucRepo.watchMuc(widget.roomUid.asString()),
+                builder: (c, muc) {
+                  if (muc.hasData &&
+                      muc.data != null &&
+                      muc.data!.info!.isNotEmpty) {
+                    return description(muc.data!.info!, context);
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
+            if (widget.roomUid.isGroup() || _isMucAdminOrOwner)
+              Padding(
+                padding: const EdgeInsets.only(top: 8.0),
+                child: SettingsTile(
+                  title: _i18n.get("add_member"),
+                  leading: const Icon(Icons.person_add),
+                  onPressed: (_) => _routingService.openMemberSelection(
+                    isChannel: true,
+                    mucUid: widget.roomUid,
+                  ),
+                ),
+              ),
+            const Divider(height: 4, thickness: 4)
+          ],
+        )
+      ]),
+    );
   }
 
   Padding description(String info, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 8.0),
       child: SettingsTile(
-          title: _i18n.get("description"),
-          subtitle: info,
-          subtitleTextStyle:
-              TextStyle(color: Theme.of(context).primaryColor, fontSize: 16),
-          leading: const Icon(Icons.info),
-          trailing: const SizedBox.shrink()),
+        title: _i18n.get("description"),
+        subtitle: info,
+        subtitleTextStyle:
+            TextStyle(color: Theme.of(context).primaryColor, fontSize: 16),
+        leading: const Icon(Icons.info),
+        trailing: const SizedBox.shrink(),
+      ),
     );
   }
 
@@ -568,97 +577,112 @@ class _ProfilePageState extends State<ProfilePage>
       itemBuilder: (_) => <PopupMenuItem<String>>[
         if (widget.roomUid.isMuc() && _isMucOwner)
           PopupMenuItem<String>(
-              child: Row(
-                children: [
-                  const Icon(Icons.add_link_outlined),
-                  const SizedBox(width: 8),
-                  Text(_i18n.get("create_invite_link"))
-                ],
-              ),
-              value: "invite_link"),
-        if (widget.roomUid.isMuc() && _isMucOwner)
-          PopupMenuItem<String>(
-              child: Row(
-                children: [
-                  const Icon(Icons.settings),
-                  const SizedBox(width: 8),
-                  Text(widget.roomUid.category == Categories.GROUP
-                      ? _i18n.get("manage_group")
-                      : _i18n.get("manage_channel")),
-                ],
-              ),
-              value: "manage"),
-        if (!_isMucOwner)
-          PopupMenuItem<String>(
-              child: Row(
-                children: [
-                  Icon(widget.roomUid.isMuc()
-                      ? Icons.arrow_back_outlined
-                      : Icons.delete),
-                  const SizedBox(width: 8),
-                  Text(
-                    !widget.roomUid.isMuc()
-                        ? _i18n.get("delete_chat")
-                        : widget.roomUid.isGroup()
-                            ? _i18n.get("left_group")
-                            : _i18n.get("left_channel"),
-                  ),
-                ],
-              ),
-              value: "delete_room"),
-        if (widget.roomUid.isMuc() && _isMucOwner)
-          PopupMenuItem<String>(
-              child: Row(
-                children: [
-                  const Icon(Icons.delete),
-                  const SizedBox(width: 8),
-                  Text(widget.roomUid.isGroup()
-                      ? _i18n.get("delete_group")
-                      : _i18n.get("delete_channel"))
-                ],
-              ),
-              value: "deleteMuc"),
-        if (widget.roomUid.category == Categories.BOT)
-          PopupMenuItem<String>(
-              child: Row(
-                children: [
-                  const Icon(Icons.person_add),
-                  const SizedBox(width: 8),
-                  Text(_i18n.get("add_to_group")),
-                ],
-              ),
-              value: "addBotToGroup"),
-        PopupMenuItem<String>(
             child: Row(
               children: [
-                const Icon(Icons.report),
+                const Icon(Icons.add_link_outlined),
                 const SizedBox(width: 8),
-                Text(_i18n.get("report")),
+                Text(_i18n.get("create_invite_link"))
               ],
             ),
-            value: "report"),
+            value: "invite_link",
+          ),
+        if (widget.roomUid.isMuc() && _isMucOwner)
+          PopupMenuItem<String>(
+            child: Row(
+              children: [
+                const Icon(Icons.settings),
+                const SizedBox(width: 8),
+                Text(
+                  widget.roomUid.category == Categories.GROUP
+                      ? _i18n.get("manage_group")
+                      : _i18n.get("manage_channel"),
+                ),
+              ],
+            ),
+            value: "manage",
+          ),
+        if (!_isMucOwner)
+          PopupMenuItem<String>(
+            child: Row(
+              children: [
+                Icon(
+                  widget.roomUid.isMuc()
+                      ? Icons.arrow_back_outlined
+                      : Icons.delete,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  !widget.roomUid.isMuc()
+                      ? _i18n.get("delete_chat")
+                      : widget.roomUid.isGroup()
+                          ? _i18n.get("left_group")
+                          : _i18n.get("left_channel"),
+                ),
+              ],
+            ),
+            value: "delete_room",
+          ),
+        if (widget.roomUid.isMuc() && _isMucOwner)
+          PopupMenuItem<String>(
+            child: Row(
+              children: [
+                const Icon(Icons.delete),
+                const SizedBox(width: 8),
+                Text(
+                  widget.roomUid.isGroup()
+                      ? _i18n.get("delete_group")
+                      : _i18n.get("delete_channel"),
+                )
+              ],
+            ),
+            value: "deleteMuc",
+          ),
+        if (widget.roomUid.category == Categories.BOT)
+          PopupMenuItem<String>(
+            child: Row(
+              children: [
+                const Icon(Icons.person_add),
+                const SizedBox(width: 8),
+                Text(_i18n.get("add_to_group")),
+              ],
+            ),
+            value: "addBotToGroup",
+          ),
+        PopupMenuItem<String>(
+          child: Row(
+            children: [
+              const Icon(Icons.report),
+              const SizedBox(width: 8),
+              Text(_i18n.get("report")),
+            ],
+          ),
+          value: "report",
+        ),
         if (!widget.roomUid.isMuc())
           PopupMenuItem<String>(
-              child: StreamBuilder<bool?>(
-                  stream:
-                      _roomRepo.watchIsRoomBlocked(widget.roomUid.asString()),
-                  builder: (c, s) {
-                    if (s.hasData) {
-                      _roomIsBlocked = s.data ?? false;
-                      return Row(
-                        children: [
-                          const Icon(Icons.block),
-                          const SizedBox(width: 8),
-                          Text(s.data == null || !s.data!
-                              ? _i18n.get("blockRoom")
-                              : _i18n.get("unblock_room")),
-                        ],
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  }),
-              value: "blockRoom")
+            child: StreamBuilder<bool?>(
+              stream: _roomRepo.watchIsRoomBlocked(widget.roomUid.asString()),
+              builder: (c, s) {
+                if (s.hasData) {
+                  _roomIsBlocked = s.data ?? false;
+                  return Row(
+                    children: [
+                      const Icon(Icons.block),
+                      const SizedBox(width: 8),
+                      Text(
+                        s.data == null || !s.data!
+                            ? _i18n.get("blockRoom")
+                            : _i18n.get("unblock_room"),
+                      ),
+                    ],
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
+              },
+            ),
+            value: "blockRoom",
+          )
       ],
       onSelected: onSelected,
     );
@@ -668,9 +692,13 @@ class _ProfilePageState extends State<ProfilePage>
     if (widget.roomUid.isMuc()) {
       try {
         final isMucAdminOrAdmin = await _mucRepo.isMucAdminOrOwner(
-            _authRepo.currentUserUid.asString(), widget.roomUid.asString());
+          _authRepo.currentUserUid.asString(),
+          widget.roomUid.asString(),
+        );
         final mucOwner = await _mucRepo.isMucOwner(
-            _authRepo.currentUserUid.asString(), widget.roomUid.asString());
+          _authRepo.currentUserUid.asString(),
+          widget.roomUid.asString(),
+        );
         setState(() {
           _isMucAdminOrOwner = isMucAdminOrAdmin;
           _isMucOwner = mucOwner;
@@ -713,69 +741,77 @@ class _ProfilePageState extends State<ProfilePage>
         _showInviteLinkDialog(token);
       } else {
         ToastDisplay.showToast(
-            toastText: _i18n.get("error_occurred"), toastContext: context);
+          toastText: _i18n.get("error_occurred"),
+          toastContext: context,
+        );
       }
     }
   }
 
   Future<void> _showInviteLinkDialog(String token) async {
     showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            content: SizedBox(
-                width: MediaQuery.of(context).size.width / 3,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: SizedBox(
+            width: MediaQuery.of(context).size.width / 3,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        CircleAvatarWidget(widget.roomUid, 25),
-                        const SizedBox(width: 5),
-                        Text(_roomName)
-                      ],
-                    ),
-                    const SizedBox(height: 5),
-                    Text(
-                      generateInviteLink(token),
-                    ),
+                    CircleAvatarWidget(widget.roomUid, 25),
+                    const SizedBox(width: 5),
+                    Text(_roomName)
                   ],
-                )),
-            actions: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  TextButton(
-                      onPressed: () {
-                        Clipboard.setData(
-                            ClipboardData(text: generateInviteLink(token)));
-                        ToastDisplay.showToast(
-                            toastText: _i18n.get("copied"),
-                            toastContext: context);
-                        Navigator.pop(context);
-                      },
-                      child: Text(
-                        _i18n.get("copy"),
-                      )),
-                  TextButton(
-                    onPressed: () {
-                      // TODO set name for share uid
-                      Navigator.pop(context);
-                      _routingService.openSelectForwardMessage(
-                          sharedUid: proto.ShareUid()
-                            ..name = _roomName
-                            ..joinToken = token
-                            ..uid = widget.roomUid);
-                    },
-                    child: Text(
-                      _i18n.get("share"),
-                    ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  generateInviteLink(token),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    Clipboard.setData(
+                      ClipboardData(text: generateInviteLink(token)),
+                    );
+                    ToastDisplay.showToast(
+                      toastText: _i18n.get("copied"),
+                      toastContext: context,
+                    );
+                    Navigator.pop(context);
+                  },
+                  child: Text(
+                    _i18n.get("copy"),
                   ),
-                ],
-              ),
-            ],
-          );
-        });
+                ),
+                TextButton(
+                  onPressed: () {
+                    // TODO set name for share uid
+                    Navigator.pop(context);
+                    _routingService.openSelectForwardMessage(
+                      sharedUid: proto.ShareUid()
+                        ..name = _roomName
+                        ..joinToken = token
+                        ..uid = widget.roomUid,
+                    );
+                  },
+                  child: Text(
+                    _i18n.get("share"),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
   }
 
   String generateInviteLink(String token) {
@@ -784,15 +820,18 @@ class _ProfilePageState extends State<ProfilePage>
 
   InputDecoration buildInputDecoration(String label) {
     return InputDecoration(
-        enabledBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.blue)),
-        focusedBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.blue)),
-        border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-        disabledBorder:
-            const OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
-        labelText: label,
-        labelStyle: const TextStyle(color: Colors.blue));
+      enabledBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.blue),
+      ),
+      focusedBorder: const OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.blue),
+      ),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+      disabledBorder:
+          const OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
+      labelText: label,
+      labelStyle: const TextStyle(color: Colors.blue),
+    );
   }
 
   void showManageDialog() {
@@ -805,11 +844,11 @@ class _ProfilePageState extends State<ProfilePage>
     var channelId = "";
     final newChange = BehaviorSubject<bool>.seeded(false);
     showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            content: SingleChildScrollView(
-                child: Column(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          content: SingleChildScrollView(
+            child: Column(
               children: [
                 FutureBuilder<String?>(
                   future: _roomRepo.getName(widget.roomUid),
@@ -817,30 +856,31 @@ class _ProfilePageState extends State<ProfilePage>
                     if (name.hasData && name.data != null) {
                       _currentName = name.data!;
                       return Form(
-                          key: nameFormKey,
-                          child: TextFormField(
-                            initialValue: name.data,
-                            validator: (s) {
-                              if (s!.isEmpty) {
-                                return _i18n.get("name_not_empty");
-                              } else {
-                                return null;
-                              }
-                            },
-                            minLines: 1,
-                            onChanged: (str) {
-                              if (str.isNotEmpty && str != name.data) {
-                                mucName = str;
-                                newChange.add(true);
-                              }
-                            },
-                            keyboardType: TextInputType.text,
-                            decoration: buildInputDecoration(
-                              widget.roomUid.isGroup()
-                                  ? _i18n.get("group_name")
-                                  : _i18n.get("channel_name"),
-                            ),
-                          ));
+                        key: nameFormKey,
+                        child: TextFormField(
+                          initialValue: name.data,
+                          validator: (s) {
+                            if (s!.isEmpty) {
+                              return _i18n.get("name_not_empty");
+                            } else {
+                              return null;
+                            }
+                          },
+                          minLines: 1,
+                          onChanged: (str) {
+                            if (str.isNotEmpty && str != name.data) {
+                              mucName = str;
+                              newChange.add(true);
+                            }
+                          },
+                          keyboardType: TextInputType.text,
+                          decoration: buildInputDecoration(
+                            widget.roomUid.isGroup()
+                                ? _i18n.get("group_name")
+                                : _i18n.get("channel_name"),
+                          ),
+                        ),
+                      );
                     }
                     return const SizedBox.shrink();
                   },
@@ -848,52 +888,52 @@ class _ProfilePageState extends State<ProfilePage>
                 const SizedBox(height: 10),
                 if (widget.roomUid.category == Categories.CHANNEL)
                   StreamBuilder<Muc?>(
-                      stream: _mucRepo.watchMuc(widget.roomUid.asString()),
-                      builder: (c, muc) {
-                        if (muc.hasData && muc.data != null) {
-                          _currentId = muc.data!.id!;
-                          return Column(
-                            children: [
-                              Form(
-                                  key: channelIdFormKey,
-                                  child: TextFormField(
-                                    initialValue: muc.data!.id,
-                                    minLines: 1,
-                                    validator: validateChannelId,
-                                    onChanged: (str) {
-                                      if (str.isNotEmpty &&
-                                          str != muc.data!.id) {
-                                        channelId = str;
-                                        if (!newChange.value) {
-                                          newChange.add(true);
-                                        }
-                                      }
-                                    },
-                                    keyboardType: TextInputType.text,
-                                    decoration: buildInputDecoration(
-                                        _i18n.get("channel_id")),
-                                  )),
-                              StreamBuilder<bool?>(
-                                  stream: _showChannelIdError.stream,
-                                  builder: (c, e) {
-                                    if (e.hasData &&
-                                        e.data != null &&
-                                        e.data!) {
-                                      return Text(
-                                        _i18n.get("channel_id_is_exist"),
-                                        style:
-                                            const TextStyle(color: Colors.red),
-                                      );
-                                    } else {
-                                      return const SizedBox.shrink();
+                    stream: _mucRepo.watchMuc(widget.roomUid.asString()),
+                    builder: (c, muc) {
+                      if (muc.hasData && muc.data != null) {
+                        _currentId = muc.data!.id!;
+                        return Column(
+                          children: [
+                            Form(
+                              key: channelIdFormKey,
+                              child: TextFormField(
+                                initialValue: muc.data!.id,
+                                minLines: 1,
+                                validator: validateChannelId,
+                                onChanged: (str) {
+                                  if (str.isNotEmpty && str != muc.data!.id) {
+                                    channelId = str;
+                                    if (!newChange.value) {
+                                      newChange.add(true);
                                     }
-                                  }),
-                            ],
-                          );
-                        } else {
-                          return const SizedBox.shrink();
-                        }
-                      }),
+                                  }
+                                },
+                                keyboardType: TextInputType.text,
+                                decoration: buildInputDecoration(
+                                  _i18n.get("channel_id"),
+                                ),
+                              ),
+                            ),
+                            StreamBuilder<bool?>(
+                              stream: _showChannelIdError.stream,
+                              builder: (c, e) {
+                                if (e.hasData && e.data != null && e.data!) {
+                                  return Text(
+                                    _i18n.get("channel_id_is_exist"),
+                                    style: const TextStyle(color: Colors.red),
+                                  );
+                                } else {
+                                  return const SizedBox.shrink();
+                                }
+                              },
+                            ),
+                          ],
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
+                  ),
                 const SizedBox(
                   height: 10,
                 ),
@@ -927,70 +967,79 @@ class _ProfilePageState extends State<ProfilePage>
                   },
                 )
               ],
-            )),
-            actions: <Widget>[
-              StreamBuilder<bool>(
-                stream: newChange.stream,
-                builder: (c, change) {
-                  if (change.hasData && change.data != null) {
-                    return TextButton(
-                      onPressed: change.data!
-                          ? () async {
-                              if (nameFormKey.currentState != null &&
-                                  nameFormKey.currentState!.validate()) {
-                                if (widget.roomUid.category ==
-                                    Categories.GROUP) {
-                                  _mucRepo.modifyGroup(
+            ),
+          ),
+          actions: <Widget>[
+            StreamBuilder<bool>(
+              stream: newChange.stream,
+              builder: (c, change) {
+                if (change.hasData && change.data != null) {
+                  return TextButton(
+                    onPressed: change.data!
+                        ? () async {
+                            if (nameFormKey.currentState != null &&
+                                nameFormKey.currentState!.validate()) {
+                              if (widget.roomUid.category == Categories.GROUP) {
+                                _mucRepo.modifyGroup(
+                                  widget.roomUid.asString(),
+                                  mucName ?? _currentName,
+                                  mucInfo,
+                                );
+                                _roomRepo.updateRoomName(
+                                  widget.roomUid,
+                                  mucName ?? _currentName,
+                                );
+                                setState(() {});
+                                Navigator.pop(context);
+                              } else {
+                                if (channelId.isEmpty) {
+                                  _mucRepo.modifyChannel(
+                                    widget.roomUid.asString(),
+                                    mucName ?? _currentName,
+                                    _currentId,
+                                    mucInfo,
+                                  );
+                                  _roomRepo.updateRoomName(
+                                    widget.roomUid,
+                                    mucName ?? _currentName,
+                                  );
+                                  Navigator.pop(context);
+                                } else if (channelIdFormKey.currentState !=
+                                        null &&
+                                    channelIdFormKey.currentState!.validate()) {
+                                  if (await checkChannelD(channelId)) {
+                                    _mucRepo.modifyChannel(
                                       widget.roomUid.asString(),
                                       mucName ?? _currentName,
-                                      mucInfo);
-                                  _roomRepo.updateRoomName(
-                                      widget.roomUid, mucName ?? _currentName);
-                                  setState(() {});
-                                  Navigator.pop(context);
-                                } else {
-                                  if (channelId.isEmpty) {
-                                    _mucRepo.modifyChannel(
-                                        widget.roomUid.asString(),
-                                        mucName ?? _currentName,
-                                        _currentId,
-                                        mucInfo);
-                                    _roomRepo.updateRoomName(widget.roomUid,
-                                        mucName ?? _currentName);
-                                    Navigator.pop(context);
-                                  } else if (channelIdFormKey.currentState !=
-                                          null &&
-                                      channelIdFormKey.currentState!
-                                          .validate()) {
-                                    if (await checkChannelD(channelId)) {
-                                      _mucRepo.modifyChannel(
-                                          widget.roomUid.asString(),
-                                          mucName ?? _currentName,
-                                          channelId,
-                                          mucInfo);
-                                      _roomRepo.updateRoomName(widget.roomUid,
-                                          mucName ?? _currentName);
+                                      channelId,
+                                      mucInfo,
+                                    );
+                                    _roomRepo.updateRoomName(
+                                      widget.roomUid,
+                                      mucName ?? _currentName,
+                                    );
 
-                                      Navigator.pop(context);
-                                    }
+                                    Navigator.pop(context);
                                   }
-                                  setState(() {});
                                 }
+                                setState(() {});
                               }
                             }
-                          : () {},
-                      child: Text(
-                        _i18n.get("set"),
-                      ),
-                    );
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },
-              )
-            ],
-          );
-        });
+                          }
+                        : () {},
+                    child: Text(
+                      _i18n.get("set"),
+                    ),
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
+              },
+            )
+          ],
+        );
+      },
+    );
   }
 
   Future<bool> checkChannelD(String id) async {
@@ -1021,25 +1070,27 @@ class _ProfilePageState extends State<ProfilePage>
     switch (selected) {
       case "delete_room":
         showDialog(
-            context: context,
-            builder: (context) {
-              return OnDeletePopupDialog(
-                roomUid: widget.roomUid,
-                selected: selected,
-                roomName: _roomName,
-              );
-            });
+          context: context,
+          builder: (context) {
+            return OnDeletePopupDialog(
+              roomUid: widget.roomUid,
+              selected: selected,
+              roomName: _roomName,
+            );
+          },
+        );
         break;
       case "deleteMuc":
         showDialog(
-            context: context,
-            builder: (context) {
-              return OnDeletePopupDialog(
-                roomUid: widget.roomUid,
-                selected: selected,
-                roomName: _roomName,
-              );
-            });
+          context: context,
+          builder: (context) {
+            return OnDeletePopupDialog(
+              roomUid: widget.roomUid,
+              selected: selected,
+              roomName: _roomName,
+            );
+          },
+        );
         break;
       case "blockRoom":
         _roomRepo.block(widget.roomUid.asString(), block: !_roomIsBlocked);
@@ -1047,7 +1098,9 @@ class _ProfilePageState extends State<ProfilePage>
       case "report":
         _roomRepo.reportRoom(widget.roomUid);
         ToastDisplay.showToast(
-            toastText: _i18n.get("report_result"), toastContext: context);
+          toastText: _i18n.get("report_result"),
+          toastContext: context,
+        );
         break;
       case "manage":
         showManageDialog();
@@ -1066,175 +1119,173 @@ class _ProfilePageState extends State<ProfilePage>
     final groups = BehaviorSubject<List<String>>.seeded([]);
 
     showDialog(
-        context: context,
-        builder: (c1) {
-          return AlertDialog(
-            title: Text(_i18n.get("add_bot_to_group")),
-            content: FutureBuilder<List<Room>>(
-              future: _roomRepo.getAllGroups(),
-              builder: (c, mucs) {
-                if (mucs.hasData &&
-                    mucs.data != null &&
-                    mucs.data!.isNotEmpty) {
-                  final s = <String>[];
-                  for (final room in mucs.data!) {
-                    s.add(room.uid);
-                  }
-                  groups.add(s);
-                  return StreamBuilder<List<String>>(
-                      stream: groups.stream,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData &&
-                            snapshot.data != null &&
-                            snapshot.data!.isNotEmpty) {
-                          return SizedBox(
-                            height: min(MediaQuery.of(context).size.height / 2,
-                                groups.value.length * 100.toDouble()),
-                            width: MediaQuery.of(context).size.width / 2,
-                            child: Column(
-                              children: [
-                                TextField(
-                                  onChanged: (str) {
-                                    final searchRes = <String>[];
-                                    for (final uid in nameOfGroup.keys) {
-                                      if (nameOfGroup[uid]!.contains(str) ||
-                                          nameOfGroup[uid] == str) {
-                                        searchRes.add(uid);
-                                      }
-                                    }
-                                    groups.add(searchRes);
-                                  },
-                                  decoration: InputDecoration(
-                                    hintText: _i18n.get("search"),
-                                    prefixIcon: const Icon(Icons.search),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: ListView.separated(
-                                      itemBuilder: (c, i) {
-                                        return GestureDetector(
-                                          child: FutureBuilder<String>(
-                                            future: _roomRepo.getName(
-                                                snapshot.data![i].asUid()),
-                                            builder: (c, name) {
-                                              if (name.hasData &&
-                                                  name.data != null) {
-                                                nameOfGroup[snapshot.data![i]] =
-                                                    name.data!;
-                                                return SizedBox(
-                                                    height: 50,
-                                                    child: Row(
-                                                      children: [
-                                                        CircleAvatarWidget(
-                                                            snapshot.data![i]
-                                                                .asUid(),
-                                                            20),
-                                                        const SizedBox(
-                                                            width: 10),
-                                                        Expanded(
-                                                            child: Text(
-                                                                name.data!))
-                                                      ],
-                                                    ));
-                                              } else {
-                                                return const SizedBox.shrink();
-                                              }
-                                            },
-                                          ),
-                                          onTap: () async {
-                                            showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return AlertDialog(
-                                                    title: const Icon(
-                                                        Icons.person_add),
-                                                    content: FutureBuilder<
-                                                            String>(
-                                                        future:
-                                                            _roomRepo.getName(
-                                                                widget.roomUid),
-                                                        builder: (c, name) {
-                                                          if (name.hasData &&
-                                                              name.data !=
-                                                                  null &&
-                                                              name.data!
-                                                                  .isNotEmpty) {
-                                                            return Text(
-                                                                "${_i18n.get("add")} ${name.data} ${_i18n.get("to")} ${nameOfGroup[snapshot.data![i]]}");
-                                                          } else {
-                                                            return const SizedBox
-                                                                .shrink();
-                                                          }
-                                                        }),
-                                                    actions: [
-                                                      Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          TextButton(
-                                                              onPressed: () {
-                                                                Navigator.of(
-                                                                        context)
-                                                                    .pop();
-                                                              },
-                                                              child: Text(
-                                                                  _i18n.get(
-                                                                      "cancel"))),
-                                                          TextButton(
-                                                              onPressed:
-                                                                  () async {
-                                                                final res = await _mucRepo
-                                                                    .sendMembers(
-                                                                        snapshot
-                                                                            .data![i]
-                                                                            .asUid(),
-                                                                        [
-                                                                      widget
-                                                                          .roomUid
-                                                                    ]);
-                                                                if (res) {
-                                                                  Navigator.pop(
-                                                                      context);
-                                                                  Navigator.pop(
-                                                                      c1);
-                                                                  _routingService
-                                                                      .openRoom(
-                                                                    snapshot
-                                                                        .data![i],
-                                                                  );
-                                                                }
-                                                              },
-                                                              child: Text(_i18n
-                                                                  .get("add"))),
-                                                        ],
-                                                      )
-                                                    ],
-                                                  );
-                                                });
-                                          },
-                                        );
-                                      },
-                                      separatorBuilder: (c, i) {
-                                        return const Divider();
-                                      },
-                                      itemCount: snapshot.data!.length),
-                                ),
-                              ],
-                            ),
-                          );
-                        } else {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                      });
+      context: context,
+      builder: (c1) {
+        return AlertDialog(
+          title: Text(_i18n.get("add_bot_to_group")),
+          content: FutureBuilder<List<Room>>(
+            future: _roomRepo.getAllGroups(),
+            builder: (c, mucs) {
+              if (mucs.hasData && mucs.data != null && mucs.data!.isNotEmpty) {
+                final s = <String>[];
+                for (final room in mucs.data!) {
+                  s.add(room.uid);
                 }
-                return const Center(child: CircularProgressIndicator());
-              },
-            ),
-          );
-        });
+                groups.add(s);
+                return StreamBuilder<List<String>>(
+                  stream: groups.stream,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                      final filteredGroupList = snapshot.data!;
+                      return SizedBox(
+                        height: min(
+                          MediaQuery.of(context).size.height / 2,
+                          filteredGroupList.length * 100.toDouble(),
+                        ),
+                        width: MediaQuery.of(context).size.width / 2,
+                        child: Column(
+                          children: [
+                            TextField(
+                              onChanged: (str) {
+                                final searchRes = <String>[];
+                                for (final uid in nameOfGroup.keys) {
+                                  if (nameOfGroup[uid]!.contains(str) ||
+                                      nameOfGroup[uid] == str) {
+                                    searchRes.add(uid);
+                                  }
+                                }
+                                groups.add(searchRes);
+                              },
+                              decoration: InputDecoration(
+                                hintText: _i18n.get("search"),
+                                prefixIcon: const Icon(Icons.search),
+                              ),
+                            ),
+                            Expanded(
+                              child: ListView.separated(
+                                itemBuilder: (c, i) {
+                                  return GestureDetector(
+                                    child: FutureBuilder<String>(
+                                      future: _roomRepo.getName(
+                                        filteredGroupList[i].asUid(),
+                                      ),
+                                      builder: (c, name) {
+                                        if (name.hasData && name.data != null) {
+                                          nameOfGroup[filteredGroupList[i]] =
+                                              name.data!;
+                                          return SizedBox(
+                                            height: 50,
+                                            child: Row(
+                                              children: [
+                                                CircleAvatarWidget(
+                                                  filteredGroupList[i].asUid(),
+                                                  20,
+                                                ),
+                                                const SizedBox(
+                                                  width: 10,
+                                                ),
+                                                Expanded(
+                                                  child: Text(
+                                                    name.data!,
+                                                  ),
+                                                )
+                                              ],
+                                            ),
+                                          );
+                                        } else {
+                                          return const SizedBox.shrink();
+                                        }
+                                      },
+                                    ),
+                                    onTap: () => _addBotToGroupButtonOnTab(
+                                      context,
+                                      c1,
+                                      filteredGroupList[i],
+                                      nameOfGroup[filteredGroupList[i]],
+                                    ),
+                                  );
+                                },
+                                separatorBuilder: (c, i) {
+                                  return const Divider();
+                                },
+                                itemCount: snapshot.data!.length,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    } else {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                  },
+                );
+              }
+              return const Center(child: CircularProgressIndicator());
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _addBotToGroupButtonOnTab(
+    BuildContext context,
+    BuildContext c1,
+    String uid,
+    String? name,
+  ) async {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Icon(Icons.person_add),
+          content: FutureBuilder<String>(
+            future: _roomRepo.getName(widget.roomUid),
+            builder: (c, name) {
+              if (name.hasData && name.data != null && name.data!.isNotEmpty) {
+                return Text(
+                  "${_i18n.get("add")} ${name.data} ${_i18n.get("to")} $name",
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
+          ),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text(_i18n.get("cancel")),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    final basicNavigatorState = Navigator.of(context);
+                    final c1NavigatorState = Navigator.of(c1);
+
+                    final res = await _mucRepo
+                        .sendMembers(uid.asUid(), [widget.roomUid]);
+                    if (res) {
+                      basicNavigatorState.pop();
+                      c1NavigatorState.pop();
+                      _routingService.openRoom(
+                        uid,
+                      );
+                    }
+                  },
+                  child: Text(_i18n.get("add")),
+                ),
+              ],
+            )
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -1257,7 +1308,10 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 
   @override
   Widget build(
-      BuildContext context, double shrinkOffset, bool overlapsContent) {
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
     return SizedBox.expand(child: child);
   }
 

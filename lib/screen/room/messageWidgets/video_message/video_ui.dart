@@ -13,14 +13,14 @@ class VideoUi extends StatefulWidget {
   final Color background;
   final Color foreground;
 
-  const VideoUi(
-      {Key? key,
-      required this.videoFilePath,
-      required this.duration,
-      required this.videoMessage,
-      required this.background,
-      required this.foreground})
-      : super(key: key);
+  const VideoUi({
+    Key? key,
+    required this.videoFilePath,
+    required this.duration,
+    required this.videoMessage,
+    required this.background,
+    required this.foreground,
+  }) : super(key: key);
 
   @override
   _VideoUiState createState() => _VideoUiState();
@@ -59,20 +59,25 @@ class _VideoUiState extends State<VideoUi> {
             if (isDesktop) {
               OpenFile.open(widget.videoFilePath);
             } else {
-              Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return Hero(
-                  tag: widget.videoMessage.uuid,
-                  child: VideoPlayerWidget(
-                    videoFilePath: widget.videoFilePath,
-                    showAppBar: true,
-                  ),
-                );
-              }));
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) {
+                    return Hero(
+                      tag: widget.videoMessage.uuid,
+                      child: VideoPlayerWidget(
+                        videoFilePath: widget.videoFilePath,
+                        showAppBar: true,
+                      ),
+                    );
+                  },
+                ),
+              );
             }
           },
           child: LimitedBox(
             maxWidth: MediaQuery.of(context).size.width,
-            maxHeight:MediaQuery.of(context).size.height/2 ,
+            maxHeight: MediaQuery.of(context).size.height / 2,
             child: Center(
               child: VideoPlayer(
                 _videoPlayerController,
@@ -96,15 +101,20 @@ class _VideoUiState extends State<VideoUi> {
                 if (isDesktop) {
                   OpenFile.open(widget.videoFilePath);
                 } else {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) {
-                    return Hero(
-                      tag: widget.videoMessage.uuid,
-                      child: VideoPlayerWidget(
-                        videoFilePath: widget.videoFilePath,
-                        showAppBar: true,
-                      ),
-                    );
-                  }));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return Hero(
+                          tag: widget.videoMessage.uuid,
+                          child: VideoPlayerWidget(
+                            videoFilePath: widget.videoFilePath,
+                            showAppBar: true,
+                          ),
+                        );
+                      },
+                    ),
+                  );
                 }
               },
             ),

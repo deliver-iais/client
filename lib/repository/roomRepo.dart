@@ -182,11 +182,14 @@ class RoomRepo {
       final room = await _roomDao.getRoom(roomUid.asString());
       _mediaDao.clear(roomUid.asString());
       _mediaMetaDataDao.clear(roomUid.asString());
-      _roomDao.updateRoom(Room(
+      _roomDao.updateRoom(
+        Room(
           uid: roomUid.asString(),
           deleted: true,
           firstMessageId: room!.lastMessageId ?? 0,
-          lastUpdateTime: clock.now().millisecondsSinceEpoch));
+          lastUpdateTime: clock.now().millisecondsSinceEpoch,
+        ),
+      );
       return true;
     } catch (e) {
       _logger.e(e);

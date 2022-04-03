@@ -56,14 +56,14 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
     return Scaffold(
       appBar: AppBar(
         actions: [
-          widget.setAvatar == null && _selectedImage.isNotEmpty
-              ? IconButton(
-                  onPressed: () {
-                    _selectedImage.clear();
-                    setState(() {});
-                  },
-                  icon: const Icon(Icons.clear))
-              : const SizedBox.shrink()
+          if (widget.setAvatar == null && _selectedImage.isNotEmpty)
+            IconButton(
+              onPressed: () {
+                _selectedImage.clear();
+                setState(() {});
+              },
+              icon: const Icon(Icons.clear),
+            )
         ],
         title: widget.setAvatar == null
             ? Text(
@@ -80,7 +80,8 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
             controller: ScrollController(),
             itemCount: widget.storageFile.files.length,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3),
+              crossAxisCount: 3,
+            ),
             itemBuilder: (c, index) {
               String imagePath = widget.storageFile.files[index];
               return GestureDetector(
@@ -151,29 +152,35 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                                       )),
                                 )),
                     ),
-                  ));
+                  ),
+                ),
+              );
             },
           ),
           if (_selectedImage.isNotEmpty)
             buildInputCaption(
-                i18n: _i18n,
-                insertCaption: _insertCaption,
-                context: context,
-                captionEditingController: _textEditingController,
-                count: _selectedImage.length,
-                send: () {
-                  widget.pop();
-                  _send();
-                })
+              i18n: _i18n,
+              insertCaption: _insertCaption,
+              context: context,
+              captionEditingController: _textEditingController,
+              count: _selectedImage.length,
+              send: () {
+                widget.pop();
+                _send();
+              },
+            )
         ],
       ),
     );
   }
 
   void _send() {
-    _messageRepo.sendMultipleFilesMessages(widget.roomUid,
-        _selectedImage.map((e) => model.File(e, e.split(".").last)).toList(),
-        replyToId: widget.replyMessageId, caption: _textEditingController.text);
+    _messageRepo.sendMultipleFilesMessages(
+      widget.roomUid,
+      _selectedImage.map((e) => model.File(e, e.split(".").last)).toList(),
+      replyToId: widget.replyMessageId,
+      caption: _textEditingController.text,
+    );
     widget.resetRoomPageDetails?.call();
   }
 

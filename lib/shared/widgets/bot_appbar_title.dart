@@ -36,14 +36,15 @@ class BotAppbarTitle extends StatelessWidget {
             ),
             Expanded(
               child: FutureBuilder<String>(
-                  future: _roomRepo.getName(botUid),
-                  builder: (c, name) {
-                    if (name.hasData && name.data != null) {
-                      return buildColumn(name.data!, context);
-                    } else {
-                      return buildColumn(botUid.node, context);
-                    }
-                  }),
+                future: _roomRepo.getName(botUid),
+                builder: (c, name) {
+                  if (name.hasData && name.data != null) {
+                    return buildColumn(name.data!, context);
+                  } else {
+                    return buildColumn(botUid.node, context);
+                  }
+                },
+              ),
             )
           ],
         ),
@@ -56,19 +57,20 @@ class BotAppbarTitle extends StatelessWidget {
 
   Column buildColumn(String name, BuildContext context) {
     final theme = Theme.of(context);
+    final _i18n = GetIt.I.get<I18N>();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        RoomName(uid: botUid, name: name, style:theme.textTheme.subtitle1),
+        RoomName(uid: botUid, name: name, style: theme.textTheme.subtitle1),
         TitleStatus(
           currentRoomUid: botUid,
-          style:theme.textTheme.caption!,
+          style: theme.textTheme.caption!,
           normalConditionWidget: Text(
-            I18N.of(context)!.get("bot"),
+            _i18n.get("bot"),
             maxLines: 1,
             overflow: TextOverflow.fade,
             softWrap: false,
-            style:theme.textTheme.caption,
+            style: theme.textTheme.caption,
           ),
         )
       ],

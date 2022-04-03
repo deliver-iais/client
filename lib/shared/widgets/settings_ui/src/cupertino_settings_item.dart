@@ -138,15 +138,17 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
       );
     }
 
-    rowChildren.add(Expanded(
-      child: Padding(
-        padding: const EdgeInsetsDirectional.only(
-          start: 15.0,
-          end: 15.0,
+    rowChildren.add(
+      Expanded(
+        child: Padding(
+          padding: const EdgeInsetsDirectional.only(
+            start: 15.0,
+            end: 15.0,
+          ),
+          child: titleSection,
         ),
-        child: titleSection,
       ),
-    ));
+    );
 
     switch (widget.type) {
       case SettingsItemType.toggle:

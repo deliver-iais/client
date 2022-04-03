@@ -28,7 +28,8 @@ class FireBaseServices {
   final List<String> _requestedRoom = [];
 
   Future<Map<String, String>> _decodeMessageForWebNotification(
-      notification) async {
+    notification,
+  ) async {
     final res = <String, String>{};
 
     await _backgroundRemoteMessageHandler(notification);
@@ -94,9 +95,11 @@ class FireBaseServices {
   Future<void> sendGlitchReportForFirebaseNotification(String roomUid) async {
     if (!_requestedRoom.contains(roomUid)) {
       try {
-        await _queryServicesClient.sendGlitch(SendGlitchReq()
-          ..offlineNotification =
-              (GlitchOfOfflineNotification()..room = roomUid.asUid()));
+        await _queryServicesClient.sendGlitch(
+          SendGlitchReq()
+            ..offlineNotification =
+                (GlitchOfOfflineNotification()..room = roomUid.asUid()),
+        );
 
         _requestedRoom.add(roomUid);
       } catch (e) {
@@ -113,7 +116,8 @@ message_pb.Message _decodeMessage(String notificationBody) {
 }
 
 Future<void> _backgroundRemoteMessageHandler(
-    RemoteMessage remoteMessage) async {
+  RemoteMessage remoteMessage,
+) async {
   if (remoteMessage.data.containsKey('body')) {
     try {
       await setupDI();

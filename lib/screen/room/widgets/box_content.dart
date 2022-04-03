@@ -75,58 +75,62 @@ class _BoxContentState extends State<BoxContent> {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-        onHover: (s) {
-          hideArrowDopIcon = false;
-          setState(() {});
-        },
-        onExit: (s) {
-          hideArrowDopIcon = true;
-          setState(() {});
-        },
-        child: Stack(
-          alignment: widget.isSender ? Alignment.topLeft : Alignment.topRight,
-          children: [
-            RepaintBoundary(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (isDebugEnabled())
-                    DebugC(label: "message details", children: [
+      onHover: (s) {
+        hideArrowDopIcon = false;
+        setState(() {});
+      },
+      onExit: (s) {
+        hideArrowDopIcon = true;
+        setState(() {});
+      },
+      child: Stack(
+        alignment: widget.isSender ? Alignment.topLeft : Alignment.topRight,
+        children: [
+          RepaintBoundary(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (isDebugEnabled())
+                  DebugC(
+                    label: "message details",
+                    children: [
                       Debug(widget.message.id, label: "id"),
                       Debug(widget.message.packetId, label: "packetId"),
-                    ]),
-                  if (hasReply()) replyToIdBox(),
-                  if (isForwarded()) forwardedFromBox(),
-                  messageBox()
-                ],
-              ),
+                    ],
+                  ),
+                if (hasReply()) replyToIdBox(),
+                if (isForwarded()) forwardedFromBox(),
+                messageBox()
+              ],
             ),
-            isDesktop | isWeb
-                ? MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTapDown: (tapDownDetails) {
-                        widget.storePosition(tapDownDetails);
-                      },
-                      onTap: () => widget.onArrowIconClick(),
-                      child: AnimatedOpacity(
-                        opacity: !hideArrowDopIcon ? 1.0 : 0.0,
-                        duration: const Duration(milliseconds: 200),
-                        child: Container(
-                          margin: const EdgeInsets.all(2),
-                          child: const BlurContainer(
-                              padding: EdgeInsets.all(3),
-                              child: Icon(
-                                CupertinoIcons.chevron_down,
-                                size: 16,
-                              )),
-                        ),
+          ),
+          if (isDesktop | isWeb)
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTapDown: (tapDownDetails) {
+                  widget.storePosition(tapDownDetails);
+                },
+                onTap: () => widget.onArrowIconClick(),
+                child: AnimatedOpacity(
+                  opacity: !hideArrowDopIcon ? 1.0 : 0.0,
+                  duration: const Duration(milliseconds: 200),
+                  child: Container(
+                    margin: const EdgeInsets.all(2),
+                    child: const BlurContainer(
+                      padding: EdgeInsets.all(3),
+                      child: Icon(
+                        CupertinoIcons.chevron_down,
+                        size: 16,
                       ),
                     ),
-                  )
-                : const SizedBox.shrink(),
-          ],
-        ));
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
   }
 
   Widget replyToIdBox() {
@@ -166,15 +170,22 @@ class _BoxContentState extends State<BoxContent> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(CupertinoIcons.arrowshape_turn_up_right,
-                      size: 15, color: widget.colorScheme.onPrimary),
+                  Icon(
+                    CupertinoIcons.arrowshape_turn_up_right,
+                    size: 15,
+                    color: widget.colorScheme.onPrimary,
+                  ),
                   Flexible(
-                    child: Text(snapshot.data ?? "",
-                        softWrap: false,
-                        maxLines: 1,
-                        overflow: TextOverflow.fade,
-                        style: TextStyle(
-                            color: widget.colorScheme.onPrimary, fontSize: 12)),
+                    child: Text(
+                      snapshot.data ?? "",
+                      softWrap: false,
+                      maxLines: 1,
+                      overflow: TextOverflow.fade,
+                      style: TextStyle(
+                        color: widget.colorScheme.onPrimary,
+                        fontSize: 12,
+                      ),
+                    ),
                   ),
                 ],
               ),

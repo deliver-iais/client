@@ -17,24 +17,26 @@ class TGS extends StatefulWidget {
   final bool repeat;
   final bool autoPlay;
 
-  const TGS.asset(this.assetsPath,
-      {Key? key,
-      this.controller,
-      this.repeat = true,
-      this.autoPlay = true,
-      this.width = 120,
-      this.height = 120})
-      : file = null,
+  const TGS.asset(
+    this.assetsPath, {
+    Key? key,
+    this.controller,
+    this.repeat = true,
+    this.autoPlay = true,
+    this.width = 120,
+    this.height = 120,
+  })  : file = null,
         super(key: key);
 
-  const TGS.file(this.file,
-      {Key? key,
-      required this.controller,
-      this.repeat = true,
-      this.autoPlay = true,
-      this.width = 120,
-      this.height = 120})
-      : assetsPath = null,
+  const TGS.file(
+    this.file, {
+    Key? key,
+    required this.controller,
+    this.repeat = true,
+    this.autoPlay = true,
+    this.width = 120,
+    this.height = 120,
+  })  : assetsPath = null,
         super(key: key);
 
   @override
@@ -82,29 +84,31 @@ class _TGSState extends State<TGS> {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder<LottieComposition?>(
-        future: _composition,
-        builder: (context, snapshot) {
-          final composition = snapshot.data;
+      future: _composition,
+      builder: (context, snapshot) {
+        final composition = snapshot.data;
 
-          if (composition != null) {
-            if (widget.controller != null) {
-              widget.controller!.duration = composition.duration;
-              if (widget.autoPlay) {
-                widget.controller!.forward();
-              }
+        if (composition != null) {
+          if (widget.controller != null) {
+            widget.controller!.duration = composition.duration;
+            if (widget.autoPlay) {
+              widget.controller!.forward();
             }
-            return Lottie(
-                composition: composition,
-                controller: widget.controller,
-                width: widget.width,
-                height: widget.height,
-                repeat: widget.repeat);
-          } else {
-            return SizedBox(
-              width: widget.width,
-              height: widget.height,
-            );
           }
-        });
+          return Lottie(
+            composition: composition,
+            controller: widget.controller,
+            width: widget.width,
+            height: widget.height,
+            repeat: widget.repeat,
+          );
+        } else {
+          return SizedBox(
+            width: widget.width,
+            height: widget.height,
+          );
+        }
+      },
+    );
   }
 }

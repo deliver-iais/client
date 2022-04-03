@@ -37,56 +37,60 @@ class MucAppbarTitle extends StatelessWidget {
             ),
             Expanded(
               child: StreamBuilder<Muc?>(
-                  stream: _mucRepo.watchMuc(mucUid),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            snapshot.data!.name!,
+                stream: _mucRepo.watchMuc(mucUid),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          snapshot.data!.name!,
+                          maxLines: 1,
+                          overflow: TextOverflow.fade,
+                          softWrap: false,
+                          style: theme.textTheme.subtitle1,
+                        ),
+                        TitleStatus(
+                          style: theme.textTheme.caption!,
+                          normalConditionWidget: Text(
+                            "${snapshot.data!.population} ${i18n.get("members")}",
                             maxLines: 1,
                             overflow: TextOverflow.fade,
                             softWrap: false,
-                            style:theme.textTheme.subtitle1,
+                            style: theme.textTheme.caption,
                           ),
-                          TitleStatus(
-                            style:theme.textTheme.caption!,
-                            normalConditionWidget: Text(
-                              "${snapshot.data!.population} ${i18n.get("members")}",
-                              maxLines: 1,
-                              overflow: TextOverflow.fade,
-                              softWrap: false,
-                              style:theme.textTheme.caption,
-                            ),
-                            currentRoomUid: mucUid.asUid(),
-                          )
-                        ],
-                      );
-                    } else {
-                      return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                                width: 200,
-                                height: 20,
-                                decoration: BoxDecoration(
-                                    color:theme.brightness ==
-                                            Brightness.light
-                                        ? Colors.grey[200]
-                                        : Colors.grey[800])),
-                            const SizedBox(height: 6),
-                            Container(
-                                width: 100,
-                                height: 11,
-                                decoration: BoxDecoration(
-                                    color:theme.brightness ==
-                                            Brightness.light
-                                        ? Colors.grey[200]
-                                        : Colors.grey[800])),
-                          ]);
-                    }
-                  }),
+                          currentRoomUid: mucUid.asUid(),
+                        )
+                      ],
+                    );
+                  } else {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 200,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: theme.brightness == Brightness.light
+                                ? Colors.grey[200]
+                                : Colors.grey[800],
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Container(
+                          width: 100,
+                          height: 11,
+                          decoration: BoxDecoration(
+                            color: theme.brightness == Brightness.light
+                                ? Colors.grey[200]
+                                : Colors.grey[800],
+                          ),
+                        ),
+                      ],
+                    );
+                  }
+                },
+              ),
             )
           ],
         ),

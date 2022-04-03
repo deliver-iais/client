@@ -24,13 +24,13 @@ class ShareUidMessageWidget extends StatelessWidget {
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _i18n = GetIt.I.get<I18N>();
 
-  ShareUidMessageWidget(
-      {Key? key,
-      required this.message,
-      required this.isSender,
-      required this.colorScheme,
-      required this.isSeen})
-      : super(key: key);
+  ShareUidMessageWidget({
+    Key? key,
+    required this.message,
+    required this.isSender,
+    required this.colorScheme,
+    required this.isSeen,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -44,8 +44,11 @@ class ShareUidMessageWidget extends StatelessWidget {
             style: ElevatedButton.styleFrom(primary: colorScheme.primary),
             icon: Padding(
               padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
-              child: CircleAvatarWidget(_shareUid.uid, 14,
-                  forceText: _shareUid.name),
+              child: CircleAvatarWidget(
+                _shareUid.uid,
+                14,
+                forceText: _shareUid.name,
+              ),
             ),
             label: Row(
               children: [
@@ -91,8 +94,11 @@ class ShareUidMessageWidget extends StatelessWidget {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: <Widget>[
-                          CircleAvatarWidget(_shareUid.uid, 40,
-                              forceText: _shareUid.name),
+                          CircleAvatarWidget(
+                            _shareUid.uid,
+                            40,
+                            forceText: _shareUid.name,
+                          ),
                           Text(
                             _shareUid.name,
                             style: Theme.of(context).textTheme.headline6,
@@ -102,55 +108,62 @@ class ShareUidMessageWidget extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               MaterialButton(
-                                  onPressed: () => Navigator.of(context).pop(),
-                                  child: Text(_i18n.get("skip"))),
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: Text(_i18n.get("skip")),
+                              ),
                               MaterialButton(
-                                  onPressed: () async {
-                                    // Navigator.of(context).pop();
-                                    if ((_shareUid.uid.category ==
-                                            Categories.GROUP ||
-                                        _shareUid.uid.category ==
-                                            Categories.CHANNEL)) {
-                                      final muc = await _mucRepo
-                                          .getMuc(_shareUid.uid.asString());
-                                      if (muc == null) {
-                                        if (_shareUid.uid.category ==
-                                            Categories.GROUP) {
-                                          final res = await _mucRepo.joinGroup(
-                                              _shareUid.uid,
-                                              _shareUid.joinToken);
-                                          if (res != null) {
-                                            _messageRepo.updateNewMuc(
-                                                _shareUid.uid,
-                                                res.lastMessageId!);
-                                            _routingServices.openRoom(
-                                                _shareUid.uid.asString());
-                                            Navigator.of(context).pop();
-                                          }
-                                        } else {
-                                          final res =
-                                              await _mucRepo.joinChannel(
-                                                  _shareUid.uid,
-                                                  _shareUid.joinToken);
-                                          if (res != null) {
-                                            _messageRepo.updateNewMuc(
-                                                _shareUid.uid,
-                                                res.lastMessageId!);
-                                            _routingServices.openRoom(
-                                                _shareUid.uid.asString());
-                                            Navigator.of(context).pop();
-                                          }
+                                onPressed: () async {
+                                  final navigatorState = Navigator.of(context);
+                                  if ((_shareUid.uid.category ==
+                                          Categories.GROUP ||
+                                      _shareUid.uid.category ==
+                                          Categories.CHANNEL)) {
+                                    final muc = await _mucRepo
+                                        .getMuc(_shareUid.uid.asString());
+                                    if (muc == null) {
+                                      if (_shareUid.uid.category ==
+                                          Categories.GROUP) {
+                                        final res = await _mucRepo.joinGroup(
+                                          _shareUid.uid,
+                                          _shareUid.joinToken,
+                                        );
+                                        if (res != null) {
+                                          _messageRepo.updateNewMuc(
+                                            _shareUid.uid,
+                                            res.lastMessageId!,
+                                          );
+                                          _routingServices.openRoom(
+                                            _shareUid.uid.asString(),
+                                          );
+                                          navigatorState.pop();
                                         }
                                       } else {
-                                        _routingServices
-                                            .openRoom(_shareUid.uid.asString());
+                                        final res = await _mucRepo.joinChannel(
+                                          _shareUid.uid,
+                                          _shareUid.joinToken,
+                                        );
+                                        if (res != null) {
+                                          _messageRepo.updateNewMuc(
+                                            _shareUid.uid,
+                                            res.lastMessageId!,
+                                          );
+                                          _routingServices.openRoom(
+                                            _shareUid.uid.asString(),
+                                          );
+                                          navigatorState.pop();
+                                        }
                                       }
                                     } else {
                                       _routingServices
                                           .openRoom(_shareUid.uid.asString());
                                     }
-                                  },
-                                  child: Text(_i18n.get("join")))
+                                  } else {
+                                    _routingServices
+                                        .openRoom(_shareUid.uid.asString());
+                                  }
+                                },
+                                child: Text(_i18n.get("join")),
+                              )
                             ],
                           ),
                         ],
@@ -163,12 +176,14 @@ class ShareUidMessageWidget extends StatelessWidget {
               }
             },
           ),
-          TimeAndSeenStatus(message,
-              isSender: isSender,
-              isSeen: isSeen,
-              needsPositioned: false,
-              backgroundColor: colorScheme.primaryContainer,
-              foregroundColor: colorScheme.onPrimaryContainerLowlight()),
+          TimeAndSeenStatus(
+            message,
+            isSender: isSender,
+            isSeen: isSeen,
+            needsPositioned: false,
+            backgroundColor: colorScheme.primaryContainer,
+            foregroundColor: colorScheme.onPrimaryContainerLowlight(),
+          ),
         ],
       ),
     );

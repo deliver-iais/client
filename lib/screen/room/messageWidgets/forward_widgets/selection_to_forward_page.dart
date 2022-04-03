@@ -17,9 +17,12 @@ class SelectionToForwardPage extends StatefulWidget {
   final List<Media>? medias;
   final proto.ShareUid? shareUid;
 
-  const SelectionToForwardPage(
-      {Key? key, this.forwardedMessages, this.medias, this.shareUid})
-      : super(key: key);
+  const SelectionToForwardPage({
+    Key? key,
+    this.forwardedMessages,
+    this.medias,
+    this.shareUid,
+  }) : super(key: key);
 
   @override
   _SelectionToForwardPageState createState() => _SelectionToForwardPageState();
@@ -54,29 +57,30 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
           ),
           Expanded(
             child: StreamBuilder<String>(
-                stream: _queryTermDebouncedSubject.stream,
-                builder: (context, snapshot) {
-                  return FutureBuilder<List<Uid>>(
-                    future: snapshot.hasData && snapshot.data!.isNotEmpty
-                        ? _roomRepo.searchInRoomAndContacts(snapshot.data!)
-                        : _roomRepo.getAllRooms(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData &&
-                          snapshot.data != null &&
-                          snapshot.data!.isNotEmpty) {
-                        return Container(
-                          child: buildListView(snapshot.data!),
-                        );
-                      } else {
-                        return const Center(
-                          child: CircularProgressIndicator(
-                            backgroundColor: Colors.blue,
-                          ),
-                        );
-                      }
-                    },
-                  );
-                }),
+              stream: _queryTermDebouncedSubject.stream,
+              builder: (context, snapshot) {
+                return FutureBuilder<List<Uid>>(
+                  future: snapshot.hasData && snapshot.data!.isNotEmpty
+                      ? _roomRepo.searchInRoomAndContacts(snapshot.data!)
+                      : _roomRepo.getAllRooms(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData &&
+                        snapshot.data != null &&
+                        snapshot.data!.isNotEmpty) {
+                      return Container(
+                        child: buildListView(snapshot.data!),
+                      );
+                    } else {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          backgroundColor: Colors.blue,
+                        ),
+                      );
+                    }
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),
@@ -84,11 +88,13 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
   }
 
   void _send(Uid uid) {
-    _routingService.openRoom(uid.asString(),
-        forwardedMessages: widget.forwardedMessages ?? [],
-        popAllBeforePush: true,
-        forwardedMedia: widget.medias ?? [],
-        shareUid: widget.shareUid);
+    _routingService.openRoom(
+      uid.asString(),
+      forwardedMessages: widget.forwardedMessages ?? [],
+      popAllBeforePush: true,
+      forwardedMedia: widget.medias ?? [],
+      shareUid: widget.shareUid,
+    );
   }
 
   ListView buildListView(List<Uid> uids) {

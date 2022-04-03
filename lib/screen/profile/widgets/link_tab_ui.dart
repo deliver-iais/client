@@ -32,7 +32,11 @@ class _LinkTabUiState extends State<LinkTabUi> {
     } else {
       final page = (index / MEDIA_PAGE_SIZE).floor();
       final res = await _mediaQueryRepo.getMediaPage(
-          widget.roomUid.asString(), MediaType.LINK, page, index);
+        widget.roomUid.asString(),
+        MediaType.LINK,
+        page,
+        index,
+      );
       if (res != null) {
         for (final media in res) {
           _mediaCache[media.messageId] = media;
@@ -45,33 +49,35 @@ class _LinkTabUiState extends State<LinkTabUi> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<MediaMetaData?>(
-        stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
-        builder: (context, snapshot) {
-          _mediaCache.clear();
-          return ListView.separated(
-              itemCount: widget.linksCount,
-              separatorBuilder: (c, i) {
-                return const Divider();
+      stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
+      builder: (context, snapshot) {
+        _mediaCache.clear();
+        return ListView.separated(
+          itemCount: widget.linksCount,
+          separatorBuilder: (c, i) {
+            return const Divider();
+          },
+          itemBuilder: (c, index) {
+            return FutureBuilder<Media?>(
+              future: _getMedia(index),
+              builder: (c, mediaSnapShot) {
+                if (mediaSnapShot.hasData) {
+                  final json = jsonDecode(mediaSnapShot.data!.json) as Map;
+                  return SizedBox(
+                    child: LinkPreview(
+                      link: json["url"],
+                      maxWidth: 100,
+                      isProfile: true,
+                    ),
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
               },
-              itemBuilder: (c, index) {
-                return FutureBuilder<Media?>(
-                    future: _getMedia(index),
-                    builder: (c, mediaSnapShot) {
-                      if (mediaSnapShot.hasData) {
-                        final json =
-                            jsonDecode(mediaSnapShot.data!.json) as Map;
-                        return SizedBox(
-                          child: LinkPreview(
-                            link: json["url"],
-                            maxWidth: 100,
-                            isProfile: true,
-                          ),
-                        );
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    });
-              });
-        });
+            );
+          },
+        );
+      },
+    );
   }
 }

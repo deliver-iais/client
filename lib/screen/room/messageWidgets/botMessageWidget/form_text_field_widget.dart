@@ -1,9 +1,9 @@
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-import 'package:intl/intl.dart';
 import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 
 class FormInputTextFieldWidget extends StatefulWidget {
@@ -11,12 +11,12 @@ class FormInputTextFieldWidget extends StatefulWidget {
   final void Function(String) setResult;
   final void Function(GlobalKey<FormState>) setFormKey;
 
-  const FormInputTextFieldWidget(
-      {Key? key,
-      required this.formField,
-      required this.setResult,
-      required this.setFormKey})
-      : super(key: key);
+  const FormInputTextFieldWidget({
+    Key? key,
+    required this.formField,
+    required this.setResult,
+    required this.setFormKey,
+  }) : super(key: key);
 
   @override
   _FormInputTextFieldWidgetState createState() =>
@@ -37,30 +37,32 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       child: Form(
-          key: _formKey,
-          child: widget.formField.whichType() ==
-                      form_pb.Form_Field_Type.textField ||
-                  widget.formField.whichType() ==
-                      form_pb.Form_Field_Type.numberField
-              ? buildTextFormField(
-                  widget.formField.whichType() ==
-                          form_pb.Form_Field_Type.textField
-                      ? TextInputType.text
-                      : TextInputType.number,
-                  maxLength: widget.formField.whichType() ==
-                          form_pb.Form_Field_Type.textField
-                      ? widget.formField.textField.max
-                      : widget.formField.numberField.max.toInt(),
-                )
-              : widget.formField.whichType() ==
-                      form_pb.Form_Field_Type.dateField
-                  ? buildTextFormField(TextInputType.datetime)
-                  : buildTextFormField(TextInputType.number)),
+        key: _formKey,
+        child: widget.formField.whichType() ==
+                    form_pb.Form_Field_Type.textField ||
+                widget.formField.whichType() ==
+                    form_pb.Form_Field_Type.numberField
+            ? buildTextFormField(
+                widget.formField.whichType() ==
+                        form_pb.Form_Field_Type.textField
+                    ? TextInputType.text
+                    : TextInputType.number,
+                maxLength: widget.formField.whichType() ==
+                        form_pb.Form_Field_Type.textField
+                    ? widget.formField.textField.max
+                    : widget.formField.numberField.max.toInt(),
+              )
+            : widget.formField.whichType() == form_pb.Form_Field_Type.dateField
+                ? buildTextFormField(TextInputType.datetime)
+                : buildTextFormField(TextInputType.number),
+      ),
     );
   }
 
-  TextFormField buildTextFormField(TextInputType keyboardType,
-      {int? maxLength}) {
+  TextFormField buildTextFormField(
+    TextInputType keyboardType, {
+    int? maxLength,
+  }) {
     return TextFormField(
       focusNode: keyboardType == TextInputType.datetime
           ? AlwaysDisabledFocusNode()
@@ -100,44 +102,52 @@ class _FormInputTextFieldWidgetState extends State<FormInputTextFieldWidget> {
         final label = picked.formatFullDate();
         _textEditingController
           ..text = label
-          ..selection = TextSelection.fromPosition(TextPosition(
+          ..selection = TextSelection.fromPosition(
+            TextPosition(
               offset: _textEditingController.text.length,
-              affinity: TextAffinity.upstream));
+              affinity: TextAffinity.upstream,
+            ),
+          );
       }
     } else {
       final newSelectedDate = await showDatePicker(
-          context: context,
-          initialDate: _selectedDate ?? DateTime.now(),
-          firstDate: DateTime(1900),
-          lastDate: DateTime(2070),
-          builder: (context, child) {
-            return child!;
-          });
+        context: context,
+        initialDate: _selectedDate ?? DateTime.now(),
+        firstDate: DateTime(1900),
+        lastDate: DateTime(2070),
+        builder: (context, child) {
+          return child!;
+        },
+      );
 
       if (newSelectedDate != null) {
         widget.setResult(newSelectedDate.microsecondsSinceEpoch.toString());
         _selectedDate = newSelectedDate;
         _textEditingController
-          ..text = DateFormat.yMMMd().format(_selectedDate!)
-          ..selection = TextSelection.fromPosition(TextPosition(
+          ..text = dateTimeFormat(_selectedDate!)
+          ..selection = TextSelection.fromPosition(
+            TextPosition(
               offset: _textEditingController.text.length,
-              affinity: TextAffinity.upstream));
+              affinity: TextAffinity.upstream,
+            ),
+          );
       }
     }
   }
 
   InputDecoration buildInputDecoration() {
     return InputDecoration(
-        suffixIcon: widget.formField.isOptional
-            ? const SizedBox.shrink()
-            : const Padding(
-                padding: EdgeInsets.only(top: 20, left: 25),
-                child: Text(
-                  "*",
-                  style: TextStyle(color: Colors.red),
-                ),
+      suffixIcon: widget.formField.isOptional
+          ? const SizedBox.shrink()
+          : const Padding(
+              padding: EdgeInsets.only(top: 20, left: 25),
+              child: Text(
+                "*",
+                style: TextStyle(color: Colors.red),
               ),
-        labelText: widget.formField.id);
+            ),
+      labelText: widget.formField.id,
+    );
   }
 
   String? validateFormTextField(String? value) {

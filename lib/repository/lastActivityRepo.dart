@@ -34,9 +34,12 @@ class LastActivityRepo {
         .getLastActivity(GetLastActivityReq()..uid = currentUserUid);
     _logger.v(lastActivityTime.toString());
 
-    _lastActivityDao.save(LastActivity(
+    _lastActivityDao.save(
+      LastActivity(
         uid: currentUserUid.asString(),
         time: lastActivityTime.lastActivityTime.toInt(),
-        lastUpdate: DateTime.now().millisecondsSinceEpoch));
+        lastUpdate: DateTime.now().millisecondsSinceEpoch,
+      ),
+    );
   }
 }

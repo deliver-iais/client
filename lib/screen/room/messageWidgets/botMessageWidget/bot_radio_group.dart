@@ -5,42 +5,47 @@ class BotRadioGroup extends FormField<String> {
   final form_pb.Form_Field formField;
   final void Function(String?) onChange;
 
-  BotRadioGroup(
-      {Key? key, required this.formField, required this.onChange, validator})
-      : super(
-            key: key,
-            validator: validator,
-            builder: (
-              field,
-            ) {
-              return InputDecorator(
-                decoration: InputDecoration(
-                  label: Text(
-                    formField.id,
-                    style: const TextStyle(fontSize: 16),
-                  ),
-                  errorText: field.hasError ? field.errorText : null,
+  BotRadioGroup({
+    Key? key,
+    required this.formField,
+    required this.onChange,
+    validator,
+  }) : super(
+          key: key,
+          validator: validator,
+          builder: (
+            field,
+          ) {
+            return InputDecorator(
+              decoration: InputDecoration(
+                label: Text(
+                  formField.id,
+                  style: const TextStyle(fontSize: 16),
                 ),
-                child: Column(
-                  children: [
-                    for (var f
-                        in formField.whichType() == form_pb.Form_Field_Type.list
-                            ? formField.list.values
-                            : formField.radioButtonList.values)
-                      ListTile(
-                          dense: true,
-                          title: Text(f, style: const TextStyle(fontSize: 16)),
-                          leading: Radio<String?>(
-                            value: f,
-                            groupValue: field.value,
-                            toggleable: true,
-                            onChanged: (d) {
-                              field.didChange(d);
-                              onChange(d);
-                            },
-                          ))
-                  ],
-                ),
-              );
-            });
+                errorText: field.hasError ? field.errorText : null,
+              ),
+              child: Column(
+                children: [
+                  for (var f
+                      in formField.whichType() == form_pb.Form_Field_Type.list
+                          ? formField.list.values
+                          : formField.radioButtonList.values)
+                    ListTile(
+                      dense: true,
+                      title: Text(f, style: const TextStyle(fontSize: 16)),
+                      leading: Radio<String?>(
+                        value: f,
+                        groupValue: field.value,
+                        toggleable: true,
+                        onChanged: (d) {
+                          field.didChange(d);
+                          onChange(d);
+                        },
+                      ),
+                    )
+                ],
+              ),
+            );
+          },
+        );
 }

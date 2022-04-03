@@ -16,49 +16,55 @@ class BotButtonsWidget extends StatelessWidget {
   final bool isSeen;
   final CustomColorScheme colorScheme;
 
-  BotButtonsWidget(
-      {Key? key,
-      required this.message,
-      required this.maxWidth,
-      required this.isSender,
-      required this.colorScheme,
-      required this.isSeen})
-      : super(key: key);
+  BotButtonsWidget({
+    Key? key,
+    required this.message,
+    required this.maxWidth,
+    required this.isSender,
+    required this.colorScheme,
+    required this.isSeen,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final buttons = message.json.toButtons();
     return Container(
-        padding: const EdgeInsets.only(top: 4, left: 4, right: 4, bottom: 1),
-        width: maxWidth,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            for (final btn in buttons.buttons)
-              Container(
-                constraints: const BoxConstraints(minHeight: 40),
-                width: maxWidth,
-                margin: const EdgeInsets.only(bottom: 6),
-                child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        primary: colorScheme.primary,
-                        shape: const RoundedRectangleBorder(
-                            borderRadius: tertiaryBorder)),
-                    onPressed: () {
-                      _messageRepo.sendTextMessage(message.from.asUid(), btn);
-                    },
-                    child: Text(btn, textAlign: TextAlign.center)),
+      padding: const EdgeInsets.only(top: 4, left: 4, right: 4, bottom: 1),
+      width: maxWidth,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          for (final btn in buttons.buttons)
+            Container(
+              constraints: const BoxConstraints(minHeight: 40),
+              width: maxWidth,
+              margin: const EdgeInsets.only(bottom: 6),
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  primary: colorScheme.primary,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: tertiaryBorder,
+                  ),
+                ),
+                onPressed: () {
+                  _messageRepo.sendTextMessage(message.from.asUid(), btn);
+                },
+                child: Text(btn, textAlign: TextAlign.center),
               ),
-            Padding(
-              padding: const EdgeInsets.only(right: 6.0, left: 6.0),
-              child: TimeAndSeenStatus(message,
-                  isSender: isSender,
-                  isSeen: isSeen,
-                  needsPositioned: false,
-                  backgroundColor: colorScheme.primaryContainer,
-                  foregroundColor: colorScheme.onPrimaryContainerLowlight()),
             ),
-          ],
-        ));
+          Padding(
+            padding: const EdgeInsets.only(right: 6.0, left: 6.0),
+            child: TimeAndSeenStatus(
+              message,
+              isSender: isSender,
+              isSeen: isSeen,
+              needsPositioned: false,
+              backgroundColor: colorScheme.primaryContainer,
+              foregroundColor: colorScheme.onPrimaryContainerLowlight(),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

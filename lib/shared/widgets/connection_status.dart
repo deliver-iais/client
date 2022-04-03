@@ -15,39 +15,43 @@ class ConnectionStatus extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return StreamBuilder<TitleStatusConditions>(
-        initialData: TitleStatusConditions.Normal,
-        stream: _messageRepo.updatingStatus.stream,
-        builder: (context, snapshot) {
-          return AnimatedContainer(
-            width: double.infinity,
-            height: snapshot.data == TitleStatusConditions.Normal ? 0 : 38,
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            margin: const EdgeInsets.symmetric(horizontal: 8),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.secondaryContainer,
-              borderRadius: tertiaryBorder,
-            ),
-            curve: Curves.easeInOut,
-            duration: ANIMATION_DURATION * 2,
-            child: Row(
-              children: [
-                const SizedBox(width: 4),
-                SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: theme.colorScheme.onTertiaryContainer,
-                  ),
+      initialData: TitleStatusConditions.Normal,
+      stream: _messageRepo.updatingStatus.stream,
+      builder: (context, snapshot) {
+        return AnimatedContainer(
+          width: double.infinity,
+          height: snapshot.data == TitleStatusConditions.Normal ? 0 : 38,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          margin: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.secondaryContainer,
+            borderRadius: tertiaryBorder,
+          ),
+          curve: Curves.easeInOut,
+          duration: ANIMATION_DURATION * 2,
+          child: Row(
+            children: [
+              const SizedBox(width: 4),
+              SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: theme.colorScheme.onTertiaryContainer,
                 ),
-                const SizedBox(width: 8),
-                Text(title(snapshot.data ?? TitleStatusConditions.Normal),
-                    style: theme.textTheme.subtitle1?.copyWith(
-                        color: theme.colorScheme.onSecondaryContainer)),
-              ],
-            ),
-          );
-        });
+              ),
+              const SizedBox(width: 8),
+              Text(
+                title(snapshot.data ?? TitleStatusConditions.Normal),
+                style: theme.textTheme.subtitle1?.copyWith(
+                  color: theme.colorScheme.onSecondaryContainer,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   String title(TitleStatusConditions statusConditions) {

@@ -45,33 +45,34 @@ class _ShareInputFileState extends State<ShareInputFile> {
             onCancel: () => _queryTermDebouncedSubject.add(""),
           ),
           StreamBuilder<String>(
-              stream: _queryTermDebouncedSubject.stream,
-              builder: (context, query) {
-                return Expanded(
-                  child: FutureBuilder<List<Uid>>(
-                    future: query.data != null && query.data!.isNotEmpty
-                        ? _roomRepo.searchInRoomAndContacts(query.data!)
-                        : _roomRepo.getAllRooms(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData &&
-                          snapshot.data != null &&
-                          snapshot.data!.isNotEmpty) {
-                        return ListView.builder(
-                          itemCount: snapshot.data!.length,
-                          itemBuilder: (ctx, index) {
-                            return ChatItemToShareFile(
-                              uid: snapshot.data![index],
-                              sharedFilePath: widget.inputSharedFilePath,
-                            );
-                          },
-                        );
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    },
-                  ),
-                );
-              }),
+            stream: _queryTermDebouncedSubject.stream,
+            builder: (context, query) {
+              return Expanded(
+                child: FutureBuilder<List<Uid>>(
+                  future: query.data != null && query.data!.isNotEmpty
+                      ? _roomRepo.searchInRoomAndContacts(query.data!)
+                      : _roomRepo.getAllRooms(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData &&
+                        snapshot.data != null &&
+                        snapshot.data!.isNotEmpty) {
+                      return ListView.builder(
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (ctx, index) {
+                          return ChatItemToShareFile(
+                            uid: snapshot.data![index],
+                            sharedFilePath: widget.inputSharedFilePath,
+                          );
+                        },
+                      );
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  },
+                ),
+              );
+            },
+          ),
         ],
       ),
     );

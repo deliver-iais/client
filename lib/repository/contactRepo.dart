@@ -49,17 +49,20 @@ class ContactRepo {
         if (!isDesktop) {
           final Iterable<contacts_service_pb.Contact> phoneContacts =
               await contacts_service_pb.ContactsService.getContacts(
-                  withThumbnails: false,
-                  photoHighResolution: false,
-                  orderByGivenName: false,
-                  iOSLocalizedLabels: false);
+            withThumbnails: false,
+            photoHighResolution: false,
+            orderByGivenName: false,
+            iOSLocalizedLabels: false,
+          );
 
           for (final phoneContact in phoneContacts) {
             for (final p in phoneContact.phones!) {
               try {
                 final contactPhoneNumber = p.value.toString();
                 final phoneNumber = _getPhoneNumber(
-                    contactPhoneNumber, phoneContact.displayName!);
+                  contactPhoneNumber,
+                  phoneContact.displayName!,
+                );
                 _contactsDisplayName[phoneNumber] = phoneContact.displayName!;
                 final contact = Contact()
                   ..lastName = phoneContact.displayName!
@@ -90,8 +93,12 @@ class ContactRepo {
     try {
       var i = 0;
       while (i <= contacts.length) {
-        _sendContacts(contacts.sublist(
-            i, contacts.length > i + 79 ? i + 79 : contacts.length));
+        _sendContacts(
+          contacts.sublist(
+            i,
+            contacts.length > i + 79 ? i + 79 : contacts.length,
+          ),
+        );
 
         i = i + 80;
       }
@@ -103,9 +110,11 @@ class ContactRepo {
 
   Future<bool> sendNewContact(Contact contact) async {
     try {
-      final res = await _contactServices.saveContacts(SaveContactsReq()
-        ..contactList.add(contact)
-        ..returnUserContactByPhoneNumberList.add(contact.phoneNumber));
+      final res = await _contactServices.saveContacts(
+        SaveContactsReq()
+          ..contactList.add(contact)
+          ..returnUserContactByPhoneNumberList.add(contact.phoneNumber),
+      );
       _saveContact(res.userList);
       return res.userList.isNotEmpty;
     } catch (e) {
@@ -144,16 +153,21 @@ class ContactRepo {
 
   void _saveContact(List<UserAsContact> users) {
     for (final contact in users) {
-      _contactDao.save(contact_pb.Contact(
+      _contactDao.save(
+        contact_pb.Contact(
           uid: contact.uid.asString(),
           countryCode: contact.phoneNumber.countryCode.toString(),
           nationalNumber: contact.phoneNumber.nationalNumber.toString(),
           firstName: contact.firstName,
-          lastName: contact.lastName));
+          lastName: contact.lastName,
+        ),
+      );
 
       roomNameCache.set(contact.uid.asString(), contact.firstName);
-      _uidIdNameDao.update(contact.uid.asString(),
-          name: "${contact.firstName} ${contact.lastName}");
+      _uidIdNameDao.update(
+        contact.uid.asString(),
+        name: "${contact.firstName} ${contact.lastName}",
+      );
       _roomDao.updateRoom(Room(uid: contact.uid.asString()));
     }
   }
@@ -183,11 +197,13 @@ class ContactRepo {
     }
 
     try {
-      final result = await _queryServiceClient.searchUid(SearchUidReq()
-        ..text = query
-        ..justSearchInId = true
-        ..category = Categories.USER
-        ..filterByCategory = false);
+      final result = await _queryServiceClient.searchUid(
+        SearchUidReq()
+          ..text = query
+          ..justSearchInId = true
+          ..category = Categories.USER
+          ..filterByCategory = false,
+      );
       final searchResult = <Uid>[];
       for (final room in result.itemList) {
         searchResult.add(room.uid);

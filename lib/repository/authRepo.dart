@@ -67,10 +67,12 @@ class AuthRepo {
 
     try {
       _tmpPhoneNumber = p;
-      await _authServiceClient.getVerificationCode(GetVerificationCodeReq()
-        ..phoneNumber = p
-        ..type = VerificationType.SMS
-        ..platform = platform);
+      await _authServiceClient.getVerificationCode(
+        GetVerificationCodeReq()
+          ..phoneNumber = p
+          ..type = VerificationType.SMS
+          ..platform = platform,
+      );
       return true;
     } catch (e) {
       _logger.e(e);
@@ -83,13 +85,15 @@ class AuthRepo {
 
     final device = await getDeviceName();
 
-    final res = await _authServiceClient.verifyAndGetToken(VerifyCodeReq()
-      ..phoneNumber = _tmpPhoneNumber
-      ..code = code
-      ..device = device
-      ..platform = platform
-      //  TODO add password mechanism
-      ..password = "");
+    final res = await _authServiceClient.verifyAndGetToken(
+      VerifyCodeReq()
+        ..phoneNumber = _tmpPhoneNumber
+        ..code = code
+        ..device = device
+        ..platform = platform
+        //  TODO add password mechanism
+        ..password = "",
+    );
 
     if (res.status == AccessTokenRes_Status.OK) {
       _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
@@ -103,13 +107,14 @@ class AuthRepo {
 
     final device = await getDeviceName();
 
-    final res = await _authServiceClient
-        .checkQrCodeIsVerifiedAndLogin(CheckQrCodeIsVerifiedAndLoginReq()
-          ..token = token
-          ..device = device
-          ..platform = platform
-          //  TODO add password mechanism
-          ..password = "");
+    final res = await _authServiceClient.checkQrCodeIsVerifiedAndLogin(
+      CheckQrCodeIsVerifiedAndLoginReq()
+        ..token = token
+        ..device = device
+        ..platform = platform
+        //  TODO add password mechanism
+        ..password = "",
+    );
 
     if (res.status == AccessTokenRes_Status.OK) {
       _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
@@ -121,9 +126,11 @@ class AuthRepo {
   Future _getAccessToken(String refreshToken) async =>
       requestLock.synchronized(() async {
         try {
-          return await _authServiceClient.renewAccessToken(RenewAccessTokenReq()
-            ..refreshToken = refreshToken
-            ..platform = await getPlatformPB());
+          return await _authServiceClient.renewAccessToken(
+            RenewAccessTokenReq()
+              ..refreshToken = refreshToken
+              ..platform = await getPlatformPB(),
+          );
         } on GrpcError catch (e) {
           _logger.e(e);
           if (_refreshToken != null && e.code == StatusCode.unauthenticated) {
@@ -225,7 +232,9 @@ class DeliverClientInterceptor implements ClientInterceptor {
   final _authRepo = GetIt.I.get<AuthRepo>();
 
   Future<void> metadataProvider(
-      Map<String, String> metadata, String uri) async {
+    Map<String, String> metadata,
+    String uri,
+  ) async {
     final token = await _authRepo.isTestUser()
         ? TEST_USER_ACCESS_TOKEN
         : await _authRepo.getAccessToken();
@@ -233,17 +242,28 @@ class DeliverClientInterceptor implements ClientInterceptor {
   }
 
   @override
-  ResponseFuture<R> interceptUnary<Q, R>(ClientMethod<Q, R> method, Q request,
-          CallOptions options, ClientUnaryInvoker<Q, R> invoker) =>
-      invoker(method, request,
-          options.mergedWith(CallOptions(providers: [metadataProvider])));
+  ResponseFuture<R> interceptUnary<Q, R>(
+    ClientMethod<Q, R> method,
+    Q request,
+    CallOptions options,
+    ClientUnaryInvoker<Q, R> invoker,
+  ) =>
+      invoker(
+        method,
+        request,
+        options.mergedWith(CallOptions(providers: [metadataProvider])),
+      );
 
   @override
   ResponseStream<R> interceptStreaming<Q, R>(
-          ClientMethod<Q, R> method,
-          Stream<Q> requests,
-          CallOptions options,
-          ClientStreamingInvoker<Q, R> invoker) =>
-      invoker(method, requests,
-          options.mergedWith(CallOptions(providers: [metadataProvider])));
+    ClientMethod<Q, R> method,
+    Stream<Q> requests,
+    CallOptions options,
+    ClientStreamingInvoker<Q, R> invoker,
+  ) =>
+      invoker(
+        method,
+        requests,
+        options.mergedWith(CallOptions(providers: [metadataProvider])),
+      );
 }

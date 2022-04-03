@@ -66,7 +66,9 @@ class _LoginPageState extends State<LoginPage> {
             _navigationToHome();
           } else if (res.status == AccessTokenRes_Status.PASSWORD_PROTECTED) {
             ToastDisplay.showToast(
-                toastText: "PASSWORD_PROTECTED", toastContext: context);
+              toastText: "PASSWORD_PROTECTED",
+              toastContext: context,
+            );
             // TODO navigate to password validation page
           }
         } catch (e) {
@@ -95,9 +97,15 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> _navigationToHome() async {
     _contactRepo.getContacts();
-    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (c) {
-      return const HomePage();
-    }), (r) => false);
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (c) {
+          return const HomePage();
+        },
+      ),
+      (r) => false,
+    );
   }
 
   void _loginASTestUser() {
@@ -114,6 +122,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> checkAndGoNext({bool doNotCheckValidator = false}) async {
+    final navigatorState = Navigator.of(context);
     if (phoneNumber != null &&
         phoneNumber!.nationalNumber.toString() == TEST_USER_PHONE_NUMBER) {
       _logger.e("login as test user ");
@@ -125,9 +134,9 @@ class _LoginPageState extends State<LoginPage> {
         try {
           final isSent = await _authRepo.getVerificationCode(phoneNumber!);
           if (isSent) {
-            Navigator.push(context, MaterialPageRoute(builder: (c) {
-              return const VerificationPage();
-            }));
+            navigatorState.push(
+              MaterialPageRoute(builder: (c) => const VerificationPage()),
+            );
             _isLoading.add(false);
           } else {
             ToastDisplay.showToast(
@@ -176,29 +185,30 @@ class _LoginPageState extends State<LoginPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           StreamBuilder<String>(
-              stream: loginToken.stream,
-              builder: (context, snapshot) {
-                if (snapshot.hasData &&
-                    snapshot.data != null &&
-                    snapshot.data!.isNotEmpty) {
-                  return Container(
-                    width: 200,
-                    height: 200,
-                    padding: const EdgeInsets.all(8.0),
-                    color: Colors.white,
-                    child: QrImage(
-                      data:
-                          "https://$APPLICATION_DOMAIN/login?token=${snapshot.data}",
-                      padding: EdgeInsets.zero,
-                      foregroundColor: Colors.black,
-                    ),
-                  );
-                } else {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-              }),
+            stream: loginToken.stream,
+            builder: (context, snapshot) {
+              if (snapshot.hasData &&
+                  snapshot.data != null &&
+                  snapshot.data!.isNotEmpty) {
+                return Container(
+                  width: 200,
+                  height: 200,
+                  padding: const EdgeInsets.all(8.0),
+                  color: Colors.white,
+                  child: QrImage(
+                    data:
+                        "https://$APPLICATION_DOMAIN/login?token=${snapshot.data}",
+                    padding: EdgeInsets.zero,
+                    foregroundColor: Colors.black,
+                  ),
+                );
+              } else {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+            },
+          ),
           const SizedBox(height: 30),
           const Text("1. Open Deliver on your phone"),
           const SizedBox(height: 10),
@@ -217,14 +227,15 @@ class _LoginPageState extends State<LoginPage> {
           const Text("3. Point your phone at this screen to confirm login"),
           const SizedBox(height: 30),
           TextButton(
-              child: const Text(
-                "Don't you have access to an authenticated phone?",
-              ),
-              onPressed: () {
-                setState(() {
-                  loginWithQrCode = false;
-                });
-              }),
+            child: const Text(
+              "Don't you have access to an authenticated phone?",
+            ),
+            onPressed: () {
+              setState(() {
+                loginWithQrCode = false;
+              });
+            },
+          ),
         ],
       ),
     );
@@ -233,123 +244,134 @@ class _LoginPageState extends State<LoginPage> {
   Widget buildNormalLogin(I18N i18n, BuildContext context) {
     final theme = Theme.of(context);
     return StreamBuilder<bool>(
-        initialData: _isLoading.value,
-        stream: _isLoading.stream,
-        builder: (c, loading) {
-          if (loading.hasData && loading.data != null && loading.data!) {
-            return const Center(child: CircularProgressIndicator());
-          } else {
-            return Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Expanded(
-                    child: Column(
-                      children: <Widget>[
-                        const SizedBox(height: 5),
-                        IntlPhoneField(
-                          initialCountryCode: phoneNumber != null
-                              ? phoneNumber!.countryCode.toString()
-                              : null,
-                          controller: controller,
-                          validator: (value) => value!.length != 10 ||
-                                  (value.isNotEmpty && value[0] == '0')
-                              ? i18n.get("invalid_mobile_number")
-                              : null,
-                          onChanged: (p) {
-                            phoneNumber = p;
-                          },
-                          onSubmitted: (p) {
-                            phoneNumber = p;
-                            checkAndGoNext();
-                          },
+      initialData: _isLoading.value,
+      stream: _isLoading.stream,
+      builder: (c, loading) {
+        if (loading.hasData && loading.data != null && loading.data!) {
+          return const Center(child: CircularProgressIndicator());
+        } else {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Expanded(
+                  child: Column(
+                    children: <Widget>[
+                      const SizedBox(height: 5),
+                      IntlPhoneField(
+                        initialCountryCode: phoneNumber != null
+                            ? phoneNumber!.countryCode.toString()
+                            : null,
+                        controller: controller,
+                        validator: (value) => value!.length != 10 ||
+                                (value.isNotEmpty && value[0] == '0')
+                            ? i18n.get("invalid_mobile_number")
+                            : null,
+                        onChanged: (p) {
+                          phoneNumber = p;
+                        },
+                        onSubmitted: (p) {
+                          phoneNumber = p;
+                          checkAndGoNext();
+                        },
+                      ),
+                      const SizedBox(height: 15),
+                      Text(
+                        i18n.get("insert_phone_and_code"),
+                        style: TextStyle(
+                          fontWeight: FontWeight.normal,
+                          color: theme.primaryColor,
+                          fontSize: 15,
                         ),
-                        const SizedBox(height: 15),
-                        Text(
-                          i18n.get("insert_phone_and_code"),
-                          style: TextStyle(
-                            fontWeight: FontWeight.normal,
-                            color: theme.primaryColor,
-                            fontSize: 15,
+                      ),
+                      if (isDesktop) const SizedBox(height: 40),
+                      if (isDesktop)
+                        TextButton(
+                          child: Text(
+                            "Login with QR Code",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: theme.primaryColor,
+                              fontSize: 13,
+                            ),
                           ),
+                          onPressed: () {
+                            setState(() {
+                              loginWithQrCode = true;
+                            });
+                          },
                         ),
-                        if (isDesktop) const SizedBox(height: 40),
-                        if (isDesktop)
-                          TextButton(
-                              child: Text(
-                                "Login with QR Code",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: theme.primaryColor,
-                                  fontSize: 13,
-                                ),
-                              ),
-                              onPressed: () {
+                      if (isAndroid)
+                        Row(
+                          children: [
+                            Checkbox(
+                              value: _acceptPrivacy,
+                              onChanged: (c) {
                                 setState(() {
-                                  loginWithQrCode = true;
+                                  _acceptPrivacy = c!;
                                 });
-                              }),
-                        if (isAndroid)
-                          Row(
-                            children: [
-                              Checkbox(
-                                value: _acceptPrivacy,
-                                onChanged: (c) {
-                                  setState(() {
-                                    _acceptPrivacy = c!;
-                                  });
-                                },
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  setState(() {
-                                    _acceptPrivacy = true;
-                                  });
-                                },
-                                child: RichText(
-                                  text: TextSpan(children: [
+                              },
+                            ),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _acceptPrivacy = true;
+                                });
+                              },
+                              child: RichText(
+                                text: TextSpan(
+                                  children: [
                                     TextSpan(
-                                        text: "شرایط حریم خصوصی",
-                                        style: const TextStyle(
-                                            color: Colors.blue, fontSize: 13),
-                                        recognizer: TapGestureRecognizer()
-                                          ..onTap = () => launch(
-                                              "https://deliver-co.ir/#/termofuse")),
+                                      text: "شرایط حریم خصوصی",
+                                      style: const TextStyle(
+                                        color: Colors.blue,
+                                        fontSize: 13,
+                                      ),
+                                      recognizer: TapGestureRecognizer()
+                                        ..onTap = () => launch(
+                                              "https://deliver-co.ir/#/termofuse",
+                                            ),
+                                    ),
                                     const TextSpan(
-                                        text:
-                                            " را مطالعه نموده ام و آن را قبول می کنم",
-                                        style: TextStyle(fontSize: 13)),
-                                  ], style: theme.textTheme.bodyText2),
-                                  textDirection: TextDirection.rtl,
+                                      text:
+                                          " را مطالعه نموده ام و آن را قبول می کنم",
+                                      style: TextStyle(fontSize: 13),
+                                    ),
+                                  ],
+                                  style: theme.textTheme.bodyText2,
                                 ),
-                              ),
-                            ],
-                          )
-                      ],
-                    ),
-                  ),
-                  if (_acceptPrivacy)
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Align(
-                        alignment: Alignment.bottomRight,
-                        child: TextButton(
-                            child: Text(
-                              i18n.get("next"),
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: theme.primaryColor,
-                                fontSize: 14.5,
+                                textDirection: TextDirection.rtl,
                               ),
                             ),
-                            onPressed: checkAndGoNext),
+                          ],
+                        )
+                    ],
+                  ),
+                ),
+                if (_acceptPrivacy)
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Align(
+                      alignment: Alignment.bottomRight,
+                      child: TextButton(
+                        child: Text(
+                          i18n.get("next"),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: theme.primaryColor,
+                            fontSize: 14.5,
+                          ),
+                        ),
+                        onPressed: checkAndGoNext,
                       ),
                     ),
-                ],
-              ),
-            );
-          }
-        });
+                  ),
+              ],
+            ),
+          );
+        }
+      },
+    );
   }
 }
