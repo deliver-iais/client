@@ -237,7 +237,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 20, right: 15),
+                    padding: const EdgeInsets.only(bottom: 30, right: 15),
                     child: IconButton(
                       onPressed: () async {
                         final navigatorState = Navigator.of(context);
