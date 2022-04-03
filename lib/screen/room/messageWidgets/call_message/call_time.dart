@@ -12,11 +12,13 @@ class CallTime extends StatelessWidget {
     final callSec = time.second != 0 ? time.second.toString() : "";
 
     return time.microsecondsSinceEpoch != 0
-        ? Text(callHour.isNotEmpty
-            ? callHour + " hour and " + callMin + "minute"
-            : callMin.isNotEmpty
-                ? callMin + " minute"
-                : callSec + " second")
+        ? Text(
+            callHour.isNotEmpty
+                ? callHour + " hour and " + callMin + "minute"
+                : callMin.isNotEmpty
+                    ? callMin + " minute"
+                    : callSec + " second",
+          )
         : const SizedBox.shrink();
   }
 }

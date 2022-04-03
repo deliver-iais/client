@@ -53,7 +53,9 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                               ? theme.dividerColor.withOpacity(0.3)
                               : Colors.transparent,
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0, vertical: 4.0),
+                            horizontal: 8.0,
+                            vertical: 4.0,
+                          ),
                           child: IconButton(
                             icon: Text("🙂", style: style),
                             onPressed: () {
@@ -61,8 +63,10 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                                 selectedGroupIndex = 1;
                                 emojis =
                                     Emoji.byGroup(EmojiGroup.smileysEmotion)
-                                        .where((e) => !e.shortName
-                                            .contains("transgender"))
+                                        .where(
+                                          (e) => !e.shortName
+                                              .contains("transgender"),
+                                        )
                                         .toList();
                               });
                             },
@@ -73,17 +77,23 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                               ? theme.dividerColor.withOpacity(0.3)
                               : Colors.transparent,
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0, vertical: 4.0),
+                            horizontal: 8.0,
+                            vertical: 4.0,
+                          ),
                           child: IconButton(
                             icon: Text("🖐", style: style),
                             onPressed: () {
                               setState(() {
                                 selectedGroupIndex = 2;
                                 emojis = Emoji.byGroup(EmojiGroup.peopleBody)
-                                    .where((e) =>
-                                        !e.shortName.contains("transgender"))
-                                    .where((element) =>
-                                        !element.shortName.contains("_tone"))
+                                    .where(
+                                      (e) =>
+                                          !e.shortName.contains("transgender"),
+                                    )
+                                    .where(
+                                      (element) =>
+                                          !element.shortName.contains("_tone"),
+                                    )
                                     .toList();
                               });
                             },
@@ -94,15 +104,19 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                               ? theme.dividerColor.withOpacity(0.3)
                               : Colors.transparent,
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0, vertical: 4.0),
+                            horizontal: 8.0,
+                            vertical: 4.0,
+                          ),
                           child: IconButton(
                             icon: Text("🐸", style: style),
                             onPressed: () {
                               setState(() {
                                 selectedGroupIndex = 3;
                                 emojis = Emoji.byGroup(EmojiGroup.animalsNature)
-                                    .where((e) =>
-                                        !e.shortName.contains("transgender"))
+                                    .where(
+                                      (e) =>
+                                          !e.shortName.contains("transgender"),
+                                    )
                                     .toList();
                               });
                             },
@@ -113,18 +127,24 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                               ? theme.dividerColor.withOpacity(0.3)
                               : Colors.transparent,
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0, vertical: 4.0),
+                            horizontal: 8.0,
+                            vertical: 4.0,
+                          ),
                           child: IconButton(
                             icon: Text("🏁", style: style),
                             onPressed: () {
                               selectedGroupIndex = 4;
                               emojis = Emoji.byGroup(EmojiGroup.flags)
-                                  .where((e) =>
-                                      !e.shortName.contains("transgender"))
-                                  .where((e) =>
-                                      !e.shortName.contains("rainbow_flag"))
                                   .where(
-                                      (e) => !e.shortName.contains("flag_il"))
+                                    (e) => !e.shortName.contains("transgender"),
+                                  )
+                                  .where(
+                                    (e) =>
+                                        !e.shortName.contains("rainbow_flag"),
+                                  )
+                                  .where(
+                                    (e) => !e.shortName.contains("flag_il"),
+                                  )
                                   .toList();
                               setState(() {});
                             },
@@ -135,15 +155,19 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                               ? theme.dividerColor.withOpacity(0.3)
                               : Colors.transparent,
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0, vertical: 4.0),
+                            horizontal: 8.0,
+                            vertical: 4.0,
+                          ),
                           child: IconButton(
                             icon: Text("💎", style: style),
                             onPressed: () {
                               setState(() {
                                 selectedGroupIndex = 5;
                                 emojis = Emoji.byGroup(EmojiGroup.objects)
-                                    .where((e) =>
-                                        !e.shortName.contains("transgender"))
+                                    .where(
+                                      (e) =>
+                                          !e.shortName.contains("transgender"),
+                                    )
                                     .toList();
                               });
                             },
@@ -154,7 +178,9 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                               ? theme.dividerColor.withOpacity(0.3)
                               : Colors.transparent,
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0, vertical: 4.0),
+                            horizontal: 8.0,
+                            vertical: 4.0,
+                          ),
                           child: IconButton(
                             icon: Text("🚑", style: style),
                             onPressed: () {
@@ -171,15 +197,19 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                               ? theme.dividerColor.withOpacity(0.3)
                               : Colors.transparent,
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0, vertical: 4.0),
+                            horizontal: 8.0,
+                            vertical: 4.0,
+                          ),
                           child: IconButton(
                             icon: Text("✅", style: style),
                             onPressed: () {
                               setState(() {
                                 selectedGroupIndex = 7;
                                 emojis = Emoji.byGroup(EmojiGroup.symbols)
-                                    .where((e) =>
-                                        !e.shortName.contains("transgender"))
+                                    .where(
+                                      (e) =>
+                                          !e.shortName.contains("transgender"),
+                                    )
                                     .toList();
                               });
                             },
@@ -190,15 +220,19 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                               ? theme.dividerColor.withOpacity(0.3)
                               : Colors.transparent,
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8.0, vertical: 4.0),
+                            horizontal: 8.0,
+                            vertical: 4.0,
+                          ),
                           child: IconButton(
                             icon: Text("🍎", style: style),
                             onPressed: () {
                               setState(() {
                                 selectedGroupIndex = 8;
                                 emojis = Emoji.byGroup(EmojiGroup.foodDrink)
-                                    .where((e) =>
-                                        !e.shortName.contains("transgender"))
+                                    .where(
+                                      (e) =>
+                                          !e.shortName.contains("transgender"),
+                                    )
                                     .toList();
                               });
                             },
@@ -213,31 +247,31 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                 child: Container(
                   color: theme.backgroundColor,
                   child: GridView.builder(
-                      itemCount: emojis.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: (MediaQuery.of(context).size.width -
-                                  (isLarge(context)
-                                      ? NAVIGATION_PANEL_SIZE
-                                      : 0)) ~/
-                              50),
-                      itemBuilder: (context, index) {
-                        final emoji = emojis.elementAt(index);
+                    itemCount: emojis.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: (MediaQuery.of(context).size.width -
+                              (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) ~/
+                          50,
+                    ),
+                    itemBuilder: (context, index) {
+                      final emoji = emojis.elementAt(index);
 
-                        return GestureDetector(
-                          behavior: HitTestBehavior.translucent,
-                          onTap: () {
-                            widget.onTap(emoji.toString());
-                          },
-                          child: Center(
-                            child: Text(
-                              emoji.toString(),
-                              style: GoogleFonts.notoColorEmojiCompat(
-                                fontSize: 25,
-                              ),
+                      return GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        onTap: () {
+                          widget.onTap(emoji.toString());
+                        },
+                        child: Center(
+                          child: Text(
+                            emoji.toString(),
+                            style: GoogleFonts.notoColorEmojiCompat(
+                              fontSize: 25,
                             ),
                           ),
-                        );
-                      }),
+                        ),
+                      );
+                    },
+                  ),
                 ),
               ),
             ],

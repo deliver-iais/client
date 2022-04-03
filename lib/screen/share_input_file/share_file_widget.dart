@@ -15,9 +15,11 @@ class ChatItemToShareFile extends StatelessWidget {
   final _routingService = GetIt.I.get<RoutingService>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
 
-  ChatItemToShareFile(
-      {Key? key, required this.uid, required this.sharedFilePath})
-      : super(key: key);
+  ChatItemToShareFile({
+    Key? key,
+    required this.uid,
+    required this.sharedFilePath,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -29,36 +31,39 @@ class ChatItemToShareFile extends StatelessWidget {
           onTap: () {
             for (final path in sharedFilePath) {
               _messageRepo.sendFileMessage(
-                  uid, File(path, path.split(".").last));
+                uid,
+                File(path, path.split(".").last),
+              );
             }
             _routingService.openRoom(uid.asString());
           },
           child: SizedBox(
             height: 50,
             child: FutureBuilder<String>(
-                future: _roomRepo.getName(uid),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData && snapshot.data != null) {
-                    return Row(
-                      children: <Widget>[
-                        const SizedBox(
-                          width: 12,
-                        ),
-                        ContactPic(uid),
-                        const SizedBox(
-                          width: 12,
-                        ),
-                        Text(
-                          snapshot.data!,
-                          style: const TextStyle(fontSize: 18),
-                        ),
-                        const Spacer(),
-                      ],
-                    );
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                }),
+              future: _roomRepo.getName(uid),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data != null) {
+                  return Row(
+                    children: <Widget>[
+                      const SizedBox(
+                        width: 12,
+                      ),
+                      ContactPic(uid),
+                      const SizedBox(
+                        width: 12,
+                      ),
+                      Text(
+                        snapshot.data!,
+                        style: const TextStyle(fontSize: 18),
+                      ),
+                      const Spacer(),
+                    ],
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
+              },
+            ),
           ),
         ),
       ),

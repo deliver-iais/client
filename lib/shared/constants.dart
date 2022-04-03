@@ -153,7 +153,9 @@ const tertiaryBorder = BorderRadius.all(Radius.circular(8));
 const messageBorder = BorderRadius.all(Radius.circular(14));
 
 const backgroundBorder = BorderRadius.only(
-    topLeft: Radius.circular(12), topRight: Radius.circular(12));
+  topLeft: Radius.circular(12),
+  topRight: Radius.circular(12),
+);
 
 const buttonBorder = BorderRadius.all(Radius.circular(20));
 
@@ -167,14 +169,17 @@ bool isLarge(BuildContext context) =>
 // ignore: non_constant_identifier_names
 double animationSquareSize(BuildContext context) => isLarge(context)
     ? min(FLUID_MAX_WIDTH * 0.7, FLUID_MAX_HEIGHT * 0.4)
-    : min(MediaQuery.of(context).size.width * 0.7,
-        MediaQuery.of(context).size.height * 0.7);
+    : min(
+        MediaQuery.of(context).size.width * 0.7,
+        MediaQuery.of(context).size.height * 0.7,
+      );
 
 double maxWidthOfMessage(BuildContext context) => min(
-    (MediaQuery.of(context).size.width -
-            (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
-        0.8,
-    450);
+      (MediaQuery.of(context).size.width -
+              (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
+          0.8,
+      450,
+    );
 
 double minWidthOfMessage(BuildContext context) =>
     min(maxWidthOfMessage(context), 200);

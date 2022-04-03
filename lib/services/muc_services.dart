@@ -21,25 +21,32 @@ class MucServices {
 
   Future<Uid?> createNewGroup(String groupName, String info) async {
     try {
-      final request = await groupServices.createGroup(group_pb.CreateGroupReq()
-        ..name = groupName
-        ..info = info);
+      final request = await groupServices.createGroup(
+        group_pb.CreateGroupReq()
+          ..name = groupName
+          ..info = info,
+      );
       return request.uid;
     } catch (e) {
       return null;
     }
   }
 
-  Future<bool> addGroupMembers(List<Member> members, Uid groupUid,
-      {bool retry = false}) async {
+  Future<bool> addGroupMembers(
+    List<Member> members,
+    Uid groupUid, {
+    bool retry = false,
+  }) async {
     final addMemberRequest = group_pb.AddMembersReq();
     for (final member in members) {
       addMemberRequest.members.add(member);
     }
     addMemberRequest.group = groupUid;
     try {
-      await groupServices.addMembers(addMemberRequest,
-          options: CallOptions(timeout: const Duration(seconds: 6)));
+      await groupServices.addMembers(
+        addMemberRequest,
+        options: CallOptions(timeout: const Duration(seconds: 6)),
+      );
       return true;
     } catch (e) {
       if (retry) {
@@ -74,9 +81,11 @@ class MucServices {
 
   Future<bool> changeGroupRole(Member member, Uid group) async {
     try {
-      await groupServices.changeRole(group_pb.ChangeRoleReq()
-        ..member = member
-        ..group = group);
+      await groupServices.changeRole(
+        group_pb.ChangeRoleReq()
+          ..member = member
+          ..group = group,
+      );
       return true;
     } catch (e) {
       return false;
@@ -84,11 +93,16 @@ class MucServices {
   }
 
   Future<group_pb.GetMembersRes> getGroupMembers(
-      Uid groupUid, int limit, int pointer) async {
-    final request = await groupServices.getMembers(group_pb.GetMembersReq()
-      ..uid = groupUid
-      ..pointer = pointer
-      ..limit = limit);
+    Uid groupUid,
+    int limit,
+    int pointer,
+  ) async {
+    final request = await groupServices.getMembers(
+      group_pb.GetMembersReq()
+        ..uid = groupUid
+        ..pointer = pointer
+        ..limit = limit,
+    );
     return request;
   }
 
@@ -118,9 +132,11 @@ class MucServices {
 
   Future<bool> banGroupMember(Member member, Uid mucUid) async {
     try {
-      await groupServices.banMember(group_pb.BanMemberReq()
-        ..member = member.uid
-        ..group = mucUid);
+      await groupServices.banMember(
+        group_pb.BanMemberReq()
+          ..member = member.uid
+          ..group = mucUid,
+      );
       return true;
     } catch (e) {
       return false;
@@ -129,9 +145,11 @@ class MucServices {
 
   Future<bool> unbanGroupMember(Member member, Uid mucUid) async {
     try {
-      await groupServices.unbanMember(group_pb.UnbanMemberReq()
-        ..member = member.uid
-        ..group = mucUid);
+      await groupServices.unbanMember(
+        group_pb.UnbanMemberReq()
+          ..member = member.uid
+          ..group = mucUid,
+      );
       return true;
     } catch (e) {
       return false;
@@ -141,10 +159,11 @@ class MucServices {
   Future<bool> joinGroup(Uid groupUid, String token) async {
     try {
       await groupServices.joinGroup(
-          group_pb.JoinGroupReq()
-            ..group = groupUid
-            ..token = token,
-          options: CallOptions(timeout: const Duration(seconds: 4)));
+        group_pb.JoinGroupReq()
+          ..group = groupUid
+          ..token = token,
+        options: CallOptions(timeout: const Duration(seconds: 4)),
+      );
       return true;
     } catch (e) {
       _logger.e(e);
@@ -154,9 +173,11 @@ class MucServices {
 
   Future<bool> modifyGroup(group_pb.GroupInfo group, Uid mucUid) async {
     try {
-      await groupServices.modifyGroup(group_pb.ModifyGroupReq()
-        ..info = group
-        ..uid = mucUid);
+      await groupServices.modifyGroup(
+        group_pb.ModifyGroupReq()
+          ..info = group
+          ..uid = mucUid,
+      );
       return true;
     } catch (c) {
       return false;
@@ -164,21 +185,31 @@ class MucServices {
   }
 
   Future<Uid?> createNewChannel(
-      String channelName, ChannelType type, String channelId, String info,
-      {bool retry = true}) async {
+    String channelName,
+    ChannelType type,
+    String channelId,
+    String info, {
+    bool retry = true,
+  }) async {
     try {
       final request = await channelServices.createChannel(
-          CreateChannelReq()
-            ..name = channelName
-            ..info = info
-            ..type = type
-            ..id = channelId,
-          options: CallOptions(timeout: const Duration(seconds: 5)));
+        CreateChannelReq()
+          ..name = channelName
+          ..info = info
+          ..type = type
+          ..id = channelId,
+        options: CallOptions(timeout: const Duration(seconds: 5)),
+      );
       return request.uid;
     } catch (e) {
       if (retry) {
-        return createNewChannel(channelName, type, channelId, info,
-            retry: false);
+        return createNewChannel(
+          channelName,
+          type,
+          channelId,
+          info,
+          retry: false,
+        );
       } else {
         return null;
       }
@@ -222,9 +253,11 @@ class MucServices {
 
   Future<bool> changeCahnnelRole(Member member, Uid channel) async {
     try {
-      await channelServices.changeRole(channel_pb.ChangeRoleReq()
-        ..member = member
-        ..channel = channel);
+      await channelServices.changeRole(
+        channel_pb.ChangeRoleReq()
+          ..member = member
+          ..channel = channel,
+      );
       return true;
     } catch (e) {
       return false;
@@ -232,13 +265,17 @@ class MucServices {
   }
 
   Future<channel_pb.GetMembersRes?> getChannelMembers(
-      Uid channelUid, int limit, int pointer) async {
+    Uid channelUid,
+    int limit,
+    int pointer,
+  ) async {
     try {
-      final request =
-          await channelServices.getMembers(channel_pb.GetMembersReq()
-            ..uid = channelUid
-            ..limit = limit
-            ..pointer = pointer);
+      final request = await channelServices.getMembers(
+        channel_pb.GetMembersReq()
+          ..uid = channelUid
+          ..limit = limit
+          ..pointer = pointer,
+      );
       return request;
     } catch (e) {
       return null;
@@ -272,9 +309,11 @@ class MucServices {
 
   Future<bool> banChannelMember(Member member, Uid channelUid) async {
     try {
-      await channelServices.banMember(channel_pb.BanMemberReq()
-        ..member = member.uid
-        ..channel = channelUid);
+      await channelServices.banMember(
+        channel_pb.BanMemberReq()
+          ..member = member.uid
+          ..channel = channelUid,
+      );
       return true;
     } catch (e) {
       return false;
@@ -283,9 +322,11 @@ class MucServices {
 
   Future<bool> unbanChannelMember(Member member, Uid channelUid) async {
     try {
-      await channelServices.unbanMember(channel_pb.UnbanMemberReq()
-        ..member = member.uid
-        ..channel = channelUid);
+      await channelServices.unbanMember(
+        channel_pb.UnbanMemberReq()
+          ..member = member.uid
+          ..channel = channelUid,
+      );
       return true;
     } catch (e) {
       return false;
@@ -295,10 +336,11 @@ class MucServices {
   Future<bool> joinChannel(Uid channelUid, String token) async {
     try {
       await channelServices.joinChannel(
-          channel_pb.JoinChannelReq()
-            ..channel = channelUid
-            ..token,
-          options: CallOptions(timeout: const Duration(seconds: 4)));
+        channel_pb.JoinChannelReq()
+          ..channel = channelUid
+          ..token,
+        options: CallOptions(timeout: const Duration(seconds: 4)),
+      );
       return true;
     } catch (e) {
       return false;
@@ -306,11 +348,15 @@ class MucServices {
   }
 
   Future<bool> modifyChannel(
-      channel_pb.ChannelInfo channelInfo, Uid mucUid) async {
+    channel_pb.ChannelInfo channelInfo,
+    Uid mucUid,
+  ) async {
     try {
-      await channelServices.modifyChannel(channel_pb.ModifyChannelReq()
-        ..info = channelInfo
-        ..uid = mucUid);
+      await channelServices.modifyChannel(
+        channel_pb.ModifyChannelReq()
+          ..info = channelInfo
+          ..uid = mucUid,
+      );
       return true;
     } catch (e) {
       return false;
@@ -320,13 +366,17 @@ class MucServices {
   Future<bool> pinMessage(db.Message message) async {
     try {
       if (message.roomUid.asUid().category == Categories.GROUP) {
-        groupServices.pinMessage(group_pb.PinMessageReq()
-          ..uid = message.roomUid.asUid()
-          ..messageId = Int64(message.id!));
+        groupServices.pinMessage(
+          group_pb.PinMessageReq()
+            ..uid = message.roomUid.asUid()
+            ..messageId = Int64(message.id!),
+        );
       } else {
-        channelServices.pinMessage(channel_pb.PinMessageReq()
-          ..uid = message.roomUid.asUid()
-          ..messageId = Int64(message.id!));
+        channelServices.pinMessage(
+          channel_pb.PinMessageReq()
+            ..uid = message.roomUid.asUid()
+            ..messageId = Int64(message.id!),
+        );
       }
       return true;
     } catch (e) {
@@ -336,10 +386,12 @@ class MucServices {
 
   Future<String?> getGroupJointToken({required Uid groupUid}) async {
     try {
-      final res = await groupServices.createToken(group_pb.CreateTokenReq()
-        ..uid = groupUid
-        ..validUntil = Int64(-1)
-        ..numberOfAvailableJoins = Int64(-1));
+      final res = await groupServices.createToken(
+        group_pb.CreateTokenReq()
+          ..uid = groupUid
+          ..validUntil = Int64(-1)
+          ..numberOfAvailableJoins = Int64(-1),
+      );
       return res.joinToken;
     } catch (e) {
       return null;
@@ -348,9 +400,11 @@ class MucServices {
 
   Future<String?> getChannelJointToken({required Uid channelUid}) async {
     try {
-      final res = await channelServices.createToken(channel_pb.CreateTokenReq()
-        ..uid = channelUid
-        ..validUntil = Int64(-1));
+      final res = await channelServices.createToken(
+        channel_pb.CreateTokenReq()
+          ..uid = channelUid
+          ..validUntil = Int64(-1),
+      );
       return res.joinToken;
     } catch (e) {
       return null;
@@ -360,13 +414,17 @@ class MucServices {
   Future<bool> unpinMessage(db.Message message) async {
     try {
       if (message.roomUid.asUid().category == Categories.GROUP) {
-        groupServices.unpinMessage(group_pb.UnpinMessageReq()
-          ..uid = message.roomUid.asUid()
-          ..messageId = Int64(message.id!));
+        groupServices.unpinMessage(
+          group_pb.UnpinMessageReq()
+            ..uid = message.roomUid.asUid()
+            ..messageId = Int64(message.id!),
+        );
       } else {
-        channelServices.unpinMessage(channel_pb.UnpinMessageReq()
-          ..uid = message.roomUid.asUid()
-          ..messageId = Int64(message.id!));
+        channelServices.unpinMessage(
+          channel_pb.UnpinMessageReq()
+            ..uid = message.roomUid.asUid()
+            ..messageId = Int64(message.id!),
+        );
       }
       return true;
     } catch (e) {

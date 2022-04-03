@@ -78,72 +78,82 @@ class Background extends StatelessWidget {
           child: Stack(
             children: [
               AnimatedContainer(
-                  duration: duration,
-                  curve: curve,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      gradient: RadialGradient(
+                duration: duration,
+                curve: curve,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
                     colors: [
                       dark,
                       darkTransparent,
                     ],
                     center: b,
-                  ))),
+                  ),
+                ),
+              ),
               AnimatedContainer(
-                  duration: duration,
-                  curve: curve,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      gradient: RadialGradient(
+                duration: duration,
+                curve: curve,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
                     colors: [
                       yellow,
                       yellowTransparent,
                     ],
                     center: y,
-                  ))),
+                  ),
+                ),
+              ),
               AnimatedContainer(
-                  duration: duration,
-                  curve: curve,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      gradient: RadialGradient(
+                duration: duration,
+                curve: curve,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
                     colors: [
                       yellow,
                       yellowTransparent,
                     ],
                     center: y2,
-                  ))),
+                  ),
+                ),
+              ),
               AnimatedContainer(
-                  duration: duration,
-                  curve: curve,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      gradient: RadialGradient(
+                duration: duration,
+                curve: curve,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
                     colors: [
                       white,
                       whiteTransparent,
                     ],
                     center: w,
-                  ))),
+                  ),
+                ),
+              ),
               AnimatedContainer(
-                  duration: duration,
-                  curve: curve,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      gradient: RadialGradient(
+                duration: duration,
+                curve: curve,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
                     colors: [
                       white,
                       whiteTransparent,
                     ],
                     center: w2,
-                  ))),
+                  ),
+                ),
+              ),
               SizedBox.expand(
                 child: Image(
-                    image:
-                        const AssetImage("assets/backgrounds/pattern-24.png"),
-                    fit: BoxFit.scaleDown,
-                    color: foregroundColor,
-                    repeat: ImageRepeat.repeat),
+                  image: const AssetImage("assets/backgrounds/pattern-24.png"),
+                  fit: BoxFit.scaleDown,
+                  color: foregroundColor,
+                  repeat: ImageRepeat.repeat,
+                ),
               ),
             ],
           ),

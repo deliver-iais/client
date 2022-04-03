@@ -3,10 +3,11 @@ import 'package:flutter/widgets.dart';
 
 class InputMessageTextController extends TextEditingController {
   @override
-  TextSpan buildTextSpan(
-      {required BuildContext context,
-      TextStyle? style,
-      required bool withComposing}) {
+  TextSpan buildTextSpan({
+    required BuildContext context,
+    TextStyle? style,
+    required bool withComposing,
+  }) {
     var blocks = <Block>[Block(text: text)];
     final parsers = <Parser>[
       EmojiParser(fontSize: 16),
@@ -18,10 +19,11 @@ class InputMessageTextController extends TextEditingController {
     }
 
     return TextSpan(
-        style: style,
-        children: blocks
-            .where((b) => b.text.isNotEmpty)
-            .map((e) => TextSpan(text: e.text, style: e.style))
-            .toList());
+      style: style,
+      children: blocks
+          .where((b) => b.text.isNotEmpty)
+          .map((e) => TextSpan(text: e.text, style: e.style))
+          .toList(),
+    );
   }
 }

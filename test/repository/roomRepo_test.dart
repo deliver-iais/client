@@ -54,8 +54,8 @@ void main() {
           () async {
         getAndRegisterAuthRepo();
         getAndRegisterBotRepo(
-            botInfo:
-                BotInfo(uid: botUid.asString(), isOwner: true, name: "test"));
+          botInfo: BotInfo(uid: botUid.asString(), isOwner: true, name: "test"),
+        );
         expect(await RoomRepo().getSlangName(botUid), "test");
       });
     });
@@ -145,7 +145,8 @@ void main() {
         roomNameCache.clear();
         final uidIdNameDao = getAndRegisterUidIdNameDao();
         final mucRepo = getAndRegisterMucRepo(
-            fetchMucInfo: Muc(uid: testUid.asString(), name: "test"));
+          fetchMucInfo: Muc(uid: testUid.asString(), name: "test"),
+        );
         final name = await RoomRepo().getName(groupUid);
         verify(mucRepo.fetchMucInfo(groupUid));
         verify(uidIdNameDao.update(groupUid.asString(), name: "test"));
@@ -158,12 +159,17 @@ void main() {
         roomNameCache.clear();
         final uidIdNameDao = getAndRegisterUidIdNameDao();
         final botRepo = getAndRegisterBotRepo(
-            botInfo:
-                BotInfo(uid: botUid.asString(), isOwner: true, name: "test"));
+          botInfo: BotInfo(uid: botUid.asString(), isOwner: true, name: "test"),
+        );
         final name = await RoomRepo().getName(botUid);
         verify(botRepo.getBotInfo(botUid));
-        verify(uidIdNameDao.update(botUid.asString(),
-            name: "test", id: botUid.node));
+        verify(
+          uidIdNameDao.update(
+            botUid.asString(),
+            name: "test",
+            id: botUid.node,
+          ),
+        );
         expect(name, "test");
         expect(roomNameCache[botUid.asString()], "test");
       });
@@ -207,8 +213,10 @@ void main() {
       test('When called if should removePrivateRoom', () async {
         final queryServiceClient = getAndRegisterQueryServiceClient();
         await RoomRepo().deleteRoom(testUid);
-        verify(queryServiceClient
-            .removePrivateRoom(RemovePrivateRoomReq()..roomUid = testUid));
+        verify(
+          queryServiceClient
+              .removePrivateRoom(RemovePrivateRoomReq()..roomUid = testUid),
+        );
       });
       test(
           'When called should getRoom and update firstMessageId with room!.lastMessageId',
@@ -217,10 +225,15 @@ void main() {
           final roomDao = getAndRegisterRoomDao(rooms: [testRoom]);
           final deleted = await RoomRepo().deleteRoom(testUid);
           verify(roomDao.getRoom(testUid.asString()));
-          verify(roomDao.updateRoom(Room(
-              uid: testUid.asString(),
-              deleted: true,
-              lastUpdateTime: clock.now().millisecondsSinceEpoch)));
+          verify(
+            roomDao.updateRoom(
+              Room(
+                uid: testUid.asString(),
+                deleted: true,
+                lastUpdateTime: clock.now().millisecondsSinceEpoch,
+              ),
+            ),
+          );
           expect(deleted, true);
         });
       });
@@ -231,10 +244,15 @@ void main() {
           final roomDao = getAndRegisterRoomDao(rooms: [testRoom]);
           final deleted = await RoomRepo().deleteRoom(testUid);
           verifyNever(roomDao.getRoom(testUid.asString()));
-          verifyNever(roomDao.updateRoom(Room(
-              uid: testUid.asString(),
-              deleted: true,
-              lastUpdateTime: clock.now().millisecondsSinceEpoch)));
+          verifyNever(
+            roomDao.updateRoom(
+              Room(
+                uid: testUid.asString(),
+                deleted: true,
+                lastUpdateTime: clock.now().millisecondsSinceEpoch,
+              ),
+            ),
+          );
           expect(deleted, false);
         });
       });
@@ -295,8 +313,10 @@ void main() {
         final roomRepo = getAndRegisterRealRoomRepo();
         final subject = BehaviorSubject<Activity>();
         roomRepo.initActivity(testUid.asString());
-        expect(roomRepo.activityObject[testUid.asString()]?.valueOrNull,
-            subject.valueOrNull);
+        expect(
+          roomRepo.activityObject[testUid.asString()]?.valueOrNull,
+          subject.valueOrNull,
+        );
       });
     });
     group('updateRoomName -', () {
@@ -309,8 +329,9 @@ void main() {
       test('When called should get room have CustomNotification', () async {
         final customNotificationDao = getAndRegisterCustomNotificationDao();
         expect(
-            await RoomRepo().isRoomHaveACustomNotification(testUid.asString()),
-            false);
+          await RoomRepo().isRoomHaveACustomNotification(testUid.asString()),
+          false,
+        );
         verify(customNotificationDao.isHaveCustomNotif(testUid.asString()));
       });
     });
@@ -319,14 +340,17 @@ void main() {
         final customNotificationDao = getAndRegisterCustomNotificationDao();
         RoomRepo().setRoomCustomNotification(testUid.asString(), "/test");
         verify(
-            customNotificationDao.setCustomNotif(testUid.asString(), "/test"));
+          customNotificationDao.setCustomNotif(testUid.asString(), "/test"),
+        );
       });
     });
     group('getRoomCustomNotification -', () {
       test('When called should get path from customNotificationDao ', () async {
         final customNotificationDao = getAndRegisterCustomNotificationDao();
-        expect(await RoomRepo().getRoomCustomNotification(testUid.asString()),
-            "/test");
+        expect(
+          await RoomRepo().getRoomCustomNotification(testUid.asString()),
+          "/test",
+        );
         verify(customNotificationDao.getCustomNotif(testUid.asString()));
       });
     });

@@ -106,129 +106,141 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: SearchBox(
-                  onChange: (str) => filterSearchResults(str),
-                  onCancel: () => filterSearchResults(""),
-                  controller: editingController),
+                onChange: (str) => filterSearchResults(str),
+                onCancel: () => filterSearchResults(""),
+                controller: editingController,
+              ),
             ),
             Expanded(
-                child: FutureBuilder<List<Contact>>(
-                    future: _contactRepo.getAll(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData &&
-                          snapshot.data != null &&
-                          snapshot.data!.isNotEmpty) {
-                        snapshot.data!.removeWhere(
-                            (element) => _authRepo.isCurrentUser(element.uid));
-                        contacts = snapshot.data!;
-                        items ??= contacts;
+              child: FutureBuilder<List<Contact>>(
+                future: _contactRepo.getAll(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData &&
+                      snapshot.data != null &&
+                      snapshot.data!.isNotEmpty) {
+                    snapshot.data!.removeWhere(
+                      (element) => _authRepo.isCurrentUser(element.uid),
+                    );
+                    contacts = snapshot.data!;
+                    items ??= contacts;
 
-                        if (items!.isNotEmpty) {
-                          return StreamBuilder<int>(
-                              stream: _createMucService.selectedLengthStream(),
-                              builder: (context, snapshot) {
-                                if (!snapshot.hasData) {
-                                  return const SizedBox.shrink();
-                                }
-                                return ListView.builder(
-                                  itemCount: items!.length,
-                                  itemBuilder: _getListItemTile,
-                                );
-                              });
-                        } else {
-                          return Center(
-                            child: Text(
-                              i18n.get("no_results"),
-                              style: theme.textTheme.subtitle1!
-                                  .copyWith(color: Colors.red),
-                            ),
+                    if (items!.isNotEmpty) {
+                      return StreamBuilder<int>(
+                        stream: _createMucService.selectedLengthStream(),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return const SizedBox.shrink();
+                          }
+                          return ListView.builder(
+                            itemCount: items!.length,
+                            itemBuilder: _getListItemTile,
                           );
-                        }
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    })),
+                        },
+                      );
+                    } else {
+                      return Center(
+                        child: Text(
+                          i18n.get("no_results"),
+                          style: theme.textTheme.subtitle1!
+                              .copyWith(color: Colors.red),
+                        ),
+                      );
+                    }
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
+            ),
           ],
         ),
         StreamBuilder<int>(
-            stream: _createMucService.selectedLengthStream(),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const SizedBox.shrink();
-              }
-              if (snapshot.data! > 0) {
-                return Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: theme.primaryColor,
-                    ),
-                    child: widget.mucUid != null
-                        ? IconButton(
-                            icon: const Icon(Icons.check),
-                            padding: const EdgeInsets.all(0),
-                            onPressed: () async {
-                              final users = <Uid>[];
-                              for (final contact
-                                  in _createMucService.contacts) {
-                                users.add(contact.uid.asUid());
-                              }
-                              final usersAdd = await _mucRepo.sendMembers(
-                                  widget.mucUid!, users);
-                              if (usersAdd) {
-                                _routingService.openRoom(
-                                    widget.mucUid!.asString(),
-                                    popAllBeforePush: true);
-                                // _createMucService.reset();
-
-                              } else {
-                                ToastDisplay.showToast(
-                                    toastText: i18n.get("error_occurred"),
-                                    toastContext: context);
-                                // _routingService.pop();
-                              }
-                            })
-                        : IconButton(
-                            icon: const Icon(
-                              Icons.arrow_forward,
-                              color: Colors.white,
-                            ),
-                            padding: const EdgeInsets.all(0),
-                            onPressed: () {
-                              _routingService.openGroupInfoDeterminationPage(
-                                  isChannel: widget.isChannel);
-                            },
-                          ),
+          stream: _createMucService.selectedLengthStream(),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const SizedBox.shrink();
+            }
+            if (snapshot.data! > 0) {
+              return Positioned(
+                bottom: 0,
+                right: 0,
+                child: Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: theme.primaryColor,
                   ),
-                );
-              } else {
-                return const SizedBox.shrink();
-              }
-            })
+                  child: widget.mucUid != null
+                      ? IconButton(
+                          icon: const Icon(Icons.check),
+                          padding: const EdgeInsets.all(0),
+                          onPressed: () async {
+                            final users = <Uid>[];
+                            for (final contact in _createMucService.contacts) {
+                              users.add(contact.uid.asUid());
+                            }
+                            final usersAdd = await _mucRepo.sendMembers(
+                              widget.mucUid!,
+                              users,
+                            );
+                            if (usersAdd) {
+                              _routingService.openRoom(
+                                widget.mucUid!.asString(),
+                                popAllBeforePush: true,
+                              );
+                              // _createMucService.reset();
+
+                            } else {
+                              ToastDisplay.showToast(
+                                toastText: i18n.get("error_occurred"),
+                                toastContext: context,
+                              );
+                              // _routingService.pop();
+                            }
+                          },
+                        )
+                      : IconButton(
+                          icon: const Icon(
+                            Icons.arrow_forward,
+                            color: Colors.white,
+                          ),
+                          padding: const EdgeInsets.all(0),
+                          onPressed: () {
+                            _routingService.openGroupInfoDeterminationPage(
+                              isChannel: widget.isChannel,
+                            );
+                          },
+                        ),
+                ),
+              );
+            } else {
+              return const SizedBox.shrink();
+            }
+          },
+        )
       ],
     );
   }
 
   Widget _getListItemTile(BuildContext context, int index) {
     return GestureDetector(
-        onTap: () {
-          if (!members.contains(items![index].uid)) {
-            if (!_createMucService.isSelected(items![index])) {
-              _createMucService.addContact(items![index]);
-              editingController.clear();
-            } else {
-              _createMucService.deleteContact(items![index]);
-              editingController.clear();
-            }
+      onTap: () {
+        if (!members.contains(items![index].uid)) {
+          if (!_createMucService.isSelected(items![index])) {
+            _createMucService.addContact(items![index]);
+            editingController.clear();
+          } else {
+            _createMucService.deleteContact(items![index]);
+            editingController.clear();
           }
-        },
-        child: SelectiveContact(
-          contact: items![index],
-          isSelected: _createMucService.isSelected(items![index]),
-          currentMember: members.contains(items![index].uid),
-        ));
+        }
+      },
+      child: SelectiveContact(
+        contact: items![index],
+        isSelected: _createMucService.isSelected(items![index]),
+        currentMember: members.contains(items![index].uid),
+      ),
+    );
   }
 }

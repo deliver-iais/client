@@ -50,14 +50,17 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> tryInitAccountRepo() async {
     try {
       await _accountRepo.checkUpdatePlatformSessionInformation();
-      _authRepo.init().timeout(const Duration(seconds: 2), onTimeout: () {
-        if (_attempts < 3) {
-          _attempts++;
-          tryInitAccountRepo();
-        } else {
-          _navigateToIntroPage();
-        }
-      }).then((_) {
+      _authRepo.init().timeout(
+        const Duration(seconds: 2),
+        onTimeout: () {
+          if (_attempts < 3) {
+            _attempts++;
+            tryInitAccountRepo();
+          } else {
+            _navigateToIntroPage();
+          }
+        },
+      ).then((_) {
         if (!_authRepo.isLocalLockEnabled()) {
           navigateToApp();
         } else {
@@ -79,9 +82,14 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   void _navigateToIntroPage() {
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) {
-      return const IntroPage();
-    }));
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (c) {
+          return const IntroPage();
+        },
+      ),
+    );
   }
 
   Future<void> _navigateToHomePage() async {
@@ -89,13 +97,23 @@ class _SplashScreenState extends State<SplashScreen>
     final hasProfile = await _accountRepo.profileInfoIsSet();
     if (!mounted) return;
     if (hasProfile) {
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (c) {
-        return const HomePage();
-      }));
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (c) {
+            return const HomePage();
+          },
+        ),
+      );
     } else {
-      Navigator.push(context, MaterialPageRoute(builder: (c) {
-        return const AccountSettings(forceToSetUsernameAndName: true);
-      }));
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (c) {
+            return const AccountSettings(forceToSetUsernameAndName: true);
+          },
+        ),
+      );
     }
   }
 
@@ -104,8 +122,9 @@ class _SplashScreenState extends State<SplashScreen>
     return Directionality(
       textDirection: TextDirection.ltr,
       child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 100),
-          child: _isLocked ? desktopLock() : loading()),
+        duration: const Duration(milliseconds: 100),
+        child: _isLocked ? desktopLock() : loading(),
+      ),
     );
   }
 
@@ -119,14 +138,15 @@ class _SplashScreenState extends State<SplashScreen>
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               ShakeWidget(
-                  controller: _shakeController,
-                  child: TGS.asset(
-                    "assets/animations/unlock.tgs",
-                    controller: _animationController,
-                    autoPlay: false,
-                    width: 60,
-                    height: 60,
-                  )),
+                controller: _shakeController,
+                child: TGS.asset(
+                  "assets/animations/unlock.tgs",
+                  controller: _animationController,
+                  autoPlay: false,
+                  width: 60,
+                  height: 60,
+                ),
+              ),
               const SizedBox(height: 20),
               Text(
                 "Enter your local password",
@@ -149,13 +169,15 @@ class _SplashScreenState extends State<SplashScreen>
               ),
               const SizedBox(height: 20),
               TextButton(
-                  onPressed: _textEditingController.text == ""
-                      ? null
-                      : () => checkPassword(_textEditingController.text),
-                  child: const SizedBox(
-                      height: 40,
-                      width: 180,
-                      child: Center(child: Text("Unlock"))))
+                onPressed: _textEditingController.text == ""
+                    ? null
+                    : () => checkPassword(_textEditingController.text),
+                child: const SizedBox(
+                  height: 40,
+                  width: 180,
+                  child: Center(child: Text("Unlock")),
+                ),
+              )
             ],
           ),
         ),

@@ -20,14 +20,14 @@ class DragDropWidget extends StatelessWidget {
   final void Function()? resetRoomPageDetails;
   final int? replyMessageId;
 
-  DragDropWidget(
-      {Key? key,
-      required this.child,
-      required this.roomUid,
-      required this.height,
-      this.resetRoomPageDetails,
-      this.replyMessageId})
-      : super(key: key);
+  DragDropWidget({
+    Key? key,
+    required this.child,
+    required this.roomUid,
+    required this.height,
+    this.resetRoomPageDetails,
+    this.replyMessageId,
+  }) : super(key: key);
 
   final _routingServices = GetIt.I.get<RoutingService>();
   final _mucRepo = GetIt.I.get<MucRepo>();
@@ -37,10 +37,11 @@ class DragDropWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return isWeb
-        ? Stack(children: [
-            SizedBox(
-              height: height,
-              child: DropzoneView(
+        ? Stack(
+            children: [
+              SizedBox(
+                height: height,
+                child: DropzoneView(
                   operation: DragOperation.copy,
                   cursor: CursorType.grab,
                   onCreated: (ctrl) {},
@@ -49,71 +50,104 @@ class DragDropWidget extends StatelessWidget {
                     try {
                       final file = blob as File;
                       final url = Url.createObjectUrlFromBlob(file.slice());
-                      final modelFile = model.File(url, file.name,
-                          extension: file.type, size: file.size);
+                      final modelFile = model.File(
+                        url,
+                        file.name,
+                        extension: file.type,
+                        size: file.size,
+                      );
                       if (!roomUid.asUid().isChannel()) {
-                        showDialogInDesktop([modelFile], context, file.type,
-                            replyMessageId, resetRoomPageDetails);
+                        showDialogInDesktop(
+                          [modelFile],
+                          context,
+                          file.type,
+                          replyMessageId,
+                          resetRoomPageDetails,
+                        );
                       } else {
                         final res = await _mucRepo.isMucAdminOrOwner(
-                            _authRepo.currentUserUid.asString(), roomUid);
+                          _authRepo.currentUserUid.asString(),
+                          roomUid,
+                        );
                         if (res) {
                           // ignore: use_build_context_synchronously
-                          showDialogInDesktop([modelFile], context, file.type,
-                              replyMessageId, resetRoomPageDetails);
+                          showDialogInDesktop(
+                            [modelFile],
+                            context,
+                            file.type,
+                            replyMessageId,
+                            resetRoomPageDetails,
+                          );
                         }
                       }
                     } catch (e) {
                       _logger.e(e);
                     }
                   },
-                  onLeave: () {}),
-            ),
-            child,
-          ])
+                  onLeave: () {},
+                ),
+              ),
+              child,
+            ],
+          )
         : DropTarget(
             child: child,
             onDragDone: (d) async {
               final files = <model.File>[];
               for (final element in d.files) {
-                files.add(model.File(element.path, element.name,
-                    extension: element.mimeType, size: await element.length()));
+                files.add(
+                  model.File(
+                    element.path,
+                    element.name,
+                    extension: element.mimeType,
+                    size: await element.length(),
+                  ),
+                );
               }
               if (!roomUid.asUid().isChannel()) {
                 // ignore: use_build_context_synchronously
                 showDialogInDesktop(
-                    files,
-                    context,
-                    mime(files.first.path) ?? files.first.name.split(".").last,
-                    replyMessageId,
-                    resetRoomPageDetails);
+                  files,
+                  context,
+                  mime(files.first.path) ?? files.first.name.split(".").last,
+                  replyMessageId,
+                  resetRoomPageDetails,
+                );
               } else {
                 final res = await _mucRepo.isMucAdminOrOwner(
-                    _authRepo.currentUserUid.asString(), roomUid);
+                  _authRepo.currentUserUid.asString(),
+                  roomUid,
+                );
                 if (res) {
                   // ignore: use_build_context_synchronously
                   showDialogInDesktop(
-                      files,
-                      context,
-                      mime(files.first.path) ??
-                          files.first.path.split(".").last,
-                      replyMessageId,
-                      resetRoomPageDetails);
+                    files,
+                    context,
+                    mime(files.first.path) ?? files.first.path.split(".").last,
+                    replyMessageId,
+                    resetRoomPageDetails,
+                  );
                 }
               }
             },
           );
   }
 
-  void showDialogInDesktop(List<model.File> files, BuildContext context,
-      String type, int? replyMessageId, void Function()? resetRoomPageDetails) {
+  void showDialogInDesktop(
+    List<model.File> files,
+    BuildContext context,
+    String type,
+    int? replyMessageId,
+    void Function()? resetRoomPageDetails,
+  ) {
     showCaptionDialog(
-        type: type,
-        context: context,
-        files: files,
-        roomUid: roomUid.asUid(),
-        replyMessageId: replyMessageId ?? 0,
-        resetRoomPageDetails: resetRoomPageDetails);
+      type: type,
+      context: context,
+      files: files,
+      roomUid: roomUid.asUid(),
+      replyMessageId: replyMessageId ?? 0,
+      resetRoomPageDetails: resetRoomPageDetails,
+    );
     _routingServices.openRoom(roomUid);
   }
 }

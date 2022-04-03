@@ -80,44 +80,53 @@ class _AccountSettingsState extends State<AccountSettings> {
       }
     } else {
       showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          isDismissible: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) {
-            return DraggableScrollableSheet(
-              initialChildSize: 0.3,
-              minChildSize: 0.2,
-              expand: false,
-              builder: (context, scrollController) {
-                return Container(
-                    color: Colors.white,
-                    child: Stack(children: <Widget>[
-                      Container(
-                        padding: const EdgeInsets.all(0),
-                        child: ShareBoxGallery(
-                          pop: () => Navigator.pop(context),
-                          scrollController: scrollController,
-                          setAvatar: (filePath) async {
-                            cropAvatar(filePath);
-                          },
-                          roomUid: _authRepo.currentUserUid,
-                        ),
+        context: context,
+        isScrollControlled: true,
+        isDismissible: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) {
+          return DraggableScrollableSheet(
+            initialChildSize: 0.3,
+            minChildSize: 0.2,
+            expand: false,
+            builder: (context, scrollController) {
+              return Container(
+                color: Colors.white,
+                child: Stack(
+                  children: <Widget>[
+                    Container(
+                      padding: const EdgeInsets.all(0),
+                      child: ShareBoxGallery(
+                        pop: () => Navigator.pop(context),
+                        scrollController: scrollController,
+                        setAvatar: (filePath) async {
+                          cropAvatar(filePath);
+                        },
+                        roomUid: _authRepo.currentUserUid,
                       ),
-                    ]));
-              },
-            );
-          });
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      );
     }
   }
 
   Future<void> cropAvatar(String imagePath) async {
-    Navigator.push(context, MaterialPageRoute(builder: (c) {
-      return CropImage(imagePath, (path) {
-        imagePath = path;
-        setAvatar(imagePath);
-      });
-    }));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (c) {
+          return CropImage(imagePath, (path) {
+            imagePath = path;
+            setAvatar(imagePath);
+          });
+        },
+      ),
+    );
   }
 
   Future<void> setAvatar(String path) async {
@@ -164,14 +173,16 @@ class _AccountSettingsState extends State<AccountSettings> {
         appBar: UltimateAppBar(
           child: AppBar(
             titleSpacing: 8,
-            title: Column(children: [
-              Text(_i18n.get("account_info")),
-              if (widget.forceToSetUsernameAndName)
-                Text(
-                  _i18n.get("should_set_username_and_name"),
-                  style: theme.textTheme.headline6!.copyWith(fontSize: 10),
-                )
-            ]),
+            title: Column(
+              children: [
+                Text(_i18n.get("account_info")),
+                if (widget.forceToSetUsernameAndName)
+                  Text(
+                    _i18n.get("should_set_username_and_name"),
+                    style: theme.textTheme.headline6!.copyWith(fontSize: 10),
+                  )
+              ],
+            ),
             leading: !widget.forceToSetUsernameAndName
                 ? _routingService.backButtonLeading()
                 : null,
@@ -190,10 +201,12 @@ class _AccountSettingsState extends State<AccountSettings> {
               }
               return ListView(
                 children: [
-                  Section(title: _i18n.get("avatar"), children: [
-                    NormalSettingsTitle(
-                      child: Center(
-                        child: StreamBuilder<String>(
+                  Section(
+                    title: _i18n.get("avatar"),
+                    children: [
+                      NormalSettingsTitle(
+                        child: Center(
+                          child: StreamBuilder<String>(
                             stream: _newAvatarPath.stream,
                             builder: (context, snapshot) {
                               if (snapshot.hasData &&
@@ -202,13 +215,15 @@ class _AccountSettingsState extends State<AccountSettings> {
                                 return Stack(
                                   children: [
                                     Center(
-                                        child: CircleAvatar(
-                                      radius: 60,
-                                      backgroundImage: isWeb
-                                          ? Image.network(snapshot.data!).image
-                                          : Image.file(File(snapshot.data!))
-                                              .image,
-                                    )),
+                                      child: CircleAvatar(
+                                        radius: 60,
+                                        backgroundImage: isWeb
+                                            ? Image.network(snapshot.data!)
+                                                .image
+                                            : Image.file(File(snapshot.data!))
+                                                .image,
+                                      ),
+                                    ),
                                     const Padding(
                                       padding: EdgeInsets.only(top: 45),
                                       child: Center(
@@ -225,18 +240,19 @@ class _AccountSettingsState extends State<AccountSettings> {
                                 children: [
                                   Center(
                                     child: Container(
-                                        height: 130,
-                                        width: 130,
-                                        decoration: BoxDecoration(
-                                          shape: BoxShape.circle,
-                                          color: Colors.grey[500]!
-                                              .withOpacity(0.9),
-                                        ),
-                                        child: CircleAvatarWidget(
-                                          _authRepo.currentUserUid,
-                                          130,
-                                          hideName: true,
-                                        )),
+                                      height: 130,
+                                      width: 130,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color:
+                                            Colors.grey[500]!.withOpacity(0.9),
+                                      ),
+                                      child: CircleAvatarWidget(
+                                        _authRepo.currentUserUid,
+                                        130,
+                                        hideName: true,
+                                      ),
+                                    ),
                                   ),
                                   Center(
                                     child: Padding(
@@ -254,21 +270,25 @@ class _AccountSettingsState extends State<AccountSettings> {
                                   )
                                 ],
                               );
-                            }),
-                      ),
-                    )
-                  ]),
-                  Section(title: _i18n.get("account_info"), children: [
-                    NormalSettingsTitle(
+                            },
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
+                  Section(
+                    title: _i18n.get("account_info"),
+                    children: [
+                      NormalSettingsTitle(
                         child: Column(
-                      children: [
-                        Form(
-                            key: _formKey,
-                            child: Column(
-                              children: [
-                                Form(
-                                  key: _usernameFormKey,
-                                  child: TextFormField(
+                          children: [
+                            Form(
+                              key: _formKey,
+                              child: Column(
+                                children: [
+                                  Form(
+                                    key: _usernameFormKey,
+                                    child: TextFormField(
                                       minLines: 1,
                                       initialValue: snapshot.data!.userName,
                                       textInputAction: TextInputAction.send,
@@ -281,59 +301,66 @@ class _AccountSettingsState extends State<AccountSettings> {
                                       },
                                       validator: validateUsername,
                                       decoration: buildInputDecoration(
-                                          _i18n.get("username"),
-                                          isOptional: true)),
-                                ),
-                                const SizedBox(
-                                  height: 5,
-                                ),
-                                if (_newUsername.isEmpty)
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          _i18n.get("username_helper"),
-                                          textAlign: TextAlign.justify,
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 2,
-                                          style: const TextStyle(
+                                        _i18n.get("username"),
+                                        isOptional: true,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  if (_newUsername.isEmpty)
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            _i18n.get("username_helper"),
+                                            textAlign: TextAlign.justify,
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 2,
+                                            style: const TextStyle(
                                               fontSize: 14,
-                                              color: Colors.blueAccent),
+                                              color: Colors.blueAccent,
+                                            ),
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
+                                  if (usernameIsAvailable)
+                                    Row(
+                                      children: [
+                                        Text(
+                                          _i18n.get("username_already_exist"),
+                                          style: const TextStyle(
+                                            fontSize: 10,
+                                            color: Colors.red,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  const SizedBox(
+                                    height: 20,
                                   ),
-                                if (usernameIsAvailable)
-                                  Row(
-                                    children: [
-                                      Text(
-                                        _i18n.get("username_already_exist"),
-                                        style: const TextStyle(
-                                            fontSize: 10, color: Colors.red),
-                                      ),
-                                    ],
-                                  ),
-                                const SizedBox(
-                                  height: 20,
-                                ),
-                                TextFormField(
-                                  initialValue: snapshot.data!.firstName ?? "",
-                                  minLines: 1,
-                                  textInputAction: TextInputAction.send,
-                                  onChanged: (str) {
-                                    setState(() {
-                                      _firstName = str;
-                                    });
-                                  },
-                                  validator: validateFirstName,
-                                  decoration: buildInputDecoration(
+                                  TextFormField(
+                                    initialValue:
+                                        snapshot.data!.firstName ?? "",
+                                    minLines: 1,
+                                    textInputAction: TextInputAction.send,
+                                    onChanged: (str) {
+                                      setState(() {
+                                        _firstName = str;
+                                      });
+                                    },
+                                    validator: validateFirstName,
+                                    decoration: buildInputDecoration(
                                       _i18n.get("firstName"),
-                                      isOptional: true),
-                                ),
-                                const SizedBox(
-                                  height: 20,
-                                ),
-                                TextFormField(
+                                      isOptional: true,
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  TextFormField(
                                     initialValue: snapshot.data!.lastName ?? "",
                                     minLines: 1,
                                     textInputAction: TextInputAction.send,
@@ -343,11 +370,13 @@ class _AccountSettingsState extends State<AccountSettings> {
                                       });
                                     },
                                     decoration: buildInputDecoration(
-                                        _i18n.get("lastName"))),
-                                const SizedBox(
-                                  height: 20,
-                                ),
-                                TextFormField(
+                                      _i18n.get("lastName"),
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  TextFormField(
                                     initialValue: snapshot.data!.email ?? "",
                                     minLines: 1,
                                     textInputAction: TextInputAction.send,
@@ -358,22 +387,27 @@ class _AccountSettingsState extends State<AccountSettings> {
                                     },
                                     validator: validateEmail,
                                     decoration: buildInputDecoration(
-                                        _i18n.get("email"))),
-                              ],
-                            )),
-                        const SizedBox(height: 8),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: ElevatedButton(
-                            child: Text(_i18n.get("save")),
-                            onPressed: () async {
-                              checkAndSend();
-                            },
-                          ),
-                        )
-                      ],
-                    ))
-                  ])
+                                      _i18n.get("email"),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: ElevatedButton(
+                                child: Text(_i18n.get("save")),
+                                onPressed: () async {
+                                  checkAndSend();
+                                },
+                              ),
+                            )
+                          ],
+                        ),
+                      )
+                    ],
+                  )
                 ],
               );
             },
@@ -383,19 +417,22 @@ class _AccountSettingsState extends State<AccountSettings> {
     );
   }
 
-  InputDecoration buildInputDecoration(String label,
-      {bool isOptional = false}) {
+  InputDecoration buildInputDecoration(
+    String label, {
+    bool isOptional = false,
+  }) {
     return InputDecoration(
-        suffixIcon: isOptional
-            ? const Padding(
-                padding: EdgeInsets.only(top: 20, left: 25),
-                child: Text(
-                  "*",
-                  style: TextStyle(color: Colors.red),
-                ),
-              )
-            : const SizedBox.shrink(),
-        labelText: label);
+      suffixIcon: isOptional
+          ? const Padding(
+              padding: EdgeInsets.only(top: 20, left: 25),
+              child: Text(
+                "*",
+                style: TextStyle(color: Colors.red),
+              ),
+            )
+          : const SizedBox.shrink(),
+      labelText: label,
+    );
   }
 
   String? validateFirstName(String? value) {
@@ -450,15 +487,21 @@ class _AccountSettingsState extends State<AccountSettings> {
       if (isValidated) {
         if (usernameIsAvailable) {
           final setPrivateInfo = await _accountRepo.setAccountDetails(
-              _username.isNotEmpty ? _username : _account!.userName,
-              _firstName.isNotEmpty ? _firstName : _account!.firstName,
-              _lastName.isNotEmpty ? _lastName : _account!.lastName,
-              _email.isNotEmpty ? _email : _account!.email);
+            _username.isNotEmpty ? _username : _account!.userName,
+            _firstName.isNotEmpty ? _firstName : _account!.firstName,
+            _lastName.isNotEmpty ? _lastName : _account!.lastName,
+            _email.isNotEmpty ? _email : _account!.email,
+          );
           if (setPrivateInfo) {
             if (widget.forceToSetUsernameAndName) {
-              navigatorState.pushAndRemoveUntil(MaterialPageRoute(builder: (c) {
-                return const HomePage();
-              }), (r) => false);
+              navigatorState.pushAndRemoveUntil(
+                MaterialPageRoute(
+                  builder: (c) {
+                    return const HomePage();
+                  },
+                ),
+                (r) => false,
+              );
             } else {
               _routingService.pop();
             }

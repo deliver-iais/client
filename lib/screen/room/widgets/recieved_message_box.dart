@@ -19,18 +19,18 @@ class ReceivedMessageBox extends StatelessWidget {
   final void Function(TapDownDetails) storePosition;
   final bool isFirstMessageInGroupedMessages;
 
-  const ReceivedMessageBox(
-      {Key? key,
-      required this.message,
-      required this.onBotCommandClick,
-      required this.scrollToMessage,
-      required this.onUsernameClick,
-      required this.onArrowIconClick,
-      required this.colorScheme,
-      required this.storePosition,
-      required this.isFirstMessageInGroupedMessages,
-      this.pattern})
-      : super(key: key);
+  const ReceivedMessageBox({
+    Key? key,
+    required this.message,
+    required this.onBotCommandClick,
+    required this.scrollToMessage,
+    required this.onUsernameClick,
+    required this.onArrowIconClick,
+    required this.colorScheme,
+    required this.storePosition,
+    required this.isFirstMessageInGroupedMessages,
+    this.pattern,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +57,8 @@ class ReceivedMessageBox extends StatelessWidget {
             colorScheme: colorScheme,
             child: boxContent,
             isSender: false,
-            isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages);
+            isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
+          );
   }
 
   bool doNotNeedsWrapper() {

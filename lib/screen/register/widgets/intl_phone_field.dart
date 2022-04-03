@@ -91,9 +91,11 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
                     onChanged: (value) {
                       setState(() {
                         filteredCountries = countries
-                            .where((country) => country['name']!
-                                .toLowerCase()
-                                .contains(value.toLowerCase()))
+                            .where(
+                              (country) => country['name']!
+                                  .toLowerCase()
+                                  .contains(value.toLowerCase()),
+                            )
                             .toList();
                       });
                     },
@@ -146,7 +148,8 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
     if (widget.initialCountryCode != null &&
         widget.initialCountryCode!.isNotEmpty) {
       _selectedCountry = countries.firstWhere(
-          (item) => item['dial_code'] == "+${widget.initialCountryCode}");
+        (item) => item['dial_code'] == "+${widget.initialCountryCode}",
+      );
     }
 
     return Row(
@@ -166,9 +169,11 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
             controller: widget.controller,
             focusNode: widget.focusNode,
             onFieldSubmitted: (s) {
-              widget.onSubmitted(PhoneNumber()
-                ..countryCode = int.parse(_selectedCountry['dial_code']!)
-                ..nationalNumber = Int64.parseInt(s));
+              widget.onSubmitted(
+                PhoneNumber()
+                  ..countryCode = int.parse(_selectedCountry['dial_code']!)
+                  ..nationalNumber = Int64.parseInt(s),
+              );
             },
             decoration: InputDecoration(
               suffixIcon: const Icon(
@@ -181,15 +186,19 @@ class _IntlPhoneFieldState extends State<IntlPhoneField> {
             ),
             onSaved: (value) {
               if (widget.onSaved != null && value != null) {
-                widget.onSaved!(PhoneNumber()
-                  ..countryCode = int.parse(_selectedCountry['dial_code']!)
-                  ..nationalNumber = Int64.parseInt(value));
+                widget.onSaved!(
+                  PhoneNumber()
+                    ..countryCode = int.parse(_selectedCountry['dial_code']!)
+                    ..nationalNumber = Int64.parseInt(value),
+                );
               }
             },
             onChanged: (value) {
-              widget.onChanged(PhoneNumber()
-                ..countryCode = int.parse(_selectedCountry['dial_code']!)
-                ..nationalNumber = Int64.parseInt(value));
+              widget.onChanged(
+                PhoneNumber()
+                  ..countryCode = int.parse(_selectedCountry['dial_code']!)
+                  ..nationalNumber = Int64.parseInt(value),
+              );
             },
             validator: widget.validator,
             keyboardType: widget.keyboardType,

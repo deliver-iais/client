@@ -25,7 +25,9 @@ class FloatingModal extends StatelessWidget {
           color: backgroundColor,
           clipBehavior: Clip.antiAlias,
           borderRadius: BorderRadius.only(
-              topLeft: mainBorder.topLeft, topRight: mainBorder.topLeft),
+            topLeft: mainBorder.topLeft,
+            topRight: mainBorder.topLeft,
+          ),
           child: child,
         ),
       ),
@@ -33,19 +35,21 @@ class FloatingModal extends StatelessWidget {
   }
 }
 
-Future<T> showFloatingModalBottomSheet<T>(
-    {required BuildContext context,
-    required WidgetBuilder builder,
-    Color? backgroundColor,
-    bool isDismissible = true}) async {
+Future<T> showFloatingModalBottomSheet<T>({
+  required BuildContext context,
+  required WidgetBuilder builder,
+  Color? backgroundColor,
+  bool isDismissible = true,
+}) async {
   final result = await showCustomModalBottomSheet(
-      context: context,
-      builder: builder,
-      isDismissible: isDismissible,
-      containerWidget: (_, animation, child) => FloatingModal(
-            child: child,
-          ),
-      expand: false);
+    context: context,
+    builder: builder,
+    isDismissible: isDismissible,
+    containerWidget: (_, animation, child) => FloatingModal(
+      child: child,
+    ),
+    expand: false,
+  );
 
   return result;
 }
@@ -74,8 +78,9 @@ void showQrCode(BuildContext context, String url) {
               height: 60,
               padding: const EdgeInsets.only(top: 10.0),
               child: TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text(_i18n.get("skip"))),
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(_i18n.get("skip")),
+              ),
             ),
           ],
         ),

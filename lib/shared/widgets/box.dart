@@ -8,7 +8,8 @@ class Box extends StatelessWidget {
   final BorderRadius? borderRadius;
   final BorderRadius largePageBorderRadius;
 
-  const Box({Key? key,
+  const Box({
+    Key? key,
     this.child,
     this.margin,
     this.largePageMargin = const EdgeInsets.symmetric(horizontal: 28),
@@ -25,7 +26,7 @@ class Box extends StatelessWidget {
         borderRadius: borderRadius ??
             (isLarge(context) ? largePageBorderRadius : BorderRadius.zero),
         child: Container(
-          color:theme.colorScheme.surface,
+          color: theme.colorScheme.surface,
           child: child,
         ),
       ),
@@ -40,7 +41,8 @@ class BoxList extends StatelessWidget {
   final BorderRadius? borderRadius;
   final BorderRadius largePageBorderRadius;
 
-  const BoxList({Key? key,
+  const BoxList({
+    Key? key,
     required this.children,
     this.padding,
     this.largePagePadding = const EdgeInsets.symmetric(horizontal: 28),
@@ -51,10 +53,11 @@ class BoxList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Box(
-        margin: padding,
-        largePageMargin: largePagePadding!,
-        borderRadius: borderRadius,
-        largePageBorderRadius: largePageBorderRadius,
-        child: Column(children: children));
+      margin: padding,
+      largePageMargin: largePagePadding!,
+      borderRadius: borderRadius,
+      largePageBorderRadius: largePageBorderRadius,
+      child: Column(children: children),
+    );
   }
 }

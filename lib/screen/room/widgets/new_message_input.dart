@@ -30,31 +30,31 @@ class NewMessageInput extends StatelessWidget {
     this.replyMessageId = 0,
     this.editableMessage,
     this.sendForwardMessage,
-
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<Room?>(
-        stream: _roomRepo.watchRoom(currentRoomId),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            final currentRoom = snapshot.data!;
-            return InputMessage(
-              currentRoom: currentRoom,
-              replyMessageId: replyMessageId,
-              resetRoomPageDetails: resetRoomPageDetails,
-              waitingForForward: waitingForForward,
-              editableMessage: editableMessage,
-              sendForwardMessage: sendForwardMessage,
-              scrollToLastSentMessage: scrollToLastSentMessage,
-              focusNode: focusNode,
-              textController: textController,
-            );
-          } else {
-            _roomRepo.createRoomIfNotExist(currentRoomId);
-            return const SizedBox.shrink();
-          }
-        });
+      stream: _roomRepo.watchRoom(currentRoomId),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          final currentRoom = snapshot.data!;
+          return InputMessage(
+            currentRoom: currentRoom,
+            replyMessageId: replyMessageId,
+            resetRoomPageDetails: resetRoomPageDetails,
+            waitingForForward: waitingForForward,
+            editableMessage: editableMessage,
+            sendForwardMessage: sendForwardMessage,
+            scrollToLastSentMessage: scrollToLastSentMessage,
+            focusNode: focusNode,
+            textController: textController,
+          );
+        } else {
+          _roomRepo.createRoomIfNotExist(currentRoomId);
+          return const SizedBox.shrink();
+        }
+      },
+    );
   }
 }

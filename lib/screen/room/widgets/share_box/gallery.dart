@@ -23,15 +23,15 @@ class ShareBoxGallery extends StatefulWidget {
   final void Function(String)? setAvatar;
   final void Function()? resetRoomPageDetails;
 
-  const ShareBoxGallery(
-      {Key? key,
-      required this.scrollController,
-      required this.pop,
-      required this.roomUid,
-      this.setAvatar,
-      this.replyMessageId = 0,
-      this.resetRoomPageDetails})
-      : super(key: key);
+  const ShareBoxGallery({
+    Key? key,
+    required this.scrollController,
+    required this.pop,
+    required this.roomUid,
+    this.setAvatar,
+    this.replyMessageId = 0,
+    this.resetRoomPageDetails,
+  }) : super(key: key);
 
   @override
   _ShareBoxGalleryState createState() => _ShareBoxGalleryState();
@@ -96,242 +96,285 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
     return Scaffold(
       key: _scaffoldKey,
       body: FutureBuilder<List<StorageFile>?>(
-          future: _future,
-          builder: (context, folders) {
-            if (folders.hasData &&
-                folders.data != null &&
-                folders.data!.isNotEmpty) {
-              return GridView.builder(
-                  controller: widget.scrollController,
-                  itemCount: folders.data!.length + 1,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2),
-                  itemBuilder: (co, index) {
-                    final folder = index > 0 ? folders.data![index - 1] : null;
-                    if (index <= 0) {
-                      return Container(
-                        width: 50,
-                        height: 50,
-                        margin: const EdgeInsets.all(4.0),
-                        decoration: BoxDecoration(
-                          color: Theme.of(co).primaryColor,
-                          borderRadius: secondaryBorder,
-                        ),
-                        child: _controller.value.isInitialized
-                            ? GestureDetector(
-                                onTap: () {
-                                  openCamera(() {
-                                    widget.pop();
-                                    Navigator.pop(context);
-                                  });
-                                },
-                                child: CameraPreview(
-                                  _controller,
-                                  child: const Icon(Icons.photo_camera,
-                                      size: 50, color: Colors.black26),
-                                ),
-                              )
-                            : const SizedBox.shrink(),
-                      );
-                    } else {
-                      return GestureDetector(
-                          onTap: () {
-                            Navigator.push(co, MaterialPageRoute(builder: (c) {
-                              return ImageFolderWidget(
-                                folder!,
-                                widget.roomUid,
-                                () {
-                                  if (widget.setAvatar == null) {
-                                    widget.pop();
-                                  }
-                                  Navigator.pop(context);
-                                },
-                                setAvatar: widget.setAvatar,
-                                replyMessageId: widget.replyMessageId,
-                                resetRoomPageDetails:
-                                    widget.resetRoomPageDetails,
-                              );
-                            }));
-                          },
-                          child: AnimatedPadding(
-                            duration: const Duration(milliseconds: 200),
-                            padding: const EdgeInsets.all(10),
-                            child: Hero(
-                              tag: folder!.folderName,
-                              child: Container(
-                                  width: 100,
-                                  height: 100,
-                                  decoration: BoxDecoration(
-                                    borderRadius: secondaryBorder,
-                                    image: DecorationImage(
-                                        image: Image.file(
-                                          File(
-                                            folder.files.first,
-                                          ),
-                                          cacheWidth: 300,
-                                          cacheHeight: 300,
-                                        ).image,
-                                        fit: BoxFit.cover),
-                                  ),
-                                  child: Align(
-                                      alignment: Alignment.bottomLeft,
-                                      widthFactor: 200,
-                                      child: Container(
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .hoverColor
-                                              .withOpacity(0.5),
-                                          borderRadius: mainBorder,
-                                        ),
-                                        child: Text(
-                                          folder.folderName,
-                                          style: const TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.white),
-                                        ),
-                                      ))),
+        future: _future,
+        builder: (context, folders) {
+          if (folders.hasData &&
+              folders.data != null &&
+              folders.data!.isNotEmpty) {
+            return GridView.builder(
+              controller: widget.scrollController,
+              itemCount: folders.data!.length + 1,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+              ),
+              itemBuilder: (co, index) {
+                final folder = index > 0 ? folders.data![index - 1] : null;
+                if (index <= 0) {
+                  return Container(
+                    width: 50,
+                    height: 50,
+                    margin: const EdgeInsets.all(4.0),
+                    decoration: BoxDecoration(
+                      color: Theme.of(co).primaryColor,
+                      borderRadius: secondaryBorder,
+                    ),
+                    child: _controller.value.isInitialized
+                        ? GestureDetector(
+                            onTap: () {
+                              openCamera(() {
+                                widget.pop();
+                                Navigator.pop(context);
+                              });
+                            },
+                            child: CameraPreview(
+                              _controller,
+                              child: const Icon(
+                                Icons.photo_camera,
+                                size: 50,
+                                color: Colors.black26,
+                              ),
                             ),
-                          ));
-                    }
-                  });
-            }
-            return const SizedBox.shrink();
-          }),
+                          )
+                        : const SizedBox.shrink(),
+                  );
+                } else {
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        co,
+                        MaterialPageRoute(
+                          builder: (c) {
+                            return ImageFolderWidget(
+                              folder!,
+                              widget.roomUid,
+                              () {
+                                if (widget.setAvatar == null) {
+                                  widget.pop();
+                                }
+                                Navigator.pop(context);
+                              },
+                              setAvatar: widget.setAvatar,
+                              replyMessageId: widget.replyMessageId,
+                              resetRoomPageDetails: widget.resetRoomPageDetails,
+                            );
+                          },
+                        ),
+                      );
+                    },
+                    child: AnimatedPadding(
+                      duration: const Duration(milliseconds: 200),
+                      padding: const EdgeInsets.all(10),
+                      child: Hero(
+                        tag: folder!.folderName,
+                        child: Container(
+                          width: 100,
+                          height: 100,
+                          decoration: BoxDecoration(
+                            borderRadius: secondaryBorder,
+                            image: DecorationImage(
+                              image: Image.file(
+                                File(
+                                  folder.files.first,
+                                ),
+                                cacheWidth: 300,
+                                cacheHeight: 300,
+                              ).image,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          child: Align(
+                            alignment: Alignment.bottomLeft,
+                            widthFactor: 200,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                color: Theme.of(context)
+                                    .hoverColor
+                                    .withOpacity(0.5),
+                                borderRadius: mainBorder,
+                              ),
+                              child: Text(
+                                folder.folderName,
+                                style: const TextStyle(
+                                  fontSize: 15,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }
+              },
+            );
+          }
+          return const SizedBox.shrink();
+        },
+      ),
     );
   }
 
   void openCamera(void Function() pop) {
-    Navigator.push(context, MaterialPageRoute(builder: (c) {
-      return Scaffold(
-          body: Stack(
-        children: [
-          StreamBuilder<CameraController>(
-              stream: _cameraController.stream,
-              builder: (context, snapshot) {
-                return CameraPreview(
-                  snapshot.data ?? _controller,
-                );
-              }),
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 20, right: 15),
-              child: IconButton(
-                onPressed: () async {
-                  final navigatorState = Navigator.of(context);
-                  final file = await _controller.takePicture();
-                  if (widget.setAvatar != null) {
-                    widget.pop();
-                    navigatorState.pop();
-                    widget.setAvatar!(file.path);
-                  } else {
-                    openImage(file, pop);
-                  }
-                },
-                icon: const Icon(
-                  Icons.photo_camera,
-                  color: Colors.black45,
-                  size: 55,
-                ),
-              ),
-            ),
-          ),
-          if (_cameras.isNotEmpty && _cameras.length > 1)
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 10, right: 10),
-                child: IconButton(
-                  onPressed: () async {
-                    _controller = CameraController(
-                        _controller.description == _cameras[1]
-                            ? _cameras[0]
-                            : _cameras[1],
-                        ResolutionPreset.max);
-                    await _controller.initialize();
-                    _cameraController.add(_controller);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (c) {
+          return Scaffold(
+            body: Stack(
+              children: [
+                StreamBuilder<CameraController>(
+                  stream: _cameraController.stream,
+                  builder: (context, snapshot) {
+                    return CameraPreview(
+                      snapshot.data ?? _controller,
+                    );
                   },
-                  icon: const Icon(Icons.flip_camera_ios_outlined),
-                  color: Colors.black38,
-                  iconSize: 40,
                 ),
-              ),
-            )
-        ],
-      ));
-    }));
+                Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: 20, right: 15),
+                    child: IconButton(
+                      onPressed: () async {
+                        final navigatorState = Navigator.of(context);
+                        final file = await _controller.takePicture();
+                        if (widget.setAvatar != null) {
+                          widget.pop();
+                          navigatorState.pop();
+                          widget.setAvatar!(file.path);
+                        } else {
+                          openImage(file, pop);
+                        }
+                      },
+                      icon: const Icon(
+                        Icons.photo_camera,
+                        color: Colors.black45,
+                        size: 55,
+                      ),
+                    ),
+                  ),
+                ),
+                if (_cameras.isNotEmpty && _cameras.length > 1)
+                  Align(
+                    alignment: Alignment.bottomRight,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 10, right: 10),
+                      child: IconButton(
+                        onPressed: () async {
+                          _controller = CameraController(
+                            _controller.description == _cameras[1]
+                                ? _cameras[0]
+                                : _cameras[1],
+                            ResolutionPreset.max,
+                          );
+                          await _controller.initialize();
+                          _cameraController.add(_controller);
+                        },
+                        icon: const Icon(Icons.flip_camera_ios_outlined),
+                        color: Colors.black38,
+                        iconSize: 40,
+                      ),
+                    ),
+                  )
+              ],
+            ),
+          );
+        },
+      ),
+    );
   }
 
   void openImage(XFile file, void Function() pop) {
     var imagePath = file.path;
-    Navigator.push(context, MaterialPageRoute(builder: (c) {
-      return StatefulBuilder(builder: (con, set) {
-        return Scaffold(
-            appBar: AppBar(
-              actions: [
-                Row(
-                  children: [
-                    IconButton(
-                      onPressed: () async {
-                        Navigator.push(context, MaterialPageRoute(builder: (c) {
-                          return CropImage(imagePath, (path) {
-                            set(() {
-                              imagePath = path;
-                            });
-                          });
-                        }));
-                      },
-                      icon: const Icon(
-                        Icons.crop,
-                      ),
-                      iconSize: 30,
-                    ),
-                  ],
-                )
-              ],
-            ),
-            body: Stack(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: Image.file(
-                          File(
-                            imagePath,
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (c) {
+          return StatefulBuilder(
+            builder: (con, set) {
+              return Scaffold(
+                appBar: AppBar(
+                  actions: [
+                    Row(
+                      children: [
+                        IconButton(
+                          onPressed: () async {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (c) {
+                                  return CropImage(imagePath, (path) {
+                                    set(() {
+                                      imagePath = path;
+                                    });
+                                  });
+                                },
+                              ),
+                            );
+                          },
+                          icon: const Icon(
+                            Icons.crop,
                           ),
-                        ).image,
-                        fit: BoxFit.fill),
-                  ),
+                          iconSize: 30,
+                        ),
+                      ],
+                    )
+                  ],
                 ),
-                buildInputCaption(
-                    context: con,
-                    i18n: _i18n,
-                    count: 0,
-                    insertCaption: _insertCaption,
-                    captionEditingController: _captionEditingController,
-                    send: () {
-                      pop();
-                      Navigator.of(context).pop();
-                      _messageRepo.sendFileMessage(
+                body: Stack(
+                  children: [
+                    Container(
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: Image.file(
+                            File(
+                              imagePath,
+                            ),
+                          ).image,
+                          fit: BoxFit.fill,
+                        ),
+                      ),
+                    ),
+                    buildInputCaption(
+                      context: con,
+                      i18n: _i18n,
+                      count: 0,
+                      insertCaption: _insertCaption,
+                      captionEditingController: _captionEditingController,
+                      send: () {
+                        pop();
+                        Navigator.of(context).pop();
+                        _messageRepo.sendFileMessage(
                           widget.roomUid,
-                          model.File(imagePath, file.name,
-                              extension: file.mimeType),
-                          caption: _captionEditingController.text);
-                    })
-              ],
-            ));
-      });
-    }));
+                          model.File(
+                            imagePath,
+                            file.name,
+                            extension: file.mimeType,
+                          ),
+                          caption: _captionEditingController.text,
+                        );
+                      },
+                    )
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
   }
 }
 
-Stack buildInputCaption(
-    {required BehaviorSubject<bool> insertCaption,
-    required I18N i18n,
-    required TextEditingController captionEditingController,
-    required BuildContext context,
-    required void Function() send,
-    required int count}) {
+Stack buildInputCaption({
+  required BehaviorSubject<bool> insertCaption,
+  required I18N i18n,
+  required TextEditingController captionEditingController,
+  required BuildContext context,
+  required void Function() send,
+  required int count,
+}) {
   final theme = Theme.of(context);
   return Stack(
     children: [
@@ -390,31 +433,34 @@ Stack buildInputCaption(
                 shape: BoxShape.circle,
               ),
               child: StreamBuilder<bool>(
-                  stream: insertCaption.stream,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData &&
-                        snapshot.data != null &&
-                        !snapshot.data!) {
-                      return ClipOval(
-                        child: Material(
-                          color: theme.primaryColor, // button color
-                          child: InkWell(
-                              splashColor: Colors.red, // inkwell color
-                              child: const SizedBox(
-                                  width: 60,
-                                  height: 60,
-                                  child: Icon(
-                                    Icons.send,
-                                    size: 30,
-                                    color: Colors.white,
-                                  )),
-                              onTap: () => send()),
+                stream: insertCaption.stream,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData &&
+                      snapshot.data != null &&
+                      !snapshot.data!) {
+                    return ClipOval(
+                      child: Material(
+                        color: theme.primaryColor, // button color
+                        child: InkWell(
+                          splashColor: Colors.red, // inkwell color
+                          child: const SizedBox(
+                            width: 60,
+                            height: 60,
+                            child: Icon(
+                              Icons.send,
+                              size: 30,
+                              color: Colors.white,
+                            ),
+                          ),
+                          onTap: () => send(),
                         ),
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  }),
+                      ),
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
             ),
             if (count > 0)
               Positioned(

@@ -5,17 +5,20 @@ class FluidWidget extends StatelessWidget {
   final Widget child;
   final BoxDecoration boxDecoration;
 
-  const FluidWidget(
-      {Key? key, required this.child,
-      this.boxDecoration = const BoxDecoration(
-          gradient: LinearGradient(
+  const FluidWidget({
+    Key? key,
+    required this.child,
+    this.boxDecoration = const BoxDecoration(
+      gradient: LinearGradient(
         begin: Alignment.bottomLeft,
         end: Alignment.topRight,
         colors: [
           Color.fromARGB(255, 0, 105, 247),
           Color.fromARGB(255, 25, 172, 247)
         ],
-      ))}) : super(key: key);
+      ),
+    ),
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -30,14 +33,15 @@ class FluidWidget extends StatelessWidget {
                   ? mainBorder
                   : BorderRadius.zero,
               child: Container(
-                color:theme.backgroundColor,
+                color: theme.backgroundColor,
                 constraints: BoxConstraints(
-                    maxWidth: isLargeWidth(constraints.maxWidth)
-                        ? FLUID_MAX_WIDTH
-                        : double.infinity,
-                    maxHeight: isLargeWidth(constraints.maxWidth)
-                        ? FLUID_MAX_HEIGHT
-                        : double.infinity),
+                  maxWidth: isLargeWidth(constraints.maxWidth)
+                      ? FLUID_MAX_WIDTH
+                      : double.infinity,
+                  maxHeight: isLargeWidth(constraints.maxWidth)
+                      ? FLUID_MAX_HEIGHT
+                      : double.infinity,
+                ),
                 child: child,
               ),
             ),

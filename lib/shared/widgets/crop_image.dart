@@ -58,70 +58,78 @@ class _CropImageState extends State<CropImage> {
                   shape: CustomCropShape.Square,
                 ),
                 StreamBuilder<bool?>(
-                    stream: _startCrop.stream,
-                    builder: (c, s) {
-                      if (s.hasData && s.data != null && s.data!) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    })
+                  stream: _startCrop.stream,
+                  builder: (c, s) {
+                    if (s.hasData && s.data != null && s.data!) {
+                      return const Center(
+                        child: CircularProgressIndicator(),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                )
               ],
             ),
           ),
           StreamBuilder<bool?>(
-              stream: _startCrop.stream,
-              builder: (c, s) {
-                if (s.hasData && s.data != null && !s.data!) {
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      IconButton(
-                          icon: const Icon(CupertinoIcons.refresh),
-                          onPressed: controller.reset),
-                      IconButton(
-                          icon: const Icon(CupertinoIcons.zoom_in),
-                          onPressed: () => controller
-                              .addTransition(CropImageData(scale: 1.33))),
-                      IconButton(
-                          icon: const Icon(CupertinoIcons.zoom_out),
-                          onPressed: () => controller
-                              .addTransition(CropImageData(scale: 0.75))),
-                      IconButton(
-                          icon: const Icon(CupertinoIcons.rotate_left),
-                          onPressed: () => controller
-                              .addTransition(CropImageData(angle: -pi / 4))),
-                      IconButton(
-                          icon: const Icon(CupertinoIcons.rotate_right),
-                          onPressed: () => controller
-                              .addTransition(CropImageData(angle: pi / 4))),
-                      IconButton(
-                        icon: const Icon(CupertinoIcons.crop),
-                        onPressed: () async {
-                          _startCrop.add(true);
-                          final image = await controller.onCropImage();
-                          if (image != null) {
-                            setState(() {
-                              memoryImage = image;
-                            });
-                            final outPutFile = await _fileServices.localFile(
-                                "_crop-${DateTime.now().millisecondsSinceEpoch}",
-                                widget.imagePath.split(".").last);
-                            outPutFile.writeAsBytesSync(image.bytes);
-                            widget.crop(outPutFile.path);
+            stream: _startCrop.stream,
+            builder: (c, s) {
+              if (s.hasData && s.data != null && !s.data!) {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    IconButton(
+                      icon: const Icon(CupertinoIcons.refresh),
+                      onPressed: controller.reset,
+                    ),
+                    IconButton(
+                      icon: const Icon(CupertinoIcons.zoom_in),
+                      onPressed: () =>
+                          controller.addTransition(CropImageData(scale: 1.33)),
+                    ),
+                    IconButton(
+                      icon: const Icon(CupertinoIcons.zoom_out),
+                      onPressed: () =>
+                          controller.addTransition(CropImageData(scale: 0.75)),
+                    ),
+                    IconButton(
+                      icon: const Icon(CupertinoIcons.rotate_left),
+                      onPressed: () => controller
+                          .addTransition(CropImageData(angle: -pi / 4)),
+                    ),
+                    IconButton(
+                      icon: const Icon(CupertinoIcons.rotate_right),
+                      onPressed: () => controller
+                          .addTransition(CropImageData(angle: pi / 4)),
+                    ),
+                    IconButton(
+                      icon: const Icon(CupertinoIcons.crop),
+                      onPressed: () async {
+                        _startCrop.add(true);
+                        final image = await controller.onCropImage();
+                        if (image != null) {
+                          setState(() {
+                            memoryImage = image;
+                          });
+                          final outPutFile = await _fileServices.localFile(
+                            "_crop-${DateTime.now().millisecondsSinceEpoch}",
+                            widget.imagePath.split(".").last,
+                          );
+                          outPutFile.writeAsBytesSync(image.bytes);
+                          widget.crop(outPutFile.path);
 
-                            if (!mounted) return;
-                            Navigator.pop(context);
-                          }
-                        },
-                      ),
-                    ],
-                  );
-                } else {
-                  return const SizedBox.shrink();
-                }
-              }),
+                          if (!mounted) return;
+                          Navigator.pop(context);
+                        }
+                      },
+                    ),
+                  ],
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
+          ),
           SizedBox(height: MediaQuery.of(context).padding.bottom),
         ],
       ),

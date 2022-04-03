@@ -7,16 +7,18 @@ class ReplyPreview extends StatelessWidget {
   final Message message;
   final void Function() resetRoomPageDetails;
 
-  const ReplyPreview(
-      {Key? key, required this.message, required this.resetRoomPageDetails})
-      : super(key: key);
+  const ReplyPreview({
+    Key? key,
+    required this.message,
+    required this.resetRoomPageDetails,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
       width: double.infinity,
-      color:theme.colorScheme.surface.withAlpha(200),
+      color: theme.colorScheme.surface.withAlpha(200),
       child: Padding(
         padding: const EdgeInsets.only(
           left: 15,
@@ -26,7 +28,7 @@ class ReplyPreview extends StatelessWidget {
           children: [
             Icon(
               CupertinoIcons.reply,
-              color:theme.primaryColor,
+              color: theme.primaryColor,
               size: 25,
             ),
             const SizedBox(width: 10),

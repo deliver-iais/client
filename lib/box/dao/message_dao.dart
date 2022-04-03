@@ -12,8 +12,11 @@ abstract class MessageDao {
 
   Future<Message?> getMessage(String roomUid, int id);
 
-  Future<List<Message?>>? getMessagePage(String roomUid, int page,
-      {int pageSize = 16});
+  Future<List<Message?>>? getMessagePage(
+    String roomUid,
+    int page, {
+    int pageSize = 16,
+  });
 
   // Pending Messages
   Future<List<PendingMessage>> getPendingMessages(String roomUid);
@@ -61,8 +64,11 @@ class MessageDaoImpl implements MessageDao {
   }
 
   @override
-  Future<List<Message?>>? getMessagePage(String roomUid, int page,
-      {int pageSize = 16}) async {
+  Future<List<Message?>>? getMessagePage(
+    String roomUid,
+    int page, {
+    int pageSize = 16,
+  }) async {
     final box = await _openMessages(roomUid);
 
     return Iterable<int>.generate(pageSize)
@@ -91,13 +97,18 @@ class MessageDaoImpl implements MessageDao {
 
     yield* box
         .watch()
-        .where((event) =>
-            event.deleted || (event.value as PendingMessage).roomUid == roomUid)
-        .map((event) => box.values
-            .where((element) => element.roomUid == roomUid)
-            .toList()
-            .reversed
-            .toList());
+        .where(
+          (event) =>
+              event.deleted ||
+              (event.value as PendingMessage).roomUid == roomUid,
+        )
+        .map(
+          (event) => box.values
+              .where((element) => element.roomUid == roomUid)
+              .toList()
+              .reversed
+              .toList(),
+        );
   }
 
   @override

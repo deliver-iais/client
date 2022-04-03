@@ -19,8 +19,10 @@ class I18N {
   I18N() {
     _loadLanguageResource(defaultLanguage);
     _sharedDao
-        .getStream(SHARED_DAO_LANGUAGE,
-            defaultValue: defaultLanguage.countryCode)
+        .getStream(
+          SHARED_DAO_LANGUAGE,
+          defaultValue: defaultLanguage.countryCode,
+        )
         .map((code) {
           if (code != null && code.contains(farsi.countryCode)) {
             return farsi;

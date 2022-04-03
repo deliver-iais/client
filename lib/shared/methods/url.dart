@@ -12,8 +12,12 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-String buildShareUserUrl(String countryCode, String nationalNumber,
-        String firstName, String lastName) =>
+String buildShareUserUrl(
+  String countryCode,
+  String nationalNumber,
+  String firstName,
+  String lastName,
+) =>
     "https://$APPLICATION_DOMAIN/ac?cc=$countryCode&nn=$nationalNumber&fn=$firstName&ln=$lastName";
 
 //https://deliver-co.ir/text?botId="bdff_bot" & text="/start"
@@ -32,10 +36,12 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
   if (segments.first == "text") {
     final botId = uri.queryParameters["botId"];
     if (botId != null) {
-      _routingService.openRoom((Uid.create()
-            ..node = botId
-            ..category = Categories.BOT)
-          .asString());
+      _routingService.openRoom(
+        (Uid.create()
+              ..node = botId
+              ..category = Categories.BOT)
+            .asString(),
+      );
     }
   } else if (segments.first == JOIN) {
     if (segments[1] == "GROUP") {
@@ -66,30 +72,39 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       MaterialButton(
-                          color: Colors.blueAccent,
-                          onPressed: () => Navigator.of(context).pop(),
-                          child: Text(_i18n.get("skip"))),
+                        color: Colors.blueAccent,
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(_i18n.get("skip")),
+                      ),
                       MaterialButton(
                         color: Colors.blueAccent,
                         onPressed: () async {
                           final navigatorState = Navigator.of(context);
                           if (roomUid!.category == Categories.GROUP) {
                             final muc = await _mucRepo.joinGroup(
-                                roomUid, segments[3].toString());
+                              roomUid,
+                              segments[3].toString(),
+                            );
                             if (muc != null) {
                               navigatorState.pop();
                               _messageRepo.updateNewMuc(
-                                  roomUid, muc.lastMessageId!);
+                                roomUid,
+                                muc.lastMessageId!,
+                              );
 
                               _routingService.openRoom(roomUid.asString());
                             }
                           } else {
                             final muc = await _mucRepo.joinChannel(
-                                roomUid, segments[3].toString());
+                              roomUid,
+                              segments[3].toString(),
+                            );
                             if (muc != null) {
                               navigatorState.pop();
                               _messageRepo.updateNewMuc(
-                                  roomUid, muc.lastMessageId!);
+                                roomUid,
+                                muc.lastMessageId!,
+                              );
                               _routingService.openRoom(roomUid.asString());
                             }
                           }

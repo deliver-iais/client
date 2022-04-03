@@ -43,29 +43,43 @@ class LiveLocationRepo {
   Future<void> _getLatUpdateLocation(String uuid) async {
     final locations = <pb.Location>[];
     final res = await _liveLocationClient.getLastUpdatedLiveLocation(
-        GetLastUpdatedLiveLocationReq()..uuid = uuid);
+      GetLastUpdatedLiveLocationReq()..uuid = uuid,
+    );
     for (final liveLocation in res.liveLocations) {
       locations.add(liveLocation.location);
     }
-    _liveLocationDao.saveLiveLocation(LiveLocation(
+    _liveLocationDao.saveLiveLocation(
+      LiveLocation(
         uuid: uuid,
         lastUpdate: DateTime.now().millisecondsSinceEpoch,
-        locations: locations));
+        locations: locations,
+      ),
+    );
   }
 
   Future<CreateLiveLocationRes> createLiveLocation(
-          Uid roomUid, int duration) async =>
-      await _liveLocationClient.createLiveLocation(CreateLiveLocationReq()
-        ..room = roomUid
-        ..duration = duration);
+    Uid roomUid,
+    int duration,
+  ) async =>
+      await _liveLocationClient.createLiveLocation(
+        CreateLiveLocationReq()
+          ..room = roomUid
+          ..duration = duration,
+      );
 
   void sendLiveLocationAsStream(
-      String uuid, int duration, pb.Location location) {
-    _liveLocationDao.saveLiveLocation(LiveLocation(
+    String uuid,
+    int duration,
+    pb.Location location,
+  ) {
+    _liveLocationDao.saveLiveLocation(
+      LiveLocation(
         duration: duration,
         uuid: uuid,
         locations: [location],
-        lastUpdate: DateTime.now().millisecondsSinceEpoch));
+        lastUpdate: DateTime.now().millisecondsSinceEpoch,
+      ),
+    );
     Geolocator.getPositionStream(timeLimit: Duration(seconds: duration))
         .listen((p) {
       final location =
@@ -77,13 +91,19 @@ class LiveLocationRepo {
   }
 
   Future<void> _updateLiveLocationInDb(
-      String uuid, int duration, pb.Location location) async {
+    String uuid,
+    int duration,
+    pb.Location location,
+  ) async {
     final liveL = await _liveLocationDao.getLiveLocation(uuid);
     final locations = liveL!.locations..add(location);
-    _liveLocationDao.saveLiveLocation(LiveLocation(
+    _liveLocationDao.saveLiveLocation(
+      LiveLocation(
         uuid: uuid,
         lastUpdate: DateTime.now().millisecondsSinceEpoch,
         locations: locations,
-        duration: duration));
+        duration: duration,
+      ),
+    );
   }
 }

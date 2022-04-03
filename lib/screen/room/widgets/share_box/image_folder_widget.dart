@@ -58,11 +58,12 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
         actions: [
           if (widget.setAvatar == null && _selectedImage.isNotEmpty)
             IconButton(
-                onPressed: () {
-                  _selectedImage.clear();
-                  setState(() {});
-                },
-                icon: const Icon(Icons.clear))
+              onPressed: () {
+                _selectedImage.clear();
+                setState(() {});
+              },
+              icon: const Icon(Icons.clear),
+            )
         ],
         title: widget.setAvatar == null
             ? Text(
@@ -79,88 +80,98 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
             controller: ScrollController(),
             itemCount: widget.storageFile.files.length,
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3),
+              crossAxisCount: 3,
+            ),
             itemBuilder: (c, index) {
               final String imagePath = widget.storageFile.files[index];
               return GestureDetector(
-                  onTap: () {
-                    if (widget.setAvatar != null) {
-                      widget.pop();
-                      Navigator.pop(context);
-                      widget.setAvatar!(imagePath);
-                    } else {
-                      openImage(imagePath, index);
-                    }
-                  },
-                  child: AnimatedPadding(
-                    duration: const Duration(milliseconds: 200),
-                    padding: EdgeInsets.all(
-                        _selectedImage.contains(imagePath) ? 8.0 : 4.0),
-                    child: Hero(
-                      tag: imagePath,
-                      child: Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            borderRadius: secondaryBorder,
-                            image: DecorationImage(
-                                image: Image.file(
-                                  File(imagePath),
-                                  cacheWidth: 150,
-                                  cacheHeight: 150,
-                                ).image,
-                                fit: BoxFit.cover),
-                          ),
-                          child: widget.setAvatar != null
-                              ? const SizedBox.shrink()
-                              : Align(
-                                  alignment: Alignment.bottomRight,
-                                  child: GestureDetector(
-                                      onTap: () => onTap(imagePath),
-                                      child: Container(
-                                        width: 28,
-                                        height: 28,
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(24),
-                                            color: Theme.of(context)
-                                                .hoverColor
-                                                .withOpacity(0.5)),
-                                        child: Center(
-                                          child: Icon(
-                                            _selectedImage.contains(imagePath)
-                                                ? Icons.check_circle_outline
-                                                : Icons.panorama_fish_eye,
-                                            color: Colors.white,
-                                            size: 28,
-                                          ),
-                                        ),
-                                      )),
-                                )),
+                onTap: () {
+                  if (widget.setAvatar != null) {
+                    widget.pop();
+                    Navigator.pop(context);
+                    widget.setAvatar!(imagePath);
+                  } else {
+                    openImage(imagePath, index);
+                  }
+                },
+                child: AnimatedPadding(
+                  duration: const Duration(milliseconds: 200),
+                  padding: EdgeInsets.all(
+                    _selectedImage.contains(imagePath) ? 8.0 : 4.0,
+                  ),
+                  child: Hero(
+                    tag: imagePath,
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        borderRadius: secondaryBorder,
+                        image: DecorationImage(
+                          image: Image.file(
+                            File(imagePath),
+                            cacheWidth: 150,
+                            cacheHeight: 150,
+                          ).image,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      child: widget.setAvatar != null
+                          ? const SizedBox.shrink()
+                          : Align(
+                              alignment: Alignment.bottomRight,
+                              child: GestureDetector(
+                                onTap: () => onTap(imagePath),
+                                child: Container(
+                                  width: 28,
+                                  height: 28,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(24),
+                                    color: Theme.of(context)
+                                        .hoverColor
+                                        .withOpacity(0.5),
+                                  ),
+                                  child: Center(
+                                    child: Icon(
+                                      _selectedImage.contains(imagePath)
+                                          ? Icons.check_circle_outline
+                                          : Icons.panorama_fish_eye,
+                                      color: Colors.white,
+                                      size: 28,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
                     ),
-                  ));
+                  ),
+                ),
+              );
             },
           ),
           if (_selectedImage.isNotEmpty)
             buildInputCaption(
-                i18n: _i18n,
-                insertCaption: _insertCaption,
-                context: context,
-                captionEditingController: _textEditingController,
-                count: _selectedImage.length,
-                send: () {
-                  widget.pop();
-                  _send();
-                })
+              i18n: _i18n,
+              insertCaption: _insertCaption,
+              context: context,
+              captionEditingController: _textEditingController,
+              count: _selectedImage.length,
+              send: () {
+                widget.pop();
+                _send();
+              },
+            )
         ],
       ),
     );
   }
 
   void _send() {
-    _messageRepo.sendMultipleFilesMessages(widget.roomUid,
-        _selectedImage.map((e) => model.File(e, e.split(".").last)).toList(),
-        replyToId: widget.replyMessageId, caption: _textEditingController.text);
+    _messageRepo.sendMultipleFilesMessages(
+      widget.roomUid,
+      _selectedImage.map((e) => model.File(e, e.split(".").last)).toList(),
+      replyToId: widget.replyMessageId,
+      caption: _textEditingController.text,
+    );
     widget.resetRoomPageDetails?.call();
   }
 
@@ -178,80 +189,95 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
   }
 
   void openImage(String imagePath, int index) {
-    Navigator.push(context, MaterialPageRoute(builder: (c) {
-      return StatefulBuilder(builder: (c, set) {
-        return Scaffold(
-            appBar: AppBar(
-              actions: [
-                Row(
-                  children: [
-                    if (_selectedImage.isNotEmpty)
-                      Text(
-                        _selectedImage.length.toString(),
-                        style: const TextStyle(fontSize: 25),
-                      ),
-                    IconButton(
-                      onPressed: () async {
-                        Navigator.push(context, MaterialPageRoute(builder: (c) {
-                          return CropImage(imagePath, (path) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (c) {
+          return StatefulBuilder(
+            builder: (c, set) {
+              return Scaffold(
+                appBar: AppBar(
+                  actions: [
+                    Row(
+                      children: [
+                        if (_selectedImage.isNotEmpty)
+                          Text(
+                            _selectedImage.length.toString(),
+                            style: const TextStyle(fontSize: 25),
+                          ),
+                        IconButton(
+                          onPressed: () async {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (c) {
+                                  return CropImage(imagePath, (path) {
+                                    set(() {
+                                      imagePath = path;
+                                    });
+                                  });
+                                },
+                              ),
+                            );
+                          },
+                          icon: const Icon(
+                            Icons.crop,
+                          ),
+                          iconSize: 35,
+                        ),
+                        IconButton(
+                          onPressed: () {
                             set(() {
-                              imagePath = path;
+                              onTap(imagePath);
                             });
-                          });
-                        }));
-                      },
-                      icon: const Icon(
-                        Icons.crop,
-                      ),
-                      iconSize: 35,
-                    ),
-                    IconButton(
-                      onPressed: () {
-                        set(() {
-                          onTap(imagePath);
-                        });
-                      },
-                      icon: _selectedImage.contains(imagePath)
-                          ? const Icon(Icons.check_circle_outline)
-                          : const Icon(Icons.panorama_fish_eye),
-                      iconSize: 35,
+                          },
+                          icon: _selectedImage.contains(imagePath)
+                              ? const Icon(Icons.check_circle_outline)
+                              : const Icon(Icons.panorama_fish_eye),
+                          iconSize: 35,
+                        )
+                      ],
                     )
                   ],
-                )
-              ],
-            ),
-            body: Stack(
-              children: [
-                Hero(
-                  tag: imagePath,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: Image.file(
-                            File(
-                              imagePath,
-                            ),
-                          ).image,
-                          fit: BoxFit.fill),
-                    ),
-                  ),
                 ),
-                if (_selectedImage.isNotEmpty &&
-                    _selectedImage.contains(imagePath))
-                  buildInputCaption(
-                      i18n: _i18n,
-                      insertCaption: _insertCaption,
-                      context: context,
-                      captionEditingController: _textEditingController,
-                      count: _selectedImage.length,
-                      send: () {
-                        widget.pop();
-                        Navigator.pop(context);
-                        _send();
-                      })
-              ],
-            ));
-      });
-    }));
+                body: Stack(
+                  children: [
+                    Hero(
+                      tag: imagePath,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          image: DecorationImage(
+                            image: Image.file(
+                              File(
+                                imagePath,
+                              ),
+                            ).image,
+                            fit: BoxFit.fill,
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (_selectedImage.isNotEmpty &&
+                        _selectedImage.contains(imagePath))
+                      buildInputCaption(
+                        i18n: _i18n,
+                        insertCaption: _insertCaption,
+                        context: context,
+                        captionEditingController: _textEditingController,
+                        count: _selectedImage.length,
+                        send: () {
+                          widget.pop();
+                          Navigator.pop(context);
+                          _send();
+                        },
+                      )
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      ),
+    );
   }
 }

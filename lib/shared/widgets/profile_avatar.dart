@@ -23,9 +23,11 @@ class ProfileAvatar extends StatefulWidget {
   final Uid roomUid;
   final bool canSetAvatar;
 
-  const ProfileAvatar(
-      {Key? key, required this.roomUid, this.canSetAvatar = false})
-      : super(key: key);
+  const ProfileAvatar({
+    Key? key,
+    required this.roomUid,
+    this.canSetAvatar = false,
+  }) : super(key: key);
 
   @override
   _ProfileAvatarState createState() => _ProfileAvatarState();
@@ -53,11 +55,12 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                   : Image.file(File(s.data!)).image,
               child: const Center(
                 child: SizedBox(
-                    height: 20.0,
-                    width: 20.0,
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation(Colors.blue),
-                    )),
+                  height: 20.0,
+                  width: 20.0,
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation(Colors.blue),
+                  ),
+                ),
               ),
             );
           } else {
@@ -78,9 +81,10 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                         if (lastAvatar?.createdOn != null &&
                             lastAvatar!.createdOn > 0) {
                           _routingService.openShowAllAvatars(
-                              uid: widget.roomUid,
-                              hasPermissionToDeleteAvatar: widget.canSetAvatar,
-                              heroTag: widget.roomUid.asString());
+                            uid: widget.roomUid,
+                            hasPermissionToDeleteAvatar: widget.canSetAvatar,
+                            heroTag: widget.roomUid.asString(),
+                          );
                         }
                       },
                     ),
@@ -91,8 +95,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                   Align(
                     // alignment: Alignment.bottomRight,
                     child: TextButton(
-                        onPressed: () => selectAvatar(),
-                        child: Text(_i18n.get("select_an_image"))),
+                      onPressed: () => selectAvatar(),
+                      child: Text(_i18n.get("select_an_image")),
+                    ),
                   )
               ],
             );
@@ -109,7 +114,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
         _fileRepo.uploadFileStatusCode[widget.roomUid.node]?.value;
     if (statusCode != 200) {
       ToastDisplay.showToast(
-          toastContext: context, toastText: _i18n.get("error_in_uploading"));
+        toastContext: context,
+        toastText: _i18n.get("error_in_uploading"),
+      );
     }
     _newAvatarPath.add("");
   }
@@ -130,50 +137,62 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           type: FileType.image,
         );
         if (result!.files.isNotEmpty) {
-          _setAvatar(isWeb
-              ? Uri.dataFromBytes(result.files.first.bytes!.toList()).toString()
-              : result.files.first.path!);
+          _setAvatar(
+            isWeb
+                ? Uri.dataFromBytes(result.files.first.bytes!.toList())
+                    .toString()
+                : result.files.first.path!,
+          );
         }
       }
     } else {
       showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          isDismissible: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) {
-            return DraggableScrollableSheet(
-              initialChildSize: 0.3,
-              minChildSize: 0.2,
-              expand: false,
-              builder: (context, scrollController) {
-                return Container(
-                    color: Colors.white,
-                    child: Stack(children: <Widget>[
-                      Container(
-                        padding: const EdgeInsets.all(0),
-                        child: ShareBoxGallery(
-                          scrollController: scrollController,
-                          pop: () => Navigator.pop(context),
-                          setAvatar: (imagePath) async {
-                            cropAvatar(imagePath);
-                          },
-                          roomUid: widget.roomUid,
-                        ),
+        context: context,
+        isScrollControlled: true,
+        isDismissible: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) {
+          return DraggableScrollableSheet(
+            initialChildSize: 0.3,
+            minChildSize: 0.2,
+            expand: false,
+            builder: (context, scrollController) {
+              return Container(
+                color: Colors.white,
+                child: Stack(
+                  children: <Widget>[
+                    Container(
+                      padding: const EdgeInsets.all(0),
+                      child: ShareBoxGallery(
+                        scrollController: scrollController,
+                        pop: () => Navigator.pop(context),
+                        setAvatar: (imagePath) async {
+                          cropAvatar(imagePath);
+                        },
+                        roomUid: widget.roomUid,
                       ),
-                    ]));
-              },
-            );
-          });
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      );
     }
   }
 
   Future<void> cropAvatar(String imagePath) async {
-    Navigator.push(context, MaterialPageRoute(builder: (c) {
-      return CropImage(imagePath, (path) {
-        imagePath = path;
-        _setAvatar(imagePath);
-      });
-    }));
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (c) {
+          return CropImage(imagePath, (path) {
+            imagePath = path;
+            _setAvatar(imagePath);
+          });
+        },
+      ),
+    );
   }
 }

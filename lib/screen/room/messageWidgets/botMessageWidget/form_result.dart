@@ -13,13 +13,13 @@ class FormResultWidget extends StatefulWidget {
   final bool isSender;
   final CustomColorScheme colorScheme;
 
-  const FormResultWidget(
-      {Key? key,
-      required this.message,
-      required this.isSeen,
-      required this.colorScheme,
-      required this.isSender})
-      : super(key: key);
+  const FormResultWidget({
+    Key? key,
+    required this.message,
+    required this.isSeen,
+    required this.colorScheme,
+    required this.isSender,
+  }) : super(key: key);
 
   @override
   _FormResultWidgetState createState() => _FormResultWidgetState();
@@ -53,14 +53,18 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                           readOnly: true,
                           style: const TextStyle(fontSize: 16),
                           controller: TextEditingController(
-                              text: formResult.values[key]),
+                            text: formResult.values[key],
+                          ),
                           decoration: InputDecoration(
-                              border: const OutlineInputBorder(
-                                  borderRadius: secondaryBorder),
-                              labelText: key,
-                              labelStyle: TextStyle(
-                                  color: widget.colorScheme.primary,
-                                  fontSize: 16)),
+                            border: const OutlineInputBorder(
+                              borderRadius: secondaryBorder,
+                            ),
+                            labelText: key,
+                            labelStyle: TextStyle(
+                              color: widget.colorScheme.primary,
+                              fontSize: 16,
+                            ),
+                          ),
                         ),
                       )
                 ],
@@ -70,12 +74,14 @@ class _FormResultWidgetState extends State<FormResultWidget> {
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(_i18n.get("submitted_on"),
-                    style: TextStyle(
-                      fontSize: 11,
-                      height: 1.6,
-                      color: widget.colorScheme.onPrimaryContainerLowlight(),
-                    )),
+                Text(
+                  _i18n.get("submitted_on"),
+                  style: TextStyle(
+                    fontSize: 11,
+                    height: 1.6,
+                    color: widget.colorScheme.onPrimaryContainerLowlight(),
+                  ),
+                ),
                 TimeAndSeenStatus(
                   widget.message,
                   isSender: widget.isSender,

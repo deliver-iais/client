@@ -14,14 +14,14 @@ class CallListWidget extends StatelessWidget {
   final Uid caller;
   final String monthName;
 
-  CallListWidget(
-      {Key? key,
-      required this.time,
-      required this.isIncomingCall,
-      required this.caller,
-      required this.monthName,
-      required this.callEvent})
-      : super(key: key);
+  CallListWidget({
+    Key? key,
+    required this.time,
+    required this.isIncomingCall,
+    required this.caller,
+    required this.monthName,
+    required this.callEvent,
+  }) : super(key: key);
   final _roomRepo = GetIt.I.get<RoomRepo>();
 
   @override
@@ -41,19 +41,20 @@ class CallListWidget extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 FutureBuilder<String>(
-                    future: _roomRepo.getName(caller),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData && snapshot.data != null) {
-                        return Text(
-                          snapshot.data!,
-                          overflow: TextOverflow.fade,
-                          maxLines: 1,
-                          softWrap: false,
-                          style: Theme.of(context).textTheme.subtitle1,
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    }),
+                  future: _roomRepo.getName(caller),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData && snapshot.data != null) {
+                      return Text(
+                        snapshot.data!,
+                        overflow: TextOverflow.fade,
+                        maxLines: 1,
+                        softWrap: false,
+                        style: Theme.of(context).textTheme.subtitle1,
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
                 Row(
                   children: [
                     Icon(

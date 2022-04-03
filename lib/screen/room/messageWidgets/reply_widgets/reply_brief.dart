@@ -34,31 +34,32 @@ class ReplyBrief extends StatelessWidget {
         borderRadius: secondaryBorder,
       ),
       child: FutureBuilder<Message?>(
-          future: _messageRepo.getMessage(roomId, replyToId),
-          builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data != null) {
-              return Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    CupertinoIcons.reply,
-                    size: 20,
-                    color: foregroundColor,
+        future: _messageRepo.getMessage(roomId, replyToId),
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot.data != null) {
+            return Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  CupertinoIcons.reply,
+                  size: 20,
+                  color: foregroundColor,
+                ),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: SenderAndContent(
+                    messages: [snapshot.data!],
+                    expandContent: false,
+                    highlightColor: foregroundColor,
                   ),
-                  const SizedBox(width: 4),
-                  Flexible(
-                    child: SenderAndContent(
-                      messages: [snapshot.data!],
-                      expandContent: false,
-                      highlightColor: foregroundColor,
-                    ),
-                  ),
-                ],
-              );
-            } else {
-              return const SizedBox.shrink();
-            }
-          }),
+                ),
+              ],
+            );
+          } else {
+            return const SizedBox.shrink();
+          }
+        },
+      ),
     );
   }
 }

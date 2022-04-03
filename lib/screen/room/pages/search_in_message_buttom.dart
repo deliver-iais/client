@@ -17,16 +17,16 @@ class SearchInMessageButton extends StatefulWidget {
   final List<Message> searchResult;
   final Message currentSearchResultMessage;
 
-  const SearchInMessageButton(
-      {Key? key,
-      required this.roomId,
-      required this.scrollDown,
-      required this.scrollUp,
-      required this.searchMode,
-      required this.searchResult,
-      required this.currentSearchResultMessage,
-      required this.keyboardWidget})
-      : super(key: key);
+  const SearchInMessageButton({
+    Key? key,
+    required this.roomId,
+    required this.scrollDown,
+    required this.scrollUp,
+    required this.searchMode,
+    required this.searchResult,
+    required this.currentSearchResultMessage,
+    required this.keyboardWidget,
+  }) : super(key: key);
 }
 
 var _i18n = GetIt.I.get<I18N>();
@@ -41,10 +41,12 @@ class _SearchInMessageButtonState extends State<SearchInMessageButton> {
           return Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              Text((widget.searchResult.length -
-                      widget.searchResult
-                          .indexOf(widget.currentSearchResultMessage))
-                  .toString()),
+              Text(
+                (widget.searchResult.length -
+                        widget.searchResult
+                            .indexOf(widget.currentSearchResultMessage))
+                    .toString(),
+              ),
               const SizedBox(
                 width: 5,
               ),
@@ -63,10 +65,11 @@ class _SearchInMessageButtonState extends State<SearchInMessageButton> {
                 },
               ),
               IconButton(
-                  icon: const Icon(Icons.arrow_downward_rounded),
-                  onPressed: () {
-                    widget.scrollDown();
-                  })
+                icon: const Icon(Icons.arrow_downward_rounded),
+                onPressed: () {
+                  widget.scrollDown();
+                },
+              )
             ],
           );
         } else {

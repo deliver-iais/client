@@ -20,9 +20,11 @@ class ContactDaoImpl implements ContactDao {
     final box = await _open();
 
     try {
-      box.values.firstWhere((element) =>
-          element.countryCode == countryCode &&
-          element.nationalNumber == nationalNumber);
+      box.values.firstWhere(
+        (element) =>
+            element.countryCode == countryCode &&
+            element.nationalNumber == nationalNumber,
+      );
     } catch (e) {
       return null;
     }

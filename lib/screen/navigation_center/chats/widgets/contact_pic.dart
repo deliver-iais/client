@@ -21,37 +21,41 @@ class ContactPic extends StatelessWidget {
     final theme = Theme.of(context);
     return Stack(
       children: <Widget>[
-        CircleAvatarWidget(userUid, 24,
-            isHeroEnabled: false, showSavedMessageLogoIfNeeded: true),
+        CircleAvatarWidget(
+          userUid,
+          24,
+          isHeroEnabled: false,
+          showSavedMessageLogoIfNeeded: true,
+        ),
         if (userUid.category == Categories.USER &&
             !_authRepo.isCurrentUser(userUid.asString()))
           StreamBuilder<LastActivity?>(
-              stream: _lastActivityRepo.watch(userUid.asString()),
-              builder: (c, la) {
-                if (la.hasData && la.data != null) {
-                  return isOnline(la.data!.time)
-                      ? Positioned(
-                          child: Container(
-                            width: 12.0,
-                            height: 12.0,
-                            decoration: BoxDecoration(
-                              color: Colors.greenAccent.shade700,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color:
-                                   theme.scaffoldBackgroundColor,
-                                width: 2,
-                              ),
+            stream: _lastActivityRepo.watch(userUid.asString()),
+            builder: (c, la) {
+              if (la.hasData && la.data != null) {
+                return isOnline(la.data!.time)
+                    ? Positioned(
+                        child: Container(
+                          width: 12.0,
+                          height: 12.0,
+                          decoration: BoxDecoration(
+                            color: Colors.greenAccent.shade700,
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: theme.scaffoldBackgroundColor,
+                              width: 2,
                             ),
                           ),
-                          top: 32.0,
-                          right: 0.0,
-                        )
-                      : const SizedBox.shrink();
-                } else {
-                  return const SizedBox.shrink();
-                }
-              }),
+                        ),
+                        top: 32.0,
+                        right: 0.0,
+                      )
+                    : const SizedBox.shrink();
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
+          ),
       ],
     );
   }

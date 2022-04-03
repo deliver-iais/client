@@ -1,4 +1,3 @@
-
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -12,11 +11,12 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
   Uid roomUid;
   final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
 
-  CustomTextSelectionController(
-      {required this.captionController,
-      required this.buildContext,
-      required this.textController,
-      required this.roomUid});
+  CustomTextSelectionController({
+    required this.captionController,
+    required this.buildContext,
+    required this.textController,
+    required this.roomUid,
+  });
 
   @override
   Widget buildToolbar(
@@ -41,7 +41,11 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
       handlePaste: canPaste(delegate)
           ? () async {
               handlePaste(delegate);
-             _rawKeyboardService.controlVHandle(textController, buildContext, roomUid);
+              _rawKeyboardService.controlVHandle(
+                textController,
+                buildContext,
+                roomUid,
+              );
             }
           : null,
       handleSelectAll:
@@ -169,8 +173,7 @@ class _CupertinoTextSelectionControlsToolbarState
     );
 
     final items = <Widget>[];
-    final localizations =
-        CupertinoLocalizations.of(context);
+    final localizations = CupertinoLocalizations.of(context);
     final Widget onePhysicalPixelVerticalDivider =
         SizedBox(width: 1.0 / MediaQuery.of(context).devicePixelRatio);
 
@@ -182,10 +185,12 @@ class _CupertinoTextSelectionControlsToolbarState
         items.add(onePhysicalPixelVerticalDivider);
       }
 
-      items.add(CupertinoTextSelectionToolbarButton.text(
-        onPressed: onPressed,
-        text: text,
-      ));
+      items.add(
+        CupertinoTextSelectionToolbarButton.text(
+          onPressed: onPressed,
+          text: text,
+        ),
+      );
     }
 
     if (widget.handleCut != null) {
@@ -199,7 +204,9 @@ class _CupertinoTextSelectionControlsToolbarState
     }
     if (widget.handleSelectAll != null) {
       addToolbarButton(
-          localizations.selectAllButtonLabel, widget.handleSelectAll!);
+        localizations.selectAllButtonLabel,
+        widget.handleSelectAll!,
+      );
     }
 
     // If there is no option available, build an empty widget.
