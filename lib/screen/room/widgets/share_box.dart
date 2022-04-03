@@ -99,7 +99,7 @@ class _ShareBoxState extends State<ShareBox> {
             minChildSize: initialSize.data!,
             builder: (co, scrollController) {
               return Container(
-                color:theme.backgroundColor,
+                color: theme.backgroundColor,
                 child: Stack(
                   children: <Widget>[
                     Container(
@@ -222,7 +222,7 @@ class _ShareBoxState extends State<ShareBox> {
                           Container(
                             padding:
                                 const EdgeInsetsDirectional.only(bottom: 10),
-                            color:theme.backgroundColor,
+                            color: theme.backgroundColor,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               crossAxisAlignment: CrossAxisAlignment.end,

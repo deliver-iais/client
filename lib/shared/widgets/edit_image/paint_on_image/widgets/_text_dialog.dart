@@ -15,20 +15,25 @@ class TextDialog extends StatelessWidget {
   final Color color;
   final BuildContext context;
 
-  static void show(BuildContext context, TextEditingController controller,
-      double fontSize, Color color,
-      {required VoidCallback onFinished}) {
+  static void show(
+    BuildContext context,
+    TextEditingController controller,
+    double fontSize,
+    Color color, {
+    required VoidCallback onFinished,
+  }) {
     showDialog(
-        context: context,
-        builder: (context) {
-          return TextDialog(
-            context: context,
-            controller: controller,
-            fontSize: fontSize,
-            onFinished: onFinished,
-            color: color,
-          );
-        });
+      context: context,
+      builder: (context) {
+        return TextDialog(
+          context: context,
+          controller: controller,
+          fontSize: fontSize,
+          onFinished: onFinished,
+          color: color,
+        );
+      },
+    );
   }
 
   @override
@@ -42,7 +47,10 @@ class TextDialog extends StatelessWidget {
             controller: controller,
             autofocus: true,
             style: TextStyle(
-                fontSize: fontSize, fontWeight: FontWeight.bold, color: color),
+              fontSize: fontSize,
+              fontWeight: FontWeight.bold,
+              color: color,
+            ),
             textAlign: TextAlign.center,
             decoration: const InputDecoration(
               contentPadding: EdgeInsets.symmetric(horizontal: 10),
@@ -52,17 +60,18 @@ class TextDialog extends StatelessWidget {
           Align(
             alignment: Alignment.bottomRight,
             child: TextButton(
-                child: const Text(
-                  "done",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
+              child: const Text(
+                "done",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
                 ),
-                onPressed: () {
-                  onFinished();
-                  Navigator.pop(context);
-                }),
+              ),
+              onPressed: () {
+                onFinished();
+                Navigator.pop(context);
+              },
+            ),
           ),
         ],
       ),

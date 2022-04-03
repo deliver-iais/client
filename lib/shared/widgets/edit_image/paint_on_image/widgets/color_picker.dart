@@ -10,9 +10,16 @@ class _SliderIndicatorPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     canvas.drawCircle(
-        Offset(position, size.height / 2), 12, Paint()..color = Colors.white);
-    canvas.drawCircle(Offset(position, size.height / 2), 3,
-        Paint()..color = controller.color);
+      Offset(position, size.height / 2),
+      12,
+      Paint()..color = Colors.white,
+    );
+    // ignore: cascade_invocations
+    canvas.drawCircle(
+      Offset(position, size.height / 2),
+      3,
+      Paint()..color = controller.color,
+    );
   }
 
   @override
@@ -26,9 +33,12 @@ class ColorPicker extends StatefulWidget {
   final ValueNotifier<Controller> valueController;
   final Controller controller;
 
-  const ColorPicker(this.width,
-      {Key? key, required this.controller, required this.valueController})
-      : super(key: key);
+  const ColorPicker(
+    this.width, {
+    Key? key,
+    required this.controller,
+    required this.valueController,
+  }) : super(key: key);
 
   @override
   _ColorPickerState createState() => _ColorPickerState();
@@ -50,14 +60,14 @@ class _ColorPickerState extends State<ColorPicker> {
     const Color.fromARGB(255, 255, 0, 127),
     const Color.fromARGB(255, 128, 128, 128),
   ];
-  double _colorSliderPosition = 160;
+  double _colorSliderPosition = 0;
   late Color _currentColor;
 
   @override
-  initState() {
-
+  void initState() {
     _currentColor = _calculateSelectedColor(
-        _colorSliderPosition);
+      _colorSliderPosition,
+    );
     super.initState(); //center the shader selector
   }
 
@@ -144,7 +154,9 @@ class _ColorPickerState extends State<ColorPicker> {
                 ),
                 child: CustomPaint(
                   painter: _SliderIndicatorPainter(
-                      _colorSliderPosition, widget.controller),
+                    _colorSliderPosition,
+                    widget.controller,
+                  ),
                 ),
               ),
             ),

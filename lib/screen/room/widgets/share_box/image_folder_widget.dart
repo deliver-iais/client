@@ -85,14 +85,17 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
             itemBuilder: (c, index) {
               String imagePath = widget.storageFile.files[index];
               return GestureDetector(
-                  onTap: () {
-                    if (widget.setAvatar != null) {
-                      widget.pop();
-                      Navigator.pop(context);
-                      widget.setAvatar!(imagePath);
-                    } else {
-                      Navigator.push(context, MaterialPageRoute(builder: (c) {
-                        return OpenImagePage(
+                onTap: () {
+                  if (widget.setAvatar != null) {
+                    widget.pop();
+                    Navigator.pop(context);
+                    widget.setAvatar!(imagePath);
+                  } else {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (c) {
+                          return OpenImagePage(
                             imagePath: imagePath,
                             onEditEnd: (path) {
                               imagePath = path;
@@ -102,55 +105,61 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                             selectedImage: _selectedImage,
                             send: _send,
                             pop: widget.pop,
-                            textEditingController: _textEditingController);
-                      }));
-                    }
-                  },
-                  child: AnimatedPadding(
-                    duration: const Duration(milliseconds: 200),
-                    padding: EdgeInsets.all(
-                        _selectedImage.contains(imagePath) ? 8.0 : 4.0),
-                    child: Hero(
-                      tag: imagePath,
-                      child: Container(
-                          width: 50,
-                          height: 50,
-                          decoration: BoxDecoration(
-                            borderRadius: secondaryBorder,
-                            image: DecorationImage(
-                                image: Image.file(
-                                  File(imagePath),
-                                  cacheWidth: 150,
-                                  cacheHeight: 150,
-                                ).image,
-                                fit: BoxFit.cover),
-                          ),
-                          child: widget.setAvatar != null
-                              ? const SizedBox.shrink()
-                              : Align(
-                                  alignment: Alignment.bottomRight,
-                                  child: GestureDetector(
-                                      onTap: () => onTap(imagePath),
-                                      child: Container(
-                                        width: 28,
-                                        height: 28,
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(24),
-                                            color: Theme.of(context)
-                                                .hoverColor
-                                                .withOpacity(0.5)),
-                                        child: Center(
-                                          child: Icon(
-                                            _selectedImage.contains(imagePath)
-                                                ? Icons.check_circle_outline
-                                                : Icons.panorama_fish_eye,
-                                            color: Colors.white,
-                                            size: 28,
-                                          ),
-                                        ),
-                                      )),
-                                )),
+                            textEditingController: _textEditingController,
+                          );
+                        },
+                      ),
+                    );
+                  }
+                },
+                child: AnimatedPadding(
+                  duration: const Duration(milliseconds: 200),
+                  padding: EdgeInsets.all(
+                    _selectedImage.contains(imagePath) ? 8.0 : 4.0,
+                  ),
+                  child: Hero(
+                    tag: imagePath,
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        borderRadius: secondaryBorder,
+                        image: DecorationImage(
+                          image: Image.file(
+                            File(imagePath),
+                            cacheWidth: 150,
+                            cacheHeight: 150,
+                          ).image,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      child: widget.setAvatar != null
+                          ? const SizedBox.shrink()
+                          : Align(
+                              alignment: Alignment.bottomRight,
+                              child: GestureDetector(
+                                onTap: () => onTap(imagePath),
+                                child: Container(
+                                  width: 28,
+                                  height: 28,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(24),
+                                    color: Theme.of(context)
+                                        .hoverColor
+                                        .withOpacity(0.5),
+                                  ),
+                                  child: Center(
+                                    child: Icon(
+                                      _selectedImage.contains(imagePath)
+                                          ? Icons.check_circle_outline
+                                          : Icons.panorama_fish_eye,
+                                      color: Colors.white,
+                                      size: 28,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
                     ),
                   ),
                 ),

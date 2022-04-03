@@ -166,7 +166,8 @@ class UxService {
 
   void toggleThemeToDarkMode() {
     SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(systemNavigationBarColor: Colors.black));
+      const SystemUiOverlayStyle(systemNavigationBarColor: Colors.black),
+    );
     _sharedDao.put(SHARED_DAO_THEME, DarkThemeName);
     _themeIsDark.add(true);
   }

@@ -24,14 +24,17 @@ class _PaintOnImagePageState extends State<PaintOnImagePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Paint on Image"), actions: [
-        IconButton(
-          icon: const Icon(Icons.done_rounded),
-          onPressed: () async {
-            await saveImage(context);
-          },
-        )
-      ]),
+      appBar: AppBar(
+        title: const Text("Paint on Image"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.done_rounded),
+            onPressed: () async {
+              await saveImage(context);
+            },
+          )
+        ],
+      ),
       body: ImagePainter.file(
         widget.file,
         key: _imageKey,
@@ -48,10 +51,12 @@ class _PaintOnImagePageState extends State<PaintOnImagePage> {
   Future<void> saveImage(BuildContext context) async {
     final image = await _imageKey.currentState!.exportImage();
     final outPutFile = await _fileServices.localFile(
-        "_draw-${DateTime.now().millisecondsSinceEpoch}",
-        widget.file.path.split(".").last);
+      "_draw-${DateTime.now().millisecondsSinceEpoch}",
+      widget.file.path.split(".").last,
+    );
     outPutFile.writeAsBytesSync(image!);
     widget.onDone(outPutFile.path);
+    // ignore: use_build_context_synchronously
     Navigator.pop(context);
   }
 }

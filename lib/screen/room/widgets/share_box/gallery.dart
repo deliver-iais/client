@@ -226,11 +226,12 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                 StreamBuilder<CameraController>(
                   stream: _cameraController.stream,
                   builder: (context, snapshot) {
-                    return  SizedBox(
-                        height: MediaQuery.of(context).size.height,
-                    child:CameraPreview(
-                      snapshot.data ?? _controller,
-                    ));
+                    return SizedBox(
+                      height: MediaQuery.of(context).size.height,
+                      child: CameraPreview(
+                        snapshot.data ?? _controller,
+                      ),
+                    );
                   },
                 ),
                 Align(
@@ -273,7 +274,9 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                           await _controller.initialize();
                           _cameraController.add(_controller);
                         },
-                        icon: const Icon(   CupertinoIcons.switch_camera,),
+                        icon: const Icon(
+                          CupertinoIcons.switch_camera,
+                        ),
                         color: Colors.white70,
                         iconSize: 40,
                       ),
@@ -289,24 +292,159 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
 
   void openImage(XFile file, void Function() pop) {
     var imagePath = file.path;
-    Navigator.push(context, MaterialPageRoute(builder: (c) {
-      return OpenImagePage(
-          forceToShowCaptionTextField: true,
-          pop: pop,
-          send: () {
-            _messageRepo.sendFileMessage(widget.roomUid,
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (c) {
+          return OpenImagePage(
+            forceToShowCaptionTextField: true,
+            pop: pop,
+            send: () {
+              _messageRepo.sendFileMessage(
+                widget.roomUid,
                 model.File(imagePath, file.name, extension: file.mimeType),
-                caption: _captionEditingController.text);
-          },
-          insertCaption: _insertCaption,
-          textEditingController: _captionEditingController,
-          onEditEnd: (path) {
-            imagePath = path;
-            Navigator.pop(context);
-          },
-          imagePath: imagePath);
-    }));
+                caption: _captionEditingController.text,
+              );
+            },
+            insertCaption: _insertCaption,
+            textEditingController: _captionEditingController,
+            onEditEnd: (path) {
+              imagePath = path;
+              Navigator.pop(context);
+            },
+            imagePath: imagePath,
+          );
+        },
+      ),
+    );
   }
 }
 
-
+Stack buildInputCaption({
+  required BehaviorSubject<bool> insertCaption,
+  required I18N i18n,
+  required TextEditingController captionEditingController,
+  required BuildContext context,
+  required void Function() send,
+  required int count,
+}) {
+  final theme = Theme.of(context);
+  return Stack(
+    children: [
+      Align(
+        alignment: Alignment.bottomLeft,
+        child: Container(
+          height: 50,
+          color: theme.backgroundColor,
+          child: TextField(
+            decoration: InputDecoration(
+              hintText: i18n.get("caption"),
+              border: InputBorder.none,
+              hintStyle: const TextStyle(fontSize: 16),
+              suffixIcon: StreamBuilder<bool>(
+                stream: insertCaption.stream,
+                builder: (c, s) {
+                  if (s.hasData && s.data!) {
+                    return IconButton(
+                      onPressed: () => send(),
+                      icon: const Icon(
+                        Icons.check_circle_outline,
+                        size: 35,
+                      ),
+                      color: Colors.lightBlue,
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+            ),
+            style: const TextStyle(fontSize: 17),
+            textInputAction: TextInputAction.newline,
+            minLines: 1,
+            maxLines: 15,
+            controller: captionEditingController,
+          ),
+        ),
+      ),
+      Positioned(
+        right: 15,
+        bottom: 20,
+        child: Stack(
+          alignment: Alignment.bottomRight,
+          children: <Widget>[
+            Container(
+              decoration: const BoxDecoration(
+                //boxShadow: [BoxShadow(blurRadius: 20.0)],
+                shape: BoxShape.circle,
+              ),
+              child: StreamBuilder<bool>(
+                stream: insertCaption.stream,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData &&
+                      snapshot.data != null &&
+                      !snapshot.data!) {
+                    return ClipOval(
+                      child: Material(
+                        color: theme.primaryColor, // button color
+                        child: InkWell(
+                          splashColor: theme.primaryColor, // inkwell color
+                          child: const SizedBox(
+                            width: 60,
+                            height: 60,
+                            child: Icon(
+                              Icons.send,
+                              size: 30,
+                              color: Colors.white,
+                            ),
+                          ),
+                          onTap: () => send(),
+                        ),
+                      ),
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
+            ),
+            if (count > 0)
+              Positioned(
+                child: Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: theme.backgroundColor, // border color
+                    shape: BoxShape.circle,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(2), // border width
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: theme.primaryColor, // inner circle color
+                      ),
+                      child: Center(
+                        child: Text(
+                          count.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ), // inner content
+                    ),
+                  ),
+                ),
+                top: 35.0,
+                right: 0.0,
+                left: 35,
+              ),
+          ],
+        ),
+      )
+    ],
+  );
+}

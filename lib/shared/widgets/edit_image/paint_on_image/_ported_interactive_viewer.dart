@@ -3,7 +3,9 @@ import 'dart:math' as math;
 import 'package:flutter/gestures.dart';
 import 'package:flutter/physics.dart';
 import 'package:flutter/widgets.dart' hide InteractiveViewer;
-import 'package:vector_math/vector_math_64.dart' show Quad, Vector3, Matrix4;
+
+// ignore: depend_on_referenced_packages
+import "package:vector_math/vector_math_64.dart" show Quad, Vector3, Matrix4;
 
 ///[InteractiveViewer] widget of flutter modified to fit package needs.
 @immutable
@@ -34,12 +36,14 @@ class ImagePainterTransformer extends StatefulWidget {
         assert(maxScale >= minScale),
         // boundaryMargin must be either fully infinite or fully finite, but not
         // a mix of both.
-        assert((boundaryMargin.horizontal.isInfinite &&
-                boundaryMargin.vertical.isInfinite) ||
-            (boundaryMargin.top.isFinite &&
-                boundaryMargin.right.isFinite &&
-                boundaryMargin.bottom.isFinite &&
-                boundaryMargin.left.isFinite)),
+        assert(
+          (boundaryMargin.horizontal.isInfinite &&
+                  boundaryMargin.vertical.isInfinite) ||
+              (boundaryMargin.top.isFinite &&
+                  boundaryMargin.right.isFinite &&
+                  boundaryMargin.bottom.isFinite &&
+                  boundaryMargin.left.isFinite),
+        ),
         super(key: key);
 
   /// If true, panning is only allowed in the direction of the horizontal axis
@@ -330,6 +334,7 @@ class ImagePainterTransformer extends StatefulWidget {
     // the point.
     final l1P = point - l1;
     final l1L2 = l2 - l1;
+    // ignore: noop_primitive_operations
     final fraction = (l1P.dot(l1L2) / lengthSquared).clamp(0.0, 1.0).toDouble();
     return l1 + l1L2 * fraction;
   }
@@ -415,13 +420,25 @@ class ImagePainterTransformer extends StatefulWidget {
     // Otherwise, return the nearest point on the quad.
     final closestPoints = <Vector3>[
       ImagePainterTransformer.getNearestPointOnLine(
-          point, quad.point0, quad.point1),
+        point,
+        quad.point0,
+        quad.point1,
+      ),
       ImagePainterTransformer.getNearestPointOnLine(
-          point, quad.point1, quad.point2),
+        point,
+        quad.point1,
+        quad.point2,
+      ),
       ImagePainterTransformer.getNearestPointOnLine(
-          point, quad.point2, quad.point3),
+        point,
+        quad.point2,
+        quad.point3,
+      ),
       ImagePainterTransformer.getNearestPointOnLine(
-          point, quad.point3, quad.point0),
+        point,
+        quad.point3,
+        quad.point0,
+      ),
     ];
     var minDistance = double.infinity;
     Vector3? closestOverall;
@@ -474,6 +491,7 @@ class _ImagePainterTransformerState extends State<ImagePainterTransformer>
     assert(!widget.boundaryMargin.bottom.isNaN);
 
     final childRenderBox =
+        // ignore: cast_nullable_to_non_nullable
         _childKey.currentContext!.findRenderObject() as RenderBox;
     final childSize = childRenderBox.size;
     final boundaryRect =
@@ -481,12 +499,13 @@ class _ImagePainterTransformerState extends State<ImagePainterTransformer>
     // Boundaries that are partially infinite are not allowed because Matrix4's
     // rotation and translation methods don't handle infinites well.
     assert(
-        boundaryRect.isFinite ||
-            (boundaryRect.left.isInfinite &&
-                boundaryRect.top.isInfinite &&
-                boundaryRect.right.isInfinite &&
-                boundaryRect.bottom.isInfinite),
-        'boundaryRect must either be infinite in all directions or finite in all directions.');
+      boundaryRect.isFinite ||
+          (boundaryRect.left.isInfinite &&
+              boundaryRect.top.isInfinite &&
+              boundaryRect.right.isInfinite &&
+              boundaryRect.bottom.isInfinite),
+      'boundaryRect must either be infinite in all directions or finite in all directions.',
+    );
     return boundaryRect;
   }
 
@@ -494,6 +513,7 @@ class _ImagePainterTransformerState extends State<ImagePainterTransformer>
   Rect get _viewport {
     assert(_parentKey.currentContext != null);
     final parentRenderBox =
+        // ignore: cast_nullable_to_non_nullable
         _parentKey.currentContext!.findRenderObject() as RenderBox;
     return Offset.zero & parentRenderBox.size;
   }
@@ -550,11 +570,13 @@ class _ImagePainterTransformerState extends State<ImagePainterTransformer>
     );
 
     final correctedMatrix = matrix.clone()
-      ..setTranslation(Vector3(
-        correctedTotalTranslation.dx,
-        correctedTotalTranslation.dy,
-        0.0,
-      ));
+      ..setTranslation(
+        Vector3(
+          correctedTotalTranslation.dx,
+          correctedTotalTranslation.dy,
+          0.0,
+        ),
+      );
 
     // Double check that the corrected translation fits.
     final correctedViewport = _transformViewport(correctedMatrix, _viewport);
@@ -579,11 +601,13 @@ class _ImagePainterTransformerState extends State<ImagePainterTransformer>
       offendingCorrectedDistance.dy == 0.0 ? correctedTotalTranslation.dy : 0.0,
     );
     return matrix.clone()
-      ..setTranslation(Vector3(
-        unidirectionalCorrectedTotalTranslation.dx,
-        unidirectionalCorrectedTotalTranslation.dy,
-        0.0,
-      ));
+      ..setTranslation(
+        Vector3(
+          unidirectionalCorrectedTotalTranslation.dx,
+          unidirectionalCorrectedTotalTranslation.dy,
+          0.0,
+        ),
+      );
   }
 
   // Return a new matrix representing the given matrix after applying the given
@@ -644,6 +668,7 @@ class _ImagePainterTransformerState extends State<ImagePainterTransformer>
         return widget.scaleEnabled;
 
       case _GestureType.pan:
+      // ignore: no_default_cases
       default:
         return widget.panEnabled;
     }
@@ -669,11 +694,13 @@ class _ImagePainterTransformerState extends State<ImagePainterTransformer>
   // with GestureDetector's scale gesture.
   void _onScaleStart(ScaleStartDetails details) {
     if (widget.onInteractionStart != null) {
+      // ignore: prefer_null_aware_method_calls
       widget.onInteractionStart!(details);
     }
 
     if (_controller.isAnimating) {
       _controller.stop();
+      // ignore: cascade_invocations
       _controller.reset();
       _animation?.removeListener(_onAnimate);
       _animation = null;
@@ -693,13 +720,16 @@ class _ImagePainterTransformerState extends State<ImagePainterTransformer>
   void _onScaleUpdate(ScaleUpdateDetails details) {
     final scale = _transformationController!.value.getMaxScaleOnAxis();
     if (widget.onInteractionUpdate != null) {
-      widget.onInteractionUpdate!(ScaleUpdateDetails(
-        focalPoint: _transformationController!.toScene(
-          details.localFocalPoint,
+      // ignore: prefer_null_aware_method_calls
+      widget.onInteractionUpdate!(
+        ScaleUpdateDetails(
+          focalPoint: _transformationController!.toScene(
+            details.localFocalPoint,
+          ),
+          scale: details.scale,
+          rotation: details.rotation,
         ),
-        scale: details.scale,
-        rotation: details.rotation,
-      ));
+      );
     }
     final focalPointScene = _transformationController!.toScene(
       details.localFocalPoint,
@@ -796,6 +826,7 @@ class _ImagePainterTransformerState extends State<ImagePainterTransformer>
   // are handled with GestureDetector's scale gesture.
   void _onScaleEnd(ScaleEndDetails details) {
     if (widget.onInteractionEnd != null) {
+      // ignore: prefer_null_aware_method_calls
       widget.onInteractionEnd!(details);
     }
     _scaleStart = null;
@@ -836,10 +867,12 @@ class _ImagePainterTransformerState extends State<ImagePainterTransformer>
     _animation = Tween<Offset>(
       begin: translation,
       end: Offset(frictionSimulationX.finalX, frictionSimulationY.finalX),
-    ).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.decelerate,
-    ));
+    ).animate(
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.decelerate,
+      ),
+    );
     _controller.duration = Duration(milliseconds: (tFinal * 1000).round());
     _animation!.addListener(_onAnimate);
     _controller.forward();
@@ -852,6 +885,7 @@ class _ImagePainterTransformerState extends State<ImagePainterTransformer>
     }
     if (event is PointerScrollEvent) {
       final childRenderBox =
+          // ignore: cast_nullable_to_non_nullable
           _childKey.currentContext!.findRenderObject() as RenderBox;
       final childSize = childRenderBox.size;
       final scaleChange = 1.0 - event.scrollDelta.dy / childSize.height;
@@ -993,7 +1027,8 @@ class _ImagePainterTransformerState extends State<ImagePainterTransformer>
       key: _parentKey,
       onPointerSignal: _receivedPointerSignal,
       child: GestureDetector(
-        behavior: HitTestBehavior.opaque, // Necessary when panning off screen.
+        behavior: HitTestBehavior.opaque,
+        // Necessary when panning off screen.
         onScaleEnd: _onScaleEnd,
         onScaleStart: _onScaleStart,
         onScaleUpdate: _onScaleUpdate,
@@ -1055,11 +1090,13 @@ class TransformationController extends ValueNotifier<Matrix4> {
     // On viewportPoint, perform the inverse transformation of the scene to get
     // where the point would be in the scene before the transformation.
     final inverseMatrix = Matrix4.inverted(value);
-    final untransformed = inverseMatrix.transform3(Vector3(
-      viewportPoint.dx,
-      viewportPoint.dy,
-      0,
-    ));
+    final untransformed = inverseMatrix.transform3(
+      Vector3(
+        viewportPoint.dx,
+        viewportPoint.dy,
+        0,
+      ),
+    );
     return Offset(untransformed.x, untransformed.y);
   }
 }
@@ -1092,26 +1129,34 @@ Offset _getMatrixTranslation(Matrix4 matrix) {
 Quad _transformViewport(Matrix4 matrix, Rect viewport) {
   final inverseMatrix = matrix.clone()..invert();
   return Quad.points(
-    inverseMatrix.transform3(Vector3(
-      viewport.topLeft.dx,
-      viewport.topLeft.dy,
-      0.0,
-    )),
-    inverseMatrix.transform3(Vector3(
-      viewport.topRight.dx,
-      viewport.topRight.dy,
-      0.0,
-    )),
-    inverseMatrix.transform3(Vector3(
-      viewport.bottomRight.dx,
-      viewport.bottomRight.dy,
-      0.0,
-    )),
-    inverseMatrix.transform3(Vector3(
-      viewport.bottomLeft.dx,
-      viewport.bottomLeft.dy,
-      0.0,
-    )),
+    inverseMatrix.transform3(
+      Vector3(
+        viewport.topLeft.dx,
+        viewport.topLeft.dy,
+        0.0,
+      ),
+    ),
+    inverseMatrix.transform3(
+      Vector3(
+        viewport.topRight.dx,
+        viewport.topRight.dy,
+        0.0,
+      ),
+    ),
+    inverseMatrix.transform3(
+      Vector3(
+        viewport.bottomRight.dx,
+        viewport.bottomRight.dy,
+        0.0,
+      ),
+    ),
+    inverseMatrix.transform3(
+      Vector3(
+        viewport.bottomLeft.dx,
+        viewport.bottomLeft.dy,
+        0.0,
+      ),
+    ),
   );
 }
 
@@ -1176,6 +1221,7 @@ Offset _alignAxis(Offset offset, Axis? axis) {
     case Axis.horizontal:
       return Offset(offset.dx, 0.0);
     case Axis.vertical:
+    // ignore: no_default_cases
     default:
       return Offset(0.0, offset.dy);
   }
