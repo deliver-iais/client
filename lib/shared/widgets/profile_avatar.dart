@@ -23,9 +23,11 @@ class ProfileAvatar extends StatefulWidget {
   final Uid roomUid;
   final bool canSetAvatar;
 
-  const ProfileAvatar(
-      {Key? key, required this.roomUid, this.canSetAvatar = false})
-      : super(key: key);
+  const ProfileAvatar({
+    Key? key,
+    required this.roomUid,
+    this.canSetAvatar = false,
+  }) : super(key: key);
 
   @override
   _ProfileAvatarState createState() => _ProfileAvatarState();
@@ -49,25 +51,20 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
             return CircleAvatar(
               radius: 40,
               backgroundImage: isWeb
-                  ? Image
-                  .network(s.data!)
-                  .image
-                  : Image
-                  .file(File(s.data!))
-                  .image,
+                  ? Image.network(s.data!).image
+                  : Image.file(File(s.data!)).image,
               child: const Center(
                 child: SizedBox(
-                    height: 20.0,
-                    width: 20.0,
-                    child: CircularProgressIndicator(
-                      valueColor: AlwaysStoppedAnimation(Colors.blue),
-                      strokeWidth: 4.0,
-                    )),
+                  height: 20.0,
+                  width: 20.0,
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation(Colors.blue),
+                  ),
+                ),
               ),
             );
           } else {
             return Row(
-              mainAxisAlignment: MainAxisAlignment.start,
               children: [
                 Center(
                   child: MouseRegion(
@@ -79,14 +76,15 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                         showSavedMessageLogoIfNeeded: true,
                       ),
                       onTap: () async {
-                        var lastAvatar = await _avatarRepo.getLastAvatar(
-                            widget.roomUid, false);
+                        final lastAvatar =
+                            await _avatarRepo.getLastAvatar(widget.roomUid);
                         if (lastAvatar?.createdOn != null &&
                             lastAvatar!.createdOn > 0) {
                           _routingService.openShowAllAvatars(
-                              uid: widget.roomUid,
-                              hasPermissionToDeleteAvatar: widget.canSetAvatar,
-                              heroTag: widget.roomUid.asString());
+                            uid: widget.roomUid,
+                            hasPermissionToDeleteAvatar: widget.canSetAvatar,
+                            heroTag: widget.roomUid.asString(),
+                          );
                         }
                       },
                     ),
@@ -97,8 +95,9 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                   Align(
                     // alignment: Alignment.bottomRight,
                     child: TextButton(
-                        onPressed: () => selectAvatar(),
-                        child: Text(_i18n.get("select_an_image"))),
+                      onPressed: () => selectAvatar(),
+                      child: Text(_i18n.get("select_an_image")),
+                    ),
                   )
               ],
             );
@@ -108,22 +107,25 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     );
   }
 
-  _setAvatar(String avatarPath) async {
+  Future<void> _setAvatar(String avatarPath) async {
     _newAvatarPath.add(avatarPath);
     await _avatarRepo.setMucAvatar(widget.roomUid, avatarPath);
-    var statusCode = _fileRepo.uploadFileStatusCode[widget.roomUid.node]?.value;
+    final statusCode =
+        _fileRepo.uploadFileStatusCode[widget.roomUid.node]?.value;
     if (statusCode != 200) {
       ToastDisplay.showToast(
-          toastContext: context, toastText: _i18n.get("error_in_uploading"));
+        toastContext: context,
+        toastText: _i18n.get("error_in_uploading"),
+      );
     }
     _newAvatarPath.add("");
   }
 
-  selectAvatar() async {
+  Future<void> selectAvatar() async {
     if (isWeb || isDesktop) {
       if (isLinux) {
         final typeGroup =
-        XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
+            XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
         final file = await openFile(
           acceptedTypeGroups: [typeGroup],
         );
@@ -131,59 +133,66 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           _setAvatar(file.path);
         }
       } else {
-        FilePickerResult? result = await FilePicker.platform.pickFiles(
+        final result = await FilePicker.platform.pickFiles(
           type: FileType.image,
-          allowMultiple: false,
         );
         if (result!.files.isNotEmpty) {
-          _setAvatar(isWeb
-              ? Uri.dataFromBytes(result.files.first.bytes!.toList()).toString()
-              : result.files.first.path!);
+          _setAvatar(
+            isWeb
+                ? Uri.dataFromBytes(result.files.first.bytes!.toList())
+                    .toString()
+                : result.files.first.path!,
+          );
         }
       }
     } else {
       showModalBottomSheet(
-          context: context,
-          isScrollControlled: true,
-          isDismissible: true,
-          backgroundColor: Colors.transparent,
-          builder: (context) {
-            return DraggableScrollableSheet(
-              initialChildSize: 0.3,
-              minChildSize: 0.2,
-              maxChildSize: 1,
-              expand: false,
-              builder: (context, scrollController) {
-                return Container(
-                    color: Colors.white,
-                    child: Stack(children: <Widget>[
-                      Container(
-                        padding: const EdgeInsets.all(0),
-                        child: ShareBoxGallery(
-                          scrollController: scrollController,
-                          pop: () => Navigator.pop(context),
-                          setAvatar: (String imagePath) async {
-                            cropAvatar(imagePath);
-                          },
-                          selectAvatar: true,
-                          roomUid: widget.roomUid,
-                        ),
+        context: context,
+        isScrollControlled: true,
+        isDismissible: true,
+        backgroundColor: Colors.transparent,
+        builder: (context) {
+          return DraggableScrollableSheet(
+            initialChildSize: 0.3,
+            minChildSize: 0.2,
+            expand: false,
+            builder: (context, scrollController) {
+              return Container(
+                color: Colors.white,
+                child: Stack(
+                  children: <Widget>[
+                    Container(
+                      padding: const EdgeInsets.all(0),
+                      child: ShareBoxGallery(
+                        scrollController: scrollController,
+                        pop: () => Navigator.pop(context),
+                        setAvatar: (imagePath) async {
+                          cropAvatar(imagePath);
+                        },
+                        roomUid: widget.roomUid,
                       ),
-                    ]));
-              },
-            );
-          });
+                    ),
+                  ],
+                ),
+              );
+            },
+          );
+        },
+      );
     }
   }
 
-  void cropAvatar(String imagePath) async {
-    Navigator.push(context, MaterialPageRoute(builder: (c) {
-      return CropImage(imagePath, (path) {
-        if (path != null) {
-          imagePath = path;
-        }
-        _setAvatar(imagePath);
-      });
-    }));
+  Future<void> cropAvatar(String imagePath) async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (c) {
+          return CropImage(imagePath, (path) {
+            imagePath = path;
+            _setAvatar(imagePath);
+          });
+        },
+      ),
+    );
   }
 }

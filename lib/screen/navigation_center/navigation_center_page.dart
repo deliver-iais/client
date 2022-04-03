@@ -52,7 +52,10 @@ class _NavigationCenterState extends State<NavigationCenter> {
         .listen((text) => _searchMode.add(text));
     // TODO: why here?!?!?!?, just do it in Call page!?!?!
     _callRepo.fetchUserCallList(
-        _authRepo.currentUserUid, DateTime.now().month, DateTime.now().year);
+      _authRepo.currentUserUid,
+      DateTime.now().month,
+      DateTime.now().year,
+    );
     super.initState();
   }
 
@@ -98,9 +101,10 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   title: const Text('You can go to setting'),
                   overflowMode: OverflowMode.extendBackground,
                   description: _featureDiscoveryDescriptionWidget(
-                      isCircleAvatarWidget: true,
-                      description:
-                          "1. You can chang your profile in the setting\n2. You can sync your contact and start chat with one of theme \n3. You can chang app theme\n4. You can chang app"),
+                    isCircleAvatarWidget: true,
+                    description:
+                        "1. You can chang your profile in the setting\n2. You can sync your contact and start chat with one of theme \n3. You can chang app theme\n4. You can chang app",
+                  ),
                   child: GestureDetector(
                     child: Center(
                       child: MouseRegion(
@@ -116,9 +120,11 @@ class _NavigationCenterState extends State<NavigationCenter> {
               ],
             ),
             titleSpacing: 8.0,
-            title: Text(I18N.of(context)!.get("chats"),
-                style: theme.textTheme.headline6,
-                key: ValueKey(randomString(10))),
+            title: Text(
+              _i18n.get("chats"),
+              style: theme.textTheme.headline6,
+              key: ValueKey(randomString(10)),
+            ),
             actions: [
               if (!isDesktop)
                 DescribedFeatureOverlay(
@@ -130,15 +136,17 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   targetColor: Colors.deepPurpleAccent,
                   title: const Text('You can scan QR Code'),
                   description: _featureDiscoveryDescriptionWidget(
-                      description:
-                          'for desktop app you can scan QR Code and login to your account'),
+                    description:
+                        'for desktop app you can scan QR Code and login to your account',
+                  ),
                   child: IconButton(
-                      onPressed: () {
-                        _routingService.openScanQrCode();
-                      },
-                      icon: const Icon(
-                        CupertinoIcons.qrcode_viewfinder,
-                      )),
+                    onPressed: () {
+                      _routingService.openScanQrCode();
+                    },
+                    icon: const Icon(
+                      CupertinoIcons.qrcode_viewfinder,
+                    ),
+                  ),
                 ),
               const SizedBox(
                 width: 8,
@@ -158,20 +166,23 @@ class _NavigationCenterState extends State<NavigationCenter> {
             const ConnectionStatus(),
             RepaintBoundary(
               child: SearchBox(
-                  onChange: _queryTermDebouncedSubject.add,
-                  onCancel: () => _queryTermDebouncedSubject.add("")),
+                onChange: _queryTermDebouncedSubject.add,
+                onCancel: () => _queryTermDebouncedSubject.add(""),
+              ),
             ),
             if (!isLarge(context)) AudioPlayerAppBar(),
             StreamBuilder<String>(
-                stream: _searchMode.stream,
-                builder: (c, s) {
-                  if (s.hasData && s.data!.isNotEmpty) {
-                    return searchResult(s.data!);
-                  } else {
-                    return Expanded(
-                        child: ChatsPage(scrollController: _scrollController));
-                  }
-                })
+              stream: _searchMode.stream,
+              builder: (c, s) {
+                if (s.hasData && s.data!.isNotEmpty) {
+                  return searchResult(s.data!);
+                } else {
+                  return Expanded(
+                    child: ChatsPage(scrollController: _scrollController),
+                  );
+                }
+              },
+            )
           ],
         ),
       ),
@@ -187,49 +198,49 @@ class _NavigationCenterState extends State<NavigationCenter> {
       targetColor: Colors.lightBlueAccent,
       title: const Text('You can create new group and new channel'),
       description: _featureDiscoveryDescriptionWidget(
-          description:
-              'If you touch this icon you can create new channel or new group with the your contact'),
+        description:
+            'If you touch this icon you can create new channel or new group with the your contact',
+      ),
       child: IconTheme(
         data: IconThemeData(
           size: (PopupMenuTheme.of(context).textStyle?.fontSize ?? 14) + 4,
           color: PopupMenuTheme.of(context).textStyle?.color,
         ),
         child: PopupMenuButton(
-            icon: const Icon(
-              CupertinoIcons.plus_app,
+          icon: const Icon(
+            CupertinoIcons.plus_app,
+          ),
+          onSelected: selectChatMenu,
+          itemBuilder: (context) => [
+            PopupMenuItem<String>(
+              child: Row(
+                children: [
+                  const Icon(CupertinoIcons.group),
+                  const SizedBox(width: 8),
+                  Text(_i18n.get("newGroup")),
+                ],
+              ),
+              value: "newGroup",
             ),
-            onSelected: selectChatMenu,
-            itemBuilder: (context) => [
-                  PopupMenuItem<String>(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        const Icon(CupertinoIcons.group),
-                        const SizedBox(width: 8),
-                        Text(_i18n.get("newGroup")),
-                      ],
-                    ),
-                    value: "newGroup",
-                  ),
-                  PopupMenuItem<String>(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        const Icon(CupertinoIcons.news),
-                        const SizedBox(width: 8),
-                        Text(
-                          _i18n.get("newChannel"),
-                        )
-                      ],
-                    ),
-                    value: "newChannel",
+            PopupMenuItem<String>(
+              child: Row(
+                children: [
+                  const Icon(CupertinoIcons.news),
+                  const SizedBox(width: 8),
+                  Text(
+                    _i18n.get("newChannel"),
                   )
-                ]),
+                ],
+              ),
+              value: "newChannel",
+            )
+          ],
+        ),
       ),
     );
   }
 
-  selectChatMenu(String key) {
+  void selectChatMenu(String key) {
     switch (key) {
       case "newGroup":
         _routingService.openMemberSelection(isChannel: false);
@@ -243,58 +254,65 @@ class _NavigationCenterState extends State<NavigationCenter> {
   Widget searchResult(String query) {
     final theme = Theme.of(context);
     return Expanded(
-        child: FutureBuilder<List<List<Uid>>>(
-            future: searchUidList(query),
-            builder: (BuildContext c, AsyncSnapshot<List<List<Uid>>> snaps) {
-              if (!snaps.hasData || snaps.data!.isEmpty) {
-                return const Center(child: CircularProgressIndicator());
-              }
+      child: FutureBuilder<List<List<Uid>>>(
+        future: searchUidList(query),
+        builder: (c, snaps) {
+          if (!snaps.hasData || snaps.data!.isEmpty) {
+            return const Center(child: CircularProgressIndicator());
+          }
 
-              final global = snaps.data![0];
-              final bots = snaps.data![1];
-              final roomAndContacts = snaps.data![2];
+          final global = snaps.data![0];
+          final bots = snaps.data![1];
+          final roomAndContacts = snaps.data![2];
 
-              if (global.isEmpty && bots.isEmpty && roomAndContacts.isEmpty) {
-                return Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.max,
-                  children: [
-                    const TGS.asset(
-                      'assets/animations/not-found.tgs',
-                      width: 180,
-                      height: 150,
-                      repeat: true,
-                    ),
-                    Text(_i18n.get("not_found"),
-                        textAlign: TextAlign.center,
-                        style: theme.textTheme.headline6),
-                  ],
-                );
-              }
+          if (global.isEmpty && bots.isEmpty && roomAndContacts.isEmpty) {
+            return Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const TGS.asset(
+                  'assets/animations/not-found.tgs',
+                  width: 180,
+                  height: 150,
+                ),
+                Text(
+                  _i18n.get("not_found"),
+                  textAlign: TextAlign.center,
+                  style: theme.textTheme.headline6,
+                ),
+              ],
+            );
+          }
 
-              return ListView(children: [
-                if (global.isNotEmpty) buildTitle(_i18n.get("global_search")),
-                if (global.isNotEmpty) ...searchResultWidget(global),
-                if (bots.isNotEmpty) buildTitle(_i18n.get("bots")),
-                if (bots.isNotEmpty) ...searchResultWidget(bots),
-                if (roomAndContacts.isNotEmpty)
-                  buildTitle(_i18n.get("local_search")),
-                if (roomAndContacts.isNotEmpty)
-                  ...searchResultWidget(roomAndContacts),
-              ]);
-            }));
+          return ListView(
+            children: [
+              if (global.isNotEmpty) buildTitle(_i18n.get("global_search")),
+              if (global.isNotEmpty) ...searchResultWidget(global),
+              if (bots.isNotEmpty) buildTitle(_i18n.get("bots")),
+              if (bots.isNotEmpty) ...searchResultWidget(bots),
+              if (roomAndContacts.isNotEmpty)
+                buildTitle(_i18n.get("local_search")),
+              if (roomAndContacts.isNotEmpty)
+                ...searchResultWidget(roomAndContacts),
+            ],
+          );
+        },
+      ),
+    );
   }
 
   Widget buildTitle(String title) {
     final theme = Theme.of(context);
     return Container(
-        padding: const EdgeInsets.all(8),
-        margin: const EdgeInsets.only(bottom: 4),
-        width: double.infinity,
-        color: theme.dividerColor.withAlpha(10),
-        child: Text(title,
-            textAlign: TextAlign.center,
-            style: theme.primaryTextTheme.caption));
+      padding: const EdgeInsets.all(8),
+      margin: const EdgeInsets.only(bottom: 4),
+      width: double.infinity,
+      color: theme.dividerColor.withAlpha(10),
+      child: Text(
+        title,
+        textAlign: TextAlign.center,
+        style: theme.primaryTextTheme.caption,
+      ),
+    );
   }
 
   Future<List<List<Uid>>> searchUidList(String query) async {
@@ -328,26 +346,28 @@ class _NavigationCenterState extends State<NavigationCenter> {
     );
   }
 
-  Widget _contactResultWidget(
-      {required Uid uid, required BuildContext context}) {
+  Widget _contactResultWidget({
+    required Uid uid,
+    required BuildContext context,
+  }) {
     final theme = Theme.of(context);
     return Column(
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.start,
           children: [
             CircleAvatarWidget(uid, 24),
             const SizedBox(
               width: 20,
             ),
-            FutureBuilder(
-                future: _roomRepo.getName(uid),
-                builder: (BuildContext c, AsyncSnapshot<String> snaps) {
-                  return Text(
-                    snaps.data ?? "",
-                    style: theme.textTheme.subtitle1,
-                  );
-                }),
+            FutureBuilder<String>(
+              future: _roomRepo.getName(uid),
+              builder: (c, snaps) {
+                return Text(
+                  snaps.data ?? "",
+                  style: theme.textTheme.subtitle1,
+                );
+              },
+            ),
           ],
         ),
         const SizedBox(height: 8),
@@ -356,8 +376,10 @@ class _NavigationCenterState extends State<NavigationCenter> {
     );
   }
 
-  Widget _featureDiscoveryDescriptionWidget(
-      {required String description, bool isCircleAvatarWidget = false}) {
+  Widget _featureDiscoveryDescriptionWidget({
+    required String description,
+    bool isCircleAvatarWidget = false,
+  }) {
     final theme = Theme.of(context);
     return Column(
       children: [
@@ -377,38 +399,39 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   ),
                 ),
                 TextButton(
-                    onPressed: () => FeatureDiscovery.dismissAll(context),
-                    child: Text(
-                      'Dismiss',
-                      style:
-                          theme.textTheme.button!.copyWith(color: Colors.white),
-                    )),
+                  onPressed: () => FeatureDiscovery.dismissAll(context),
+                  child: Text(
+                    'Dismiss',
+                    style:
+                        theme.textTheme.button!.copyWith(color: Colors.white),
+                  ),
+                ),
               ],
             ),
             const SizedBox(
               height: 30,
             ),
-            isAndroid && isCircleAvatarWidget
-                ? InkWell(
-                    onTap: () {
-                      FeatureDiscovery.dismissAll(context);
-                      _routingService.openContacts();
-                    },
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'sync contacts',
-                          style: theme.textTheme.button!
-                              .copyWith(color: Colors.lightGreenAccent),
-                        ),
-                        const Icon(
-                          Icons.arrow_forward,
-                          color: Colors.lightGreenAccent,
-                        )
-                      ],
-                    ))
-                : const SizedBox.shrink(),
+            if (isAndroid && isCircleAvatarWidget)
+              InkWell(
+                onTap: () {
+                  FeatureDiscovery.dismissAll(context);
+                  _routingService.openContacts();
+                },
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'sync contacts',
+                      style: theme.textTheme.button!
+                          .copyWith(color: Colors.lightGreenAccent),
+                    ),
+                    const Icon(
+                      Icons.arrow_forward,
+                      color: Colors.lightGreenAccent,
+                    )
+                  ],
+                ),
+              ),
           ],
         ),
       ],

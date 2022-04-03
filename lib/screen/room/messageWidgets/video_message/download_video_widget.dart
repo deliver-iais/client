@@ -11,18 +11,18 @@ import 'package:rxdart/rxdart.dart';
 class DownloadVideoWidget extends StatefulWidget {
   final String uuid;
   final String name;
-  final Function download;
+  final void Function() download;
   final Color background;
   final Color foreground;
 
-  const DownloadVideoWidget(
-      {Key? key,
-      required this.uuid,
-      required this.download,
-      required this.name,
-      required this.background,
-      required this.foreground})
-      : super(key: key);
+  const DownloadVideoWidget({
+    Key? key,
+    required this.uuid,
+    required this.download,
+    required this.name,
+    required this.background,
+    required this.foreground,
+  }) : super(key: key);
 
   @override
   _DownloadVideoWidgetState createState() => _DownloadVideoWidgetState();
@@ -39,19 +39,23 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
   Widget build(BuildContext context) {
     return FutureBuilder<String?>(
       key: _futureKey,
-      future: _fileRepo.getFile(widget.uuid, widget.name + ".png",
-          thumbnailSize: ThumbnailSize.small),
+      future: _fileRepo.getFile(
+        widget.uuid,
+        widget.name + ".png",
+        thumbnailSize: ThumbnailSize.small,
+      ),
       builder: (c, thumbnail) {
         if (thumbnail.hasData && thumbnail.data != null) {
           return Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: Image.file(File(thumbnail.data!)).image,
-                  fit: BoxFit.cover,
-                ),
-                color: Colors.black.withOpacity(0.5), //TODO check
+            decoration: BoxDecoration(
+              image: DecorationImage(
+                image: Image.file(File(thumbnail.data!)).image,
+                fit: BoxFit.cover,
               ),
-              child: Center(child: buildStreamBuilder()));
+              color: Colors.black.withOpacity(0.5), //TODO check
+            ),
+            child: Center(child: buildStreamBuilder()),
+          );
         } else {
           return Center(
             child: buildStreamBuilder(),
@@ -100,31 +104,32 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
                     );
                   } else {
                     return StreamBuilder<bool>(
-                        stream: _startDownload.stream,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData &&
-                              snapshot.data != null &&
-                              snapshot.data!) {
-                            return CircularProgressIndicator(
-                              strokeWidth: 4,
-                              color: widget.background,
-                            );
-                          } else {
-                            return MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: GestureDetector(
-                                  onTap: () {
-                                    _startDownload.add(true);
-                                    widget.download();
-                                  },
-                                  child: Icon(
-                                    Icons.arrow_downward,
-                                    color: widget.foreground,
-                                    size: 35,
-                                  )),
-                            );
-                          }
-                        });
+                      stream: _startDownload.stream,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData &&
+                            snapshot.data != null &&
+                            snapshot.data!) {
+                          return CircularProgressIndicator(
+                            color: widget.background,
+                          );
+                        } else {
+                          return MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: GestureDetector(
+                              onTap: () {
+                                _startDownload.add(true);
+                                widget.download();
+                              },
+                              child: Icon(
+                                Icons.arrow_downward,
+                                color: widget.foreground,
+                                size: 35,
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                    );
                   }
                 },
               ),
@@ -137,29 +142,28 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
             decoration:
                 BoxDecoration(color: widget.background, shape: BoxShape.circle),
             child: StreamBuilder<bool>(
-                stream: _startDownload.stream,
-                builder: (context, start) {
-                  if (start.hasData && start.data != null && start.data!) {
-                    return const CircularProgressIndicator(
-                      strokeWidth: 4,
-                    );
-                  } else {
-                    return MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
-                        onTap: () {
-                          _startDownload.add(true);
-                          widget.download();
-                        },
-                        child: Icon(
-                          Icons.arrow_downward,
-                          size: 35,
-                          color: widget.foreground,
-                        ),
+              stream: _startDownload.stream,
+              builder: (context, start) {
+                if (start.hasData && start.data != null && start.data!) {
+                  return const CircularProgressIndicator();
+                } else {
+                  return MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () {
+                        _startDownload.add(true);
+                        widget.download();
+                      },
+                      child: Icon(
+                        Icons.arrow_downward,
+                        size: 35,
+                        color: widget.foreground,
                       ),
-                    );
-                  }
-                }),
+                    ),
+                  );
+                }
+              },
+            ),
           );
         }
       },

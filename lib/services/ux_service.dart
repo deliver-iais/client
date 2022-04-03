@@ -36,8 +36,6 @@ class LogLevelHelper {
         return "WTF";
       case Level.nothing:
         return "NOTHING";
-      default:
-        return "DEBUG";
     }
   }
 
@@ -80,20 +78,23 @@ class UxService {
 
   UxService() {
     _sharedDao
-        .getStream(SHARED_DAO_LOG_LEVEL,
-            defaultValue: kDebugMode ? "INFO" : "NOTHING")
+        .getStream(
+          SHARED_DAO_LOG_LEVEL,
+          defaultValue: kDebugMode ? "INFO" : "NOTHING",
+        )
         .map((event) => LogLevelHelper.stringToLevel(event!))
         .listen((level) => GetIt.I.get<DeliverLogFilter>().level = level);
 
     _sharedDao
-        .getBooleanStream(SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE,
-            defaultValue: true)
+        .getBooleanStream(
+          SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE,
+          defaultValue: true,
+        )
         .distinct()
         .listen((isEnable) => _isAutoNightModeEnable.add(isEnable));
 
     _sharedDao
-        .getBooleanStream(SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED,
-            defaultValue: false)
+        .getBooleanStream(SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED)
         .distinct()
         .listen((isDisabled) => _isAllNotificationDisabled.add(isDisabled));
 
@@ -130,22 +131,22 @@ class UxService {
       _themeIsDark.stream.distinct().map((event) => event);
 
   ThemeData get theme =>
-      getThemeScheme(_themeIndex.value).theme(_themeIsDark.value);
+      getThemeScheme(_themeIndex.value).theme(isDark: _themeIsDark.value);
 
   ExtraThemeData get extraTheme =>
-      getThemeScheme(_themeIndex.value).extraTheme(_themeIsDark.value);
+      getThemeScheme(_themeIndex.value).extraTheme(isDark: _themeIsDark.value);
 
   bool get themeIsDark => _themeIsDark.value;
 
   int get themeIndex => _themeIndex.value;
 
-  bool get sendByEnter => isDesktop ? _sendByEnter.value : false;
+  bool get sendByEnter => isDesktop && _sendByEnter.value;
 
   bool get isAllNotificationDisabled => _isAllNotificationDisabled.value;
 
-  get isAutoNightModeEnable => _isAutoNightModeEnable.value;
+  bool get isAutoNightModeEnable => _isAutoNightModeEnable.value;
 
-  toggleThemeLightingMode() {
+  void toggleThemeLightingMode() {
     _sharedDao.putBoolean(SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE, false);
     _isAutoNightModeEnable.add(false);
     if (_themeIsDark.value) {
@@ -155,26 +156,28 @@ class UxService {
     }
   }
 
-  toggleThemeToLightMode() {
+  void toggleThemeToLightMode() {
     SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(systemNavigationBarColor: Colors.white));
+      const SystemUiOverlayStyle(systemNavigationBarColor: Colors.white),
+    );
     _sharedDao.put(SHARED_DAO_THEME, LightThemeName);
     _themeIsDark.add(false);
   }
 
-  toggleThemeToDarkMode() {
+  void toggleThemeToDarkMode() {
     SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(systemNavigationBarColor: Colors.black45));
+      const SystemUiOverlayStyle(systemNavigationBarColor: Colors.black45),
+    );
     _sharedDao.put(SHARED_DAO_THEME, DarkThemeName);
     _themeIsDark.add(true);
   }
 
-  selectTheme(int index) {
+  void selectTheme(int index) {
     _sharedDao.put(SHARED_DAO_THEME_COLOR, index.toString());
     _themeIndex.add(index);
   }
 
-  toggleSendByEnter() {
+  void toggleSendByEnter() {
     if (sendByEnter == false) {
       _sharedDao.putBoolean(SHARED_DAO_SEND_BY_ENTER, true);
     } else {
@@ -182,17 +185,21 @@ class UxService {
     }
   }
 
-  toggleIsAllNotificationDisabled() {
+  void toggleIsAllNotificationDisabled() {
     _sharedDao.putBoolean(
-        SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED, !isAllNotificationDisabled);
+      SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED,
+      !isAllNotificationDisabled,
+    );
   }
 
-  toggleIsAutoNightMode() {
+  void toggleIsAutoNightMode() {
     _sharedDao.putBoolean(
-        SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE, !isAutoNightModeEnable);
+      SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE,
+      !isAutoNightModeEnable,
+    );
   }
 
-  changeLogLevel(String level) {
+  void changeLogLevel(String level) {
     _sharedDao.put(SHARED_DAO_LOG_LEVEL, level);
   }
 
@@ -203,7 +210,7 @@ class UxService {
     return _tabIndexMap[fileId];
   }
 
-  setTabIndex(String fileId, int index) {
+  void setTabIndex(String fileId, int index) {
     _tabIndexMap[fileId] = index;
   }
 }

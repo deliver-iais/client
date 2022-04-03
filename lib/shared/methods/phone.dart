@@ -12,7 +12,7 @@ PhoneNumber? getPhoneNumber(String pStr) {
       .replaceAll(')', '')
       .replaceAll('-', '');
 
-  PhoneNumber phoneNumber = PhoneNumber();
+  final phoneNumber = PhoneNumber();
   switch (phone.length) {
     case 11:
       phoneNumber.countryCode = 98;

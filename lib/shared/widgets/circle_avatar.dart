@@ -26,13 +26,15 @@ class CircleAvatarWidget extends StatelessWidget {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
 
-  CircleAvatarWidget(this.contactUid, this.radius,
-      {Key? key,
-      this.forceText = "",
-      this.hideName = false,
-      this.isHeroEnabled = true,
-      this.showSavedMessageLogoIfNeeded = false})
-      : super(key: key);
+  CircleAvatarWidget(
+    this.contactUid,
+    this.radius, {
+    Key? key,
+    this.forceText = "",
+    this.hideName = false,
+    this.isHeroEnabled = true,
+    this.showSavedMessageLogoIfNeeded = false,
+  }) : super(key: key);
 
   bool isSavedMessage() =>
       showSavedMessageLogoIfNeeded &&
@@ -42,7 +44,7 @@ class CircleAvatarWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var scheme =
+    final scheme =
         ExtraTheme.of(context).messageColorScheme(contactUid.asString());
 
     return HeroMode(
@@ -75,17 +77,19 @@ class CircleAvatarWidget extends StatelessWidget {
       );
     } else {
       return StreamBuilder<String?>(
-          key: _streamKey,
-          initialData: _avatarRepo.fastForwardAvatarFilePath(contactUid),
-          stream: _avatarRepo
-              .getLastAvatarFilePathStream(contactUid, false),
-          builder: (context, snapshot) =>
-              builder(context, snapshot, textColor));
+        key: _streamKey,
+        initialData: _avatarRepo.fastForwardAvatarFilePath(contactUid),
+        stream: _avatarRepo.getLastAvatarFilePathStream(contactUid),
+        builder: (context, snapshot) => builder(context, snapshot, textColor),
+      );
     }
   }
 
   Widget builder(
-      BuildContext context, AsyncSnapshot<String?> snapshot, Color textColor) {
+    BuildContext context,
+    AsyncSnapshot<String?> snapshot,
+    Color textColor,
+  ) {
     if (snapshot.hasData) {
       return isWeb
           ? Image.network(snapshot.data!, fit: BoxFit.fill)
@@ -108,9 +112,9 @@ class CircleAvatarWidget extends StatelessWidget {
         initialData: _roomRepo.fastForwardName(contactUid),
         future: _roomRepo.getName(contactUid),
         key: _futureKey,
-        builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+        builder: (context, snapshot) {
           if (snapshot.data != null) {
-            String name = snapshot.data!.trim();
+            final name = snapshot.data!.trim();
             return avatarAlt(name.trim(), textColor);
           } else {
             return const SizedBox.shrink();
@@ -125,10 +129,13 @@ class CircleAvatarWidget extends StatelessWidget {
       return const SizedBox.shrink();
     }
     return Center(
-        child: Text(
-      name.length > 1 ? name.substring(0, 1).toUpperCase() : name.toUpperCase(),
-      maxLines: 1,
-      style: TextStyle(color: textColor, fontSize: radius, height: 1),
-    ));
+      child: Text(
+        name.length > 1
+            ? name.substring(0, 1).toUpperCase()
+            : name.toUpperCase(),
+        maxLines: 1,
+        style: TextStyle(color: textColor, fontSize: radius, height: 1),
+      ),
+    );
   }
 }

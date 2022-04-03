@@ -17,12 +17,14 @@ abstract class ContactDao {
 class ContactDaoImpl implements ContactDao {
   @override
   Future<Contact?> get(String countryCode, String nationalNumber) async {
-    var box = await _open();
+    final box = await _open();
 
     try {
-      box.values.firstWhere((element) =>
-          element.countryCode == countryCode &&
-          element.nationalNumber == nationalNumber);
+      box.values.firstWhere(
+        (element) =>
+            element.countryCode == countryCode &&
+            element.nationalNumber == nationalNumber,
+      );
     } catch (e) {
       return null;
     }
@@ -31,21 +33,21 @@ class ContactDaoImpl implements ContactDao {
 
   @override
   Future<Contact?> getByUid(String uid) async {
-    var box = await _open();
+    final box = await _open();
 
     return box.get(uid);
   }
 
   @override
   Future<List<Contact>> getAll() async {
-    var box = await _open();
+    final box = await _open();
 
     return box.values.toList();
   }
 
   @override
   Stream<List<Contact>> watchAll() async* {
-    var box = await _open();
+    final box = await _open();
 
     yield box.values.toList();
 
@@ -54,7 +56,7 @@ class ContactDaoImpl implements ContactDao {
 
   @override
   Future<void> save(Contact contact) async {
-    var box = await _open();
+    final box = await _open();
 
     return box.put(contact.uid, contact);
   }

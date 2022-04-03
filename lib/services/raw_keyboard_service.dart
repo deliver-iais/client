@@ -1,8 +1,7 @@
 import 'dart:async';
-
 import 'dart:io';
-import 'dart:typed_data';
 
+import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/keyboard.dart';
@@ -12,7 +11,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:pasteboard/pasteboard.dart';
-import 'package:deliver/models/file.dart' as model;
 import 'package:path_provider/path_provider.dart';
 
 class RawKeyboardService {
@@ -24,46 +22,53 @@ class RawKeyboardService {
 
   void controlCHandle(TextEditingController controller) {
     Clipboard.setData(
-        ClipboardData(text: controller.selection.textInside(controller.text)));
+      ClipboardData(text: controller.selection.textInside(controller.text)),
+    );
   }
 
-  void controlVHandle(TextEditingController controller, BuildContext context,
-      Uid roomUid) async {
+  Future<void> controlVHandle(
+    TextEditingController controller,
+    BuildContext context,
+    Uid roomUid,
+  ) async {
     final files = await Pasteboard.files();
-    Uint8List? image = await Pasteboard.image;
-    List<model.File> fileList = [];
-    String name = "";
+    final image = await Pasteboard.image;
+    final fileList = <model.File>[];
+    var name = "";
     if (files.isNotEmpty) {
-      for (var file in files) {
+      for (final file in files) {
         name = file.replaceAll("\\", "/").split("/").last;
         fileList.add(model.File(file, name, extension: name.split(".").last));
       }
     } else if (image != null) {
       final tempDir = await getTemporaryDirectory();
-      File file = await File(
-              '${tempDir.path}/screenshot-${DateTime.now().hashCode}.png')
-          .create();
+      final file = await File(
+        '${tempDir.path}/screenshot-${DateTime.now().hashCode}.png',
+      ).create();
       file.writeAsBytesSync(image);
       name = file.path.replaceAll("\\", "/").split("/").last;
       fileList
           .add(model.File(file.path, name, extension: name.split(".").last));
     } else {
-      ClipboardData? data = await Clipboard.getData(Clipboard.kTextPlain);
-      controller.text = controller.text + data!.text!;
-      controller.selection = TextSelection.fromPosition(
-          TextPosition(offset: controller.text.length));
+      final data = await Clipboard.getData(Clipboard.kTextPlain);
+      controller
+        ..text = controller.text + data!.text!
+        ..selection = TextSelection.fromPosition(
+          TextPosition(offset: controller.text.length),
+        );
     }
     if (fileList.isNotEmpty) {
       showCaptionDialog(
-          context: context,
-          files: fileList,
-          caption: controller.text.isNotEmpty
-              ? !isLinux
-                  ? controller.text
-                  : null
-              : null,
-          roomUid: roomUid,
-          type: fileList.length == 1 ? name.split(".").last : "file");
+        context: context,
+        files: fileList,
+        caption: controller.text.isNotEmpty
+            ? !isLinux
+                ? controller.text
+                : null
+            : null,
+        roomUid: roomUid,
+        type: fileList.length == 1 ? name.split(".").last : "file",
+      );
       Timer(Duration.zero, () {
         controller.clear();
       });
@@ -72,35 +77,38 @@ class RawKeyboardService {
 
   void controlXHandle(TextEditingController controller) {
     Clipboard.setData(
-        ClipboardData(text: controller.selection.textInside(controller.text)));
+      ClipboardData(text: controller.selection.textInside(controller.text)),
+    );
   }
 
   void controlAHandle(TextEditingController controller) {
     controller.selection = TextSelection(
-        baseOffset: 0, extentOffset: controller.value.text.length);
+      baseOffset: 0,
+      extentOffset: controller.value.text.length,
+    );
   }
 
-  void scrollDownInMentions(Function scrollDownInMention) {
+  void scrollDownInMentions(void Function() scrollDownInMention) {
     scrollDownInMention();
   }
 
-  void scrollUpInMentions(Function scrollUpInMention) {
+  void scrollUpInMentions(void Function() scrollUpInMention) {
     scrollUpInMention();
   }
 
-  void sendMention(Function showMention) {
+  void sendMention(void Function() showMention) {
     showMention();
   }
 
-  void scrollUpInBotCommand(Function scrollUpInBotCommands) {
+  void scrollUpInBotCommand(void Function() scrollUpInBotCommands) {
     scrollUpInBotCommands();
   }
 
-  sendBotCommandsByEnter(Function sendBotCommentByEnter) {
+  void sendBotCommandsByEnter(void Function() sendBotCommentByEnter) {
     sendBotCommentByEnter();
   }
 
-  void scrollDownInBotCommand(Function scrollDownInBotCommands) {
+  void scrollDownInBotCommand(void Function() scrollDownInBotCommands) {
     scrollDownInBotCommands();
   }
 
@@ -116,8 +124,13 @@ class RawKeyboardService {
     }
   }
 
-  navigateInMentions(String mentionData, Function scrollDownInMention,
-      RawKeyEvent event, int mentionSelectedIndex, Function scrollUpInMention) {
+  void navigateInMentions(
+    String mentionData,
+    void Function() scrollDownInMention,
+    RawKeyEvent event,
+    int mentionSelectedIndex,
+    void Function() scrollUpInMention,
+  ) {
     if (isKeyPressed(event, PhysicalKeyboardKey.arrowUp) &&
         !event.isAltPressed &&
         mentionData != "-") {
@@ -130,12 +143,13 @@ class RawKeyboardService {
     }
   }
 
-  navigateInBotCommand(
-      RawKeyEvent event,
-      Function scrollDownInBotCommands,
-      Function scrollUpInBotCommands,
-      Function sendBotCommandByEnter,
-      String botCommandData) {
+  void navigateInBotCommand(
+    RawKeyEvent event,
+    void Function() scrollDownInBotCommands,
+    void Function() scrollUpInBotCommands,
+    void Function() sendBotCommandByEnter,
+    String botCommandData,
+  ) {
     if (isKeyPressed(event, PhysicalKeyboardKey.arrowDown)) {
       scrollDownInBotCommand(scrollDownInBotCommands);
     } else if (isKeyPressed(event, PhysicalKeyboardKey.arrowUp)) {
@@ -146,8 +160,12 @@ class RawKeyboardService {
     }
   }
 
-  void handleCopyPastKeyPress(TextEditingController controller,
-      RawKeyEvent event, BuildContext context, Uid roomUid) {
+  void handleCopyPastKeyPress(
+    TextEditingController controller,
+    RawKeyEvent event,
+    BuildContext context,
+    Uid roomUid,
+  ) {
     if (isMetaAndKeyPressed(event, PhysicalKeyboardKey.keyA)) {
       controlAHandle(controller);
     } else if (isMetaAndKeyPressed(event, PhysicalKeyboardKey.keyC)) {

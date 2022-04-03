@@ -1,12 +1,12 @@
 import 'package:deliver/box/uid_id_name.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:flutter/material.dart';
 
 class MucMemberMentionWidget extends StatelessWidget {
   final UidIdName member;
-  final Function onSelected;
+  final void Function(String) onSelected;
 
   const MucMemberMentionWidget(this.member, this.onSelected, {Key? key})
       : super(key: key);
@@ -14,15 +14,20 @@ class MucMemberMentionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-        child: buildGestureDetector(
-            username: member.id ?? "",
-            name: member.name ?? "",
-            context: context));
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      child: buildGestureDetector(
+        username: member.id ?? "",
+        name: member.name ?? "",
+        context: context,
+      ),
+    );
   }
 
-  Widget buildGestureDetector(
-      {required String username, String? name, required BuildContext context}) {
+  Widget buildGestureDetector({
+    required String username,
+    String? name,
+    required BuildContext context,
+  }) {
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(

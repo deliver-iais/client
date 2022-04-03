@@ -11,15 +11,15 @@ class BlurContainer extends StatelessWidget {
   final double skew;
   final bool blurIsEnabled;
 
-  const BlurContainer(
-      {Key? key,
-      required this.child,
-      this.padding,
-      this.margin,
-      this.decoration,
-      this.skew = 1.0,
-      this.blurIsEnabled = true})
-      : super(key: key);
+  const BlurContainer({
+    Key? key,
+    required this.child,
+    this.padding,
+    this.margin,
+    this.decoration,
+    this.skew = 1.0,
+    this.blurIsEnabled = true,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -32,13 +32,14 @@ class BlurContainer extends StatelessWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: -skew, sigmaY: skew),
         child: Container(
-            padding: padding,
-            margin: margin,
-            decoration: decoration ??
-                BoxDecoration(
-                  color:theme.dividerColor.withOpacity(0.15),
-                ),
-            child: child),
+          padding: padding,
+          margin: margin,
+          decoration: decoration ??
+              BoxDecoration(
+                color: theme.dividerColor.withOpacity(0.15),
+              ),
+          child: child,
+        ),
       ),
     );
   }

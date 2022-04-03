@@ -98,7 +98,7 @@ packages:
       name: build_runner
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.7"
+    version: "2.1.8"
   build_runner_core:
     dependency: transitive
     description:
@@ -322,11 +322,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.11.23"
-      resolved-ref: "5d3734e2ac3a0da89e25307614113aff537385bd"
+      ref: "tags/v1.11.28"
+      resolved-ref: "0e6bfc0adb992c0a06651644d1c847aead5c6144"
       url: "https://github.com/deliver-iais/pub-dart-artifactory"
     source: git
-    version: "1.11.23"
+    version: "1.11.28"
   dependency_validator:
     dependency: "direct dev"
     description:
@@ -500,7 +500,7 @@ packages:
     source: hosted
     version: "2.2.7"
   fixnum:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: fixnum
       url: "https://pub.dartlang.org"
@@ -818,7 +818,7 @@ packages:
     source: hosted
     version: "3.2.0"
   http_parser:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: http_parser
       url: "https://pub.dartlang.org"
@@ -909,7 +909,7 @@ packages:
     source: hosted
     version: "2.0.1"
   latlong2:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: latlong2
       url: "https://pub.dartlang.org"
@@ -1598,21 +1598,21 @@ packages:
       name: test
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.19.5"
+    version: "1.20.2"
   test_api:
     dependency: transitive
     description:
       name: test_api
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.8"
+    version: "0.4.9"
   test_core:
     dependency: transitive
     description:
       name: test_core
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.9"
+    version: "0.4.11"
   timezone:
     dependency: transitive
     description:
@@ -1899,7 +1899,7 @@ packages:
       path: "packages/win_toast"
       ref: "5357c2a594a20534bf759eb28c86f8669d3914f3"
       resolved-ref: "5357c2a594a20534bf759eb28c86f8669d3914f3"
-      url: "git://github.com/AmirhosseinShk/flutter-plugins.git"
+      url: "https://github.com/AmirhosseinShk/flutter-plugins.git"
     source: git
     version: "0.0.2"
   window_size:
@@ -1908,7 +1908,7 @@ packages:
       path: "plugins/window_size"
       ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
       resolved-ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
-      url: "git://github.com/google/flutter-desktop-embedding.git"
+      url: "https://github.com/google/flutter-desktop-embedding.git"
     source: git
     version: "0.1.0"
   wkt_parser:

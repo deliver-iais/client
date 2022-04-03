@@ -15,14 +15,14 @@ abstract class UidIdNameDao {
 class UidIdNameDaoImpl implements UidIdNameDao {
   @override
   Future<UidIdName?> getByUid(String uid) async {
-    var box = await _open();
+    final box = await _open();
 
     return box.get(uid);
   }
 
   @override
   Future<String?> getUidById(String id) async {
-    var box = await _open2();
+    final box = await _open2();
 
     return box.get(id);
   }
@@ -33,10 +33,10 @@ class UidIdNameDaoImpl implements UidIdNameDao {
       name = name.trim();
     }
 
-    var box = await _open();
-    var box2 = await _open2();
+    final box = await _open();
+    final box2 = await _open2();
 
-    var byUid = box.get(uid);
+    final byUid = box.get(uid);
     if (byUid == null) {
       box.put(uid, UidIdName(uid: uid, id: id, name: name));
     } else {
@@ -68,14 +68,16 @@ class UidIdNameDaoImpl implements UidIdNameDao {
 
   @override
   Future<List<UidIdName>> search(String term) async {
-    var text = term.toLowerCase();
-    var box = await _open();
-    var res = box.values
-        .where((element) =>
-            (element.id != null &&
-                element.id.toString().toLowerCase().contains(text)) ||
-            (element.name != null &&
-                element.name!.toLowerCase().contains(text)))
+    final text = term.toLowerCase();
+    final box = await _open();
+    final res = box.values
+        .where(
+          (element) =>
+              (element.id != null &&
+                  element.id.toString().toLowerCase().contains(text)) ||
+              (element.name != null &&
+                  element.name!.toLowerCase().contains(text)),
+        )
         .toList();
     return res;
   }

@@ -32,7 +32,6 @@ class MaxLinesTextInputFormatter extends TextInputFormatter {
         return TextEditingValue(
           text: truncated,
           selection: newSelection,
-          composing: TextRange.empty,
         );
       }
       return newValue;

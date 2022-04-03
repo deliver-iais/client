@@ -2,10 +2,10 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 
 class MuteAndUnMuteRoomWidget extends StatefulWidget {
   final String roomId;
@@ -26,13 +26,17 @@ class MuteAndUnMuteRoomWidget extends StatefulWidget {
 
 class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
   final _roomRepo = GetIt.I.get<RoomRepo>();
-
   final _mucRepo = GetIt.I.get<MucRepo>();
-
   final _authRepo = GetIt.I.get<AuthRepo>();
-
   final _i18n = GetIt.I.get<I18N>();
+  final String roomId;
+  final Widget inputMessage;
 
+  MuteAndUnMuteRoomWidget({
+    Key? key,
+    required this.roomId,
+    required this.inputMessage,
+  }) : super(key: key);
   final FocusNode _focusNode = FocusNode();
 
   @override

@@ -42,18 +42,21 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   final _i18n = GetIt.I.get<I18N>();
   final _controller = AnimatedListController();
 
-  void _showCustomMenu(BuildContext context, Room room, bool canPin) {
-    this.showMenu(context: context, items: <PopupMenuEntry<OperationOnRoom>>[
-      OperationOnRoomEntry(
-        room: room,
-        isPinned: room.pinned,
-      )
-    ]).then<void>((OperationOnRoom? opr) async {
+  void _showCustomMenu(BuildContext context, Room room, bool canBePinned) {
+    this.showMenu(
+      context: context,
+      items: <PopupMenuEntry<OperationOnRoom>>[
+        OperationOnRoomEntry(
+          room: room,
+          isPinned: room.pinned,
+        )
+      ],
+    ).then<void>((opr) async {
       if (opr == null) return;
       // ignore: missing_enum_constant_in_switch
       switch (opr) {
         case OperationOnRoom.PIN_ROOM:
-          onPin(room, canPin);
+          onPin(room, canBePinned: canBePinned);
           break;
         case OperationOnRoom.UN_PIN_ROOM:
           onUnPin(room);
@@ -63,112 +66,124 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   }
 
   void onUnPin(Room room) {
-    _roomDao.updateRoom(Room(uid: room.uid, pinned: false));
+    _roomDao.updateRoom(Room(uid: room.uid));
   }
 
-  void onPin(Room room, bool canPin) {
-    if (canPin) {
+  void onPin(Room room, {bool canBePinned = false}) {
+    if (canBePinned) {
       _roomDao.updateRoom(Room(uid: room.uid, pinned: true));
     } else {
       showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              content: Text(_i18n.get("pin_more_than_5")),
-              actions: [
-                TextButton(
-                    child: Text(_i18n.get("ok")),
-                    onPressed: () {
-                     Navigator.of(context).pop();
-                    }),
-              ],
-            );
-          });
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Text(_i18n.get("pin_more_than_5")),
+            actions: [
+              TextButton(
+                child: Text(_i18n.get("ok")),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Room>>(
-        stream: _roomRepo.watchAllRooms(),
-        builder: (context, snapshot) {
-          return StreamBuilder(
-            stream: _routingService.currentRouteStream,
-            builder: (BuildContext c, AsyncSnapshot<Object> s) {
-              if (snapshot.hasData) {
-                var rooms = snapshot.data!.toList();
-                rearangChatItem(rooms);
-                return PageStorage(
-                  bucket: PageStorage.of(context)!,
-                  child: Scrollbar(
-                    controller: widget.scrollController,
-                    child: AutomaticAnimatedListView<Room>(
-                        scrollController: widget.scrollController,
-                        list: rooms,
-                        listController: _controller,
-                        animator: const DefaultAnimatedListAnimator(
-                            dismissIncomingDuration:
-                                kDismissOrIncomingAnimationDuration,
-                            reorderDuration: kReorderAnimationDuration,
-                            resizeDuration: kResizeAnimationDuration,
-                            movingDuration: kMovingAnimationDuration),
-                        comparator: AnimatedListDiffListComparator<Room>(
-                            sameItem: (a, b) => a.uid == b.uid,
-                            sameContent: (a, b) =>
-                                a.lastMessage?.id == b.lastMessage?.id &&
-                                a.mentioned == b.mentioned &&
-                                a.pinned == b.pinned &&
-                                a.lastUpdatedMessageId ==
-                                    b.lastUpdatedMessageId &&
-                                a.lastUpdateTime == b.lastUpdateTime &&
-                                a.draft == b.draft),
-                        itemBuilder: (BuildContext ctx, Room room,
-                            AnimatedWidgetBuilderData data) {
-                          return GestureDetector(
-                            behavior: HitTestBehavior.translucent,
-                            child: ChatItem(
-                              key: ValueKey("chatItem/${room.uid}"),
-                              room: room,
-                            ),
-                            onTap: () {
-                              _routingService.openRoom(room.uid,
-                                  popAllBeforePush: true);
-                            },
-                            onLongPress: () {
-                              //ToDo new design for android
-                              _showCustomMenu(context, room, canPin(rooms));
-                            },
-                            onTapDown: storePosition,
-                            onSecondaryTapDown: storePosition,
-                            onSecondaryTap: !isDesktop
-                                ? null
-                                : () {
-                                    _showCustomMenu(
-                                        context, room, canPin(rooms));
-                                  },
+      stream: _roomRepo.watchAllRooms(),
+      builder: (context, snapshot) {
+        return StreamBuilder(
+          stream: _routingService.currentRouteStream,
+          builder: (c, s) {
+            if (snapshot.hasData) {
+              final rooms = snapshot.data!.toList();
+              rearrangeChatItem(rooms);
+              return PageStorage(
+                bucket: PageStorage.of(context)!,
+                child: Scrollbar(
+                  controller: widget.scrollController,
+                  child: AutomaticAnimatedListView<Room>(
+                    scrollController: widget.scrollController,
+                    list: rooms,
+                    listController: _controller,
+                    animator: const DefaultAnimatedListAnimator(
+                      dismissIncomingDuration:
+                          kDismissOrIncomingAnimationDuration,
+                      reorderDuration: kReorderAnimationDuration,
+                      resizeDuration: kResizeAnimationDuration,
+                      movingDuration: kMovingAnimationDuration,
+                    ),
+                    comparator: AnimatedListDiffListComparator<Room>(
+                      sameItem: (a, b) => a.uid == b.uid,
+                      sameContent: (a, b) =>
+                          a.lastMessage?.id == b.lastMessage?.id &&
+                          a.mentioned == b.mentioned &&
+                          a.pinned == b.pinned &&
+                          a.lastUpdatedMessageId == b.lastUpdatedMessageId &&
+                          a.lastUpdateTime == b.lastUpdateTime &&
+                          a.draft == b.draft,
+                    ),
+                    itemBuilder: (ctx, room, data) {
+                      return GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        child: ChatItem(
+                          key: ValueKey("chatItem/${room.uid}"),
+                          room: room,
+                        ),
+                        onTap: () {
+                          _routingService.openRoom(
+                            room.uid,
+                            popAllBeforePush: true,
                           );
-                        }),
+                        },
+                        onLongPress: () {
+                          //ToDo new design for android
+                          _showCustomMenu(
+                            context,
+                            room,
+                            canBePinned(rooms),
+                          );
+                        },
+                        onTapDown: storePosition,
+                        onSecondaryTapDown: storePosition,
+                        onSecondaryTap: !isDesktop
+                            ? null
+                            : () {
+                                _showCustomMenu(
+                                  context,
+                                  room,
+                                  canBePinned(rooms),
+                                );
+                              },
+                      );
+                    },
                   ),
-                );
-              } else {
-                return Container();
-              }
-            },
-          );
-        });
+                ),
+              );
+            } else {
+              return Container();
+            }
+          },
+        );
+      },
+    );
   }
 
-  bool canPin(List<Room> rooms) {
-    return rooms.where((element) => element.pinned).toList().length < 5
-        ? true
-        : false;
+  bool canBePinned(List<Room> rooms) {
+    return rooms.where((element) => element.pinned).toList().length < 5;
   }
 
-  void rearangChatItem(List<Room> rooms) {
-    for (var room in rooms) {
+  void rearrangeChatItem(List<Room> rooms) {
+    for (final room in rooms) {
       if (room.pinned == true) {
-        rooms.remove(room);
-        rooms.insert(0, room);
+        rooms
+          ..remove(room)
+          ..insert(0, room);
       }
     }
   }

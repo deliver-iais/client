@@ -13,12 +13,14 @@ class ActivityStatus extends StatelessWidget {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _i18n = GetIt.I.get<I18N>();
 
-  const ActivityStatus(
-      {Key? key, required this.activity, required this.roomUid})
-      : super(key: key);
+  const ActivityStatus({
+    Key? key,
+    required this.activity,
+    required this.roomUid,
+  }) : super(key: key);
 
   TextStyle textStyle(BuildContext context) {
-    return TextStyle(fontSize: 14, color:Theme.of(context).primaryColor);
+    return TextStyle(fontSize: 14, color: Theme.of(context).primaryColor);
   }
 
   @override
@@ -26,11 +28,13 @@ class ActivityStatus extends StatelessWidget {
     if (activity.typeOfActivity == ActivityType.TYPING) {
       if (roomUid.category == Categories.GROUP) {
         return FutureBuilder<String>(
-            future: _roomRepo.getName(activity.from),
-            builder: (c, s) => RoomName(
-                uid: activity.from,
-                name: "${s.data ?? ""} ${_i18n.get('is_typing')}",
-                style: textStyle(context)));
+          future: _roomRepo.getName(activity.from),
+          builder: (c, s) => RoomName(
+            uid: activity.from,
+            name: "${s.data ?? ""} ${_i18n.get('is_typing')}",
+            style: textStyle(context),
+          ),
+        );
       } else {
         return Text(
           _i18n.get("is_typing"),
@@ -40,11 +44,13 @@ class ActivityStatus extends StatelessWidget {
     } else if (activity.typeOfActivity == ActivityType.RECORDING_VOICE) {
       if (roomUid.category == Categories.GROUP) {
         return FutureBuilder<String>(
-            future: _roomRepo.getName(activity.from),
-            builder: (c, s) => RoomName(
-                uid: activity.from,
-                name: "${s.data ?? ""} ${_i18n.get("record_audio_activity")}",
-                style: textStyle(context)));
+          future: _roomRepo.getName(activity.from),
+          builder: (c, s) => RoomName(
+            uid: activity.from,
+            name: "${s.data ?? ""} ${_i18n.get("record_audio_activity")}",
+            style: textStyle(context),
+          ),
+        );
       }
       return Text(
         _i18n.get("record_audio_activity"),
@@ -53,11 +59,13 @@ class ActivityStatus extends StatelessWidget {
     } else if (activity.typeOfActivity == ActivityType.SENDING_FILE) {
       if (roomUid.category == Categories.GROUP) {
         return FutureBuilder<String>(
-            future: _roomRepo.getName(activity.from),
-            builder: (c, s) => RoomName(
-                uid: activity.from,
-                name: "${s.data ?? ""} ${_i18n.get('sending_file_activity')}",
-                style: textStyle(context)));
+          future: _roomRepo.getName(activity.from),
+          builder: (c, s) => RoomName(
+            uid: activity.from,
+            name: "${s.data ?? ""} ${_i18n.get('sending_file_activity')}",
+            style: textStyle(context),
+          ),
+        );
       } else {
         return Text(
           _i18n.get("sending_file_activity"),

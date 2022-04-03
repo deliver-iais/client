@@ -19,20 +19,23 @@ class FileInfo {
   @HiveField(3)
   String path;
 
-  FileInfo(
-      {required this.sizeType,
-      required this.uuid,
-      required this.name,
-      required this.path});
+  FileInfo({
+    required this.sizeType,
+    required this.uuid,
+    required this.name,
+    required this.path,
+  });
 
-  FileInfo copyWith(
-          {String? sizeType,
-          required String uuid,
-          String? name,
-          String? path}) =>
+  FileInfo copyWith({
+    String? sizeType,
+    required String uuid,
+    String? name,
+    String? path,
+  }) =>
       FileInfo(
-          sizeType: sizeType ?? this.sizeType,
-          uuid: uuid,
-          name: name ?? this.name,
-          path: path ?? this.path);
+        sizeType: sizeType ?? this.sizeType,
+        uuid: uuid,
+        name: name ?? this.name,
+        path: path ?? this.path,
+      );
 }

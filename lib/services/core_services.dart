@@ -2,22 +2,22 @@
 
 import 'dart:async';
 
-import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
-import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:fixnum/fixnum.dart';
 
 enum ConnectionStatus { Connected, Disconnected, Connecting }
 
@@ -53,7 +53,7 @@ class CoreServices {
       BehaviorSubject.seeded(ConnectionStatus.Connecting);
 
   //TODO test
-  initStreamConnection() async {
+  Future<void> initStreamConnection() async {
     if (_connectionTimer != null && _connectionTimer!.isActive) {
       return;
     }
@@ -71,7 +71,7 @@ class CoreServices {
   }
 
   @visibleForTesting
-  startCheckerTimer() async {
+  Future<void> startCheckerTimer() async {
     sendPing();
     if (_connectionTimer != null && _connectionTimer!.isActive) {
       return;
@@ -100,7 +100,7 @@ class CoreServices {
   }
 
   @visibleForTesting
-  startStream() async {
+  Future<void> startStream() async {
     try {
       _clientPacketStream = StreamController<ClientPacket>();
       _responseStream = isWeb
@@ -127,7 +127,8 @@ class CoreServices {
             break;
           case ServerPacket_Type.roomPresenceTypeChanged:
             _dataStreamServices.handleRoomPresenceTypeChange(
-                serverPacket.roomPresenceTypeChanged);
+              serverPacket.roomPresenceTypeChanged,
+            );
             break;
           case ServerPacket_Type.callOffer:
             _dataStreamServices.handleCallOffer(serverPacket.callOffer);
@@ -153,63 +154,67 @@ class CoreServices {
     }
   }
 
-  sendMessage(MessageByClient message) async {
+  Future<void> sendMessage(MessageByClient message) async {
     try {
-      ClientPacket clientPacket = ClientPacket()
+      final clientPacket = ClientPacket()
         ..message = message
         ..id = DateTime.now().microsecondsSinceEpoch.toString();
       _sendPacket(clientPacket);
-      Timer( Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
-          () => _checkPendingStatus(message.packetId));
+      Timer(
+        const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
+        () => _checkPendingStatus(message.packetId),
+      );
     } catch (e) {
       _logger.e(e);
     }
   }
 
   Future<void> _checkPendingStatus(String packetId) async {
-    var pm = await _messageDao.getPendingMessage(packetId);
+    final pm = await _messageDao.getPendingMessage(packetId);
     if (pm != null) {
-      await _messageDao.savePendingMessage(pm.copyWith(
-        failed: true,
-      ));
+      await _messageDao.savePendingMessage(
+        pm.copyWith(
+          failed: true,
+        ),
+      );
       if (_connectionStatus.value == ConnectionStatus.Connected) {
         connectionStatus.add(ConnectionStatus.Connected);
       }
     }
   }
 
-  sendPing() {
-    var ping = Ping()..lastPongTime = Int64(_lastPongTime);
-    var clientPacket = ClientPacket()
+  void sendPing() {
+    final ping = Ping()..lastPongTime = Int64(_lastPongTime);
+    final clientPacket = ClientPacket()
       ..ping = ping
       ..id = DateTime.now().microsecondsSinceEpoch.toString();
     _sendPacket(clientPacket, forceToSend: true);
   }
 
-  sendSeen(seen_pb.SeenByClient seen) {
-    ClientPacket clientPacket = ClientPacket()
+  void sendSeen(seen_pb.SeenByClient seen) {
+    final clientPacket = ClientPacket()
       ..seen = seen
       ..id = seen.id.toString();
     _sendPacket(clientPacket);
   }
 
-  sendCallAnswer(call_pb.CallAnswerByClient callAnswerByClient) {
-    ClientPacket clientPacket = ClientPacket()
+  void sendCallAnswer(call_pb.CallAnswerByClient callAnswerByClient) {
+    final clientPacket = ClientPacket()
       ..callAnswer = callAnswerByClient
-      ..id = callAnswerByClient.id.toString();
+      ..id = callAnswerByClient.id;
     _sendPacket(clientPacket);
   }
 
-  sendCallOffer(call_pb.CallOfferByClient callOfferByClient) {
-    ClientPacket clientPacket = ClientPacket()
+  void sendCallOffer(call_pb.CallOfferByClient callOfferByClient) {
+    final clientPacket = ClientPacket()
       ..callOffer = callOfferByClient
-      ..id = callOfferByClient.id.toString();
+      ..id = callOfferByClient.id;
     _sendPacket(clientPacket);
   }
 
-  sendActivity(ActivityByClient activity, String id) {
+  void sendActivity(ActivityByClient activity, String id) {
     if (!_authRepo.isCurrentUser(activity.to.toString())) {
-      ClientPacket clientPacket = ClientPacket()
+      final clientPacket = ClientPacket()
         ..activity = activity
         ..id = id;
       if (!_authRepo.isCurrentUser(activity.to.asString())) {
@@ -218,7 +223,10 @@ class CoreServices {
     }
   }
 
-  _sendPacket(ClientPacket packet, {bool forceToSend = false}) async {
+  Future<void> _sendPacket(
+    ClientPacket packet, {
+    bool forceToSend = false,
+  }) async {
     try {
       if (isWeb) {
         await _grpcCoreService.sendClientPacket(packet);

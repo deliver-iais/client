@@ -47,15 +47,15 @@ void main() {
       });
       test('When called if category is user and node be empty should return ""',
           () async {
-        getAndRegisterAuthRepo(isCurrentUser: false);
+        getAndRegisterAuthRepo();
         expect(await RoomRepo().getSlangName(emptyUid), "");
       });
       test('When called if isSameEntity  be false should  return getName',
           () async {
-        getAndRegisterAuthRepo(isCurrentUser: false);
+        getAndRegisterAuthRepo();
         getAndRegisterBotRepo(
-            botInfo:
-                BotInfo(uid: botUid.asString(), isOwner: true, name: "test"));
+          botInfo: BotInfo(uid: botUid.asString(), isOwner: true, name: "test"),
+        );
         expect(await RoomRepo().getSlangName(botUid), "test");
       });
     });
@@ -96,14 +96,14 @@ void main() {
           () async {
         final accountRepo = getAndRegisterAccountRepo();
         getAndRegisterAuthRepo(isCurrentUser: true);
-        var name = await RoomRepo().getName(testUid);
+        final name = await RoomRepo().getName(testUid);
         verify(accountRepo.getName());
         expect(name, "test");
       });
       test('When called if name is in cache should return name', () async {
         //set to cache
         roomNameCache.set(testUid.asString(), "test");
-        var name = await RoomRepo().getName(testUid);
+        final name = await RoomRepo().getName(testUid);
         expect(name, "test");
       });
       test(
@@ -111,7 +111,7 @@ void main() {
           () async {
         roomNameCache.clear();
         final uidIdNameDao = getAndRegisterUidIdNameDao(getByUidHasData: true);
-        var name = await RoomRepo().getName(testUid);
+        final name = await RoomRepo().getName(testUid);
         verify(uidIdNameDao.getByUid(testUid.asString()));
         expect(name, "test");
         expect(roomNameCache[testUid.asString()], "test");
@@ -122,7 +122,7 @@ void main() {
         roomNameCache.clear();
         final uidIdNameDao = getAndRegisterUidIdNameDao();
         final contactRepo = getAndRegisterContactRepo(getContactHasData: true);
-        var name = await RoomRepo().getName(testUid);
+        final name = await RoomRepo().getName(testUid);
         verify(contactRepo.getContact(testUid));
         expect(name, "testtest");
         expect(roomNameCache[testUid.asString()], "testtest");
@@ -134,7 +134,7 @@ void main() {
         roomNameCache.clear();
         final contactRepo =
             getAndRegisterContactRepo(getContactFromServerData: "test");
-        var name = await RoomRepo().getName(testUid);
+        final name = await RoomRepo().getName(testUid);
         verify(contactRepo.getContactFromServer(testUid));
         expect(name, "test");
         expect(roomNameCache[testUid.asString()], "test");
@@ -145,8 +145,9 @@ void main() {
         roomNameCache.clear();
         final uidIdNameDao = getAndRegisterUidIdNameDao();
         final mucRepo = getAndRegisterMucRepo(
-            fetchMucInfo: Muc(uid: testUid.asString(), name: "test"));
-        var name = await RoomRepo().getName(groupUid);
+          fetchMucInfo: Muc(uid: testUid.asString(), name: "test"),
+        );
+        final name = await RoomRepo().getName(groupUid);
         verify(mucRepo.fetchMucInfo(groupUid));
         verify(uidIdNameDao.update(groupUid.asString(), name: "test"));
         expect(name, "test");
@@ -158,12 +159,17 @@ void main() {
         roomNameCache.clear();
         final uidIdNameDao = getAndRegisterUidIdNameDao();
         final botRepo = getAndRegisterBotRepo(
-            botInfo:
-                BotInfo(uid: botUid.asString(), isOwner: true, name: "test"));
-        var name = await RoomRepo().getName(botUid);
+          botInfo: BotInfo(uid: botUid.asString(), isOwner: true, name: "test"),
+        );
+        final name = await RoomRepo().getName(botUid);
         verify(botRepo.getBotInfo(botUid));
-        verify(uidIdNameDao.update(botUid.asString(),
-            name: "test", id: botUid.node));
+        verify(
+          uidIdNameDao.update(
+            botUid.asString(),
+            name: "test",
+            id: botUid.node,
+          ),
+        );
         expect(name, "test");
         expect(roomNameCache[botUid.asString()], "test");
       });
@@ -173,7 +179,7 @@ void main() {
         roomNameCache.clear();
         final uidIdNameDao = getAndRegisterUidIdNameDao();
         getAndRegisterQueryServiceClient(getIdByUidData: "test");
-        var name = await RoomRepo().getName(groupUid);
+        final name = await RoomRepo().getName(groupUid);
         verify(uidIdNameDao.update(groupUid.asString(), id: "test"));
         expect(name, "test");
         expect(roomNameCache[groupUid.asString()], "test");
@@ -207,21 +213,27 @@ void main() {
       test('When called if should removePrivateRoom', () async {
         final queryServiceClient = getAndRegisterQueryServiceClient();
         await RoomRepo().deleteRoom(testUid);
-        verify(queryServiceClient
-            .removePrivateRoom(RemovePrivateRoomReq()..roomUid = testUid));
+        verify(
+          queryServiceClient
+              .removePrivateRoom(RemovePrivateRoomReq()..roomUid = testUid),
+        );
       });
       test(
           'When called should getRoom and update firstMessageId with room!.lastMessageId',
           () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
           final roomDao = getAndRegisterRoomDao(rooms: [testRoom]);
-          var deleted = await RoomRepo().deleteRoom(testUid);
+          final deleted = await RoomRepo().deleteRoom(testUid);
           verify(roomDao.getRoom(testUid.asString()));
-          verify(roomDao.updateRoom(Room(
-              uid: testUid.asString(),
-              deleted: true,
-              firstMessageId: 0,
-              lastUpdateTime: clock.now().millisecondsSinceEpoch)));
+          verify(
+            roomDao.updateRoom(
+              Room(
+                uid: testUid.asString(),
+                deleted: true,
+                lastUpdateTime: clock.now().millisecondsSinceEpoch,
+              ),
+            ),
+          );
           expect(deleted, true);
         });
       });
@@ -230,13 +242,17 @@ void main() {
         withClock(Clock.fixed(DateTime(2000)), () async {
           getAndRegisterQueryServiceClient(removePrivateRoomGetError: true);
           final roomDao = getAndRegisterRoomDao(rooms: [testRoom]);
-          var deleted = await RoomRepo().deleteRoom(testUid);
+          final deleted = await RoomRepo().deleteRoom(testUid);
           verifyNever(roomDao.getRoom(testUid.asString()));
-          verifyNever(roomDao.updateRoom(Room(
-              uid: testUid.asString(),
-              deleted: true,
-              firstMessageId: 0,
-              lastUpdateTime: clock.now().millisecondsSinceEpoch)));
+          verifyNever(
+            roomDao.updateRoom(
+              Room(
+                uid: testUid.asString(),
+                deleted: true,
+                lastUpdateTime: clock.now().millisecondsSinceEpoch,
+              ),
+            ),
+          );
           expect(deleted, false);
         });
       });
@@ -252,7 +268,7 @@ void main() {
           () async {
         final uidIdNameDao = getAndRegisterUidIdNameDao();
         getAndRegisterQueryServiceClient(getIdByUidData: "test");
-        var id = await RoomRepo().getIdByUid(testUid);
+        final id = await RoomRepo().getIdByUid(testUid);
         verify(uidIdNameDao.update(testUid.asString(), id: "test"));
         expect(id, "test");
       });
@@ -260,7 +276,7 @@ void main() {
           () async {
         final uidIdNameDao = getAndRegisterUidIdNameDao();
         getAndRegisterQueryServiceClient(getIdByUidGetError: true);
-        var id = await RoomRepo().getIdByUid(testUid);
+        final id = await RoomRepo().getIdByUid(testUid);
         verifyNever(uidIdNameDao.update(testUid.asString(), id: "test"));
         expect(id, null);
       });
@@ -270,8 +286,7 @@ void main() {
           'When called if activityObject[roomUid.node] be null should set it with new Activity',
           () async {
         final roomRepo = getAndRegisterRealRoomRepo();
-        BehaviorSubject<Activity> subject = BehaviorSubject();
-        subject.add(testActivity);
+        final subject = BehaviorSubject<Activity>()..add(testActivity);
         roomRepo.updateActivity(testActivity);
         expect(roomRepo.activityObject[testUid.node]?.value, subject.value);
       });
@@ -279,13 +294,12 @@ void main() {
           'When called if activityObject[roomUid.node] not be null should set it with new Activity and after 10 seconds should set it with noActivity',
           () async {
         final roomRepo = getAndRegisterRealRoomRepo();
-        BehaviorSubject<Activity> subject = BehaviorSubject();
-        subject.add(testActivity);
+        final subject = BehaviorSubject<Activity>()..add(testActivity);
         roomRepo.activityObject[testUid.node] = subject;
         roomRepo.updateActivity(testActivity);
         expect(roomRepo.activityObject[testUid.node]?.value, subject.value);
         await Future.delayed(const Duration(seconds: 10));
-        Activity noActivity = Activity()
+        final noActivity = Activity()
           ..from = testActivity.from
           ..typeOfActivity = ActivityType.NO_ACTIVITY
           ..to = testActivity.to;
@@ -297,16 +311,17 @@ void main() {
           'When called if activityObject[roomUid.node] be null should initialize it ',
           () async {
         final roomRepo = getAndRegisterRealRoomRepo();
-        BehaviorSubject<Activity> subject = BehaviorSubject();
+        final subject = BehaviorSubject<Activity>();
         roomRepo.initActivity(testUid.asString());
-        expect(roomRepo.activityObject[testUid.asString()]?.valueOrNull,
-            subject.valueOrNull);
+        expect(
+          roomRepo.activityObject[testUid.asString()]?.valueOrNull,
+          subject.valueOrNull,
+        );
       });
     });
     group('updateRoomName -', () {
       test('When called should set name to roomNameCache', () async {
-        final roomRepo = getAndRegisterRealRoomRepo();
-        roomRepo.updateRoomName(testUid, "test");
+        getAndRegisterRealRoomRepo().updateRoomName(testUid, "test");
         expect(roomNameCache[testUid.asString()], "test");
       });
     });
@@ -314,8 +329,9 @@ void main() {
       test('When called should get room have CustomNotification', () async {
         final customNotificationDao = getAndRegisterCustomNotificationDao();
         expect(
-            await RoomRepo().isRoomHaveACustomNotification(testUid.asString()),
-            false);
+          await RoomRepo().isRoomHaveACustomNotification(testUid.asString()),
+          false,
+        );
         verify(customNotificationDao.isHaveCustomNotif(testUid.asString()));
       });
     });
@@ -324,14 +340,17 @@ void main() {
         final customNotificationDao = getAndRegisterCustomNotificationDao();
         RoomRepo().setRoomCustomNotification(testUid.asString(), "/test");
         verify(
-            customNotificationDao.setCustomNotif(testUid.asString(), "/test"));
+          customNotificationDao.setCustomNotif(testUid.asString(), "/test"),
+        );
       });
     });
     group('getRoomCustomNotification -', () {
       test('When called should get path from customNotificationDao ', () async {
         final customNotificationDao = getAndRegisterCustomNotificationDao();
-        expect(await RoomRepo().getRoomCustomNotification(testUid.asString()),
-            "/test");
+        expect(
+          await RoomRepo().getRoomCustomNotification(testUid.asString()),
+          "/test",
+        );
         verify(customNotificationDao.getCustomNotif(testUid.asString()));
       });
     });
@@ -359,7 +378,7 @@ void main() {
     group('watchIsRoomBlocked -', () {
       test('When called should return IsRoomBlocked stream', () async {
         final blockDao = getAndRegisterBlockDao();
-        var value =
+        final value =
             await RoomRepo().watchIsRoomBlocked(testUid.asString()).first;
         expect(value, false);
         verify(blockDao.watchIsBlocked(testUid.asString()));
@@ -368,7 +387,7 @@ void main() {
     group('watchAllRooms -', () {
       test('When called should return list of rooms stream', () async {
         final roomDao = getAndRegisterRoomDao();
-        var value = await RoomRepo().watchAllRooms().first;
+        final value = await RoomRepo().watchAllRooms().first;
         expect(value, [testRoom]);
         verify(roomDao.watchAllRooms());
       });
@@ -376,7 +395,7 @@ void main() {
     group('watchRoom -', () {
       test('When called should return room stream', () async {
         final roomDao = getAndRegisterRoomDao();
-        var value = await RoomRepo().watchRoom(testUid.asString()).first;
+        final value = await RoomRepo().watchRoom(testUid.asString()).first;
         expect(value, testRoom);
         verify(roomDao.watchRoom(testUid.asString()));
       });
@@ -405,7 +424,7 @@ void main() {
     group('watchMySeen -', () {
       test('When called should return seen stream', () async {
         final seenDao = getAndRegisterSeenDao();
-        var value = await RoomRepo().watchMySeen(testUid.asString()).first;
+        final value = await RoomRepo().watchMySeen(testUid.asString()).first;
         expect(value, testSeen);
         verify(seenDao.watchMySeen(testUid.asString()));
       });
@@ -413,7 +432,7 @@ void main() {
     group('getMySeen -', () {
       test('When called should return my seen', () async {
         final seenDao = getAndRegisterSeenDao();
-        var value = await RoomRepo().getMySeen(testUid.asString());
+        final value = await RoomRepo().getMySeen(testUid.asString());
         expect(value, testSeen);
         verify(seenDao.getMySeen(testUid.asString()));
       });
@@ -421,7 +440,7 @@ void main() {
     group('getOthersSeen -', () {
       test('When called should return other seen', () async {
         final seenDao = getAndRegisterSeenDao();
-        var value = await RoomRepo().getOthersSeen(testUid.asString());
+        final value = await RoomRepo().getOthersSeen(testUid.asString());
         expect(value, testSeen);
         verify(seenDao.getOthersSeen(testUid.asString()));
       });

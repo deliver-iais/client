@@ -7,16 +7,16 @@ import 'package:get_it/get_it.dart';
 class BotCommands extends StatefulWidget {
   final Uid botUid;
   final String? query;
-  final Function onCommandClick;
+  final void Function(String) onCommandClick;
   final int botCommandSelectedIndex;
 
-  const BotCommands(
-      {Key? key,
-      required this.botUid,
-      required this.onCommandClick,
-      this.query,
-      required this.botCommandSelectedIndex})
-      : super(key: key);
+  const BotCommands({
+    Key? key,
+    required this.botUid,
+    required this.onCommandClick,
+    this.query,
+    required this.botCommandSelectedIndex,
+  }) : super(key: key);
 
   @override
   _BotCommandsState createState() => _BotCommandsState();
@@ -32,7 +32,7 @@ class _BotCommandsState extends State<BotCommands> {
       future: _botRepo.getBotInfo(widget.botUid),
       builder: (c, botInfo) {
         if (botInfo.hasData && botInfo.data != null) {
-          Map<String, String> botCommands = {};
+          final botCommands = <String, String>{};
           botInfo.data!.commands!.forEach((key, value) {
             if (key.contains(widget.query!)) {
               botCommands.putIfAbsent(key, () => value);
@@ -40,57 +40,60 @@ class _BotCommandsState extends State<BotCommands> {
           });
           return AnimatedContainer(
             duration: const Duration(milliseconds: 100),
-            color:theme.backgroundColor,
+            color: theme.backgroundColor,
             height: botCommands.keys.length * (24.0 + 16),
             child: Scrollbar(
-                child: ListView.separated(
-              itemCount: botCommands.length,
-              itemBuilder: (c, index) {
-                Color _botCommandItemColor = Colors.transparent;
-                if (widget.botCommandSelectedIndex == index &&
-                    widget.botCommandSelectedIndex != -1) {
-                  _botCommandItemColor =theme.focusColor;
-                }
-                return Container(
-                  color: _botCommandItemColor,
-                  child: Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-                    child: MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.translucent,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "/" + botCommands.keys.toList()[index],
-                              style:theme.textTheme.subtitle1,
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Opacity(
-                                opacity: 0.6,
-                                child: Text(
-                                  botCommands.values.toList()[index],
-                                  style:theme.textTheme.bodyText2,
+              child: ListView.separated(
+                itemCount: botCommands.length,
+                itemBuilder: (c, index) {
+                  var _botCommandItemColor = Colors.transparent;
+                  if (widget.botCommandSelectedIndex == index &&
+                      widget.botCommandSelectedIndex != -1) {
+                    _botCommandItemColor = theme.focusColor;
+                  }
+                  return Container(
+                    color: _botCommandItemColor,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 8,
+                      ),
+                      child: MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.translucent,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "/" + botCommands.keys.toList()[index],
+                                style: theme.textTheme.subtitle1,
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Opacity(
+                                  opacity: 0.6,
+                                  child: Text(
+                                    botCommands.values.toList()[index],
+                                    style: theme.textTheme.bodyText2,
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
+                          onTap: () {
+                            widget.onCommandClick(
+                              botCommands.keys.toList()[index],
+                            );
+                          },
                         ),
-                        onTap: () {
-                          widget
-                              .onCommandClick(botCommands.keys.toList()[index]);
-                        },
                       ),
                     ),
-                  ),
-                );
-              },
-              separatorBuilder: (BuildContext context, int index) =>
-                  const Divider(),
-            )),
+                  );
+                },
+                separatorBuilder: (context, index) => const Divider(),
+              ),
+            ),
           );
         } else {
           return const SizedBox.shrink();

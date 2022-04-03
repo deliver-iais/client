@@ -12,14 +12,14 @@ class PlayAudioStatus extends StatefulWidget {
   final Color backgroundColor;
   final Color foregroundColor;
 
-  const PlayAudioStatus(
-      {Key? key,
-      required this.fileId,
-      required this.fileName,
-      required this.filePath,
-      required this.backgroundColor,
-      required this.foregroundColor})
-      : super(key: key);
+  const PlayAudioStatus({
+    Key? key,
+    required this.fileId,
+    required this.fileName,
+    required this.filePath,
+    required this.backgroundColor,
+    required this.foregroundColor,
+  }) : super(key: key);
 
   @override
   _PlayAudioStatusState createState() => _PlayAudioStatusState();
@@ -40,58 +40,59 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
           color: widget.backgroundColor,
         ),
         child: StreamBuilder<AudioPlayerState>(
-            stream: audioPlayerService.audioCurrentState(),
-            builder: (context, snapshot) {
-              if (snapshot.data == AudioPlayerState.PLAYING) {
-                return StreamBuilder(
-                    stream: audioPlayerService.audioUuid,
-                    builder: (context, uuid) {
-                      if (uuid.hasData &&
-                          uuid.data.toString().isNotEmpty &&
-                          uuid.data.toString().contains(widget.fileId)) {
-                        return IconButton(
-                          padding: const EdgeInsets.all(0),
-                          alignment: Alignment.center,
-                          icon: Icon(
-                            Icons.pause,
-                            color: widget.foregroundColor,
-                            size: 40,
-                          ),
-                          onPressed: () {
-                            audioPlayerService.pause();
-                          },
-                        );
-                      } else {
-                        return buildPlay(context, widget.filePath);
-                      }
-                    });
-              } else {
-                return buildPlay(context, widget.filePath);
-              }
-            }),
+          stream: audioPlayerService.audioCurrentState(),
+          builder: (context, snapshot) {
+            if (snapshot.data == AudioPlayerState.PLAYING) {
+              return StreamBuilder(
+                stream: audioPlayerService.audioUuid,
+                builder: (context, uuid) {
+                  if (uuid.hasData &&
+                      uuid.data.toString().isNotEmpty &&
+                      uuid.data.toString().contains(widget.fileId)) {
+                    return IconButton(
+                      padding: EdgeInsets.zero,
+                      icon: Icon(
+                        Icons.pause,
+                        color: widget.foregroundColor,
+                        size: 40,
+                      ),
+                      onPressed: () {
+                        audioPlayerService.pause();
+                      },
+                    );
+                  } else {
+                    return buildPlay(context, widget.filePath);
+                  }
+                },
+              );
+            } else {
+              return buildPlay(context, widget.filePath);
+            }
+          },
+        ),
       ),
     );
   }
 
   IconButton buildPlay(BuildContext context, String audioPath) {
     return IconButton(
-        padding: EdgeInsets.zero,
-        alignment: Alignment.center,
-        icon: Icon(
-          Icons.play_arrow,
-          color: widget.foregroundColor,
-          size: 42,
-        ),
-        onPressed: () {
-          if (isAndroid || isIOS) {
-            audioPlayerService.play(
-              audioPath,
-              widget.fileId,
-              widget.fileName,
-            );
-          } else {
-            OpenFile.open(audioPath);
-          }
-        });
+      padding: EdgeInsets.zero,
+      icon: Icon(
+        Icons.play_arrow,
+        color: widget.foregroundColor,
+        size: 42,
+      ),
+      onPressed: () {
+        if (isAndroid || isIOS) {
+          audioPlayerService.play(
+            audioPath,
+            widget.fileId,
+            widget.fileName,
+          );
+        } else {
+          OpenFile.open(audioPath);
+        }
+      },
+    );
   }
 }

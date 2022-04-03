@@ -1,24 +1,24 @@
 import 'package:deliver/box/contact.dart';
-import 'package:deliver/shared/widgets/circle_avatar.dart';
-import 'package:deliver/shared/methods/name.dart';
-import 'package:flutter/material.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/name.dart';
+import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:flutter/material.dart';
 
 class ContactWidget extends StatelessWidget {
   final Contact contact;
   final IconData? circleIcon;
-  final Function? onCircleIcon;
+  final void Function()? onCircleIcon;
   final bool isSelected;
   final bool currentMember;
 
-  const ContactWidget(
-      {Key? key,
-      required this.contact,
-      this.circleIcon,
-      this.isSelected = false,
-      this.currentMember = false,
-      this.onCircleIcon})
-      : super(key: key);
+  const ContactWidget({
+    Key? key,
+    required this.contact,
+    this.circleIcon,
+    this.isSelected = false,
+    this.currentMember = false,
+    this.onCircleIcon,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -31,8 +31,11 @@ class ContactWidget extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          CircleAvatarWidget(contact.uid.asUid(), 23,
-              showSavedMessageLogoIfNeeded: true),
+          CircleAvatarWidget(
+            contact.uid.asUid(),
+            23,
+            showSavedMessageLogoIfNeeded: true,
+          ),
           const SizedBox(
             width: 15,
           ),

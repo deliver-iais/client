@@ -19,40 +19,49 @@ class BotTableWidget extends StatelessWidget {
   }
 
   Widget createTable() {
-    var table = message.json.toTable();
-    List<TableRow> rows = [];
-    List<Widget> columns = [];
-    Map<int, TableColumnWidth>? columnWidths = {};
+    final table = message.json.toTable();
+    final rows = <TableRow>[];
+    var columns = <Widget>[];
+    final columnWidths = <int, TableColumnWidth>{};
 
-    for (var row in table.rows) {
+    for (final row in table.rows) {
       columns = [];
-      for (int i = 0; i < row.columns.length; ++i) {
+      for (var i = 0; i < row.columns.length; ++i) {
         columnWidths[i] = FixedColumnWidth(table.columnWidths[i]);
-        columns.add(Container(
-          margin: const EdgeInsets.all(8),
-          child: Text(
-            row.columns[i],
-            style: TextStyle(fontWeight: row.bold ? FontWeight.bold : null),
+        columns.add(
+          Container(
+            margin: const EdgeInsets.all(8),
+            child: Text(
+              row.columns[i],
+              style: TextStyle(fontWeight: row.bold ? FontWeight.bold : null),
+            ),
           ),
-        ));
+        );
       }
-      rows.add(TableRow(
+      rows.add(
+        TableRow(
           children: columns,
           decoration: BoxDecoration(
             color: row.highlight ? colorScheme.primary.withAlpha(150) : null,
             borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(8), topRight: Radius.circular(8)),
-          )));
+              topLeft: Radius.circular(8),
+              topRight: Radius.circular(8),
+            ),
+          ),
+        ),
+      );
     }
     return Padding(
       padding: const EdgeInsets.all(24),
       child: Table(
-          border: TableBorder.all(
-              color: colorScheme.onPrimary,
-              borderRadius: const BorderRadius.all(Radius.circular(8))),
-          columnWidths: columnWidths,
-          defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-          children: rows),
+        border: TableBorder.all(
+          color: colorScheme.onPrimary,
+          borderRadius: const BorderRadius.all(Radius.circular(8)),
+        ),
+        columnWidths: columnWidths,
+        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+        children: rows,
+      ),
     );
   }
 }

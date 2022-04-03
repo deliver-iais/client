@@ -6,9 +6,11 @@ class FluidContainerWidget extends StatelessWidget {
   final Widget child;
   final bool showStandardContainer;
 
-  const FluidContainerWidget(
-      {Key? key, required this.child, this.showStandardContainer = false})
-      : super(key: key);
+  const FluidContainerWidget({
+    Key? key,
+    required this.child,
+    this.showStandardContainer = false,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -16,27 +18,33 @@ class FluidContainerWidget extends StatelessWidget {
     Widget widget;
     if (showStandardContainer) {
       widget = Container(
-          constraints:
-              const BoxConstraints(maxWidth: FLUID_CONTAINER_MAX_WIDTH),
-          margin: const EdgeInsets.all(24.0),
-          clipBehavior: Clip.hardEdge,
-          decoration: BoxDecoration(
-              border: Border.all(color: theme.dividerColor),
-              borderRadius: mainBorder,
-              gradient: LinearGradient(colors: [
-                Theme.of(context).colorScheme.surface,
-                elevation(
-                    theme.colorScheme.surface, theme.colorScheme.primary, 2)
-              ]),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  spreadRadius: 2,
-                  blurRadius: 8,
-                  offset: const Offset(0, 2), // changes position of shadow
-                ),
-              ]),
-          child: child);
+        constraints: const BoxConstraints(maxWidth: FLUID_CONTAINER_MAX_WIDTH),
+        margin: const EdgeInsets.all(24.0),
+        clipBehavior: Clip.hardEdge,
+        decoration: BoxDecoration(
+          border: Border.all(color: theme.dividerColor),
+          borderRadius: mainBorder,
+          gradient: LinearGradient(
+            colors: [
+              Theme.of(context).colorScheme.surface,
+              elevation(
+                theme.colorScheme.surface,
+                theme.colorScheme.primary,
+                2,
+              )
+            ],
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              spreadRadius: 2,
+              blurRadius: 8,
+              offset: const Offset(0, 2), // changes position of shadow
+            ),
+          ],
+        ),
+        child: child,
+      );
     } else {
       widget = Container(
         constraints: const BoxConstraints(maxWidth: FLUID_CONTAINER_MAX_WIDTH),

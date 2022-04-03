@@ -16,12 +16,12 @@ class AllAvatarPage extends StatefulWidget {
   final Uid userUid;
   final bool hasPermissionToDeletePic;
 
-  const AllAvatarPage(
-      {Key? key,
-      required this.userUid,
-      required this.hasPermissionToDeletePic,
-      required this.heroTag})
-      : super(key: key);
+  const AllAvatarPage({
+    Key? key,
+    required this.userUid,
+    required this.hasPermissionToDeletePic,
+    required this.heroTag,
+  }) : super(key: key);
 
   @override
   _AllAvatarPageState createState() => _AllAvatarPageState();
@@ -48,130 +48,138 @@ class _AllAvatarPageState extends State<AllAvatarPage> {
     return Hero(
       tag: widget.heroTag!,
       child: StreamBuilder<List<Avatar?>>(
-          key: _streamKey,
-          stream: _avatarRepo.getAvatar(widget.userUid, false),
-          builder: (cont, snapshot) {
-            if (snapshot.hasData && snapshot.data != null) {
-              _avatars = snapshot.data!;
-              return Scaffold(
-                  appBar: buildAppBar(snapshot.data!.length),
-                  body: Row(
-                    children: [
-                      if (isDesktop)
-                        StreamBuilder<int>(
-                            stream: _swipePositionSubject.stream,
-                            builder: (context, indexSnapShot) {
-                              if (indexSnapShot.hasData &&
-                                  indexSnapShot.data! > 0) {
-                                return IconButton(
-                                    onPressed: () {
-                                      _swiperController.previous();
-                                    },
-                                    icon: const Icon(
-                                        Icons.arrow_back_ios_new_outlined));
-                              } else {
-                                return const SizedBox(
-                                  width: 40,
-                                );
-                              }
-                            }),
-                      Expanded(
-                        child: Swiper(
-                            scrollDirection: Axis.horizontal,
-                            controller: _swiperController,
-                            onIndexChanged: (index) =>
-                                _swipePositionSubject.add(index),
-                            itemCount: snapshot.data!.length,
-                            itemBuilder: (c, index) {
-                              return FutureBuilder<String?>(
-                                future: _fileRepo.getFile(
-                                    snapshot.data![index]!.fileId!,
-                                    snapshot.data![index]!.fileName!),
-                                builder: (c, filePath) {
-                                  if (filePath.hasData &&
-                                      filePath.data != null) {
-                                    return InteractiveViewer(
-                                      child: Center(
-                                        child: isWeb
-                                            ? Image.network(filePath.data!)
-                                            : Image.file(File(filePath.data!)),
-                                      ),
-                                    );
-                                  } else {
-                                    return const Center(
-                                        child: CircularProgressIndicator(
-                                      color: Colors.blue,
-                                    ));
-                                  }
-                                },
-                              );
+        key: _streamKey,
+        stream: _avatarRepo.getAvatar(widget.userUid),
+        builder: (cont, snapshot) {
+          if (snapshot.hasData && snapshot.data != null) {
+            _avatars = snapshot.data!;
+            return Scaffold(
+              appBar: buildAppBar(snapshot.data!.length),
+              body: Row(
+                children: [
+                  if (isDesktop)
+                    StreamBuilder<int>(
+                      stream: _swipePositionSubject.stream,
+                      builder: (context, indexSnapShot) {
+                        if (indexSnapShot.hasData && indexSnapShot.data! > 0) {
+                          return IconButton(
+                            onPressed: () {
+                              _swiperController.previous();
                             },
-                            viewportFraction: 1.0,
-                            scale: 0.9,
-                            loop: false),
-                      ),
-                      if (isDesktop)
-                        StreamBuilder<int>(
-                            stream: _swipePositionSubject.stream,
-                            builder: (context, indexSnapShot) {
-                              if (indexSnapShot.hasData &&
-                                  indexSnapShot.data! !=
-                                      snapshot.data!.length - 1) {
-                                return IconButton(
-                                    onPressed: () {
-                                      _swiperController.next();
-                                    },
-                                    icon: const Icon(
-                                        Icons.arrow_forward_ios_outlined));
-                              } else {
-                                return const SizedBox(
-                                  width: 40,
-                                );
-                              }
-                            }),
-                    ],
-                  ));
-            } else {
-              return const SizedBox.shrink();
-            }
-          }),
+                            icon: const Icon(
+                              Icons.arrow_back_ios_new_outlined,
+                            ),
+                          );
+                        } else {
+                          return const SizedBox(
+                            width: 40,
+                          );
+                        }
+                      },
+                    ),
+                  Expanded(
+                    child: Swiper(
+                      controller: _swiperController,
+                      onIndexChanged: (index) =>
+                          _swipePositionSubject.add(index),
+                      itemCount: snapshot.data!.length,
+                      itemBuilder: (c, index) {
+                        return FutureBuilder<String?>(
+                          future: _fileRepo.getFile(
+                            snapshot.data![index]!.fileId!,
+                            snapshot.data![index]!.fileName!,
+                          ),
+                          builder: (c, filePath) {
+                            if (filePath.hasData && filePath.data != null) {
+                              return InteractiveViewer(
+                                child: Center(
+                                  child: isWeb
+                                      ? Image.network(filePath.data!)
+                                      : Image.file(File(filePath.data!)),
+                                ),
+                              );
+                            } else {
+                              return const Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.blue,
+                                ),
+                              );
+                            }
+                          },
+                        );
+                      },
+                      scale: 0.9,
+                      loop: false,
+                    ),
+                  ),
+                  if (isDesktop)
+                    StreamBuilder<int>(
+                      stream: _swipePositionSubject.stream,
+                      builder: (context, indexSnapShot) {
+                        if (indexSnapShot.hasData &&
+                            indexSnapShot.data! != snapshot.data!.length - 1) {
+                          return IconButton(
+                            onPressed: () {
+                              _swiperController.next();
+                            },
+                            icon: const Icon(
+                              Icons.arrow_forward_ios_outlined,
+                            ),
+                          );
+                        } else {
+                          return const SizedBox(
+                            width: 40,
+                          );
+                        }
+                      },
+                    ),
+                ],
+              ),
+            );
+          } else {
+            return const SizedBox.shrink();
+          }
+        },
+      ),
     );
   }
 
-  PreferredSizeWidget buildAppBar(totalLength) {
+  PreferredSizeWidget buildAppBar(int totalLength) {
     return AppBar(
       leading: _routingService.backButtonLeading(),
       title: Align(
-          alignment: Alignment.topLeft,
-          child: StreamBuilder<int>(
-            stream: _swipePositionSubject.stream,
-            builder: (c, position) {
-              if (position.hasData && position.data != null) {
-                return Text("${position.data! + 1} of $totalLength");
-              } else {
-                return const SizedBox.shrink();
-              }
-            },
-          )),
+        alignment: Alignment.topLeft,
+        child: StreamBuilder<int>(
+          stream: _swipePositionSubject.stream,
+          builder: (c, position) {
+            if (position.hasData && position.data != null) {
+              return Text("${position.data! + 1} of $totalLength");
+            } else {
+              return const SizedBox.shrink();
+            }
+          },
+        ),
+      ),
       actions: [
-        widget.hasPermissionToDeletePic
-            ? PopupMenuButton(
-                icon: const Icon(
-                  Icons.more_vert,
-                  size: 20,
-                ),
-                itemBuilder: (cc) => [
-                      PopupMenuItem(
-                        child: const Text("delete"),
-                        onTap: () async {
-                          await _avatarRepo.deleteAvatar(
-                              _avatars[_swipePositionSubject.value]!);
-                          _avatars.clear();
-                          setState(() {});
-                        },
-                      ),
-                    ])
-            : const SizedBox.shrink()
+        if (widget.hasPermissionToDeletePic)
+          PopupMenuButton(
+            icon: const Icon(
+              Icons.more_vert,
+              size: 20,
+            ),
+            itemBuilder: (cc) => [
+              PopupMenuItem(
+                child: const Text("delete"),
+                onTap: () async {
+                  await _avatarRepo.deleteAvatar(
+                    _avatars[_swipePositionSubject.value]!,
+                  );
+                  _avatars.clear();
+                  setState(() {});
+                },
+              ),
+            ],
+          )
       ],
     );
   }

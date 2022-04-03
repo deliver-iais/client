@@ -19,7 +19,7 @@ class CustomNotificationDaoImpl implements CustomNotificationDao {
 
   @override
   Future<bool> isHaveCustomNotif(String uid) async {
-    var box = await _open();
+    final box = await _open();
     if (box.get(uid) == null) {
       return false;
     } else {
@@ -29,14 +29,14 @@ class CustomNotificationDaoImpl implements CustomNotificationDao {
 
   @override
   Future<void> setCustomNotif(String uid, String fileName) async {
-    var box = await _open();
+    final box = await _open();
 
     box.put(uid, fileName);
   }
 
   @override
   Future<String?> getCustomNotif(String uid) async {
-    var box = await _open();
+    final box = await _open();
     if (box.get(uid) != null) {
       return box.get(uid);
     } else {

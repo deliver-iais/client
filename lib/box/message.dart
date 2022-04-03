@@ -43,19 +43,20 @@ class Message {
   @HiveField(11)
   String json;
 
-  Message(
-      {required this.roomUid,
-      this.id,
-      required this.packetId,
-      required this.time,
-      required this.from,
-      required this.to,
-      required this.json,
-      this.type = MessageType.NOT_SET,
-      this.replyToId = 0,
-      this.edited = false,
-      this.encrypted = false,
-      this.forwardedFrom});
+  Message({
+    required this.roomUid,
+    this.id,
+    required this.packetId,
+    required this.time,
+    required this.from,
+    required this.to,
+    required this.json,
+    this.type = MessageType.NOT_SET,
+    this.replyToId = 0,
+    this.edited = false,
+    this.encrypted = false,
+    this.forwardedFrom,
+  });
 
   Message copy(Message pm) => Message(
         roomUid: pm.roomUid,
@@ -72,19 +73,20 @@ class Message {
         json: pm.json,
       );
 
-  Message copyWith(
-          {String? roomUid,
-          int? id,
-          String? packetId,
-          int? time,
-          String? from,
-          String? to,
-          int? replyToId,
-          String? forwardedFrom,
-          bool? edited,
-          bool? encrypted,
-          MessageType? type,
-          String? json}) =>
+  Message copyWith({
+    String? roomUid,
+    int? id,
+    String? packetId,
+    int? time,
+    String? from,
+    String? to,
+    int? replyToId,
+    String? forwardedFrom,
+    bool? edited,
+    bool? encrypted,
+    MessageType? type,
+    String? json,
+  }) =>
       Message(
         roomUid: roomUid ?? this.roomUid,
         id: id ?? this.id,
@@ -101,24 +103,23 @@ class Message {
       );
 
   @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is Message &&
-            const DeepCollectionEquality().equals(other.roomUid, roomUid) &&
-            const DeepCollectionEquality().equals(other.id, id) &&
-            const DeepCollectionEquality().equals(other.packetId, packetId) &&
-            const DeepCollectionEquality().equals(other.time, time) &&
-            const DeepCollectionEquality().equals(other.from, from) &&
-            const DeepCollectionEquality().equals(other.to, to) &&
-            const DeepCollectionEquality().equals(other.replyToId, replyToId) &&
-            const DeepCollectionEquality()
-                .equals(other.forwardedFrom, forwardedFrom) &&
-            const DeepCollectionEquality().equals(other.edited, edited) &&
-            const DeepCollectionEquality().equals(other.encrypted, encrypted) &&
-            const DeepCollectionEquality().equals(other.type, type) &&
-            const DeepCollectionEquality().equals(other.json, json));
-  }
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other.runtimeType == runtimeType &&
+          other is Message &&
+          const DeepCollectionEquality().equals(other.roomUid, roomUid) &&
+          const DeepCollectionEquality().equals(other.id, id) &&
+          const DeepCollectionEquality().equals(other.packetId, packetId) &&
+          const DeepCollectionEquality().equals(other.time, time) &&
+          const DeepCollectionEquality().equals(other.from, from) &&
+          const DeepCollectionEquality().equals(other.to, to) &&
+          const DeepCollectionEquality().equals(other.replyToId, replyToId) &&
+          const DeepCollectionEquality()
+              .equals(other.forwardedFrom, forwardedFrom) &&
+          const DeepCollectionEquality().equals(other.edited, edited) &&
+          const DeepCollectionEquality().equals(other.encrypted, encrypted) &&
+          const DeepCollectionEquality().equals(other.type, type) &&
+          const DeepCollectionEquality().equals(other.json, json));
 
   @override
   int get hashCode => Object.hash(

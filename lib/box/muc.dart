@@ -33,16 +33,17 @@ class Muc {
   @HiveField(8)
   bool? showPinMessage = true;
 
-  Muc(
-      {required this.uid,
-      this.name,
-      this.token,
-      this.id,
-      this.info,
-      this.pinMessagesIdList,
-      this.population,
-      this.lastMessageId,
-      this.showPinMessage});
+  Muc({
+    required this.uid,
+    this.name,
+    this.token,
+    this.id,
+    this.info,
+    this.pinMessagesIdList,
+    this.population,
+    this.lastMessageId,
+    this.showPinMessage,
+  });
 
   Muc copy(Muc muc) => Muc(
         uid: muc.uid,
@@ -56,24 +57,26 @@ class Muc {
         population: muc.population ?? population,
       );
 
-  Muc copyWith(
-          {required String uid,
-          String? name,
-          String? token,
-          String? id,
-          String? info,
-          int? lastMessageId,
-          List<int>? pinMessagesIdList,
-          int? population,
-          bool? showPinMessage}) =>
+  Muc copyWith({
+    required String uid,
+    String? name,
+    String? token,
+    String? id,
+    String? info,
+    int? lastMessageId,
+    List<int>? pinMessagesIdList,
+    int? population,
+    bool? showPinMessage,
+  }) =>
       Muc(
-          uid: uid,
-          name: name ?? this.name,
-          token: token ?? this.token,
-          id: id ?? this.id,
-          info: info ?? this.info,
-          lastMessageId: lastMessageId ?? this.lastMessageId,
-          pinMessagesIdList: pinMessagesIdList ?? this.pinMessagesIdList,
-          population: population ?? this.population,
-          showPinMessage: showPinMessage ?? this.showPinMessage);
+        uid: uid,
+        name: name ?? this.name,
+        token: token ?? this.token,
+        id: id ?? this.id,
+        info: info ?? this.info,
+        lastMessageId: lastMessageId ?? this.lastMessageId,
+        pinMessagesIdList: pinMessagesIdList ?? this.pinMessagesIdList,
+        population: population ?? this.population,
+        showPinMessage: showPinMessage ?? this.showPinMessage,
+      );
 }

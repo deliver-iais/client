@@ -12,45 +12,51 @@ class SyncContact {
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _i18n = GetIt.I.get<I18N>();
 
-  showSyncContactDialog(BuildContext context) async {
-    bool isAlreadyContactAccessTipShowed =
+  Future<void> showSyncContactDialog(BuildContext context) async {
+    final isAlreadyContactAccessTipShowed =
         await _sharedDao.getBoolean(SHARED_DAO_SHOW_CONTACT_DIALOG);
     if (!isAlreadyContactAccessTipShowed && !isDesktop && !isWeb) {
       return showDialog(
-          context: context,
-          builder: (context) {
-            return AlertDialog(
-              titlePadding: const EdgeInsets.only(left: 0, right: 0, top: 0),
-              actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
-              backgroundColor: Colors.white,
-              title: Container(
-                height: 80,
-                color: Colors.blue,
-                child: const Icon(
-                  CupertinoIcons.profile_circled,
-                  color: Colors.white,
-                  size: 40,
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            titlePadding: EdgeInsets.zero,
+            actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
+            backgroundColor: Colors.white,
+            title: Container(
+              height: 80,
+              color: Colors.blue,
+              child: const Icon(
+                CupertinoIcons.profile_circled,
+                color: Colors.white,
+                size: 40,
+              ),
+            ),
+            content: SizedBox(
+              width: 200,
+              child: Text(
+                _i18n.get("send_contacts_message"),
+                style: Theme.of(context).textTheme.subtitle1,
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  _sharedDao.putBoolean(
+                    SHARED_DAO_SHOW_CONTACT_DIALOG,
+                    true,
+                  );
+                  Navigator.pop(context);
+                  _contactRepo.syncContacts();
+                },
+                child: Text(
+                  _i18n.get("continue"),
                 ),
-              ),
-              content: SizedBox(
-                width: 200,
-                child: Text(_i18n.get("send_contacts_message"),
-                    style: Theme.of(context).textTheme.subtitle1),
-              ),
-              actions: <Widget>[
-                TextButton(
-                    onPressed: () {
-                      _sharedDao.putBoolean(
-                          SHARED_DAO_SHOW_CONTACT_DIALOG, true);
-                      Navigator.pop(context);
-                      _contactRepo.syncContacts();
-                    },
-                    child: Text(
-                      _i18n.get("continue"),
-                    ))
-              ],
-            );
-          });
+              )
+            ],
+          );
+        },
+      );
     } else {
       _contactRepo.syncContacts();
     }

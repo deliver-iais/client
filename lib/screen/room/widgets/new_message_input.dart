@@ -10,14 +10,14 @@ import 'package:get_it/get_it.dart';
 class NewMessageInput extends StatelessWidget {
   final String currentRoomId;
   final int replyMessageId;
-  final Function? resetRoomPageDetails;
-  final bool? waitingForForward;
+  final void Function() resetRoomPageDetails;
+  final bool waitingForForward;
   final Message? editableMessage;
-  final Function? sendForwardMessage;
+  final void Function()? sendForwardMessage;
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final Function? scrollToLastSentMessage;
+  final void Function() scrollToLastSentMessage;
   final FocusNode focusNode;
-  final Function handleScrollToMessage;
+  final void Function handleScrollToMessage;
   final TextEditingController textController;
 
   NewMessageInput({
@@ -26,12 +26,12 @@ class NewMessageInput extends StatelessWidget {
     required this.focusNode,
     required this.handleScrollToMessage,
     required this.textController,
+    required this.scrollToLastSentMessage,
+    required this.resetRoomPageDetails,
+    required this.waitingForForward,
     this.replyMessageId = 0,
-    this.resetRoomPageDetails,
-    this.waitingForForward,
     this.editableMessage,
     this.sendForwardMessage,
-    this.scrollToLastSentMessage,
   }) : super(key: key);
 
   @override

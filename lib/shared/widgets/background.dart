@@ -40,7 +40,7 @@ class Background extends StatelessWidget {
         ? const Color(0x0075ba94)
         : const Color(0x00000C11);
 
-    const List<Alignment> pp = [
+    const pp = <Alignment>[
       Alignment(-0.9, -1),
       Alignment(-0.3, -.8),
       Alignment(0, -.8),
@@ -78,74 +78,82 @@ class Background extends StatelessWidget {
           child: Stack(
             children: [
               AnimatedContainer(
-                  duration: duration,
-                  curve: curve,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      gradient: RadialGradient(
+                duration: duration,
+                curve: curve,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
                     colors: [
                       dark,
                       darkTransparent,
                     ],
                     center: b,
-                  ))),
+                  ),
+                ),
+              ),
               AnimatedContainer(
-                  duration: duration,
-                  curve: curve,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      gradient: RadialGradient(
+                duration: duration,
+                curve: curve,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
                     colors: [
                       yellow,
                       yellowTransparent,
                     ],
                     center: y,
-                  ))),
+                  ),
+                ),
+              ),
               AnimatedContainer(
-                  duration: duration,
-                  curve: curve,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      gradient: RadialGradient(
+                duration: duration,
+                curve: curve,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
                     colors: [
                       yellow,
                       yellowTransparent,
                     ],
                     center: y2,
-                  ))),
+                  ),
+                ),
+              ),
               AnimatedContainer(
-                  duration: duration,
-                  curve: curve,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      gradient: RadialGradient(
+                duration: duration,
+                curve: curve,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
                     colors: [
                       white,
                       whiteTransparent,
                     ],
                     center: w,
-                  ))),
+                  ),
+                ),
+              ),
               AnimatedContainer(
-                  duration: duration,
-                  curve: curve,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                      gradient: RadialGradient(
+                duration: duration,
+                curve: curve,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: RadialGradient(
                     colors: [
                       white,
                       whiteTransparent,
                     ],
                     center: w2,
-                  ))),
-              SizedBox(
-                width: double.infinity,
-                height: double.infinity,
+                  ),
+                ),
+              ),
+              SizedBox.expand(
                 child: Image(
-                    image:
-                        const AssetImage("assets/backgrounds/pattern-24.png"),
-                    fit: BoxFit.scaleDown,
-                    color: foregroundColor,
-                    repeat: ImageRepeat.repeat),
+                  image: const AssetImage("assets/backgrounds/pattern-24.png"),
+                  fit: BoxFit.scaleDown,
+                  color: foregroundColor,
+                  repeat: ImageRepeat.repeat,
+                ),
               ),
             ],
           ),
