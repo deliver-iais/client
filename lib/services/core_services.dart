@@ -25,7 +25,6 @@ const MIN_BACKOFF_TIME = isWeb ? 16 : 4;
 const MAX_BACKOFF_TIME = isWeb ? 16 : 8;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
-// TODO Change to StreamRepo, it is not a service, it is repo now!!!
 class CoreServices {
   final _logger = GetIt.I.get<Logger>();
   final _grpcCoreService = GetIt.I.get<CoreServiceClient>();
