@@ -138,10 +138,8 @@ class DataStreamServices {
               _avatarRepo.fetchAvatar(message.from, forceToUpdate: true);
               break;
             case MucSpecificPersistentEvent_Issue.MUC_CREATED:
-              // TODO: Handle this case.
-              break;
             case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
-              // TODO: Handle this case.
+              // TODO(hasan): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/429
               break;
           }
           break;
@@ -177,13 +175,10 @@ class DataStreamServices {
           }
           break;
         case PersistentEvent_Type.adminSpecificPersistentEvent:
-          // TODO: Handle this case.
-          break;
         case PersistentEvent_Type.botSpecificPersistentEvent:
-          // TODO: Handle this case.
+          // TODO(hasan): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/429
           break;
         case PersistentEvent_Type.notSet:
-          // TODO: Handle this case.
           break;
       }
     } else if (message.whichType() == Message_Type.callEvent) {
@@ -203,7 +198,7 @@ class DataStreamServices {
 
     if (!msg.json.isEmptyMessage() &&
         await shouldNotifyForThisMessage(message)) {
-      // TODO: this code should go to the notification service itself i think
+      // TODO(hasan): this code should go to the notification service itself i think, https://gitlab.iais.co/deliver/wiki/-/issues/430
       if (_routingServices.isInRoom(roomUid.asString()) &&
           !isDesktop &&
           message.callEvent.newStatus != CallEvent_CallStatus.CREATED) {
@@ -422,7 +417,7 @@ class DataStreamServices {
 
     var isMention = false;
     if (roomUid.category == Categories.GROUP) {
-      // TODO, bug: username1 = hasan , username2 = hasan2 => isMention will be triggered if @hasan2 be into the text.
+      // TODO(chitsaz): bug: username1 = hasan , username2 = hasan2 => isMention will be triggered if @hasan2 be into the text.
       if (message.text.text
           .contains("@${(await _accountRepo.getAccount()).userName}")) {
         isMention = true;
