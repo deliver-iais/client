@@ -26,12 +26,11 @@ class _VerificationPageState extends State<VerificationPage> {
   final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _i18n = GetIt.I.get<I18N>();
   final _focusNode = FocusNode();
   bool _showError = false;
-  String? _verificationCode;
 
-  // TODO ???
-  final I18N _i18n = GetIt.I.get<I18N>();
+  String? _verificationCode;
 
   void _sendVerificationCode() {
     if ((_verificationCode!.length) < 5) {

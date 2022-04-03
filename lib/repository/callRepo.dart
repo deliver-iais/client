@@ -300,7 +300,7 @@ class CallRepo {
           case RTCIceConnectionState.RTCIceConnectionStateCompleted:
           case RTCIceConnectionState.RTCIceConnectionStateCount:
           case RTCIceConnectionState.RTCIceConnectionStateClosed:
-            // TODO(AmirHossein): Handle these cases.
+            // TODO(AmirHossein): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/416
             break;
         }
       }
@@ -355,13 +355,9 @@ class CallRepo {
             }
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateClosed:
-            // TODO: Handle this case.
-            break;
           case RTCPeerConnectionState.RTCPeerConnectionStateNew:
-            // TODO: Handle this case.
-            break;
           case RTCPeerConnectionState.RTCPeerConnectionStateConnecting:
-            // TODO: Handle this case.
+            // TODO(AmirHossein): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/416
             break;
         }
       }

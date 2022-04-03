@@ -50,7 +50,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
     _queryTermDebouncedSubject.stream
         .debounceTime(const Duration(milliseconds: 250))
         .listen((text) => _searchMode.add(text));
-    // TODO: why here?!?!?!?, just do it in Call page!?!?!
+    // TODO(chitsaz): why here?, why not just do it in CallList page itself, https://gitlab.iais.co/deliver/wiki/-/issues/424
     _callRepo.fetchUserCallList(
       _authRepo.currentUserUid,
       DateTime.now().month,
