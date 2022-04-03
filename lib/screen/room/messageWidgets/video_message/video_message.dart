@@ -5,7 +5,6 @@ import 'package:deliver/screen/room/messageWidgets/video_message/video_ui.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:dio/dio.dart';
@@ -221,17 +220,6 @@ class _VideoMessageState extends State<VideoMessage> {
       children: [
         child,
         videoDetails(videoLength, video.size.toInt()),
-        video.caption.isEmpty
-            ? !isDesktop
-                ? const SizedBox.shrink()
-                : TimeAndSeenStatus(
-                    widget.message,
-                    isSender: widget.isSender,
-                    isSeen: widget.isSeen,
-                    needsPadding: true,
-                    foregroundColor: widget.colorScheme.onPrimaryContainer,
-                  )
-            : Container(),
         if (video.caption.isEmpty)
           TimeAndSeenStatus(widget.message,
               isSender: widget.isSender,

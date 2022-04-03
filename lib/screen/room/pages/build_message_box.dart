@@ -420,6 +420,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         onShare();
         break;
       case OperationOnMessage.SAVE_TO_GALLERY:
+        // ignore: use_build_context_synchronously
         onSaveTOGallery(context);
         break;
       case OperationOnMessage.SAVE_TO_DOWNLOADS:

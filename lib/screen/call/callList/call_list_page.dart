@@ -29,7 +29,7 @@ class CallListPage extends StatefulWidget {
 }
 
 class _CallListPageState extends State<CallListPage> {
-  I18N i18n = GetIt.I.get<I18N>();
+  final _i18n = GetIt.I.get<I18N>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _callListDao = GetIt.I.get<CallInfoDao>();
   final _authRepo = GetIt.I.get<AuthRepo>();
@@ -41,7 +41,7 @@ class _CallListPageState extends State<CallListPage> {
         appBar: UltimateAppBar(
           child: AppBar(
             titleSpacing: 8,
-            title: Text(I18N.of(context)!.get("calls")),
+            title: Text(_i18n.get("calls")),
             leading: _routingService.backButtonLeading(),
           ),
         ),

@@ -287,35 +287,32 @@ class _AccountSettingsState extends State<AccountSettings> {
                                 const SizedBox(
                                   height: 5,
                                 ),
-                                _newUsername.isEmpty
-                                    ? Row(
-                                        children: [
-                                          Expanded(
-                                            child: Text(
-                                              _i18n.get("username_helper"),
-                                              textAlign: TextAlign.justify,
-                                              overflow: TextOverflow.ellipsis,
-                                              maxLines: 2,
-                                              style: const TextStyle(
-                                                  fontSize: 14,
-                                                  color: Colors.blueAccent),
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    : const SizedBox.shrink(),
-                                !usernameIsAvailable
-                                    ? Row(
-                                        children: [
-                                          Text(
-                                            _i18n.get("username_already_exist"),
-                                            style: const TextStyle(
-                                                fontSize: 10,
-                                                color: Colors.red),
-                                          ),
-                                        ],
-                                      )
-                                    : const SizedBox.shrink(),
+                                if (_newUsername.isEmpty)
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          _i18n.get("username_helper"),
+                                          textAlign: TextAlign.justify,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 2,
+                                          style: const TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.blueAccent),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                if (usernameIsAvailable)
+                                  Row(
+                                    children: [
+                                      Text(
+                                        _i18n.get("username_already_exist"),
+                                        style: const TextStyle(
+                                            fontSize: 10, color: Colors.red),
+                                      ),
+                                    ],
+                                  ),
                                 const SizedBox(
                                   height: 20,
                                 ),
@@ -446,6 +443,7 @@ class _AccountSettingsState extends State<AccountSettings> {
   }
 
   Future<void> checkAndSend() async {
+    final navigatorState = Navigator.of(context);
     final checkUserName = _usernameFormKey.currentState?.validate() ?? false;
     if (checkUserName) {
       final isValidated = _formKey.currentState?.validate() ?? false;
@@ -458,8 +456,7 @@ class _AccountSettingsState extends State<AccountSettings> {
               _email.isNotEmpty ? _email : _account!.email);
           if (setPrivateInfo) {
             if (widget.forceToSetUsernameAndName) {
-              Navigator.pushAndRemoveUntil(context,
-                  MaterialPageRoute(builder: (c) {
+              navigatorState.pushAndRemoveUntil(MaterialPageRoute(builder: (c) {
                 return const HomePage();
               }), (r) => false);
             } else {

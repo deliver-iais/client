@@ -104,31 +104,30 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                widget.isChannel
-                    ? Row(
-                        children: [
-                          Flexible(
-                              child: Form(
-                            key: _channelIdKey,
-                            child: TextFormField(
-                              minLines: 1,
-                              autofocus: autofocus,
-                              textInputAction: TextInputAction.send,
-                              controller: idController,
-                              validator: validateUsername,
-                              onChanged: (str) {
-                                setState(() {
-                                  channelId = str;
-                                });
-                              },
-                              decoration: buildInputDecoration(
-                                  _i18n.get("enter_channel_id"), context,
-                                  isOptional: true),
-                            ),
-                          )),
-                        ],
-                      )
-                    : const SizedBox.shrink(),
+                if (widget.isChannel)
+                  Row(
+                    children: [
+                      Flexible(
+                          child: Form(
+                        key: _channelIdKey,
+                        child: TextFormField(
+                          minLines: 1,
+                          autofocus: autofocus,
+                          textInputAction: TextInputAction.send,
+                          controller: idController,
+                          validator: validateUsername,
+                          onChanged: (str) {
+                            setState(() {
+                              channelId = str;
+                            });
+                          },
+                          decoration: buildInputDecoration(
+                              _i18n.get("enter_channel_id"), context,
+                              isOptional: true),
+                        ),
+                      )),
+                    ],
+                  ),
                 StreamBuilder<bool>(
                     stream: showChannelIdError.stream,
                     builder: (c, e) {

@@ -58,6 +58,7 @@ class DragDropWidget extends StatelessWidget {
                         final res = await _mucRepo.isMucAdminOrOwner(
                             _authRepo.currentUserUid.asString(), roomUid);
                         if (res) {
+                          // ignore: use_build_context_synchronously
                           showDialogInDesktop([modelFile], context, file.type,
                               replyMessageId, resetRoomPageDetails);
                         }
@@ -79,6 +80,7 @@ class DragDropWidget extends StatelessWidget {
                     extension: element.mimeType, size: await element.length()));
               }
               if (!roomUid.asUid().isChannel()) {
+                // ignore: use_build_context_synchronously
                 showDialogInDesktop(
                     files,
                     context,
@@ -89,6 +91,7 @@ class DragDropWidget extends StatelessWidget {
                 final res = await _mucRepo.isMucAdminOrOwner(
                     _authRepo.currentUserUid.asString(), roomUid);
                 if (res) {
+                  // ignore: use_build_context_synchronously
                   showDialogInDesktop(
                       files,
                       context,

@@ -179,7 +179,7 @@ class _ScanQrCode extends State<ScanQrCode> {
     if (res) {
       ToastDisplay.showToast(
           toastText:
-              "$firstName $lastName ${I18N.of(context)!.get("contact_exist")}",
+              "$firstName $lastName ${_i18n.get("contact_exist")}",
           toastContext: context);
     } else {
       showFloatingModalBottomSheet(
@@ -218,6 +218,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                       child: Text(_i18n.get("skip"))),
                   TextButton(
                     onPressed: () async {
+                      final navigatorState = Navigator.of(context);
                       final newContactAdded = await _contactRepo.sendNewContact(
                           contact_pb.Contact()
                             ..firstName = firstName!
@@ -231,7 +232,7 @@ class _ScanQrCode extends State<ScanQrCode> {
                             toastText:
                                 "$firstName$lastName ${_i18n.get("contact_add")}",
                             toastContext: context);
-                        Navigator.of(context).pop();
+                        navigatorState.pop();
                       }
                     },
                     child: Text(_i18n.get("add_contact")),

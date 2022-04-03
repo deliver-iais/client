@@ -40,13 +40,13 @@ class ForwardPreview extends StatelessWidget {
               size: 25,
             ),
             const SizedBox(width: 10),
-            shareUid != null
-                ? Text(shareUid!.name)
-                : forwardedMedia != null && forwardedMedia!.isNotEmpty
-                    ? Text(
-                        '${forwardedMedia!.length} ${_i18n.get("forwarded_medias")}')
-                    : Text(
-                        '${forwardedMessages!.length} ${_i18n.get("forwarded_messages")}'),
+            if (shareUid != null)
+              Text(shareUid!.name)
+            else if (forwardedMedia != null && forwardedMedia!.isNotEmpty)
+              Text('${forwardedMedia!.length} ${_i18n.get("forwarded_medias")}')
+            else
+              Text(
+                  '${forwardedMessages!.length} ${_i18n.get("forwarded_messages")}'),
             const Spacer(),
             IconButton(
               padding: const EdgeInsets.all(0),

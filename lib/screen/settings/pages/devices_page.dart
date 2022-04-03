@@ -204,9 +204,10 @@ class _DevicesPageState extends State<DevicesPage> {
                     child: Text(_i18n.get("delete")),
                     style: TextButton.styleFrom(primary: Colors.red),
                     onPressed: () async {
+                      final navigatorState = Navigator.of(context);
                       if (sessions.length > 1) {
                         final res = await _accountRepo.revokeAllOtherSession();
-                        Navigator.pop(context);
+                        navigatorState.pop();
                         if (res) {
                           setState(() {});
                         } else {
@@ -217,7 +218,7 @@ class _DevicesPageState extends State<DevicesPage> {
                       } else {
                         final res = await _accountRepo
                             .revokeSession(sessions.first.sessionId);
-                        Navigator.pop(context);
+                        navigatorState.pop();
                         if (res) {
                           setState(() {});
                         } else {

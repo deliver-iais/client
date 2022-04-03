@@ -18,6 +18,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 
+/// TODO refactor this class
 class ShowCaptionDialog extends StatefulWidget {
   final String? type;
   final List<model.File>? files;
@@ -110,110 +111,110 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: <Widget>[
-                      (widget.editableMessage != null ||
-                                  widget.files!.length <= 1) &&
-                              (_type.contains("image") ||
-                                  _type.contains("jpg") ||
-                                  _type.contains("png") ||
-                                  _type.contains("jfif") ||
-                                  _type.contains("jpeg"))
-                          ? SizedBox(
-                              height: MediaQuery.of(context).size.height / 3,
-                              child: Stack(
+                      if ((widget.editableMessage != null ||
+                              widget.files!.length <= 1) &&
+                          (_type.contains("image") ||
+                              _type.contains("jpg") ||
+                              _type.contains("png") ||
+                              _type.contains("jfif") ||
+                              _type.contains("jpeg")))
+                        SizedBox(
+                            height: MediaQuery.of(context).size.height / 3,
+                            child: Stack(
+                              children: [
+                                Center(
+                                    child: widget.files!.isNotEmpty
+                                        ? isWeb
+                                            ? Image.network(
+                                                widget.files!.first.path)
+                                            : Image.file(
+                                                File(widget.files!.first.path))
+                                        : _editedFile != null
+                                            ? Image.file(
+                                                File(_editedFile!.path))
+                                            : FutureBuilder<String?>(
+                                                future:
+                                                    _fileRepo.getFileIfExist(
+                                                        _editableFile.uuid,
+                                                        _editableFile.name),
+                                                builder: (c, s) {
+                                                  if (s.hasData &&
+                                                      s.data != null) {
+                                                    return Image.file(
+                                                        File(s.data!));
+                                                  } else {
+                                                    return buildRow(0,
+                                                        showManage: false);
+                                                  }
+                                                })),
+                                Positioned(
+                                    right: 5,
+                                    top: 2,
+                                    child: Container(
+                                        color: Colors.black12,
+                                        child: buildManage(index: 0))),
+                              ],
+                            ))
+                      else
+                        SizedBox(
+                          height: widget.editableMessage != null
+                              ? 50
+                              : widget.files!.length * 50.toDouble(),
+                          width: 300,
+                          child: ListView.separated(
+                            shrinkWrap: true,
+                            itemCount: widget.editableMessage != null
+                                ? 1
+                                : widget.files!.length,
+                            itemBuilder: (c, index) {
+                              return Row(
                                 children: [
-                                  Center(
-                                      child: widget.files!.isNotEmpty
-                                          ? isWeb
-                                              ? Image.network(
-                                                  widget.files!.first.path)
-                                              : Image.file(File(
-                                                  widget.files!.first.path))
-                                          : _editedFile != null
-                                              ? Image.file(
-                                                  File(_editedFile!.path))
-                                              : FutureBuilder<String?>(
-                                                  future:
-                                                      _fileRepo.getFileIfExist(
-                                                          _editableFile.uuid,
-                                                          _editableFile.name),
-                                                  builder: (c, s) {
-                                                    if (s.hasData &&
-                                                        s.data != null) {
-                                                      return Image.file(
-                                                          File(s.data!));
-                                                    } else {
-                                                      return buildRow(0,
-                                                          showManage: false);
-                                                    }
-                                                  })),
-                                  Positioned(
-                                      right: 5,
-                                      top: 2,
-                                      child: Container(
-                                          color: Colors.black12,
-                                          child: buildManage(index: 0))),
+                                  ClipOval(
+                                    child: Material(
+                                        color:
+                                            theme.primaryColor, // button color
+                                        child: const InkWell(
+                                            splashColor:
+                                                Colors.blue, // inkwell color
+                                            child: SizedBox(
+                                              width: 30,
+                                              height: 40,
+                                              child: Icon(
+                                                Icons.insert_drive_file,
+                                                size: 20,
+                                              ),
+                                            ))),
+                                  ),
+                                  const SizedBox(
+                                    width: 3,
+                                  ),
+                                  Expanded(
+                                    child: Text(
+                                      widget.editableMessage != null
+                                          ? _editedFile != null
+                                              ? _editedFile!.name
+                                              : widget.editableMessage!.json
+                                                  .toFile()
+                                                  .name
+                                          : widget.files![index].name,
+                                      overflow: TextOverflow.ellipsis,
+                                      style:
+                                          const TextStyle(color: Colors.black),
+                                    ),
+                                  ),
+                                  Align(
+                                      alignment: Alignment.topRight,
+                                      child: buildManage(index: index))
                                 ],
-                              ))
-                          : SizedBox(
-                              height: widget.editableMessage != null
-                                  ? 50
-                                  : widget.files!.length * 50.toDouble(),
-                              width: 300,
-                              child: ListView.separated(
-                                shrinkWrap: true,
-                                itemCount: widget.editableMessage != null
-                                    ? 1
-                                    : widget.files!.length,
-                                itemBuilder: (c, index) {
-                                  return Row(
-                                    children: [
-                                      ClipOval(
-                                        child: Material(
-                                            color: theme
-                                                .primaryColor, // button color
-                                            child: const InkWell(
-                                                splashColor: Colors
-                                                    .blue, // inkwell color
-                                                child: SizedBox(
-                                                  width: 30,
-                                                  height: 40,
-                                                  child: Icon(
-                                                    Icons.insert_drive_file,
-                                                    size: 20,
-                                                  ),
-                                                ))),
-                                      ),
-                                      const SizedBox(
-                                        width: 3,
-                                      ),
-                                      Expanded(
-                                        child: Text(
-                                          widget.editableMessage != null
-                                              ? _editedFile != null
-                                                  ? _editedFile!.name
-                                                  : widget.editableMessage!.json
-                                                      .toFile()
-                                                      .name
-                                              : widget.files![index].name,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                              color: Colors.black),
-                                        ),
-                                      ),
-                                      Align(
-                                          alignment: Alignment.topRight,
-                                          child: buildManage(index: index))
-                                    ],
-                                  );
-                                },
-                                separatorBuilder:
-                                    (context, index) {
-                                  return const SizedBox(
-                                    height: 6,
-                                  );
-                                },
-                              ),
-                            ),
+                              );
+                            },
+                            separatorBuilder: (context, index) {
+                              return const SizedBox(
+                                height: 6,
+                              );
+                            },
+                          ),
+                        ),
                       const SizedBox(
                         height: 5,
                       ),

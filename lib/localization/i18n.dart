@@ -64,6 +64,7 @@ class I18N {
     _sharedDao.put(SHARED_DAO_LANGUAGE, language.countryCode);
   }
 
+  @Deprecated("Use GetIt version instead. final _i18n = GetIt.I.get<I18N>();")
   static I18N? of(BuildContext context) {
     return Localizations.of<I18N>(context, I18N);
   }

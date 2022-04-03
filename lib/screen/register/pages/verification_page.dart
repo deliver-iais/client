@@ -158,13 +158,12 @@ class _VerificationPageState extends State<VerificationPage> {
                       },
                     ),
                   ),
-                  _showError
-                      ? Text(
-                          _i18n.get("wrong_code"),
-                          style: theme.primaryTextTheme.subtitle1!
-                              .copyWith(color: theme.errorColor),
-                        )
-                      : Container(),
+                  if (_showError)
+                    Text(
+                      _i18n.get("wrong_code"),
+                      style: theme.primaryTextTheme.subtitle1!
+                          .copyWith(color: theme.errorColor),
+                    ),
                 ],
               ),
             ],

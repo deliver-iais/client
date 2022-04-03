@@ -33,20 +33,21 @@ class MemberSelectionPage extends StatelessWidget {
           title: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              mucUid != null
-                  ? FutureBuilder<String?>(
-                      future: _roomRepo.getName(mucUid!),
-                      builder: (context, snapshot) {
-                        if (snapshot.data != null) {
-                          return Text(snapshot.data!);
-                        } else {
-                          return Text(_i18n.get("add_member"));
-                        }
-                      },
-                    )
-                  : Text(isChannel
-                      ? _i18n.get("newChannel")
-                      : _i18n.get("newGroup")),
+              if (mucUid != null)
+                FutureBuilder<String?>(
+                  future: _roomRepo.getName(mucUid!),
+                  builder: (context, snapshot) {
+                    if (snapshot.data != null) {
+                      return Text(snapshot.data!);
+                    } else {
+                      return Text(_i18n.get("add_member"));
+                    }
+                  },
+                )
+              else
+                Text(isChannel
+                    ? _i18n.get("newChannel")
+                    : _i18n.get("newGroup")),
               StreamBuilder<int>(
                   stream: _createMucService.selectedLengthStream(),
                   builder: (context, snapshot) {

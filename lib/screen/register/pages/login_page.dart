@@ -114,6 +114,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> checkAndGoNext({bool doNotCheckValidator = false}) async {
+    final navigatorState = Navigator.of(context);
     if (phoneNumber != null &&
         phoneNumber!.nationalNumber.toString() == TEST_USER_PHONE_NUMBER) {
       _logger.e("login as test user ");
@@ -125,9 +126,8 @@ class _LoginPageState extends State<LoginPage> {
         try {
           final isSent = await _authRepo.getVerificationCode(phoneNumber!);
           if (isSent) {
-            Navigator.push(context, MaterialPageRoute(builder: (c) {
-              return const VerificationPage();
-            }));
+            navigatorState.push(
+                MaterialPageRoute(builder: (c) => const VerificationPage()));
             _isLoading.add(false);
           } else {
             ToastDisplay.showToast(
