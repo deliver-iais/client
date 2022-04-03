@@ -903,7 +903,7 @@ class CallRepo {
   }
 
   Future<void> _setCallCandidate(String candidatesJson) async {
-    final candidates = (jsonDecode(candidatesJson) as List<Map>)
+    final candidates = (jsonDecode(candidatesJson) as List)
         .map(
           (data) => RTCIceCandidate(
             data['candidate'],
@@ -941,10 +941,6 @@ class CallRepo {
       _callDuration = calculateCallEndTime();
       _logger.i("Call Duration on Caller(1): " + _callDuration.toString());
       final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
-      if (callingStatus.value == CallStatus.NO_ANSWER && !_isConnected) {
-        // it means call Not Answered
-        _callDuration = -1;
-      }
       if (isForced) {
         _logger.i("Call Force Ending ...");
         _messageRepo.sendCallMessageWithMemberOrCallOwnerPvp(
