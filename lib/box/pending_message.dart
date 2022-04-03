@@ -23,12 +23,13 @@ class PendingMessage {
   @HiveField(5)
   SendingStatus status;
 
-  PendingMessage(
-      {required this.roomUid,
-      required this.packetId,
-      required this.msg,
-      this.failed = false,
-      required this.status});
+  PendingMessage({
+    required this.roomUid,
+    required this.packetId,
+    required this.msg,
+    this.failed = false,
+    required this.status,
+  });
 
   PendingMessage copy(PendingMessage pm) => PendingMessage(
         roomUid: pm.roomUid,
@@ -38,13 +39,14 @@ class PendingMessage {
         status: pm.status,
       );
 
-  PendingMessage copyWith(
-          {String? roomUid,
-          String? packetId,
-          Message? msg,
-          bool? failed,
-          int? retries,
-          SendingStatus? status}) =>
+  PendingMessage copyWith({
+    String? roomUid,
+    String? packetId,
+    Message? msg,
+    bool? failed,
+    int? retries,
+    SendingStatus? status,
+  }) =>
       PendingMessage(
         roomUid: roomUid ?? this.roomUid,
         packetId: packetId ?? this.packetId,
@@ -54,7 +56,7 @@ class PendingMessage {
       );
 
   @override
-  bool operator ==(dynamic other) {
+  bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is PendingMessage &&

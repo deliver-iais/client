@@ -16,15 +16,19 @@ class CreateMucService {
   }
 
   void deleteContact(Contact contact) {
-    contacts.removeWhere((c) =>
-        c.nationalNumber == contact.nationalNumber &&
-        c.countryCode == contact.countryCode);
+    contacts.removeWhere(
+      (c) =>
+          c.nationalNumber == contact.nationalNumber &&
+          c.countryCode == contact.countryCode,
+    );
     _membersLength.add(contacts.length);
   }
 
   Stream<int> selectedLengthStream() => _membersLength.stream;
 
-  bool isSelected(Contact contact) => contacts.any((c) =>
-      c.nationalNumber == contact.nationalNumber &&
-      c.countryCode == contact.countryCode);
+  bool isSelected(Contact contact) => contacts.any(
+        (c) =>
+            c.nationalNumber == contact.nationalNumber &&
+            c.countryCode == contact.countryCode,
+      );
 }

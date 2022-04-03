@@ -4,12 +4,14 @@ import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
 
 class CallBottomRow extends StatefulWidget {
-  final Function hangUp;
+  final void Function() hangUp;
   final bool isIncomingCall;
 
-  const CallBottomRow(
-      {Key? key, required this.hangUp, this.isIncomingCall = false})
-      : super(key: key);
+  const CallBottomRow({
+    Key? key,
+    required this.hangUp,
+    this.isIncomingCall = false,
+  }) : super(key: key);
 
   @override
   _CallBottomRowState createState() => _CallBottomRowState();
@@ -104,8 +106,7 @@ class _CallBottomRowState extends State<CallBottomRow> {
                         child: const Icon(Icons.mic_off_rounded),
                         onPressed: () => _muteMic(theme),
                       ),
-                      //TODO after 3 issue fix on flutter-webRtc
-                      // FloatingActionButton(
+                      // TODO(AmirHossein): enable it after fixing 3 issues in flutter-webRtc project itself, https://gitlab.iais.co/deliver/wiki/-/issues/425  // FloatingActionButton(
                       //   heroTag: 55,
                       //   backgroundColor: _screenShareIcon,
                       //   child: (isAndroid())
@@ -176,7 +177,7 @@ class _CallBottomRowState extends State<CallBottomRow> {
     }
   }
 
-  _switchCamera(ThemeData theme) {
+  void _switchCamera(ThemeData theme) {
     callRepo.switchCamera();
     indexSwitchCamera++;
     _switchCameraIcon =
@@ -184,14 +185,14 @@ class _CallBottomRowState extends State<CallBottomRow> {
     setState(() {});
   }
 
-  _muteMic(ThemeData theme) {
+  void _muteMic(ThemeData theme) {
     _muteMicIcon = callRepo.muteMicrophone()
         ? theme.buttonTheme.colorScheme!.primary
         : null;
     setState(() {});
   }
 
-  _offVideoCam(ThemeData theme) {
+ void  _offVideoCam(ThemeData theme) {
     _offVideoCamIcon =
         callRepo.muteCamera() ? theme.buttonTheme.colorScheme!.primary : null;
     setState(() {});
@@ -204,18 +205,19 @@ class _CallBottomRowState extends State<CallBottomRow> {
   //   setState(() {});
   // }
 
-  _enableSpeaker(ThemeData theme) {
+  void _enableSpeaker(ThemeData theme) {
     _speakerIcon = callRepo.enableSpeakerVoice()
         ? theme.buttonTheme.colorScheme!.primary
         : null;
     setState(() {});
   }
 
-  _acceptCall() {
+  void _acceptCall() {
     callRepo.acceptCall(callRepo.roomUid!);
   }
 
   _declineCall() {
     callRepo.declineCall();
+    _routingService.pop();
   }
 }

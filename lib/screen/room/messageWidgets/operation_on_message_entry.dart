@@ -10,7 +10,6 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as model;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -71,11 +70,13 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
           if (widget.hasPermissionInChannel && widget.message.id != null)
             PopupMenuItem(
               value: OperationOnMessage.REPLY,
-              child: Row(children: [
-                const Icon(CupertinoIcons.reply),
-                const SizedBox(width: 8),
-                Text(_i18n.get("Reply")),
-              ]),
+              child: Row(
+                children: [
+                  const Icon(CupertinoIcons.reply),
+                  const SizedBox(width: 8),
+                  Text(_i18n.get("Reply")),
+                ],
+              ),
             ),
           if ((widget.message.roomUid.asUid().category == Categories.GROUP &&
                   widget.hasPermissionInGroup) ||
@@ -84,114 +85,143 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
             if (widget.message.type != MessageType.PERSISTENT_EVENT)
               if (!widget.isPinned)
                 PopupMenuItem(
-                    value: OperationOnMessage.PIN_MESSAGE,
-                    child: Row(children: [
+                  value: OperationOnMessage.PIN_MESSAGE,
+                  child: Row(
+                    children: [
                       const Icon(CupertinoIcons.pin),
                       const SizedBox(width: 8),
                       Text(_i18n.get("pin")),
-                    ]))
+                    ],
+                  ),
+                )
               else
                 PopupMenuItem(
-                    value: OperationOnMessage.UN_PIN_MESSAGE,
-                    child: Row(children: [
+                  value: OperationOnMessage.UN_PIN_MESSAGE,
+                  child: Row(
+                    children: [
                       const Icon(CupertinoIcons.delete),
                       const SizedBox(width: 8),
                       Text(_i18n.get("unpin")),
-                    ])),
+                    ],
+                  ),
+                ),
           if (widget.message.type == MessageType.TEXT ||
               (widget.message.type == MessageType.FILE &&
                   widget.message.json.toFile().caption.isNotEmpty))
             PopupMenuItem(
-                value: OperationOnMessage.COPY,
-                child: Row(children: [
+              value: OperationOnMessage.COPY,
+              child: Row(
+                children: [
                   const Icon(
                     CupertinoIcons.doc_on_clipboard,
                     size: 18,
                   ),
                   const SizedBox(width: 10),
                   Text(_i18n.get("copy")),
-                ])),
-          if (widget.message.type == MessageType.FILE && !isDesktop())
+                ],
+              ),
+            ),
+          if (widget.message.type == MessageType.FILE && !isDesktop)
             FutureBuilder(
-                future: _fileRepo.getFileIfExist(
-                    widget.message.json.toFile().uuid,
-                    widget.message.json.toFile().name),
-                builder: (c, fe) {
-                  if (fe.hasData && fe.data != null) {
-                    _fileIsExist.add(true);
-                    model.File f = widget.message.json.toFile();
-                    return PopupMenuItem(
-                        value: f.type.contains("image")
-                            ? OperationOnMessage.SAVE_TO_GALLERY
-                            : f.type.contains("audio") || f.type.contains("mp3")
-                                ? OperationOnMessage.SAVE_TO_MUSIC
-                                : OperationOnMessage.SAVE_TO_DOWNLOADS,
-                        child: Row(children: [
-                          const Icon(CupertinoIcons.down_arrow),
-                          const SizedBox(width: 8),
-                          f.type.contains("image")
-                              ? Text(_i18n.get("save_to_gallery"))
-                              : f.type.contains("audio") ||
-                                      f.type.contains("mp3")
-                                  ? Text(_i18n.get("save_in_music"))
-                                  : Text(_i18n.get("save_to_downloads")),
-                        ]));
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                }),
-          if (widget.message.type == MessageType.FILE && !isDesktop())
+              future: _fileRepo.getFileIfExist(
+                widget.message.json.toFile().uuid,
+                widget.message.json.toFile().name,
+              ),
+              builder: (c, fe) {
+                if (fe.hasData && fe.data != null) {
+                  _fileIsExist.add(true);
+                  final f = widget.message.json.toFile();
+                  return PopupMenuItem(
+                    value: f.type.contains("image")
+                        ? OperationOnMessage.SAVE_TO_GALLERY
+                        : f.type.contains("audio") || f.type.contains("mp3")
+                            ? OperationOnMessage.SAVE_TO_MUSIC
+                            : OperationOnMessage.SAVE_TO_DOWNLOADS,
+                    child: Row(
+                      children: [
+                        const Icon(CupertinoIcons.down_arrow),
+                        const SizedBox(width: 8),
+                        if (f.type.contains("image"))
+                          Text(_i18n.get("save_to_gallery"))
+                        else if (f.type.contains("audio") ||
+                            f.type.contains("mp3"))
+                          Text(_i18n.get("save_in_music"))
+                        else
+                          Text(_i18n.get("save_to_downloads")),
+                      ],
+                    ),
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
+              },
+            ),
+          if (widget.message.type == MessageType.FILE && !isDesktop)
             StreamBuilder<bool>(
-                stream: _fileIsExist.stream,
-                builder: (c, s) {
-                  if (s.hasData && s.data!) {
-                    _fileIsExist.add(true);
-                    return PopupMenuItem(
-                        value: OperationOnMessage.SHARE,
-                        child: Row(children: [
-                          const Icon(Icons.share),
-                          const SizedBox(width: 8),
-                          Text(_i18n.get("share")),
-                        ]));
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                }),
+              stream: _fileIsExist.stream,
+              builder: (c, s) {
+                if (s.hasData && s.data!) {
+                  _fileIsExist.add(true);
+                  return PopupMenuItem(
+                    value: OperationOnMessage.SHARE,
+                    child: Row(
+                      children: [
+                        const Icon(Icons.share),
+                        const SizedBox(width: 8),
+                        Text(_i18n.get("share")),
+                      ],
+                    ),
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
+              },
+            ),
           if (widget.message.roomUid.isMuc())
             PopupMenuItem(
-                value: OperationOnMessage.REPORT,
-                child: Row(children: [
+              value: OperationOnMessage.REPORT,
+              child: Row(
+                children: [
                   const Icon(CupertinoIcons.burst),
                   const SizedBox(width: 8),
                   Text(_i18n.get("report")),
-                ])),
+                ],
+              ),
+            ),
           if (widget.message.id != null &&
               widget.message.type != MessageType.PERSISTENT_EVENT)
             PopupMenuItem(
-                value: OperationOnMessage.FORWARD,
-                child: Row(children: [
+              value: OperationOnMessage.FORWARD,
+              child: Row(
+                children: [
                   const Icon(CupertinoIcons.arrowshape_turn_up_right),
                   const SizedBox(width: 8),
                   Text(_i18n.get("forward")),
-                ])),
+                ],
+              ),
+            ),
           if (widget.message.id == null)
             FutureBuilder<PendingMessage?>(
-                future: _messageRepo.getPendingMessage(widget.message.packetId),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData &&
-                      snapshot.data != null &&
-                      snapshot.data!.failed) {
-                    return PopupMenuItem(
-                        value: OperationOnMessage.RESEND,
-                        child: Row(children: [
-                          const Icon(CupertinoIcons.refresh),
-                          const SizedBox(width: 8),
-                          Text(_i18n.get("resend")),
-                        ]));
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                }),
+              future: _messageRepo.getPendingMessage(widget.message.packetId),
+              builder: (context, snapshot) {
+                if (snapshot.hasData &&
+                    snapshot.data != null &&
+                    snapshot.data!.failed) {
+                  return PopupMenuItem(
+                    value: OperationOnMessage.RESEND,
+                    child: Row(
+                      children: [
+                        const Icon(CupertinoIcons.refresh),
+                        const SizedBox(width: 8),
+                        Text(_i18n.get("resend")),
+                      ],
+                    ),
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
+              },
+            ),
           if (_hasPermissionToDeleteMsg)
             widget.message.id != null
                 ? deleteMenuWidget()
@@ -206,40 +236,49 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       } else {
                         return const SizedBox.shrink();
                       }
-                    }),
+                    },
+                  ),
           if (widget.message.id != null &&
               (widget.message.type == MessageType.TEXT ||
                   widget.message.type == MessageType.FILE) &&
               _autRepo.isCurrentUserSender(widget.message) &&
               checkMessageTime(widget.message))
             PopupMenuItem(
-                value: OperationOnMessage.EDIT,
-                child: Row(children: [
+              value: OperationOnMessage.EDIT,
+              child: Row(
+                children: [
                   const Icon(
                     CupertinoIcons.bandage,
                     size: 18,
                   ),
                   const SizedBox(width: 10),
                   Text(_i18n.get("edit")),
-                ])),
-          if (isDesktop() && widget.message.type == MessageType.FILE)
+                ],
+              ),
+            ),
+          if (isDesktop && widget.message.type == MessageType.FILE)
             FutureBuilder<String?>(
-                future: _fileRepo.getFileIfExist(
-                    widget.message.json.toFile().uuid,
-                    widget.message.json.toFile().name),
-                builder: (c, snapshot) {
-                  if (snapshot.hasData) {
-                    return PopupMenuItem(
-                        value: OperationOnMessage.SHOW_IN_FOLDER,
-                        child: Row(children: [
-                          const Icon(CupertinoIcons.folder_open),
-                          const SizedBox(width: 8),
-                          Text(_i18n.get("show_in_folder")),
-                        ]));
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                }),
+              future: _fileRepo.getFileIfExist(
+                widget.message.json.toFile().uuid,
+                widget.message.json.toFile().name,
+              ),
+              builder: (c, snapshot) {
+                if (snapshot.hasData) {
+                  return PopupMenuItem(
+                    value: OperationOnMessage.SHOW_IN_FOLDER,
+                    child: Row(
+                      children: [
+                        const Icon(CupertinoIcons.folder_open),
+                        const SizedBox(width: 8),
+                        Text(_i18n.get("show_in_folder")),
+                      ],
+                    ),
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
+              },
+            ),
         ],
       ),
     );
@@ -247,16 +286,19 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
 
   Widget deleteMenuWidget() {
     return PopupMenuItem(
-        value: widget.message.id != null
-            ? OperationOnMessage.DELETE
-            : OperationOnMessage.DELETE_PENDING_MESSAGE,
-        child: Row(children: [
+      value: widget.message.id != null
+          ? OperationOnMessage.DELETE
+          : OperationOnMessage.DELETE_PENDING_MESSAGE,
+      child: Row(
+        children: [
           const Icon(
             CupertinoIcons.delete,
           ),
           const SizedBox(width: 8),
           Text(_i18n.get("delete")),
-        ]));
+        ],
+      ),
+    );
   }
 
   bool checkMessageTime(Message message) {
@@ -266,38 +308,46 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
 }
 
 void showDeleteMsgDialog(
-    List<Message> messages, BuildContext context, Function? onDelete) {
-  var _i18n = GetIt.I.get<I18N>();
-  var _messageRepo = GetIt.I.get<MessageRepo>();
+  List<Message> messages,
+  BuildContext context,
+  void Function() onDelete,
+) {
+  final _i18n = GetIt.I.get<I18N>();
+  final _messageRepo = GetIt.I.get<MessageRepo>();
   showDialog(
-      context: context,
-      builder: (c) => AlertDialog(
-            title: Text(
-              "${_i18n.get("delete")} ${messages.length > 1 ? messages.length : ""} ${_i18n.get("message")}",
-              style: const TextStyle(fontSize: 20),
-            ),
-            content: Text(messages.length > 1
-                ? _i18n.get("sure_delete_messages")
-                : _i18n.get("sure_delete_message")),
-            actions: [
-              TextButton(
-                  child: Text(_i18n.get("cancel")),
-                  onPressed: () {
-                    onDelete!();
-                    Navigator.pop(c);
-                  }),
-              TextButton(
-                style: TextButton.styleFrom(
-                    primary: Theme.of(context).colorScheme.error),
-                child: Text(_i18n.get("delete")),
-                onPressed: () {
-                  _messageRepo.deleteMessage(messages);
+    context: context,
+    builder: (c) => AlertDialog(
+      title: Text(
+        "${_i18n.get("delete")} ${messages.length > 1 ? messages.length : ""} ${_i18n.get("message")}",
+        style: const TextStyle(fontSize: 20),
+      ),
+      content: Text(
+        messages.length > 1
+            ? _i18n.get("sure_delete_messages")
+            : _i18n.get("sure_delete_message"),
+      ),
+      actions: [
+        TextButton(
+          child: Text(_i18n.get("cancel")),
+          onPressed: () {
+            onDelete();
+            Navigator.pop(c);
+          },
+        ),
+        TextButton(
+          style: TextButton.styleFrom(
+            primary: Theme.of(context).colorScheme.error,
+          ),
+          child: Text(_i18n.get("delete")),
+          onPressed: () {
+            _messageRepo.deleteMessage(messages);
 
-                  onDelete!();
-                  Navigator.pop(c);
-                },
-              ),
-            ],
-            actionsPadding: const EdgeInsets.only(right: 12, bottom: 5),
-          ));
+            onDelete();
+            Navigator.pop(c);
+          },
+        ),
+      ],
+      actionsPadding: const EdgeInsets.only(right: 12, bottom: 5),
+    ),
+  );
 }

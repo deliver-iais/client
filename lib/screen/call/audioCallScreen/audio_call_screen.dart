@@ -16,16 +16,16 @@ import 'package:lottie/lottie.dart';
 class AudioCallScreen extends StatefulWidget {
   final Uid roomUid;
   final String callStatus;
-  final Function hangUp;
+  final void Function() hangUp;
   final bool isIncomingCall;
 
-  const AudioCallScreen(
-      {Key? key,
-      required this.roomUid,
-      required this.callStatus,
-      required this.hangUp,
-      this.isIncomingCall = false})
-      : super(key: key);
+  const AudioCallScreen({
+    Key? key,
+    required this.roomUid,
+    required this.callStatus,
+    required this.hangUp,
+    this.isIncomingCall = false,
+  }) : super(key: key);
 
   @override
   _AudioCallScreenState createState() => _AudioCallScreenState();
@@ -49,16 +49,19 @@ class _AudioCallScreenState extends State<AudioCallScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Stack(children: [
-      FutureBuilder<Avatar?>(
-          future: _avatarRepo.getLastAvatar(widget.roomUid, false),
-          builder: (context, snapshot) {
-            if (snapshot.hasData &&
-                snapshot.data != null &&
-                snapshot.data!.fileId != null) {
-              return FutureBuilder<String?>(
+      body: Stack(
+        children: [
+          FutureBuilder<Avatar?>(
+            future: _avatarRepo.getLastAvatar(widget.roomUid),
+            builder: (context, snapshot) {
+              if (snapshot.hasData &&
+                  snapshot.data != null &&
+                  snapshot.data!.fileId != null) {
+                return FutureBuilder<String?>(
                   future: _fileRepo.getFile(
-                      snapshot.data!.fileId!, snapshot.data!.fileName!),
+                    snapshot.data!.fileId!,
+                    snapshot.data!.fileName!,
+                  ),
                   builder: (context, snapshot) {
                     if (snapshot.hasData && snapshot.data != null) {
                       return FadeAudioCallBackground(

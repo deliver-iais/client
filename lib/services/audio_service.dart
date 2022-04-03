@@ -30,7 +30,7 @@ abstract class AudioPlayerModule {
 
   Stream<Duration?>? get audioCurrentPosition;
 
-  play(String path);
+  void play(String path);
 
   void seek(Duration duration) {}
 
@@ -93,7 +93,7 @@ class AudioService {
 
   }
 
-  void play(String path, String uuid, String name) async {
+  Future<void> play(String path, String uuid, String name) async {
     // check if this the current audio which is playing or paused recently
     // and if played recently, just resume it
     if (_audioUuid.value == uuid) {
@@ -174,13 +174,11 @@ class NormalAudioPlayer implements AudioPlayerModule {
             return AudioPlayerState.PAUSED;
           case PlayerState.COMPLETED:
             return AudioPlayerState.COMPLETED;
-          default:
-            return AudioPlayerState.STOPPED;
         }
       });
 
   @override
-  play(String path) {
+  void play(String path) {
     _audioPlayer.play(path, isLocal: false);
   }
 
@@ -265,7 +263,7 @@ class VlcAudioPlayer implements AudioPlayerModule {
   }
 
   @override
-  play(String path) {
+  void play(String path) {
     // _audioPlayer.open(Media.file(File(path)));
     // _audioPlayer.play();
   }

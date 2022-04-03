@@ -1,6 +1,6 @@
+import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -30,12 +30,10 @@ class _HasCallRowState extends State<HasCallRow> {
                       !callRepo.isCaller) {
                     _routingService.openCallScreen(callRepo.roomUid!,
                         isIncomingCall: true,
-                        context: context,
                         isVideoCall: callRepo.isVideo);
                   } else {
                     _routingService.openCallScreen(callRepo.roomUid!,
                         isCallInitialized: true,
-                        context: context,
                         isVideoCall: callRepo.isVideo);
                   }
                 },

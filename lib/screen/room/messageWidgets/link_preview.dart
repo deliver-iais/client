@@ -21,22 +21,22 @@ class LinkPreview extends StatelessWidget {
   final Color? backgroundColor;
   final Color? foregroundColor;
 
-  const LinkPreview(
-      {Key? key,
-      required this.link,
-      required this.maxWidth,
-      this.backgroundColor,
-      this.foregroundColor,
-      this.maxHeight = 120,
-      this.isProfile = false})
-      : super(key: key);
+  const LinkPreview({
+    Key? key,
+    required this.link,
+    required this.maxWidth,
+    this.backgroundColor,
+    this.foregroundColor,
+    this.maxHeight = 120,
+    this.isProfile = false,
+  }) : super(key: key);
 
   Future<Metadata> _fetchFromHTML(String url) async {
     // Makes a call
-    var response = await http.get(Uri.parse(url));
+    final response = await http.get(Uri.parse(url));
 
     // Covert Response to a Document. The utility function `responseToDocument` is provided or you can use own decoder/parser.
-    var document = MetadataFetch.responseToDocument(response);
+    final document = MetadataFetch.responseToDocument(response);
 
     // Get Html metadata
     return MetadataParser.twitterCard(document);
@@ -69,70 +69,79 @@ class LinkPreview extends StatelessWidget {
   Widget build(BuildContext context) {
     if (link.isEmpty) return const SizedBox.shrink();
     return FutureBuilder<Metadata?>(
-        initialData: cache.get(link),
-        future: _fetchMetadata(link),
-        builder: (context, snapshot) {
-          if ((!snapshot.hasData || snapshot.data == null) ||
-              ((snapshot.data?.description == null) &&
-                  (snapshot.data?.description == null))) {
-            return const SizedBox.shrink();
-          }
+      initialData: cache.get(link),
+      future: _fetchMetadata(link),
+      builder: (context, snapshot) {
+        if ((!snapshot.hasData || snapshot.data == null) ||
+            ((snapshot.data?.description == null) &&
+                (snapshot.data?.description == null))) {
+          return const SizedBox.shrink();
+        }
 
-          return MouseRegion(
-            cursor: SystemMouseCursors.click,
-            child: GestureDetector(
-                onTap: () async {
-                  await launch(link);
-                },
-                child: linkPreviewContent(snapshot.data, context)),
-          );
-        });
+        return MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            onTap: () async {
+              await launch(link);
+            },
+            child: linkPreviewContent(snapshot.data, context),
+          ),
+        );
+      },
+    );
   }
 
   Widget linkPreviewContent(Metadata? data, BuildContext context) {
     final theme = Theme.of(context);
     return Container(
-        margin: const EdgeInsets.only(top: 6),
-        padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
-        constraints: BoxConstraints(
-            minWidth: 300, maxWidth: max(300, maxWidth), maxHeight: maxHeight),
-        decoration: BoxDecoration(
-            borderRadius: secondaryBorder, color: backgroundColor),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-              child: Text(
-                data!.title!,
-                textDirection: data.title!.isPersian()
-                    ? TextDirection.rtl
-                    : TextDirection.ltr,
-                softWrap: false,
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
-                style: theme.primaryTextTheme.bodyText2
-                    ?.copyWith(color: foregroundColor),
-              ),
+      margin: const EdgeInsets.only(top: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
+      constraints: BoxConstraints(
+        minWidth: 300,
+        maxWidth: max(300, maxWidth),
+        maxHeight: maxHeight,
+      ),
+      decoration: BoxDecoration(
+        borderRadius: secondaryBorder,
+        color: backgroundColor,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+            child: Text(
+              data!.title!,
+              textDirection: data.title!.isPersian()
+                  ? TextDirection.rtl
+                  : TextDirection.ltr,
+              softWrap: false,
+              overflow: TextOverflow.ellipsis,
+              maxLines: 1,
+              style: theme.primaryTextTheme.bodyText2
+                  ?.copyWith(color: foregroundColor),
             ),
-            if (data.description != null)
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8.0, vertical: 2.0),
-                  child: Text(
-                    data.description!,
-                    textDirection: data.description!.isPersian()
-                        ? TextDirection.rtl
-                        : TextDirection.ltr,
-                    style: theme.textTheme.bodyText2,
-                    overflow: TextOverflow.fade,
-                  ),
+          ),
+          if (data.description != null)
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8.0,
+                  vertical: 2.0,
+                ),
+                child: Text(
+                  data.description!,
+                  textDirection: data.description!.isPersian()
+                      ? TextDirection.rtl
+                      : TextDirection.ltr,
+                  style: theme.textTheme.bodyText2,
+                  overflow: TextOverflow.fade,
                 ),
               ),
-          ],
-        ));
+            ),
+        ],
+      ),
+    );
   }
 }

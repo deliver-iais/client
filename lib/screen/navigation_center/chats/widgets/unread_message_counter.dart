@@ -21,8 +21,8 @@ class UnreadMessageCounterWidget extends StatelessWidget {
         if (snapshot.hasData &&
             snapshot.data != null &&
             snapshot.data!.messageId >= 0) {
-          int lastSeen = snapshot.data?.messageId ?? 0;
-          int unreadCount = lastMessageId - lastSeen;
+          final lastSeen = snapshot.data?.messageId ?? 0;
+          var unreadCount = lastMessageId - lastSeen;
           if (snapshot.data?.hiddenMessageCount != null) {
             unreadCount = unreadCount - snapshot.data!.hiddenMessageCount!;
           }
@@ -32,25 +32,27 @@ class UnreadMessageCounterWidget extends StatelessWidget {
           }
 
           return AnimatedScale(
-              scale: unreadCount > 0 ? 1 : 0,
-              child: Container(
-                constraints: const BoxConstraints(minWidth: 20),
-                height: 20,
-                padding: const EdgeInsets.all(2.0),
-                child: Text(
-                  "${unreadCount >= 100 ? "+99" : unreadCount}",
-                  style: TextStyle(
-                      fontSize: 12,
-                      color: theme.colorScheme.onPrimary,
-                      height: 1.2),
-                ),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary,
-                  borderRadius: mainBorder,
+            scale: unreadCount > 0 ? 1 : 0,
+            child: Container(
+              constraints: const BoxConstraints(minWidth: 20),
+              height: 20,
+              padding: const EdgeInsets.all(2.0),
+              child: Text(
+                "${unreadCount >= 100 ? "+99" : unreadCount}",
+                style: TextStyle(
+                  fontSize: 12,
+                  color: theme.colorScheme.onPrimary,
+                  height: 1.2,
                 ),
               ),
-              duration: ANIMATION_DURATION * 0.5);
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary,
+                borderRadius: mainBorder,
+              ),
+            ),
+            duration: ANIMATION_DURATION * 0.5,
+          );
         } else {
           return const SizedBox.shrink();
         }

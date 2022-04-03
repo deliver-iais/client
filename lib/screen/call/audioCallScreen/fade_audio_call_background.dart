@@ -16,7 +16,9 @@ class FadeAudioCallBackground extends StatelessWidget {
         image: DecorationImage(
           fit: BoxFit.cover,
           colorFilter: ColorFilter.mode(
-              Colors.black.withOpacity(0.06), BlendMode.dstATop),
+            Colors.black.withOpacity(0.06),
+            BlendMode.dstATop,
+          ),
           image: image,
         ),
       ),

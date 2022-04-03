@@ -41,10 +41,11 @@ class _CustomNotificationSoundSelectionState
     return Scaffold(
       appBar: AppBar(
         title: Center(
-            child: Text(
-          i18n.get("choose_a_song"),
-          style: const TextStyle(fontWeight: FontWeight.w600),
-        )),
+          child: Text(
+            i18n.get("choose_a_song"),
+            style: const TextStyle(fontWeight: FontWeight.w600),
+          ),
+        ),
         leading: InkWell(
           child: const Icon(Icons.clear),
           onTap: () {
@@ -55,20 +56,23 @@ class _CustomNotificationSoundSelectionState
           Padding(
             padding: const EdgeInsets.all(12),
             child: ElevatedButton(
-                onPressed: () {
-                  var index = 0;
-                  if (selectedFlag.containsValue(true)) {
-                    for (int key in selectedFlag.keys) {
-                      if (selectedFlag[key] == true) index = key;
-                    }
-                    _roomRepo.setRoomCustomNotification(
-                        widget.roomUid, staticData[index]);
+              onPressed: () {
+                var index = 0;
+                if (selectedFlag.containsValue(true)) {
+                  for (final key in selectedFlag.keys) {
+                    if (selectedFlag[key] == true) index = key;
                   }
-                  Navigator.pop(context);
-                },
-                child: Text(
-                  i18n.get("ok"),
-                )),
+                  _roomRepo.setRoomCustomNotification(
+                    widget.roomUid,
+                    staticData[index],
+                  );
+                }
+                Navigator.pop(context);
+              },
+              child: Text(
+                i18n.get("ok"),
+              ),
+            ),
           )
         ],
       ),
@@ -78,12 +82,12 @@ class _CustomNotificationSoundSelectionState
           if (snapshot.hasData) {
             return ListView.builder(
               itemBuilder: (builder, index) {
-                String data = staticData[index];
+                final data = staticData[index];
                 selectedFlag[index] = selectedFlag[index] ?? false;
-                bool isSelected = selectedFlag[index]!;
+                final isSelected = selectedFlag[index]!;
                 return ListTile(
-                  onLongPress: () => onLongPress(isSelected, index),
-                  onTap: () => onTap(isSelected, index),
+                  onLongPress: () => onLongPress(index, isSelected: isSelected),
+                  onTap: () => onTap(index, isSelected: isSelected),
                   title: Text(data),
                   trailing: _buildSelectIcon(isSelected, data),
                 );
@@ -98,7 +102,7 @@ class _CustomNotificationSoundSelectionState
     );
   }
 
-  void onTap(bool isSelected, int index) {
+  void onTap(int index, {bool isSelected = false}) {
     setState(() {
       selectedFlag.clear();
       selectedFlag[index] = !isSelected;
@@ -107,7 +111,7 @@ class _CustomNotificationSoundSelectionState
     widget._player.play("app/src/main/res/raw/${staticData[index]}.mp3");
   }
 
-  void onLongPress(bool isSelected, int index) {
+  void onLongPress(int index, {bool isSelected = false}) {
     setState(() {
       selectedFlag.clear();
       selectedFlag[index] = !isSelected;
@@ -117,31 +121,32 @@ class _CustomNotificationSoundSelectionState
   Widget _buildSelectIcon(bool isSelected, String data) {
     final theme = Theme.of(context);
     return StreamBuilder<Object>(
-        stream: widget._player.fixedPlayer!.onPlayerStateChanged,
-        builder: (context, snapshot) {
-          return SizedBox(
-              width: 80,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  if (isSelected && snapshot.data == PlayerState.PLAYING)
-                     const TGS.asset(
-                          'assets/animations/audio_wave.tgs',
-                          autoPlay: true,
-                          width: 40,
-                          height: 60,
-                        ),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8.0),
-                    child: Icon(
-                      isSelected
-                          ? Icons.radio_button_checked_outlined
-                          : Icons.radio_button_off,
-                      color:theme.primaryColor,
-                    ),
-                  )
-                ],
-              ));
-        });
+      stream: widget._player.fixedPlayer!.onPlayerStateChanged,
+      builder: (context, snapshot) {
+        return SizedBox(
+          width: 80,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              if (isSelected && snapshot.data == PlayerState.PLAYING)
+                const TGS.asset(
+                  'assets/animations/audio_wave.tgs',
+                  width: 40,
+                  height: 60,
+                ),
+              Padding(
+                padding: const EdgeInsets.only(left: 8.0),
+                child: Icon(
+                  isSelected
+                      ? Icons.radio_button_checked_outlined
+                      : Icons.radio_button_off,
+                  color: theme.primaryColor,
+                ),
+              )
+            ],
+          ),
+        );
+      },
+    );
   }
 }

@@ -19,32 +19,28 @@ class MusicPlayProgress extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(top: 8.0),
           child: StreamBuilder<AudioPlayerState>(
-              stream: _audioPlayerService.audioCurrentState(),
-              builder: (c, state) {
-                if (state.data != null &&
-                    state.data == AudioPlayerState.PLAYING) {
-                  return StreamBuilder<String>(
-                      stream: _audioPlayerService.audioUuid,
-                      builder: (c, uuid) {
-                        if (uuid.hasData && uuid.data!.contains(audioUuid)) {
-                          return AudioProgressIndicator(
-                            audioUuid: audioUuid,
-                            duration: duration,
-                          );
-                        } else {
-                          return const SizedBox(
-                            width: 0,
-                            height: 0,
-                          );
-                        }
-                      });
-                } else {
-                  return const SizedBox(
-                    width: 0,
-                    height: 0,
-                  );
-                }
-              }),
+            stream: _audioPlayerService.audioCurrentState(),
+            builder: (c, state) {
+              if (state.data != null &&
+                  state.data == AudioPlayerState.PLAYING) {
+                return StreamBuilder<String>(
+                  stream: _audioPlayerService.audioUuid,
+                  builder: (c, uuid) {
+                    if (uuid.hasData && uuid.data!.contains(audioUuid)) {
+                      return AudioProgressIndicator(
+                        audioUuid: audioUuid,
+                        duration: duration,
+                      );
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  },
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
+          ),
         ),
         Padding(
           padding: const EdgeInsets.only(left: 8.0, top: 28),

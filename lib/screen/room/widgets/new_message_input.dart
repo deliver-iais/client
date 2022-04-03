@@ -6,54 +6,56 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-//TODO empty text click on arrow
 class NewMessageInput extends StatelessWidget {
   final String currentRoomId;
   final int replyMessageId;
-  final Function? resetRoomPageDetails;
-  final bool? waitingForForward;
+  final void Function() resetRoomPageDetails;
+  final bool waitingForForward;
   final Message? editableMessage;
-  final Function? sendForwardMessage;
+  final void Function()? sendForwardMessage;
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final Function? scrollToLastSentMessage;
+  final void Function() scrollToLastSentMessage;
   final FocusNode focusNode;
+  final void Function(int) handleScrollToMessage;
   final TextEditingController textController;
 
   NewMessageInput({
     Key? key,
     required this.currentRoomId,
     required this.focusNode,
+    required this.handleScrollToMessage,
     required this.textController,
+    required this.scrollToLastSentMessage,
+    required this.resetRoomPageDetails,
+    required this.waitingForForward,
     this.replyMessageId = 0,
-    this.resetRoomPageDetails,
-    this.waitingForForward,
     this.editableMessage,
     this.sendForwardMessage,
-    this.scrollToLastSentMessage,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<Room?>(
-        stream: _roomRepo.watchRoom(currentRoomId),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            Room currentRoom = snapshot.data!;
-            return InputMessage(
-              currentRoom: currentRoom,
-              replyMessageId: replyMessageId,
-              resetRoomPageDetails: resetRoomPageDetails,
-              waitingForForward: waitingForForward!,
-              editableMessage: editableMessage,
-              sendForwardMessage: sendForwardMessage!,
-              scrollToLastSentMessage: scrollToLastSentMessage!,
-              focusNode: focusNode,
-              textController: textController,
-            );
-          } else {
-            _roomRepo.createRoomIfNotExist(currentRoomId);
-            return const SizedBox.shrink();
-          }
-        });
+      stream: _roomRepo.watchRoom(currentRoomId),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return InputMessage(
+            currentRoom: snapshot.data!,
+            replyMessageId: replyMessageId,
+            handleScrollToMessage: handleScrollToMessage,
+            resetRoomPageDetails: resetRoomPageDetails,
+            waitingForForward: waitingForForward,
+            editableMessage: editableMessage,
+            sendForwardMessage: sendForwardMessage,
+            scrollToLastSentMessage: scrollToLastSentMessage,
+            focusNode: focusNode,
+            textController: textController,
+          );
+        } else {
+          _roomRepo.createRoomIfNotExist(currentRoomId);
+          return const SizedBox.shrink();
+        }
+      },
+    );
   }
 }

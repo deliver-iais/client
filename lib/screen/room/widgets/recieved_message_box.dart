@@ -10,27 +10,27 @@ import 'message_wrapper.dart';
 
 class ReceivedMessageBox extends StatelessWidget {
   final Message message;
-  final Function scrollToMessage;
-  final Function onUsernameClick;
+  final void Function(int) scrollToMessage;
+  final void Function(String) onUsernameClick;
   final String? pattern;
-  final Function onBotCommandClick;
-  final Function onArrowIconClick;
+  final void Function(String) onBotCommandClick;
+  final void Function() onArrowIconClick;
   final CustomColorScheme colorScheme;
   final void Function(TapDownDetails) storePosition;
   final bool isFirstMessageInGroupedMessages;
 
-  const ReceivedMessageBox(
-      {Key? key,
-      required this.message,
-      required this.onBotCommandClick,
-      required this.scrollToMessage,
-      required this.onUsernameClick,
-      required this.onArrowIconClick,
-      required this.colorScheme,
-      required this.storePosition,
-      required this.isFirstMessageInGroupedMessages,
-      this.pattern})
-      : super(key: key);
+  const ReceivedMessageBox({
+    Key? key,
+    required this.message,
+    required this.onBotCommandClick,
+    required this.scrollToMessage,
+    required this.onUsernameClick,
+    required this.onArrowIconClick,
+    required this.colorScheme,
+    required this.storePosition,
+    required this.isFirstMessageInGroupedMessages,
+    this.pattern,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -57,10 +57,11 @@ class ReceivedMessageBox extends StatelessWidget {
             colorScheme: colorScheme,
             child: boxContent,
             isSender: false,
-            isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages);
+            isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
+          );
   }
 
-  doNotNeedsWrapper() {
+  bool doNotNeedsWrapper() {
     return message.type == MessageType.STICKER ||
         AnimatedEmoji.isAnimatedEmoji(message);
   }

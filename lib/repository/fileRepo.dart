@@ -2,19 +2,18 @@
 
 import 'dart:convert';
 import 'dart:io' as io;
-import 'package:deliver/shared/constants.dart';
-import 'package:dio/dio.dart';
-import 'package:http/http.dart' as http;
 
 import 'package:deliver/box/dao/file_dao.dart';
 import 'package:deliver/box/file_info.dart';
 import 'package:deliver/services/file_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/enum.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
-
+import 'package:dio/dio.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
+import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -25,21 +24,31 @@ class FileRepo {
   Map<String, BehaviorSubject<int?>> uploadFileStatusCode = {};
 
   Future<void> cloneFileInLocalDirectory(
-      io.File file, String uploadKey, String name) async {
-     _saveFileInfo(uploadKey, file.path, name, "real");
+    io.File file,
+    String uploadKey,
+    String name,
+  ) async {
+    _saveFileInfo(uploadKey, file.path, name, "real");
   }
 
-  Future<file_pb.File?> uploadClonedFile(String uploadKey, String name,
-      {Function? sendActivity}) async {
+  Future<file_pb.File?> uploadClonedFile(
+    String uploadKey,
+    String name, {
+    void Function(int)? sendActivity,
+  }) async {
     final clonedFilePath = await _fileDao.get(uploadKey, "real");
     if (uploadFileStatusCode[uploadKey] == null) {
-      BehaviorSubject<int> d = BehaviorSubject.seeded(0);
+      final d = BehaviorSubject<int>.seeded(0);
       uploadFileStatusCode[uploadKey] = d;
     }
     Response? value;
     try {
-      value = await _fileService.uploadFile(clonedFilePath!.path, name,
-          uploadKey: uploadKey, sendActivity: sendActivity);
+      value = await _fileService.uploadFile(
+        clonedFilePath!.path,
+        name,
+        uploadKey: uploadKey,
+        sendActivity: sendActivity,
+      );
     } on DioError catch (e) {
       if (e.response != null) {
         uploadFileStatusCode[uploadKey]!.add(e.response!.statusCode);
@@ -47,7 +56,7 @@ class FileRepo {
       _logger.e(e);
     }
     if (value != null) {
-      var json = jsonDecode(value.toString());
+      final json = jsonDecode(value.toString()) as Map;
       uploadFileStatusCode[uploadKey]!.add(value.statusCode);
       try {
         var uploadedFile = file_pb.File();
@@ -75,31 +84,41 @@ class FileRepo {
     }
   }
 
-  Future<bool> isExist(String uuid, String filename,
-      {ThumbnailSize? thumbnailSize}) async {
-    FileInfo? fileInfo = await _getFileInfoInDB(
-        (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize), uuid);
+  Future<bool> isExist(
+    String uuid,
+    String filename, {
+    ThumbnailSize? thumbnailSize,
+  }) async {
+    final fileInfo = await _getFileInfoInDB(
+      (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize),
+      uuid,
+    );
     if (fileInfo != null) {
-      if (kIsWeb) return fileInfo.path.isNotEmpty;
-      io.File file = io.File(fileInfo.path);
-      return await file.exists();
+      if (isWeb) return fileInfo.path.isNotEmpty;
+      final file = io.File(fileInfo.path);
+      return file.existsSync();
     }
     return false;
   }
 
-  saveDownloadedFile(String url, String filename) =>
+  Future<void> saveDownloadedFile(String url, String filename) =>
       _fileService.saveDownloadedFile(url, filename);
 
-  Future<String?> getFileIfExist(String uuid, String filename,
-      {ThumbnailSize? thumbnailSize}) async {
-    FileInfo? fileInfo = await _getFileInfoInDB(
-        (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize), uuid);
+  Future<String?> getFileIfExist(
+    String uuid,
+    String filename, {
+    ThumbnailSize? thumbnailSize,
+  }) async {
+    final fileInfo = await _getFileInfoInDB(
+      (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize),
+      uuid,
+    );
     if (fileInfo != null) {
-      if (kIsWeb) {
+      if (isWeb) {
         return Uri.parse(fileInfo.path).toString();
       } else {
-        io.File file = io.File(fileInfo.path);
-        if (await file.exists()) {
+        final file = io.File(fileInfo.path);
+        if (file.existsSync()) {
           return file.path;
         }
       }
@@ -107,21 +126,29 @@ class FileRepo {
     return null;
   }
 
-  Future<String?> getFile(String uuid, String filename,
-      {ThumbnailSize? thumbnailSize, bool intiProgressBar = true}) async {
-    String? path =
+  Future<String?> getFile(
+    String uuid,
+    String filename, {
+    ThumbnailSize? thumbnailSize,
+    bool intiProgressBar = true,
+  }) async {
+    final path =
         await getFileIfExist(uuid, filename, thumbnailSize: thumbnailSize);
     if (path != null) {
-      return kIsWeb ? Uri.parse(path).toString() : path;
+      return isWeb ? Uri.parse(path).toString() : path;
     }
-    var downloadedFileUri =
+    final downloadedFileUri =
         await _fileService.getFile(uuid, filename, size: thumbnailSize);
     if (downloadedFileUri != null) {
-      if (kIsWeb) {
-        var res = await http.get(Uri.parse(downloadedFileUri));
-        String bytes = Uri.dataFromBytes(res.bodyBytes.toList()).toString();
-        await _saveFileInfo(uuid, bytes, filename,
-            thumbnailSize != null ? enumToString(thumbnailSize) : 'real');
+      if (isWeb) {
+        final res = await http.get(Uri.parse(downloadedFileUri));
+        final bytes = Uri.dataFromBytes(res.bodyBytes.toList()).toString();
+        await _saveFileInfo(
+          uuid,
+          bytes,
+          filename,
+          thumbnailSize != null ? enumToString(thumbnailSize) : 'real',
+        );
         if (intiProgressBar) {
           if (_fileService.filesProgressBarStatus[uuid] != null) {
             _fileService.filesProgressBarStatus[uuid]!.add(DOWNLOAD_COMPLETE);
@@ -131,8 +158,12 @@ class FileRepo {
         return downloadedFileUri;
       }
 
-      await _saveFileInfo(uuid, downloadedFileUri, filename,
-          thumbnailSize != null ? enumToString(thumbnailSize) : 'real');
+      await _saveFileInfo(
+        uuid,
+        downloadedFileUri,
+        filename,
+        thumbnailSize != null ? enumToString(thumbnailSize) : 'real',
+      );
       if (intiProgressBar) {
         if (_fileService.filesProgressBarStatus[uuid] != null) {
           _fileService.filesProgressBarStatus[uuid]!.add(DOWNLOAD_COMPLETE);
@@ -146,8 +177,12 @@ class FileRepo {
   }
 
   Future<FileInfo> _saveFileInfo(
-      String fileId, String filePath, String name, String sizeType) async {
-    FileInfo fileInfo = FileInfo(
+    String fileId,
+    String filePath,
+    String name,
+    String sizeType,
+  ) async {
+    final fileInfo = FileInfo(
       uuid: fileId,
       name: name,
       path: filePath,
@@ -158,9 +193,11 @@ class FileRepo {
   }
 
   Future<void> _updateFileInfoWithRealUuid(
-      String uploadKey, String uuid) async {
-    var real = await _getFileInfoInDB("real", uploadKey);
-    var medium = await _getFileInfoInDB("medium", uploadKey);
+    String uploadKey,
+    String uuid,
+  ) async {
+    final real = await _getFileInfoInDB("real", uploadKey);
+    final medium = await _getFileInfoInDB("medium", uploadKey);
 
     await _fileDao.remove(real!);
     if (medium != null) {
@@ -174,16 +211,19 @@ class FileRepo {
     }
   }
 
-  Future<FileInfo?> _getFileInfoInDB(String size, String uuid) async {
-    return await _fileDao.get(uuid, enumToString(size));
-  }
+  Future<FileInfo?> _getFileInfoInDB(String size, String uuid) async =>
+      _fileDao.get(uuid, enumToString(size));
 
   void initUploadProgress(String uploadId) {
     _fileService.initProgressBar(uploadId);
   }
 
-  void saveFileInDownloadDir(String uuid, String name, String dir) async {
-    String? path = await getFileIfExist(uuid, name);
+  Future<void> saveFileInDownloadDir(
+    String uuid,
+    String name,
+    String dir,
+  ) async {
+    final path = await getFileIfExist(uuid, name);
     _fileService.saveFileInDownloadFolder(path!, name, dir);
   }
 }

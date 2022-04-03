@@ -20,28 +20,34 @@ abstract class MediaDao {
 
 class MediaDaoImpl implements MediaDao {
   @override
-  get(String roomId, MediaType type, int limit, int offset) async {
-    var box = await _open(roomId);
-    List<Media> res = [];
-    var medias = box.values
-        .where((element) =>
-            element.roomId.contains(roomId) && element.type == type)
+  Future<List<Media>> get(
+    String roomId,
+    MediaType type,
+    int limit,
+    int offset,
+  ) async {
+    final box = await _open(roomId);
+    final res = <Media>[];
+    final medias = box.values
+        .where(
+          (element) => element.roomId.contains(roomId) && element.type == type,
+        )
         .toList()
         .sublist(offset, offset + limit);
-    res.addAll(medias);
-    res.sort((a, b) => a.createdOn - b.createdOn);
-    return res;
+    return res
+      ..addAll(medias)
+      ..sort((a, b) => a.createdOn - b.createdOn);
   }
 
   @override
   Future<void> save(Media media) async {
-    var box = await _open(media.roomId);
+    final box = await _open(media.roomId);
     box.put(media.messageId, media);
   }
 
   @override
   Future<int?> getIndexOfMedia(String roomUid, int messageId) async {
-    var box = await _open(roomUid);
+    final box = await _open(roomUid);
     return box.values
         .toList()
         .reversed
@@ -58,12 +64,16 @@ class MediaDaoImpl implements MediaDao {
 
   @override
   Future<List<Media>> getByRoomIdAndType(String roomUid, MediaType type) async {
-    var box = await _open(roomUid);
+    final box = await _open(roomUid);
 
-    return sorted(box.values
-        .where((element) =>
-            element.roomId.contains(roomUid) && element.type == type)
-        .toList());
+    return sorted(
+      box.values
+          .where(
+            (element) =>
+                element.roomId.contains(roomUid) && element.type == type,
+          )
+          .toList(),
+    );
   }
 
   List<Media> sorted(List<Media> list) {
@@ -73,13 +83,13 @@ class MediaDaoImpl implements MediaDao {
 
   @override
   Future deleteMedia(String roomId, int messageId) async {
-    var box = await _open(roomId);
+    final box = await _open(roomId);
     box.delete(messageId);
   }
 
   @override
   Future clear(String roomId) async {
-    var box = await _open(roomId);
+    final box = await _open(roomId);
     await box.clear();
   }
 }

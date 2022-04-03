@@ -42,10 +42,10 @@ class _LoginPageState extends State<LoginPage> {
   static final _contactRepo = GetIt.I.get<ContactRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   final _formKey = GlobalKey<FormState>();
-  bool _isLoading = false;
-  var loginWithQrCode = isDesktop();
-  bool _acceptPrivacy = !isAndroid();
-  var loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
+  final BehaviorSubject<bool> _isLoading = BehaviorSubject.seeded(false);
+  bool loginWithQrCode = isDesktop;
+  bool _acceptPrivacy = !isAndroid;
+  final loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
   Timer? checkTimer;
   Timer? tokenGeneratorTimer;
   PhoneNumber? phoneNumber;
@@ -57,17 +57,19 @@ class _LoginPageState extends State<LoginPage> {
       controller.text = phoneNumber!.nationalNumber.toString();
     }
 
-    if (isDesktop()) {
+    if (isDesktop) {
       checkTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
         try {
-          var res = await _authRepo.checkQrCodeToken(loginToken.value);
+          final res = await _authRepo.checkQrCodeToken(loginToken.value);
           if (res.status == AccessTokenRes_Status.OK) {
             _fireBaseServices.sendFireBaseToken();
             _navigationToHome();
           } else if (res.status == AccessTokenRes_Status.PASSWORD_PROTECTED) {
             ToastDisplay.showToast(
-                toastText: "PASSWORD_PROTECTED", toastContext: context);
-            // TODO navigate to password validation page
+              toastText: "PASSWORD_PROTECTED",
+              toastContext: context,
+            );
+            // TODO(dansi): navigate to password validation page, https://gitlab.iais.co/deliver/wiki/-/issues/419
           }
         } catch (e) {
           _logger.e(e);
@@ -77,16 +79,14 @@ class _LoginPageState extends State<LoginPage> {
           Timer.periodic(const Duration(seconds: 60), (timer) {
         loginToken.add(randomAlphaNumeric(36));
       });
-    } else if (isAndroid() && !kDebugMode) {
+    } else if (isAndroid && !kDebugMode) {
       SmsAutoFill().hint.then((value) {
         if (value != null) {
-          final PhoneNumber? p = getPhoneNumber(value);
+          final p = getPhoneNumber(value);
           if (p != null) {
             phoneNumber = p;
             controller.text = p.nationalNumber.toString();
-            setState(() {
-              _isLoading = true;
-            });
+            _isLoading.add(true);
             checkAndGoNext(doNotCheckValidator: true);
           }
         }
@@ -95,14 +95,20 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
   }
 
-  _navigationToHome() async {
+  Future<void> _navigationToHome() async {
     _contactRepo.getContacts();
-    Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (c) {
-      return const HomePage();
-    }), (r) => false);
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(
+        builder: (c) {
+          return const HomePage();
+        },
+      ),
+      (r) => false,
+    );
   }
 
-  _loginASTestUser() {
+  void _loginASTestUser() {
     _authRepo.saveTestUserInfo();
     _navigationToHome();
   }
@@ -115,44 +121,36 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-  checkAndGoNext({bool doNotCheckValidator = false}) async {
+  Future<void> checkAndGoNext({bool doNotCheckValidator = false}) async {
+    final navigatorState = Navigator.of(context);
     if (phoneNumber != null &&
         phoneNumber!.nationalNumber.toString() == TEST_USER_PHONE_NUMBER) {
       _logger.e("login as test user ");
       _loginASTestUser();
     } else {
-      var isValidated = _formKey.currentState?.validate() ?? false;
+      final isValidated = _formKey.currentState?.validate() ?? false;
       if ((doNotCheckValidator || isValidated) && phoneNumber != null) {
-        setState(() {
-          _isLoading = true;
-        });
+        _isLoading.add(true);
         try {
-          var isSent = await _authRepo.getVerificationCode(phoneNumber!);
+          final isSent = await _authRepo.getVerificationCode(phoneNumber!);
           if (isSent) {
-            Navigator.push(context, MaterialPageRoute(builder: (c) {
-              return const VerificationPage();
-            }));
-
-            setState(() {
-              _isLoading = false;
-            });
+            navigatorState.push(
+              MaterialPageRoute(builder: (c) => const VerificationPage()),
+            );
+            _isLoading.add(false);
           } else {
             ToastDisplay.showToast(
-//          TODO more detailed error message needed here.
+              // TODO(dansi): more detailed error message needed here, https://gitlab.iais.co/deliver/wiki/-/issues/422
               toastText: _i18n.get("error_occurred"),
               toastContext: context,
             );
-            setState(() {
-              _isLoading = false;
-            });
+            _isLoading.add(false);
           }
         } catch (e) {
-          setState(() {
-            _isLoading = false;
-          });
+          _isLoading.add(false);
           _logger.e(e);
           ToastDisplay.showToast(
-//          TODO more detailed error message needed here.
+            // TODO(dansi): more detailed error message needed here, https://gitlab.iais.co/deliver/wiki/-/issues/422
             toastText: _i18n.get("error_occurred"),
             toastContext: context,
           );
@@ -187,31 +185,30 @@ class _LoginPageState extends State<LoginPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           StreamBuilder<String>(
-              stream: loginToken.stream,
-              builder: (context, snapshot) {
-                if (snapshot.hasData &&
-                    snapshot.data != null &&
-                    snapshot.data!.isNotEmpty) {
-                  return Container(
-                    width: 200,
-                    height: 200,
-                    padding: const EdgeInsets.all(8.0),
-                    color: Colors.white,
-                    child: QrImage(
-                      data:
-                          "https://$APPLICATION_DOMAIN/login?token=${snapshot.data}",
-                      version: QrVersions.auto,
-                      // embeddedImage: FileImage(File("")),
-                      padding: EdgeInsets.zero,
-                      foregroundColor: Colors.black,
-                    ),
-                  );
-                } else {
-                  return const Center(
-                    child: CircularProgressIndicator(),
-                  );
-                }
-              }),
+            stream: loginToken.stream,
+            builder: (context, snapshot) {
+              if (snapshot.hasData &&
+                  snapshot.data != null &&
+                  snapshot.data!.isNotEmpty) {
+                return Container(
+                  width: 200,
+                  height: 200,
+                  padding: const EdgeInsets.all(8.0),
+                  color: Colors.white,
+                  child: QrImage(
+                    data:
+                        "https://$APPLICATION_DOMAIN/login?token=${snapshot.data}",
+                    padding: EdgeInsets.zero,
+                    foregroundColor: Colors.black,
+                  ),
+                );
+              } else {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+            },
+          ),
           const SizedBox(height: 30),
           const Text("1. Open Deliver on your phone"),
           const SizedBox(height: 10),
@@ -230,14 +227,15 @@ class _LoginPageState extends State<LoginPage> {
           const Text("3. Point your phone at this screen to confirm login"),
           const SizedBox(height: 30),
           TextButton(
-              child: const Text(
-                "Don't you have access to an authenticated phone?",
-              ),
-              onPressed: () {
-                setState(() {
-                  loginWithQrCode = false;
-                });
-              }),
+            child: const Text(
+              "Don't you have access to an authenticated phone?",
+            ),
+            onPressed: () {
+              setState(() {
+                loginWithQrCode = false;
+              });
+            },
+          ),
         ],
       ),
     );
@@ -245,9 +243,14 @@ class _LoginPageState extends State<LoginPage> {
 
   Widget buildNormalLogin(I18N i18n, BuildContext context) {
     final theme = Theme.of(context);
-    return _isLoading
-        ? const Center(child: CircularProgressIndicator())
-        : Padding(
+    return StreamBuilder<bool>(
+      initialData: _isLoading.value,
+      stream: _isLoading.stream,
+      builder: (c, loading) {
+        if (loading.hasData && loading.data != null && loading.data!) {
+          return const Center(child: CircularProgressIndicator());
+        } else {
+          return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -282,23 +285,24 @@ class _LoginPageState extends State<LoginPage> {
                           fontSize: 15,
                         ),
                       ),
-                      if (isDesktop()) const SizedBox(height: 40),
-                      if (isDesktop())
+                      if (isDesktop) const SizedBox(height: 40),
+                      if (isDesktop)
                         TextButton(
-                            child: Text(
-                              "Login with QR Code",
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: theme.primaryColor,
-                                fontSize: 13,
-                              ),
+                          child: Text(
+                            "Login with QR Code",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: theme.primaryColor,
+                              fontSize: 13,
                             ),
-                            onPressed: () {
-                              setState(() {
-                                loginWithQrCode = true;
-                              });
-                            }),
-                      if (isAndroid())
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              loginWithQrCode = true;
+                            });
+                          },
+                        ),
+                      if (isAndroid)
                         Row(
                           children: [
                             Checkbox(
@@ -316,19 +320,27 @@ class _LoginPageState extends State<LoginPage> {
                                 });
                               },
                               child: RichText(
-                                text: TextSpan(children: [
-                                  TextSpan(
+                                text: TextSpan(
+                                  children: [
+                                    TextSpan(
                                       text: "شرایط حریم خصوصی",
                                       style: const TextStyle(
-                                          color: Colors.blue, fontSize: 13),
+                                        color: Colors.blue,
+                                        fontSize: 13,
+                                      ),
                                       recognizer: TapGestureRecognizer()
                                         ..onTap = () => launch(
-                                            "https://deliver-co.ir/#/termofuse")),
-                                  const TextSpan(
+                                              "https://deliver-co.ir/#/termofuse",
+                                            ),
+                                    ),
+                                    const TextSpan(
                                       text:
                                           " را مطالعه نموده ام و آن را قبول می کنم",
-                                      style: TextStyle(fontSize: 13)),
-                                ], style: theme.textTheme.bodyText2),
+                                      style: TextStyle(fontSize: 13),
+                                    ),
+                                  ],
+                                  style: theme.textTheme.bodyText2,
+                                ),
                                 textDirection: TextDirection.rtl,
                               ),
                             ),
@@ -343,19 +355,23 @@ class _LoginPageState extends State<LoginPage> {
                     child: Align(
                       alignment: Alignment.bottomRight,
                       child: TextButton(
-                          child: Text(
-                            i18n.get("next"),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: theme.primaryColor,
-                              fontSize: 14.5,
-                            ),
+                        child: Text(
+                          i18n.get("next"),
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: theme.primaryColor,
+                            fontSize: 14.5,
                           ),
-                          onPressed: checkAndGoNext),
+                        ),
+                        onPressed: checkAndGoNext,
+                      ),
                     ),
                   ),
               ],
             ),
           );
+        }
+      },
+    );
   }
 }

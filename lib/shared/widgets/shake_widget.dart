@@ -7,14 +7,14 @@ class ShakeWidget extends StatefulWidget {
   final ShakeWidgetController controller;
   final Duration animationDuration;
 
-  const ShakeWidget(
-      {Key? key,
-      required this.child,
-      this.horizontalPadding = 30,
-      this.animationRange = 24,
-      required this.controller,
-      this.animationDuration = const Duration(milliseconds: 400)})
-      : super(key: key);
+  const ShakeWidget({
+    Key? key,
+    required this.child,
+    this.horizontalPadding = 30,
+    this.animationRange = 24,
+    required this.controller,
+    this.animationDuration = const Duration(milliseconds: 400),
+  }) : super(key: key);
 
   @override
   _ShakeWidgetState createState() => _ShakeWidgetState();
@@ -36,15 +36,14 @@ class _ShakeWidgetState extends State<ShakeWidget>
 
   @override
   Widget build(BuildContext context) {
-    final Animation<double> offsetAnimation =
-        Tween(begin: 0.0, end: widget.animationRange)
-            .chain(CurveTween(curve: Curves.elasticIn))
-            .animate(animationController)
-          ..addStatusListener((status) {
-            if (status == AnimationStatus.completed) {
-              animationController.reverse();
-            }
-          });
+    final offsetAnimation = Tween(begin: 0.0, end: widget.animationRange)
+        .chain(CurveTween(curve: Curves.elasticIn))
+        .animate(animationController)
+      ..addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          animationController.reverse();
+        }
+      });
 
     return AnimatedBuilder(
       animation: offsetAnimation,
@@ -52,8 +51,9 @@ class _ShakeWidgetState extends State<ShakeWidget>
         return Container(
           margin: EdgeInsets.symmetric(horizontal: widget.animationRange),
           padding: EdgeInsets.only(
-              left: offsetAnimation.value + widget.horizontalPadding,
-              right: widget.horizontalPadding - offsetAnimation.value),
+            left: offsetAnimation.value + widget.horizontalPadding,
+            right: widget.horizontalPadding - offsetAnimation.value,
+          ),
           child: widget.child,
         );
       },

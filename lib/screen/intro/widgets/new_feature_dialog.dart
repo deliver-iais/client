@@ -19,58 +19,65 @@ class NewFeatureDialog extends StatelessWidget {
           borderRadius: mainBorder,
           child: SingleChildScrollView(
             child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Image(
-                    image: AssetImage('assets/images/wave.png'),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(_i18n.get("about_update"),
-                            style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black)),
-                        const Text(
-                          "V" + VERSION,
-                          style: TextStyle(
-                              color: Colors.blue, fontWeight: FontWeight.w600),
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Image(
+                  image: AssetImage('assets/images/wave.png'),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        _i18n.get("about_update"),
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black,
                         ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: SizedBox(
-                        height: 200,
-                        child: ListView.builder(
-                          itemCount: ENGLISH_FEATURE_LIST.length,
-                          itemBuilder: (context, index) {
-                            return Text(
-                              _i18n.isPersian
-                                  ? FARSI_FEATURE_LIST[index]
-                                  : ENGLISH_FEATURE_LIST[index],
-                              style: const TextStyle(color: Colors.black54),
-                              textDirection: _i18n.isPersian
-                                  ? TextDirection.rtl
-                                  : TextDirection.ltr,
-                            );
-                          },
-                        ),
-                      )),
-                  Center(
-                    child: Container(
-                      margin: const EdgeInsets.all(8),
-                      child: TextButton(
-                        child: Text(_i18n.get("got_it")),
-                        onPressed: () => Navigator.pop(context),
                       ),
+                      const Text(
+                        "V" + VERSION,
+                        style: TextStyle(
+                          color: Colors.blue,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: SizedBox(
+                    height: 200,
+                    child: ListView.builder(
+                      itemCount: ENGLISH_FEATURE_LIST.length,
+                      itemBuilder: (context, index) {
+                        return Text(
+                          _i18n.isPersian
+                              ? FARSI_FEATURE_LIST[index]
+                              : ENGLISH_FEATURE_LIST[index],
+                          style: const TextStyle(color: Colors.black54),
+                          textDirection: _i18n.isPersian
+                              ? TextDirection.rtl
+                              : TextDirection.ltr,
+                        );
+                      },
                     ),
-                  )
-                ]),
+                  ),
+                ),
+                Center(
+                  child: Container(
+                    margin: const EdgeInsets.all(8),
+                    child: TextButton(
+                      child: Text(_i18n.get("got_it")),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ),
+                )
+              ],
+            ),
           ),
         ),
       ),

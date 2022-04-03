@@ -3,7 +3,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 extension UidExtension on Uid {
   bool isSameEntity(String entityString) {
-    var list = entityString.split(":");
+    final list = entityString.split(":");
     if (list.length != 2) {
       return false;
     } else {
@@ -31,7 +31,7 @@ const String _ALL_SESSIONS = "*";
 
 extension StringUidExtension on String {
   bool isSameEntity(Uid uid) {
-    var list = split(":");
+    final list = split(":");
     if (list.length != 2) {
       return false;
     } else {
@@ -40,7 +40,7 @@ extension StringUidExtension on String {
   }
 
   Uid asUid() {
-    var list = split(":");
+    final list = split(":");
     if (list.length != 2) {
       throw AssertionError("Uid is incorrect");
     } else {

@@ -4,16 +4,16 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lottie/lottie.dart';
 
 class ToastDisplay {
-  static showToast(
-      {IconData? toastIcon,
-      Color? toastColor,
-      bool isSaveToast = false,
-      required BuildContext toastContext,
-      required String toastText}) {
-    FToast fToast = FToast();
-    fToast.init(toastContext);
+  static void showToast({
+    IconData? toastIcon,
+    Color? toastColor,
+    bool isSaveToast = false,
+    required BuildContext toastContext,
+    required String toastText,
+  }) {
+    final fToast = FToast()..init(toastContext);
     toastColor ??= Theme.of(toastContext).colorScheme.surface;
-    Widget toast = Container(
+    final Widget toast = Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(

@@ -6,25 +6,34 @@ import 'package:flutter/material.dart';
 // ........................................................
 Color darken(Color c, [int percent = 10]) {
   assert(1 <= percent && percent <= 100);
-  var f = 1 - percent / 100;
-  return Color.fromARGB(c.alpha, (c.red * f).round(), (c.green * f).round(),
-      (c.blue * f).round());
+  final f = 1 - percent / 100;
+  return Color.fromARGB(
+    c.alpha,
+    (c.red * f).round(),
+    (c.green * f).round(),
+    (c.blue * f).round(),
+  );
 }
 
 /// Lighten a color by [percent] amount (100 = white)
 // ........................................................
 Color lighten(Color c, [int percent = 10]) {
   assert(1 <= percent && percent <= 100);
-  var p = percent / 100;
+  final p = percent / 100;
   return Color.fromARGB(
-      c.alpha,
-      c.red + ((255 - c.red) * p).round(),
-      c.green + ((255 - c.green) * p).round(),
-      c.blue + ((255 - c.blue) * p).round());
+    c.alpha,
+    c.red + ((255 - c.red) * p).round(),
+    c.green + ((255 - c.green) * p).round(),
+    c.blue + ((255 - c.blue) * p).round(),
+  );
 }
 
-Color changeColor(Color color,
-        {double saturation = 0.5, double lightness = 0.5, alpha = 1.0}) =>
+Color changeColor(
+  Color color, {
+  double saturation = 0.5,
+  double lightness = 0.5,
+  double alpha = 1.0,
+}) =>
     HSLColor.fromColor(color)
         .withSaturation(saturation)
         .withLightness(lightness)
@@ -81,10 +90,11 @@ class RandomColor {
     return _getColor(h, s, b);
   }
 
-  MaterialColor randomMaterialColor(
-      {ColorHue colorHue = ColorHue.random,
-      ColorSaturation colorSaturation = ColorSaturation.random,
-      bool debug = false}) {
+  MaterialColor randomMaterialColor({
+    ColorHue colorHue = ColorHue.random,
+    ColorSaturation colorSaturation = ColorSaturation.random,
+    bool debug = false,
+  }) {
     int saturation;
     int hue;
     int brightness;
@@ -95,18 +105,15 @@ class RandomColor {
         const ColorBrightness.custom(Range(45, 55)).returnBrightness(_random);
 
     /// Middle color
-    final Color _baseColor = _getColor(hue, saturation, brightness);
+    final _baseColor = _getColor(hue, saturation, brightness);
 
-    Color _getLighterColor(int lighterShade) {
-      return _getColor(hue, saturation, brightness + (lighterShade * 5));
-    }
+    Color _getLighterColor(int lighterShade) =>
+        _getColor(hue, saturation, brightness + (lighterShade * 5));
 
-    Color _getDarkerColor(int darkerShade) {
-      return _getColor(hue, saturation, brightness - (darkerShade * 5));
-    }
+    Color _getDarkerColor(int darkerShade) =>
+        _getColor(hue, saturation, brightness - (darkerShade * 5));
 
-    final MaterialColor _finishedColor =
-        MaterialColor(_baseColor.value, <int, Color>{
+    final _finishedColor = MaterialColor(_baseColor.value, <int, Color>{
       50: _getLighterColor(5),
       100: _getLighterColor(4),
       200: _getLighterColor(3),
@@ -132,14 +139,17 @@ class RandomColor {
     ColorBrightness? colorBrightness,
     bool debug = false,
   }) {
-    final List<Color> colors = <Color>[];
+    final colors = <Color>[];
 
-    for (int i = 0; i < count; i++) {
-      colors.add(randomColor(
+    for (var i = 0; i < count; i++) {
+      colors.add(
+        randomColor(
           colorHue: colorHue!,
           colorSaturation: colorSaturation!,
           colorBrightness: colorBrightness!,
-          debug: debug));
+          debug: debug,
+        ),
+      );
     }
 
     return colors;
@@ -148,10 +158,10 @@ class RandomColor {
   /// Need to get RGB from hsv values and make new color from them.
   /// Ported to dart from: https://stackoverflow.com/a/25964657/3700909
   Color _getColor(int hue, int saturation, int brightness) {
-    final double s = saturation / 100;
-    final double v = brightness / 100;
+    final s = saturation / 100;
+    final v = brightness / 100;
 
-    final Color _color = HSLColor.fromAHSL(1.0, hue.toDouble(), s, v).toColor();
+    final _color = HSLColor.fromAHSL(1.0, hue.toDouble(), s, v).toColor();
 
     return _color;
   }
@@ -164,7 +174,9 @@ class ColorBrightness {
   static const ColorBrightness dark =
       ColorBrightness._(Range(minBrightness, minBrightness + 30), 3);
   static const ColorBrightness light = ColorBrightness._(
-      Range(((maxBrightness + minBrightness) ~/ 2), maxBrightness), 1);
+    Range(((maxBrightness + minBrightness) ~/ 2), maxBrightness),
+    1,
+  );
 
   static const ColorBrightness primary =
       ColorBrightness._(Range(minBrightness + 20, maxBrightness - 20), 2);
@@ -182,9 +194,12 @@ class ColorBrightness {
   static const ColorBrightness veryDark =
       ColorBrightness._(Range(minBrightness ~/ 2, minBrightness + 30), 4);
   static const ColorBrightness veryLight = ColorBrightness._(
-      Range(((maxBrightness + minBrightness) ~/ 2),
-          maxBrightness + (minBrightness ~/ 2)),
-      0);
+    Range(
+      ((maxBrightness + minBrightness) ~/ 2),
+      maxBrightness + (minBrightness ~/ 2),
+    ),
+    0,
+  );
   final Range _brightness;
   final int type;
 
@@ -194,9 +209,7 @@ class ColorBrightness {
 
   const ColorBrightness._(this._brightness, this.type);
 
-  int returnBrightness(Random random) {
-    return _brightness.randomWithin(random);
-  }
+  int returnBrightness(Random random) => _brightness.randomWithin(random);
 
   @override
   String toString() {
@@ -218,9 +231,10 @@ class ColorBrightness {
     return 'custom';
   }
 
-  static ColorBrightness multiple(
-      {required List<ColorBrightness> colorBrightnessList,
-      required Random random}) {
+  static ColorBrightness multiple({
+    required List<ColorBrightness> colorBrightnessList,
+    required Random random,
+  }) {
     colorBrightnessList.shuffle(random);
     return colorBrightnessList.first;
   }
@@ -270,7 +284,7 @@ class ColorHue {
   const ColorHue._(this._hue, this.type);
 
   int returnHue(Random random) {
-    int _h = _hue.randomWithin(random);
+    var _h = _hue.randomWithin(random);
 
     if (_h < 0) {
       _h = 360 + _h;
@@ -303,8 +317,10 @@ class ColorHue {
     return 'custom';
   }
 
-  static ColorHue multiple(
-      {required List<ColorHue> colorHues, required Random random}) {
+  static ColorHue multiple({
+    required List<ColorHue> colorHues,
+    required Random random,
+  }) {
     colorHues.shuffle(random);
     return colorHues.first;
   }
@@ -349,9 +365,7 @@ class ColorSaturation {
 
   const ColorSaturation._(this._saturation, this.type);
 
-  int returnSaturation(Random random) {
-    return _saturation.randomWithin(random);
-  }
+  int returnSaturation(Random random) => _saturation.randomWithin(random);
 
   @override
   String toString() {
@@ -371,9 +385,10 @@ class ColorSaturation {
     return 'custom';
   }
 
-  static ColorSaturation multiple(
-      {required List<ColorSaturation> colorSaturations,
-      required Random random}) {
+  static ColorSaturation multiple({
+    required List<ColorSaturation> colorSaturations,
+    required Random random,
+  }) {
     colorSaturations.shuffle(random);
     return colorSaturations.first;
   }
@@ -405,17 +420,12 @@ class Range {
       : start = 0,
         end = 0;
 
-  Range operator +(Range range) {
-    return Range((start + range.start) ~/ 2, end);
-  }
+  Range operator +(Range range) => Range((start + range.start) ~/ 2, end);
 
-  bool contain(int value) {
-    return value >= start && value <= end;
-  }
+  bool contain(int value) => value >= start && value <= end;
 
-  int randomWithin(Random random) {
-    return (start + random.nextDouble() * (end - start)).round();
-  }
+  int randomWithin(Random random) =>
+      (start + random.nextDouble() * (end - start)).round();
 
   @override
   bool operator ==(Object other) =>

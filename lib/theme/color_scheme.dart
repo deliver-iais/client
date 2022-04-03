@@ -12,8 +12,12 @@ class CustomColorScheme {
   final Color primaryContainer;
   final Color onPrimaryContainer;
 
-  const CustomColorScheme(this.primary, this.onPrimary, this.primaryContainer,
-      this.onPrimaryContainer);
+  const CustomColorScheme(
+    this.primary,
+    this.onPrimary,
+    this.primaryContainer,
+    this.onPrimaryContainer,
+  );
 
   Color onPrimaryContainerLowlight() => onPrimaryContainer.withAlpha(150);
 
@@ -99,21 +103,33 @@ class Material3ColorScheme {
   });
 
   Material3ColorScheme.lightOfCorePalette(CorePalette palette)
-      : this.light(palette.primary, palette.secondary, palette.tertiary,
-            palette.error, palette.neutral, palette.neutralVariant);
+      : this.light(
+          palette.primary,
+          palette.secondary,
+          palette.tertiary,
+          palette.error,
+          palette.neutral,
+          palette.neutralVariant,
+        );
 
   Material3ColorScheme.darkOfCorePalette(CorePalette palette)
-      : this.dark(palette.primary, palette.secondary, palette.tertiary,
-            palette.error, palette.neutral, palette.neutralVariant);
+      : this.dark(
+          palette.primary,
+          palette.secondary,
+          palette.tertiary,
+          palette.error,
+          palette.neutral,
+          palette.neutralVariant,
+        );
 
   Material3ColorScheme.light(
-      TonalPalette primaryTones,
-      TonalPalette secondaryTones,
-      TonalPalette tertiaryTones,
-      TonalPalette errorTones,
-      TonalPalette neutralTones,
-      TonalPalette neutralVariantTones)
-      : brightness = Brightness.light,
+    TonalPalette primaryTones,
+    TonalPalette secondaryTones,
+    TonalPalette tertiaryTones,
+    TonalPalette errorTones,
+    TonalPalette neutralTones,
+    TonalPalette neutralVariantTones,
+  )   : brightness = Brightness.light,
         primary = Color(primaryTones.get(40)),
         onPrimary = Color(primaryTones.get(100)),
         primaryContainer = Color(primaryTones.get(90)),
@@ -142,13 +158,13 @@ class Material3ColorScheme {
         onBackground = Color(neutralTones.get(10));
 
   Material3ColorScheme.dark(
-      TonalPalette primaryTones,
-      TonalPalette secondaryTones,
-      TonalPalette tertiaryTones,
-      TonalPalette errorTones,
-      TonalPalette naturalTones,
-      TonalPalette naturalVariantTones)
-      : brightness = Brightness.dark,
+    TonalPalette primaryTones,
+    TonalPalette secondaryTones,
+    TonalPalette tertiaryTones,
+    TonalPalette errorTones,
+    TonalPalette naturalTones,
+    TonalPalette naturalVariantTones,
+  )   : brightness = Brightness.dark,
         primary = Color(primaryTones.get(80)),
         onPrimary = Color(primaryTones.get(20)),
         primaryContainer = Color(primaryTones.get(30)),
@@ -187,136 +203,161 @@ Color elevation(Color surface, Color primary, int number) =>
 
 ColorScheme getColorScheme(Material3ColorScheme colorScheme) {
   return ColorScheme(
-      primary: colorScheme.primary,
-      onPrimary: colorScheme.onPrimary,
-      primaryContainer: colorScheme.primaryContainer,
-      onPrimaryContainer: colorScheme.onPrimaryContainer,
-      secondary: colorScheme.secondary,
-      onSecondary: colorScheme.onSecondary,
-      secondaryContainer: colorScheme.secondaryContainer,
-      onSecondaryContainer: colorScheme.onSecondaryContainer,
-      tertiary: colorScheme.tertiary,
-      onTertiary: colorScheme.onTertiary,
-      tertiaryContainer: colorScheme.tertiaryContainer,
-      onTertiaryContainer: colorScheme.onTertiaryContainer,
-      surface: colorScheme.surface,
-      onSurface: colorScheme.onSurface,
-      surfaceVariant: colorScheme.surfaceVariant,
-      onSurfaceVariant: colorScheme.onSurfaceVariant,
-      inversePrimary: colorScheme.inversePrimary,
-      inverseSurface: colorScheme.inverseSurface,
-      onInverseSurface: colorScheme.onInverseSurface,
-      background: colorScheme.background,
-      onBackground: colorScheme.onBackground,
-      error: colorScheme.error,
-      onError: colorScheme.onError,
-      errorContainer: colorScheme.errorContainer,
-      onErrorContainer: colorScheme.onErrorContainer,
-      outline: colorScheme.outline,
-      brightness: colorScheme.brightness);
+    primary: colorScheme.primary,
+    onPrimary: colorScheme.onPrimary,
+    primaryContainer: colorScheme.primaryContainer,
+    onPrimaryContainer: colorScheme.onPrimaryContainer,
+    secondary: colorScheme.secondary,
+    onSecondary: colorScheme.onSecondary,
+    secondaryContainer: colorScheme.secondaryContainer,
+    onSecondaryContainer: colorScheme.onSecondaryContainer,
+    tertiary: colorScheme.tertiary,
+    onTertiary: colorScheme.onTertiary,
+    tertiaryContainer: colorScheme.tertiaryContainer,
+    onTertiaryContainer: colorScheme.onTertiaryContainer,
+    surface: colorScheme.surface,
+    onSurface: colorScheme.onSurface,
+    surfaceVariant: colorScheme.surfaceVariant,
+    onSurfaceVariant: colorScheme.onSurfaceVariant,
+    inversePrimary: colorScheme.inversePrimary,
+    inverseSurface: colorScheme.inverseSurface,
+    onInverseSurface: colorScheme.onInverseSurface,
+    background: colorScheme.background,
+    onBackground: colorScheme.onBackground,
+    error: colorScheme.error,
+    onError: colorScheme.onError,
+    errorContainer: colorScheme.errorContainer,
+    onErrorContainer: colorScheme.onErrorContainer,
+    outline: colorScheme.outline,
+    brightness: colorScheme.brightness,
+  );
 }
 
 ThemeData getThemeData(Material3ColorScheme colorScheme) {
   final primaryTextTheme = Typography.blackCupertino.apply(
-      fontFamily: "Vazir",
-      displayColor: colorScheme.primary,
-      bodyColor: colorScheme.primary);
+    fontFamily: "Vazir",
+    displayColor: colorScheme.primary,
+    bodyColor: colorScheme.primary,
+  );
 
   final textTheme = Typography.blackCupertino.apply(
-      fontFamily: "Vazir",
-      displayColor: colorScheme.onBackground,
-      bodyColor: colorScheme.onBackground);
+    fontFamily: "Vazir",
+    displayColor: colorScheme.onBackground,
+    bodyColor: colorScheme.onBackground,
+  );
 
   final theme = ThemeData(
-      brightness: colorScheme.brightness,
-      fontFamily: "Vazir",
-      primaryColor: colorScheme.primary,
-      colorScheme: getColorScheme(colorScheme),
-      scaffoldBackgroundColor:
-          elevation(colorScheme.surface, colorScheme.primary, 2),
-      primaryTextTheme: primaryTextTheme,
-      textTheme: textTheme,
-      cardColor: colorScheme.surface,
-      backgroundColor: colorScheme.background,
-      highlightColor: colorScheme.primary,
-      focusColor: colorScheme.primary.withAlpha(50));
+    brightness: colorScheme.brightness,
+    fontFamily: "Vazir",
+    primaryColor: colorScheme.primary,
+    colorScheme: getColorScheme(colorScheme),
+    scaffoldBackgroundColor:
+        elevation(colorScheme.surface, colorScheme.primary, 2),
+    primaryTextTheme: primaryTextTheme,
+    textTheme: textTheme,
+    cardColor: colorScheme.surface,
+    backgroundColor: colorScheme.background,
+    highlightColor: colorScheme.primary,
+    focusColor: colorScheme.primary.withAlpha(50),
+  );
 
   return theme.copyWith(
-      useMaterial3: true,
-      visualDensity: VisualDensity.adaptivePlatformDensity,
-      snackBarTheme: SnackBarThemeData(
-          backgroundColor: colorScheme.inverseSurface,
-          actionTextColor: colorScheme.inversePrimary,
-          shape: const RoundedRectangleBorder(borderRadius: secondaryBorder)),
-      popupMenuTheme: PopupMenuThemeData(
-          textStyle: TextStyle(color: colorScheme.primary, fontSize: 14),
-          shape: const RoundedRectangleBorder(borderRadius: secondaryBorder),
-          color: colorScheme.surface),
-      dividerTheme: const DividerThemeData(space: 1.0, thickness: 1.0),
-      inputDecorationTheme: const InputDecorationTheme(
-        border: OutlineInputBorder(borderRadius: secondaryBorder),
-      ),
-      appBarTheme: AppBarTheme(
-          color: colorScheme.surface.withOpacity(0.7),
-          elevation: 0,
-          titleTextStyle: textTheme.headline5,
-          toolbarTextStyle: textTheme.headline6,
-          iconTheme: IconThemeData(color: colorScheme.primary)),
-      sliderTheme: SliderThemeData(
-        thumbColor: colorScheme.primary,
-        trackHeight: 2.25,
-        activeTrackColor: colorScheme.primary,
-        inactiveTrackColor: colorScheme.surface,
-        thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 4.5),
-      ),
-      chipTheme: theme.chipTheme.copyWith(
-        backgroundColor: colorScheme.surface,
-        labelStyle:
-            theme.chipTheme.labelStyle?.copyWith(color: colorScheme.onSurface),
-        shape: const RoundedRectangleBorder(borderRadius: tertiaryBorder),
-        side: BorderSide(width: 1.0, color: colorScheme.outline),
-      ),
-      outlinedButtonTheme: OutlinedButtonThemeData(
-          style: OutlinedButton.styleFrom(
+    useMaterial3: true,
+    visualDensity: VisualDensity.adaptivePlatformDensity,
+    snackBarTheme: SnackBarThemeData(
+      backgroundColor: colorScheme.inverseSurface,
+      actionTextColor: colorScheme.inversePrimary,
+      shape: const RoundedRectangleBorder(borderRadius: secondaryBorder),
+    ),
+    popupMenuTheme: PopupMenuThemeData(
+      textStyle: TextStyle(color: colorScheme.primary, fontSize: 14),
+      shape: const RoundedRectangleBorder(borderRadius: secondaryBorder),
+      color: colorScheme.surface,
+    ),
+    dividerTheme: const DividerThemeData(space: 1.0, thickness: 1.0),
+    inputDecorationTheme: const InputDecorationTheme(
+      border: OutlineInputBorder(borderRadius: secondaryBorder),
+    ),
+    appBarTheme: AppBarTheme(
+      color: colorScheme.surface.withOpacity(0.7),
+      elevation: 0,
+      titleTextStyle: textTheme.headline5,
+      toolbarTextStyle: textTheme.headline6,
+      iconTheme: IconThemeData(color: colorScheme.primary),
+    ),
+    sliderTheme: SliderThemeData(
+      thumbColor: colorScheme.primary,
+      trackHeight: 2.25,
+      activeTrackColor: colorScheme.primary,
+      inactiveTrackColor: colorScheme.surface,
+      thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 4.5),
+    ),
+    chipTheme: theme.chipTheme.copyWith(
+      backgroundColor: colorScheme.surface,
+      labelStyle:
+          theme.chipTheme.labelStyle?.copyWith(color: colorScheme.onSurface),
+      shape: const RoundedRectangleBorder(borderRadius: tertiaryBorder),
+      side: BorderSide(color: colorScheme.outline),
+    ),
+    outlinedButtonTheme: OutlinedButtonThemeData(
+      style: OutlinedButton.styleFrom(
         shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
-        side: BorderSide(width: 1.0, color: colorScheme.outline),
-      )),
-      elevatedButtonTheme: ElevatedButtonThemeData(
-          style: ElevatedButton.styleFrom(
+        side: BorderSide(color: colorScheme.outline),
+      ),
+    ),
+    elevatedButtonTheme: ElevatedButtonThemeData(
+      style: ElevatedButton.styleFrom(
         shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
-      )),
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
-          shape: RoundedRectangleBorder(borderRadius: buttonBorder)),
-      textButtonTheme: TextButtonThemeData(
-          style: TextButton.styleFrom(
+      ),
+    ),
+    floatingActionButtonTheme: const FloatingActionButtonThemeData(
+      shape: RoundedRectangleBorder(borderRadius: buttonBorder),
+    ),
+    textButtonTheme: TextButtonThemeData(
+      style: TextButton.styleFrom(
         shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
-      )),
-      dialogTheme: const DialogTheme(
-          shape: RoundedRectangleBorder(borderRadius: mainBorder)),
-      tabBarTheme: TabBarTheme(
-        indicator: UnderlineTabIndicator(
-            borderSide: BorderSide(width: 2.0, color: colorScheme.primary),
-            insets: EdgeInsets.zero),
-        labelColor: colorScheme.primary,
-      ));
+      ),
+    ),
+    dialogTheme: const DialogTheme(
+      shape: RoundedRectangleBorder(borderRadius: mainBorder),
+    ),
+    tabBarTheme: TabBarTheme(
+      indicator: UnderlineTabIndicator(
+        borderSide: BorderSide(width: 2.0, color: colorScheme.primary),
+      ),
+      labelColor: colorScheme.primary,
+    ),
+  );
 }
 
 ExtraThemeData getExtraThemeData(
-    Material3ColorScheme colorScheme, List<HctColor> customHctList) {
+  Material3ColorScheme colorScheme,
+  List<HctColor> customHctList,
+) {
   late final List<CustomColorScheme> _customColorSchemeList;
 
   if (colorScheme.brightness == Brightness.light) {
     _customColorSchemeList = customHctList
-        .map((e) => CustomColorScheme.light(
-            TonalPalette.of(e.hue, e.chroma), colorScheme.primary))
+        .map(
+          (e) => CustomColorScheme.light(
+            TonalPalette.of(e.hue, e.chroma),
+            colorScheme.primary,
+          ),
+        )
         .toList();
   } else {
     _customColorSchemeList = customHctList
-        .map((e) => CustomColorScheme.dark(
-            TonalPalette.of(e.hue, e.chroma), colorScheme.primary))
+        .map(
+          (e) => CustomColorScheme.dark(
+            TonalPalette.of(e.hue, e.chroma),
+            colorScheme.primary,
+          ),
+        )
         .toList();
   }
 
   return ExtraThemeData(
-      colorScheme: colorScheme, customColorsSchemeList: _customColorSchemeList);
+    colorScheme: colorScheme,
+    customColorsSchemeList: _customColorSchemeList,
+  );
 }

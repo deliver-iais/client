@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:deliver/box/call_info.dart';
 import 'package:deliver/box/call_status.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -12,21 +14,18 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
-import 'dart:math' as math;
 
 class CallDetailPage extends StatefulWidget {
   final CallInfo callEvent;
   final bool isIncomingCall;
   final Uid caller;
-  final String monthName;
 
-  const CallDetailPage(
-      {Key? key,
-      required this.isIncomingCall,
-      required this.caller,
-      required this.monthName,
-      required this.callEvent})
-      : super(key: key);
+  const CallDetailPage({
+    Key? key,
+    required this.isIncomingCall,
+    required this.caller,
+    required this.callEvent,
+  }) : super(key: key);
 
   @override
   _CallDetailPageState createState() => _CallDetailPageState();
@@ -48,8 +47,11 @@ class _CallDetailPageState extends State<CallDetailPage> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircleAvatarWidget(_authRepo.currentUserUid, 24,
-                isHeroEnabled: false, showSavedMessageLogoIfNeeded: false),
+            CircleAvatarWidget(
+              _authRepo.currentUserUid,
+              24,
+              isHeroEnabled: false,
+            ),
             const SizedBox(width: 26),
             Transform(
               alignment: Alignment.center,
@@ -57,8 +59,7 @@ class _CallDetailPageState extends State<CallDetailPage> {
               child: Lottie.asset("assets/animations/arrow.json", height: 100),
             ),
             const SizedBox(width: 26),
-            CircleAvatarWidget(widget.caller, 24,
-                isHeroEnabled: false, showSavedMessageLogoIfNeeded: false),
+            CircleAvatarWidget(widget.caller, 24, isHeroEnabled: false),
           ],
         ),
         Container(
@@ -70,12 +71,14 @@ class _CallDetailPageState extends State<CallDetailPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   CallState(
-                      textStyle: const TextStyle(fontSize: 17),
-                      callStatus: findCallEventStatus(
-                          widget.callEvent.callEvent.newStatus),
-                      time: widget.callEvent.callEvent.callDuration,
-                      isCurrentUser:
-                          _authRepo.isCurrentUser(widget.callEvent.from)),
+                    textStyle: const TextStyle(fontSize: 17),
+                    callStatus: findCallEventStatus(
+                      widget.callEvent.callEvent.newStatus,
+                    ),
+                    time: widget.callEvent.callEvent.callDuration,
+                    isCurrentUser:
+                        _authRepo.isCurrentUser(widget.callEvent.from),
+                  ),
                   if (widget.callEvent.callEvent.callDuration != 0)
                     DefaultTextStyle(
                       style: TextStyle(
@@ -83,22 +86,26 @@ class _CallDetailPageState extends State<CallDetailPage> {
                         fontSize: 14,
                       ),
                       child: CallTime(
-                          time: DateTime.fromMillisecondsSinceEpoch(
-                              widget.callEvent.callEvent.callDuration,
-                              isUtc: true)),
+                        time: DateTime.fromMillisecondsSinceEpoch(
+                          widget.callEvent.callEvent.callDuration,
+                          isUtc: true,
+                        ),
+                      ),
                     ),
                 ],
               ),
               Row(
                 children: [
                   IconButton(
-                      onPressed: () =>
-                          _routingService.openRoom(widget.caller.asString()),
-                      icon: const Icon(CupertinoIcons.chat_bubble)),
+                    onPressed: () =>
+                        _routingService.openRoom(widget.caller.asString()),
+                    icon: const Icon(CupertinoIcons.chat_bubble),
+                  ),
                   IconButton(
-                      onPressed: () => _routingService
-                          .openCallScreen(widget.caller, context: context),
-                      icon: const Icon(CupertinoIcons.phone)),
+                    onPressed: () =>
+                        _routingService.openCallScreen(widget.caller),
+                    icon: const Icon(CupertinoIcons.phone),
+                  ),
                 ],
               ),
             ],

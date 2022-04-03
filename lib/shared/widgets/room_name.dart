@@ -1,5 +1,6 @@
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -19,43 +20,44 @@ class RoomName extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return FutureBuilder<String>(
-        future: getName(),
-        builder: (context, snapshot) {
-          var name = (snapshot.data ?? "");
-          const maxNameLength = 28;
-          if (name.length > maxNameLength) {
-            name = name.substring(0, maxNameLength - 3) + "...";
-          }
-          return Row(
-            children: [
-              Text(
-                name,
-                style:
-                    (style ?? theme.textTheme.subtitle2)!.copyWith(height: 1),
-                maxLines: 1,
-                softWrap: false,
-                overflow: TextOverflow.fade,
-              ),
-              FutureBuilder<bool>(
-                  future: _roomRepo.isVerified(uid),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData && snapshot.data!) {
-                      return Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                          child: Icon(
-                            Icons.verified,
-                            size: (style ?? theme.textTheme.subtitle2)!
-                                    .fontSize ??
-                                15,
-                            color: DELIVER_COLOR,
-                          ));
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  })
-            ],
-          );
-        });
+      future: getName(),
+      builder: (context, snapshot) {
+        var name = (snapshot.data ?? "");
+        const maxNameLength = 28;
+        if (name.length > maxNameLength) {
+          name = name.substring(0, maxNameLength - 3) + "...";
+        }
+        return Row(
+          children: [
+            Text(
+              name,
+              style: (style ?? theme.textTheme.subtitle2)!.copyWith(height: 1),
+              maxLines: 1,
+              softWrap: false,
+              overflow: TextOverflow.fade,
+            ),
+            FutureBuilder<bool>(
+              future: _roomRepo.isVerified(uid),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data!) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                    child: Icon(
+                      CupertinoIcons.checkmark_seal_fill,
+                      size:
+                          (style ?? theme.textTheme.subtitle2)!.fontSize ?? 15,
+                      color: DELIVER_COLOR,
+                    ),
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
+              },
+            )
+          ],
+        );
+      },
+    );
   }
 
   Future<String> getName() async {

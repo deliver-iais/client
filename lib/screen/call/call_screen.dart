@@ -44,7 +44,6 @@ class _CallScreenState extends State<CallScreen> {
 
   @override
   void initState() {
-    modifyRoutingByNotificationAudioCall.add({"": false});
     callRepo.initRenderer();
     _localRenderer = callRepo.getLocalRenderer;
     _remoteRenderer = callRepo.getRemoteRenderer;
@@ -54,30 +53,29 @@ class _CallScreenState extends State<CallScreen> {
     super.initState();
   }
 
-  void startCall() async {
-    callRepo.onLocalStream = ((stream) {
-      _localRenderer.srcObject = stream;
-    });
-
-    callRepo.onAddRemoteStream = ((stream) {
-      _remoteRenderer.srcObject = stream;
-    });
-
-    callRepo.onRemoveRemoteStream = ((stream) {
-      _remoteRenderer.srcObject = null;
-    });
+  Future<void> startCall() async {
+    callRepo
+      ..onLocalStream = ((stream) {
+        _localRenderer.srcObject = stream;
+      })
+      ..onAddRemoteStream = ((stream) {
+        _remoteRenderer.srcObject = stream;
+      })
+      ..onRemoveRemoteStream = ((stream) {
+        _remoteRenderer.srcObject = null;
+      });
 
     //True means its VideoCall and false means AudioCall
 
     if (widget.isCallAccepted || widget.isIncomingCall) {
-      await callRepo.initCall(true);
+      await callRepo.initCall(isOffer: true);
       if (widget.isCallAccepted) {
         callRepo.acceptCall(widget.roomUid);
       }
     } else if (widget.isVideoCall) {
-      await callRepo.startCall(widget.roomUid, true);
+      await callRepo.startCall(widget.roomUid, isVideo: true);
     } else {
-      await callRepo.startCall(widget.roomUid, false);
+      await callRepo.startCall(widget.roomUid);
     }
   }
 
@@ -263,17 +261,18 @@ class _CallScreenState extends State<CallScreen> {
                       callStatus: "Accepted",
                       hangUp: _hangUp);
 
-            default:
-              {
-                return Container(
-                  color: Colors.red,
-                );
-              }
-          }
-        });
+          default:
+            {
+              return Container(
+                color: Colors.red,
+              );
+            }
+        }
+      },
+    );
   }
 
-  _hangUp() async {
+  Future<void> _hangUp() async {
     _logger.i("Call hang Up ...!");
     callRepo.endCall(false);
   }

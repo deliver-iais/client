@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:modal_bottom_sheet/modal_bottom_sheet.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 
@@ -24,7 +25,9 @@ class FloatingModal extends StatelessWidget {
           color: backgroundColor,
           clipBehavior: Clip.antiAlias,
           borderRadius: BorderRadius.only(
-              topLeft: mainBorder.topLeft, topRight: mainBorder.topLeft),
+            topLeft: mainBorder.topLeft,
+            topRight: mainBorder.topLeft,
+          ),
           child: child,
         ),
       ),
@@ -32,24 +35,27 @@ class FloatingModal extends StatelessWidget {
   }
 }
 
-Future<T> showFloatingModalBottomSheet<T>(
-    {required BuildContext context,
-    required WidgetBuilder builder,
-    Color? backgroundColor,
-    bool isDismissible = true}) async {
+Future<T> showFloatingModalBottomSheet<T>({
+  required BuildContext context,
+  required WidgetBuilder builder,
+  Color? backgroundColor,
+  bool isDismissible = true,
+}) async {
   final result = await showCustomModalBottomSheet(
-      context: context,
-      builder: builder,
-      isDismissible: isDismissible,
-      containerWidget: (_, animation, child) => FloatingModal(
-            child: child,
-          ),
-      expand: false);
+    context: context,
+    builder: builder,
+    isDismissible: isDismissible,
+    containerWidget: (_, animation, child) => FloatingModal(
+      child: child,
+    ),
+    expand: false,
+  );
 
   return result;
 }
 
 void showQrCode(BuildContext context, String url) {
+  final _i18n = GetIt.I.get<I18N>();
   showFloatingModalBottomSheet(
     context: context,
     builder: (context) => Container(
@@ -63,7 +69,6 @@ void showQrCode(BuildContext context, String url) {
               color: Colors.white,
               child: QrImage(
                 data: url,
-                version: QrVersions.auto,
                 padding: EdgeInsets.zero,
                 foregroundColor: Colors.black,
               ),
@@ -73,8 +78,9 @@ void showQrCode(BuildContext context, String url) {
               height: 60,
               padding: const EdgeInsets.only(top: 10.0),
               child: TextButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  child: Text(I18N.of(context)!.get("skip"))),
+                onPressed: () => Navigator.of(context).pop(),
+                child: Text(_i18n.get("skip")),
+              ),
             ),
           ],
         ),

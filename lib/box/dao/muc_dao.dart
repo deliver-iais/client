@@ -30,36 +30,36 @@ abstract class MucDao {
 class MucDaoImpl implements MucDao {
   @override
   Future<void> delete(String uid) async {
-    var box = await _openMuc();
+    final box = await _openMuc();
 
     box.delete(uid);
   }
 
   @override
   Future<Muc?> get(String uid) async {
-    var box = await _openMuc();
+    final box = await _openMuc();
 
     return box.get(uid);
   }
 
   @override
   Future<void> save(Muc muc) async {
-    var box = await _openMuc();
+    final box = await _openMuc();
 
     return box.put(muc.uid, muc);
   }
 
   @override
   Future<void> update(Muc muc) async {
-    var box = await _openMuc();
+    final box = await _openMuc();
 
-    var m = box.get(muc.uid);
+    final m = box.get(muc.uid);
     return box.put(muc.uid, m!.copy(muc));
   }
 
   @override
   Stream<Muc?> watch(String uid) async* {
-    var box = await _openMuc();
+    final box = await _openMuc();
 
     yield box.get(uid);
 
@@ -68,41 +68,41 @@ class MucDaoImpl implements MucDao {
 
   @override
   Future<void> deleteAllMembers(String mucUid) async {
-    var box = await _openMembers(mucUid);
+    final box = await _openMembers(mucUid);
 
     await box.clear();
   }
 
   @override
   Future<void> deleteMember(Member member) async {
-    var box = await _openMembers(member.mucUid);
+    final box = await _openMembers(member.mucUid);
 
     return box.delete(member.memberUid);
   }
 
   @override
   Future<List<Member?>> getAllMembers(String mucUid) async {
-    var box = await _openMembers(mucUid);
+    final box = await _openMembers(mucUid);
 
     return box.values.toList();
   }
 
   @override
   Future<Member?> getMember(String memberUid, String mucUid) async {
-    var box = await _openMembers(mucUid);
+    final box = await _openMembers(mucUid);
     return box.get(memberUid);
   }
 
   @override
   Future<void> saveMember(Member member) async {
-    var box = await _openMembers(member.mucUid);
+    final box = await _openMembers(member.mucUid);
 
     box.put(member.memberUid, member);
   }
 
   @override
   Stream<List<Member>> watchAllMembers(String mucUid) async* {
-    var box = await _openMembers(mucUid);
+    final box = await _openMembers(mucUid);
 
     yield box.values.toList();
 

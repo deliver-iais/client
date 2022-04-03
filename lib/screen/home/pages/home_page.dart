@@ -1,20 +1,22 @@
 import 'dart:async';
-import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
-import 'package:flutter/foundation.dart';
+import 'dart:ui';
+
 import 'package:deliver/repository/accountRepo.dart';
+import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/url.dart';
+import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
+    as js;
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/ui/with_foreground_task.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:uni_links/uni_links.dart';
-import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
-    as js;
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -29,11 +31,13 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _coreServices = GetIt.I.get<CoreServices>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
+  final _uxService = GetIt.I.get<UxService>();
 
   Future<void> initUniLinks(BuildContext context) async {
     try {
-      String? initialLink = await getInitialLink();
+      final initialLink = await getInitialLink();
       if (initialLink != null && initialLink.isNotEmpty) {
+        // ignore: use_build_context_synchronously
         await handleJoinUri(context, initialLink);
       }
     } catch (e) {
@@ -43,19 +47,26 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   void initState() {
+    window.onPlatformBrightnessChanged = () {
+      setState(() {
+        if (_uxService.isAutoNightModeEnable) {
+          window.platformBrightness == Brightness.dark
+              ? _uxService.toggleThemeToDarkMode()
+              : _uxService.toggleThemeToLightMode();
+        }
+      });
+    };
     _coreServices.initStreamConnection();
-    if (isAndroid() || isIOS()) {
+    if (isAndroid || isIOS) {
       _notificationServices.cancelAllNotifications();
     }
-
-    checkIfUsernameIsSet();
-    if (isAndroid()) {
+    if (isAndroid) {
       checkShareFile(context);
     }
-    if (isAndroid() || isIOS()) {
+    if (isAndroid || isIOS) {
       initUniLinks(context);
     }
-    if (kIsWeb) {
+    if (isWeb) {
       js.context.callMethod("getNotificationPermission", []);
     }
     checkIfVersionChange();
@@ -64,7 +75,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     super.initState();
   }
 
-  checkAddToHomeInWeb(BuildContext context) async {
+  Future<void> checkAddToHomeInWeb(BuildContext context) async {
     Timer(const Duration(seconds: 3), () {
       try {
         // final bool isDeferredNotNull =
@@ -81,11 +92,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     });
   }
 
-  checkShareFile(BuildContext context) {
-    ReceiveSharingIntent.getInitialMedia().then((List<SharedMediaFile> value) {
+  void checkShareFile(BuildContext context) {
+    ReceiveSharingIntent.getInitialMedia().then((value) {
       if (value.isNotEmpty) {
-        List<String> paths = [];
-        for (var path in value) {
+        final paths = <String>[];
+        for (final path in value) {
           paths.add(path.path);
         }
         _routingService.openShareFile(path: paths);
@@ -97,27 +108,21 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return WillPopScope(
-        onWillPop: () async {
-          if (!_routingService.canPop()) return true;
-          _routingService.maybePop();
-          return false;
-        },
-        child: WithForegroundTask(
-          child: Container(
-              color: theme.colorScheme.background,
-              child: _routingService.outlet(context)),
-        ));
+      onWillPop: () async {
+        if (!_routingService.canPop()) return true;
+        _routingService.maybePop();
+        return false;
+      },
+      child: WithForegroundTask(
+        child: Container(
+          color: theme.colorScheme.background,
+          child: _routingService.outlet(context),
+        ),
+      ),
+    );
   }
 
-  void checkIfUsernameIsSet() async {
-    if (!await _accountRepo.hasProfile(retry: true)) {
-      _routingService.openAccountSettings(forceToSetUsernameAndName: true);
-    } else {
-      await _accountRepo.fetchProfile();
-    }
-  }
-
-  void checkIfVersionChange() async {
+  Future<void> checkIfVersionChange() async {
     if (await _accountRepo.shouldShowNewFeatureDialog()) {
       showDialog(builder: (context) => NewFeatureDialog(), context: context);
     }
