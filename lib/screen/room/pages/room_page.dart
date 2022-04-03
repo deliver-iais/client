@@ -1232,7 +1232,7 @@ class _RoomPageState extends State<RoomPage> {
           );
         }
       },
-      onCancel: () {
+      onClose: () {
         _lastPinedMessage.add(0);
         _mucRepo.updateMuc(
           Muc(uid: widget.roomId)
