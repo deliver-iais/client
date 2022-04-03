@@ -22,11 +22,15 @@ class RawKeyboardService {
 
   void controlCHandle(TextEditingController controller) {
     Clipboard.setData(
-        ClipboardData(text: controller.selection.textInside(controller.text)));
+      ClipboardData(text: controller.selection.textInside(controller.text)),
+    );
   }
 
-  Future<void> controlVHandle(TextEditingController controller, BuildContext context,
-      Uid roomUid) async {
+  Future<void> controlVHandle(
+    TextEditingController controller,
+    BuildContext context,
+    Uid roomUid,
+  ) async {
     final files = await Pasteboard.files();
     final image = await Pasteboard.image;
     final fileList = <model.File>[];
@@ -39,8 +43,8 @@ class RawKeyboardService {
     } else if (image != null) {
       final tempDir = await getTemporaryDirectory();
       final file = await File(
-              '${tempDir.path}/screenshot-${DateTime.now().hashCode}.png')
-          .create();
+        '${tempDir.path}/screenshot-${DateTime.now().hashCode}.png',
+      ).create();
       file.writeAsBytesSync(image);
       name = file.path.replaceAll("\\", "/").split("/").last;
       fileList
@@ -50,19 +54,21 @@ class RawKeyboardService {
       controller
         ..text = controller.text + data!.text!
         ..selection = TextSelection.fromPosition(
-            TextPosition(offset: controller.text.length));
+          TextPosition(offset: controller.text.length),
+        );
     }
     if (fileList.isNotEmpty) {
       showCaptionDialog(
-          context: context,
-          files: fileList,
-          caption: controller.text.isNotEmpty
-              ? !isLinux
-                  ? controller.text
-                  : null
-              : null,
-          roomUid: roomUid,
-          type: fileList.length == 1 ? name.split(".").last : "file");
+        context: context,
+        files: fileList,
+        caption: controller.text.isNotEmpty
+            ? !isLinux
+                ? controller.text
+                : null
+            : null,
+        roomUid: roomUid,
+        type: fileList.length == 1 ? name.split(".").last : "file",
+      );
       Timer(Duration.zero, () {
         controller.clear();
       });
@@ -71,12 +77,15 @@ class RawKeyboardService {
 
   void controlXHandle(TextEditingController controller) {
     Clipboard.setData(
-        ClipboardData(text: controller.selection.textInside(controller.text)));
+      ClipboardData(text: controller.selection.textInside(controller.text)),
+    );
   }
 
   void controlAHandle(TextEditingController controller) {
     controller.selection = TextSelection(
-        baseOffset: 0, extentOffset: controller.value.text.length);
+      baseOffset: 0,
+      extentOffset: controller.value.text.length,
+    );
   }
 
   void scrollDownInMentions(void Function() scrollDownInMention) {
@@ -115,8 +124,13 @@ class RawKeyboardService {
     }
   }
 
-  void navigateInMentions(String mentionData, void Function() scrollDownInMention,
-      RawKeyEvent event, int mentionSelectedIndex, void Function() scrollUpInMention) {
+  void navigateInMentions(
+    String mentionData,
+    void Function() scrollDownInMention,
+    RawKeyEvent event,
+    int mentionSelectedIndex,
+    void Function() scrollUpInMention,
+  ) {
     if (isKeyPressed(event, PhysicalKeyboardKey.arrowUp) &&
         !event.isAltPressed &&
         mentionData != "-") {
@@ -130,11 +144,12 @@ class RawKeyboardService {
   }
 
   void navigateInBotCommand(
-      RawKeyEvent event,
-      void Function() scrollDownInBotCommands,
-      void Function() scrollUpInBotCommands,
-      void Function() sendBotCommandByEnter,
-      String botCommandData) {
+    RawKeyEvent event,
+    void Function() scrollDownInBotCommands,
+    void Function() scrollUpInBotCommands,
+    void Function() sendBotCommandByEnter,
+    String botCommandData,
+  ) {
     if (isKeyPressed(event, PhysicalKeyboardKey.arrowDown)) {
       scrollDownInBotCommand(scrollDownInBotCommands);
     } else if (isKeyPressed(event, PhysicalKeyboardKey.arrowUp)) {
@@ -145,8 +160,12 @@ class RawKeyboardService {
     }
   }
 
-  void handleCopyPastKeyPress(TextEditingController controller,
-      RawKeyEvent event, BuildContext context, Uid roomUid) {
+  void handleCopyPastKeyPress(
+    TextEditingController controller,
+    RawKeyEvent event,
+    BuildContext context,
+    Uid roomUid,
+  ) {
     if (isMetaAndKeyPressed(event, PhysicalKeyboardKey.keyA)) {
       controlAHandle(controller);
     } else if (isMetaAndKeyPressed(event, PhysicalKeyboardKey.keyC)) {

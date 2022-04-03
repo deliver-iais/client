@@ -31,14 +31,17 @@ class AccountRepo {
     try {
       final result =
           await _profileServiceClient.getUserProfile(GetUserProfileReq());
-      _savePhoneNumber(result.profile.phoneNumber.countryCode,
-          result.profile.phoneNumber.nationalNumber.toInt());
+      _savePhoneNumber(
+        result.profile.phoneNumber.countryCode,
+        result.profile.phoneNumber.nationalNumber.toInt(),
+      );
 
       if (result.hasProfile() && result.profile.firstName.isNotEmpty) {
         _saveProfilePrivateData(
-            firstName: result.profile.firstName,
-            lastName: result.profile.lastName,
-            email: result.profile.email);
+          firstName: result.profile.firstName,
+          lastName: result.profile.lastName,
+          email: result.profile.email,
+        );
         return true;
       } else {
         return false;
@@ -124,10 +127,11 @@ class AccountRepo {
 
       _profileServiceClient.saveUserProfile(saveUserProfileReq);
       _saveProfilePrivateData(
-          username: username,
-          firstName: firstName ?? "",
-          lastName: lastName ?? "",
-          email: email ?? "");
+        username: username,
+        firstName: firstName ?? "",
+        lastName: lastName ?? "",
+        email: email ?? "",
+      );
 
       return true;
     } catch (e) {
@@ -142,8 +146,12 @@ class AccountRepo {
       ..put(SHARED_DAO_NATIONAL_NUMBER, nationalNumber.toString());
   }
 
-  void _saveProfilePrivateData(
-      {String? username, String? firstName, String? lastName, String? email}) {
+  void _saveProfilePrivateData({
+    String? username,
+    String? firstName,
+    String? lastName,
+    String? email,
+  }) {
     if (username != null) _sharedDao.put(SHARED_DAO_USERNAME, username);
     _sharedDao
       ..put(SHARED_DAO_FIRST_NAME, firstName!)
@@ -170,8 +178,9 @@ class AccountRepo {
 
       if (shouldUpdateSessionPlatformInformation(pv)) {
         _sessionServicesClient.updateSessionPlatformInformation(
-            UpdateSessionPlatformInformationReq()
-              ..platform = await getPlatformPB());
+          UpdateSessionPlatformInformationReq()
+            ..platform = await getPlatformPB(),
+        );
       }
       // Update version in DB
     } else {
@@ -191,9 +200,11 @@ class AccountRepo {
 
   Future<bool> verifyQrCodeToken(String token) async {
     try {
-      await _sessionServicesClient.verifyQrCodeToken(VerifyQrCodeTokenReq()
-        ..platform = await getPlatformPB()
-        ..token = token);
+      await _sessionServicesClient.verifyQrCodeToken(
+        VerifyQrCodeTokenReq()
+          ..platform = await getPlatformPB()
+          ..token = token,
+      );
       return true;
     } catch (e) {
       return false;

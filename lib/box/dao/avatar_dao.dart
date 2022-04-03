@@ -50,21 +50,24 @@ class AvatarDaoImpl implements AvatarDao {
     final box2 = await _open2();
 
     final lastAvatarOfList = avatars.fold<Avatar?>(
-        null,
-        (value, element) => value == null
-            ? element
-            : value.createdOn > element.createdOn
-                ? value
-                : element);
+      null,
+      (value, element) => value == null
+          ? element
+          : value.createdOn > element.createdOn
+              ? value
+              : element,
+    );
 
     final lastAvatar = box2.get(uid);
 
     if (lastAvatar == null ||
         lastAvatar.createdOn < lastAvatarOfList!.createdOn) {
       box2.put(
-          lastAvatarOfList!.uid,
-          lastAvatarOfList.copyWith(
-              lastUpdate: DateTime.now().millisecondsSinceEpoch));
+        lastAvatarOfList!.uid,
+        lastAvatarOfList.copyWith(
+          lastUpdate: DateTime.now().millisecondsSinceEpoch,
+        ),
+      );
     }
   }
 
@@ -73,11 +76,13 @@ class AvatarDaoImpl implements AvatarDao {
     final box2 = await _open2();
 
     box2.put(
-        uid,
-        Avatar(
-            uid: uid,
-            createdOn: 0,
-            lastUpdate: DateTime.now().millisecondsSinceEpoch));
+      uid,
+      Avatar(
+        uid: uid,
+        createdOn: 0,
+        lastUpdate: DateTime.now().millisecondsSinceEpoch,
+      ),
+    );
   }
 
   @override
@@ -95,17 +100,20 @@ class AvatarDaoImpl implements AvatarDao {
 
       if (box.values.isNotEmpty) {
         final lastAvatarOfList = box.values.fold<Avatar?>(
-            null,
-            (value, element) => value == null
-                ? element
-                : value.createdOn > element.createdOn
-                    ? value
-                    : element);
+          null,
+          (value, element) => value == null
+              ? element
+              : value.createdOn > element.createdOn
+                  ? value
+                  : element,
+        );
 
         box2.put(
-            lastAvatarOfList!.uid,
-            lastAvatarOfList.copyWith(
-                lastUpdate: DateTime.now().millisecondsSinceEpoch));
+          lastAvatarOfList!.uid,
+          lastAvatarOfList.copyWith(
+            lastUpdate: DateTime.now().millisecondsSinceEpoch,
+          ),
+        );
       }
     }
   }

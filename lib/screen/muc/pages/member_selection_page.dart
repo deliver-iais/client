@@ -45,23 +45,24 @@ class MemberSelectionPage extends StatelessWidget {
                   },
                 )
               else
-                Text(isChannel
-                    ? _i18n.get("newChannel")
-                    : _i18n.get("newGroup")),
+                Text(
+                  isChannel ? _i18n.get("newChannel") : _i18n.get("newGroup"),
+                ),
               StreamBuilder<int>(
-                  stream: _createMucService.selectedLengthStream(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return const SizedBox.shrink();
-                    }
-                    final members = snapshot.data!;
-                    return Text(
-                      members >= 1
-                          ? '$members ${_i18n.get("of_max_member")}'
-                          : _i18n.get("max_member"),
-                      style: theme.textTheme.subtitle2,
-                    );
-                  })
+                stream: _createMucService.selectedLengthStream(),
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const SizedBox.shrink();
+                  }
+                  final members = snapshot.data!;
+                  return Text(
+                    members >= 1
+                        ? '$members ${_i18n.get("of_max_member")}'
+                        : _i18n.get("max_member"),
+                    style: theme.textTheme.subtitle2,
+                  );
+                },
+              )
             ],
           ),
         ),

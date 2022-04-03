@@ -25,11 +25,12 @@ class Media {
   @HiveField(5)
   MediaType type;
 
-  Media(
-      {required this.createdOn,
-      required this.json,
-      required this.roomId,
-      required this.messageId,
-      required this.type,
-      required this.createdBy});
+  Media({
+    required this.createdOn,
+    required this.json,
+    required this.roomId,
+    required this.messageId,
+    required this.type,
+    required this.createdBy,
+  });
 }

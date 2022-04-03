@@ -51,11 +51,12 @@ class TextUI extends StatelessWidget {
     final blocks = extractBlocks(text, context);
     final spans = blocks.map<TextSpan>((b) {
       return TextSpan(
-          text: b.text,
-          style: b.style,
-          recognizer: (b.onTap != null)
-              ? (TapGestureRecognizer()..onTap = () => b.onTap!(b.text))
-              : null);
+        text: b.text,
+        style: b.style,
+        recognizer: (b.onTap != null)
+            ? (TapGestureRecognizer()..onTap = () => b.onTap!(b.text))
+            : null,
+      );
     }).toList();
     String link;
     try {
@@ -65,11 +66,12 @@ class TextUI extends StatelessWidget {
     }
 
     final double linkPreviewMaxWidth = min(
-        blocks
-                .map((b) => b.text.length)
-                .reduce((value, element) => value < element ? element : value) *
-            6.85,
-        maxWidth);
+      blocks
+              .map((b) => b.text.length)
+              .reduce((value, element) => value < element ? element : value) *
+          6.85,
+      maxWidth,
+    );
 
     return Container(
       constraints: BoxConstraints(maxWidth: maxWidth, minWidth: minWidth),
@@ -140,19 +142,25 @@ abstract class Parser {
 
 class UrlParser implements Parser {
   final RegExp regex = RegExp(
-      r"(https?:\/\/(www\.)?)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)");
+    r"(https?:\/\/(www\.)?)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)",
+  );
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) =>
-      parseBlocks(blocks, regex, "url", onTap: (uri) async {
-        if (uri.contains("$APPLICATION_DOMAIN/$JOIN") ||
-            uri.contains("$APPLICATION_DOMAIN/$SPDA") ||
-            uri.contains("$APPLICATION_DOMAIN/$TEXT")) {
-          handleJoinUri(context, uri);
-        } else {
-          await launch(uri);
-        }
-      }, style: TextStyle(color: Theme.of(context).primaryColor));
+  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+        blocks,
+        regex,
+        "url",
+        onTap: (uri) async {
+          if (uri.contains("$APPLICATION_DOMAIN/$JOIN") ||
+              uri.contains("$APPLICATION_DOMAIN/$SPDA") ||
+              uri.contains("$APPLICATION_DOMAIN/$TEXT")) {
+            handleJoinUri(context, uri);
+          } else {
+            await launch(uri);
+          }
+        },
+        style: TextStyle(color: Theme.of(context).primaryColor),
+      );
 }
 
 class IdParser implements Parser {
@@ -162,10 +170,13 @@ class IdParser implements Parser {
   IdParser(this.onUsernameClick);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) =>
-      parseBlocks(blocks, regex, "id",
-          onTap: (id) => onUsernameClick(id),
-          style: TextStyle(color: Theme.of(context).primaryColor));
+  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+        blocks,
+        regex,
+        "id",
+        onTap: (id) => onUsernameClick(id),
+        style: TextStyle(color: Theme.of(context).primaryColor),
+      );
 }
 
 class BoldTextParser implements Parser {
@@ -189,16 +200,20 @@ class ItalicTextParser implements Parser {
   static String transformer(String m) => m.replaceAll("__", "");
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) =>
-      parseBlocks(blocks, regex, "italic",
-          transformer: ItalicTextParser.transformer,
-          style: const TextStyle(fontStyle: FontStyle.italic));
+  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+        blocks,
+        regex,
+        "italic",
+        transformer: ItalicTextParser.transformer,
+        style: const TextStyle(fontStyle: FontStyle.italic),
+      );
 }
 
 class EmojiParser implements Parser {
   final double fontSize;
   final RegExp regex = RegExp(
-      r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])+');
+    r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])+',
+  );
 
   EmojiParser({this.fontSize = 18});
 
@@ -218,10 +233,13 @@ class BotCommandParser implements Parser {
   BotCommandParser(this.onBotCommandClick);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) =>
-      parseBlocks(blocks, regex, "bot",
-          onTap: (id) => onBotCommandClick(id),
-          style: TextStyle(color: Theme.of(context).primaryColor));
+  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+        blocks,
+        regex,
+        "bot",
+        onTap: (id) => onBotCommandClick(id),
+        style: TextStyle(color: Theme.of(context).primaryColor),
+      );
 }
 
 class SearchTermParser implements Parser {
@@ -230,9 +248,12 @@ class SearchTermParser implements Parser {
   SearchTermParser(this.searchTerm);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) =>
-      parseBlocks(blocks, RegExp(searchTerm), "search",
-          style: TextStyle(color: Theme.of(context).primaryColor));
+  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+        blocks,
+        RegExp(searchTerm),
+        "search",
+        style: TextStyle(color: Theme.of(context).primaryColor),
+      );
 }
 
 class Block {
@@ -242,30 +263,48 @@ class Block {
   final TextStyle? style;
   final String? type;
 
-  Block(
-      {required this.text,
-      this.locked = false,
-      this.onTap,
-      this.style,
-      this.type});
+  Block({
+    required this.text,
+    this.locked = false,
+    this.onTap,
+    this.style,
+    this.type,
+  });
 }
 
-List<Block> parseBlocks(List<Block> blocks, RegExp regex, String type,
-        {void Function(String)? onTap,
-        TextStyle? style,
-        String Function(String) transformer = same}) =>
-    flatten(blocks.map<Iterable<Block>>((b) {
-      if (b.locked) {
-        return [b];
-      } else {
-        return parseText(b.text, regex, onTap, style!, type,
-            transformer: transformer);
-      }
-    })).toList();
+List<Block> parseBlocks(
+  List<Block> blocks,
+  RegExp regex,
+  String type, {
+  void Function(String)? onTap,
+  TextStyle? style,
+  String Function(String) transformer = same,
+}) =>
+    flatten(
+      blocks.map<Iterable<Block>>((b) {
+        if (b.locked) {
+          return [b];
+        } else {
+          return parseText(
+            b.text,
+            regex,
+            onTap,
+            style!,
+            type,
+            transformer: transformer,
+          );
+        }
+      }),
+    ).toList();
 
-List<Block> parseText(String text, RegExp regex, void Function(String)? onTap,
-    TextStyle style, String type,
-    {String Function(String) transformer = same}) {
+List<Block> parseText(
+  String text,
+  RegExp regex,
+  void Function(String)? onTap,
+  TextStyle style,
+  String type, {
+  String Function(String) transformer = same,
+}) {
   var start = 0;
 
   final matches = regex.allMatches(text);
@@ -275,12 +314,15 @@ List<Block> parseText(String text, RegExp regex, void Function(String)? onTap,
   for (final match in matches) {
     result
       ..add(Block(text: transformer(text.substring(start, match.start))))
-      ..add(Block(
+      ..add(
+        Block(
           text: transformer(match[0]!),
           onTap: onTap,
           style: style,
           type: type,
-          locked: true));
+          locked: true,
+        ),
+      );
     start = match.end;
   }
 

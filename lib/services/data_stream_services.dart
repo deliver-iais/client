@@ -62,8 +62,10 @@ class DataStreamServices {
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _mediaDao = GetIt.I.get<MediaDao>();
 
-  Future<void> handleIncomingMessage(Message message,
-      {String? roomName}) async {
+  Future<void> handleIncomingMessage(
+    Message message, {
+    String? roomName,
+  }) async {
     final roomUid = getRoomUid(_authRepo, message);
     if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
       return;
@@ -79,46 +81,58 @@ class DataStreamServices {
               {
                 final muc = await _mucDao.get(roomUid.asString());
                 final pinMessages = muc!.pinMessagesIdList;
-                pinMessages!.add(message
-                    .persistEvent.mucSpecificPersistentEvent.messageId
-                    .toInt());
-                _mucDao.update(muc.copyWith(
+                pinMessages!.add(
+                  message.persistEvent.mucSpecificPersistentEvent.messageId
+                      .toInt(),
+                );
+                _mucDao.update(
+                  muc.copyWith(
                     uid: muc.uid,
                     pinMessagesIdList: pinMessages,
-                    showPinMessage: true));
+                    showPinMessage: true,
+                  ),
+                );
                 break;
               }
 
             case MucSpecificPersistentEvent_Issue.KICK_USER:
               if (_authRepo.isCurrentUserUid(
-                  message.persistEvent.mucSpecificPersistentEvent.assignee)) {
+                message.persistEvent.mucSpecificPersistentEvent.assignee,
+              )) {
                 _roomDao.updateRoom(
-                    Room(uid: message.from.asString(), deleted: true));
+                  Room(uid: message.from.asString(), deleted: true),
+                );
                 return;
               }
               break;
             case MucSpecificPersistentEvent_Issue.JOINED_USER:
             case MucSpecificPersistentEvent_Issue.ADD_USER:
               if (_authRepo.isCurrentUserUid(
-                  message.persistEvent.mucSpecificPersistentEvent.assignee)) {
+                message.persistEvent.mucSpecificPersistentEvent.assignee,
+              )) {
                 _roomDao.updateRoom(
-                    Room(uid: message.from.asString(), deleted: false));
+                  Room(uid: message.from.asString(), deleted: false),
+                );
               }
               break;
 
             case MucSpecificPersistentEvent_Issue.LEAVE_USER:
               if (_authRepo.isCurrentUserUid(
-                  message.persistEvent.mucSpecificPersistentEvent.assignee)) {
+                message.persistEvent.mucSpecificPersistentEvent.assignee,
+              )) {
                 _roomDao.updateRoom(
-                    Room(uid: message.from.asString(), deleted: true));
+                  Room(uid: message.from.asString(), deleted: true),
+                );
                 return;
               }
-              _mucDao.deleteMember(Member(
-                memberUid: message
-                    .persistEvent.mucSpecificPersistentEvent.issuer
-                    .asString(),
-                mucUid: roomUid.asString(),
-              ));
+              _mucDao.deleteMember(
+                Member(
+                  memberUid: message
+                      .persistEvent.mucSpecificPersistentEvent.issuer
+                      .asString(),
+                  mucUid: roomUid.asString(),
+                ),
+              );
               break;
             case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
               _avatarRepo.fetchAvatar(message.from, forceToUpdate: true);
@@ -136,18 +150,20 @@ class DataStreamServices {
               message.persistEvent.messageManipulationPersistentEvent.action) {
             case MessageManipulationPersistentEvent_Action.EDITED:
               await _messageEdited(
-                  roomUid,
-                  message
-                      .persistEvent.messageManipulationPersistentEvent.messageId
-                      .toInt(),
-                  message.time.toInt());
+                roomUid,
+                message
+                    .persistEvent.messageManipulationPersistentEvent.messageId
+                    .toInt(),
+                message.time.toInt(),
+              );
               return;
             case MessageManipulationPersistentEvent_Action.DELETED:
               final mes = await _messageDao.getMessage(
-                  roomUid.asString(),
-                  message
-                      .persistEvent.messageManipulationPersistentEvent.messageId
-                      .toInt());
+                roomUid.asString(),
+                message
+                    .persistEvent.messageManipulationPersistentEvent.messageId
+                    .toInt(),
+              );
               if (mes != null &&
                   mes.type == MessageType.FILE &&
                   mes.id != null) {
@@ -155,7 +171,8 @@ class DataStreamServices {
               }
               _messageDao.saveMessage(mes!..json = EMPTY_MESSAGE);
               _roomDao.updateRoom(
-                  Room(uid: roomUid.asString(), lastUpdatedMessageId: mes.id));
+                Room(uid: roomUid.asString(), lastUpdatedMessageId: mes.id),
+              );
               return;
           }
           break;
@@ -170,8 +187,11 @@ class DataStreamServices {
           break;
       }
     } else if (message.whichType() == Message_Type.callEvent) {
-      final callEvents = CallEvents.callEvent(message.callEvent,
-          roomUid: message.from, callId: message.callEvent.id);
+      final callEvents = CallEvents.callEvent(
+        message.callEvent,
+        roomUid: message.from,
+        callId: message.callEvent.id,
+      );
       if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
           message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
         _callService.addGroupCallEvent(callEvents);
@@ -194,29 +214,42 @@ class DataStreamServices {
     }
     if (message.from.category == Categories.USER) {
       _updateLastActivityTime(
-          _lastActivityDao, message.from, message.time.toInt());
+        _lastActivityDao,
+        message.from,
+        message.time.toInt(),
+      );
     }
   }
 
   Future<void> _messageEdited(Uid roomUid, int id, int time) async {
-    final res = await _queryServicesClient.fetchMessages(FetchMessagesReq()
-      ..roomUid = roomUid
-      ..limit = 1
-      ..pointer = Int64(id)
-      ..type = FetchMessagesReq_Type.FORWARD_FETCH);
+    final res = await _queryServicesClient.fetchMessages(
+      FetchMessagesReq()
+        ..roomUid = roomUid
+        ..limit = 1
+        ..pointer = Int64(id)
+        ..type = FetchMessagesReq_Type.FORWARD_FETCH,
+    );
     final msg = await saveMessageInMessagesDB(
-        _authRepo, _messageDao, res.messages.first);
+      _authRepo,
+      _messageDao,
+      res.messages.first,
+    );
     final room = await _roomDao.getRoom(roomUid.asString());
     if (room!.lastMessageId != id) {
-      _roomDao.updateRoom(room.copyWith(
+      _roomDao.updateRoom(
+        room.copyWith(
           lastUpdateTime: time,
-          lastUpdatedMessageId: res.messages.first.id.toInt()));
+          lastUpdatedMessageId: res.messages.first.id.toInt(),
+        ),
+      );
     } else {
-      _roomDao.updateRoom(room.copyWith(
-        lastMessage: msg,
-        lastUpdateTime: time,
-        lastUpdatedMessageId: res.messages.first.id.toInt(),
-      ));
+      _roomDao.updateRoom(
+        room.copyWith(
+          lastMessage: msg,
+          lastUpdateTime: time,
+          lastUpdatedMessageId: res.messages.first.id.toInt(),
+        ),
+      );
     }
   }
 
@@ -246,14 +279,20 @@ class DataStreamServices {
         Seen(uid: roomId!.asString(), messageId: seen.id.toInt()),
       );
       _updateLastActivityTime(
-          _lastActivityDao, seen.from, DateTime.now().millisecondsSinceEpoch);
+        _lastActivityDao,
+        seen.from,
+        DateTime.now().millisecondsSinceEpoch,
+      );
     }
   }
 
   void handleActivity(Activity activity) {
     _roomRepo.updateActivity(activity);
     _updateLastActivityTime(
-        _lastActivityDao, activity.from, DateTime.now().millisecondsSinceEpoch);
+      _lastActivityDao,
+      activity.from,
+      DateTime.now().millisecondsSinceEpoch,
+    );
   }
 
   Future<void> handleAckMessage(MessageDeliveryAck messageDeliveryAck) async {
@@ -274,7 +313,8 @@ class DataStreamServices {
       }
       _messageDao.saveMessage(msg);
       _roomDao.updateRoom(
-          Room(uid: msg.roomUid, lastMessage: msg, lastMessageId: msg.id));
+        Room(uid: msg.roomUid, lastMessage: msg, lastMessageId: msg.id),
+      );
 
       if (_routingServices.isInRoom(messageDeliveryAck.to.asString())) {
         _notificationServices.playSoundOut();
@@ -286,29 +326,41 @@ class DataStreamServices {
   }
 
   void _updateLastActivityTime(
-      LastActivityDao lastActivityDao, Uid userUid, int time) {
-    lastActivityDao.save(LastActivity(
+    LastActivityDao lastActivityDao,
+    Uid userUid,
+    int time,
+  ) {
+    lastActivityDao.save(
+      LastActivity(
         uid: userUid.asString(),
         time: time,
-        lastUpdate: DateTime.now().millisecondsSinceEpoch));
+        lastUpdate: DateTime.now().millisecondsSinceEpoch,
+      ),
+    );
   }
 
   void handleRoomPresenceTypeChange(
-      RoomPresenceTypeChanged roomPresenceTypeChanged) {
+    RoomPresenceTypeChanged roomPresenceTypeChanged,
+  ) {
     final type = roomPresenceTypeChanged.presenceType;
-    _roomDao.updateRoom(Room(
+    _roomDao.updateRoom(
+      Room(
         uid: roomPresenceTypeChanged.uid.asString(),
         deleted: type == PresenceType.BANNED ||
             type == PresenceType.DELETED ||
             type == PresenceType.KICKED ||
             type == PresenceType.LEFT ||
-            type != PresenceType.ACTIVE));
+            type != PresenceType.ACTIVE,
+      ),
+    );
   }
 
   void handleCallOffer(call_pb.CallOffer callOffer) {
-    final callEvents = CallEvents.callOffer(callOffer,
-        roomUid: getRoomUidOf(_authRepo, callOffer.from, callOffer.to),
-        callId: callOffer.id);
+    final callEvents = CallEvents.callOffer(
+      callOffer,
+      roomUid: getRoomUidOf(_authRepo, callOffer.from, callOffer.to),
+      callId: callOffer.id,
+    );
     if (callOffer.callType == call_pb.CallEvent_CallType.GROUP_AUDIO ||
         callOffer.callType == call_pb.CallEvent_CallType.GROUP_VIDEO) {
       _callService.addGroupCallEvent(callEvents);
@@ -318,9 +370,11 @@ class DataStreamServices {
   }
 
   void handleCallAnswer(call_pb.CallAnswer callAnswer) {
-    final callEvents = CallEvents.callAnswer(callAnswer,
-        roomUid: getRoomUidOf(_authRepo, callAnswer.from, callAnswer.to),
-        callId: callAnswer.id);
+    final callEvents = CallEvents.callAnswer(
+      callAnswer,
+      roomUid: getRoomUidOf(_authRepo, callAnswer.from, callAnswer.to),
+      callId: callAnswer.id,
+    );
     if (callAnswer.callType == call_pb.CallEvent_CallType.GROUP_AUDIO ||
         callAnswer.callType == call_pb.CallEvent_CallType.GROUP_VIDEO) {
       _callService.addGroupCallEvent(callEvents);
@@ -353,14 +407,17 @@ class DataStreamServices {
             PersistentEvent_Type.mucSpecificPersistentEvent) {
       // If Message is PE and Issuer is Current User
       return !authRepo.isCurrentUser(
-          message.persistEvent.mucSpecificPersistentEvent.issuer.asString());
+        message.persistEvent.mucSpecificPersistentEvent.issuer.asString(),
+      );
     }
 
     return true;
   }
 
   Future<message_model.Message> saveMessage(
-      Message message, Uid roomUid) async {
+    Message message,
+    Uid roomUid,
+  ) async {
     final msg = await saveMessageInMessagesDB(_authRepo, _messageDao, message);
 
     var isMention = false;
@@ -373,12 +430,13 @@ class DataStreamServices {
     }
     _roomDao.updateRoom(
       Room(
-          uid: roomUid.asString(),
-          lastMessage: msg,
-          lastMessageId: msg!.id,
-          mentioned: isMention,
-          deleted: false,
-          lastUpdateTime: msg.time),
+        uid: roomUid.asString(),
+        lastMessage: msg,
+        lastMessageId: msg!.id,
+        mentioned: isMention,
+        deleted: false,
+        lastUpdateTime: msg.time,
+      ),
     );
     if (message.whichType() == Message_Type.file) {
       _updateRoomMediaMetadata(roomUid.asString(), msg);
@@ -397,7 +455,9 @@ class DataStreamServices {
 
   // TODO: Maybe remove this later on, WHY just working with images ?!?!?!?!??!
   Future<void> _updateRoomMediaMetadata(
-      String roomUid, message_model.Message message) async {
+    String roomUid,
+    message_model.Message message,
+  ) async {
     try {
       final file = message.json.toFile();
       if (file.type.contains("image") ||
@@ -405,11 +465,15 @@ class DataStreamServices {
           file.type.contains("png")) {
         final mediaMetaData = await _mediaQueryRepo.getMediaMetaData(roomUid);
         if (mediaMetaData != null) {
-          _mediaQueryRepo.saveMediaMetaData(mediaMetaData.copyWith(
+          _mediaQueryRepo.saveMediaMetaData(
+            mediaMetaData.copyWith(
               lastUpdateTime: message.time,
-              imagesCount: mediaMetaData.imagesCount + 1));
+              imagesCount: mediaMetaData.imagesCount + 1,
+            ),
+          );
         } else {
-          _mediaQueryRepo.saveMediaMetaData(MediaMetaData(
+          _mediaQueryRepo.saveMediaMetaData(
+            MediaMetaData(
               roomId: roomUid,
               imagesCount: 1,
               musicsCount: 0,
@@ -418,7 +482,9 @@ class DataStreamServices {
               documentsCount: 0,
               filesCount: 0,
               linkCount: 0,
-              lastUpdateTime: message.time));
+              lastUpdateTime: message.time,
+            ),
+          );
         }
         _mediaQueryRepo.saveMediaFromMessage(message);
       }
@@ -429,7 +495,10 @@ class DataStreamServices {
 }
 
 Future<message_model.Message?> saveMessageInMessagesDB(
-    AuthRepo authRepo, MessageDao messageDao, Message message) async {
+  AuthRepo authRepo,
+  MessageDao messageDao,
+  Message message,
+) async {
   try {
     final msg = extractMessage(authRepo, message);
     await messageDao.saveMessage(msg);

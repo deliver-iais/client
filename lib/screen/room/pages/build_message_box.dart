@@ -58,27 +58,27 @@ class BuildMessageBox extends StatefulWidget {
   final void Function(int) changeReplyMessageId;
   final void Function() resetRoomPageDetails;
 
-  const BuildMessageBox(
-      {Key? key,
-      required this.message,
-      this.messageBefore,
-      required this.roomId,
-      required this.replyMessageId,
-      required this.itemScrollController,
-      required this.lastSeenMessageId,
-      required this.onEdit,
-      required this.onPin,
-      required this.onUnPin,
-      required this.onDelete,
-      required this.pinMessages,
-      required this.onReply,
-      required this.changeReplyMessageId,
-      required this.selectMultiMessageSubject,
-      required this.hasPermissionInGroup,
-      required this.hasPermissionInChannel,
-      required this.addForwardMessage,
-      required this.resetRoomPageDetails})
-      : super(key: key);
+  const BuildMessageBox({
+    Key? key,
+    required this.message,
+    this.messageBefore,
+    required this.roomId,
+    required this.replyMessageId,
+    required this.itemScrollController,
+    required this.lastSeenMessageId,
+    required this.onEdit,
+    required this.onPin,
+    required this.onUnPin,
+    required this.onDelete,
+    required this.pinMessages,
+    required this.onReply,
+    required this.changeReplyMessageId,
+    required this.selectMultiMessageSubject,
+    required this.hasPermissionInGroup,
+    required this.hasPermissionInChannel,
+    required this.addForwardMessage,
+    required this.resetRoomPageDetails,
+  }) : super(key: key);
 
   @override
   State<BuildMessageBox> createState() => _BuildMessageBoxState();
@@ -100,7 +100,10 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   Widget _buildMessageBox(
-      BuildContext context, Message msg, Message? msgBefore) {
+    BuildContext context,
+    Message msg,
+    Message? msgBefore,
+  ) {
     if (msg.json.isEmptyMessage()) {
       return const SizedBox.shrink();
     }
@@ -141,8 +144,9 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         Container(
           margin: const EdgeInsets.only(bottom: 6, top: 4),
           decoration: BoxDecoration(
-              color: colorsScheme.primaryContainer,
-              borderRadius: secondaryBorder),
+            color: colorsScheme.primaryContainer,
+            borderRadius: secondaryBorder,
+          ),
           child: CallMessageWidget(
             message: widget.message,
             colorScheme: colorsScheme,
@@ -153,7 +157,9 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   Widget _createPersistentEventMessageWidget(
-      BuildContext context, Message msg) {
+    BuildContext context,
+    Message msg,
+  ) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -185,18 +191,20 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           onSecondaryTapDown: storePosition,
           child: Padding(
             padding: EdgeInsets.symmetric(
-                vertical: msg.json == EMPTY_MESSAGE ? 0.0 : 4.0),
+              vertical: msg.json == EMPTY_MESSAGE ? 0.0 : 4.0,
+            ),
             child: PersistentEventMessage(
               message: msg,
               maxWidth: maxWidthOfMessage(context),
               onPinMessageClick: (id) {
                 widget.changeReplyMessageId(id);
                 widget.itemScrollController.scrollTo(
-                    alignment: .5,
-                    curve: Curves.easeOut,
-                    opacityAnimationWeights: [20, 20, 60],
-                    index: id,
-                    duration: const Duration(milliseconds: 1000));
+                  alignment: .5,
+                  curve: Curves.easeOut,
+                  opacityAnimationWeights: [20, 20, 60],
+                  index: id,
+                  duration: const Duration(milliseconds: 1000),
+                );
                 Timer(const Duration(seconds: 1), () {
                   widget.changeReplyMessageId(-1);
                 });
@@ -208,71 +216,84 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     );
   }
 
-  Widget _createSidedMessageWidget(BuildContext context, Message message,
-      bool isFirstMessageInGroupedMessages) {
+  Widget _createSidedMessageWidget(
+    BuildContext context,
+    Message message,
+    bool isFirstMessageInGroupedMessages,
+  ) {
     Widget messageWidget;
 
     if (_authRepo.isCurrentUser(message.from)) {
-      messageWidget = showSentMessage(message,
-          isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages);
+      messageWidget = showSentMessage(
+        message,
+        isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
+      );
     } else {
-      messageWidget = showReceivedMessage(message,
-          isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages);
+      messageWidget = showReceivedMessage(
+        message,
+        isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
+      );
     }
 
     // Wrap in Swipe widget if needed
     if (widget.message.roomUid.asUid().isChannel()) {
       messageWidget = Swipe(
-          onSwipeLeft: widget.onReply,
-          child: Container(
-              width: double.infinity,
-              color: Colors.transparent,
-              child: messageWidget));
+        onSwipeLeft: widget.onReply,
+        child: Container(
+          width: double.infinity,
+          color: Colors.transparent,
+          child: messageWidget,
+        ),
+      );
     }
 
     return GestureDetector(
-        behavior: HitTestBehavior.translucent,
-        onTap: () {
-          if (widget.selectMultiMessageSubject.stream.value) {
-            widget.addForwardMessage();
-          } else if (!isDesktop) {
-            FocusScope.of(context).unfocus();
-            _showCustomMenu(context, message);
-          }
-        },
-        onSecondaryTap: !isDesktop
-            ? null
-            : () {
-                if (!widget.selectMultiMessageSubject.stream.value) {
-                  _showCustomMenu(context, message);
-                }
-              },
-        onDoubleTap: !isDesktop ? null : widget.onReply,
-        onLongPress: () {
-          if (!widget.selectMultiMessageSubject.stream.value) {
-            widget.selectMultiMessageSubject.add(true);
-          }
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        if (widget.selectMultiMessageSubject.stream.value) {
           widget.addForwardMessage();
-        },
-        onTapDown: storePosition,
-        onSecondaryTapDown: storePosition,
-        child: messageWidget);
+        } else if (!isDesktop) {
+          FocusScope.of(context).unfocus();
+          _showCustomMenu(context, message);
+        }
+      },
+      onSecondaryTap: !isDesktop
+          ? null
+          : () {
+              if (!widget.selectMultiMessageSubject.stream.value) {
+                _showCustomMenu(context, message);
+              }
+            },
+      onDoubleTap: !isDesktop ? null : widget.onReply,
+      onLongPress: () {
+        if (!widget.selectMultiMessageSubject.stream.value) {
+          widget.selectMultiMessageSubject.add(true);
+        }
+        widget.addForwardMessage();
+      },
+      onTapDown: storePosition,
+      onSecondaryTapDown: storePosition,
+      child: messageWidget,
+    );
   }
 
-  Widget showSentMessage(Message message,
-      {bool isFirstMessageInGroupedMessages = false}) {
+  Widget showSentMessage(
+    Message message, {
+    bool isFirstMessageInGroupedMessages = false,
+  }) {
     final messageWidget = SentMessageBox(
-        message: message,
-        onArrowIconClick: () => _showCustomMenu(context, message),
-        isSeen: message.id != null && message.id! <= widget.lastSeenMessageId,
-        pattern: "",
-        //todo add search message
-        scrollToMessage: (id) {
-          _scrollToMessage(id: id);
-        },
-        isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
-        onUsernameClick: onUsernameClick,
-        storePosition: storePosition);
+      message: message,
+      onArrowIconClick: () => _showCustomMenu(context, message),
+      isSeen: message.id != null && message.id! <= widget.lastSeenMessageId,
+      pattern: "",
+      //todo add search message
+      scrollToMessage: (id) {
+        _scrollToMessage(id: id);
+      },
+      isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
+      onUsernameClick: onUsernameClick,
+      storePosition: storePosition,
+    );
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -323,8 +344,10 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     );
   }
 
-  Widget showReceivedMessage(Message message,
-      {bool isFirstMessageInGroupedMessages = false}) {
+  Widget showReceivedMessage(
+    Message message, {
+    bool isFirstMessageInGroupedMessages = false,
+  }) {
     final CustomColorScheme colorScheme;
     if (message.type == MessageType.CALL &&
         (message.json.toCallEvent().newStatus == CallEvent_CallStatus.BUSY ||
@@ -350,9 +373,10 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     if (isFirstMessageInGroupedMessages &&
         widget.message.roomUid.asUid().category == Categories.GROUP) {
       messageWidget = Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [senderNameBox(colorScheme), messageWidget]);
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [senderNameBox(colorScheme), messageWidget],
+      );
     }
 
     return Padding(
@@ -367,8 +391,11 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
               child: GestureDetector(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 2.0, left: 8.0),
-                  child: CircleAvatarWidget(message.from.asUid(), 18,
-                      isHeroEnabled: false),
+                  child: CircleAvatarWidget(
+                    message.from.asUid(),
+                    18,
+                    isHeroEnabled: false,
+                  ),
                 ),
                 onTap: () {
                   _routingServices.openProfile(message.from);
@@ -388,13 +415,17 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     BuildContext context,
     Message message,
   ) async {
-    final selectedValue = await this
-        .showMenu(context: context, items: <PopupMenuEntry<OperationOnMessage>>[
-      OperationOnMessageEntry(message,
+    final selectedValue = await this.showMenu(
+      context: context,
+      items: <PopupMenuEntry<OperationOnMessage>>[
+        OperationOnMessageEntry(
+          message,
           hasPermissionInChannel: widget.hasPermissionInChannel.value,
           hasPermissionInGroup: widget.hasPermissionInGroup,
-          isPinned: widget.pinMessages.contains(message))
-    ]);
+          isPinned: widget.pinMessages.contains(message),
+        )
+      ],
+    );
 
     if (selectedValue == null) {
       return;
@@ -443,8 +474,9 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         break;
       case OperationOnMessage.SHOW_IN_FOLDER:
         final path = await _fileRepo.getFileIfExist(
-            widget.message.json.toFile().uuid,
-            widget.message.json.toFile().name);
+          widget.message.json.toFile().uuid,
+          widget.message.json.toFile().name,
+        );
         if (path != null) onShowInFolder(path);
         break;
       case OperationOnMessage.REPORT:
@@ -458,10 +490,13 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       Clipboard.setData(ClipboardData(text: widget.message.json.toText().text));
     } else {
       Clipboard.setData(
-          ClipboardData(text: widget.message.json.toFile().caption));
+        ClipboardData(text: widget.message.json.toFile().caption),
+      );
     }
     ToastDisplay.showToast(
-        toastText: _i18n.get("copied"), toastContext: context);
+      toastText: _i18n.get("copied"),
+      toastContext: context,
+    );
   }
 
   void onForward() {
@@ -476,12 +511,13 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         break;
       case MessageType.FILE:
         showCaptionDialog(
-            replyMessageId: widget.replyMessageId,
-            resetRoomPageDetails: widget.resetRoomPageDetails,
-            roomUid: widget.message.roomUid.asUid(),
-            editableMessage: widget.message,
-            files: [],
-            context: context);
+          replyMessageId: widget.replyMessageId,
+          resetRoomPageDetails: widget.resetRoomPageDetails,
+          roomUid: widget.message.roomUid.asUid(),
+          editableMessage: widget.message,
+          files: [],
+          context: context,
+        );
         break;
       case MessageType.STICKER:
       case MessageType.LOCATION:
@@ -509,10 +545,14 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   Future<void> onShare() async {
     try {
       final result = await _fileRepo.getFileIfExist(
-          widget.message.json.toFile().uuid, widget.message.json.toFile().name);
+        widget.message.json.toFile().uuid,
+        widget.message.json.toFile().name,
+      );
       if (result!.isNotEmpty) {
-        Share.shareFiles([(result)],
-            text: widget.message.json.toFile().caption);
+        Share.shareFiles(
+          [(result)],
+          text: widget.message.json.toFile().caption,
+        );
       }
     } catch (e) {
       _logger.e(e);
@@ -523,27 +563,30 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     final file = widget.message.json.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.pictures);
     ToastDisplay.showToast(
-        toastContext: context,
-        toastText: _i18n.get("photo_saved"),
-        isSaveToast: true);
+      toastContext: context,
+      toastText: _i18n.get("photo_saved"),
+      isSaveToast: true,
+    );
   }
 
   void onSaveTODownloads() {
     final file = widget.message.json.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.download);
     ToastDisplay.showToast(
-        toastContext: context,
-        toastText: _i18n.get("file_saved"),
-        isSaveToast: true);
+      toastContext: context,
+      toastText: _i18n.get("file_saved"),
+      isSaveToast: true,
+    );
   }
 
   void onSaveToMusic() {
     final file = widget.message.json.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.music);
     ToastDisplay.showToast(
-        toastContext: context,
-        toastText: _i18n.get("music_saved"),
-        isSaveToast: true);
+      toastContext: context,
+      toastText: _i18n.get("music_saved"),
+      isSaveToast: true,
+    );
   }
 
   void onDeleteMessage() {
@@ -560,7 +603,9 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   void onReportMessage() {
     ToastDisplay.showToast(
-        toastText: _i18n.get("report_message"), toastContext: context);
+      toastText: _i18n.get("report_message"),
+      toastContext: context,
+    );
   }
 
   Future<void> onShowInFolder(String path) async {

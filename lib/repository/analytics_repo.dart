@@ -42,18 +42,23 @@ class AnalyticsClientInterceptor implements ClientInterceptor {
   static final _analyticsRepo = GetIt.I.get<AnalyticsRepo>();
 
   @override
-  ResponseFuture<R> interceptUnary<Q, R>(ClientMethod<Q, R> method, Q request,
-      CallOptions options, ClientUnaryInvoker<Q, R> invoker) {
+  ResponseFuture<R> interceptUnary<Q, R>(
+    ClientMethod<Q, R> method,
+    Q request,
+    CallOptions options,
+    ClientUnaryInvoker<Q, R> invoker,
+  ) {
     _analyticsRepo.incRF("unary${method.path}");
     return invoker(method, request, options);
   }
 
   @override
   ResponseStream<R> interceptStreaming<Q, R>(
-      ClientMethod<Q, R> method,
-      Stream<Q> requests,
-      CallOptions options,
-      ClientStreamingInvoker<Q, R> invoker) {
+    ClientMethod<Q, R> method,
+    Stream<Q> requests,
+    CallOptions options,
+    ClientStreamingInvoker<Q, R> invoker,
+  ) {
     _analyticsRepo.incRF("stream${method.path}");
     return invoker(method, requests, options);
   }

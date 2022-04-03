@@ -78,14 +78,18 @@ class UxService {
 
   UxService() {
     _sharedDao
-        .getStream(SHARED_DAO_LOG_LEVEL,
-            defaultValue: kDebugMode ? "INFO" : "NOTHING")
+        .getStream(
+          SHARED_DAO_LOG_LEVEL,
+          defaultValue: kDebugMode ? "INFO" : "NOTHING",
+        )
         .map((event) => LogLevelHelper.stringToLevel(event!))
         .listen((level) => GetIt.I.get<DeliverLogFilter>().level = level);
 
     _sharedDao
-        .getBooleanStream(SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE,
-            defaultValue: true)
+        .getBooleanStream(
+          SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE,
+          defaultValue: true,
+        )
         .distinct()
         .listen((isEnable) => _isAutoNightModeEnable.add(isEnable));
 
@@ -154,14 +158,16 @@ class UxService {
 
   void toggleThemeToLightMode() {
     SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(systemNavigationBarColor: Colors.white));
+      const SystemUiOverlayStyle(systemNavigationBarColor: Colors.white),
+    );
     _sharedDao.put(SHARED_DAO_THEME, LightThemeName);
     _themeIsDark.add(false);
   }
 
   void toggleThemeToDarkMode() {
     SystemChrome.setSystemUIOverlayStyle(
-        const SystemUiOverlayStyle(systemNavigationBarColor: Colors.black45));
+      const SystemUiOverlayStyle(systemNavigationBarColor: Colors.black45),
+    );
     _sharedDao.put(SHARED_DAO_THEME, DarkThemeName);
     _themeIsDark.add(true);
   }
@@ -181,12 +187,16 @@ class UxService {
 
   void toggleIsAllNotificationDisabled() {
     _sharedDao.putBoolean(
-        SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED, !isAllNotificationDisabled);
+      SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED,
+      !isAllNotificationDisabled,
+    );
   }
 
   void toggleIsAutoNightMode() {
     _sharedDao.putBoolean(
-        SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE, !isAutoNightModeEnable);
+      SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE,
+      !isAutoNightModeEnable,
+    );
   }
 
   void changeLogLevel(String level) {

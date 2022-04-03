@@ -20,17 +20,17 @@ class SentMessageBox extends StatelessWidget {
   final void Function() onArrowIconClick;
   final void Function(TapDownDetails) storePosition;
 
-  const SentMessageBox(
-      {Key? key,
-      required this.message,
-      required this.isSeen,
-      required this.isFirstMessageInGroupedMessages,
-      required this.scrollToMessage,
-      this.pattern,
-      required this.onUsernameClick,
-      required this.storePosition,
-      required this.onArrowIconClick})
-      : super(key: key);
+  const SentMessageBox({
+    Key? key,
+    required this.message,
+    required this.isSeen,
+    required this.isFirstMessageInGroupedMessages,
+    required this.scrollToMessage,
+    this.pattern,
+    required this.onUsernameClick,
+    required this.storePosition,
+    required this.onArrowIconClick,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -67,7 +67,8 @@ class SentMessageBox extends StatelessWidget {
             colorScheme: colorScheme,
             child: boxContent,
             isSender: true,
-            isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages);
+            isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
+          );
   }
 
   bool doNotNeedsWrapper() {

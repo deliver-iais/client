@@ -17,12 +17,12 @@ class TitleStatus extends StatefulWidget {
   final Widget normalConditionWidget;
   final Uid? currentRoomUid;
 
-  const TitleStatus(
-      {Key? key,
-      required this.style,
-      this.normalConditionWidget = const SizedBox.shrink(),
-      this.currentRoomUid})
-      : super(key: key);
+  const TitleStatus({
+    Key? key,
+    required this.style,
+    this.normalConditionWidget = const SizedBox.shrink(),
+    this.currentRoomUid,
+  }) : super(key: key);
 
   @override
   _TitleStatusState createState() => _TitleStatusState();
@@ -57,54 +57,57 @@ class _TitleStatusState extends State<TitleStatus> {
 
   Widget activityWidget() {
     return StreamBuilder<Activity>(
-        key: _key,
-        stream: _roomRepo.activityObject[widget.currentRoomUid!.node],
-        builder: (c, activity) {
-          if (activity.hasData && activity.data != null) {
-            if (activity.data!.typeOfActivity == ActivityType.NO_ACTIVITY) {
-              return normalActivity();
-            } else {
-              return ActivityStatus(
-                activity: activity.data!,
-                roomUid: widget.currentRoomUid!,
-              );
-            }
-          } else {
+      key: _key,
+      stream: _roomRepo.activityObject[widget.currentRoomUid!.node],
+      builder: (c, activity) {
+        if (activity.hasData && activity.data != null) {
+          if (activity.data!.typeOfActivity == ActivityType.NO_ACTIVITY) {
             return normalActivity();
+          } else {
+            return ActivityStatus(
+              activity: activity.data!,
+              roomUid: widget.currentRoomUid!,
+            );
           }
-        });
+        } else {
+          return normalActivity();
+        }
+      },
+    );
   }
 
   Widget normalActivity() {
     final theme = Theme.of(context);
     if (widget.currentRoomUid!.category == Categories.USER) {
       return StreamBuilder<LastActivity?>(
-          stream: _lastActivityRepo.watch(widget.currentRoomUid!.asString()),
-          builder: (c, userInfo) {
-            if (userInfo.hasData && userInfo.data != null) {
-              if (isOnline(userInfo.data!.time)) {
-                return Text(
-                  i18n.get("online"),
-                  maxLines: 1,
-                  key: ValueKey(randomString(10)),
-                  overflow: TextOverflow.fade,
-                  softWrap: false,
-                  style: widget.style.copyWith(color: theme.primaryColor),
-                );
-              } else {
-                final lastActivityTime =
-                    dateTimeFormat(date(userInfo.data!.time));
-                return Text(
-                    "${i18n.get("last_seen")} ${lastActivityTime.contains("just now") ? i18n.get("just_now") : lastActivityTime} ",
-                    maxLines: 1,
-                    key: ValueKey(randomString(10)),
-                    overflow: TextOverflow.fade,
-                    softWrap: false,
-                    style: widget.style.copyWith(color: theme.primaryColor));
-              }
+        stream: _lastActivityRepo.watch(widget.currentRoomUid!.asString()),
+        builder: (c, userInfo) {
+          if (userInfo.hasData && userInfo.data != null) {
+            if (isOnline(userInfo.data!.time)) {
+              return Text(
+                i18n.get("online"),
+                maxLines: 1,
+                key: ValueKey(randomString(10)),
+                overflow: TextOverflow.fade,
+                softWrap: false,
+                style: widget.style.copyWith(color: theme.primaryColor),
+              );
+            } else {
+              final lastActivityTime =
+                  dateTimeFormat(date(userInfo.data!.time));
+              return Text(
+                "${i18n.get("last_seen")} ${lastActivityTime.contains("just now") ? i18n.get("just_now") : lastActivityTime} ",
+                maxLines: 1,
+                key: ValueKey(randomString(10)),
+                overflow: TextOverflow.fade,
+                softWrap: false,
+                style: widget.style.copyWith(color: theme.primaryColor),
+              );
             }
-            return const SizedBox.shrink();
-          });
+          }
+          return const SizedBox.shrink();
+        },
+      );
     } else {
       return widget.normalConditionWidget;
     }

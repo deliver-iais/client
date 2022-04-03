@@ -62,43 +62,51 @@ class UserAppbarTitle extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         RoomName(
-                            uid: userUid,
-                            name: (snapshot.data)!.trim(),
-                            style: theme.textTheme.subtitle1),
+                          uid: userUid,
+                          name: (snapshot.data)!.trim(),
+                          style: theme.textTheme.subtitle1,
+                        ),
                         TitleStatus(
                           currentRoomUid: userUid,
                           style: theme.textTheme.caption!,
                           normalConditionWidget:
                               userUid.category == Categories.SYSTEM
-                                  ? Text(NOTIFICATION_SERVICE,
+                                  ? Text(
+                                      NOTIFICATION_SERVICE,
                                       maxLines: 1,
                                       overflow: TextOverflow.fade,
                                       softWrap: false,
-                                      style: theme.textTheme.caption)
+                                      style: theme.textTheme.caption,
+                                    )
                                   : const SizedBox(),
                         )
                       ],
                     );
                   } else {
                     return Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                              width: 200,
-                              height: 20,
-                              decoration: BoxDecoration(
-                                  color: theme.brightness == Brightness.light
-                                      ? Colors.grey[200]
-                                      : Colors.grey[800])),
-                          const SizedBox(height: 6),
-                          Container(
-                              width: 100,
-                              height: 11,
-                              decoration: BoxDecoration(
-                                  color: theme.brightness == Brightness.light
-                                      ? Colors.grey[200]
-                                      : Colors.grey[800])),
-                        ]);
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 200,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: theme.brightness == Brightness.light
+                                ? Colors.grey[200]
+                                : Colors.grey[800],
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Container(
+                          width: 100,
+                          height: 11,
+                          decoration: BoxDecoration(
+                            color: theme.brightness == Brightness.light
+                                ? Colors.grey[200]
+                                : Colors.grey[800],
+                          ),
+                        ),
+                      ],
+                    );
                   }
                 },
               ),

@@ -23,34 +23,38 @@ class SeenStatus extends StatelessWidget {
     final color = iconColor ?? theme.primaryColor;
     const size = 16.0;
     final Widget pendingMessage = Container(
-        child: Lottie.asset(
-      'assets/animations/clock.json',
-      width: 18,
-      height: 18,
-      // fit: BoxFit.fitHeight,
-      delegates: LottieDelegates(
-        values: [
-          ValueDelegate.color(
-            const ['**'],
-            value: color,
-          ),
-          ValueDelegate.transformScale(const ['**'],
-              value: const Offset(1.2, 1.2))
-        ],
+      child: Lottie.asset(
+        'assets/animations/clock.json',
+        width: 18,
+        height: 18,
+        // fit: BoxFit.fitHeight,
+        delegates: LottieDelegates(
+          values: [
+            ValueDelegate.color(
+              const ['**'],
+              value: color,
+            ),
+            ValueDelegate.transformScale(
+              const ['**'],
+              value: const Offset(1.2, 1.2),
+            )
+          ],
+        ),
+        repeat: true,
       ),
-      repeat: true,
-    ));
+    );
 
     if (message.id == null) {
       return FutureBuilder<PendingMessage?>(
-          future: messageRepo.getPendingMessage(message.packetId),
-          builder: ((c, pm) {
-            if (pm.hasData && pm.data != null && pm.data!.failed) {
-              return const Icon(Icons.warning, color: Colors.red, size: 15);
-            } else {
-              return pendingMessage;
-            }
-          }));
+        future: messageRepo.getPendingMessage(message.packetId),
+        builder: ((c, pm) {
+          if (pm.hasData && pm.data != null && pm.data!.failed) {
+            return const Icon(Icons.warning, color: Colors.red, size: 15);
+          } else {
+            return pendingMessage;
+          }
+        }),
+      );
     } else if (isSeen != null && isSeen!) {
       return Icon(
         Icons.done_all,

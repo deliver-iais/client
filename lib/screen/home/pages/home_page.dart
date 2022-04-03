@@ -108,16 +108,18 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return WillPopScope(
-        onWillPop: () async {
-          if (!_routingService.canPop()) return true;
-          _routingService.maybePop();
-          return false;
-        },
-        child: WithForegroundTask(
-          child: Container(
-              color: theme.colorScheme.background,
-              child: _routingService.outlet(context)),
-        ));
+      onWillPop: () async {
+        if (!_routingService.canPop()) return true;
+        _routingService.maybePop();
+        return false;
+      },
+      child: WithForegroundTask(
+        child: Container(
+          color: theme.colorScheme.background,
+          child: _routingService.outlet(context),
+        ),
+      ),
+    );
   }
 
   Future<void> checkIfVersionChange() async {

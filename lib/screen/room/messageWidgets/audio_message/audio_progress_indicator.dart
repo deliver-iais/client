@@ -8,9 +8,11 @@ class AudioProgressIndicator extends StatefulWidget {
   final String audioUuid;
   final double duration;
 
-  const AudioProgressIndicator(
-      {Key? key, required this.audioUuid, required this.duration})
-      : super(key: key);
+  const AudioProgressIndicator({
+    Key? key,
+    required this.audioUuid,
+    required this.duration,
+  }) : super(key: key);
 
   @override
   _AudioProgressIndicatorState createState() => _AudioProgressIndicatorState();
@@ -22,24 +24,27 @@ class _AudioProgressIndicatorState extends State<AudioProgressIndicator> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<Duration>(
-        stream: audioPlayerService.audioCurrentPosition(),
-        builder: (context, duration) {
-          if (duration.hasData && duration.data != null) {
-            return Slider(
-                value:
-                    min(duration.data!.inMilliseconds / 1000, widget.duration),
-                max: widget.duration,
-                onChanged: (value) {
-                  setState(() {
-                    audioPlayerService.seek(Duration(
-                      seconds: value.floor(),
-                    ));
-                    value = value;
-                  });
-                });
-          } else {
-            return const SizedBox.shrink();
-          }
-        });
+      stream: audioPlayerService.audioCurrentPosition(),
+      builder: (context, duration) {
+        if (duration.hasData && duration.data != null) {
+          return Slider(
+            value: min(duration.data!.inMilliseconds / 1000, widget.duration),
+            max: widget.duration,
+            onChanged: (value) {
+              setState(() {
+                audioPlayerService.seek(
+                  Duration(
+                    seconds: value.floor(),
+                  ),
+                );
+                value = value;
+              });
+            },
+          );
+        } else {
+          return const SizedBox.shrink();
+        }
+      },
+    );
   }
 }

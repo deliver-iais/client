@@ -15,14 +15,14 @@ class AudioAndDocumentFileUI extends StatefulWidget {
   final bool isSeen;
   final CustomColorScheme colorScheme;
 
-  const AudioAndDocumentFileUI(
-      {Key? key,
-      required this.message,
-      required this.maxWidth,
-      required this.isSender,
-      required this.colorScheme,
-      required this.isSeen})
-      : super(key: key);
+  const AudioAndDocumentFileUI({
+    Key? key,
+    required this.message,
+    required this.maxWidth,
+    required this.isSender,
+    required this.colorScheme,
+    required this.isSeen,
+  }) : super(key: key);
 
   @override
   _AudioAndDocumentFileUIState createState() => _AudioAndDocumentFileUIState();
@@ -59,7 +59,9 @@ class _AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
                         Text(
                           file.name,
                           style: const TextStyle(
-                              fontSize: 14, fontWeight: FontWeight.bold),
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
                           overflow: TextOverflow.ellipsis,
                           softWrap: false,
                           maxLines: 1,
@@ -70,14 +72,16 @@ class _AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
                   ],
                 ),
                 if (file.caption.isEmpty)
-                  TimeAndSeenStatus(widget.message,
-                      isSender: widget.isSender,
-                      isSeen: widget.isSeen,
-                      foregroundColor:
-                          widget.colorScheme.onPrimaryContainerLowlight(),
-                      backgroundColor: widget.colorScheme.primaryContainer,
-                      needsPadding: true,
-                      needsPositioned: false)
+                  TimeAndSeenStatus(
+                    widget.message,
+                    isSender: widget.isSender,
+                    isSeen: widget.isSeen,
+                    foregroundColor:
+                        widget.colorScheme.onPrimaryContainerLowlight(),
+                    backgroundColor: widget.colorScheme.primaryContainer,
+                    needsPadding: true,
+                    needsPositioned: false,
+                  )
               ],
             ),
           ),

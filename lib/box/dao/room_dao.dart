@@ -33,11 +33,15 @@ class RoomDaoImpl implements RoomDao {
     try {
       final box = await _openRoom();
 
-      return sorted(box.values
-          .where((element) =>
-              element.lastMessage != null &&
-              (element.deleted == null || !element.deleted!))
-          .toList());
+      return sorted(
+        box.values
+            .where(
+              (element) =>
+                  element.lastMessage != null &&
+                  (element.deleted == null || !element.deleted!),
+            )
+            .toList(),
+      );
     } catch (e) {
       return [];
     }
@@ -49,16 +53,26 @@ class RoomDaoImpl implements RoomDao {
     if (box.isEmpty) {
       box = await _openRoom();
     }
-    yield sorted(box.values
-        .where((element) =>
-            (element.deleted == null || !element.deleted!) &&
-            element.lastMessageId != null)
-        .toList());
+    yield sorted(
+      box.values
+          .where(
+            (element) =>
+                (element.deleted == null || !element.deleted!) &&
+                element.lastMessageId != null,
+          )
+          .toList(),
+    );
 
-    yield* box.watch().map((event) => sorted(box.values
-        .where((element) => (element.lastMessageId != null &&
-            (element.deleted == null || !element.deleted!)))
-        .toList()));
+    yield* box.watch().map(
+          (event) => sorted(
+            box.values
+                .where(
+                  (element) => (element.lastMessageId != null &&
+                      (element.deleted == null || !element.deleted!)),
+                )
+                .toList(),
+          ),
+        );
   }
 
   List<Room> sorted(List<Room> list) =>
@@ -107,9 +121,11 @@ class RoomDaoImpl implements RoomDao {
   Future<List<Room>> getAllGroups() async {
     final box = await _openRoom();
     return box.values
-        .where((element) =>
-            element.uid.asUid().category == Categories.GROUP &&
-            (element.deleted == null || !element.deleted!))
+        .where(
+          (element) =>
+              element.uid.asUid().category == Categories.GROUP &&
+              (element.deleted == null || !element.deleted!),
+        )
         .toList();
   }
 }

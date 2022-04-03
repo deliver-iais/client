@@ -12,7 +12,12 @@ class Language {
   final String countryCode;
 
   const Language(
-      this.id, this.name, this.flag, this.languageCode, this.countryCode);
+    this.id,
+    this.name,
+    this.flag,
+    this.languageCode,
+    this.countryCode,
+  );
 
   static List<Language> languageList() {
     return <Language>[farsi, english];

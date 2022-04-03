@@ -18,11 +18,12 @@ class BotRepo {
   Future<BotInfo> fetchBotInfo(Uid botUid) async {
     final result = await _botServiceClient.getInfo(GetInfoReq()..bot = botUid);
     final botInfo = BotInfo(
-        description: result.description,
-        uid: botUid.asString(),
-        name: result.name,
-        commands: result.commands,
-        isOwner: result.isOwner);
+      description: result.description,
+      uid: botUid.asString(),
+      name: result.name,
+      commands: result.commands,
+      isOwner: result.isOwner,
+    );
 
     _botDao.save(botInfo);
 

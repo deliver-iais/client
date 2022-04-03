@@ -22,14 +22,14 @@ class MusicAndAudioUi extends StatefulWidget {
   final void Function(Media) addSelectedMedia;
   final List<Media> selectedMedia;
 
-  const MusicAndAudioUi(
-      {Key? key,
-      required this.roomUid,
-      required this.type,
-      required this.mediaCount,
-      required this.addSelectedMedia,
-      required this.selectedMedia})
-      : super(key: key);
+  const MusicAndAudioUi({
+    Key? key,
+    required this.roomUid,
+    required this.type,
+    required this.mediaCount,
+    required this.addSelectedMedia,
+    required this.selectedMedia,
+  }) : super(key: key);
 
   @override
   _MusicAndAudioUiState createState() => _MusicAndAudioUiState();
@@ -44,126 +44,138 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return ListView.builder(
-        itemCount: widget.mediaCount,
-        itemBuilder: (c, index) {
-          return FutureBuilder<Media?>(
-              future: _getMedia(index),
-              builder: (c, snapShot) {
-                if (snapShot.hasData && snapShot.data != null) {
-                  final json = jsonDecode(snapShot.data!.json) as Map;
-                  final fileId = json["uuid"];
-                  final fileName = json["name"];
-                  final dur = json["duration"];
-                  return GestureDetector(
-                    onLongPress: () => widget.addSelectedMedia(snapShot.data!),
-                    onTap: () => widget.addSelectedMedia(snapShot.data!),
-                    child: Container(
-                      color: widget.selectedMedia.contains(snapShot.data)
-                          ? theme.hoverColor.withOpacity(0.4)
-                          : theme.backgroundColor,
-                      child: FutureBuilder<String?>(
-                          future: _fileRepo.getFileIfExist(fileId, fileName),
-                          builder: (context, filePath) {
-                            if (filePath.hasData && filePath.data != null) {
-                              return Column(
-                                children: [
-                                  ListTile(
-                                    title: Row(children: <Widget>[
-                                      PlayAudioStatus(
-                                        fileId: fileId,
-                                        filePath: filePath.data!,
-                                        fileName: fileName,
-                                        backgroundColor:
-                                            theme.colorScheme.onPrimary,
-                                        foregroundColor:
-                                            theme.colorScheme.primary,
-                                      ),
-                                      Expanded(
-                                        child: Stack(
-                                          children: [
-                                            Padding(
-                                              padding: const EdgeInsets.only(
-                                                  left: 15.0, top: 10),
-                                              child: Text(
-                                                fileName,
-                                                style: const TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                            ),
-                                            MusicPlayProgress(
-                                              audioUuid: fileId,
-                                              duration:
-                                                  double.parse(dur.toString()),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ]),
+      itemCount: widget.mediaCount,
+      itemBuilder: (c, index) {
+        return FutureBuilder<Media?>(
+          future: _getMedia(index),
+          builder: (c, snapShot) {
+            if (snapShot.hasData && snapShot.data != null) {
+              final json = jsonDecode(snapShot.data!.json) as Map;
+              final fileId = json["uuid"];
+              final fileName = json["name"];
+              final dur = json["duration"];
+              return GestureDetector(
+                onLongPress: () => widget.addSelectedMedia(snapShot.data!),
+                onTap: () => widget.addSelectedMedia(snapShot.data!),
+                child: Container(
+                  color: widget.selectedMedia.contains(snapShot.data)
+                      ? theme.hoverColor.withOpacity(0.4)
+                      : theme.backgroundColor,
+                  child: FutureBuilder<String?>(
+                    future: _fileRepo.getFileIfExist(fileId, fileName),
+                    builder: (context, filePath) {
+                      if (filePath.hasData && filePath.data != null) {
+                        return Column(
+                          children: [
+                            ListTile(
+                              title: Row(
+                                children: <Widget>[
+                                  PlayAudioStatus(
+                                    fileId: fileId,
+                                    filePath: filePath.data!,
+                                    fileName: fileName,
+                                    backgroundColor:
+                                        theme.colorScheme.onPrimary,
+                                    foregroundColor: theme.colorScheme.primary,
                                   ),
-                                  const Divider(
-                                    color: Colors.grey,
+                                  Expanded(
+                                    child: Stack(
+                                      children: [
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            left: 15.0,
+                                            top: 10,
+                                          ),
+                                          child: Text(
+                                            fileName,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        MusicPlayProgress(
+                                          audioUuid: fileId,
+                                          duration:
+                                              double.parse(dur.toString()),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ],
-                              );
-                            } else {
-                              return Column(
+                              ),
+                            ),
+                            const Divider(
+                              color: Colors.grey,
+                            ),
+                          ],
+                        );
+                      } else {
+                        return Column(
+                          children: [
+                            ListTile(
+                              title: Row(
                                 children: [
-                                  ListTile(
-                                    title: Row(
+                                  LoadFileStatus(
+                                    fileId: fileId,
+                                    fileName: fileName,
+                                    isPendingMessage: false,
+                                    onPressed: () async {
+                                      await _fileRepo.getFile(
+                                        fileId,
+                                        fileName,
+                                      );
+                                      setState(() {});
+                                    },
+                                    background: theme.colorScheme.primary,
+                                    foreground: theme.colorScheme.onPrimary,
+                                  ),
+                                  Expanded(
+                                    child: Stack(
                                       children: [
-                                        LoadFileStatus(
-                                          fileId: fileId,
-                                          fileName: fileName,
-                                          isPendingMessage: false,
-                                          onPressed: () async {
-                                            await _fileRepo.getFile(
-                                                fileId, fileName);
-                                            setState(() {});
-                                          },
-                                          background: theme.colorScheme.primary,
-                                          foreground:
-                                              theme.colorScheme.onPrimary,
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            left: 8.0,
+                                            top: 8,
+                                          ),
+                                          child: Text(
+                                            fileName,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
                                         ),
-                                        Expanded(
-                                          child: Stack(
-                                            children: [
-                                              Padding(
-                                                padding: const EdgeInsets.only(
-                                                    left: 8.0, top: 8),
-                                                child: Text(fileName,
-                                                    style: const TextStyle(
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                            FontWeight.bold)),
-                                              ),
-                                              MusicPlayProgress(
-                                                audioUuid: fileId,
-                                                duration: double.parse(
-                                                    dur.toString()),
-                                              ),
-                                            ],
+                                        MusicPlayProgress(
+                                          audioUuid: fileId,
+                                          duration: double.parse(
+                                            dur.toString(),
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                  const Divider(
-                                    color: Colors.grey,
-                                  ),
                                 ],
-                              );
-                            }
-                          }),
-                    ),
-                  );
-                } else {
-                  return const SizedBox.shrink();
-                }
-              });
-        });
+                              ),
+                            ),
+                            const Divider(
+                              color: Colors.grey,
+                            ),
+                          ],
+                        );
+                      }
+                    },
+                  ),
+                ),
+              );
+            } else {
+              return const SizedBox.shrink();
+            }
+          },
+        );
+      },
+    );
   }
 
   Future<Media?> _getMedia(int index) async {
@@ -173,7 +185,11 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
     } else {
       final page = (index / MEDIA_PAGE_SIZE).floor();
       final res = await _mediaQueryRepo.getMediaPage(
-          widget.roomUid.asString(), widget.type, page, index);
+        widget.roomUid.asString(),
+        widget.type,
+        page,
+        index,
+      );
       if (res != null) {
         for (final media in res) {
           _mediaCache[media.messageId] = media;

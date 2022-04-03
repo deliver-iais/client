@@ -38,10 +38,11 @@ class LocationMessageWidget extends StatelessWidget {
             ),
             layers: [
               TileLayerOptions(
-                  tileProvider: NetworkTileProvider(),
-                  urlTemplate:
-                      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                  subdomains: ['a', 'b', 'c']),
+                tileProvider: NetworkTileProvider(),
+                urlTemplate:
+                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                subdomains: ['a', 'b', 'c'],
+              ),
               MarkerLayerOptions(
                 markers: [
                   Marker(
@@ -54,12 +55,14 @@ class LocationMessageWidget extends StatelessWidget {
             ],
           ),
         ),
-        TimeAndSeenStatus(message,
-            isSender: isSender,
-            isSeen: isSeen,
-            needsPadding: true,
-            backgroundColor: colorScheme.primaryContainer,
-            foregroundColor: colorScheme.onPrimaryContainerLowlight()),
+        TimeAndSeenStatus(
+          message,
+          isSender: isSender,
+          isSeen: isSeen,
+          needsPadding: true,
+          backgroundColor: colorScheme.primaryContainer,
+          foregroundColor: colorScheme.onPrimaryContainerLowlight(),
+        ),
       ],
     );
   }

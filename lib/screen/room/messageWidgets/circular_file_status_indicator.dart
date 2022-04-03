@@ -42,56 +42,59 @@ class _CircularFileStatusIndicatorState
   Widget build(BuildContext context) {
     final file = widget.message.json.toFile();
     return FutureBuilder<String?>(
-        future: _fileRepo.getFileIfExist(file.uuid, file.name),
-        builder: (c, fileSnapShot) {
-          if (fileSnapShot.hasData &&
-              fileSnapShot.data != null &&
-              widget.message.id != null) {
-            return showExitFile(file, fileSnapShot.data!);
-          } else {
-            return StreamBuilder<double>(
-                stream: _fileServices.filesProgressBarStatus[file.uuid],
-                builder: (context, snapshot) {
-                  if (snapshot.hasData &&
-                      snapshot.data != null &&
-                      snapshot.data == DOWNLOAD_COMPLETE) {
-                    return FutureBuilder<String?>(
-                        future: _fileRepo.getFileIfExist(file.uuid, file.name),
-                        builder: (c, s) {
-                          if (s.hasData && s.data != null) {
-                            return showExitFile(file, s.data!);
-                          } else {
-                            return LoadFileStatus(
-                              fileId: file.uuid,
-                              fileName: file.name,
-                              isPendingMessage: widget.message.id == null,
-                              messagePacketId: widget.message.packetId,
-                              onPressed: () async {
-                                await _fileRepo.getFile(file.uuid, file.name);
-                                setState(() {});
-                              },
-                              background: widget.backgroundColor,
-                              foreground: widget.foregroundColor,
-                            );
-                          }
-                        });
-                  } else {
-                    return LoadFileStatus(
-                      fileId: file.uuid,
-                      isPendingMessage: widget.message.id == null,
-                      fileName: file.name,
-                      messagePacketId: widget.message.packetId,
-                      onPressed: () async {
-                        await _fileRepo.getFile(file.uuid, file.name);
-                        setState(() {});
-                      },
-                      background: widget.backgroundColor,
-                      foreground: widget.foregroundColor,
-                    );
-                  }
-                });
-          }
-        });
+      future: _fileRepo.getFileIfExist(file.uuid, file.name),
+      builder: (c, fileSnapShot) {
+        if (fileSnapShot.hasData &&
+            fileSnapShot.data != null &&
+            widget.message.id != null) {
+          return showExitFile(file, fileSnapShot.data!);
+        } else {
+          return StreamBuilder<double>(
+            stream: _fileServices.filesProgressBarStatus[file.uuid],
+            builder: (context, snapshot) {
+              if (snapshot.hasData &&
+                  snapshot.data != null &&
+                  snapshot.data == DOWNLOAD_COMPLETE) {
+                return FutureBuilder<String?>(
+                  future: _fileRepo.getFileIfExist(file.uuid, file.name),
+                  builder: (c, s) {
+                    if (s.hasData && s.data != null) {
+                      return showExitFile(file, s.data!);
+                    } else {
+                      return LoadFileStatus(
+                        fileId: file.uuid,
+                        fileName: file.name,
+                        isPendingMessage: widget.message.id == null,
+                        messagePacketId: widget.message.packetId,
+                        onPressed: () async {
+                          await _fileRepo.getFile(file.uuid, file.name);
+                          setState(() {});
+                        },
+                        background: widget.backgroundColor,
+                        foreground: widget.foregroundColor,
+                      );
+                    }
+                  },
+                );
+              } else {
+                return LoadFileStatus(
+                  fileId: file.uuid,
+                  isPendingMessage: widget.message.id == null,
+                  fileName: file.name,
+                  messagePacketId: widget.message.packetId,
+                  onPressed: () async {
+                    await _fileRepo.getFile(file.uuid, file.name);
+                    setState(() {});
+                  },
+                  background: widget.backgroundColor,
+                  foreground: widget.foregroundColor,
+                );
+              }
+            },
+          );
+        }
+      },
+    );
   }
 
   Widget showExitFile(File file, String filePath) {

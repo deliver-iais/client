@@ -51,19 +51,22 @@ class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
                                 ? _i18n.get("email_granted")
                                 : _i18n.get("private_data_granted"),
                 style: theme.textTheme.bodyText2!.copyWith(
-                    color: colorScheme.onPrimaryContainer,
-                    fontWeight: FontWeight.w400),
+                  color: colorScheme.onPrimaryContainer,
+                  fontWeight: FontWeight.w400,
+                ),
               ),
             ],
           ),
         ),
-        TimeAndSeenStatus(message,
-            isSender: isSender,
-            isSeen: isSeen,
-            needsPositioned: false,
-            needsPadding: true,
-            backgroundColor: colorScheme.primaryContainer,
-            foregroundColor: colorScheme.onPrimaryContainerLowlight()),
+        TimeAndSeenStatus(
+          message,
+          isSender: isSender,
+          isSeen: isSeen,
+          needsPositioned: false,
+          needsPadding: true,
+          backgroundColor: colorScheme.primaryContainer,
+          foregroundColor: colorScheme.onPrimaryContainerLowlight(),
+        ),
       ],
     );
   }

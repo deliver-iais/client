@@ -36,14 +36,15 @@ class BotAppbarTitle extends StatelessWidget {
             ),
             Expanded(
               child: FutureBuilder<String>(
-                  future: _roomRepo.getName(botUid),
-                  builder: (c, name) {
-                    if (name.hasData && name.data != null) {
-                      return buildColumn(name.data!, context);
-                    } else {
-                      return buildColumn(botUid.node, context);
-                    }
-                  }),
+                future: _roomRepo.getName(botUid),
+                builder: (c, name) {
+                  if (name.hasData && name.data != null) {
+                    return buildColumn(name.data!, context);
+                  } else {
+                    return buildColumn(botUid.node, context);
+                  }
+                },
+              ),
             )
           ],
         ),

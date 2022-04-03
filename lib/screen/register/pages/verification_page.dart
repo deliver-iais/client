@@ -48,12 +48,15 @@ class _VerificationPageState extends State<VerificationPage> {
       } else if (accessTokenResponse.status ==
           AccessTokenRes_Status.PASSWORD_PROTECTED) {
         ToastDisplay.showToast(
-            toastText: "PASSWORD_PROTECTED", toastContext: context);
+          toastText: "PASSWORD_PROTECTED",
+          toastContext: context,
+        );
         // TODO navigate to password validation page
       } else {
         ToastDisplay.showToast(
-            toastText: _i18n.get("verification_code_not_valid"),
-            toastContext: context);
+          toastText: _i18n.get("verification_code_not_valid"),
+          toastContext: context,
+        );
         _setErrorAndResetCode();
       }
     }).catchError((e) {
@@ -66,13 +69,24 @@ class _VerificationPageState extends State<VerificationPage> {
     _contactRepo.getContacts();
     if (await _accountRepo.hasProfile(retry: true)) {
       _accountRepo.fetchCurrentUserId(retry: true);
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (c) {
-        return const HomePage();
-      }), (r) => false);
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (c) {
+            return const HomePage();
+          },
+        ),
+        (r) => false,
+      );
     } else {
-      Navigator.push(context, MaterialPageRoute(builder: (c) {
-        return const AccountSettings(forceToSetUsernameAndName: true);
-      }));
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (c) {
+            return const AccountSettings(forceToSetUsernameAndName: true);
+          },
+        ),
+      );
     }
   }
 
@@ -103,7 +117,9 @@ class _VerificationPageState extends State<VerificationPage> {
           title: Text(
             _i18n.get("verification"),
             style: TextStyle(
-                fontWeight: FontWeight.bold, color: theme.primaryColor),
+              fontWeight: FontWeight.bold,
+              color: theme.primaryColor,
+            ),
           ),
         ),
         body: Padding(
@@ -137,10 +153,13 @@ class _VerificationPageState extends State<VerificationPage> {
                       codeLength: 5,
                       cursor: Cursor(color: theme.focusColor, enabled: true),
                       decoration: UnderlineDecoration(
-                          colorBuilder: PinListenColorBuilder(
-                              theme.primaryColor, theme.colorScheme.secondary),
-                          textStyle: theme.primaryTextTheme.headline5!
-                              .copyWith(color: theme.primaryColor)),
+                        colorBuilder: PinListenColorBuilder(
+                          theme.primaryColor,
+                          theme.colorScheme.secondary,
+                        ),
+                        textStyle: theme.primaryTextTheme.headline5!
+                            .copyWith(color: theme.primaryColor),
+                      ),
                       currentCode: _verificationCode,
                       onCodeSubmitted: (code) {
                         _verificationCode = code;

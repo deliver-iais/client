@@ -13,13 +13,13 @@ class ShowMentionList extends StatelessWidget {
   final String query;
   final int mentionSelectedIndex;
 
-  ShowMentionList(
-      {Key? key,
-      this.query = "-",
-      required this.onSelected,
-      required this.roomUid,
-      required this.mentionSelectedIndex})
-      : super(key: key);
+  ShowMentionList({
+    Key? key,
+    this.query = "-",
+    required this.onSelected,
+    required this.roomUid,
+    required this.mentionSelectedIndex,
+  }) : super(key: key);
 
   final _mucRepo = GetIt.I.get<MucRepo>();
 
@@ -30,34 +30,39 @@ class ShowMentionList extends StatelessWidget {
       future: _mucRepo.getFilteredMember(roomUid, query: query),
       builder: (c, members) {
         if (members.hasData && members.data!.isNotEmpty) {
-          return Row(children: [
-            Flexible(
+          return Row(
+            children: [
+              Flexible(
                 child: SizedBox(
-                    height: members.data!.length >= 4
-                        ? HEIGHT * 4
-                        : (members.data!.length * HEIGHT),
-                    child: Container(
-                        color:theme.backgroundColor,
-                        child: ListView.separated(
-                          itemCount: members.data!.length,
-                          shrinkWrap: true,
-                          itemBuilder: (c, i) {
-                            var _mucMemberMentionColor = Colors.transparent;
-                            if (mentionSelectedIndex == i &&
-                                mentionSelectedIndex != -1) {
-                              _mucMemberMentionColor =
-                                 theme.focusColor;
-                            }
-                            return Container(
-                              color: _mucMemberMentionColor,
-                              child: MucMemberMentionWidget(
-                                  members.data![i]!, onSelected),
-                            );
-                          },
-                          separatorBuilder: (context, index) =>
-                              const Divider(),
-                        )))),
-          ]);
+                  height: members.data!.length >= 4
+                      ? HEIGHT * 4
+                      : (members.data!.length * HEIGHT),
+                  child: Container(
+                    color: theme.backgroundColor,
+                    child: ListView.separated(
+                      itemCount: members.data!.length,
+                      shrinkWrap: true,
+                      itemBuilder: (c, i) {
+                        var _mucMemberMentionColor = Colors.transparent;
+                        if (mentionSelectedIndex == i &&
+                            mentionSelectedIndex != -1) {
+                          _mucMemberMentionColor = theme.focusColor;
+                        }
+                        return Container(
+                          color: _mucMemberMentionColor,
+                          child: MucMemberMentionWidget(
+                            members.data![i]!,
+                            onSelected,
+                          ),
+                        );
+                      },
+                      separatorBuilder: (context, index) => const Divider(),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
         }
         return const SizedBox.shrink();
       },

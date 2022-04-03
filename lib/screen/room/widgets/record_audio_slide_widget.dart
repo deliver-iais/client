@@ -12,13 +12,13 @@ class RecordAudioSlideWidget extends StatelessWidget {
   final BehaviorSubject<bool> _show = BehaviorSubject.seeded(true);
   final _i18n = GetIt.I.get<I18N>();
 
-  RecordAudioSlideWidget(
-      {Key? key,
-      required this.opacity,
-      required this.time,
-      required this.running,
-      required this.streamTime})
-      : super(key: key);
+  RecordAudioSlideWidget({
+    Key? key,
+    required this.opacity,
+    required this.time,
+    required this.running,
+    required this.streamTime,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -39,42 +39,44 @@ class RecordAudioSlideWidget extends StatelessWidget {
               Opacity(
                 opacity: opacity,
                 child: StreamBuilder<bool>(
-                    stream: _show.stream,
-                    builder: (c, s) {
-                      if (s.hasData && s.data!) {
-                        return const Opacity(
-                          opacity: 0,
-                          child: Icon(
-                            Icons.fiber_manual_record,
-                            color: Colors.red,
-                          ),
-                        );
-                      } else {
-                        return const Opacity(
-                          opacity: 1,
-                          child: Icon(
-                            Icons.fiber_manual_record,
-                            color: Colors.red,
-                          ),
-                        );
-                      }
-                    }),
+                  stream: _show.stream,
+                  builder: (c, s) {
+                    if (s.hasData && s.data!) {
+                      return const Opacity(
+                        opacity: 0,
+                        child: Icon(
+                          Icons.fiber_manual_record,
+                          color: Colors.red,
+                        ),
+                      );
+                    } else {
+                      return const Opacity(
+                        opacity: 1,
+                        child: Icon(
+                          Icons.fiber_manual_record,
+                          color: Colors.red,
+                        ),
+                      );
+                    }
+                  },
+                ),
               )
             ],
           ),
         ),
         StreamBuilder<DateTime>(
-            stream: streamTime.stream,
-            builder: (c, t) {
-              _show.add(!_show.value);
-              if (t.hasData && t.data != null && t.data!.isAfter(time)) {
-                return Text(
-                  durationTimeFormat(t.data!.difference(time)),
-                );
-              } else {
-                return const SizedBox.shrink();
-              }
-            }),
+          stream: streamTime.stream,
+          builder: (c, t) {
+            _show.add(!_show.value);
+            if (t.hasData && t.data != null && t.data!.isAfter(time)) {
+              return Text(
+                durationTimeFormat(t.data!.difference(time)),
+              );
+            } else {
+              return const SizedBox.shrink();
+            }
+          },
+        ),
         Opacity(
           opacity: opacity,
           child: Row(

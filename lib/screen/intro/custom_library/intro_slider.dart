@@ -183,49 +183,50 @@ class IntroSlider extends StatefulWidget {
   @override
   IntroSliderState createState() {
     return IntroSliderState(
-        // Slides
-        slides: slides,
-        backgroundColorAllSlides: backgroundColorAllSlides,
+      // Slides
+      slides: slides,
+      backgroundColorAllSlides: backgroundColorAllSlides,
 
-        // Skip
-        renderSkipBtn: renderSkipBtn,
-        widthSkipBtn: widthSkipBtn,
-        onSkipPress: onSkipPress,
-        nameSkipBtn: nameSkipBtn,
-        styleNameSkipBtn: styleNameSkipBtn,
-        isShowSkipBtn: isShowSkipBtn,
+      // Skip
+      renderSkipBtn: renderSkipBtn,
+      widthSkipBtn: widthSkipBtn,
+      onSkipPress: onSkipPress,
+      nameSkipBtn: nameSkipBtn,
+      styleNameSkipBtn: styleNameSkipBtn,
+      isShowSkipBtn: isShowSkipBtn,
 
-        // Prev
-        renderPrevBtn: renderPrevBtn,
-        widthPrevBtn: widthPrevBtn,
-        namePrevBtn: namePrevBtn,
-        isShowPrevBtn: isShowPrevBtn,
-        styleNamePrevBtn: styleNamePrevBtn,
+      // Prev
+      renderPrevBtn: renderPrevBtn,
+      widthPrevBtn: widthPrevBtn,
+      namePrevBtn: namePrevBtn,
+      isShowPrevBtn: isShowPrevBtn,
+      styleNamePrevBtn: styleNamePrevBtn,
 
-        // Done
-        renderDoneBtn: renderDoneBtn,
-        widthDoneBtn: widthDoneBtn,
-        onDonePress: onDonePress,
-        nameDoneBtn: nameDoneBtn,
-        styleNameDoneBtn: styleNameDoneBtn,
-        isShowDoneBtn: isShowDoneBtn,
+      // Done
+      renderDoneBtn: renderDoneBtn,
+      widthDoneBtn: widthDoneBtn,
+      onDonePress: onDonePress,
+      nameDoneBtn: nameDoneBtn,
+      styleNameDoneBtn: styleNameDoneBtn,
+      isShowDoneBtn: isShowDoneBtn,
 
-        // Next
-        renderNextBtn: renderNextBtn,
-        nameNextBtn: nameNextBtn,
-        isShowNextBtn: isShowNextBtn,
+      // Next
+      renderNextBtn: renderNextBtn,
+      nameNextBtn: nameNextBtn,
+      isShowNextBtn: isShowNextBtn,
 
-        // Dots
-        isShowDotIndicator: isShowDotIndicator,
-        colorDot: colorDot,
-        colorActiveDot: colorActiveDot,
-        sizeDot: sizeDot,
+      // Dots
+      isShowDotIndicator: isShowDotIndicator,
+      colorDot: colorDot,
+      colorActiveDot: colorActiveDot,
+      sizeDot: sizeDot,
 
-        // Tabs
-        listCustomTabs: listCustomTabs,
+      // Tabs
+      listCustomTabs: listCustomTabs,
 
-        // Behavior
-        onAnimationChange: onAnimationChange);
+      // Behavior
+      onAnimationChange: onAnimationChange,
+    );
   }
 }
 
@@ -785,7 +786,11 @@ class IntroSliderState extends State<IntroSlider>
             ),
         margin: marginTitle ??
             const EdgeInsets.only(
-                top: 20.0, bottom: 60.0, left: 20.0, right: 20.0),
+              top: 20.0,
+              bottom: 60.0,
+              left: 20.0,
+              right: 20.0,
+            ),
       ),
     );
   }
@@ -802,7 +807,9 @@ class IntroSliderState extends State<IntroSlider>
     return Opacity(
       child: Container(
         decoration: BoxDecoration(
-            color: color, borderRadius: BorderRadius.circular(radius / 2)),
+          color: color,
+          borderRadius: BorderRadius.circular(radius / 2),
+        ),
         width: radius,
         height: radius,
         margin: EdgeInsets.only(left: radius / 2, right: radius / 2),

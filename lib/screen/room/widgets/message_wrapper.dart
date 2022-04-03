@@ -11,14 +11,14 @@ class MessageWrapper extends StatelessWidget {
   final bool isSender;
   final bool isFirstMessageInGroupedMessages;
 
-  const MessageWrapper(
-      {Key? key,
-      required this.child,
-      required this.uid,
-      required this.colorScheme,
-      required this.isSender,
-      this.isFirstMessageInGroupedMessages = true})
-      : super(key: key);
+  const MessageWrapper({
+    Key? key,
+    required this.child,
+    required this.uid,
+    required this.colorScheme,
+    required this.isSender,
+    this.isFirstMessageInGroupedMessages = true,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -42,9 +42,8 @@ class MessageWrapper extends StatelessWidget {
           clipBehavior: Clip.hardEdge,
           margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 2)
               .copyWith(
-                  top: isFirstMessageInGroupedMessages
-                      ? (isSender ? 16 : 0)
-                      : 2),
+            top: isFirstMessageInGroupedMessages ? (isSender ? 16 : 0) : 2,
+          ),
           decoration: BoxDecoration(
             borderRadius: border,
             color: color,
@@ -59,13 +58,15 @@ class MessageWrapper extends StatelessWidget {
             child: !isSender
                 ? CustomPaint(
                     size: const Size(width, height),
-                    foregroundPainter: OPainter(color))
+                    foregroundPainter: OPainter(color),
+                  )
                 : Transform(
                     alignment: Alignment.center,
                     transform: Matrix4.rotationY(pi),
                     child: CustomPaint(
-                        size: const Size(width, height),
-                        foregroundPainter: OPainter(color)),
+                      size: const Size(width, height),
+                      foregroundPainter: OPainter(color),
+                    ),
                   ),
           ),
       ],

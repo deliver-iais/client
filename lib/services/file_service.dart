@@ -51,7 +51,10 @@ class FileService {
   }
 
   Future<String> localThumbnailFilePath(
-      String fileUuid, String fileType, ThumbnailSize size) async {
+    String fileUuid,
+    String fileType,
+    ThumbnailSize size,
+  ) async {
     final path = await _localPath;
     return "$path/${enumToString(size)}-$fileUuid.$fileType";
   }
@@ -62,7 +65,10 @@ class FileService {
   }
 
   Future<io.File> localThumbnailFile(
-      String fileUuid, String fileType, ThumbnailSize size) async {
+    String fileUuid,
+    String fileType,
+    ThumbnailSize size,
+  ) async {
     return io.File(await localThumbnailFilePath(fileUuid, fileType, size));
   }
 
@@ -74,17 +80,23 @@ class FileService {
         return client;
       };
     }
-    _dio.interceptors
-        .add(InterceptorsWrapper(onRequest: (options, handler) async {
-      options.baseUrl = FileServiceBaseUrl;
-      options.headers["Authorization"] = await _authRepo.getAccessToken();
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          options.baseUrl = FileServiceBaseUrl;
+          options.headers["Authorization"] = await _authRepo.getAccessToken();
 
-      return handler.next(options); //continue
-    }));
+          return handler.next(options); //continue
+        },
+      ),
+    );
   }
 
-  Future<String?> getFile(String uuid, String filename,
-      {ThumbnailSize? size}) async {
+  Future<String?> getFile(
+    String uuid,
+    String filename, {
+    ThumbnailSize? size,
+  }) async {
     if (size != null) {
       return _getFileThumbnail(uuid, filename, size);
     }
@@ -99,14 +111,19 @@ class FileService {
     final cancelToken = CancelToken();
     cancelTokens[uuid] = BehaviorSubject.seeded(cancelToken);
     try {
-      final res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
-        filesProgressBarStatus[uuid]!.add((i / j));
-      },
-          options: Options(responseType: ResponseType.bytes),
-          cancelToken: cancelToken);
+      final res = await _dio.get(
+        "/$uuid/$filename",
+        onReceiveProgress: (i, j) {
+          filesProgressBarStatus[uuid]!.add((i / j));
+        },
+        options: Options(responseType: ResponseType.bytes),
+        cancelToken: cancelToken,
+      );
       if (isWeb) {
         final blob = html.Blob(
-            <Object>[res.data], "application/${filename.split(".").last}");
+          <Object>[res.data],
+          "application/${filename.split(".").last}",
+        );
         final url = html.Url.createObjectUrlFromBlob(blob);
         return url;
       } else {
@@ -145,7 +162,10 @@ class FileService {
   }
 
   Future<void> saveFileInDownloadFolder(
-      String path, String name, String directory) async {
+    String path,
+    String name,
+    String directory,
+  ) async {
     if (isWeb) {
       saveDownloadedFile(path, name);
     } else {
@@ -159,7 +179,10 @@ class FileService {
   }
 
   Future<String> _getFileThumbnail(
-      String uuid, String filename, ThumbnailSize size) async {
+    String uuid,
+    String filename,
+    ThumbnailSize size,
+  ) async {
     final cancelToken = CancelToken();
     cancelTokens[uuid] = BehaviorSubject.seeded(cancelToken);
     final res = await _dio.get(
@@ -169,7 +192,9 @@ class FileService {
     );
     if (isWeb) {
       final blob = html.Blob(
-          <Object>[res.data], "application/${filename.split(".").last}");
+        <Object>[res.data],
+        "application/${filename.split(".").last}",
+      );
       final url = html.Url.createObjectUrlFromBlob(blob);
       return url;
     } else {
@@ -190,7 +215,9 @@ class FileService {
     try {
       final bytes = await file.readAsBytes();
       final input = ImageFile(
-          filePath: file.path, rawBytes: bytes); // set the input image file
+        filePath: file.path,
+        rawBytes: bytes,
+      ); // set the input image file
       const config = Configuration(
         outputType: ImageOutputType.jpg,
         quality: 30,
@@ -228,8 +255,12 @@ class FileService {
   }
 
   // TODO, refactoring needed
-  Future<Response<dynamic>?> uploadFile(String filePath, String filename,
-      {String? uploadKey, void Function(int)? sendActivity}) async {
+  Future<Response<dynamic>?> uploadFile(
+    String filePath,
+    String filename, {
+    String? uploadKey,
+    void Function(int)? sendActivity,
+  }) async {
     try {
       if (!isWeb) {
         try {
@@ -254,9 +285,11 @@ class FileService {
           Uri.parse(filePath),
         );
         formData = FormData.fromMap({
-          "file": MultipartFile.fromBytes(r.bodyBytes,
-              contentType:
-                  MediaType.parse(mime(filename) ?? "application/octet-stream"))
+          "file": MultipartFile.fromBytes(
+            r.bodyBytes,
+            contentType:
+                MediaType.parse(mime(filename) ?? "application/octet-stream"),
+          )
         });
       } else {
         formData = FormData.fromMap({
@@ -268,18 +301,21 @@ class FileService {
         });
       }
 
-      _dio.interceptors
-          .add(InterceptorsWrapper(onRequest: (options, handler) async {
-        options.onSendProgress = (i, j) {
-          sendActivity?.call(i);
-          if (filesProgressBarStatus[uploadKey] == null) {
-            final d = BehaviorSubject<double>();
-            filesProgressBarStatus[uploadKey] = d;
-          }
-          filesProgressBarStatus[uploadKey]!.add((i / j));
-        };
-        handler.next(options);
-      }));
+      _dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) async {
+            options.onSendProgress = (i, j) {
+              sendActivity?.call(i);
+              if (filesProgressBarStatus[uploadKey] == null) {
+                final d = BehaviorSubject<double>();
+                filesProgressBarStatus[uploadKey] = d;
+              }
+              filesProgressBarStatus[uploadKey]!.add((i / j));
+            };
+            handler.next(options);
+          },
+        ),
+      );
       return _dio.post("/upload", data: formData, cancelToken: cancelToken);
     } catch (e) {
       _logger.e(e);

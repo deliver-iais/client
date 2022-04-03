@@ -27,58 +27,62 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: PreferredSize(
-          preferredSize: const Size.fromHeight(60.0),
-          child: AppBar(
-            titleSpacing: 8,
-            title: Text(_i18n.get("security")),
-            leading: _routingService.backButtonLeading(),
-          ),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60.0),
+        child: AppBar(
+          titleSpacing: 8,
+          title: Text(_i18n.get("security")),
+          leading: _routingService.backButtonLeading(),
         ),
-        body: FluidContainerWidget(
-          child: ListView(
-            children: [
-              Section(
-                title: _i18n.get("security"),
-                children: [
-                  SettingsTile.switchTile(
-                    title: _i18n.get("enable_local_lock"),
-                    leading: const Icon(CupertinoIcons.lock),
-                    switchValue: _authRepo.isLocalLockEnabled(),
-                    onToggle: (enabled) {
-                      if (enabled) {
-                        showDialog(
-                            context: context,
-                            builder: (context) {
-                              return setLocalPassword();
-                            });
-                      } else {
-                        showDialog(
-                            context: context,
-                            builder: (context) {
-                              return disablePassword();
-                            });
-                      }
+      ),
+      body: FluidContainerWidget(
+        child: ListView(
+          children: [
+            Section(
+              title: _i18n.get("security"),
+              children: [
+                SettingsTile.switchTile(
+                  title: _i18n.get("enable_local_lock"),
+                  leading: const Icon(CupertinoIcons.lock),
+                  switchValue: _authRepo.isLocalLockEnabled(),
+                  onToggle: (enabled) {
+                    if (enabled) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return setLocalPassword();
+                        },
+                      );
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return disablePassword();
+                        },
+                      );
+                    }
+                  },
+                ),
+                if (_authRepo.isLocalLockEnabled())
+                  SettingsTile(
+                    title: _i18n.get("edit_password"),
+                    leading: const Icon(CupertinoIcons.square_arrow_left),
+                    onPressed: (c) {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return setLocalPassword();
+                        },
+                      );
                     },
+                    trailing: const SizedBox.shrink(),
                   ),
-                  if (_authRepo.isLocalLockEnabled())
-                    SettingsTile(
-                      title: _i18n.get("edit_password"),
-                      leading: const Icon(CupertinoIcons.square_arrow_left),
-                      onPressed: (c) {
-                        showDialog(
-                            context: context,
-                            builder: (context) {
-                              return setLocalPassword();
-                            });
-                      },
-                      trailing: const SizedBox.shrink(),
-                    ),
-                ],
-              ),
-            ],
-          ),
-        ));
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget disablePassword() {
@@ -90,31 +94,34 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
           onChanged: (p) => setState2(() => _currentPass = p),
           obscureText: true,
           decoration: InputDecoration(
-              border: const OutlineInputBorder(),
-              hintText: _i18n.get("current_password")),
+            border: const OutlineInputBorder(),
+            hintText: _i18n.get("current_password"),
+          ),
         ),
         actions: [
           SizedBox(
             height: 40,
             child: TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(_i18n.get("cancel"))),
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(_i18n.get("cancel")),
+            ),
           ),
           SizedBox(
             height: 40,
             child: TextButton(
-                onPressed: _currentPass.isNotEmpty
-                    ? () {
-                        if (_authRepo.localPasswordIsCorrect(_currentPass)) {
-                          _authRepo.setLocalPassword("");
-                          setState(() {});
-                          Navigator.of(context).pop();
-                        } else {
-                          // TODO, show error
-                        }
+              onPressed: _currentPass.isNotEmpty
+                  ? () {
+                      if (_authRepo.localPasswordIsCorrect(_currentPass)) {
+                        _authRepo.setLocalPassword("");
+                        setState(() {});
+                        Navigator.of(context).pop();
+                      } else {
+                        // TODO, show error
                       }
-                    : null,
-                child: Text(_i18n.get("disable"))),
+                    }
+                  : null,
+              child: Text(_i18n.get("disable")),
+            ),
           ),
         ],
       ),
@@ -136,24 +143,27 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                 onChanged: (p) => setState2(() => _currentPass = p),
                 obscureText: true,
                 decoration: InputDecoration(
-                    border: const OutlineInputBorder(),
-                    hintText: _i18n.get("current_password")),
+                  border: const OutlineInputBorder(),
+                  hintText: _i18n.get("current_password"),
+                ),
               ),
             if (checkCurrentPassword) const SizedBox(height: 40),
             TextField(
               onChanged: (p) => setState2(() => _pass = p),
               obscureText: true,
               decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  hintText: _i18n.get("password")),
+                border: const OutlineInputBorder(),
+                hintText: _i18n.get("password"),
+              ),
             ),
             const SizedBox(height: 10),
             TextField(
               onChanged: (p) => setState2(() => _repeatedPass = p),
               obscureText: true,
               decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  hintText: _i18n.get("repeat_password")),
+                border: const OutlineInputBorder(),
+                hintText: _i18n.get("repeat_password"),
+              ),
             ),
           ],
         ),
@@ -161,40 +171,43 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
           SizedBox(
             height: 40,
             child: TextButton(
-                onPressed: () => Navigator.of(context).pop(),
-                child: Text(_i18n.get("cancel"))),
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(_i18n.get("cancel")),
+            ),
           ),
           if (!checkCurrentPassword)
             SizedBox(
               height: 40,
               child: TextButton(
-                  onPressed: _pass == _repeatedPass && _pass.isNotEmpty
-                      ? () {
-                          _authRepo.setLocalPassword(_pass);
-                          setState(() {});
-                          Navigator.of(context).pop();
-                        }
-                      : null,
-                  child: Text(_i18n.get("save"))),
+                onPressed: _pass == _repeatedPass && _pass.isNotEmpty
+                    ? () {
+                        _authRepo.setLocalPassword(_pass);
+                        setState(() {});
+                        Navigator.of(context).pop();
+                      }
+                    : null,
+                child: Text(_i18n.get("save")),
+              ),
             ),
           if (checkCurrentPassword)
             SizedBox(
               height: 40,
               child: TextButton(
-                  onPressed: _pass == _repeatedPass &&
-                          _pass.isNotEmpty &&
-                          _currentPass.isNotEmpty
-                      ? () {
-                          if (_authRepo.localPasswordIsCorrect(_currentPass)) {
-                            _authRepo.setLocalPassword(_pass);
-                            setState(() {});
-                            Navigator.of(context).pop();
-                          } else {
-                            // TODO, show error
-                          }
+                onPressed: _pass == _repeatedPass &&
+                        _pass.isNotEmpty &&
+                        _currentPass.isNotEmpty
+                    ? () {
+                        if (_authRepo.localPasswordIsCorrect(_currentPass)) {
+                          _authRepo.setLocalPassword(_pass);
+                          setState(() {});
+                          Navigator.of(context).pop();
+                        } else {
+                          // TODO, show error
                         }
-                      : null,
-                  child: Text(_i18n.get("change"))),
+                      }
+                    : null,
+                child: Text(_i18n.get("change")),
+              ),
             ),
         ],
       ),

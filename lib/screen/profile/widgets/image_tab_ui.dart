@@ -21,9 +21,13 @@ class ImageTabUi extends StatefulWidget {
   final void Function(Media) addSelectedMedia;
   final List<Media> selectedMedia;
 
-  const ImageTabUi(this.imagesCount, this.roomUid,
-      {Key? key, required this.addSelectedMedia, required this.selectedMedia})
-      : super(key: key);
+  const ImageTabUi(
+    this.imagesCount,
+    this.roomUid, {
+    Key? key,
+    required this.addSelectedMedia,
+    required this.selectedMedia,
+  }) : super(key: key);
 
   @override
   _ImageTabUiState createState() => _ImageTabUiState();
@@ -43,7 +47,11 @@ class _ImageTabUiState extends State<ImageTabUi> {
     } else {
       final page = (index / MEDIA_PAGE_SIZE).floor();
       final res = await _mediaQueryRepo.getMediaPage(
-          widget.roomUid.asString(), MediaType.IMAGE, page, index);
+        widget.roomUid.asString(),
+        MediaType.IMAGE,
+        page,
+        index,
+      );
       if (res != null) {
         for (final media in res) {
           _mediaCache[media.messageId] = media;
@@ -56,26 +64,29 @@ class _ImageTabUiState extends State<ImageTabUi> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<MediaMetaData?>(
-        stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
-        builder: (context, snapshot) {
-          _mediaCache.clear();
-          return GridView.builder(
-              itemCount: widget.imagesCount,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 3),
-              itemBuilder: (c, index) {
-                return FutureBuilder<Media?>(
-                  future: _getMedia(index),
-                  builder: (c, mediaSnapShot) {
-                    if (mediaSnapShot.hasData) {
-                      return buildMediaWidget(mediaSnapShot.data!, index);
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  },
-                );
-              });
-        });
+      stream: _mediaQueryRepo.getMediasMetaDataCountFromDB(widget.roomUid),
+      builder: (context, snapshot) {
+        _mediaCache.clear();
+        return GridView.builder(
+          itemCount: widget.imagesCount,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 3,
+          ),
+          itemBuilder: (c, index) {
+            return FutureBuilder<Media?>(
+              future: _getMedia(index),
+              builder: (c, mediaSnapShot) {
+                if (mediaSnapShot.hasData) {
+                  return buildMediaWidget(mediaSnapShot.data!, index);
+                } else {
+                  return const SizedBox.shrink();
+                }
+              },
+            );
+          },
+        );
+      },
+    );
   }
 
   Container buildMediaWidget(Media media, int index) {
@@ -89,55 +100,62 @@ class _ImageTabUiState extends State<ImageTabUi> {
       child: Stack(
         children: [
           GestureDetector(
-              onTap: () => _routingService.openShowAllImage(
-                  uid: widget.roomUid.asString(),
-                  messageId: media.messageId,
-                  initIndex: index),
-              onLongPress: () => _addSelectedMedia(media),
-              child: FutureBuilder<String?>(
-                  future: _fileRepo.getFileIfExist(json["uuid"], json["name"]),
-                  builder: (c, filePath) {
-                    if (filePath.hasData && filePath.data != null) {
-                      return Hero(
-                        tag: json["uuid"],
-                        child: Container(
-                            decoration: BoxDecoration(
-                          image: DecorationImage(
-                            image: isWeb
-                                ? Image.network(filePath.data!).image
-                                : Image.file(
-                                    File(filePath.data!),
-                                  ).image,
-                            fit: BoxFit.cover,
-                          ),
-                        )),
-                        transitionOnUserGestures: true,
-                      );
-                    } else {
-                      return SizedBox(child: BlurHash(hash: json["blurHash"]));
-                    }
-                  })),
-          if (widget.selectedMedia.isNotEmpty)
-            Align(
-                alignment: Alignment.bottomRight,
-                child: IconButton(
-                    onPressed: () => widget.addSelectedMedia(media),
-                    icon: Container(
-                      width: 25,
-                      height: 25,
+            onTap: () => _routingService.openShowAllImage(
+              uid: widget.roomUid.asString(),
+              messageId: media.messageId,
+              initIndex: index,
+            ),
+            onLongPress: () => _addSelectedMedia(media),
+            child: FutureBuilder<String?>(
+              future: _fileRepo.getFileIfExist(json["uuid"], json["name"]),
+              builder: (c, filePath) {
+                if (filePath.hasData && filePath.data != null) {
+                  return Hero(
+                    tag: json["uuid"],
+                    child: Container(
                       decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(24),
-                          color: Theme.of(context).hoverColor.withOpacity(0.5)),
-                      child: Center(
-                        child: Icon(
-                          widget.selectedMedia.contains(media)
-                              ? Icons.check_circle_outline
-                              : Icons.panorama_fish_eye,
-                          color: Colors.white,
-                          size: 25,
+                        image: DecorationImage(
+                          image: isWeb
+                              ? Image.network(filePath.data!).image
+                              : Image.file(
+                                  File(filePath.data!),
+                                ).image,
+                          fit: BoxFit.cover,
                         ),
                       ),
-                    )))
+                    ),
+                    transitionOnUserGestures: true,
+                  );
+                } else {
+                  return SizedBox(child: BlurHash(hash: json["blurHash"]));
+                }
+              },
+            ),
+          ),
+          if (widget.selectedMedia.isNotEmpty)
+            Align(
+              alignment: Alignment.bottomRight,
+              child: IconButton(
+                onPressed: () => widget.addSelectedMedia(media),
+                icon: Container(
+                  width: 25,
+                  height: 25,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(24),
+                    color: Theme.of(context).hoverColor.withOpacity(0.5),
+                  ),
+                  child: Center(
+                    child: Icon(
+                      widget.selectedMedia.contains(media)
+                          ? Icons.check_circle_outline
+                          : Icons.panorama_fish_eye,
+                      color: Colors.white,
+                      size: 25,
+                    ),
+                  ),
+                ),
+              ),
+            )
         ],
       ),
     );

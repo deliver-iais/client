@@ -14,9 +14,11 @@ class OperationOnRoomEntry extends PopupMenuEntry<OperationOnRoom> {
   final bool isPinned;
   final Room room;
 
-  const OperationOnRoomEntry(
-      {Key? key, required this.room, this.isPinned = false})
-      : super(key: key);
+  const OperationOnRoomEntry({
+    Key? key,
+    required this.room,
+    this.isPinned = false,
+  }) : super(key: key);
 
   @override
   OperationOnRoomEntryState createState() => OperationOnRoomEntryState();
@@ -38,14 +40,15 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
   Future<void> onDeleteRoom(String selected) async {
     final roomName = await _roomRepo.getName(widget.room.uid.asUid());
     showDialog(
-        context: context,
-        builder: (context) {
-          return OnDeletePopupDialog(
-            roomUid: widget.room.uid.asUid(),
-            selected: selected,
-            roomName: roomName,
-          );
-        });
+      context: context,
+      builder: (context) {
+        return OnDeletePopupDialog(
+          roomUid: widget.room.uid.asUid(),
+          selected: selected,
+          roomName: roomName,
+        );
+      },
+    );
   }
 
   I18N i18n = GetIt.I.get<I18N>();
@@ -61,56 +64,68 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
         children: [
           if (!widget.isPinned)
             PopupMenuItem(
-                value: OperationOnRoom.PIN_ROOM,
-                child: Row(children: [
+              value: OperationOnRoom.PIN_ROOM,
+              child: Row(
+                children: [
                   const Icon(
                     CupertinoIcons.pin,
                     size: 20,
                   ),
                   const SizedBox(width: 8),
                   Text(i18n.get("pin_room")),
-                ]))
+                ],
+              ),
+            )
           else
             PopupMenuItem(
-                value: OperationOnRoom.UN_PIN_ROOM,
-                child: Row(children: [
+              value: OperationOnRoom.UN_PIN_ROOM,
+              child: Row(
+                children: [
                   const Icon(
                     CupertinoIcons.pin_slash,
                     size: 20,
                   ),
                   const SizedBox(width: 8),
                   Text(i18n.get("unpin_room")),
-                ])),
+                ],
+              ),
+            ),
           StreamBuilder<bool>(
             stream: _roomRepo.watchIsRoomMuted(widget.room.uid),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 if (snapshot.data!) {
                   return PopupMenuItem(
-                      onTap: () {
-                        _roomRepo.unmute(widget.room.uid);
-                      },
-                      child: Row(children: [
+                    onTap: () {
+                      _roomRepo.unmute(widget.room.uid);
+                    },
+                    child: Row(
+                      children: [
                         const Icon(
                           CupertinoIcons.bell,
                           size: 20,
                         ),
                         const SizedBox(width: 8),
                         Text(i18n.get("enable_notifications")),
-                      ]));
+                      ],
+                    ),
+                  );
                 } else {
                   return PopupMenuItem(
-                      onTap: () {
-                        _roomRepo.mute(widget.room.uid);
-                      },
-                      child: Row(children: [
+                    onTap: () {
+                      _roomRepo.mute(widget.room.uid);
+                    },
+                    child: Row(
+                      children: [
                         const Icon(
                           CupertinoIcons.bell_slash,
                           size: 20,
                         ),
                         const SizedBox(width: 8),
                         Text(i18n.get("disable_notifications")),
-                      ]));
+                      ],
+                    ),
+                  );
                 }
               } else {
                 return const SizedBox.shrink();
@@ -118,47 +133,58 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
             },
           ),
           FutureBuilder<bool>(
-              future: _mucRepo.isMucOwner(
-                  _authRepo.currentUserUid.asString(), widget.room.uid),
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  if (!snapshot.data!) {
-                    return PopupMenuItem(
-                        onTap: () => onDeleteRoom("delete_room"),
-                        child: Row(children: [
-                          Icon(
-                            widget.room.uid.asUid().isMuc()
-                                ? CupertinoIcons.arrow_turn_up_left
-                                : CupertinoIcons.delete,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            !widget.room.uid.asUid().isMuc()
-                                ? i18n.get("delete_chat")
-                                : widget.room.uid.asUid().isGroup()
-                                    ? i18n.get("left_group")
-                                    : i18n.get("left_channel"),
-                          ),
-                        ]));
-                  } else {
-                    return PopupMenuItem(
-                        onTap: () => onDeleteRoom("deleteMuc"),
-                        child: Row(children: [
-                          const Icon(
-                            CupertinoIcons.delete,
-                            size: 20,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(widget.room.uid.asUid().isGroup()
-                              ? i18n.get("delete_group")
-                              : i18n.get("delete_channel")),
-                        ]));
-                  }
+            future: _mucRepo.isMucOwner(
+              _authRepo.currentUserUid.asString(),
+              widget.room.uid,
+            ),
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                if (!snapshot.data!) {
+                  return PopupMenuItem(
+                    onTap: () => onDeleteRoom("delete_room"),
+                    child: Row(
+                      children: [
+                        Icon(
+                          widget.room.uid.asUid().isMuc()
+                              ? CupertinoIcons.arrow_turn_up_left
+                              : CupertinoIcons.delete,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          !widget.room.uid.asUid().isMuc()
+                              ? i18n.get("delete_chat")
+                              : widget.room.uid.asUid().isGroup()
+                                  ? i18n.get("left_group")
+                                  : i18n.get("left_channel"),
+                        ),
+                      ],
+                    ),
+                  );
                 } else {
-                  return const SizedBox.shrink();
+                  return PopupMenuItem(
+                    onTap: () => onDeleteRoom("deleteMuc"),
+                    child: Row(
+                      children: [
+                        const Icon(
+                          CupertinoIcons.delete,
+                          size: 20,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          widget.room.uid.asUid().isGroup()
+                              ? i18n.get("delete_group")
+                              : i18n.get("delete_channel"),
+                        ),
+                      ],
+                    ),
+                  );
                 }
-              })
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
+          )
         ],
       ),
     );

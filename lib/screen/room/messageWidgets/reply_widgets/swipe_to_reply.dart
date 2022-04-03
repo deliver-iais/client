@@ -33,7 +33,9 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     _moveController = AnimationController(
-        duration: const Duration(milliseconds: 200), vsync: this);
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
     _moveAnimation =
         Tween<Offset>(begin: Offset.zero, end: const Offset(1.0, 0.0))
             .animate(_moveController);
@@ -114,22 +116,23 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     final children = <Widget>[
       AnimatedOpacity(
-          opacity: showRightIcon ? 1 : 0,
-          duration: ANIMATION_DURATION,
-          child: Padding(
-            padding: const EdgeInsets.all(15.0),
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: AnimatedScale(
-                scale: showRightIcon ? 1 : 0,
-                duration: ANIMATION_DURATION,
-                child: Icon(
-                  CupertinoIcons.reply,
-                  color: Theme.of(context).iconTheme.color,
-                ),
+        opacity: showRightIcon ? 1 : 0,
+        duration: ANIMATION_DURATION,
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Align(
+            alignment: Alignment.centerRight,
+            child: AnimatedScale(
+              scale: showRightIcon ? 1 : 0,
+              duration: ANIMATION_DURATION,
+              child: Icon(
+                CupertinoIcons.reply,
+                color: Theme.of(context).iconTheme.color,
               ),
             ),
-          )),
+          ),
+        ),
+      ),
       SlideTransition(
         position: _moveAnimation,
         child: widget.child,

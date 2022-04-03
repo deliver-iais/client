@@ -20,8 +20,12 @@ class UidIdName {
 
   UidIdName({required this.uid, this.id, this.name, this.lastUpdate});
 
-  UidIdName copyWith(
-          {required String uid, String? id, String? name, int? lastUpdate}) =>
+  UidIdName copyWith({
+    required String uid,
+    String? id,
+    String? name,
+    int? lastUpdate,
+  }) =>
       UidIdName(
         uid: uid,
         id: id ?? this.id,

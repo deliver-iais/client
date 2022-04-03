@@ -13,40 +13,41 @@ class OpenFileStatus extends StatelessWidget {
   final Color backgroundColor;
   final Color foregroundColor;
 
-  const OpenFileStatus(
-      {Key? key,
-      required this.file,
-      required this.filePath,
-      required this.backgroundColor,
-      required this.foregroundColor})
-      : super(key: key);
+  const OpenFileStatus({
+    Key? key,
+    required this.file,
+    required this.filePath,
+    required this.backgroundColor,
+    required this.foregroundColor,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        width: 50,
-        height: 50,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: backgroundColor,
+      width: 50,
+      height: 50,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: backgroundColor,
+      ),
+      child: IconButton(
+        padding: EdgeInsets.zero,
+        icon: Icon(
+          CupertinoIcons.folder_open,
+          color: foregroundColor,
+          size: 27,
         ),
-        child: IconButton(
-          padding: EdgeInsets.zero,
-          icon: Icon(
-            CupertinoIcons.folder_open,
-            color: foregroundColor,
-            size: 27,
-          ),
-          onPressed: () async {
-            if (isWeb) {
-              final res = await http.get(Uri.parse(filePath));
-              final blob = Blob([res.bodyBytes], file.type);
-              final fileUrl = html.Url.createObjectUrl(blob);
-              window.open(fileUrl, "_");
-            } else {
-              OpenFile.open(filePath);
-            }
-          },
-        ));
+        onPressed: () async {
+          if (isWeb) {
+            final res = await http.get(Uri.parse(filePath));
+            final blob = Blob([res.bodyBytes], file.type);
+            final fileUrl = html.Url.createObjectUrl(blob);
+            window.open(fileUrl, "_");
+          } else {
+            OpenFile.open(filePath);
+          }
+        },
+      ),
+    );
   }
 }

@@ -18,13 +18,13 @@ class AudioCallScreen extends StatefulWidget {
   final void Function() hangUp;
   final bool isIncomingCall;
 
-  const AudioCallScreen(
-      {Key? key,
-      required this.roomUid,
-      required this.callStatus,
-      required this.hangUp,
-      this.isIncomingCall = false})
-      : super(key: key);
+  const AudioCallScreen({
+    Key? key,
+    required this.roomUid,
+    required this.callStatus,
+    required this.hangUp,
+    this.isIncomingCall = false,
+  }) : super(key: key);
 
   @override
   _AudioCallScreenState createState() => _AudioCallScreenState();
@@ -38,16 +38,19 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Stack(children: [
-      FutureBuilder<Avatar?>(
-          future: _avatarRepo.getLastAvatar(widget.roomUid),
-          builder: (context, snapshot) {
-            if (snapshot.hasData &&
-                snapshot.data != null &&
-                snapshot.data!.fileId != null) {
-              return FutureBuilder<String?>(
+      body: Stack(
+        children: [
+          FutureBuilder<Avatar?>(
+            future: _avatarRepo.getLastAvatar(widget.roomUid),
+            builder: (context, snapshot) {
+              if (snapshot.hasData &&
+                  snapshot.data != null &&
+                  snapshot.data!.fileId != null) {
+                return FutureBuilder<String?>(
                   future: _fileRepo.getFile(
-                      snapshot.data!.fileId!, snapshot.data!.fileName!),
+                    snapshot.data!.fileId!,
+                    snapshot.data!.fileName!,
+                  ),
                   builder: (context, snapshot) {
                     if (snapshot.hasData && snapshot.data != null) {
                       return FadeAudioCallBackground(
@@ -58,44 +61,51 @@ class _AudioCallScreenState extends State<AudioCallScreen> {
                         image: AssetImage("assets/images/no-profile-pic.png"),
                       );
                     }
-                  });
-            } else {
-              return const FadeAudioCallBackground(
-                image: AssetImage("assets/images/no-profile-pic.png"),
-              );
-            }
-          }),
-      Column(
-        children: [
-          CenterAvatarInCall(
-            roomUid: widget.roomUid,
+                  },
+                );
+              } else {
+                return const FadeAudioCallBackground(
+                  image: AssetImage("assets/images/no-profile-pic.png"),
+                );
+              }
+            },
           ),
-          if (widget.callStatus == "Connected")
-            StreamBuilder<CallTimer>(
-                stream: callRepo.callTimer,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData && snapshot.data != null) {
-                    return Text(
-                      snapshot.data!.hours.toString() +
-                          ":" +
-                          snapshot.data!.minutes.toString() +
-                          ":" +
-                          snapshot.data!.seconds.toString(),
-                      style: const TextStyle(color: Colors.white54),
-                    );
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                })
-          else
-            Text(widget.callStatus,
-                style: const TextStyle(color: Colors.white70))
+          Column(
+            children: [
+              CenterAvatarInCall(
+                roomUid: widget.roomUid,
+              ),
+              if (widget.callStatus == "Connected")
+                StreamBuilder<CallTimer>(
+                  stream: callRepo.callTimer,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData && snapshot.data != null) {
+                      return Text(
+                        snapshot.data!.hours.toString() +
+                            ":" +
+                            snapshot.data!.minutes.toString() +
+                            ":" +
+                            snapshot.data!.seconds.toString(),
+                        style: const TextStyle(color: Colors.white54),
+                      );
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  },
+                )
+              else
+                Text(
+                  widget.callStatus,
+                  style: const TextStyle(color: Colors.white70),
+                )
+            ],
+          ),
+          CallBottomRow(
+            hangUp: widget.hangUp,
+            isIncomingCall: widget.isIncomingCall,
+          )
         ],
       ),
-      CallBottomRow(
-        hangUp: widget.hangUp,
-        isIncomingCall: widget.isIncomingCall,
-      )
-    ]));
+    );
   }
 }

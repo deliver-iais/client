@@ -19,16 +19,16 @@ class FileMessageUi extends StatefulWidget {
   final bool isSeen;
   final CustomColorScheme colorScheme;
 
-  const FileMessageUi(
-      {Key? key,
-      required this.message,
-      required this.maxWidth,
-      required this.minWidth,
-      required this.isSender,
-      required this.onUsernameClick,
-      required this.colorScheme,
-      required this.isSeen})
-      : super(key: key);
+  const FileMessageUi({
+    Key? key,
+    required this.message,
+    required this.maxWidth,
+    required this.minWidth,
+    required this.isSender,
+    required this.onUsernameClick,
+    required this.colorScheme,
+    required this.isSeen,
+  }) : super(key: key);
 
   @override
   _FileMessageUiState createState() => _FileMessageUiState();
@@ -55,15 +55,17 @@ class _FileMessageUiState extends State<FileMessageUi> {
           SizedBox(
             width: width,
             child: Padding(
-                padding: const EdgeInsets.only(top: 4),
-                child: TextUI(
-                    message: widget.message,
-                    maxWidth: widget.maxWidth,
-                    isSender: widget.isSender,
-                    isSeen: widget.isSeen,
-                    colorScheme: widget.colorScheme,
-                    onUsernameClick: widget.onUsernameClick,
-                    onBotCommandClick: (str) => {})),
+              padding: const EdgeInsets.only(top: 4),
+              child: TextUI(
+                message: widget.message,
+                maxWidth: widget.maxWidth,
+                isSender: widget.isSender,
+                isSeen: widget.isSeen,
+                colorScheme: widget.colorScheme,
+                onUsernameClick: widget.onUsernameClick,
+                onBotCommandClick: (str) => {},
+              ),
+            ),
           )
       ],
     );

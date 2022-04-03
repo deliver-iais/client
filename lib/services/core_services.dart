@@ -127,7 +127,8 @@ class CoreServices {
             break;
           case ServerPacket_Type.roomPresenceTypeChanged:
             _dataStreamServices.handleRoomPresenceTypeChange(
-                serverPacket.roomPresenceTypeChanged);
+              serverPacket.roomPresenceTypeChanged,
+            );
             break;
           case ServerPacket_Type.callOffer:
             _dataStreamServices.handleCallOffer(serverPacket.callOffer);
@@ -159,8 +160,10 @@ class CoreServices {
         ..message = message
         ..id = DateTime.now().microsecondsSinceEpoch.toString();
       _sendPacket(clientPacket);
-      Timer(const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
-          () => _checkPendingStatus(message.packetId));
+      Timer(
+        const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
+        () => _checkPendingStatus(message.packetId),
+      );
     } catch (e) {
       _logger.e(e);
     }
@@ -169,9 +172,11 @@ class CoreServices {
   Future<void> _checkPendingStatus(String packetId) async {
     final pm = await _messageDao.getPendingMessage(packetId);
     if (pm != null) {
-      await _messageDao.savePendingMessage(pm.copyWith(
-        failed: true,
-      ));
+      await _messageDao.savePendingMessage(
+        pm.copyWith(
+          failed: true,
+        ),
+      );
       if (_connectionStatus.value == ConnectionStatus.Connected) {
         connectionStatus.add(ConnectionStatus.Connected);
       }
@@ -218,7 +223,10 @@ class CoreServices {
     }
   }
 
-  Future<void> _sendPacket(ClientPacket packet, {bool forceToSend = false}) async {
+  Future<void> _sendPacket(
+    ClientPacket packet, {
+    bool forceToSend = false,
+  }) async {
     try {
       if (isWeb) {
         await _grpcCoreService.sendClientPacket(packet);

@@ -7,8 +7,12 @@ import 'package:flutter/material.dart';
 Color darken(Color c, [int percent = 10]) {
   assert(1 <= percent && percent <= 100);
   final f = 1 - percent / 100;
-  return Color.fromARGB(c.alpha, (c.red * f).round(), (c.green * f).round(),
-      (c.blue * f).round());
+  return Color.fromARGB(
+    c.alpha,
+    (c.red * f).round(),
+    (c.green * f).round(),
+    (c.blue * f).round(),
+  );
 }
 
 /// Lighten a color by [percent] amount (100 = white)
@@ -17,16 +21,19 @@ Color lighten(Color c, [int percent = 10]) {
   assert(1 <= percent && percent <= 100);
   final p = percent / 100;
   return Color.fromARGB(
-      c.alpha,
-      c.red + ((255 - c.red) * p).round(),
-      c.green + ((255 - c.green) * p).round(),
-      c.blue + ((255 - c.blue) * p).round());
+    c.alpha,
+    c.red + ((255 - c.red) * p).round(),
+    c.green + ((255 - c.green) * p).round(),
+    c.blue + ((255 - c.blue) * p).round(),
+  );
 }
 
-Color changeColor(Color color,
-        {double saturation = 0.5,
-        double lightness = 0.5,
-        double alpha = 1.0}) =>
+Color changeColor(
+  Color color, {
+  double saturation = 0.5,
+  double lightness = 0.5,
+  double alpha = 1.0,
+}) =>
     HSLColor.fromColor(color)
         .withSaturation(saturation)
         .withLightness(lightness)
@@ -83,10 +90,11 @@ class RandomColor {
     return _getColor(h, s, b);
   }
 
-  MaterialColor randomMaterialColor(
-      {ColorHue colorHue = ColorHue.random,
-      ColorSaturation colorSaturation = ColorSaturation.random,
-      bool debug = false}) {
+  MaterialColor randomMaterialColor({
+    ColorHue colorHue = ColorHue.random,
+    ColorSaturation colorSaturation = ColorSaturation.random,
+    bool debug = false,
+  }) {
     int saturation;
     int hue;
     int brightness;
@@ -134,11 +142,14 @@ class RandomColor {
     final colors = <Color>[];
 
     for (var i = 0; i < count; i++) {
-      colors.add(randomColor(
+      colors.add(
+        randomColor(
           colorHue: colorHue!,
           colorSaturation: colorSaturation!,
           colorBrightness: colorBrightness!,
-          debug: debug));
+          debug: debug,
+        ),
+      );
     }
 
     return colors;
@@ -163,7 +174,9 @@ class ColorBrightness {
   static const ColorBrightness dark =
       ColorBrightness._(Range(minBrightness, minBrightness + 30), 3);
   static const ColorBrightness light = ColorBrightness._(
-      Range(((maxBrightness + minBrightness) ~/ 2), maxBrightness), 1);
+    Range(((maxBrightness + minBrightness) ~/ 2), maxBrightness),
+    1,
+  );
 
   static const ColorBrightness primary =
       ColorBrightness._(Range(minBrightness + 20, maxBrightness - 20), 2);
@@ -181,9 +194,12 @@ class ColorBrightness {
   static const ColorBrightness veryDark =
       ColorBrightness._(Range(minBrightness ~/ 2, minBrightness + 30), 4);
   static const ColorBrightness veryLight = ColorBrightness._(
-      Range(((maxBrightness + minBrightness) ~/ 2),
-          maxBrightness + (minBrightness ~/ 2)),
-      0);
+    Range(
+      ((maxBrightness + minBrightness) ~/ 2),
+      maxBrightness + (minBrightness ~/ 2),
+    ),
+    0,
+  );
   final Range _brightness;
   final int type;
 
@@ -215,9 +231,10 @@ class ColorBrightness {
     return 'custom';
   }
 
-  static ColorBrightness multiple(
-      {required List<ColorBrightness> colorBrightnessList,
-      required Random random}) {
+  static ColorBrightness multiple({
+    required List<ColorBrightness> colorBrightnessList,
+    required Random random,
+  }) {
     colorBrightnessList.shuffle(random);
     return colorBrightnessList.first;
   }
@@ -300,8 +317,10 @@ class ColorHue {
     return 'custom';
   }
 
-  static ColorHue multiple(
-      {required List<ColorHue> colorHues, required Random random}) {
+  static ColorHue multiple({
+    required List<ColorHue> colorHues,
+    required Random random,
+  }) {
     colorHues.shuffle(random);
     return colorHues.first;
   }
@@ -366,9 +385,10 @@ class ColorSaturation {
     return 'custom';
   }
 
-  static ColorSaturation multiple(
-      {required List<ColorSaturation> colorSaturations,
-      required Random random}) {
+  static ColorSaturation multiple({
+    required List<ColorSaturation> colorSaturations,
+    required Random random,
+  }) {
     colorSaturations.shuffle(random);
     return colorSaturations.first;
   }
