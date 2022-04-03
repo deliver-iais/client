@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
 
-// TODO add other options of Lottie in constructor
+// TODO(hasan): add other options of Lottie in constructor, https://gitlab.iais.co/deliver/wiki/-/issues/413
 class TGS extends StatefulWidget {
   final AnimationController? controller;
 

@@ -14,7 +14,8 @@ class LoadFileStatus extends StatefulWidget {
   final Color background;
   final bool isPendingMessage;
   final Color foreground;
-  final String? messagePacketId; // TODO Needs to be refactored
+  final String?
+      messagePacketId; // TODO(hasan): Revise this field usage, https://gitlab.iais.co/deliver/wiki/-/issues/434
   final void Function() onPressed;
 
   const LoadFileStatus({

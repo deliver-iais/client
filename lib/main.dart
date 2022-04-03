@@ -310,7 +310,7 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<CallRepo>(CallRepo());
 }
 
-Future setupFlutterNotification() async {
+Future initializeFirebase() async {
   await Firebase.initializeApp();
 }
 
@@ -330,9 +330,8 @@ void main() async {
     }
   }
 
-  // TODO add IOS and MacOS too
   if (isAndroid) {
-    await setupFlutterNotification();
+    await initializeFirebase();
   }
 
   Logger().i("OS based setups done.");

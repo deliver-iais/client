@@ -97,7 +97,7 @@ class _CallBottomRowState extends State<CallBottomRow> {
                       child: const Icon(Icons.mic_off),
                       onPressed: () => _muteMic(),
                     ),
-                    //TODO after 3 issue fix on flutter-webRtc
+                    // TODO(AmirHossein): enable it after fixing 3 issues in flutter-webRtc project itself, https://gitlab.iais.co/deliver/wiki/-/issues/425
                     // FloatingActionButton(
                     //   heroTag: 55,
                     //   backgroundColor: _screenShareIcon,

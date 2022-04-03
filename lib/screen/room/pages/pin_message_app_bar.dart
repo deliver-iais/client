@@ -13,13 +13,7 @@ class PinMessageAppBar extends StatelessWidget {
   final BehaviorSubject<int> lastPinedMessage;
   final List<Message> pinMessages;
   final void Function() onTap;
-
-  // TODO: why not using this
-  final void Function()? onNext;
-
-  // TODO: why not using this
-  final void Function()? onPrev;
-  final void Function() onCancel;
+  final void Function() onClose;
 
   final i18n = GetIt.I.get<I18N>();
 
@@ -28,9 +22,7 @@ class PinMessageAppBar extends StatelessWidget {
     required this.lastPinedMessage,
     required this.pinMessages,
     required this.onTap,
-    required this.onCancel,
-    this.onNext,
-    this.onPrev,
+    required this.onClose,
   }) : super(key: key);
 
   @override
@@ -141,7 +133,7 @@ class PinMessageAppBar extends StatelessWidget {
                         IconButton(
                           iconSize: 20,
                           onPressed: () {
-                            onCancel();
+                            onClose();
                           },
                           icon: Icon(
                             CupertinoIcons.xmark,

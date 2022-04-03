@@ -6,7 +6,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-//TODO empty text click on arrow
 class NewMessageInput extends StatelessWidget {
   final String currentRoomId;
   final int replyMessageId;

@@ -422,7 +422,6 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   void subscribeOnPositionToSendSeen() {
-    // TODO Channel is different from groups and private chats !!!
     _positionSubject
         .where(
           (_) => ModalRoute.of(context)?.isCurrent ?? false,
@@ -679,21 +678,22 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget messageInput() => StreamBuilder(
-      stream: MergeStream([_repliedMessage.stream, _editableMessage.stream]),
-      builder: (c, data) {
-        return NewMessageInput(
-          currentRoomId: widget.roomId,
-          replyMessageId: _repliedMessage.value?.id ?? 0,
-          editableMessage: _editableMessage.value,
-          resetRoomPageDetails: _resetRoomPageDetails,
-          waitingForForward: _waitingForForwardedMessage.value,
-          sendForwardMessage: _sendForwardMessage,
-          scrollToLastSentMessage: scrollToLast,
-          handleScrollToMessage: _handleScrollToMsg,
-          focusNode: _inputMessageFocusNode,
-          textController: _inputMessageTextController,
-        );
-      },);
+        stream: MergeStream([_repliedMessage.stream, _editableMessage.stream]),
+        builder: (c, data) {
+          return NewMessageInput(
+            currentRoomId: widget.roomId,
+            replyMessageId: _repliedMessage.value?.id ?? 0,
+            editableMessage: _editableMessage.value,
+            resetRoomPageDetails: _resetRoomPageDetails,
+            waitingForForward: _waitingForForwardedMessage.value,
+            sendForwardMessage: _sendForwardMessage,
+            scrollToLastSentMessage: scrollToLast,
+            handleScrollToMessage: _handleScrollToMsg,
+            focusNode: _inputMessageFocusNode,
+            textController: _inputMessageTextController,
+          );
+        },
+      );
 
   void _handleScrollToMsg(int direction) {
     if (_currentScrollIndex == 0) {
@@ -705,9 +705,10 @@ class _RoomPageState extends State<RoomPage> {
     }
     if (0 < _currentScrollIndex && _currentScrollIndex <= _itemCount) {
       _itemScrollController.scrollTo(
-          index: _currentScrollIndex,
-          alignment: 0.5,
-          duration: const Duration(milliseconds: 100),);
+        index: _currentScrollIndex,
+        alignment: 0.5,
+        duration: const Duration(milliseconds: 100),
+      );
       _replyMessageId.add(_currentScrollIndex);
     } else if (_currentScrollIndex <= 0) {
       _currentScrollIndex = 1;
@@ -724,14 +725,6 @@ class _RoomPageState extends State<RoomPage> {
       preferredSize: const Size.fromHeight(54.0),
       child: AppBar(
         actions: [
-          //TODO after increase bandwidth we add videoCall
-          // if (room.uid.asUid().isUser() && !isLinux)
-          //   IconButton(
-          //       onPressed: () {
-          //         _routingService.openCallScreen(room.uid.asUid(),
-          //             isVideoCall: true, context: context);
-          //       },
-          //       icon: const Icon(Icons.videocam)),
           if (room.uid.asUid().isUser() &&
               !isLinux &&
               accessToCallUidList.values
@@ -1268,7 +1261,7 @@ class _RoomPageState extends State<RoomPage> {
           );
         }
       },
-      onCancel: () {
+      onClose: () {
         _lastPinedMessage.add(0);
         _mucRepo.updateMuc(
           Muc(uid: widget.roomId)

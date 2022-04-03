@@ -54,7 +54,7 @@ class BotRepo {
   Future<BotInfo?> getBotInfo(Uid botUid) async {
     if (!botUid.isBot()) return null;
     final botInfo = await _botDao.get(botUid.asString());
-    // TODO add lastUpdate field in model and check it later in here!
+    // TODO(hasan): add lastUpdate field in model and check it later in here!, https://gitlab.iais.co/deliver/wiki/-/issues/415
     if (botInfo != null) {
       return botInfo;
     }
