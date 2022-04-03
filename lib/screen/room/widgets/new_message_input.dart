@@ -17,7 +17,7 @@ class NewMessageInput extends StatelessWidget {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final void Function() scrollToLastSentMessage;
   final FocusNode focusNode;
-  final void Function(int dir) handleScrollToMessage;
+  final void Function(int) handleScrollToMessage;
   final TextEditingController textController;
 
   NewMessageInput({
@@ -37,25 +37,26 @@ class NewMessageInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<Room?>(
-        stream: _roomRepo.watchRoom(currentRoomId),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return InputMessage(
-              currentRoom: snapshot.data!,
-              replyMessageId: replyMessageId,
-              handleScrollToMessage: handleScrollToMessage,
-              resetRoomPageDetails: resetRoomPageDetails,
-              waitingForForward: waitingForForward,
-              editableMessage: editableMessage,
-              sendForwardMessage: sendForwardMessage,
-              scrollToLastSentMessage: scrollToLastSentMessage,
-              focusNode: focusNode,
-              textController: textController,
-            );
-          } else {
-            _roomRepo.createRoomIfNotExist(currentRoomId);
-            return const SizedBox.shrink();
-          }
-        },);
+      stream: _roomRepo.watchRoom(currentRoomId),
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return InputMessage(
+            currentRoom: snapshot.data!,
+            replyMessageId: replyMessageId,
+            handleScrollToMessage: handleScrollToMessage,
+            resetRoomPageDetails: resetRoomPageDetails,
+            waitingForForward: waitingForForward,
+            editableMessage: editableMessage,
+            sendForwardMessage: sendForwardMessage,
+            scrollToLastSentMessage: scrollToLastSentMessage,
+            focusNode: focusNode,
+            textController: textController,
+          );
+        } else {
+          _roomRepo.createRoomIfNotExist(currentRoomId);
+          return const SizedBox.shrink();
+        }
+      },
+    );
   }
 }
