@@ -121,11 +121,11 @@ class CallRepo {
 
   int? get callDuration => _callDuration;
   Timer? timerDeclined;
-  Timer? timerResendCreate;
   Timer? timerResendOffer;
   Timer? timerResendAnswer;
   Timer? timerConnectionFailed;
   Timer? timerDisconnected;
+  Timer? timerEndCallDispose;
   BehaviorSubject<CallTimer> callTimer =
       BehaviorSubject.seeded(CallTimer(0, 0, 0));
   Timer? timer;
@@ -147,7 +147,6 @@ class CallRepo {
           switch (callEvent!.newStatus) {
             case CallEvent_CallStatus.IS_RINGING:
               if (_callId == callEvent.id) {
-                timerResendCreate!.cancel();
                 callingStatus.add(CallStatus.IS_RINGING);
                 _audioService.playBeepSound();
               }
@@ -181,13 +180,11 @@ class CallRepo {
               break;
             case CallEvent_CallStatus.BUSY:
               if (_callId == callEvent.id) {
-                timerResendCreate!.cancel();
                 receivedBusyCall();
               }
               break;
             case CallEvent_CallStatus.DECLINED:
               if (_callId == callEvent.id) {
-                timerResendCreate!.cancel();
                 receivedDeclinedCall();
               }
               break;
@@ -283,7 +280,7 @@ class CallRepo {
                 if (callingStatus.value == CallStatus.RECONNECTING) {
                   callingStatus.add(CallStatus.NO_ANSWER);
                   _logger.i("Disconnected and Call End!");
-                  endCall(isForced: true);
+                  endCall();
                 }
               });
             }
@@ -363,7 +360,7 @@ class CallRepo {
                 if (callingStatus.value == CallStatus.RECONNECTING) {
                   callingStatus.add(CallStatus.NO_ANSWER);
                   _logger.i("Disconnected and Call End!");
-                  endCall(isForced: true);
+                  endCall();
                 }
               });
             }
@@ -466,9 +463,8 @@ class CallRepo {
               _audioService.stopPlayBeepSound();
               break;
             case STATUS_CONNECTION_ENDED:
-              //received end from Calle
-              //receivedEndCall(0);
-              endCall();
+              //received end from Callee
+              receivedEndCall(0);
               break;
           }
         };
@@ -776,7 +772,7 @@ class CallRepo {
 
   void _incomingCall(Uid roomId) {
     _roomUid = roomId;
-    callingStatus.add(CallStatus.CREATED);
+    callingStatus.add(CallStatus.IS_RINGING);
     final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
     _messageRepo.sendCallMessage(
       CallEvent_CallStatus.IS_RINGING,
@@ -818,6 +814,7 @@ class CallRepo {
   }
 
   void _sendStartCallEvent() {
+    //TODO handle recivied Created on fetchMessage when User offline then go online
     final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
     _messageRepo.sendCallMessageWithMemberOrCallOwnerPvp(
       CallEvent_CallStatus.CREATED,
@@ -828,12 +825,6 @@ class CallRepo {
       _authRepo.currentUserUid,
       _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
     );
-    //Set Timer 10 sec for resend Call Created Event if user offline
-    timerResendCreate = Timer(const Duration(seconds: 10), () {
-      if (callingStatus.value == CallStatus.CREATED) {
-        _sendStartCallEvent();
-      }
-    });
   }
 
   void _callIdGenerator() {
@@ -858,7 +849,7 @@ class CallRepo {
         _logger.i("Call Can't Connected !!");
         callingStatus.add(CallStatus.NO_ANSWER);
         _audioService.stopPlayBeepSound();
-        endCall(isForced: true);
+        endCall();
       }
     });
   }
@@ -926,10 +917,7 @@ class CallRepo {
     await _dispose();
   }
 
-  Future<void> receivedEndCall(
-    int callDuration, {
-    bool isForced = false,
-  }) async {
+  Future<void> receivedEndCall(int callDuration) async {
     _logger.i("Call Duration Received: " + callDuration.toString());
     final sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
     ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
@@ -937,22 +925,10 @@ class CallRepo {
     if (isWindows) {
       _notificationServices.cancelRoomNotifications(roomUid!.node);
     }
-    if (isForced || (_isCaller && callDuration == 0)) {
+    if (_isCaller) {
       _callDuration = calculateCallEndTime();
       _logger.i("Call Duration on Caller(1): " + _callDuration.toString());
       final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
-      if (isForced) {
-        _logger.i("Call Force Ending ...");
-        _messageRepo.sendCallMessageWithMemberOrCallOwnerPvp(
-          CallEvent_CallStatus.ENDED,
-          _roomUid!,
-          _callId,
-          _callDuration!,
-          endOfCallDuration,
-          _callOwner!,
-          _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
-        );
-      } else {
         _messageRepo.sendCallMessage(
           CallEvent_CallStatus.ENDED,
           _roomUid!,
@@ -961,19 +937,26 @@ class CallRepo {
           endOfCallDuration,
           _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
         );
-      }
     } else {
+      if(timerEndCallDispose != null){
+        timerEndCallDispose!.cancel();
+      }
       _callDuration = callDuration;
     }
     await _dispose();
   }
 
-  Future<void> endCall({bool isForced = false}) async {
+  //TODO removed Force End Call and we need Handle it with third-party Service
+  Future<void> endCall() async {
     if (_callService.getUserCallState != CallStatus.NO_CALL) {
-      if (isForced || _isCaller) {
-        receivedEndCall(0, isForced: isForced);
+      if (_isCaller) {
+        receivedEndCall(0);
       } else {
         _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
+        timerEndCallDispose = Timer(const Duration(seconds: 8), () {
+          // if don't received EndCall from callee we force to end call
+          _dispose();
+        });
       }
     }
   }
