@@ -554,7 +554,7 @@ class AndroidNotifier implements Notifier {
     }
     ConnectycubeFlutterCallKit.showCallNotification(
       sessionId: DateTime.now().millisecondsSinceEpoch.toString(),
-      callerId: DateTime.now().millisecondsSinceEpoch,
+      callerId: 123456789,
       callType: 1,
       path: path,
       callerName: roomName,
