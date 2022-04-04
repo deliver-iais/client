@@ -776,7 +776,7 @@ class CallRepo {
   }
 
   void _incomingCall(Uid roomId) {
-    _notificationServices.notifyIncomingCall(roomId.asString());
+    _notificationServices.notifyIncomingCall(roomId);
     _roomUid = roomId;
     callingStatus.add(CallStatus.CREATED);
     final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
@@ -794,7 +794,6 @@ class CallRepo {
     if (_callService.getUserCallState == UserCallState.NOCALL) {
       //can't call another ppl or received any call notification
       _callService
-        ..setCallNotification = true
         ..setUserCallState = UserCallState.INUSERCALL;
 
       _isCaller = true;
@@ -1155,8 +1154,7 @@ class CallRepo {
         await disposeRenderer();
       }
       _callService
-        ..setUserCallState = UserCallState.NOCALL
-        ..setCallNotification = false;
+        ..setUserCallState = UserCallState.NOCALL;
     });
   }
 
