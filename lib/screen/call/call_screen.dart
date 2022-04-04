@@ -11,6 +11,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
+import '../../services/audio_service.dart';
 import 'videoCallScreen/in_video_call_page.dart';
 
 class CallScreen extends StatefulWidget {
@@ -39,6 +40,7 @@ class _CallScreenState extends State<CallScreen> {
   late final RTCVideoRenderer _remoteRenderer;
   final callRepo = GetIt.I.get<CallRepo>();
   final _logger = GetIt.I.get<Logger>();
+  final _audioService = GetIt.I.get<AudioService>();
   final _routingService = GetIt.I.get<RoutingService>();
 
   @override
@@ -86,6 +88,7 @@ class _CallScreenState extends State<CallScreen> {
         _logger.i("callStatus: " + snapshot.data.toString());
         switch (snapshot.data) {
           case CallStatus.CONNECTED:
+            _audioService.stopBeepSound();
             return widget.isVideoCall
                 ? StreamBuilder<bool>(
                     stream: callRepo.switching,
@@ -117,6 +120,7 @@ class _CallScreenState extends State<CallScreen> {
                     hangUp: _hangUp,
                   );
           case CallStatus.DISCONNECTED:
+            _audioService.stopBeepSound();
             return widget.isVideoCall
                 ? InVideoCallPage(
                     localRenderer: _localRenderer,
@@ -130,7 +134,7 @@ class _CallScreenState extends State<CallScreen> {
                     hangUp: _hangUp,
                   );
           case CallStatus.CONNECTING:
-            //  _audioService.stopPlayBeepSound();
+            _audioService.stopBeepSound();
             return widget.isVideoCall
                 ? InVideoCallPage(
                     localRenderer: _localRenderer,
@@ -144,6 +148,7 @@ class _CallScreenState extends State<CallScreen> {
                     hangUp: _hangUp,
                   );
           case CallStatus.RECONNECTING:
+            _audioService.stopBeepSound();
             return widget.isVideoCall
                 ? InVideoCallPage(
                     localRenderer: _localRenderer,
@@ -157,6 +162,7 @@ class _CallScreenState extends State<CallScreen> {
                     hangUp: _hangUp,
                   );
           case CallStatus.FAILED:
+            _audioService.stopBeepSound();
             return widget.isVideoCall
                 ? InVideoCallPage(
                     localRenderer: _localRenderer,
@@ -219,7 +225,7 @@ class _CallScreenState extends State<CallScreen> {
                   );
           case CallStatus.ENDED:
             _logger.i("END!");
-
+            _audioService.stopBeepSound();
             Timer(const Duration(milliseconds: 1500), () async {
               if (_routingService.canPop()) {
                 _routingService.pop();
@@ -237,6 +243,8 @@ class _CallScreenState extends State<CallScreen> {
               color: Colors.green,
             );
           case CallStatus.BUSY:
+            _audioService.stopBeepSound();
+            _audioService.playBusySound();
             return widget.isVideoCall
                 ? StartVideoCallPage(
                     roomUid: widget.roomUid,
@@ -292,6 +300,12 @@ class _CallScreenState extends State<CallScreen> {
 
   Future<void> _hangUp() async {
     _logger.i("Call hang Up ...!");
+    _audioService.stopBeepSound();
+    // if (isDesktop) {
+    //   _routingService.pop();
+    // } else {
+    //   Navigator.of(context).pop();
+    // }
     callRepo.endCall();
   }
 }

@@ -74,7 +74,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 children: [
                   const Icon(CupertinoIcons.reply),
                   const SizedBox(width: 8),
-                  Text(_i18n.get("Reply")),
+                  Text(_i18n.get("reply")),
                 ],
               ),
             ),
