@@ -20,6 +20,7 @@ class CallScreen extends StatefulWidget {
   final bool isCallInitialized;
   final bool isIncomingCall;
   final bool isVideoCall;
+  final Widget lastWidget;
 
   const CallScreen({
     Key? key,
@@ -27,7 +28,7 @@ class CallScreen extends StatefulWidget {
     this.isCallAccepted = false,
     this.isCallInitialized = false,
     this.isIncomingCall = false,
-    this.isVideoCall = false,
+    this.isVideoCall = false, required this.lastWidget,
   }) : super(key: key);
 
   @override
@@ -239,9 +240,7 @@ class _CallScreenState extends State<CallScreen> {
               hangUp: _hangUp,
             );
           case CallStatus.NO_CALL:
-            return Container(
-              color: Colors.green,
-            );
+            return widget.lastWidget;
           case CallStatus.BUSY:
             _audioService.stopBeepSound();
             _audioService.playBusySound();
@@ -289,9 +288,7 @@ class _CallScreenState extends State<CallScreen> {
 
           default:
             {
-              return Container(
-                color: Colors.red,
-              );
+              return widget.lastWidget;
             }
         }
       },

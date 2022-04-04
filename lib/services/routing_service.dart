@@ -135,6 +135,10 @@ class RoutingService {
   }) {
     _push(
       CallScreen(
+        lastWidget:  RoomPage(
+          key: ValueKey("/room/${roomUid.asString()}"),
+          roomId: roomUid.asString(),
+        ),
         key: const ValueKey("/call-screen"),
         roomUid: roomUid,
         isCallAccepted: isCallAccepted,
