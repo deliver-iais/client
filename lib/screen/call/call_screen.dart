@@ -169,19 +169,6 @@ class _CallScreenState extends State<CallScreen> {
                     callStatus: "Connection failed",
                     hangUp: _hangUp,
                   );
-          case CallStatus.IN_CALL:
-            return widget.isVideoCall
-                ? InVideoCallPage(
-                    localRenderer: _localRenderer,
-                    remoteRenderer: _remoteRenderer,
-                    roomUid: widget.roomUid,
-                    hangUp: _hangUp,
-                  )
-                : AudioCallScreen(
-                    roomUid: widget.roomUid,
-                    callStatus: "Connecting",
-                    hangUp: _hangUp,
-                  );
           case CallStatus.IS_RINGING:
             return widget.isVideoCall
                 ? StartVideoCallPage(

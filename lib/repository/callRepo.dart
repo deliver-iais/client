@@ -44,7 +44,6 @@ enum CallStatus {
   ENDED,
   NO_CALL,
   ACCEPTED,
-  IN_CALL,
   CONNECTING,
   RECONNECTING,
   CONNECTED,
@@ -197,7 +196,7 @@ class CallRepo {
             case CallEvent_CallStatus.JOINED:
             case CallEvent_CallStatus.KICK:
             case CallEvent_CallStatus.LEFT:
-              // TODO(AmirHossein): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/416
+              _logger.w("this case only for group call and it's a bug if happened on PvP call");
               break;
           }
           break;
@@ -285,9 +284,6 @@ class CallRepo {
               });
             }
             break;
-          //   case RTCIceConnectionState.RTCIceConnectionStateCompleted:
-          //     //The ICE agent has finished gathering candidates, has checked all pairs against one another, and has found a connection for all components.
-          //     break;
           case RTCIceConnectionState.RTCIceConnectionStateConnected:
             callingStatus.add(CallStatus.CONNECTED);
             _audioService.stopPlayBeepSound();
@@ -306,10 +302,11 @@ class CallRepo {
             break;
           case RTCIceConnectionState.RTCIceConnectionStateNew:
           case RTCIceConnectionState.RTCIceConnectionStateChecking:
+          //The ICE agent has finished gathering candidates, has checked all pairs against one another, and has found a connection for all components.
           case RTCIceConnectionState.RTCIceConnectionStateCompleted:
           case RTCIceConnectionState.RTCIceConnectionStateCount:
           case RTCIceConnectionState.RTCIceConnectionStateClosed:
-            // TODO(AmirHossein): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/416
+            // this cases no matter and don't have impact on our Work
             break;
         }
       }
@@ -366,9 +363,11 @@ class CallRepo {
             }
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateClosed:
+            _logger.i("Call Peer Connection Closed Successfully");
+            break;
           case RTCPeerConnectionState.RTCPeerConnectionStateNew:
           case RTCPeerConnectionState.RTCPeerConnectionStateConnecting:
-            // TODO(AmirHossein): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/416
+            // this cases no matter and don't have any impact on our work
             break;
         }
       }
@@ -772,7 +771,7 @@ class CallRepo {
 
   void _incomingCall(Uid roomId) {
     _roomUid = roomId;
-    callingStatus.add(CallStatus.IS_RINGING);
+    callingStatus.add(CallStatus.CREATED);
     final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
     _messageRepo.sendCallMessage(
       CallEvent_CallStatus.IS_RINGING,
@@ -1065,13 +1064,16 @@ class CallRepo {
       ..to = _roomUid!);
     _logger.i(_candidate);
     _coreServices.sendCallAnswer(callAnswerByClient);
+
     if (_reconnectTry) {
-      callingStatus.add(CallStatus.IN_CALL);
+      callingStatus.add(CallStatus.RECONNECTING);
       _audioService.stopPlayBeepSound();
     }
+
     timerResendAnswer = Timer(const Duration(seconds: 8), () {
       _coreServices.sendCallAnswer(callAnswerByClient);
     });
+
     //Set Timer 30 sec for end call if Call doesn't Connected
     timerConnectionFailed = Timer(const Duration(seconds: 30), () {
       if (callingStatus.value != CallStatus.CONNECTED) {
