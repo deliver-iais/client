@@ -148,8 +148,11 @@ Future<MessageBrief> extractMessageBrief(
       break;
     case message_pb.Message_Type.callEvent:
       ignoreNotification = true;
-      typeDetails = i18n.get("call");
-      // TODO(hasan): add more details in here, https://gitlab.iais.co/deliver/wiki/-/issues/386
+      final callStatus = msg.callEvent.newStatus;
+      final time = msg.callEvent.callDuration.toInt();
+      final fromCurrentUser = authRepo.isCurrentUserUid(msg.from);
+      typeDetails =
+          getCallText(i18n, callStatus, time, fromCurrentUser: fromCurrentUser) ?? "";
       break;
 
     case message_pb.Message_Type.table:
@@ -174,6 +177,33 @@ Future<MessageBrief> extractMessageBrief(
     text: text,
     ignoreNotification: ignoreNotification,
   );
+}
+
+String? getCallText(
+  I18N i18n,
+  CallEvent_CallStatus callStatus,
+  int time, {
+  bool fromCurrentUser = false,
+}) {
+  if (callStatus == CallEvent_CallStatus.ENDED &&
+      fromCurrentUser &&
+      time == 0) {
+    return i18n.get("canceled_call");
+  } else if (callStatus == CallEvent_CallStatus.DECLINED && time == 0) {
+    return i18n.get("declined_call");
+  } else if (callStatus == CallEvent_CallStatus.BUSY && time == 0) {
+    return i18n.get("busy");
+  } else if (callStatus == CallEvent_CallStatus.ENDED && time == 0) {
+    return i18n.get("missed_call");
+  } else if (callStatus == CallEvent_CallStatus.ENDED &&
+      fromCurrentUser &&
+      time != 0) {
+    return i18n.get("outgoing_call");
+  } else if (callStatus == CallEvent_CallStatus.ENDED && time != 0) {
+    return i18n.get("incoming_call");
+  } else {
+    return null;
+  }
 }
 
 Future<String> getPersistentEventText(

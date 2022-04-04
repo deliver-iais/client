@@ -22,12 +22,10 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/notification_services.dart';
-import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
@@ -51,7 +49,6 @@ class DataStreamServices {
   final _messageDao = GetIt.I.get<MessageDao>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _seenDao = GetIt.I.get<SeenDao>();
-  final _routingServices = GetIt.I.get<RoutingService>();
   final _callService = GetIt.I.get<CallService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
@@ -198,14 +195,11 @@ class DataStreamServices {
 
     if (!msg.json.isEmptyMessage() &&
         await shouldNotifyForThisMessage(message)) {
-      // TODO(hasan): this code should go to the notification service itself i think, https://gitlab.iais.co/deliver/wiki/-/issues/430
-      if (_routingServices.isInRoom(roomUid.asString()) &&
-          !isDesktop &&
-          message.callEvent.newStatus != CallEvent_CallStatus.CREATED) {
-        _notificationServices.playSoundIn();
-      } else {
-        _notificationServices.showTextNotification(message, roomName: roomName);
-      }
+      _notificationServices.notifyIncomingMessage(
+        message,
+        roomUid.asString(),
+        roomName: roomName,
+      );
     }
     if (message.from.category == Categories.USER) {
       _updateLastActivityTime(
@@ -311,9 +305,9 @@ class DataStreamServices {
         Room(uid: msg.roomUid, lastMessage: msg, lastMessageId: msg.id),
       );
 
-      if (_routingServices.isInRoom(messageDeliveryAck.to.asString())) {
-        _notificationServices.playSoundOut();
-      }
+      _notificationServices
+          .notifyOutgoingMessage(messageDeliveryAck.to.asString());
+
       if (msg.type == MessageType.FILE) {
         _updateRoomMediaMetadata(msg.roomUid, msg);
       }
