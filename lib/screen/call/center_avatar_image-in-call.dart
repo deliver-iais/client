@@ -2,6 +2,7 @@
 
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/call/circular_animator.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -34,14 +35,34 @@ class _CenterAvatarInCallState extends State<CenterAvatarInCall> {
               ),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  return CircleAvatarWidget(widget.roomUid, 60);
+                  return WidgetCircularAnimator(
+                    innerAnimation: Curves.bounceIn,
+                    outerAnimation: Curves.bounceIn,
+                    innerColor: Colors.white24,
+                    reverse: false,
+                    size: 160,
+                    outerColor: Colors.white70,
+                    innerAnimationSeconds: 10,
+                    outerAnimationSeconds: 10,
+                    child: CircleAvatarWidget(widget.roomUid, 60),
+                  );
                 } else {
-                  return ClipRRect(
-                    borderRadius: BorderRadius.circular(60),
-                    child: const Image(
-                      width: 120,
-                      height: 120,
-                      image: AssetImage('assets/images/no-profile-pic.png'),
+                  return WidgetCircularAnimator(
+                    innerAnimation: Curves.bounceIn,
+                    outerAnimation: Curves.bounceIn,
+                    innerColor: Colors.white24,
+                    reverse: false,
+                    size: 160,
+                    outerColor: Colors.white70,
+                    innerAnimationSeconds: 10,
+                    outerAnimationSeconds: 10,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(60),
+                      child: const Image(
+                        width: 120,
+                        height: 120,
+                        image: AssetImage('assets/images/no-profile-pic.png'),
+                      ),
                     ),
                   );
                 }

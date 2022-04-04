@@ -5,6 +5,7 @@ import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/screen/call/audioCallScreen/dot_widget.dart';
 import 'package:deliver/screen/call/audioCallScreen/fade_audio_call_background.dart';
 import 'package:deliver/screen/call/call_bottom_icons.dart';
 import 'package:deliver/screen/call/center_avatar_image-in-call.dart';
@@ -32,18 +33,64 @@ class AudioCallScreen extends StatefulWidget {
 }
 
 class _AudioCallScreenState extends State<AudioCallScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final callRepo = GetIt.I.get<CallRepo>();
-  late AnimationController _animationController;
+  late AnimationController _repeatEndCallAnimationController;
+  late List<AnimationController> _dotAnimationControllers;
+  final List<Animation<double>> _animations = [];
 
   @override
   void initState() {
-    _animationController = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 600),);
-    _animationController.repeat(reverse: true);
+    _initRepeatEndCallAnimation();
+    _initDotAnimation();
+
     super.initState();
+  }
+
+  void _initDotAnimation() {
+    _repeatEndCallAnimationController.repeat(reverse: true);
+    _dotAnimationControllers = List.generate(
+      3,
+      (index) {
+        return AnimationController(
+          vsync: this,
+          duration: const Duration(milliseconds: 300),
+        );
+      },
+    ).toList();
+
+    for (var i = 0; i < 3; i++) {
+      _animations.add(
+        Tween<double>(begin: 0, end: -5).animate(_dotAnimationControllers[i]),
+      );
+    }
+
+    for (var i = 0; i < 3; i++) {
+      _dotAnimationControllers[i].addStatusListener((status) {
+        if (status == AnimationStatus.completed) {
+          _dotAnimationControllers[i].reverse();
+
+          if (i != 2) {
+            _dotAnimationControllers[i + 1].forward();
+          }
+        }
+
+        if (i == 2 && status == AnimationStatus.dismissed) {
+          _dotAnimationControllers[0].forward();
+        }
+      });
+    }
+
+    _dotAnimationControllers.first.forward();
+  }
+
+  void _initRepeatEndCallAnimation() {
+    _repeatEndCallAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 600),
+    );
   }
 
   @override
@@ -72,53 +119,99 @@ class _AudioCallScreenState extends State<AudioCallScreen>
                         image: AssetImage("assets/images/no-profile-pic.png"),
                       );
                     }
-                  },);
-            } else {
-              return const FadeAudioCallBackground(
-                image: AssetImage("assets/images/no-profile-pic.png"),
-              );
-            }
-          },),
-      Column(
-        children: [
-          CenterAvatarInCall(
-            roomUid: widget.roomUid,
+                  },
+                );
+              } else {
+                return const FadeAudioCallBackground(
+                  image: AssetImage("assets/images/no-profile-pic.png"),
+                );
+              }
+            },
           ),
-          if (widget.callStatus == "Connected")
-            StreamBuilder<CallTimer>(
-                stream: callRepo.callTimer,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData && snapshot.data != null) {
-                    return callTimerWidget(snapshot.data!);
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },)
-          else if (widget.callStatus == "Ended")
-            FadeTransition(
-                opacity: _animationController,
-                child: callRepo.callTimer.value.seconds == 0 &&
-                        callRepo.callTimer.value.minutes == 0 &&
-                        callRepo.callTimer.value.hours == 0
-                    ? Text(widget.callStatus,
-                        style: const TextStyle(color: Colors.white70),)
-                    : callTimerWidget(callRepo.callTimer.value),)
-          else
-            Text(widget.callStatus,
-                style: const TextStyle(color: Colors.white70),)
-        ],
-      ),
-      if (widget.callStatus == "Ended") Padding(
+          Column(
+            children: [
+              CenterAvatarInCall(
+                roomUid: widget.roomUid,
+              ),
+              if (widget.callStatus == "Connected")
+                StreamBuilder<CallTimer>(
+                  stream: callRepo.callTimer,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData && snapshot.data != null) {
+                      return callTimerWidget(snapshot.data!);
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  },
+                )
+              else if (widget.callStatus == "Ended")
+                FadeTransition(
+                  opacity: _repeatEndCallAnimationController,
+                  child: callRepo.callTimer.value.seconds == 0 &&
+                          callRepo.callTimer.value.minutes == 0 &&
+                          callRepo.callTimer.value.hours == 0
+                      ? Text(
+                          widget.callStatus,
+                          style: const TextStyle(color: Colors.white70),
+                        )
+                      : callTimerWidget(callRepo.callTimer.value),
+                )
+              else
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      widget.callStatus,
+                      style: const TextStyle(color: Colors.white70),
+                    ),
+                    if (widget.callStatus == "Connecting" ||
+                        widget.callStatus == "Reconnecting" ||
+                        widget.callStatus == "Ringing" ||
+                        widget.callStatus == "Calling")
+                      _dotAnimation()
+                  ],
+                )
+            ],
+          ),
+          if (widget.callStatus == "Ended")
+            Padding(
               padding: const EdgeInsets.only(bottom: 25, right: 25, left: 25),
               child: Align(
                 alignment: Alignment.bottomCenter,
-                child: Lottie.asset('assets/animations/end_of_call.json',
-                    width: 150,),
-              ),) else CallBottomRow(
+                child: Lottie.asset(
+                  'assets/animations/end_of_call.json',
+                  width: 150,
+                ),
+              ),
+            )
+          else
+            CallBottomRow(
               hangUp: widget.hangUp,
               isIncomingCall: widget.isIncomingCall,
             ),
-    ],),);
+        ],
+      ),
+    );
+  }
+
+  Widget _dotAnimation() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: List.generate(3, (index) {
+        return AnimatedBuilder(
+          animation: _dotAnimationControllers[index],
+          builder: (context, child) {
+            return Container(
+              padding: const EdgeInsets.all(2.5),
+              child: Transform.translate(
+                offset: Offset(0, _animations[index].value),
+                child: const DotWidget(),
+              ),
+            );
+          },
+        );
+      }).toList(),
+    );
   }
 
   Text callTimerWidget(CallTimer callTimer) {
@@ -139,7 +232,10 @@ class _AudioCallScreenState extends State<AudioCallScreen>
 
   @override
   void dispose() {
-    _animationController.dispose();
+    _repeatEndCallAnimationController.dispose();
+    for (final controller in _dotAnimationControllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 }
