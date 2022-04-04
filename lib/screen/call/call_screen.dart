@@ -228,9 +228,9 @@ class _CallScreenState extends State<CallScreen> {
             _logger.i("END!");
             _audioService.stopBeepSound();
             Timer(const Duration(milliseconds: 1500), () async {
-              if (_routingService.canPop()) {
-                _routingService.pop();
-              }
+              // if (_routingService.canPop()) {
+              //   _routingService.pop();
+              // }
             });
             callRepo.disposeRenderer();
             return AudioCallScreen(
