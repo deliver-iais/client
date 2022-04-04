@@ -22,19 +22,21 @@ class Avatar {
   @HiveField(4)
   int lastUpdate;
 
-  Avatar(
-      {required this.uid,
-      required this.createdOn,
-      this.fileId,
-      this.fileName,
-      required this.lastUpdate});
+  Avatar({
+    required this.uid,
+    required this.createdOn,
+    this.fileId,
+    this.fileName,
+    required this.lastUpdate,
+  });
 
-  Avatar copyWith(
-          {String? uid,
-          int? createdOn,
-          String? fileId,
-          String? fileName,
-          int? lastUpdate}) =>
+  Avatar copyWith({
+    String? uid,
+    int? createdOn,
+    String? fileId,
+    String? fileName,
+    int? lastUpdate,
+  }) =>
       Avatar(
         uid: uid ?? this.uid,
         createdOn: createdOn ?? this.createdOn,

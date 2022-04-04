@@ -10,7 +10,6 @@ import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-// TODO, change accessibility and improve UI
 class NewContact extends StatefulWidget {
   const NewContact({Key? key}) : super(key: key);
 
@@ -68,7 +67,7 @@ class _NewContactState extends State<NewContact> {
                             (value.isNotEmpty && value[0] == '0')
                         ? _i18n.get("invalid_mobile_number")
                         : null,
-                    style: theme.textTheme.bodyText1!,
+                    style: theme.textTheme.bodyText1,
                     onChanged: (ph) {
                       _phoneNumber = ph;
                     },
@@ -84,12 +83,15 @@ class _NewContactState extends State<NewContact> {
                       child: Text(_i18n.get("save")),
                       onPressed: () async {
                         if (_phoneNumber != null) {
-                          var res = await _contactRepo.sendNewContact(Contact()
-                            ..phoneNumber = _phoneNumber!
-                            ..firstName = _firstName
-                            ..lastName = _lastName);
-                          showResult(res);
-                          if (res) _routingServices.pop();
+                          final contactAdded =
+                              await _contactRepo.sendNewContact(
+                            Contact()
+                              ..phoneNumber = _phoneNumber!
+                              ..firstName = _firstName
+                              ..lastName = _lastName,
+                          );
+                          showResult(contactAdded: contactAdded);
+                          if (contactAdded) _routingServices.pop();
                         }
                       },
                     ),
@@ -103,13 +105,17 @@ class _NewContactState extends State<NewContact> {
     );
   }
 
-  Future<void> showResult(bool added) async {
-    if (added) {
+  Future<void> showResult({bool contactAdded = false}) async {
+    if (contactAdded) {
       ToastDisplay.showToast(
-          toastText: _i18n.get("contactAdd"), toastContext: context);
+        toastText: _i18n.get("contactAdd"),
+        toastContext: context,
+      );
     } else {
       ToastDisplay.showToast(
-          toastText: _i18n.get("contact_not_exist"), toastContext: context);
+        toastText: _i18n.get("contact_not_exist"),
+        toastContext: context,
+      );
     }
   }
 }

@@ -12,7 +12,12 @@ class Language {
   final String countryCode;
 
   const Language(
-      this.id, this.name, this.flag, this.languageCode, this.countryCode);
+    this.id,
+    this.name,
+    this.flag,
+    this.languageCode,
+    this.countryCode,
+  );
 
   static List<Language> languageList() {
     return <Language>[farsi, english];
@@ -23,7 +28,7 @@ class Language {
 
 extension LanguageOnLocale on Locale {
   Language language() {
-    var index = Language.languageList()
+    final index = Language.languageList()
         .indexWhere((element) => element.languageCode == languageCode);
     if (index > -1) {
       return Language.languageList()[index];

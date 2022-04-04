@@ -2,12 +2,11 @@
 
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
-
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/avatar.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
@@ -17,14 +16,14 @@ class BotRepo {
   final _botDao = GetIt.I.get<BotDao>();
 
   Future<BotInfo> fetchBotInfo(Uid botUid) async {
-    GetInfoRes result =
-        await _botServiceClient.getInfo(GetInfoReq()..bot = botUid);
-    var botInfo = BotInfo(
-        description: result.description,
-        uid: botUid.asString(),
-        name: result.name,
-        commands: result.commands,
-        isOwner: result.isOwner);
+    final result = await _botServiceClient.getInfo(GetInfoReq()..bot = botUid);
+    final botInfo = BotInfo(
+      description: result.description,
+      uid: botUid.asString(),
+      name: result.name,
+      commands: result.commands,
+      isOwner: result.isOwner,
+    );
 
     _botDao.save(botInfo);
 
@@ -54,8 +53,8 @@ class BotRepo {
 
   Future<BotInfo?> getBotInfo(Uid botUid) async {
     if (!botUid.isBot()) return null;
-    var botInfo = await _botDao.get(botUid.asString());
-    // TODO add lastUpdate field in model and check it later in here!
+    final botInfo = await _botDao.get(botUid.asString());
+    // TODO(hasan): add lastUpdate field in model and check it later in here!, https://gitlab.iais.co/deliver/wiki/-/issues/415
     if (botInfo != null) {
       return botInfo;
     }
@@ -69,11 +68,11 @@ class BotRepo {
 
     //Todo complete search in bot
     // var result = await _botServiceClient.searchByName(SearchByNameReq()..name = name);
-    List<Uid> searchInBots = [];
+    final searchInBots = <Uid>[];
     if (name.contains("father")) {
-      Uid uid = Uid();
-      uid.category = Categories.BOT;
-      uid.node = "father_bot";
+      final uid = Uid()
+        ..category = Categories.BOT
+        ..node = "father_bot";
       searchInBots.add(uid);
     }
 

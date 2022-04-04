@@ -1,20 +1,18 @@
 import 'dart:io';
-
-import 'package:dio/adapter.dart';
-import 'package:flutter_image_compress/flutter_image_compress.dart';
-import 'package:http/http.dart' as http;
 import 'dart:io' as io;
+
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
-import 'package:deliver/shared/methods/platform.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/services.dart';
-import 'package:http_parser/http_parser.dart';
-
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/methods/enum.dart';
+import 'package:deliver/shared/methods/platform.dart';
+import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:get_it/get_it.dart';
+import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 import 'package:image_compression_flutter/image_compression_flutter.dart';
 import 'package:logger/logger.dart';
 import 'package:mime_type/mime_type.dart';
@@ -37,11 +35,9 @@ class FileService {
   Map<String, BehaviorSubject<CancelToken?>> cancelTokens = {};
 
   Future<String> get _localPath async {
-    if (await _checkPermission.checkStoragePermission() ||
-        isDesktop() ||
-        isIOS()) {
+    if (await _checkPermission.checkStoragePermission() || isDesktop || isIOS) {
       final directory = await getApplicationDocumentsDirectory();
-      if (!await io.Directory('${directory.path}/Deliver').exists()) {
+      if (!io.Directory('${directory.path}/Deliver').existsSync()) {
         await io.Directory('${directory.path}/Deliver').create(recursive: true);
       }
       return directory.path + "/Deliver";
@@ -55,7 +51,10 @@ class FileService {
   }
 
   Future<String> localThumbnailFilePath(
-      String fileUuid, String fileType, ThumbnailSize size) async {
+    String fileUuid,
+    String fileType,
+    ThumbnailSize size,
+  ) async {
     final path = await _localPath;
     return "$path/${enumToString(size)}-$fileUuid.$fileType";
   }
@@ -66,30 +65,38 @@ class FileService {
   }
 
   Future<io.File> localThumbnailFile(
-      String fileUuid, String fileType, ThumbnailSize size) async {
+    String fileUuid,
+    String fileType,
+    ThumbnailSize size,
+  ) async {
     return io.File(await localThumbnailFilePath(fileUuid, fileType, size));
   }
 
   FileService() {
-    if (!kIsWeb) {
+    if (!isWeb) {
       (_dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
-          (HttpClient client) {
-        client.badCertificateCallback =
-            (X509Certificate cert, String host, int port) => true;
+          (client) {
+        client.badCertificateCallback = (cert, host, port) => true;
         return client;
       };
     }
-    _dio.interceptors.add(InterceptorsWrapper(onRequest:
-        (RequestOptions options, RequestInterceptorHandler handler) async {
-      options.baseUrl = FileServiceBaseUrl;
-      options.headers["Authorization"] = await _authRepo.getAccessToken();
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          options.baseUrl = FileServiceBaseUrl;
+          options.headers["Authorization"] = await _authRepo.getAccessToken();
 
-      return handler.next(options); //continue
-    }));
+          return handler.next(options); //continue
+        },
+      ),
+    );
   }
 
-  Future<String?> getFile(String uuid, String filename,
-      {ThumbnailSize? size}) async {
+  Future<String?> getFile(
+    String uuid,
+    String filename, {
+    ThumbnailSize? size,
+  }) async {
     if (size != null) {
       return _getFileThumbnail(uuid, filename, size);
     }
@@ -98,21 +105,26 @@ class FileService {
 
   Future<String?> _getFile(String uuid, String filename) async {
     if (filesProgressBarStatus[uuid] == null) {
-      BehaviorSubject<double> d = BehaviorSubject.seeded(0);
+      final d = BehaviorSubject<double>.seeded(0);
       filesProgressBarStatus[uuid] = d;
     }
-    CancelToken cancelToken = CancelToken();
+    final cancelToken = CancelToken();
     cancelTokens[uuid] = BehaviorSubject.seeded(cancelToken);
     try {
-      var res = await _dio.get("/$uuid/$filename", onReceiveProgress: (i, j) {
-        filesProgressBarStatus[uuid]!.add((i / j));
-      },
-          options: Options(responseType: ResponseType.bytes),
-          cancelToken: cancelToken);
-      if (kIsWeb) {
-        var blob = html.Blob(
-            <Object>[res.data], "application/${filename.split(".").last}");
-        var url = html.Url.createObjectUrlFromBlob(blob);
+      final res = await _dio.get(
+        "/$uuid/$filename",
+        onReceiveProgress: (i, j) {
+          filesProgressBarStatus[uuid]!.add((i / j));
+        },
+        options: Options(responseType: ResponseType.bytes),
+        cancelToken: cancelToken,
+      );
+      if (isWeb) {
+        final blob = html.Blob(
+          <Object>[res.data],
+          "application/${filename.split(".").last}",
+        );
+        final url = html.Url.createObjectUrlFromBlob(blob);
         return url;
       } else {
         final file = await localFile(uuid, filename.split('.').last);
@@ -125,7 +137,7 @@ class FileService {
     }
   }
 
-  saveDownloadedFile(String url, String filename) async {
+  Future<void> saveDownloadedFile(String url, String filename) async {
     html.AnchorElement(href: url)
       ..download = url
       ..setAttribute("download", filename)
@@ -133,13 +145,13 @@ class FileService {
   }
 
   Future<io.File?> getDeliverIcon() async {
-    var file = await localFile("deliver-icon", "png");
+    final file = await localFile("deliver-icon", "png");
     if (file.existsSync()) {
       return file;
     } else {
-      var res = await rootBundle
+      final res = await rootBundle
           .load('assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
-      io.File f = io.File("${await _localPath}/deliver-icon.png");
+      final f = io.File("${await _localPath}/deliver-icon.png");
       try {
         await f.writeAsBytes(res.buffer.asInt8List());
         return f;
@@ -149,13 +161,17 @@ class FileService {
     }
   }
 
-  saveFileInDownloadFolder(String path, String name, String directory) async {
-    if (kIsWeb) {
+  Future<void> saveFileInDownloadFolder(
+    String path,
+    String name,
+    String directory,
+  ) async {
+    if (isWeb) {
       saveDownloadedFile(path, name);
     } else {
-      var downloadDir =
+      final downloadDir =
           await ExtStorage.getExternalStoragePublicDirectory(directory);
-      io.File f = io.File('$downloadDir/$name');
+      final f = io.File('$downloadDir/$name');
       try {
         await f.writeAsBytes(io.File(path).readAsBytesSync());
       } catch (_) {}
@@ -163,18 +179,23 @@ class FileService {
   }
 
   Future<String> _getFileThumbnail(
-      String uuid, String filename, ThumbnailSize size) async {
-    CancelToken cancelToken = CancelToken();
+    String uuid,
+    String filename,
+    ThumbnailSize size,
+  ) async {
+    final cancelToken = CancelToken();
     cancelTokens[uuid] = BehaviorSubject.seeded(cancelToken);
-    var res = await _dio.get(
+    final res = await _dio.get(
       "/${enumToString(size)}/$uuid/.${filename.split('.').last}",
       options: Options(responseType: ResponseType.bytes),
       cancelToken: cancelToken,
     );
-    if (kIsWeb) {
-      var blob = html.Blob(
-          <Object>[res.data], "application/${filename.split(".").last}");
-      var url = html.Url.createObjectUrlFromBlob(blob);
+    if (isWeb) {
+      final blob = html.Blob(
+        <Object>[res.data],
+        "application/${filename.split(".").last}",
+      );
+      final url = html.Url.createObjectUrlFromBlob(blob);
       return url;
     } else {
       final file =
@@ -192,18 +213,19 @@ class FileService {
 
   Future<String> compressImageInDesktop(File file) async {
     try {
-      var bytes = await file.readAsBytes();
-      ImageFile input = ImageFile(
-          filePath: file.path, rawBytes: bytes); // set the input image file
-      Configuration config = const Configuration(
+      final bytes = await file.readAsBytes();
+      final input = ImageFile(
+        filePath: file.path,
+        rawBytes: bytes,
+      ); // set the input image file
+      const config = Configuration(
         outputType: ImageOutputType.jpg,
-        useJpgPngNativeCompressor: false,
         quality: 30,
       );
 
       final param = ImageFileConfiguration(input: input, config: config);
       final output = await compressor.compressJpg(param);
-      var name = DateTime.now().millisecondsSinceEpoch.toString();
+      final name = DateTime.now().millisecondsSinceEpoch.toString();
       final outPutFile = await localFile(name, "jpg");
       outPutFile.writeAsBytesSync(output.rawBytes);
       return outPutFile.path;
@@ -216,12 +238,11 @@ class FileService {
     File file,
   ) async {
     try {
-      var name = DateTime.now().millisecondsSinceEpoch.toString();
-      var targetFilePath = await localFilePath(name, "jpeg");
-      var result = await FlutterImageCompress.compressAndGetFile(
+      final name = DateTime.now().millisecondsSinceEpoch.toString();
+      final targetFilePath = await localFilePath(name, "jpeg");
+      final result = await FlutterImageCompress.compressAndGetFile(
         file.path,
         targetFilePath,
-        format: CompressFormat.jpeg,
         quality: 60,
       );
       if (result != null) {
@@ -233,16 +254,20 @@ class FileService {
     }
   }
 
-  // TODO, refactoring needed
-  uploadFile(String filePath, String filename,
-      {String? uploadKey, Function? sendActivity}) async {
+  // TODO(hasan): refactoring needed,
+  Future<Response<dynamic>?> uploadFile(
+    String filePath,
+    String filename, {
+    String? uploadKey,
+    void Function(int)? sendActivity,
+  }) async {
     try {
-      if (!kIsWeb) {
+      if (!isWeb) {
         try {
           final mediaType =
               MediaType.parse(mime(filePath) ?? filePath).toString();
           if (mediaType.contains("image") && !mediaType.endsWith("/gif")) {
-            if (isAndroid() || isIOS()) {
+            if (isAndroid || isIOS) {
               filePath = await compressImageInMobile(File(filePath));
             } else {
               filePath = await compressImageInDesktop(File(filePath));
@@ -252,17 +277,19 @@ class FileService {
           _logger.e(_);
         }
       }
-      CancelToken cancelToken = CancelToken();
+      final cancelToken = CancelToken();
       cancelTokens[uploadKey!] = BehaviorSubject.seeded(cancelToken);
       FormData? formData;
-      if (kIsWeb) {
-        http.Response r = await http.get(
+      if (isWeb) {
+        final r = await http.get(
           Uri.parse(filePath),
         );
         formData = FormData.fromMap({
-          "file": MultipartFile.fromBytes(r.bodyBytes,
-              contentType:
-                  MediaType.parse(mime(filename) ?? "application/octet-stream"))
+          "file": MultipartFile.fromBytes(
+            r.bodyBytes,
+            contentType:
+                MediaType.parse(mime(filename) ?? "application/octet-stream"),
+          )
         });
       } else {
         formData = FormData.fromMap({
@@ -274,18 +301,21 @@ class FileService {
         });
       }
 
-      _dio.interceptors.add(InterceptorsWrapper(onRequest:
-          (RequestOptions options, RequestInterceptorHandler handler) async {
-        options.onSendProgress = (int i, int j) {
-          if (sendActivity != null) sendActivity(i);
-          if (filesProgressBarStatus[uploadKey] == null) {
-            BehaviorSubject<double> d = BehaviorSubject();
-            filesProgressBarStatus[uploadKey] = d;
-          }
-          filesProgressBarStatus[uploadKey]!.add((i / j));
-        };
-        handler.next(options);
-      }));
+      _dio.interceptors.add(
+        InterceptorsWrapper(
+          onRequest: (options, handler) async {
+            options.onSendProgress = (i, j) {
+              sendActivity?.call(i);
+              if (filesProgressBarStatus[uploadKey] == null) {
+                final d = BehaviorSubject<double>();
+                filesProgressBarStatus[uploadKey] = d;
+              }
+              filesProgressBarStatus[uploadKey]!.add((i / j));
+            };
+            handler.next(options);
+          },
+        ),
+      );
       return _dio.post("/upload", data: formData, cancelToken: cancelToken);
     } catch (e) {
       _logger.e(e);

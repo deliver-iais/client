@@ -11,14 +11,14 @@ abstract class BotDao {
 class BotDaoImpl implements BotDao {
   @override
   Future<BotInfo?> get(String uid) async {
-    var box = await _open();
+    final box = await _open();
 
     return box.get(uid);
   }
 
   @override
   Future<void> save(BotInfo botInfo) async {
-    var box = await _open();
+    final box = await _open();
 
     box.put(botInfo.uid, botInfo);
   }

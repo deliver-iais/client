@@ -18,42 +18,45 @@ class AudioPlayProgress extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<bool>(
-        stream: _audioPlayerService.audioCenterIsOn,
-        builder: (context, snapshot) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              StreamBuilder<AudioPlayerState>(
-                  stream: _audioPlayerService.audioCurrentState(),
-                  builder: (c, state) {
-                    if (state.data != null &&
-                        (state.data == AudioPlayerState.PLAYING ||
-                            state.data == AudioPlayerState.PAUSED)) {
-                      return StreamBuilder(
-                          stream: _audioPlayerService.audioUuid,
-                          builder: (c, uuid) {
-                            if (uuid.hasData &&
-                                uuid.data.toString().isNotEmpty &&
-                                uuid.data.toString().contains(audioUuid)) {
-                              return AudioProgressIndicator(
-                                duration: audio.duration,
-                                audioUuid: audioUuid,
-                              );
-                            } else {
-                              return buildPadding(context);
-                            }
-                          });
-                    } else {
-                      return buildPadding(context);
-                    }
-                  }),
-              TimeProgressIndicator(
-                audioUuid: audioUuid,
-                duration: audio.duration,
-              ),
-            ],
-          );
-        });
+      stream: _audioPlayerService.audioCenterIsOn,
+      builder: (context, snapshot) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            StreamBuilder<AudioPlayerState>(
+              stream: _audioPlayerService.audioCurrentState(),
+              builder: (c, state) {
+                if (state.data != null &&
+                    (state.data == AudioPlayerState.PLAYING ||
+                        state.data == AudioPlayerState.PAUSED)) {
+                  return StreamBuilder(
+                    stream: _audioPlayerService.audioUuid,
+                    builder: (c, uuid) {
+                      if (uuid.hasData &&
+                          uuid.data.toString().isNotEmpty &&
+                          uuid.data.toString().contains(audioUuid)) {
+                        return AudioProgressIndicator(
+                          duration: audio.duration,
+                          audioUuid: audioUuid,
+                        );
+                      } else {
+                        return buildPadding(context);
+                      }
+                    },
+                  );
+                } else {
+                  return buildPadding(context);
+                }
+              },
+            ),
+            TimeProgressIndicator(
+              audioUuid: audioUuid,
+              duration: audio.duration,
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Widget buildPadding(BuildContext context) {

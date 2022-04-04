@@ -12,25 +12,25 @@ import 'package:flutter/material.dart';
 
 class SentMessageBox extends StatelessWidget {
   final Message message;
-  final Function scrollToMessage;
+  final void Function(int) scrollToMessage;
   final bool isSeen;
   final bool isFirstMessageInGroupedMessages;
-  final Function omUsernameClick;
+  final void Function(String) onUsernameClick;
   final String? pattern;
-  final Function onArrowIconClick;
+  final void Function() onArrowIconClick;
   final void Function(TapDownDetails) storePosition;
 
-  const SentMessageBox(
-      {Key? key,
-      required this.message,
-      required this.isSeen,
-      required this.isFirstMessageInGroupedMessages,
-      required this.scrollToMessage,
-      this.pattern,
-      required this.omUsernameClick,
-      required this.storePosition,
-      required this.onArrowIconClick})
-      : super(key: key);
+  const SentMessageBox({
+    Key? key,
+    required this.message,
+    required this.isSeen,
+    required this.isFirstMessageInGroupedMessages,
+    required this.scrollToMessage,
+    this.pattern,
+    required this.onUsernameClick,
+    required this.storePosition,
+    required this.onArrowIconClick,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -50,10 +50,11 @@ class SentMessageBox extends StatelessWidget {
       minWidth: minWidthOfMessage(context),
       isSender: true,
       scrollToMessage: scrollToMessage,
+      onBotCommandClick: (str) => {},
       isSeen: isSeen,
       pattern: pattern,
       isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
-      onUsernameClick: omUsernameClick,
+      onUsernameClick: onUsernameClick,
       onArrowIconClick: onArrowIconClick,
       colorScheme: colorScheme,
       storePosition: storePosition,
@@ -66,10 +67,11 @@ class SentMessageBox extends StatelessWidget {
             colorScheme: colorScheme,
             child: boxContent,
             isSender: true,
-            isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages);
+            isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
+          );
   }
 
-  doNotNeedsWrapper() {
+  bool doNotNeedsWrapper() {
     return message.type == MessageType.STICKER ||
         AnimatedEmoji.isAnimatedEmoji(message);
   }

@@ -3,11 +3,11 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 
 class UltimateAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const UltimateAppBar(
-      {Key? key,
-      required this.child,
-      this.preferredSize = const Size.fromHeight(50.0)})
-      : super(key: key);
+  const UltimateAppBar({
+    Key? key,
+    required this.child,
+    this.preferredSize = const Size.fromHeight(50.0),
+  }) : super(key: key);
 
   /// The widget below this widget in the tree.
   ///

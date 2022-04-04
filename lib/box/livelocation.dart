@@ -20,17 +20,19 @@ class LiveLocation {
   @HiveField(3)
   List<Location> locations;
 
-  LiveLocation(
-      {required this.uuid,
-      this.lastUpdate,
-      required this.locations,
-      this.duration});
+  LiveLocation({
+    required this.uuid,
+    this.lastUpdate,
+    required this.locations,
+    this.duration,
+  });
 
-  LiveLocation copyWith(
-          {required String uuid,
-          int? lastUpdate,
-          required List<Location> location,
-          required int duration}) =>
+  LiveLocation copyWith({
+    required String uuid,
+    int? lastUpdate,
+    required List<Location> location,
+    required int duration,
+  }) =>
       LiveLocation(
         uuid: uuid,
         duration: duration,

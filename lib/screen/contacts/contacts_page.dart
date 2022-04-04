@@ -43,7 +43,7 @@ class _ContactsPageState extends State<ContactsPage> {
     super.dispose();
   }
 
-  _syncContacts() {
+  void _syncContacts() {
     SyncContact().showSyncContactDialog(context);
   }
 
@@ -60,93 +60,98 @@ class _ContactsPageState extends State<ContactsPage> {
       body: FluidContainerWidget(
         showStandardContainer: true,
         child: StreamBuilder<List<Contact>>(
-            stream: _contactRepo.watchAll(),
-            builder: (BuildContext context,
-                AsyncSnapshot<List<Contact>> snapshot) {
-              List<Contact> contacts = snapshot.data ?? [];
-              if (!snapshot.hasData) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              } else {
-                return Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: SearchBox(
-                          // borderRadius: mainBorder,
-                          onChange: _queryTermDebouncedSubject.add,
-                          onCancel: () => _queryTermDebouncedSubject.add("")),
+          stream: _contactRepo.watchAll(),
+          builder: (context, snapshot) {
+            final contacts = snapshot.data ?? [];
+            if (!snapshot.hasData) {
+              return const Center(
+                child: CircularProgressIndicator(),
+              );
+            } else {
+              return Column(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0),
+                    child: SearchBox(
+                      // borderRadius: mainBorder,
+                      onChange: _queryTermDebouncedSubject.add,
+                      onCancel: () => _queryTermDebouncedSubject.add(""),
                     ),
-                    Expanded(
-                        child: Scrollbar(
+                  ),
+                  Expanded(
+                    child: Scrollbar(
                       child: StreamBuilder<String>(
-                          stream: _queryTermDebouncedSubject.stream,
-                          builder: (context, sna) {
-                            return ListView.separated(
-                              separatorBuilder:
-                                  (BuildContext context, int index) {
-                                if (_authRepo
-                                        .isCurrentUser(contacts[index].uid) ||
-                                    searchHasResult(contacts[index])) {
-                                  return const SizedBox.shrink();
-                                } else {
-                                  return const Divider();
-                                }
-                              },
-                              itemCount: snapshot.data!.length,
-                              itemBuilder: (BuildContext ctx, int index) {
-                                var c = contacts[index];
-                                if (searchHasResult(c)) {
-                                  return const SizedBox.shrink();
-                                }
-                                if (_authRepo.isCurrentUser(c.uid)) {
-                                  return const SizedBox.shrink();
-                                } else {
-                                  return GestureDetector(
-                                    onTap: () {
-                                      _rootingServices.openRoom(c.uid);
-                                    },
-                                    child: ContactWidget(
-                                        contact: c,
-                                        circleIcon: CupertinoIcons.qrcode,
-                                        onCircleIcon: () => showQrCode(
-                                            context,
-                                            buildShareUserUrl(
-                                                c.countryCode,
-                                                c.nationalNumber,
-                                                c.firstName!,
-                                                c.lastName!))),
-                                  );
-                                }
-                              },
-                            );
-                          }),
-                    )),
-                    const Divider(),
-                    SizedBox(
-                      height: 40,
-                      width: double.infinity,
-                      child: TextButton.icon(
-                        icon: const Icon(
-                          CupertinoIcons.add,
-                        ),
-                        onPressed: () {
-                          _routingService.openNewContact();
+                        stream: _queryTermDebouncedSubject.stream,
+                        builder: (context, sna) {
+                          return ListView.separated(
+                            separatorBuilder: (context, index) {
+                              if (_authRepo
+                                      .isCurrentUser(contacts[index].uid) ||
+                                  searchHasResult(contacts[index])) {
+                                return const SizedBox.shrink();
+                              } else {
+                                return const Divider();
+                              }
+                            },
+                            itemCount: snapshot.data!.length,
+                            itemBuilder: (ctx, index) {
+                              final c = contacts[index];
+                              if (searchHasResult(c)) {
+                                return const SizedBox.shrink();
+                              }
+                              if (_authRepo.isCurrentUser(c.uid)) {
+                                return const SizedBox.shrink();
+                              } else {
+                                return GestureDetector(
+                                  onTap: () {
+                                    _rootingServices.openRoom(c.uid);
+                                  },
+                                  child: ContactWidget(
+                                    contact: c,
+                                    circleIcon: CupertinoIcons.qrcode,
+                                    onCircleIcon: () => showQrCode(
+                                      context,
+                                      buildShareUserUrl(
+                                        c.countryCode,
+                                        c.nationalNumber,
+                                        c.firstName!,
+                                        c.lastName!,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }
+                            },
+                          );
                         },
-                        label: Text(_i18n.get("add_new_contact")),
                       ),
                     ),
-                  ],
-                );
-              }
-            }),
+                  ),
+                  const Divider(),
+                  SizedBox(
+                    height: 40,
+                    width: double.infinity,
+                    child: TextButton.icon(
+                      icon: const Icon(
+                        CupertinoIcons.add,
+                      ),
+                      onPressed: () {
+                        _routingService.openNewContact();
+                      },
+                      label: Text(_i18n.get("add_new_contact")),
+                    ),
+                  ),
+                ],
+              );
+            }
+          },
+        ),
       ),
     );
   }
 
   bool searchHasResult(Contact contact) {
-    var name = contact.firstName! + contact.lastName!;
+    final name = contact.firstName! + contact.lastName!;
     return !name
         .toLowerCase()
         .contains(_queryTermDebouncedSubject.value.toLowerCase());

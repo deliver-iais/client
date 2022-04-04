@@ -13,14 +13,14 @@ abstract class LastActivityDao {
 class LastActivityDaoImpl implements LastActivityDao {
   @override
   Future<LastActivity?> get(String uid) async {
-    var box = await _open();
+    final box = await _open();
 
     return box.get(uid);
   }
 
   @override
   Stream<LastActivity?> watch(String uid) async* {
-    var box = await _open();
+    final box = await _open();
 
     yield box.get(uid);
 
@@ -29,7 +29,7 @@ class LastActivityDaoImpl implements LastActivityDao {
 
   @override
   Future<void> save(LastActivity lastActivity) async {
-    var box = await _open();
+    final box = await _open();
 
     box.put(lastActivity.uid, lastActivity);
   }

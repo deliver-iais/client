@@ -9,9 +9,9 @@ class ChatTime extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String outT = '';
-    int currentDay = DateTime.now().day;
-    int currentMonth = DateTime.now().month;
+    var outT = '';
+    final currentDay = DateTime.now().day;
+    final currentMonth = DateTime.now().month;
     if (currentDay == currentMessageTime.day &&
         currentMonth == currentMessageTime.month) {
       outT = 'Today';
@@ -19,7 +19,7 @@ class ChatTime extends StatelessWidget {
         currentMonth == currentMessageTime.month) {
       outT = 'Yesterday';
     } else {
-      outT = dateTimeFormat(currentMessageTime, weekFormat: 'l');
+      outT = dateTimeFromNowFormat(currentMessageTime, weekFormat: 'l');
     }
     return Padding(
       padding: const EdgeInsets.only(top: 20.0),

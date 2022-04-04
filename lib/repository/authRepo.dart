@@ -1,42 +1,28 @@
 // ignore_for_file: file_names
 
-import 'dart:io';
-
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:flutter/foundation.dart';
-
+import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/platform.pb.dart'
-    as platform_pb;
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:device_info/device_info.dart';
-
 import 'package:get_it/get_it.dart';
-
 import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/logger.dart';
-
 import 'package:synchronized/synchronized.dart';
-import 'package:deliver/web_classes/platform_detect.dart'
-    if (dart.library.html) 'package:platform_detect/platform_detect.dart'
-    as platform_detect;
 
 class AuthRepo {
   static final _logger = GetIt.I.get<Logger>();
   static final _sharedDao = GetIt.I.get<SharedDao>();
   static final _authServiceClient = GetIt.I.get<AuthServiceClient>();
-  static final _routingServices = GetIt.I.get<RoutingService>();
   static final requestLock = Lock();
-  static final _deviceInfo = DeviceInfoPlugin();
 
   Uid currentUserUid = Uid.create()
     ..category = Categories.USER
@@ -47,9 +33,9 @@ class AuthRepo {
   late PhoneNumber _tmpPhoneNumber;
   var _localPassword = "";
 
-  get refreshToken => _refreshToken;
+  String? get refreshToken => _refreshToken;
 
-  get accessToken => _accessToken;
+  String? get accessToken => _accessToken;
 
   Future<bool> isTestUser() async {
     if (currentUserUid.node.isNotEmpty) {
@@ -64,27 +50,29 @@ class AuthRepo {
   Future<void> init() async {
     try {
       _localPassword = await _sharedDao.get(SHARED_DAO_LOCAL_PASSWORD) ?? "";
-      var accessToken = await _sharedDao.get(SHARED_DAO_ACCESS_TOKEN_KEY);
-      var refreshToken = await _sharedDao.get(SHARED_DAO_REFRESH_TOKEN_KEY);
+      final accessToken = await _sharedDao.get(SHARED_DAO_ACCESS_TOKEN_KEY);
+      final refreshToken = await _sharedDao.get(SHARED_DAO_REFRESH_TOKEN_KEY);
       _setTokensAndCurrentUserUid(accessToken, refreshToken);
     } catch (_) {}
   }
 
-  setCurrentUserUid() async {
+  Future<void> setCurrentUserUid() async {
     init();
-    String? res = await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID);
+    final res = await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID);
     if (res != null) currentUserUid = (res).asUid();
   }
 
   Future<bool> getVerificationCode(PhoneNumber p) async {
-    platform_pb.Platform platform = await getPlatformDetails();
+    final platform = await getPlatformPB();
 
     try {
       _tmpPhoneNumber = p;
-      await _authServiceClient.getVerificationCode(GetVerificationCodeReq()
-        ..phoneNumber = p
-        ..type = VerificationType.SMS
-        ..platform = platform);
+      await _authServiceClient.getVerificationCode(
+        GetVerificationCodeReq()
+          ..phoneNumber = p
+          ..type = VerificationType.SMS
+          ..platform = platform,
+      );
       return true;
     } catch (e) {
       _logger.e(e);
@@ -92,82 +80,20 @@ class AuthRepo {
     }
   }
 
-  Future<platform_pb.Platform> getPlatformDetails() async {
-    platform_pb.Platform platform = platform_pb.Platform()
-      ..clientVersion = VERSION;
-    return await getPlatForm(platform);
-  }
-
-  getPlatForm(platform_pb.Platform platform) async {
-    if (kIsWeb) {
-      platform
-        ..platformType = platform_pb.PlatformsType.WEB
-        ..osVersion = platform_detect.browser.version.major.toString();
-    } else if (Platform.isAndroid) {
-      AndroidDeviceInfo androidInfo = await _deviceInfo.androidInfo;
-      platform
-        ..platformType = platform_pb.PlatformsType.ANDROID
-        ..osVersion = androidInfo.version.release;
-    } else if (Platform.isIOS) {
-      IosDeviceInfo iosInfo = await _deviceInfo.iosInfo;
-
-      platform
-        ..platformType = platform_pb.PlatformsType.IOS
-        ..osVersion = iosInfo.systemVersion;
-    } else if (Platform.isLinux) {
-      platform
-        ..platformType = platform_pb.PlatformsType.LINUX
-        ..osVersion = Platform.operatingSystemVersion;
-    } else if (Platform.isMacOS) {
-      platform
-        ..platformType = platform_pb.PlatformsType.MAC_OS
-        ..osVersion = Platform.operatingSystemVersion;
-    } else if (Platform.isWindows) {
-      platform
-        ..platformType = platform_pb.PlatformsType.WINDOWS
-        ..osVersion = Platform.operatingSystemVersion;
-    } else {
-      platform
-        ..platformType = platform_pb.PlatformsType.ANDROID
-        ..osVersion = Platform.operatingSystemVersion;
-    }
-    return platform;
-  }
-
-  Future<String> getDeviceName() async {
-    String device;
-    if (kIsWeb) {
-      device = platform_detect.browser.name;
-    } else if (Platform.isAndroid) {
-      AndroidDeviceInfo androidInfo = await _deviceInfo.androidInfo;
-      device = androidInfo.model;
-    } else if (Platform.isIOS) {
-      IosDeviceInfo iosInfo = await _deviceInfo.iosInfo;
-      device = iosInfo.model;
-    } else if (Platform.isLinux) {
-      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
-    } else if (Platform.isMacOS) {
-      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
-    } else if (Platform.isWindows) {
-      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
-    } else {
-      device = "${Platform.operatingSystem}:${Platform.operatingSystemVersion}";
-    }
-    return device;
-  }
-
   Future<AccessTokenRes> sendVerificationCode(String code) async {
-    platform_pb.Platform platform = await getPlatformDetails();
+    final platform = await getPlatformPB();
 
-    String device = await getDeviceName();
+    final device = await getDeviceName();
 
-    var res = await _authServiceClient.verifyAndGetToken(VerifyCodeReq()
-      ..phoneNumber = _tmpPhoneNumber
-      ..code = code
-      ..device = device
-      ..platform = platform
-      //  TODO add password mechanism
-      ..password = "");
+    final res = await _authServiceClient.verifyAndGetToken(
+      VerifyCodeReq()
+        ..phoneNumber = _tmpPhoneNumber
+        ..code = code
+        ..device = device
+        ..platform = platform
+        // TODO(dansi): add password mechanism, https://gitlab.iais.co/deliver/wiki/-/issues/419
+        ..password = "",
+    );
 
     if (res.status == AccessTokenRes_Status.OK) {
       _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
@@ -177,17 +103,18 @@ class AuthRepo {
   }
 
   Future<AccessTokenRes> checkQrCodeToken(String token) async {
-    platform_pb.Platform platform = await getPlatformDetails();
+    final platform = await getPlatformPB();
 
-    String device = await getDeviceName();
+    final device = await getDeviceName();
 
-    var res = await _authServiceClient
-        .checkQrCodeIsVerifiedAndLogin(CheckQrCodeIsVerifiedAndLoginReq()
-          ..token = token
-          ..device = device
-          ..platform = platform
-          //  TODO add password mechanism
-          ..password = "");
+    final res = await _authServiceClient.checkQrCodeIsVerifiedAndLogin(
+      CheckQrCodeIsVerifiedAndLoginReq()
+        ..token = token
+        ..device = device
+        ..platform = platform
+        // TODO(dansi): add password mechanism, https://gitlab.iais.co/deliver/wiki/-/issues/419
+        ..password = "",
+    );
 
     if (res.status == AccessTokenRes_Status.OK) {
       _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
@@ -196,29 +123,30 @@ class AuthRepo {
     return res;
   }
 
-  Future _getAccessToken(String refreshToken) async {
-    return await requestLock.synchronized(() async {
-      try {
-        return await _authServiceClient.renewAccessToken(RenewAccessTokenReq()
-          ..refreshToken = refreshToken
-          ..platform = await getPlatformDetails());
-      } on GrpcError catch (e) {
-        _logger.e(e);
-        if (_refreshToken != null && e.code == StatusCode.unauthenticated) {
-          _routingServices.logout();
+  Future _getAccessToken(String refreshToken) async =>
+      requestLock.synchronized(() async {
+        try {
+          return await _authServiceClient.renewAccessToken(
+            RenewAccessTokenReq()
+              ..refreshToken = refreshToken
+              ..platform = await getPlatformPB(),
+          );
+        } on GrpcError catch (e) {
+          _logger.e(e);
+          if (_refreshToken != null && e.code == StatusCode.unauthenticated) {
+            GetIt.I.get<RoutingService>().logout();
+          }
+        } catch (e) {
+          _logger.e(e);
         }
-      } catch (e) {
-        _logger.e(e);
-      }
-    });
-  }
+      });
 
   Future<String> getAccessToken() async {
     if (_isExpired(_accessToken)) {
       if (_refreshToken == null) {
         return "";
       }
-      RenewAccessTokenRes renewAccessTokenRes =
+      final RenewAccessTokenRes renewAccessTokenRes =
           await _getAccessToken(_refreshToken!);
       _saveTokens(renewAccessTokenRes);
       return renewAccessTokenRes.accessToken;
@@ -260,13 +188,14 @@ class AuthRepo {
     }
     _accessToken = accessToken;
     _refreshToken = refreshToken;
-    _sharedDao.put(SHARED_DAO_REFRESH_TOKEN_KEY, refreshToken);
-    _sharedDao.put(SHARED_DAO_ACCESS_TOKEN_KEY, accessToken);
+    _sharedDao
+      ..put(SHARED_DAO_REFRESH_TOKEN_KEY, refreshToken)
+      ..put(SHARED_DAO_ACCESS_TOKEN_KEY, accessToken);
     _setCurrentUid(accessToken);
   }
 
-  _setCurrentUid(String accessToken) {
-    Map<String, dynamic> decodedToken = JwtDecoder.decode(accessToken);
+  void _setCurrentUid(String accessToken) {
+    final decodedToken = JwtDecoder.decode(accessToken);
     currentUserUid = Uid()
       ..category = Categories.USER
       ..node = decodedToken["sub"]
@@ -293,7 +222,7 @@ class AuthRepo {
     await _sharedDao.remove(SHARED_DAO_REFRESH_TOKEN_KEY);
   }
 
-  saveTestUserInfo() {
+  void saveTestUserInfo() {
     currentUserUid = TEST_USER_UID;
     _sharedDao.put(SHARED_DAO_CURRENT_USER_UID, TEST_USER_UID.asString());
   }
@@ -303,27 +232,38 @@ class DeliverClientInterceptor implements ClientInterceptor {
   final _authRepo = GetIt.I.get<AuthRepo>();
 
   Future<void> metadataProvider(
-      Map<String, String> metadata, String uri) async {
-    var token = await _authRepo.isTestUser()
+    Map<String, String> metadata,
+    String uri,
+  ) async {
+    final token = await _authRepo.isTestUser()
         ? TEST_USER_ACCESS_TOKEN
         : await _authRepo.getAccessToken();
     metadata['access_token'] = token;
   }
 
   @override
-  ResponseFuture<R> interceptUnary<Q, R>(ClientMethod<Q, R> method, Q request,
-      CallOptions options, ClientUnaryInvoker<Q, R> invoker) {
-    return invoker(method, request,
-        options.mergedWith(CallOptions(providers: [metadataProvider])));
-  }
+  ResponseFuture<R> interceptUnary<Q, R>(
+    ClientMethod<Q, R> method,
+    Q request,
+    CallOptions options,
+    ClientUnaryInvoker<Q, R> invoker,
+  ) =>
+      invoker(
+        method,
+        request,
+        options.mergedWith(CallOptions(providers: [metadataProvider])),
+      );
 
   @override
   ResponseStream<R> interceptStreaming<Q, R>(
-      ClientMethod<Q, R> method,
-      Stream<Q> requests,
-      CallOptions options,
-      ClientStreamingInvoker<Q, R> invoker) {
-    return invoker(method, requests,
-        options.mergedWith(CallOptions(providers: [metadataProvider])));
-  }
+    ClientMethod<Q, R> method,
+    Stream<Q> requests,
+    CallOptions options,
+    ClientStreamingInvoker<Q, R> invoker,
+  ) =>
+      invoker(
+        method,
+        requests,
+        options.mergedWith(CallOptions(providers: [metadataProvider])),
+      );
 }

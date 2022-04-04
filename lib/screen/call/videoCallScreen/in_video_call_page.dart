@@ -11,16 +11,16 @@ import '../call_bottom_icons.dart';
 class InVideoCallPage extends StatefulWidget {
   final RTCVideoRenderer localRenderer;
   final RTCVideoRenderer remoteRenderer;
-  final Function hangUp;
+  final void Function() hangUp;
   final Uid roomUid;
 
-  const InVideoCallPage(
-      {Key? key,
-      required this.localRenderer,
-      required this.remoteRenderer,
-      required this.roomUid,
-      required this.hangUp})
-      : super(key: key);
+  const InVideoCallPage({
+    Key? key,
+    required this.localRenderer,
+    required this.remoteRenderer,
+    required this.roomUid,
+    required this.hangUp,
+  }) : super(key: key);
 
   @override
   _InVideoCallPageState createState() => _InVideoCallPageState();
@@ -28,7 +28,8 @@ class InVideoCallPage extends StatefulWidget {
 
 class _InVideoCallPageState extends State<InVideoCallPage> {
   final callRepo = GetIt.I.get<CallRepo>();
-  final double width = 100.0, height = 150.0;
+  final width = 100.0;
+  final height = 150.0;
   Offset position = const Offset(10, 30);
 
   @override
@@ -38,93 +39,92 @@ class _InVideoCallPageState extends State<InVideoCallPage> {
 
   @override
   Widget build(BuildContext context) {
-    var x = MediaQuery.of(context).size.width;
-    var y = MediaQuery.of(context).size.height;
+    final x = MediaQuery.of(context).size.width;
+    final y = MediaQuery.of(context).size.height;
     return Stack(
       children: <Widget>[
         StreamBuilder<bool>(
-            stream: callRepo.mute_camera.stream,
-            builder: (c, s) {
-              if (s.hasData && s.data!) {
-                return Stack(
-                  children: [
-                    RTCVideoView(
-                      widget.remoteRenderer,
-                      objectFit:
-                          RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                      mirror: true,
-                    ),
-                    Positioned(
-                      left: position.dx,
-                      top: position.dy,
-                      child: Draggable(
-                        child: SizedBox(
-                          width: width,
-                          height: height,
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20.0),
-                            child: MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: GestureDetector(
-                                child: RTCVideoView(
-                                  widget.localRenderer,
-                                  objectFit: RTCVideoViewObjectFit
-                                      .RTCVideoViewObjectFitCover,
-                                  mirror: true,
-                                ),
-                                onTap: () {
-                                  callRepo.switching
-                                      .add(!callRepo.switching.value);
-                                },
+          stream: callRepo.mute_camera.stream,
+          builder: (c, s) {
+            if (s.hasData && s.data!) {
+              return Stack(
+                children: [
+                  RTCVideoView(
+                    widget.remoteRenderer,
+                    objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                    mirror: true,
+                  ),
+                  Positioned(
+                    left: position.dx,
+                    top: position.dy,
+                    child: Draggable(
+                      child: SizedBox(
+                        width: width,
+                        height: height,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20.0),
+                          child: MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: GestureDetector(
+                              child: RTCVideoView(
+                                widget.localRenderer,
+                                objectFit: RTCVideoViewObjectFit
+                                    .RTCVideoViewObjectFitCover,
+                                mirror: true,
                               ),
+                              onTap: () {
+                                callRepo.switching
+                                    .add(!callRepo.switching.value);
+                              },
                             ),
                           ),
                         ),
-                        feedback: SizedBox(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20.0),
-                            child: RTCVideoView(
-                              widget.localRenderer,
-                              objectFit: RTCVideoViewObjectFit
-                                  .RTCVideoViewObjectFitCover,
-                              mirror: true,
-                            ),
-                          ),
-                          width: width,
-                          height: height,
-                        ),
-                        onDraggableCanceled:
-                            (Velocity velocity, Offset offset) {
-                          setState(() {
-                            if (isDesktop()) {
-                              position = const Offset(20, 40);
-                            } else {
-                              if (offset.dx > x / 2 && offset.dy > y / 2) {
-                                position =
-                                    Offset(x - width - 20, y - height - 40);
-                              }
-                              if (offset.dx < x / 2 && offset.dy > y / 2) {
-                                position = Offset(20, y - height - 40);
-                              }
-                              if (offset.dx > x / 2 && offset.dy < y / 2) {
-                                position = Offset(x - 500, 40);
-                              }
-                              if (offset.dx < x / 2 && offset.dy < y / 2) {
-                                position = const Offset(20, 40);
-                              }
-                            }
-                          });
-                        },
                       ),
+                      feedback: SizedBox(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20.0),
+                          child: RTCVideoView(
+                            widget.localRenderer,
+                            objectFit: RTCVideoViewObjectFit
+                                .RTCVideoViewObjectFitCover,
+                            mirror: true,
+                          ),
+                        ),
+                        width: width,
+                        height: height,
+                      ),
+                      onDraggableCanceled: (velocity, offset) {
+                        setState(() {
+                          if (isDesktop) {
+                            position = const Offset(20, 40);
+                          } else {
+                            if (offset.dx > x / 2 && offset.dy > y / 2) {
+                              position =
+                                  Offset(x - width - 20, y - height - 40);
+                            }
+                            if (offset.dx < x / 2 && offset.dy > y / 2) {
+                              position = Offset(20, y - height - 40);
+                            }
+                            if (offset.dx > x / 2 && offset.dy < y / 2) {
+                              position = Offset(x - 500, 40);
+                            }
+                            if (offset.dx < x / 2 && offset.dy < y / 2) {
+                              position = const Offset(20, 40);
+                            }
+                          }
+                        });
+                      },
                     ),
-                  ],
-                );
-              } else {
-                return CenterAvatarInCall(
-                  roomUid: widget.roomUid,
-                );
-              }
-            }),
+                  ),
+                ],
+              );
+            } else {
+              return CenterAvatarInCall(
+                roomUid: widget.roomUid,
+              );
+            }
+          },
+        ),
         CallBottomRow(
           hangUp: widget.hangUp,
         ),

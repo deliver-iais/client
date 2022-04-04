@@ -1,5 +1,3 @@
-// ignore_for_file: constant_identifier_names
-
 import 'dart:math';
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -7,8 +5,9 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
 const APPLICATION_NAME = "We";
-// const APPLICATION_DOMAIN = "deliver-co.ir";
-const APPLICATION_DOMAIN = "wemessenger.ir";
+const app_name2 = "We";
+const APPLICATION_DOMAIN = "deliver-co.ir";
+// const APPLICATION_DOMAIN = "wemessenger.ir";
 const SPDA = "spda";
 const TEXT = "text";
 const JOIN = "join";
@@ -65,7 +64,7 @@ const WEBRTC_MAX_FRAME_RATE =
     30; // 256 kbps with 2 Mbps we can have about 20 concurrent at high rate
 
 const SHARED_DAO_SHOW_CONTACT_DIALOG = "SHARED_DAO_SHOW_CONTACT_DIALOG";
-const SHARED_DAO_THEME = "SHARED_DAO_THEME";
+const SHARED_DAO_THEME_IS_DARK = "SHARED_DAO_THEME_IS_DARK";
 const SHARED_DAO_THEME_COLOR = "SHARED_DAO_THEME_COLOR";
 const SHARED_DAO_SEND_BY_ENTER = "SHARED_DAO_SEND_BY_ENTER";
 const SHARED_DAO_LANGUAGE = "SHARED_DAO_LANGUAGE";
@@ -141,9 +140,9 @@ const double MIN_WIDTH = 200;
 const double MAX_FILE_SIZE_BYTE = 104857600; //100MB
 
 //FEATURE DISCOVERY ID
-const String feature1 = 'feature1',
-    feature2 = 'feature2',
-    feature3 = 'feature3';
+const feature1 = 'feature1';
+const feature2 = 'feature2';
+const feature3 = 'feature3';
 
 const mainBorder = BorderRadius.all(Radius.circular(28));
 
@@ -154,7 +153,9 @@ const tertiaryBorder = BorderRadius.all(Radius.circular(8));
 const messageBorder = BorderRadius.all(Radius.circular(14));
 
 const backgroundBorder = BorderRadius.only(
-    topLeft: Radius.circular(12), topRight: Radius.circular(12));
+  topLeft: Radius.circular(12),
+  topRight: Radius.circular(12),
+);
 
 const buttonBorder = BorderRadius.all(Radius.circular(20));
 
@@ -168,14 +169,17 @@ bool isLarge(BuildContext context) =>
 // ignore: non_constant_identifier_names
 double animationSquareSize(BuildContext context) => isLarge(context)
     ? min(FLUID_MAX_WIDTH * 0.7, FLUID_MAX_HEIGHT * 0.4)
-    : min(MediaQuery.of(context).size.width * 0.7,
-        MediaQuery.of(context).size.height * 0.7);
+    : min(
+        MediaQuery.of(context).size.width * 0.7,
+        MediaQuery.of(context).size.height * 0.7,
+      );
 
 double maxWidthOfMessage(BuildContext context) => min(
-    (MediaQuery.of(context).size.width -
-            (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
-        0.8,
-    450);
+      (MediaQuery.of(context).size.width -
+              (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
+          0.8,
+      450,
+    );
 
 double minWidthOfMessage(BuildContext context) =>
     min(maxWidthOfMessage(context), 200);

@@ -7,8 +7,8 @@ class MsgTime extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String msgHour = time.hour.toString();
-    String msgMin = time.minute.toString();
+    var msgHour = time.hour.toString();
+    var msgMin = time.minute.toString();
     msgHour = msgHour.length != 2 ? '0' + msgHour : msgHour;
     msgMin = msgMin.length != 2 ? '0' + msgMin : msgMin;
 

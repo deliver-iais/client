@@ -35,6 +35,7 @@ import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
+import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
@@ -54,6 +55,7 @@ import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/create_muc_service.dart';
+import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/muc_services.dart';
@@ -87,7 +89,7 @@ import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
 import 'box/dao/contact_dao.dart';
-import 'box/dao/custom_notication_dao.dart';
+import 'box/dao/custom_notification_dao.dart';
 import 'box/dao/media_dao.dart';
 import 'box/dao/media_meta_data_dao.dart';
 import 'box/dao/message_dao.dart';
@@ -96,39 +98,48 @@ import 'box/media.dart';
 import 'repository/mucRepo.dart';
 
 Future<void> setupDI() async {
+  GetIt.I.registerSingleton<AnalyticsRepo>(AnalyticsRepo());
+  GetIt.I.registerSingleton<AnalyticsClientInterceptor>(
+    AnalyticsClientInterceptor(),
+  );
+
   // Setup Logger
   GetIt.I.registerSingleton<DeliverLogFilter>(DeliverLogFilter());
-  GetIt.I.registerSingleton<Logger>(Logger(
+  GetIt.I.registerSingleton<Logger>(
+    Logger(
       filter: GetIt.I.get<DeliverLogFilter>(),
-      level: kDebugMode ? Level.info : Level.nothing));
+      level: kDebugMode ? Level.info : Level.nothing,
+    ),
+  );
 
   await Hive.initFlutter("db");
 
-  Hive.registerAdapter(AvatarAdapter());
-  Hive.registerAdapter(LastActivityAdapter());
-  Hive.registerAdapter(ContactAdapter());
-  Hive.registerAdapter(UidIdNameAdapter());
-  Hive.registerAdapter(SeenAdapter());
-  Hive.registerAdapter(FileInfoAdapter());
-  Hive.registerAdapter(MucAdapter());
-  Hive.registerAdapter(MucRoleAdapter());
-  Hive.registerAdapter(MemberAdapter());
-  Hive.registerAdapter(BotInfoAdapter());
-  Hive.registerAdapter(RoomAdapter());
-  Hive.registerAdapter(PendingMessageAdapter());
-  Hive.registerAdapter(MessageAdapter());
-  Hive.registerAdapter(MessageTypeAdapter());
-  Hive.registerAdapter(SendingStatusAdapter());
-  Hive.registerAdapter(MediaAdapter());
-  Hive.registerAdapter(MediaMetaDataAdapter());
-  Hive.registerAdapter(MediaTypeAdapter());
-  Hive.registerAdapter(LiveLocationAdapter());
-  Hive.registerAdapter(CallInfoAdapter());
-  Hive.registerAdapter(CallEventAdapter());
-  Hive.registerAdapter(CallStatusAdapter());
-  Hive.registerAdapter(CallTypeAdapter());
+  Hive
+    ..registerAdapter(AvatarAdapter())
+    ..registerAdapter(LastActivityAdapter())
+    ..registerAdapter(ContactAdapter())
+    ..registerAdapter(UidIdNameAdapter())
+    ..registerAdapter(SeenAdapter())
+    ..registerAdapter(FileInfoAdapter())
+    ..registerAdapter(MucAdapter())
+    ..registerAdapter(MucRoleAdapter())
+    ..registerAdapter(MemberAdapter())
+    ..registerAdapter(BotInfoAdapter())
+    ..registerAdapter(RoomAdapter())
+    ..registerAdapter(PendingMessageAdapter())
+    ..registerAdapter(MessageAdapter())
+    ..registerAdapter(MessageTypeAdapter())
+    ..registerAdapter(SendingStatusAdapter())
+    ..registerAdapter(MediaAdapter())
+    ..registerAdapter(MediaMetaDataAdapter())
+    ..registerAdapter(MediaTypeAdapter())
+    ..registerAdapter(LiveLocationAdapter())
+    ..registerAdapter(CallInfoAdapter())
+    ..registerAdapter(CallEventAdapter())
+    ..registerAdapter(CallStatusAdapter())
+    ..registerAdapter(CallTypeAdapter());
 
-  GetIt.I.registerSingleton<CustomNotificatonDao>(CustomNotificatonDaoImpl());
+  GetIt.I.registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
   GetIt.I.registerSingleton<AvatarDao>(AvatarDaoImpl());
   GetIt.I.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
   GetIt.I.registerSingleton<SharedDao>(SharedDaoImpl());
@@ -151,8 +162,11 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<I18N>(I18N());
 
   // Order is important, don't change it!
-  GetIt.I.registerSingleton<AuthServiceClient>(AuthServiceClient(
-      kIsWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel));
+  GetIt.I.registerSingleton<AuthServiceClient>(
+    AuthServiceClient(
+      isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
+    ),
+  );
   GetIt.I.registerSingleton<RoutingService>(RoutingService());
   final authRepo = AuthRepo();
   GetIt.I.registerSingleton<AuthRepo>(authRepo);
@@ -160,46 +174,84 @@ Future<void> setupDI() async {
   GetIt.I
       .registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
 
-  GetIt.I.registerSingleton<UserServiceClient>(UserServiceClient(
-      kIsWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
-  GetIt.I.registerSingleton<ContactServiceClient>(ContactServiceClient(
-      kIsWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
-  GetIt.I.registerSingleton<QueryServiceClient>(QueryServiceClient(
-      kIsWeb ? webQueryClientChannel : QueryClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
-  GetIt.I.registerSingleton<CoreServiceClient>(CoreServiceClient(
-      kIsWeb ? webCoreServicesClientChannel : CoreServicesClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
-  GetIt.I.registerSingleton<BotServiceClient>(BotServiceClient(
-      kIsWeb ? webBotClientChannel : BotClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
-  GetIt.I.registerSingleton<StickerServiceClient>(StickerServiceClient(
-      kIsWeb ? webStickerClientChannel : StickerClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
-  GetIt.I.registerSingleton<GroupServiceClient>(GroupServiceClient(
-      kIsWeb ? webMucServicesClientChannel : MucServicesClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
-  GetIt.I.registerSingleton<ChannelServiceClient>(ChannelServiceClient(
-      kIsWeb ? webMucServicesClientChannel : MucServicesClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
-  GetIt.I.registerSingleton<AvatarServiceClient>(AvatarServiceClient(
-      kIsWeb ? webAvatarServicesClientChannel : AvatarServicesClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
-  GetIt.I.registerSingleton<FirebaseServiceClient>(FirebaseServiceClient(
-      kIsWeb ? webFirebaseServicesClientChannel : FirebaseServicesClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+  final grpcClientInterceptors = [
+    GetIt.I.get<DeliverClientInterceptor>(),
+    GetIt.I.get<AnalyticsClientInterceptor>()
+  ];
 
-  GetIt.I.registerSingleton<SessionServiceClient>(SessionServiceClient(
-      kIsWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
-      interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+  GetIt.I.registerSingleton<UserServiceClient>(
+    UserServiceClient(
+      isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
+      interceptors: grpcClientInterceptors,
+    ),
+  );
+  GetIt.I.registerSingleton<ContactServiceClient>(
+    ContactServiceClient(
+      isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
+      interceptors: grpcClientInterceptors,
+    ),
+  );
+  GetIt.I.registerSingleton<QueryServiceClient>(
+    QueryServiceClient(
+      isWeb ? webQueryClientChannel : QueryClientChannel,
+      interceptors: grpcClientInterceptors,
+    ),
+  );
+  GetIt.I.registerSingleton<CoreServiceClient>(
+    CoreServiceClient(
+      isWeb ? webCoreServicesClientChannel : CoreServicesClientChannel,
+      interceptors: grpcClientInterceptors,
+    ),
+  );
+  GetIt.I.registerSingleton<BotServiceClient>(
+    BotServiceClient(
+      isWeb ? webBotClientChannel : BotClientChannel,
+      interceptors: grpcClientInterceptors,
+    ),
+  );
+  GetIt.I.registerSingleton<StickerServiceClient>(
+    StickerServiceClient(
+      isWeb ? webStickerClientChannel : StickerClientChannel,
+      interceptors: grpcClientInterceptors,
+    ),
+  );
+  GetIt.I.registerSingleton<GroupServiceClient>(
+    GroupServiceClient(
+      isWeb ? webMucServicesClientChannel : MucServicesClientChannel,
+      interceptors: grpcClientInterceptors,
+    ),
+  );
+  GetIt.I.registerSingleton<ChannelServiceClient>(
+    ChannelServiceClient(
+      isWeb ? webMucServicesClientChannel : MucServicesClientChannel,
+      interceptors: grpcClientInterceptors,
+    ),
+  );
+  GetIt.I.registerSingleton<AvatarServiceClient>(
+    AvatarServiceClient(
+      isWeb ? webAvatarServicesClientChannel : AvatarServicesClientChannel,
+      interceptors: grpcClientInterceptors,
+    ),
+  );
+  GetIt.I.registerSingleton<FirebaseServiceClient>(
+    FirebaseServiceClient(
+      isWeb ? webFirebaseServicesClientChannel : FirebaseServicesClientChannel,
+      interceptors: grpcClientInterceptors,
+    ),
+  );
+
+  GetIt.I.registerSingleton<SessionServiceClient>(
+    SessionServiceClient(
+      isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
+      interceptors: grpcClientInterceptors,
+    ),
+  );
   GetIt.I.registerSingleton<LiveLocationServiceClient>(
-      LiveLocationServiceClient(
-          kIsWeb
-              ? webLiveLocationClientChannel
-              : LiveLocationServiceClientChannel,
-          interceptors: [GetIt.I.get<DeliverClientInterceptor>()]));
+    LiveLocationServiceClient(
+      isWeb ? webLiveLocationClientChannel : LiveLocationServiceClientChannel,
+      interceptors: grpcClientInterceptors,
+    ),
+  );
   GetIt.I.registerSingleton<AccountRepo>(AccountRepo());
 
   GetIt.I.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
@@ -218,7 +270,7 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<LastActivityRepo>(LastActivityRepo());
   GetIt.I.registerSingleton<LiveLocationRepo>(LiveLocationRepo());
 
-  if (isLinux() || isWindows()) {
+  if (isLinux || isWindows) {
     // DartVLC.initialize();
     GetIt.I.registerSingleton<AudioPlayerModule>(VlcAudioPlayer());
   } else {
@@ -228,17 +280,17 @@ Future<void> setupDI() async {
     GetIt.I.registerSingleton<AudioService>(AudioService());
   } catch (_) {}
 
-  if (kIsWeb) {
+  if (isWeb) {
     GetIt.I.registerSingleton<Notifier>(WebNotifier());
-  } else if (isMacOS()) {
+  } else if (isMacOS) {
     GetIt.I.registerSingleton<Notifier>(MacOSNotifier());
-  } else if (isAndroid()) {
+  } else if (isAndroid) {
     GetIt.I.registerSingleton<Notifier>(AndroidNotifier());
-  } else if (isIOS()) {
+  } else if (isIOS) {
     GetIt.I.registerSingleton<Notifier>(IOSNotifier());
-  } else if (isLinux()) {
+  } else if (isLinux) {
     GetIt.I.registerSingleton<Notifier>(LinuxNotifier());
-  } else if (isWindows()) {
+  } else if (isWindows) {
     GetIt.I.registerSingleton<Notifier>(WindowsNotifier());
   } else {
     GetIt.I.registerSingleton<Notifier>(FakeNotifier());
@@ -248,6 +300,7 @@ Future<void> setupDI() async {
 
   GetIt.I.registerSingleton<CallService>(CallService());
 
+  GetIt.I.registerSingleton<DataStreamServices>(DataStreamServices());
   GetIt.I.registerSingleton<CoreServices>(CoreServices());
   GetIt.I.registerSingleton<FireBaseServices>(FireBaseServices());
 
@@ -257,16 +310,17 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<CallRepo>(CallRepo());
 }
 
-Future setupFlutterNotification() async {
+Future initializeFirebase() async {
   await Firebase.initializeApp();
 }
 
+// ignore: avoid_void_async
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   Logger().i("Application has been started.");
 
-  if (isDesktop() && !kIsWeb) {
+  if (isDesktop && !isWeb) {
     try {
       _setWindowSize();
 
@@ -276,9 +330,8 @@ void main() async {
     }
   }
 
-  // TODO add IOS and MacOS too
-  if (isAndroid()) {
-    await setupFlutterNotification();
+  if (isAndroid) {
+    await initializeFirebase();
   }
 
   Logger().i("OS based setups done.");
@@ -291,11 +344,15 @@ void main() async {
 
   Logger().i("Dependency Injection setup done.");
 
-  runApp(FeatureDiscovery.withProvider(
-      persistenceProvider: const NoPersistenceProvider(), child: MyApp()));
+  runApp(
+    FeatureDiscovery.withProvider(
+      persistenceProvider: const NoPersistenceProvider(),
+      child: MyApp(),
+    ),
+  );
 }
 
-_setWindowSize() {
+void _setWindowSize() {
   setWindowMinSize(const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
 }
 
@@ -319,16 +376,17 @@ class MyApp extends StatelessWidget {
         return ExtraTheme(
           extraThemeData: _uxService.extraTheme,
           child: Focus(
-              focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
-              onKey: (_, RawKeyEvent event) {
-                _rawKeyboardService.escapeHandling(event);
-                _rawKeyboardService.searchHandling(event);
-                return event.physicalKey == PhysicalKeyboardKey.shiftRight
-                    ? KeyEventResult.handled
-                    : KeyEventResult.ignored;
-              },
-              child: WithForegroundTask(
-                  child: MaterialApp(
+            focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
+            onKey: (_, event) {
+              _rawKeyboardService
+                ..escapeHandling(event)
+                ..searchHandling(event);
+              return event.physicalKey == PhysicalKeyboardKey.shiftRight
+                  ? KeyEventResult.handled
+                  : KeyEventResult.ignored;
+            },
+            child: WithForegroundTask(
+              child: MaterialApp(
                 debugShowCheckedModeBanner: false,
                 title: APPLICATION_NAME,
                 locale: _i18n.locale,
@@ -346,7 +404,7 @@ class MyApp extends StatelessWidget {
                 ],
                 home: const SplashScreen(),
                 localeResolutionCallback: (deviceLocale, supportedLocale) {
-                  for (var locale in supportedLocale) {
+                  for (final locale in supportedLocale) {
                     if (locale.languageCode == deviceLocale!.languageCode &&
                         locale.countryCode == deviceLocale.countryCode) {
                       return deviceLocale;
@@ -358,7 +416,9 @@ class MyApp extends StatelessWidget {
                   textDirection: TextDirection.ltr,
                   child: c!,
                 ),
-              ))),
+              ),
+            ),
+          ),
         );
       },
     );

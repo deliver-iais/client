@@ -5,17 +5,16 @@ import 'package:logger/logger.dart';
 class BoxInfo {
   static final Logger _logger = GetIt.I.get<Logger>();
 
-  static addBox(String key) async {
-    try{
-      var box = await Hive.openBox<String>(_key());
+  static Future<void> addBox(String key) async {
+    try {
+      final box = await Hive.openBox<String>(_key());
       box.put(key, key);
-    }catch(_){
-    //  _logger.e(e);
+    } catch (_) {
+      //  _logger.e(e);
     }
-
   }
 
-  static _deleteBox(String key) async {
+  static Future<void> _deleteBox(String key) async {
     try {
       await Hive.deleteBoxFromDisk(key);
     } catch (e) {
@@ -25,8 +24,8 @@ class BoxInfo {
 
   static String _key() => "box_info";
 
-  static deleteAllBox() async {
-    var box = await Hive.openBox<String>(_key());
+  static Future<void> deleteAllBox() async {
+    final box = await Hive.openBox<String>(_key());
     box.values.toList().forEach((key) async {
       await _deleteBox(key);
     });

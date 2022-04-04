@@ -2,19 +2,16 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
-
 import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
-import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver/services/firebase_services.dart';
+import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:sms_autofill/sms_autofill.dart';
-
-
 
 class VerificationPage extends StatefulWidget {
   const VerificationPage({Key? key}) : super(key: key);
@@ -29,21 +26,20 @@ class _VerificationPageState extends State<VerificationPage> {
   final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _i18n = GetIt.I.get<I18N>();
   final _focusNode = FocusNode();
   bool _showError = false;
+
   String? _verificationCode;
 
-  // TODO ???
-  final I18N _i18n = GetIt.I.get<I18N>();
-
-  _sendVerificationCode() {
+  void _sendVerificationCode() {
     if ((_verificationCode!.length) < 5) {
       setState(() => _showError = true);
       return;
     }
     setState(() => _showError = false);
     FocusScope.of(context).requestFocus(FocusNode());
-    var result = _authRepo.sendVerificationCode(_verificationCode!);
+    final result = _authRepo.sendVerificationCode(_verificationCode!);
     result.then((accessTokenResponse) {
       if (accessTokenResponse.status == AccessTokenRes_Status.OK) {
         _fireBaseServices.sendFireBaseToken();
@@ -51,12 +47,15 @@ class _VerificationPageState extends State<VerificationPage> {
       } else if (accessTokenResponse.status ==
           AccessTokenRes_Status.PASSWORD_PROTECTED) {
         ToastDisplay.showToast(
-            toastText: "PASSWORD_PROTECTED", toastContext: context);
-        // TODO navigate to password validation page
+          toastText: "PASSWORD_PROTECTED",
+          toastContext: context,
+        );
+        // TODO(dansi): navigate to password validation page, https://gitlab.iais.co/deliver/wiki/-/issues/419
       } else {
         ToastDisplay.showToast(
-            toastText: _i18n.get("verification_code_not_valid"),
-            toastContext: context);
+          toastText: _i18n.get("verification_code_not_valid"),
+          toastContext: context,
+        );
         _setErrorAndResetCode();
       }
     }).catchError((e) {
@@ -65,21 +64,32 @@ class _VerificationPageState extends State<VerificationPage> {
     });
   }
 
-  _navigationToHome() async {
+  Future<void> _navigationToHome() async {
     _contactRepo.getContacts();
     if (await _accountRepo.hasProfile(retry: true)) {
       _accountRepo.fetchCurrentUserId(retry: true);
-      Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (c) {
-        return const HomePage();
-      }), (r) => false);
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(
+          builder: (c) {
+            return const HomePage();
+          },
+        ),
+        (r) => false,
+      );
     } else {
-      Navigator.push(context, MaterialPageRoute(builder: (c) {
-        return const AccountSettings(forceToSetUsernameAndName: true);
-      }));
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (c) {
+            return const AccountSettings(forceToSetUsernameAndName: true);
+          },
+        ),
+      );
     }
   }
 
-  _setErrorAndResetCode() {
+  void _setErrorAndResetCode() {
     setState(() {
       _showError = true;
       _verificationCode = "";
@@ -92,7 +102,6 @@ class _VerificationPageState extends State<VerificationPage> {
     final theme = Theme.of(context);
     return FluidWidget(
       child: Scaffold(
-        primary: true,
         backgroundColor: theme.backgroundColor,
         floatingActionButton: FloatingActionButton(
           backgroundColor: theme.primaryColor,
@@ -107,7 +116,9 @@ class _VerificationPageState extends State<VerificationPage> {
           title: Text(
             _i18n.get("verification"),
             style: TextStyle(
-                fontWeight: FontWeight.bold, color: theme.primaryColor),
+              fontWeight: FontWeight.bold,
+              color: theme.primaryColor,
+            ),
           ),
         ),
         body: Padding(
@@ -141,10 +152,13 @@ class _VerificationPageState extends State<VerificationPage> {
                       codeLength: 5,
                       cursor: Cursor(color: theme.focusColor, enabled: true),
                       decoration: UnderlineDecoration(
-                          colorBuilder: PinListenColorBuilder(
-                              theme.primaryColor, theme.colorScheme.secondary),
-                          textStyle: theme.primaryTextTheme.headline5!
-                              .copyWith(color: theme.primaryColor)),
+                        colorBuilder: PinListenColorBuilder(
+                          theme.primaryColor,
+                          theme.colorScheme.secondary,
+                        ),
+                        textStyle: theme.primaryTextTheme.headline5!
+                            .copyWith(color: theme.primaryColor),
+                      ),
                       currentCode: _verificationCode,
                       onCodeSubmitted: (code) {
                         _verificationCode = code;
@@ -162,13 +176,12 @@ class _VerificationPageState extends State<VerificationPage> {
                       },
                     ),
                   ),
-                  _showError
-                      ? Text(
-                          _i18n.get("wrong_code"),
-                          style: theme.primaryTextTheme.subtitle1!
-                              .copyWith(color: theme.errorColor),
-                        )
-                      : Container(),
+                  if (_showError)
+                    Text(
+                      _i18n.get("wrong_code"),
+                      style: theme.primaryTextTheme.subtitle1!
+                          .copyWith(color: theme.errorColor),
+                    ),
                 ],
               ),
             ],

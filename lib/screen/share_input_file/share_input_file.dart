@@ -21,8 +21,8 @@ class ShareInputFile extends StatefulWidget {
 
 class _ShareInputFileState extends State<ShareInputFile> {
   final _roomRepo = GetIt.I.get<RoomRepo>();
-
   final _routingServices = GetIt.I.get<RoutingService>();
+  final _i18n = GetIt.I.get<I18N>();
 
   final BehaviorSubject<String> _queryTermDebouncedSubject =
       BehaviorSubject<String>.seeded("");
@@ -30,12 +30,11 @@ class _ShareInputFileState extends State<ShareInputFile> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    I18N i18n = GetIt.I.get<I18N>();
     return Scaffold(
-      backgroundColor:theme.backgroundColor,
+      backgroundColor: theme.backgroundColor,
       appBar: AppBar(
         title: Text(
-          i18n.get("send_To"),
+          _i18n.get("send_To"),
         ),
         leading: _routingServices.backButtonLeading(),
       ),
@@ -46,33 +45,34 @@ class _ShareInputFileState extends State<ShareInputFile> {
             onCancel: () => _queryTermDebouncedSubject.add(""),
           ),
           StreamBuilder<String>(
-              stream: _queryTermDebouncedSubject.stream,
-              builder: (context, query) {
-                return Expanded(
-                  child: FutureBuilder<List<Uid>>(
-                    future: query.data != null && query.data!.isNotEmpty
-                        ? _roomRepo.searchInRoomAndContacts(query.data!)
-                        : _roomRepo.getAllRooms(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData &&
-                          snapshot.data != null &&
-                          snapshot.data!.isNotEmpty) {
-                        return ListView.builder(
-                          itemCount: snapshot.data!.length,
-                          itemBuilder: (BuildContext ctx, int index) {
-                            return ChatItemToShareFile(
-                              uid: snapshot.data![index],
-                              sharedFilePath: widget.inputSharedFilePath,
-                            );
-                          },
-                        );
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    },
-                  ),
-                );
-              }),
+            stream: _queryTermDebouncedSubject.stream,
+            builder: (context, query) {
+              return Expanded(
+                child: FutureBuilder<List<Uid>>(
+                  future: query.data != null && query.data!.isNotEmpty
+                      ? _roomRepo.searchInRoomAndContacts(query.data!)
+                      : _roomRepo.getAllRooms(),
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData &&
+                        snapshot.data != null &&
+                        snapshot.data!.isNotEmpty) {
+                      return ListView.builder(
+                        itemCount: snapshot.data!.length,
+                        itemBuilder: (ctx, index) {
+                          return ChatItemToShareFile(
+                            uid: snapshot.data![index],
+                            sharedFilePath: widget.inputSharedFilePath,
+                          );
+                        },
+                      );
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  },
+                ),
+              );
+            },
+          ),
         ],
       ),
     );

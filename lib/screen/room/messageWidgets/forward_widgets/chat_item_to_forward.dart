@@ -6,7 +6,7 @@ import 'package:get_it/get_it.dart';
 
 class ChatItemToForward extends StatelessWidget {
   final Uid uid;
-  final Function send;
+  final void Function(Uid) send;
 
   ChatItemToForward({Key? key, required this.uid, required this.send})
       : super(key: key);
@@ -15,40 +15,43 @@ class ChatItemToForward extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return InkWell(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 0.0),
-          child: SizedBox(
-              height: 50,
-              child: Row(
-                children: <Widget>[
-                  const SizedBox(
-                    width: 12,
-                  ),
-                  CircleAvatarWidget(uid, 30),
-                  // ContactPic(true, uid),
-                  const SizedBox(
-                    width: 12,
-                  ),
-                  FutureBuilder(
-                      future: _roomRepo.getName(uid),
-                      builder: (BuildContext c, AsyncSnapshot<String> snaps) {
-                        if (snaps.hasData && snaps.data != null) {
-                          return Text(
-                            snaps.data!,
-                            style: const TextStyle(fontSize: 18),
-                          );
-                        } else {
-                          return const Text(
-                            "Unknown",
-                            style: TextStyle(fontSize: 18),
-                          );
-                        }
-                      }),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8.0),
+        child: SizedBox(
+          height: 50,
+          child: Row(
+            children: <Widget>[
+              const SizedBox(
+                width: 12,
+              ),
+              CircleAvatarWidget(uid, 30),
+              // ContactPic(true, uid),
+              const SizedBox(
+                width: 12,
+              ),
+              FutureBuilder<String>(
+                future: _roomRepo.getName(uid),
+                builder: (c, snaps) {
+                  if (snaps.hasData && snaps.data != null) {
+                    return Text(
+                      snaps.data!,
+                      style: const TextStyle(fontSize: 18),
+                    );
+                  } else {
+                    return const Text(
+                      "Unknown",
+                      style: TextStyle(fontSize: 18),
+                    );
+                  }
+                },
+              ),
 
-                  const Spacer(),
-                ],
-              )),
+              const Spacer(),
+            ],
+          ),
         ),
-        onTap: () => send(uid));
+      ),
+      onTap: () => send(uid),
+    );
   }
 }
