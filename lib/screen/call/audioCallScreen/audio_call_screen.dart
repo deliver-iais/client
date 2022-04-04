@@ -5,10 +5,10 @@ import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/screen/call/audioCallScreen/dot_widget.dart';
 import 'package:deliver/screen/call/audioCallScreen/fade_audio_call_background.dart';
 import 'package:deliver/screen/call/call_bottom_icons.dart';
 import 'package:deliver/screen/call/center_avatar_image-in-call.dart';
+import 'package:deliver/shared/widgets/dot_animation/dot_animation.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -38,52 +38,12 @@ class _AudioCallScreenState extends State<AudioCallScreen>
   final _fileRepo = GetIt.I.get<FileRepo>();
   final callRepo = GetIt.I.get<CallRepo>();
   late AnimationController _repeatEndCallAnimationController;
-  late List<AnimationController> _dotAnimationControllers;
-  final List<Animation<double>> _animations = [];
 
   @override
   void initState() {
     _initRepeatEndCallAnimation();
-    _initDotAnimation();
 
     super.initState();
-  }
-
-  void _initDotAnimation() {
-    _repeatEndCallAnimationController.repeat(reverse: true);
-    _dotAnimationControllers = List.generate(
-      3,
-      (index) {
-        return AnimationController(
-          vsync: this,
-          duration: const Duration(milliseconds: 300),
-        );
-      },
-    ).toList();
-
-    for (var i = 0; i < 3; i++) {
-      _animations.add(
-        Tween<double>(begin: 0, end: -5).animate(_dotAnimationControllers[i]),
-      );
-    }
-
-    for (var i = 0; i < 3; i++) {
-      _dotAnimationControllers[i].addStatusListener((status) {
-        if (status == AnimationStatus.completed) {
-          _dotAnimationControllers[i].reverse();
-
-          if (i != 2) {
-            _dotAnimationControllers[i + 1].forward();
-          }
-        }
-
-        if (i == 2 && status == AnimationStatus.dismissed) {
-          _dotAnimationControllers[0].forward();
-        }
-      });
-    }
-
-    _dotAnimationControllers.first.forward();
   }
 
   void _initRepeatEndCallAnimation() {
@@ -91,6 +51,7 @@ class _AudioCallScreenState extends State<AudioCallScreen>
       vsync: this,
       duration: const Duration(milliseconds: 600),
     );
+    _repeatEndCallAnimationController.repeat(reverse: true);
   }
 
   @override
@@ -168,7 +129,7 @@ class _AudioCallScreenState extends State<AudioCallScreen>
                         widget.callStatus == "Reconnecting" ||
                         widget.callStatus == "Ringing" ||
                         widget.callStatus == "Calling")
-                      _dotAnimation()
+                      const DotAnimation()
                   ],
                 )
             ],
@@ -194,26 +155,6 @@ class _AudioCallScreenState extends State<AudioCallScreen>
     );
   }
 
-  Widget _dotAnimation() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(3, (index) {
-        return AnimatedBuilder(
-          animation: _dotAnimationControllers[index],
-          builder: (context, child) {
-            return Container(
-              padding: const EdgeInsets.all(2.5),
-              child: Transform.translate(
-                offset: Offset(0, _animations[index].value),
-                child: const DotWidget(),
-              ),
-            );
-          },
-        );
-      }).toList(),
-    );
-  }
-
   Text callTimerWidget(CallTimer callTimer) {
     var callHour = callTimer.hours.toString();
     var callMin = callTimer.minutes.toString();
@@ -233,9 +174,7 @@ class _AudioCallScreenState extends State<AudioCallScreen>
   @override
   void dispose() {
     _repeatEndCallAnimationController.dispose();
-    for (final controller in _dotAnimationControllers) {
-      controller.dispose();
-    }
+
     super.dispose();
   }
 }

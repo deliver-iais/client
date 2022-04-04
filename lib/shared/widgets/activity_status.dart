@@ -1,5 +1,6 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/shared/widgets/dot_animation/dot_animation.dart';
 import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -30,15 +31,21 @@ class ActivityStatus extends StatelessWidget {
         return FutureBuilder<String>(
           future: _roomRepo.getName(activity.from),
           builder: (c, s) => RoomName(
+            shouldShowDotAnimation: true,
             uid: activity.from,
             name: "${s.data ?? ""} ${_i18n.get('is_typing')}",
             style: textStyle(context),
           ),
         );
       } else {
-        return Text(
-          _i18n.get("is_typing"),
-          style: textStyle(context),
+        return Row(
+          children: [
+            Text(
+              _i18n.get("is_typing"),
+              style: textStyle(context),
+            ),
+            DotAnimation(dotsColor: Theme.of(context).primaryColor),
+          ],
         );
       }
     } else if (activity.typeOfActivity == ActivityType.RECORDING_VOICE) {
