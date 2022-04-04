@@ -18,7 +18,6 @@ import 'package:deliver/shared/methods/platform.dart';
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
@@ -38,7 +37,7 @@ abstract class Notifier {
 
   Future<void> notifyText(MessageBrief message);
 
-  Future<void> notifyIncomingCall(Uid roomUid, String roomName);
+  Future<void> notifyIncomingCall(String roomUid, String roomName);
 
   Future<void> cancel(int id, String roomUid);
 
@@ -74,10 +73,10 @@ class NotificationServices {
   }
 
   Future<void> notifyIncomingCall(
-    Uid roomUid, {
+    String roomUid, {
     String? roomName,
   }) async {
-    final rn = roomName ?? await _roomRepo.getSlangName(roomUid);
+    final rn = roomName ?? await _roomRepo.getSlangName(roomUid.asUid());
 
     _notifier.notifyIncomingCall(roomUid, rn);
   }
@@ -132,6 +131,9 @@ class FakeNotifier implements Notifier {
   Future<void> notifyText(MessageBrief message) async {}
 
   @override
+  Future<void> notifyIncomingCall(String roomUid, String roomName) async {}
+
+  @override
   Future<void> cancel(int id, String roomUid) async {}
 
   @override
@@ -139,9 +141,6 @@ class FakeNotifier implements Notifier {
 
   @override
   Future<void> cancelById(int id) async {}
-
-  @override
-  Future<void> notifyIncomingCall(Uid roomUid, String roomName) async {}
 }
 
 class IOSNotifier implements Notifier {
@@ -149,7 +148,7 @@ class IOSNotifier implements Notifier {
   Future<void> notifyText(MessageBrief message) async {}
 
   @override
-  Future<void> notifyIncomingCall(Uid roomUid, String roomName) async {}
+  Future<void> notifyIncomingCall(String roomUid, String roomName) async {}
 
   @override
   Future<void> cancel(int id, String roomUid) async {}
@@ -229,14 +228,14 @@ class WindowsNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyIncomingCall(Uid roomUid, String roomName) async {
-  final actions = <String>['Accept', 'Decline'];
+  Future<void> notifyIncomingCall(String roomUid, String roomName) async {
+    final actions = <String>['Accept', 'Decline'];
     Toast? toast;
-    if (!toastByRoomId.containsKey(roomUid.node)) {
-      toastByRoomId[roomUid.node] = {};
+    if (!toastByRoomId.containsKey(roomUid.asUid().node)) {
+      toastByRoomId[roomUid.asUid().node] = {};
     }
     try {
-      final lastAvatar = await _avatarRepo.getLastAvatar(roomUid);
+      final lastAvatar = await _avatarRepo.getLastAvatar(roomUid.asUid());
       if (lastAvatar != null && lastAvatar.fileId != null) {
         final file = await _fileRepo.getFile(
           lastAvatar.fileId!,
@@ -262,7 +261,7 @@ class WindowsNotifier implements Notifier {
           );
         }
       }
-      final roomIdToast = toastByRoomId[roomUid.node];
+      final roomIdToast = toastByRoomId[roomUid.asUid().node];
       roomIdToast![-1] = toast!;
       toast.eventStream.listen((event) {
         if (event is ActivatedEvent) {
@@ -272,10 +271,10 @@ class WindowsNotifier implements Notifier {
           } else if (event.actionIndex == 0) {
             // Accept
             DesktopWindow.focus();
-            Notifier.onCallAccept(roomUid.asString());
+            Notifier.onCallAccept(roomUid);
           }
         }
-        final roomIdToast = toastByRoomId[roomUid.node];
+        final roomIdToast = toastByRoomId[roomUid.asUid().node];
         roomIdToast?.remove(-1);
       });
     } catch (e) {
@@ -320,7 +319,7 @@ class WebNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyIncomingCall(Uid roomUid, String roomName) async {}
+  Future<void> notifyIncomingCall(String roomUid, String roomName) async {}
 }
 
 class LinuxNotifier implements Notifier {
@@ -384,7 +383,7 @@ class LinuxNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyIncomingCall(Uid roomUid, String roomName) async {}
+  Future<void> notifyIncomingCall(String roomUid, String roomName) async {}
 
   @override
   Future<void> cancel(int id, String roomUid) async {
@@ -543,8 +542,8 @@ class AndroidNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyIncomingCall(Uid roomUid, String roomName) async {
-    final la = await _avatarRepo.getLastAvatar(roomUid);
+  Future<void> notifyIncomingCall(String roomUid, String roomName) async {
+    final la = await _avatarRepo.getLastAvatar(roomUid.asUid());
     String? path;
     if (la != null && la.fileId != null && la.fileName != null) {
       path = await _fileRepo.getFileIfExist(
@@ -554,12 +553,12 @@ class AndroidNotifier implements Notifier {
       );
     }
     ConnectycubeFlutterCallKit.showCallNotification(
-      sessionId: roomUid.sessionId,
+      sessionId: DateTime.now().millisecondsSinceEpoch.toString(),
       callerId: DateTime.now().millisecondsSinceEpoch,
       callType: 1,
       path: path,
       callerName: roomName,
-      userInfo: {"uid": roomUid.asString()},
+      userInfo: {"uid": roomUid},
       opponentsIds: {1},
     );
     ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
@@ -644,7 +643,7 @@ class MacOSNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyIncomingCall(Uid roomUid, String roomName) async {}
+  Future<void> notifyIncomingCall(String roomUid, String roomName) async {}
 
   @override
   Future<void> cancel(int id, String roomUid) async {

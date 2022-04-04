@@ -776,7 +776,7 @@ class CallRepo {
   }
 
   void _incomingCall(Uid roomId) {
-    _notificationServices.notifyIncomingCall(roomId);
+    _notificationServices.notifyIncomingCall(roomId.asString());
     _roomUid = roomId;
     callingStatus.add(CallStatus.CREATED);
     final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
