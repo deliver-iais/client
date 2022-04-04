@@ -38,17 +38,23 @@ abstract class AudioPlayerModule {
 
   void stop() {}
 
+  void resume();
+
   void playSoundOut();
 
   void playSoundIn();
 
   void playBeepSound();
 
-  void resume();
-
-  void stopPlayBeepSound();
+  void stopBeepSound();
 
   void playBusySound();
+
+  void stopBusySound();
+
+  void playIncomingCallSound();
+
+  void stopIncomingCallSound();
 }
 
 class AudioService {
@@ -83,14 +89,12 @@ class AudioService {
   Stream<Duration> audioCurrentPosition() => _audioCurrentPosition.stream;
 
   AudioService() {
-    try{
+    try {
       _playerModule.audioCurrentState!
           .listen((event) => _audioCurrentState.add(event));
       _playerModule.audioCurrentPosition!
           .listen((event) => _audioCurrentPosition.add(event!));
-    }catch(_){
-    }
-
+    } catch (_) {}
   }
 
   Future<void> play(String path, String uuid, String name) async {
@@ -125,6 +129,10 @@ class AudioService {
     _audioCenterIsOn.add(false);
   }
 
+  void resume() {
+    _playerModule.resume();
+  }
+
   void playSoundOut() {
     _playerModule.playSoundOut();
   }
@@ -137,12 +145,8 @@ class AudioService {
     _playerModule.playBeepSound();
   }
 
-  void resume() {
-    _playerModule.resume();
-  }
-
-  void stopPlayBeepSound() {
-    _playerModule.stopPlayBeepSound();
+  void stopBeepSound() {
+    _playerModule.stopBeepSound();
   }
 
   void playBusySound() {
@@ -155,6 +159,7 @@ class NormalAudioPlayer implements AudioPlayerModule {
 
   final AudioCache _fastAudioPlayer =
       AudioCache(prefix: 'assets/audios/', fixedPlayer: AudioPlayer());
+
   final AudioCache _callFastAudioPlayer =
       AudioCache(prefix: 'assets/audios/', fixedPlayer: AudioPlayer());
 
@@ -216,18 +221,35 @@ class NormalAudioPlayer implements AudioPlayerModule {
   void playBeepSound() {
     _callFastAudioPlayer.play(
       "beep_ringing_calling_sound.mp3",
+      mode: PlayerMode.LOW_LATENCY,
     );
   }
 
   @override
-  void stopPlayBeepSound() {
-    _callFastAudioPlayer.fixedPlayer!.stop();
+  void stopBeepSound() {
+    _callFastAudioPlayer.fixedPlayer?.stop();
   }
 
   @override
   void playBusySound() {
+    _callFastAudioPlayer.play("busy_sound.mp3");
+  }
+
+  @override
+  void stopBusySound() {
+    _callFastAudioPlayer.play("busy_sound.mp3");
+  }
+
+  @override
+  void stopIncomingCallSound() {
+    _callFastAudioPlayer.fixedPlayer?.stop();
+  }
+
+  @override
+  void playIncomingCallSound() {
     _callFastAudioPlayer.play(
-      "busy_sound.mp3",
+      "beep_ringing_calling_sound.mp3",
+      mode: PlayerMode.LOW_LATENCY,
     );
   }
 }
@@ -306,7 +328,7 @@ class VlcAudioPlayer implements AudioPlayerModule {
   }
 
   @override
-  void stopPlayBeepSound() {
+  void stopBeepSound() {
     // _fastAudioPlayerBeep.stop();
   }
 
@@ -314,5 +336,17 @@ class VlcAudioPlayer implements AudioPlayerModule {
   void playBusySound() {
     // _fastAudioPlayerBusy.open(Media.asset("assets/audios/busy_sound.mp3"));
     // _fastAudioPlayerBusy.play();
+  }
+
+  @override
+  void playIncomingCallSound() {
+  }
+
+  @override
+  void stopBusySound() {
+  }
+
+  @override
+  void stopIncomingCallSound() {
   }
 }
