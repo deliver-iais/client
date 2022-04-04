@@ -152,6 +152,18 @@ class AudioService {
   void playBusySound() {
     _playerModule.playBusySound();
   }
+
+  void stopBusySound() {
+    _playerModule.stopBusySound();
+  }
+
+  void playIncomingCallSound() {
+    _playerModule.playIncomingCallSound();
+  }
+
+  void stopIncomingCallSound() {
+    _playerModule.stopIncomingCallSound();
+  }
 }
 
 class NormalAudioPlayer implements AudioPlayerModule {
@@ -220,7 +232,7 @@ class NormalAudioPlayer implements AudioPlayerModule {
   @override
   void playBeepSound() {
     _callFastAudioPlayer.play(
-      "beep_ringing_calling_sound.mp3",
+      "beep_sound.mp3",
       mode: PlayerMode.LOW_LATENCY,
     );
   }
@@ -241,16 +253,16 @@ class NormalAudioPlayer implements AudioPlayerModule {
   }
 
   @override
-  void stopIncomingCallSound() {
-    _callFastAudioPlayer.fixedPlayer?.stop();
+  void playIncomingCallSound() {
+    _callFastAudioPlayer.play(
+      "incoming_call.mp3",
+      mode: PlayerMode.LOW_LATENCY,
+    );
   }
 
   @override
-  void playIncomingCallSound() {
-    _callFastAudioPlayer.play(
-      "beep_ringing_calling_sound.mp3",
-      mode: PlayerMode.LOW_LATENCY,
-    );
+  void stopIncomingCallSound() {
+    _callFastAudioPlayer.fixedPlayer?.stop();
   }
 }
 
@@ -339,14 +351,11 @@ class VlcAudioPlayer implements AudioPlayerModule {
   }
 
   @override
-  void playIncomingCallSound() {
-  }
+  void playIncomingCallSound() {}
 
   @override
-  void stopBusySound() {
-  }
+  void stopBusySound() {}
 
   @override
-  void stopIncomingCallSound() {
-  }
+  void stopIncomingCallSound() {}
 }
