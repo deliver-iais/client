@@ -14,6 +14,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
@@ -46,42 +47,38 @@ abstract class Notifier {
 }
 
 class NotificationServices {
-  final _audioService = GetIt.I.get<AudioService>();
   final _i18n = GetIt.I.get<I18N>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _notifier = GetIt.I.get<Notifier>();
+  final _audioService = GetIt.I.get<AudioService>();
+  final _routingService = GetIt.I.get<RoutingService>();
 
-  Future<void> showTextNotification(
-    pro.Message message, {
-    String? roomName,
-  }) async {
-    final mb = (await extractMessageBrief(_i18n, _roomRepo, _authRepo, message))
-        .copyWith(roomName: roomName);
-    if (!mb.ignoreNotification) {
-      _notifier.notifyText(_synthesize(mb));
+  void notifyOutgoingMessage(String roomUid) {
+    if (_routingService.isInRoom(roomUid)) {
+      _playSoundOut();
     }
   }
 
-  Future<void> showIncomingCallNotification(
+  void notifyIncomingMessage(
+    pro.Message message,
+    String roomUid, {
+    String? roomName,
+  }) {
+    if (_routingService.isInRoom(roomUid) && !isDesktop) {
+      _playSoundIn();
+    } else {
+      _showTextNotification(message, roomUid, roomName: roomName);
+    }
+  }
+
+  Future<void> notifyIncomingCall(
     String roomUid, {
     String? roomName,
   }) async {
     final rn = roomName ?? await _roomRepo.getSlangName(roomUid.asUid());
 
     _notifier.notifyIncomingCall(roomUid, rn);
-  }
-
-  MessageBrief _synthesize(MessageBrief mb) {
-    if (mb.text.isNotEmpty) {
-      return mb.copyWith(
-        text: BoldTextParser.transformer(
-          ItalicTextParser.transformer(mb.text),
-        ),
-      );
-    }
-
-    return mb;
   }
 
   void cancelRoomNotifications(String roomUid) {
@@ -96,9 +93,35 @@ class NotificationServices {
     _notifier.cancelAll();
   }
 
-  Future<void> playSoundIn() async {}
+  Future<void> _showTextNotification(
+    pro.Message message,
+    String roomUid, {
+    String? roomName,
+  }) async {
+    final mb = (await extractMessageBrief(_i18n, _roomRepo, _authRepo, message))
+        .copyWith(roomName: roomName);
+    if (!mb.ignoreNotification) {
+      _notifier.notifyText(_synthesize(mb));
+    }
+  }
 
-  void playSoundOut() {
+  MessageBrief _synthesize(MessageBrief mb) {
+    if (mb.text.isNotEmpty) {
+      return mb.copyWith(
+        text: BoldTextParser.transformer(
+          ItalicTextParser.transformer(mb.text),
+        ),
+      );
+    }
+
+    return mb;
+  }
+
+  void _playSoundIn() {
+    _audioService.playSoundIn();
+  }
+
+  void _playSoundOut() {
     _audioService.playSoundOut();
   }
 }
