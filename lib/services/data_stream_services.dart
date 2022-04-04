@@ -413,6 +413,7 @@ class DataStreamServices {
     if (roomUid.category == Categories.GROUP) {
       // TODO(chitsaz): bug: username1 = hasan , username2 = hasan2 => isMention will be triggered if @hasan2 be into the text.
       if (message.text.text
+          .split(" ")
           .contains("@${(await _accountRepo.getAccount()).userName}")) {
         isMention = true;
       }
