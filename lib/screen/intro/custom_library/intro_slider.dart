@@ -757,18 +757,7 @@ class IntroSliderState extends State<IntroSlider>
                 ),
               ),
             )
-          : BoxDecoration(
-              gradient: LinearGradient(
-                colors: backgroundColor != null
-                    ? [backgroundColor, backgroundColor]
-                    : [
-                        colorBegin ?? Colors.amberAccent,
-                        colorEnd ?? Colors.amberAccent
-                      ],
-                begin: directionColorBegin ?? Alignment.topLeft,
-                end: directionColorEnd ?? Alignment.bottomRight,
-              ),
-            ),
+          : null,
       child: Container(
         // Title
         child: widgetTitle ??

@@ -236,7 +236,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     }
 
     // Wrap in Swipe widget if needed
-    if (widget.message.roomUid.asUid().isChannel()) {
+    if (!widget.message.roomUid.asUid().isChannel()) {
       messageWidget = Swipe(
         onSwipeLeft: widget.onReply,
         child: Container(
