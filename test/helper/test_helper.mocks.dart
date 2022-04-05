@@ -632,7 +632,7 @@ class MockFileRepo extends _i1.Mock implements _i31.FileRepo {
           as _i18.Future<void>);
   @override
   _i18.Future<_i33.File?> uploadClonedFile(String? uploadKey, String? name,
-          {Function? sendActivity}) =>
+          {void Function(int)? sendActivity}) =>
       (super.noSuchMethod(
           Invocation.method(#uploadClonedFile, [uploadKey, name],
               {#sendActivity: sendActivity}),
@@ -1604,15 +1604,15 @@ class MockContactRepo extends _i1.Mock implements _i54.ContactRepo {
               returnValue: Future<_i56.Contact?>.value())
           as _i18.Future<_i56.Contact?>);
   @override
+  _i18.Future<String?> getContactFromServer(_i3.Uid? contactUid) => (super
+      .noSuchMethod(Invocation.method(#getContactFromServer, [contactUid]),
+          returnValue: Future<String?>.value()) as _i18.Future<String?>);
+  @override
   _i18.Future<bool> contactIsExist(
           String? countryCode, String? nationalNumber) =>
       (super.noSuchMethod(
           Invocation.method(#contactIsExist, [countryCode, nationalNumber]),
           returnValue: Future<bool>.value(false)) as _i18.Future<bool>);
-  @override
-  _i18.Future<String?> getContactFromServer(_i3.Uid? contactUid) => (super
-      .noSuchMethod(Invocation.method(#getContactFromServer, [contactUid]),
-          returnValue: Future<String?>.value()) as _i18.Future<String?>);
 }
 
 /// A class which mocks [AccountRepo].

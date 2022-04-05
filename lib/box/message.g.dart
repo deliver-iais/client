@@ -18,12 +18,13 @@ class MessageAdapter extends TypeAdapter<Message> {
     };
     return Message(
       roomUid: fields[0] as String,
-      id: fields[1] as int?,
       packetId: fields[2] as String,
       time: fields[3] as int,
       from: fields[4] as String,
       to: fields[5] as String,
       json: fields[11] as String,
+      isHidden: fields[12] as bool,
+      id: fields[1] as int?,
       type: fields[10] as MessageType,
       replyToId: fields[6] as int,
       edited: fields[8] as bool,
@@ -35,7 +36,7 @@ class MessageAdapter extends TypeAdapter<Message> {
   @override
   void write(BinaryWriter writer, Message obj) {
     writer
-      ..writeByte(12)
+      ..writeByte(13)
       ..writeByte(0)
       ..write(obj.roomUid)
       ..writeByte(1)
@@ -59,7 +60,9 @@ class MessageAdapter extends TypeAdapter<Message> {
       ..writeByte(10)
       ..write(obj.type)
       ..writeByte(11)
-      ..write(obj.json);
+      ..write(obj.json)
+      ..writeByte(12)
+      ..write(obj.isHidden);
   }
 
   @override

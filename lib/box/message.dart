@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:deliver/box/message_type.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:hive/hive.dart';
 
@@ -43,14 +44,18 @@ class Message {
   @HiveField(11)
   String json;
 
+  @HiveField(12)
+  bool isHidden;
+
   Message({
     required this.roomUid,
-    this.id,
     required this.packetId,
     required this.time,
     required this.from,
     required this.to,
     required this.json,
+    required this.isHidden,
+    this.id,
     this.type = MessageType.NOT_SET,
     this.replyToId = 0,
     this.edited = false,
@@ -58,20 +63,7 @@ class Message {
     this.forwardedFrom,
   });
 
-  Message copy(Message pm) => Message(
-        roomUid: pm.roomUid,
-        id: pm.id ?? id,
-        packetId: pm.packetId,
-        time: pm.time,
-        from: pm.from,
-        to: pm.to,
-        replyToId: pm.replyToId,
-        forwardedFrom: pm.forwardedFrom ?? forwardedFrom,
-        edited: pm.edited,
-        encrypted: pm.encrypted,
-        type: pm.type,
-        json: pm.json,
-      );
+  Message copyDeleted() => copyWith(json: EMPTY_MESSAGE, isHidden: true);
 
   Message copyWith({
     String? roomUid,
@@ -82,6 +74,7 @@ class Message {
     String? to,
     int? replyToId,
     String? forwardedFrom,
+    bool? isHidden,
     bool? edited,
     bool? encrypted,
     MessageType? type,
@@ -96,6 +89,7 @@ class Message {
         to: to ?? this.to,
         replyToId: replyToId ?? this.replyToId,
         forwardedFrom: forwardedFrom ?? this.forwardedFrom,
+        isHidden: isHidden ?? this.isHidden,
         edited: edited ?? this.edited,
         encrypted: encrypted ?? this.encrypted,
         type: type ?? this.type,
@@ -114,6 +108,7 @@ class Message {
           const DeepCollectionEquality().equals(other.from, from) &&
           const DeepCollectionEquality().equals(other.to, to) &&
           const DeepCollectionEquality().equals(other.replyToId, replyToId) &&
+          const DeepCollectionEquality().equals(other.isHidden, isHidden) &&
           const DeepCollectionEquality()
               .equals(other.forwardedFrom, forwardedFrom) &&
           const DeepCollectionEquality().equals(other.edited, edited) &&
@@ -132,6 +127,7 @@ class Message {
         const DeepCollectionEquality().hash(to),
         const DeepCollectionEquality().hash(replyToId),
         const DeepCollectionEquality().hash(forwardedFrom),
+        const DeepCollectionEquality().hash(isHidden),
         const DeepCollectionEquality().hash(edited),
         const DeepCollectionEquality().hash(encrypted),
         const DeepCollectionEquality().hash(type),

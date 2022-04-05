@@ -151,8 +151,13 @@ Future<MessageBrief> extractMessageBrief(
       final callStatus = msg.callEvent.newStatus;
       final time = msg.callEvent.callDuration.toInt();
       final fromCurrentUser = authRepo.isCurrentUserUid(msg.from);
-      typeDetails =
-          getCallText(i18n, callStatus, time, fromCurrentUser: fromCurrentUser) ?? "";
+      typeDetails = getCallText(
+            i18n,
+            callStatus,
+            time,
+            fromCurrentUser: fromCurrentUser,
+          ) ??
+          "";
       break;
 
     case message_pb.Message_Type.table:
@@ -399,10 +404,10 @@ message_pb.Message extractProtocolBufferMessage(Message message) {
     case MessageType.CALL:
       msg.callEvent = message.json.toCallEvent();
       break;
-    case MessageType.NOT_SET:
-      break;
     case MessageType.Table:
       msg.table = message.json.toTable();
+      break;
+    case MessageType.NOT_SET:
       break;
   }
 
@@ -411,9 +416,11 @@ message_pb.Message extractProtocolBufferMessage(Message message) {
 
 Message extractMessage(AuthRepo authRepo, message_pb.Message message) {
   var body = EMPTY_MESSAGE;
+  var isHidden = false;
 
   try {
     body = messageBodyToJson(message);
+    isHidden = isHiddenPbMessage(message);
   } catch (_) {}
 
   return Message(
@@ -429,7 +436,112 @@ Message extractMessage(AuthRepo authRepo, message_pb.Message message) {
     edited: message.edited,
     encrypted: message.encrypted,
     type: getMessageType(message.whichType()),
+    isHidden: isHidden,
   );
+}
+
+bool isHiddenPbMessage(message_pb.Message message) {
+  final type = getMessageType(message.whichType());
+  switch (type) {
+    case MessageType.TEXT:
+    case MessageType.FILE:
+    case MessageType.STICKER:
+    case MessageType.LOCATION:
+    case MessageType.LIVE_LOCATION:
+    case MessageType.POLL:
+    case MessageType.BUTTONS:
+    case MessageType.SHARE_UID:
+    case MessageType.FORM_RESULT:
+    case MessageType.SHARE_PRIVATE_DATA_REQUEST:
+    case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
+    case MessageType.Table:
+    case MessageType.FORM:
+      return false;
+
+    case MessageType.PERSISTENT_EVENT:
+      switch (message.persistEvent.whichType()) {
+        case PersistentEvent_Type.adminSpecificPersistentEvent:
+        case PersistentEvent_Type.mucSpecificPersistentEvent:
+        case PersistentEvent_Type.botSpecificPersistentEvent:
+          return false;
+
+        case PersistentEvent_Type.messageManipulationPersistentEvent:
+        case PersistentEvent_Type.notSet:
+          return true;
+      }
+
+    case MessageType.CALL:
+      switch (message.callEvent.newStatus) {
+        case CallEvent_CallStatus.BUSY:
+        case CallEvent_CallStatus.DECLINED:
+        case CallEvent_CallStatus.ENDED:
+          return false;
+
+        case CallEvent_CallStatus.CREATED:
+        case CallEvent_CallStatus.INVITE:
+        case CallEvent_CallStatus.IS_RINGING:
+        case CallEvent_CallStatus.JOINED:
+        case CallEvent_CallStatus.KICK:
+        case CallEvent_CallStatus.LEFT:
+          return true;
+      }
+      return true;
+
+    case MessageType.NOT_SET:
+      return true;
+  }
+}
+
+bool isHiddenMessage(Message message) {
+  final type = message.type;
+  switch (type) {
+    case MessageType.TEXT:
+    case MessageType.FILE:
+    case MessageType.STICKER:
+    case MessageType.LOCATION:
+    case MessageType.LIVE_LOCATION:
+    case MessageType.POLL:
+    case MessageType.BUTTONS:
+    case MessageType.SHARE_UID:
+    case MessageType.FORM_RESULT:
+    case MessageType.SHARE_PRIVATE_DATA_REQUEST:
+    case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
+    case MessageType.Table:
+    case MessageType.FORM:
+      return false;
+
+    case MessageType.PERSISTENT_EVENT:
+      switch (message.json.toPersistentEvent().whichType()) {
+        case PersistentEvent_Type.adminSpecificPersistentEvent:
+        case PersistentEvent_Type.mucSpecificPersistentEvent:
+        case PersistentEvent_Type.botSpecificPersistentEvent:
+          return false;
+
+        case PersistentEvent_Type.messageManipulationPersistentEvent:
+        case PersistentEvent_Type.notSet:
+          return true;
+      }
+
+    case MessageType.CALL:
+      switch (message.json.toCallEvent().newStatus) {
+        case CallEvent_CallStatus.BUSY:
+        case CallEvent_CallStatus.DECLINED:
+        case CallEvent_CallStatus.ENDED:
+          return false;
+
+        case CallEvent_CallStatus.CREATED:
+        case CallEvent_CallStatus.INVITE:
+        case CallEvent_CallStatus.IS_RINGING:
+        case CallEvent_CallStatus.JOINED:
+        case CallEvent_CallStatus.KICK:
+        case CallEvent_CallStatus.LEFT:
+          return true;
+      }
+      return true;
+
+    case MessageType.NOT_SET:
+      return true;
+  }
 }
 
 String messageBodyToJson(message_pb.Message message) {
@@ -457,16 +569,7 @@ String messageBodyToJson(message_pb.Message message) {
       return message.form.writeToJson();
 
     case MessageType.PERSISTENT_EVENT:
-      switch (message.persistEvent.whichType()) {
-        case PersistentEvent_Type.adminSpecificPersistentEvent:
-        case PersistentEvent_Type.mucSpecificPersistentEvent:
-        case PersistentEvent_Type.botSpecificPersistentEvent:
-          return message.persistEvent.writeToJson();
-
-        case PersistentEvent_Type.messageManipulationPersistentEvent:
-        case PersistentEvent_Type.notSet:
-          return EMPTY_MESSAGE;
-      }
+      return message.persistEvent.writeToJson();
 
     case MessageType.BUTTONS:
       return message.buttons.writeToJson();
@@ -484,21 +587,7 @@ String messageBodyToJson(message_pb.Message message) {
       return message.sharePrivateDataAcceptance.writeToJson();
 
     case MessageType.CALL:
-      switch (message.callEvent.newStatus) {
-        case CallEvent_CallStatus.BUSY:
-        case CallEvent_CallStatus.DECLINED:
-        case CallEvent_CallStatus.ENDED:
-          return message.callEvent.writeToJson();
-
-        case CallEvent_CallStatus.CREATED:
-        case CallEvent_CallStatus.INVITE:
-        case CallEvent_CallStatus.IS_RINGING:
-        case CallEvent_CallStatus.JOINED:
-        case CallEvent_CallStatus.KICK:
-        case CallEvent_CallStatus.LEFT:
-          return EMPTY_MESSAGE;
-      }
-      return EMPTY_MESSAGE;
+      return message.callEvent.writeToJson();
 
     case MessageType.Table:
       return message.table.writeToJson();
