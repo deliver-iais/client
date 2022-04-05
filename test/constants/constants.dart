@@ -27,6 +27,7 @@ Message testMessage = Message(
   roomUid: testUid.asString(),
   time: 0,
   json: '',
+  isHidden: false,
 );
 PendingMessage testPendingMessage = PendingMessage(
   roomUid: testUid.asString(),

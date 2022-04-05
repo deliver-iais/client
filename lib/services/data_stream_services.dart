@@ -18,7 +18,6 @@ import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
-import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/notification_services.dart';
@@ -153,21 +152,26 @@ class DataStreamServices {
               );
               return;
             case MessageManipulationPersistentEvent_Action.DELETED:
-              final mes = await _messageDao.getMessage(
+              final savedMsg = await _messageDao.getMessage(
                 roomUid.asString(),
                 message
                     .persistEvent.messageManipulationPersistentEvent.messageId
                     .toInt(),
               );
-              if (mes != null &&
-                  mes.type == MessageType.FILE &&
-                  mes.id != null) {
-                _mediaDao.deleteMedia(roomUid.asString(), mes.id!);
+
+              if (savedMsg != null) {
+                final msg = savedMsg.copyDeleted();
+
+                if (msg.type == MessageType.FILE && msg.id != null) {
+                  _mediaDao.deleteMedia(roomUid.asString(), msg.id!);
+                }
+
+                _messageDao.saveMessage(msg);
+
+                _roomDao.updateRoom(
+                  Room(uid: roomUid.asString(), lastUpdatedMessageId: msg.id),
+                );
               }
-              _messageDao.saveMessage(mes!..json = EMPTY_MESSAGE);
-              _roomDao.updateRoom(
-                Room(uid: roomUid.asString(), lastUpdatedMessageId: mes.id),
-              );
               return;
           }
           break;
@@ -193,8 +197,7 @@ class DataStreamServices {
     }
     final msg = await saveMessage(message, roomUid);
 
-    if (!msg.json.isEmptyMessage() &&
-        await shouldNotifyForThisMessage(message)) {
+    if (!msg.isHidden && await shouldNotifyForThisMessage(message)) {
       _notificationServices.notifyIncomingMessage(
         message,
         roomUid.asString(),

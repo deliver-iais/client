@@ -1,5 +1,9 @@
 {
   "_first_person_verb_extra_": "",
+  "PHONE_NUMBER": "Phone number",
+  "USERNAME": "Username",
+  "EMAIL": "Email",
+  "NAME": "Name",
   "about": "About",
   "about_update": "ABOUT UPDATE",
   "access_email": "Do you allow access to your email ?",

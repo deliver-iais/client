@@ -104,7 +104,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     Message msg,
     Message? msgBefore,
   ) {
-    if (msg.json.isEmptyMessage()) {
+    if (msg.isHidden) {
       return const SizedBox.shrink();
     }
 
@@ -128,7 +128,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       final d2 = date(msg.time);
 
       if (d1.day == d2.day && d1.month == d2.month && d1.year == d2.year) {
-        if (!msgBefore!.json.isEmptyMessage()) {
+        if (!msgBefore!.isHidden) {
           isFirstMessageInGroupedMessages = false;
         }
       }
@@ -191,7 +191,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           onSecondaryTapDown: storePosition,
           child: Padding(
             padding: EdgeInsets.symmetric(
-              vertical: msg.json == EMPTY_MESSAGE ? 0.0 : 4.0,
+              vertical: msg.isHidden ? 0.0 : 4.0,
             ),
             child: PersistentEventMessage(
               message: msg,

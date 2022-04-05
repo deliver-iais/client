@@ -29,7 +29,7 @@ class CallMessageWidget extends StatelessWidget {
     required this.message,
     required this.colorScheme,
   })  : _callEvent = message.json.toCallEvent().newStatus,
-        _callDuration = message.json.toCallDuration(),
+        _callDuration = message.json.toCallEvent().callDuration.toInt(),
         _isVideo =
             message.json.toCallEvent().callType == CallEvent_CallType.VIDEO,
         super(key: key);
