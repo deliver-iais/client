@@ -13,24 +13,30 @@ class FadeAudioCallBackground extends StatefulWidget {
 
 class _FadeAudioCallBackgroundState extends State<FadeAudioCallBackground> {
   List<double> gradientRadius = [
-    0.4,
+    0.3,
     0.6,
-    0.9,
+    0.4,
+    0.7,
   ];
   List<Alignment> alignmentList = [
     Alignment.topRight,
     Alignment.topCenter,
     Alignment.topLeft,
+    Alignment.centerLeft,
+    Alignment.bottomLeft,
+    Alignment.bottomCenter,
+    Alignment.bottomRight,
+    Alignment.centerRight,
   ];
-  double radius = 0.0;
-  Alignment center = Alignment.topCenter;
+  double radius = 0.3;
+  Alignment center = Alignment.topRight;
   int index = 0;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return AnimatedContainer(
-      duration: const Duration(seconds: 5),
+      duration: const Duration(seconds: 2),
       onEnd: () {
         setState(() {
           index = index + 1;
@@ -52,7 +58,7 @@ class _FadeAudioCallBackgroundState extends State<FadeAudioCallBackground> {
           radius: radius,
           center: center,
           colors: [
-            Color.alphaBlend(theme.primaryColor.withAlpha(150), Colors.white),
+            Color.alphaBlend(theme.primaryColor.withAlpha(150), Colors.black12),
             Color.alphaBlend(Colors.black54, theme.primaryColor.withAlpha(200)),
           ],
         ),
