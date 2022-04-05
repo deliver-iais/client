@@ -55,6 +55,8 @@ abstract class AudioPlayerModule {
   void playIncomingCallSound();
 
   void stopIncomingCallSound();
+
+  void playEndCallSound();
 }
 
 class AudioService {
@@ -164,6 +166,10 @@ class AudioService {
   void stopIncomingCallSound() {
     _playerModule.stopIncomingCallSound();
   }
+
+  void playEndCallSound() {
+    _playerModule.playEndCallSound();
+  }
 }
 
 class NormalAudioPlayer implements AudioPlayerModule {
@@ -256,6 +262,15 @@ class NormalAudioPlayer implements AudioPlayerModule {
   void playIncomingCallSound() {
     _callFastAudioPlayer.play(
       "incoming_call.mp3",
+      mode: PlayerMode.LOW_LATENCY,
+    );
+  }
+
+  @override
+  void playEndCallSound() {
+    _callFastAudioPlayer.play(
+      "end_call.mp3",
+      volume: 0.1,
       mode: PlayerMode.LOW_LATENCY,
     );
   }
@@ -358,4 +373,7 @@ class VlcAudioPlayer implements AudioPlayerModule {
 
   @override
   void stopIncomingCallSound() {}
+
+  @override
+  void playEndCallSound() {}
 }

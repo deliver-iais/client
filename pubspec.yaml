@@ -76,6 +76,10 @@ dependencies:
   flutter_map: 0.14.0
   flutter_webrtc: 0.8.4
   fluttertoast: 8.0.8
+  flutter_foreground_task:
+    git:
+      url: https://github.com/androidwoman/flutter_foreground_task.git
+      ref: b24aeffc07dc047016b4da1f1320ec524d96b161
   geolocator: 7.7.1
   get_it: 7.2.0
   google_fonts: 2.3.1
@@ -143,10 +147,7 @@ dependencies:
       path: plugins/window_size
       ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
       url: https://github.com/google/flutter-desktop-embedding.git
-  flutter_foreground_task:
-    git:
-      url: https://github.com/androidwoman/flutter_foreground_task.git
-      ref: b24aeffc07dc047016b4da1f1320ec524d96b161
+
 
 
 dev_dependencies:
@@ -190,6 +191,7 @@ flutter:
     - lib/lang/en.json
     - lib/lang/fa.json
     - assets/animations/end_of_call.json
+    - assets/audios/end_call.mp3
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

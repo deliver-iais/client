@@ -29,7 +29,8 @@ class CallScreen extends StatefulWidget {
     this.isCallAccepted = false,
     this.isCallInitialized = false,
     this.isIncomingCall = false,
-    this.isVideoCall = false, required this.lastWidget,
+    this.isVideoCall = false,
+    required this.lastWidget,
   }) : super(key: key);
 
   @override
@@ -227,7 +228,8 @@ class _CallScreenState extends State<CallScreen> {
                   );
           case CallStatus.ENDED:
             _logger.i("END!");
-            _audioService.stopBeepSound();
+            _audioService.playEndCallSound();
+
             Timer(const Duration(milliseconds: 1500), () async {
               if (_routingService.canPop()&& !isDesktop) {
                 _routingService.pop();
@@ -299,11 +301,6 @@ class _CallScreenState extends State<CallScreen> {
   Future<void> _hangUp() async {
     _logger.i("Call hang Up ...!");
     _audioService.stopBeepSound();
-    // if (isDesktop) {
-    //   _routingService.pop();
-    // } else {
-    //   Navigator.of(context).pop();
-    // }
     callRepo.endCall();
   }
 }
