@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, constant_identifier_names
+// ignore_for_file: file_names, constant_identifier_names, avoid_dynamic_calls
 
 import 'dart:async';
 import 'dart:convert';
@@ -197,7 +197,8 @@ class CallRepo {
             case CallEvent_CallStatus.JOINED:
             case CallEvent_CallStatus.KICK:
             case CallEvent_CallStatus.LEFT:
-              _logger.w("this case only for group call and it's a bug if happened on PvP call");
+              _logger.w(
+                  "this case only for group call and it's a bug if happened on PvP call");
               break;
           }
           break;
@@ -655,8 +656,11 @@ class CallRepo {
     final la = await _avatarRepo.getLastAvatar(roomUid!);
     String? avatarPath;
     if (la != null && la.fileId != null && la.fileName != null) {
-      avatarPath = await _fileRepo.getFileIfExist(la.fileId!, la.fileName!,
-          thumbnailSize: ThumbnailSize.medium,);
+      avatarPath = await _fileRepo.getFileIfExist(
+        la.fileId!,
+        la.fileName!,
+        thumbnailSize: ThumbnailSize.medium,
+      );
     }
     await FlutterForegroundTask.init(
       androidNotificationOptions: AndroidNotificationOptions(
@@ -793,8 +797,7 @@ class CallRepo {
   Future<void> startCall(Uid roomId, {bool isVideo = false}) async {
     if (_callService.getUserCallState == UserCallState.NOCALL) {
       //can't call another ppl or received any call notification
-      _callService
-        ..setUserCallState = UserCallState.INUSERCALL;
+      _callService.setUserCallState = UserCallState.INUSERCALL;
 
       _isCaller = true;
       _isVideo = isVideo;
@@ -819,7 +822,7 @@ class CallRepo {
   }
 
   void _sendStartCallEvent() {
-    //TODO handle recivied Created on fetchMessage when User offline then go online
+    // TODO(AmirHossein): handle recivied Created on fetchMessage when User offline then go online
     final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
     _messageRepo.sendCallMessageWithMemberOrCallOwnerPvp(
       CallEvent_CallStatus.CREATED,
@@ -934,16 +937,16 @@ class CallRepo {
       _callDuration = calculateCallEndTime();
       _logger.i("Call Duration on Caller(1): " + _callDuration.toString());
       final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
-        _messageRepo.sendCallMessage(
-          CallEvent_CallStatus.ENDED,
-          _roomUid!,
-          _callId,
-          _callDuration!,
-          endOfCallDuration,
-          _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
-        );
+      _messageRepo.sendCallMessage(
+        CallEvent_CallStatus.ENDED,
+        _roomUid!,
+        _callId,
+        _callDuration!,
+        endOfCallDuration,
+        _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
+      );
     } else {
-      if(timerEndCallDispose != null){
+      if (timerEndCallDispose != null) {
         timerEndCallDispose!.cancel();
       }
       _callDuration = callDuration;
@@ -951,7 +954,7 @@ class CallRepo {
     await _dispose();
   }
 
-  //TODO removed Force End Call and we need Handle it with third-party Service
+  // TODO(AmirHossein): removed Force End Call and we need Handle it with third-party Service.
   Future<void> endCall() async {
     if (_callService.getUserCallState != CallStatus.NO_CALL) {
       if (_isCaller) {
@@ -1153,8 +1156,7 @@ class CallRepo {
       if (_isInitRenderer) {
         await disposeRenderer();
       }
-      _callService
-        ..setUserCallState = UserCallState.NOCALL;
+      _callService.setUserCallState = UserCallState.NOCALL;
     });
   }
 
