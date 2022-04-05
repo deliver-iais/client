@@ -203,6 +203,7 @@ class _InputMessageWidget extends State<InputMessage> {
         try {
           if (widget.textController.text.isNotEmpty &&
               widget.textController.text[start] == "@" &&
+              (start==0 || widget.textController.text[start-1] == " " )&&
               widget.textController.selection.start ==
                   widget.textController.selection.end &&
               idRegexp.hasMatch(

@@ -1,14 +1,15 @@
-import 'package:deliver/repository/callRepo.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class CallState extends StatelessWidget {
+  final _i18n = GetIt.I.get<I18N>();
   final CallEvent_CallStatus callStatus;
   final int time;
   final bool isCurrentUser;
   final TextStyle? textStyle;
-  final callRepo = GetIt.I.get<CallRepo>();
 
   CallState({
     Key? key,
@@ -20,40 +21,16 @@ class CallState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (callStatus == CallEvent_CallStatus.ENDED &&
-        isCurrentUser &&
-        time == 0) {
+    final text = getCallText(
+      _i18n,
+      callStatus,
+      time,
+      fromCurrentUser: isCurrentUser,
+    );
+
+    if (text != null) {
       return Text(
-        "Canceled call",
-        style: textStyle,
-      );
-    } else if (callStatus == CallEvent_CallStatus.DECLINED && time == 0) {
-      return Text(
-        "Call declined",
-        style: textStyle,
-      );
-    } else if (callStatus == CallEvent_CallStatus.BUSY && time == 0) {
-      return Text(
-        "Busy",
-        style: textStyle,
-      );
-    } else if (callStatus == CallEvent_CallStatus.ENDED &&
-        !callRepo.isCaller &&
-        time == 0) {
-      return Text(
-        "Missed call",
-        style: textStyle,
-      );
-    } else if (callStatus == CallEvent_CallStatus.ENDED &&
-        isCurrentUser &&
-        time != 0) {
-      return Text(
-        "outgoing call",
-        style: textStyle,
-      );
-    } else if (callStatus == CallEvent_CallStatus.ENDED && time != 0) {
-      return Text(
-        "Incoming call",
+        text,
         style: textStyle,
       );
     } else {
