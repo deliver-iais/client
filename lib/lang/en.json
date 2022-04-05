@@ -295,5 +295,6 @@
   "you": "You",
   "you_add_user_to_muc": "added",
   "you_create_channel": "Create Channel",
-  "you_create_group": "Create Group"
+  "you_create_group": "Create Group",
+  "you_already_in_call": "you are already in a call with another user"
 }

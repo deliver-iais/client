@@ -301,5 +301,6 @@
   "you": "شما",
   "you_add_user_to_muc": "اضافه کردید ",
   "you_create_channel": "کانال را ساختید.",
-  "you_create_group": "گروه را ساختید."
+  "you_create_group": "گروه را ساختید.",
+  "you_already_in_call": "شما هم اکنون در حال تماس با یک فرد دیگر هستید"
 }

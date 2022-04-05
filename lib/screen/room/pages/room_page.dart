@@ -14,6 +14,7 @@ import 'package:deliver/box/seen.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
+import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
@@ -33,6 +34,7 @@ import 'package:deliver/screen/room/widgets/mute_and_unmute_room_widget.dart';
 import 'package:deliver/screen/room/widgets/new_message_input.dart';
 import 'package:deliver/screen/room/widgets/unread_message_bar.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -95,6 +97,8 @@ class _RoomPageState extends State<RoomPage> {
   static final _botRepo = GetIt.I.get<BotRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _sharedDao = GetIt.I.get<SharedDao>();
+  final _callService = GetIt.I.get<CallService>();
+  final callRepo = GetIt.I.get<CallRepo>();
 
   int _lastSeenMessageId = -1;
   int _lastShowedMessageId = -1;
@@ -732,7 +736,33 @@ class _RoomPageState extends State<RoomPage> {
                   .contains(_authRepo.currentUserUid.asString()))
             IconButton(
               onPressed: () {
-                _routingService.openCallScreen(room.uid.asUid());
+                if (_callService.getUserCallState == UserCallState.NOCALL) {
+                  _routingService.openCallScreen(room.uid.asUid());
+                } else {
+                  if (room.uid.asUid() == callRepo.roomUid) {
+                    _routingService.openCallScreen(
+                      room.uid.asUid(),
+                      isCallInitialized: true,
+                    );
+                  } else {
+                    showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        content: Text(
+                          _i18n.get("you_already_in_call"),
+                        ),
+                        actions: <Widget>[
+                          TextButton(
+                            child: Text(_i18n.get("ok")),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          )
+                        ],
+                      ),
+                    );
+                  }
+                }
               },
               icon: const Icon(CupertinoIcons.phone),
             ),
