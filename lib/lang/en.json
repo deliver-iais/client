@@ -295,5 +295,10 @@
   "you": "You",
   "you_add_user_to_muc": "added",
   "you_create_channel": "Create Channel",
-  "you_create_group": "Create Group"
+  "you_create_group": "Create Group",
+  "two_step_verification": "Two step verification",
+  "need_to_set_email": "you not set  email, to active two-step-verification go to  account setting and   set email",
+  "go_setting": "go setting",
+  "two_step_verification_des": "This password will be asked when you login on a  new  device in addition to SMS code",
+  "email_for_two_step": "when you forget the password we send password to this email"
 }

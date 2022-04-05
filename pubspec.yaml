@@ -164,6 +164,7 @@ flutter:
     - assets/animations/arrow.json
     - assets/animations/audio_wave.tgs
     - assets/animations/clock.json
+    - assets/animations/lock.json
     - assets/animations/done.tgs
     - assets/animations/file-save.json
     - assets/animations/not-found.tgs

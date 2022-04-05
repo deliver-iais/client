@@ -32,6 +32,7 @@ class AuthRepo {
   String? _refreshToken;
   late PhoneNumber _tmpPhoneNumber;
   var _localPassword = "";
+  var _password = "";
 
   String? get refreshToken => _refreshToken;
 
@@ -50,6 +51,7 @@ class AuthRepo {
   Future<void> init() async {
     try {
       _localPassword = await _sharedDao.get(SHARED_DAO_LOCAL_PASSWORD) ?? "";
+      _password = await _sharedDao.get(SHARED_DAO_PASSWORD) ?? "";
       final accessToken = await _sharedDao.get(SHARED_DAO_ACCESS_TOKEN_KEY);
       final refreshToken = await _sharedDao.get(SHARED_DAO_REFRESH_TOKEN_KEY);
       _setTokensAndCurrentUserUid(accessToken, refreshToken);
@@ -161,9 +163,15 @@ class AuthRepo {
 
   String getLocalPassword() => _localPassword;
 
+  bool isTwoStepVerificationEnabled() => _password != "";
+
+  void setPassword(String pass) {
+    _sharedDao.put(SHARED_DAO_PASSWORD, pass);
+    _password = pass;
+  }
+
   void setLocalPassword(String pass) {
     _localPassword = pass;
-
     _sharedDao.put(SHARED_DAO_LOCAL_PASSWORD, pass);
   }
 

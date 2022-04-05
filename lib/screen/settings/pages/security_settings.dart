@@ -1,6 +1,8 @@
+import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/constants.dart';
 
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
@@ -8,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:lottie/lottie.dart';
 
 class SecuritySettingsPage extends StatefulWidget {
   const SecuritySettingsPage({Key? key}) : super(key: key);
@@ -20,6 +23,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _i18n = GetIt.I.get<I18N>();
+  final _shareDao = GetIt.I.get<SharedDao>();
   var _currentPass = "";
   var _pass = "";
   var _repeatedPass = "";
@@ -66,7 +70,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                 if (_authRepo.isLocalLockEnabled())
                   SettingsTile(
                     title: _i18n.get("edit_password"),
-                    leading: const Icon(CupertinoIcons.square_arrow_left),
+                    leading: const Icon(CupertinoIcons.bandage),
                     onPressed: (c) {
                       showDialog(
                         context: context,
@@ -79,6 +83,52 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                   ),
               ],
             ),
+            Section(
+              title: _i18n.get("two_step_verification"),
+              children: [
+                SettingsTile.switchTile(
+                  title: _i18n.get("two_step_verification"),
+                  leading: const Icon(CupertinoIcons.lock),
+                  switchValue: _authRepo.isTwoStepVerificationEnabled(),
+                  onToggle: (enabled) async {
+                    if (enabled) {
+                      final email = await _shareDao.get(SHARED_DAO_EMAIL);
+                      if (email != null && email.isNotEmpty) {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return setPassword(email);
+                          },
+                        );
+                      } else {
+                        showDialog(
+                            context: context,
+                            builder: (c) {
+                              return AlertDialog(
+                                content: Text(_i18n.get("need_to_set_email")),
+                                actions: [
+                                  TextButton(
+                                      onPressed: () {
+                                        Navigator.pop(c);
+                                        _routingService.openAccountSettings();
+                                      },
+                                      child: Text(_i18n.get("go_setting")))
+                                ],
+                              );
+                            });
+                      }
+                    } else {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return disablePassword();
+                        },
+                      );
+                    }
+                  },
+                ),
+              ],
+            )
           ],
         ),
       ),
@@ -125,6 +175,76 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget setPassword(String email) {
+    final _pasController = TextEditingController();
+    final _repPasController = TextEditingController();
+    return StatefulBuilder(
+      builder: (c, set) {
+        return AlertDialog(
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(c);
+              },
+              child: Text(_i18n.get("cancel")),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                //todo
+              },
+              child: Text(_i18n.get("save")),
+            )
+          ],
+          title: Text(_i18n.get("two_step_verification")),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Lottie.asset(
+                "assets/animations/lock.json",
+                width: 60,
+                height: 60,
+                delegates: LottieDelegates(
+                  values: [
+                    ValueDelegate.color(
+                      const ['**'],
+                      value: Theme.of(context).colorScheme.primary,
+                    ),
+                  ],
+                ),
+              ),
+              TextField(
+                controller: _pasController,
+                decoration: InputDecoration(
+                  hintText: _i18n.get("password"),
+                ),
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              TextField(
+                controller: _repPasController,
+                decoration: InputDecoration(
+                  hintText: _i18n.get("repeat_password"),
+                ),
+              ),
+              const SizedBox(height: 20,),
+              Text(_i18n.get("two_step_verification_des")),
+              const SizedBox(
+                height: 40,
+              ),
+              TextField(
+                readOnly: true,
+                controller: TextEditingController(text: email),
+                decoration: InputDecoration(
+                    helperText: _i18n.get("email_for_two_step")),
+              )
+            ],
+          ),
+        );
+      },
     );
   }
 
