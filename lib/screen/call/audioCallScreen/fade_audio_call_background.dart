@@ -1,3 +1,4 @@
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
 
 class FadeAudioCallBackground extends StatefulWidget {
@@ -54,14 +55,18 @@ class _FadeAudioCallBackgroundState extends State<FadeAudioCallBackground> {
           ),
           image: widget.image,
         ),
-        gradient: RadialGradient(
-          radius: radius,
-          center: center,
-          colors: [
-            Color.alphaBlend(theme.primaryColor.withAlpha(150), Colors.black12),
-            Color.alphaBlend(Colors.black54, theme.primaryColor.withAlpha(200)),
-          ],
-        ),
+        gradient: isDesktop
+            ? null
+            : RadialGradient(
+                radius: radius,
+                center: center,
+                colors: [
+                  Color.alphaBlend(
+                      theme.primaryColor.withAlpha(150), Colors.black12),
+                  Color.alphaBlend(
+                      Colors.black54, theme.primaryColor.withAlpha(200)),
+                ],
+              ),
       ),
     );
   }
