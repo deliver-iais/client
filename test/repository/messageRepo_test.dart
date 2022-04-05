@@ -463,6 +463,7 @@ void main() {
             time: 0,
             id: 0,
             json: DELETED_ROOM_MESSAGE,
+            isHidden: true,
             forwardedFrom: testUid.asString(),
             to: testUid.asString(),
             from: testUid.asString(),
@@ -480,6 +481,7 @@ void main() {
           packetId: testUid.asString(),
           time: 0,
           json: DELETED_ROOM_MESSAGE,
+          isHidden: true,
           roomUid: testUid.asString(),
         );
         final roomDao = getAndRegisterRoomDao();
@@ -526,6 +528,7 @@ void main() {
           packetId: testUid.asString(),
           time: 0,
           json: "{test}",
+          isHidden: false,
           roomUid: testUid.asString(),
         );
         final roomDao = getAndRegisterRoomDao();
@@ -611,6 +614,7 @@ void main() {
         time: 0,
         id: 0,
         json: DELETED_ROOM_MESSAGE,
+        isHidden: true,
         forwardedFrom: testUid.asString(),
         to: testUid.asString(),
         from: testUid.asString(),

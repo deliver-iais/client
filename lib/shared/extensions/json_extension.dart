@@ -44,8 +44,6 @@ extension JsonMapper on String {
 
   CallEvent toCallEvent() => CallEvent.fromJson(this);
 
-  bool isEmptyMessage() => this == EMPTY_MESSAGE;
-
   bool chatIsDeleted() => this == DELETED_ROOM_MESSAGE;
 
   int toCallDuration() => CallEvent.fromJson(this).callDuration.toInt();

@@ -293,7 +293,7 @@ class MessageRepo {
               lastMessageIsSet = true;
               lastMessage = msg.copyWith(json: DELETED_ROOM_MESSAGE);
               break;
-            } else if (!msg.json.isEmptyMessage()) {
+            } else if (!msg.isHidden) {
               lastMessageIsSet = true;
               lastMessage = msg;
               break;
@@ -373,7 +373,7 @@ class MessageRepo {
       if (firstMessageId != null && element.id! <= firstMessageId) {
         lastMessage = element.copyWith(json: DELETED_ROOM_MESSAGE);
         break;
-      } else if (!element.json.isEmptyMessage()) {
+      } else if (!element.isHidden) {
         lastMessage = element;
         break;
       } else if (element.id == 1) {
@@ -826,7 +826,7 @@ class MessageRepo {
       PendingMessage(
         roomUid: msg.roomUid,
         packetId: msg.packetId,
-        msg: msg,
+        msg: msg.copyWith(isHidden: isHiddenMessage(msg)),
         status: status,
       );
 
@@ -906,6 +906,7 @@ class MessageRepo {
         replyToId: replyId,
         forwardedFrom: forwardedFrom,
         json: EMPTY_MESSAGE,
+        isHidden: true,
       );
 
   String _getPacketId() => clock.now().microsecondsSinceEpoch.toString();
@@ -1053,7 +1054,7 @@ class MessageRepo {
                     if (mes.type == MessageType.FILE && mes.id != null) {
                       _mediaDao.deleteMedia(roomUid.asString(), mes.id!);
                     }
-                    _messageDao.saveMessage(mes.copyWith(json: EMPTY_MESSAGE));
+                    _messageDao.saveMessage(mes.copyDeleted());
                     _roomDao.updateRoom(
                       Room(
                         uid: roomUid.asString(),
@@ -1259,7 +1260,9 @@ class MessageRepo {
 
   Future<void> deleteMessage(List<Message> messages) async {
     try {
-      for (final msg in messages) {
+      for (final message in messages) {
+        final msg = message.copyDeleted();
+
         if (msg.type == MessageType.FILE && msg.id != null) {
           _mediaDao.deleteMedia(msg.roomUid, msg.id!);
         }
@@ -1273,14 +1276,13 @@ class MessageRepo {
                 _roomDao.updateRoom(
                   Room(
                     uid: msg.roomUid,
-                    lastMessage: msg.copyWith(json: EMPTY_MESSAGE),
+                    lastMessage: msg,
                     lastUpdateTime: clock.now().millisecondsSinceEpoch,
                   ),
                 );
               }
             }
 
-            msg.json = EMPTY_MESSAGE;
             _messageDao.saveMessage(msg);
             _roomDao.updateRoom(
               Room(uid: msg.roomUid, lastUpdatedMessageId: msg.id),

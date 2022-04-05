@@ -920,7 +920,7 @@ class _RoomPageState extends State<RoomPage> {
                     if (!snapshot.hasData ||
                         snapshot.data == null ||
                         _authRepo.isCurrentUser(snapshot.data!.from) ||
-                        snapshot.data!.json.isEmptyMessage()) {
+                        snapshot.data!.isHidden) {
                       return const SizedBox.shrink();
                     }
                     return const UnreadMessageBar();
@@ -979,7 +979,7 @@ class _RoomPageState extends State<RoomPage> {
 
     if (index > 0) {
       final prevMsg = await _messageAtIndex(index);
-      if (prevMsg!.json.isEmptyMessage() || msg!.json.isEmptyMessage()) {
+      if (prevMsg!.isHidden || msg!.isHidden) {
         return null;
       }
 
@@ -1037,7 +1037,7 @@ class _RoomPageState extends State<RoomPage> {
 
     Widget? widget;
 
-    if (!tuple.item2!.json.isEmptyMessage() && !tuple.item2!.edited) {
+    if (!tuple.item2!.isHidden && !tuple.item2!.edited) {
       widget = _messageWidgetCache.get(index);
     }
 

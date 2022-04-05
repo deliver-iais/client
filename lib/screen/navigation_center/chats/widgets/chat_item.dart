@@ -56,7 +56,7 @@ class _ChatItemState extends State<ChatItem> {
             widget.room.lastMessage!.json.chatIsDeleted()
         ? const SizedBox.shrink()
         : widget.room.lastMessage == null ||
-                widget.room.lastMessage!.json.isEmptyMessage()
+                widget.room.lastMessage!.isHidden
             ? FutureBuilder<Message?>(
                 future: _messageRepo.fetchLastMessages(
                   widget.room.uid.asUid(),

@@ -7,7 +7,6 @@ import 'package:deliver/box/message_type.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -40,16 +39,68 @@ class PersistentEventMessage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (message.isHidden) {
+      return const SizedBox.shrink();
+    }
+
     final theme = Theme.of(context);
-    return message.json == EMPTY_MESSAGE
-        ? const SizedBox.shrink()
-        : persistentEventMessage.whichType() ==
-                PersistentEvent_Type.botSpecificPersistentEvent
-            ? Padding(
-                padding: const EdgeInsets.only(left: 1),
+
+    return persistentEventMessage.whichType() ==
+            PersistentEvent_Type.botSpecificPersistentEvent
+        ? Padding(
+            padding: const EdgeInsets.only(left: 1),
+            child: Container(
+              constraints: BoxConstraints(
+                maxWidth: maxWidth,
+              ),
+              padding: const EdgeInsets.only(
+                top: 5,
+                left: 8.0,
+                right: 8.0,
+                bottom: 4.0,
+              ),
+              decoration: BoxDecoration(
+                color: theme.chipTheme.backgroundColor,
+                borderRadius: secondaryBorder,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        CupertinoIcons.exclamationmark_bubble,
+                        color: theme.colorScheme.error,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        _i18n.get("bot_not_responding"),
+                        style: const TextStyle(fontSize: 16),
+                      ),
+                    ],
+                  ),
+                  if (persistentEventMessage
+                      .botSpecificPersistentEvent.errorMessage.isNotEmpty)
+                    Text(
+                      persistentEventMessage
+                          .botSpecificPersistentEvent.errorMessage,
+                      style: theme.textTheme.caption,
+                    )
+                ],
+              ),
+            ),
+          )
+        : Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 4.0),
                 child: Container(
-                  constraints: BoxConstraints(
-                    maxWidth: maxWidth,
+                  decoration: BoxDecoration(
+                    color: theme.chipTheme.backgroundColor,
+                    borderRadius: tertiaryBorder,
+                    border: Border.fromBorderSide(theme.chipTheme.side!),
                   ),
                   padding: const EdgeInsets.only(
                     top: 5,
@@ -57,106 +108,57 @@ class PersistentEventMessage extends StatelessWidget {
                     right: 8.0,
                     bottom: 4.0,
                   ),
-                  decoration: BoxDecoration(
-                    color: theme.chipTheme.backgroundColor,
-                    borderRadius: secondaryBorder,
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            CupertinoIcons.exclamationmark_bubble,
-                            color: theme.colorScheme.error,
+                  child: FutureBuilder<List<Widget>?>(
+                    future: getPersistentMessage(
+                      persistentEventMessage,
+                      context,
+                      isChannel: message.roomUid.isChannel(),
+                    ),
+                    builder: (c, s) {
+                      if (s.hasData && s.data != null) {
+                        return Directionality(
+                          textDirection: _i18n.isPersian
+                              ? TextDirection.rtl
+                              : TextDirection.ltr,
+                          child: Row(
+                            children: s.data!,
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            _i18n.get("bot_not_responding"),
-                            style: const TextStyle(fontSize: 16),
-                          ),
-                        ],
-                      ),
-                      if (persistentEventMessage
-                          .botSpecificPersistentEvent.errorMessage.isNotEmpty)
-                        Text(
-                          persistentEventMessage
-                              .botSpecificPersistentEvent.errorMessage,
-                          style: theme.textTheme.caption,
-                        )
-                    ],
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
                   ),
                 ),
-              )
-            : Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: theme.chipTheme.backgroundColor,
-                        borderRadius: tertiaryBorder,
-                        border: Border.fromBorderSide(theme.chipTheme.side!),
-                      ),
-                      padding: const EdgeInsets.only(
-                        top: 5,
-                        left: 8.0,
-                        right: 8.0,
-                        bottom: 4.0,
-                      ),
-                      child: FutureBuilder<List<Widget>?>(
-                        future: getPersistentMessage(
-                          persistentEventMessage,
-                          context,
-                          isChannel: message.roomUid.isChannel(),
-                        ),
-                        builder: (c, s) {
-                          if (s.hasData && s.data != null) {
-                            return Directionality(
-                              textDirection: _i18n.isPersian
-                                  ? TextDirection.rtl
-                                  : TextDirection.ltr,
-                              child: Row(
-                                children: s.data!,
-                              ),
-                            );
-                          } else {
-                            return const SizedBox.shrink();
-                          }
-                        },
-                      ),
-                    ),
+              ),
+              if (message.json.toPersistentEvent().whichType() ==
+                      PersistentEvent_Type.mucSpecificPersistentEvent &&
+                  message.json
+                          .toPersistentEvent()
+                          .mucSpecificPersistentEvent
+                          .issue ==
+                      MucSpecificPersistentEvent_Issue.AVATAR_CHANGED)
+                FutureBuilder<String?>(
+                  future: _fileRepo.getFile(
+                    persistentEventMessage
+                        .mucSpecificPersistentEvent.avatar.fileUuid,
+                    persistentEventMessage
+                        .mucSpecificPersistentEvent.avatar.fileName,
                   ),
-                  if (message.json.toPersistentEvent().whichType() ==
-                          PersistentEvent_Type.mucSpecificPersistentEvent &&
-                      message.json
-                              .toPersistentEvent()
-                              .mucSpecificPersistentEvent
-                              .issue ==
-                          MucSpecificPersistentEvent_Issue.AVATAR_CHANGED)
-                    FutureBuilder<String?>(
-                      future: _fileRepo.getFile(
-                        persistentEventMessage
-                            .mucSpecificPersistentEvent.avatar.fileUuid,
-                        persistentEventMessage
-                            .mucSpecificPersistentEvent.avatar.fileName,
-                      ),
-                      builder: (context, fileSnapshot) {
-                        if (fileSnapshot.hasData && fileSnapshot.data != null) {
-                          return CircleAvatar(
-                            backgroundImage:
-                                Image.file(File(fileSnapshot.data!)).image,
-                            radius: 35,
-                          );
-                        } else {
-                          return const SizedBox.shrink();
-                        }
-                      },
-                    ),
-                ],
-              );
+                  builder: (context, fileSnapshot) {
+                    if (fileSnapshot.hasData && fileSnapshot.data != null) {
+                      return CircleAvatar(
+                        backgroundImage:
+                            Image.file(File(fileSnapshot.data!)).image,
+                        radius: 35,
+                      );
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  },
+                ),
+            ],
+          );
   }
 
   Future<List<Widget>?> getPersistentMessage(
