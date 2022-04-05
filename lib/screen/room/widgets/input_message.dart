@@ -203,7 +203,7 @@ class _InputMessageWidget extends State<InputMessage> {
         try {
           if (widget.textController.text.isNotEmpty &&
               widget.textController.text[start] == "@" &&
-              (start==0 || widget.textController.text[start-1] == " " )&&
+              (start == 0 || widget.textController.text[start - 1] == " ") &&
               widget.textController.selection.start ==
                   widget.textController.selection.end &&
               idRegexp.hasMatch(
@@ -657,13 +657,13 @@ class _InputMessageWidget extends State<InputMessage> {
 
   KeyEventResult handleKeyPress(RawKeyEvent event) {
     if (event is RawKeyUpEvent &&
-        event.physicalKey == PhysicalKeyboardKey.arrowUp) {
-      widget.handleScrollToMessage(-1);
-      return KeyEventResult.handled;
-    }
-    if (event is RawKeyUpEvent &&
-        event.physicalKey == PhysicalKeyboardKey.arrowDown) {
-      widget.handleScrollToMessage(1);
+        {PhysicalKeyboardKey.arrowUp, PhysicalKeyboardKey.arrowDown}
+            .contains(event.physicalKey) &&
+        (widget.textController.selection.baseOffset ==
+                widget.textController.text.length ||
+            widget.textController.selection.baseOffset == 0)) {
+      widget.handleScrollToMessage(
+          event.physicalKey == PhysicalKeyboardKey.arrowDown ? 1 : -1);
       return KeyEventResult.handled;
     }
     if (!_uxService.sendByEnter &&
