@@ -7,6 +7,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
+import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -19,8 +20,6 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
-
-import '../../shared/widgets/crop_image.dart';
 
 class AccountSettings extends StatefulWidget {
   final bool forceToSetUsernameAndName;
@@ -76,7 +75,7 @@ class _AccountSettingsState extends State<AccountSettings> {
       }
 
       if (path != null) {
-        setAvatar(path);
+        cropAvatar(path);
       }
     } else {
       showModalBottomSheet(
@@ -120,10 +119,14 @@ class _AccountSettingsState extends State<AccountSettings> {
       context,
       MaterialPageRoute(
         builder: (c) {
-          return CropImage(imagePath, (path) {
-            imagePath = path;
-            setAvatar(imagePath);
-          });
+          return OpenImagePage(
+            onEditEnd: (path) {
+              imagePath = path;
+              Navigator.pop(context);
+              setAvatar(imagePath);
+            },
+            imagePath: imagePath,
+          );
         },
       ),
     );
