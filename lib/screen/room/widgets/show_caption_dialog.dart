@@ -15,6 +15,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -130,28 +131,31 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                 ? 1
                                 : widget.files!.length,
                             itemBuilder: (c, index) {
-                              if (isImageFile(index)) {
-                                return imageUi(index);
-                              }
                               return Row(
                                 children: [
-                                  ClipOval(
-                                    child: Material(
-                                      color: theme.primaryColor, // button color
-                                      child: const InkWell(
-                                        splashColor:
-                                            Colors.blue, // inkwell color
-                                        child: SizedBox(
-                                          width: 30,
-                                          height: 40,
-                                          child: Icon(
-                                            Icons.insert_drive_file,
-                                            size: 20,
+                                  if (isImageFile(index))
+                                    buildImage(
+                                      widget.files![index].path,width: 100,height: 100
+                                    )
+                                  else
+                                    ClipOval(
+                                      child: Material(
+                                        color:
+                                            theme.primaryColor, // button color
+                                        child: const InkWell(
+                                          splashColor:
+                                              Colors.blue, // inkwell color
+                                          child: SizedBox(
+                                            width: 30,
+                                            height: 40,
+                                            child: Icon(
+                                              Icons.insert_drive_file,
+                                              size: 20,
+                                            ),
                                           ),
                                         ),
                                       ),
                                     ),
-                                  ),
                                   const SizedBox(
                                     width: 3,
                                   ),
@@ -358,21 +362,13 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
           children: [
             Center(
               child: widget.files!.isNotEmpty
-                  ? isWeb
-                      ? Image.network(
-                          index == null
-                              ? widget.files!.first.path
-                              : widget.files![index].path,
-                        )
-                      : Image.file(
-                          File(
-                            index == null
-                                ? widget.files!.first.path
-                                : widget.files![index].path,
-                          ),
-                        )
+                  ? buildImage(
+                      index == null
+                          ? widget.files!.first.path
+                          : widget.files![index].path,
+                    )
                   : _editedFile != null
-                      ? Image.file(File(_editedFile!.path))
+                      ? buildImage(_editedFile!.path)
                       : FutureBuilder<String?>(
                           future: _fileRepo.getFileIfExist(
                             _editableFile.uuid,
@@ -400,6 +396,14 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
       ),
     );
   }
+
+  Widget buildImage(String path, {double? width, double? height}) => kIsWeb
+      ? Image.network(path)
+      : Image.file(
+          File(path),
+          width: width,
+          height: height,
+        );
 
   void send() {
     Navigator.pop(context);
