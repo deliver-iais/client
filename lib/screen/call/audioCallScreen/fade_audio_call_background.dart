@@ -52,10 +52,7 @@ class _FadeAudioCallBackgroundState extends State<FadeAudioCallBackground> {
           radius: radius,
           center: center,
           colors: [
-            Color.alphaBlend(
-              theme.primaryColorLight,
-              theme.scaffoldBackgroundColor.withAlpha(150),
-            ),
+            Color.alphaBlend(theme.primaryColor.withAlpha(150), Colors.white),
             Color.alphaBlend(Colors.black54, theme.primaryColor.withAlpha(200)),
           ],
         ),
