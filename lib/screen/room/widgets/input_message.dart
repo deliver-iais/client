@@ -663,7 +663,8 @@ class _InputMessageWidget extends State<InputMessage> {
                 widget.textController.text.length ||
             widget.textController.selection.baseOffset == 0)) {
       widget.handleScrollToMessage(
-          event.physicalKey == PhysicalKeyboardKey.arrowDown ? 1 : -1);
+        event.physicalKey == PhysicalKeyboardKey.arrowDown ? 1 : -1,
+      );
       return KeyEventResult.handled;
     }
     if (!_uxService.sendByEnter &&

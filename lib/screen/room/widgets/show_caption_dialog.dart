@@ -135,7 +135,9 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
                                 children: [
                                   if (isImageFile(index))
                                     buildImage(
-                                      widget.files![index].path,width: 100,height: 100
+                                      widget.files![index].path,
+                                      width: 100,
+                                      height: 100,
                                     )
                                   else
                                     ClipOval(

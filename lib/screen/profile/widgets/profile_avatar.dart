@@ -136,9 +136,11 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
           type: FileType.image,
         );
         if (result!.files.isNotEmpty) {
-          cropAvatar(isWeb
-              ? Uri.dataFromBytes(result.files.first.bytes!.toList()).toString()
-              : result.files.first.path!,
+          cropAvatar(
+            isWeb
+                ? Uri.dataFromBytes(result.files.first.bytes!.toList())
+                    .toString()
+                : result.files.first.path!,
           );
         }
       }
@@ -180,15 +182,20 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
   }
 
   Future<void> cropAvatar(String imagePath) async {
-    Navigator.push(context, MaterialPageRoute(builder: (c) {
-      return OpenImagePage(
-        onEditEnd: (path) {
-            imagePath = path;
-          Navigator.pop(context);
-          _setAvatar(imagePath);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (c) {
+          return OpenImagePage(
+            onEditEnd: (path) {
+              imagePath = path;
+              Navigator.pop(context);
+              _setAvatar(imagePath);
+            },
+            imagePath: imagePath,
+          );
         },
-        imagePath: imagePath,
-      );
-    }));
+      ),
+    );
   }
 }

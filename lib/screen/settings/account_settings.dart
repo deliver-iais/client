@@ -115,16 +115,21 @@ class _AccountSettingsState extends State<AccountSettings> {
   }
 
   Future<void> cropAvatar(String imagePath) async {
-    Navigator.push(context, MaterialPageRoute(builder: (c) {
-      return OpenImagePage(
-        onEditEnd: (path) {
-          imagePath = path;
-          Navigator.pop(context);
-          setAvatar(imagePath);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (c) {
+          return OpenImagePage(
+            onEditEnd: (path) {
+              imagePath = path;
+              Navigator.pop(context);
+              setAvatar(imagePath);
+            },
+            imagePath: imagePath,
+          );
         },
-        imagePath: imagePath,
-      );
-    }));
+      ),
+    );
   }
 
   Future<void> setAvatar(String path) async {
