@@ -42,6 +42,4 @@ extension JsonMapper on String {
       SharePrivateDataRequest.fromJson(this);
 
   CallEvent toCallEvent() => CallEvent.fromJson(this);
-
-  int toCallDuration() => CallEvent.fromJson(this).callDuration.toInt();
 }
