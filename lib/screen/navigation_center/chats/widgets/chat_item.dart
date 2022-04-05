@@ -7,7 +7,6 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/activity_status.dart';
@@ -52,30 +51,24 @@ class _ChatItemState extends State<ChatItem> {
   @override
   Widget build(BuildContext context) {
     _roomRepo.initActivity(widget.room.uid.asUid().node);
-    return widget.room.lastMessage != null &&
-            widget.room.lastMessage!.json.chatIsDeleted()
-        ? const SizedBox.shrink()
-        : widget.room.lastMessage == null ||
-                widget.room.lastMessage!.isHidden
-            ? FutureBuilder<Message?>(
-                future: _messageRepo.fetchLastMessages(
-                  widget.room.uid.asUid(),
-                  widget.room.lastMessageId!,
-                  widget.room.firstMessageId,
-                  widget.room,
-                  limit: 5,
-                  type: FetchMessagesReq_Type.BACKWARD_FETCH,
-                ),
-                builder: (c, s) {
-                  if (s.hasData &&
-                      s.data != null &&
-                      !s.data!.json.chatIsDeleted()) {
-                    return buildLastMessageWidget(s.data!);
-                  }
-                  return const SizedBox.shrink();
-                },
-              )
-            : buildLastMessageWidget(widget.room.lastMessage!);
+    return widget.room.lastMessage == null || widget.room.lastMessage!.isHidden
+        ? FutureBuilder<Message?>(
+            future: _messageRepo.fetchLastMessages(
+              widget.room.uid.asUid(),
+              widget.room.lastMessageId!,
+              widget.room.firstMessageId,
+              widget.room,
+              type: FetchMessagesReq_Type.BACKWARD_FETCH,
+            ),
+            builder: (c, s) {
+              if (s.hasData) {
+                return buildLastMessageWidget(s.data!);
+              } else {
+                return const SizedBox.shrink();
+              }
+            },
+          )
+        : buildLastMessageWidget(widget.room.lastMessage!);
   }
 
   Widget buildLastMessageWidget(Message lastMessage) {

@@ -69,7 +69,6 @@ import '../shared/constants.dart';
 enum TitleStatusConditions { Disconnected, Updating, Normal, Connecting }
 
 const EMPTY_MESSAGE = "{}";
-const DELETED_ROOM_MESSAGE = "{DELETED}";
 
 class MessageRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -204,8 +203,6 @@ class MessageRepo {
               roomMetadata.firstMessageId.toInt(),
               room,
               type: FetchMessagesReq_Type.BACKWARD_FETCH,
-              limit: 2,
-              lastUpdateTime: roomMetadata.lastUpdate.toInt(),
             );
             if (room != null &&
                 room.lastMessageId != null &&
@@ -274,90 +271,66 @@ class MessageRepo {
   Future<Message?> fetchLastMessages(
     Uid roomUid,
     int lastMessageId,
-    int? firstMessageId,
+    int firstMessageId,
     Room? room, {
     bool retry = true,
-    int? lastUpdateTime,
     required FetchMessagesReq_Type type,
-    required int limit,
   }) async {
-    var lastMessageIsSet = false;
-    var pointer = lastMessageId;
+    var pointer = lastMessageId + 1;
     Message? lastMessage;
-    try {
-      var msg = await _messageDao.getMessage(roomUid.asString(), pointer);
-      while (!lastMessageIsSet) {
-        try {
-          if (msg != null) {
-            if (firstMessageId != null && msg.id! <= firstMessageId) {
-              lastMessageIsSet = true;
-              lastMessage = msg.copyWith(json: DELETED_ROOM_MESSAGE);
-              break;
-            } else if (!msg.isHidden) {
-              lastMessageIsSet = true;
-              lastMessage = msg;
-              break;
-            } else if (msg.id == 1) {
-              lastMessage = msg.copyWith(json: DELETED_ROOM_MESSAGE);
-              lastMessageIsSet = true;
-              break;
-            } else {
-              pointer = pointer - 1;
-              msg = await _messageDao.getMessage(roomUid.asString(), pointer);
-            }
-          } else {
-            lastMessage = await getLastMessageFromServer(
-              roomUid,
-              lastMessageId,
-              lastMessageId,
-              type,
-              limit,
-              firstMessageId,
-              lastUpdateTime,
-            );
-            lastMessageIsSet = true;
+    while (pointer > 0) {
+      pointer -= 1;
+
+      try {
+        final msg = await _messageDao.getMessage(roomUid.asString(), pointer);
+
+        if (msg != null) {
+          if (msg.id! <= firstMessageId || (msg.isHidden && msg.id == 1)) {
+            _roomDao.updateRoom(Room(uid: roomUid.asString(), deleted: true));
+            break;
+          } else if (!msg.isHidden) {
+            lastMessage = msg;
             break;
           }
-        } catch (e) {
-          lastMessageIsSet = true;
+        } else {
+          lastMessage = await getLastMessageFromServer(
+            roomUid,
+            lastMessageId,
+            lastMessageId,
+            type,
+            25,
+            firstMessageId,
+          );
           break;
         }
+      } catch (_) {
+        break;
       }
-      if (lastMessage != null) {
-        _roomDao.updateRoom(
-          Room(
-            uid: roomUid.asString(),
-            firstMessageId: firstMessageId ?? 0,
-            lastUpdateTime: lastMessage.time,
-            lastMessageId: lastMessageId,
-            lastMessage: lastMessage,
-          ),
-        );
-        return lastMessage;
-      }
-      return null;
-    } catch (e) {
+    }
+
+    if (lastMessage != null) {
       _roomDao.updateRoom(
         Room(
           uid: roomUid.asString(),
-          firstMessageId: firstMessageId!,
-          lastUpdateTime: lastUpdateTime,
+          firstMessageId: firstMessageId,
+          lastUpdateTime: lastMessage.time,
           lastMessageId: lastMessageId,
+          lastMessage: lastMessage,
         ),
       );
-      _logger.wtf("roomUid: $roomUid, room: $room, e: $e");
+      return lastMessage;
+    } else {
       return null;
     }
   }
 
-  Future<Message> getLastMessageFromServer(
+  Future<Message?> getLastMessageFromServer(
     Uid roomUid,
     int lastMessageId,
     int pointer,
     FetchMessagesReq_Type type,
     int limit,
-    int? firstMessageId,
-    int? lastUpdateTime,
+    int firstMessageId,
   ) async {
     Message? lastMessage;
     final fetchMessagesRes = await _queryServiceClient.fetchMessages(
@@ -368,31 +341,19 @@ class MessageRepo {
         ..limit = limit,
       options: CallOptions(timeout: const Duration(seconds: 3)),
     );
+
     final messages = await _saveFetchMessages(fetchMessagesRes.messages);
-    for (final element in messages) {
-      if (firstMessageId != null && element.id! <= firstMessageId) {
-        lastMessage = element.copyWith(json: DELETED_ROOM_MESSAGE);
+
+    for (final msg in messages) {
+      if (msg.id! <= firstMessageId && (msg.isHidden && msg.id == 1)) {
+        _roomDao.updateRoom(Room(uid: roomUid.asString(), deleted: true));
         break;
-      } else if (!element.isHidden) {
-        lastMessage = element;
+      } else if (!msg.isHidden) {
+        lastMessage = msg;
         break;
-      } else if (element.id == 1) {
-        lastMessage = element.copyWith(json: DELETED_ROOM_MESSAGE);
       }
     }
-    if (lastMessage != null) {
-      return lastMessage;
-    } else {
-      return getLastMessageFromServer(
-        roomUid,
-        lastMessageId,
-        pointer > limit ? pointer - limit : pointer,
-        type,
-        limit,
-        firstMessageId,
-        lastUpdateTime,
-      );
-    }
+    return lastMessage;
   }
 
   Future<void> fetchOtherSeen(Uid roomUid) async {
@@ -987,7 +948,7 @@ class MessageRepo {
     }
   }
 
-  // TODO(hasan): Some parts of this function should be transform to DataStreamServices class, https://gitlab.iais.co/deliver/wiki/-/issues/428
+// TODO(hasan): Some parts of this function should be transform to DataStreamServices class, https://gitlab.iais.co/deliver/wiki/-/issues/428
   Future<List<Message>> _saveFetchMessages(
     List<message_pb.Message> messages,
   ) async {
