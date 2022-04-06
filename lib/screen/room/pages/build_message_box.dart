@@ -35,14 +35,13 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:process_run/shell.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:share/share.dart';
 
 class BuildMessageBox extends StatefulWidget {
   final Message message;
   final Message? messageBefore;
   final String roomId;
-  final ItemScrollController itemScrollController;
+  final void Function(int) scrollToMessage;
   final void Function() onReply;
   final void Function() onEdit;
   final void Function() addForwardMessage;
@@ -51,11 +50,9 @@ class BuildMessageBox extends StatefulWidget {
   final void Function() onUnPin;
   final int lastSeenMessageId;
   final List<Message> pinMessages;
-  final int replyMessageId;
   final bool hasPermissionInGroup;
   final BehaviorSubject<bool> hasPermissionInChannel;
   final BehaviorSubject<bool> selectMultiMessageSubject;
-  final void Function(int) changeReplyMessageId;
   final void Function() resetRoomPageDetails;
 
   const BuildMessageBox({
@@ -63,8 +60,7 @@ class BuildMessageBox extends StatefulWidget {
     required this.message,
     this.messageBefore,
     required this.roomId,
-    required this.replyMessageId,
-    required this.itemScrollController,
+    required this.scrollToMessage,
     required this.lastSeenMessageId,
     required this.onEdit,
     required this.onPin,
@@ -72,7 +68,6 @@ class BuildMessageBox extends StatefulWidget {
     required this.onDelete,
     required this.pinMessages,
     required this.onReply,
-    required this.changeReplyMessageId,
     required this.selectMultiMessageSubject,
     required this.hasPermissionInGroup,
     required this.hasPermissionInChannel,
@@ -196,19 +191,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
             child: PersistentEventMessage(
               message: msg,
               maxWidth: maxWidthOfMessage(context),
-              onPinMessageClick: (id) {
-                widget.changeReplyMessageId(id);
-                widget.itemScrollController.scrollTo(
-                  alignment: .5,
-                  curve: Curves.easeOut,
-                  opacityAnimationWeights: [20, 20, 60],
-                  index: id,
-                  duration: const Duration(milliseconds: 1000),
-                );
-                Timer(const Duration(seconds: 1), () {
-                  widget.changeReplyMessageId(-1);
-                });
-              },
+              onPinMessageClick: widget.scrollToMessage,
             ),
           ),
         ),
@@ -286,10 +269,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onArrowIconClick: () => _showCustomMenu(context, message),
       isSeen: message.id != null && message.id! <= widget.lastSeenMessageId,
       pattern: "",
-      //todo add search message
-      scrollToMessage: (id) {
-        _scrollToMessage(id: id);
-      },
+      scrollToMessage: widget.scrollToMessage,
       isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
       onUsernameClick: onUsernameClick,
       storePosition: storePosition,
@@ -363,7 +343,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       pattern: "",
       colorScheme: colorScheme,
       onBotCommandClick: onBotCommandClick,
-      scrollToMessage: (id) => _scrollToMessage(id: id),
+      scrollToMessage: widget.scrollToMessage,
       onUsernameClick: onUsernameClick,
       isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
       onArrowIconClick: () => _showCustomMenu(context, message),
@@ -511,7 +491,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         break;
       case MessageType.FILE:
         showCaptionDialog(
-          replyMessageId: widget.replyMessageId,
           resetRoomPageDetails: widget.resetRoomPageDetails,
           roomUid: widget.message.roomUid.asUid(),
           editableMessage: widget.message,
@@ -615,24 +594,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       await shell.run('nautilus $path');
     } else if (isMacOS) {
       await shell.run('open $path');
-    }
-  }
-
-  void _scrollToMessage({required int id}) {
-    widget.itemScrollController.scrollTo(
-      index: id,
-      duration: const Duration(microseconds: 1),
-      alignment: .5,
-      curve: Curves.easeOut,
-      opacityAnimationWeights: [20, 20, 60],
-    );
-    if (id != -1) {
-      widget.changeReplyMessageId(id);
-    }
-    if (widget.replyMessageId != -1) {
-      Timer(const Duration(seconds: 3), () {
-        widget.changeReplyMessageId(-1);
-      });
     }
   }
 

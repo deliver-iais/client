@@ -1,4 +1,3 @@
-import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -41,10 +40,6 @@ class UserAppbarTitle extends StatelessWidget {
         behavior: HitTestBehavior.translucent,
         child: Row(
           children: [
-            if (isDebugEnabled())
-              DebugC(
-                children: [Debug(userUid.asString(), label: "uid")],
-              ),
             CircleAvatarWidget(
               userUid,
               23,

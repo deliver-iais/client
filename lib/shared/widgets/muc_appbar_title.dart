@@ -1,5 +1,4 @@
 import 'package:deliver/box/muc.dart';
-import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -27,10 +26,6 @@ class MucAppbarTitle extends StatelessWidget {
         behavior: HitTestBehavior.translucent,
         child: Row(
           children: [
-            if (isDebugEnabled())
-              DebugC(
-                children: [Debug(mucUid, label: "uid")],
-              ),
             CircleAvatarWidget(mucUid.asUid(), 23),
             const SizedBox(
               width: 16,

@@ -6,7 +6,6 @@ import 'dart:io' as dart_file;
 import 'dart:math';
 
 import 'package:clock/clock.dart';
-import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
@@ -87,7 +86,6 @@ class MessageRepo {
   final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
-  final _blockDao = GetIt.I.get<BlockDao>();
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _mediaRepo = GetIt.I.get<MediaRepo>();
   final _sendActivitySubject = BehaviorSubject.seeded(0);
@@ -105,14 +103,12 @@ class MessageRepo {
 
           updatingStatus.add(TitleStatusConditions.Updating);
           await updatingMessages();
-          updatingLastSeen();
-          fetchBlockedRoom();
+          await updatingLastSeen();
+          await _roomRepo.fetchBlockedRoom();
 
           updatingStatus.add(TitleStatusConditions.Normal);
 
           sendPendingMessages();
-
-          _roomRepo.fetchBlockedRoom();
           break;
         case ConnectionStatus.Disconnected:
           updatingStatus.add(TitleStatusConditions.Disconnected);
@@ -169,8 +165,8 @@ class MessageRepo {
             if (room != null &&
                 room.lastMessageId != null &&
                 room.lastMessageId! < roomMetadata.lastMessageId.toInt() &&
-                isAndroid) {
-              _fireBaseServices.sendGlitchReportForFirebaseNotification(
+                hasFirebaseCapability) {
+              await _fireBaseServices.sendGlitchReportForFirebaseNotification(
                 roomMetadata.roomUid.asString(),
               );
             }
@@ -197,7 +193,7 @@ class MessageRepo {
               ),
             );
 
-            fetchLastMessages(
+            await fetchLastMessages(
               roomMetadata.roomUid,
               roomMetadata.lastMessageId.toInt(),
               roomMetadata.firstMessageId.toInt(),
@@ -207,13 +203,13 @@ class MessageRepo {
             if (room != null &&
                 room.lastMessageId != null &&
                 roomMetadata.lastMessageId.toInt() > room.lastMessageId!) {
-              fetchHiddenMessageCount(
+              await fetchHiddenMessageCount(
                 roomMetadata.roomUid,
                 room.lastMessageId!,
               );
             }
             if (room != null && room.uid.asUid().category == Categories.GROUP) {
-              getMentions(room);
+              await getMentions(room);
             }
           } else {
             _roomDao.updateRoom(
@@ -243,11 +239,11 @@ class MessageRepo {
       if (!_authRepo.isCurrentUser(r.lastMessage!.from) &&
           _allRoomMetaData[r.uid] != null &&
           (category == Categories.GROUP || category == Categories.USER)) {
-        fetchCurrentUserLastSeen(_allRoomMetaData[r.uid]!);
+        await fetchCurrentUserLastSeen(_allRoomMetaData[r.uid]!);
       }
       final othersSeen = await _seenDao.getOthersSeen(r.lastMessage!.to);
       if (othersSeen == null || othersSeen.messageId < r.lastMessage!.id!) {
-        fetchOtherSeen(r.uid.asUid());
+        await fetchOtherSeen(r.uid.asUid());
       }
     }
   }
@@ -372,7 +368,9 @@ class MessageRepo {
         );
       }
     } catch (e) {
-      _logger.e(e);
+      _logger
+        ..wtf("roomUid: $roomUid")
+        ..e(e);
     }
   }
 
@@ -1346,18 +1344,5 @@ class MessageRepo {
         lastUpdatedMessageId: editableMessage.id,
       ),
     );
-  }
-
-  Future<void> fetchBlockedRoom() async {
-    try {
-      final res = await _queryServiceClient.getBlockedList(GetBlockedListReq());
-      if (res.uidList.isNotEmpty) {
-        for (final uid in res.uidList) {
-          _blockDao.block(uid.asString());
-        }
-      }
-    } catch (e) {
-      _logger.e(e);
-    }
   }
 }

@@ -330,7 +330,7 @@ void main() async {
     }
   }
 
-  if (isAndroid) {
+  if (hasFirebaseCapability) {
     await initializeFirebase();
   }
 
