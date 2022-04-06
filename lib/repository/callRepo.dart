@@ -1128,11 +1128,6 @@ class CallRepo {
     callingStatus.add(CallStatus.ENDED);
     _audioService.stopBeepSound();
     Timer(const Duration(seconds: 1), () async {
-      await fetchUserCallList(
-        _authRepo.currentUserUid,
-        DateTime.now().month,
-        DateTime.now().year,
-      );
       callingStatus.add(CallStatus.NO_CALL);
     });
     switching.add(false);

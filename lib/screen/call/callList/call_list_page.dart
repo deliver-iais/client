@@ -1,9 +1,10 @@
 import 'package:deliver/box/call_info.dart';
-import 'package:deliver/box/call_status.dart';
+import 'package:deliver/box/call_status.dart' as call_status;
 import 'package:deliver/box/dao/call_info_dao.dart';
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/callRepo.dart';
 
 import 'package:deliver/screen/call/callList/call_detail_page.dart';
 import 'package:deliver/screen/call/callList/call_list_widget.dart';
@@ -31,6 +32,17 @@ class _CallListPageState extends State<CallListPage> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _callListDao = GetIt.I.get<CallInfoDao>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _callRepo = GetIt.I.get<CallRepo>();
+
+  @override
+  void initState() {
+    _callRepo.fetchUserCallList(
+      _authRepo.currentUserUid,
+      DateTime.now().month,
+      DateTime.now().year,
+    );
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,10 +79,10 @@ class _CallListPageState extends State<CallListPage> {
                     final time = DateTime.fromMillisecondsSinceEpoch(
                       calls[index].callEvent.endOfCallTime,
                     );
-                    final isIncomingCall =
-                        calls[index].callEvent.newStatus == CallStatus.DECLINED
-                            ? _authRepo.isCurrentUser(calls[index].to)
-                            : _authRepo.isCurrentUser(calls[index].from);
+                    final isIncomingCall = calls[index].callEvent.newStatus ==
+                            call_status.CallStatus.DECLINED
+                        ? _authRepo.isCurrentUser(calls[index].to)
+                        : _authRepo.isCurrentUser(calls[index].from);
                     final caller = _authRepo.isCurrentUser(calls[index].to)
                         ? calls[index].from.asUid()
                         : calls[index].to.asUid();
