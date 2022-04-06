@@ -106,7 +106,6 @@ class CallRepo {
 
   bool get isCaller => _isCaller;
   Uid? _roomUid;
-  Uid? _callOwner;
 
   Uid? get roomUid => _roomUid;
 
@@ -155,7 +154,6 @@ class CallRepo {
               if (event.roomUid == _roomUid ||
                   _callService.getUserCallState == UserCallState.NOCALL) {
                 _callService.setUserCallState = UserCallState.INUSERCALL;
-                _callOwner = callEvent.memberOrCallOwnerPvp;
                 _callId = callEvent.id;
                 if (callEvent.callType == CallEvent_CallType.VIDEO) {
                   _logger.i("VideoCall");
@@ -198,7 +196,8 @@ class CallRepo {
             case CallEvent_CallStatus.KICK:
             case CallEvent_CallStatus.LEFT:
               _logger.w(
-                  "this case only for group call and it's a bug if happened on PvP call");
+                "this case only for group call and it's a bug if happened on PvP call",
+              );
               break;
           }
           break;

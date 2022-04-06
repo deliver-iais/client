@@ -68,6 +68,10 @@ dependencies:
     sdk: flutter
   flutter_blurhash: 0.6.4
   flutter_dropzone: 3.0.3
+  flutter_foreground_task:
+    git:
+      url: https://github.com/androidwoman/flutter_foreground_task.git
+      ref: b24aeffc07dc047016b4da1f1320ec524d96b161
   flutter_image_compress: 1.1.0
   flutter_keyboard_visibility: 5.1.1
   flutter_local_notifications: 9.1.4
@@ -76,10 +80,6 @@ dependencies:
   flutter_map: 0.14.0
   flutter_webrtc: 0.8.4
   fluttertoast: 8.0.8
-  flutter_foreground_task:
-    git:
-      url: https://github.com/androidwoman/flutter_foreground_task.git
-      ref: b24aeffc07dc047016b4da1f1320ec524d96b161
   geolocator: 7.7.1
   get_it: 7.2.0
   google_fonts: 2.3.1
