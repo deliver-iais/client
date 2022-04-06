@@ -547,11 +547,11 @@ Future<void> showCaptionDialog({
   String? type,
   List<model.File>? files,
   required Uid roomUid,
+  required BuildContext context,
   void Function()? resetRoomPageDetails,
   int replyMessageId = 0,
   Message? editableMessage,
   String? caption,
-  required BuildContext context,
   bool showSelectedImage = false,
 }) async {
   if (files!.isEmpty && editableMessage == null) return;
