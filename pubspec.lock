@@ -556,9 +556,11 @@ packages:
   flutter_foreground_task:
     dependency: "direct main"
     description:
-      name: flutter_foreground_task
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: b24aeffc07dc047016b4da1f1320ec524d96b161
+      resolved-ref: b24aeffc07dc047016b4da1f1320ec524d96b161
+      url: "https://github.com/androidwoman/flutter_foreground_task.git"
+    source: git
     version: "3.5.5"
   flutter_image_compress:
     dependency: "direct main"

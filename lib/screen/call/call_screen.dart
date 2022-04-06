@@ -5,8 +5,8 @@ import 'package:all_sensors2/all_sensors2.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/audioCallScreen/audio_call_screen.dart';
 import 'package:deliver/screen/call/videoCallScreen/start_video_call_page.dart';
-import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -14,6 +14,7 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
 import '../../shared/methods/platform.dart';
+import '../../services/audio_service.dart';
 import 'videoCallScreen/in_video_call_page.dart';
 
 class CallScreen extends StatefulWidget {
@@ -22,6 +23,7 @@ class CallScreen extends StatefulWidget {
   final bool isCallInitialized;
   final bool isIncomingCall;
   final bool isVideoCall;
+  final Widget lastWidget;
 
   const CallScreen({
     Key? key,
@@ -30,6 +32,7 @@ class CallScreen extends StatefulWidget {
     this.isCallInitialized = false,
     this.isIncomingCall = false,
     this.isVideoCall = false,
+    required this.lastWidget,
   }) : super(key: key);
 
   @override
@@ -198,34 +201,35 @@ class _CallScreenState extends State<CallScreen> {
                     callStatus: "Connection failed",
                     hangUp: _hangUp,
                   );
-          case CallStatus.IN_CALL:
-            _audioService.stopBeepSound();
-            return widget.isVideoCall
-                ? InVideoCallPage(
-                    localRenderer: _localRenderer,
-                    remoteRenderer: _remoteRenderer,
-                    roomUid: widget.roomUid,
-                    hangUp: _hangUp,
-                  )
-                : AudioCallScreen(
-                    roomUid: widget.roomUid,
-                    callStatus: "Connecting",
-                    hangUp: _hangUp,
-                  );
           case CallStatus.IS_RINGING:
-            _audioService.playBeepSound();
             return widget.isVideoCall
                 ? StartVideoCallPage(
                     roomUid: widget.roomUid,
                     localRenderer: _localRenderer,
-                    text: "Ringing...",
+                    text: "Ringing",
                     remoteRenderer: _remoteRenderer,
                     isIncomingCall: widget.isIncomingCall,
                     hangUp: _hangUp,
                   )
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
-                    callStatus: "Ringing...",
+                    callStatus: "Ringing",
+                    isIncomingCall: widget.isIncomingCall,
+                    hangUp: _hangUp,
+                  );
+          case CallStatus.NO_ANSWER:
+            return widget.isVideoCall
+                ? StartVideoCallPage(
+                    roomUid: widget.roomUid,
+                    localRenderer: _localRenderer,
+                    text: "User not answer",
+                    remoteRenderer: _remoteRenderer,
+                    isIncomingCall: widget.isIncomingCall,
+                    hangUp: _hangUp,
+                  )
+                : AudioCallScreen(
+                    roomUid: widget.roomUid,
+                    callStatus: "User not answer",
                     isIncomingCall: widget.isIncomingCall,
                     hangUp: _hangUp,
                   );
@@ -234,31 +238,35 @@ class _CallScreenState extends State<CallScreen> {
                 ? StartVideoCallPage(
                     roomUid: widget.roomUid,
                     localRenderer: _localRenderer,
-                    text: "Calling....",
+                    text: "Calling",
                     remoteRenderer: _remoteRenderer,
-                    isIncomingCall: widget.isIncomingCall,
+                    isIncomingCall: !callRepo.isCaller,
                     hangUp: _hangUp,
                   )
                 : AudioCallScreen(
-                    roomUid: widget.roomUid,
-                    callStatus: "Calling....",
-                    isIncomingCall: widget.isIncomingCall,
+              roomUid: widget.roomUid,
+                    callStatus: "Calling",
+                    isIncomingCall: !callRepo.isCaller,
                     hangUp: _hangUp,
                   );
           case CallStatus.ENDED:
             _logger.i("END!");
-            _audioService.stopBeepSound();
-            Timer.run(() {
-              if (_routingService.canPop()) {
+            _audioService.playEndCallSound();
+
+            Timer(const Duration(milliseconds: 1500), () async {
+              if (_routingService.canPop()&& !isDesktop) {
                 _routingService.pop();
               }
             });
             callRepo.disposeRenderer();
-            return const SizedBox.shrink();
-          case CallStatus.NO_CALL:
-            return Container(
-              color: Colors.green,
+            return AudioCallScreen(
+              roomUid: widget.roomUid,
+              callStatus: "Ended",
+              isIncomingCall: widget.isIncomingCall,
+              hangUp: _hangUp,
             );
+          case CallStatus.NO_CALL:
+            return widget.lastWidget;
           case CallStatus.BUSY:
             _audioService.stopBeepSound();
             _audioService.playBusySound();
@@ -306,9 +314,7 @@ class _CallScreenState extends State<CallScreen> {
 
           default:
             {
-              return Container(
-                color: Colors.red,
-              );
+              return widget.lastWidget;
             }
         }
       },
@@ -318,11 +324,6 @@ class _CallScreenState extends State<CallScreen> {
   Future<void> _hangUp() async {
     _logger.i("Call hang Up ...!");
     _audioService.stopBeepSound();
-    // if (isDesktop) {
-    //   _routingService.pop();
-    // } else {
-    //   Navigator.of(context).pop();
-    // }
     callRepo.endCall();
   }
 }

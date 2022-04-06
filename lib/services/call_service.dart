@@ -1,3 +1,4 @@
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../models/call_event_type.dart';
@@ -48,13 +49,20 @@ class CallService {
   }
 
   UserCallState _callState = UserCallState.NOCALL;
-  bool _isCallNotification = false;
+
+  Uid _callOwner = Uid.getDefault();
+
+  String _callId = "";
 
   UserCallState get getUserCallState => _callState;
 
   set setUserCallState(UserCallState cs) => _callState = cs;
 
-  bool get isCallNotification => _isCallNotification;
+  Uid get getCallOwner => _callOwner;
 
-  set setCallNotification(bool cn) => _isCallNotification = cn;
+  set setCallOwner(Uid uid) => _callOwner = uid;
+
+  String get getCallId => _callId;
+
+  set setCallId(String callId) => _callId = callId;
 }
