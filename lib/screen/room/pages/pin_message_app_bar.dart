@@ -4,6 +4,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/last_message.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -44,7 +45,7 @@ class PinMessageAppBar extends StatelessWidget {
             child: GestureDetector(
               onTap: onTap,
               child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                margin:  EdgeInsets.symmetric(horizontal: 8, vertical: isAndroid||isIOS?35: 8),
                 child: Material(
                   elevation: 4,
                   borderRadius: secondaryBorder,

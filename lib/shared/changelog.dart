@@ -1,14 +1,16 @@
 // ignore_for_file: constant_identifier_names
 //v1.6.6
 const List<String> FARSI_FEATURE_LIST = [
-  '۱.رفع مشکل فایربیس و نوتیفیکیشن در اندروید',
-  '۲.رفع مشکل اسکرول پیام ها',
-  '۶.رفع برخی باگ های دیگر ',
+  '1.افزودن قابلیت ویرایش عکس ',
+  '2.افزودن قابیلت کپی پیس کردن فایل ها ',
+  '3.بهبود ظاهر اپ وافزودن قابیلت انتخاب رنگ اصلی.',
+  'رفع دیگر مشکلات گزارش شده'
 ];
 const List<String> ENGLISH_FEATURE_LIST = [
-  '1. Fix  keyboard bug in message page.',
-  '2. Fix bot form view bug',
-  '3. Fix seen of message  bug  ',
-  '6. and ...',
-
+  '1.Add  edit image in all platform .',
+  '2.Add copy paste print screen in desktop',
+  '3.Auto night mode in android',
+  '4.Message scrollbar bug fix ',
+  '5.improve ui and add main color',
+  '6.some bugs fix.'
 ];
