@@ -89,6 +89,7 @@ class _ShareBoxState extends State<ShareBox> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return StreamBuilder<double>(
       stream: initialChildSize.stream,
       builder: (c, initialSize) {
@@ -98,7 +99,7 @@ class _ShareBoxState extends State<ShareBox> {
             minChildSize: initialSize.data!,
             builder: (co, scrollController) {
               return Container(
-                color: Colors.white,
+                color: theme.backgroundColor,
                 child: Stack(
                   children: <Widget>[
                     Container(
@@ -221,7 +222,7 @@ class _ShareBoxState extends State<ShareBox> {
                           Container(
                             padding:
                                 const EdgeInsetsDirectional.only(bottom: 10),
-                            color: Colors.white,
+                            color: theme.backgroundColor,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               crossAxisAlignment: CrossAxisAlignment.end,
@@ -601,7 +602,7 @@ Widget circleButton(
       ),
       Text(
         text,
-        style: TextStyle(fontSize: 10, color: theme.backgroundColor),
+        style: const TextStyle(fontSize: 10),
       ),
     ],
   );

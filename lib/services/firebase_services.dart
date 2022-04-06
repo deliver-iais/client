@@ -121,7 +121,9 @@ Future<void> _backgroundRemoteMessageHandler(
   if (remoteMessage.data.containsKey('body')) {
     try {
       await setupDI();
+    } catch (_) {}
 
+    try {
       final msg = _decodeMessage(remoteMessage.data["body"]);
 
       String? roomName = remoteMessage.data['title'];
@@ -138,7 +140,8 @@ Future<void> _backgroundRemoteMessageHandler(
   } else if (remoteMessage.data.containsKey("seen")) {
     try {
       await setupDI();
-
+    } catch (_) {}
+    try {
       final seen =
           pb_seen.Seen.fromBuffer(base64.decode(remoteMessage.data["seen"]));
 

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:core';
 
+import 'package:all_sensors2/all_sensors2.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/audioCallScreen/audio_call_screen.dart';
 import 'package:deliver/screen/call/videoCallScreen/start_video_call_page.dart';
@@ -12,6 +13,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
+import '../../shared/methods/platform.dart';
 import 'videoCallScreen/in_video_call_page.dart';
 
 class CallScreen extends StatefulWidget {
@@ -43,6 +45,9 @@ class _CallScreenState extends State<CallScreen> {
   final _audioService = GetIt.I.get<AudioService>();
   final _routingService = GetIt.I.get<RoutingService>();
 
+  List<StreamSubscription<dynamic>> _streamSubscriptions =
+  <StreamSubscription<dynamic>>[];
+
   @override
   void initState() {
     callRepo.initRenderer();
@@ -51,7 +56,25 @@ class _CallScreenState extends State<CallScreen> {
     if (!widget.isCallInitialized) {
       startCall();
     }
+    if (isAndroid) {
+      _listenSensor();
+    }
     super.initState();
+  }
+
+  @override
+  void dispose(){
+    super.dispose();
+    if (isAndroid) {
+      for (StreamSubscription<dynamic> subscription in _streamSubscriptions) {
+        subscription.cancel();
+      }
+    }
+  }
+
+  Future<void> _listenSensor() async {
+    _streamSubscriptions.add(proximityEvents!.listen((ProximityEvent event) {
+    }));
   }
 
   Future<void> startCall() async {

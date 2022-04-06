@@ -44,6 +44,29 @@ class _CropImageState extends State<CropImage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("crop"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.done_rounded),
+            onPressed: () async {
+              _startCrop.add(true);
+              final image = await controller.onCropImage();
+              if (image != null) {
+                setState(() {
+                  memoryImage = image;
+                });
+                final outPutFile = await _fileServices.localFile(
+                  "_crop-${DateTime.now().millisecondsSinceEpoch}",
+                  widget.imagePath.split(".").last,
+                );
+                outPutFile.writeAsBytesSync(image.bytes);
+                widget.crop(outPutFile.path);
+
+                if (!mounted) return;
+                Navigator.pop(context);
+              }
+            },
+          )
+        ],
         systemOverlayStyle: SystemUiOverlayStyle.dark,
       ),
       body: Column(
@@ -53,6 +76,8 @@ class _CropImageState extends State<CropImage> {
               children: [
                 CustomImageCrop(
                   cropPercentage: 0.9,
+                  backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                  overlayColor: Theme.of(context).scaffoldBackgroundColor,
                   cropController: controller,
                   image: Image.file(File(widget.imagePath)).image,
                   shape: CustomCropShape.Square,
@@ -102,27 +127,7 @@ class _CropImageState extends State<CropImage> {
                       onPressed: () => controller
                           .addTransition(CropImageData(angle: pi / 4)),
                     ),
-                    IconButton(
-                      icon: const Icon(CupertinoIcons.crop),
-                      onPressed: () async {
-                        _startCrop.add(true);
-                        final image = await controller.onCropImage();
-                        if (image != null) {
-                          setState(() {
-                            memoryImage = image;
-                          });
-                          final outPutFile = await _fileServices.localFile(
-                            "_crop-${DateTime.now().millisecondsSinceEpoch}",
-                            widget.imagePath.split(".").last,
-                          );
-                          outPutFile.writeAsBytesSync(image.bytes);
-                          widget.crop(outPutFile.path);
 
-                          if (!mounted) return;
-                          Navigator.pop(context);
-                        }
-                      },
-                    ),
                   ],
                 );
               } else {

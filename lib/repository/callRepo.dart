@@ -765,10 +765,6 @@ class CallRepo {
       _callService
         ..setCallNotification = true
         ..setUserCallState = UserCallState.INUSERCALL;
-
-      if (isAndroid) {
-        _callService.initProximitySensor();
-      }
       _isCaller = true;
       _isVideo = isVideo;
       _roomUid = roomId;
@@ -824,10 +820,6 @@ class CallRepo {
     _offerSdp = await _createOffer();
     callingStatus.add(CallStatus.CONNECTING);
 
-    if(isAndroid) {
-      _callService.initProximitySensor();
-    }
-
     //after accept Call w8 for 30 sec if don't connecting force end Call
     timerConnectionFailed = Timer(const Duration(seconds: 30), () {
       if (callingStatus.value != CallStatus.CONNECTED) {
@@ -877,7 +869,7 @@ class CallRepo {
   }
 
   Future<void> _setCallCandidate(String candidatesJson) async {
-    final candidates = (jsonDecode(candidatesJson) as List<Map>)
+    final candidates = (jsonDecode(candidatesJson) as List)
         .map(
           (data) => RTCIceCandidate(
             data['candidate'],
@@ -915,10 +907,6 @@ class CallRepo {
       _callDuration = calculateCallEndTime();
       _logger.i("Call Duration on Caller(1): " + _callDuration.toString());
       final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
-      if (callingStatus.value == CallStatus.NO_ANSWER && !_isConnected) {
-        // it means call Not Answered
-        _callDuration = -1;
-      }
       if (isForced) {
         _logger.i("Call Force Ending ...");
         _messageRepo.sendCallMessageWithMemberOrCallOwnerPvp(
@@ -1087,7 +1075,6 @@ class CallRepo {
     if (isAndroid) {
       _receivePort?.close();
       await _stopForegroundTask();
-      await _callService.disposeProximitySensor();
     }
     if (timer != null) {
       _logger.i("timer canceled");

@@ -374,14 +374,13 @@ void main() {
           0,
           testRoom,
           type: FetchMessagesReq_Type.BACKWARD_FETCH,
-          limit: 2,
         );
         verify(messageDao.getMessage(testUid.asString(), 0));
       });
       test(
           'When called should getMessage from messageDao if msg be null and get error should returned null',
           () async {
-        getAndRegisterMessageDao(getError: true);
+        getAndRegisterMessageDao();
         expect(
           await MessageRepo().fetchLastMessages(
             testUid,
@@ -389,131 +388,8 @@ void main() {
             0,
             testRoom,
             type: FetchMessagesReq_Type.BACKWARD_FETCH,
-            limit: 2,
           ),
           null,
-        );
-      });
-      test(
-          'When called should getMessage from messageDao if msg be null  and get error should updateRoom',
-          () async {
-        getAndRegisterMessageDao(getError: true);
-        final roomDao = getAndRegisterRoomDao();
-        await MessageRepo().fetchLastMessages(
-          testUid,
-          0,
-          0,
-          testRoom,
-          lastUpdateTime: 0,
-          type: FetchMessagesReq_Type.BACKWARD_FETCH,
-          limit: 2,
-        );
-        verify(
-          roomDao.updateRoom(
-            Room(
-              uid: testUid.asString(),
-              lastUpdateTime: 0,
-              lastMessageId: 0,
-            ),
-          ),
-        );
-      });
-      test(
-          'When called should getMessage from messageDao if msg be null and get error should see logger',
-          () async {
-        getAndRegisterMessageDao(getError: true);
-        final logger = getAndRegisterLogger();
-        await MessageRepo().fetchLastMessages(
-          testUid,
-          0,
-          0,
-          testRoom,
-          lastUpdateTime: 0,
-          type: FetchMessagesReq_Type.BACKWARD_FETCH,
-          limit: 2,
-        );
-        verify(logger.wtf(testUid));
-        verify(logger.wtf(testRoom));
-      });
-
-      test('When called should getMessage from messageDao if msg be null ',
-          () async {
-        getAndRegisterMessageDao();
-        await MessageRepo().fetchLastMessages(
-          testUid,
-          0,
-          0,
-          testRoom,
-          lastUpdateTime: 0,
-          type: FetchMessagesReq_Type.BACKWARD_FETCH,
-          limit: 0,
-        );
-        expect(
-          await MessageRepo().fetchLastMessages(
-            testUid,
-            0,
-            0,
-            testRoom,
-            type: FetchMessagesReq_Type.BACKWARD_FETCH,
-            limit: 0,
-          ),
-          Message(
-            roomUid: testUid.asString(),
-            packetId: "",
-            time: 0,
-            id: 0,
-            json: DELETED_ROOM_MESSAGE,
-            forwardedFrom: testUid.asString(),
-            to: testUid.asString(),
-            from: testUid.asString(),
-          ),
-        );
-      });
-
-      test(
-          'When called should getMessage from messageDao if msg not be null and firstMessageId be greater then  message id  should updateRoom with json "{DELETED}" and return it',
-          () async {
-        final message = Message(
-          id: 0,
-          from: testUid.asString(),
-          to: testUid.asString(),
-          packetId: testUid.asString(),
-          time: 0,
-          json: DELETED_ROOM_MESSAGE,
-          roomUid: testUid.asString(),
-        );
-        final roomDao = getAndRegisterRoomDao();
-        getAndRegisterMessageDao(message: message);
-        await MessageRepo().fetchLastMessages(
-          testUid,
-          0,
-          0,
-          testRoom,
-          lastUpdateTime: 0,
-          type: FetchMessagesReq_Type.BACKWARD_FETCH,
-          limit: 2,
-        );
-        verify(
-          roomDao.updateRoom(
-            Room(
-              uid: testUid.asString(),
-              lastUpdateTime: 0,
-              lastMessageId: 0,
-              lastMessage: message,
-            ),
-          ),
-        );
-        expect(
-          await MessageRepo().fetchLastMessages(
-            testUid,
-            0,
-            0,
-            testRoom,
-            lastUpdateTime: 0,
-            type: FetchMessagesReq_Type.BACKWARD_FETCH,
-            limit: 2,
-          ),
-          message,
         );
       });
       test(
@@ -526,6 +402,7 @@ void main() {
           packetId: testUid.asString(),
           time: 0,
           json: "{test}",
+          isHidden: false,
           roomUid: testUid.asString(),
         );
         final roomDao = getAndRegisterRoomDao();
@@ -535,9 +412,7 @@ void main() {
           0,
           0,
           testRoom,
-          lastUpdateTime: 0,
           type: FetchMessagesReq_Type.BACKWARD_FETCH,
-          limit: 2,
         );
         verify(
           roomDao.updateRoom(
@@ -555,9 +430,7 @@ void main() {
             0,
             0,
             testRoom,
-            lastUpdateTime: 0,
             type: FetchMessagesReq_Type.BACKWARD_FETCH,
-            limit: 2,
           ),
           message,
         );
@@ -567,25 +440,21 @@ void main() {
           () async {
         final roomDao = getAndRegisterRoomDao();
         getAndRegisterMessageDao(
-          message: testMessage.copyWith(id: 1, json: EMPTY_MESSAGE),
+          message:
+              testMessage.copyWith(id: 1, json: EMPTY_MESSAGE, isHidden: true),
         );
         await MessageRepo().fetchLastMessages(
           testUid,
           0,
           0,
           testRoom,
-          lastUpdateTime: 0,
           type: FetchMessagesReq_Type.BACKWARD_FETCH,
-          limit: 2,
         );
         verify(
           roomDao.updateRoom(
             Room(
               uid: testUid.asString(),
-              lastUpdateTime: 0,
-              lastMessageId: 0,
-              lastMessage:
-                  testMessage.copyWith(id: 1, json: DELETED_ROOM_MESSAGE),
+              deleted: true,
             ),
           ),
         );
@@ -595,11 +464,9 @@ void main() {
             0,
             0,
             testRoom,
-            lastUpdateTime: 0,
             type: FetchMessagesReq_Type.BACKWARD_FETCH,
-            limit: 2,
           ),
-          testMessage.copyWith(id: 1, json: DELETED_ROOM_MESSAGE),
+          null,
         );
       });
     });
@@ -610,7 +477,8 @@ void main() {
         packetId: "",
         time: 0,
         id: 0,
-        json: DELETED_ROOM_MESSAGE,
+        json: EMPTY_MESSAGE,
+        isHidden: true,
         forwardedFrom: testUid.asString(),
         to: testUid.asString(),
         from: testUid.asString(),
@@ -623,7 +491,6 @@ void main() {
           0,
           0,
           FetchMessagesReq_Type.BACKWARD_FETCH,
-          0,
           0,
           0,
         );
@@ -653,17 +520,17 @@ void main() {
             FetchMessagesReq_Type.BACKWARD_FETCH,
             0,
             0,
-            0,
           ),
           message.copyWith(
             id: 2,
             json: "{\"1\":\"test\"}",
             type: MessageType.TEXT,
+            isHidden: false,
           ),
         );
       });
       test(
-          'When called should fetchMessages from queryServiceClient and if element.id! <= firstMessageId be false and id==1 should copy "{DELETED}" to lastMessage',
+          'When called should fetchMessages from queryServiceClient and if element.id! <= firstMessageId be false and id==1 should return null',
           () async {
         getAndRegisterQueryServiceClient(fetchMessagesId: 1);
         expect(
@@ -674,13 +541,12 @@ void main() {
             FetchMessagesReq_Type.BACKWARD_FETCH,
             0,
             0,
-            0,
           ),
-          message.copyWith(id: 1),
+          null,
         );
       });
       test(
-          'When called should fetchMessages from queryServiceClient and if element.id! <= firstMessageId should copy "{DELETED}" to lastMessage',
+          'When called should fetchMessages from queryServiceClient and if element.id! <= firstMessageId should return null',
           () async {
         expect(
           await MessageRepo().getLastMessageFromServer(
@@ -690,9 +556,8 @@ void main() {
             FetchMessagesReq_Type.BACKWARD_FETCH,
             0,
             0,
-            0,
           ),
-          message,
+          null,
         );
       });
     });
@@ -1286,9 +1151,8 @@ void main() {
     });
     group('sendForwardedMessage -', () {
       final pm = testPendingMessage.copyWith(
-        msg: testPendingMessage.msg.copyWith(
-          forwardedFrom: testUid.asString(),
-        ),
+        msg: testPendingMessage.msg
+            .copyWith(forwardedFrom: testUid.asString(), isHidden: true),
       );
 
       test('When called should savePendingMessage', () async {
@@ -1474,7 +1338,13 @@ void main() {
             .getMessages(testUid.asString(), 0, 16, Completer(), 10);
         final mes = await messageDao.getMessage(testUid.asString(), 0);
         verify(messageDao.getMessage(testUid.asString(), 0));
-        verify(messageDao.saveMessage(mes!..json = EMPTY_MESSAGE));
+        verify(
+          messageDao.saveMessage(
+            mes!
+              ..json = EMPTY_MESSAGE
+              ..isHidden = true,
+          ),
+        );
       });
       test(
           'When called should fetchMessages from queryServiceClient and saveFetchMessages and if fetched message id  equal to lastMessageId should updateRoom',
@@ -1494,6 +1364,7 @@ void main() {
                 id: 0,
                 forwardedFrom: testUid.asString(),
                 json: EMPTY_MESSAGE,
+                isHidden: true,
                 packetId: "",
               ),
               uid: testUid.asString(),

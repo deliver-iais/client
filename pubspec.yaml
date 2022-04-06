@@ -75,7 +75,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_map: 0.14.0
-  flutter_webrtc: 0.8.4
+  flutter_webrtc: 0.8.5
   fluttertoast: 8.0.8
   geolocator: 7.7.1
   get_it: 7.2.0
@@ -121,6 +121,7 @@ dependencies:
   receive_sharing_intent: 1.4.5
   record: 3.0.4
   rxdart: 0.27.3
+  screenshot: ^1.2.3
   scrollable_positioned_list: 0.2.3
   sdp_transform: 0.3.2
   service_worker: 0.2.4
@@ -144,7 +145,7 @@ dependencies:
       ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
       url: https://github.com/google/flutter-desktop-embedding.git
 
-  proximity_sensor: ^1.0.2
+  all_sensors2: ^1.0.1
   wakelock: ^0.6.1+1
 
 dev_dependencies:

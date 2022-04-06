@@ -88,12 +88,14 @@ public class Application extends FlutterActivity implements PluginRegistrantCall
                         if (call.method.equals("turnOff")) {
                             if(!wakeLock.isHeld()) {
                                 wakeLock.acquire();
+                                System.out.println("turn Off");
                             }
                         }
 
                         if (call.method.equals("turnOn")) {
                             if(wakeLock.isHeld()) {
                                 wakeLock.release();
+                                System.out.println("turn On");
                             }
                         }
                     }
