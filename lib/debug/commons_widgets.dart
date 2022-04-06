@@ -17,6 +17,8 @@ class Debug extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
@@ -32,8 +34,8 @@ class Debug extends StatelessWidget {
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             borderRadius: secondaryBorder / 1.2,
-            border: Border.all(color: Colors.red),
-            color: const Color(0xAAFFE8E8),
+            border: Border.all(color: theme.colorScheme.onErrorContainer),
+            color: theme.colorScheme.errorContainer,
           ),
           child: Text("$label: $text"),
         ),
@@ -69,6 +71,8 @@ class _DebugCState extends State<DebugC> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     if (!isOpen) {
       return Tooltip(
         message: widget.label ?? "",
@@ -76,10 +80,11 @@ class _DebugCState extends State<DebugC> {
           margin: const EdgeInsets.all(4),
           decoration: BoxDecoration(
             borderRadius: secondaryBorder,
-            border: Border.all(width: 2, color: Colors.red),
-            color: const Color(0xAAFFE8E8),
+            border: Border.all(width: 2, color: theme.colorScheme.onError),
+            color: theme.colorScheme.error,
           ),
           child: IconButton(
+            color: theme.colorScheme.onError,
             onPressed: () => setState(() => isOpen = true),
             icon: const Icon(Icons.fullscreen),
           ),
@@ -91,8 +96,8 @@ class _DebugCState extends State<DebugC> {
       constraints: const BoxConstraints(maxWidth: 350),
       decoration: BoxDecoration(
         borderRadius: secondaryBorder,
-        border: Border.all(width: 2, color: Colors.red),
-        color: const Color(0xAAFFE8E8),
+        border: Border.all(width: 2, color: theme.colorScheme.onError),
+        color: theme.colorScheme.error,
       ),
       child: Stack(
         children: [
@@ -104,9 +109,10 @@ class _DebugCState extends State<DebugC> {
                 if (widget.label != null)
                   Text(
                     widget.label!,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.onError,
                     ),
                   ),
                 Wrap(
@@ -121,6 +127,7 @@ class _DebugCState extends State<DebugC> {
           Align(
             alignment: Alignment.topRight,
             child: IconButton(
+              color: theme.colorScheme.onError,
               padding: const EdgeInsets.all(2.0),
               iconSize: 16,
               onPressed: () => setState(() => isOpen = false),

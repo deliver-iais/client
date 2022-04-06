@@ -10,6 +10,7 @@ import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
+import 'package:deliver/box/seen.dart';
 import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -254,9 +255,15 @@ class _RoomPageState extends State<RoomPage> {
                         ),
                         Debug(_pinMessages, label: "_pinMessages"),
                         Debug(_selectedMessages, label: "_selectedMessages"),
-                        Debug(_currentScrollIndex, label: "_currentScrollIndex"),
+                        Debug(
+                          _currentScrollIndex,
+                          label: "_currentScrollIndex",
+                        ),
                         Debug(_appIsActive, label: "_appIsActive"),
-                        Debug(_backgroundMessages, label: "_backgroundMessages"),
+                        Debug(
+                          _backgroundMessages,
+                          label: "_backgroundMessages",
+                        ),
                         Debug(
                           _defaultMessageHeight,
                           label: "_defaultMessageHeight",
@@ -485,12 +492,12 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   void _sendSeenMessage(List<Message> messages) {
-    // for (final msg in messages) {
-    //   if (!_authRepo.isCurrentUser(msg.from)) {
-    //     _messageRepo.sendSeen(msg.id!, widget.roomId.asUid());
-    //   }
-    //   _roomRepo.saveMySeen(Seen(uid: widget.roomId, messageId: msg.id!));
-    // }
+    for (final msg in messages) {
+      if (!_authRepo.isCurrentUser(msg.from)) {
+        _messageRepo.sendSeen(msg.id!, widget.roomId.asUid());
+      }
+      _roomRepo.saveMySeen(Seen(uid: widget.roomId, messageId: msg.id!));
+    }
   }
 
   Future<Message?> _getMessage(int id, {useCache = true}) async {
