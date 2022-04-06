@@ -31,7 +31,7 @@ class Debug extends StatelessWidget {
           constraints: const BoxConstraints(maxWidth: 350),
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            borderRadius: mainBorder,
+            borderRadius: secondaryBorder / 1.2,
             border: Border.all(color: Colors.red),
             color: const Color(0xAAFFE8E8),
           ),
@@ -75,7 +75,7 @@ class _DebugCState extends State<DebugC> {
         child: Container(
           margin: const EdgeInsets.all(4),
           decoration: BoxDecoration(
-            borderRadius: mainBorder,
+            borderRadius: secondaryBorder,
             border: Border.all(width: 2, color: Colors.red),
             color: const Color(0xAAFFE8E8),
           ),
@@ -90,12 +90,11 @@ class _DebugCState extends State<DebugC> {
       margin: const EdgeInsets.all(4),
       constraints: const BoxConstraints(maxWidth: 350),
       decoration: BoxDecoration(
-        borderRadius: mainBorder,
+        borderRadius: secondaryBorder,
         border: Border.all(width: 2, color: Colors.red),
         color: const Color(0xAAFFE8E8),
       ),
       child: Stack(
-        alignment: Alignment.topRight,
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
@@ -111,18 +110,22 @@ class _DebugCState extends State<DebugC> {
                     ),
                   ),
                 Wrap(
+                  crossAxisAlignment: WrapCrossAlignment.end,
                   children: widget.children,
-                  spacing: 8,
-                  runSpacing: 16,
+                  spacing: 4,
+                  runSpacing: 4,
                 ),
               ],
             ),
           ),
-          IconButton(
-            padding: const EdgeInsets.all(2.0),
-            iconSize: 16,
-            onPressed: () => setState(() => isOpen = false),
-            icon: const Icon(Icons.close_fullscreen),
+          Align(
+            alignment: Alignment.topRight,
+            child: IconButton(
+              padding: const EdgeInsets.all(2.0),
+              iconSize: 16,
+              onPressed: () => setState(() => isOpen = false),
+              icon: const Icon(Icons.close_fullscreen),
+            ),
           ),
         ],
       ),

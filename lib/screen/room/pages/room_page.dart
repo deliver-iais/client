@@ -10,7 +10,7 @@ import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
-import 'package:deliver/box/seen.dart';
+import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
@@ -66,6 +66,8 @@ import 'package:tuple/tuple.dart';
 // ignore: constant_identifier_names
 const int PAGE_SIZE = 16;
 
+const APPBAR_HEIGHT = 54.0;
+
 class RoomPage extends StatefulWidget {
   final String roomId;
   final List<Message>? forwardedMessages;
@@ -104,6 +106,10 @@ class _RoomPageState extends State<RoomPage> {
   int _lastScrollPositionIndex = -1;
   double _lastScrollPositionAlignment = 0;
   List<Message> searchResult = [];
+  int _currentScrollIndex = 0;
+  bool _appIsActive = true;
+  final List<Message> _backgroundMessages = [];
+  double _defaultMessageHeight = 1000;
 
   final List<Message> _pinMessages = [];
   final Map<int, Message> _selectedMessages = {};
@@ -141,12 +147,8 @@ class _RoomPageState extends State<RoomPage> {
   final _inputMessageFocusNode = FocusNode();
   final _scrollablePositionedListKey = GlobalKey();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
-  int _currentScrollIndex = 0;
   final ValueListenable<bool> _lifecycleDesktop =
       DesktopLifecycle.instance.isActive;
-  bool _appIsActive = true;
-  final List<Message> _backroundMessages = [];
-  double _defaultMessageHeight = 1000;
 
   @override
   Widget build(BuildContext context) {
@@ -227,7 +229,43 @@ class _RoomPageState extends State<RoomPage> {
         ),
         Column(
           children: [
-            const SizedBox(height: 60),
+            const SizedBox(height: APPBAR_HEIGHT),
+            if (isDebugEnabled())
+              StreamBuilder<Object>(
+                stream: MergeStream(
+                  [_pendingMessages.stream, _room.stream, _itemCountSubject],
+                ),
+                builder: (context, snapshot) {
+                  return SizedBox(
+                    width: double.infinity,
+                    child: DebugC(
+                      isOpen: true,
+                      children: [
+                        Debug(widget.roomId, label: "uid"),
+                        Debug(_lastSeenMessageId, label: "_lastSeenMessageId"),
+                        Debug(
+                          _lastShowedMessageId,
+                          label: "_lastShowedMessageId",
+                        ),
+                        Debug(_itemCount, label: "_itemCount"),
+                        Debug(
+                          _lastReceivedMessageId,
+                          label: "_lastReceivedMessageId",
+                        ),
+                        Debug(_pinMessages, label: "_pinMessages"),
+                        Debug(_selectedMessages, label: "_selectedMessages"),
+                        Debug(_currentScrollIndex, label: "_currentScrollIndex"),
+                        Debug(_appIsActive, label: "_appIsActive"),
+                        Debug(_backgroundMessages, label: "_backgroundMessages"),
+                        Debug(
+                          _defaultMessageHeight,
+                          label: "_defaultMessageHeight",
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             AudioPlayerAppBar(),
             pinMessageWidget(),
           ],
@@ -297,8 +335,8 @@ class _RoomPageState extends State<RoomPage> {
     _lifecycleDesktop.addListener(() {
       _appIsActive = _lifecycleDesktop.value;
       if (_appIsActive) {
-        _sendSeenMessage(_backroundMessages);
-        _backroundMessages.clear();
+        _sendSeenMessage(_backgroundMessages);
+        _backgroundMessages.clear();
       }
     });
 
@@ -440,19 +478,19 @@ class _RoomPageState extends State<RoomPage> {
         if (_appIsActive) {
           _sendSeenMessage([msg]);
         } else {
-          _backroundMessages.add(msg);
+          _backgroundMessages.add(msg);
         }
       }
     });
   }
 
   void _sendSeenMessage(List<Message> messages) {
-    for (final msg in messages) {
-      if (!_authRepo.isCurrentUser(msg.from)) {
-        _messageRepo.sendSeen(msg.id!, widget.roomId.asUid());
-      }
-      _roomRepo.saveMySeen(Seen(uid: widget.roomId, messageId: msg.id!));
-    }
+    // for (final msg in messages) {
+    //   if (!_authRepo.isCurrentUser(msg.from)) {
+    //     _messageRepo.sendSeen(msg.id!, widget.roomId.asUid());
+    //   }
+    //   _roomRepo.saveMySeen(Seen(uid: widget.roomId, messageId: msg.id!));
+    // }
   }
 
   Future<Message?> _getMessage(int id, {useCache = true}) async {
@@ -718,146 +756,150 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   PreferredSizeWidget buildAppbar() {
+    return UltimateAppBar(
+      preferredSize: const Size.fromHeight(APPBAR_HEIGHT),
+      child: buildAppBar(),
+    );
+  }
+
+  AppBar buildAppBar() {
     final theme = Theme.of(context);
     final controller = TextEditingController();
     final checkSearchResult = BehaviorSubject<bool>.seeded(false);
-    return UltimateAppBar(
-      preferredSize: const Size.fromHeight(54.0),
-      child: AppBar(
-        actions: [
-          if (room.uid.asUid().isUser() &&
-              !isLinux &&
-              accessToCallUidList.values
-                  .contains(_authRepo.currentUserUid.asString()))
-            IconButton(
-              onPressed: () {
-                _routingService.openCallScreen(room.uid.asUid());
-              },
-              icon: const Icon(CupertinoIcons.phone),
-            ),
-        ],
-        leading: GestureDetector(
-          child: StreamBuilder<bool>(
-            stream: _searchMode.stream,
-            builder: (c, s) {
-              if (s.hasData && s.data!) {
-                return IconButton(
-                  icon: const Icon(CupertinoIcons.search),
-                  onPressed: () {
-                    //   searchMessage(controller.text, checkSearchResult);
-                  },
-                );
-              } else {
-                return StreamBuilder<bool>(
-                  stream: _selectMultiMessageSubject.stream,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData &&
-                        snapshot.data != null &&
-                        snapshot.data!) {
-                      return Row(
-                        children: [
-                          Badge(
-                            child: IconButton(
-                              color: theme.primaryColor,
-                              icon: const Icon(
-                                CupertinoIcons.xmark,
-                                size: 25,
-                              ),
-                              onPressed: () {
-                                onDelete();
-                              },
-                            ),
-                            badgeColor: theme.primaryColor,
-                            badgeContent: Text(
-                              _selectedMessages.length.toString(),
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: theme.colorScheme.onPrimary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    } else {
-                      return _routingService.backButtonLeading(
-                        back: () {
-                          // _notificationServices.reset("\t");
-                        },
-                      );
-                    }
-                  },
-                );
-              }
+
+    return AppBar(
+      actions: [
+        if (room.uid.asUid().isUser() &&
+            !isLinux &&
+            accessToCallUidList.values
+                .contains(_authRepo.currentUserUid.asString()))
+          IconButton(
+            onPressed: () {
+              _routingService.openCallScreen(room.uid.asUid());
             },
+            icon: const Icon(CupertinoIcons.phone),
           ),
-        ),
-        titleSpacing: 0.0,
-        title: StreamBuilder<bool>(
+      ],
+      leading: GestureDetector(
+        child: StreamBuilder<bool>(
           stream: _searchMode.stream,
           builder: (c, s) {
             if (s.hasData && s.data!) {
-              return Row(
-                children: [
-                  Flexible(
-                    child: TextField(
-                      minLines: 1,
-                      controller: controller,
-                      autofocus: true,
-                      onTap: () {
-                        checkSearchResult.add(false);
-                      },
-                      onChanged: (s) {
-                        checkSearchResult.add(false);
-                      },
-                      textInputAction: TextInputAction.search,
-                      onSubmitted: (str) async {
-                        //   searchMessage(str, checkSearchResult);
-                      },
-                      decoration: InputDecoration(
-                        hintText: _i18n.get("search"),
-                        suffix: StreamBuilder<bool>(
-                          stream: checkSearchResult.stream,
-                          builder: (c, s) {
-                            if (s.hasData && s.data!) {
-                              return Text(_i18n.get("not_found"));
-                            } else {
-                              return const SizedBox.shrink();
-                            }
-                          },
-                        ),
-                        fillColor: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
+              return IconButton(
+                icon: const Icon(CupertinoIcons.search),
+                onPressed: () {
+                  //   searchMessage(controller.text, checkSearchResult);
+                },
               );
             } else {
               return StreamBuilder<bool>(
                 stream: _selectMultiMessageSubject.stream,
-                builder: (c, sm) {
-                  if (sm.hasData && sm.data!) {
-                    return _selectMultiMessageAppBar();
+                builder: (context, snapshot) {
+                  if (snapshot.hasData &&
+                      snapshot.data != null &&
+                      snapshot.data!) {
+                    return Row(
+                      children: [
+                        Badge(
+                          child: IconButton(
+                            color: theme.primaryColor,
+                            icon: const Icon(
+                              CupertinoIcons.xmark,
+                              size: 25,
+                            ),
+                            onPressed: () {
+                              onDelete();
+                            },
+                          ),
+                          badgeColor: theme.primaryColor,
+                          badgeContent: Text(
+                            _selectedMessages.length.toString(),
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: theme.colorScheme.onPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
                   } else {
-                    if (widget.roomId.isMuc()) {
-                      return MucAppbarTitle(mucUid: widget.roomId);
-                    } else if (widget.roomId.asUid().category ==
-                        Categories.BOT) {
-                      return BotAppbarTitle(botUid: widget.roomId.asUid());
-                    } else {
-                      return UserAppbarTitle(
-                        userUid: widget.roomId.asUid(),
-                      );
-                    }
+                    return _routingService.backButtonLeading(
+                      back: () {
+                        // _notificationServices.reset("\t");
+                      },
+                    );
                   }
                 },
               );
             }
           },
         ),
-        bottom: const PreferredSize(
-          child: Divider(),
-          preferredSize: Size.fromHeight(1),
-        ),
+      ),
+      titleSpacing: 0.0,
+      title: StreamBuilder<bool>(
+        stream: _searchMode.stream,
+        builder: (c, s) {
+          if (s.hasData && s.data!) {
+            return Row(
+              children: [
+                Flexible(
+                  child: TextField(
+                    minLines: 1,
+                    controller: controller,
+                    autofocus: true,
+                    onTap: () {
+                      checkSearchResult.add(false);
+                    },
+                    onChanged: (s) {
+                      checkSearchResult.add(false);
+                    },
+                    textInputAction: TextInputAction.search,
+                    onSubmitted: (str) async {
+                      //   searchMessage(str, checkSearchResult);
+                    },
+                    decoration: InputDecoration(
+                      hintText: _i18n.get("search"),
+                      suffix: StreamBuilder<bool>(
+                        stream: checkSearchResult.stream,
+                        builder: (c, s) {
+                          if (s.hasData && s.data!) {
+                            return Text(_i18n.get("not_found"));
+                          } else {
+                            return const SizedBox.shrink();
+                          }
+                        },
+                      ),
+                      fillColor: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          } else {
+            return StreamBuilder<bool>(
+              stream: _selectMultiMessageSubject.stream,
+              builder: (c, sm) {
+                if (sm.hasData && sm.data!) {
+                  return _selectMultiMessageAppBar();
+                } else {
+                  if (widget.roomId.isMuc()) {
+                    return MucAppbarTitle(mucUid: widget.roomId);
+                  } else if (widget.roomId.asUid().category == Categories.BOT) {
+                    return BotAppbarTitle(botUid: widget.roomId.asUid());
+                  } else {
+                    return UserAppbarTitle(
+                      userUid: widget.roomId.asUid(),
+                    );
+                  }
+                }
+              },
+            );
+          }
+        },
+      ),
+      bottom: const PreferredSize(
+        child: Divider(),
+        preferredSize: Size.fromHeight(1),
       ),
     );
   }
