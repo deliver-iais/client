@@ -97,6 +97,7 @@ class _RoomPageState extends State<RoomPage> {
   static final _botRepo = GetIt.I.get<BotRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _sharedDao = GetIt.I.get<SharedDao>();
+  static final _fireBaseServices = GetIt.I.get<FireBaseServices>();
 
   int _lastSeenMessageId = -1;
   int _lastShowedMessageId = -1;
@@ -312,14 +313,12 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Future<void> _getScrollPosition() async {
-    _routingService.shouldScrollInRoom.listen((shouldScroll) {
+    _routingService.shouldScrollToLastMessageInRoom.listen((shouldScroll) {
       if (shouldScroll) {
-        _scrollToMessage(
-          _lastShowedMessageId > 0 ? _lastShowedMessageId : _itemCount,
-        );
-        _lastShowedMessageId = -1;
+        _scrollToLastMessage();
       }
     });
+
     final scrollPosition =
         await _sharedDao.get('$SHARED_DAO_SCROLL_POSITION-${widget.roomId}');
 
@@ -364,13 +363,14 @@ class _RoomPageState extends State<RoomPage> {
     // Listen on scroll
     _itemPositionsListener.itemPositions.addListener(() {
       final position = _itemPositionsListener.itemPositions.value;
+      // TODO(hasan): fix scroll problems, https://gitlab.iais.co/deliver/wiki/-/issues/408
       if (position.isNotEmpty) {
-        if (_itemCount - position.first.index > 20) {
+        if ((_itemCount - position.first.index).abs() > 10) {
           _scrollEvent.add(true);
         } else {
           _scrollEvent.add(false);
         }
-        final firstItem =
+        final firstVisibleItem =
             position.where((position) => position.itemLeadingEdge > 0).reduce(
                   (first, position) =>
                       position.itemLeadingEdge > first.itemLeadingEdge
@@ -381,7 +381,7 @@ class _RoomPageState extends State<RoomPage> {
         // Save scroll position of first complete visible item
         _sharedDao.put(
           '$SHARED_DAO_SCROLL_POSITION-${widget.roomId}',
-          "${firstItem.index}-${firstItem.itemLeadingEdge}",
+          "${firstVisibleItem.index}-${firstVisibleItem.itemLeadingEdge}",
         );
 
         _positionSubject.add(
@@ -394,7 +394,7 @@ class _RoomPageState extends State<RoomPage> {
 
     MergeStream([
       _scrollEvent.stream,
-      _scrollEvent.debounceTime(const Duration(milliseconds: 1000))
+      _scrollEvent.debounceTime(const Duration(milliseconds: 4000))
     ]).listen((event) => _isScrolling.add(event));
 
     // If new message arrived, scroll to the end of page if we are close to end of the page
@@ -613,8 +613,6 @@ class _RoomPageState extends State<RoomPage> {
     }
   }
 
-  final _fireBaseServices = GetIt.I.get<FireBaseServices>();
-
   Future<void> watchPinMessages() async {
     _mucRepo.watchMuc(widget.roomId).listen((muc) {
       if (muc != null && (muc.showPinMessage == null || muc.showPinMessage!)) {
@@ -676,12 +674,7 @@ class _RoomPageState extends State<RoomPage> {
         FloatingActionButton(
           mini: true,
           child: const Icon(CupertinoIcons.down_arrow),
-          onPressed: () {
-            _scrollToMessage(
-              _lastShowedMessageId > 0 ? _lastShowedMessageId : _itemCount,
-            );
-            _lastShowedMessageId = -1;
-          },
+          onPressed: _scrollToLastMessage,
         ),
         if (room.lastMessage != null &&
             !_authRepo.isCurrentUser(room.lastMessage!.from))
