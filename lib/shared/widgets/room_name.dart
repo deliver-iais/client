@@ -1,4 +1,5 @@
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/shared/widgets/dot_animation/dot_animation.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,8 +13,9 @@ class RoomName extends StatelessWidget {
   final Uid uid;
   final String? name;
   final TextStyle? style;
+  final bool shouldShowDotAnimation;
 
-  const RoomName({Key? key, required this.uid, this.name, this.style})
+  const RoomName({Key? key, required this.uid, this.name, this.style, this.shouldShowDotAnimation=false})
       : super(key: key);
 
   @override
@@ -36,6 +38,7 @@ class RoomName extends StatelessWidget {
               softWrap: false,
               overflow: TextOverflow.fade,
             ),
+            if(shouldShowDotAnimation) DotAnimation(dotsColor: Theme.of(context).primaryColor),
             FutureBuilder<bool>(
               future: _roomRepo.isVerified(uid),
               builder: (context, snapshot) {

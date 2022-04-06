@@ -68,7 +68,10 @@ dependencies:
     sdk: flutter
   flutter_blurhash: 0.6.4
   flutter_dropzone: 3.0.3
-  flutter_foreground_task: 3.5.5
+  flutter_foreground_task:
+    git:
+      url: https://github.com/androidwoman/flutter_foreground_task.git
+      ref: b24aeffc07dc047016b4da1f1320ec524d96b161
   flutter_image_compress: 1.1.0
   flutter_keyboard_visibility: 5.1.1
   flutter_local_notifications: 9.1.4
@@ -146,6 +149,7 @@ dependencies:
       url: https://github.com/google/flutter-desktop-embedding.git
 
 
+
 dev_dependencies:
   build_runner: 2.1.8
   dependency_validator: 3.1.2  # flutter pub run dependency_validator
@@ -186,6 +190,8 @@ flutter:
     - assets/images/wave.png
     - lib/lang/en.json
     - lib/lang/fa.json
+    - assets/animations/end_of_call.json
+    - assets/audios/end_call.mp3
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 
