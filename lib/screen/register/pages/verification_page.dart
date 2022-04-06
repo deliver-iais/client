@@ -3,6 +3,7 @@ import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/screen/home/pages/home_page.dart';
+import 'package:deliver/screen/register/pages/two_step_verification_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
@@ -39,18 +40,24 @@ class _VerificationPageState extends State<VerificationPage> {
     }
     setState(() => _showError = false);
     FocusScope.of(context).requestFocus(FocusNode());
-    final result = _authRepo.sendVerificationCode(_verificationCode!);
+    final result = _authRepo.sendVerificationCode(_verificationCode!, "");
     result.then((accessTokenResponse) {
       if (accessTokenResponse.status == AccessTokenRes_Status.OK) {
         _fireBaseServices.sendFireBaseToken();
         _navigationToHome();
       } else if (accessTokenResponse.status ==
           AccessTokenRes_Status.PASSWORD_PROTECTED) {
-        ToastDisplay.showToast(
-          toastText: "PASSWORD_PROTECTED",
-          toastContext: context,
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (c) {
+              return TwoStepVerificationPage(
+                verificationCode: _verificationCode,
+                navigationToHomePage: _navigationToHome,
+              );
+            },
+          ),
         );
-        // TODO(dansi): navigate to password validation page, https://gitlab.iais.co/deliver/wiki/-/issues/419
       } else {
         ToastDisplay.showToast(
           toastText: _i18n.get("verification_code_not_valid"),

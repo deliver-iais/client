@@ -1,6 +1,8 @@
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 
@@ -24,6 +26,9 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _i18n = GetIt.I.get<I18N>();
   final _shareDao = GetIt.I.get<SharedDao>();
+  final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _pasFormKey = GlobalKey<FormState>();
+  final _repPasFormKey = GlobalKey<FormState>();
   var _currentPass = "";
   var _pass = "";
   var _repeatedPass = "";
@@ -61,7 +66,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                       showDialog(
                         context: context,
                         builder: (context) {
-                          return disablePassword();
+                          return disableLocalPassword();
                         },
                       );
                     }
@@ -81,14 +86,9 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                     },
                     trailing: const SizedBox.shrink(),
                   ),
-              ],
-            ),
-            Section(
-              title: _i18n.get("two_step_verification"),
-              children: [
                 SettingsTile.switchTile(
                   title: _i18n.get("two_step_verification"),
-                  leading: const Icon(CupertinoIcons.lock),
+                  leading: const Icon(CupertinoIcons.lock_shield),
                   switchValue: _authRepo.isTwoStepVerificationEnabled(),
                   onToggle: (enabled) async {
                     if (enabled) {
@@ -121,21 +121,21 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                       showDialog(
                         context: context,
                         builder: (context) {
-                          return disablePassword();
+                          return disableTwoStepVerification();
                         },
                       );
                     }
                   },
                 ),
               ],
-            )
+            ),
           ],
         ),
       ),
     );
   }
 
-  Widget disablePassword() {
+  Widget disableLocalPassword() {
     return StatefulBuilder(
       builder: (context, setState2) => AlertDialog(
         titlePadding: EdgeInsets.zero,
@@ -178,6 +178,74 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
     );
   }
 
+  Widget disableTwoStepVerification() {
+    final _textController = TextEditingController();
+    return StatefulBuilder(
+      builder: (context, setState2) => AlertDialog(
+        titlePadding: EdgeInsets.zero,
+        actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Lottie.asset(
+              "assets/animations/lock.json",
+              width: 60,
+              height: 60,
+              delegates: LottieDelegates(
+                values: [
+                  ValueDelegate.color(
+                    const ['**'],
+                    value: Theme.of(context).colorScheme.primary,
+                  ),
+                ],
+              ),
+            ),
+            Form(
+              key: _pasFormKey,
+              child: TextFormField(
+                controller: _textController,
+                validator: (pas) {
+                  if (pas == null || pas.isEmpty) {
+                    return _i18n.get("insert_password");
+                  } else if (!_authRepo.passwordIsCorrect(pas)) {
+                    return _i18n.get("password_not_correct");
+                  }
+                },
+                obscureText: true,
+                decoration: InputDecoration(
+                  border: const OutlineInputBorder(),
+                  hintText: _i18n.get("current_password"),
+                ),
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          SizedBox(
+            height: 40,
+            child: TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(_i18n.get("cancel")),
+            ),
+          ),
+          SizedBox(
+            height: 40,
+            child: TextButton(
+              onPressed: () async {
+                if (_pasFormKey.currentState!.validate()) {
+                  await _accountRepo.disableTwoStepVerification();
+                  setState(() {});
+                  Navigator.of(context).pop();
+                }
+              },
+              child: Text(_i18n.get("disable")),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget setPassword(String email) {
     final _pasController = TextEditingController();
     final _repPasController = TextEditingController();
@@ -192,8 +260,25 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
               child: Text(_i18n.get("cancel")),
             ),
             ElevatedButton(
-              onPressed: () {
-                //todo
+              onPressed: () async {
+                if (_pasFormKey.currentState!.validate() &&
+                    _repPasFormKey.currentState!.validate()) {
+                  final isSet = await _accountRepo
+                      .enableTwoStepVerification(_repPasController.text);
+                  if (isSet) {
+                    ToastDisplay.showToast(
+                      toastContext: c,
+                      toastText: _i18n.get("two_step_verification_active"),
+                    );
+                    setState(() {});
+                    Navigator.of(context).pop();
+
+                  } else {
+                    ToastDisplay.showToast(
+                        toastContext: c,
+                        toastText: _i18n.get("error_occurred"));
+                  }
+                }
               },
               child: Text(_i18n.get("save")),
             )
@@ -215,23 +300,51 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                   ],
                 ),
               ),
-              TextField(
-                controller: _pasController,
-                decoration: InputDecoration(
-                  hintText: _i18n.get("password"),
+              Form(
+                key: _pasFormKey,
+                child: TextFormField(
+                  controller: _pasController,
+                  obscureText: true,
+                  validator: (s) {
+                    if (s == null || s.isEmpty) {
+                      return _i18n.get("pas_not_empty");
+                    } else if (_repPasController.text.isNotEmpty &&
+                        s != _repPasController.text) {
+                      return _i18n.get("password_not_match");
+                    }
+                  },
+                  decoration: InputDecoration(
+                    hintText: _i18n.get("password"),
+                  ),
                 ),
               ),
               const SizedBox(
                 height: 10,
               ),
-              TextField(
-                controller: _repPasController,
-                decoration: InputDecoration(
-                  hintText: _i18n.get("repeat_password"),
+              Form(
+                key: _repPasFormKey,
+                child: TextFormField(
+                  controller: _repPasController,
+                  obscureText: true,
+                  validator: (repPass) {
+                    if (repPass == null || repPass.isEmpty) {
+                      return _i18n.get("rep_pas_not_empty");
+                    } else if (repPass != _pasController.text) {
+                      return _i18n.get("password_not_match");
+                    }
+                  },
+                  decoration: InputDecoration(
+                    hintText: _i18n.get("repeat_password"),
+                  ),
                 ),
               ),
-              const SizedBox(height: 20,),
-              Text(_i18n.get("two_step_verification_des")),
+              const SizedBox(
+                height: 20,
+              ),
+              Text(
+                _i18n.get("two_step_verification_des"),
+                style: Theme.of(context).textTheme.caption,
+              ),
               const SizedBox(
                 height: 40,
               ),
@@ -239,6 +352,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                 readOnly: true,
                 controller: TextEditingController(text: email),
                 decoration: InputDecoration(
+                    labelText: _i18n.get("recovery_email"),
                     helperText: _i18n.get("email_for_two_step")),
               )
             ],

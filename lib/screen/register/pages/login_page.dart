@@ -5,6 +5,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 
 import 'package:deliver/screen/home/pages/home_page.dart';
+import 'package:deliver/screen/register/pages/two_step_verification_page.dart';
 import 'package:deliver/screen/register/pages/verification_page.dart';
 import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
@@ -59,21 +60,7 @@ class _LoginPageState extends State<LoginPage> {
 
     if (isDesktop) {
       checkTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
-        try {
-          final res = await _authRepo.checkQrCodeToken(loginToken.value);
-          if (res.status == AccessTokenRes_Status.OK) {
-            _fireBaseServices.sendFireBaseToken();
-            _navigationToHome();
-          } else if (res.status == AccessTokenRes_Status.PASSWORD_PROTECTED) {
-            ToastDisplay.showToast(
-              toastText: "PASSWORD_PROTECTED",
-              toastContext: context,
-            );
-            // TODO(dansi): navigate to password validation page, https://gitlab.iais.co/deliver/wiki/-/issues/419
-          }
-        } catch (e) {
-          _logger.e(e);
-        }
+        await _loginByQrCode();
       });
       tokenGeneratorTimer =
           Timer.periodic(const Duration(seconds: 60), (timer) {
@@ -93,6 +80,28 @@ class _LoginPageState extends State<LoginPage> {
       });
     }
     super.initState();
+  }
+
+  Future<void> _loginByQrCode({String? password}) async {
+    try {
+      final res =
+          await _authRepo.checkQrCodeToken(loginToken.value, password ?? "");
+      if (res.status == AccessTokenRes_Status.OK) {
+        _fireBaseServices.sendFireBaseToken();
+        _navigationToHome();
+      } else if (res.status == AccessTokenRes_Status.PASSWORD_PROTECTED) {
+        MaterialPageRoute(
+          builder: (c) {
+            return TwoStepVerificationPage(
+              token: loginToken.value,
+              navigationToHomePage: _navigationToHome,
+            );
+          },
+        );
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
   }
 
   Future<void> _navigationToHome() async {

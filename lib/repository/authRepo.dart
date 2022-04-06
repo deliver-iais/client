@@ -32,7 +32,6 @@ class AuthRepo {
   String? _refreshToken;
   late PhoneNumber _tmpPhoneNumber;
   var _localPassword = "";
-  var _password = "";
 
   String? get refreshToken => _refreshToken;
 
@@ -51,7 +50,6 @@ class AuthRepo {
   Future<void> init() async {
     try {
       _localPassword = await _sharedDao.get(SHARED_DAO_LOCAL_PASSWORD) ?? "";
-      _password = await _sharedDao.get(SHARED_DAO_PASSWORD) ?? "";
       final accessToken = await _sharedDao.get(SHARED_DAO_ACCESS_TOKEN_KEY);
       final refreshToken = await _sharedDao.get(SHARED_DAO_REFRESH_TOKEN_KEY);
       _setTokensAndCurrentUserUid(accessToken, refreshToken);
@@ -82,7 +80,7 @@ class AuthRepo {
     }
   }
 
-  Future<AccessTokenRes> sendVerificationCode(String code) async {
+  Future<AccessTokenRes> sendVerificationCode(String code,String password) async {
     final platform = await getPlatformPB();
 
     final device = await getDeviceName();
@@ -93,18 +91,16 @@ class AuthRepo {
         ..code = code
         ..device = device
         ..platform = platform
-        // TODO(dansi): add password mechanism, https://gitlab.iais.co/deliver/wiki/-/issues/419
-        ..password = "",
+        ..password = password,
     );
 
     if (res.status == AccessTokenRes_Status.OK) {
       _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
     }
-
     return res;
   }
 
-  Future<AccessTokenRes> checkQrCodeToken(String token) async {
+  Future<AccessTokenRes> checkQrCodeToken(String token,String password) async {
     final platform = await getPlatformPB();
 
     final device = await getDeviceName();
@@ -114,8 +110,7 @@ class AuthRepo {
         ..token = token
         ..device = device
         ..platform = platform
-        // TODO(dansi): add password mechanism, https://gitlab.iais.co/deliver/wiki/-/issues/419
-        ..password = "",
+        ..password = password,
     );
 
     if (res.status == AccessTokenRes_Status.OK) {
@@ -163,12 +158,6 @@ class AuthRepo {
 
   String getLocalPassword() => _localPassword;
 
-  bool isTwoStepVerificationEnabled() => _password != "";
-
-  void setPassword(String pass) {
-    _sharedDao.put(SHARED_DAO_PASSWORD, pass);
-    _password = pass;
-  }
 
   void setLocalPassword(String pass) {
     _localPassword = pass;

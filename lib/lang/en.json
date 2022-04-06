@@ -300,5 +300,14 @@
   "need_to_set_email": "you not set  email, to active two-step-verification go to  account setting and   set email",
   "go_setting": "go setting",
   "two_step_verification_des": "This password will be asked when you login on a  new  device in addition to SMS code",
-  "email_for_two_step": "when you forget the password we send password to this email"
+  "email_for_two_step": "when you forget the password we send password to this email",
+  "disable_two_step_verification": "Disable two  step verification",
+  "recovery_email": "Recovery password email",
+  "pas_not_empty": "Password should not be empty",
+  "rep_pas_not_empty": "Repeat password should not be empty",
+  "password_not_match": "Password and Repeat password not match",
+  "two_step_verification_active": "Two step verification activated",
+  "password_not_correct": "Password not correct",
+  "forget_password": "Forget password?",
+  "insert_password": "Insert two step verification password"
 }
