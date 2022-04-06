@@ -99,8 +99,8 @@ class _RoomPageState extends State<RoomPage> {
   static final _botRepo = GetIt.I.get<BotRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _sharedDao = GetIt.I.get<SharedDao>();
-  final _callService = GetIt.I.get<CallService>();
-  final callRepo = GetIt.I.get<CallRepo>();
+  static final _callService = GetIt.I.get<CallService>();
+  static final _callRepo = GetIt.I.get<CallRepo>();
   static final _fireBaseServices = GetIt.I.get<FireBaseServices>();
 
   int _lastSeenMessageId = -1;
@@ -772,7 +772,7 @@ class _RoomPageState extends State<RoomPage> {
               if (_callService.getUserCallState == UserCallState.NOCALL) {
                 _routingService.openCallScreen(room.uid.asUid());
               } else {
-                if (room.uid.asUid() == callRepo.roomUid) {
+                if (room.uid.asUid() == _callRepo.roomUid) {
                   _routingService.openCallScreen(
                     room.uid.asUid(),
                     isCallInitialized: true,
