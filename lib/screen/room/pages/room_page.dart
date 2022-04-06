@@ -54,7 +54,6 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:desktop_lifecycle/desktop_lifecycle.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -102,39 +101,30 @@ class _RoomPageState extends State<RoomPage> {
   int _lastSeenMessageId = -1;
   int _lastShowedMessageId = -1;
   int _itemCount = 0;
-  final BehaviorSubject<int> _replyMessageId = BehaviorSubject.seeded(-1);
   int _lastReceivedMessageId = 0;
   int _lastScrollPositionIndex = -1;
   double _lastScrollPositionAlignment = 0;
   List<Message> searchResult = [];
   int _currentScrollIndex = 0;
   bool _appIsActive = true;
-  final List<Message> _backgroundMessages = [];
   double _defaultMessageHeight = 1000;
-
+  final List<Message> _backgroundMessages = [];
   final List<Message> _pinMessages = [];
   final Map<int, Message> _selectedMessages = {};
 
-  final _room = BehaviorSubject<Room>();
-  final _pendingMessages = BehaviorSubject<List<PendingMessage>>();
-
-  final _scrollEvent = BehaviorSubject.seeded(false);
-  final _isScrolling = BehaviorSubject.seeded(false);
-
-  List<PendingMessage> get pendingMessages =>
-      _pendingMessages.valueOrNull ?? [];
-
-  Room get room => _room.valueOrNull ?? Room(uid: widget.roomId);
-
   final _messageWidgetCache =
       LruCache<int, Widget?>(storage: InMemoryStorage(200));
-
   final _messageCache = LruCache<int, Message>(storage: InMemoryStorage(200));
 
+  final _highlightMessageId = BehaviorSubject.seeded(-1);
+  final _repliedMessage = BehaviorSubject<Message?>.seeded(null);
+  final _room = BehaviorSubject<Room>();
+  final _pendingMessages = BehaviorSubject<List<PendingMessage>>();
+  final _scrollEvent = BehaviorSubject.seeded(false);
+  final _isScrolling = BehaviorSubject.seeded(false);
   final _itemPositionsListener = ItemPositionsListener.create();
   final _itemScrollController = ItemScrollController();
   final _scrollPhysics = const ClampingScrollPhysics();
-  final _repliedMessage = BehaviorSubject<Message?>.seeded(null);
   final _editableMessage = BehaviorSubject<Message?>.seeded(null);
   final _searchMode = BehaviorSubject.seeded(false);
   final _lastPinedMessage = BehaviorSubject.seeded(0);
@@ -148,8 +138,11 @@ class _RoomPageState extends State<RoomPage> {
   final _inputMessageFocusNode = FocusNode();
   final _scrollablePositionedListKey = GlobalKey();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
-  final ValueListenable<bool> _lifecycleDesktop =
-      DesktopLifecycle.instance.isActive;
+
+  List<PendingMessage> get pendingMessages =>
+      _pendingMessages.valueOrNull ?? [];
+
+  Room get room => _room.valueOrNull ?? Room(uid: widget.roomId);
 
   @override
   Widget build(BuildContext context) {
@@ -322,7 +315,7 @@ class _RoomPageState extends State<RoomPage> {
     _routingService.shouldScrollInRoom.listen((shouldScroll) {
       if (shouldScroll) {
         _scrollToMessage(
-          id: _lastShowedMessageId > 0 ? _lastShowedMessageId : _itemCount,
+          _lastShowedMessageId > 0 ? _lastShowedMessageId : _itemCount,
         );
         _lastShowedMessageId = -1;
       }
@@ -339,8 +332,9 @@ class _RoomPageState extends State<RoomPage> {
 
   @override
   void initState() {
-    _lifecycleDesktop.addListener(() {
-      _appIsActive = _lifecycleDesktop.value;
+    DesktopLifecycle.instance.isActive.addListener(() {
+      _appIsActive = DesktopLifecycle.instance.isActive.value;
+
       if (_appIsActive) {
         _sendSeenMessage(_backgroundMessages);
         _backgroundMessages.clear();
@@ -407,7 +401,7 @@ class _RoomPageState extends State<RoomPage> {
     _itemCountSubject.distinct().listen((event) {
       if (event != 0) {
         if (_itemCount - (_positionSubject.value) < 4) {
-          scrollToLast();
+          _scrollToLastMessage();
         }
       }
     });
@@ -684,7 +678,7 @@ class _RoomPageState extends State<RoomPage> {
           child: const Icon(CupertinoIcons.down_arrow),
           onPressed: () {
             _scrollToMessage(
-              id: _lastShowedMessageId > 0 ? _lastShowedMessageId : _itemCount,
+              _lastShowedMessageId > 0 ? _lastShowedMessageId : _itemCount,
             );
             _lastShowedMessageId = -1;
           },
@@ -723,16 +717,16 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget messageInput() => StreamBuilder(
-        stream: MergeStream([_repliedMessage.stream, _editableMessage.stream]),
+        stream: _editableMessage.stream,
         builder: (c, data) {
           return NewMessageInput(
             currentRoomId: widget.roomId,
-            replyMessageId: _repliedMessage.value?.id ?? 0,
+            replyMessageIdStream: _repliedMessage,
             editableMessage: _editableMessage.value,
             resetRoomPageDetails: _resetRoomPageDetails,
             waitingForForward: _waitingForForwardedMessage.value,
             sendForwardMessage: _sendForwardMessage,
-            scrollToLastSentMessage: scrollToLast,
+            scrollToLastSentMessage: _scrollToLastMessage,
             handleScrollToMessage: _handleScrollToMsg,
             focusNode: _inputMessageFocusNode,
             textController: _inputMessageTextController,
@@ -749,12 +743,7 @@ class _RoomPageState extends State<RoomPage> {
       _currentScrollIndex = _currentScrollIndex + direction;
     }
     if (0 < _currentScrollIndex && _currentScrollIndex <= _itemCount) {
-      _itemScrollController.scrollTo(
-        index: _currentScrollIndex,
-        alignment: 0.5,
-        duration: const Duration(milliseconds: 100),
-      );
-      _replyMessageId.add(_currentScrollIndex);
+      _scrollToMessage(_currentScrollIndex);
     } else if (_currentScrollIndex <= 0) {
       _currentScrollIndex = 1;
     } else {
@@ -1063,8 +1052,8 @@ class _RoomPageState extends State<RoomPage> {
     }
 
     return StreamBuilder<int>(
-      initialData: _replyMessageId.value,
-      stream: _replyMessageId.stream,
+      initialData: _highlightMessageId.value,
+      stream: _highlightMessageId.stream,
       builder: (context, snapshot) {
         return AnimatedContainer(
           key: ValueKey(index),
@@ -1102,32 +1091,25 @@ class _RoomPageState extends State<RoomPage> {
     final messageBefore = tuple.item1;
     final message = tuple.item2!;
 
-    final msgBox = StreamBuilder<int>(
-      initialData: _replyMessageId.value,
-      stream: _replyMessageId.stream,
-      builder: (c, snapShot) {
-        return BuildMessageBox(
-          message: message,
-          messageBefore: messageBefore,
-          roomId: widget.roomId,
-          itemScrollController: _itemScrollController,
-          lastSeenMessageId: _lastSeenMessageId,
-          pinMessages: _pinMessages,
-          replyMessageId: snapShot.data!,
-          selectMultiMessageSubject: _selectMultiMessageSubject,
-          hasPermissionInGroup: _hasPermissionInGroup.value,
-          hasPermissionInChannel: _hasPermissionInChannel,
-          onEdit: () => onEdit(message),
-          onPin: () => onPin(message),
-          onUnPin: () => onUnPin(message),
-          onReply: () => onReply(message),
-          addForwardMessage: () => _addForwardMessage(message),
-          onDelete: onDelete,
-          changeReplyMessageId: _changeReplyMessageId,
-          resetRoomPageDetails: _resetRoomPageDetails,
-        );
-      },
+    final msgBox = BuildMessageBox(
+      message: message,
+      messageBefore: messageBefore,
+      roomId: widget.roomId,
+      lastSeenMessageId: _lastSeenMessageId,
+      pinMessages: _pinMessages,
+      selectMultiMessageSubject: _selectMultiMessageSubject,
+      hasPermissionInGroup: _hasPermissionInGroup.value,
+      hasPermissionInChannel: _hasPermissionInChannel,
+      onEdit: () => onEdit(message),
+      onPin: () => onPin(message),
+      onUnPin: () => onUnPin(message),
+      onReply: () => onReply(message),
+      addForwardMessage: () => _addForwardMessage(message),
+      scrollToMessage: _scrollToMessageWithHighlight,
+      onDelete: onDelete,
+      resetRoomPageDetails: _resetRoomPageDetails,
     );
+
     if (index == 0) {
       return Column(
         children: [
@@ -1151,12 +1133,12 @@ class _RoomPageState extends State<RoomPage> {
     setState(() {});
   }
 
-  void _changeReplyMessageId(int id) {
-    _replyMessageId.add(id);
-    _currentScrollIndex = id;
-  }
+  void _scrollToLastMessage() => _scrollToMessage(_itemCount - 1);
 
-  void _scrollToMessage({required int id}) {
+  void _scrollToMessageWithHighlight(int id) =>
+      _scrollToMessage(id, shouldHighlight: true);
+
+  void _scrollToMessage(int id, {bool shouldHighlight = false}) {
     if (_itemScrollController.isAttached) {
       _itemScrollController.scrollTo(
         index: id,
@@ -1165,13 +1147,17 @@ class _RoomPageState extends State<RoomPage> {
         curve: Curves.fastOutSlowIn,
         opacityAnimationWeights: [20, 20, 60],
       );
+
+      _currentScrollIndex = max(0, id);
+
+      if (!shouldHighlight) return;
+
       if (id != -1) {
-        _replyMessageId.add(id);
-        _currentScrollIndex = id;
+        _highlightMessageId.add(id);
       }
-      if (_replyMessageId.value != -1) {
+      if (_highlightMessageId.value != -1) {
         Timer(const Duration(seconds: 3), () {
-          _replyMessageId.add(-1);
+          _highlightMessageId.add(-1);
         });
       }
     }
@@ -1267,15 +1253,6 @@ class _RoomPageState extends State<RoomPage> {
     );
   }
 
-  void scrollToLast() {
-    _itemScrollController.scrollTo(
-      curve: Curves.easeOut,
-      opacityAnimationWeights: [20, 20, 60],
-      index: _itemCount - 1,
-      duration: const Duration(milliseconds: 1000),
-    );
-  }
-
   Future<void> onUsernameClick(String username) async {
     if (username.contains("_bot")) {
       final roomId = "4:${username.substring(1)}";
@@ -1291,12 +1268,7 @@ class _RoomPageState extends State<RoomPage> {
       lastPinedMessage: _lastPinedMessage,
       pinMessages: _pinMessages,
       onTap: () {
-        _replyMessageId.add(_lastPinedMessage.value);
-        _itemScrollController.scrollTo(
-          index: _lastPinedMessage.value,
-          alignment: 0.5,
-          duration: const Duration(microseconds: 1),
-        );
+        _scrollToMessageWithHighlight(_lastPinedMessage.value);
         if (_pinMessages.length > 1) {
           _lastPinedMessage.add(
             _pinMessages[max(
