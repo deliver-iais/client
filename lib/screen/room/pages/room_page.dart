@@ -227,7 +227,9 @@ class _RoomPageState extends State<RoomPage> {
         ),
         Column(
           children: [
-            const SizedBox(height: APPBAR_HEIGHT),
+            SizedBox(
+              height: isAndroid || isIOS ? APPBAR_HEIGHT + 24 : APPBAR_HEIGHT,
+            ),
             if (isDebugEnabled())
               StreamBuilder<Object>(
                 stream: MergeStream(
