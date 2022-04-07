@@ -5,6 +5,7 @@ import 'package:all_sensors2/all_sensors2.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/audioCallScreen/audio_call_screen.dart';
 import 'package:deliver/screen/call/videoCallScreen/start_video_call_page.dart';
+import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -13,8 +14,6 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
-import '../../shared/methods/platform.dart';
-import '../../services/audio_service.dart';
 import 'videoCallScreen/in_video_call_page.dart';
 
 class CallScreen extends StatefulWidget {
@@ -48,8 +47,8 @@ class _CallScreenState extends State<CallScreen> {
   final _audioService = GetIt.I.get<AudioService>();
   final _routingService = GetIt.I.get<RoutingService>();
 
-  List<StreamSubscription<dynamic>> _streamSubscriptions =
-  <StreamSubscription<dynamic>>[];
+  final List<StreamSubscription<dynamic>> _streamSubscriptions =
+      <StreamSubscription<dynamic>>[];
 
   @override
   void initState() {
@@ -66,18 +65,17 @@ class _CallScreenState extends State<CallScreen> {
   }
 
   @override
-  void dispose(){
+  void dispose() {
     super.dispose();
     if (isAndroid) {
-      for (StreamSubscription<dynamic> subscription in _streamSubscriptions) {
+      for (final subscription in _streamSubscriptions) {
         subscription.cancel();
       }
     }
   }
 
   Future<void> _listenSensor() async {
-    _streamSubscriptions.add(proximityEvents!.listen((ProximityEvent event) {
-    }));
+    _streamSubscriptions.add(proximityEvents!.listen((event) {}));
   }
 
   Future<void> startCall() async {
@@ -244,7 +242,7 @@ class _CallScreenState extends State<CallScreen> {
                     hangUp: _hangUp,
                   )
                 : AudioCallScreen(
-              roomUid: widget.roomUid,
+                    roomUid: widget.roomUid,
                     callStatus: "Calling",
                     isIncomingCall: !callRepo.isCaller,
                     hangUp: _hangUp,
@@ -254,7 +252,7 @@ class _CallScreenState extends State<CallScreen> {
             _audioService.playEndCallSound();
 
             Timer(const Duration(milliseconds: 1500), () async {
-              if (_routingService.canPop()&& !isDesktop) {
+              if (_routingService.canPop() && !isDesktop) {
                 _routingService.pop();
               }
             });
