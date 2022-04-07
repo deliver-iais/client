@@ -88,7 +88,6 @@ class CallRepo {
 
   String _offerSdp = "";
   String _answerSdp = "";
-  String _callId = "";
   int _candidateStartTime = 0;
 
   RTCPeerConnection? _peerConnection;
@@ -145,16 +144,17 @@ class CallRepo {
           final callEvent = event.callEvent;
           switch (callEvent!.newStatus) {
             case CallEvent_CallStatus.IS_RINGING:
-              if (_callId == callEvent.id) {
+              if (_callService.getCallId == callEvent.id) {
                 callingStatus.add(CallStatus.IS_RINGING);
                 _audioService.playBeepSound();
               }
               break;
             case CallEvent_CallStatus.CREATED:
-              if (event.roomUid == _roomUid ||
-                  _callService.getUserCallState == UserCallState.NOCALL) {
-                _callService.setUserCallState = UserCallState.INUSERCALL;
-                _callId = callEvent.id;
+              if (event.roomUid == _roomUid || _callService.getUserCallState == UserCallState.NOCALL) {
+                _callService
+                    ..setUserCallState = UserCallState.INUSERCALL
+                    ..setCallOwner = callEvent.memberOrCallOwnerPvp
+                    ..setCallId = callEvent.id;
                 if (callEvent.callType == CallEvent_CallType.VIDEO) {
                   _logger.i("VideoCall");
                   _isVideo = true;
@@ -177,17 +177,17 @@ class CallRepo {
               }
               break;
             case CallEvent_CallStatus.BUSY:
-              if (_callId == callEvent.id) {
+              if (_callService.getCallId == callEvent.id) {
                 receivedBusyCall();
               }
               break;
             case CallEvent_CallStatus.DECLINED:
-              if (_callId == callEvent.id) {
+              if (_callService.getCallId == callEvent.id) {
                 receivedDeclinedCall();
               }
               break;
             case CallEvent_CallStatus.ENDED:
-              if (_callId == callEvent.id) {
+              if (_callService.getCallId == callEvent.id) {
                 receivedEndCall(callEvent.callDuration.toInt());
               }
               break;
@@ -786,7 +786,7 @@ class CallRepo {
     _messageRepo.sendCallMessage(
       CallEvent_CallStatus.IS_RINGING,
       _roomUid!,
-      _callId,
+      _callService.getCallId,
       0,
       endOfCallDuration,
       _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
@@ -826,7 +826,7 @@ class CallRepo {
     _messageRepo.sendCallMessageWithMemberOrCallOwnerPvp(
       CallEvent_CallStatus.CREATED,
       _roomUid!,
-      _callId,
+      _callService.getCallId,
       0,
       endOfCallDuration,
       _authRepo.currentUserUid,
@@ -839,7 +839,7 @@ class CallRepo {
     final time = DateTime.now().millisecondsSinceEpoch;
     //call event id: (Epoch time milliseconds)-(Random String with alphabet and numerics with 10 characters length)
     final callId = time.toString() + "-" + random;
-    _callId = callId;
+    _callService.setCallId = callId;
   }
 
   Future<void> acceptCall(Uid roomId) async {
@@ -868,7 +868,7 @@ class CallRepo {
     _messageRepo.sendCallMessage(
       CallEvent_CallStatus.DECLINED,
       _roomUid!,
-      _callId,
+      _callService.getCallId,
       0,
       endOfCallDuration,
       _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
@@ -939,7 +939,7 @@ class CallRepo {
       _messageRepo.sendCallMessage(
         CallEvent_CallStatus.ENDED,
         _roomUid!,
-        _callId,
+        _callService.getCallId,
         _callDuration!,
         endOfCallDuration,
         _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
@@ -1046,7 +1046,7 @@ class CallRepo {
     final jsonCandidates = jsonEncode(_candidate);
     //Send offer and Candidate as message to Receiver
     final callOfferByClient = (CallOfferByClient()
-      ..id = _callId
+      ..id = _callService.getCallId
       ..body = _offerSdp
       ..candidates = jsonCandidates
       ..to = _roomUid!);
@@ -1066,7 +1066,7 @@ class CallRepo {
     final jsonCandidates = jsonEncode(_candidate);
     //Send Answer and Candidate as message to Sender
     final callAnswerByClient = (CallAnswerByClient()
-      ..id = _callId
+      ..id = _callService.getCallId
       ..body = _answerSdp
       ..candidates = jsonCandidates
       ..to = _roomUid!);
@@ -1138,7 +1138,7 @@ class CallRepo {
     switching.add(false);
     _offerSdp = "";
     _answerSdp = "";
-    _callId = "";
+    _callService.setCallId = "";
     _roomUid = null;
     _isSharing = false;
     _isMicMuted = false;
