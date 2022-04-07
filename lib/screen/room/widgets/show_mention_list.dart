@@ -40,6 +40,7 @@ class ShowMentionList extends StatelessWidget {
                   child: Container(
                     color: theme.backgroundColor,
                     child: ListView.separated(
+                      padding: EdgeInsets.zero,
                       itemCount: members.data!.length,
                       shrinkWrap: true,
                       itemBuilder: (c, i) {

@@ -44,6 +44,7 @@ class _BotCommandsState extends State<BotCommands> {
             height: botCommands.keys.length * (24.0 + 16),
             child: Scrollbar(
               child: ListView.separated(
+                padding: EdgeInsets.zero,
                 itemCount: botCommands.length,
                 itemBuilder: (c, index) {
                   var _botCommandItemColor = Colors.transparent;
