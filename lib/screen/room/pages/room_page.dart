@@ -16,7 +16,6 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
-import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -33,6 +32,7 @@ import 'package:deliver/screen/room/widgets/bot_start_widget.dart';
 import 'package:deliver/screen/room/widgets/chat_time.dart';
 import 'package:deliver/screen/room/widgets/mute_and_unmute_room_widget.dart';
 import 'package:deliver/screen/room/widgets/new_message_input.dart';
+import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/room/widgets/unread_message_bar.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/call_service.dart';
@@ -142,7 +142,6 @@ class _RoomPageState extends State<RoomPage> {
   final _inputMessageTextController = InputMessageTextController();
   final _inputMessageFocusNode = FocusNode();
   final _scrollablePositionedListKey = GlobalKey();
-  final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
 
   List<PendingMessage> get pendingMessages =>
       _pendingMessages.valueOrNull ?? [];
@@ -427,11 +426,6 @@ class _RoomPageState extends State<RoomPage> {
       checkChannelRole();
     }
 
-    _mediaQueryRepo.fetchMediaMetaData(
-      widget.roomId.asUid(),
-      updateAllMedia: false,
-    );
-
     super.initState();
   }
 
@@ -556,8 +550,7 @@ class _RoomPageState extends State<RoomPage> {
     _repliedMessage.add(null);
   }
 
-  Future<void> onDelete() async {
-    await _mediaQueryRepo.fetchMediaMetaData(widget.roomId.asUid());
+  void onDelete() {
     _selectMultiMessageSubject.add(false);
     _selectedMessages.clear();
     setState(() {});
@@ -586,9 +579,17 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   void onEdit(Message message) {
-    _editableMessage.add(message);
     if (message.type == MessageType.TEXT) {
+      _editableMessage.add(message);
       _inputMessageTextController.text = message.json.toText().text;
+    } else if (message.type == MessageType.FILE) {
+      showCaptionDialog(
+        resetRoomPageDetails: _resetRoomPageDetails,
+        roomUid: widget.roomId.asUid(),
+        editableMessage: message,
+        files: [],
+        context: context,
+      );
     }
   }
 
@@ -720,6 +721,7 @@ class _RoomPageState extends State<RoomPage> {
         builder: (c, data) {
           return NewMessageInput(
             currentRoomId: widget.roomId,
+            deleteSelectedMessage: _deleteSelectedMessage,
             replyMessageIdStream: _repliedMessage,
             editableMessage: _editableMessage.value,
             resetRoomPageDetails: _resetRoomPageDetails,
@@ -733,20 +735,44 @@ class _RoomPageState extends State<RoomPage> {
         },
       );
 
-  void _handleScrollToMsg(int direction) {
-    if (_currentScrollIndex == 0) {
-      var positions = _itemPositionsListener.itemPositions.value.toList();
-      positions = positions..sort((b, a) => (b.index) - (a.index));
-      _currentScrollIndex = positions.last.index;
-    } else {
-      _currentScrollIndex = _currentScrollIndex + direction;
-    }
-    if (0 < _currentScrollIndex && _currentScrollIndex <= _itemCount) {
-      _scrollToMessage(_currentScrollIndex);
-    } else if (_currentScrollIndex <= 0) {
-      _currentScrollIndex = 1;
-    } else {
-      _currentScrollIndex = _itemCount;
+  void _handleScrollToMsg(
+    int direction,
+    bool ctrlIsPressed,
+    bool hasPermission,
+  ) {
+    final lastMessage = room.lastMessage;
+    if (lastMessage != null) {
+      if (hasPermission &&
+          direction == -1 &&
+          _inputMessageTextController.text.isEmpty) {
+        if (_authRepo.isCurrentUserSender(lastMessage)) {
+          if (ctrlIsPressed && _repliedMessage.value == null) {
+            onReply(lastMessage);
+            return;
+          } else if (_repliedMessage.value == null &&
+              _editableMessage.value == null) {
+            onEdit(lastMessage);
+            return;
+          }
+        } else if (ctrlIsPressed && _repliedMessage.value == null) {
+          onReply(lastMessage);
+          return;
+        }
+      }
+      if (_currentScrollIndex == 0) {
+        var positions = _itemPositionsListener.itemPositions.value.toList();
+        positions = positions..sort((b, a) => (b.index) - (a.index));
+        _currentScrollIndex = positions.last.index;
+      } else {
+        _currentScrollIndex = _currentScrollIndex + direction;
+      }
+      if (0 < _currentScrollIndex && _currentScrollIndex <= _itemCount) {
+        _scrollToMessage(_currentScrollIndex);
+      } else if (_currentScrollIndex <= 0) {
+        _currentScrollIndex = 1;
+      } else {
+        _currentScrollIndex = _itemCount;
+      }
     }
   }
 
@@ -1133,7 +1159,6 @@ class _RoomPageState extends State<RoomPage> {
       addForwardMessage: () => _addForwardMessage(message),
       scrollToMessage: _scrollToMessageWithHighlight,
       onDelete: onDelete,
-      resetRoomPageDetails: _resetRoomPageDetails,
     );
 
     if (index == 0) {
@@ -1225,12 +1250,7 @@ class _RoomPageState extends State<RoomPage> {
                 color: theme.primaryColor,
                 icon: const Icon(CupertinoIcons.delete),
                 onPressed: () {
-                  showDeleteMsgDialog(
-                    _selectedMessages.values.toList(),
-                    context,
-                    onDelete,
-                  );
-                  _selectedMessages.clear();
+                  _deleteSelectedMessage();
                 },
               ),
             ),
@@ -1277,6 +1297,17 @@ class _RoomPageState extends State<RoomPage> {
         ],
       ),
     );
+  }
+
+  void _deleteSelectedMessage() {
+    if (_selectedMessages.values.isNotEmpty) {
+      showDeleteMsgDialog(
+        _selectedMessages.values.toList(),
+        context,
+        onDelete,
+      );
+      _selectedMessages.clear();
+    }
   }
 
   Future<void> onUsernameClick(String username) async {

@@ -54,7 +54,8 @@ class InputMessage extends StatefulWidget {
   final Message? editableMessage;
   final FocusNode focusNode;
   final TextEditingController textController;
-  final Function(int dir) handleScrollToMessage;
+  final Function(int dir,bool,bool) handleScrollToMessage;
+  final Function() deleteSelectedMessage;
 
   @override
   _InputMessageWidget createState() => _InputMessageWidget();
@@ -64,6 +65,7 @@ class InputMessage extends StatefulWidget {
     required this.currentRoom,
     required this.scrollToLastSentMessage,
     required this.focusNode,
+    required this.deleteSelectedMessage,
     required this.handleScrollToMessage,
     required this.textController,
     required this.replyMessageIdStream,
@@ -668,16 +670,14 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   KeyEventResult handleKeyPress(RawKeyEvent event) {
-    if (event is RawKeyUpEvent &&
+    if (event is RawKeyDownEvent &&
         {PhysicalKeyboardKey.arrowUp, PhysicalKeyboardKey.arrowDown}
-            .contains(event.physicalKey) &&
-        (widget.textController.selection.baseOffset ==
-                widget.textController.text.length ||
-            widget.textController.selection.baseOffset == 0)) {
-      widget.handleScrollToMessage(
-        event.physicalKey == PhysicalKeyboardKey.arrowDown ? 1 : -1,
-      );
-      return KeyEventResult.handled;
+            .contains(event.physicalKey)) {
+      _handleArrow(event);
+    }
+    if (event is RawKeyUpEvent &&
+        event.physicalKey == PhysicalKeyboardKey.delete) {
+      widget.deleteSelectedMessage();
     }
     if (!_uxService.sendByEnter &&
         event.isShiftPressed &&
@@ -755,6 +755,19 @@ class _InputMessageWidget extends State<InputMessage> {
         widget.currentRoom.uid.asUid(),
       );
     }
+  }
+
+  KeyEventResult _handleArrow(RawKeyEvent event) {
+    if (event.physicalKey == PhysicalKeyboardKey.arrowUp &&
+        widget.textController.selection.baseOffset <=0) {
+
+      widget.handleScrollToMessage(-1,event.isControlPressed,true);
+    } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown &&(
+        widget.textController.selection.baseOffset ==
+            widget.textController.text.length ||widget.textController.selection.baseOffset<0)) {
+      widget.handleScrollToMessage(1,event.isControlPressed,true);
+    }
+    return KeyEventResult.handled;
   }
 
   void scrollUpInBotCommand() {
