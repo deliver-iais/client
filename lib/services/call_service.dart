@@ -1,7 +1,6 @@
+import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:rxdart/rxdart.dart';
-
-import '../models/call_event_type.dart';
 
 enum UserCallState {
   /// User in Group Call then he Can't join any User or Start Own Call
@@ -18,20 +17,19 @@ enum UserCallState {
 }
 
 class CallService {
-
   final BehaviorSubject<CallEvents> callEvents =
-  BehaviorSubject.seeded(CallEvents.none);
+      BehaviorSubject.seeded(CallEvents.none);
 
   final BehaviorSubject<CallEvents> _callEvents =
-  BehaviorSubject.seeded(CallEvents.none);
+      BehaviorSubject.seeded(CallEvents.none);
 
   final BehaviorSubject<CallEvents> groupCallEvents =
-  BehaviorSubject.seeded(CallEvents.none);
+      BehaviorSubject.seeded(CallEvents.none);
 
   final BehaviorSubject<CallEvents> _groupCallEvents =
-  BehaviorSubject.seeded(CallEvents.none);
+      BehaviorSubject.seeded(CallEvents.none);
 
-  CallService(){
+  CallService() {
     _callEvents.distinct().listen((event) {
       callEvents.add(event);
     });
@@ -40,11 +38,11 @@ class CallService {
     });
   }
 
-  void addCallEvent(CallEvents event){
+  void addCallEvent(CallEvents event) {
     _callEvents.add(event);
   }
 
-  void addGroupCallEvent(CallEvents event){
+  void addGroupCallEvent(CallEvents event) {
     _groupCallEvents.add(event);
   }
 
