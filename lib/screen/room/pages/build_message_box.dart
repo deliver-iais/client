@@ -14,7 +14,6 @@ import 'package:deliver/screen/room/messageWidgets/persistent_event_message.dart
 import 'package:deliver/screen/room/messageWidgets/reply_widgets/swipe_to_reply.dart';
 import 'package:deliver/screen/room/widgets/recieved_message_box.dart';
 import 'package:deliver/screen/room/widgets/sended_message_box.dart';
-import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/ext_storage_services.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -53,7 +52,6 @@ class BuildMessageBox extends StatefulWidget {
   final bool hasPermissionInGroup;
   final BehaviorSubject<bool> hasPermissionInChannel;
   final BehaviorSubject<bool> selectMultiMessageSubject;
-  final void Function() resetRoomPageDetails;
 
   const BuildMessageBox({
     Key? key,
@@ -72,7 +70,6 @@ class BuildMessageBox extends StatefulWidget {
     required this.hasPermissionInGroup,
     required this.hasPermissionInChannel,
     required this.addForwardMessage,
-    required this.resetRoomPageDetails,
   }) : super(key: key);
 
   @override
@@ -487,16 +484,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   void onEditMessage() {
     switch (widget.message.type) {
       case MessageType.TEXT:
-        widget.onEdit();
-        break;
       case MessageType.FILE:
-        showCaptionDialog(
-          resetRoomPageDetails: widget.resetRoomPageDetails,
-          roomUid: widget.message.roomUid.asUid(),
-          editableMessage: widget.message,
-          files: [],
-          context: context,
-        );
+        widget.onEdit();
         break;
       case MessageType.STICKER:
       case MessageType.LOCATION:

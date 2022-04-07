@@ -17,7 +17,8 @@ class NewMessageInput extends StatelessWidget {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final void Function() scrollToLastSentMessage;
   final FocusNode focusNode;
-  final void Function(int) handleScrollToMessage;
+  final void Function(int,bool,bool) handleScrollToMessage;
+  final void Function() deleteSelectedMessage;
   final TextEditingController textController;
 
   NewMessageInput({
@@ -29,6 +30,7 @@ class NewMessageInput extends StatelessWidget {
     required this.scrollToLastSentMessage,
     required this.resetRoomPageDetails,
     required this.waitingForForward,
+    required this.deleteSelectedMessage,
     required this.replyMessageIdStream,
     this.editableMessage,
     this.sendForwardMessage,
@@ -47,6 +49,7 @@ class NewMessageInput extends StatelessWidget {
             resetRoomPageDetails: resetRoomPageDetails,
             waitingForForward: waitingForForward,
             editableMessage: editableMessage,
+            deleteSelectedMessage: deleteSelectedMessage,
             sendForwardMessage: sendForwardMessage,
             scrollToLastSentMessage: scrollToLastSentMessage,
             focusNode: focusNode,

@@ -21,6 +21,8 @@ import 'package:deliver_public_protocol/pub/v1/models/muc.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:fuzzy/data/result.dart';
+import 'package:fuzzy/fuzzy.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
@@ -598,35 +600,63 @@ class MucRepo {
   Future<List<UidIdName?>> getFilteredMember(
     String roomUid, {
     String? query,
-  }) async =>
-      Stream.fromIterable(await getAllMembers(roomUid))
-          .asyncMap((member) async {
-            if (_authRepo.isCurrentUser(member!.memberUid)) {
-              final a = await _accountRepo.getAccount();
-              return UidIdName(
-                uid: member.memberUid,
-                id: a.userName,
-                name: a.firstName,
-              );
-            } else {
-              final uidIdName = await _uidIdNameDao.getByUid(member.memberUid);
-              if (uidIdName!.uid.isBot()) {
-                uidIdName.id = uidIdName.uid.asUid().node;
+  }) async {
+    final uidIdNameList =
+        await Stream.fromIterable(await getAllMembers(roomUid))
+            .asyncMap((member) async {
+              if (_authRepo.isCurrentUser(member!.memberUid)) {
+                final a = await _accountRepo.getAccount();
+                return UidIdName(
+                  uid: member.memberUid,
+                  id: a.userName,
+                  name: a.firstName,
+                );
+              } else {
+                final uidIdName =
+                    await _uidIdNameDao.getByUid(member.memberUid);
+                if (uidIdName!.uid.isBot()) {
+                  uidIdName.id = uidIdName.uid.asUid().node;
+                }
+                return uidIdName;
               }
-              return uidIdName;
-            }
-          })
-          .where((e) => e.id != null && e.id!.isNotEmpty)
-          // TODO(hasan): more advanced pattern matching maybe be helpful, https://gitlab.iais.co/deliver/wiki/-/issues/414
-          .where(
-            (e) =>
-                query!.isEmpty ||
-                (e.id != null &&
-                    e.id!.toLowerCase().contains(query.toLowerCase())) ||
-                (e.name != null &&
-                    e.name!.toLowerCase().contains(query.toLowerCase())),
-          )
-          .toList();
+            })
+            .where((e) => e.id != null && e.id!.isNotEmpty)
+            .toList();
+    final fuzzyName = _getFuzzyList(
+      uidIdNameList.map((event) => event.name).toList(),
+      query!,
+    );
+    final fuzzyId =
+        _getFuzzyList(uidIdNameList.map((event) => event.id).toList(), query);
+
+    return uidIdNameList
+        .where(
+          (e) =>
+              query.isEmpty ||
+              (e.id != null &&
+                  fuzzyId.isNotEmpty &&
+                  fuzzyId.every(
+                    (element) => e.id!.toLowerCase().contains(element.item!),
+                  )) ||
+              (e.name != null &&
+                  fuzzyName.isNotEmpty &&
+                  fuzzyName.every(
+                    (element) => e.name!.toLowerCase().contains(element.item!),
+                  )),
+        )
+        .toList();
+  }
+
+  List<Result<dynamic>> _getFuzzyList(List<String?> list, String query) {
+    final fuzzy = Fuzzy(
+      list,
+      options: FuzzyOptions(
+        tokenize: true,
+        threshold: 0.3,
+      ),
+    ).search(query).where((element) => element.score < 0.4).toList();
+    return fuzzy;
+  }
 
   Future<void> _checkShowPin(
     Uid mucUid,
