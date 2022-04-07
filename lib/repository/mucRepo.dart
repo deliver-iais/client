@@ -623,7 +623,9 @@ class MucRepo {
             .where((e) => e.id != null && e.id!.isNotEmpty)
             .toList();
     final fuzzyName = _getFuzzyList(
-        uidIdNameList.map((event) => event.name).toList(), query!);
+      uidIdNameList.map((event) => event.name).toList(),
+      query!,
+    );
     final fuzzyId =
         _getFuzzyList(uidIdNameList.map((event) => event.id).toList(), query);
 
