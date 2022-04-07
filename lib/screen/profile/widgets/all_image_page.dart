@@ -80,7 +80,6 @@ class _AllImagePageState extends State<AllImagePage> {
     super.initState();
   }
 
-
   late ThemeData theme;
 
   @override
@@ -97,7 +96,9 @@ class _AllImagePageState extends State<AllImagePage> {
                   _allImageCount.add(snapshot.data!.imagesCount);
                   return FutureBuilder<int?>(
                     future: _mediaDao.getIndexOfMedia(
-                        widget.roomUid, widget.messageId),
+                      widget.roomUid,
+                      widget.messageId,
+                    ),
                     builder: (context, snapshot) {
                       if (snapshot.hasData &&
                           snapshot.data != null &&
@@ -117,7 +118,8 @@ class _AllImagePageState extends State<AllImagePage> {
                   _currentIndex.add(-1);
                   return singleImage();
                 }
-              }),
+              },
+            ),
     );
   }
 
