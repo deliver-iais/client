@@ -7,6 +7,7 @@ import 'package:dcache/dcache.dart';
 import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/media_meta_data_dao.dart';
 import 'package:deliver/box/media.dart';
+import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media_type.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
@@ -72,16 +73,13 @@ class _AllImagePageState extends State<AllImagePage> {
 
   @override
   void initState() {
-    _getMediaMetaDataCount();
+    _mediaQueryRepo.fetchMediaMetaData(
+      widget.roomUid.asUid(),
+      updateAllMedia: false,
+    );
     super.initState();
   }
 
-  Future<void> _getMediaMetaDataCount() async {
-    final res = await _mediaMetaDataDao.getAsFuture(widget.roomUid);
-    if (res != null) {
-      _allImageCount.add(res.imagesCount);
-    }
-  }
 
   late ThemeData theme;
 
@@ -92,30 +90,45 @@ class _AllImagePageState extends State<AllImagePage> {
       appBar: buildAppBar(),
       body: widget.initIndex != null
           ? buildImageByIndex(widget.initIndex!)
-          : FutureBuilder<int?>(
-              future:
-                  _mediaDao.getIndexOfMedia(widget.roomUid, widget.messageId),
+          : StreamBuilder<MediaMetaData?>(
+              stream: _mediaMetaDataDao.get(widget.roomUid),
               builder: (context, snapshot) {
-                if (snapshot.hasData &&
-                    snapshot.data != null &&
-                    snapshot.data != -1) {
-                  return buildImageByIndex(snapshot.data!);
-                } else if (snapshot.connectionState == ConnectionState.done &&
-                    snapshot.data == -1) {
-                  _currentIndex.add(-1);
-                  return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(10),
-                      child: isWeb
-                          ? Image.network(widget.filePath!)
-                          : Image.file(File(widget.filePath!)),
-                    ),
+                if (snapshot.hasData && snapshot.data != null) {
+                  _allImageCount.add(snapshot.data!.imagesCount);
+                  return FutureBuilder<int?>(
+                    future: _mediaDao.getIndexOfMedia(
+                        widget.roomUid, widget.messageId),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData &&
+                          snapshot.data != null &&
+                          snapshot.data != -1) {
+                        return buildImageByIndex(snapshot.data!);
+                      } else if (snapshot.connectionState ==
+                              ConnectionState.done &&
+                          snapshot.data == -1) {
+                        _currentIndex.add(-1);
+                        return singleImage();
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
                   );
                 } else {
-                  return const SizedBox.shrink();
+                  _currentIndex.add(-1);
+                  return singleImage();
                 }
-              },
-            ),
+              }),
+    );
+  }
+
+  Center singleImage() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: isWeb
+            ? Image.network(widget.filePath!)
+            : Image.file(File(widget.filePath!)),
+      ),
     );
   }
 
@@ -397,7 +410,7 @@ class _AllImagePageState extends State<AllImagePage> {
                       position.data != null &&
                       position.data! != -1) {
                     return Text(
-                      "${position.data! + 1} of ${snapshot.data}",
+                      "${snapshot.data! - position.data!} of ${snapshot.data}",
                     );
                   } else {
                     return const SizedBox.shrink();
