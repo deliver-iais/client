@@ -11,6 +11,7 @@ import 'package:deliver/screen/call/callList/call_list_widget.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/time.dart';
 
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
@@ -38,8 +39,6 @@ class _CallListPageState extends State<CallListPage> {
   void initState() {
     _callRepo.fetchUserCallList(
       _authRepo.currentUserUid,
-      DateTime.now().month,
-      DateTime.now().year,
     );
     super.initState();
   }
@@ -86,30 +85,57 @@ class _CallListPageState extends State<CallListPage> {
                     final caller = _authRepo.isCurrentUser(calls[index].to)
                         ? calls[index].from.asUid()
                         : calls[index].to.asUid();
-                    return ExpandableTheme(
-                      data: ExpandableThemeData(
-                        hasIcon: false,
-                        iconColor: theme.colorScheme.primary,
-                        inkWellBorderRadius: mainBorder,
-                        animationDuration: const Duration(milliseconds: 500),
-                      ),
-                      child: ExpandablePanel(
-                        header: CallListWidget(
-                          callEvent: calls[index],
-                          time: time,
-                          caller: caller,
-                          isIncomingCall: isIncomingCall,
-                        ),
-                        collapsed: const SizedBox.shrink(),
-                        expanded: Padding(
-                          padding: const EdgeInsets.only(bottom: 16.0),
-                          child: CallDetailPage(
-                            callEvent: calls[index],
-                            caller: caller,
-                            isIncomingCall: isIncomingCall,
+                    final prevTime = DateTime.fromMillisecondsSinceEpoch(
+                      calls[index != 0 ? index - 1 : 0].callEvent.endOfCallTime,
+                    );
+                    return Column(
+                      children: [
+                        if (index == 0 ||
+                            sameDayTitle(time) != sameDayTitle(prevTime))
+                          Container(
+                            color: theme.colorScheme.primary,
+                            child: Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    sameDayTitle(time),
+                                    style: TextStyle(
+                                        color: theme.backgroundColor,
+                                        fontSize: 16,),
+                                  ),
+                                ),
+                                const Divider()
+                              ],
+                            ),
+                          ),
+                        ExpandableTheme(
+                          data: ExpandableThemeData(
+                            hasIcon: false,
+                            iconColor: theme.colorScheme.primary,
+                            inkWellBorderRadius: mainBorder,
+                            animationDuration:
+                                const Duration(milliseconds: 500),
+                          ),
+                          child: ExpandablePanel(
+                            header: CallListWidget(
+                              callEvent: calls[index],
+                              time: time,
+                              caller: caller,
+                              isIncomingCall: isIncomingCall,
+                            ),
+                            collapsed: const SizedBox.shrink(),
+                            expanded: Padding(
+                              padding: const EdgeInsets.only(bottom: 16.0),
+                              child: CallDetailPage(
+                                callEvent: calls[index],
+                                caller: caller,
+                                isIncomingCall: isIncomingCall,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
+                      ],
                     );
                   },
                 ),

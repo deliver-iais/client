@@ -1127,6 +1127,9 @@ class CallRepo {
     _candidate = [];
     callingStatus.add(CallStatus.ENDED);
     _audioService.stopBeepSound();
+    fetchUserCallList(
+      _authRepo.currentUserUid,
+    );
     Timer(const Duration(seconds: 1), () async {
       callingStatus.add(CallStatus.NO_CALL);
     });
@@ -1229,34 +1232,36 @@ class CallRepo {
 
   Future<void> fetchUserCallList(
     Uid roomUid,
-    int month,
-    int year,
   ) async {
     try {
-      final callLists = await _queryServiceClient.fetchUserCalls(
-        FetchUserCallsReq()
-          ..roomUid = roomUid
-          ..limit = 200
-          ..pointer = Int64(DateTime.now().millisecondsSinceEpoch)
-          ..fetchingDirectionType =
-              FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH
-          ..month = month - 1
-          ..year = year,
-      );
-      for (final call in callLists.cellEvents) {
-        final callEvent = call_event.CallEvent(
-          callDuration: call.callEvent.callDuration.toInt(),
-          endOfCallTime: call.callEvent.endOfCallTime.toInt(),
-          callType: findCallEventType(call.callEvent.callType),
-          newStatus: findCallEventStatus(call.callEvent.newStatus),
-          id: call.callEvent.id,
+      var date = DateTime.now();
+      for (var i = 0; i < 6; i++) {
+        final callLists = await _queryServiceClient.fetchUserCalls(
+          FetchUserCallsReq()
+            ..roomUid = roomUid
+            ..limit = 200
+            ..pointer = Int64(DateTime.now().millisecondsSinceEpoch)
+            ..fetchingDirectionType =
+                FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH
+            ..month = date.month - 1
+            ..year = date.year,
         );
-        final callList = call_info.CallInfo(
-          callEvent: callEvent,
-          from: call.from.asString(),
-          to: call.to.asString(),
-        );
-        await _callListDao.save(callList);
+        for (final call in callLists.cellEvents) {
+          final callEvent = call_event.CallEvent(
+            callDuration: call.callEvent.callDuration.toInt(),
+            endOfCallTime: call.callEvent.endOfCallTime.toInt(),
+            callType: findCallEventType(call.callEvent.callType),
+            newStatus: findCallEventStatus(call.callEvent.newStatus),
+            id: call.callEvent.id,
+          );
+          final callList = call_info.CallInfo(
+            callEvent: callEvent,
+            from: call.from.asString(),
+            to: call.to.asString(),
+          );
+          await _callListDao.save(callList);
+        }
+        date = date.subtract(const Duration(days: 30));
       }
     } catch (e) {
       _logger.e(e);
