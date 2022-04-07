@@ -44,7 +44,7 @@ class PinMessageAppBar extends StatelessWidget {
             child: GestureDetector(
               onTap: onTap,
               child: Container(
-                margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                margin: const EdgeInsets.all(8),
                 child: Material(
                   elevation: 4,
                   borderRadius: secondaryBorder,
