@@ -41,6 +41,7 @@ class AccountRepo {
           firstName: result.profile.firstName,
           lastName: result.profile.lastName,
           email: result.profile.email,
+          description: result.profile.description,
         );
         return true;
       } else {
@@ -110,9 +111,11 @@ class AccountRepo {
     String? firstName,
     String? lastName,
     String? email,
+    String? description,
   ) async {
     try {
       _queryServiceClient.setId(SetIdReq()..id = username!);
+
 
       final saveUserProfileReq = SaveUserProfileReq();
       if (firstName != null) {
@@ -124,6 +127,9 @@ class AccountRepo {
       if (email != null) {
         saveUserProfileReq.email = email;
       }
+      if (description != null) {
+        saveUserProfileReq.description = description;
+      }
 
       _profileServiceClient.saveUserProfile(saveUserProfileReq);
       _saveProfilePrivateData(
@@ -131,6 +137,7 @@ class AccountRepo {
         firstName: firstName ?? "",
         lastName: lastName ?? "",
         email: email ?? "",
+        description: description ?? "",
       );
 
       return true;
@@ -151,12 +158,14 @@ class AccountRepo {
     String? firstName,
     String? lastName,
     String? email,
+    String? description,
   }) {
     if (username != null) _sharedDao.put(SHARED_DAO_USERNAME, username);
     _sharedDao
       ..put(SHARED_DAO_FIRST_NAME, firstName!)
       ..put(SHARED_DAO_LAST_NAME, lastName!)
-      ..put(SHARED_DAO_EMAIL, email!);
+      ..put(SHARED_DAO_EMAIL, email!)
+      ..put(SHARED_DAO_DESCRIPTION, description!);
   }
 
   Future<List<Session>> getSessions() async {

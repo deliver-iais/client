@@ -160,6 +160,7 @@ class ContactRepo {
           nationalNumber: contact.phoneNumber.nationalNumber.toString(),
           firstName: contact.firstName,
           lastName: contact.lastName,
+          description: contact.description,
         ),
       );
 

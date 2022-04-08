@@ -489,6 +489,18 @@ class _ProfilePageState extends State<ProfilePage>
                 }
               },
             ),
+            if (widget.roomUid.isUser())
+              FutureBuilder<Contact?>(
+                future: _contactRepo.getContact(widget.roomUid),
+                builder: (context, snapshot) {
+                  if (snapshot.data != null &&
+                      snapshot.data!.description != null) {
+                    return description(snapshot.data!.description!, context);
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
             if (widget.roomUid.isBot())
               FutureBuilder<BotInfo?>(
                 future: _botRepo.getBotInfo(widget.roomUid),

@@ -44,6 +44,7 @@ class _AccountSettingsState extends State<AccountSettings> {
   String _lastName = "";
   String _firstName = "";
   String _lastUserName = "";
+  String _description = "";
   Account? _account;
   final _formKey = GlobalKey<FormState>();
   final _usernameFormKey = GlobalKey<FormState>();
@@ -393,6 +394,22 @@ class _AccountSettingsState extends State<AccountSettings> {
                                       _i18n.get("email"),
                                     ),
                                   ),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  TextFormField(
+                                    initialValue: snapshot.data!.description ?? "",
+                                    minLines: 1,
+                                    textInputAction: TextInputAction.send,
+                                    onChanged: (str) {
+                                      setState(() {
+                                        _description = str;
+                                      });
+                                    },
+                                    decoration: buildInputDecoration(
+                                      _i18n.get("description"),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -494,6 +511,7 @@ class _AccountSettingsState extends State<AccountSettings> {
             _firstName.isNotEmpty ? _firstName : _account!.firstName,
             _lastName.isNotEmpty ? _lastName : _account!.lastName,
             _email.isNotEmpty ? _email : _account!.email,
+            _description.isNotEmpty ? _description : _account!.description,
           );
           if (setPrivateInfo) {
             if (widget.forceToSetUsernameAndName) {
