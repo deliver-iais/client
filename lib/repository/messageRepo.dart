@@ -36,6 +36,7 @@ import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
+import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
@@ -63,6 +64,8 @@ import 'package:logger/logger.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:rxdart/rxdart.dart';
 
+import '../models/call_event_type.dart';
+import '../services/call_service.dart';
 import '../shared/constants.dart';
 
 enum TitleStatusConditions { Disconnected, Updating, Normal, Connecting }
@@ -89,6 +92,7 @@ class MessageRepo {
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _mediaRepo = GetIt.I.get<MediaRepo>();
   final _sendActivitySubject = BehaviorSubject.seeded(0);
+  final _callService = GetIt.I.get<CallService>();
 
   Map<String, RoomMetadata> _allRoomMetaData = {};
 
@@ -200,6 +204,13 @@ class MessageRepo {
               room,
               type: FetchMessagesReq_Type.BACKWARD_FETCH,
             );
+
+            await fetchLastIncomingCalls(
+              roomMetadata.roomUid,
+              roomMetadata.lastMessageId.toInt(),
+              type: FetchMessagesReq_Type.FORWARD_FETCH,
+            );
+
             if (room != null &&
                 room.lastMessageId != null &&
                 roomMetadata.lastMessageId.toInt() > room.lastMessageId!) {
@@ -318,6 +329,39 @@ class MessageRepo {
     } else {
       return null;
     }
+  }
+
+  Future<void> fetchLastIncomingCalls(
+    Uid roomUid,
+    int lastMessageId, {
+    required FetchMessagesReq_Type type,
+  }) async {
+    var pointer = lastMessageId + 1;
+    try {
+      final fetchMessagesRes = await _queryServiceClient.fetchMessages(
+        FetchMessagesReq()
+          ..roomUid = roomUid
+          ..pointer = Int64(pointer)
+          ..type = type
+          ..limit = 20,
+        options: CallOptions(timeout: const Duration(seconds: 3)),
+      );
+      for (message_pb.Message message in fetchMessagesRes.messages.reversed) {
+        if (_callService.getUserCallState != UserCallState.NOCALL &&
+            message.whichType() == message_pb.Message_Type.callEvent) {
+          _logger.i("its fetch from message Repo");
+          var callEvents = CallEvents.callEvent(message.callEvent,
+              roomUid: message.from, callId: message.callEvent.id);
+          if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
+              message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
+            // its group Call
+            _callService.addGroupCallEvent(callEvents);
+          } else {
+            _callService.addCallEvent(callEvents);
+          }
+        }
+      }
+    } catch (_) {}
   }
 
   Future<Message?> getLastMessageFromServer(
