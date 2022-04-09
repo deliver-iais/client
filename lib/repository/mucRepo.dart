@@ -21,7 +21,6 @@ import 'package:deliver_public_protocol/pub/v1/models/muc.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:fuzzy/data/result.dart';
 import 'package:fuzzy/fuzzy.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -623,7 +622,10 @@ class MucRepo {
             .where((e) => e.id != null && e.id!.isNotEmpty)
             .toList();
     final fuzzyName = _getFuzzyList(
-      uidIdNameList.map((event) => event.name).toList(),
+      uidIdNameList
+          .where((element) => element.name != null)
+          .map((event) => event.name)
+          .toList(),
       query!,
     );
     final fuzzyId =
@@ -633,28 +635,26 @@ class MucRepo {
         .where(
           (e) =>
               query.isEmpty ||
-              (e.id != null &&
-                  fuzzyId.isNotEmpty &&
-                  fuzzyId.every(
-                    (element) => e.id!.toLowerCase().contains(element.item!),
-                  )) ||
+              (fuzzyId.isNotEmpty && fuzzyId.contains(e.id)) ||
               (e.name != null &&
                   fuzzyName.isNotEmpty &&
-                  fuzzyName.every(
-                    (element) => e.name!.toLowerCase().contains(element.item!),
-                  )),
+                  fuzzyName.contains(e.name)),
         )
         .toList();
   }
 
-  List<Result<dynamic>> _getFuzzyList(List<String?> list, String query) {
+  List<dynamic> _getFuzzyList(List<String?> list, String query) {
     final fuzzy = Fuzzy(
       list,
       options: FuzzyOptions(
         tokenize: true,
         threshold: 0.3,
       ),
-    ).search(query).where((element) => element.score < 0.4).toList();
+    )
+        .search(query)
+        .where((element) => element.score < 0.4)
+        .map((e) => e.item)
+        .toList();
     return fuzzy;
   }
 
