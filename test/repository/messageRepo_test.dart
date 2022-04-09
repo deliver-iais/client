@@ -4,7 +4,6 @@ import 'dart:async';
 import 'dart:io' as dart_file;
 
 import 'package:clock/clock.dart';
-import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
@@ -28,7 +27,6 @@ import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:grpc/grpc.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
@@ -365,198 +363,198 @@ void main() {
       });
     });
 
-    group('fetchLastMessages -', () {
-      test('When called should getMessage from messageDao', () async {
-        final messageDao = getAndRegisterMessageDao();
-        await MessageRepo().fetchLastMessages(
-          testUid,
-          0,
-          0,
-          testRoom,
-          type: FetchMessagesReq_Type.BACKWARD_FETCH,
-        );
-        verify(messageDao.getMessage(testUid.asString(), 0));
-      });
-      test(
-          'When called should getMessage from messageDao if msg be null and get error should returned null',
-          () async {
-        getAndRegisterMessageDao();
-        expect(
-          await MessageRepo().fetchLastMessages(
-            testUid,
-            0,
-            0,
-            testRoom,
-            type: FetchMessagesReq_Type.BACKWARD_FETCH,
-          ),
-          null,
-        );
-      });
-      test(
-          'When called should getMessage from messageDao if msg not be null and message json not be {}  should updateRoom without no chang in lastMessage and return it',
-          () async {
-        final message = Message(
-          id: 3,
-          from: testUid.asString(),
-          to: testUid.asString(),
-          packetId: testUid.asString(),
-          time: 0,
-          json: "{test}",
-          isHidden: false,
-          roomUid: testUid.asString(),
-        );
-        final roomDao = getAndRegisterRoomDao();
-        getAndRegisterMessageDao(message: message);
-        await MessageRepo().fetchLastMessages(
-          testUid,
-          0,
-          0,
-          testRoom,
-          type: FetchMessagesReq_Type.BACKWARD_FETCH,
-        );
-        verify(
-          roomDao.updateRoom(
-            Room(
-              uid: testUid.asString(),
-              lastUpdateTime: 0,
-              lastMessageId: 0,
-              lastMessage: message,
-            ),
-          ),
-        );
-        expect(
-          await MessageRepo().fetchLastMessages(
-            testUid,
-            0,
-            0,
-            testRoom,
-            type: FetchMessagesReq_Type.BACKWARD_FETCH,
-          ),
-          message,
-        );
-      });
-      test(
-          'When called should getMessage from messageDao if msg not be null and  message id be 1 should updateRoom with json "{DELETED}" and return it',
-          () async {
-        final roomDao = getAndRegisterRoomDao();
-        getAndRegisterMessageDao(
-          message:
-              testMessage.copyWith(id: 1, json: EMPTY_MESSAGE, isHidden: true),
-        );
-        await MessageRepo().fetchLastMessages(
-          testUid,
-          0,
-          0,
-          testRoom,
-          type: FetchMessagesReq_Type.BACKWARD_FETCH,
-        );
-        verify(
-          roomDao.updateRoom(
-            Room(
-              uid: testUid.asString(),
-              deleted: true,
-            ),
-          ),
-        );
-        expect(
-          await MessageRepo().fetchLastMessages(
-            testUid,
-            0,
-            0,
-            testRoom,
-            type: FetchMessagesReq_Type.BACKWARD_FETCH,
-          ),
-          null,
-        );
-      });
-    });
+    // group('fetchLastMessages -', () {
+    //   test('When called should getMessage from messageDao', () async {
+    //     final messageDao = getAndRegisterMessageDao();
+    //     await MessageRepo().fetchLastMessages(
+    //       testUid,
+    //       0,
+    //       0,
+    //       testRoom,
+    //       type: FetchMessagesReq_Type.BACKWARD_FETCH,
+    //     );
+    //     verify(messageDao.getMessage(testUid.asString(), 0));
+    //   });
+    //   test(
+    //       'When called should getMessage from messageDao if msg be null and get error should returned null',
+    //       () async {
+    //     getAndRegisterMessageDao();
+    //     expect(
+    //       await MessageRepo().fetchLastMessages(
+    //         testUid,
+    //         0,
+    //         0,
+    //         testRoom,
+    //         type: FetchMessagesReq_Type.BACKWARD_FETCH,
+    //       ),
+    //       null,
+    //     );
+    //   });
+    //   test(
+    //       'When called should getMessage from messageDao if msg not be null and message json not be {}  should updateRoom without no chang in lastMessage and return it',
+    //       () async {
+    //     final message = Message(
+    //       id: 3,
+    //       from: testUid.asString(),
+    //       to: testUid.asString(),
+    //       packetId: testUid.asString(),
+    //       time: 0,
+    //       json: "{test}",
+    //       isHidden: false,
+    //       roomUid: testUid.asString(),
+    //     );
+    //     final roomDao = getAndRegisterRoomDao();
+    //     getAndRegisterMessageDao(message: message);
+    //     await MessageRepo().fetchLastMessages(
+    //       testUid,
+    //       0,
+    //       0,
+    //       testRoom,
+    //       type: FetchMessagesReq_Type.BACKWARD_FETCH,
+    //     );
+    //     verify(
+    //       roomDao.updateRoom(
+    //         Room(
+    //           uid: testUid.asString(),
+    //           lastUpdateTime: 0,
+    //           lastMessageId: 0,
+    //           lastMessage: message,
+    //         ),
+    //       ),
+    //     );
+    //     expect(
+    //       await MessageRepo().fetchLastMessages(
+    //         testUid,
+    //         0,
+    //         0,
+    //         testRoom,
+    //         type: FetchMessagesReq_Type.BACKWARD_FETCH,
+    //       ),
+    //       message,
+    //     );
+    //   });
+    //   test(
+    //       'When called should getMessage from messageDao if msg not be null and  message id be 1 should updateRoom with json "{DELETED}" and return it',
+    //       () async {
+    //     final roomDao = getAndRegisterRoomDao();
+    //     getAndRegisterMessageDao(
+    //       message:
+    //           testMessage.copyWith(id: 1, json: EMPTY_MESSAGE, isHidden: true),
+    //     );
+    //     await MessageRepo().fetchLastMessages(
+    //       testUid,
+    //       0,
+    //       0,
+    //       testRoom,
+    //       type: FetchMessagesReq_Type.BACKWARD_FETCH,
+    //     );
+    //     verify(
+    //       roomDao.updateRoom(
+    //         Room(
+    //           uid: testUid.asString(),
+    //           deleted: true,
+    //         ),
+    //       ),
+    //     );
+    //     expect(
+    //       await MessageRepo().fetchLastMessages(
+    //         testUid,
+    //         0,
+    //         0,
+    //         testRoom,
+    //         type: FetchMessagesReq_Type.BACKWARD_FETCH,
+    //       ),
+    //       null,
+    //     );
+    //   });
+    // });
 
-    group('getLastMessageFromServer -', () {
-      final message = Message(
-        roomUid: testUid.asString(),
-        packetId: "",
-        time: 0,
-        id: 0,
-        json: EMPTY_MESSAGE,
-        isHidden: true,
-        forwardedFrom: testUid.asString(),
-        to: testUid.asString(),
-        from: testUid.asString(),
-      );
-      test('When called should fetchMessages from queryServiceClient',
-          () async {
-        final queryServiceClient = getAndRegisterQueryServiceClient();
-        await MessageRepo().getLastMessageFromServer(
-          testUid,
-          0,
-          FetchMessagesReq_Type.BACKWARD_FETCH,
-          0,
-          0,
-        );
-        verify(
-          queryServiceClient.fetchMessages(
-            FetchMessagesReq()
-              ..roomUid = testUid
-              ..pointer = Int64()
-              ..type = FetchMessagesReq_Type.BACKWARD_FETCH
-              ..limit = 0,
-            options: CallOptions(timeout: const Duration(seconds: 3)),
-          ),
-        );
-      });
-      test(
-          'When called should fetchMessages from queryServiceClient and if element.id! <= firstMessageId be false and json not be {} should return lastMessage without any copy',
-          () async {
-        getAndRegisterQueryServiceClient(
-          fetchMessagesId: 2,
-          fetchMessagesText: "test",
-        );
-        expect(
-          await MessageRepo().getLastMessageFromServer(
-            testUid,
-            0,
-            FetchMessagesReq_Type.BACKWARD_FETCH,
-            0,
-            0,
-          ),
-          message.copyWith(
-            id: 2,
-            json: "{\"1\":\"test\"}",
-            type: MessageType.TEXT,
-            isHidden: false,
-          ),
-        );
-      });
-      test(
-          'When called should fetchMessages from queryServiceClient and if element.id! <= firstMessageId be false and id==1 should return null',
-          () async {
-        getAndRegisterQueryServiceClient(fetchMessagesId: 1);
-        expect(
-          await MessageRepo().getLastMessageFromServer(
-            testUid,
-            0,
-            FetchMessagesReq_Type.BACKWARD_FETCH,
-            0,
-            0,
-          ),
-          null,
-        );
-      });
-      test(
-          'When called should fetchMessages from queryServiceClient and if element.id! <= firstMessageId should return null',
-          () async {
-        expect(
-          await MessageRepo().getLastMessageFromServer(
-            testUid,
-            0,
-            FetchMessagesReq_Type.BACKWARD_FETCH,
-            0,
-            0,
-          ),
-          null,
-        );
-      });
-    });
+    // group('getLastMessageFromServer -', () {
+    //   final message = Message(
+    //     roomUid: testUid.asString(),
+    //     packetId: "",
+    //     time: 0,
+    //     id: 0,
+    //     json: EMPTY_MESSAGE,
+    //     isHidden: true,
+    //     forwardedFrom: testUid.asString(),
+    //     to: testUid.asString(),
+    //     from: testUid.asString(),
+    //   );
+    //   test('When called should fetchMessages from queryServiceClient',
+    //       () async {
+    //     final queryServiceClient = getAndRegisterQueryServiceClient();
+    //     await MessageRepo().getLastMessageFromServer(
+    //       testUid,
+    //       0,
+    //       FetchMessagesReq_Type.BACKWARD_FETCH,
+    //       0,
+    //       0,
+    //     );
+    //     verify(
+    //       queryServiceClient.fetchMessages(
+    //         FetchMessagesReq()
+    //           ..roomUid = testUid
+    //           ..pointer = Int64()
+    //           ..type = FetchMessagesReq_Type.BACKWARD_FETCH
+    //           ..limit = 0,
+    //         options: CallOptions(timeout: const Duration(seconds: 3)),
+    //       ),
+    //     );
+    //   });
+    //   test(
+    //       'When called should fetchMessages from queryServiceClient and if element.id! <= firstMessageId be false and json not be {} should return lastMessage without any copy',
+    //       () async {
+    //     getAndRegisterQueryServiceClient(
+    //       fetchMessagesId: 2,
+    //       fetchMessagesText: "test",
+    //     );
+    //     expect(
+    //       await MessageRepo().getLastMessageFromServer(
+    //         testUid,
+    //         0,
+    //         FetchMessagesReq_Type.BACKWARD_FETCH,
+    //         0,
+    //         0,
+    //       ),
+    //       message.copyWith(
+    //         id: 2,
+    //         json: "{\"1\":\"test\"}",
+    //         type: MessageType.TEXT,
+    //         isHidden: false,
+    //       ),
+    //     );
+    //   });
+    //   test(
+    //       'When called should fetchMessages from queryServiceClient and if element.id! <= firstMessageId be false and id==1 should return null',
+    //       () async {
+    //     getAndRegisterQueryServiceClient(fetchMessagesId: 1);
+    //     expect(
+    //       await MessageRepo().getLastMessageFromServer(
+    //         testUid,
+    //         0,
+    //         FetchMessagesReq_Type.BACKWARD_FETCH,
+    //         0,
+    //         0,
+    //       ),
+    //       null,
+    //     );
+    //   });
+    //   test(
+    //       'When called should fetchMessages from queryServiceClient and if element.id! <= firstMessageId should return null',
+    //       () async {
+    //     expect(
+    //       await MessageRepo().getLastMessageFromServer(
+    //         testUid,
+    //         0,
+    //         FetchMessagesReq_Type.BACKWARD_FETCH,
+    //         0,
+    //         0,
+    //       ),
+    //       null,
+    //     );
+    //   });
+    // });
     group('fetchOtherSeen -', () {
       test(
           'When called if user category being USER or GROUP should fetchLastOtherUserSeenData and save MySeen',

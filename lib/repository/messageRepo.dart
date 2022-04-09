@@ -191,13 +191,13 @@ class MessageRepo {
               ),
             );
 
-            await fetchLastMessages(
+            await _dataStreamServices.fetchLastNotHiddenMessage(
               roomMetadata.roomUid,
               roomMetadata.lastMessageId.toInt(),
               roomMetadata.firstMessageId.toInt(),
               room,
-              type: FetchMessagesReq_Type.BACKWARD_FETCH,
             );
+
             if (room != null &&
                 room.lastMessageId != null &&
                 roomMetadata.lastMessageId.toInt() > room.lastMessageId!) {
@@ -260,92 +260,6 @@ class MessageRepo {
     } catch (e) {
       _logger.e(e);
     }
-  }
-
-  Future<Message?> fetchLastMessages(
-    Uid roomUid,
-    int lastMessageId,
-    int firstMessageId,
-    Room? room, {
-    bool retry = true,
-    required FetchMessagesReq_Type type,
-  }) async {
-    var pointer = lastMessageId + 1;
-    Message? lastNotHiddenMessage;
-    while (pointer > 0) {
-      pointer -= 1;
-
-      try {
-        final msg = await _messageDao.getMessage(roomUid.asString(), pointer);
-
-        if (msg != null) {
-          if (msg.id! <= firstMessageId || (msg.isHidden && msg.id == 1)) {
-            _roomDao.updateRoom(Room(uid: roomUid.asString(), deleted: true));
-            break;
-          } else if (!msg.isHidden) {
-            lastNotHiddenMessage = msg;
-            break;
-          }
-        } else {
-          lastNotHiddenMessage = await getLastMessageFromServer(
-            roomUid,
-            lastMessageId,
-            type,
-            25,
-            firstMessageId,
-          );
-          break;
-        }
-      } catch (_) {
-        break;
-      }
-    }
-
-    if (lastNotHiddenMessage != null) {
-      _roomDao.updateRoom(
-        Room(
-          uid: roomUid.asString(),
-          firstMessageId: firstMessageId,
-          lastUpdateTime: lastNotHiddenMessage.time,
-          lastMessageId: lastMessageId,
-          lastMessage: lastNotHiddenMessage,
-        ),
-      );
-      return lastNotHiddenMessage;
-    } else {
-      return null;
-    }
-  }
-
-  Future<Message?> getLastMessageFromServer(
-    Uid roomUid,
-    int pointer,
-    FetchMessagesReq_Type type,
-    int limit,
-    int firstMessageId,
-  ) async {
-    Message? lastMessage;
-    final fetchMessagesRes = await _queryServiceClient.fetchMessages(
-      FetchMessagesReq()
-        ..roomUid = roomUid
-        ..pointer = Int64(pointer)
-        ..type = type
-        ..limit = limit,
-      options: CallOptions(timeout: const Duration(seconds: 3)),
-    );
-
-    final messages = await _saveFetchMessages(fetchMessagesRes.messages);
-
-    for (final msg in messages) {
-      if (msg.id! <= firstMessageId && (msg.isHidden && msg.id == 1)) {
-        _roomDao.updateRoom(Room(uid: roomUid.asString(), deleted: true));
-        break;
-      } else if (!msg.isHidden) {
-        lastMessage = msg;
-        break;
-      }
-    }
-    return lastMessage;
   }
 
   Future<void> fetchOtherSeen(Uid roomUid) async {
@@ -912,7 +826,8 @@ class MessageRepo {
           ..type = FetchMessagesReq_Type.FORWARD_FETCH
           ..limit = pageSize,
       );
-      final res = await _saveFetchMessages(fetchMessagesRes.messages);
+      final res = await _dataStreamServices
+          .saveFetchMessages(fetchMessagesRes.messages);
       if (res.isNotEmpty && res.last.id == lastMessageId) {
         _roomDao.updateRoom(
           Room(
@@ -940,28 +855,6 @@ class MessageRepo {
           ..completeError(e);
       }
     }
-  }
-
-  Future<List<Message>> _saveFetchMessages(
-    List<message_pb.Message> messages,
-  ) async {
-    final msgList = <Message>[];
-    for (final message in messages) {
-      _messageDao.deletePendingMessage(message.packetId);
-      try {
-        final m = await _dataStreamServices.handleIncomingMessage(
-          message,
-          isOnlineMessage: false,
-        );
-
-        if (m == null) continue;
-
-        msgList.add(m);
-      } catch (e) {
-        _logger.e(e);
-      }
-    }
-    return msgList;
   }
 
   String _findType(String path) => mime(path) ?? "application/octet-stream";

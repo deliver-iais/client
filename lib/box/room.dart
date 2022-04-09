@@ -15,18 +15,21 @@ class Room {
   @HiveField(1)
   Message? lastMessage;
 
+  // TODO(hasan): use not nullable int instead, with false default value
   @HiveField(2)
   bool? deleted;
 
   @HiveField(3)
   bool mentioned;
 
+  // TODO(hasan): use not nullable int instead, with 0 default value
   @HiveField(4)
   int? lastMessageId;
 
   @HiveField(5)
   String? draft;
 
+  // TODO(hasan): use not nullable int instead, with 0 default value
   @HiveField(6)
   int? lastUpdateTime;
 
@@ -52,6 +55,7 @@ class Room {
     this.lastUpdatedMessageId,
   });
 
+  // TODO(hasan): remove this
   Room copy(Room r) => Room(
         uid: r.uid,
         lastMessage: r.lastMessage ?? lastMessage,
