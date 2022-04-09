@@ -142,7 +142,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                           );
                         },
                         onLongPress: () {
-                          //ToDo new design for android
+                          // ToDo new design for android
                           _showCustomMenu(
                             context,
                             room,

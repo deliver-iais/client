@@ -202,6 +202,7 @@ void main() {
             uid: testUid.asString(),
             deleted: false,
             lastMessageId: 0,
+            firstMessageId: 0,
             lastUpdateTime: 0,
           ),
         );
@@ -218,6 +219,7 @@ void main() {
             uid: testUid.asString(),
             deleted: true,
             lastMessageId: 0,
+            firstMessageId: 0,
             lastUpdateTime: 0,
           ),
         );

@@ -54,8 +54,6 @@ class RoomRepo {
 
   final Map<String, BehaviorSubject<Activity>> activityObject = {};
 
-  Future<void> insertRoom(String uid) => _roomDao.updateRoom(uid: uid);
-
   Future<String> getSlangName(Uid uid, {String? unknownName}) async {
     if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
     if (_authRepo.isCurrentUserUid(uid)) {

@@ -327,11 +327,6 @@ class MockRoomRepo extends _i1.Mock implements _i24.RoomRepo {
               returnValue: <String, _i8.BehaviorSubject<_i25.Activity>>{})
           as Map<String, _i8.BehaviorSubject<_i25.Activity>>);
   @override
-  _i17.Future<void> insertRoom(String? uid) => (super.noSuchMethod(
-      Invocation.method(#insertRoom, [uid]),
-      returnValue: Future<void>.value(),
-      returnValueForMissingStub: Future<void>.value()) as _i17.Future<void>);
-  @override
   _i17.Future<String> getSlangName(_i3.Uid? uid, {String? unknownName}) =>
       (super.noSuchMethod(
           Invocation.method(#getSlangName, [uid], {#unknownName: unknownName}),

@@ -159,7 +159,7 @@ class DataStreamServices {
           break;
       }
     } else if (message.whichType() == Message_Type.callEvent &&
-        !isOnlineMessage) {
+        isOnlineMessage) {
       final callEvents = CallEvents.callEvent(
         message.callEvent,
         roomUid: message.from,
@@ -237,7 +237,7 @@ class DataStreamServices {
       final room = await _roomDao.getRoom(roomUid.asString());
 
       if (room!.lastMessageId != id) {
-        _roomDao.updateRoom(
+        await _roomDao.updateRoom(
           uid: roomUid.asString(),
           lastUpdatedMessageId: msg.id,
           lastUpdateTime: time,
@@ -250,7 +250,7 @@ class DataStreamServices {
           room,
         );
 
-        _roomDao.updateRoom(
+        await _roomDao.updateRoom(
           uid: roomUid.asString(),
           lastMessage: lastNotHiddenMessage ?? savedMsg,
           lastUpdatedMessageId: msg.id,

@@ -21,13 +21,6 @@ void main() {
   group('RoomRepoTest -', () {
     setUp(() => registerServices());
     tearDown(() => unregisterServices());
-    group('insertRoom -', () {
-      test('When called should update Room', () async {
-        final roomDao = getAndRegisterRoomDao();
-        RoomRepo().insertRoom(testUid.asString());
-        verify(roomDao.updateRoom(uid: testUid.asString()));
-      });
-    });
     group('getSlangName -', () {
       test('When called if currentUserUid same to uid should return you',
           () async {
@@ -221,6 +214,7 @@ void main() {
             roomDao.updateRoom(
               uid: testUid.asString(),
               deleted: true,
+              firstMessageId: 0,
               lastUpdateTime: clock.now().millisecondsSinceEpoch,
             ),
           );

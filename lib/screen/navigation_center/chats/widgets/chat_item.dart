@@ -48,6 +48,9 @@ class _ChatItemState extends State<ChatItem> {
   @override
   Widget build(BuildContext context) {
     _roomRepo.initActivity(widget.room.uid.asUid().node);
+
+    if (widget.room.lastMessage == null) return const SizedBox.shrink();
+
     return buildLastMessageWidget(widget.room.lastMessage!);
   }
 
@@ -61,7 +64,7 @@ class _ChatItemState extends State<ChatItem> {
       initialData: _roomRepo.fastForwardName(widget.room.uid.asUid()),
       future: _roomRepo.getName(widget.room.uid.asUid()),
       builder: (c, name) {
-        if (name.hasData && name.data != null && name.data!.isNotEmpty) {
+        if (name.hasData && name.data!.isNotEmpty) {
           return DragDropWidget(
             roomUid: widget.room.uid,
             height: 66,
@@ -147,18 +150,17 @@ class _ChatItemState extends State<ChatItem> {
                                     ),
                                   ),
                                 ),
-                                Text(
-                                  dateTimeFromNowFormat(
-                                    date(
-                                      widget.room.lastUpdateTime,
+                                if (widget.room.lastMessage != null)
+                                  Text(
+                                    dateTimeFromNowFormat(
+                                      date(widget.room.lastMessage!.time),
+                                    ),
+                                    maxLines: 1,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w100,
+                                      fontSize: 11,
                                     ),
                                   ),
-                                  maxLines: 1,
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.w100,
-                                    fontSize: 11,
-                                  ),
-                                ),
                               ],
                             ),
                             StreamBuilder<Activity>(
