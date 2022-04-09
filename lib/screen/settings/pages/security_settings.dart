@@ -89,58 +89,60 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                   ),
               ],
             ),
-            Section(
-              title: _i18n.get("two_step_verification"),
-              children: [
-                FutureBuilder<bool>(
-                  future: _accountRepo.isTwoStepVerificationEnabled(),
-                  builder: (context, snapshot) {
-                    return SettingsTile.switchTile(
-                      title: _i18n.get("two_step_verification"),
-                      leading: const Icon(CupertinoIcons.lock_shield),
-                      switchValue: snapshot.data,
-                      onToggle: (enabled) async {
-                        if (enabled) {
-                          final email = await _shareDao.get(SHARED_DAO_EMAIL);
-                          if (email != null && email.isNotEmpty) {
-                            showDialog(
-                              context: context,
-                              builder: (context) {
-                                return setPassword(email);
-                              },
-                            );
+            if (false)
+              Section(
+                title: _i18n.get("two_step_verification"),
+                children: [
+                  FutureBuilder<bool>(
+                    future: _accountRepo.isTwoStepVerificationEnabled(),
+                    builder: (context, snapshot) {
+                      return SettingsTile.switchTile(
+                        title: _i18n.get("two_step_verification"),
+                        leading: const Icon(CupertinoIcons.lock_shield),
+                        switchValue: snapshot.data,
+                        onToggle: (enabled) async {
+                          if (enabled) {
+                            final email = await _shareDao.get(SHARED_DAO_EMAIL);
+                            if (email != null && email.isNotEmpty) {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return setPassword(email);
+                                },
+                              );
+                            } else {
+                              showDialog(
+                                context: context,
+                                builder: (c) {
+                                  return AlertDialog(
+                                    content:
+                                        Text(_i18n.get("need_to_set_email")),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.pop(c);
+                                          _routingService.openAccountSettings();
+                                        },
+                                        child: Text(_i18n.get("go_setting")),
+                                      )
+                                    ],
+                                  );
+                                },
+                              );
+                            }
                           } else {
                             showDialog(
                               context: context,
-                              builder: (c) {
-                                return AlertDialog(
-                                  content: Text(_i18n.get("need_to_set_email")),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () {
-                                        Navigator.pop(c);
-                                        _routingService.openAccountSettings();
-                                      },
-                                      child: Text(_i18n.get("go_setting")),
-                                    )
-                                  ],
-                                );
+                              builder: (context) {
+                                return disableTwoStepVerification();
                               },
                             );
                           }
-                        } else {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return disableTwoStepVerification();
-                            },
-                          );
-                        }
-                      },
-                    );
-                  },
-                ),
-                FutureBuilder<bool>(
+                        },
+                      );
+                    },
+                  ),
+                  FutureBuilder<bool>(
                     future: _accountRepo.isTwoStepVerificationEnabled(),
                     builder: (c, snapshot) {
                       if (snapshot.hasData && snapshot.data!) {
@@ -153,7 +155,8 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                               context: context,
                               builder: (context) {
                                 return _editTwoStepVerificationPassword(
-                                    context);
+                                  context,
+                                );
                               },
                             );
                           },
@@ -162,9 +165,10 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                       } else {
                         return const SizedBox.shrink();
                       }
-                    })
-              ],
-            )
+                    },
+                  )
+                ],
+              )
           ],
         ),
       ),
@@ -172,9 +176,9 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
   }
 
   Widget _editTwoStepVerificationPassword(BuildContext context) {
-    final _currentPassword = TextEditingController();
-    final _newPassword = TextEditingController();
-    final _repNewPassword = TextEditingController();
+    final _currentPasswordController = TextEditingController();
+    final _newPasswordController = TextEditingController();
+    final _repNewPasswordController = TextEditingController();
     return AlertDialog(
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -195,33 +199,40 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
           Form(
             key: _pasFormKey,
             child: TextFormField(
-              controller: _currentPassword,
+              controller: _currentPasswordController,
               obscureText: true,
               validator: (s) {
                 if (s == null || s.isEmpty) {
-                  return _i18n.get("not_empty");
+                  return _i18n.get("insert_current_password");
                 }
+                return null;
               },
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
-                hintText: _i18n.get("current_password"),
+                labelText: _i18n.get("current_password"),
               ),
             ),
           ),
           const SizedBox(
-            height: 60,
+            height: 40,
           ),
           Form(
             key: _newPassFormKey,
             child: TextFormField(
-              controller: _newPassword,
+              controller: _newPasswordController,
               obscureText: true,
-              validator: (s){
-                //todo
+              validator: (s) {
+                if (s == null || s.isEmpty) {
+                  return _i18n.get("insert_new_password");
+                } else if (_repNewPasswordController.text.isNotEmpty &&
+                    s != _repNewPasswordController.text) {
+                  return _i18n.get("password_not_match");
+                }
+                return null;
               },
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
-                hintText: _i18n.get("new_password"),
+                labelText: _i18n.get("new_password"),
               ),
             ),
           ),
@@ -231,14 +242,20 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
           Form(
             key: _repPasFormKey,
             child: TextFormField(
-              controller: _repNewPassword,
+              controller: _repNewPasswordController,
               obscureText: true,
-              validator: (s){
-                //todo
+              validator: (s) {
+                if (s == null || s.isEmpty) {
+                  return _i18n.get("repeat_password");
+                } else if (_newPasswordController.text.isNotEmpty &&
+                    s != _newPasswordController.text) {
+                  return _i18n.get("password_not_match");
+                }
+                return null;
               },
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
-                hintText: _i18n.get("repeat_new_password"),
+                labelText: _i18n.get("repeat_new_password"),
               ),
             ),
           )
@@ -256,15 +273,21 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
           height: 40,
           child: TextButton(
             onPressed: () async {
-              if (await _accountRepo.changeTwoStepVerificationPassword(
-                  currentPassword: _currentPassword.text,
-                  newPassword: _newPassword.text)) {
-                ToastDisplay.showToast(
+              if (_pasFormKey.currentState!.validate() &&
+                  _newPassFormKey.currentState!.validate() &&
+                  _repPasFormKey.currentState!.validate()) {
+                if (await _accountRepo.changeTwoStepVerificationPassword(
+                  currentPassword: _currentPasswordController.text,
+                  newPassword: _newPasswordController.text,
+                )) {
+                  ToastDisplay.showToast(
                     toastContext: context,
-                    toastText: _i18n.get("changed_password"));
-                Navigator.of(context).pop();
-              } else {
-                //todo
+                    toastText: _i18n.get("password_changed"),
+                  );
+                  Navigator.of(context).pop();
+                } else {
+                  //todo
+                }
               }
             },
             child: Text(_i18n.get("change")),
@@ -368,8 +391,9 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                   Navigator.of(context).pop();
                 } else {
                   ToastDisplay.showToast(
-                      toastContext: context,
-                      toastText: _i18n.get("incorrect_password"));
+                    toastContext: context,
+                    toastText: _i18n.get("incorrect_password"),
+                  );
                 }
               },
               child: Text(_i18n.get("disable")),
@@ -404,12 +428,14 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                       toastContext: c,
                       toastText: _i18n.get("two_step_verification_active"),
                     );
+
                     setState(() {});
-                    Navigator.of(context).pop();
+                    Navigator.pop(c);
                   } else {
                     ToastDisplay.showToast(
-                        toastContext: c,
-                        toastText: _i18n.get("error_occurred"));
+                      toastContext: c,
+                      toastText: _i18n.get("error_occurred"),
+                    );
                   }
                 }
               },
@@ -445,6 +471,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                         s != _repPasController.text) {
                       return _i18n.get("password_not_match");
                     }
+                    return null;
                   },
                   decoration: InputDecoration(
                     hintText: _i18n.get("password"),
@@ -465,6 +492,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                     } else if (repPass != _pasController.text) {
                       return _i18n.get("password_not_match");
                     }
+                    return null;
                   },
                   decoration: InputDecoration(
                     hintText: _i18n.get("repeat_password"),

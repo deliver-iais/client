@@ -147,7 +147,7 @@ class AccountRepo {
         ..passwordHash = pas
         ..email = account.email!
         ..firstName = account.firstName!
-        ..lastName = account.lastName!);
+        ..lastName = account.lastName!,);
       _sharedDao.putBoolean(SHARED_DAO_TWO_STEP_VERIFICATION_ENABLED, true);
       return true;
     } catch (e) {
@@ -186,7 +186,7 @@ class AccountRepo {
       ..put(SHARED_DAO_EMAIL, email!);
     if (twoSteepVerificationEnabled != null) {
       _sharedDao.putBoolean(SHARED_DAO_TWO_STEP_VERIFICATION_ENABLED,
-          twoSteepVerificationEnabled);
+          twoSteepVerificationEnabled,);
     }
   }
 

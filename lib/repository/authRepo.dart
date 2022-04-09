@@ -80,7 +80,8 @@ class AuthRepo {
     }
   }
 
-  Future<AccessTokenRes> sendVerificationCode(String code,String password) async {
+  Future<AccessTokenRes> sendVerificationCode(String code,
+      {String? password}) async {
     final platform = await getPlatformPB();
 
     final device = await getDeviceName();
@@ -91,7 +92,7 @@ class AuthRepo {
         ..code = code
         ..device = device
         ..platform = platform
-        ..password = password,
+        ..password = password ?? "",
     );
 
     if (res.status == AccessTokenRes_Status.OK) {
@@ -100,7 +101,8 @@ class AuthRepo {
     return res;
   }
 
-  Future<AccessTokenRes> checkQrCodeToken(String token,String password) async {
+  Future<AccessTokenRes> checkQrCodeToken(String token,
+      {String? password}) async {
     final platform = await getPlatformPB();
 
     final device = await getDeviceName();
@@ -110,7 +112,7 @@ class AuthRepo {
         ..token = token
         ..device = device
         ..platform = platform
-        ..password = password,
+        ..password = password ?? "",
     );
 
     if (res.status == AccessTokenRes_Status.OK) {
@@ -157,7 +159,6 @@ class AuthRepo {
   bool localPasswordIsCorrect(String pass) => _localPassword == pass;
 
   String getLocalPassword() => _localPassword;
-
 
   void setLocalPassword(String pass) {
     _localPassword = pass;

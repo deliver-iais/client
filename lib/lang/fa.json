@@ -322,5 +322,10 @@
   "insert_password": "رمز دو مرحله ای را وارد کنید.",
   "incorrect_password": "رمز وارد شده اشتباه است.",
   "lock_app": "قفل کردن برنامه",
-  "edit_two_step_verification_password": "ویرایش رمز دومرحله ای"
+  "edit_two_step_verification_password": "ویرایش رمز دومرحله ای",
+  "insert_current_password": "رمز فعلی  را وارد  کنید",
+  "insert_new_password": "رمز جدید را وارد کنید.",
+  "repeat_new_password": "رمز را تکرار کنید.",
+  "password_changed": "رمز تغییر کرد."
+
 }

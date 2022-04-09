@@ -318,5 +318,10 @@
   "new_password": "New password",
   "incorrect_password": "Incorrect password",
   "lock_app": "Lock Application",
-  "edit_two_step_verification_password": "Edit two step verification password"
+  "edit_two_step_verification_password": "Edit two step verification password",
+  "insert_current_password": "Insert  current password",
+  "insert_new_password": "Insert new password",
+  "repeat_new_password": "Repeat new password",
+  "password_changed": "Password changed"
+
 }

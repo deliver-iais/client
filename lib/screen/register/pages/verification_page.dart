@@ -40,7 +40,7 @@ class _VerificationPageState extends State<VerificationPage> {
     }
     setState(() => _showError = false);
     FocusScope.of(context).requestFocus(FocusNode());
-    final result = _authRepo.sendVerificationCode(_verificationCode!, "");
+    final result = _authRepo.sendVerificationCode(_verificationCode!);
     result.then((accessTokenResponse) {
       if (accessTokenResponse.status == AccessTokenRes_Status.OK) {
         _fireBaseServices.sendFireBaseToken();

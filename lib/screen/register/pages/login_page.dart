@@ -82,10 +82,10 @@ class _LoginPageState extends State<LoginPage> {
     super.initState();
   }
 
-  Future<void> _loginByQrCode({String? password}) async {
+  Future<void> _loginByQrCode() async {
     try {
       final res =
-          await _authRepo.checkQrCodeToken(loginToken.value, password ?? "");
+          await _authRepo.checkQrCodeToken(loginToken.value);
       if (res.status == AccessTokenRes_Status.OK) {
         _fireBaseServices.sendFireBaseToken();
         _navigationToHome();

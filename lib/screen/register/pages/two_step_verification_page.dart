@@ -48,10 +48,10 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
             final res = widget.verificationCode != null
                 ? await _autRepo.sendVerificationCode(
                     widget.verificationCode!,
-                    _password ?? "",
+                    password: _password,
                   )
                 : await _autRepo.checkQrCodeToken(
-                    widget.token!,
+                    widget.token!,password:
                     _password ?? "",
                   );
             if (res.status == AccessTokenRes_Status.OK) {
