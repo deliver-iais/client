@@ -156,14 +156,10 @@ class AccountRepo {
     }
   }
 
-  Future<bool> disableTwoStepVerification() async {
+  Future<bool> disableTwoStepVerification(String password) async {
     try {
-      final account = await getAccount();
-      await _profileServiceClient.saveUserProfile(SaveUserProfileReq()
-        ..passwordHash = ""
-        ..email = account.email!
-        ..firstName = account.firstName!
-        ..lastName = account.lastName!);
+
+      //todo disable password _
       _sharedDao.putBoolean(SHARED_DAO_TWO_STEP_VERIFICATION_ENABLED, false);
       return true;
     } catch (e) {
@@ -282,4 +278,13 @@ class AccountRepo {
     final pv = await _sharedDao.get(SHARED_DAO_APP_VERSION);
     return shouldShowNewFeaturesDialog(pv);
   }
+
+  Future<bool> isTwoStepVerificationEnabled() async {
+    return _sharedDao.getBoolean(SHARED_DAO_TWO_STEP_VERIFICATION_ENABLED);
+  }
+
+ Future<bool> changeTwoStepVerificationPassword({required String  currentPassword,required String  newPassword})async {
+    //todo
+   return true;
+ }
 }

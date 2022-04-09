@@ -310,5 +310,8 @@
   "password_not_correct": "Password not correct",
   "forget_password": "Forget password?",
   "insert_password": "Insert two step verification password",
-  "new_password": "New password"
+  "new_password": "New password",
+  "incorrect_password": "Incorrect password",
+  "lock_app": "Lock Application",
+  "edit_two_step_verification_password": "Edit two step verification password"
 }

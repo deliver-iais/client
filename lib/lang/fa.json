@@ -314,5 +314,8 @@
   "password_not_match": "رمز با تکرار رمز همخوانی ندارد.",
   "two_step_verification_active": "رمز دومرحله ای فعال شد.",
   "forget_password": "زمز را فراموش کردید ؟",
-  "insert_password": "رمز دو مرحله ای را وارد کنید."
+  "insert_password": "رمز دو مرحله ای را وارد کنید.",
+  "incorrect_password": "رمز وارد شده اشتباه است.",
+  "lock_app": "قفل کردن برنامه",
+  "edit_two_step_verification_password": "ویرایش رمز دومرحله ای"
 }
