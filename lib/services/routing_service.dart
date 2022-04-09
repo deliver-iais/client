@@ -336,6 +336,7 @@ class RoutingService {
       coreServices.closeConnection();
       await authRepo.deleteTokens();
       dbManager.deleteDB();
+      _homeNavigatorState.currentState?.pop();
       mainNavigatorState.currentState?.pushAndRemoveUntil(
         MaterialPageRoute(builder: (c) => const LoginPage()),
         (route) => route.isFirst,

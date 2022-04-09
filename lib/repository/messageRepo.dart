@@ -239,7 +239,7 @@ class MessageRepo {
       if (!_authRepo.isCurrentUser(r.lastMessage!.from) &&
           _allRoomMetaData[r.uid] != null &&
           (category == Categories.GROUP || category == Categories.USER)) {
-        await fetchCurrentUserLastSeen(_allRoomMetaData[r.uid]!);
+         fetchCurrentUserLastSeen(_allRoomMetaData[r.uid]!);
       }
       final othersSeen = await _seenDao.getOthersSeen(r.lastMessage!.to);
       if (othersSeen == null || othersSeen.messageId < r.lastMessage!.id!) {
