@@ -34,3 +34,16 @@ String dateTimeFormat(DateTime time) {
     format: AmericanDateFormats.standardAbbrWithComma,
   );
 }
+String sameDayTitle(DateTime time) {
+  final now = DateTime.now();
+  final difference = now.difference(time);
+  if (difference.inDays < 1 && time.day == now.day) {
+    return "Today";
+  } if (difference.inDays <=1 && time.day == now.day-1) {
+    return "Yesterday";
+  } else if (difference.inDays <= 7) {
+    return DateTimeFormat.format(time, format: 'l');
+  } else {
+    return DateTimeFormat.format(time, format: 'M j');
+  }
+}
