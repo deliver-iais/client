@@ -7,7 +7,6 @@ import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/last_activity.dart';
-import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/message.dart' as message_model;
 import 'package:deliver/box/message_type.dart';
@@ -17,12 +16,10 @@ import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
-import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/ux_service.dart';
-import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
@@ -55,16 +52,17 @@ class DataStreamServices {
   final _lastActivityDao = GetIt.I.get<LastActivityDao>();
   final _mucDao = GetIt.I.get<MucDao>();
   final _queryServicesClient = GetIt.I.get<QueryServiceClient>();
-  final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _mediaDao = GetIt.I.get<MediaDao>();
 
-  Future<void> handleIncomingMessage(
+  Future<message_model.Message?> handleIncomingMessage(
     Message message, {
     String? roomName,
+    required bool isOnlineMessage,
+    bool saveInDatabase = true,
   }) async {
     final roomUid = getRoomUid(_authRepo, message);
     if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
-      return;
+      return null;
     }
     if (message.whichType() == Message_Type.persistEvent) {
       switch (message.persistEvent.whichType()) {
@@ -72,24 +70,25 @@ class DataStreamServices {
           switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
             case MucSpecificPersistentEvent_Issue.DELETED:
               _roomDao.updateRoom(Room(uid: roomUid.asString(), deleted: true));
-              return;
+              return null;
             case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
-              {
-                final muc = await _mucDao.get(roomUid.asString());
-                final pinMessages = muc!.pinMessagesIdList;
-                pinMessages!.add(
-                  message.persistEvent.mucSpecificPersistentEvent.messageId
-                      .toInt(),
-                );
-                _mucDao.update(
-                  muc.copyWith(
-                    uid: muc.uid,
-                    pinMessagesIdList: pinMessages,
-                    showPinMessage: true,
-                  ),
-                );
+              if (isOnlineMessage) {
                 break;
               }
+              final muc = await _mucDao.get(roomUid.asString());
+              final pinMessages = muc!.pinMessagesIdList;
+              pinMessages!.add(
+                message.persistEvent.mucSpecificPersistentEvent.messageId
+                    .toInt(),
+              );
+              _mucDao.update(
+                muc.copyWith(
+                  uid: muc.uid,
+                  pinMessagesIdList: pinMessages,
+                  showPinMessage: true,
+                ),
+              );
+              break;
 
             case MucSpecificPersistentEvent_Issue.KICK_USER:
               if (_authRepo.isCurrentUserUid(
@@ -98,7 +97,7 @@ class DataStreamServices {
                 _roomDao.updateRoom(
                   Room(uid: message.from.asString(), deleted: true),
                 );
-                return;
+                return null;
               }
               break;
             case MucSpecificPersistentEvent_Issue.JOINED_USER:
@@ -119,7 +118,7 @@ class DataStreamServices {
                 _roomDao.updateRoom(
                   Room(uid: message.from.asString(), deleted: true),
                 );
-                return;
+                return null;
               }
               _mucDao.deleteMember(
                 Member(
@@ -143,46 +142,20 @@ class DataStreamServices {
           switch (
               message.persistEvent.messageManipulationPersistentEvent.action) {
             case MessageManipulationPersistentEvent_Action.EDITED:
-              await _messageEdited(
-                roomUid,
-                message
-                    .persistEvent.messageManipulationPersistentEvent.messageId
-                    .toInt(),
-                message.time.toInt(),
-              );
-              return;
+              await _onMessageEdited(roomUid, message);
+              break;
             case MessageManipulationPersistentEvent_Action.DELETED:
-              final savedMsg = await _messageDao.getMessage(
-                roomUid.asString(),
-                message
-                    .persistEvent.messageManipulationPersistentEvent.messageId
-                    .toInt(),
-              );
-
-              if (savedMsg != null) {
-                final msg = savedMsg.copyDeleted();
-
-                if (msg.type == MessageType.FILE && msg.id != null) {
-                  _mediaDao.deleteMedia(roomUid.asString(), msg.id!);
-                }
-
-                _messageDao.saveMessage(msg);
-
-                _roomDao.updateRoom(
-                  Room(uid: roomUid.asString(), lastUpdatedMessageId: msg.id),
-                );
-              }
-              return;
+              await _onMessageDeleted(roomUid, message);
+              break;
           }
           break;
         case PersistentEvent_Type.adminSpecificPersistentEvent:
         case PersistentEvent_Type.botSpecificPersistentEvent:
-          // TODO(hasan): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/429
-          break;
         case PersistentEvent_Type.notSet:
           break;
       }
-    } else if (message.whichType() == Message_Type.callEvent) {
+    } else if (message.whichType() == Message_Type.callEvent &&
+        !isOnlineMessage) {
       final callEvents = CallEvents.callEvent(
         message.callEvent,
         roomUid: message.from,
@@ -195,25 +168,85 @@ class DataStreamServices {
         _callService.addCallEvent(callEvents);
       }
     }
-    final msg = await saveMessage(message, roomUid);
 
-    if (!msg.isHidden && await shouldNotifyForThisMessage(message)) {
+    final msg = (await saveMessageInMessagesDB(message))!;
+
+    if (isOnlineMessage) {
+      var isMention = false;
+      if (roomUid.category == Categories.GROUP) {
+        if (message.text.text
+            .split(" ")
+            .contains("@${(await _accountRepo.getAccount()).userName}")) {
+          isMention = true;
+        }
+      }
+      _roomDao.updateRoom(
+        Room(
+          uid: roomUid.asString(),
+          lastMessage: msg,
+          lastMessageId: msg.id,
+          mentioned: isMention,
+          deleted: false,
+          lastUpdateTime: msg.time,
+        ),
+      );
+    }
+
+    fetchSeen(roomUid.asString());
+
+    if (isOnlineMessage &&
+        !msg.isHidden &&
+        await shouldNotifyForThisMessage(message)) {
       _notificationServices.notifyIncomingMessage(
         message,
         roomUid.asString(),
         roomName: roomName,
       );
     }
-    if (message.from.category == Categories.USER) {
+
+    if (isOnlineMessage && message.from.category == Categories.USER) {
       _updateLastActivityTime(
         _lastActivityDao,
         message.from,
         message.time.toInt(),
       );
     }
+
+    return msg;
   }
 
-  Future<void> _messageEdited(Uid roomUid, int id, int time) async {
+  Future<void> _onMessageDeleted(Uid roomUid, Message message) async {
+    final savedMsg = await _messageDao.getMessage(
+      roomUid.asString(),
+      message.persistEvent.messageManipulationPersistentEvent.messageId.toInt(),
+    );
+
+    if (savedMsg != null) {
+      final msg = savedMsg.copyDeleted();
+
+      if (msg.type == MessageType.FILE && msg.id != null) {
+        _mediaDao.deleteMedia(roomUid.asString(), msg.id!);
+      }
+
+      _messageDao.saveMessage(msg);
+
+      _roomDao.updateRoom(
+        Room(uid: roomUid.asString(), lastUpdatedMessageId: msg.id),
+      );
+    }
+  }
+
+  Future<void> _onMessageEdited(Uid roomUid, Message message) async {
+    final id = message.persistEvent.messageManipulationPersistentEvent.messageId
+        .toInt();
+
+    final time = message.time.toInt();
+
+    final m = await _messageDao.getMessage(roomUid.asString(), id);
+
+    // there is no message in db for editing, so if we fetch it eventually, it will be edited anyway
+    if (m == null) return;
+
     final res = await _queryServicesClient.fetchMessages(
       FetchMessagesReq()
         ..roomUid = roomUid
@@ -221,11 +254,7 @@ class DataStreamServices {
         ..pointer = Int64(id)
         ..type = FetchMessagesReq_Type.FORWARD_FETCH,
     );
-    final msg = await saveMessageInMessagesDB(
-      _authRepo,
-      _messageDao,
-      res.messages.first,
-    );
+    final msg = await saveMessageInMessagesDB(res.messages.first);
     final room = await _roomDao.getRoom(roomUid.asString());
     if (room!.lastMessageId != id) {
       _roomDao.updateRoom(
@@ -310,10 +339,6 @@ class DataStreamServices {
 
       _notificationServices
           .notifyOutgoingMessage(messageDeliveryAck.to.asString());
-
-      if (msg.type == MessageType.FILE) {
-        _updateRoomMediaMetadata(msg.roomUid, msg);
-      }
     }
   }
 
@@ -406,39 +431,6 @@ class DataStreamServices {
     return true;
   }
 
-  Future<message_model.Message> saveMessage(
-    Message message,
-    Uid roomUid,
-  ) async {
-    final msg = await saveMessageInMessagesDB(_authRepo, _messageDao, message);
-
-    var isMention = false;
-    if (roomUid.category == Categories.GROUP) {
-      // TODO(chitsaz): bug: username1 = hasan , username2 = hasan2 => isMention will be triggered if @hasan2 be into the text.
-      if (message.text.text
-          .split(" ")
-          .contains("@${(await _accountRepo.getAccount()).userName}")) {
-        isMention = true;
-      }
-    }
-    _roomDao.updateRoom(
-      Room(
-        uid: roomUid.asString(),
-        lastMessage: msg,
-        lastMessageId: msg!.id,
-        mentioned: isMention,
-        deleted: false,
-        lastUpdateTime: msg.time,
-      ),
-    );
-    if (message.whichType() == Message_Type.file) {
-      _updateRoomMediaMetadata(roomUid.asString(), msg);
-    }
-    fetchSeen(roomUid.asString());
-
-    return msg;
-  }
-
   Future<void> fetchSeen(String roomUid) async {
     final res = await _seenDao.getMySeen(roomUid);
     if (res.messageId == -1) {
@@ -446,57 +438,15 @@ class DataStreamServices {
     }
   }
 
-  // TODO(hasan): Maybe remove this later on, WHY just working with images ?!?!?!?!??!, https://gitlab.iais.co/deliver/wiki/-/issues/410
-  Future<void> _updateRoomMediaMetadata(
-    String roomUid,
-    message_model.Message message,
+  Future<message_model.Message?> saveMessageInMessagesDB(
+    Message message,
   ) async {
     try {
-      final file = message.json.toFile();
-      if (file.type.contains("image") ||
-          file.type.contains("jpg") ||
-          file.type.contains("png")) {
-        final mediaMetaData = await _mediaQueryRepo.getMediaMetaData(roomUid);
-        if (mediaMetaData != null) {
-          _mediaQueryRepo.saveMediaMetaData(
-            mediaMetaData.copyWith(
-              lastUpdateTime: message.time,
-              imagesCount: mediaMetaData.imagesCount + 1,
-            ),
-          );
-        } else {
-          _mediaQueryRepo.saveMediaMetaData(
-            MediaMetaData(
-              roomId: roomUid,
-              imagesCount: 1,
-              musicsCount: 0,
-              videosCount: 0,
-              audiosCount: 0,
-              documentsCount: 0,
-              filesCount: 0,
-              linkCount: 0,
-              lastUpdateTime: message.time,
-            ),
-          );
-        }
-        _mediaQueryRepo.saveMediaFromMessage(message);
-      }
+      final msg = extractMessage(_authRepo, message);
+      await _messageDao.saveMessage(msg);
+      return msg;
     } catch (e) {
-      // _logger.e(e);
+      return null;
     }
-  }
-}
-
-Future<message_model.Message?> saveMessageInMessagesDB(
-  AuthRepo authRepo,
-  MessageDao messageDao,
-  Message message,
-) async {
-  try {
-    final msg = extractMessage(authRepo, message);
-    await messageDao.saveMessage(msg);
-    return msg;
-  } catch (e) {
-    return null;
   }
 }

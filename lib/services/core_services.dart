@@ -111,7 +111,10 @@ class CoreServices {
         gotResponse();
         switch (serverPacket.whichType()) {
           case ServerPacket_Type.message:
-            _dataStreamServices.handleIncomingMessage(serverPacket.message);
+            _dataStreamServices.handleIncomingMessage(
+              serverPacket.message,
+              isOnlineMessage: true,
+            );
             break;
           case ServerPacket_Type.messageDeliveryAck:
             _dataStreamServices

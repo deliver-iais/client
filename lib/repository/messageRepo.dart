@@ -20,7 +20,6 @@ import 'package:deliver/box/seen.dart';
 import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
@@ -44,7 +43,6 @@ import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
     as location_pb;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
-import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
@@ -85,9 +83,9 @@ class MessageRepo {
   final _coreServices = GetIt.I.get<CoreServices>();
   final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   final _sharedDao = GetIt.I.get<SharedDao>();
-  final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _mediaRepo = GetIt.I.get<MediaRepo>();
+  final _dataStreamServices = GetIt.I.get<DataStreamServices>();
   final _sendActivitySubject = BehaviorSubject.seeded(0);
 
   Map<String, RoomMetadata> _allRoomMetaData = {};
@@ -273,7 +271,7 @@ class MessageRepo {
     required FetchMessagesReq_Type type,
   }) async {
     var pointer = lastMessageId + 1;
-    Message? lastMessage;
+    Message? lastNotHiddenMessage;
     while (pointer > 0) {
       pointer -= 1;
 
@@ -285,13 +283,12 @@ class MessageRepo {
             _roomDao.updateRoom(Room(uid: roomUid.asString(), deleted: true));
             break;
           } else if (!msg.isHidden) {
-            lastMessage = msg;
+            lastNotHiddenMessage = msg;
             break;
           }
         } else {
-          lastMessage = await getLastMessageFromServer(
+          lastNotHiddenMessage = await getLastMessageFromServer(
             roomUid,
-            lastMessageId,
             lastMessageId,
             type,
             25,
@@ -304,17 +301,17 @@ class MessageRepo {
       }
     }
 
-    if (lastMessage != null) {
+    if (lastNotHiddenMessage != null) {
       _roomDao.updateRoom(
         Room(
           uid: roomUid.asString(),
           firstMessageId: firstMessageId,
-          lastUpdateTime: lastMessage.time,
+          lastUpdateTime: lastNotHiddenMessage.time,
           lastMessageId: lastMessageId,
-          lastMessage: lastMessage,
+          lastMessage: lastNotHiddenMessage,
         ),
       );
-      return lastMessage;
+      return lastNotHiddenMessage;
     } else {
       return null;
     }
@@ -322,7 +319,6 @@ class MessageRepo {
 
   Future<Message?> getLastMessageFromServer(
     Uid roomUid,
-    int lastMessageId,
     int pointer,
     FetchMessagesReq_Type type,
     int limit,
@@ -946,7 +942,6 @@ class MessageRepo {
     }
   }
 
-// TODO(hasan): Some parts of this function should be transform to DataStreamServices class, https://gitlab.iais.co/deliver/wiki/-/issues/428
   Future<List<Message>> _saveFetchMessages(
     List<message_pb.Message> messages,
   ) async {
@@ -954,117 +949,19 @@ class MessageRepo {
     for (final message in messages) {
       _messageDao.deletePendingMessage(message.packetId);
       try {
-        if (message.whichType() == message_pb.Message_Type.persistEvent) {
-          switch (message.persistEvent.whichType()) {
-            case PersistentEvent_Type.mucSpecificPersistentEvent:
-              switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
-                case MucSpecificPersistentEvent_Issue.DELETED:
-                  _roomDao.updateRoom(
-                    Room(uid: message.from.asString(), deleted: true),
-                  );
-                  continue;
-                case MucSpecificPersistentEvent_Issue.ADD_USER:
-                  _roomDao.updateRoom(
-                    Room(uid: message.from.asString(), deleted: false),
-                  );
-                  break;
-                case MucSpecificPersistentEvent_Issue.KICK_USER:
-                  if (_authRepo.isCurrentUserUid(
-                    message.persistEvent.mucSpecificPersistentEvent.assignee,
-                  )) {
-                    _roomDao.updateRoom(
-                      Room(uid: message.from.asString(), deleted: true),
-                    );
-                    continue;
-                  }
-                  break;
-                case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
-                  _avatarRepo.fetchAvatar(message.from, forceToUpdate: true);
-                  break;
-                case MucSpecificPersistentEvent_Issue.JOINED_USER:
-                case MucSpecificPersistentEvent_Issue.LEAVE_USER:
-                case MucSpecificPersistentEvent_Issue.MUC_CREATED:
-                case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
-                case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
-                  // TODO(dansi): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/417
-                  break;
-              }
-              break;
-            case PersistentEvent_Type.messageManipulationPersistentEvent:
-              final roomUid = getRoomUid(_authRepo, message);
-              switch (message
-                  .persistEvent.messageManipulationPersistentEvent.action) {
-                case MessageManipulationPersistentEvent_Action.EDITED:
-                  fetchEditedMsg(
-                    roomUid,
-                    message.persistEvent.messageManipulationPersistentEvent
-                        .messageId
-                        .toInt(),
-                  );
-                  break;
-                case MessageManipulationPersistentEvent_Action.DELETED:
-                  final mes = await _messageDao.getMessage(
-                    roomUid.asString(),
-                    message.persistEvent.messageManipulationPersistentEvent
-                        .messageId
-                        .toInt(),
-                  );
-                  if (mes != null) {
-                    if (mes.type == MessageType.FILE && mes.id != null) {
-                      _mediaDao.deleteMedia(roomUid.asString(), mes.id!);
-                    }
-                    _messageDao.saveMessage(mes.copyDeleted());
-                    _roomDao.updateRoom(
-                      Room(
-                        uid: roomUid.asString(),
-                        lastUpdatedMessageId: mes.id,
-                      ),
-                    );
-                  }
+        final m = await _dataStreamServices.handleIncomingMessage(
+          message,
+          isOnlineMessage: false,
+        );
 
-                  break;
-              }
-              break;
-            case PersistentEvent_Type.adminSpecificPersistentEvent:
-            case PersistentEvent_Type.botSpecificPersistentEvent:
-            case PersistentEvent_Type.notSet:
-              break;
-          }
-        } else {}
+        if (m == null) continue;
+
+        msgList.add(m);
       } catch (e) {
         _logger.e(e);
       }
-      final m = await saveMessageInMessagesDB(_authRepo, _messageDao, message);
-      msgList.add(m!);
     }
     return msgList;
-  }
-
-  Future<void> fetchEditedMsg(
-    Uid roomUid,
-    int id,
-  ) async {
-    final res = await _queryServiceClient.fetchMessages(
-      FetchMessagesReq()
-        ..roomUid = roomUid
-        ..limit = 1
-        ..pointer = Int64(id)
-        ..type = FetchMessagesReq_Type.FORWARD_FETCH,
-    );
-    final msg = await saveMessageInMessagesDB(
-      _authRepo,
-      _messageDao,
-      res.messages.first,
-    );
-    final room = await _roomDao.getRoom(roomUid.asString());
-    await _roomDao.updateRoom(
-      room!.copyWith(
-        lastUpdatedMessageId: id,
-      ),
-    );
-    if (room.lastMessageId == id) {
-      _roomDao.updateRoom(room.copyWith(lastMessage: msg));
-    }
   }
 
   String _findType(String path) => mime(path) ?? "application/octet-stream";
