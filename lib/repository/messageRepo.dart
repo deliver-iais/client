@@ -123,11 +123,9 @@ class MessageRepo {
   Future<void> updateNewMuc(Uid roomUid, int lastMessageId) async {
     try {
       _roomDao.updateRoom(
-        Room(
-          uid: roomUid.asString(),
-          lastMessageId: lastMessageId,
-          lastUpdateTime: clock.now().millisecondsSinceEpoch,
-        ),
+        uid: roomUid.asString(),
+        lastMessageId: lastMessageId,
+        lastUpdateTime: clock.now().millisecondsSinceEpoch,
       );
     } catch (e) {
       _logger.e(e);
@@ -161,8 +159,7 @@ class MessageRepo {
           }
           if (roomMetadata.presenceType == PresenceType.ACTIVE) {
             if (room != null &&
-                room.lastMessageId != null &&
-                room.lastMessageId! < roomMetadata.lastMessageId.toInt() &&
+                room.lastMessageId < roomMetadata.lastMessageId.toInt() &&
                 hasFirebaseCapability) {
               await _fireBaseServices.sendGlitchReportForFirebaseNotification(
                 roomMetadata.roomUid.asString(),
@@ -173,8 +170,7 @@ class MessageRepo {
                 room.lastMessage!.id != null &&
                 room.lastMessage!.id! >= roomMetadata.lastMessageId.toInt() &&
                 room.lastMessage!.id != 0 &&
-                room.lastUpdateTime != null &&
-                room.lastUpdateTime! >= roomMetadata.lastUpdate.toInt()) {
+                room.lastUpdateTime >= roomMetadata.lastUpdate.toInt()) {
               if (fetchAllRoom != null) {
                 finished = true;
               } // no more updating needed after this room
@@ -182,13 +178,11 @@ class MessageRepo {
             }
 
             _roomDao.updateRoom(
-              Room(
-                uid: roomMetadata.roomUid.asString(),
-                deleted: false,
-                lastMessageId: roomMetadata.lastMessageId.toInt(),
-                firstMessageId: roomMetadata.firstMessageId.toInt(),
-                lastUpdateTime: roomMetadata.lastUpdate.toInt(),
-              ),
+              uid: roomMetadata.roomUid.asString(),
+              deleted: false,
+              lastMessageId: roomMetadata.lastMessageId.toInt(),
+              firstMessageId: roomMetadata.firstMessageId.toInt(),
+              lastUpdateTime: roomMetadata.lastUpdate.toInt(),
             );
 
             await _dataStreamServices.fetchLastNotHiddenMessage(
@@ -199,11 +193,10 @@ class MessageRepo {
             );
 
             if (room != null &&
-                room.lastMessageId != null &&
-                roomMetadata.lastMessageId.toInt() > room.lastMessageId!) {
+                roomMetadata.lastMessageId.toInt() > room.lastMessageId) {
               await fetchHiddenMessageCount(
                 roomMetadata.roomUid,
-                room.lastMessageId!,
+                room.lastMessageId,
               );
             }
             if (room != null && room.uid.asUid().category == Categories.GROUP) {
@@ -211,13 +204,11 @@ class MessageRepo {
             }
           } else {
             _roomDao.updateRoom(
-              Room(
-                uid: roomMetadata.roomUid.asString(),
-                deleted: true,
-                lastMessageId: roomMetadata.lastMessageId.toInt(),
-                firstMessageId: roomMetadata.firstMessageId.toInt(),
-                lastUpdateTime: roomMetadata.lastUpdate.toInt(),
-              ),
+              uid: roomMetadata.roomUid.asString(),
+              deleted: true,
+              lastMessageId: roomMetadata.lastMessageId.toInt(),
+              firstMessageId: roomMetadata.firstMessageId.toInt(),
+              lastUpdateTime: roomMetadata.lastUpdate.toInt(),
             );
           }
         }
@@ -326,7 +317,7 @@ class MessageRepo {
           ..afterId = Int64.parseInt(room.lastMessage!.id.toString()),
       );
       if (mentionResult.idList.isNotEmpty) {
-        _roomDao.updateRoom(Room(uid: room.uid, mentioned: true));
+        _roomDao.updateRoom(uid: room.uid, mentioned: true);
       }
     } catch (e) {
       _logger.e(e);
@@ -715,13 +706,11 @@ class MessageRepo {
 
   Future<void> _updateRoomLastMessage(PendingMessage pm) async {
     await _roomDao.updateRoom(
-      Room(
-        uid: pm.roomUid,
-        lastMessage: pm.msg,
-        lastMessageId: pm.msg.id,
-        deleted: false,
-        lastUpdateTime: pm.msg.time,
-      ),
+      uid: pm.roomUid,
+      lastMessage: pm.msg,
+      lastMessageId: pm.msg.id,
+      deleted: false,
+      lastUpdateTime: pm.msg.time,
     );
   }
 
@@ -830,11 +819,9 @@ class MessageRepo {
           .saveFetchMessages(fetchMessagesRes.messages);
       if (res.isNotEmpty && res.last.id == lastMessageId) {
         _roomDao.updateRoom(
-          Room(
-            lastMessage: res.last,
-            uid: roomId,
-            lastMessageId: lastMessageId,
-          ),
+          lastMessage: res.last,
+          uid: roomId,
+          lastMessageId: lastMessageId,
         );
       }
       completer.complete(res);
@@ -1023,18 +1010,17 @@ class MessageRepo {
             if (room != null) {
               if (msg.id == room.lastMessageId) {
                 _roomDao.updateRoom(
-                  Room(
-                    uid: msg.roomUid,
-                    lastMessage: msg,
-                    lastUpdateTime: clock.now().millisecondsSinceEpoch,
-                  ),
+                  uid: msg.roomUid,
+                  lastMessage: msg,
+                  lastUpdateTime: clock.now().millisecondsSinceEpoch,
                 );
               }
             }
 
             _messageDao.saveMessage(msg);
             _roomDao.updateRoom(
-              Room(uid: msg.roomUid, lastUpdatedMessageId: msg.id),
+              uid: msg.roomUid,
+              lastUpdatedMessageId: msg.id,
             );
           }
         }
@@ -1065,14 +1051,13 @@ class MessageRepo {
         ..edited = true;
       _messageDao.saveMessage(editableMessage);
       _roomDao.updateRoom(
-        Room(
-          uid: roomUid.asString(),
-          lastUpdatedMessageId: editableMessage.id,
-        ),
+        uid: roomUid.asString(),
+        lastUpdatedMessageId: editableMessage.id,
       );
       if (editableMessage.id == roomLastMessageId) {
         _roomDao.updateRoom(
-          Room(uid: roomUid.asString(), lastMessage: editableMessage),
+          uid: roomUid.asString(),
+          lastMessage: editableMessage,
         );
       }
     } catch (e) {
@@ -1129,10 +1114,8 @@ class MessageRepo {
     _messageDao.saveMessage(editableMessage);
     _mediaRepo.updateMedia(editableMessage);
     _roomDao.updateRoom(
-      Room(
-        uid: roomUid.asString(),
-        lastUpdatedMessageId: editableMessage.id,
-      ),
+      uid: roomUid.asString(),
+      lastUpdatedMessageId: editableMessage.id,
     );
   }
 }

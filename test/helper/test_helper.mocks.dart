@@ -263,15 +263,35 @@ class MockMessageDao extends _i1.Mock implements _i19.MessageDao {
 /// See the documentation for Mockito's code generation for more information.
 class MockRoomDao extends _i1.Mock implements _i22.RoomDao {
   @override
-  _i17.Future<void> updateRoom(_i23.Room? room) => (super.noSuchMethod(
-      Invocation.method(#updateRoom, [room]),
-      returnValue: Future<void>.value(),
-      returnValueForMissingStub: Future<void>.value()) as _i17.Future<void>);
-  @override
-  _i17.Future<void> deleteRoom(_i23.Room? room) => (super.noSuchMethod(
-      Invocation.method(#deleteRoom, [room]),
-      returnValue: Future<void>.value(),
-      returnValueForMissingStub: Future<void>.value()) as _i17.Future<void>);
+  _i17.Future<void> updateRoom(
+          {String? uid,
+          _i20.Message? lastMessage,
+          int? lastMessageId,
+          bool? deleted,
+          String? draft,
+          int? lastUpdateTime,
+          int? firstMessageId,
+          int? lastUpdatedMessageId,
+          bool? mentioned,
+          bool? pinned,
+          int? hiddenMessageCount}) =>
+      (super.noSuchMethod(
+              Invocation.method(#updateRoom, [], {
+                #uid: uid,
+                #lastMessage: lastMessage,
+                #lastMessageId: lastMessageId,
+                #deleted: deleted,
+                #draft: draft,
+                #lastUpdateTime: lastUpdateTime,
+                #firstMessageId: firstMessageId,
+                #lastUpdatedMessageId: lastUpdatedMessageId,
+                #mentioned: mentioned,
+                #pinned: pinned,
+                #hiddenMessageCount: hiddenMessageCount
+              }),
+              returnValue: Future<void>.value(),
+              returnValueForMissingStub: Future<void>.value())
+          as _i17.Future<void>);
   @override
   _i17.Future<List<_i23.Room>> getAllRooms() =>
       (super.noSuchMethod(Invocation.method(#getAllRooms, []),
@@ -309,11 +329,6 @@ class MockRoomRepo extends _i1.Mock implements _i24.RoomRepo {
   @override
   _i17.Future<void> insertRoom(String? uid) => (super.noSuchMethod(
       Invocation.method(#insertRoom, [uid]),
-      returnValue: Future<void>.value(),
-      returnValueForMissingStub: Future<void>.value()) as _i17.Future<void>);
-  @override
-  _i17.Future<void> updateRoom(_i23.Room? room) => (super.noSuchMethod(
-      Invocation.method(#updateRoom, [room]),
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i17.Future<void>);
   @override
@@ -984,6 +999,23 @@ class MockDataStreamServices extends _i1.Mock
               Invocation.method(#saveMessageInMessagesDB, [message]),
               returnValue: Future<_i20.Message?>.value())
           as _i17.Future<_i20.Message?>);
+  @override
+  _i17.Future<_i20.Message?> fetchLastNotHiddenMessage(_i3.Uid? roomUid,
+          int? lastMessageId, int? firstMessageId, _i23.Room? room,
+          {bool? retry = true}) =>
+      (super.noSuchMethod(
+              Invocation.method(
+                  #fetchLastNotHiddenMessage,
+                  [roomUid, lastMessageId, firstMessageId, room],
+                  {#retry: retry}),
+              returnValue: Future<_i20.Message?>.value())
+          as _i17.Future<_i20.Message?>);
+  @override
+  _i17.Future<List<_i20.Message>> saveFetchMessages(
+          List<_i41.Message>? messages) =>
+      (super.noSuchMethod(Invocation.method(#saveFetchMessages, [messages]),
+              returnValue: Future<List<_i20.Message>>.value(<_i20.Message>[]))
+          as _i17.Future<List<_i20.Message>>);
 }
 
 /// A class which mocks [CoreServices].

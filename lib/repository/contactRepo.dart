@@ -6,7 +6,6 @@ import 'package:deliver/box/dao/contact_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/member.dart';
-import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -168,7 +167,7 @@ class ContactRepo {
         contact.uid.asString(),
         name: "${contact.firstName} ${contact.lastName}",
       );
-      _roomDao.updateRoom(Room(uid: contact.uid.asString()));
+      _roomDao.updateRoom(uid: contact.uid.asString());
     }
   }
 

@@ -66,12 +66,12 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   }
 
   void onUnPin(Room room) {
-    _roomDao.updateRoom(Room(uid: room.uid));
+    _roomDao.updateRoom(uid: room.uid, pinned: false);
   }
 
   void onPin(Room room, {bool canBePinned = false}) {
     if (canBePinned) {
-      _roomDao.updateRoom(Room(uid: room.uid, pinned: true));
+      _roomDao.updateRoom(uid: room.uid, pinned: true);
     } else {
       showDialog(
         context: context,

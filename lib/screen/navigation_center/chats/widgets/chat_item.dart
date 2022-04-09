@@ -147,19 +147,18 @@ class _ChatItemState extends State<ChatItem> {
                                     ),
                                   ),
                                 ),
-                                if (widget.room.lastUpdateTime != null)
-                                  Text(
-                                    dateTimeFromNowFormat(
-                                      date(
-                                        widget.room.lastUpdateTime!,
-                                      ),
-                                    ),
-                                    maxLines: 1,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w100,
-                                      fontSize: 11,
+                                Text(
+                                  dateTimeFromNowFormat(
+                                    date(
+                                      widget.room.lastUpdateTime,
                                     ),
                                   ),
+                                  maxLines: 1,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w100,
+                                    fontSize: 11,
+                                  ),
+                                ),
                               ],
                             ),
                             StreamBuilder<Activity>(
@@ -250,7 +249,7 @@ class _ChatItemState extends State<ChatItem> {
   LastMessage buildLastMessage(Message message) {
     return LastMessage(
       message: message,
-      lastMessageId: widget.room.lastMessageId!,
+      lastMessageId: widget.room.lastMessageId,
       hasMentioned: widget.room.mentioned == true,
       showSender:
           widget.room.uid.isMuc() || _authRepo.isCurrentUser(message.from),

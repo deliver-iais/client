@@ -102,11 +102,9 @@ void main() {
             MessageRepo().updateNewMuc(testUid, 0);
             verify(
               roomDao.updateRoom(
-                Room(
-                  uid: testUid.asString(),
-                  lastMessageId: 0,
-                  lastUpdateTime: clock.now().millisecondsSinceEpoch,
-                ),
+                uid: testUid.asString(),
+                lastMessageId: 0,
+                lastUpdateTime: clock.now().millisecondsSinceEpoch,
               ),
             );
           },
@@ -178,8 +176,6 @@ void main() {
           rooms: [
             Room(
               uid: testUid.asString(),
-              lastMessageId: 0,
-              lastUpdateTime: 0,
               lastMessage: testMessage.copyWith(id: 1),
             )
           ],
@@ -203,12 +199,10 @@ void main() {
         await MessageRepo().updatingMessages();
         verify(
           roomDao.updateRoom(
-            Room(
-              uid: testUid.asString(),
-              deleted: false,
-              lastMessageId: 0,
-              lastUpdateTime: 0,
-            ),
+            uid: testUid.asString(),
+            deleted: false,
+            lastMessageId: 0,
+            lastUpdateTime: 0,
           ),
         );
       });
@@ -221,12 +215,10 @@ void main() {
         await MessageRepo().updatingMessages();
         verify(
           roomDao.updateRoom(
-            Room(
-              uid: testUid.asString(),
-              deleted: true,
-              lastMessageId: 0,
-              lastUpdateTime: 0,
-            ),
+            uid: testUid.asString(),
+            deleted: true,
+            lastMessageId: 0,
+            lastUpdateTime: 0,
           ),
         );
       });
@@ -649,7 +641,7 @@ void main() {
           ),
         );
         verify(
-          roomDao.updateRoom(Room(uid: testUid.asString(), mentioned: true)),
+          roomDao.updateRoom(uid: testUid.asString(), mentioned: true),
         );
       });
     });
@@ -682,13 +674,11 @@ void main() {
             await MessageRepo().sendTextMessage(testUid, "test");
             verify(
               roomDao.updateRoom(
-                Room(
-                  uid: pm.roomUid,
-                  lastMessage: pm.msg,
-                  lastMessageId: pm.msg.id,
-                  deleted: false,
-                  lastUpdateTime: pm.msg.time,
-                ),
+                uid: pm.roomUid,
+                lastMessage: pm.msg,
+                lastMessageId: pm.msg.id,
+                deleted: false,
+                lastUpdateTime: pm.msg.time,
               ),
             );
           },
@@ -739,13 +729,11 @@ void main() {
             await MessageRepo().sendLocationMessage(testPosition, testUid);
             verify(
               roomDao.updateRoom(
-                Room(
-                  uid: pm.roomUid,
-                  lastMessage: pm.msg,
-                  lastMessageId: pm.msg.id,
-                  deleted: false,
-                  lastUpdateTime: pm.msg.time,
-                ),
+                uid: pm.roomUid,
+                lastMessage: pm.msg,
+                lastMessageId: pm.msg.id,
+                deleted: false,
+                lastUpdateTime: pm.msg.time,
               ),
             );
           },
@@ -944,16 +932,14 @@ void main() {
         await MessageRepo().sendPendingMessages();
         verify(
           roomDao.updateRoom(
-            Room(
-              uid: pm.roomUid,
-              lastMessage: pm.msg.copyWith(
-                json:
-                    "{\"1\":\"0:3049987b-e15d-4288-97cd-42dbc6d73abd\",\"4\":\"test\",\"5\":\"test\"}",
-              ),
-              lastMessageId: pm.msg.id,
-              deleted: false,
-              lastUpdateTime: pm.msg.time,
+            uid: pm.roomUid,
+            lastMessage: pm.msg.copyWith(
+              json:
+                  "{\"1\":\"0:3049987b-e15d-4288-97cd-42dbc6d73abd\",\"4\":\"test\",\"5\":\"test\"}",
             ),
+            lastMessageId: pm.msg.id,
+            deleted: false,
+            lastUpdateTime: pm.msg.time,
           ),
         );
       });
@@ -1001,16 +987,14 @@ void main() {
         verifyNever(coreServices.sendMessage(byClient));
         verifyNever(
           roomDao.updateRoom(
-            Room(
-              uid: pm.roomUid,
-              lastMessage: pm.msg.copyWith(
-                json:
-                    "{\"1\":\"0:3049987b-e15d-4288-97cd-42dbc6d73abd\",\"4\":\"test\",\"5\":\"test\"}",
-              ),
-              lastMessageId: pm.msg.id,
-              deleted: false,
-              lastUpdateTime: pm.msg.time,
+            uid: pm.roomUid,
+            lastMessage: pm.msg.copyWith(
+              json:
+                  "{\"1\":\"0:3049987b-e15d-4288-97cd-42dbc6d73abd\",\"4\":\"test\",\"5\":\"test\"}",
             ),
+            lastMessageId: pm.msg.id,
+            deleted: false,
+            lastUpdateTime: pm.msg.time,
           ),
         );
         verifyNever(
@@ -1052,16 +1036,14 @@ void main() {
         verifyNever(coreServices.sendMessage(byClient));
         verifyNever(
           roomDao.updateRoom(
-            Room(
-              uid: pm.roomUid,
-              lastMessage: pm.msg.copyWith(
-                json:
-                    "{\"1\":\"0:3049987b-e15d-4288-97cd-42dbc6d73abd\",\"4\":\"test\",\"5\":\"test\"}",
-              ),
-              lastMessageId: pm.msg.id,
-              deleted: false,
-              lastUpdateTime: pm.msg.time,
+            uid: pm.roomUid,
+            lastMessage: pm.msg.copyWith(
+              json:
+                  "{\"1\":\"0:3049987b-e15d-4288-97cd-42dbc6d73abd\",\"4\":\"test\",\"5\":\"test\"}",
             ),
+            lastMessageId: pm.msg.id,
+            deleted: false,
+            lastUpdateTime: pm.msg.time,
           ),
         );
         verifyNever(
@@ -1164,13 +1146,11 @@ void main() {
           MessageRepo().sendForwardedMessage(testUid, [testMessage]);
           verify(
             roomDao.updateRoom(
-              Room(
-                uid: pm.roomUid,
-                lastMessage: pm.msg,
-                lastMessageId: pm.msg.id,
-                deleted: false,
-                lastUpdateTime: pm.msg.time,
-              ),
+              uid: pm.roomUid,
+              lastMessage: pm.msg,
+              lastMessageId: pm.msg.id,
+              deleted: false,
+              lastUpdateTime: pm.msg.time,
             ),
           );
         });
@@ -1245,7 +1225,7 @@ void main() {
         );
         await MessageRepo()
             .getMessages(testUid.asString(), 0, 16, Completer(), 10);
-        verify(roomDao.updateRoom(Room(uid: testMessage.from, deleted: true)));
+        verify(roomDao.updateRoom(uid: testMessage.from, deleted: true));
       });
       test(
           'When called should fetchMessages from queryServiceClient and saveFetchMessages and if '
@@ -1264,7 +1244,7 @@ void main() {
         );
         await MessageRepo()
             .getMessages(testUid.asString(), 0, 16, Completer(), 10);
-        verify(roomDao.updateRoom(Room(uid: testMessage.from, deleted: false)));
+        verify(roomDao.updateRoom(uid: testMessage.from, deleted: false));
       });
       test(
           'When called should fetchMessages from queryServiceClient and saveFetchMessages and if '
@@ -1284,7 +1264,7 @@ void main() {
         );
         await MessageRepo()
             .getMessages(testUid.asString(), 0, 16, Completer(), 0);
-        verify(roomDao.updateRoom(any));
+        verify(roomDao.updateRoom());
       });
       test(
           'When called should fetchMessages from queryServiceClient and saveFetchMessages and if fetched message type '
@@ -1353,17 +1333,15 @@ void main() {
             .getMessages(testUid.asString(), 0, 16, Completer(), 0);
         verify(
           roomDao.updateRoom(
-            Room(
-              lastMessage: testMessage.copyWith(
-                id: 0,
-                forwardedFrom: testUid.asString(),
-                json: EMPTY_MESSAGE,
-                isHidden: true,
-                packetId: "",
-              ),
-              uid: testUid.asString(),
-              lastMessageId: 0,
+            lastMessage: testMessage.copyWith(
+              id: 0,
+              forwardedFrom: testUid.asString(),
+              json: EMPTY_MESSAGE,
+              isHidden: true,
+              packetId: "",
             ),
+            uid: testUid.asString(),
+            lastMessageId: 0,
           ),
         );
       });
@@ -1405,13 +1383,11 @@ void main() {
               .sendFormResultMessage(testUid.asString(), {"test": "test"}, 0);
           verify(
             roomDao.updateRoom(
-              Room(
-                uid: pm.roomUid,
-                lastMessage: pm.msg,
-                lastMessageId: pm.msg.id,
-                deleted: false,
-                lastUpdateTime: pm.msg.time,
-              ),
+              uid: pm.roomUid,
+              lastMessage: pm.msg,
+              lastMessageId: pm.msg.id,
+              deleted: false,
+              lastUpdateTime: pm.msg.time,
             ),
           );
         });
@@ -1453,13 +1429,11 @@ void main() {
               .sendShareUidMessage(testUid, message_pb.ShareUid(uid: testUid));
           verify(
             roomDao.updateRoom(
-              Room(
-                uid: pm.roomUid,
-                lastMessage: pm.msg,
-                lastMessageId: pm.msg.id,
-                deleted: false,
-                lastUpdateTime: pm.msg.time,
-              ),
+              uid: pm.roomUid,
+              lastMessage: pm.msg,
+              lastMessageId: pm.msg.id,
+              deleted: false,
+              lastUpdateTime: pm.msg.time,
             ),
           );
         });
@@ -1500,13 +1474,11 @@ void main() {
               .sendPrivateMessageAccept(testUid, PrivateDataType.EMAIL, "test");
           verify(
             roomDao.updateRoom(
-              Room(
-                uid: pm.roomUid,
-                lastMessage: pm.msg,
-                lastMessageId: pm.msg.id,
-                deleted: false,
-                lastUpdateTime: pm.msg.time,
-              ),
+              uid: pm.roomUid,
+              lastMessage: pm.msg,
+              lastMessageId: pm.msg.id,
+              deleted: false,
+              lastUpdateTime: pm.msg.time,
             ),
           );
         });
@@ -1593,13 +1565,11 @@ void main() {
         verify(messageDao.savePendingMessage(testPendingMessage));
         verify(
           roomDao.updateRoom(
-            Room(
-              uid: testPendingMessage.roomUid,
-              lastMessage: testPendingMessage.msg,
-              lastMessageId: testPendingMessage.msg.id,
-              deleted: false,
-              lastUpdateTime: testPendingMessage.msg.time,
-            ),
+            uid: testPendingMessage.roomUid,
+            lastMessage: testPendingMessage.msg,
+            lastMessageId: testPendingMessage.msg.id,
+            deleted: false,
+            lastUpdateTime: testPendingMessage.msg.time,
           ),
         );
         final byClient = message_pb.MessageByClient()
@@ -1681,13 +1651,11 @@ void main() {
           verify(messageDao.savePendingMessage(pm));
           verify(
             roomDao.updateRoom(
-              Room(
-                uid: pm.roomUid,
-                lastMessage: pm.msg,
-                lastMessageId: pm.msg.id,
-                deleted: false,
-                lastUpdateTime: pm.msg.time,
-              ),
+              uid: pm.roomUid,
+              lastMessage: pm.msg,
+              lastMessageId: pm.msg.id,
+              deleted: false,
+              lastUpdateTime: pm.msg.time,
             ),
           );
           final byClient = message_pb.MessageByClient()
@@ -1751,21 +1719,19 @@ void main() {
         withClock(Clock.fixed(DateTime(2000)), () async {
           final roomDao = getAndRegisterRoomDao();
           getAndRegisterRoomRepo(
-            room: Room(uid: testUid.asString(), lastMessageId: 0),
+            room: Room(uid: testUid.asString()),
           );
           await MessageRepo()
               .deleteMessage([testMessage.copyWith(packetId: "", id: 0)]);
           verify(
             roomDao.updateRoom(
-              Room(
-                uid: testUid.asString(),
-                lastMessage: testMessage.copyWith(
-                  json: EMPTY_MESSAGE,
-                  id: 0,
-                  packetId: "",
-                ),
-                lastUpdateTime: clock.now().millisecondsSinceEpoch,
+              uid: testUid.asString(),
+              lastMessage: testMessage.copyWith(
+                json: EMPTY_MESSAGE,
+                id: 0,
+                packetId: "",
               ),
+              lastUpdateTime: clock.now().millisecondsSinceEpoch,
             ),
           );
         });
@@ -1775,7 +1741,7 @@ void main() {
           () async {
         final messageDao = getAndRegisterMessageDao();
         getAndRegisterRoomRepo(
-          room: Room(uid: testUid.asString(), lastMessageId: 0),
+          room: Room(uid: testUid.asString()),
         );
         await MessageRepo()
             .deleteMessage([testMessage.copyWith(packetId: "", id: 0)]);
@@ -1790,13 +1756,14 @@ void main() {
           () async {
         final roomDao = getAndRegisterRoomDao();
         getAndRegisterRoomRepo(
-          room: Room(uid: testUid.asString(), lastMessageId: 0),
+          room: Room(uid: testUid.asString()),
         );
         await MessageRepo()
             .deleteMessage([testMessage.copyWith(packetId: "", id: 0)]);
         verify(
           roomDao.updateRoom(
-            Room(uid: testUid.asString(), lastUpdatedMessageId: 0),
+            uid: testUid.asString(),
+            lastUpdatedMessageId: 0,
           ),
         );
       });
@@ -1813,7 +1780,8 @@ void main() {
         );
         verifyNever(
           roomDao.updateRoom(
-            Room(uid: testUid.asString(), lastUpdatedMessageId: 0),
+            uid: testUid.asString(),
+            lastUpdatedMessageId: 0,
           ),
         );
       });
@@ -1848,10 +1816,8 @@ void main() {
         await MessageRepo().editTextMessage(testUid, testMessage, "test", 0);
         verify(
           roomDao.updateRoom(
-            Room(
-              uid: testUid.asString(),
-              lastUpdatedMessageId: testMessage.id,
-            ),
+            uid: testUid.asString(),
+            lastUpdatedMessageId: testMessage.id,
           ),
         );
       });
@@ -1864,13 +1830,11 @@ void main() {
             .editTextMessage(testUid, testMessage.copyWith(id: 2), "test", 2);
         verify(
           roomDao.updateRoom(
-            Room(
-              uid: testUid.asString(),
-              lastMessage: testMessage.copyWith(
-                id: 2,
-                edited: true,
-                json: "{\"1\":\"test\"}",
-              ),
+            uid: testUid.asString(),
+            lastMessage: testMessage.copyWith(
+              id: 2,
+              edited: true,
+              json: "{\"1\":\"test\"}",
             ),
           ),
         );
@@ -1882,10 +1846,8 @@ void main() {
         await MessageRepo().editTextMessage(testUid, testMessage, "test", 0);
         verifyNever(
           roomDao.updateRoom(
-            Room(
-              uid: testUid.asString(),
-              lastUpdatedMessageId: testMessage.id,
-            ),
+            uid: testUid.asString(),
+            lastUpdatedMessageId: testMessage.id,
           ),
         );
         verifyNever(
@@ -1982,10 +1944,8 @@ void main() {
           );
           verify(
             roomDao.updateRoom(
-              Room(
-                uid: testUid.asString(),
-                lastUpdatedMessageId: testMessage.id,
-              ),
+              uid: testUid.asString(),
+              lastUpdatedMessageId: testMessage.id,
             ),
           );
         });

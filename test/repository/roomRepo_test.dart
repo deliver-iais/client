@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:clock/clock.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/muc.dart';
-import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -26,14 +25,7 @@ void main() {
       test('When called should update Room', () async {
         final roomDao = getAndRegisterRoomDao();
         RoomRepo().insertRoom(testUid.asString());
-        verify(roomDao.updateRoom(testRoom));
-      });
-    });
-    group('updateRoom -', () {
-      test('When called should update Room', () async {
-        final roomDao = getAndRegisterRoomDao();
-        RoomRepo().updateRoom(testRoom);
-        verify(roomDao.updateRoom(testRoom));
+        verify(roomDao.updateRoom(uid: testUid.asString()));
       });
     });
     group('getSlangName -', () {
@@ -227,11 +219,9 @@ void main() {
           verify(roomDao.getRoom(testUid.asString()));
           verify(
             roomDao.updateRoom(
-              Room(
-                uid: testUid.asString(),
-                deleted: true,
-                lastUpdateTime: clock.now().millisecondsSinceEpoch,
-              ),
+              uid: testUid.asString(),
+              deleted: true,
+              lastUpdateTime: clock.now().millisecondsSinceEpoch,
             ),
           );
           expect(deleted, true);
@@ -246,11 +236,9 @@ void main() {
           verifyNever(roomDao.getRoom(testUid.asString()));
           verifyNever(
             roomDao.updateRoom(
-              Room(
-                uid: testUid.asString(),
-                deleted: true,
-                lastUpdateTime: clock.now().millisecondsSinceEpoch,
-              ),
+              uid: testUid.asString(),
+              deleted: true,
+              lastUpdateTime: clock.now().millisecondsSinceEpoch,
             ),
           );
           expect(deleted, false);
@@ -411,14 +399,14 @@ void main() {
       test('When called should update room', () async {
         final roomDao = getAndRegisterRoomDao();
         await RoomRepo().resetMention(testUid.asString());
-        verify(roomDao.updateRoom(testRoom.copyWith(mentioned: false)));
+        verify(roomDao.updateRoom(uid: testUid.asString(), mentioned: false));
       });
     });
     group('createRoomIfNotExist -', () {
       test('When called should update room', () async {
         final roomDao = getAndRegisterRoomDao();
         await RoomRepo().createRoomIfNotExist(testUid.asString());
-        verify(roomDao.updateRoom(testRoom));
+        verify(roomDao.updateRoom(uid: testUid.asString()));
       });
     });
     group('watchMySeen -', () {
@@ -547,7 +535,7 @@ void main() {
       test('When called should update RoomDraft', () async {
         final roomDao = getAndRegisterRoomDao();
         RoomRepo().updateRoomDraft(testUid.asString(), "test");
-        verify(roomDao.updateRoom(testRoom.copyWith(draft: "test")));
+        verify(roomDao.updateRoom(uid: testUid.asString(), draft: "test"));
       });
     });
     group('isDeletedRoom -', () {
