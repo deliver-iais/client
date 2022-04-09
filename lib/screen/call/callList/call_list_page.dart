@@ -93,16 +93,19 @@ class _CallListPageState extends State<CallListPage> {
                         if (index == 0 ||
                             sameDayTitle(time) != sameDayTitle(prevTime))
                           Container(
-                            color: theme.colorScheme.primary,
+                            color: theme.colorScheme.secondaryContainer
+                                .withOpacity(0.5),
                             child: Column(
                               children: [
                                 Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding: const EdgeInsets.all(4.0),
                                   child: Text(
                                     sameDayTitle(time),
                                     style: TextStyle(
-                                        color: theme.backgroundColor,
-                                        fontSize: 16,),
+                                      color: theme
+                                          .colorScheme.onSecondaryContainer,
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ),
                                 const Divider()
