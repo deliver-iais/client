@@ -1,5 +1,4 @@
 import 'package:deliver/repository/callRepo.dart';
-import 'package:deliver/services/routing_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
@@ -19,19 +18,32 @@ class CallBottomRow extends StatefulWidget {
 }
 
 class _CallBottomRowState extends State<CallBottomRow> {
-  Color _switchCameraIcon = Colors.black45;
-  Color _offVideoCamIcon = Colors.black45;
-  Color _speakerIcon = Colors.black45;
+  Color? _switchCameraIcon;
+
+  Color? _offVideoCamIcon;
+
+  Color? _speakerIcon;
 
   // Color _screenShareIcon = Colors.black45;
-  Color _muteMicIcon = Colors.black45;
+  Color? _muteMicIcon;
   final callRepo = GetIt.I.get<CallRepo>();
-  final _routingService = GetIt.I.get<RoutingService>();
   int indexSwitchCamera = 0;
   int screenShareIndex = 0;
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    _speakerIcon =
+        callRepo.isSpeaker ? theme.buttonTheme.colorScheme!.primary : null;
+    _muteMicIcon =
+        callRepo.isMicMuted ? theme.buttonTheme.colorScheme!.primary : null;
+    _offVideoCamIcon = callRepo.mute_camera.value
+        ? theme.buttonTheme.colorScheme!.primary
+        : null;
+    _switchCameraIcon = callRepo.switching.value
+        ? theme.buttonTheme.colorScheme!.primary
+        : null;
+
     if (widget.isIncomingCall) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 25, right: 25, left: 25),
@@ -58,12 +70,12 @@ class _CallBottomRowState extends State<CallBottomRow> {
                 width: 70,
                 height: 70,
                 child: FloatingActionButton(
-                  backgroundColor: Colors.red,
                   child: const Icon(
                     Icons.call_end_rounded,
                     size: 40,
                   ),
                   onPressed: () => _declineCall(),
+                  backgroundColor: theme.buttonTheme.colorScheme!.primary,
                 ),
               )
             ],
@@ -82,26 +94,25 @@ class _CallBottomRowState extends State<CallBottomRow> {
                     FloatingActionButton(
                       heroTag: 22,
                       backgroundColor: _switchCameraIcon,
-                      child: const Icon(Icons.switch_camera),
-                      onPressed: () => _switchCamera(),
+                      child: const Icon(Icons.switch_camera_rounded),
+                      onPressed: () => _switchCamera(theme),
                     ),
                     FloatingActionButton(
                       heroTag: 33,
                       backgroundColor: _offVideoCamIcon,
-                      child: const Icon(Icons.videocam_off_sharp),
-                      onPressed: () => _offVideoCam(),
+                      child: const Icon(Icons.videocam_off_rounded),
+                      onPressed: () => _offVideoCam(theme),
                     ),
                     FloatingActionButton(
                       heroTag: 44,
                       backgroundColor: _muteMicIcon,
-                      child: const Icon(Icons.mic_off),
-                      onPressed: () => _muteMic(),
+                      child: const Icon(Icons.mic_off_rounded),
+                      onPressed: () => _muteMic(theme),
                     ),
-                    // TODO(AmirHossein): enable it after fixing 3 issues in flutter-webRtc project itself, https://gitlab.iais.co/deliver/wiki/-/issues/425
-                    // FloatingActionButton(
+                    // TODO(AmirHossein): enable it after fixing 3 issues in flutter-webRtc project itself, https://gitlab.iais.co/deliver/wiki/-/issues/425  // FloatingActionButton(
                     //   heroTag: 55,
                     //   backgroundColor: _screenShareIcon,
-                    //   child: (isAndroid)
+                    //   child: (isAndroid())
                     //       ? const Icon(Icons.mobile_screen_share)
                     //       : const Icon(Icons.screen_share_outlined),
                     //   onPressed: () => _shareScreen(),
@@ -111,7 +122,7 @@ class _CallBottomRowState extends State<CallBottomRow> {
                       onPressed: () => widget.hangUp(),
                       tooltip: 'Hangup',
                       child: const Icon(Icons.call_end),
-                      backgroundColor: Colors.red,
+                      backgroundColor: theme.buttonTheme.colorScheme!.primary,
                     ),
                   ],
                 ),
@@ -131,10 +142,9 @@ class _CallBottomRowState extends State<CallBottomRow> {
                         heroTag: "1",
                         elevation: 0,
                         backgroundColor: _speakerIcon,
-                        onPressed: () => _enableSpeaker(),
+                        onPressed: () => _enableSpeaker(theme),
                         child: const Icon(
-                          Icons.volume_up,
-                          color: Colors.white70,
+                          Icons.volume_up_rounded,
                           size: 35,
                         ),
                       ),
@@ -144,11 +154,11 @@ class _CallBottomRowState extends State<CallBottomRow> {
                       height: 110,
                       width: 110,
                       child: FloatingActionButton(
-                        backgroundColor: const Color(0xffcf6869),
+                        backgroundColor: theme.buttonTheme.colorScheme!.primary,
                         heroTag: "2",
                         elevation: 0,
                         child: const Icon(
-                          Icons.call_end,
+                          Icons.call_end_rounded,
                           size: 50,
                         ),
                         onPressed: () => widget.hangUp(),
@@ -161,11 +171,10 @@ class _CallBottomRowState extends State<CallBottomRow> {
                         heroTag: "3",
                         elevation: 0,
                         backgroundColor: _muteMicIcon,
-                        onPressed: () => _muteMic(),
+                        onPressed: () => _muteMic(theme),
                         child: const Icon(
-                          Icons.mic_off,
+                          Icons.mic_off_rounded,
                           size: 35,
-                          color: Colors.white70,
                         ),
                       ),
                     )
@@ -176,20 +185,24 @@ class _CallBottomRowState extends State<CallBottomRow> {
     }
   }
 
-  void _switchCamera() {
+  void _switchCamera(ThemeData theme) {
     callRepo.switchCamera();
     indexSwitchCamera++;
-    _switchCameraIcon = indexSwitchCamera.isOdd ? Colors.grey : Colors.black45;
+    _switchCameraIcon =
+        indexSwitchCamera.isOdd ? theme.buttonTheme.colorScheme!.primary : null;
     setState(() {});
   }
 
-  void _muteMic() {
-    _muteMicIcon = callRepo.muteMicrophone() ? Colors.grey : Colors.black45;
+  void _muteMic(ThemeData theme) {
+    _muteMicIcon = callRepo.muteMicrophone()
+        ? theme.buttonTheme.colorScheme!.primary
+        : null;
     setState(() {});
   }
 
-  void _offVideoCam() {
-    _offVideoCamIcon = callRepo.muteCamera() ? Colors.grey : Colors.black45;
+  void _offVideoCam(ThemeData theme) {
+    _offVideoCamIcon =
+        callRepo.muteCamera() ? theme.buttonTheme.colorScheme!.primary : null;
     setState(() {});
   }
 
@@ -200,8 +213,10 @@ class _CallBottomRowState extends State<CallBottomRow> {
   //   setState(() {});
   // }
 
-  void _enableSpeaker() {
-    _speakerIcon = callRepo.enableSpeakerVoice() ? Colors.grey : Colors.black45;
+  void _enableSpeaker(ThemeData theme) {
+    _speakerIcon = callRepo.enableSpeakerVoice()
+        ? theme.buttonTheme.colorScheme!.primary
+        : null;
     setState(() {});
   }
 
@@ -211,6 +226,5 @@ class _CallBottomRowState extends State<CallBottomRow> {
 
   void _declineCall() {
     callRepo.declineCall();
-    _routingService.pop();
   }
 }

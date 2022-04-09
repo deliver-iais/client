@@ -4,10 +4,11 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/image_folder_widget.dart';
+import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/widgets/crop_image.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:get_it/get_it.dart';
@@ -39,7 +40,6 @@ class ShareBoxGallery extends StatefulWidget {
 
 class _ShareBoxGalleryState extends State<ShareBoxGallery> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _i18n = GetIt.I.get<I18N>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final TextEditingController _captionEditingController =
       TextEditingController();
@@ -131,7 +131,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                               child: const Icon(
                                 Icons.photo_camera,
                                 size: 50,
-                                color: Colors.black26,
+                                color: Colors.white,
                               ),
                             ),
                           )
@@ -226,15 +226,18 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                 StreamBuilder<CameraController>(
                   stream: _cameraController.stream,
                   builder: (context, snapshot) {
-                    return CameraPreview(
-                      snapshot.data ?? _controller,
+                    return SizedBox(
+                      height: MediaQuery.of(context).size.height,
+                      child: CameraPreview(
+                        snapshot.data ?? _controller,
+                      ),
                     );
                   },
                 ),
                 Align(
                   alignment: Alignment.bottomCenter,
                   child: Padding(
-                    padding: const EdgeInsets.only(bottom: 20, right: 15),
+                    padding: const EdgeInsets.only(bottom: 30, right: 15),
                     child: IconButton(
                       onPressed: () async {
                         final navigatorState = Navigator.of(context);
@@ -248,8 +251,8 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                         }
                       },
                       icon: const Icon(
-                        Icons.photo_camera,
-                        color: Colors.black45,
+                        CupertinoIcons.camera_fill,
+                        color: Colors.white,
                         size: 55,
                       ),
                     ),
@@ -271,8 +274,10 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                           await _controller.initialize();
                           _cameraController.add(_controller);
                         },
-                        icon: const Icon(Icons.flip_camera_ios_outlined),
-                        color: Colors.black38,
+                        icon: const Icon(
+                          CupertinoIcons.switch_camera,
+                        ),
+                        color: Colors.white70,
                         iconSize: 40,
                       ),
                     ),
@@ -291,75 +296,23 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
       context,
       MaterialPageRoute(
         builder: (c) {
-          return StatefulBuilder(
-            builder: (con, set) {
-              return Scaffold(
-                appBar: AppBar(
-                  actions: [
-                    Row(
-                      children: [
-                        IconButton(
-                          onPressed: () async {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (c) {
-                                  return CropImage(imagePath, (path) {
-                                    set(() {
-                                      imagePath = path;
-                                    });
-                                  });
-                                },
-                              ),
-                            );
-                          },
-                          icon: const Icon(
-                            Icons.crop,
-                          ),
-                          iconSize: 30,
-                        ),
-                      ],
-                    )
-                  ],
-                ),
-                body: Stack(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        image: DecorationImage(
-                          image: Image.file(
-                            File(
-                              imagePath,
-                            ),
-                          ).image,
-                          fit: BoxFit.fill,
-                        ),
-                      ),
-                    ),
-                    buildInputCaption(
-                      context: con,
-                      i18n: _i18n,
-                      count: 0,
-                      insertCaption: _insertCaption,
-                      captionEditingController: _captionEditingController,
-                      send: () {
-                        pop();
-                        Navigator.of(context).pop();
-                        _messageRepo.sendFileMessage(
-                          widget.roomUid,
-                          model.File(
-                            imagePath,
-                            file.name,
-                            extension: file.mimeType,
-                          ),
-                          caption: _captionEditingController.text,
-                        );
-                      },
-                    )
-                  ],
-                ),
+          return OpenImagePage(
+            forceToShowCaptionTextField: true,
+            pop: pop,
+            send: () {
+              _messageRepo.sendFileMessage(
+                widget.roomUid,
+                model.File(imagePath, file.name, extension: file.mimeType),
+                caption: _captionEditingController.text,
               );
             },
+            insertCaption: _insertCaption,
+            textEditingController: _captionEditingController,
+            onEditEnd: (path) {
+              imagePath = path;
+              Navigator.pop(context);
+            },
+            imagePath: imagePath,
           );
         },
       ),
@@ -381,43 +334,38 @@ Stack buildInputCaption({
       Align(
         alignment: Alignment.bottomLeft,
         child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Colors.transparent,
-            ),
-          ),
-          child: Container(
-            color: Colors.white,
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: i18n.get("caption"),
-                hintStyle: const TextStyle(color: Colors.black),
-                suffixIcon: StreamBuilder<bool>(
-                  stream: insertCaption.stream,
-                  builder: (c, s) {
-                    if (s.hasData && s.data!) {
-                      return IconButton(
-                        onPressed: () => send(),
-                        icon: const Icon(
-                          Icons.check_circle_outline,
-                          size: 35,
-                        ),
-                        color: Colors.lightBlue,
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  },
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+          height: 50,
+          color: theme.backgroundColor,
+          child: TextField(
+            decoration: InputDecoration(
+              hintText: i18n.get("caption"),
+              border: InputBorder.none,
+              hintStyle: const TextStyle(fontSize: 16),
+              suffixIcon: StreamBuilder<bool>(
+                stream: insertCaption.stream,
+                builder: (c, s) {
+                  if (s.hasData && s.data!) {
+                    return IconButton(
+                      onPressed: () => send(),
+                      icon: const Icon(
+                        Icons.check_circle_outline,
+                        size: 35,
+                      ),
+                      color: Colors.lightBlue,
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
               ),
-              style: const TextStyle(color: Colors.black, fontSize: 17),
-              textInputAction: TextInputAction.newline,
-              minLines: 1,
-              maxLines: 15,
-              controller: captionEditingController,
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
             ),
+            style: const TextStyle(fontSize: 17),
+            textInputAction: TextInputAction.newline,
+            minLines: 1,
+            maxLines: 15,
+            controller: captionEditingController,
           ),
         ),
       ),
@@ -429,7 +377,7 @@ Stack buildInputCaption({
           children: <Widget>[
             Container(
               decoration: const BoxDecoration(
-                boxShadow: [BoxShadow(blurRadius: 20.0)],
+                //boxShadow: [BoxShadow(blurRadius: 20.0)],
                 shape: BoxShape.circle,
               ),
               child: StreamBuilder<bool>(
@@ -442,7 +390,7 @@ Stack buildInputCaption({
                       child: Material(
                         color: theme.primaryColor, // button color
                         child: InkWell(
-                          splashColor: Colors.red, // inkwell color
+                          splashColor: theme.primaryColor, // inkwell color
                           child: const SizedBox(
                             width: 60,
                             height: 60,
@@ -465,30 +413,34 @@ Stack buildInputCaption({
             if (count > 0)
               Positioned(
                 child: Container(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        count.toString(),
-                        style:
-                            const TextStyle(color: Colors.white, fontSize: 11),
-                      ),
-                    ],
-                  ),
-                  width: 16.0,
-                  height: 18.0,
+                  width: 28,
+                  height: 28,
                   decoration: BoxDecoration(
-                    // color:theme.dialogBackgroundColor,
+                    color: theme.backgroundColor, // border color
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.lightBlue,
-                      width: 2,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(2), // border width
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: theme.primaryColor, // inner circle color
+                      ),
+                      child: Center(
+                        child: Text(
+                          count.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ), // inner content
                     ),
                   ),
                 ),
                 top: 35.0,
                 right: 0.0,
-                left: 25,
+                left: 35,
               ),
           ],
         ),

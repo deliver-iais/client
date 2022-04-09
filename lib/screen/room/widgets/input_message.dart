@@ -45,7 +45,7 @@ import 'package:vibration/vibration.dart';
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
-  final int replyMessageId;
+  final BehaviorSubject<Message?> replyMessageIdStream;
   final void Function()? resetRoomPageDetails;
   final bool waitingForForward;
   final void Function()? sendForwardMessage;
@@ -54,7 +54,8 @@ class InputMessage extends StatefulWidget {
   final Message? editableMessage;
   final FocusNode focusNode;
   final TextEditingController textController;
-  final Function(int dir) handleScrollToMessage;
+  final Function(int dir,bool,bool) handleScrollToMessage;
+  final Function() deleteSelectedMessage;
 
   @override
   _InputMessageWidget createState() => _InputMessageWidget();
@@ -64,9 +65,10 @@ class InputMessage extends StatefulWidget {
     required this.currentRoom,
     required this.scrollToLastSentMessage,
     required this.focusNode,
+    required this.deleteSelectedMessage,
     required this.handleScrollToMessage,
     required this.textController,
-    this.replyMessageId = 0,
+    required this.replyMessageIdStream,
     this.resetRoomPageDetails,
     this.waitingForForward = false,
     this.sendForwardMessage,
@@ -138,7 +140,7 @@ class _InputMessageWidget extends State<InputMessage> {
         builder: (context) {
           return ShareBox(
             currentRoomId: currentRoom.uid.asUid(),
-            replyMessageId: widget.replyMessageId,
+            replyMessageId: _replyMessageId,
             resetRoomPageDetails: widget.resetRoomPageDetails!,
             scrollToLastSentMessage: widget.scrollToLastSentMessage,
           );
@@ -203,7 +205,7 @@ class _InputMessageWidget extends State<InputMessage> {
         try {
           if (widget.textController.text.isNotEmpty &&
               widget.textController.text[start] == "@" &&
-              (start==0 || widget.textController.text[start-1] == " " )&&
+              (start == 0 || widget.textController.text[start - 1] == " ") &&
               widget.textController.selection.start ==
                   widget.textController.selection.end &&
               idRegexp.hasMatch(
@@ -241,6 +243,8 @@ class _InputMessageWidget extends State<InputMessage> {
     widget.textController.dispose();
     super.dispose();
   }
+
+  int get _replyMessageId => widget.replyMessageIdStream.value?.id ?? 0;
 
   @override
   Widget build(BuildContext context) {
@@ -346,59 +350,69 @@ class _InputMessageWidget extends State<InputMessage> {
                                 },
                               ),
                               Flexible(
-                                child: RawKeyboardListener(
-                                  focusNode: keyboardRawFocusNode,
-                                  child: ValueListenableBuilder<TextDirection>(
-                                    valueListenable: _textDir,
-                                    builder: (context, value, child) =>
-                                        TextField(
-                                      selectionControls:
-                                          isDesktop ? selectionControls : null,
-                                      focusNode: widget.focusNode,
-                                      autofocus: widget.replyMessageId > 0 ||
-                                          isDesktop,
-                                      controller: widget.textController,
-                                      decoration: InputDecoration(
-                                        contentPadding:
-                                            const EdgeInsets.symmetric(
-                                          horizontal: 14,
-                                          vertical: 12,
+                                child: StreamBuilder<Message?>(
+                                  stream: widget.replyMessageIdStream.stream,
+                                  builder: (context, snapshot) {
+                                    return RawKeyboardListener(
+                                      focusNode: keyboardRawFocusNode,
+                                      child:
+                                          ValueListenableBuilder<TextDirection>(
+                                        valueListenable: _textDir,
+                                        builder: (context, value, child) =>
+                                            TextField(
+                                          selectionControls: isDesktop
+                                              ? selectionControls
+                                              : null,
+                                          focusNode: widget.focusNode,
+                                          autofocus:
+                                              (snapshot.data?.id ?? 0) > 0 ||
+                                                  isDesktop,
+                                          controller: widget.textController,
+                                          decoration: InputDecoration(
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                              horizontal: 14,
+                                              vertical: 12,
+                                            ),
+                                            border: InputBorder.none,
+                                            counterText: "",
+                                            hintText: i18n.get("message"),
+                                          ),
+                                          textInputAction:
+                                              TextInputAction.newline,
+                                          minLines: 1,
+                                          maxLines: 15,
+                                          maxLength:
+                                              INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH,
+                                          inputFormatters: [
+                                            MaxLinesTextInputFormatter(
+                                              INPUT_MESSAGE_TEXT_FIELD_MAX_LINE,
+                                            )
+                                            //max line of text field
+                                          ],
+                                          textDirection: value,
+                                          style: theme.textTheme.subtitle1,
+                                          onTap: () => _backSubject.add(false),
+                                          onChanged: (str) {
+                                            if (str.trim().length < 2) {
+                                              final dir = getDirection(str);
+                                              if (dir != value) {
+                                                _textDir.value = dir;
+                                              }
+                                            }
+                                            if (str.isNotEmpty) {
+                                              isTypingActivitySubject
+                                                  .add(ActivityType.TYPING);
+                                            } else {
+                                              noActivitySubject.add(
+                                                ActivityType.NO_ACTIVITY,
+                                              );
+                                            }
+                                          },
                                         ),
-                                        border: InputBorder.none,
-                                        counterText: "",
-                                        hintText: i18n.get("message"),
                                       ),
-                                      textInputAction: TextInputAction.newline,
-                                      minLines: 1,
-                                      maxLines: 15,
-                                      maxLength:
-                                          INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH,
-                                      inputFormatters: [
-                                        MaxLinesTextInputFormatter(
-                                          INPUT_MESSAGE_TEXT_FIELD_MAX_LINE,
-                                        )
-                                        //max line of text field
-                                      ],
-                                      textDirection: value,
-                                      style: theme.textTheme.subtitle1,
-                                      onTap: () => _backSubject.add(false),
-                                      onChanged: (str) {
-                                        if (str.trim().length < 2) {
-                                          final dir = getDirection(str);
-                                          if (dir != value) {
-                                            _textDir.value = dir;
-                                          }
-                                        }
-                                        if (str.isNotEmpty) {
-                                          isTypingActivitySubject
-                                              .add(ActivityType.TYPING);
-                                        } else {
-                                          noActivitySubject
-                                              .add(ActivityType.NO_ACTIVITY);
-                                        }
-                                      },
-                                    ),
-                                  ),
+                                    );
+                                  },
                                 ),
                               ),
                               if (currentRoom.uid.asUid().category ==
@@ -656,15 +670,14 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   KeyEventResult handleKeyPress(RawKeyEvent event) {
-    if (event is RawKeyUpEvent &&
-        event.physicalKey == PhysicalKeyboardKey.arrowUp) {
-      widget.handleScrollToMessage(-1);
-      return KeyEventResult.handled;
+    if (event is RawKeyDownEvent &&
+        {PhysicalKeyboardKey.arrowUp, PhysicalKeyboardKey.arrowDown}
+            .contains(event.physicalKey)) {
+      _handleArrow(event);
     }
     if (event is RawKeyUpEvent &&
-        event.physicalKey == PhysicalKeyboardKey.arrowDown) {
-      widget.handleScrollToMessage(1);
-      return KeyEventResult.handled;
+        event.physicalKey == PhysicalKeyboardKey.delete) {
+      widget.deleteSelectedMessage();
     }
     if (!_uxService.sendByEnter &&
         event.isShiftPressed &&
@@ -742,6 +755,19 @@ class _InputMessageWidget extends State<InputMessage> {
         widget.currentRoom.uid.asUid(),
       );
     }
+  }
+
+  KeyEventResult _handleArrow(RawKeyEvent event) {
+    if (event.physicalKey == PhysicalKeyboardKey.arrowUp &&
+        widget.textController.selection.baseOffset <=0) {
+
+      widget.handleScrollToMessage(-1,event.isControlPressed,true);
+    } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown &&(
+        widget.textController.selection.baseOffset ==
+            widget.textController.text.length ||widget.textController.selection.baseOffset<0)) {
+      widget.handleScrollToMessage(1,event.isControlPressed,true);
+    }
+    return KeyEventResult.handled;
   }
 
   void scrollUpInBotCommand() {
@@ -827,11 +853,11 @@ class _InputMessageWidget extends State<InputMessage> {
     final text = widget.textController.text.trim();
 
     if (text.isNotEmpty) {
-      if (widget.replyMessageId > 0) {
+      if (_replyMessageId > 0) {
         messageRepo.sendTextMessage(
           currentRoom.uid.asUid(),
           text,
-          replyId: widget.replyMessageId,
+          replyId: _replyMessageId,
         );
         widget.resetRoomPageDetails!();
       } else {
@@ -920,7 +946,7 @@ class _InputMessageWidget extends State<InputMessage> {
       builder: (context) {
         return ShowCaptionDialog(
           resetRoomPageDetails: widget.resetRoomPageDetails,
-          replyMessageId: widget.replyMessageId,
+          replyMessageId: _replyMessageId,
           files: files,
           type:
               isWeb ? files.first.extension : files.first.path.split(".").last,

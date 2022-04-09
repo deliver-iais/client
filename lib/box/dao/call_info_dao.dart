@@ -38,5 +38,9 @@ class CallInfoDaoImpl implements CallInfoDao {
     final box = await _open();
 
     yield box.values.toList();
+
+    yield* box.watch().map(
+          (event) => box.values.toList(),
+        );
   }
 }

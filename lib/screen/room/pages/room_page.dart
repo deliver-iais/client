@@ -11,10 +11,11 @@ import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
+import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
-import 'package:deliver/repository/mediaRepo.dart';
+import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -31,8 +32,10 @@ import 'package:deliver/screen/room/widgets/bot_start_widget.dart';
 import 'package:deliver/screen/room/widgets/chat_time.dart';
 import 'package:deliver/screen/room/widgets/mute_and_unmute_room_widget.dart';
 import 'package:deliver/screen/room/widgets/new_message_input.dart';
+import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/room/widgets/unread_message_bar.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -53,7 +56,6 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:desktop_lifecycle/desktop_lifecycle.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -65,6 +67,8 @@ import 'package:tuple/tuple.dart';
 
 // ignore: constant_identifier_names
 const int PAGE_SIZE = 16;
+
+const APPBAR_HEIGHT = 54.0;
 
 class RoomPage extends StatefulWidget {
   final String roomId;
@@ -95,39 +99,37 @@ class _RoomPageState extends State<RoomPage> {
   static final _botRepo = GetIt.I.get<BotRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _sharedDao = GetIt.I.get<SharedDao>();
+  static final _callService = GetIt.I.get<CallService>();
+  static final _callRepo = GetIt.I.get<CallRepo>();
+  static final _fireBaseServices = GetIt.I.get<FireBaseServices>();
 
   int _lastSeenMessageId = -1;
   int _lastShowedMessageId = -1;
   int _itemCount = 0;
-  final BehaviorSubject<int> _replyMessageId = BehaviorSubject.seeded(-1);
   int _lastReceivedMessageId = 0;
   int _lastScrollPositionIndex = -1;
   double _lastScrollPositionAlignment = 0;
   List<Message> searchResult = [];
-
+  int _currentScrollIndex = 0;
+  bool _appIsActive = true;
+  double _defaultMessageHeight = 1000;
+  final List<Message> _backgroundMessages = [];
   final List<Message> _pinMessages = [];
   final Map<int, Message> _selectedMessages = {};
 
-  final _room = BehaviorSubject<Room>();
-  final _pendingMessages = BehaviorSubject<List<PendingMessage>>();
-
-  final _scrollEvent = BehaviorSubject.seeded(false);
-  final _isScrolling = BehaviorSubject.seeded(false);
-
-  List<PendingMessage> get pendingMessages =>
-      _pendingMessages.valueOrNull ?? [];
-
-  Room get room => _room.valueOrNull ?? Room(uid: widget.roomId);
-
   final _messageWidgetCache =
       LruCache<int, Widget?>(storage: InMemoryStorage(200));
-
   final _messageCache = LruCache<int, Message>(storage: InMemoryStorage(200));
 
+  final _highlightMessageId = BehaviorSubject.seeded(-1);
+  final _repliedMessage = BehaviorSubject<Message?>.seeded(null);
+  final _room = BehaviorSubject<Room>();
+  final _pendingMessages = BehaviorSubject<List<PendingMessage>>();
+  final _scrollEvent = BehaviorSubject.seeded(false);
+  final _isScrolling = BehaviorSubject.seeded(false);
   final _itemPositionsListener = ItemPositionsListener.create();
   final _itemScrollController = ItemScrollController();
   final _scrollPhysics = const ClampingScrollPhysics();
-  final _repliedMessage = BehaviorSubject<Message?>.seeded(null);
   final _editableMessage = BehaviorSubject<Message?>.seeded(null);
   final _searchMode = BehaviorSubject.seeded(false);
   final _lastPinedMessage = BehaviorSubject.seeded(0);
@@ -140,13 +142,11 @@ class _RoomPageState extends State<RoomPage> {
   final _inputMessageTextController = InputMessageTextController();
   final _inputMessageFocusNode = FocusNode();
   final _scrollablePositionedListKey = GlobalKey();
-  final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
-  int _currentScrollIndex = 0;
-  final ValueListenable<bool> _lifecycleDesktop =
-      DesktopLifecycle.instance.isActive;
-  bool _appIsActive = true;
-  final List<Message> _backroundMessages = [];
-  double _defaultMessageHeight = 1000;
+
+  List<PendingMessage> get pendingMessages =>
+      _pendingMessages.valueOrNull ?? [];
+
+  Room get room => _room.valueOrNull ?? Room(uid: widget.roomId);
 
   @override
   Widget build(BuildContext context) {
@@ -227,7 +227,51 @@ class _RoomPageState extends State<RoomPage> {
         ),
         Column(
           children: [
-            const SizedBox(height: 60),
+            SizedBox(
+              height: isAndroid || isIOS ? APPBAR_HEIGHT + 24 : APPBAR_HEIGHT,
+            ),
+            if (isDebugEnabled())
+              StreamBuilder<Object>(
+                stream: MergeStream(
+                  [_pendingMessages.stream, _room.stream, _itemCountSubject],
+                ),
+                builder: (context, snapshot) {
+                  return SizedBox(
+                    width: double.infinity,
+                    child: DebugC(
+                      isOpen: true,
+                      children: [
+                        Debug(widget.roomId, label: "uid"),
+                        Debug(_lastSeenMessageId, label: "_lastSeenMessageId"),
+                        Debug(
+                          _lastShowedMessageId,
+                          label: "_lastShowedMessageId",
+                        ),
+                        Debug(_itemCount, label: "_itemCount"),
+                        Debug(
+                          _lastReceivedMessageId,
+                          label: "_lastReceivedMessageId",
+                        ),
+                        Debug(_pinMessages, label: "_pinMessages"),
+                        Debug(_selectedMessages, label: "_selectedMessages"),
+                        Debug(
+                          _currentScrollIndex,
+                          label: "_currentScrollIndex",
+                        ),
+                        Debug(_appIsActive, label: "_appIsActive"),
+                        Debug(
+                          _backgroundMessages,
+                          label: "_backgroundMessages",
+                        ),
+                        Debug(
+                          _defaultMessageHeight,
+                          label: "_defaultMessageHeight",
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
             AudioPlayerAppBar(),
             pinMessageWidget(),
           ],
@@ -274,14 +318,12 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Future<void> _getScrollPosition() async {
-    _routingService.shouldScrollInRoom.listen((shouldScroll) {
+    _routingService.shouldScrollToLastMessageInRoom.listen((shouldScroll) {
       if (shouldScroll) {
-        _scrollToMessage(
-          id: _lastShowedMessageId > 0 ? _lastShowedMessageId : _itemCount,
-        );
-        _lastShowedMessageId = -1;
+        _scrollToLastMessage();
       }
     });
+
     final scrollPosition =
         await _sharedDao.get('$SHARED_DAO_SCROLL_POSITION-${widget.roomId}');
 
@@ -294,11 +336,12 @@ class _RoomPageState extends State<RoomPage> {
 
   @override
   void initState() {
-    _lifecycleDesktop.addListener(() {
-      _appIsActive = _lifecycleDesktop.value;
+    DesktopLifecycle.instance.isActive.addListener(() {
+      _appIsActive = DesktopLifecycle.instance.isActive.value;
+
       if (_appIsActive) {
-        _sendSeenMessage(_backroundMessages);
-        _backroundMessages.clear();
+        _sendSeenMessage(_backgroundMessages);
+        _backgroundMessages.clear();
       }
     });
 
@@ -325,13 +368,14 @@ class _RoomPageState extends State<RoomPage> {
     // Listen on scroll
     _itemPositionsListener.itemPositions.addListener(() {
       final position = _itemPositionsListener.itemPositions.value;
+      // TODO(hasan): fix scroll problems, https://gitlab.iais.co/deliver/wiki/-/issues/408
       if (position.isNotEmpty) {
-        if (_itemCount - position.first.index > 20) {
+        if ((_itemCount - position.first.index).abs() > 10) {
           _scrollEvent.add(true);
         } else {
           _scrollEvent.add(false);
         }
-        final firstItem =
+        final firstVisibleItem =
             position.where((position) => position.itemLeadingEdge > 0).reduce(
                   (first, position) =>
                       position.itemLeadingEdge > first.itemLeadingEdge
@@ -342,7 +386,7 @@ class _RoomPageState extends State<RoomPage> {
         // Save scroll position of first complete visible item
         _sharedDao.put(
           '$SHARED_DAO_SCROLL_POSITION-${widget.roomId}',
-          "${firstItem.index}-${firstItem.itemLeadingEdge}",
+          "${firstVisibleItem.index}-${firstVisibleItem.itemLeadingEdge}",
         );
 
         _positionSubject.add(
@@ -355,14 +399,14 @@ class _RoomPageState extends State<RoomPage> {
 
     MergeStream([
       _scrollEvent.stream,
-      _scrollEvent.debounceTime(const Duration(milliseconds: 1000))
+      _scrollEvent.debounceTime(const Duration(milliseconds: 4000))
     ]).listen((event) => _isScrolling.add(event));
 
     // If new message arrived, scroll to the end of page if we are close to end of the page
     _itemCountSubject.distinct().listen((event) {
       if (event != 0) {
         if (_itemCount - (_positionSubject.value) < 4) {
-          scrollToLast();
+          _scrollToLastMessage();
         }
       }
     });
@@ -381,11 +425,6 @@ class _RoomPageState extends State<RoomPage> {
     } else if (widget.roomId.asUid().isChannel()) {
       checkChannelRole();
     }
-
-    _mediaQueryRepo.fetchMediaMetaData(
-      widget.roomId.asUid(),
-      updateAllMedia: false,
-    );
 
     super.initState();
   }
@@ -440,7 +479,7 @@ class _RoomPageState extends State<RoomPage> {
         if (_appIsActive) {
           _sendSeenMessage([msg]);
         } else {
-          _backroundMessages.add(msg);
+          _backgroundMessages.add(msg);
         }
       }
     });
@@ -511,8 +550,7 @@ class _RoomPageState extends State<RoomPage> {
     _repliedMessage.add(null);
   }
 
-  Future<void> onDelete() async {
-    await _mediaQueryRepo.fetchMediaMetaData(widget.roomId.asUid());
+  void onDelete() {
     _selectMultiMessageSubject.add(false);
     _selectedMessages.clear();
     setState(() {});
@@ -541,9 +579,17 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   void onEdit(Message message) {
-    _editableMessage.add(message);
     if (message.type == MessageType.TEXT) {
+      _editableMessage.add(message);
       _inputMessageTextController.text = message.json.toText().text;
+    } else if (message.type == MessageType.FILE) {
+      showCaptionDialog(
+        resetRoomPageDetails: _resetRoomPageDetails,
+        roomUid: widget.roomId.asUid(),
+        editableMessage: message,
+        files: [],
+        context: context,
+      );
     }
   }
 
@@ -573,8 +619,6 @@ class _RoomPageState extends State<RoomPage> {
       }
     }
   }
-
-  final _fireBaseServices = GetIt.I.get<FireBaseServices>();
 
   Future<void> watchPinMessages() async {
     _mucRepo.watchMuc(widget.roomId).listen((muc) {
@@ -637,12 +681,7 @@ class _RoomPageState extends State<RoomPage> {
         FloatingActionButton(
           mini: true,
           child: const Icon(CupertinoIcons.down_arrow),
-          onPressed: () {
-            _scrollToMessage(
-              id: _lastShowedMessageId > 0 ? _lastShowedMessageId : _itemCount,
-            );
-            _lastShowedMessageId = -1;
-          },
+          onPressed: _scrollToLastMessage,
         ),
         if (room.lastMessage != null &&
             !_authRepo.isCurrentUser(room.lastMessage!.from))
@@ -678,16 +717,17 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget messageInput() => StreamBuilder(
-        stream: MergeStream([_repliedMessage.stream, _editableMessage.stream]),
+        stream: _editableMessage.stream,
         builder: (c, data) {
           return NewMessageInput(
             currentRoomId: widget.roomId,
-            replyMessageId: _repliedMessage.value?.id ?? 0,
+            deleteSelectedMessage: _deleteSelectedMessage,
+            replyMessageIdStream: _repliedMessage,
             editableMessage: _editableMessage.value,
             resetRoomPageDetails: _resetRoomPageDetails,
             waitingForForward: _waitingForForwardedMessage.value,
             sendForwardMessage: _sendForwardMessage,
-            scrollToLastSentMessage: scrollToLast,
+            scrollToLastSentMessage: _scrollToLastMessage,
             handleScrollToMessage: _handleScrollToMsg,
             focusNode: _inputMessageFocusNode,
             textController: _inputMessageTextController,
@@ -695,169 +735,219 @@ class _RoomPageState extends State<RoomPage> {
         },
       );
 
-  void _handleScrollToMsg(int direction) {
-    if (_currentScrollIndex == 0) {
-      var positions = _itemPositionsListener.itemPositions.value.toList();
-      positions = positions..sort((b, a) => (b.index) - (a.index));
-      _currentScrollIndex = positions.last.index;
-    } else {
-      _currentScrollIndex = _currentScrollIndex + direction;
-    }
-    if (0 < _currentScrollIndex && _currentScrollIndex <= _itemCount) {
-      _itemScrollController.scrollTo(
-        index: _currentScrollIndex,
-        alignment: 0.5,
-        duration: const Duration(milliseconds: 100),
-      );
-      _replyMessageId.add(_currentScrollIndex);
-    } else if (_currentScrollIndex <= 0) {
-      _currentScrollIndex = 1;
-    } else {
-      _currentScrollIndex = _itemCount;
+  void _handleScrollToMsg(
+    int direction,
+    bool ctrlIsPressed,
+    bool hasPermission,
+  ) {
+    final lastMessage = room.lastMessage;
+    if (lastMessage != null) {
+      if (hasPermission &&
+          direction == -1 &&
+          _inputMessageTextController.text.isEmpty) {
+        if (_authRepo.isCurrentUserSender(lastMessage)) {
+          if (ctrlIsPressed && _repliedMessage.value == null) {
+            onReply(lastMessage);
+            return;
+          } else if (_repliedMessage.value == null &&
+              _editableMessage.value == null) {
+            onEdit(lastMessage);
+            return;
+          }
+        } else if (ctrlIsPressed && _repliedMessage.value == null) {
+          onReply(lastMessage);
+          return;
+        }
+      }
+      if (_currentScrollIndex == 0) {
+        var positions = _itemPositionsListener.itemPositions.value.toList();
+        positions = positions..sort((b, a) => (b.index) - (a.index));
+        _currentScrollIndex = positions.last.index;
+      } else {
+        _currentScrollIndex = _currentScrollIndex + direction;
+      }
+      if (0 < _currentScrollIndex && _currentScrollIndex <= _itemCount) {
+        _scrollToMessage(_currentScrollIndex);
+      } else if (_currentScrollIndex <= 0) {
+        _currentScrollIndex = 1;
+      } else {
+        _currentScrollIndex = _itemCount;
+      }
     }
   }
 
   PreferredSizeWidget buildAppbar() {
+    return UltimateAppBar(
+      preferredSize: const Size.fromHeight(APPBAR_HEIGHT),
+      child: buildAppBar(),
+    );
+  }
+
+  AppBar buildAppBar() {
     final theme = Theme.of(context);
     final controller = TextEditingController();
     final checkSearchResult = BehaviorSubject<bool>.seeded(false);
-    return UltimateAppBar(
-      preferredSize: const Size.fromHeight(54.0),
-      child: AppBar(
-        actions: [
-          if (room.uid.asUid().isUser() &&
-              !isLinux &&
-              accessToCallUidList.values
-                  .contains(_authRepo.currentUserUid.asString()))
-            IconButton(
-              onPressed: () {
+
+    return AppBar(
+      actions: [
+        if (room.uid.asUid().isUser() &&
+            !isLinux &&
+            !_authRepo.isCurrentUser(room.uid) &&
+            accessToCallUidList.values
+                .contains(_authRepo.currentUserUid.asString()))
+          IconButton(
+            onPressed: () {
+              if (_callService.getUserCallState == UserCallState.NOCALL) {
                 _routingService.openCallScreen(room.uid.asUid());
-              },
-              icon: const Icon(CupertinoIcons.phone),
-            ),
-        ],
-        leading: GestureDetector(
-          child: StreamBuilder<bool>(
-            stream: _searchMode.stream,
-            builder: (c, s) {
-              if (s.hasData && s.data!) {
-                return IconButton(
-                  icon: const Icon(CupertinoIcons.search),
-                  onPressed: () {
-                    //   searchMessage(controller.text, checkSearchResult);
-                  },
-                );
               } else {
-                return StreamBuilder<bool>(
-                  stream: _selectMultiMessageSubject.stream,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData &&
-                        snapshot.data != null &&
-                        snapshot.data!) {
-                      return Row(
-                        children: [
-                          Badge(
-                            child: IconButton(
-                              color: theme.primaryColor,
-                              icon: const Icon(
-                                CupertinoIcons.xmark,
-                                size: 25,
-                              ),
-                              onPressed: () {
-                                onDelete();
-                              },
-                            ),
-                            badgeColor: theme.primaryColor,
-                            badgeContent: Text(
-                              _selectedMessages.length.toString(),
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: theme.colorScheme.onPrimary,
-                              ),
-                            ),
-                          ),
-                        ],
-                      );
-                    } else {
-                      return _routingService.backButtonLeading(
-                        back: () {
-                          // _notificationServices.reset("\t");
-                        },
-                      );
-                    }
-                  },
-                );
+                if (room.uid.asUid() == _callRepo.roomUid) {
+                  _routingService.openCallScreen(
+                    room.uid.asUid(),
+                    isCallInitialized: true,
+                  );
+                } else {
+                  showDialog(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      content: Text(
+                        _i18n.get("you_already_in_call"),
+                      ),
+                      actions: <Widget>[
+                        TextButton(
+                          child: Text(_i18n.get("ok")),
+                          onPressed: () {
+                            Navigator.of(context).pop();
+                          },
+                        )
+                      ],
+                    ),
+                  );
+                }
               }
             },
+            icon: const Icon(CupertinoIcons.phone),
           ),
-        ),
-        titleSpacing: 0.0,
-        title: StreamBuilder<bool>(
+      ],
+      leading: GestureDetector(
+        child: StreamBuilder<bool>(
           stream: _searchMode.stream,
           builder: (c, s) {
             if (s.hasData && s.data!) {
-              return Row(
-                children: [
-                  Flexible(
-                    child: TextField(
-                      minLines: 1,
-                      controller: controller,
-                      autofocus: true,
-                      onTap: () {
-                        checkSearchResult.add(false);
-                      },
-                      onChanged: (s) {
-                        checkSearchResult.add(false);
-                      },
-                      textInputAction: TextInputAction.search,
-                      onSubmitted: (str) async {
-                        //   searchMessage(str, checkSearchResult);
-                      },
-                      decoration: InputDecoration(
-                        hintText: _i18n.get("search"),
-                        suffix: StreamBuilder<bool>(
-                          stream: checkSearchResult.stream,
-                          builder: (c, s) {
-                            if (s.hasData && s.data!) {
-                              return Text(_i18n.get("not_found"));
-                            } else {
-                              return const SizedBox.shrink();
-                            }
-                          },
-                        ),
-                        fillColor: Colors.white,
-                      ),
-                    ),
-                  ),
-                ],
+              return IconButton(
+                icon: const Icon(CupertinoIcons.search),
+                onPressed: () {
+                  //   searchMessage(controller.text, checkSearchResult);
+                },
               );
             } else {
               return StreamBuilder<bool>(
                 stream: _selectMultiMessageSubject.stream,
-                builder: (c, sm) {
-                  if (sm.hasData && sm.data!) {
-                    return _selectMultiMessageAppBar();
+                builder: (context, snapshot) {
+                  if (snapshot.hasData &&
+                      snapshot.data != null &&
+                      snapshot.data!) {
+                    return Row(
+                      children: [
+                        Badge(
+                          child: IconButton(
+                            color: theme.primaryColor,
+                            icon: const Icon(
+                              CupertinoIcons.xmark,
+                              size: 25,
+                            ),
+                            onPressed: () {
+                              onDelete();
+                            },
+                          ),
+                          badgeColor: theme.primaryColor,
+                          badgeContent: Text(
+                            _selectedMessages.length.toString(),
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: theme.colorScheme.onPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
                   } else {
-                    if (widget.roomId.isMuc()) {
-                      return MucAppbarTitle(mucUid: widget.roomId);
-                    } else if (widget.roomId.asUid().category ==
-                        Categories.BOT) {
-                      return BotAppbarTitle(botUid: widget.roomId.asUid());
-                    } else {
-                      return UserAppbarTitle(
-                        userUid: widget.roomId.asUid(),
-                      );
-                    }
+                    return _routingService.backButtonLeading(
+                      back: () {
+                        // _notificationServices.reset("\t");
+                      },
+                    );
                   }
                 },
               );
             }
           },
         ),
-        bottom: const PreferredSize(
-          child: Divider(),
-          preferredSize: Size.fromHeight(1),
-        ),
+      ),
+      titleSpacing: 0.0,
+      title: StreamBuilder<bool>(
+        stream: _searchMode.stream,
+        builder: (c, s) {
+          if (s.hasData && s.data!) {
+            return Row(
+              children: [
+                Flexible(
+                  child: TextField(
+                    minLines: 1,
+                    controller: controller,
+                    autofocus: true,
+                    onTap: () {
+                      checkSearchResult.add(false);
+                    },
+                    onChanged: (s) {
+                      checkSearchResult.add(false);
+                    },
+                    textInputAction: TextInputAction.search,
+                    onSubmitted: (str) async {
+                      //   searchMessage(str, checkSearchResult);
+                    },
+                    decoration: InputDecoration(
+                      hintText: _i18n.get("search"),
+                      suffix: StreamBuilder<bool>(
+                        stream: checkSearchResult.stream,
+                        builder: (c, s) {
+                          if (s.hasData && s.data!) {
+                            return Text(_i18n.get("not_found"));
+                          } else {
+                            return const SizedBox.shrink();
+                          }
+                        },
+                      ),
+                      fillColor: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            );
+          } else {
+            return StreamBuilder<bool>(
+              stream: _selectMultiMessageSubject.stream,
+              builder: (c, sm) {
+                if (sm.hasData && sm.data!) {
+                  return _selectMultiMessageAppBar();
+                } else {
+                  if (widget.roomId.isMuc()) {
+                    return MucAppbarTitle(mucUid: widget.roomId);
+                  } else if (widget.roomId.asUid().category == Categories.BOT) {
+                    return BotAppbarTitle(botUid: widget.roomId.asUid());
+                  } else {
+                    return UserAppbarTitle(
+                      userUid: widget.roomId.asUid(),
+                    );
+                  }
+                }
+              },
+            );
+          }
+        },
+      ),
+      bottom: const PreferredSize(
+        child: Divider(),
+        preferredSize: Size.fromHeight(1),
       ),
     );
   }
@@ -920,7 +1010,7 @@ class _RoomPageState extends State<RoomPage> {
                     if (!snapshot.hasData ||
                         snapshot.data == null ||
                         _authRepo.isCurrentUser(snapshot.data!.from) ||
-                        snapshot.data!.json.isEmptyMessage()) {
+                        snapshot.data!.isHidden) {
                       return const SizedBox.shrink();
                     }
                     return const UnreadMessageBar();
@@ -979,7 +1069,7 @@ class _RoomPageState extends State<RoomPage> {
 
     if (index > 0) {
       final prevMsg = await _messageAtIndex(index);
-      if (prevMsg!.json.isEmptyMessage() || msg!.json.isEmptyMessage()) {
+      if (prevMsg!.isHidden || msg!.isHidden) {
         return null;
       }
 
@@ -1014,8 +1104,8 @@ class _RoomPageState extends State<RoomPage> {
     }
 
     return StreamBuilder<int>(
-      initialData: _replyMessageId.value,
-      stream: _replyMessageId.stream,
+      initialData: _highlightMessageId.value,
+      stream: _highlightMessageId.stream,
       builder: (context, snapshot) {
         return AnimatedContainer(
           key: ValueKey(index),
@@ -1037,7 +1127,7 @@ class _RoomPageState extends State<RoomPage> {
 
     Widget? widget;
 
-    if (!tuple.item2!.json.isEmptyMessage() && !tuple.item2!.edited) {
+    if (!tuple.item2!.isHidden && !tuple.item2!.edited) {
       widget = _messageWidgetCache.get(index);
     }
 
@@ -1053,32 +1143,24 @@ class _RoomPageState extends State<RoomPage> {
     final messageBefore = tuple.item1;
     final message = tuple.item2!;
 
-    final msgBox = StreamBuilder<int>(
-      initialData: _replyMessageId.value,
-      stream: _replyMessageId.stream,
-      builder: (c, snapShot) {
-        return BuildMessageBox(
-          message: message,
-          messageBefore: messageBefore,
-          roomId: widget.roomId,
-          itemScrollController: _itemScrollController,
-          lastSeenMessageId: _lastSeenMessageId,
-          pinMessages: _pinMessages,
-          replyMessageId: snapShot.data!,
-          selectMultiMessageSubject: _selectMultiMessageSubject,
-          hasPermissionInGroup: _hasPermissionInGroup.value,
-          hasPermissionInChannel: _hasPermissionInChannel,
-          onEdit: () => onEdit(message),
-          onPin: () => onPin(message),
-          onUnPin: () => onUnPin(message),
-          onReply: () => onReply(message),
-          addForwardMessage: () => _addForwardMessage(message),
-          onDelete: onDelete,
-          changeReplyMessageId: _changeReplyMessageId,
-          resetRoomPageDetails: _resetRoomPageDetails,
-        );
-      },
+    final msgBox = BuildMessageBox(
+      message: message,
+      messageBefore: messageBefore,
+      roomId: widget.roomId,
+      lastSeenMessageId: _lastSeenMessageId,
+      pinMessages: _pinMessages,
+      selectMultiMessageSubject: _selectMultiMessageSubject,
+      hasPermissionInGroup: _hasPermissionInGroup.value,
+      hasPermissionInChannel: _hasPermissionInChannel,
+      onEdit: () => onEdit(message),
+      onPin: () => onPin(message),
+      onUnPin: () => onUnPin(message),
+      onReply: () => onReply(message),
+      addForwardMessage: () => _addForwardMessage(message),
+      scrollToMessage: _scrollToMessageWithHighlight,
+      onDelete: onDelete,
     );
+
     if (index == 0) {
       return Column(
         children: [
@@ -1102,12 +1184,12 @@ class _RoomPageState extends State<RoomPage> {
     setState(() {});
   }
 
-  void _changeReplyMessageId(int id) {
-    _replyMessageId.add(id);
-    _currentScrollIndex = id;
-  }
+  void _scrollToLastMessage() => _scrollToMessage(_itemCount - 1);
 
-  void _scrollToMessage({required int id}) {
+  void _scrollToMessageWithHighlight(int id) =>
+      _scrollToMessage(id, shouldHighlight: true);
+
+  void _scrollToMessage(int id, {bool shouldHighlight = false}) {
     if (_itemScrollController.isAttached) {
       _itemScrollController.scrollTo(
         index: id,
@@ -1116,13 +1198,17 @@ class _RoomPageState extends State<RoomPage> {
         curve: Curves.fastOutSlowIn,
         opacityAnimationWeights: [20, 20, 60],
       );
+
+      _currentScrollIndex = max(0, id);
+
+      if (!shouldHighlight) return;
+
       if (id != -1) {
-        _replyMessageId.add(id);
-        _currentScrollIndex = id;
+        _highlightMessageId.add(id);
       }
-      if (_replyMessageId.value != -1) {
+      if (_highlightMessageId.value != -1) {
         Timer(const Duration(seconds: 3), () {
-          _replyMessageId.add(-1);
+          _highlightMessageId.add(-1);
         });
       }
     }
@@ -1164,12 +1250,7 @@ class _RoomPageState extends State<RoomPage> {
                 color: theme.primaryColor,
                 icon: const Icon(CupertinoIcons.delete),
                 onPressed: () {
-                  showDeleteMsgDialog(
-                    _selectedMessages.values.toList(),
-                    context,
-                    onDelete,
-                  );
-                  _selectedMessages.clear();
+                  _deleteSelectedMessage();
                 },
               ),
             ),
@@ -1218,13 +1299,15 @@ class _RoomPageState extends State<RoomPage> {
     );
   }
 
-  void scrollToLast() {
-    _itemScrollController.scrollTo(
-      curve: Curves.easeOut,
-      opacityAnimationWeights: [20, 20, 60],
-      index: _itemCount - 1,
-      duration: const Duration(milliseconds: 1000),
-    );
+  void _deleteSelectedMessage() {
+    if (_selectedMessages.values.isNotEmpty) {
+      showDeleteMsgDialog(
+        _selectedMessages.values.toList(),
+        context,
+        onDelete,
+      );
+      _selectedMessages.clear();
+    }
   }
 
   Future<void> onUsernameClick(String username) async {
@@ -1242,12 +1325,7 @@ class _RoomPageState extends State<RoomPage> {
       lastPinedMessage: _lastPinedMessage,
       pinMessages: _pinMessages,
       onTap: () {
-        _replyMessageId.add(_lastPinedMessage.value);
-        _itemScrollController.scrollTo(
-          index: _lastPinedMessage.value,
-          alignment: 0.5,
-          duration: const Duration(microseconds: 1),
-        );
+        _scrollToMessageWithHighlight(_lastPinedMessage.value);
         if (_pinMessages.length > 1) {
           _lastPinedMessage.add(
             _pinMessages[max(

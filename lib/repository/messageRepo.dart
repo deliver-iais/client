@@ -6,7 +6,6 @@ import 'dart:io' as dart_file;
 import 'dart:math';
 
 import 'package:clock/clock.dart';
-import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
@@ -69,7 +68,6 @@ import '../shared/constants.dart';
 enum TitleStatusConditions { Disconnected, Updating, Normal, Connecting }
 
 const EMPTY_MESSAGE = "{}";
-const DELETED_ROOM_MESSAGE = "{DELETED}";
 
 class MessageRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -88,7 +86,6 @@ class MessageRepo {
   final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
-  final _blockDao = GetIt.I.get<BlockDao>();
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _mediaRepo = GetIt.I.get<MediaRepo>();
   final _sendActivitySubject = BehaviorSubject.seeded(0);
@@ -106,14 +103,12 @@ class MessageRepo {
 
           updatingStatus.add(TitleStatusConditions.Updating);
           await updatingMessages();
-          updatingLastSeen();
-          fetchBlockedRoom();
+          await updatingLastSeen();
+          await _roomRepo.fetchBlockedRoom();
 
           updatingStatus.add(TitleStatusConditions.Normal);
 
           sendPendingMessages();
-
-          _roomRepo.fetchBlockedRoom();
           break;
         case ConnectionStatus.Disconnected:
           updatingStatus.add(TitleStatusConditions.Disconnected);
@@ -170,8 +165,8 @@ class MessageRepo {
             if (room != null &&
                 room.lastMessageId != null &&
                 room.lastMessageId! < roomMetadata.lastMessageId.toInt() &&
-                isAndroid) {
-              _fireBaseServices.sendGlitchReportForFirebaseNotification(
+                hasFirebaseCapability) {
+              await _fireBaseServices.sendGlitchReportForFirebaseNotification(
                 roomMetadata.roomUid.asString(),
               );
             }
@@ -198,25 +193,23 @@ class MessageRepo {
               ),
             );
 
-            fetchLastMessages(
+            await fetchLastMessages(
               roomMetadata.roomUid,
               roomMetadata.lastMessageId.toInt(),
               roomMetadata.firstMessageId.toInt(),
               room,
               type: FetchMessagesReq_Type.BACKWARD_FETCH,
-              limit: 2,
-              lastUpdateTime: roomMetadata.lastUpdate.toInt(),
             );
             if (room != null &&
                 room.lastMessageId != null &&
                 roomMetadata.lastMessageId.toInt() > room.lastMessageId!) {
-              fetchHiddenMessageCount(
+              await fetchHiddenMessageCount(
                 roomMetadata.roomUid,
                 room.lastMessageId!,
               );
             }
             if (room != null && room.uid.asUid().category == Categories.GROUP) {
-              getMentions(room);
+              await getMentions(room);
             }
           } else {
             _roomDao.updateRoom(
@@ -246,11 +239,11 @@ class MessageRepo {
       if (!_authRepo.isCurrentUser(r.lastMessage!.from) &&
           _allRoomMetaData[r.uid] != null &&
           (category == Categories.GROUP || category == Categories.USER)) {
-        fetchCurrentUserLastSeen(_allRoomMetaData[r.uid]!);
+         fetchCurrentUserLastSeen(_allRoomMetaData[r.uid]!);
       }
       final othersSeen = await _seenDao.getOthersSeen(r.lastMessage!.to);
       if (othersSeen == null || othersSeen.messageId < r.lastMessage!.id!) {
-        fetchOtherSeen(r.uid.asUid());
+        await fetchOtherSeen(r.uid.asUid());
       }
     }
   }
@@ -274,90 +267,66 @@ class MessageRepo {
   Future<Message?> fetchLastMessages(
     Uid roomUid,
     int lastMessageId,
-    int? firstMessageId,
+    int firstMessageId,
     Room? room, {
     bool retry = true,
-    int? lastUpdateTime,
     required FetchMessagesReq_Type type,
-    required int limit,
   }) async {
-    var lastMessageIsSet = false;
-    var pointer = lastMessageId;
+    var pointer = lastMessageId + 1;
     Message? lastMessage;
-    try {
-      var msg = await _messageDao.getMessage(roomUid.asString(), pointer);
-      while (!lastMessageIsSet) {
-        try {
-          if (msg != null) {
-            if (firstMessageId != null && msg.id! <= firstMessageId) {
-              lastMessageIsSet = true;
-              lastMessage = msg.copyWith(json: DELETED_ROOM_MESSAGE);
-              break;
-            } else if (!msg.json.isEmptyMessage()) {
-              lastMessageIsSet = true;
-              lastMessage = msg;
-              break;
-            } else if (msg.id == 1) {
-              lastMessage = msg.copyWith(json: DELETED_ROOM_MESSAGE);
-              lastMessageIsSet = true;
-              break;
-            } else {
-              pointer = pointer - 1;
-              msg = await _messageDao.getMessage(roomUid.asString(), pointer);
-            }
-          } else {
-            lastMessage = await getLastMessageFromServer(
-              roomUid,
-              lastMessageId,
-              lastMessageId,
-              type,
-              limit,
-              firstMessageId,
-              lastUpdateTime,
-            );
-            lastMessageIsSet = true;
+    while (pointer > 0) {
+      pointer -= 1;
+
+      try {
+        final msg = await _messageDao.getMessage(roomUid.asString(), pointer);
+
+        if (msg != null) {
+          if (msg.id! <= firstMessageId || (msg.isHidden && msg.id == 1)) {
+            _roomDao.updateRoom(Room(uid: roomUid.asString(), deleted: true));
+            break;
+          } else if (!msg.isHidden) {
+            lastMessage = msg;
             break;
           }
-        } catch (e) {
-          lastMessageIsSet = true;
+        } else {
+          lastMessage = await getLastMessageFromServer(
+            roomUid,
+            lastMessageId,
+            lastMessageId,
+            type,
+            25,
+            firstMessageId,
+          );
           break;
         }
+      } catch (_) {
+        break;
       }
-      if (lastMessage != null) {
-        _roomDao.updateRoom(
-          Room(
-            uid: roomUid.asString(),
-            firstMessageId: firstMessageId ?? 0,
-            lastUpdateTime: lastMessage.time,
-            lastMessageId: lastMessageId,
-            lastMessage: lastMessage,
-          ),
-        );
-        return lastMessage;
-      }
-      return null;
-    } catch (e) {
+    }
+
+    if (lastMessage != null) {
       _roomDao.updateRoom(
         Room(
           uid: roomUid.asString(),
-          firstMessageId: firstMessageId!,
-          lastUpdateTime: lastUpdateTime,
+          firstMessageId: firstMessageId,
+          lastUpdateTime: lastMessage.time,
           lastMessageId: lastMessageId,
+          lastMessage: lastMessage,
         ),
       );
-      _logger.wtf("roomUid: $roomUid, room: $room, e: $e");
+      return lastMessage;
+    } else {
       return null;
     }
   }
 
-  Future<Message> getLastMessageFromServer(
+  Future<Message?> getLastMessageFromServer(
     Uid roomUid,
     int lastMessageId,
     int pointer,
     FetchMessagesReq_Type type,
     int limit,
-    int? firstMessageId,
-    int? lastUpdateTime,
+    int firstMessageId,
   ) async {
     Message? lastMessage;
     final fetchMessagesRes = await _queryServiceClient.fetchMessages(
@@ -368,31 +337,19 @@ class MessageRepo {
         ..limit = limit,
       options: CallOptions(timeout: const Duration(seconds: 3)),
     );
+
     final messages = await _saveFetchMessages(fetchMessagesRes.messages);
-    for (final element in messages) {
-      if (firstMessageId != null && element.id! <= firstMessageId) {
-        lastMessage = element.copyWith(json: DELETED_ROOM_MESSAGE);
+
+    for (final msg in messages) {
+      if (msg.id! <= firstMessageId && (msg.isHidden && msg.id == 1)) {
+        _roomDao.updateRoom(Room(uid: roomUid.asString(), deleted: true));
         break;
-      } else if (!element.json.isEmptyMessage()) {
-        lastMessage = element;
+      } else if (!msg.isHidden) {
+        lastMessage = msg;
         break;
-      } else if (element.id == 1) {
-        lastMessage = element.copyWith(json: DELETED_ROOM_MESSAGE);
       }
     }
-    if (lastMessage != null) {
-      return lastMessage;
-    } else {
-      return getLastMessageFromServer(
-        roomUid,
-        lastMessageId,
-        pointer > limit ? pointer - limit : pointer,
-        type,
-        limit,
-        firstMessageId,
-        lastUpdateTime,
-      );
-    }
+    return lastMessage;
   }
 
   Future<void> fetchOtherSeen(Uid roomUid) async {
@@ -411,7 +368,9 @@ class MessageRepo {
         );
       }
     } catch (e) {
-      _logger.e(e);
+      _logger
+        ..wtf("roomUid: $roomUid")
+        ..e(e);
     }
   }
 
@@ -826,7 +785,7 @@ class MessageRepo {
       PendingMessage(
         roomUid: msg.roomUid,
         packetId: msg.packetId,
-        msg: msg,
+        msg: msg.copyWith(isHidden: isHiddenMessage(msg)),
         status: status,
       );
 
@@ -906,6 +865,7 @@ class MessageRepo {
         replyToId: replyId,
         forwardedFrom: forwardedFrom,
         json: EMPTY_MESSAGE,
+        isHidden: true,
       );
 
   String _getPacketId() => clock.now().microsecondsSinceEpoch.toString();
@@ -986,7 +946,7 @@ class MessageRepo {
     }
   }
 
-  // TODO(hasan): Some parts of this function should be transform to DataStreamServices class, https://gitlab.iais.co/deliver/wiki/-/issues/428
+// TODO(hasan): Some parts of this function should be transform to DataStreamServices class, https://gitlab.iais.co/deliver/wiki/-/issues/428
   Future<List<Message>> _saveFetchMessages(
     List<message_pb.Message> messages,
   ) async {
@@ -1053,7 +1013,7 @@ class MessageRepo {
                     if (mes.type == MessageType.FILE && mes.id != null) {
                       _mediaDao.deleteMedia(roomUid.asString(), mes.id!);
                     }
-                    _messageDao.saveMessage(mes.copyWith(json: EMPTY_MESSAGE));
+                    _messageDao.saveMessage(mes.copyDeleted());
                     _roomDao.updateRoom(
                       Room(
                         uid: roomUid.asString(),
@@ -1259,7 +1219,9 @@ class MessageRepo {
 
   Future<void> deleteMessage(List<Message> messages) async {
     try {
-      for (final msg in messages) {
+      for (final message in messages) {
+        final msg = message.copyDeleted();
+
         if (msg.type == MessageType.FILE && msg.id != null) {
           _mediaDao.deleteMedia(msg.roomUid, msg.id!);
         }
@@ -1273,14 +1235,13 @@ class MessageRepo {
                 _roomDao.updateRoom(
                   Room(
                     uid: msg.roomUid,
-                    lastMessage: msg.copyWith(json: EMPTY_MESSAGE),
+                    lastMessage: msg,
                     lastUpdateTime: clock.now().millisecondsSinceEpoch,
                   ),
                 );
               }
             }
 
-            msg.json = EMPTY_MESSAGE;
             _messageDao.saveMessage(msg);
             _roomDao.updateRoom(
               Room(uid: msg.roomUid, lastUpdatedMessageId: msg.id),
@@ -1383,18 +1344,5 @@ class MessageRepo {
         lastUpdatedMessageId: editableMessage.id,
       ),
     );
-  }
-
-  Future<void> fetchBlockedRoom() async {
-    try {
-      final res = await _queryServiceClient.getBlockedList(GetBlockedListReq());
-      if (res.uidList.isNotEmpty) {
-        for (final uid in res.uidList) {
-          _blockDao.block(uid.asString());
-        }
-      }
-    } catch (e) {
-      _logger.e(e);
-    }
   }
 }

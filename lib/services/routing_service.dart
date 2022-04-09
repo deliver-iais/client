@@ -75,7 +75,8 @@ class RoutingService {
   Stream<String> get currentRouteStream =>
       _navigatorObserver.currentRoute.stream;
 
-  BehaviorSubject<bool> shouldScrollInRoom = BehaviorSubject.seeded(false);
+  BehaviorSubject<bool> shouldScrollToLastMessageInRoom =
+      BehaviorSubject.seeded(false);
 
   // Functions
   void openSettings({bool popAllBeforePush = false}) {
@@ -120,9 +121,9 @@ class RoutingService {
         ),
         popAllBeforePush: popAllBeforePush,
       );
-      shouldScrollInRoom.add(false);
+      shouldScrollToLastMessageInRoom.add(false);
     } else if (isInRoom(roomId)) {
-      shouldScrollInRoom.add(true);
+      shouldScrollToLastMessageInRoom.add(true);
     }
   }
 
@@ -135,6 +136,10 @@ class RoutingService {
   }) {
     _push(
       CallScreen(
+        lastWidget:  RoomPage(
+          key: ValueKey("/room/${roomUid.asString()}"),
+          roomId: roomUid.asString(),
+        ),
         key: const ValueKey("/call-screen"),
         roomUid: roomUid,
         isCallAccepted: isCallAccepted,
@@ -331,6 +336,7 @@ class RoutingService {
       coreServices.closeConnection();
       await authRepo.deleteTokens();
       dbManager.deleteDB();
+     // _homeNavigatorState.currentState?.pop();
       mainNavigatorState.currentState?.pushAndRemoveUntil(
         MaterialPageRoute(builder: (c) => const LoginPage()),
         (route) => route.isFirst,

@@ -5,10 +5,11 @@ import 'package:deliver/screen/room/widgets/input_message.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:rxdart/rxdart.dart';
 
 class NewMessageInput extends StatelessWidget {
   final String currentRoomId;
-  final int replyMessageId;
+  final BehaviorSubject<Message?> replyMessageIdStream;
   final void Function() resetRoomPageDetails;
   final bool waitingForForward;
   final Message? editableMessage;
@@ -16,7 +17,8 @@ class NewMessageInput extends StatelessWidget {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final void Function() scrollToLastSentMessage;
   final FocusNode focusNode;
-  final void Function(int) handleScrollToMessage;
+  final void Function(int,bool,bool) handleScrollToMessage;
+  final void Function() deleteSelectedMessage;
   final TextEditingController textController;
 
   NewMessageInput({
@@ -28,7 +30,8 @@ class NewMessageInput extends StatelessWidget {
     required this.scrollToLastSentMessage,
     required this.resetRoomPageDetails,
     required this.waitingForForward,
-    this.replyMessageId = 0,
+    required this.deleteSelectedMessage,
+    required this.replyMessageIdStream,
     this.editableMessage,
     this.sendForwardMessage,
   }) : super(key: key);
@@ -41,11 +44,12 @@ class NewMessageInput extends StatelessWidget {
         if (snapshot.hasData) {
           return InputMessage(
             currentRoom: snapshot.data!,
-            replyMessageId: replyMessageId,
+            replyMessageIdStream: replyMessageIdStream,
             handleScrollToMessage: handleScrollToMessage,
             resetRoomPageDetails: resetRoomPageDetails,
             waitingForForward: waitingForForward,
             editableMessage: editableMessage,
+            deleteSelectedMessage: deleteSelectedMessage,
             sendForwardMessage: sendForwardMessage,
             scrollToLastSentMessage: scrollToLastSentMessage,
             focusNode: focusNode,

@@ -543,10 +543,21 @@ class AndroidNotifier implements Notifier {
 
   @override
   Future<void> notifyIncomingCall(String roomUid, String roomName) async {
+    final la = await _avatarRepo.getLastAvatar(roomUid.asUid());
+    String? path;
+    if (la != null && la.fileId != null && la.fileName != null) {
+      path = await _fileRepo.getFileIfExist(
+        la.fileId!,
+        la.fileName!,
+        thumbnailSize: ThumbnailSize.medium,
+      );
+    }
+    //callType: 0 ==>Audio call 1 ==>Video call
     ConnectycubeFlutterCallKit.showCallNotification(
-      sessionId: "123456789",
+      sessionId: DateTime.now().millisecondsSinceEpoch.toString(),
       callerId: 123456789,
-      callType: 1,
+      callType: 0,
+      path: path,
       callerName: roomName,
       userInfo: {"uid": roomUid},
       opponentsIds: {1},

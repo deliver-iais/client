@@ -10,7 +10,7 @@ import 'package:get_it/get_it.dart';
 class MuteAndUnMuteRoomWidget extends StatefulWidget {
   final String roomId;
   final Widget inputMessage;
-  final void Function(int dir) scrollToMessage;
+  final void Function(int dir,bool ctrlIsPressed,bool per) scrollToMessage;
 
   const MuteAndUnMuteRoomWidget({
     Key? key,
@@ -38,11 +38,11 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
     _focusNode.onKey = (c, event) {
       if (event is RawKeyUpEvent &&
           event.physicalKey == PhysicalKeyboardKey.arrowUp) {
-        widget.scrollToMessage(-1);
+        widget.scrollToMessage(-1,false,false);
       }
       if (event is RawKeyUpEvent &&
           event.physicalKey == PhysicalKeyboardKey.arrowDown) {
-        widget.scrollToMessage(1);
+        widget.scrollToMessage(1,false,false);
       }
       return KeyEventResult.handled;
     };
