@@ -41,7 +41,7 @@ class AccountRepo {
             firstName: result.profile.firstName,
             lastName: result.profile.lastName,
             email: result.profile.email,
-            twoSteepVerificationEnabled: true //todo server side
+            twoSteepVerificationEnabled: TWO_STEP_VERIFICATION_IS_AVAILABLE, //todo server side
             );
         return true;
       } else {

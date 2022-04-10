@@ -89,7 +89,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                   ),
               ],
             ),
-            if (false)
+            if (TWO_STEP_VERIFICATION_IS_AVAILABLE)
               Section(
                 title: _i18n.get("two_step_verification"),
                 children: [

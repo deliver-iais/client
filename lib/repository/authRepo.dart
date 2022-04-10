@@ -62,20 +62,16 @@ class AuthRepo {
     if (res != null) currentUserUid = (res).asUid();
   }
 
-  Future<bool> getVerificationCode(PhoneNumber p) async {
+  Future<void> getVerificationCode(PhoneNumber p) async {
     final platform = await getPlatformPB();
-    try {
-      _tmpPhoneNumber = p;
-      await _authServiceClient.getVerificationCode(
-        GetVerificationCodeReq()
-          ..phoneNumber = p
-          ..type = VerificationType.SMS
-          ..platform = platform,
-      );
-      return true;
-    } catch (e) {
-      rethrow;
-    }
+
+    _tmpPhoneNumber = p;
+    await _authServiceClient.getVerificationCode(
+      GetVerificationCodeReq()
+        ..phoneNumber = p
+        ..type = VerificationType.SMS
+        ..platform = platform,
+    );
   }
 
   Future<AccessTokenRes> sendVerificationCode(String code,
