@@ -5,6 +5,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 
 import 'package:deliver/screen/home/pages/home_page.dart';
+import 'package:deliver/screen/register/pages/two_step_verification_page.dart';
 import 'package:deliver/screen/register/pages/verification_page.dart';
 import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
@@ -21,6 +22,7 @@ import 'package:flutter/gestures.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:random_string/random_string.dart';
@@ -59,21 +61,7 @@ class _LoginPageState extends State<LoginPage> {
 
     if (isDesktop) {
       checkTimer = Timer.periodic(const Duration(seconds: 5), (timer) async {
-        try {
-          final res = await _authRepo.checkQrCodeToken(loginToken.value);
-          if (res.status == AccessTokenRes_Status.OK) {
-            _fireBaseServices.sendFireBaseToken();
-            _navigationToHome();
-          } else if (res.status == AccessTokenRes_Status.PASSWORD_PROTECTED) {
-            ToastDisplay.showToast(
-              toastText: "PASSWORD_PROTECTED",
-              toastContext: context,
-            );
-            // TODO(dansi): navigate to password validation page, https://gitlab.iais.co/deliver/wiki/-/issues/419
-          }
-        } catch (e) {
-          _logger.e(e);
-        }
+        await _loginByQrCode();
       });
       tokenGeneratorTimer =
           Timer.periodic(const Duration(seconds: 60), (timer) {
@@ -93,6 +81,27 @@ class _LoginPageState extends State<LoginPage> {
       });
     }
     super.initState();
+  }
+
+  Future<void> _loginByQrCode() async {
+    try {
+      final res = await _authRepo.checkQrCodeToken(loginToken.value);
+      if (res.status == AccessTokenRes_Status.OK) {
+        _fireBaseServices.sendFireBaseToken();
+        _navigationToHome();
+      } else if (res.status == AccessTokenRes_Status.PASSWORD_PROTECTED) {
+        MaterialPageRoute(
+          builder: (c) {
+            return TwoStepVerificationPage(
+              token: loginToken.value,
+              navigationToHomePage: _navigationToHome,
+            );
+          },
+        );
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
   }
 
   Future<void> _navigationToHome() async {
@@ -132,25 +141,29 @@ class _LoginPageState extends State<LoginPage> {
       if ((doNotCheckValidator || isValidated) && phoneNumber != null) {
         _isLoading.add(true);
         try {
-          final isSent = await _authRepo.getVerificationCode(phoneNumber!);
-          if (isSent) {
-            navigatorState.push(
-              MaterialPageRoute(builder: (c) => const VerificationPage()),
+          await _authRepo.getVerificationCode(phoneNumber!);
+          navigatorState.push(
+            MaterialPageRoute(builder: (c) => const VerificationPage()),
+          );
+          _isLoading.add(false);
+        } on GrpcError catch (e) {
+          _isLoading.add(false);
+          _logger.e(e);
+          if (e.code == StatusCode.unavailable) {
+            ToastDisplay.showToast(
+              toastText: _i18n.get("notwork_is_unavailable"),
+              toastContext: context,
             );
-            _isLoading.add(false);
           } else {
             ToastDisplay.showToast(
-              // TODO(dansi): more detailed error message needed here, https://gitlab.iais.co/deliver/wiki/-/issues/422
               toastText: _i18n.get("error_occurred"),
               toastContext: context,
             );
-            _isLoading.add(false);
           }
         } catch (e) {
           _isLoading.add(false);
           _logger.e(e);
           ToastDisplay.showToast(
-            // TODO(dansi): more detailed error message needed here, https://gitlab.iais.co/deliver/wiki/-/issues/422
             toastText: _i18n.get("error_occurred"),
             toastContext: context,
           );

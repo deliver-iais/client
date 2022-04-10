@@ -51,8 +51,8 @@ android {
         applicationId "ir.we.deliver"
         minSdkVersion 23
         targetSdkVersion 31
-        versionCode 50
-        versionName "1.8.1" //flutter version
+        versionCode 51
+        versionName "1.8.2" //flutter version
     }
     signingConfigs {
         release {

@@ -136,7 +136,7 @@ class RoutingService {
   }) {
     _push(
       CallScreen(
-        lastWidget:  RoomPage(
+        lastWidget: RoomPage(
           key: ValueKey("/room/${roomUid.asString()}"),
           roomId: roomUid.asString(),
         ),
@@ -253,6 +253,7 @@ class RoutingService {
 
   // Routing Functions
   void popAll() {
+    mainNavigatorState.currentState?.popUntil((route) => route.isFirst);
     _homeNavigatorState.currentState?.popUntil((route) => route.isFirst);
   }
 
@@ -310,10 +311,14 @@ class RoutingService {
               onGenerateRoute: (r) => CupertinoPageRoute(
                 settings: r.copyWith(name: "/"),
                 builder: (c) {
-                  if (isLarge(context)) {
+                  try {
+                    if (isLarge(c)) {
+                      return _empty;
+                    } else {
+                      return _navigationCenter;
+                    }
+                  } catch (_) {
                     return _empty;
-                  } else {
-                    return _navigationCenter;
                   }
                 },
               ),
@@ -336,12 +341,13 @@ class RoutingService {
       coreServices.closeConnection();
       await authRepo.deleteTokens();
       dbManager.deleteDB();
+      popAll();
       mainNavigatorState.currentState?.pushAndRemoveUntil(
-        MaterialPageRoute(builder: (c) => const LoginPage()),
+        MaterialPageRoute(
+            builder: (c) => const LoginPage(key: Key("/login_page"))),
         (route) => route.isFirst,
       );
     }
-    popAll();
   }
 
   Widget backButtonLeading({void Function()? back}) {

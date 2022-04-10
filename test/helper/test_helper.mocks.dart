@@ -531,17 +531,22 @@ class MockAuthRepo extends _i1.Mock implements _i26.AuthRepo {
       (super.noSuchMethod(Invocation.method(#getVerificationCode, [p]),
           returnValue: Future<bool>.value(false)) as _i17.Future<bool>);
   @override
-  _i17.Future<_i4.AccessTokenRes> sendVerificationCode(String? code) =>
-      (super.noSuchMethod(Invocation.method(#sendVerificationCode, [code]),
+  _i17.Future<_i4.AccessTokenRes> sendVerificationCode(String? code,
+          {String? password}) =>
+      (super.noSuchMethod(
+              Invocation.method(
+                  #sendVerificationCode, [code], {#password: password}),
               returnValue:
                   Future<_i4.AccessTokenRes>.value(_FakeAccessTokenRes_2()))
           as _i17.Future<_i4.AccessTokenRes>);
   @override
-  _i17.Future<_i4.AccessTokenRes> checkQrCodeToken(String? token) =>
-      (super.noSuchMethod(Invocation.method(#checkQrCodeToken, [token]),
-              returnValue:
-                  Future<_i4.AccessTokenRes>.value(_FakeAccessTokenRes_2()))
-          as _i17.Future<_i4.AccessTokenRes>);
+  _i17.Future<_i4.AccessTokenRes> checkQrCodeToken(String? token,
+          {String? password}) =>
+      (super.noSuchMethod(
+          Invocation.method(#checkQrCodeToken, [token], {#password: password}),
+          returnValue:
+              Future<_i4.AccessTokenRes>.value(_FakeAccessTokenRes_2())) as _i17
+          .Future<_i4.AccessTokenRes>);
   @override
   _i17.Future<String> getAccessToken() =>
       (super.noSuchMethod(Invocation.method(#getAccessToken, []),
@@ -1676,6 +1681,14 @@ class MockAccountRepo extends _i1.Mock implements _i58.AccountRepo {
               #setAccountDetails, [username, firstName, lastName, email]),
           returnValue: Future<bool>.value(false)) as _i17.Future<bool>);
   @override
+  _i17.Future<bool> enableTwoStepVerification(String? pas) =>
+      (super.noSuchMethod(Invocation.method(#enableTwoStepVerification, [pas]),
+          returnValue: Future<bool>.value(false)) as _i17.Future<bool>);
+  @override
+  _i17.Future<bool> disableTwoStepVerification(String? password) => (super
+      .noSuchMethod(Invocation.method(#disableTwoStepVerification, [password]),
+          returnValue: Future<bool>.value(false)) as _i17.Future<bool>);
+  @override
   _i17.Future<List<_i29.Session>> getSessions() =>
       (super.noSuchMethod(Invocation.method(#getSessions, []),
               returnValue: Future<List<_i29.Session>>.value(<_i29.Session>[]))
@@ -1730,6 +1743,17 @@ class MockAccountRepo extends _i1.Mock implements _i58.AccountRepo {
   @override
   _i17.Future<bool> shouldShowNewFeatureDialog() =>
       (super.noSuchMethod(Invocation.method(#shouldShowNewFeatureDialog, []),
+          returnValue: Future<bool>.value(false)) as _i17.Future<bool>);
+  @override
+  _i17.Future<bool> isTwoStepVerificationEnabled() =>
+      (super.noSuchMethod(Invocation.method(#isTwoStepVerificationEnabled, []),
+          returnValue: Future<bool>.value(false)) as _i17.Future<bool>);
+  @override
+  _i17.Future<bool> changeTwoStepVerificationPassword(
+          {String? currentPassword, String? newPassword}) =>
+      (super.noSuchMethod(
+          Invocation.method(#changeTwoStepVerificationPassword, [],
+              {#currentPassword: currentPassword, #newPassword: newPassword}),
           returnValue: Future<bool>.value(false)) as _i17.Future<bool>);
 }
 

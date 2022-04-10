@@ -306,5 +306,27 @@
   "you_add_user_to_muc": "اضافه کردید ",
   "you_create_channel": "کانال را ساختید.",
   "you_create_group": "گروه را ساختید.",
-  "you_already_in_call": "شما هم اکنون در حال تماس با یک فرد دیگر هستید"
+  "you_already_in_call": "شما هم اکنون در حال تماس با یک فرد دیگر هستید",
+  "two_step_verification": "رمز دومرحله ای",
+  "need_to_set_email": "شما ایمیل را ذخیره نکردید برای  فعال سازی رمز دومرحله ای ابتدا با رفتن به تنظیمات ایمیل خود را وارد کنید",
+  "go_setting": "رفتن به تنظیمات" ,
+  "two_step_verification_des": "این رمز موقع ورود در دستگاه جدید همراه کد ورودی از شما سوال می شود.",
+  "email_for_two_step": "موقع فراموشی رمز، ما رمز را به این ایمیل ارسال میکنیم",
+  "disable_two_step_verification": "غیر فعال سازی رمز دومرحله ای",
+  "recovery_email": "ایمیل بازیابی رمز",
+  "pas_not_empty": "رمز نمی تواند خالی باشد",
+  "rep_pas_not_empty": "رمز نمی تواند خالی باشد",
+  "password_not_match": "رمز با تکرار رمز همخوانی ندارد.",
+  "two_step_verification_active": "رمز دومرحله ای فعال شد.",
+  "forget_password": "زمز را فراموش کردید ؟",
+  "insert_password": "رمز دو مرحله ای را وارد کنید.",
+  "incorrect_password": "رمز وارد شده اشتباه است.",
+  "lock_app": "قفل کردن برنامه",
+  "edit_two_step_verification_password": "ویرایش رمز دومرحله ای",
+  "insert_current_password": "رمز فعلی  را وارد  کنید",
+  "insert_new_password": "رمز جدید را وارد کنید.",
+  "repeat_new_password": "رمز را تکرار کنید.",
+  "password_changed": "رمز تغییر کرد.",
+  "notwork_is_unavailable": "شبکه در دسترس نمی باشد."
+
 }

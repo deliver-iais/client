@@ -62,25 +62,22 @@ class AuthRepo {
     if (res != null) currentUserUid = (res).asUid();
   }
 
-  Future<bool> getVerificationCode(PhoneNumber p) async {
+  Future<void> getVerificationCode(PhoneNumber p) async {
     final platform = await getPlatformPB();
 
-    try {
-      _tmpPhoneNumber = p;
-      await _authServiceClient.getVerificationCode(
-        GetVerificationCodeReq()
-          ..phoneNumber = p
-          ..type = VerificationType.SMS
-          ..platform = platform,
-      );
-      return true;
-    } catch (e) {
-      _logger.e(e);
-      return false;
-    }
+    _tmpPhoneNumber = p;
+    await _authServiceClient.getVerificationCode(
+      GetVerificationCodeReq()
+        ..phoneNumber = p
+        ..type = VerificationType.SMS
+        ..platform = platform,
+    );
   }
 
-  Future<AccessTokenRes> sendVerificationCode(String code) async {
+  Future<AccessTokenRes> sendVerificationCode(
+    String code, {
+    String? password,
+  }) async {
     final platform = await getPlatformPB();
 
     final device = await getDeviceName();
@@ -91,18 +88,19 @@ class AuthRepo {
         ..code = code
         ..device = device
         ..platform = platform
-        // TODO(dansi): add password mechanism, https://gitlab.iais.co/deliver/wiki/-/issues/419
-        ..password = "",
+        ..password = password ?? "",
     );
 
     if (res.status == AccessTokenRes_Status.OK) {
       _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
     }
-
     return res;
   }
 
-  Future<AccessTokenRes> checkQrCodeToken(String token) async {
+  Future<AccessTokenRes> checkQrCodeToken(
+    String token, {
+    String? password,
+  }) async {
     final platform = await getPlatformPB();
 
     final device = await getDeviceName();
@@ -112,8 +110,7 @@ class AuthRepo {
         ..token = token
         ..device = device
         ..platform = platform
-        // TODO(dansi): add password mechanism, https://gitlab.iais.co/deliver/wiki/-/issues/419
-        ..password = "",
+        ..password = password ?? "",
     );
 
     if (res.status == AccessTokenRes_Status.OK) {
@@ -163,7 +160,6 @@ class AuthRepo {
 
   void setLocalPassword(String pass) {
     _localPassword = pass;
-
     _sharedDao.put(SHARED_DAO_LOCAL_PASSWORD, pass);
   }
 

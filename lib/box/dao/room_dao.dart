@@ -58,7 +58,8 @@ class RoomDaoImpl implements RoomDao {
     yield sorted(
       box.values
           .where(
-            (element) => !element.deleted && element.lastMessageId > 0,
+            (element) =>
+                (element.lastMessage?.time ?? 0) > 0 && !element.deleted,
           )
           .toList(),
     );
@@ -67,15 +68,16 @@ class RoomDaoImpl implements RoomDao {
           (event) => sorted(
             box.values
                 .where(
-                  (element) => (element.lastMessageId > 0 && !element.deleted),
+                  (element) => ((element.lastMessage?.time ?? 0) > 0 &&
+                      !element.deleted),
                 )
                 .toList(),
           ),
         );
   }
 
-  List<Room> sorted(List<Room> list) =>
-      list..sort((a, b) => b.lastUpdateTime - a.lastUpdateTime);
+  List<Room> sorted(List<Room> list) => list
+    ..sort((a, b) => (b.lastMessage?.time ?? 0) - (a.lastMessage?.time ?? 0));
 
   @override
   Future<Room?> getRoom(String roomUid) async {
