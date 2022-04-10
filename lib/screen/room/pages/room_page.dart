@@ -492,6 +492,15 @@ class _RoomPageState extends State<RoomPage> {
     }
   }
 
+  Future<void> _readAllMessages() async {
+    final seen = await _roomRepo.getMySeen(widget.roomId);
+    if (room.lastMessageId > seen.messageId) {
+      _messageRepo.sendSeen(room.lastMessageId, widget.roomId.asUid());
+      _roomRepo
+          .saveMySeen(Seen(uid: widget.roomId, messageId: room.lastMessageId));
+    }
+  }
+
   Future<Message?> _getMessage(int id, {useCache = true}) async {
     if (id <= 0) return null;
     final msg = _messageCache.get(id);
@@ -1177,7 +1186,10 @@ class _RoomPageState extends State<RoomPage> {
     setState(() {});
   }
 
-  void _scrollToLastMessage() => _scrollToMessage(_itemCount - 1);
+  void _scrollToLastMessage() {
+    _readAllMessages();
+    _scrollToMessage(_itemCount - 1);
+  }
 
   void _scrollToMessageWithHighlight(int id) =>
       _scrollToMessage(id, shouldHighlight: true);
