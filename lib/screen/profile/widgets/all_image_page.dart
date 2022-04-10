@@ -73,10 +73,13 @@ class _AllImagePageState extends State<AllImagePage> {
 
   @override
   void initState() {
-    _mediaQueryRepo.fetchMediaMetaData(
-      widget.roomUid.asUid(),
-      updateAllMedia: false,
-    );
+    if (widget.initIndex == null) {
+      _mediaQueryRepo.fetchMediaMetaData(
+        widget.roomUid.asUid(),
+        updateAllMedia: false,
+      );
+    }
+
     super.initState();
   }
 
@@ -86,41 +89,40 @@ class _AllImagePageState extends State<AllImagePage> {
   Widget build(BuildContext context) {
     theme = Theme.of(context);
     return Scaffold(
-      appBar: buildAppBar(),
-      body: widget.initIndex != null
-          ? buildImageByIndex(widget.initIndex!)
-          : StreamBuilder<MediaMetaData?>(
-              stream: _mediaMetaDataDao.get(widget.roomUid),
-              builder: (context, snapshot) {
-                if (snapshot.hasData && snapshot.data != null) {
-                  _allImageCount.add(snapshot.data!.imagesCount);
-                  return FutureBuilder<int?>(
-                    future: _mediaDao.getIndexOfMedia(
-                      widget.roomUid,
-                      widget.messageId,
-                    ),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData &&
-                          snapshot.data != null &&
-                          snapshot.data != -1) {
-                        return buildImageByIndex(snapshot.data!);
-                      } else if (snapshot.connectionState ==
-                              ConnectionState.done &&
-                          snapshot.data == -1) {
-                        _currentIndex.add(-1);
-                        return singleImage();
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    },
-                  );
-                } else {
-                  _currentIndex.add(-1);
-                  return singleImage();
-                }
-              },
-            ),
-    );
+        appBar: buildAppBar(),
+        body: StreamBuilder<MediaMetaData?>(
+          stream: _mediaMetaDataDao.get(widget.roomUid),
+          builder: (c, snapshot) {
+            if (snapshot.hasData && snapshot.data != null) {
+              _allImageCount.add(snapshot.data!.imagesCount);
+              return widget.initIndex != null
+                  ? buildImageByIndex(widget.initIndex!)
+                  : FutureBuilder<int?>(
+                      future: _mediaDao.getIndexOfMedia(
+                        widget.roomUid,
+                        widget.messageId,
+                      ),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData &&
+                            snapshot.data != null &&
+                            snapshot.data != -1) {
+                          return buildImageByIndex(snapshot.data!);
+                        } else if (snapshot.connectionState ==
+                                ConnectionState.done &&
+                            snapshot.data == -1) {
+                          _currentIndex.add(-1);
+                          return singleImage();
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      },
+                    );
+            } else {
+              _currentIndex.add(-1);
+              return singleImage();
+            }
+          },
+        ));
   }
 
   Center singleImage() {
