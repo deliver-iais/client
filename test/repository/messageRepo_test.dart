@@ -1,6 +1,5 @@
 // ignore_for_file: file_names
 
-import 'dart:async';
 import 'dart:io' as dart_file;
 
 import 'package:clock/clock.dart';
@@ -21,7 +20,6 @@ import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
     as location_pb;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
-import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';

@@ -419,6 +419,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
             ),
             ElevatedButton(
               onPressed: () async {
+                final navigatorState = Navigator.of(c);
                 if (_pasFormKey.currentState!.validate() &&
                     _repPasFormKey.currentState!.validate()) {
                   final isSet = await _accountRepo
@@ -430,7 +431,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                     );
 
                     setState(() {});
-                    Navigator.pop(c);
+                    navigatorState.pop();
                   } else {
                     ToastDisplay.showToast(
                       toastContext: c,

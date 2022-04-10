@@ -23,7 +23,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
-import 'package:grpc/grpc_connection_interface.dart';
 import 'package:logger/logger.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:random_string/random_string.dart';

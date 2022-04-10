@@ -78,8 +78,10 @@ class AuthRepo {
     }
   }
 
-  Future<AccessTokenRes> sendVerificationCode(String code,
-      {String? password}) async {
+  Future<AccessTokenRes> sendVerificationCode(
+    String code, {
+    String? password,
+  }) async {
     final platform = await getPlatformPB();
 
     final device = await getDeviceName();
@@ -99,8 +101,10 @@ class AuthRepo {
     return res;
   }
 
-  Future<AccessTokenRes> checkQrCodeToken(String token,
-      {String? password}) async {
+  Future<AccessTokenRes> checkQrCodeToken(
+    String token, {
+    String? password,
+  }) async {
     final platform = await getPlatformPB();
 
     final device = await getDeviceName();
