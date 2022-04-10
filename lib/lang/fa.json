@@ -326,6 +326,7 @@
   "insert_current_password": "رمز فعلی  را وارد  کنید",
   "insert_new_password": "رمز جدید را وارد کنید.",
   "repeat_new_password": "رمز را تکرار کنید.",
-  "password_changed": "رمز تغییر کرد."
+  "password_changed": "رمز تغییر کرد.",
+  "notwork_is_unavailable": "شبکه در دسترس نمی باشد."
 
 }

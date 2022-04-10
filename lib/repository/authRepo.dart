@@ -64,7 +64,6 @@ class AuthRepo {
 
   Future<bool> getVerificationCode(PhoneNumber p) async {
     final platform = await getPlatformPB();
-
     try {
       _tmpPhoneNumber = p;
       await _authServiceClient.getVerificationCode(
@@ -75,8 +74,7 @@ class AuthRepo {
       );
       return true;
     } catch (e) {
-      _logger.e(e);
-      return false;
+      rethrow;
     }
   }
 

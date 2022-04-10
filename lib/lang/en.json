@@ -322,6 +322,7 @@
   "insert_current_password": "Insert  current password",
   "insert_new_password": "Insert new password",
   "repeat_new_password": "Repeat new password",
-  "password_changed": "Password changed"
+  "password_changed": "Password changed",
+  "notwork_is_unavailable": "Network is unavailable"
 
 }
