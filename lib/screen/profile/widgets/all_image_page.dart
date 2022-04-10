@@ -122,7 +122,7 @@ class _AllImagePageState extends State<AllImagePage> {
               return singleImage();
             }
           },
-        ));
+        ),);
   }
 
   Center singleImage() {
