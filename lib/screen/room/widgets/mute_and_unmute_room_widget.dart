@@ -50,7 +50,6 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return FutureBuilder<bool>(
       future: _mucRepo.isMucAdminOrOwner(
         _authRepo.currentUserUid.asString(),
@@ -60,52 +59,40 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
         if (s.hasData && s.data!) {
           return widget.inputMessage;
         } else {
-          return Container(
-            color: theme.colorScheme.primary,
-            height: 45,
-            child: Center(
-              child: GestureDetector(
-                child:
-                    Focus(focusNode: _focusNode, child: buildStreamBuilder()),
-              ),
-            ),
-          );
+          return Focus(focusNode: _focusNode, child: buildStreamBuilder());
         }
       },
     );
   }
 
-  StreamBuilder<bool> buildStreamBuilder() {
-    final theme = Theme.of(context);
-    return StreamBuilder<bool>(
-      stream: _roomRepo.watchIsRoomMuted(widget.roomId),
-      builder: (context, isMuted) {
-        if (isMuted.data != null) {
-          if (isMuted.data!) {
-            return GestureDetector(
-              child: Text(
-                _i18n.get("un_mute"),
-                style: TextStyle(color: theme.colorScheme.onPrimary),
+  Widget buildStreamBuilder() {
+    return SizedBox(
+      width: double.infinity,
+      height: 45,
+      child: StreamBuilder<bool>(
+        stream: _roomRepo.watchIsRoomMuted(widget.roomId),
+        builder: (context, isMuted) {
+          if (isMuted.hasData) {
+            return ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                shape: const RoundedRectangleBorder(),
               ),
-              onTap: () {
-                _roomRepo.unmute(widget.roomId);
+              child: Text(
+                isMuted.data! ? _i18n.get("un_mute") : _i18n.get("mute"),
+              ),
+              onPressed: () {
+                if (isMuted.data!) {
+                  _roomRepo.unmute(widget.roomId);
+                } else {
+                  _roomRepo.mute(widget.roomId);
+                }
               },
             );
           } else {
-            return GestureDetector(
-              child: Text(
-                _i18n.get("mute"),
-                style: TextStyle(color: theme.colorScheme.onPrimary),
-              ),
-              onTap: () {
-                _roomRepo.mute(widget.roomId);
-              },
-            );
+            return const SizedBox.shrink();
           }
-        } else {
-          return const SizedBox.shrink();
-        }
-      },
+        },
+      ),
     );
   }
 }
