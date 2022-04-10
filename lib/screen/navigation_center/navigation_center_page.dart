@@ -326,7 +326,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
               onTap: () {
-                _roomRepo.insertRoom(uidList[index].asString());
+                _roomRepo.createRoomIfNotExist(uidList[index].asString());
                 _routingServices.openRoom(uidList[index].asString());
               },
               child:

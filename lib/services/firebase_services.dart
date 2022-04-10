@@ -131,9 +131,13 @@ Future<void> _backgroundRemoteMessageHandler(
         roomName = null;
       }
 
-      return await GetIt.I
-          .get<DataStreamServices>()
-          .handleIncomingMessage(msg, roomName: roomName);
+      await GetIt.I.get<DataStreamServices>().handleIncomingMessage(
+            msg,
+            roomName: roomName,
+            isOnlineMessage: true,
+          );
+
+      return;
     } catch (e) {
       Logger().e(e);
     }

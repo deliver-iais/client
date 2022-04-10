@@ -120,7 +120,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       final d2 = date(msg.time);
 
       if (d1.day == d2.day && d1.month == d2.month && d1.year == d2.year) {
-        if (!msgBefore!.isHidden) {
+        if (!msgBefore!.isHidden && msgBefore.type != MessageType.CALL) {
           isFirstMessageInGroupedMessages = false;
         }
       }
@@ -134,7 +134,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Container(
-          margin: const EdgeInsets.only(bottom: 6, top: 4),
+          margin: const EdgeInsets.symmetric(vertical: 6),
           decoration: BoxDecoration(
             color: colorsScheme.primaryContainer,
             borderRadius: secondaryBorder,
