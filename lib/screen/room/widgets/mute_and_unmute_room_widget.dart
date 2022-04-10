@@ -10,7 +10,7 @@ import 'package:get_it/get_it.dart';
 class MuteAndUnMuteRoomWidget extends StatefulWidget {
   final String roomId;
   final Widget inputMessage;
-  final void Function(int dir,bool ctrlIsPressed,bool per) scrollToMessage;
+  final void Function(int dir, bool ctrlIsPressed, bool per) scrollToMessage;
 
   const MuteAndUnMuteRoomWidget({
     Key? key,
@@ -38,11 +38,11 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
     _focusNode.onKey = (c, event) {
       if (event is RawKeyUpEvent &&
           event.physicalKey == PhysicalKeyboardKey.arrowUp) {
-        widget.scrollToMessage(-1,false,false);
+        widget.scrollToMessage(-1, false, false);
       }
       if (event is RawKeyUpEvent &&
           event.physicalKey == PhysicalKeyboardKey.arrowDown) {
-        widget.scrollToMessage(1,false,false);
+        widget.scrollToMessage(1, false, false);
       }
       return KeyEventResult.handled;
     };
@@ -61,7 +61,7 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
           return widget.inputMessage;
         } else {
           return Container(
-            color: theme.primaryColor,
+            color: theme.colorScheme.primary,
             height: 45,
             child: Center(
               child: GestureDetector(
@@ -76,6 +76,7 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
   }
 
   StreamBuilder<bool> buildStreamBuilder() {
+    final theme = Theme.of(context);
     return StreamBuilder<bool>(
       stream: _roomRepo.watchIsRoomMuted(widget.roomId),
       builder: (context, isMuted) {
@@ -84,7 +85,7 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
             return GestureDetector(
               child: Text(
                 _i18n.get("un_mute"),
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: theme.colorScheme.onPrimary),
               ),
               onTap: () {
                 _roomRepo.unmute(widget.roomId);
@@ -94,7 +95,7 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
             return GestureDetector(
               child: Text(
                 _i18n.get("mute"),
-                style: const TextStyle(color: Colors.white),
+                style: TextStyle(color: theme.colorScheme.onPrimary),
               ),
               onTap: () {
                 _roomRepo.mute(widget.roomId);
