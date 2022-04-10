@@ -837,9 +837,7 @@ class MessageRepo {
           retry: false,
         );
       } else {
-        completer
-          ..complete([])
-          ..completeError(e);
+        completer.complete([]);
       }
     }
   }

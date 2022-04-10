@@ -1191,163 +1191,163 @@ void main() {
       //   verify(messageDao.getMessagePage(testUid.asString(), 0));
       // });
     });
-    group('getMessages -', () {
-      test('When called should fetchMessages from queryServiceClient',
-          () async {
-        final queryServiceClient = getAndRegisterQueryServiceClient(
-          fetchMessagesLimit: 16,
-          fetchMessagesHasOptions: false,
-          fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
-        );
-        await MessageRepo()
-            .getMessages(testUid.asString(), 0, 16, Completer(), 0);
-        verify(
-          queryServiceClient.fetchMessages(
-            FetchMessagesReq()
-              ..roomUid = testUid
-              ..pointer = Int64()
-              ..type = FetchMessagesReq_Type.FORWARD_FETCH
-              ..limit = 16,
-          ),
-        );
-      });
-      test(
-          'When called should fetchMessages from queryServiceClient and saveFetchMessages and if fetched message type is MucSpecificPersistentEvent_Issue.DELETED should updateRoom',
-          () async {
-        final roomDao = getAndRegisterRoomDao();
-        getAndRegisterQueryServiceClient(
-          fetchMessagesLimit: 16,
-          fetchMessagesHasOptions: false,
-          fetchMessagesPersistEvent: PersistentEvent(
-            mucSpecificPersistentEvent: MucSpecificPersistentEvent(
-              issue: MucSpecificPersistentEvent_Issue.DELETED,
-            ),
-          ),
-          fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
-        );
-        await MessageRepo()
-            .getMessages(testUid.asString(), 0, 16, Completer(), 10);
-        verify(roomDao.updateRoom(uid: testMessage.from, deleted: true));
-      });
-      test(
-          'When called should fetchMessages from queryServiceClient and saveFetchMessages and if '
-          'fetched message type is MucSpecificPersistentEvent_Issue.ADD_USER should updateRoom',
-          () async {
-        final roomDao = getAndRegisterRoomDao();
-        getAndRegisterQueryServiceClient(
-          fetchMessagesLimit: 16,
-          fetchMessagesHasOptions: false,
-          fetchMessagesPersistEvent: PersistentEvent(
-            mucSpecificPersistentEvent: MucSpecificPersistentEvent(
-              issue: MucSpecificPersistentEvent_Issue.ADD_USER,
-            ),
-          ),
-          fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
-        );
-        await MessageRepo()
-            .getMessages(testUid.asString(), 0, 16, Completer(), 10);
-        verify(roomDao.updateRoom(uid: testMessage.from, deleted: false));
-      });
-      test(
-          'When called should fetchMessages from queryServiceClient and saveFetchMessages and if '
-          'fetched message type is MucSpecificPersistentEvent_Issue.KICK_USER and assignee isSame Entity with currentUserUid should updateRoom ',
-          () async {
-        final roomDao = getAndRegisterRoomDao();
-        getAndRegisterQueryServiceClient(
-          fetchMessagesLimit: 16,
-          fetchMessagesHasOptions: false,
-          fetchMessagesPersistEvent: PersistentEvent(
-            mucSpecificPersistentEvent: MucSpecificPersistentEvent(
-              issue: MucSpecificPersistentEvent_Issue.KICK_USER,
-              assignee: testUid,
-            ),
-          ),
-          fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
-        );
-        await MessageRepo()
-            .getMessages(testUid.asString(), 0, 16, Completer(), 0);
-        verify(roomDao.updateRoom());
-      });
-      test(
-          'When called should fetchMessages from queryServiceClient and saveFetchMessages and if fetched message type '
-          'is MucSpecificPersistentEvent_Issue.AVATAR_CHANGED should fetchAvatar',
-          () async {
-        final avatarRepo = getAndRegisterAvatarRepo();
-        getAndRegisterQueryServiceClient(
-          fetchMessagesLimit: 16,
-          fetchMessagesHasOptions: false,
-          fetchMessagesPersistEvent: PersistentEvent(
-            mucSpecificPersistentEvent: MucSpecificPersistentEvent(
-              issue: MucSpecificPersistentEvent_Issue.AVATAR_CHANGED,
-              assignee: testUid,
-            ),
-          ),
-          fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
-        );
-        await MessageRepo()
-            .getMessages(testUid.asString(), 0, 16, Completer(), 10);
-        verify(
-          avatarRepo.fetchAvatar(
-            testMessage.from.asUid(),
-            forceToUpdate: true,
-          ),
-        );
-      });
-      test(
-          'When called should fetchMessages from queryServiceClient and saveFetchMessages and if fetched message type '
-          'is MessageManipulationPersistentEvent_Action.DELETED should getMessage and saveMessage',
-          () async {
-        final messageDao = getAndRegisterMessageDao(message: testMessage);
-        getAndRegisterQueryServiceClient(
-          fetchMessagesLimit: 16,
-          fetchMessagesHasOptions: false,
-          fetchMessagesPersistEvent: PersistentEvent(
-            messageManipulationPersistentEvent:
-                MessageManipulationPersistentEvent(
-              messageId: Int64(),
-              action: MessageManipulationPersistentEvent_Action.DELETED,
-            ),
-          ),
-          fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
-        );
-        await MessageRepo()
-            .getMessages(testUid.asString(), 0, 16, Completer(), 10);
-        final mes = await messageDao.getMessage(testUid.asString(), 0);
-        verify(messageDao.getMessage(testUid.asString(), 0));
-        verify(
-          messageDao.saveMessage(
-            mes!
-              ..json = EMPTY_MESSAGE
-              ..isHidden = true,
-          ),
-        );
-      });
-      test(
-          'When called should fetchMessages from queryServiceClient and saveFetchMessages and if fetched message id  equal to lastMessageId should updateRoom',
-          () async {
-        final roomDao = getAndRegisterRoomDao();
-        getAndRegisterQueryServiceClient(
-          fetchMessagesLimit: 16,
-          fetchMessagesHasOptions: false,
-          fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
-        );
-        await MessageRepo()
-            .getMessages(testUid.asString(), 0, 16, Completer(), 0);
-        verify(
-          roomDao.updateRoom(
-            lastMessage: testMessage.copyWith(
-              id: 0,
-              forwardedFrom: testUid.asString(),
-              json: EMPTY_MESSAGE,
-              isHidden: true,
-              packetId: "",
-            ),
-            uid: testUid.asString(),
-            lastMessageId: 0,
-          ),
-        );
-      });
-    });
+    // group('getMessages -', () {
+    //   test('When called should fetchMessages from queryServiceClient',
+    //       () async {
+    //     final queryServiceClient = getAndRegisterQueryServiceClient(
+    //       fetchMessagesLimit: 16,
+    //       fetchMessagesHasOptions: false,
+    //       fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
+    //     );
+    //     await MessageRepo()
+    //         .getMessages(testUid.asString(), 0, 16, Completer(), 0);
+    //     verify(
+    //       queryServiceClient.fetchMessages(
+    //         FetchMessagesReq()
+    //           ..roomUid = testUid
+    //           ..pointer = Int64()
+    //           ..type = FetchMessagesReq_Type.FORWARD_FETCH
+    //           ..limit = 16,
+    //       ),
+    //     );
+    //   });
+    //   test(
+    //       'When called should fetchMessages from queryServiceClient and saveFetchMessages and if fetched message type is MucSpecificPersistentEvent_Issue.DELETED should updateRoom',
+    //       () async {
+    //     final roomDao = getAndRegisterRoomDao();
+    //     getAndRegisterQueryServiceClient(
+    //       fetchMessagesLimit: 16,
+    //       fetchMessagesHasOptions: false,
+    //       fetchMessagesPersistEvent: PersistentEvent(
+    //         mucSpecificPersistentEvent: MucSpecificPersistentEvent(
+    //           issue: MucSpecificPersistentEvent_Issue.DELETED,
+    //         ),
+    //       ),
+    //       fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
+    //     );
+    //     await MessageRepo()
+    //         .getMessages(testUid.asString(), 0, 16, Completer(), 10);
+    //     verify(roomDao.updateRoom(uid: testMessage.from, deleted: true));
+    //   });
+    //   test(
+    //       'When called should fetchMessages from queryServiceClient and saveFetchMessages and if '
+    //       'fetched message type is MucSpecificPersistentEvent_Issue.ADD_USER should updateRoom',
+    //       () async {
+    //     final roomDao = getAndRegisterRoomDao();
+    //     getAndRegisterQueryServiceClient(
+    //       fetchMessagesLimit: 16,
+    //       fetchMessagesHasOptions: false,
+    //       fetchMessagesPersistEvent: PersistentEvent(
+    //         mucSpecificPersistentEvent: MucSpecificPersistentEvent(
+    //           issue: MucSpecificPersistentEvent_Issue.ADD_USER,
+    //         ),
+    //       ),
+    //       fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
+    //     );
+    //     await MessageRepo()
+    //         .getMessages(testUid.asString(), 0, 16, Completer(), 10);
+    //     verify(roomDao.updateRoom(uid: testMessage.from, deleted: false));
+    //   });
+    //   test(
+    //       'When called should fetchMessages from queryServiceClient and saveFetchMessages and if '
+    //       'fetched message type is MucSpecificPersistentEvent_Issue.KICK_USER and assignee isSame Entity with currentUserUid should updateRoom ',
+    //       () async {
+    //     final roomDao = getAndRegisterRoomDao();
+    //     getAndRegisterQueryServiceClient(
+    //       fetchMessagesLimit: 16,
+    //       fetchMessagesHasOptions: false,
+    //       fetchMessagesPersistEvent: PersistentEvent(
+    //         mucSpecificPersistentEvent: MucSpecificPersistentEvent(
+    //           issue: MucSpecificPersistentEvent_Issue.KICK_USER,
+    //           assignee: testUid,
+    //         ),
+    //       ),
+    //       fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
+    //     );
+    //     await MessageRepo()
+    //         .getMessages(testUid.asString(), 0, 16, Completer(), 0);
+    //     verify(roomDao.updateRoom());
+    //   });
+    //   test(
+    //       'When called should fetchMessages from queryServiceClient and saveFetchMessages and if fetched message type '
+    //       'is MucSpecificPersistentEvent_Issue.AVATAR_CHANGED should fetchAvatar',
+    //       () async {
+    //     final avatarRepo = getAndRegisterAvatarRepo();
+    //     getAndRegisterQueryServiceClient(
+    //       fetchMessagesLimit: 16,
+    //       fetchMessagesHasOptions: false,
+    //       fetchMessagesPersistEvent: PersistentEvent(
+    //         mucSpecificPersistentEvent: MucSpecificPersistentEvent(
+    //           issue: MucSpecificPersistentEvent_Issue.AVATAR_CHANGED,
+    //           assignee: testUid,
+    //         ),
+    //       ),
+    //       fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
+    //     );
+    //     await MessageRepo()
+    //         .getMessages(testUid.asString(), 0, 16, Completer(), 10);
+    //     verify(
+    //       avatarRepo.fetchAvatar(
+    //         testMessage.from.asUid(),
+    //         forceToUpdate: true,
+    //       ),
+    //     );
+    //   });
+    //   test(
+    //       'When called should fetchMessages from queryServiceClient and saveFetchMessages and if fetched message type '
+    //       'is MessageManipulationPersistentEvent_Action.DELETED should getMessage and saveMessage',
+    //       () async {
+    //     final messageDao = getAndRegisterMessageDao(message: testMessage);
+    //     getAndRegisterQueryServiceClient(
+    //       fetchMessagesLimit: 16,
+    //       fetchMessagesHasOptions: false,
+    //       fetchMessagesPersistEvent: PersistentEvent(
+    //         messageManipulationPersistentEvent:
+    //             MessageManipulationPersistentEvent(
+    //           messageId: Int64(),
+    //           action: MessageManipulationPersistentEvent_Action.DELETED,
+    //         ),
+    //       ),
+    //       fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
+    //     );
+    //     await MessageRepo()
+    //         .getMessages(testUid.asString(), 0, 16, Completer(), 10);
+    //     final mes = await messageDao.getMessage(testUid.asString(), 0);
+    //     verify(messageDao.getMessage(testUid.asString(), 0));
+    //     verify(
+    //       messageDao.saveMessage(
+    //         mes!
+    //           ..json = EMPTY_MESSAGE
+    //           ..isHidden = true,
+    //       ),
+    //     );
+    //   });
+    //   test(
+    //       'When called should fetchMessages from queryServiceClient and saveFetchMessages and if fetched message id  equal to lastMessageId should updateRoom',
+    //       () async {
+    //     final roomDao = getAndRegisterRoomDao();
+    //     getAndRegisterQueryServiceClient(
+    //       fetchMessagesLimit: 16,
+    //       fetchMessagesHasOptions: false,
+    //       fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
+    //     );
+    //     await MessageRepo()
+    //         .getMessages(testUid.asString(), 0, 16, Completer(), 0);
+    //     verify(
+    //       roomDao.updateRoom(
+    //         lastMessage: testMessage.copyWith(
+    //           id: 0,
+    //           forwardedFrom: testUid.asString(),
+    //           json: EMPTY_MESSAGE,
+    //           isHidden: true,
+    //           packetId: "",
+    //         ),
+    //         uid: testUid.asString(),
+    //         lastMessageId: 0,
+    //       ),
+    //     );
+    //   });
+    // });
     group('sendActivity -', () {
       test('When called if category is group or user should sendActivity',
           () async {
@@ -1732,6 +1732,7 @@ void main() {
                 json: EMPTY_MESSAGE,
                 id: 0,
                 packetId: "",
+                isHidden: true,
               ),
               lastUpdateTime: clock.now().millisecondsSinceEpoch,
             ),
@@ -1749,7 +1750,12 @@ void main() {
             .deleteMessage([testMessage.copyWith(packetId: "", id: 0)]);
         verify(
           messageDao.saveMessage(
-            testMessage.copyWith(packetId: "", id: 0, json: EMPTY_MESSAGE),
+            testMessage.copyWith(
+              packetId: "",
+              id: 0,
+              json: EMPTY_MESSAGE,
+              isHidden: true,
+            ),
           ),
         );
       });
