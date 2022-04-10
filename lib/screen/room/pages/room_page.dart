@@ -355,7 +355,7 @@ class _RoomPageState extends State<RoomPage> {
     }
     _getLastShowMessageId();
     _getLastSeen();
-    _roomRepo.resetMention(widget.roomId);
+   _roomRepo.resetMention(widget.roomId);
     _notificationServices.cancelRoomNotifications(widget.roomId);
     _waitingForForwardedMessage.add(
       (widget.forwardedMessages != null &&
