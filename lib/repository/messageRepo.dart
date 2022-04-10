@@ -152,11 +152,6 @@ class MessageRepo {
         for (final roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
           _allRoomMetaData[roomMetadata.roomUid.asString()] = roomMetadata;
           final room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
-          if (room == null) {
-            _seenDao.saveMySeen(
-              Seen(uid: roomMetadata.roomUid.asString(), messageId: -1),
-            );
-          }
           if (roomMetadata.presenceType == PresenceType.ACTIVE) {
             if (room != null &&
                 room.lastMessageId < roomMetadata.lastMessageId.toInt() &&
@@ -227,8 +222,10 @@ class MessageRepo {
       if (r.lastMessage!.id == null) return;
       if (!_authRepo.isCurrentUser(r.lastMessage!.from) &&
           _allRoomMetaData[r.uid] != null &&
-          (category == Categories.GROUP || category == Categories.USER)) {
-         fetchCurrentUserLastSeen(_allRoomMetaData[r.uid]!);
+          (category == Categories.GROUP ||
+              category == Categories.USER ||
+              category == Categories.CHANNEL)) {
+        fetchCurrentUserLastSeen(_allRoomMetaData[r.uid]!);
       }
       final othersSeen = await _seenDao.getOthersSeen(r.lastMessage!.to);
       if (othersSeen == null || othersSeen.messageId < r.lastMessage!.id!) {
@@ -300,7 +297,9 @@ class MessageRepo {
         ),
       );
     } on GrpcError catch (e) {
-      _logger.e(e);
+      _logger
+        ..wtf(room.roomUid.asString())
+        ..e(e);
       if (e.code == StatusCode.notFound) {
         _seenDao.saveMySeen(Seen(uid: room.roomUid.asString(), messageId: 0));
       }
