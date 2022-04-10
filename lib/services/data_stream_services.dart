@@ -194,8 +194,6 @@ class DataStreamServices {
       );
     }
 
-    fetchSeen(roomUid.asString());
-
     if (isOnlineMessage &&
         !msg.isHidden &&
         await shouldNotifyForThisMessage(message)) {
@@ -444,13 +442,6 @@ class DataStreamServices {
     }
 
     return true;
-  }
-
-  Future<void> fetchSeen(String roomUid) async {
-    final res = await _seenDao.getMySeen(roomUid);
-    if (res.messageId == -1) {
-      _seenDao.saveMySeen(Seen(uid: roomUid, messageId: 0));
-    }
   }
 
   Future<message_model.Message?> saveMessageInMessagesDB(

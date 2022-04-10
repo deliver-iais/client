@@ -44,11 +44,11 @@ class SeenDaoImpl implements SeenDao {
   Stream<Seen> watchMySeen(String uid) async* {
     final box = await _openMySeen();
 
-    yield box.get(uid) ?? Seen(uid: uid, messageId: 0);
+    yield box.get(uid) ?? Seen(uid: uid, messageId: -1);
 
     yield* box
         .watch(key: uid)
-        .map((event) => box.get(uid) ?? Seen(uid: uid, messageId: 0));
+        .map((event) => box.get(uid) ?? Seen(uid: uid, messageId: -1));
   }
 
   @override
