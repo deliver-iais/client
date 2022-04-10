@@ -54,10 +54,6 @@ class RoomRepo {
 
   final Map<String, BehaviorSubject<Activity>> activityObject = {};
 
-  Future<void> insertRoom(String uid) => _roomDao.updateRoom(Room(uid: uid));
-
-  Future<void> updateRoom(Room room) => _roomDao.updateRoom(room);
-
   Future<String> getSlangName(Uid uid, {String? unknownName}) async {
     if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
     if (_authRepo.isCurrentUserUid(uid)) {
@@ -180,12 +176,10 @@ class RoomRepo {
       _mediaDao.clear(roomUid.asString());
       _mediaMetaDataDao.clear(roomUid.asString());
       _roomDao.updateRoom(
-        Room(
-          uid: roomUid.asString(),
-          deleted: true,
-          firstMessageId: room!.lastMessageId ?? 0,
-          lastUpdateTime: clock.now().millisecondsSinceEpoch,
-        ),
+        uid: roomUid.asString(),
+        deleted: true,
+        firstMessageId: room!.lastMessageId,
+        lastUpdateTime: clock.now().millisecondsSinceEpoch,
       );
       return true;
     } catch (e) {
@@ -264,10 +258,10 @@ class RoomRepo {
   Future<Room?> getRoom(String roomUid) => _roomDao.getRoom(roomUid);
 
   Future<void> resetMention(String roomUid) =>
-      _roomDao.updateRoom(Room(uid: roomUid));
+      _roomDao.updateRoom(uid: roomUid, mentioned: false);
 
   Future<void> createRoomIfNotExist(String roomUid) =>
-      _roomDao.updateRoom(Room(uid: roomUid));
+      _roomDao.updateRoom(uid: roomUid);
 
   Stream<Seen> watchMySeen(String roomUid) => _seenDao.watchMySeen(roomUid);
 
@@ -360,7 +354,7 @@ class RoomRepo {
   Future<List<Room>> getAllGroups() async => _roomDao.getAllGroups();
 
   void updateRoomDraft(String roomUid, String draft) {
-    _roomDao.updateRoom(Room(uid: roomUid).copyWith(draft: draft));
+    _roomDao.updateRoom(uid: roomUid, draft: draft);
   }
 
   Future<bool> isDeletedRoom(String roomUid) async {
