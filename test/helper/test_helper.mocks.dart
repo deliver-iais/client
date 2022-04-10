@@ -527,9 +527,11 @@ class MockAuthRepo extends _i1.Mock implements _i26.AuthRepo {
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i17.Future<void>);
   @override
-  _i17.Future<bool> getVerificationCode(_i28.PhoneNumber? p) =>
+  _i17.Future<void> getVerificationCode(_i28.PhoneNumber? p) =>
       (super.noSuchMethod(Invocation.method(#getVerificationCode, [p]),
-          returnValue: Future<bool>.value(false)) as _i17.Future<bool>);
+              returnValue: Future<void>.value(),
+              returnValueForMissingStub: Future<void>.value())
+          as _i17.Future<void>);
   @override
   _i17.Future<_i4.AccessTokenRes> sendVerificationCode(String? code,
           {String? password}) =>
@@ -988,11 +990,6 @@ class MockDataStreamServices extends _i1.Mock
   _i17.Future<bool> shouldNotifyForThisMessage(_i41.Message? message) => (super
       .noSuchMethod(Invocation.method(#shouldNotifyForThisMessage, [message]),
           returnValue: Future<bool>.value(false)) as _i17.Future<bool>);
-  @override
-  _i17.Future<void> fetchSeen(String? roomUid) => (super.noSuchMethod(
-      Invocation.method(#fetchSeen, [roomUid]),
-      returnValue: Future<void>.value(),
-      returnValueForMissingStub: Future<void>.value()) as _i17.Future<void>);
   @override
   _i17.Future<_i20.Message?> saveMessageInMessagesDB(_i41.Message? message) =>
       (super.noSuchMethod(

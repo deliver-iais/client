@@ -344,7 +344,8 @@ class RoutingService {
       popAll();
       mainNavigatorState.currentState?.pushAndRemoveUntil(
         MaterialPageRoute(
-            builder: (c) => const LoginPage(key: Key("/login_page"))),
+          builder: (c) => const LoginPage(key: Key("/login_page")),
+        ),
         (route) => route.isFirst,
       );
     }
