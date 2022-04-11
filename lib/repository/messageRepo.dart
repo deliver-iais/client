@@ -191,11 +191,15 @@ class MessageRepo {
               room,
             );
 
-            await fetchLastIncomingCalls(
-              roomMetadata.roomUid,
-              roomMetadata.lastMessageId.toInt(),
-              type: FetchMessagesReq_Type.FORWARD_FETCH,
-            );
+            if(_callService.getUserCallState == UserCallState.NOCALL) {
+              await fetchLastIncomingCalls(
+                roomMetadata.roomUid,
+                roomMetadata.lastMessageId.toInt(),
+                type: FetchMessagesReq_Type.FORWARD_FETCH,
+              );
+            } else{
+              _logger.i("USER not CALLLL !!!");
+            }
 
             if (room != null &&
                 roomMetadata.lastMessageId.toInt() > room.lastMessageId) {
@@ -323,16 +327,17 @@ class MessageRepo {
       int lastMessageId, {
         required FetchMessagesReq_Type type,
       }) async {
-    var pointer = lastMessageId + 1;
+    var pointer = lastMessageId;
     try {
       final fetchMessagesRes = await _queryServiceClient.fetchMessages(
         FetchMessagesReq()
           ..roomUid = roomUid
           ..pointer = Int64(pointer)
           ..type = type
-          ..limit = 20,
+          ..limit = 10,
         options: CallOptions(timeout: const Duration(seconds: 3)),
       );
+      _logger.i("try fetch Incoming call for" + roomUid.node);
       for (message_pb.Message message in fetchMessagesRes.messages.reversed) {
         if (_callService.getUserCallState != UserCallState.NOCALL &&
             message.whichType() == message_pb.Message_Type.callEvent) {
@@ -346,6 +351,7 @@ class MessageRepo {
           } else {
             _callService.addCallEvent(callEvents);
           }
+          break;
         }
       }
     } catch (_) {}

@@ -843,6 +843,9 @@ class CallRepo {
   }
 
   Future<void> acceptCall(Uid roomId) async {
+    if (isWindows) {
+      _notificationServices.cancelRoomNotifications(roomUid!.node);
+    }
     _roomUid = roomId;
     callingStatus.add(CallStatus.ACCEPTED);
     _dataChannel = await _createDataChannel();
@@ -862,6 +865,9 @@ class CallRepo {
   }
 
   Future<void> declineCall() async {
+    if (isWindows) {
+      _notificationServices.cancelRoomNotifications(roomUid!.node);
+    }
     _logger.i("declineCall");
     callingStatus.add(CallStatus.DECLINED);
     final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
@@ -955,6 +961,9 @@ class CallRepo {
 
   // TODO(AmirHossein): removed Force End Call and we need Handle it with third-party Service.
   Future<void> endCall() async {
+    if (isWindows) {
+      _notificationServices.cancelRoomNotifications(roomUid!.node);
+    }
     if (_callService.getUserCallState != CallStatus.NO_CALL) {
       if (_isCaller) {
         receivedEndCall(0);
