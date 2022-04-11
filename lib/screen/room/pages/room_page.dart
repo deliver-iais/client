@@ -145,6 +145,7 @@ class _RoomPageState extends State<RoomPage> {
   Timer? scrollEndNotificationTimer;
   Timer? highlightMessageTimer;
   bool isArrowIconFocused = false;
+  bool isLastMessages = false;
 
   List<PendingMessage> get pendingMessages =>
       _pendingMessages.valueOrNull ?? [];
@@ -381,6 +382,11 @@ class _RoomPageState extends State<RoomPage> {
     _itemPositionsListener.itemPositions.addListener(() {
       final position = _itemPositionsListener.itemPositions.value;
       if (position.isNotEmpty) {
+        if ((_itemCount - position.first.index).abs() > 5) {
+          isLastMessages = false;
+        } else {
+          isLastMessages = true;
+        }
         final firstVisibleItem =
             position.where((position) => position.itemLeadingEdge > 0).reduce(
                   (first, position) =>
@@ -994,7 +1000,7 @@ class _RoomPageState extends State<RoomPage> {
       onNotification: (scrollNotification) {
         if (scrollNotification is ScrollStartNotification) {
           scrollEndNotificationTimer?.cancel();
-          _isScrolling.add(true);
+          if (!isLastMessages) _isScrolling.add(true);
         } else if (scrollNotification is ScrollEndNotification) {
           scrollEndNotificationTimer =
               Timer(const Duration(milliseconds: 1500), () {
@@ -1258,7 +1264,7 @@ class _RoomPageState extends State<RoomPage> {
         _highlightMessageId.add(id);
       }
       if (_highlightMessageId.value != -1) {
-       highlightMessageTimer=Timer(const Duration(seconds: 2), () {
+        highlightMessageTimer = Timer(const Duration(seconds: 2), () {
           _highlightMessageId.add(-1);
         });
       }
