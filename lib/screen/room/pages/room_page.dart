@@ -355,7 +355,7 @@ class _RoomPageState extends State<RoomPage> {
     }
     _getLastShowMessageId();
     _getLastSeen();
-   _roomRepo.resetMention(widget.roomId);
+    _roomRepo.resetMention(widget.roomId);
     _notificationServices.cancelRoomNotifications(widget.roomId);
     _waitingForForwardedMessage.add(
       (widget.forwardedMessages != null &&
@@ -485,10 +485,11 @@ class _RoomPageState extends State<RoomPage> {
 
   void _sendSeenMessage(List<Message> messages) {
     for (final msg in messages) {
+      final id = msg.id == room.lastMessage!.id ? room.lastMessageId : msg.id!;
       if (!_authRepo.isCurrentUser(msg.from)) {
-        _messageRepo.sendSeen(msg.id!, widget.roomId.asUid());
+        _messageRepo.sendSeen(id, widget.roomId.asUid());
       }
-      _roomRepo.saveMySeen(Seen(uid: widget.roomId, messageId: msg.id!));
+      _roomRepo.saveMySeen(Seen(uid: widget.roomId, messageId: id));
     }
   }
 
@@ -496,8 +497,10 @@ class _RoomPageState extends State<RoomPage> {
     final seen = await _roomRepo.getMySeen(widget.roomId);
     if (room.lastMessageId > seen.messageId) {
       _messageRepo.sendSeen(room.lastMessageId, widget.roomId.asUid());
-      _roomRepo
-          .saveMySeen(Seen(uid: widget.roomId, messageId: room.lastMessageId));
+      _roomRepo.saveMySeen(Seen(
+          uid: widget.roomId,
+          messageId: room.lastMessageId,
+          hiddenMessageCount: 0));
     }
   }
 

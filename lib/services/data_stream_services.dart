@@ -192,6 +192,11 @@ class DataStreamServices {
         mentioned: hasMentioned,
         deleted: false,
       );
+
+      await _fetchMySeen(roomUid.asString());
+      if (msg.isHidden) {
+        await _increaseHiddenMessageCount(roomUid.asString());
+      }
     }
 
     if (isOnlineMessage &&
@@ -215,11 +220,32 @@ class DataStreamServices {
     return msg;
   }
 
+  Future<void> _fetchMySeen(String roomUid) async {
+    final mySeen = await _seenDao.getMySeen(roomUid);
+    if (mySeen.messageId < 0) {
+      _seenDao
+          .saveMySeen(Seen(uid: roomUid, messageId: 0, hiddenMessageCount: 0));
+    }
+  }
+
+  Future<void> _increaseHiddenMessageCount(String roomUid) async {
+    final mySeen = await _seenDao.getMySeen(roomUid);
+    await _seenDao.saveMySeen(Seen(
+        uid: roomUid,
+        messageId: mySeen.messageId,
+        hiddenMessageCount: (mySeen.hiddenMessageCount ?? 0) + 1));
+  }
+
   Future<void> _onMessageDeleted(Uid roomUid, Message message) async {
     final id = message.persistEvent.messageManipulationPersistentEvent.messageId
         .toInt();
 
     final time = message.time.toInt();
+
+    final mySeen = await _seenDao.getMySeen(roomUid.asString());
+    if (0 < mySeen.messageId && mySeen.messageId <= id) {
+      await _increaseHiddenMessageCount(roomUid.asString());
+    }
 
     final savedMsg = await _messageDao.getMessage(roomUid.asString(), id);
 

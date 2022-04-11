@@ -186,14 +186,6 @@ class MessageRepo {
               roomMetadata.firstMessageId.toInt(),
               room,
             );
-
-            if (room != null &&
-                roomMetadata.lastMessageId.toInt() > room.lastMessageId) {
-              await fetchHiddenMessageCount(
-                roomMetadata.roomUid,
-                room.lastMessageId,
-              );
-            }
             if (room != null && room.uid.asUid().category == Categories.GROUP) {
               await getMentions(room);
             }
@@ -241,10 +233,10 @@ class MessageRepo {
           ..roomUid = roomUid
           ..messageId = Int64(id + 1),
       );
-      final s = await _seenDao.getMySeen(roomUid.asString());
-      _seenDao.saveMySeen(
-        s.copy(newUid: roomUid.asString(), newHiddenMessageCount: res.count),
-      );
+      _seenDao.saveMySeen(Seen(
+          uid: roomUid.asString(),
+          messageId: id,
+          hiddenMessageCount: res.count));
     } catch (e) {
       _logger.e(e);
     }
@@ -280,21 +272,26 @@ class MessageRepo {
       );
 
       final lastSeen = await _seenDao.getMySeen(room.roomUid.asString());
-      if (lastSeen.messageId != -1 &&
-          lastSeen.messageId >
-              max(
-                fetchCurrentUserSeenData.seen.id.toInt(),
-                room.lastCurrentUserSentMessageId.toInt(),
-              )) return;
-      _seenDao.saveMySeen(
-        Seen(
-          uid: room.roomUid.asString(),
-          hiddenMessageCount: lastSeen.hiddenMessageCount ?? 0,
-          messageId: max(
+      if (!(lastSeen.messageId >
+          max(
             fetchCurrentUserSeenData.seen.id.toInt(),
             room.lastCurrentUserSentMessageId.toInt(),
+          ))) {
+        _seenDao.saveMySeen(
+          Seen(
+            uid: room.roomUid.asString(),
+            hiddenMessageCount: lastSeen.hiddenMessageCount ?? 0,
+            messageId: max(
+              fetchCurrentUserSeenData.seen.id.toInt(),
+              room.lastCurrentUserSentMessageId.toInt(),
+            ),
           ),
-        ),
+        );
+      }
+
+      fetchHiddenMessageCount(
+        room.roomUid,
+        lastSeen.messageId,
       );
     } on GrpcError catch (e) {
       _logger
