@@ -1,3 +1,4 @@
+import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
@@ -21,6 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:window_size/window_size.dart';
 
 class NavigationCenter extends StatefulWidget {
   const NavigationCenter({Key? key}) : super(key: key);
@@ -37,6 +39,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _botRepo = GetIt.I.get<BotRepo>();
+  static final _sharedDao = GetIt.I.get<SharedDao>();
 
   final ScrollController _scrollController = ScrollController();
   final BehaviorSubject<String> _searchMode = BehaviorSubject.seeded("");
@@ -64,121 +67,142 @@ class _NavigationCenterState extends State<NavigationCenter> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Scaffold(
-      backgroundColor: theme.colorScheme.background,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(56),
-        child: GestureDetector(
-          onTap: () {
-            if (_scrollController.hasClients) {
-              _scrollController.animateTo(
-                0.0,
-                curve: Curves.easeOut,
-                duration: ANIMATION_DURATION * 3,
-              );
-            }
-          },
-          child: AppBar(
-            backgroundColor: Colors.transparent,
-            leading: Row(
-              children: [
-                const SizedBox(
-                  width: 10,
-                ),
-                DescribedFeatureOverlay(
-                  featureId: feature3,
-                  tapTarget: CircleAvatarWidget(_authRepo.currentUserUid, 20),
-                  backgroundColor: Colors.indigo,
-                  targetColor: Colors.indigoAccent,
-                  title: const Text('You can go to setting'),
-                  overflowMode: OverflowMode.extendBackground,
-                  description: _featureDiscoveryDescriptionWidget(
-                    isCircleAvatarWidget: true,
-                    description:
-                        "1. You can chang your profile in the setting\n2. You can sync your contact and start chat with one of theme \n3. You can chang app theme\n4. You can chang app",
-                  ),
-                  child: GestureDetector(
-                    child: Center(
-                      child: MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: CircleAvatarWidget(_authRepo.currentUserUid, 20),
-                      ),
-                    ),
-                    onTap: () {
-                      _routingServices.openSettings(popAllBeforePush: true);
-                    },
-                  ),
-                ),
-              ],
-            ),
-            titleSpacing: 8.0,
-            title: Text(
-              _i18n.get("chats"),
-              style: theme.textTheme.headline6,
-              key: ValueKey(randomString(10)),
-            ),
-            actions: [
-              if (!isDesktop)
-                DescribedFeatureOverlay(
-                  featureId: feature2,
-                  tapTarget: const Icon(
-                    CupertinoIcons.qrcode_viewfinder,
-                  ),
-                  backgroundColor: Colors.deepPurple,
-                  targetColor: Colors.deepPurpleAccent,
-                  title: const Text('You can scan QR Code'),
-                  description: _featureDiscoveryDescriptionWidget(
-                    description:
-                        'for desktop app you can scan QR Code and login to your account',
-                  ),
-                  child: IconButton(
-                    onPressed: () {
-                      _routingService.openScanQrCode();
-                    },
-                    icon: const Icon(
-                      CupertinoIcons.qrcode_viewfinder,
-                    ),
-                  ),
-                ),
-              const SizedBox(
-                width: 8,
-              ),
-              buildMenu(context),
-              const SizedBox(
-                width: 8,
-              )
-            ],
-          ),
-        ),
-      ),
-      body: RepaintBoundary(
-        child: Column(
-          children: <Widget>[
-            const HasCallRow(),
-            const ConnectionStatus(),
-            RepaintBoundary(
-              child: SearchBox(
-                onChange: _queryTermDebouncedSubject.add,
-                onCancel: () => _queryTermDebouncedSubject.add(""),
-              ),
-            ),
-            if (!isLarge(context)) AudioPlayerAppBar(),
-            StreamBuilder<String>(
-              stream: _searchMode.stream,
-              builder: (c, s) {
-                if (s.hasData && s.data!.isNotEmpty) {
-                  return searchResult(s.data!);
-                } else {
-                  return Expanded(
-                    child: ChatsPage(scrollController: _scrollController),
+    return NotificationListener<SizeChangedLayoutNotification>(
+      onNotification: onWindowSizeChange,
+      child: SizeChangedLayoutNotifier(
+        child: Scaffold(
+          backgroundColor: theme.colorScheme.background,
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(56),
+            child: GestureDetector(
+              onTap: () {
+                if (_scrollController.hasClients) {
+                  _scrollController.animateTo(
+                    0.0,
+                    curve: Curves.easeOut,
+                    duration: ANIMATION_DURATION * 3,
                   );
                 }
               },
-            )
-          ],
+              child: AppBar(
+                backgroundColor: Colors.transparent,
+                leading: Row(
+                  children: [
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    DescribedFeatureOverlay(
+                      featureId: feature3,
+                      tapTarget:
+                          CircleAvatarWidget(_authRepo.currentUserUid, 20),
+                      backgroundColor: Colors.indigo,
+                      targetColor: Colors.indigoAccent,
+                      title: const Text('You can go to setting'),
+                      overflowMode: OverflowMode.extendBackground,
+                      description: _featureDiscoveryDescriptionWidget(
+                        isCircleAvatarWidget: true,
+                        description:
+                            "1. You can chang your profile in the setting\n2. You can sync your contact and start chat with one of theme \n3. You can chang app theme\n4. You can chang app",
+                      ),
+                      child: GestureDetector(
+                        child: Center(
+                          child: MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: CircleAvatarWidget(
+                              _authRepo.currentUserUid,
+                              20,
+                            ),
+                          ),
+                        ),
+                        onTap: () {
+                          _routingServices.openSettings(popAllBeforePush: true);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                titleSpacing: 8.0,
+                title: Text(
+                  _i18n.get("chats"),
+                  style: theme.textTheme.headline6,
+                  key: ValueKey(randomString(10)),
+                ),
+                actions: [
+                  if (!isDesktop)
+                    DescribedFeatureOverlay(
+                      featureId: feature2,
+                      tapTarget: const Icon(
+                        CupertinoIcons.qrcode_viewfinder,
+                      ),
+                      backgroundColor: Colors.deepPurple,
+                      targetColor: Colors.deepPurpleAccent,
+                      title: const Text('You can scan QR Code'),
+                      description: _featureDiscoveryDescriptionWidget(
+                        description:
+                            'for desktop app you can scan QR Code and login to your account',
+                      ),
+                      child: IconButton(
+                        onPressed: () {
+                          _routingService.openScanQrCode();
+                        },
+                        icon: const Icon(
+                          CupertinoIcons.qrcode_viewfinder,
+                        ),
+                      ),
+                    ),
+                  const SizedBox(
+                    width: 8,
+                  ),
+                  buildMenu(context),
+                  const SizedBox(
+                    width: 8,
+                  )
+                ],
+              ),
+            ),
+          ),
+          body: RepaintBoundary(
+            child: Column(
+              children: <Widget>[
+                const HasCallRow(),
+                const ConnectionStatus(),
+                RepaintBoundary(
+                  child: SearchBox(
+                    onChange: _queryTermDebouncedSubject.add,
+                    onCancel: () => _queryTermDebouncedSubject.add(""),
+                  ),
+                ),
+                if (!isLarge(context)) AudioPlayerAppBar(),
+                StreamBuilder<String>(
+                  stream: _searchMode.stream,
+                  builder: (c, s) {
+                    if (s.hasData && s.data!.isNotEmpty) {
+                      return searchResult(s.data!);
+                    } else {
+                      return Expanded(
+                        child: ChatsPage(scrollController: _scrollController),
+                      );
+                    }
+                  },
+                )
+              ],
+            ),
+          ),
         ),
       ),
     );
+  }
+
+  bool onWindowSizeChange(SizeChangedLayoutNotification notification) {
+    if(isDesktop && !isWeb) {
+      getWindowInfo().then((size) {
+      _sharedDao.put(
+        SHARED_DAO_WINDOWS_SIZE,
+        '${size.frame.left}-${size.frame.top}-${size.frame.right}-${size.frame.bottom}',
+      );
+    });
+    }
+    return true;
   }
 
   Widget buildMenu(BuildContext context) {
