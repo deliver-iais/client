@@ -430,14 +430,10 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Future<void> initRoomStream() async {
-    _roomRepo.watchRoom(widget.roomId).distinct().listen((event) async {
+    _roomRepo.watchRoom(widget.roomId).listen((event) async {
       // Remove changed messages from cache
-      if (room.lastUpdatedMessageId != null &&
-          room.lastUpdatedMessageId != event.lastUpdatedMessageId) {
+      if (event.lastUpdatedMessageId != null) {
         final id = event.lastUpdatedMessageId!;
-
-        // Invalid Message Widget Cache
-        _messageWidgetCache.set(id - 1, null);
 
         final msg = await _getMessage(id, useCache: false);
 

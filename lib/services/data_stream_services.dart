@@ -307,7 +307,8 @@ class DataStreamServices {
 
     await _roomDao.updateRoom(
       uid: room.uid,
-      lastMessage: room.lastMessageId != id ? null : msg,
+      lastMessage:
+          (room.lastMessage != null && room.lastMessage!.id != id) ? null : msg,
       lastUpdateTime: time,
       lastUpdatedMessageId: res.messages.first.id.toInt(),
     );
