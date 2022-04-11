@@ -125,7 +125,6 @@ class _RoomPageState extends State<RoomPage> {
   final _repliedMessage = BehaviorSubject<Message?>.seeded(null);
   final _room = BehaviorSubject<Room>();
   final _pendingMessages = BehaviorSubject<List<PendingMessage>>();
-  final _scrollEvent = BehaviorSubject.seeded(false);
   final _isScrolling = BehaviorSubject.seeded(false);
   final _itemPositionsListener = ItemPositionsListener.create();
   final _itemScrollController = ItemScrollController();
@@ -143,6 +142,8 @@ class _RoomPageState extends State<RoomPage> {
   final _inputMessageFocusNode = FocusNode();
   final _scrollablePositionedListKey = GlobalKey();
   final List<int> _messageReplyHistory = [];
+  Timer? scrollEndNotificationTimer;
+  bool isArrowIconFocused = false;
 
   List<PendingMessage> get pendingMessages =>
       _pendingMessages.valueOrNull ?? [];
@@ -374,13 +375,7 @@ class _RoomPageState extends State<RoomPage> {
     // Listen on scroll
     _itemPositionsListener.itemPositions.addListener(() {
       final position = _itemPositionsListener.itemPositions.value;
-      // TODO(hasan): fix scroll problems, https://gitlab.iais.co/deliver/wiki/-/issues/408
       if (position.isNotEmpty) {
-        if ((_itemCount - position.first.index).abs() > 10) {
-          _scrollEvent.add(true);
-        } else {
-          _scrollEvent.add(false);
-        }
         final firstVisibleItem =
             position.where((position) => position.itemLeadingEdge > 0).reduce(
                   (first, position) =>
@@ -402,11 +397,6 @@ class _RoomPageState extends State<RoomPage> {
         );
       }
     });
-
-    MergeStream([
-      _scrollEvent.stream,
-      _scrollEvent.debounceTime(const Duration(milliseconds: 4000))
-    ]).listen((event) => _isScrolling.add(event));
 
     // If new message arrived, scroll to the end of page if we are close to end of the page
     _itemCountSubject.distinct().listen((event) {
@@ -687,10 +677,22 @@ class _RoomPageState extends State<RoomPage> {
   Widget scrollDownButtonWidget() {
     return Stack(
       children: [
-        FloatingActionButton(
-          mini: true,
-          child: const Icon(CupertinoIcons.down_arrow),
-          onPressed: _scrollToLastMessage,
+        MouseRegion(
+          onHover: (s) {
+            isArrowIconFocused = true;
+          },
+          onExit: (s) {
+            isArrowIconFocused = false;
+            scrollEndNotificationTimer =
+                Timer(const Duration(milliseconds: 500), () {
+              _isScrolling.add(false);
+            });
+          },
+          child: FloatingActionButton(
+            mini: true,
+            child: const Icon(CupertinoIcons.down_arrow),
+            onPressed: _scrollToLastMessage,
+          ),
         ),
         if (room.lastMessage != null &&
             !_authRepo.isCurrentUser(room.lastMessage!.from))
@@ -982,58 +984,72 @@ class _RoomPageState extends State<RoomPage> {
           _lastScrollPositionAlignment >= 1 ? _lastScrollPositionAlignment : 1;
     }
 
-    return ScrollMessageList(
-      itemCount: _itemCount + 1,
-      itemPositionsListener: _itemPositionsListener,
-      controller: _itemScrollController,
-      child: ScrollablePositionedList.separated(
+    return NotificationListener<ScrollNotification>(
+      onNotification: (scrollNotification) {
+        if (scrollNotification is ScrollStartNotification) {
+          scrollEndNotificationTimer?.cancel();
+          _isScrolling.add(true);
+        } else if (scrollNotification is ScrollEndNotification) {
+          scrollEndNotificationTimer =
+              Timer(const Duration(milliseconds: 1500), () {
+            if (!isArrowIconFocused) _isScrolling.add(false);
+          });
+        }
+        return true;
+      },
+      child: ScrollMessageList(
         itemCount: _itemCount + 1,
-        initialScrollIndex: initialScrollIndex + 1,
-        key: _scrollablePositionedListKey,
-        initialAlignment: initialAlignment,
-        physics: _scrollPhysics,
-        addSemanticIndexes: false,
-        minCacheExtent: 0,
         itemPositionsListener: _itemPositionsListener,
-        itemScrollController: _itemScrollController,
-        itemBuilder: (context, index) =>
-            _buildMessage(index + room.firstMessageId),
-        separatorBuilder: (context, index) {
-          final firstIndex = index + room.firstMessageId;
+        controller: _itemScrollController,
+        child: ScrollablePositionedList.separated(
+          itemCount: _itemCount + 1,
+          initialScrollIndex: initialScrollIndex + 1,
+          key: _scrollablePositionedListKey,
+          initialAlignment: initialAlignment,
+          physics: _scrollPhysics,
+          addSemanticIndexes: false,
+          minCacheExtent: 0,
+          itemPositionsListener: _itemPositionsListener,
+          itemScrollController: _itemScrollController,
+          itemBuilder: (context, index) =>
+              _buildMessage(index + room.firstMessageId),
+          separatorBuilder: (context, index) {
+            final firstIndex = index + room.firstMessageId;
 
-          index = index + (room.firstMessageId);
+            index = index + (room.firstMessageId);
 
-          if (index < room.firstMessageId) {
-            return const SizedBox.shrink();
-          }
-          return Column(
-            children: [
-              if (_lastShowedMessageId == firstIndex + 1 &&
-                  (room.lastUpdatedMessageId == null ||
-                      (room.lastUpdatedMessageId != null &&
-                          room.lastUpdatedMessageId! < room.lastMessageId)))
-                FutureBuilder<Message?>(
-                  future: _messageAtIndex(index + 1),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData ||
-                        snapshot.data == null ||
-                        _authRepo.isCurrentUser(snapshot.data!.from) ||
-                        snapshot.data!.isHidden) {
-                      return const SizedBox.shrink();
-                    }
-                    return const UnreadMessageBar();
-                  },
+            if (index < room.firstMessageId) {
+              return const SizedBox.shrink();
+            }
+            return Column(
+              children: [
+                if (_lastShowedMessageId == firstIndex + 1 &&
+                    (room.lastUpdatedMessageId == null ||
+                        (room.lastUpdatedMessageId != null &&
+                            room.lastUpdatedMessageId! < room.lastMessageId)))
+                  FutureBuilder<Message?>(
+                    future: _messageAtIndex(index + 1),
+                    builder: (context, snapshot) {
+                      if (!snapshot.hasData ||
+                          snapshot.data == null ||
+                          _authRepo.isCurrentUser(snapshot.data!.from) ||
+                          snapshot.data!.isHidden) {
+                        return const SizedBox.shrink();
+                      }
+                      return const UnreadMessageBar();
+                    },
+                  ),
+                FutureBuilder<int?>(
+                  future: _timeAt(index),
+                  builder: (context, snapshot) =>
+                      snapshot.hasData && snapshot.data != null
+                          ? ChatTime(currentMessageTime: date(snapshot.data!))
+                          : const SizedBox.shrink(),
                 ),
-              FutureBuilder<int?>(
-                future: _timeAt(index),
-                builder: (context, snapshot) =>
-                    snapshot.hasData && snapshot.data != null
-                        ? ChatTime(currentMessageTime: date(snapshot.data!))
-                        : const SizedBox.shrink(),
-              ),
-            ],
-          );
-        },
+              ],
+            );
+          },
+        ),
       ),
     );
   }
@@ -1165,7 +1181,7 @@ class _RoomPageState extends State<RoomPage> {
       onUnPin: () => onUnPin(message),
       onReply: () => onReply(message),
       addForwardMessage: () => _addForwardMessage(message),
-      scrollToMessage: _scrollToMessageWithHighlight,
+      scrollToMessage: _scrollToReplyMessage,
       onDelete: onDelete,
       messageReplyHistory: _messageReplyHistory,
     );
@@ -1207,7 +1223,17 @@ class _RoomPageState extends State<RoomPage> {
   void _scrollToMessageWithHighlight(int id) =>
       _scrollToMessage(id, shouldHighlight: true);
 
-  void _scrollToMessage(int id, {bool shouldHighlight = false}) {
+  void _scrollToReplyMessage(int id) => _scrollToMessage(
+        id - room.firstMessageId,
+        shouldHighlight: true,
+        isReply: true,
+      );
+
+  void _scrollToMessage(
+    int id, {
+    bool shouldHighlight = false,
+    bool isReply = false,
+  }) {
     if (_itemScrollController.isAttached) {
       _itemScrollController.scrollTo(
         index: id,
@@ -1220,7 +1246,7 @@ class _RoomPageState extends State<RoomPage> {
       _currentScrollIndex = max(0, id);
 
       if (!shouldHighlight) return;
-
+      if (isReply) id += room.firstMessageId;
       if (id != -1) {
         _highlightMessageId.add(id);
       }
