@@ -1,5 +1,6 @@
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
 abstract class AvatarDao {
@@ -138,17 +139,17 @@ class AvatarDaoImpl implements AvatarDao {
 
   static String _key2() => "last-avatar";
 
-  static Future<Box<Avatar>> _open(String uid) {
+  static Future<BoxPlus<Avatar>> _open(String uid) {
     BoxInfo.addBox(_key(uid.replaceAll(":", "-")));
-    return Hive.openBox<Avatar>(_key(uid.replaceAll(":", "-")));
+    return gen(Hive.openBox<Avatar>(_key(uid.replaceAll(":", "-"))));
   }
 
   @override
   Future<void> closeAvatarBox(String uid) =>
       Hive.box<Avatar>(_key(uid)).close();
 
-  static Future<Box<Avatar>> _open2() {
+  static Future<BoxPlus<Avatar>> _open2() {
     BoxInfo.addBox(_key2());
-    return Hive.openBox<Avatar>(_key2());
+    return gen(Hive.openBox<Avatar>(_key2()));
   }
 }

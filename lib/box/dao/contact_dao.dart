@@ -1,5 +1,6 @@
 import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/contact.dart';
+import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
 abstract class ContactDao {
@@ -63,8 +64,8 @@ class ContactDaoImpl implements ContactDao {
 
   static String _key() => "contact";
 
-  static Future<Box<Contact>> _open() {
+  static Future<BoxPlus<Contact>> _open() {
     BoxInfo.addBox(_key());
-    return Hive.openBox<Contact>(_key());
+    return gen(Hive.openBox<Contact>(_key()));
   }
 }
