@@ -143,6 +143,7 @@ class _RoomPageState extends State<RoomPage> {
   final _scrollablePositionedListKey = GlobalKey();
   final List<int> _messageReplyHistory = [];
   Timer? scrollEndNotificationTimer;
+  Timer? highlightMessageTimer;
   bool isArrowIconFocused = false;
 
   List<PendingMessage> get pendingMessages =>
@@ -693,8 +694,9 @@ class _RoomPageState extends State<RoomPage> {
             });
           },
           child: FloatingActionButton(
+            backgroundColor: Theme.of(context).primaryColor,
             mini: true,
-            child: const Icon(CupertinoIcons.down_arrow),
+            child: const Icon(CupertinoIcons.chevron_down),
             onPressed: _scrollToLastMessage,
           ),
         ),
@@ -1137,7 +1139,7 @@ class _RoomPageState extends State<RoomPage> {
       builder: (context, snapshot) {
         return AnimatedContainer(
           key: ValueKey(index),
-          duration: ANIMATION_DURATION * 2,
+          duration: ANIMATION_DURATION * 5,
           color: _selectedMessages.containsKey(index + 1) ||
                   (snapshot.data! == index + 1)
               ? Theme.of(context).focusColor.withAlpha(100)
@@ -1252,10 +1254,11 @@ class _RoomPageState extends State<RoomPage> {
       if (!shouldHighlight) return;
       if (isReply) id += room.firstMessageId;
       if (id != -1) {
+        highlightMessageTimer?.cancel();
         _highlightMessageId.add(id);
       }
       if (_highlightMessageId.value != -1) {
-        Timer(const Duration(seconds: 3), () {
+       highlightMessageTimer=Timer(const Duration(seconds: 2), () {
           _highlightMessageId.add(-1);
         });
       }
