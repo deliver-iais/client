@@ -38,10 +38,11 @@ class AccountRepo {
 
       if (result.hasProfile() && result.profile.firstName.isNotEmpty) {
         _saveProfilePrivateData(
-          firstName: result.profile.firstName,
-          lastName: result.profile.lastName,
-          email: result.profile.email,
-        );
+            firstName: result.profile.firstName,
+            lastName: result.profile.lastName,
+            email: result.profile.email,
+            twoStepVerificationEnabled: TWO_STEP_VERIFICATION_IS_AVAILABLE, //todo server side
+            );
         return true;
       } else {
         return false;
@@ -96,7 +97,6 @@ class AccountRepo {
     ..firstName = await _sharedDao.get(SHARED_DAO_FIRST_NAME) ?? ""
     ..lastName = await _sharedDao.get(SHARED_DAO_LAST_NAME)
     ..email = await _sharedDao.get(SHARED_DAO_EMAIL)
-    ..password = await _sharedDao.get(SHARED_DAO_PASSWORD)
     ..description = await _sharedDao.get(SHARED_DAO_DESCRIPTION);
 
   Future<bool> checkUserName(String username) async {
@@ -140,6 +140,34 @@ class AccountRepo {
     }
   }
 
+  Future<bool> enableTwoStepVerification(String pas) async {
+    try {
+      final account = await getAccount();
+      await _profileServiceClient.saveUserProfile(
+        SaveUserProfileReq()
+          ..passwordHash = pas
+          ..email = account.email!
+          ..firstName = account.firstName!
+          ..lastName = account.lastName!,
+      );
+      _sharedDao.putBoolean(SHARED_DAO_TWO_STEP_VERIFICATION_ENABLED, true);
+      return true;
+    } catch (e) {
+      _logger.e(e);
+      return false;
+    }
+  }
+
+  Future<bool> disableTwoStepVerification(String password) async {
+    try {
+      //todo disable password _
+      _sharedDao.putBoolean(SHARED_DAO_TWO_STEP_VERIFICATION_ENABLED, false);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   void _savePhoneNumber(int countryCode, int nationalNumber) {
     _sharedDao
       ..put(SHARED_DAO_COUNTRY_CODE, countryCode.toString())
@@ -151,12 +179,19 @@ class AccountRepo {
     String? firstName,
     String? lastName,
     String? email,
+    bool? twoStepVerificationEnabled,
   }) {
     if (username != null) _sharedDao.put(SHARED_DAO_USERNAME, username);
     _sharedDao
       ..put(SHARED_DAO_FIRST_NAME, firstName!)
       ..put(SHARED_DAO_LAST_NAME, lastName!)
       ..put(SHARED_DAO_EMAIL, email!);
+    if (twoStepVerificationEnabled != null) {
+      _sharedDao.putBoolean(
+        SHARED_DAO_TWO_STEP_VERIFICATION_ENABLED,
+        twoStepVerificationEnabled,
+      );
+    }
   }
 
   Future<List<Session>> getSessions() async {
@@ -246,5 +281,17 @@ class AccountRepo {
   Future<bool> shouldShowNewFeatureDialog() async {
     final pv = await _sharedDao.get(SHARED_DAO_APP_VERSION);
     return shouldShowNewFeaturesDialog(pv);
+  }
+
+  Future<bool> isTwoStepVerificationEnabled() async {
+    return _sharedDao.getBoolean(SHARED_DAO_TWO_STEP_VERIFICATION_ENABLED);
+  }
+
+  Future<bool> changeTwoStepVerificationPassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    //todo
+    return true;
   }
 }

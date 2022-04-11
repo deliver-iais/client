@@ -6,7 +6,6 @@ import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/role.dart';
-import 'package:deliver/box/room.dart';
 import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -284,7 +283,7 @@ class MucRepo {
     final result = await _mucServices.removeGroup(groupUid);
     if (result) {
       _mucDao.delete(groupUid.asString());
-      _roomDao.updateRoom(Room(uid: groupUid.asString(), deleted: true));
+      _roomDao.updateRoom(uid: groupUid.asString(), deleted: true);
       _mucDao.deleteAllMembers(groupUid.asString());
       return true;
     }
@@ -295,7 +294,7 @@ class MucRepo {
     final result = await _mucServices.removeChannel(channelUid);
     if (result) {
       _mucDao.delete(channelUid.asString());
-      _roomDao.updateRoom(Room(uid: channelUid.asString(), deleted: true));
+      _roomDao.updateRoom(uid: channelUid.asString(), deleted: true);
       _mucDao.deleteAllMembers(channelUid.asString());
       return true;
     }
@@ -343,7 +342,7 @@ class MucRepo {
     final result = await _mucServices.leaveGroup(groupUid);
     if (result) {
       _mucDao.delete(groupUid.asString());
-      _roomDao.updateRoom(Room(uid: groupUid.asString(), deleted: true));
+      _roomDao.updateRoom(uid: groupUid.asString(), deleted: true);
       return true;
     }
     return false;
@@ -353,7 +352,7 @@ class MucRepo {
     final result = await _mucServices.leaveChannel(channelUid);
     if (result) {
       _mucDao.delete(channelUid.asString());
-      _roomDao.updateRoom(Room(uid: channelUid.asString(), deleted: true));
+      _roomDao.updateRoom(uid: channelUid.asString(), deleted: true);
       return true;
     }
     return false;
@@ -523,7 +522,7 @@ class MucRepo {
         id: channelId,
       ),
     );
-    await _roomDao.updateRoom(Room(uid: mucUid.asString()));
+    await _roomDao.updateRoom(uid: mucUid.asString());
   }
 
   Future<bool> sendMembers(Uid mucUid, List<Uid> memberUids) async {

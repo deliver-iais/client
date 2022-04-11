@@ -3,7 +3,6 @@ import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/lastActivityRepo.dart';
-import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -14,7 +13,6 @@ import 'package:deliver/shared/widgets/drag_and_drop_widget.dart';
 import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -36,7 +34,6 @@ class _ChatItemState extends State<ChatItem> {
   static final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _roomRepo = GetIt.I.get<RoomRepo>();
-  static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _routingService = GetIt.I.get<RoutingService>();
 
@@ -51,24 +48,10 @@ class _ChatItemState extends State<ChatItem> {
   @override
   Widget build(BuildContext context) {
     _roomRepo.initActivity(widget.room.uid.asUid().node);
-    return widget.room.lastMessage == null || widget.room.lastMessage!.isHidden
-        ? FutureBuilder<Message?>(
-            future: _messageRepo.fetchLastMessages(
-              widget.room.uid.asUid(),
-              widget.room.lastMessageId!,
-              widget.room.firstMessageId,
-              widget.room,
-              type: FetchMessagesReq_Type.BACKWARD_FETCH,
-            ),
-            builder: (c, s) {
-              if (s.hasData) {
-                return buildLastMessageWidget(s.data!);
-              } else {
-                return const SizedBox.shrink();
-              }
-            },
-          )
-        : buildLastMessageWidget(widget.room.lastMessage!);
+
+    if (widget.room.lastMessage == null) return const SizedBox.shrink();
+
+    return buildLastMessageWidget(widget.room.lastMessage!);
   }
 
   Widget buildLastMessageWidget(Message lastMessage) {
@@ -81,7 +64,7 @@ class _ChatItemState extends State<ChatItem> {
       initialData: _roomRepo.fastForwardName(widget.room.uid.asUid()),
       future: _roomRepo.getName(widget.room.uid.asUid()),
       builder: (c, name) {
-        if (name.hasData && name.data != null && name.data!.isNotEmpty) {
+        if (name.hasData && name.data!.isNotEmpty) {
           return DragDropWidget(
             roomUid: widget.room.uid,
             height: 66,
@@ -167,12 +150,10 @@ class _ChatItemState extends State<ChatItem> {
                                     ),
                                   ),
                                 ),
-                                if (widget.room.lastUpdateTime != null)
+                                if (widget.room.lastMessage != null)
                                   Text(
                                     dateTimeFromNowFormat(
-                                      date(
-                                        widget.room.lastUpdateTime!,
-                                      ),
+                                      date(widget.room.lastMessage!.time),
                                     ),
                                     maxLines: 1,
                                     style: const TextStyle(
@@ -270,7 +251,7 @@ class _ChatItemState extends State<ChatItem> {
   LastMessage buildLastMessage(Message message) {
     return LastMessage(
       message: message,
-      lastMessageId: widget.room.lastMessageId!,
+      lastMessageId: widget.room.lastMessageId,
       hasMentioned: widget.room.mentioned == true,
       showSender:
           widget.room.uid.isMuc() || _authRepo.isCurrentUser(message.from),

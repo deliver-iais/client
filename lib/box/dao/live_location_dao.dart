@@ -1,4 +1,5 @@
 import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/livelocation.dart';
 import 'package:hive/hive.dart';
 
@@ -33,8 +34,8 @@ class LiveLocationDaoImpl implements LiveLocationDao {
 
   static String _key() => "live_location";
 
-  static Future<Box<LiveLocation>> _open() {
+  static Future<BoxPlus<LiveLocation>> _open() {
     BoxInfo.addBox(_key());
-    return Hive.openBox<LiveLocation>(_key());
+    return gen(Hive.openBox<LiveLocation>(_key()));
   }
 }

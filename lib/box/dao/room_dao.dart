@@ -1,13 +1,25 @@
 import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/hive_plus.dart';
+import 'package:deliver/box/message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:hive/hive.dart';
 
 abstract class RoomDao {
-  Future<void> updateRoom(Room room);
-
-  Future<void> deleteRoom(Room room);
+  Future<void> updateRoom({
+    required String uid,
+    Message? lastMessage,
+    int? lastMessageId,
+    bool? deleted,
+    String? draft,
+    int? lastUpdateTime,
+    int? firstMessageId,
+    int? lastUpdatedMessageId,
+    bool? mentioned,
+    bool? pinned,
+    int? hiddenMessageCount,
+  });
 
   Future<List<Room>> getAllRooms();
 
@@ -22,13 +34,6 @@ abstract class RoomDao {
 
 class RoomDaoImpl implements RoomDao {
   @override
-  Future<void> deleteRoom(Room room) async {
-    final box = await _openRoom();
-
-    box.delete(room.uid);
-  }
-
-  @override
   Future<List<Room>> getAllRooms() async {
     try {
       final box = await _openRoom();
@@ -36,9 +41,7 @@ class RoomDaoImpl implements RoomDao {
       return sorted(
         box.values
             .where(
-              (element) =>
-                  element.lastMessage != null &&
-                  (element.deleted == null || !element.deleted!),
+              (element) => element.lastMessage != null && !element.deleted,
             )
             .toList(),
       );
@@ -57,8 +60,7 @@ class RoomDaoImpl implements RoomDao {
       box.values
           .where(
             (element) =>
-                (element.deleted == null || !element.deleted!) &&
-                element.lastMessageId != null,
+                (element.lastMessage?.time ?? 0) > 0 && !element.deleted,
           )
           .toList(),
     );
@@ -67,16 +69,16 @@ class RoomDaoImpl implements RoomDao {
           (event) => sorted(
             box.values
                 .where(
-                  (element) => (element.lastMessageId != null &&
-                      (element.deleted == null || !element.deleted!)),
+                  (element) => ((element.lastMessage?.time ?? 0) > 0 &&
+                      !element.deleted),
                 )
                 .toList(),
           ),
         );
   }
 
-  List<Room> sorted(List<Room> list) =>
-      list..sort((a, b) => (b.lastUpdateTime ?? 0) - (a.lastUpdateTime ?? 0));
+  List<Room> sorted(List<Room> list) => list
+    ..sort((a, b) => (b.lastMessage?.time ?? 0) - (a.lastMessage?.time ?? 0));
 
   @override
   Future<Room?> getRoom(String roomUid) async {
@@ -86,12 +88,38 @@ class RoomDaoImpl implements RoomDao {
   }
 
   @override
-  Future<void> updateRoom(Room room) async {
+  Future<void> updateRoom({
+    required String uid,
+    Message? lastMessage,
+    int? lastMessageId,
+    bool? deleted,
+    String? draft,
+    int? lastUpdateTime,
+    int? firstMessageId,
+    int? lastUpdatedMessageId,
+    bool? mentioned,
+    bool? pinned,
+    int? hiddenMessageCount,
+  }) async {
     final box = await _openRoom();
 
-    final r = box.get(room.uid) ?? room;
+    final r = box.get(uid) ?? Room(uid: uid);
 
-    return box.put(room.uid, r.copy(room));
+    return box.put(
+      uid,
+      r.copyWith(
+        lastMessage: lastMessage,
+        lastMessageId: lastMessageId,
+        deleted: deleted,
+        draft: draft,
+        lastUpdateTime: lastUpdateTime,
+        firstMessageId: firstMessageId,
+        lastUpdatedMessageId: lastUpdatedMessageId,
+        mentioned: mentioned,
+        pinned: pinned,
+        hiddenMessageCount: hiddenMessageCount,
+      ),
+    );
   }
 
   @override
@@ -105,18 +133,6 @@ class RoomDaoImpl implements RoomDao {
         .map((event) => box.get(roomUid) ?? Room(uid: roomUid));
   }
 
-  static String _keyRoom() => "room";
-
-  static Future<Box<Room>> _openRoom() async {
-    try {
-      BoxInfo.addBox(_keyRoom());
-      return Hive.openBox<Room>(_keyRoom());
-    } catch (e) {
-      await Hive.deleteBoxFromDisk(_keyRoom());
-      return Hive.openBox<Room>(_keyRoom());
-    }
-  }
-
   @override
   Future<List<Room>> getAllGroups() async {
     final box = await _openRoom();
@@ -124,8 +140,20 @@ class RoomDaoImpl implements RoomDao {
         .where(
           (element) =>
               element.uid.asUid().category == Categories.GROUP &&
-              (element.deleted == null || !element.deleted!),
+              !element.deleted,
         )
         .toList();
+  }
+
+  static String _keyRoom() => "room";
+
+  static Future<BoxPlus<Room>> _openRoom() async {
+    try {
+      BoxInfo.addBox(_keyRoom());
+      return gen(Hive.openBox<Room>(_keyRoom()));
+    } catch (e) {
+      await Hive.deleteBoxFromDisk(_keyRoom());
+      return gen(Hive.openBox<Room>(_keyRoom()));
+    }
   }
 }

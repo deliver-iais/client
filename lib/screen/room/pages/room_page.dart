@@ -242,6 +242,11 @@ class _RoomPageState extends State<RoomPage> {
                       isOpen: true,
                       children: [
                         Debug(widget.roomId, label: "uid"),
+                        Debug(
+                          room.firstMessageId,
+                          label: "room.firstMessageId",
+                        ),
+                        Debug(room.lastMessageId, label: "room.lastMessageId"),
                         Debug(_lastSeenMessageId, label: "_lastSeenMessageId"),
                         Debug(
                           _lastShowedMessageId,
@@ -289,7 +294,7 @@ class _RoomPageState extends State<RoomPage> {
                 .debounceTime(const Duration(milliseconds: 50)),
             builder: (context, event) {
               // Set Item Count
-              _itemCount = (room.lastMessageId ?? 0) +
+              _itemCount = room.lastMessageId +
                   pendingMessages.length -
                   room.firstMessageId;
               _itemCountSubject.add(_itemCount);
@@ -473,14 +478,12 @@ class _RoomPageState extends State<RoomPage> {
         .distinct()
         .debounceTime(const Duration(milliseconds: 100))
         .listen((event) async {
-      if (room.lastMessageId != null) {
-        final msg = await _getMessage(event);
-        if (msg == null) return;
-        if (_appIsActive) {
-          _sendSeenMessage([msg]);
-        } else {
-          _backgroundMessages.add(msg);
-        }
+      final msg = await _getMessage(event);
+      if (msg == null) return;
+      if (_appIsActive) {
+        _sendSeenMessage([msg]);
+      } else {
+        _backgroundMessages.add(msg);
       }
     });
   }
@@ -494,27 +497,32 @@ class _RoomPageState extends State<RoomPage> {
     }
   }
 
+  Future<void> _readAllMessages() async {
+    final seen = await _roomRepo.getMySeen(widget.roomId);
+    if (room.lastMessageId > seen.messageId) {
+      _messageRepo.sendSeen(room.lastMessageId, widget.roomId.asUid());
+      _roomRepo
+          .saveMySeen(Seen(uid: widget.roomId, messageId: room.lastMessageId));
+    }
+  }
+
   Future<Message?> _getMessage(int id, {useCache = true}) async {
     if (id <= 0) return null;
-    if (room.lastMessageId != null) {
-      final msg = _messageCache.get(id);
-      if (msg != null && useCache) {
-        return msg;
-      }
-      final page = (id / PAGE_SIZE).floor();
-      final messages = await _messageRepo.getPage(
-        page,
-        widget.roomId,
-        id,
-        room.lastMessageId!,
-      );
-      for (var i = 0; i < messages.length; i = i + 1) {
-        _messageCache.set(messages[i]!.id!, messages[i]!);
-      }
-      return _messageCache.get(id);
+    final msg = _messageCache.get(id);
+    if (msg != null && useCache) {
+      return msg;
     }
-
-    return null;
+    final page = (id / PAGE_SIZE).floor();
+    final messages = await _messageRepo.getPage(
+      page,
+      widget.roomId,
+      id,
+      room.lastMessageId,
+    );
+    for (var i = 0; i < messages.length; i = i + 1) {
+      _messageCache.set(messages[i]!.id!, messages[i]!);
+    }
+    return _messageCache.get(id);
   }
 
   void _resetRoomPageDetails() {
@@ -690,7 +698,7 @@ class _RoomPageState extends State<RoomPage> {
             left: 0,
             child: UnreadMessageCounterWidget(
               widget.roomId,
-              room.lastMessageId!,
+              room.lastMessageId,
             ),
           ),
       ],
@@ -704,7 +712,7 @@ class _RoomPageState extends State<RoomPage> {
         builder: (c, s) {
           if (s.hasData &&
               s.data!.uid.asUid().category == Categories.BOT &&
-              s.data!.lastMessageId == null) {
+              s.data!.lastMessageId == 0) {
             return BotStartWidget(botUid: widget.roomId.asUid());
           } else {
             return messageInput();
@@ -999,11 +1007,10 @@ class _RoomPageState extends State<RoomPage> {
           }
           return Column(
             children: [
-              if (room.lastMessageId != null &&
-                  _lastShowedMessageId == firstIndex + 1 &&
+              if (_lastShowedMessageId == firstIndex + 1 &&
                   (room.lastUpdatedMessageId == null ||
                       (room.lastUpdatedMessageId != null &&
-                          room.lastUpdatedMessageId! < room.lastMessageId!)))
+                          room.lastUpdatedMessageId! < room.lastMessageId)))
                 FutureBuilder<Message?>(
                   future: _messageAtIndex(index + 1),
                   builder: (context, snapshot) {
@@ -1058,7 +1065,7 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   bool _isPendingMessage(int index) {
-    return _itemCount > room.lastMessageId! &&
+    return _itemCount > room.lastMessageId &&
         _itemCount - index <= pendingMessages.length;
   }
 
@@ -1184,7 +1191,10 @@ class _RoomPageState extends State<RoomPage> {
     setState(() {});
   }
 
-  void _scrollToLastMessage() => _scrollToMessage(_itemCount - 1);
+  void _scrollToLastMessage() {
+    _readAllMessages();
+    _scrollToMessage(_itemCount - 1);
+  }
 
   void _scrollToMessageWithHighlight(int id) =>
       _scrollToMessage(id, shouldHighlight: true);
