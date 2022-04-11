@@ -10,9 +10,9 @@ import 'package:deliver/box/avatar.dart' as _i27;
 import 'package:deliver/box/bot_info.dart' as _i14;
 import 'package:deliver/box/contact.dart' as _i56;
 import 'package:deliver/box/dao/block_dao.dart' as _i48;
-import 'package:deliver/box/dao/custom_notification_dao.dart' as _i64;
-import 'package:deliver/box/dao/media_dao.dart' as _i65;
-import 'package:deliver/box/dao/media_meta_data_dao.dart' as _i71;
+import 'package:deliver/box/dao/custom_notification_dao.dart' as _i63;
+import 'package:deliver/box/dao/media_dao.dart' as _i64;
+import 'package:deliver/box/dao/media_meta_data_dao.dart' as _i70;
 import 'package:deliver/box/dao/message_dao.dart' as _i19;
 import 'package:deliver/box/dao/mute_dao.dart' as _i51;
 import 'package:deliver/box/dao/room_dao.dart' as _i22;
@@ -20,9 +20,9 @@ import 'package:deliver/box/dao/seen_dao.dart' as _i38;
 import 'package:deliver/box/dao/shared_dao.dart' as _i46;
 import 'package:deliver/box/dao/uid_id_name_dao.dart' as _i52;
 import 'package:deliver/box/livelocation.dart' as _i36;
-import 'package:deliver/box/media.dart' as _i66;
-import 'package:deliver/box/media_meta_data.dart' as _i69;
-import 'package:deliver/box/media_type.dart' as _i67;
+import 'package:deliver/box/media.dart' as _i65;
+import 'package:deliver/box/media_meta_data.dart' as _i68;
+import 'package:deliver/box/media_type.dart' as _i66;
 import 'package:deliver/box/member.dart' as _i57;
 import 'package:deliver/box/message.dart' as _i20;
 import 'package:deliver/box/muc.dart' as _i60;
@@ -41,7 +41,7 @@ import 'package:deliver/repository/botRepo.dart' as _i62;
 import 'package:deliver/repository/contactRepo.dart' as _i54;
 import 'package:deliver/repository/fileRepo.dart' as _i31;
 import 'package:deliver/repository/liveLocationRepo.dart' as _i35;
-import 'package:deliver/repository/mediaRepo.dart' as _i68;
+import 'package:deliver/repository/mediaRepo.dart' as _i67;
 import 'package:deliver/repository/mucRepo.dart' as _i59;
 import 'package:deliver/repository/roomRepo.dart' as _i24;
 import 'package:deliver/services/core_services.dart' as _i45;
@@ -56,12 +56,11 @@ import 'package:deliver_public_protocol/pub/v1/group.pbgrpc.dart' as _i6;
 import 'package:deliver_public_protocol/pub/v1/live_location.pbgrpc.dart'
     as _i5;
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart' as _i25;
-import 'package:deliver_public_protocol/pub/v1/models/avatar.pb.dart' as _i63;
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as _i44;
 import 'package:deliver_public_protocol/pub/v1/models/contact.pb.dart' as _i55;
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as _i33;
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart' as _i37;
-import 'package:deliver_public_protocol/pub/v1/models/media.pb.dart' as _i70;
+import 'package:deliver_public_protocol/pub/v1/models/media.pb.dart' as _i69;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as _i41;
 import 'package:deliver_public_protocol/pub/v1/models/muc.pb.dart' as _i13;
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart' as _i28;
@@ -1416,15 +1415,6 @@ class MockAvatarRepo extends _i1.Mock implements _i47.AvatarRepo {
               returnValueForMissingStub: Future<void>.value())
           as _i17.Future<void>);
   @override
-  _i17.Future<void> getAvatarRequest(_i3.Uid? userUid) => (super.noSuchMethod(
-      Invocation.method(#getAvatarRequest, [userUid]),
-      returnValue: Future<void>.value(),
-      returnValueForMissingStub: Future<void>.value()) as _i17.Future<void>);
-  @override
-  _i17.Future<bool> needsUpdate(_i3.Uid? userUid) =>
-      (super.noSuchMethod(Invocation.method(#needsUpdate, [userUid]),
-          returnValue: Future<bool>.value(false)) as _i17.Future<bool>);
-  @override
   _i17.Stream<List<_i27.Avatar?>> getAvatar(_i3.Uid? userUid,
           {bool? forceToUpdate = false}) =>
       (super.noSuchMethod(
@@ -1450,10 +1440,6 @@ class MockAvatarRepo extends _i1.Mock implements _i47.AvatarRepo {
   String? fastForwardAvatarFilePath(_i3.Uid? userUid) => (super.noSuchMethod(
       Invocation.method(#fastForwardAvatarFilePath, [userUid])) as String?);
   @override
-  String getAvatarCacheKey(_i3.Uid? userUid) =>
-      (super.noSuchMethod(Invocation.method(#getAvatarCacheKey, [userUid]),
-          returnValue: '') as String);
-  @override
   _i17.Stream<String> getLastAvatarFilePathStream(_i3.Uid? userUid,
           {bool? forceToUpdate = false}) =>
       (super.noSuchMethod(
@@ -1466,10 +1452,6 @@ class MockAvatarRepo extends _i1.Mock implements _i47.AvatarRepo {
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
           as _i17.Future<void>);
-  @override
-  _i17.Future<bool> addAvatarRequest(_i15.AddAvatarReq? addAvatarReq) =>
-      (super.noSuchMethod(Invocation.method(#addAvatarRequest, [addAvatarReq]),
-          returnValue: Future<bool>.value(false)) as _i17.Future<bool>);
   @override
   _i17.Future<void> deleteAvatar(_i27.Avatar? avatar) => (super.noSuchMethod(
       Invocation.method(#deleteAvatar, [avatar]),
@@ -1965,14 +1947,6 @@ class MockBotRepo extends _i1.Mock implements _i62.BotRepo {
               returnValue: Future<_i14.BotInfo>.value(_FakeBotInfo_14()))
           as _i17.Future<_i14.BotInfo>);
   @override
-  _i17.Future<bool> addBotAvatar(_i63.Avatar? botAvatar) =>
-      (super.noSuchMethod(Invocation.method(#addBotAvatar, [botAvatar]),
-          returnValue: Future<bool>.value(false)) as _i17.Future<bool>);
-  @override
-  _i17.Future<bool> removeBotAvatar(_i63.Avatar? botAvatar) =>
-      (super.noSuchMethod(Invocation.method(#removeBotAvatar, [botAvatar]),
-          returnValue: Future<bool>.value(false)) as _i17.Future<bool>);
-  @override
   _i17.Future<_i14.BotInfo?> getBotInfo(_i3.Uid? botUid) =>
       (super.noSuchMethod(Invocation.method(#getBotInfo, [botUid]),
               returnValue: Future<_i14.BotInfo?>.value())
@@ -1988,7 +1962,7 @@ class MockBotRepo extends _i1.Mock implements _i62.BotRepo {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockCustomNotificationDao extends _i1.Mock
-    implements _i64.CustomNotificationDao {
+    implements _i63.CustomNotificationDao {
   @override
   _i17.Future<bool> isHaveCustomNotif(String? uid) =>
       (super.noSuchMethod(Invocation.method(#isHaveCustomNotif, [uid]),
@@ -2008,23 +1982,23 @@ class MockCustomNotificationDao extends _i1.Mock
 /// A class which mocks [MediaDao].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockMediaDao extends _i1.Mock implements _i65.MediaDao {
+class MockMediaDao extends _i1.Mock implements _i64.MediaDao {
   @override
-  _i17.Future<List<_i66.Media>> get(
-          String? roomId, _i67.MediaType? type, int? limit, int? offset) =>
+  _i17.Future<List<_i65.Media>> get(
+          String? roomId, _i66.MediaType? type, int? limit, int? offset) =>
       (super.noSuchMethod(
               Invocation.method(#get, [roomId, type, limit, offset]),
-              returnValue: Future<List<_i66.Media>>.value(<_i66.Media>[]))
-          as _i17.Future<List<_i66.Media>>);
+              returnValue: Future<List<_i65.Media>>.value(<_i65.Media>[]))
+          as _i17.Future<List<_i65.Media>>);
   @override
-  _i17.Future<List<_i66.Media>> getByRoomIdAndType(
-          String? roomUid, _i67.MediaType? type) =>
+  _i17.Future<List<_i65.Media>> getByRoomIdAndType(
+          String? roomUid, _i66.MediaType? type) =>
       (super.noSuchMethod(
               Invocation.method(#getByRoomIdAndType, [roomUid, type]),
-              returnValue: Future<List<_i66.Media>>.value(<_i66.Media>[]))
-          as _i17.Future<List<_i66.Media>>);
+              returnValue: Future<List<_i65.Media>>.value(<_i65.Media>[]))
+          as _i17.Future<List<_i65.Media>>);
   @override
-  _i17.Future<dynamic> save(_i66.Media? media) =>
+  _i17.Future<dynamic> save(_i65.Media? media) =>
       (super.noSuchMethod(Invocation.method(#save, [media]),
           returnValue: Future<dynamic>.value()) as _i17.Future<dynamic>);
   @override
@@ -2044,7 +2018,7 @@ class MockMediaDao extends _i1.Mock implements _i65.MediaDao {
 /// A class which mocks [MediaRepo].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockMediaRepo extends _i1.Mock implements _i68.MediaRepo {
+class MockMediaRepo extends _i1.Mock implements _i67.MediaRepo {
   @override
   _i17.Future<void> fetchMediaMetaData(_i3.Uid? uid,
           {bool? updateAllMedia = true}) =>
@@ -2055,14 +2029,14 @@ class MockMediaRepo extends _i1.Mock implements _i68.MediaRepo {
           returnValueForMissingStub:
               Future<void>.value()) as _i17.Future<void>);
   @override
-  void saveMediaMetaData(_i69.MediaMetaData? metaData) =>
+  void saveMediaMetaData(_i68.MediaMetaData? metaData) =>
       super.noSuchMethod(Invocation.method(#saveMediaMetaData, [metaData]),
           returnValueForMissingStub: null);
   @override
-  _i17.Future<_i69.MediaMetaData?> getMediaMetaData(String? roomUid) =>
+  _i17.Future<_i68.MediaMetaData?> getMediaMetaData(String? roomUid) =>
       (super.noSuchMethod(Invocation.method(#getMediaMetaData, [roomUid]),
-              returnValue: Future<_i69.MediaMetaData?>.value())
-          as _i17.Future<_i69.MediaMetaData?>);
+              returnValue: Future<_i68.MediaMetaData?>.value())
+          as _i17.Future<_i68.MediaMetaData?>);
   @override
   _i17.Future<dynamic> updateMediaMetaData(
           _i3.Uid? roomUid, _i15.GetMediaMetadataRes? mediaResponse,
@@ -2074,7 +2048,7 @@ class MockMediaRepo extends _i1.Mock implements _i68.MediaRepo {
   @override
   _i17.Future<dynamic> checkNeedFetchMedia(
           String? roomUid,
-          _i69.MediaMetaData? oldMediaMetaData,
+          _i68.MediaMetaData? oldMediaMetaData,
           _i15.GetMediaMetadataRes? getMediaMetadataRes,
           {bool? updateOtherMedia = false}) =>
       (super.noSuchMethod(
@@ -2091,14 +2065,14 @@ class MockMediaRepo extends _i1.Mock implements _i68.MediaRepo {
               [roomUid, imagesCount, mediaType, allImageCount]),
           returnValue: Future<dynamic>.value()) as _i17.Future<dynamic>);
   @override
-  _i17.Stream<_i69.MediaMetaData?> getMediasMetaDataCountFromDB(
+  _i17.Stream<_i68.MediaMetaData?> getMediasMetaDataCountFromDB(
           _i3.Uid? roomId) =>
       (super.noSuchMethod(
               Invocation.method(#getMediasMetaDataCountFromDB, [roomId]),
-              returnValue: Stream<_i69.MediaMetaData?>.empty())
-          as _i17.Stream<_i69.MediaMetaData?>);
+              returnValue: Stream<_i68.MediaMetaData?>.empty())
+          as _i17.Stream<_i68.MediaMetaData?>);
   @override
-  _i17.Future<List<_i66.Media>> getLastMediasList(
+  _i17.Future<List<_i65.Media>> getLastMediasList(
           _i3.Uid? roomId,
           _i15.FetchMediasReq_MediaType? mediaType,
           int? pointer,
@@ -2106,38 +2080,38 @@ class MockMediaRepo extends _i1.Mock implements _i68.MediaRepo {
       (super.noSuchMethod(
               Invocation.method(#getLastMediasList,
                   [roomId, mediaType, pointer, directionType]),
-              returnValue: Future<List<_i66.Media>>.value(<_i66.Media>[]))
-          as _i17.Future<List<_i66.Media>>);
+              returnValue: Future<List<_i65.Media>>.value(<_i65.Media>[]))
+          as _i17.Future<List<_i65.Media>>);
   @override
-  _i67.MediaType findFetchedMediaType(
+  _i66.MediaType findFetchedMediaType(
           _i15.FetchMediasReq_MediaType? mediaType) =>
       (super.noSuchMethod(Invocation.method(#findFetchedMediaType, [mediaType]),
-          returnValue: _i67.MediaType.IMAGE) as _i67.MediaType);
+          returnValue: _i66.MediaType.IMAGE) as _i66.MediaType);
   @override
-  _i15.FetchMediasReq_MediaType convertType(_i67.MediaType? mediaType) =>
+  _i15.FetchMediasReq_MediaType convertType(_i66.MediaType? mediaType) =>
       (super.noSuchMethod(Invocation.method(#convertType, [mediaType]),
               returnValue: _FakeFetchMediasReq_MediaType_15())
           as _i15.FetchMediasReq_MediaType);
   @override
-  _i17.Future<List<_i66.Media>?> getMediaPage(
-          String? roomUid, _i67.MediaType? type, int? page, int? index) =>
+  _i17.Future<List<_i65.Media>?> getMediaPage(
+          String? roomUid, _i66.MediaType? type, int? page, int? index) =>
       (super.noSuchMethod(
               Invocation.method(#getMediaPage, [roomUid, type, page, index]),
-              returnValue: Future<List<_i66.Media>?>.value())
-          as _i17.Future<List<_i66.Media>?>);
+              returnValue: Future<List<_i65.Media>?>.value())
+          as _i17.Future<List<_i65.Media>?>);
   @override
   void saveMediaFromMessage(_i20.Message? message) =>
       super.noSuchMethod(Invocation.method(#saveMediaFromMessage, [message]),
           returnValueForMissingStub: null);
   @override
-  _i17.Future<List<_i66.Media>?> fetchMoreMedia(String? roomUid,
+  _i17.Future<List<_i65.Media>?> fetchMoreMedia(String? roomUid,
           _i15.FetchMediasReq_MediaType? mediaType, int? pointer) =>
       (super.noSuchMethod(
               Invocation.method(#fetchMoreMedia, [roomUid, mediaType, pointer]),
-              returnValue: Future<List<_i66.Media>?>.value())
-          as _i17.Future<List<_i66.Media>?>);
+              returnValue: Future<List<_i65.Media>?>.value())
+          as _i17.Future<List<_i65.Media>?>);
   @override
-  String findFetchedMediaJson(_i70.Media? media) =>
+  String findFetchedMediaJson(_i69.Media? media) =>
       (super.noSuchMethod(Invocation.method(#findFetchedMediaJson, [media]),
           returnValue: '') as String);
   @override
@@ -2150,29 +2124,29 @@ class MockMediaRepo extends _i1.Mock implements _i68.MediaRepo {
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i17.Future<void>);
   @override
-  _i67.MediaType loadTypeFromString(String? type) =>
+  _i66.MediaType loadTypeFromString(String? type) =>
       (super.noSuchMethod(Invocation.method(#loadTypeFromString, [type]),
-          returnValue: _i67.MediaType.IMAGE) as _i67.MediaType);
+          returnValue: _i66.MediaType.IMAGE) as _i66.MediaType);
 }
 
 /// A class which mocks [MediaMetaDataDao].
 ///
 /// See the documentation for Mockito's code generation for more information.
-class MockMediaMetaDataDao extends _i1.Mock implements _i71.MediaMetaDataDao {
+class MockMediaMetaDataDao extends _i1.Mock implements _i70.MediaMetaDataDao {
   @override
-  _i17.Future<dynamic> save(_i69.MediaMetaData? mediaMetaData) =>
+  _i17.Future<dynamic> save(_i68.MediaMetaData? mediaMetaData) =>
       (super.noSuchMethod(Invocation.method(#save, [mediaMetaData]),
           returnValue: Future<dynamic>.value()) as _i17.Future<dynamic>);
   @override
-  _i17.Stream<_i69.MediaMetaData?> get(String? roomUid) =>
+  _i17.Stream<_i68.MediaMetaData?> get(String? roomUid) =>
       (super.noSuchMethod(Invocation.method(#get, [roomUid]),
-              returnValue: Stream<_i69.MediaMetaData?>.empty())
-          as _i17.Stream<_i69.MediaMetaData?>);
+              returnValue: Stream<_i68.MediaMetaData?>.empty())
+          as _i17.Stream<_i68.MediaMetaData?>);
   @override
-  _i17.Future<_i69.MediaMetaData?> getAsFuture(String? roomUid) =>
+  _i17.Future<_i68.MediaMetaData?> getAsFuture(String? roomUid) =>
       (super.noSuchMethod(Invocation.method(#getAsFuture, [roomUid]),
-              returnValue: Future<_i69.MediaMetaData?>.value())
-          as _i17.Future<_i69.MediaMetaData?>);
+              returnValue: Future<_i68.MediaMetaData?>.value())
+          as _i17.Future<_i68.MediaMetaData?>);
   @override
   _i17.Future<dynamic> clear(String? roomUid) =>
       (super.noSuchMethod(Invocation.method(#clear, [roomUid]),
