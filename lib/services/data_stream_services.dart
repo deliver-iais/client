@@ -13,9 +13,11 @@ import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/models/call_event_type.dart';
+import 'package:deliver/models/message_event.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/notification_services.dart';
@@ -233,7 +235,7 @@ class DataStreamServices {
     await _seenDao.saveMySeen(Seen(
         uid: roomUid,
         messageId: mySeen.messageId,
-        hiddenMessageCount: (mySeen.hiddenMessageCount ?? 0) + 1));
+        hiddenMessageCount: (mySeen.hiddenMessageCount ?? 0) + 1,),);
   }
 
   Future<void> _onMessageDeleted(Uid roomUid, Message message) async {
@@ -263,7 +265,6 @@ class DataStreamServices {
       if (room!.lastMessageId != id) {
         await _roomDao.updateRoom(
           uid: roomUid.asString(),
-          lastUpdatedMessageId: msg.id,
           lastUpdateTime: time,
         );
       } else {
@@ -277,10 +278,11 @@ class DataStreamServices {
         await _roomDao.updateRoom(
           uid: roomUid.asString(),
           lastMessage: lastNotHiddenMessage ?? savedMsg,
-          lastUpdatedMessageId: msg.id,
           lastUpdateTime: time,
         );
       }
+      messageEventSubject.add(MessageEvent(roomUid.asString(), time, id,
+        MessageManipulationPersistentEvent_Action.DELETED,),);
     }
   }
 
@@ -305,12 +307,14 @@ class DataStreamServices {
     final msg = await saveMessageInMessagesDB(res.messages.first);
     final room = (await _roomDao.getRoom(roomUid.asString()))!;
 
+    messageEventSubject.add(MessageEvent(roomUid.asString(), time, id,
+        MessageManipulationPersistentEvent_Action.EDITED,),);
+
     await _roomDao.updateRoom(
       uid: room.uid,
       lastMessage:
           (room.lastMessage != null && room.lastMessage!.id != id) ? null : msg,
       lastUpdateTime: time,
-      lastUpdatedMessageId: res.messages.first.id.toInt(),
     );
   }
 

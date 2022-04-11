@@ -430,20 +430,20 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Future<void> initRoomStream() async {
-    _roomRepo.watchRoom(widget.roomId).listen((event) async {
-      // Remove changed messages from cache
-      if (event.lastUpdatedMessageId != null) {
-        final id = event.lastUpdatedMessageId!;
-
-        final msg = await _getMessage(id, useCache: false);
-
-        if (msg != null) {
-          _messageCache.set(id, msg); // Refresh cache
-        }
-      }
-
-      // Notify All Piece of Widget
+    _roomRepo.watchRoom(widget.roomId).listen((event) {
       _room.add(event);
+    });
+    messageEventSubject.stream
+        .distinct()
+        .where((event) => (event != null && event.roomUid == widget.roomId))
+        .listen((value) async {
+      final id = value!.id;
+
+      final msg = await _getMessage(id, useCache: false);
+
+      if (msg != null) {
+        _messageCache.set(id, msg); // Refresh cache
+      }
     });
   }
 
@@ -493,10 +493,13 @@ class _RoomPageState extends State<RoomPage> {
     final seen = await _roomRepo.getMySeen(widget.roomId);
     if (room.lastMessageId > seen.messageId) {
       _messageRepo.sendSeen(room.lastMessageId, widget.roomId.asUid());
-      _roomRepo.saveMySeen(Seen(
+      _roomRepo.saveMySeen(
+        Seen(
           uid: widget.roomId,
           messageId: room.lastMessageId,
-          hiddenMessageCount: 0));
+          hiddenMessageCount: 0,
+        ),
+      );
     }
   }
 
@@ -1001,10 +1004,7 @@ class _RoomPageState extends State<RoomPage> {
           }
           return Column(
             children: [
-              if (_lastShowedMessageId == firstIndex + 1 &&
-                  (room.lastUpdatedMessageId == null ||
-                      (room.lastUpdatedMessageId != null &&
-                          room.lastUpdatedMessageId! < room.lastMessageId)))
+              if (_lastShowedMessageId == firstIndex + 1)
                 FutureBuilder<Message?>(
                   future: _messageAtIndex(index + 1),
                   builder: (context, snapshot) {
