@@ -1,4 +1,5 @@
 import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:hive/hive.dart';
 
@@ -79,18 +80,18 @@ class SeenDaoImpl implements SeenDao {
 
   static String _key2() => "my-seen";
 
-  static Future<Box<Seen>> _openOthersSeen() {
+  static Future<BoxPlus<Seen>> _openOthersSeen() {
     BoxInfo.addBox(_key());
-    return Hive.openBox<Seen>(_key());
+    return gen(Hive.openBox<Seen>(_key()));
   }
 
-  static Future<Box<Seen>> _openMySeen() async {
+  static Future<BoxPlus<Seen>> _openMySeen() async {
     try {
       BoxInfo.addBox(_key2());
-      return Hive.openBox<Seen>(_key2());
+      return gen(Hive.openBox<Seen>(_key2()));
     } catch (e) {
       await Hive.deleteBoxFromDisk(_key2());
-      return Hive.openBox<Seen>(_key2());
+      return gen(Hive.openBox<Seen>(_key2()));
     }
   }
 }

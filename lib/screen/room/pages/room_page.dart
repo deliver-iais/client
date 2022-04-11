@@ -242,6 +242,11 @@ class _RoomPageState extends State<RoomPage> {
                       isOpen: true,
                       children: [
                         Debug(widget.roomId, label: "uid"),
+                        Debug(
+                          room.firstMessageId,
+                          label: "room.firstMessageId",
+                        ),
+                        Debug(room.lastMessageId, label: "room.lastMessageId"),
                         Debug(_lastSeenMessageId, label: "_lastSeenMessageId"),
                         Debug(
                           _lastShowedMessageId,

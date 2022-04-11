@@ -1,4 +1,5 @@
 import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -129,18 +130,6 @@ class RoomDaoImpl implements RoomDao {
         .map((event) => box.get(roomUid) ?? Room(uid: roomUid));
   }
 
-  static String _keyRoom() => "room";
-
-  static Future<Box<Room>> _openRoom() async {
-    try {
-      BoxInfo.addBox(_keyRoom());
-      return Hive.openBox<Room>(_keyRoom());
-    } catch (e) {
-      await Hive.deleteBoxFromDisk(_keyRoom());
-      return Hive.openBox<Room>(_keyRoom());
-    }
-  }
-
   @override
   Future<List<Room>> getAllGroups() async {
     final box = await _openRoom();
@@ -151,5 +140,17 @@ class RoomDaoImpl implements RoomDao {
               !element.deleted,
         )
         .toList();
+  }
+
+  static String _keyRoom() => "room";
+
+  static Future<BoxPlus<Room>> _openRoom() async {
+    try {
+      BoxInfo.addBox(_keyRoom());
+      return gen(Hive.openBox<Room>(_keyRoom()));
+    } catch (e) {
+      await Hive.deleteBoxFromDisk(_keyRoom());
+      return gen(Hive.openBox<Room>(_keyRoom()));
+    }
   }
 }

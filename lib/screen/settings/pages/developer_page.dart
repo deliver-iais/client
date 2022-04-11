@@ -120,6 +120,67 @@ class _DeveloperPageState extends State<DeveloperPage> {
               ],
             ),
             Section(
+              title: "Analytics - Dao Frequency",
+              children: [
+                StreamBuilder(
+                  stream: _analyticsRepo.daoEvents,
+                  builder: (context, snapshot) {
+                    return Table(
+                      border: TableBorder.all(borderRadius: mainBorder),
+                      columnWidths: const {
+                        0: FlexColumnWidth(0.80),
+                        1: FlexColumnWidth(0.20)
+                      },
+                      children: [
+                        const TableRow(
+                          children: [
+                            TableCell(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 10.0,
+                                  vertical: 8,
+                                ),
+                                child: Text("Dao Action"),
+                              ),
+                            ),
+                            TableCell(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                  horizontal: 12.0,
+                                  vertical: 8,
+                                ),
+                                child: Text("Frequency"),
+                              ),
+                            )
+                          ],
+                        ),
+                        for (final e in _analyticsRepo.daoFrequency.entries)
+                          TableRow(
+                            children: [
+                              TableCell(
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12.0,
+                                    vertical: 8,
+                                  ),
+                                  child: Text(e.key),
+                                ),
+                              ),
+                              TableCell(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(2.0),
+                                  child: Text(e.value.toString()),
+                                ),
+                              )
+                            ],
+                          )
+                      ],
+                    );
+                  },
+                )
+              ],
+            ),
+            Section(
               title: "Analytics - Page View Frequency",
               children: [
                 StreamBuilder(

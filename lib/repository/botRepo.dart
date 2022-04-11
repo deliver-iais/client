@@ -4,7 +4,6 @@ import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/models/avatar.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:get_it/get_it.dart';
@@ -28,27 +27,6 @@ class BotRepo {
     _botDao.save(botInfo);
 
     return botInfo;
-  }
-
-  Future<bool> addBotAvatar(Avatar botAvatar) async {
-    try {
-      await _botServiceClient.addAvatar(AddAvatarReq()..avatar = botAvatar);
-      return true;
-    } catch (e) {
-      _logger.e(e);
-      return false;
-    }
-  }
-
-  Future<bool> removeBotAvatar(Avatar botAvatar) async {
-    try {
-      await _botServiceClient
-          .removeAvatar(RemoveAvatarReq()..avatar = botAvatar);
-      return true;
-    } catch (e) {
-      _logger.e(e);
-      return false;
-    }
   }
 
   Future<BotInfo?> getBotInfo(Uid botUid) async {
