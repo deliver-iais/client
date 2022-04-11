@@ -20,14 +20,12 @@ class BotFormMessage extends StatefulWidget {
   final Message message;
   final bool isSeen;
   final bool isSender;
-  final double maxWidth;
   final CustomColorScheme colorScheme;
 
   const BotFormMessage({
     Key? key,
     required this.message,
     required this.isSeen,
-    required this.maxWidth,
     required this.colorScheme,
     required this.isSender,
   }) : super(key: key);
