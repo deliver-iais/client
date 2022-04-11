@@ -142,6 +142,7 @@ class _RoomPageState extends State<RoomPage> {
   final _inputMessageTextController = InputMessageTextController();
   final _inputMessageFocusNode = FocusNode();
   final _scrollablePositionedListKey = GlobalKey();
+  final List<int> _messageReplyHistory = [];
 
   List<PendingMessage> get pendingMessages =>
       _pendingMessages.valueOrNull ?? [];
@@ -325,7 +326,7 @@ class _RoomPageState extends State<RoomPage> {
   Future<void> _getScrollPosition() async {
     _routingService.shouldScrollToLastMessageInRoom.listen((shouldScroll) {
       if (shouldScroll) {
-        _scrollToLastMessage();
+        _scrollToLastMessage(isForced: true);
       }
     });
 
@@ -1166,6 +1167,7 @@ class _RoomPageState extends State<RoomPage> {
       addForwardMessage: () => _addForwardMessage(message),
       scrollToMessage: _scrollToMessageWithHighlight,
       onDelete: onDelete,
+      messageReplyHistory: _messageReplyHistory,
     );
 
     if (index == 0) {
@@ -1191,9 +1193,15 @@ class _RoomPageState extends State<RoomPage> {
     setState(() {});
   }
 
-  void _scrollToLastMessage() {
+  void _scrollToLastMessage({bool isForced = false}) {
     _readAllMessages();
-    _scrollToMessage(_itemCount - 1);
+    if (_messageReplyHistory.isNotEmpty && !isForced) {
+      _scrollToMessageWithHighlight(_messageReplyHistory.last);
+      _messageReplyHistory.remove(_messageReplyHistory.last);
+    } else {
+      _messageReplyHistory.clear();
+      _scrollToMessage(_itemCount - 1);
+    }
   }
 
   void _scrollToMessageWithHighlight(int id) =>
