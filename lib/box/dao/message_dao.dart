@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:hive/hive.dart';
@@ -145,25 +146,23 @@ class MessageDaoImpl implements MessageDao {
 
   static String _keyPending() => "pending";
 
-  static Future<Box<Message>> _openMessages(String uid) async {
+  static Future<BoxPlus<Message>> _openMessages(String uid) async {
     try {
       BoxInfo.addBox(_keyMessages(uid.replaceAll(":", "-")));
-      final res =
-          await Hive.openBox<Message>(_keyMessages(uid.replaceAll(":", "-")));
-      return res;
+      return gen(Hive.openBox<Message>(_keyMessages(uid.replaceAll(":", "-"))));
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyMessages(uid.replaceAll(":", "-")));
-      return Hive.openBox<Message>(_keyMessages(uid.replaceAll(":", "-")));
+      return gen(Hive.openBox<Message>(_keyMessages(uid.replaceAll(":", "-"))));
     }
   }
 
-  static Future<Box<PendingMessage>> _openPending() async {
+  static Future<BoxPlus<PendingMessage>> _openPending() async {
     try {
       BoxInfo.addBox(_keyPending());
-      return Hive.openBox<PendingMessage>(_keyPending());
+      return gen(Hive.openBox<PendingMessage>(_keyPending()));
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyPending());
-      return Hive.openBox<PendingMessage>(_keyPending());
+      return gen(Hive.openBox<PendingMessage>(_keyPending()));
     }
   }
 }

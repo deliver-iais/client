@@ -1,4 +1,5 @@
 import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
 
@@ -55,13 +56,6 @@ class MediaDaoImpl implements MediaDao {
         .indexWhere((element) => element.messageId == messageId);
   }
 
-  static String _key(String roomUid) => "media-$roomUid";
-
-  static Future<Box<Media>> _open(String uid) {
-    BoxInfo.addBox(_key(uid.replaceAll(":", "-")));
-    return Hive.openBox<Media>(_key(uid.replaceAll(":", "-")));
-  }
-
   @override
   Future<List<Media>> getByRoomIdAndType(String roomUid, MediaType type) async {
     final box = await _open(roomUid);
@@ -91,5 +85,13 @@ class MediaDaoImpl implements MediaDao {
   Future clear(String roomId) async {
     final box = await _open(roomId);
     await box.clear();
+  }
+
+
+  static String _key(String roomUid) => "media-$roomUid";
+
+  static Future<BoxPlus<Media>> _open(String uid) {
+    BoxInfo.addBox(_key(uid.replaceAll(":", "-")));
+    return gen(Hive.openBox<Media>(_key(uid.replaceAll(":", "-"))));
   }
 }
