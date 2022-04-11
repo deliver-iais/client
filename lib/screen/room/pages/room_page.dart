@@ -313,7 +313,11 @@ class _RoomPageState extends State<RoomPage> {
                 bottom: 16,
                 child: AnimatedScale(
                   child: scrollDownButtonWidget(),
-                  scale: snapshot.data == true ? 1 : 0,
+                  scale: isDesktop && _messageReplyHistory.isNotEmpty
+                      ? 1
+                      : snapshot.data == true
+                          ? 1
+                          : 0,
                   duration: ANIMATION_DURATION * 1.3,
                 ),
               );
@@ -992,7 +996,7 @@ class _RoomPageState extends State<RoomPage> {
         } else if (scrollNotification is ScrollEndNotification) {
           scrollEndNotificationTimer =
               Timer(const Duration(milliseconds: 1500), () {
-            if (!isArrowIconFocused) _isScrolling.add(false);
+            if (!isArrowIconFocused || !isDesktop) _isScrolling.add(false);
           });
         }
         return true;
@@ -1212,7 +1216,7 @@ class _RoomPageState extends State<RoomPage> {
   void _scrollToLastMessage({bool isForced = false}) {
     _readAllMessages();
     if (_messageReplyHistory.isNotEmpty && !isForced) {
-      _scrollToMessageWithHighlight(_messageReplyHistory.last);
+      _scrollToReplyMessage(_messageReplyHistory.last);
       _messageReplyHistory.remove(_messageReplyHistory.last);
     } else {
       _messageReplyHistory.clear();
