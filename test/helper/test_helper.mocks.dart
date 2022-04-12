@@ -138,8 +138,16 @@ class MockAnalyticsRepo extends _i1.Mock implements _i16.AnalyticsRepo {
       (super.noSuchMethod(Invocation.getter(#pageViewFrequency),
           returnValue: <String, int>{}) as Map<String, int>);
   @override
+  Map<String, int> get daoFrequency =>
+      (super.noSuchMethod(Invocation.getter(#daoFrequency),
+          returnValue: <String, int>{}) as Map<String, int>);
+  @override
   _i17.Stream<void> get events =>
       (super.noSuchMethod(Invocation.getter(#events),
+          returnValue: Stream<void>.empty()) as _i17.Stream<void>);
+  @override
+  _i17.Stream<void> get daoEvents =>
+      (super.noSuchMethod(Invocation.getter(#daoEvents),
           returnValue: Stream<void>.empty()) as _i17.Stream<void>);
   @override
   void incRF(String? key) =>
@@ -148,6 +156,10 @@ class MockAnalyticsRepo extends _i1.Mock implements _i16.AnalyticsRepo {
   @override
   void incPVF(String? key) =>
       super.noSuchMethod(Invocation.method(#incPVF, [key]),
+          returnValueForMissingStub: null);
+  @override
+  void incDao(String? key) =>
+      super.noSuchMethod(Invocation.method(#incDao, [key]),
           returnValueForMissingStub: null);
 }
 
@@ -270,7 +282,6 @@ class MockRoomDao extends _i1.Mock implements _i22.RoomDao {
           String? draft,
           int? lastUpdateTime,
           int? firstMessageId,
-          int? lastUpdatedMessageId,
           bool? mentioned,
           bool? pinned,
           int? hiddenMessageCount}) =>
@@ -283,7 +294,6 @@ class MockRoomDao extends _i1.Mock implements _i22.RoomDao {
                 #draft: draft,
                 #lastUpdateTime: lastUpdateTime,
                 #firstMessageId: firstMessageId,
-                #lastUpdatedMessageId: lastUpdatedMessageId,
                 #mentioned: mentioned,
                 #pinned: pinned,
                 #hiddenMessageCount: hiddenMessageCount
