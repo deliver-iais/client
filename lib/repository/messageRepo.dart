@@ -19,6 +19,7 @@ import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/models/file.dart' as model;
+import 'package:deliver/models/message_event.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
@@ -43,6 +44,7 @@ import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
     as location_pb;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
+import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
@@ -66,6 +68,9 @@ import '../shared/constants.dart';
 enum TitleStatusConditions { Disconnected, Updating, Normal, Connecting }
 
 const EMPTY_MESSAGE = "{}";
+
+BehaviorSubject<MessageEvent?> messageEventSubject =
+    BehaviorSubject.seeded(null);
 
 class MessageRepo {
   final _logger = GetIt.I.get<Logger>();
@@ -186,14 +191,6 @@ class MessageRepo {
               roomMetadata.firstMessageId.toInt(),
               room,
             );
-
-            if (room != null &&
-                roomMetadata.lastMessageId.toInt() > room.lastMessageId) {
-              await fetchHiddenMessageCount(
-                roomMetadata.roomUid,
-                room.lastMessageId,
-              );
-            }
             if (room != null && room.uid.asUid().category == Categories.GROUP) {
               await getMentions(room);
             }
@@ -241,9 +238,12 @@ class MessageRepo {
           ..roomUid = roomUid
           ..messageId = Int64(id + 1),
       );
-      final s = await _seenDao.getMySeen(roomUid.asString());
       _seenDao.saveMySeen(
-        s.copy(newUid: roomUid.asString(), newHiddenMessageCount: res.count),
+        Seen(
+          uid: roomUid.asString(),
+          messageId: id,
+          hiddenMessageCount: res.count,
+        ),
       );
     } catch (e) {
       _logger.e(e);
@@ -280,21 +280,26 @@ class MessageRepo {
       );
 
       final lastSeen = await _seenDao.getMySeen(room.roomUid.asString());
-      if (lastSeen.messageId != -1 &&
-          lastSeen.messageId >
-              max(
-                fetchCurrentUserSeenData.seen.id.toInt(),
-                room.lastCurrentUserSentMessageId.toInt(),
-              )) return;
-      _seenDao.saveMySeen(
-        Seen(
-          uid: room.roomUid.asString(),
-          hiddenMessageCount: lastSeen.hiddenMessageCount ?? 0,
-          messageId: max(
+      if (!(lastSeen.messageId >
+          max(
             fetchCurrentUserSeenData.seen.id.toInt(),
             room.lastCurrentUserSentMessageId.toInt(),
+          ))) {
+        _seenDao.saveMySeen(
+          Seen(
+            uid: room.roomUid.asString(),
+            hiddenMessageCount: lastSeen.hiddenMessageCount ?? 0,
+            messageId: max(
+              fetchCurrentUserSeenData.seen.id.toInt(),
+              room.lastCurrentUserSentMessageId.toInt(),
+            ),
           ),
-        ),
+        );
+      }
+
+      fetchHiddenMessageCount(
+        room.roomUid,
+        lastSeen.messageId,
       );
     } on GrpcError catch (e) {
       _logger
@@ -1003,21 +1008,20 @@ class MessageRepo {
           deletePendingMessage(msg.packetId);
         } else {
           if (await _deleteMessage(msg)) {
+            await _messageDao.saveMessage(msg);
+            messageEventSubject.add(
+              MessageEvent(
+                message.roomUid,
+                DateTime.now().millisecondsSinceEpoch,
+                message.id!,
+                MessageManipulationPersistentEvent_Action.DELETED,
+              ),
+            );
             final room = await _roomRepo.getRoom(msg.roomUid);
-            if (room != null) {
-              if (msg.id == room.lastMessageId) {
-                _roomDao.updateRoom(
-                  uid: msg.roomUid,
-                  lastMessage: msg,
-                  lastUpdateTime: clock.now().millisecondsSinceEpoch,
-                );
-              }
-            }
-
-            _messageDao.saveMessage(msg);
             _roomDao.updateRoom(
               uid: msg.roomUid,
-              lastUpdatedMessageId: msg.id,
+              lastMessage: msg.id == room!.lastMessageId ? msg : null,
+              lastUpdateTime: clock.now().millisecondsSinceEpoch,
             );
           }
         }
@@ -1047,9 +1051,13 @@ class MessageRepo {
         ..json = (message_pb.Text()..text = text).writeToJson()
         ..edited = true;
       _messageDao.saveMessage(editableMessage);
-      _roomDao.updateRoom(
-        uid: roomUid.asString(),
-        lastUpdatedMessageId: editableMessage.id,
+      messageEventSubject.add(
+        MessageEvent(
+          editableMessage.roomUid,
+          DateTime.now().millisecondsSinceEpoch,
+          editableMessage.id!,
+          MessageManipulationPersistentEvent_Action.EDITED,
+        ),
       );
       if (editableMessage.id == roomLastMessageId) {
         _roomDao.updateRoom(
@@ -1110,9 +1118,13 @@ class MessageRepo {
       ..edited = true;
     _messageDao.saveMessage(editableMessage);
     _mediaRepo.updateMedia(editableMessage);
-    _roomDao.updateRoom(
-      uid: roomUid.asString(),
-      lastUpdatedMessageId: editableMessage.id,
+    messageEventSubject.add(
+      MessageEvent(
+        editableMessage.roomUid,
+        DateTime.now().millisecondsSinceEpoch,
+        editableMessage.id!,
+        MessageManipulationPersistentEvent_Action.EDITED,
+      ),
     );
   }
 }
