@@ -144,8 +144,8 @@ class _RoomPageState extends State<RoomPage> {
   final List<int> _messageReplyHistory = [];
   Timer? scrollEndNotificationTimer;
   Timer? highlightMessageTimer;
-  bool isArrowIconFocused = false;
-  bool isLastMessages = false;
+  bool _isArrowIconFocused = false;
+  bool _isLastMessages = false;
 
   List<PendingMessage> get pendingMessages =>
       _pendingMessages.valueOrNull ?? [];
@@ -383,9 +383,9 @@ class _RoomPageState extends State<RoomPage> {
       final position = _itemPositionsListener.itemPositions.value;
       if (position.isNotEmpty) {
         if ((_itemCount - position.first.index).abs() > 5) {
-          isLastMessages = false;
+          _isLastMessages = false;
         } else {
-          isLastMessages = true;
+          _isLastMessages = true;
         }
         final firstVisibleItem =
             position.where((position) => position.itemLeadingEdge > 0).reduce(
@@ -692,10 +692,10 @@ class _RoomPageState extends State<RoomPage> {
       children: [
         MouseRegion(
           onHover: (s) {
-            isArrowIconFocused = true;
+            _isArrowIconFocused = true;
           },
           onExit: (s) {
-            isArrowIconFocused = false;
+            _isArrowIconFocused = false;
             scrollEndNotificationTimer =
                 Timer(const Duration(milliseconds: 500), () {
               _isScrolling.add(false);
@@ -1002,11 +1002,11 @@ class _RoomPageState extends State<RoomPage> {
       onNotification: (scrollNotification) {
         if (scrollNotification is ScrollStartNotification) {
           scrollEndNotificationTimer?.cancel();
-          if (!isLastMessages) _isScrolling.add(true);
+          if (!_isLastMessages) _isScrolling.add(true);
         } else if (scrollNotification is ScrollEndNotification) {
           scrollEndNotificationTimer =
               Timer(const Duration(milliseconds: 1500), () {
-            if (!isArrowIconFocused || !isDesktop) _isScrolling.add(false);
+            if (!_isArrowIconFocused || !isDesktop) _isScrolling.add(false);
           });
         }
         return true;
@@ -1231,8 +1231,7 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   void _scrollToReplyMessage(int scrollToMessageId, int currentMessageId) {
-    final index = scrollToMessageId - room.firstMessageId;
-    _scrollToIndex(index, shouldHighlight: true);
+    _scrollToMessageWithHighlight(scrollToMessageId);
     if (!(_messageReplyHistory.isNotEmpty &&
         _messageReplyHistory.last == currentMessageId)) {
       _messageReplyHistory.add(currentMessageId);
