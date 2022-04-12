@@ -45,7 +45,7 @@ class MessageDaoImpl implements MessageDao {
 
   @override
   Future<void> deletePendingMessage(String packetId) async {
-    final box = await _openPending();
+    final box = await _openPendingMessages();
 
     box.delete(packetId);
   }
@@ -59,7 +59,7 @@ class MessageDaoImpl implements MessageDao {
 
   @override
   Future<List<PendingMessage>> getAllPendingMessages() async {
-    final box = await _openPending();
+    final box = await _openPendingMessages();
 
     return box.values.toList();
   }
@@ -81,14 +81,14 @@ class MessageDaoImpl implements MessageDao {
 
   @override
   Future<List<PendingMessage>> getPendingMessages(String roomUid) async {
-    final box = await _openPending();
+    final box = await _openPendingMessages();
 
     return box.values.where((element) => element.roomUid == roomUid).toList();
   }
 
   @override
   Stream<List<PendingMessage>> watchPendingMessages(String roomUid) async* {
-    final box = await _openPending();
+    final box = await _openPendingMessages();
 
     yield box.values
         .where((element) => element.roomUid == roomUid)
@@ -114,14 +114,14 @@ class MessageDaoImpl implements MessageDao {
 
   @override
   Future<PendingMessage?> getPendingMessage(String packetId) async {
-    final box = await _openPending();
+    final box = await _openPendingMessages();
 
     return box.get(packetId);
   }
 
   @override
   Stream<PendingMessage?> watchPendingMessage(String packetId) async* {
-    final box = await _openPending();
+    final box = await _openPendingMessages();
 
     yield box.get(packetId);
 
@@ -137,7 +137,7 @@ class MessageDaoImpl implements MessageDao {
 
   @override
   Future<void> savePendingMessage(PendingMessage pm) async {
-    final box = await _openPending();
+    final box = await _openPendingMessages();
 
     box.put(pm.packetId, pm);
   }
@@ -156,7 +156,7 @@ class MessageDaoImpl implements MessageDao {
     }
   }
 
-  static Future<BoxPlus<PendingMessage>> _openPending() async {
+  static Future<BoxPlus<PendingMessage>> _openPendingMessages() async {
     try {
       BoxInfo.addBox(_keyPending());
       return gen(Hive.openBox<PendingMessage>(_keyPending()));
