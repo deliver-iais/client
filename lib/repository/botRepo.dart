@@ -26,9 +26,12 @@ class BotRepo {
       commands: result.commands,
       isOwner: result.isOwner,
     );
-    _uidIdNameDao.update(botUid.asString(),
-        name: result.name, id: botUid.asString());
-    roomNameCache.set(botUid.asString(),result.name);
+    _uidIdNameDao.update(
+      botUid.asString(),
+      name: result.name,
+      id: botUid.asString(),
+    );
+    roomNameCache.set(botUid.asString(), result.name);
 
     _botDao.save(botInfo);
 
