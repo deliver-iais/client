@@ -320,16 +320,6 @@ void main() async {
 
   Logger().i("Application has been started.");
 
-  if (isDesktop && !isWeb) {
-    try {
-      _setWindowSize();
-
-      setWindowTitle(APPLICATION_NAME);
-    } catch (e) {
-      Logger().e(e);
-    }
-  }
-
   if (hasFirebaseCapability) {
     await initializeFirebase();
   }
@@ -344,6 +334,16 @@ void main() async {
 
   Logger().i("Dependency Injection setup done.");
 
+  if (isDesktop && !isWeb) {
+    try {
+      await _setWindowSize();
+
+      setWindowTitle(APPLICATION_NAME);
+    } catch (e) {
+      Logger().e(e);
+    }
+  }
+
   runApp(
     FeatureDiscovery.withProvider(
       persistenceProvider: const NoPersistenceProvider(),
@@ -352,8 +352,22 @@ void main() async {
   );
 }
 
-void _setWindowSize() {
-  setWindowMinSize(const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
+Future<void> _setWindowSize() async {
+  final _sharedDao = GetIt.I.get<SharedDao>();
+  final size = await _sharedDao.get('SHARED_DAO_WINDOWS_SIZE');
+  final rect = size?.split('-');
+  if (rect != null) {
+    setWindowFrame(
+      Rect.fromLTRB(
+        double.parse(rect[0]),
+        double.parse(rect[1]),
+        double.parse(rect[2]),
+        double.parse(rect[3]),
+      ),
+    );
+  } else {
+    setWindowMinSize(const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
+  }
 }
 
 class MyApp extends StatelessWidget {

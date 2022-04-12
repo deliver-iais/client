@@ -26,14 +26,13 @@ class RoomAdapter extends TypeAdapter<Room> {
       mentioned: fields[3] as bool,
       deleted: fields[2] as bool,
       pinned: fields[8] as bool,
-      lastUpdatedMessageId: fields[9] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Room obj) {
     writer
-      ..writeByte(10)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.uid)
       ..writeByte(1)
@@ -51,9 +50,7 @@ class RoomAdapter extends TypeAdapter<Room> {
       ..writeByte(7)
       ..write(obj.firstMessageId)
       ..writeByte(8)
-      ..write(obj.pinned)
-      ..writeByte(9)
-      ..write(obj.lastUpdatedMessageId);
+      ..write(obj.pinned);
   }
 
   @override

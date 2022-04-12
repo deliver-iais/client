@@ -1,4 +1,5 @@
 import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:hive/hive.dart';
@@ -111,15 +112,15 @@ class MucDaoImpl implements MucDao {
 
   static String _keyMuc() => "muc";
 
-  static Future<Box<Muc>> _openMuc() {
+  static Future<BoxPlus<Muc>> _openMuc() {
     BoxInfo.addBox(_keyMuc());
-    return Hive.openBox<Muc>(_keyMuc());
+    return gen(Hive.openBox<Muc>(_keyMuc()));
   }
 
   static String _keyMembers(String uid) => "member-$uid";
 
-  static Future<Box<Member>> _openMembers(String uid) {
+  static Future<BoxPlus<Member>> _openMembers(String uid) {
     BoxInfo.addBox(_keyMembers(uid.replaceAll(":", "-")));
-    return Hive.openBox<Member>(_keyMembers(uid.replaceAll(":", "-")));
+    return gen(Hive.openBox<Member>(_keyMembers(uid.replaceAll(":", "-"))));
   }
 }

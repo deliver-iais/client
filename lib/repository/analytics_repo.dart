@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/service_api.dart';
 
@@ -8,6 +9,9 @@ import 'package:grpc/service_api.dart';
 class AnalyticsRepo {
   /// All type of GRPC requests in application
   static final Map<String, int> _requestsFrequency = {};
+
+  /// All type of DAO requests in application
+  static final Map<String, int> _daoFrequency = {};
 
   /// Rooms or all other pages in app will be count in times of seeing
   static final Map<String, int> _pageViewFrequency = {};
@@ -18,23 +22,39 @@ class AnalyticsRepo {
   /// Rooms or all other pages in app will be count in times of seeing
   Map<String, int> get pageViewFrequency => _pageViewFrequency;
 
+  /// All type of DAO requests in application
+  Map<String, int> get daoFrequency => _daoFrequency;
+
   final StreamController<void> _events = StreamController.broadcast();
 
-  /// All events of changes
+  final StreamController<void> _daoEvents = StreamController.broadcast();
+
+  /// All events of changes except dao changes
   Stream<void> get events => _events.stream;
+
+  /// All events of dao objects
+  Stream<void> get daoEvents => _daoEvents.stream;
 
   /// CountUp
   static void countUp(Map<String, int> map, String key) =>
       map[key] = (map[key] ?? 0) + 1;
 
   void incRF(String key) {
+    if (!kDebugMode) return;
     _events.add(null);
     countUp(_requestsFrequency, key);
   }
 
   void incPVF(String key) {
+    if (!kDebugMode) return;
     _events.add(null);
     countUp(_pageViewFrequency, key);
+  }
+
+  void incDao(String key) {
+    if (!kDebugMode) return;
+    _daoEvents.add(null);
+    countUp(_daoFrequency, key);
   }
 }
 
