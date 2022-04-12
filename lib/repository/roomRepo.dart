@@ -268,7 +268,16 @@ class RoomRepo {
   Future<Seen?> getOthersSeen(String roomUid) =>
       _seenDao.getOthersSeen(roomUid);
 
-  Future<void> saveMySeen(Seen seen) => _seenDao.saveMySeen(seen);
+  Future<void> updateMySeen({
+    required String uid,
+    int? messageId,
+    int? hiddenMessageCount,
+  }) =>
+      _seenDao.updateMySeen(
+        uid: uid,
+        messageId: messageId,
+        hiddenMessageCount: hiddenMessageCount,
+      );
 
   Future<void> block(String uid, {bool? block}) async {
     if (block!) {

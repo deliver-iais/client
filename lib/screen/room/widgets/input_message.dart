@@ -866,7 +866,6 @@ class _InputMessageWidget extends State<InputMessage> {
             currentRoom.uid.asUid(),
             widget.editableMessage!,
             widget.textController.text,
-            currentRoom.lastMessageId,
           );
           widget.resetRoomPageDetails!();
         } else {

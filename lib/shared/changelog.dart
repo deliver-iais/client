@@ -8,6 +8,8 @@ const List<String> FARSI_FEATURE_LIST = [
   '۵. بهبود ظاهر اپ وافزودن قابیلت انتخاب رنگ اصلی در قسمت تنظیمات',
   '۶. رفع باگ در QrCode',
   '۷. سرچ بهتر در قسمت منشن ها',
+  '۸. اسکرول بهتر در بین پیام ها با قابلیت اسکرول با حافظه',
+  '۹. استفاده بیشتر از keyboard در اپلیکیشن',
   'رفع دیگر مشکلات گزارش شده دیگر ...'
 ];
 
@@ -19,5 +21,7 @@ const List<String> ENGLISH_FEATURE_LIST = [
   '5.Improve UI and adding choosing main colors in theme settings',
   '6.Bug fix in QrCode',
   '7.Better searching algorithm in mentions list',
+  '8.Better scrolling in room by history of scroll positions in one room',
+  '9.More keyboard support',
   'And some other bugs fixed ...'
 ];
