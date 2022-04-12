@@ -190,7 +190,6 @@ class MessageRepo {
               roomMetadata.roomUid,
               roomMetadata.lastMessageId.toInt(),
               roomMetadata.firstMessageId.toInt(),
-              room,
             );
             if (room != null && room.uid.asUid().category == Categories.GROUP) {
               await getMentions(room);
@@ -1007,10 +1006,23 @@ class MessageRepo {
                 MessageManipulationPersistentEvent_Action.DELETED,
               ),
             );
-            final room = await _roomRepo.getRoom(msg.roomUid);
+
+            final room = (await _roomRepo.getRoom(msg.roomUid))!;
+
+            Message? lastNotHiddenMessage;
+
+            if (msg.id == room.lastMessage?.id) {
+              lastNotHiddenMessage =
+                  await _dataStreamServices.fetchLastNotHiddenMessage(
+                room.uid.asUid(),
+                room.lastMessageId,
+                room.firstMessageId,
+              );
+            }
+
             _roomDao.updateRoom(
               uid: msg.roomUid,
-              lastMessage: msg.id == room!.lastMessageId ? msg : null,
+              lastMessage: lastNotHiddenMessage,
               lastUpdateTime: clock.now().millisecondsSinceEpoch,
             );
           }
@@ -1025,7 +1037,6 @@ class MessageRepo {
     Uid roomUid,
     Message editableMessage,
     String text,
-    int? roomLastMessageId,
   ) async {
     try {
       final updatedMessage = message_pb.MessageByClient()
@@ -1049,7 +1060,9 @@ class MessageRepo {
           MessageManipulationPersistentEvent_Action.EDITED,
         ),
       );
-      if (editableMessage.id == roomLastMessageId) {
+      final room = (await _roomDao.getRoom(editableMessage.roomUid))!;
+
+      if (editableMessage.id == room.lastMessage?.id) {
         _roomDao.updateRoom(
           uid: roomUid.asString(),
           lastMessage: editableMessage,
@@ -1082,7 +1095,7 @@ class MessageRepo {
     } else {
       final preFile = editableMessage.json.toFile();
       updatedFile = file_pb.File.create()
-        ..caption = caption!
+        ..caption = caption ?? ""
         ..name = preFile.name
         ..uuid = preFile.uuid
         ..type = preFile.type
@@ -1116,5 +1129,14 @@ class MessageRepo {
         MessageManipulationPersistentEvent_Action.EDITED,
       ),
     );
+
+    final room = (await _roomDao.getRoom(editableMessage.roomUid))!;
+
+    if (editableMessage.id == room.lastMessage?.id) {
+      _roomDao.updateRoom(
+        uid: roomUid.asString(),
+        lastMessage: editableMessage,
+      );
+    }
   }
 }

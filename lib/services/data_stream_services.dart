@@ -10,7 +10,6 @@ import 'package:deliver/box/last_activity.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/message.dart' as message_model;
 import 'package:deliver/box/message_type.dart';
-import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/models/message_event.dart';
@@ -272,7 +271,6 @@ class DataStreamServices {
           roomUid,
           room.lastMessageId,
           room.firstMessageId,
-          room,
         );
 
         await _roomDao.updateRoom(
@@ -514,8 +512,7 @@ class DataStreamServices {
   Future<message_model.Message?> fetchLastNotHiddenMessage(
     Uid roomUid,
     int lastMessageId,
-    int firstMessageId,
-    Room? room, {
+    int firstMessageId, {
     bool retry = true,
   }) async {
     var pointer = lastMessageId + 1;

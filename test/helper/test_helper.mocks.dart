@@ -1020,14 +1020,12 @@ class MockDataStreamServices extends _i1.Mock
               returnValue: Future<_i20.Message?>.value())
           as _i17.Future<_i20.Message?>);
   @override
-  _i17.Future<_i20.Message?> fetchLastNotHiddenMessage(_i3.Uid? roomUid,
-          int? lastMessageId, int? firstMessageId, _i23.Room? room,
+  _i17.Future<_i20.Message?> fetchLastNotHiddenMessage(
+          _i3.Uid? roomUid, int? lastMessageId, int? firstMessageId,
           {bool? retry = true}) =>
       (super.noSuchMethod(
-              Invocation.method(
-                  #fetchLastNotHiddenMessage,
-                  [roomUid, lastMessageId, firstMessageId, room],
-                  {#retry: retry}),
+              Invocation.method(#fetchLastNotHiddenMessage,
+                  [roomUid, lastMessageId, firstMessageId], {#retry: retry}),
               returnValue: Future<_i20.Message?>.value())
           as _i17.Future<_i20.Message?>);
   @override
