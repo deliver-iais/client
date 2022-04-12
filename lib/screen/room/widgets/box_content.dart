@@ -40,7 +40,7 @@ class BoxContent extends StatefulWidget {
   final void Function(TapDownDetails) storePosition;
   final void Function(String) onUsernameClick;
   final void Function(String) onBotCommandClick;
-  final void Function(int) scrollToMessage;
+  final void Function(int, int) scrollToMessage;
   final void Function() onArrowIconClick;
 
   const BoxContent({
@@ -139,7 +139,10 @@ class _BoxContentState extends State<BoxContent> {
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
-          widget.scrollToMessage(widget.message.replyToId);
+          widget.scrollToMessage(
+            widget.message.replyToId,
+            widget.message.id ?? 0,
+          );
         },
         child: ReplyBrief(
           roomId: widget.message.roomUid,

@@ -25,7 +25,7 @@ class PersistentEventMessage extends StatelessWidget {
   final _i18n = GetIt.I.get<I18N>();
   final _routingServices = GetIt.I.get<RoutingService>();
   final _messageDao = GetIt.I.get<MessageDao>();
-  final void Function(int) onPinMessageClick;
+  final void Function(int, int) onPinMessageClick;
   final PersistentEvent persistentEventMessage;
   final double maxWidth;
 
@@ -239,6 +239,7 @@ class PersistentEventMessage extends StatelessWidget {
               onTap: () => onPinMessageClick(
                 persistentEventMessage.mucSpecificPersistentEvent.messageId
                     .toInt(),
+                message.id ?? 0,
               ),
             ),
           );

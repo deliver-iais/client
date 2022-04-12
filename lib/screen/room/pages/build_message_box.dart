@@ -40,7 +40,7 @@ class BuildMessageBox extends StatefulWidget {
   final Message message;
   final Message? messageBefore;
   final String roomId;
-  final void Function(int) scrollToMessage;
+  final void Function(int, int) scrollToMessage;
   final void Function() onReply;
   final void Function() onEdit;
   final void Function() addForwardMessage;
