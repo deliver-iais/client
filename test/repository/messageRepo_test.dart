@@ -1769,7 +1769,6 @@ void main() {
         verify(
           roomDao.updateRoom(
             uid: testUid.asString(),
-            lastUpdatedMessageId: 0,
           ),
         );
       });
@@ -1787,7 +1786,6 @@ void main() {
         verifyNever(
           roomDao.updateRoom(
             uid: testUid.asString(),
-            lastUpdatedMessageId: 0,
           ),
         );
       });
@@ -1823,7 +1821,6 @@ void main() {
         verify(
           roomDao.updateRoom(
             uid: testUid.asString(),
-            lastUpdatedMessageId: testMessage.id,
           ),
         );
       });
@@ -1853,7 +1850,6 @@ void main() {
         verifyNever(
           roomDao.updateRoom(
             uid: testUid.asString(),
-            lastUpdatedMessageId: testMessage.id,
           ),
         );
         verifyNever(
@@ -1951,7 +1947,6 @@ void main() {
           verify(
             roomDao.updateRoom(
               uid: testUid.asString(),
-              lastUpdatedMessageId: testMessage.id,
             ),
           );
         });

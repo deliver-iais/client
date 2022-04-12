@@ -36,9 +36,6 @@ class Room {
   @HiveField(8)
   bool pinned;
 
-  @HiveField(9)
-  int? lastUpdatedMessageId;
-
   Room({
     required this.uid,
     this.lastMessage,
@@ -49,7 +46,6 @@ class Room {
     this.mentioned = false,
     this.deleted = false,
     this.pinned = false,
-    this.lastUpdatedMessageId,
   });
 
   Room copyWith({
@@ -60,7 +56,6 @@ class Room {
     String? draft,
     int? lastUpdateTime,
     int? firstMessageId,
-    int? lastUpdatedMessageId,
     bool? mentioned,
     bool? pinned,
     int? hiddenMessageCount,
@@ -75,7 +70,6 @@ class Room {
         firstMessageId: firstMessageId ?? this.firstMessageId,
         lastMessageId: lastMessageId ?? this.lastMessageId,
         pinned: pinned ?? this.pinned,
-        lastUpdatedMessageId: lastUpdatedMessageId ?? this.lastUpdatedMessageId,
       );
 
   @override
@@ -95,9 +89,7 @@ class Room {
               .equals(other.firstMessageId, firstMessageId) &&
           const DeepCollectionEquality()
               .equals(other.lastMessageId, lastMessageId) &&
-          const DeepCollectionEquality().equals(other.pinned, pinned) &&
-          const DeepCollectionEquality()
-              .equals(other.lastUpdatedMessageId, lastUpdatedMessageId));
+          const DeepCollectionEquality().equals(other.pinned, pinned));
 
   @override
   int get hashCode => Object.hash(
@@ -111,6 +103,5 @@ class Room {
         const DeepCollectionEquality().hash(firstMessageId),
         const DeepCollectionEquality().hash(lastMessageId),
         const DeepCollectionEquality().hash(pinned),
-        const DeepCollectionEquality().hash(lastUpdatedMessageId),
       );
 }
