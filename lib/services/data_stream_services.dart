@@ -347,9 +347,20 @@ class DataStreamServices {
         break;
     }
     if (_authRepo.isCurrentUser(seen.from.asString())) {
+      final room = await _roomDao.getRoom(roomId!.asString());
+      int? hiddenMessageCount;
+
+      if (room != null &&
+          room.lastMessage != null &&
+          room.lastMessage!.id != null &&
+          room.lastMessage!.id == seen.id.toInt()) {
+        hiddenMessageCount = 0;
+      }
+
       _seenDao.updateMySeen(
-        uid: roomId!.asString(),
+        uid: roomId.asString(),
         messageId: seen.id.toInt(),
+        hiddenMessageCount: hiddenMessageCount,
       );
       _notificationServices.cancelRoomNotifications(roomId.asString());
     } else {
