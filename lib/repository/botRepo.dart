@@ -2,6 +2,8 @@
 
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
+import 'package:deliver/box/dao/uid_id_name_dao.dart';
+import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -13,6 +15,7 @@ class BotRepo {
   final _logger = GetIt.I.get<Logger>();
   final _botServiceClient = GetIt.I.get<BotServiceClient>();
   final _botDao = GetIt.I.get<BotDao>();
+  final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
 
   Future<BotInfo> fetchBotInfo(Uid botUid) async {
     final result = await _botServiceClient.getInfo(GetInfoReq()..bot = botUid);
@@ -23,6 +26,9 @@ class BotRepo {
       commands: result.commands,
       isOwner: result.isOwner,
     );
+    _uidIdNameDao.update(botUid.asString(),
+        name: result.name, id: botUid.asString());
+    roomNameCache.set(botUid.asString(),result.name);
 
     _botDao.save(botInfo);
 
