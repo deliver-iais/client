@@ -5,7 +5,6 @@ import 'dart:io' as dart_file;
 import 'package:clock/clock.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/room.dart';
-import 'package:deliver/box/seen.dart';
 import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
@@ -114,7 +113,7 @@ void main() {
       test('When called should fetch all room from sharedDao', () async {
         final sharedDao = getAndRegisterSharedDao();
         MessageRepo().updatingMessages();
-        verify(sharedDao.get(SHARED_DAO_FETCH_ALL_ROOM));
+        verify(sharedDao.get(SHARED_DAO_ALL_ROOMS_FETCHED));
       });
 
       test('When called should get All UserRoomMeta', () async {
@@ -141,7 +140,7 @@ void main() {
             ..limit = 10,
         );
         expect(getAllUserRoomMetaRes.finished, true);
-        verify(sharedDao.put(SHARED_DAO_FETCH_ALL_ROOM, "true"));
+        verify(sharedDao.put(SHARED_DAO_ALL_ROOMS_FETCHED, "true"));
       });
       test(
           'When called should get All UserRoomMeta and if finished be false should never put on sharedDao',
@@ -157,7 +156,7 @@ void main() {
             ..limit = 10,
         );
         expect(getAllUserRoomMetaRes.finished, false);
-        verifyNever(sharedDao.put(SHARED_DAO_FETCH_ALL_ROOM, "true"));
+        verifyNever(sharedDao.put(SHARED_DAO_ALL_ROOMS_FETCHED, "true"));
       });
 
       test('When called should get room from roomDao', () async {
@@ -326,14 +325,11 @@ void main() {
       test('When called should getMySeen and should save it', () async {
         final seenDo = getAndRegisterSeenDao();
         await MessageRepo().fetchHiddenMessageCount(testUid, 0);
-        final s = await seenDo.getMySeen(testUid.asString());
         verify(
-          seenDo.saveMySeen(
-            s.copy(
-              newUid: testUid.asString(),
-              newMessageId: 0,
-              newHiddenMessageCount: 0,
-            ),
+          seenDo.updateMySeen(
+            uid: testUid.asString(),
+            messageId: 0,
+            hiddenMessageCount: 0,
           ),
         );
       });
@@ -342,14 +338,11 @@ void main() {
         getAndRegisterQueryServiceClient(countIsHiddenMessagesGetError: true);
         await MessageRepo().fetchHiddenMessageCount(testUid, 0);
         verifyNever(seenDo.getMySeen(testUid.asString()));
-        final s = await seenDo.getMySeen(testUid.asString());
         verifyNever(
-          seenDo.saveMySeen(
-            s.copy(
-              newUid: testUid.asString(),
-              newMessageId: 0,
-              newHiddenMessageCount: 0,
-            ),
+          seenDo.updateMySeen(
+            uid: testUid.asString(),
+            messageId: 0,
+            hiddenMessageCount: 0,
           ),
         );
       });
@@ -586,12 +579,10 @@ void main() {
         final seenDo = getAndRegisterSeenDao();
         await MessageRepo().fetchCurrentUserLastSeen(roomMetadata);
         verify(
-          await seenDo.saveMySeen(
-            Seen(
-              uid: testUid.asString(),
-              hiddenMessageCount: 0,
-              messageId: 0,
-            ),
+          await seenDo.updateMySeen(
+            uid: testUid.asString(),
+            hiddenMessageCount: 0,
+            messageId: 0,
           ),
         );
       });
@@ -601,12 +592,10 @@ void main() {
         final seenDo = getAndRegisterSeenDao(messageId: 1);
         await MessageRepo().fetchCurrentUserLastSeen(roomMetadata);
         verifyNever(
-          await seenDo.saveMySeen(
-            Seen(
-              uid: testUid.asString(),
-              hiddenMessageCount: 0,
-              messageId: 0,
-            ),
+          await seenDo.updateMySeen(
+            uid: testUid.asString(),
+            hiddenMessageCount: 0,
+            messageId: 0,
           ),
         );
       });

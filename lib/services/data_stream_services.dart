@@ -225,17 +225,17 @@ class DataStreamServices {
   Future<void> _fetchMySeen(String roomUid) async {
     final mySeen = await _seenDao.getMySeen(roomUid);
     if (mySeen.messageId < 0) {
-      _seenDao
-          .saveMySeen(Seen(uid: roomUid, messageId: 0, hiddenMessageCount: 0));
+      _seenDao.updateMySeen(uid: roomUid, messageId: 0, hiddenMessageCount: 0);
     }
   }
 
   Future<void> _increaseHiddenMessageCount(String roomUid) async {
     final mySeen = await _seenDao.getMySeen(roomUid);
-    await _seenDao.saveMySeen(Seen(
-        uid: roomUid,
-        messageId: mySeen.messageId,
-        hiddenMessageCount: (mySeen.hiddenMessageCount ?? 0) + 1,),);
+
+    await _seenDao.updateMySeen(
+      uid: roomUid,
+      hiddenMessageCount: (mySeen.hiddenMessageCount ?? 0) + 1,
+    );
   }
 
   Future<void> _onMessageDeleted(Uid roomUid, Message message) async {
@@ -281,8 +281,14 @@ class DataStreamServices {
           lastUpdateTime: time,
         );
       }
-      messageEventSubject.add(MessageEvent(roomUid.asString(), time, id,
-        MessageManipulationPersistentEvent_Action.DELETED,),);
+      messageEventSubject.add(
+        MessageEvent(
+          roomUid.asString(),
+          time,
+          id,
+          MessageManipulationPersistentEvent_Action.DELETED,
+        ),
+      );
     }
   }
 
@@ -307,8 +313,14 @@ class DataStreamServices {
     final msg = await saveMessageInMessagesDB(res.messages.first);
     final room = (await _roomDao.getRoom(roomUid.asString()))!;
 
-    messageEventSubject.add(MessageEvent(roomUid.asString(), time, id,
-        MessageManipulationPersistentEvent_Action.EDITED,),);
+    messageEventSubject.add(
+      MessageEvent(
+        roomUid.asString(),
+        time,
+        id,
+        MessageManipulationPersistentEvent_Action.EDITED,
+      ),
+    );
 
     await _roomDao.updateRoom(
       uid: room.uid,
@@ -335,8 +347,9 @@ class DataStreamServices {
         break;
     }
     if (_authRepo.isCurrentUser(seen.from.asString())) {
-      _seenDao.saveMySeen(
-        Seen(uid: roomId!.asString(), messageId: seen.id.toInt()),
+      _seenDao.updateMySeen(
+        uid: roomId!.asString(),
+        messageId: seen.id.toInt(),
       );
       _notificationServices.cancelRoomNotifications(roomId.asString());
     } else {

@@ -142,7 +142,8 @@ class MessageRepo {
     _allRoomMetaData = {};
     var finished = false;
     var pointer = 0;
-    final fetchAllRoom = await _sharedDao.get(SHARED_DAO_FETCH_ALL_ROOM);
+    final allRoomFetched =
+        await _sharedDao.getBoolean(SHARED_DAO_ALL_ROOMS_FETCHED);
 
     while (!finished && pointer < 10000) {
       try {
@@ -153,7 +154,7 @@ class MessageRepo {
             ..limit = 10,
         );
         finished = getAllUserRoomMetaRes.finished;
-        if (finished) _sharedDao.put(SHARED_DAO_FETCH_ALL_ROOM, "true");
+        if (finished) _sharedDao.putBoolean(SHARED_DAO_ALL_ROOMS_FETCHED, true);
         for (final roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
           _allRoomMetaData[roomMetadata.roomUid.asString()] = roomMetadata;
           final room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
@@ -171,7 +172,7 @@ class MessageRepo {
                 room.lastMessage!.id! >= roomMetadata.lastMessageId.toInt() &&
                 room.lastMessage!.id != 0 &&
                 room.lastUpdateTime >= roomMetadata.lastUpdate.toInt()) {
-              if (fetchAllRoom != null) {
+              if (allRoomFetched) {
                 finished = true;
               } // no more updating needed after this room
               break;
@@ -238,12 +239,9 @@ class MessageRepo {
           ..roomUid = roomUid
           ..messageId = Int64(id + 1),
       );
-      _seenDao.saveMySeen(
-        Seen(
-          uid: roomUid.asString(),
-          messageId: id,
-          hiddenMessageCount: res.count,
-        ),
+      _seenDao.updateMySeen(
+        uid: roomUid.asString(),
+        hiddenMessageCount: res.count,
       );
     } catch (e) {
       _logger.e(e);
@@ -279,34 +277,26 @@ class MessageRepo {
         FetchCurrentUserSeenDataReq()..roomUid = room.roomUid,
       );
 
-      final lastSeen = await _seenDao.getMySeen(room.roomUid.asString());
-      if (!(lastSeen.messageId >
-          max(
-            fetchCurrentUserSeenData.seen.id.toInt(),
-            room.lastCurrentUserSentMessageId.toInt(),
-          ))) {
-        _seenDao.saveMySeen(
-          Seen(
-            uid: room.roomUid.asString(),
-            hiddenMessageCount: lastSeen.hiddenMessageCount ?? 0,
-            messageId: max(
-              fetchCurrentUserSeenData.seen.id.toInt(),
-              room.lastCurrentUserSentMessageId.toInt(),
-            ),
-          ),
-        );
-      }
+      final newSeenMessageId = max(
+        fetchCurrentUserSeenData.seen.id.toInt(),
+        room.lastCurrentUserSentMessageId.toInt(),
+      );
+
+      _seenDao.updateMySeen(
+        uid: room.roomUid.asString(),
+        messageId: newSeenMessageId,
+      );
 
       fetchHiddenMessageCount(
         room.roomUid,
-        lastSeen.messageId,
+        newSeenMessageId,
       );
     } on GrpcError catch (e) {
       _logger
         ..wtf(room.roomUid.asString())
         ..e(e);
       if (e.code == StatusCode.notFound) {
-        _seenDao.saveMySeen(Seen(uid: room.roomUid.asString(), messageId: 0));
+        _seenDao.updateMySeen(uid: room.roomUid.asString(), messageId: 0);
       }
     } catch (e) {
       _logger.e(e);

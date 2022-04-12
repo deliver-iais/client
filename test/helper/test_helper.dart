@@ -660,7 +660,7 @@ MockSharedDao getAndRegisterSharedDao() {
   _removeRegistrationIfExists<SharedDao>();
   final service = MockSharedDao();
   GetIt.I.registerSingleton<SharedDao>(service);
-  when(service.get(SHARED_DAO_FETCH_ALL_ROOM))
+  when(service.get(SHARED_DAO_ALL_ROOMS_FETCHED))
       .thenAnswer((realInvocation) => Future.value(""));
   return service;
 }

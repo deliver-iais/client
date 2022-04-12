@@ -14,7 +14,11 @@ abstract class SeenDao {
 
   Future<void> saveOthersSeen(Seen seen);
 
-  Future<void> saveMySeen(Seen seen);
+  Future<void> updateMySeen({
+    required String uid,
+    int? messageId,
+    int? hiddenMessageCount,
+  });
 }
 
 class SeenDaoImpl implements SeenDao {
@@ -38,18 +42,18 @@ class SeenDaoImpl implements SeenDao {
   Future<Seen> getMySeen(String uid) async {
     final box = await _openMySeen();
 
-    return box.get(uid) ?? Seen(uid: uid, messageId: -1);
+    return box.get(uid) ?? _defaultSeenValue(uid);
   }
 
   @override
   Stream<Seen> watchMySeen(String uid) async* {
     final box = await _openMySeen();
 
-    yield box.get(uid) ?? Seen(uid: uid, messageId: -1);
+    yield box.get(uid) ?? _defaultSeenValue(uid);
 
     yield* box
         .watch(key: uid)
-        .map((event) => box.get(uid) ?? Seen(uid: uid, messageId: -1));
+        .map((event) => box.get(uid) ?? _defaultSeenValue(uid));
   }
 
   @override
@@ -64,17 +68,29 @@ class SeenDaoImpl implements SeenDao {
   }
 
   @override
-  Future<void> saveMySeen(Seen seen) async {
+  Future<void> updateMySeen({
+    required String uid,
+    int? messageId,
+    int? hiddenMessageCount,
+  }) async {
     final box = await _openMySeen();
 
-    final mySeen = box.get(seen.uid);
+    final seen = box.get(uid) ?? _defaultSeenValue(uid);
 
-    if (mySeen == null ||
-        mySeen.messageId < seen.messageId ||
-        seen.hiddenMessageCount != null) {
-      box.put(seen.uid, seen);
+    if ((messageId != null && seen.messageId < messageId) ||
+        hiddenMessageCount != null) {
+      box.put(
+        uid,
+        seen.copyWith(
+          uid: uid,
+          messageId: messageId,
+          hiddenMessageCount: hiddenMessageCount,
+        ),
+      );
     }
   }
+
+  static Seen _defaultSeenValue(String uid) => Seen(uid: uid, messageId: -1);
 
   static String _key() => "others-seen";
 
