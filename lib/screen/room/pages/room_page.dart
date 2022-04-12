@@ -792,7 +792,7 @@ class _RoomPageState extends State<RoomPage> {
         _currentScrollIndex = _currentScrollIndex + direction;
       }
       if (0 < _currentScrollIndex && _currentScrollIndex <= _itemCount) {
-        _scrollToMessage(_currentScrollIndex);
+        _scrollToIndex(_currentScrollIndex);
       } else if (_currentScrollIndex <= 0) {
         _currentScrollIndex = 1;
       } else {
@@ -1194,7 +1194,6 @@ class _RoomPageState extends State<RoomPage> {
       addForwardMessage: () => _addForwardMessage(message),
       scrollToMessage: _scrollToReplyMessage,
       onDelete: onDelete,
-      messageReplyHistory: _messageReplyHistory,
     );
 
     if (index == 0) {
@@ -1223,44 +1222,45 @@ class _RoomPageState extends State<RoomPage> {
   void _scrollToLastMessage({bool isForced = false}) {
     _readAllMessages();
     if (_messageReplyHistory.isNotEmpty && !isForced) {
-      _scrollToReplyMessage(_messageReplyHistory.last);
+      _scrollToMessageWithHighlight(_messageReplyHistory.last);
       _messageReplyHistory.remove(_messageReplyHistory.last);
     } else {
       _messageReplyHistory.clear();
-      _scrollToMessage(_itemCount - 1);
+      _scrollToIndex(_itemCount - 1);
     }
   }
 
-  void _scrollToMessageWithHighlight(int id) =>
-      _scrollToMessage(id, shouldHighlight: true);
+  void _scrollToReplyMessage(int scrollToMessageId, int currentMessageId) {
+    final index = scrollToMessageId - room.firstMessageId;
+    _scrollToIndex(index, shouldHighlight: true);
+    if (!(_messageReplyHistory.isNotEmpty &&
+        _messageReplyHistory.last == currentMessageId)) {
+      _messageReplyHistory.add(currentMessageId);
+    }
+  }
 
-  void _scrollToReplyMessage(int id) => _scrollToMessage(
-        id - room.firstMessageId,
-        shouldHighlight: true,
-        isReply: true,
-      );
+  void _scrollToMessageWithHighlight(int messageId) {
+    final index = messageId - room.firstMessageId;
+    _scrollToIndex(index, shouldHighlight: true);
+  }
 
-  void _scrollToMessage(
-    int id, {
-    bool shouldHighlight = false,
-    bool isReply = false,
-  }) {
+  void _scrollToIndex(int index, {bool shouldHighlight = false}) {
     if (_itemScrollController.isAttached) {
       _itemScrollController.scrollTo(
-        index: id,
+        index: index,
         duration: const Duration(seconds: 1),
         alignment: .5,
         curve: Curves.fastOutSlowIn,
         opacityAnimationWeights: [20, 20, 60],
       );
 
-      _currentScrollIndex = max(0, id);
+      _currentScrollIndex = max(0, index);
 
       if (!shouldHighlight) return;
-      if (isReply) id += room.firstMessageId;
-      if (id != -1) {
+
+      if (index != -1) {
         highlightMessageTimer?.cancel();
-        _highlightMessageId.add(id);
+        _highlightMessageId.add(index + room.firstMessageId);
       }
       if (_highlightMessageId.value != -1) {
         highlightMessageTimer = Timer(const Duration(seconds: 2), () {

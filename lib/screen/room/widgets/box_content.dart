@@ -40,9 +40,8 @@ class BoxContent extends StatefulWidget {
   final void Function(TapDownDetails) storePosition;
   final void Function(String) onUsernameClick;
   final void Function(String) onBotCommandClick;
-  final void Function(int) scrollToMessage;
+  final void Function(int, int) scrollToMessage;
   final void Function() onArrowIconClick;
-  final List<int> messageReplyHistory;
 
   const BoxContent({
     Key? key,
@@ -58,7 +57,6 @@ class BoxContent extends StatefulWidget {
     required this.colorScheme,
     required this.storePosition,
     required this.onUsernameClick,
-    required this.messageReplyHistory,
     this.pattern,
   }) : super(key: key);
 
@@ -141,11 +139,10 @@ class _BoxContentState extends State<BoxContent> {
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
-          widget.scrollToMessage(widget.message.replyToId);
-          if (!(widget.messageReplyHistory.isNotEmpty &&
-              widget.messageReplyHistory.last == widget.message.id)) {
-            widget.messageReplyHistory.add(widget.message.id ?? 0);
-          }
+          widget.scrollToMessage(
+            widget.message.replyToId,
+            widget.message.id ?? 0,
+          );
         },
         child: ReplyBrief(
           roomId: widget.message.roomUid,

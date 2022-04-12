@@ -40,7 +40,7 @@ class BuildMessageBox extends StatefulWidget {
   final Message message;
   final Message? messageBefore;
   final String roomId;
-  final void Function(int) scrollToMessage;
+  final void Function(int, int) scrollToMessage;
   final void Function() onReply;
   final void Function() onEdit;
   final void Function() addForwardMessage;
@@ -52,7 +52,6 @@ class BuildMessageBox extends StatefulWidget {
   final bool hasPermissionInGroup;
   final BehaviorSubject<bool> hasPermissionInChannel;
   final BehaviorSubject<bool> selectMultiMessageSubject;
-  final List<int> messageReplyHistory;
 
   const BuildMessageBox({
     Key? key,
@@ -71,7 +70,6 @@ class BuildMessageBox extends StatefulWidget {
     required this.hasPermissionInGroup,
     required this.hasPermissionInChannel,
     required this.addForwardMessage,
-    required this.messageReplyHistory,
   }) : super(key: key);
 
   @override
@@ -272,7 +270,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
       onUsernameClick: onUsernameClick,
       storePosition: storePosition,
-      messageReplyHistory: widget.messageReplyHistory,
     );
 
     return Row(
@@ -345,7 +342,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onBotCommandClick: onBotCommandClick,
       scrollToMessage: widget.scrollToMessage,
       onUsernameClick: onUsernameClick,
-      messageReplyHistory: widget.messageReplyHistory,
       isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
       onArrowIconClick: () => _showCustomMenu(context, message),
       storePosition: storePosition,
