@@ -135,8 +135,7 @@ linter:
     lowercase_with_underscores: true
     secure_pubspec_urls: true
     sort_pub_dependencies: true
-    #TODO
-    #cancel_subscriptions: true
+    cancel_subscriptions: true
     #TODO
     #close_sinks: true
     #TODO
