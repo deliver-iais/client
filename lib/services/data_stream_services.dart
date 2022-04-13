@@ -225,7 +225,10 @@ class DataStreamServices {
     final mySeen = await _seenDao.getMySeen(roomUid);
     if (mySeen.messageId < 0) {
       await _seenDao.updateMySeen(
-          uid: roomUid, messageId: 0, hiddenMessageCount: 0);
+        uid: roomUid,
+        messageId: 0,
+        hiddenMessageCount: 0,
+      );
     }
   }
 
