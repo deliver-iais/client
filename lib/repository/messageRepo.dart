@@ -810,13 +810,6 @@ class MessageRepo {
       );
       final res = await _dataStreamServices
           .saveFetchMessages(fetchMessagesRes.messages);
-      if (res.isNotEmpty && res.last.id == lastMessageId) {
-        _roomDao.updateRoom(
-          lastMessage: res.last,
-          uid: roomId,
-          lastMessageId: lastMessageId,
-        );
-      }
       completer.complete(res);
     } catch (e) {
       _logger.e(e);
