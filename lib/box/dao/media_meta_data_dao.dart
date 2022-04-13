@@ -27,7 +27,7 @@ class MediaMetaDataDaoImpl implements MediaMetaDataDao {
   @override
   Future<void> save(MediaMetaData mediaMetaData) async {
     final box = await _open();
-    box.put(mediaMetaData.roomId, mediaMetaData);
+    return box.put(mediaMetaData.roomId, mediaMetaData);
   }
 
   @override

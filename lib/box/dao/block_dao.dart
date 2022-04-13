@@ -33,14 +33,14 @@ class BlockDaoImpl implements BlockDao {
   Future<void> block(String uid) async {
     final box = await _open();
 
-    box.put(uid, true);
+    return box.put(uid, true);
   }
 
   @override
   Future<void> unblock(String uid) async {
     final box = await _open();
 
-    box.delete(uid);
+    return box.delete(uid);
   }
 
   static String _key() => "block";

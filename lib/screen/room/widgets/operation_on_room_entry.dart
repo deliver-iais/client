@@ -37,19 +37,19 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
 
-  Future<void> onDeleteRoom(String selected) async {
-    final roomName = await _roomRepo.getName(widget.room.uid.asUid());
-    showDialog(
-      context: context,
-      builder: (context) {
-        return OnDeletePopupDialog(
-          roomUid: widget.room.uid.asUid(),
-          selected: selected,
-          roomName: roomName,
+  void onDeleteRoom(String selected) =>
+      _roomRepo.getName(widget.room.uid.asUid()).then((roomName) {
+        showDialog(
+          context: context,
+          builder: (context) {
+            return OnDeletePopupDialog(
+              roomUid: widget.room.uid.asUid(),
+              selected: selected,
+              roomName: roomName,
+            );
+          },
         );
-      },
-    );
-  }
+      });
 
   I18N i18n = GetIt.I.get<I18N>();
 

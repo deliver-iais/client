@@ -513,8 +513,7 @@ class _RoomPageState extends State<RoomPage> {
   void _sendSeenMessage(List<Message> messages) {
     for (final msg in messages) {
       final id = msg.id == room.lastMessage!.id ? room.lastMessageId : msg.id!;
-      final hiddenMessagesCount =
-          msg.id == room.lastMessage!.id ? room.lastMessageId : null;
+      final hiddenMessagesCount = msg.id == room.lastMessage!.id ? 0 : null;
 
       if (!_authRepo.isCurrentUser(msg.from)) {
         _messageRepo.sendSeen(id, widget.roomId.asUid());
@@ -531,8 +530,10 @@ class _RoomPageState extends State<RoomPage> {
   Future<void> _readAllMessages() async {
     final seen = await _roomRepo.getMySeen(widget.roomId);
     if (room.lastMessageId > seen.messageId) {
-      _messageRepo.sendSeen(room.lastMessageId, widget.roomId.asUid());
-      _roomRepo.updateMySeen(
+      unawaited(
+        _messageRepo.sendSeen(room.lastMessageId, widget.roomId.asUid()),
+      );
+      return _roomRepo.updateMySeen(
         uid: widget.roomId,
         messageId: room.lastMessageId,
         hiddenMessageCount: 0,
@@ -571,7 +572,7 @@ class _RoomPageState extends State<RoomPage> {
     setState(() {});
   }
 
-  Future<void> _sendForwardMessage() async {
+  void _sendForwardMessage() {
     if (widget.shareUid != null) {
       _messageRepo.sendShareUidMessage(widget.roomId.asUid(), widget.shareUid!);
     } else if (widget.forwardedMessages != null &&
@@ -598,27 +599,23 @@ class _RoomPageState extends State<RoomPage> {
     setState(() {});
   }
 
-  Future<void> onUnPin(Message message) async {
-    final res = await _messageRepo.unpinMessage(message);
-    if (res) {
-      _pinMessages.remove(message);
-      _lastPinedMessage
-          .add(_pinMessages.isNotEmpty ? _pinMessages.last.id! : 0);
-    }
-  }
+  Future<void> onUnPin(Message message) =>
+      _messageRepo.unpinMessage(message).then((value) {
+        _pinMessages.remove(message);
+        _lastPinedMessage
+            .add(_pinMessages.isNotEmpty ? _pinMessages.last.id! : 0);
+      });
 
-  Future<void> onPin(Message message) async {
-    final isPin = await _messageRepo.pinMessage(message);
-    if (isPin) {
-      _pinMessages.add(message);
-      _lastPinedMessage.add(_pinMessages.last.id!);
-    } else {
-      ToastDisplay.showToast(
-        toastText: _i18n.get("error_occurred"),
-        toastContext: context,
-      );
-    }
-  }
+  Future<void> onPin(Message message) =>
+      _messageRepo.pinMessage(message).then((value) {
+        _pinMessages.add(message);
+        _lastPinedMessage.add(_pinMessages.last.id!);
+      }).catchError((error) {
+        ToastDisplay.showToast(
+          toastText: _i18n.get("error_occurred"),
+          toastContext: context,
+        );
+      });
 
   void onEdit(Message message) {
     if (message.type == MessageType.TEXT) {
@@ -641,12 +638,12 @@ class _RoomPageState extends State<RoomPage> {
     FocusScope.of(context).requestFocus(_inputMessageFocusNode);
   }
 
-  Future<void> _getLastSeen() async {
-    final seen = await _roomRepo.getOthersSeen(widget.roomId);
-    if (seen != null) {
-      _lastSeenMessageId = seen.messageId;
-    }
-  }
+  Future<void> _getLastSeen() =>
+      _roomRepo.getOthersSeen(widget.roomId).then((seen) {
+        if (seen != null) {
+          _lastSeenMessageId = seen.messageId;
+        }
+      });
 
   Future<void> _getLastShowMessageId() async {
     final seen = await _roomRepo.getMySeen(widget.roomId);
@@ -1370,7 +1367,7 @@ class _RoomPageState extends State<RoomPage> {
                         "\n";
                   }
                 }
-                Clipboard.setData(ClipboardData(text: copyText));
+                Clipboard.setData(ClipboardData(text: copyText)).ignore();
                 onDelete();
                 ToastDisplay.showToast(
                   toastText: _i18n.get("copied"),

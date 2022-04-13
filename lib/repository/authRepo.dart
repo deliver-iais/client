@@ -1,5 +1,7 @@
 // ignore_for_file: file_names
 
+import 'dart:async';
+
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/message.dart';
@@ -52,12 +54,12 @@ class AuthRepo {
       _localPassword = await _sharedDao.get(SHARED_DAO_LOCAL_PASSWORD) ?? "";
       final accessToken = await _sharedDao.get(SHARED_DAO_ACCESS_TOKEN_KEY);
       final refreshToken = await _sharedDao.get(SHARED_DAO_REFRESH_TOKEN_KEY);
-      _setTokensAndCurrentUserUid(accessToken, refreshToken);
+      return _setTokensAndCurrentUserUid(accessToken, refreshToken);
     } catch (_) {}
   }
 
   Future<void> setCurrentUserUid() async {
-    init();
+    await init();
     final res = await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID);
     if (res != null) currentUserUid = (res).asUid();
   }
@@ -92,8 +94,9 @@ class AuthRepo {
     );
 
     if (res.status == AccessTokenRes_Status.OK) {
-      _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
+      await _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
     }
+
     return res;
   }
 
@@ -114,28 +117,19 @@ class AuthRepo {
     );
 
     if (res.status == AccessTokenRes_Status.OK) {
-      _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
+      await _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
     }
 
     return res;
   }
 
-  Future _getAccessToken(String refreshToken) async =>
+  Future<RenewAccessTokenRes> _getAccessToken(String refreshToken) =>
       requestLock.synchronized(() async {
-        try {
-          return await _authServiceClient.renewAccessToken(
-            RenewAccessTokenReq()
-              ..refreshToken = refreshToken
-              ..platform = await getPlatformPB(),
-          );
-        } on GrpcError catch (e) {
-          _logger.e(e);
-          if (_refreshToken != null && e.code == StatusCode.unauthenticated) {
-            GetIt.I.get<RoutingService>().logout();
-          }
-        } catch (e) {
-          _logger.e(e);
-        }
+        return await _authServiceClient.renewAccessToken(
+          RenewAccessTokenReq()
+            ..refreshToken = refreshToken
+            ..platform = await getPlatformPB(),
+        );
       });
 
   Future<String> getAccessToken() async {
@@ -143,10 +137,20 @@ class AuthRepo {
       if (_refreshToken == null) {
         return "";
       }
-      final RenewAccessTokenRes renewAccessTokenRes =
-          await _getAccessToken(_refreshToken!);
-      _saveTokens(renewAccessTokenRes);
-      return renewAccessTokenRes.accessToken;
+      try {
+        final renewAccessTokenRes = await _getAccessToken(_refreshToken!);
+        _saveTokens(renewAccessTokenRes);
+        return renewAccessTokenRes.accessToken;
+      } on GrpcError catch (e) {
+        _logger.e(e);
+        if (_refreshToken != null && e.code == StatusCode.unauthenticated) {
+          unawaited(GetIt.I.get<RoutingService>().logout());
+        }
+        return "";
+      } catch (e) {
+        _logger.e(e);
+        return "";
+      }
     } else {
       return _accessToken!;
     }
@@ -175,7 +179,10 @@ class AuthRepo {
     _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
   }
 
-  void _setTokensAndCurrentUserUid(String? accessToken, String? refreshToken) {
+  Future<void> _setTokensAndCurrentUserUid(
+    String? accessToken,
+    String? refreshToken,
+  ) async {
     if (accessToken == null ||
         refreshToken == null ||
         accessToken.isEmpty ||
@@ -184,20 +191,22 @@ class AuthRepo {
     }
     _accessToken = accessToken;
     _refreshToken = refreshToken;
-    _sharedDao
-      ..put(SHARED_DAO_REFRESH_TOKEN_KEY, refreshToken)
-      ..put(SHARED_DAO_ACCESS_TOKEN_KEY, accessToken);
-    _setCurrentUid(accessToken);
+    await _sharedDao.put(SHARED_DAO_REFRESH_TOKEN_KEY, refreshToken);
+    await _sharedDao.put(SHARED_DAO_ACCESS_TOKEN_KEY, accessToken);
+    return _setCurrentUid(accessToken);
   }
 
-  void _setCurrentUid(String accessToken) {
+  Future<void> _setCurrentUid(String accessToken) {
     final decodedToken = JwtDecoder.decode(accessToken);
     currentUserUid = Uid()
       ..category = Categories.USER
       ..node = decodedToken["sub"]
       ..sessionId = decodedToken["jti"];
     _logger.d(currentUserUid);
-    _sharedDao.put(SHARED_DAO_CURRENT_USER_UID, currentUserUid.asString());
+    return _sharedDao.put(
+      SHARED_DAO_CURRENT_USER_UID,
+      currentUserUid.asString(),
+    );
   }
 
   bool isCurrentUser(String uid) => uid.isSameEntity(currentUserUid);

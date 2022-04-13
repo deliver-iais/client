@@ -112,7 +112,7 @@ class RoomRepo {
               (contact.lastName != null && contact.lastName!.isNotEmpty))) {
         final name = buildName(contact.firstName, contact.lastName);
         roomNameCache.set(uid.asString(), name);
-        _uidIdNameDao.update(uid.asString(), name: name);
+        unawaited(_uidIdNameDao.update(uid.asString(), name: name));
         return name;
       } else {
         final name = await _contactRepo.getContactFromServer(uid);
@@ -129,7 +129,7 @@ class RoomRepo {
       final muc = await _mucRepo.fetchMucInfo(uid);
       if (muc != null && muc.name != null && muc.name!.isNotEmpty) {
         roomNameCache.set(uid.asString(), muc.name!);
-        _uidIdNameDao.update(uid.asString(), name: muc.name);
+        unawaited(_uidIdNameDao.update(uid.asString(), name: muc.name));
 
         return muc.name!;
       }
@@ -148,7 +148,7 @@ class RoomRepo {
 
     if (username != null) {
       roomNameCache.set(uid.asString(), username);
-      _uidIdNameDao.update(uid.asString(), id: username);
+      unawaited(_uidIdNameDao.update(uid.asString(), id: username));
     }
 
     return (username ?? unknownName) ?? "Unknown";
@@ -171,9 +171,9 @@ class RoomRepo {
       await _queryServiceClient
           .removePrivateRoom(RemovePrivateRoomReq()..roomUid = roomUid);
       final room = await _roomDao.getRoom(roomUid.asString());
-      _mediaDao.clear(roomUid.asString());
-      _mediaMetaDataDao.clear(roomUid.asString());
-      _roomDao.updateRoom(
+      await _mediaDao.clear(roomUid.asString());
+      await _mediaMetaDataDao.clear(roomUid.asString());
+      await _roomDao.updateRoom(
         uid: roomUid.asString(),
         deleted: true,
         firstMessageId: room!.lastMessageId,
@@ -190,7 +190,7 @@ class RoomRepo {
     try {
       final result =
           await _queryServiceClient.getIdByUid(GetIdByUidReq()..uid = uid);
-      _uidIdNameDao.update(uid.asString(), id: result.id);
+      _uidIdNameDao.update(uid.asString(), id: result.id).ignore();
       return result.id;
     } catch (e) {
       _logger.e(e);
@@ -282,20 +282,19 @@ class RoomRepo {
   Future<void> block(String uid, {bool? block}) async {
     if (block!) {
       await _queryServiceClient.block(BlockReq()..uid = uid.asUid());
-      _blockDao.block(uid);
+      return _blockDao.block(uid);
     } else {
       await _queryServiceClient.unblock(UnblockReq()..uid = uid.asUid());
-      _blockDao.unblock(uid);
+      return _blockDao.unblock(uid);
     }
   }
 
-  Future<void> fetchBlockedRoom() async {
-    final result =
-        await _queryServiceClient.getBlockedList(GetBlockedListReq());
-    for (final uid in result.uidList) {
-      _blockDao.block(uid.asString());
-    }
-  }
+  Future<void> fetchBlockedRoom() =>
+      _queryServiceClient.getBlockedList(GetBlockedListReq()).then((result) {
+        for (final uid in result.uidList) {
+          _blockDao.block(uid.asString());
+        }
+      });
 
   Future<List<Uid>> getAllRooms() async {
     final finalList = <Uid, Uid>{};
@@ -332,7 +331,7 @@ class RoomRepo {
       return uid;
     } else {
       final uid = await fetchUidById(synthesizeId);
-      _uidIdNameDao.update(uid.asString(), id: synthesizeId);
+      unawaited(_uidIdNameDao.update(uid.asString(), id: synthesizeId));
       return uid.asString();
     }
   }
@@ -354,9 +353,8 @@ class RoomRepo {
     return result.uid;
   }
 
-  Future<void> reportRoom(Uid roomUid) async {
-    _queryServiceClient.report(ReportReq()..uid = roomUid);
-  }
+  Future<void> reportRoom(Uid roomUid) =>
+      _queryServiceClient.report(ReportReq()..uid = roomUid);
 
   Future<List<Room>> getAllGroups() async => _roomDao.getAllGroups();
 

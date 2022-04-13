@@ -50,7 +50,7 @@ class _SplashScreenState extends State<SplashScreen>
   Future<void> tryInitAccountRepo() async {
     try {
       await _accountRepo.checkUpdatePlatformSessionInformation();
-      _authRepo.init().timeout(
+      return _authRepo.init().timeout(
         const Duration(seconds: 2),
         onTimeout: () {
           if (_attempts < 3) {
@@ -93,7 +93,7 @@ class _SplashScreenState extends State<SplashScreen>
   }
 
   Future<void> _navigateToHomePage() async {
-    _fireBaseServices.sendFireBaseToken();
+    _fireBaseServices.sendFireBaseToken().ignore();
     final hasProfile = await _accountRepo.profileInfoIsSet();
     if (!mounted) return;
     if (hasProfile) {
@@ -104,7 +104,7 @@ class _SplashScreenState extends State<SplashScreen>
             return const HomePage();
           },
         ),
-      );
+      ).ignore();
     } else {
       Navigator.push(
         context,
@@ -113,7 +113,7 @@ class _SplashScreenState extends State<SplashScreen>
             return const AccountSettings(forceToSetUsernameAndName: true);
           },
         ),
-      );
+      ).ignore();
     }
   }
 

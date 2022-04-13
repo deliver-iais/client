@@ -159,18 +159,19 @@ class _ColorFilterPageState extends State<ColorFilterPage> {
     ];
   }
 
-  Future<void> _saveImage(BuildContext context) async {
-    screenshotController
+  Future<void> _saveImage(BuildContext context) {
+    final navigatorState = Navigator.of(context);
+
+    return screenshotController
         .capture(delay: const Duration(milliseconds: 10))
         .then((binaryIntList) async {
       final outPutFile = await _fileServices.localFile(
         "_filter-${DateTime.now().millisecondsSinceEpoch}",
         widget.imagePath.split(".").last,
       );
-      outPutFile.writeAsBytes(List<int>.from(binaryIntList!));
+      await outPutFile.writeAsBytes(List<int>.from(binaryIntList!));
       widget.onDone(outPutFile.path);
-      // ignore: use_build_context_synchronously
-      Navigator.pop(context);
+      navigatorState.pop();
     });
   }
 

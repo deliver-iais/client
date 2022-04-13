@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:deliver/localization/i18n.dart';
@@ -165,9 +166,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
                       child: ShareBoxGallery(
                         scrollController: scrollController,
                         pop: () => Navigator.pop(context),
-                        setAvatar: (imagePath) async {
-                          cropAvatar(imagePath);
-                        },
+                        setAvatar: cropAvatar,
                         roomUid: widget.roomUid,
                       ),
                     ),
@@ -177,11 +176,11 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
             },
           );
         },
-      );
+      ).ignore();
     }
   }
 
-  Future<void> cropAvatar(String imagePath) async {
+  void cropAvatar(String imagePath) {
     Navigator.push(
       context,
       MaterialPageRoute(

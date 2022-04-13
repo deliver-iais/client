@@ -39,17 +39,17 @@ class UidIdNameDaoImpl implements UidIdNameDao {
 
     final byUid = box.get(uid);
     if (byUid == null) {
-      box.put(uid, UidIdName(uid: uid, id: id, name: name));
+      await box.put(uid, UidIdName(uid: uid, id: id, name: name));
     } else {
-      box.put(uid, byUid.copyWith(uid: uid, id: id, name: name));
+      await box.put(uid, byUid.copyWith(uid: uid, id: id, name: name));
     }
 
     if (byUid != null && byUid.id != null && byUid.id != id) {
-      box2.delete(byUid.id);
+      await box2.delete(byUid.id);
     }
 
     if (id != null) {
-      box2.put(id, uid);
+      await box2.put(id, uid);
     }
   }
 

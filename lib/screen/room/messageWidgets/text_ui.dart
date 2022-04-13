@@ -154,7 +154,7 @@ class UrlParser implements Parser {
           if (uri.contains("$APPLICATION_DOMAIN/$JOIN") ||
               uri.contains("$APPLICATION_DOMAIN/$SPDA") ||
               uri.contains("$APPLICATION_DOMAIN/$TEXT")) {
-            handleJoinUri(context, uri);
+            await handleJoinUri(context, uri);
           } else {
             await launch(uri);
           }
