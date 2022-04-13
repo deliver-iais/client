@@ -5,7 +5,6 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 

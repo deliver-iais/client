@@ -248,7 +248,7 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                 child: Container(
                   color: theme.backgroundColor,
                   child: GridView.builder(
-                    padding: const EdgeInsets.only(top: 0),
+                    padding: EdgeInsets.zero,
                     itemCount: emojis.length,
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: (MediaQuery.of(context).size.width -
