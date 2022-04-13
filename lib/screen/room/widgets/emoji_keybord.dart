@@ -36,6 +36,7 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
 
     return emojiState
         ? Column(
+            mainAxisSize: MainAxisSize.min,
             children: <Widget>[
               const Divider(),
               Container(
@@ -247,6 +248,7 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                 child: Container(
                   color: theme.backgroundColor,
                   child: GridView.builder(
+                    padding: const EdgeInsets.only(top: 0),
                     itemCount: emojis.length,
                     gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                       crossAxisCount: (MediaQuery.of(context).size.width -
