@@ -27,8 +27,8 @@ class FileRepo {
     io.File file,
     String uploadKey,
     String name,
-  ) async {
-    _saveFileInfo(uploadKey, file.path, name, "real");
+  ) {
+    return _saveFileInfo(uploadKey, file.path, name, "real");
   }
 
   Future<file_pb.File?> uploadClonedFile(
@@ -181,15 +181,14 @@ class FileRepo {
     String filePath,
     String name,
     String sizeType,
-  ) async {
+  ) {
     final fileInfo = FileInfo(
       uuid: fileId,
       name: name,
       path: filePath,
       sizeType: sizeType,
     );
-    await _fileDao.save(fileInfo);
-    return fileInfo;
+    return _fileDao.save(fileInfo).then((value) => fileInfo);
   }
 
   Future<void> _updateFileInfoWithRealUuid(
@@ -218,12 +217,13 @@ class FileRepo {
     _fileService.initProgressBar(uploadId);
   }
 
-  Future<void> saveFileInDownloadDir(
+  void saveFileInDownloadDir(
     String uuid,
     String name,
     String dir,
-  ) async {
-    final path = await getFileIfExist(uuid, name);
-    _fileService.saveFileInDownloadFolder(path!, name, dir);
+  ) {
+    getFileIfExist(uuid, name).then(
+      (path) => _fileService.saveFileInDownloadFolder(path!, name, dir),
+    );
   }
 }

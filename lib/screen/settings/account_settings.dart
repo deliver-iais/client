@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:deliver/localization/i18n.dart';
@@ -78,43 +79,43 @@ class _AccountSettingsState extends State<AccountSettings> {
         cropAvatar(path);
       }
     } else {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        isDismissible: true,
-        backgroundColor: Colors.transparent,
-        builder: (context) {
-          return DraggableScrollableSheet(
-            initialChildSize: 0.3,
-            minChildSize: 0.2,
-            expand: false,
-            builder: (context, scrollController) {
-              return Container(
-                color: Colors.white,
-                child: Stack(
-                  children: <Widget>[
-                    Container(
-                      padding: const EdgeInsets.all(0),
-                      child: ShareBoxGallery(
-                        pop: () => Navigator.pop(context),
-                        scrollController: scrollController,
-                        setAvatar: (filePath) async {
-                          cropAvatar(filePath);
-                        },
-                        roomUid: _authRepo.currentUserUid,
+      unawaited(
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          isDismissible: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) {
+            return DraggableScrollableSheet(
+              initialChildSize: 0.3,
+              minChildSize: 0.2,
+              expand: false,
+              builder: (context, scrollController) {
+                return Container(
+                  color: Colors.white,
+                  child: Stack(
+                    children: <Widget>[
+                      Container(
+                        padding: const EdgeInsets.all(0),
+                        child: ShareBoxGallery(
+                          pop: () => Navigator.pop(context),
+                          scrollController: scrollController,
+                          setAvatar: cropAvatar,
+                          roomUid: _authRepo.currentUserUid,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       );
     }
   }
 
-  Future<void> cropAvatar(String imagePath) async {
+  void cropAvatar(String imagePath) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -401,9 +402,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                               alignment: Alignment.centerRight,
                               child: ElevatedButton(
                                 child: Text(_i18n.get("save")),
-                                onPressed: () async {
-                                  checkAndSend();
-                                },
+                                onPressed: checkAndSend,
                               ),
                             )
                           ],
@@ -504,7 +503,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                   },
                 ),
                 (r) => false,
-              );
+              ).ignore();
             } else {
               _routingService.pop();
             }

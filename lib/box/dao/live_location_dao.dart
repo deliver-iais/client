@@ -15,12 +15,14 @@ class LiveLocationDaoImpl implements LiveLocationDao {
   @override
   Future<void> saveLiveLocation(LiveLocation liveLocation) async {
     final box = await _open();
-    box.put(liveLocation.uuid, liveLocation);
+
+    return box.put(liveLocation.uuid, liveLocation);
   }
 
   @override
   Future<LiveLocation?> getLiveLocation(String uuid) async {
     final box = await _open();
+
     return box.get(uuid);
   }
 

@@ -32,7 +32,7 @@ class LastActivityDaoImpl implements LastActivityDao {
   Future<void> save(LastActivity lastActivity) async {
     final box = await _open();
 
-    box.put(lastActivity.uid, lastActivity);
+    return box.put(lastActivity.uid, lastActivity);
   }
 
   static String _key() => "last-activity";

@@ -141,7 +141,7 @@ linter:
     #TODO
     #prefer_expression_function_bodies: true
     #TODO
-    #unawaited_futures: true
+    unawaited_futures: true
     #TODO
     #diagnostic_describe_all_properties: true
 

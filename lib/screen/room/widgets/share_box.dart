@@ -543,7 +543,7 @@ class _ShareBoxState extends State<ShareBox> {
   }
 }
 
-Future<void> showCaptionDialog({
+void showCaptionDialog({
   String? type,
   List<model.File>? files,
   required Uid roomUid,
@@ -553,7 +553,7 @@ Future<void> showCaptionDialog({
   Message? editableMessage,
   String? caption,
   bool showSelectedImage = false,
-}) async {
+}) {
   if (files!.isEmpty && editableMessage == null) return;
   showDialog(
     context: context,

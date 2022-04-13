@@ -21,7 +21,7 @@ class LastActivityRepo {
         DateTime.now().millisecondsSinceEpoch - la.lastUpdate < 10 * 60) {
       return;
     } else {
-      _getLastActivityTime(userUId);
+      return _getLastActivityTime(userUId);
     }
   }
 
@@ -32,9 +32,10 @@ class LastActivityRepo {
   Future<void> _getLastActivityTime(Uid currentUserUid) async {
     final lastActivityTime = await _queryServiceClient
         .getLastActivity(GetLastActivityReq()..uid = currentUserUid);
+
     _logger.v(lastActivityTime.toString());
 
-    _lastActivityDao.save(
+    return _lastActivityDao.save(
       LastActivity(
         uid: currentUserUid.asString(),
         time: lastActivityTime.lastActivityTime.toInt(),

@@ -37,9 +37,7 @@ class _CallListPageState extends State<CallListPage> {
 
   @override
   void initState() {
-    _callRepo.fetchUserCallList(
-      _authRepo.currentUserUid,
-    );
+    _callRepo.fetchUserCallList(_authRepo.currentUserUid);
     super.initState();
   }
 

@@ -47,7 +47,7 @@ class AvatarRepo {
 
   Future<void> fetchAvatar(Uid userUid, {bool forceToUpdate = false}) async {
     if (forceToUpdate || await _isAvatarNeedsToBeUpdated(userUid)) {
-      _getAvatarRequest(userUid);
+      return _getAvatarRequest(userUid);
     }
   }
 
@@ -68,14 +68,14 @@ class AvatarRepo {
           .toList();
 
       if (avatars.isNotEmpty) {
-        _avatarDao.saveAvatars(userUid.asString(), avatars);
+        return _avatarDao.saveAvatars(userUid.asString(), avatars);
       } else {
-        _avatarDao.saveLastAvatarAsNull(userUid.asString());
+        return _avatarDao.saveLastAvatarAsNull(userUid.asString());
       }
     } catch (e) {
       _logger.e("no avatar exist in $userUid", e);
 
-      _avatarDao.saveLastAvatarAsNull(userUid.asString());
+      return _avatarDao.saveLastAvatarAsNull(userUid.asString());
     }
   }
 

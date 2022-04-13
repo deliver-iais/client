@@ -49,8 +49,7 @@ class MucServices {
       return true;
     } catch (e) {
       if (retry) {
-        addGroupMembers(members, groupUid);
-        return true;
+        return addGroupMembers(members, groupUid);
       } else {
         _logger.e(e);
         return false;
@@ -362,24 +361,19 @@ class MucServices {
     }
   }
 
-  Future<bool> pinMessage(db.Message message) async {
-    try {
-      if (message.roomUid.asUid().category == Categories.GROUP) {
-        groupServices.pinMessage(
-          group_pb.PinMessageReq()
-            ..uid = message.roomUid.asUid()
-            ..messageId = Int64(message.id!),
-        );
-      } else {
-        channelServices.pinMessage(
-          channel_pb.PinMessageReq()
-            ..uid = message.roomUid.asUid()
-            ..messageId = Int64(message.id!),
-        );
-      }
-      return true;
-    } catch (e) {
-      return false;
+  Future<void> pinMessage(db.Message message) {
+    if (message.roomUid.asUid().category == Categories.GROUP) {
+      return groupServices.pinMessage(
+        group_pb.PinMessageReq()
+          ..uid = message.roomUid.asUid()
+          ..messageId = Int64(message.id!),
+      );
+    } else {
+      return channelServices.pinMessage(
+        channel_pb.PinMessageReq()
+          ..uid = message.roomUid.asUid()
+          ..messageId = Int64(message.id!),
+      );
     }
   }
 
@@ -410,24 +404,19 @@ class MucServices {
     }
   }
 
-  Future<bool> unpinMessage(db.Message message) async {
-    try {
-      if (message.roomUid.asUid().category == Categories.GROUP) {
-        groupServices.unpinMessage(
-          group_pb.UnpinMessageReq()
-            ..uid = message.roomUid.asUid()
-            ..messageId = Int64(message.id!),
-        );
-      } else {
-        channelServices.unpinMessage(
-          channel_pb.UnpinMessageReq()
-            ..uid = message.roomUid.asUid()
-            ..messageId = Int64(message.id!),
-        );
-      }
-      return true;
-    } catch (e) {
-      return false;
+  Future<void> unpinMessage(db.Message message) {
+    if (message.roomUid.asUid().category == Categories.GROUP) {
+      return groupServices.unpinMessage(
+        group_pb.UnpinMessageReq()
+          ..uid = message.roomUid.asUid()
+          ..messageId = Int64(message.id!),
+      );
+    } else {
+      return channelServices.unpinMessage(
+        channel_pb.UnpinMessageReq()
+          ..uid = message.roomUid.asUid()
+          ..messageId = Int64(message.id!),
+      );
     }
   }
 }

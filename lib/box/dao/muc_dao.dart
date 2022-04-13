@@ -33,7 +33,7 @@ class MucDaoImpl implements MucDao {
   Future<void> delete(String uid) async {
     final box = await _openMuc();
 
-    box.delete(uid);
+    return box.delete(uid);
   }
 
   @override
@@ -98,7 +98,7 @@ class MucDaoImpl implements MucDao {
   Future<void> saveMember(Member member) async {
     final box = await _openMembers(member.mucUid);
 
-    box.put(member.memberUid, member);
+    return box.put(member.memberUid, member);
   }
 
   @override

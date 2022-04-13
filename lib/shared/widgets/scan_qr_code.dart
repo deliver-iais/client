@@ -194,67 +194,70 @@ class _ScanQrCode extends State<ScanQrCode> {
         toastContext: context,
       );
     } else {
-      showFloatingModalBottomSheet(
-        context: context,
-        builder: (context) => Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Text(
-                _i18n.get("sure_add_contact"),
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 20,
+      unawaited(
+        showFloatingModalBottomSheet(
+          context: context,
+          builder: (context) => Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(
+                  _i18n.get("sure_add_contact"),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 20,
+                  ),
                 ),
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              Text(
-                buildName(firstName, lastName),
-                style: TextStyle(color: theme.primaryColor, fontSize: 20),
-              ),
-              Text(
-                buildPhoneNumber(countryCode, nationalNumber),
-                style: const TextStyle(fontSize: 20),
-              ),
-              const SizedBox(
-                height: 40,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(),
-                    child: Text(_i18n.get("skip")),
-                  ),
-                  TextButton(
-                    onPressed: () async {
-                      final navigatorState = Navigator.of(context);
-                      final newContactAdded = await _contactRepo.sendNewContact(
-                        contact_pb.Contact()
-                          ..firstName = firstName!
-                          ..lastName = lastName!
-                          ..phoneNumber = PhoneNumber(
-                            countryCode: int.parse(countryCode),
-                            nationalNumber: Int64(int.parse(nationalNumber)),
-                          ),
-                      );
-                      if (newContactAdded) {
-                        ToastDisplay.showToast(
-                          toastText:
-                              "$firstName$lastName ${_i18n.get("contact_add")}",
-                          toastContext: context,
+                const SizedBox(
+                  height: 30,
+                ),
+                Text(
+                  buildName(firstName, lastName),
+                  style: TextStyle(color: theme.primaryColor, fontSize: 20),
+                ),
+                Text(
+                  buildPhoneNumber(countryCode, nationalNumber),
+                  style: const TextStyle(fontSize: 20),
+                ),
+                const SizedBox(
+                  height: 40,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text(_i18n.get("skip")),
+                    ),
+                    TextButton(
+                      onPressed: () async {
+                        final navigatorState = Navigator.of(context);
+                        final newContactAdded =
+                            await _contactRepo.sendNewContact(
+                          contact_pb.Contact()
+                            ..firstName = firstName!
+                            ..lastName = lastName!
+                            ..phoneNumber = PhoneNumber(
+                              countryCode: int.parse(countryCode),
+                              nationalNumber: Int64(int.parse(nationalNumber)),
+                            ),
                         );
-                        navigatorState.pop();
-                      }
-                    },
-                    child: Text(_i18n.get("add_contact")),
-                  ),
-                ],
-              ),
-            ],
+                        if (newContactAdded) {
+                          ToastDisplay.showToast(
+                            toastText:
+                                "$firstName$lastName ${_i18n.get("contact_add")}",
+                            toastContext: context,
+                          );
+                          navigatorState.pop();
+                        }
+                      },
+                      child: Text(_i18n.get("add_contact")),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       );
@@ -267,7 +270,7 @@ class _ScanQrCode extends State<ScanQrCode> {
     String text,
   ) async {
     final theme = Theme.of(context);
-    controller.pauseCamera();
+    controller.pauseCamera().ignore();
 
     showFloatingModalBottomSheet(
       context: context,
@@ -305,18 +308,19 @@ class _ScanQrCode extends State<ScanQrCode> {
                 ),
                 TextButton(
                   onPressed: () async {
-                    Navigator.of(context).pop();
+                    final navigatorState = Navigator.of(context);
+                    await _messageRepo.sendTextMessage(
+                      Uid()
+                        ..category = Categories.BOT
+                        ..node = botId,
+                      text,
+                    );
+                    navigatorState.pop();
                     _routingServices.openRoom(
                       (Uid.create()
                             ..node = botId
                             ..category = Categories.BOT)
                           .asString(),
-                    );
-                    _messageRepo.sendTextMessage(
-                      Uid()
-                        ..category = Categories.BOT
-                        ..node = botId,
-                      text,
                     );
                   },
                   child: Text(_i18n.get("send")),
@@ -326,7 +330,7 @@ class _ScanQrCode extends State<ScanQrCode> {
           ],
         ),
       ),
-    );
+    ).ignore();
   }
 
   Future<void> handleSendPrivateDateAcceptance(
@@ -335,7 +339,7 @@ class _ScanQrCode extends State<ScanQrCode> {
     String botId,
     String token,
   ) async {
-    controller.pauseCamera();
+    controller.pauseCamera().ignore();
 
     PrivateDataType privateDataType;
     final type = pdType;
@@ -383,20 +387,21 @@ class _ScanQrCode extends State<ScanQrCode> {
                 ),
                 TextButton(
                   onPressed: () async {
-                    _messageRepo.sendPrivateMessageAccept(
+                    final navigatorState = Navigator.of(context);
+                    await _messageRepo.sendPrivateDataAcceptanceMessage(
                       Uid()
                         ..category = Categories.BOT
                         ..node = botId,
                       privateDataType,
                       token,
                     );
+                    navigatorState.pop();
                     _routingServices.openRoom(
                       (Uid.create()
                             ..node = botId
                             ..category = Categories.BOT)
                           .asString(),
                     );
-                    Navigator.of(context).pop();
                   },
                   child: Text(_i18n.get("ok")),
                 ),
@@ -405,6 +410,6 @@ class _ScanQrCode extends State<ScanQrCode> {
           ],
         ),
       ),
-    );
+    ).ignore();
   }
 }
