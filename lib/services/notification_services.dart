@@ -1,14 +1,18 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/main.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/services/audio_service.dart';
+import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -23,6 +27,83 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:win_toast/win_toast.dart';
+
+/// A notification action which triggers a url launch event
+const String urlLaunchActionId = 'id_1';
+
+/// A notification action which triggers a App navigation event
+const String navigationActionId = 'id_3';
+
+/// Defines a iOS/MacOS notification category for text input actions.
+const String darwinNotificationCategoryText = 'textCategory';
+
+/// Defines a iOS/MacOS notification category for plain actions.
+const String iosNotificationCategoryPlain = 'plainCategory';
+
+/// action id for reply
+const String replyActionId = 'reply';
+
+/// action id for mark as read
+const String markAsReadActionId = 'mark_as_read';
+
+///should always in top or static
+Future<void> notificationTapBackground(
+  NotificationResponse? notificationResponse,
+) async {
+  try {
+    if (!GetIt.I.isRegistered<MessageRepo>()) {
+      await setupDI();
+    }
+    Logger().i(
+      'notification(${notificationResponse!.id}) action tapped: '
+      '${notificationResponse.actionId} with'
+      ' payload: ${notificationResponse.payload}',
+    );
+    final _messageRepo = GetIt.I.get<MessageRepo>();
+    await GetIt.I.get<CoreServices>().initStreamConnection();
+    final _roomRepo = GetIt.I.get<RoomRepo>();
+    if (notificationResponse.input?.isNotEmpty ?? false) {
+      if (notificationResponse.actionId == replyActionId) {
+        replyToMessage(_messageRepo, notificationResponse);
+        markAsRead(_messageRepo, notificationResponse, _roomRepo);
+      }
+    } else if (notificationResponse.actionId == markAsReadActionId) {
+      markAsRead(_messageRepo, notificationResponse, _roomRepo);
+    }
+
+    final send = IsolateNameServer.lookupPortByName('notification_send_port');
+    send?.send(notificationResponse);
+  } catch (e) {
+    Logger().e(e);
+  }
+}
+
+void replyToMessage(
+  MessageRepo _messageRepo,
+  NotificationResponse notificationResponse,
+) {
+  _messageRepo.sendTextMessage(
+    notificationResponse.payload!.asUid(),
+    notificationResponse.input!,
+    replyId: notificationResponse.id! - notificationResponse.payload.hashCode,
+  );
+}
+
+void markAsRead(
+  MessageRepo _messageRepo,
+  NotificationResponse notificationResponse,
+  RoomRepo _roomRepo,
+) {
+  _messageRepo.sendSeen(
+    notificationResponse.id! - notificationResponse.payload.hashCode,
+    notificationResponse.payload!.asUid(),
+  );
+  _roomRepo.updateMySeen(
+    uid: notificationResponse.payload!,
+    messageId: notificationResponse.id! - notificationResponse.payload.hashCode,
+    hiddenMessageCount: 0,
+  );
+}
 
 abstract class Notifier {
   static void onCallAccept(String roomUid) {
@@ -231,7 +312,9 @@ class WindowsNotifier implements Notifier {
   Future<void> notifyIncomingCall(String roomUid, String roomName) async {
     final actions = <String>['Accept', 'Decline'];
     Toast? toast;
-    if (!toastByRoomId.containsKey(roomUid.asUid().node)) {
+    if (!toastByRoomId.containsKey(
+      roomUid.asUid().node,
+    )) {
       toastByRoomId[roomUid.asUid().node] = {};
     }
     try {
@@ -339,10 +422,17 @@ class LinuxNotifier implements Notifier {
 
     _flutterLocalNotificationsPlugin.initialize(
       notificationSetting,
-      onSelectNotification: (room) {
-        if (room != null && room.isNotEmpty) {
-          DesktopWindow.focus();
-          _routingService.openRoom(room);
+      onDidReceiveNotificationResponse: (notificationResponse) {
+        switch (notificationResponse.notificationResponseType) {
+          case NotificationResponseType.selectedNotification:
+            final room = notificationResponse.payload;
+            if (room != null && room.isNotEmpty) {
+              DesktopWindow.focus();
+              _routingService.openRoom(room);
+            }
+            break;
+          case NotificationResponseType.selectedNotificationAction:
+            break;
         }
         return;
       },
@@ -371,7 +461,19 @@ class LinuxNotifier implements Notifier {
       }
     }
 
-    final platformChannelSpecifics = LinuxNotificationDetails(icon: icon);
+    final platformChannelSpecifics = LinuxNotificationDetails(
+      icon: icon,
+      actions: <LinuxNotificationAction>[
+        const LinuxNotificationAction(
+          key: urlLaunchActionId,
+          label: 'Action 1',
+        ),
+        const LinuxNotificationAction(
+          key: navigationActionId,
+          label: 'Action 2',
+        ),
+      ],
+    );
 
     return _flutterLocalNotificationsPlugin.show(
       message.roomUid.asString().hashCode,
@@ -432,7 +534,16 @@ class AndroidNotifier implements Notifier {
 
     _flutterLocalNotificationsPlugin.initialize(
       notificationSetting,
-      onSelectNotification: androidOnSelectNotification,
+      onDidReceiveNotificationResponse: (notificationResponse) {
+        switch (notificationResponse.notificationResponseType) {
+          case NotificationResponseType.selectedNotification:
+            androidOnSelectNotification(notificationResponse.payload);
+            break;
+          case NotificationResponseType.selectedNotificationAction:
+            break;
+        }
+      },
+      onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
     );
     androidDidNotificationLaunchApp();
   }
@@ -442,7 +553,9 @@ class AndroidNotifier implements Notifier {
         .getNotificationAppLaunchDetails()
         .then((notificationAppLaunchDetails) {
       if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
-        androidOnSelectNotification(notificationAppLaunchDetails!.payload);
+        androidOnSelectNotification(
+          notificationAppLaunchDetails!.notificationResponse!.payload,
+        );
       }
     });
   }
@@ -534,6 +647,21 @@ class AndroidNotifier implements Notifier {
       groupKey: channel.groupId,
       largeIcon: largeIcon,
       styleInformation: const BigTextStyleInformation(''),
+      actions: <AndroidNotificationAction>[
+        AndroidNotificationAction(
+          'reply',
+          'Reply to ${message.roomName}',
+          inputs: <AndroidNotificationActionInput>[
+            const AndroidNotificationActionInput(
+              label: 'Enter a message',
+            ),
+          ],
+        ),
+        const AndroidNotificationAction(
+          'mark_as_read',
+          "Mark as read",
+        ),
+      ],
       sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
     );
     _flutterLocalNotificationsPlugin
@@ -576,7 +704,7 @@ class AndroidNotifier implements Notifier {
     try {
       final activeNotification =
           await _flutterLocalNotificationsPlugin.getActiveNotifications();
-      for (final element in activeNotification!) {
+      for (final element in activeNotification) {
         if (element.channelId!.contains(roomUid) && element.id != 0) {
           await _flutterLocalNotificationsPlugin.cancel(element.id);
         }
@@ -605,15 +733,69 @@ class MacOSNotifier implements Notifier {
   final _routingService = GetIt.I.get<RoutingService>();
 
   MacOSNotifier() {
-    const macNotificationSetting = MacOSInitializationSettings();
+    final darwinNotificationCategories = <DarwinNotificationCategory>[
+      DarwinNotificationCategory(
+        darwinNotificationCategoryText,
+        actions: <DarwinNotificationAction>[
+          DarwinNotificationAction.text(
+            'text_1',
+            'Action 1',
+            buttonTitle: 'Send',
+            placeholder: 'Placeholder',
+          ),
+        ],
+      ),
+      DarwinNotificationCategory(
+        iosNotificationCategoryPlain,
+        actions: <DarwinNotificationAction>[
+          DarwinNotificationAction.plain('id_1', 'Action 1'),
+          DarwinNotificationAction.plain(
+            'id_2',
+            'Action 2 (destructive)',
+            options: <DarwinNotificationActionOption>{
+              DarwinNotificationActionOption.destructive,
+            },
+          ),
+          DarwinNotificationAction.plain(
+            navigationActionId,
+            'Action 3 (foreground)',
+            options: <DarwinNotificationActionOption>{
+              DarwinNotificationActionOption.foreground,
+            },
+          ),
+          DarwinNotificationAction.plain(
+            'id_4',
+            'Action 4 (auth required)',
+            options: <DarwinNotificationActionOption>{
+              DarwinNotificationActionOption.authenticationRequired,
+            },
+          ),
+        ],
+        options: <DarwinNotificationCategoryOption>{
+          DarwinNotificationCategoryOption.hiddenPreviewShowTitle,
+        },
+      )
+    ];
+    final initializationSettingsDarwin = DarwinInitializationSettings(
+      requestAlertPermission: false,
+      requestBadgePermission: false,
+      requestSoundPermission: false,
+      notificationCategories: darwinNotificationCategories,
+    );
 
     _flutterLocalNotificationsPlugin.initialize(
-      macNotificationSetting,
-      onSelectNotification: (room) {
-        if (room != null && room.isNotEmpty) {
-          _routingService.openRoom(room);
+      initializationSettingsDarwin,
+      onDidReceiveNotificationResponse: (notificationResponse) {
+        switch (notificationResponse.notificationResponseType) {
+          case NotificationResponseType.selectedNotification:
+            final room = notificationResponse.payload;
+            if (room != null && room.isNotEmpty) {
+              _routingService.openRoom(room);
+            }
+            break;
+          case NotificationResponseType.selectedNotificationAction:
+            break;
         }
-        return;
       },
     );
   }
@@ -622,7 +804,7 @@ class MacOSNotifier implements Notifier {
   Future<void> notifyText(MessageBrief message) async {
     if (message.ignoreNotification) return;
 
-    final attachments = <MacOSNotificationAttachment>[];
+    final attachments = <DarwinNotificationAttachment>[];
 
     final la = await _avatarRepo.getLastAvatar(message.roomUid);
 
@@ -634,21 +816,22 @@ class MacOSNotifier implements Notifier {
       );
 
       if (path != null && path.isNotEmpty) {
-        attachments.add(MacOSNotificationAttachment(path));
+        attachments.add(DarwinNotificationAttachment(path));
       }
     }
+    final darwinNotificationDetails = DarwinNotificationDetails(
+      attachments: attachments,
+      badgeNumber: 0,
+      categoryIdentifier: darwinNotificationCategoryText,
+    );
 
-    final macOSPlatformChannelSpecifics =
-        MacOSNotificationDetails(attachments: attachments, badgeNumber: 0);
-    _flutterLocalNotificationsPlugin
-        .show(
-          message.roomUid.asString().hashCode,
-          message.roomName,
-          createNotificationTextFromMessageBrief(message),
-          notificationDetails: macOSPlatformChannelSpecifics,
-          payload: message.roomUid.asString(),
-        )
-        .ignore();
+    await _flutterLocalNotificationsPlugin.show(
+      message.roomUid.asString().hashCode,
+      message.roomName,
+      createNotificationTextFromMessageBrief(message),
+      notificationDetails: darwinNotificationDetails,
+      payload: message.roomUid.asString(),
+    );
   }
 
   @override
