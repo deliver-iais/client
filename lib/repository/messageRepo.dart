@@ -772,7 +772,7 @@ class MessageRepo {
     String roomId,
     int containsId,
     int lastMessageId, {
-    int pageSize = 16,
+    int pageSize = PAGE_SIZE,
   }) {
     if (containsId > lastMessageId) {
       return Future.value([]);
@@ -814,13 +814,6 @@ class MessageRepo {
       );
       final res = await _dataStreamServices
           .saveFetchMessages(fetchMessagesRes.messages);
-      if (res.isNotEmpty && res.last.id == lastMessageId) {
-        await _roomDao.updateRoom(
-          lastMessage: res.last,
-          uid: roomId,
-          lastMessageId: lastMessageId,
-        );
-      }
       completer.complete(res);
     } catch (e) {
       _logger.e(e);
