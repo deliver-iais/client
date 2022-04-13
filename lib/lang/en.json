@@ -239,7 +239,7 @@
   "send": "Send",
   "send_To": "Send to...",
   "send_by_shift_enter": "Send Message by Shift + Enter",
-  "send_contacts_message": "Deliver needs access to your contacts so that you can connect with your friend across all your device. your contacts will be continuously synced with Dliver's  heavily encrypted cloud servers.",
+  "send_contacts_message": "Messenger needs access to your contacts so that you can connect with your friend across all your device. your contacts will be continuously synced with Dliver's  heavily encrypted cloud servers.",
   "send_live_location": "Send live location",
   "send_location_permission": "Are sure you want to send your location?",
   "send_message": "SendMessage",

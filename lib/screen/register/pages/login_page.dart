@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 
@@ -43,6 +44,7 @@ class _LoginPageState extends State<LoginPage> {
   static final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   static final _contactRepo = GetIt.I.get<ContactRepo>();
   static final _i18n = GetIt.I.get<I18N>();
+  static final _accountRepo = GetIt.I.get<AccountRepo>();
   final _formKey = GlobalKey<FormState>();
   final BehaviorSubject<bool> _isLoading = BehaviorSubject.seeded(false);
   bool loginWithQrCode = isDesktop;
@@ -106,7 +108,7 @@ class _LoginPageState extends State<LoginPage> {
 
   void _navigationToHome() {
     _contactRepo.getContacts();
-
+    _accountRepo..hasProfile(retry: true)..fetchCurrentUserId(retry: true);
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(

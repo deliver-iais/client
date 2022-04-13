@@ -22,18 +22,7 @@ class SyncContact {
         context: context,
         builder: (context) {
           return AlertDialog(
-            titlePadding: EdgeInsets.zero,
-            actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
-            backgroundColor: Colors.white,
-            title: Container(
-              height: 80,
-              color: Colors.blue,
-              child: const Icon(
-                CupertinoIcons.profile_circled,
-                color: Colors.white,
-                size: 40,
-              ),
-            ),
+            actionsPadding: const EdgeInsets.only(bottom: 8, right: 8),
             content: SizedBox(
               width: 200,
               child: Text(
