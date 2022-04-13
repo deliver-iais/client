@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/shared/changelog.dart';
 import 'package:deliver/shared/constants.dart';
@@ -11,76 +13,91 @@ class NewFeatureDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Dialog(
-      backgroundColor: Colors.white,
-      child: SizedBox(
-        width: maxWidthOfMessage(context),
-        child: ClipRRect(
-          borderRadius: mainBorder,
-          child: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+    final pageSize = MediaQuery.of(context).size;
+    final theme = Theme.of(context);
+
+    return AlertDialog(
+      actionsPadding: const EdgeInsets.only(bottom: 8, right: 8),
+      content: SizedBox(
+        width: min(maxWidthOfMessage(context) * 1.3, pageSize.width - 50),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Image(
-                  image: AssetImage('assets/images/wave.png'),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        _i18n.get("about_update"),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const Text(
-                        "V" + VERSION,
-                        style: TextStyle(
-                          color: Colors.blue,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
+                Text(
+                  _i18n.get("about_update"),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: theme.colorScheme.primary,
                   ),
                 ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: SizedBox(
-                    height: 200,
-                    child: ListView.builder(
-                      itemCount: ENGLISH_FEATURE_LIST.length,
-                      itemBuilder: (context, index) {
-                        return Text(
-                          _i18n.isPersian
-                              ? FARSI_FEATURE_LIST[index]
-                              : ENGLISH_FEATURE_LIST[index],
-                          style: const TextStyle(color: Colors.black54),
-                          textDirection: _i18n.isPersian
-                              ? TextDirection.rtl
-                              : TextDirection.ltr,
-                        );
-                      },
-                    ),
+                Text(
+                  "V" + VERSION,
+                  style: TextStyle(
+                    color: theme.colorScheme.primary,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-                Center(
-                  child: Container(
-                    margin: const EdgeInsets.all(8),
-                    child: TextButton(
-                      child: Text(_i18n.get("got_it")),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ),
-                )
               ],
             ),
-          ),
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              child: Container(
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height - 180,
+                ),
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  separatorBuilder: (context, index) {
+                    return const Padding(
+                      padding: EdgeInsets.only(bottom: 10.0, top: 4.0),
+                      child: Divider(),
+                    );
+                  },
+                  itemCount: ENGLISH_FEATURE_LIST.length,
+                  itemBuilder: (context, index) {
+                    return Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: EdgeInsets.only(
+                            right: index > 8 ? 2.0 : 12.0,
+                            // top: 1,
+                          ),
+                          child: Text(
+                            "${index + 1}. ",
+                            style: TextStyle(color: theme.colorScheme.primary),
+                          ),
+                        ),
+                        Expanded(
+                          child: Text(
+                            _i18n.isPersian
+                                ? FARSI_FEATURE_LIST[index]
+                                : ENGLISH_FEATURE_LIST[index],
+                            // style: const TextStyle(color: Colors.black54),
+                            textDirection: _i18n.isPersian
+                                ? TextDirection.rtl
+                                : TextDirection.ltr,
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ),
+            )
+          ],
         ),
       ),
+      actions: [
+        TextButton(
+          child: Text(_i18n.get("got_it")),
+          onPressed: () => Navigator.pop(context),
+        )
+      ],
     );
   }
 }
