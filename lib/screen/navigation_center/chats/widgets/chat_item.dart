@@ -64,7 +64,8 @@ class _ChatItemState extends State<ChatItem> {
       initialData: _roomRepo.fastForwardName(widget.room.uid.asUid()),
       future: _roomRepo.getName(widget.room.uid.asUid()),
       builder: (c, name) {
-        if (name.hasData && name.data!.isNotEmpty) {
+        if (name.hasData && name.data!.isNotEmpty ||
+            _authRepo.isCurrentUser(widget.room.uid)) {
           return DragDropWidget(
             roomUid: widget.room.uid,
             height: 66,
@@ -209,7 +210,7 @@ class _ChatItemState extends State<ChatItem> {
   Padding defaultChatItem() {
     final theme = Theme.of(context);
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 11.0),
+      padding: const EdgeInsets.symmetric(horizontal: 14.0, vertical: 11.0),
       child: Row(
         children: [
           Container(
@@ -226,17 +227,28 @@ class _ChatItemState extends State<ChatItem> {
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 100,
-                height: 16,
-                color: theme.brightness == Brightness.light
-                    ? Colors.grey[300]
-                    : Colors.grey[800],
+              Row(
+                children: [
+                  Container(
+                    width: 100,
+                    height: 15,
+                    color: theme.brightness == Brightness.light
+                        ? Colors.grey[300]
+                        : Colors.grey[800],
+                  ),
+                  Container(
+                    width: 35,
+                    height: 15,
+                    color: theme.brightness == Brightness.light
+                        ? Colors.grey[300]
+                        : Colors.grey[800],
+                  ),
+                ],
               ),
               const SizedBox(height: 10),
               Container(
-                width: 200,
-                height: 13,
+                width: 212,
+                height: 12,
                 color: theme.brightness == Brightness.light
                     ? Colors.grey[300]
                     : Colors.grey[800],
