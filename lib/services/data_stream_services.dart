@@ -261,7 +261,7 @@ class DataStreamServices {
 
       final room = await _roomDao.getRoom(roomUid.asString());
 
-      if (room!.lastMessageId != id) {
+      if (room!.lastMessage!.id != id) {
         await _roomDao.updateRoom(
           uid: roomUid.asString(),
           lastUpdateTime: time,
