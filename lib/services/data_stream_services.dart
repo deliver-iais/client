@@ -10,7 +10,6 @@ import 'package:deliver/box/last_activity.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/message.dart' as message_model;
 import 'package:deliver/box/message_type.dart';
-import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/models/message_event.dart';
@@ -225,17 +224,17 @@ class DataStreamServices {
   Future<void> _fetchMySeen(String roomUid) async {
     final mySeen = await _seenDao.getMySeen(roomUid);
     if (mySeen.messageId < 0) {
-      _seenDao
-          .saveMySeen(Seen(uid: roomUid, messageId: 0, hiddenMessageCount: 0));
+      _seenDao.updateMySeen(uid: roomUid, messageId: 0, hiddenMessageCount: 0);
     }
   }
 
   Future<void> _increaseHiddenMessageCount(String roomUid) async {
     final mySeen = await _seenDao.getMySeen(roomUid);
-    await _seenDao.saveMySeen(Seen(
-        uid: roomUid,
-        messageId: mySeen.messageId,
-        hiddenMessageCount: (mySeen.hiddenMessageCount ?? 0) + 1,),);
+
+    await _seenDao.updateMySeen(
+      uid: roomUid,
+      hiddenMessageCount: (mySeen.hiddenMessageCount ?? 0) + 1,
+    );
   }
 
   Future<void> _onMessageDeleted(Uid roomUid, Message message) async {
@@ -272,7 +271,6 @@ class DataStreamServices {
           roomUid,
           room.lastMessageId,
           room.firstMessageId,
-          room,
         );
 
         await _roomDao.updateRoom(
@@ -281,8 +279,14 @@ class DataStreamServices {
           lastUpdateTime: time,
         );
       }
-      messageEventSubject.add(MessageEvent(roomUid.asString(), time, id,
-        MessageManipulationPersistentEvent_Action.DELETED,),);
+      messageEventSubject.add(
+        MessageEvent(
+          roomUid.asString(),
+          time,
+          id,
+          MessageManipulationPersistentEvent_Action.DELETED,
+        ),
+      );
     }
   }
 
@@ -307,8 +311,14 @@ class DataStreamServices {
     final msg = await saveMessageInMessagesDB(res.messages.first);
     final room = (await _roomDao.getRoom(roomUid.asString()))!;
 
-    messageEventSubject.add(MessageEvent(roomUid.asString(), time, id,
-        MessageManipulationPersistentEvent_Action.EDITED,),);
+    messageEventSubject.add(
+      MessageEvent(
+        roomUid.asString(),
+        time,
+        id,
+        MessageManipulationPersistentEvent_Action.EDITED,
+      ),
+    );
 
     await _roomDao.updateRoom(
       uid: room.uid,
@@ -335,8 +345,20 @@ class DataStreamServices {
         break;
     }
     if (_authRepo.isCurrentUser(seen.from.asString())) {
-      _seenDao.saveMySeen(
-        Seen(uid: roomId!.asString(), messageId: seen.id.toInt()),
+      final room = await _roomDao.getRoom(roomId!.asString());
+      int? hiddenMessageCount;
+
+      if (room != null &&
+          room.lastMessage != null &&
+          room.lastMessage!.id != null &&
+          room.lastMessage!.id == seen.id.toInt()) {
+        hiddenMessageCount = 0;
+      }
+
+      _seenDao.updateMySeen(
+        uid: roomId.asString(),
+        messageId: seen.id.toInt(),
+        hiddenMessageCount: hiddenMessageCount,
       );
       _notificationServices.cancelRoomNotifications(roomId.asString());
     } else {
@@ -490,8 +512,7 @@ class DataStreamServices {
   Future<message_model.Message?> fetchLastNotHiddenMessage(
     Uid roomUid,
     int lastMessageId,
-    int firstMessageId,
-    Room? room, {
+    int firstMessageId, {
     bool retry = true,
   }) async {
     var pointer = lastMessageId + 1;

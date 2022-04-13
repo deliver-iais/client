@@ -233,49 +233,75 @@ class _RoomPageState extends State<RoomPage> {
               height: isAndroid || isIOS ? APPBAR_HEIGHT + 24 : APPBAR_HEIGHT,
             ),
             if (isDebugEnabled())
-              StreamBuilder<Object>(
-                stream: MergeStream(
-                  [_pendingMessages.stream, _room.stream, _itemCountSubject],
-                ),
-                builder: (context, snapshot) {
-                  return SizedBox(
-                    width: double.infinity,
-                    child: DebugC(
-                      isOpen: true,
-                      children: [
-                        Debug(widget.roomId, label: "uid"),
-                        Debug(
-                          room.firstMessageId,
-                          label: "room.firstMessageId",
-                        ),
-                        Debug(room.lastMessageId, label: "room.lastMessageId"),
-                        Debug(_lastSeenMessageId, label: "_lastSeenMessageId"),
-                        Debug(
-                          _lastShowedMessageId,
-                          label: "_lastShowedMessageId",
-                        ),
-                        Debug(_itemCount, label: "_itemCount"),
-                        Debug(
-                          _lastReceivedMessageId,
-                          label: "_lastReceivedMessageId",
-                        ),
-                        Debug(_pinMessages, label: "_pinMessages"),
-                        Debug(_selectedMessages, label: "_selectedMessages"),
-                        Debug(
-                          _currentScrollIndex,
-                          label: "_currentScrollIndex",
-                        ),
-                        Debug(_appIsActive, label: "_appIsActive"),
-                        Debug(
-                          _backgroundMessages,
-                          label: "_backgroundMessages",
-                        ),
-                        Debug(
-                          _defaultMessageHeight,
-                          label: "_defaultMessageHeight",
-                        ),
+              StreamBuilder<Seen>(
+                stream: _roomRepo.watchMySeen(widget.roomId),
+                builder: (context, seen) {
+                  return StreamBuilder<Object>(
+                    stream: MergeStream(
+                      [
+                        _pendingMessages.stream,
+                        _room.stream,
+                        _itemCountSubject,
                       ],
                     ),
+                    builder: (context, snapshot) {
+                      return SizedBox(
+                        width: double.infinity,
+                        child: DebugC(
+                          isOpen: true,
+                          children: [
+                            Debug(
+                              seen.data?.messageId,
+                              label: "myseen.messageId",
+                            ),
+                            Debug(
+                              seen.data?.hiddenMessageCount,
+                              label: "myseen.hiddenMessageCount",
+                            ),
+                            Debug(widget.roomId, label: "uid"),
+                            Debug(
+                              room.firstMessageId,
+                              label: "room.firstMessageId",
+                            ),
+                            Debug(
+                              room.lastMessageId,
+                              label: "room.lastMessageId",
+                            ),
+                            Debug(
+                              _lastSeenMessageId,
+                              label: "_lastSeenMessageId",
+                            ),
+                            Debug(
+                              _lastShowedMessageId,
+                              label: "_lastShowedMessageId",
+                            ),
+                            Debug(_itemCount, label: "_itemCount"),
+                            Debug(
+                              _lastReceivedMessageId,
+                              label: "_lastReceivedMessageId",
+                            ),
+                            Debug(_pinMessages, label: "_pinMessages"),
+                            Debug(
+                              _selectedMessages,
+                              label: "_selectedMessages",
+                            ),
+                            Debug(
+                              _currentScrollIndex,
+                              label: "_currentScrollIndex",
+                            ),
+                            Debug(_appIsActive, label: "_appIsActive"),
+                            Debug(
+                              _backgroundMessages,
+                              label: "_backgroundMessages",
+                            ),
+                            Debug(
+                              _defaultMessageHeight,
+                              label: "_defaultMessageHeight",
+                            ),
+                          ],
+                        ),
+                      );
+                    },
                   );
                 },
               ),
@@ -487,10 +513,18 @@ class _RoomPageState extends State<RoomPage> {
   void _sendSeenMessage(List<Message> messages) {
     for (final msg in messages) {
       final id = msg.id == room.lastMessage!.id ? room.lastMessageId : msg.id!;
+      final hiddenMessagesCount =
+          msg.id == room.lastMessage!.id ? room.lastMessageId : null;
+
       if (!_authRepo.isCurrentUser(msg.from)) {
         _messageRepo.sendSeen(id, widget.roomId.asUid());
       }
-      _roomRepo.saveMySeen(Seen(uid: widget.roomId, messageId: id));
+
+      _roomRepo.updateMySeen(
+        uid: widget.roomId,
+        messageId: id,
+        hiddenMessageCount: hiddenMessagesCount,
+      );
     }
   }
 
@@ -498,12 +532,10 @@ class _RoomPageState extends State<RoomPage> {
     final seen = await _roomRepo.getMySeen(widget.roomId);
     if (room.lastMessageId > seen.messageId) {
       _messageRepo.sendSeen(room.lastMessageId, widget.roomId.asUid());
-      _roomRepo.saveMySeen(
-        Seen(
-          uid: widget.roomId,
-          messageId: room.lastMessageId,
-          hiddenMessageCount: 0,
-        ),
+      _roomRepo.updateMySeen(
+        uid: widget.roomId,
+        messageId: room.lastMessageId,
+        hiddenMessageCount: 0,
       );
     }
   }

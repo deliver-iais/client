@@ -453,10 +453,17 @@ class MockRoomRepo extends _i1.Mock implements _i24.RoomRepo {
       (super.noSuchMethod(Invocation.method(#getOthersSeen, [roomUid]),
           returnValue: Future<_i2.Seen?>.value()) as _i17.Future<_i2.Seen?>);
   @override
-  _i17.Future<void> saveMySeen(_i2.Seen? seen) => (super.noSuchMethod(
-      Invocation.method(#saveMySeen, [seen]),
-      returnValue: Future<void>.value(),
-      returnValueForMissingStub: Future<void>.value()) as _i17.Future<void>);
+  _i17.Future<void> updateMySeen(
+          {String? uid, int? messageId, int? hiddenMessageCount}) =>
+      (super.noSuchMethod(
+              Invocation.method(#updateMySeen, [], {
+                #uid: uid,
+                #messageId: messageId,
+                #hiddenMessageCount: hiddenMessageCount
+              }),
+              returnValue: Future<void>.value(),
+              returnValueForMissingStub: Future<void>.value())
+          as _i17.Future<void>);
   @override
   _i17.Future<void> block(String? uid, {bool? block}) => (super.noSuchMethod(
       Invocation.method(#block, [uid], {#block: block}),
@@ -776,10 +783,17 @@ class MockSeenDao extends _i1.Mock implements _i38.SeenDao {
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i17.Future<void>);
   @override
-  _i17.Future<void> saveMySeen(_i2.Seen? seen) => (super.noSuchMethod(
-      Invocation.method(#saveMySeen, [seen]),
-      returnValue: Future<void>.value(),
-      returnValueForMissingStub: Future<void>.value()) as _i17.Future<void>);
+  _i17.Future<void> updateMySeen(
+          {String? uid, int? messageId, int? hiddenMessageCount}) =>
+      (super.noSuchMethod(
+              Invocation.method(#updateMySeen, [], {
+                #uid: uid,
+                #messageId: messageId,
+                #hiddenMessageCount: hiddenMessageCount
+              }),
+              returnValue: Future<void>.value(),
+              returnValueForMissingStub: Future<void>.value())
+          as _i17.Future<void>);
 }
 
 /// A class which mocks [MucServices].
@@ -1006,14 +1020,12 @@ class MockDataStreamServices extends _i1.Mock
               returnValue: Future<_i20.Message?>.value())
           as _i17.Future<_i20.Message?>);
   @override
-  _i17.Future<_i20.Message?> fetchLastNotHiddenMessage(_i3.Uid? roomUid,
-          int? lastMessageId, int? firstMessageId, _i23.Room? room,
+  _i17.Future<_i20.Message?> fetchLastNotHiddenMessage(
+          _i3.Uid? roomUid, int? lastMessageId, int? firstMessageId,
           {bool? retry = true}) =>
       (super.noSuchMethod(
-              Invocation.method(
-                  #fetchLastNotHiddenMessage,
-                  [roomUid, lastMessageId, firstMessageId, room],
-                  {#retry: retry}),
+              Invocation.method(#fetchLastNotHiddenMessage,
+                  [roomUid, lastMessageId, firstMessageId], {#retry: retry}),
               returnValue: Future<_i20.Message?>.value())
           as _i17.Future<_i20.Message?>);
   @override
