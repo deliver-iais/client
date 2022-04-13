@@ -540,6 +540,7 @@ class _ProfilePageState extends State<ProfilePage>
       child: SettingsTile(
         title: _i18n.get("description"),
         subtitle: info,
+        subtitleMaxLines: 8,
         subtitleTextStyle:
             TextStyle(color: Theme.of(context).primaryColor, fontSize: 16),
         leading: const Icon(Icons.info),

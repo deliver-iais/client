@@ -91,11 +91,14 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
     final rowChildren = <Widget>[];
     if (leadingIcon != null) {
       rowChildren.add(
-        Padding(
-          padding: const EdgeInsetsDirectional.only(
-            start: 15.0,
+        SizedBox(
+          height: 44,
+          child: Padding(
+            padding: const EdgeInsetsDirectional.only(
+              start: 15.0,
+            ),
+            child: leadingIcon,
           ),
-          child: leadingIcon,
         ),
       );
     }
@@ -172,18 +175,19 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
           rowChildren.add(
             Padding(
               padding: const EdgeInsetsDirectional.only(
-                top: 1.5,
-                end: 2.25,
-              ),
-              child: Text(
-                widget.value!,
-                overflow: TextOverflow.ellipsis,
-                textAlign: TextAlign.end,
-                style: widget.valueTextStyle ??
-                    const TextStyle(
-                      color: CupertinoColors.inactiveGray,
-                      fontSize: 16,
-                    ),
+                  top: 1.5, end: 2.25),
+              child: SizedBox(
+                width: MediaQuery.of(context).size.width / 3,
+                child: Text(
+                  widget.value!,
+                  //   overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.end,
+                  style: widget.valueTextStyle ??
+                      const TextStyle(
+                        color: CupertinoColors.inactiveGray,
+                        fontSize: 16,
+                      ),
+                ),
               ),
             ),
           );
@@ -280,11 +284,8 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
             });
           }
         },
-        child: SizedBox(
-          height: widget.subtitle == null ? 44.0 : 57.0,
-          child: Row(
-            children: rowChildren,
-          ),
+        child: Row(
+          children: rowChildren,
         ),
       ),
     );
