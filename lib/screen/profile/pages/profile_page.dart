@@ -539,12 +539,11 @@ class _ProfilePageState extends State<ProfilePage>
       padding: const EdgeInsets.only(top: 8.0),
       child: SettingsTile(
         title: _i18n.get("description"),
-        subtitle: info,
         subtitleMaxLines: 8,
         subtitleTextStyle:
             TextStyle(color: Theme.of(context).primaryColor, fontSize: 16),
         leading: const Icon(Icons.info),
-        trailing: const SizedBox.shrink(),
+        trailing: SizedBox(width: 300, child: Text(info)),
       ),
     );
   }

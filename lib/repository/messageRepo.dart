@@ -773,7 +773,7 @@ class MessageRepo {
     int containsId,
     int lastMessageId, {
     int pageSize = PAGE_SIZE,
-  }) async {
+  }) {
     if (containsId > lastMessageId) {
       return Future.value([]);
     }
