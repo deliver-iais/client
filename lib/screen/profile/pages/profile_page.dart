@@ -749,7 +749,7 @@ class _ProfilePageState extends State<ProfilePage>
     }
   }
 
-  Future<void> _showInviteLinkDialog(String token) async {
+  void _showInviteLinkDialog(String token) {
     showDialog(
       context: context,
       builder: (context) {
@@ -811,7 +811,7 @@ class _ProfilePageState extends State<ProfilePage>
           ],
         );
       },
-    );
+    ).ignore();
   }
 
   String generateInviteLink(String token) {
@@ -977,10 +977,11 @@ class _ProfilePageState extends State<ProfilePage>
                   return TextButton(
                     onPressed: change.data!
                         ? () async {
+                            final navigatorState = Navigator.of(context);
                             if (nameFormKey.currentState != null &&
                                 nameFormKey.currentState!.validate()) {
                               if (widget.roomUid.category == Categories.GROUP) {
-                                _mucRepo.modifyGroup(
+                                await _mucRepo.modifyGroup(
                                   widget.roomUid.asString(),
                                   mucName ?? _currentName,
                                   mucInfo,
@@ -990,10 +991,10 @@ class _ProfilePageState extends State<ProfilePage>
                                   mucName ?? _currentName,
                                 );
                                 setState(() {});
-                                Navigator.pop(context);
+                                navigatorState.pop();
                               } else {
                                 if (channelId.isEmpty) {
-                                  _mucRepo.modifyChannel(
+                                  await _mucRepo.modifyChannel(
                                     widget.roomUid.asString(),
                                     mucName ?? _currentName,
                                     _currentId,
@@ -1003,12 +1004,12 @@ class _ProfilePageState extends State<ProfilePage>
                                     widget.roomUid,
                                     mucName ?? _currentName,
                                   );
-                                  Navigator.pop(context);
+                                  navigatorState.pop();
                                 } else if (channelIdFormKey.currentState !=
                                         null &&
                                     channelIdFormKey.currentState!.validate()) {
                                   if (await checkChannelD(channelId)) {
-                                    _mucRepo.modifyChannel(
+                                    await _mucRepo.modifyChannel(
                                       widget.roomUid.asString(),
                                       mucName ?? _currentName,
                                       channelId,
@@ -1019,7 +1020,7 @@ class _ProfilePageState extends State<ProfilePage>
                                       mucName ?? _currentName,
                                     );
 
-                                    Navigator.pop(context);
+                                    navigatorState.pop();
                                   }
                                 }
                                 setState(() {});
@@ -1230,12 +1231,12 @@ class _ProfilePageState extends State<ProfilePage>
     );
   }
 
-  Future<void> _addBotToGroupButtonOnTab(
+  void _addBotToGroupButtonOnTab(
     BuildContext context,
     BuildContext c1,
     String uid,
     String? name,
-  ) async {
+  ) {
     showDialog(
       context: context,
       builder: (context) {

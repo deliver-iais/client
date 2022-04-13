@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:deliver/box/dao/shared_dao.dart';
@@ -47,7 +48,7 @@ class FireBaseServices {
       _firebaseMessaging = FirebaseMessaging.instance;
       await _firebaseMessaging.requestPermission();
       await _setFirebaseSetting();
-      _sendFirebaseToken(await _firebaseMessaging.getToken());
+      return _sendFirebaseToken(await _firebaseMessaging.getToken());
     }
   }
 
@@ -61,7 +62,10 @@ class FireBaseServices {
         try {
           await _firebaseServices
               .registration(RegistrationReq()..tokenId = fireBaseToken!);
-          _sharedDao.putBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET, true);
+          return _sharedDao.putBoolean(
+            SHARED_DAO_FIREBASE_SETTING_IS_SET,
+            true,
+          );
         } catch (e) {
           _logger.e(e);
         }
@@ -80,7 +84,7 @@ class FireBaseServices {
             js.allowInterop(_decodeMessageForWebNotification);
       } else if (isAndroid) {
         FirebaseMessaging.onBackgroundMessage(_backgroundRemoteMessageHandler);
-        _firebaseMessaging.setForegroundNotificationPresentationOptions(
+        await _firebaseMessaging.setForegroundNotificationPresentationOptions(
           alert: true,
           badge: true,
           sound: true,

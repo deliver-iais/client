@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/seen.dart';
@@ -63,7 +65,7 @@ class SeenDaoImpl implements SeenDao {
     final othersSeen = box.get(seen.uid);
 
     if (othersSeen == null || othersSeen.messageId < seen.messageId) {
-      box.put(seen.uid, seen);
+      return box.put(seen.uid, seen);
     }
   }
 
@@ -79,7 +81,7 @@ class SeenDaoImpl implements SeenDao {
 
     if ((messageId != null && seen.messageId < messageId) ||
         hiddenMessageCount != null) {
-      box.put(
+      return box.put(
         uid,
         seen.copyWith(
           uid: uid,
@@ -90,7 +92,11 @@ class SeenDaoImpl implements SeenDao {
     }
   }
 
-  static Seen _defaultSeenValue(String uid) => Seen(uid: uid, messageId: -1);
+  static Seen _defaultSeenValue(String uid) => Seen(
+        uid: uid,
+        messageId: -1,
+        hiddenMessageCount: 0,
+      );
 
   static String _key() => "others-seen";
 
@@ -103,7 +109,7 @@ class SeenDaoImpl implements SeenDao {
 
   static Future<BoxPlus<Seen>> _openMySeen() async {
     try {
-      BoxInfo.addBox(_key2());
+      unawaited(BoxInfo.addBox(_key2()));
       return gen(Hive.openBox<Seen>(_key2()));
     } catch (e) {
       await Hive.deleteBoxFromDisk(_key2());

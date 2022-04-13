@@ -102,7 +102,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                 style: const TextStyle(color: Colors.blue, fontSize: 16),
               ),
               onTap: () {
-                _messageRepo.sendPrivateMessageAccept(
+                _messageRepo.sendPrivateDataAcceptanceMessage(
                   message.from.asUid(),
                   sharePrivateDataRequest.data,
                   sharePrivateDataRequest.token,

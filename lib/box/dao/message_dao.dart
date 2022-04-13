@@ -13,7 +13,7 @@ abstract class MessageDao {
 
   Future<Message?> getMessage(String roomUid, int id);
 
-  Future<List<Message?>>? getMessagePage(
+  Future<List<Message>> getMessagePage(
     String roomUid,
     int page, {
     int pageSize = 16,
@@ -40,14 +40,14 @@ class MessageDaoImpl implements MessageDao {
   Future<void> deleteMessage(Message message) async {
     final box = await _openMessages(message.roomUid);
 
-    box.delete(message.id);
+    return box.delete(message.id);
   }
 
   @override
   Future<void> deletePendingMessage(String packetId) async {
     final box = await _openPendingMessages();
 
-    box.delete(packetId);
+    return box.delete(packetId);
   }
 
   @override
@@ -65,7 +65,7 @@ class MessageDaoImpl implements MessageDao {
   }
 
   @override
-  Future<List<Message?>>? getMessagePage(
+  Future<List<Message>> getMessagePage(
     String roomUid,
     int page, {
     int pageSize = 16,
@@ -76,6 +76,7 @@ class MessageDaoImpl implements MessageDao {
         .map((e) => page * pageSize + e)
         .map((e) => box.get(e))
         .where((element) => element != null)
+        .map((element) => element!)
         .toList();
   }
 
@@ -132,14 +133,14 @@ class MessageDaoImpl implements MessageDao {
   Future<void> saveMessage(Message message) async {
     final box = await _openMessages(message.roomUid);
 
-    box.put(message.id, message);
+    return box.put(message.id, message);
   }
 
   @override
   Future<void> savePendingMessage(PendingMessage pm) async {
     final box = await _openPendingMessages();
 
-    box.put(pm.packetId, pm);
+    return box.put(pm.packetId, pm);
   }
 
   static String _keyMessages(String uid) => "message-$uid";
@@ -148,7 +149,7 @@ class MessageDaoImpl implements MessageDao {
 
   static Future<BoxPlus<Message>> _openMessages(String uid) async {
     try {
-      BoxInfo.addBox(_keyMessages(uid.replaceAll(":", "-")));
+      unawaited(BoxInfo.addBox(_keyMessages(uid.replaceAll(":", "-"))));
       return gen(Hive.openBox<Message>(_keyMessages(uid.replaceAll(":", "-"))));
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyMessages(uid.replaceAll(":", "-")));
@@ -158,7 +159,7 @@ class MessageDaoImpl implements MessageDao {
 
   static Future<BoxPlus<PendingMessage>> _openPendingMessages() async {
     try {
-      BoxInfo.addBox(_keyPending());
+      unawaited(BoxInfo.addBox(_keyPending()));
       return gen(Hive.openBox<PendingMessage>(_keyPending()));
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyPending());

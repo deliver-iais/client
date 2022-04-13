@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/message.dart';
@@ -146,7 +148,7 @@ class RoomDaoImpl implements RoomDao {
 
   static Future<BoxPlus<Room>> _openRoom() async {
     try {
-      BoxInfo.addBox(_keyRoom());
+      unawaited(BoxInfo.addBox(_keyRoom()));
       return gen(Hive.openBox<Room>(_keyRoom()));
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyRoom());

@@ -1,4 +1,4 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, unawaited_futures
 
 import 'dart:io' as dart_file;
 
@@ -1438,7 +1438,7 @@ void main() {
         withClock(Clock.fixed(DateTime(2000)), () async {
           final messageDao = getAndRegisterMessageDao();
           MessageRepo()
-              .sendPrivateMessageAccept(testUid, PrivateDataType.EMAIL, "test");
+              .sendPrivateDataAcceptanceMessage(testUid, PrivateDataType.EMAIL, "test");
           verify(messageDao.savePendingMessage(pm));
         });
       });
@@ -1446,7 +1446,7 @@ void main() {
         withClock(Clock.fixed(DateTime(2000)), () async {
           final roomDao = getAndRegisterRoomDao();
           MessageRepo()
-              .sendPrivateMessageAccept(testUid, PrivateDataType.EMAIL, "test");
+              .sendPrivateDataAcceptanceMessage(testUid, PrivateDataType.EMAIL, "test");
           verify(
             roomDao.updateRoom(
               uid: pm.roomUid,
@@ -1462,7 +1462,7 @@ void main() {
         withClock(Clock.fixed(DateTime(2000)), () async {
           final coreServices = getAndRegisterCoreServices();
           MessageRepo()
-              .sendPrivateMessageAccept(testUid, PrivateDataType.EMAIL, "test");
+              .sendPrivateDataAcceptanceMessage(testUid, PrivateDataType.EMAIL, "test");
           final byClient = message_pb.MessageByClient()
             ..packetId = pm.msg.packetId
             ..to = pm.msg.to.asUid()
@@ -1566,14 +1566,15 @@ void main() {
         final mucServices = getAndRegisterMucServices();
         await MessageRepo().pinMessage(testMessage);
         verify(mucServices.pinMessage(testMessage));
-        expect(await MessageRepo().pinMessage(testMessage), true);
+        expect(MessageRepo().pinMessage(testMessage), completes);
       });
       test('When called should pinMessage and if get error should return false',
           () async {
-        final mucServices = getAndRegisterMucServices(pinMessageGetError: true);
-        await MessageRepo().pinMessage(testMessage);
-        verify(mucServices.pinMessage(testMessage));
-        expect(await MessageRepo().pinMessage(testMessage), false);
+        getAndRegisterMucServices(pinMessageGetError: true);
+        expect(
+          MessageRepo().pinMessage(testMessage),
+          throwsException,
+        );
       });
     });
     group('unpinMessage -', () {
@@ -1581,7 +1582,7 @@ void main() {
         final mucServices = getAndRegisterMucServices();
         await MessageRepo().unpinMessage(testMessage);
         verify(mucServices.unpinMessage(testMessage));
-        expect(await MessageRepo().unpinMessage(testMessage), true);
+        expect(MessageRepo().unpinMessage(testMessage), completes);
       });
       test(
           'When called should unpinMessage and if get error should return false',
@@ -1589,7 +1590,7 @@ void main() {
         final mucServices = getAndRegisterMucServices(pinMessageGetError: true);
         await MessageRepo().unpinMessage(testMessage);
         verify(mucServices.unpinMessage(testMessage));
-        expect(await MessageRepo().unpinMessage(testMessage), false);
+        expect(MessageRepo().unpinMessage(testMessage), throwsException);
       });
     });
     group('sendLiveLocationMessage -', () {

@@ -169,7 +169,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                         ],
                       ),
                     ),
-                  );
+                  ).ignore();
                 }
               } else {
                 _routingServices.openRoom(_shareUid.uid.asString());

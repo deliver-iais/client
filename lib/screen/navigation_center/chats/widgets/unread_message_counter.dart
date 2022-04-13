@@ -24,7 +24,7 @@ class UnreadMessageCounterWidget extends StatelessWidget {
           final lastSeen = snapshot.data?.messageId ?? 0;
           var unreadCount = lastMessageId - lastSeen;
           if (snapshot.data?.hiddenMessageCount != null) {
-            unreadCount = unreadCount - snapshot.data!.hiddenMessageCount!;
+            unreadCount = unreadCount - snapshot.data!.hiddenMessageCount;
           }
 
           if (!snapshot.hasData) {

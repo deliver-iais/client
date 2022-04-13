@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/contactRepo.dart';
@@ -58,7 +60,7 @@ class SyncContact {
         },
       );
     } else {
-      _contactRepo.syncContacts();
+      unawaited(_contactRepo.syncContacts());
     }
   }
 }

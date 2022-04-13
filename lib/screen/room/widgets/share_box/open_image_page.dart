@@ -72,7 +72,7 @@ class _OpenImagePageState extends State<OpenImagePage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
-                onPressed: () async {
+                onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -95,7 +95,7 @@ class _OpenImagePageState extends State<OpenImagePage> {
                 iconSize: 30,
               ),
               IconButton(
-                onPressed: () async {
+                onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -118,7 +118,7 @@ class _OpenImagePageState extends State<OpenImagePage> {
                 iconSize: 30,
               ),
               IconButton(
-                onPressed: () async {
+                onPressed: () {
                   Navigator.push(
                     context,
                     MaterialPageRoute(

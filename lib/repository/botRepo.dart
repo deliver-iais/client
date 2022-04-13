@@ -1,5 +1,7 @@
 // ignore_for_file: file_names
 
+import 'dart:async';
+
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
@@ -26,14 +28,18 @@ class BotRepo {
       commands: result.commands,
       isOwner: result.isOwner,
     );
-    _uidIdNameDao.update(
-      botUid.asString(),
-      name: result.name,
-      id: botUid.asString(),
+
+    unawaited(
+      _uidIdNameDao.update(
+        botUid.asString(),
+        name: result.name,
+        id: botUid.asString(),
+      ),
     );
+
     roomNameCache.set(botUid.asString(), result.name);
 
-    _botDao.save(botInfo);
+    unawaited(_botDao.save(botInfo));
 
     return botInfo;
   }

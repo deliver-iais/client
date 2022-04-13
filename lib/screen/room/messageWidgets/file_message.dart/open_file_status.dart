@@ -44,7 +44,7 @@ class OpenFileStatus extends StatelessWidget {
             final fileUrl = html.Url.createObjectUrl(blob);
             window.open(fileUrl, "_");
           } else {
-            OpenFile.open(filePath);
+            OpenFile.open(filePath).ignore();
           }
         },
       ),

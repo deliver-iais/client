@@ -78,7 +78,7 @@ class NotificationServices {
   }) async {
     final rn = roomName ?? await _roomRepo.getSlangName(roomUid.asUid());
 
-    _notifier.notifyIncomingCall(roomUid, rn);
+    return _notifier.notifyIncomingCall(roomUid, rn);
   }
 
   void cancelRoomNotifications(String roomUid) {
@@ -101,7 +101,7 @@ class NotificationServices {
     final mb = (await extractMessageBrief(_i18n, _roomRepo, _authRepo, message))
         .copyWith(roomName: roomName);
     if (!mb.ignoreNotification) {
-      _notifier.notifyText(_synthesize(mb));
+      return _notifier.notifyText(_synthesize(mb));
     }
   }
 
@@ -373,7 +373,7 @@ class LinuxNotifier implements Notifier {
 
     final platformChannelSpecifics = LinuxNotificationDetails(icon: icon);
 
-    _flutterLocalNotificationsPlugin.show(
+    return _flutterLocalNotificationsPlugin.show(
       message.roomUid.asString().hashCode,
       message.roomName,
       createNotificationTextFromMessageBrief(message),
@@ -437,12 +437,14 @@ class AndroidNotifier implements Notifier {
     androidDidNotificationLaunchApp();
   }
 
-  Future<void> androidDidNotificationLaunchApp() async {
-    final notificationAppLaunchDetails = await _flutterLocalNotificationsPlugin
-        .getNotificationAppLaunchDetails();
-    if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
-      androidOnSelectNotification(notificationAppLaunchDetails!.payload);
-    }
+  Future<void> androidDidNotificationLaunchApp() {
+    return _flutterLocalNotificationsPlugin
+        .getNotificationAppLaunchDetails()
+        .then((notificationAppLaunchDetails) {
+      if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
+        androidOnSelectNotification(notificationAppLaunchDetails!.payload);
+      }
+    });
   }
 
   Future<void> androidOnSelectNotification(String? room) async {
@@ -475,8 +477,8 @@ class AndroidNotifier implements Notifier {
   }
 
   @override
-  Future<void> cancelById(int id) async {
-    _flutterLocalNotificationsPlugin.cancel(id);
+  Future<void> cancelById(int id) {
+    return _flutterLocalNotificationsPlugin.cancel(id);
   }
 
   @override
@@ -516,12 +518,14 @@ class AndroidNotifier implements Notifier {
       sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
       setAsGroupSummary: true,
     );
-    _flutterLocalNotificationsPlugin.show(
-      message.roomUid.hashCode,
-      'Attention',
-      'new messages',
-      notificationDetails: androidNotificationDetails,
-    );
+    _flutterLocalNotificationsPlugin
+        .show(
+          message.roomUid.hashCode,
+          'Attention',
+          'new messages',
+          notificationDetails: androidNotificationDetails,
+        )
+        .ignore();
 
     final platformChannelSpecifics = AndroidNotificationDetails(
       selectedNotificationSound + message.roomUid.asString(),
@@ -532,13 +536,15 @@ class AndroidNotifier implements Notifier {
       styleInformation: const BigTextStyleInformation(''),
       sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
     );
-    _flutterLocalNotificationsPlugin.show(
-      message.roomUid.asString().hashCode + message.id!,
-      message.roomName,
-      createNotificationTextFromMessageBrief(message),
-      notificationDetails: platformChannelSpecifics,
-      payload: message.roomUid.asString(),
-    );
+    _flutterLocalNotificationsPlugin
+        .show(
+          message.roomUid.asString().hashCode + message.id!,
+          message.roomName,
+          createNotificationTextFromMessageBrief(message),
+          notificationDetails: platformChannelSpecifics,
+          payload: message.roomUid.asString(),
+        )
+        .ignore();
   }
 
   @override
@@ -553,7 +559,7 @@ class AndroidNotifier implements Notifier {
       );
     }
     //callType: 0 ==>Audio call 1 ==>Video call
-    ConnectycubeFlutterCallKit.showCallNotification(
+    await ConnectycubeFlutterCallKit.showCallNotification(
       sessionId: DateTime.now().millisecondsSinceEpoch.toString(),
       callerId: 123456789,
       callType: 0,
@@ -562,7 +568,7 @@ class AndroidNotifier implements Notifier {
       userInfo: {"uid": roomUid},
       opponentsIds: {1},
     );
-    ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
+    await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
   }
 
   @override
@@ -634,13 +640,15 @@ class MacOSNotifier implements Notifier {
 
     final macOSPlatformChannelSpecifics =
         MacOSNotificationDetails(attachments: attachments, badgeNumber: 0);
-    _flutterLocalNotificationsPlugin.show(
-      message.roomUid.asString().hashCode,
-      message.roomName,
-      createNotificationTextFromMessageBrief(message),
-      notificationDetails: macOSPlatformChannelSpecifics,
-      payload: message.roomUid.asString(),
-    );
+    _flutterLocalNotificationsPlugin
+        .show(
+          message.roomUid.asString().hashCode,
+          message.roomName,
+          createNotificationTextFromMessageBrief(message),
+          notificationDetails: macOSPlatformChannelSpecifics,
+          payload: message.roomUid.asString(),
+        )
+        .ignore();
   }
 
   @override

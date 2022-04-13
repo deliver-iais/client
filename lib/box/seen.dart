@@ -15,9 +15,9 @@ class Seen {
   int messageId;
 
   @HiveField(2)
-  int? hiddenMessageCount;
+  int hiddenMessageCount;
 
-  Seen({required this.uid, required this.messageId, this.hiddenMessageCount});
+  Seen({required this.uid, required this.messageId, required this.hiddenMessageCount});
 
   Seen copyWith({
     String? uid,

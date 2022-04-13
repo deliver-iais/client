@@ -425,7 +425,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         onEditMessage();
         break;
       case OperationOnMessage.SHARE:
-        onShare();
+        onShare().ignore();
         break;
       case OperationOnMessage.SAVE_TO_GALLERY:
         // ignore: use_build_context_synchronously
@@ -516,7 +516,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         widget.message.json.toFile().name,
       );
       if (result!.isNotEmpty) {
-        Share.shareFiles(
+        return Share.shareFiles(
           [(result)],
           text: widget.message.json.toFile().caption,
         );
@@ -575,14 +575,14 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     );
   }
 
-  Future<void> onShowInFolder(String path) async {
+  void onShowInFolder(String path) {
     final shell = Shell();
     if (isWindows) {
-      await shell.run('start "" "$path"');
+      shell.run('start "" "$path"');
     } else if (isLinux) {
-      await shell.run('nautilus $path');
+      shell.run('nautilus $path');
     } else if (isMacOS) {
-      await shell.run('open $path');
+      shell.run('open $path');
     }
   }
 

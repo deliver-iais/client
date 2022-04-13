@@ -40,14 +40,14 @@ class SharedDaoImpl implements SharedDao {
   Future<void> put(String key, String value) async {
     final box = await _open();
 
-    box.put(key, value);
+    return box.put(key, value);
   }
 
   @override
   Future<void> remove(String key) async {
     final box = await _open();
 
-    box.delete(key);
+    return box.delete(key);
   }
 
   @override
