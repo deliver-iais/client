@@ -43,7 +43,7 @@ class MediaDaoImpl implements MediaDao {
   @override
   Future<void> save(Media media) async {
     final box = await _open(media.roomId);
-    box.put(media.messageId, media);
+    return box.put(media.messageId, media);
   }
 
   @override
@@ -78,7 +78,7 @@ class MediaDaoImpl implements MediaDao {
   @override
   Future deleteMedia(String roomId, int messageId) async {
     final box = await _open(roomId);
-    box.delete(messageId);
+    return box.delete(messageId);
   }
 
   @override

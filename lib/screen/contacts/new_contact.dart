@@ -105,7 +105,7 @@ class _NewContactState extends State<NewContact> {
     );
   }
 
-  Future<void> showResult({bool contactAdded = false}) async {
+  void showResult({bool contactAdded = false}) {
     if (contactAdded) {
       ToastDisplay.showToast(
         toastText: _i18n.get("contactAdd"),

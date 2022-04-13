@@ -32,7 +32,7 @@ class CustomNotificationDaoImpl implements CustomNotificationDao {
   Future<void> setCustomNotif(String uid, String fileName) async {
     final box = await _open();
 
-    box.put(uid, fileName);
+    return box.put(uid, fileName);
   }
 
   @override

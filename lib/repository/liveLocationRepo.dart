@@ -24,7 +24,7 @@ class LiveLocationRepo {
   Stream<LiveLocation?> watchLiveLocation(String uuid) =>
       _liveLocationDao.watchLiveLocation(uuid);
 
-  Future<void> updateLiveLocation(pb.LiveLocation liveLocation) async {
+  void updateLiveLocation(pb.LiveLocation liveLocation) {
     Timer? timer;
     if (DateTime.now().millisecondsSinceEpoch > liveLocation.time.toInt()) {
       return;
@@ -33,7 +33,7 @@ class LiveLocationRepo {
       final res = await _liveLocationClient
           .shouldSendLiveLocation(ShouldSendLiveLocationReq());
       if (res.shouldSend) {
-        _getLatUpdateLocation(liveLocation.uuid);
+        return _getLatUpdateLocation(liveLocation.uuid);
       } else {
         timer!.cancel();
       }
@@ -48,7 +48,7 @@ class LiveLocationRepo {
     for (final liveLocation in res.liveLocations) {
       locations.add(liveLocation.location);
     }
-    _liveLocationDao.saveLiveLocation(
+    return _liveLocationDao.saveLiveLocation(
       LiveLocation(
         uuid: uuid,
         lastUpdate: DateTime.now().millisecondsSinceEpoch,
@@ -95,9 +95,9 @@ class LiveLocationRepo {
     int duration,
     pb.Location location,
   ) async {
-    final liveL = await _liveLocationDao.getLiveLocation(uuid);
-    final locations = liveL!.locations..add(location);
-    _liveLocationDao.saveLiveLocation(
+    final liveLocation = await _liveLocationDao.getLiveLocation(uuid);
+    final locations = liveLocation!.locations..add(location);
+    return _liveLocationDao.saveLiveLocation(
       LiveLocation(
         uuid: uuid,
         lastUpdate: DateTime.now().millisecondsSinceEpoch,

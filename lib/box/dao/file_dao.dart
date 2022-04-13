@@ -27,14 +27,14 @@ class FileDaoImpl implements FileDao {
   Future<void> save(FileInfo fileInfo) async {
     final box = await _open(fileInfo.sizeType);
 
-    box.put(fileInfo.uuid, fileInfo);
+    return box.put(fileInfo.uuid, fileInfo);
   }
 
   @override
   Future<void> remove(FileInfo fileInfo) async {
     final box = await _open(fileInfo.sizeType);
 
-    box.delete(fileInfo.uuid);
+    return box.delete(fileInfo.uuid);
   }
 
   static String _key(String size) => "file-info-$size";

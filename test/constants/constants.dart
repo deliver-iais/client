@@ -43,7 +43,11 @@ Activity testActivity = Activity(
   from: testUid,
   typeOfActivity: ActivityType.CHOOSING_STICKER,
 );
-Seen testSeen = Seen(uid: testUid.asString(), messageId: 0);
+Seen testSeen = Seen(
+  uid: testUid.asString(),
+  messageId: 0,
+  hiddenMessageCount: 0,
+);
 
 Room testRoom = Room(uid: testUid.asString());
 Uid botUid = Uid(category: Categories.BOT, node: "father_bot", sessionId: "*");

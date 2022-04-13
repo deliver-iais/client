@@ -87,7 +87,7 @@ class _LoginPageState extends State<LoginPage> {
     try {
       final res = await _authRepo.checkQrCodeToken(loginToken.value);
       if (res.status == AccessTokenRes_Status.OK) {
-        _fireBaseServices.sendFireBaseToken();
+        await _fireBaseServices.sendFireBaseToken();
         _navigationToHome();
       } else if (res.status == AccessTokenRes_Status.PASSWORD_PROTECTED) {
         MaterialPageRoute(
@@ -104,8 +104,9 @@ class _LoginPageState extends State<LoginPage> {
     }
   }
 
-  Future<void> _navigationToHome() async {
+  void _navigationToHome() {
     _contactRepo.getContacts();
+
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
@@ -142,9 +143,11 @@ class _LoginPageState extends State<LoginPage> {
         _isLoading.add(true);
         try {
           await _authRepo.getVerificationCode(phoneNumber!);
-          navigatorState.push(
-            MaterialPageRoute(builder: (c) => const VerificationPage()),
-          );
+          navigatorState
+              .push(
+                MaterialPageRoute(builder: (c) => const VerificationPage()),
+              )
+              .ignore();
           _isLoading.add(false);
         } on GrpcError catch (e) {
           _isLoading.add(false);

@@ -109,7 +109,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                                 builder: (context) {
                                   return setPassword(email);
                                 },
-                              );
+                              ).ignore();
                             } else {
                               showDialog(
                                 context: context,
@@ -128,7 +128,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                                     ],
                                   );
                                 },
-                              );
+                              ).ignore();
                             }
                           } else {
                             showDialog(
@@ -136,7 +136,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                               builder: (context) {
                                 return disableTwoStepVerification();
                               },
-                            );
+                            ).ignore();
                           }
                         },
                       );

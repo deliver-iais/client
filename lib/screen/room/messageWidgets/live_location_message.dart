@@ -50,10 +50,10 @@ class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
   Widget build(BuildContext context) {
     return StreamBuilder<box.LiveLocation?>(
       stream: _liveLocationRepo.watchLiveLocation(liveLocation.uuid),
-      builder: (c, liveLocationsnapshot) {
-        if (liveLocationsnapshot.hasData && liveLocationsnapshot.data != null) {
+      builder: (c, liveLocationSnapshot) {
+        if (liveLocationSnapshot.hasData && liveLocationSnapshot.data != null) {
           return liveLocationMessageWidgetBuilder(
-            liveLocationsnapshot.data!.locations.last,
+            liveLocationSnapshot.data!.locations.last,
             _i18n,
             liveLocation.time.toInt(),
           );
