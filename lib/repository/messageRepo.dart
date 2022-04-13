@@ -778,7 +778,7 @@ class MessageRepo {
     String roomId,
     int containsId,
     int lastMessageId, {
-    int pageSize = 16,
+    int pageSize = PAGE_SIZE,
   }) async {
     if (containsId > lastMessageId) {
       return [];
