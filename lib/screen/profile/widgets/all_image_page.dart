@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:card_swiper/card_swiper.dart';
 import 'package:dcache/dcache.dart';
-import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/media_meta_data_dao.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_meta_data.dart';
@@ -24,6 +23,7 @@ class AllImagePage extends StatefulWidget {
   final int messageId;
   final int? initIndex;
   final String? filePath;
+  final bool isSingleImage;
 
   const AllImagePage(
     Key? key, {
@@ -31,6 +31,7 @@ class AllImagePage extends StatefulWidget {
     required this.messageId,
     this.initIndex,
     this.filePath,
+    this.isSingleImage = false,
   }) : super(key: key);
 
   @override
@@ -42,13 +43,14 @@ class _AllImagePageState extends State<AllImagePage> {
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
-  final _mediaDao = GetIt.I.get<MediaDao>();
   final _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
   final BehaviorSubject<int> _currentIndex = BehaviorSubject.seeded(-1);
   final BehaviorSubject<int> _allImageCount = BehaviorSubject.seeded(0);
   final _mediaCache = <int, Media>{};
   final LruCache _fileCache =
       LruCache<int, String>(storage: InMemoryStorage(500));
+  bool _isBarShowing = true;
+  int? initialIndex;
 
   Future<Media?> _getMedia(int index) async {
     if (_mediaCache.values.toList().isNotEmpty &&
@@ -78,6 +80,8 @@ class _AllImagePageState extends State<AllImagePage> {
         widget.roomUid.asUid(),
         updateAllMedia: false,
       );
+    } else {
+      initialIndex = widget.initIndex;
     }
 
     super.initState();
@@ -95,7 +99,7 @@ class _AllImagePageState extends State<AllImagePage> {
       ),
       child: Scaffold(
         extendBodyBehindAppBar: true,
-        appBar: buildAppBar(),
+        appBar: _isBarShowing ? buildAppBar() : null,
         body: Container(
           color: Colors.black,
           child: StreamBuilder<MediaMetaData?>(
@@ -103,30 +107,12 @@ class _AllImagePageState extends State<AllImagePage> {
             builder: (c, snapshot) {
               if (snapshot.hasData && snapshot.data != null) {
                 _allImageCount.add(snapshot.data!.imagesCount);
-                return widget.initIndex != null
-                    ? buildImageByIndex(widget.initIndex!)
-                    : FutureBuilder<int?>(
-                        future: _mediaDao.getIndexOfMedia(
-                          widget.roomUid,
-                          widget.messageId,
-                        ),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData &&
-                              snapshot.data != null &&
-                              snapshot.data != -1) {
-                            return buildImageByIndex(snapshot.data!);
-                          } else if (snapshot.connectionState ==
-                                  ConnectionState.done &&
-                              snapshot.data == -1) {
-                            _currentIndex.add(-1);
-                            return singleImage();
-                          } else {
-                            return const SizedBox.shrink();
-                          }
-                        },
-                      );
+                return initialIndex != null
+                    ? buildImageByIndex(initialIndex!)
+                    : widget.isSingleImage
+                        ? singleImage()
+                        : const SizedBox.shrink();
               } else {
-                _currentIndex.add(-1);
                 return singleImage();
               }
             },
@@ -137,6 +123,7 @@ class _AllImagePageState extends State<AllImagePage> {
   }
 
   Center singleImage() {
+    _currentIndex.add(-1);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(10),
@@ -218,8 +205,17 @@ class _AllImagePageState extends State<AllImagePage> {
                                             ? Image.network(
                                                 filePath.data!,
                                               )
-                                            : Image.file(
-                                                File(filePath.data!),
+                                            : GestureDetector(
+                                                onTap: () {
+                                                  setState(() {
+                                                    initialIndex = index;
+                                                    _isBarShowing =
+                                                        !_isBarShowing;
+                                                  });
+                                                },
+                                                child: Image.file(
+                                                  File(filePath.data!),
+                                                ),
                                               );
                                       } else {
                                         return const Center(
@@ -287,92 +283,93 @@ class _AllImagePageState extends State<AllImagePage> {
               )
           ],
         ),
-        Align(
-          alignment: Alignment.bottomCenter,
-          child: Container(
-            color: Colors.black.withAlpha(120),
-            child: Row(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 10.0,
-                    horizontal: 20,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      StreamBuilder<int>(
-                        stream: _currentIndex.stream,
-                        builder: (context, index) {
-                          if (index.hasData &&
-                              index.data != null &&
-                              index.data != -1) {
-                            return FutureBuilder<Media?>(
-                              future: _getMedia(index.data!),
-                              builder: (c, mediaSnapShot) {
-                                if (mediaSnapShot.hasData &&
-                                    mediaSnapShot.data != null) {
-                                  final json =
-                                      jsonDecode(mediaSnapShot.data!.json)
-                                          as Map;
-                                  if (json["caption"].toString().isNotEmpty) {
-                                    return Text(
-                                      json["caption"],
-                                      style:
-                                          theme.textTheme.bodyText2!.copyWith(
-                                        height: 1,
-                                        color: Colors.white,
-                                      ),
-                                    );
+        if (_isBarShowing)
+          Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              color: Colors.black.withAlpha(120),
+              child: Row(
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 20,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        StreamBuilder<int>(
+                          stream: _currentIndex.stream,
+                          builder: (context, index) {
+                            if (index.hasData &&
+                                index.data != null &&
+                                index.data != -1) {
+                              return FutureBuilder<Media?>(
+                                future: _getMedia(index.data!),
+                                builder: (c, mediaSnapShot) {
+                                  if (mediaSnapShot.hasData &&
+                                      mediaSnapShot.data != null) {
+                                    final json =
+                                        jsonDecode(mediaSnapShot.data!.json)
+                                            as Map;
+                                    if (json["caption"].toString().isNotEmpty) {
+                                      return Text(
+                                        json["caption"],
+                                        style:
+                                            theme.textTheme.bodyText2!.copyWith(
+                                          height: 1,
+                                          color: Colors.white,
+                                        ),
+                                      );
+                                    } else {
+                                      return const SizedBox.shrink();
+                                    }
                                   } else {
                                     return const SizedBox.shrink();
                                   }
-                                } else {
-                                  return const SizedBox.shrink();
-                                }
-                              },
-                            );
-                          } else {
-                            return const SizedBox.shrink();
-                          }
-                        },
-                      ),
-                      const SizedBox(
-                        height: 10,
-                      ),
-                      StreamBuilder<int>(
-                        stream: _currentIndex.stream,
-                        builder: (c, index) {
-                          if (index.hasData && index.data != -1) {
-                            return buildBottomAppBar(index.data!);
-                          } else {
-                            return const SizedBox.shrink();
-                          }
-                        },
-                      ),
-                    ],
+                                },
+                              );
+                            } else {
+                              return const SizedBox.shrink();
+                            }
+                          },
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        StreamBuilder<int>(
+                          stream: _currentIndex.stream,
+                          builder: (c, index) {
+                            if (index.hasData && index.data != -1) {
+                              return buildBottomAppBar(index.data!);
+                            } else {
+                              return const SizedBox.shrink();
+                            }
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const Spacer(),
-                IconButton(
-                  onPressed: () {},
-                  icon: Icon(
-                    Icons.brush_outlined,
-                    color: theme.primaryColorLight,
+                  const Spacer(),
+                  IconButton(
+                    onPressed: () {},
+                    icon: Icon(
+                      Icons.brush_outlined,
+                      color: theme.primaryColorLight,
+                    ),
                   ),
-                ),
-                IconButton(
-                  onPressed: () {},
-                  icon: Icon(Icons.share, color: theme.primaryColorLight),
-                ),
-              ],
+                  IconButton(
+                    onPressed: () {},
+                    icon: Icon(Icons.share, color: theme.primaryColorLight),
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
       ],
     );
   }
@@ -439,9 +436,9 @@ class _AllImagePageState extends State<AllImagePage> {
                       position.data! != -1) {
                     return Text(
                       "${snapshot.data! - position.data!} of ${snapshot.data}",
-                      style: TextStyle(
-                        color: theme.primaryColorLight,
-                        fontWeight: FontWeight.w600,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w500,
                       ),
                     );
                   } else {
