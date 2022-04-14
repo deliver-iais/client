@@ -82,9 +82,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _routingServices = GetIt.I.get<RoutingService>();
   static final _roomRepo = GetIt.I.get<RoomRepo>();
-  static final _logger = GetIt.I.get<Logger>();
-  static final _fileRepo = GetIt.I.get<FileRepo>();
-  static final _i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
@@ -270,6 +267,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
       onUsernameClick: onUsernameClick,
       storePosition: storePosition,
+      onEdit: widget.onEdit,
     );
 
     return Row(
@@ -315,7 +313,9 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           ),
         ),
         onTap: () {
-          _routingServices.openProfile(widget.message.from);
+          _routingServices.openProfile(widget.message.from, (message) {
+            widget.onEdit();
+          });
         },
       ),
     );
@@ -345,6 +345,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
       onArrowIconClick: () => _showCustomMenu(context, message),
       storePosition: storePosition,
+      onEdit: widget.onEdit,
     );
 
     if (isFirstMessageInGroupedMessages &&
@@ -375,7 +376,9 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
                   ),
                 ),
                 onTap: () {
-                  _routingServices.openProfile(message.from);
+                  _routingServices.openProfile(message.from, (message) {
+                    widget.onEdit();
+                  });
                 },
               ),
             ),
@@ -408,9 +411,57 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       return;
     }
 
-    switch (selectedValue) {
+    await OperationOnMessageSelection(
+      message: widget.message,
+      context: context,
+      onDelete: widget.onDelete,
+      onEdit: widget.onEdit,
+      onPin: widget.onPin,
+      onReply: widget.onReply,
+      onUnPin: widget.onUnPin,
+    ).selectOperation(selectedValue);
+  }
+
+  Future<void> onUsernameClick(String username) async {
+    if (username.contains("_bot")) {
+      final roomId = "4:${username.substring(1)}";
+      _routingServices.openRoom(roomId);
+    } else {
+      final roomId = await _roomRepo.getUidById(username);
+      _routingServices.openRoom(roomId);
+    }
+  }
+}
+
+class OperationOnMessageSelection {
+  static final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
+  static final _logger = GetIt.I.get<Logger>();
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _routingServices = GetIt.I.get<RoutingService>();
+
+  final void Function()? onReply;
+  final void Function() onEdit;
+  final void Function()? onDelete;
+  final void Function()? onPin;
+  final void Function()? onUnPin;
+  final BuildContext context;
+  final Message message;
+
+  OperationOnMessageSelection({
+    this.onReply,
+    required this.onEdit,
+    this.onDelete,
+    this.onPin,
+    this.onUnPin,
+    required this.context,
+    required this.message,
+  });
+
+  Future<void> selectOperation(OperationOnMessage operationOnMessage) async {
+    switch (operationOnMessage) {
       case OperationOnMessage.REPLY:
-        widget.onReply();
+        onReply!();
         break;
       case OperationOnMessage.COPY:
         onCopy();
@@ -444,15 +495,15 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         onDeletePendingMessage();
         break;
       case OperationOnMessage.PIN_MESSAGE:
-        widget.onPin();
+        onPin!();
         break;
       case OperationOnMessage.UN_PIN_MESSAGE:
-        widget.onUnPin();
+        onUnPin!();
         break;
       case OperationOnMessage.SHOW_IN_FOLDER:
         final path = await _fileRepo.getFileIfExist(
-          widget.message.json.toFile().uuid,
-          widget.message.json.toFile().name,
+          message.json.toFile().uuid,
+          message.json.toFile().name,
         );
         if (path != null) onShowInFolder(path);
         break;
@@ -463,11 +514,17 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   void onCopy() {
-    if (widget.message.type == MessageType.TEXT) {
-      Clipboard.setData(ClipboardData(text: widget.message.json.toText().text));
+    if (message.type == MessageType.TEXT) {
+      Clipboard.setData(
+        ClipboardData(
+          text: message.json.toText().text,
+        ),
+      );
     } else {
       Clipboard.setData(
-        ClipboardData(text: widget.message.json.toFile().caption),
+        ClipboardData(
+          text: message.json.toFile().caption,
+        ),
       );
     }
     ToastDisplay.showToast(
@@ -477,15 +534,14 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   void onForward() {
-    _routingServices
-        .openSelectForwardMessage(forwardedMessages: [widget.message]);
+    _routingServices.openSelectForwardMessage(forwardedMessages: [message]);
   }
 
   void onEditMessage() {
-    switch (widget.message.type) {
+    switch (message.type) {
       case MessageType.TEXT:
       case MessageType.FILE:
-        widget.onEdit();
+        onEdit();
         break;
       case MessageType.STICKER:
       case MessageType.LOCATION:
@@ -506,19 +562,19 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   void onResend() {
-    _messageRepo.resendMessage(widget.message);
+    _messageRepo.resendMessage(message);
   }
 
   Future<void> onShare() async {
     try {
       final result = await _fileRepo.getFileIfExist(
-        widget.message.json.toFile().uuid,
-        widget.message.json.toFile().name,
+        message.json.toFile().uuid,
+        message.json.toFile().name,
       );
       if (result!.isNotEmpty) {
         return Share.shareFiles(
           [(result)],
-          text: widget.message.json.toFile().caption,
+          text: message.json.toFile().caption,
         );
       }
     } catch (e) {
@@ -527,7 +583,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   void onSaveTOGallery(BuildContext context) {
-    final file = widget.message.json.toFile();
+    final file = message.json.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.pictures);
     ToastDisplay.showToast(
       toastContext: context,
@@ -537,7 +593,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   void onSaveTODownloads() {
-    final file = widget.message.json.toFile();
+    final file = message.json.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.download);
     ToastDisplay.showToast(
       toastContext: context,
@@ -547,7 +603,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   void onSaveToMusic() {
-    final file = widget.message.json.toFile();
+    final file = message.json.toFile();
     _fileRepo.saveFileInDownloadDir(file.uuid, file.name, ExtStorage.music);
     ToastDisplay.showToast(
       toastContext: context,
@@ -558,14 +614,14 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   void onDeleteMessage() {
     showDeleteMsgDialog(
-      [widget.message],
+      [message],
       context,
-      widget.onDelete,
+      onDelete!,
     );
   }
 
   void onDeletePendingMessage() {
-    _messageRepo.deletePendingMessage(widget.message.packetId);
+    _messageRepo.deletePendingMessage(message.packetId);
   }
 
   void onReportMessage() {
@@ -583,16 +639,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       shell.run('nautilus $path');
     } else if (isMacOS) {
       shell.run('open $path');
-    }
-  }
-
-  Future<void> onUsernameClick(String username) async {
-    if (username.contains("_bot")) {
-      final roomId = "4:${username.substring(1)}";
-      _routingServices.openRoom(roomId);
-    } else {
-      final roomId = await _roomRepo.getUidById(username);
-      _routingServices.openRoom(roomId);
     }
   }
 }
