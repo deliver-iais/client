@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media_type.dart';
+import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -20,6 +22,7 @@ class ImageTabUi extends StatefulWidget {
   final Uid roomUid;
   final void Function(Media) addSelectedMedia;
   final List<Media> selectedMedia;
+  final void Function(Message) onEdit;
 
   const ImageTabUi(
     this.imagesCount,
@@ -27,6 +30,7 @@ class ImageTabUi extends StatefulWidget {
     Key? key,
     required this.addSelectedMedia,
     required this.selectedMedia,
+    required this.onEdit,
   }) : super(key: key);
 
   @override
@@ -35,6 +39,7 @@ class ImageTabUi extends StatefulWidget {
 
 class _ImageTabUiState extends State<ImageTabUi> {
   final _routingService = GetIt.I.get<RoutingService>();
+  final _messageDao = GetIt.I.get<MessageDao>();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
 
@@ -100,11 +105,18 @@ class _ImageTabUiState extends State<ImageTabUi> {
       child: Stack(
         children: [
           GestureDetector(
-            onTap: () => _routingService.openShowAllImage(
-              uid: widget.roomUid.asString(),
-              messageId: media.messageId,
-              initIndex: index,
-            ),
+            onTap: () async {
+              final message = await _messageDao.getMessage(
+                widget.roomUid.asString(),
+                media.messageId,
+              );
+              _routingService.openShowAllImage(
+                uid: widget.roomUid.asString(),
+                messageId: media.messageId,
+                initIndex: index,
+                onEdit: () => widget.onEdit(message!),
+              );
+            },
             onLongPress: () => _addSelectedMedia(media),
             child: FutureBuilder<String?>(
               future: _fileRepo.getFileIfExist(json["uuid"], json["name"]),

@@ -150,8 +150,16 @@ class RoutingService {
     );
   }
 
-  void openProfile(String roomId) => _push(
-        ProfilePage(roomId.asUid(), key: ValueKey("/room/$roomId/profile")),
+  void openProfile(
+    String roomId,
+    Function(Message) onEdit,
+  ) =>
+      _push(
+        ProfilePage(
+          roomId.asUid(),
+          key: ValueKey("/room/$roomId/profile"),
+          onEdit: onEdit,
+        ),
       );
 
   void openShowAllAvatars({
@@ -186,6 +194,7 @@ class RoutingService {
     required String uid,
     required int initIndex,
     required int messageId,
+    required Function() onEdit,
   }) =>
       _push(
         AllImagePage(
@@ -193,6 +202,7 @@ class RoutingService {
           messageId: messageId,
           initIndex: initIndex,
           roomUid: uid,
+          onEdit: onEdit,
         ),
       );
 

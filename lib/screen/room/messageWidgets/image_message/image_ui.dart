@@ -28,6 +28,7 @@ class ImageUi extends StatefulWidget {
   final bool isSender;
   final bool isSeen;
   final CustomColorScheme colorScheme;
+  final void Function() onEdit;
 
   late final file_pb.File image = message.json.toFile();
 
@@ -39,6 +40,7 @@ class ImageUi extends StatefulWidget {
     required this.isSender,
     required this.colorScheme,
     required this.isSeen,
+    required this.onEdit,
   }) : super(key: key);
 
   @override
@@ -119,6 +121,7 @@ class _ImageUiState extends State<ImageUi> {
                                             hasIndex ? snapshot.data : null,
                                         isSingleImage: isSingleImage,
                                         messageId: widget.message.id!,
+                                        onEdit: widget.onEdit,
                                       );
                                     } else {
                                       return const SizedBox.shrink();

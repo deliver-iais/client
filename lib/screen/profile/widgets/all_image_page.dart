@@ -4,12 +4,15 @@ import 'dart:io';
 import 'package:card_swiper/card_swiper.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver/box/dao/media_meta_data_dao.dart';
+import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media_type.dart';
+import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/room/pages/build_message_box.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -24,6 +27,7 @@ class AllImagePage extends StatefulWidget {
   final int? initIndex;
   final String? filePath;
   final bool isSingleImage;
+  final void Function() onEdit;
 
   const AllImagePage(
     Key? key, {
@@ -32,6 +36,7 @@ class AllImagePage extends StatefulWidget {
     this.initIndex,
     this.filePath,
     this.isSingleImage = false,
+    required this.onEdit,
   }) : super(key: key);
 
   @override
@@ -44,6 +49,7 @@ class _AllImagePageState extends State<AllImagePage> {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
+  final _messageDao = GetIt.I.get<MessageDao>();
   final BehaviorSubject<int> _currentIndex = BehaviorSubject.seeded(-1);
   final BehaviorSubject<int> _allImageCount = BehaviorSubject.seeded(0);
   final _mediaCache = <int, Media>{};
@@ -356,14 +362,34 @@ class _AllImagePageState extends State<AllImagePage> {
                   ),
                   const Spacer(),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      final message = await _messageDao.getMessage(
+                        widget.roomUid,
+                        widget.messageId,
+                      );
+                      await OperationOnMessageSelection(
+                        message: message!,
+                        context: context,
+                        onEdit: widget.onEdit,
+                      ).selectOperation(OperationOnMessage.EDIT);
+                    },
                     icon: Icon(
                       Icons.brush_outlined,
                       color: theme.primaryColorLight,
                     ),
                   ),
                   IconButton(
-                    onPressed: () {},
+                    onPressed: () async {
+                      final message = await _messageDao.getMessage(
+                        widget.roomUid,
+                        widget.messageId,
+                      );
+                      await OperationOnMessageSelection(
+                        message: message!,
+                        context: context,
+                        onEdit: widget.onEdit,
+                      ).selectOperation(OperationOnMessage.SHARE);
+                    },
                     icon: Icon(Icons.share, color: theme.primaryColorLight),
                   ),
                 ],

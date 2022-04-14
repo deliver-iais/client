@@ -6,6 +6,7 @@ import 'package:deliver/box/contact.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media_type.dart';
+import 'package:deliver/box/message.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -47,8 +48,10 @@ import 'package:url_launcher/url_launcher.dart';
 
 class ProfilePage extends StatefulWidget {
   final Uid roomUid;
+  final void Function(Message) onEdit;
 
-  const ProfilePage(this.roomUid, {Key? key}) : super(key: key);
+  const ProfilePage(this.roomUid, {Key? key, required this.onEdit})
+      : super(key: key);
 
   @override
   _ProfilePageState createState() => _ProfilePageState();
@@ -294,6 +297,7 @@ class _ProfilePageState extends State<ProfilePage>
                           widget.roomUid,
                           selectedMedia: _selectedMedia,
                           addSelectedMedia: (media) => _addSelectedMedia(media),
+                          onEdit: widget.onEdit,
                         ),
                       if (snapshot.hasData && snapshot.data!.videosCount != 0)
                         VideoTabUi(
