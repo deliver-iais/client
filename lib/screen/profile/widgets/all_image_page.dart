@@ -8,11 +8,13 @@ import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media_type.dart';
+import 'package:deliver/box/message.dart';
 import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/pages/build_message_box.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -27,7 +29,7 @@ class AllImagePage extends StatefulWidget {
   final int? initIndex;
   final String? filePath;
   final bool isSingleImage;
-  final void Function() onEdit;
+  final void Function(Message) onEdit;
 
   const AllImagePage(
     Key? key, {
@@ -49,6 +51,7 @@ class _AllImagePageState extends State<AllImagePage> {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
+  final _routingService = GetIt.I.get<RoutingService>();
   final _messageDao = GetIt.I.get<MessageDao>();
   final BehaviorSubject<int> _currentIndex = BehaviorSubject.seeded(-1);
   final BehaviorSubject<int> _allImageCount = BehaviorSubject.seeded(0);
@@ -372,6 +375,7 @@ class _AllImagePageState extends State<AllImagePage> {
                         context: context,
                         onEdit: widget.onEdit,
                       ).selectOperation(OperationOnMessage.EDIT);
+                      _routingService.pop();
                     },
                     icon: Icon(
                       Icons.brush_outlined,

@@ -194,7 +194,7 @@ class RoutingService {
     required String uid,
     required int initIndex,
     required int messageId,
-    required Function() onEdit,
+    required Function(Message) onEdit,
   }) =>
       _push(
         AllImagePage(

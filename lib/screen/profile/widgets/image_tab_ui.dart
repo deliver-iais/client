@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media_type.dart';
@@ -39,7 +38,6 @@ class ImageTabUi extends StatefulWidget {
 
 class _ImageTabUiState extends State<ImageTabUi> {
   final _routingService = GetIt.I.get<RoutingService>();
-  final _messageDao = GetIt.I.get<MessageDao>();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
 
@@ -106,15 +104,11 @@ class _ImageTabUiState extends State<ImageTabUi> {
         children: [
           GestureDetector(
             onTap: () async {
-              final message = await _messageDao.getMessage(
-                widget.roomUid.asString(),
-                media.messageId,
-              );
               _routingService.openShowAllImage(
                 uid: widget.roomUid.asString(),
                 messageId: media.messageId,
                 initIndex: index,
-                onEdit: () => widget.onEdit(message!),
+                onEdit: widget.onEdit,
               );
             },
             onLongPress: () => _addSelectedMedia(media),

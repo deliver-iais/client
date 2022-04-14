@@ -18,7 +18,7 @@ class ReceivedMessageBox extends StatelessWidget {
   final CustomColorScheme colorScheme;
   final void Function(TapDownDetails) storePosition;
   final bool isFirstMessageInGroupedMessages;
-  final void Function() onEdit;
+  final void Function(Message) onEdit;
 
   const ReceivedMessageBox({
     Key? key,

@@ -65,7 +65,6 @@ import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:tuple/tuple.dart';
 
-
 const APPBAR_HEIGHT = 54.0;
 
 class RoomPage extends StatefulWidget {
@@ -983,12 +982,19 @@ class _RoomPageState extends State<RoomPage> {
                   return _selectMultiMessageAppBar();
                 } else {
                   if (widget.roomId.isMuc()) {
-                    return MucAppbarTitle(mucUid: widget.roomId,onEdit: onEdit,);
+                    return MucAppbarTitle(
+                      mucUid: widget.roomId,
+                      onEdit: onEdit,
+                    );
                   } else if (widget.roomId.asUid().category == Categories.BOT) {
-                    return BotAppbarTitle(botUid: widget.roomId.asUid(),onEdit: onEdit,);
+                    return BotAppbarTitle(
+                      botUid: widget.roomId.asUid(),
+                      onEdit: onEdit,
+                    );
                   } else {
                     return UserAppbarTitle(
-                      userUid: widget.roomId.asUid(),onEdit: onEdit,
+                      userUid: widget.roomId.asUid(),
+                      onEdit: onEdit,
                     );
                   }
                 }
@@ -1214,7 +1220,7 @@ class _RoomPageState extends State<RoomPage> {
       selectMultiMessageSubject: _selectMultiMessageSubject,
       hasPermissionInGroup: _hasPermissionInGroup.value,
       hasPermissionInChannel: _hasPermissionInChannel,
-      onEdit: () => onEdit(message),
+      onEdit: onEdit,
       onPin: () => onPin(message),
       onUnPin: () => onUnPin(message),
       onReply: () => onReply(message),

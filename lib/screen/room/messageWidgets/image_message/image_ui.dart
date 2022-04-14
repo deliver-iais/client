@@ -28,7 +28,7 @@ class ImageUi extends StatefulWidget {
   final bool isSender;
   final bool isSeen;
   final CustomColorScheme colorScheme;
-  final void Function() onEdit;
+  final void Function(Message) onEdit;
 
   late final file_pb.File image = message.json.toFile();
 

@@ -19,7 +19,7 @@ class SentMessageBox extends StatelessWidget {
   final String? pattern;
   final void Function() onArrowIconClick;
   final void Function(TapDownDetails) storePosition;
-  final void Function() onEdit;
+  final void Function(Message) onEdit;
 
   const SentMessageBox({
     Key? key,

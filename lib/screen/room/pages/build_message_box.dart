@@ -42,7 +42,7 @@ class BuildMessageBox extends StatefulWidget {
   final String roomId;
   final void Function(int, int) scrollToMessage;
   final void Function() onReply;
-  final void Function() onEdit;
+  final void Function(Message) onEdit;
   final void Function() addForwardMessage;
   final void Function() onDelete;
   final void Function() onPin;
@@ -314,7 +314,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         ),
         onTap: () {
           _routingServices.openProfile(widget.message.from, (message) {
-            widget.onEdit();
+            widget.onEdit(message);
           });
         },
       ),
@@ -377,7 +377,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
                 ),
                 onTap: () {
                   _routingServices.openProfile(message.from, (message) {
-                    widget.onEdit();
+                    widget.onEdit(message);
                   });
                 },
               ),
@@ -441,7 +441,7 @@ class OperationOnMessageSelection {
   static final _routingServices = GetIt.I.get<RoutingService>();
 
   final void Function()? onReply;
-  final void Function() onEdit;
+  final void Function(Message) onEdit;
   final void Function()? onDelete;
   final void Function()? onPin;
   final void Function()? onUnPin;
@@ -541,7 +541,7 @@ class OperationOnMessageSelection {
     switch (message.type) {
       case MessageType.TEXT:
       case MessageType.FILE:
-        onEdit();
+        onEdit(message);
         break;
       case MessageType.STICKER:
       case MessageType.LOCATION:

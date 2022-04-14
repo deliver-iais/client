@@ -42,7 +42,7 @@ class BoxContent extends StatefulWidget {
   final void Function(String) onBotCommandClick;
   final void Function(int, int) scrollToMessage;
   final void Function() onArrowIconClick;
-  final void Function() onEdit;
+  final void Function(Message) onEdit;
 
   const BoxContent({
     Key? key,
