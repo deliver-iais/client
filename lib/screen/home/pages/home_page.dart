@@ -12,6 +12,7 @@ import 'package:deliver/shared/methods/url.dart';
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/ui/with_foreground_task.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -107,16 +108,24 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return WillPopScope(
-      onWillPop: () async {
-        if (!_routingService.canPop()) return true;
-        _routingService.maybePop();
-        return false;
-      },
-      child: WithForegroundTask(
-        child: Container(
-          color: theme.colorScheme.background,
-          child: _routingService.outlet(context),
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        systemNavigationBarColor:
+            _uxService.themeIsDark ? Colors.black : Colors.white,
+        systemNavigationBarIconBrightness:
+            _uxService.themeIsDark ? Brightness.light : Brightness.dark,
+      ),
+      child: WillPopScope(
+        onWillPop: () async {
+          if (!_routingService.canPop()) return true;
+          _routingService.maybePop();
+          return false;
+        },
+        child: WithForegroundTask(
+          child: Container(
+            color: theme.colorScheme.background,
+            child: _routingService.outlet(context),
+          ),
         ),
       ),
     );

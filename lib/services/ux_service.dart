@@ -152,17 +152,11 @@ class UxService {
   }
 
   void toggleThemeToLightMode() {
-    SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle.light,
-    );
     _sharedDao.putBoolean(SHARED_DAO_THEME_IS_DARK, false);
     _themeIsDark.add(false);
   }
 
   void toggleThemeToDarkMode() {
-    SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle.dark,
-    );
     _sharedDao.putBoolean(SHARED_DAO_THEME_IS_DARK, true);
     _themeIsDark.add(true);
   }

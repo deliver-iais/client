@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:math';
 
 import 'package:card_swiper/card_swiper.dart';
 import 'package:dcache/dcache.dart';
@@ -16,6 +15,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -88,41 +88,52 @@ class _AllImagePageState extends State<AllImagePage> {
   @override
   Widget build(BuildContext context) {
     theme = Theme.of(context);
-    return Scaffold(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        systemNavigationBarColor: Colors.black,
+        systemNavigationBarIconBrightness: Brightness.light,
+      ),
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
         appBar: buildAppBar(),
-        body: StreamBuilder<MediaMetaData?>(
-          stream: _mediaMetaDataDao.get(widget.roomUid),
-          builder: (c, snapshot) {
-            if (snapshot.hasData && snapshot.data != null) {
-              _allImageCount.add(snapshot.data!.imagesCount);
-              return widget.initIndex != null
-                  ? buildImageByIndex(widget.initIndex!)
-                  : FutureBuilder<int?>(
-                      future: _mediaDao.getIndexOfMedia(
-                        widget.roomUid,
-                        widget.messageId,
-                      ),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData &&
-                            snapshot.data != null &&
-                            snapshot.data != -1) {
-                          return buildImageByIndex(snapshot.data!);
-                        } else if (snapshot.connectionState ==
-                                ConnectionState.done &&
-                            snapshot.data == -1) {
-                          _currentIndex.add(-1);
-                          return singleImage();
-                        } else {
-                          return const SizedBox.shrink();
-                        }
-                      },
-                    );
-            } else {
-              _currentIndex.add(-1);
-              return singleImage();
-            }
-          },
-        ),);
+        body: Container(
+          color: Colors.black,
+          child: StreamBuilder<MediaMetaData?>(
+            stream: _mediaMetaDataDao.get(widget.roomUid),
+            builder: (c, snapshot) {
+              if (snapshot.hasData && snapshot.data != null) {
+                _allImageCount.add(snapshot.data!.imagesCount);
+                return widget.initIndex != null
+                    ? buildImageByIndex(widget.initIndex!)
+                    : FutureBuilder<int?>(
+                        future: _mediaDao.getIndexOfMedia(
+                          widget.roomUid,
+                          widget.messageId,
+                        ),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData &&
+                              snapshot.data != null &&
+                              snapshot.data != -1) {
+                            return buildImageByIndex(snapshot.data!);
+                          } else if (snapshot.connectionState ==
+                                  ConnectionState.done &&
+                              snapshot.data == -1) {
+                            _currentIndex.add(-1);
+                            return singleImage();
+                          } else {
+                            return const SizedBox.shrink();
+                          }
+                        },
+                      );
+              } else {
+                _currentIndex.add(-1);
+                return singleImage();
+              }
+            },
+          ),
+        ),
+      ),
+    );
   }
 
   Center singleImage() {
@@ -153,6 +164,7 @@ class _AllImagePageState extends State<AllImagePage> {
                         _swiperController.previous();
                       },
                       icon: const Icon(Icons.arrow_back_ios_new_outlined),
+                      color: theme.primaryColorLight,
                     );
                   } else {
                     return const SizedBox(
@@ -202,22 +214,13 @@ class _AllImagePageState extends State<AllImagePage> {
                                           filePath.data,
                                         );
 
-                                        return InteractiveViewer(
-                                          child: AspectRatio(
-                                            aspectRatio: max(
-                                                  json["width"] as int,
-                                                  1,
-                                                ) /
-                                                max(json["height"] as int, 1),
-                                            child: isWeb
-                                                ? Image.network(
-                                                    filePath.data!,
-                                                  )
-                                                : Image.file(
-                                                    File(filePath.data!),
-                                                  ),
-                                          ),
-                                        );
+                                        return isWeb
+                                            ? Image.network(
+                                                filePath.data!,
+                                              )
+                                            : Image.file(
+                                                File(filePath.data!),
+                                              );
                                       } else {
                                         return const Center(
                                           child: CircularProgressIndicator(
@@ -261,8 +264,9 @@ class _AllImagePageState extends State<AllImagePage> {
                             onPressed: () {
                               _swiperController.next();
                             },
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.arrow_forward_ios_outlined,
+                              color: theme.primaryColorLight,
                             ),
                           );
                         } else {
@@ -283,68 +287,92 @@ class _AllImagePageState extends State<AllImagePage> {
               )
           ],
         ),
-        StreamBuilder<int>(
-          stream: _currentIndex.stream,
-          builder: (context, index) {
-            if (index.hasData && index.data != null && index.data != -1) {
-              return FutureBuilder<Media?>(
-                future: _getMedia(index.data!),
-                builder: (c, mediaSnapShot) {
-                  if (mediaSnapShot.hasData && mediaSnapShot.data != null) {
-                    final json = jsonDecode(mediaSnapShot.data!.json) as Map;
-                    if (json["caption"].toString().isNotEmpty) {
-                      return Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Padding(
-                          padding: const EdgeInsets.only(
-                            left: 5,
-                            bottom: 5,
-                            right: 5,
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: theme.hoverColor.withAlpha(100),
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: Text(
-                              json["caption"],
-                              style: theme.textTheme.bodyText2!.copyWith(
-                                height: 1,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },
-              );
-            } else {
-              return const SizedBox.shrink();
-            }
-          },
-        ),
-        StreamBuilder<int>(
-          stream: _currentIndex.stream,
-          builder: (c, index) {
-            if (index.hasData && index.data != -1) {
-              return Align(
-                alignment: Alignment.bottomLeft,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 5, left: 3),
-                  child: buildBottomAppBar(index.data!),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: Container(
+            color: Colors.black.withAlpha(120),
+            child: Row(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 10.0,
+                    horizontal: 20,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      StreamBuilder<int>(
+                        stream: _currentIndex.stream,
+                        builder: (context, index) {
+                          if (index.hasData &&
+                              index.data != null &&
+                              index.data != -1) {
+                            return FutureBuilder<Media?>(
+                              future: _getMedia(index.data!),
+                              builder: (c, mediaSnapShot) {
+                                if (mediaSnapShot.hasData &&
+                                    mediaSnapShot.data != null) {
+                                  final json =
+                                      jsonDecode(mediaSnapShot.data!.json)
+                                          as Map;
+                                  if (json["caption"].toString().isNotEmpty) {
+                                    return Text(
+                                      json["caption"],
+                                      style:
+                                          theme.textTheme.bodyText2!.copyWith(
+                                        height: 1,
+                                        color: Colors.white,
+                                      ),
+                                    );
+                                  } else {
+                                    return const SizedBox.shrink();
+                                  }
+                                } else {
+                                  return const SizedBox.shrink();
+                                }
+                              },
+                            );
+                          } else {
+                            return const SizedBox.shrink();
+                          }
+                        },
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      StreamBuilder<int>(
+                        stream: _currentIndex.stream,
+                        builder: (c, index) {
+                          if (index.hasData && index.data != -1) {
+                            return buildBottomAppBar(index.data!);
+                          } else {
+                            return const SizedBox.shrink();
+                          }
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-              );
-            } else {
-              return const SizedBox.shrink();
-            }
-          },
-        )
+                const Spacer(),
+                IconButton(
+                  onPressed: () {},
+                  icon: Icon(
+                    Icons.brush_outlined,
+                    color: theme.primaryColorLight,
+                  ),
+                ),
+                IconButton(
+                  onPressed: () {},
+                  icon: Icon(Icons.share, color: theme.primaryColorLight),
+                ),
+              ],
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -354,41 +382,36 @@ class _AllImagePageState extends State<AllImagePage> {
       future: _getMedia(index),
       builder: (context, mediaSnapShot) {
         if (mediaSnapShot.hasData && mediaSnapShot.data != null) {
-          return Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).hoverColor.withAlpha(100),
-              borderRadius: BorderRadius.circular(5),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                FutureBuilder<String>(
-                  future:
-                      _roomRepo.getName(mediaSnapShot.data!.createdBy.asUid()),
-                  builder: (c, name) {
-                    if (name.hasData && name.data != null) {
-                      return Text(
-                        name.data!,
-                        style: theme.textTheme.bodyText2!
-                            .copyWith(height: 1, color: Colors.white),
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  },
-                ),
-                const SizedBox(
-                  width: 5,
-                ),
-                Text(
-                  DateTime.fromMillisecondsSinceEpoch(
-                    mediaSnapShot.data!.createdOn,
-                  ).toString().substring(0, 19),
-                  style: theme.textTheme.bodyText2!
-                      .copyWith(height: 1, color: Colors.white),
-                )
-              ],
-            ),
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FutureBuilder<String>(
+                future:
+                    _roomRepo.getName(mediaSnapShot.data!.createdBy.asUid()),
+                builder: (c, name) {
+                  if (name.hasData && name.data != null) {
+                    return Text(
+                      name.data!,
+                      style: theme.textTheme.bodyText2!
+                          .copyWith(height: 1, color: Colors.white),
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              Text(
+                DateTime.fromMillisecondsSinceEpoch(
+                  mediaSnapShot.data!.createdOn,
+                ).toString().substring(0, 19),
+                style: theme.textTheme.bodyText2!
+                    .copyWith(height: 1, color: Colors.white),
+              )
+            ],
           );
         } else {
           return const SizedBox.shrink();
@@ -399,6 +422,7 @@ class _AllImagePageState extends State<AllImagePage> {
 
   PreferredSizeWidget buildAppBar() {
     return AppBar(
+      backgroundColor: Colors.black.withAlpha(120),
       title: StreamBuilder<int?>(
         stream: _allImageCount.stream,
         builder: (context, snapshot) {
@@ -415,6 +439,10 @@ class _AllImagePageState extends State<AllImagePage> {
                       position.data! != -1) {
                     return Text(
                       "${snapshot.data! - position.data!} of ${snapshot.data}",
+                      style: TextStyle(
+                        color: theme.primaryColorLight,
+                        fontWeight: FontWeight.w600,
+                      ),
                     );
                   } else {
                     return const SizedBox.shrink();
