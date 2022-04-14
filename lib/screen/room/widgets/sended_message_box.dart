@@ -12,7 +12,7 @@ import 'package:flutter/material.dart';
 
 class SentMessageBox extends StatelessWidget {
   final Message message;
-  final void Function(int) scrollToMessage;
+  final void Function(int, int) scrollToMessage;
   final bool isSeen;
   final bool isFirstMessageInGroupedMessages;
   final void Function(String) onUsernameClick;

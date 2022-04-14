@@ -340,9 +340,9 @@ class RoutingService {
       if (!isDesktop) fireBaseServices.deleteToken();
       coreServices.closeConnection();
       await authRepo.deleteTokens();
-      dbManager.deleteDB();
+      await dbManager.deleteDB();
       popAll();
-      mainNavigatorState.currentState?.pushAndRemoveUntil(
+      await mainNavigatorState.currentState?.pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (c) => const LoginPage(key: Key("/login_page")),
         ),

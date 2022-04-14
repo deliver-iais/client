@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/message.dart';
@@ -15,7 +17,6 @@ abstract class RoomDao {
     String? draft,
     int? lastUpdateTime,
     int? firstMessageId,
-    int? lastUpdatedMessageId,
     bool? mentioned,
     bool? pinned,
     int? hiddenMessageCount,
@@ -96,7 +97,6 @@ class RoomDaoImpl implements RoomDao {
     String? draft,
     int? lastUpdateTime,
     int? firstMessageId,
-    int? lastUpdatedMessageId,
     bool? mentioned,
     bool? pinned,
     int? hiddenMessageCount,
@@ -114,7 +114,6 @@ class RoomDaoImpl implements RoomDao {
         draft: draft,
         lastUpdateTime: lastUpdateTime,
         firstMessageId: firstMessageId,
-        lastUpdatedMessageId: lastUpdatedMessageId,
         mentioned: mentioned,
         pinned: pinned,
         hiddenMessageCount: hiddenMessageCount,
@@ -149,7 +148,7 @@ class RoomDaoImpl implements RoomDao {
 
   static Future<BoxPlus<Room>> _openRoom() async {
     try {
-      BoxInfo.addBox(_keyRoom());
+      unawaited(BoxInfo.addBox(_keyRoom()));
       return gen(Hive.openBox<Room>(_keyRoom()));
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyRoom());

@@ -10,7 +10,7 @@ import 'message_wrapper.dart';
 
 class ReceivedMessageBox extends StatelessWidget {
   final Message message;
-  final void Function(int) scrollToMessage;
+  final void Function(int, int) scrollToMessage;
   final void Function(String) onUsernameClick;
   final String? pattern;
   final void Function(String) onBotCommandClick;

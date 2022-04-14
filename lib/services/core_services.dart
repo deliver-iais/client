@@ -55,7 +55,7 @@ class CoreServices {
     if (_connectionTimer != null && _connectionTimer!.isActive) {
       return;
     }
-    await startStream();
+    startStream();
     startCheckerTimer();
     _connectionStatus.distinct().listen((event) {
       connectionStatus.add(event);
@@ -69,21 +69,21 @@ class CoreServices {
   }
 
   @visibleForTesting
-  Future<void> startCheckerTimer() async {
+  void startCheckerTimer() {
     sendPing();
     if (_connectionTimer != null && _connectionTimer!.isActive) {
       return;
     }
 
     responseChecked = false;
-    _connectionTimer = Timer(Duration(seconds: backoffTime), () async {
+    _connectionTimer = Timer(Duration(seconds: backoffTime), () {
       if (!responseChecked) {
         if (backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO) {
           backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
         } else {
           backoffTime = MIN_BACKOFF_TIME;
         }
-        await startStream();
+        startStream();
         _connectionStatus.add(ConnectionStatus.Disconnected);
       }
 
@@ -98,14 +98,14 @@ class CoreServices {
   }
 
   @visibleForTesting
-  Future<void> startStream() async {
+  void startStream() {
     try {
       _clientPacketStream = StreamController<ClientPacket>();
       _responseStream = isWeb
           ? _grpcCoreService
               .establishServerSideStream(EstablishServerSideStreamReq())
           : _grpcCoreService.establishStream(_clientPacketStream.stream);
-      _responseStream.listen((serverPacket) async {
+      _responseStream.listen((serverPacket) {
         _logger.d(serverPacket);
 
         gotResponse();
@@ -150,8 +150,8 @@ class CoreServices {
         }
       });
     } catch (e) {
-      await startStream();
       _logger.e(e);
+      return startStream();
     }
   }
 
@@ -160,7 +160,7 @@ class CoreServices {
       final clientPacket = ClientPacket()
         ..message = message
         ..id = DateTime.now().microsecondsSinceEpoch.toString();
-      _sendPacket(clientPacket);
+      await _sendPacket(clientPacket);
       Timer(
         const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
         () => _checkPendingStatus(message.packetId),
@@ -236,7 +236,7 @@ class CoreServices {
               _connectionStatus.value == ConnectionStatus.Connected)) {
         _clientPacketStream.add(packet);
       } else {
-        await startStream();
+        startStream();
         // throw Exception("no active stream");
       }
     } catch (e) {

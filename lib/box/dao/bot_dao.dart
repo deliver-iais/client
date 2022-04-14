@@ -21,7 +21,7 @@ class BotDaoImpl implements BotDao {
   Future<void> save(BotInfo botInfo) async {
     final box = await _open();
 
-    box.put(botInfo.uid, botInfo);
+    return box.put(botInfo.uid, botInfo);
   }
 
   static String _key() => "bot";

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/seen.dart';
@@ -14,7 +16,11 @@ abstract class SeenDao {
 
   Future<void> saveOthersSeen(Seen seen);
 
-  Future<void> saveMySeen(Seen seen);
+  Future<void> updateMySeen({
+    required String uid,
+    int? messageId,
+    int? hiddenMessageCount,
+  });
 }
 
 class SeenDaoImpl implements SeenDao {
@@ -38,18 +44,18 @@ class SeenDaoImpl implements SeenDao {
   Future<Seen> getMySeen(String uid) async {
     final box = await _openMySeen();
 
-    return box.get(uid) ?? Seen(uid: uid, messageId: -1);
+    return box.get(uid) ?? _defaultSeenValue(uid);
   }
 
   @override
   Stream<Seen> watchMySeen(String uid) async* {
     final box = await _openMySeen();
 
-    yield box.get(uid) ?? Seen(uid: uid, messageId: -1);
+    yield box.get(uid) ?? _defaultSeenValue(uid);
 
     yield* box
         .watch(key: uid)
-        .map((event) => box.get(uid) ?? Seen(uid: uid, messageId: -1));
+        .map((event) => box.get(uid) ?? _defaultSeenValue(uid));
   }
 
   @override
@@ -59,22 +65,38 @@ class SeenDaoImpl implements SeenDao {
     final othersSeen = box.get(seen.uid);
 
     if (othersSeen == null || othersSeen.messageId < seen.messageId) {
-      box.put(seen.uid, seen);
+      return box.put(seen.uid, seen);
     }
   }
 
   @override
-  Future<void> saveMySeen(Seen seen) async {
+  Future<void> updateMySeen({
+    required String uid,
+    int? messageId,
+    int? hiddenMessageCount,
+  }) async {
     final box = await _openMySeen();
 
-    final mySeen = box.get(seen.uid);
+    final seen = box.get(uid) ?? _defaultSeenValue(uid);
 
-    if (mySeen == null ||
-        mySeen.messageId < seen.messageId ||
-        seen.hiddenMessageCount != null) {
-      box.put(seen.uid, seen);
+    if ((messageId != null && seen.messageId < messageId) ||
+        hiddenMessageCount != null) {
+      return box.put(
+        uid,
+        seen.copyWith(
+          uid: uid,
+          messageId: messageId,
+          hiddenMessageCount: hiddenMessageCount,
+        ),
+      );
     }
   }
+
+  static Seen _defaultSeenValue(String uid) => Seen(
+        uid: uid,
+        messageId: -1,
+        hiddenMessageCount: 0,
+      );
 
   static String _key() => "others-seen";
 
@@ -87,7 +109,7 @@ class SeenDaoImpl implements SeenDao {
 
   static Future<BoxPlus<Seen>> _openMySeen() async {
     try {
-      BoxInfo.addBox(_key2());
+      unawaited(BoxInfo.addBox(_key2()));
       return gen(Hive.openBox<Seen>(_key2()));
     } catch (e) {
       await Hive.deleteBoxFromDisk(_key2());

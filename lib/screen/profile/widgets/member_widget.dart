@@ -9,6 +9,7 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -155,19 +156,43 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
   }
 
   Widget showMemberRole(Member member) {
+    final primaryColor = Theme.of(context).colorScheme.primary;
     switch (member.role) {
       case MucRole.OWNER:
-        return Text(_i18n.get("owner"), style: const TextStyle(fontSize: 11));
+        return Row(
+          children: [
+            Icon(Icons.star, size: 12, color: primaryColor),
+            const SizedBox(width: 4),
+            Text(
+              _i18n.get("owner"),
+              style: TextStyle(
+                fontSize: 12,
+                color: primaryColor,
+              ),
+            ),
+          ],
+        );
       case MucRole.ADMIN:
-        return Text(_i18n.get("admin"), style: const TextStyle(fontSize: 11));
+        return Text(
+          _i18n.get("admin"),
+          style: TextStyle(
+            fontSize: 12,
+            color: primaryColor,
+          ),
+        );
       case MucRole.MEMBER:
-        return Text(_i18n.get("member"), style: const TextStyle(fontSize: 11));
+        return Text(
+          widget.mucUid.category == Categories.CHANNEL
+              ? _i18n.get("member")
+              : "",
+          style: const TextStyle(fontSize: 11),
+        );
       case MucRole.NONE:
         return const Text("", style: TextStyle(fontSize: 11));
     }
   }
 
-  Future<void> onSelected(String key, Member member) async {
+  void onSelected(String key, Member member) {
     switch (key) {
       case CHANGE_ROLE:
         Member m;
@@ -191,15 +216,17 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
         break;
       case DELETE:
         if (widget.mucUid.isGroup()) {
-          final res = await _mucRepo.kickGroupMembers([member]);
-          if (res) {
-            setState(() {});
-          }
+          _mucRepo.kickGroupMembers([member]).then((res) {
+            if (res) {
+              setState(() {});
+            }
+          });
         } else {
-          final res = await _mucRepo.kickChannelMembers([member]);
-          if (res) {
-            setState(() {});
-          }
+          _mucRepo.kickChannelMembers([member]).then((res) {
+            if (res) {
+              setState(() {});
+            }
+          });
         }
         break;
       case BAN:

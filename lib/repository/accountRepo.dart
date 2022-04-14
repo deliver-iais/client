@@ -75,7 +75,7 @@ class AccountRepo {
       final getIdRequest = await _queryServiceClient
           .getIdByUid(GetIdByUidReq()..uid = _authRepo.currentUserUid);
       if (getIdRequest.id.isNotEmpty) {
-        _sharedDao.put(SHARED_DAO_USERNAME, getIdRequest.id);
+        await _sharedDao.put(SHARED_DAO_USERNAME, getIdRequest.id);
         return true;
       } else {
         return false;
@@ -112,7 +112,7 @@ class AccountRepo {
     String? email,
   ) async {
     try {
-      _queryServiceClient.setId(SetIdReq()..id = username!);
+      await _queryServiceClient.setId(SetIdReq()..id = username!);
 
       final saveUserProfileReq = SaveUserProfileReq();
       if (firstName != null) {
@@ -125,7 +125,8 @@ class AccountRepo {
         saveUserProfileReq.email = email;
       }
 
-      _profileServiceClient.saveUserProfile(saveUserProfileReq);
+      await _profileServiceClient.saveUserProfile(saveUserProfileReq);
+
       _saveProfilePrivateData(
         username: username,
         firstName: firstName ?? "",
@@ -150,7 +151,7 @@ class AccountRepo {
           ..firstName = account.firstName!
           ..lastName = account.lastName!,
       );
-      _sharedDao.putBoolean(SHARED_DAO_TWO_STEP_VERIFICATION_ENABLED, true);
+      await _sharedDao.putBoolean(SHARED_DAO_TWO_STEP_VERIFICATION_ENABLED, true);
       return true;
     } catch (e) {
       _logger.e(e);
@@ -161,7 +162,7 @@ class AccountRepo {
   Future<bool> disableTwoStepVerification(String password) async {
     try {
       //todo disable password _
-      _sharedDao.putBoolean(SHARED_DAO_TWO_STEP_VERIFICATION_ENABLED, false);
+      await _sharedDao.putBoolean(SHARED_DAO_TWO_STEP_VERIFICATION_ENABLED, false);
       return true;
     } catch (e) {
       return false;
@@ -212,14 +213,14 @@ class AccountRepo {
       }
 
       if (shouldUpdateSessionPlatformInformation(pv)) {
-        _sessionServicesClient.updateSessionPlatformInformation(
+        await _sessionServicesClient.updateSessionPlatformInformation(
           UpdateSessionPlatformInformationReq()
             ..platform = await getPlatformPB(),
         );
       }
       // Update version in DB
     } else {
-      _sharedDao.put(SHARED_DAO_APP_VERSION, VERSION);
+      await _sharedDao.put(SHARED_DAO_APP_VERSION, VERSION);
     }
   }
 
@@ -258,7 +259,7 @@ class AccountRepo {
 
   Future<bool> revokeAllOtherSession() async {
     try {
-      _sessionServicesClient
+      await _sessionServicesClient
           .revokeAllOtherSessions(RevokeAllOtherSessionsReq());
       return true;
     } catch (e) {

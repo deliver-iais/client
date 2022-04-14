@@ -66,7 +66,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
     _cameras = await availableCameras();
     if (_cameras.isNotEmpty) {
       _controller = CameraController(_cameras[0], ResolutionPreset.max);
-      _controller.initialize().then((_) {
+      return _controller.initialize().then((_) {
         if (!mounted) {
           return;
         }

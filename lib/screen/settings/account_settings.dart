@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:deliver/localization/i18n.dart';
@@ -47,8 +48,8 @@ class _AccountSettingsState extends State<AccountSettings> {
   Account? _account;
   final _formKey = GlobalKey<FormState>();
   final _usernameFormKey = GlobalKey<FormState>();
-  bool usernameIsAvailable = true;
-  bool _userNameCorrect = false;
+  final BehaviorSubject<bool> _usernameIsAvailable =
+      BehaviorSubject.seeded(true);
 
   final BehaviorSubject<String> _newAvatarPath = BehaviorSubject.seeded("");
 
@@ -78,43 +79,43 @@ class _AccountSettingsState extends State<AccountSettings> {
         cropAvatar(path);
       }
     } else {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        isDismissible: true,
-        backgroundColor: Colors.transparent,
-        builder: (context) {
-          return DraggableScrollableSheet(
-            initialChildSize: 0.3,
-            minChildSize: 0.2,
-            expand: false,
-            builder: (context, scrollController) {
-              return Container(
-                color: Colors.white,
-                child: Stack(
-                  children: <Widget>[
-                    Container(
-                      padding: const EdgeInsets.all(0),
-                      child: ShareBoxGallery(
-                        pop: () => Navigator.pop(context),
-                        scrollController: scrollController,
-                        setAvatar: (filePath) async {
-                          cropAvatar(filePath);
-                        },
-                        roomUid: _authRepo.currentUserUid,
+      unawaited(
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          isDismissible: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) {
+            return DraggableScrollableSheet(
+              initialChildSize: 0.3,
+              minChildSize: 0.2,
+              expand: false,
+              builder: (context, scrollController) {
+                return Container(
+                  color: Colors.white,
+                  child: Stack(
+                    children: <Widget>[
+                      Container(
+                        padding: const EdgeInsets.all(0),
+                        child: ShareBoxGallery(
+                          pop: () => Navigator.pop(context),
+                          scrollController: scrollController,
+                          setAvatar: cropAvatar,
+                          roomUid: _authRepo.currentUserUid,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       );
     }
   }
 
-  Future<void> cropAvatar(String imagePath) async {
+  void cropAvatar(String imagePath) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -145,17 +146,12 @@ class _AccountSettingsState extends State<AccountSettings> {
       subject.stream
           .debounceTime(const Duration(milliseconds: 250))
           .listen((username) async {
-        _usernameFormKey.currentState?.validate();
-        if (_userNameCorrect) {
+        if (_usernameFormKey.currentState?.validate() ?? false) {
           if (_lastUserName != username) {
-            final validUsername = await _accountRepo.checkUserName(username);
-            setState(() {
-              usernameIsAvailable = validUsername;
-            });
+            _usernameIsAvailable
+                .add(await _accountRepo.checkUserName(username));
           } else {
-            setState(() {
-              usernameIsAvailable = true;
-            });
+            _usernameIsAvailable.add(true);
           }
         }
       });
@@ -329,18 +325,30 @@ class _AccountSettingsState extends State<AccountSettings> {
                                         ),
                                       ],
                                     ),
-                                  if (usernameIsAvailable)
-                                    Row(
-                                      children: [
-                                        Text(
-                                          _i18n.get("username_already_exist"),
-                                          style: const TextStyle(
-                                            fontSize: 10,
-                                            color: Colors.red,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
+                                  StreamBuilder<bool>(
+                                    stream: _usernameIsAvailable.stream,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData &&
+                                          snapshot.data != null &&
+                                          !snapshot.data!) {
+                                        return Row(
+                                          children: [
+                                            Text(
+                                              _i18n.get(
+                                                "username_already_exist",
+                                              ),
+                                              style: const TextStyle(
+                                                fontSize: 10,
+                                                color: Colors.red,
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      } else {
+                                        return const SizedBox.shrink();
+                                      }
+                                    },
+                                  ),
                                   const SizedBox(
                                     height: 20,
                                   ),
@@ -401,9 +409,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                               alignment: Alignment.centerRight,
                               child: ElevatedButton(
                                 child: Text(_i18n.get("save")),
-                                onPressed: () async {
-                                  checkAndSend();
-                                },
+                                onPressed: checkAndSend,
                               ),
                             )
                           ],
@@ -451,21 +457,9 @@ class _AccountSettingsState extends State<AccountSettings> {
     const Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
     final regex = RegExp(pattern.toString());
     if (value!.isEmpty) {
-      setState(() {
-        _userNameCorrect = false;
-        usernameIsAvailable = true;
-      });
       return _i18n.get("username_not_empty");
     } else if (!regex.hasMatch(value)) {
-      setState(() {
-        _userNameCorrect = false;
-        usernameIsAvailable = true;
-      });
-      return _i18n.get("username_length");
-    } else {
-      setState(() {
-        _userNameCorrect = true;
-      });
+      return _i18n.get("username_not_valid");
     }
     return null;
   }
@@ -488,7 +482,7 @@ class _AccountSettingsState extends State<AccountSettings> {
     if (checkUserName) {
       final isValidated = _formKey.currentState?.validate() ?? false;
       if (isValidated) {
-        if (usernameIsAvailable) {
+        if (_usernameIsAvailable.value) {
           final setPrivateInfo = await _accountRepo.setAccountDetails(
             _username.isNotEmpty ? _username : _account!.userName,
             _firstName.isNotEmpty ? _firstName : _account!.firstName,
@@ -504,7 +498,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                   },
                 ),
                 (r) => false,
-              );
+              ).ignore();
             } else {
               _routingService.pop();
             }

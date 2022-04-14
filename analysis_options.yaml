@@ -117,6 +117,7 @@ linter:
     sized_box_shrink_expand: true
     type_annotate_public_apis: true
     type_init_formals: true
+    unawaited_futures: true
     unnecessary_await_in_return: true
     unnecessary_brace_in_string_interps: true
     unnecessary_const: true
@@ -134,14 +135,11 @@ linter:
     lowercase_with_underscores: true
     secure_pubspec_urls: true
     sort_pub_dependencies: true
-    #TODO
-    #cancel_subscriptions: true
+    cancel_subscriptions: true
     #TODO
     #close_sinks: true
     #TODO
     #prefer_expression_function_bodies: true
-    #TODO
-    #unawaited_futures: true
     #TODO
     #diagnostic_describe_all_properties: true
 

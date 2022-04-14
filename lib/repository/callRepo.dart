@@ -131,7 +131,7 @@ class CallRepo {
   ReceivePort? _receivePort;
 
   CallRepo() {
-    _callService.callEvents.listen((event) async {
+    _callService.callEvents.listen((event) {
       switch (event.callType) {
         case CallTypes.Answer:
           timerResendOffer!.cancel();
@@ -150,11 +150,12 @@ class CallRepo {
               }
               break;
             case CallEvent_CallStatus.CREATED:
-              if (event.roomUid == _roomUid || _callService.getUserCallState == UserCallState.NOCALL) {
+              if (event.roomUid == _roomUid ||
+                  _callService.getUserCallState == UserCallState.NOCALL) {
                 _callService
-                    ..setUserCallState = UserCallState.INUSERCALL
-                    ..setCallOwner = callEvent.memberOrCallOwnerPvp
-                    ..setCallId = callEvent.id;
+                  ..setUserCallState = UserCallState.INUSERCALL
+                  ..setCallOwner = callEvent.memberOrCallOwnerPvp
+                  ..setCallId = callEvent.id;
                 if (callEvent.callType == CallEvent_CallType.VIDEO) {
                   _logger.i("VideoCall");
                   _isVideo = true;
@@ -314,7 +315,7 @@ class CallRepo {
       }
 
       //https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/connectionState
-      ..onConnectionState = (state) async {
+      ..onConnectionState = (state) {
         _logger.i("onConnectionState $state");
         switch (state) {
           case RTCPeerConnectionState.RTCPeerConnectionStateConnected:
@@ -416,7 +417,7 @@ class CallRepo {
         _isDCRecived = true;
         //it means Connection is Connected
         _startCallTimerAndChangeStatus();
-        _dataChannel!.onMessage = (data) async {
+        _dataChannel!.onMessage = (data) {
           final status = data.text;
           _logger.i(status);
           // we need Decision making by state
@@ -494,11 +495,12 @@ class CallRepo {
       _startCallTime = DateTime.now().millisecondsSinceEpoch;
     }
     if (_isDCRecived) {
-      _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_CONNECTED));
+      await _dataChannel!
+          .send(RTCDataChannelMessage(STATUS_CONNECTION_CONNECTED));
     }
     _logger.i("Start Call " + _startCallTime.toString());
     callingStatus.add(CallStatus.CONNECTED);
-    Vibration.vibrate(duration: 50);
+    Vibration.vibrate(duration: 50).ignore();
     _audioService.stopBeepSound();
     if (timerConnectionFailed != null) {
       timerConnectionFailed!.cancel();
@@ -512,7 +514,7 @@ class CallRepo {
     final dataChannel = await _peerConnection!
         .createDataChannel("stateTransfer", dataChannelDict);
 
-    dataChannel.onMessage = (data) async {
+    dataChannel.onMessage = (data) {
       final status = data.text;
       _logger.i(status);
       // we need Decision making by state
@@ -639,13 +641,13 @@ class CallRepo {
       await _videoSender!.replaceTrack(screenVideoTrack);
       onLocalStream?.call(_localStreamShare!);
       _isSharing = true;
-      _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_SCREEN));
+      return _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_SCREEN));
     } else {
       final camVideoTrack = _localStream!.getVideoTracks()[0];
       await _videoSender!.replaceTrack(camVideoTrack);
       onLocalStream?.call(_localStream!);
       _isSharing = false;
-      _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_VIDEO));
+      return _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_VIDEO));
     }
   }
 
@@ -871,7 +873,7 @@ class CallRepo {
     _logger.i("declineCall");
     callingStatus.add(CallStatus.DECLINED);
     final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
-    _messageRepo.sendCallMessage(
+    await _messageRepo.sendCallMessage(
       CallEvent_CallStatus.DECLINED,
       _roomUid!,
       _callService.getCallId,
@@ -933,8 +935,8 @@ class CallRepo {
   Future<void> receivedEndCall(int callDuration) async {
     _logger.i("Call Duration Received: " + callDuration.toString());
     final sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
-    ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
-    ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
+    await ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
+    await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
     if (isWindows) {
       _notificationServices.cancelRoomNotifications(roomUid!.node);
     }
@@ -942,7 +944,7 @@ class CallRepo {
       _callDuration = calculateCallEndTime();
       _logger.i("Call Duration on Caller(1): " + _callDuration.toString());
       final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
-      _messageRepo.sendCallMessage(
+      await _messageRepo.sendCallMessage(
         CallEvent_CallStatus.ENDED,
         _roomUid!,
         _callService.getCallId,
@@ -1013,7 +1015,7 @@ class CallRepo {
     final answerSdp = json.encode(session);
     _logger.i("Answer: \n" + answerSdp);
 
-    _peerConnection!.setLocalDescription(description);
+    unawaited(_peerConnection!.setLocalDescription(description));
 
     return answerSdp;
   }
@@ -1024,7 +1026,7 @@ class CallRepo {
     final session = parse(description.sdp.toString());
     final offerSdp = json.encode(session);
     _logger.i("Offer: \n" + offerSdp);
-    _peerConnection!.setLocalDescription(description);
+    unawaited(_peerConnection!.setLocalDescription(description));
     return offerSdp;
   }
 
@@ -1136,9 +1138,6 @@ class CallRepo {
     _candidate = [];
     callingStatus.add(CallStatus.ENDED);
     _audioService.stopBeepSound();
-    fetchUserCallList(
-      _authRepo.currentUserUid,
-    );
     Timer(const Duration(seconds: 1), () async {
       callingStatus.add(CallStatus.NO_CALL);
     });

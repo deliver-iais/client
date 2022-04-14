@@ -1,4 +1,4 @@
-// ignore_for_file: file_names
+// ignore_for_file: file_names, unawaited_futures
 
 import 'dart:async';
 
@@ -430,8 +430,18 @@ void main() {
     group('saveMySeen -', () {
       test('When called should save my seen', () async {
         final seenDao = getAndRegisterSeenDao();
-        RoomRepo().saveMySeen(testSeen);
-        verify(seenDao.saveMySeen(testSeen));
+        RoomRepo().updateMySeen(
+          uid: testSeen.uid,
+          hiddenMessageCount: testSeen.hiddenMessageCount,
+          messageId: testSeen.messageId,
+        );
+        verify(
+          seenDao.updateMySeen(
+            uid: testSeen.uid,
+            hiddenMessageCount: testSeen.hiddenMessageCount,
+            messageId: testSeen.messageId,
+          ),
+        );
       });
     });
     group('block -', () {

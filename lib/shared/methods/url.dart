@@ -87,6 +87,7 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
                             );
                             if (muc != null) {
                               navigatorState.pop();
+
                               _messageRepo.updateNewMuc(
                                 roomUid,
                                 muc.lastMessageId!,
@@ -101,10 +102,12 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
                             );
                             if (muc != null) {
                               navigatorState.pop();
+
                               _messageRepo.updateNewMuc(
                                 roomUid,
                                 muc.lastMessageId!,
                               );
+
                               _routingService.openRoom(roomUid.asString());
                             }
                           }

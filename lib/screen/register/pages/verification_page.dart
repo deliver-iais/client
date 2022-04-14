@@ -72,27 +72,27 @@ class _VerificationPageState extends State<VerificationPage> {
   }
 
   Future<void> _navigationToHome() async {
-    _contactRepo.getContacts();
+    final navigatorState = Navigator.of(context);
+    _contactRepo.getContacts().ignore();
+
     if (await _accountRepo.hasProfile(retry: true)) {
-      _accountRepo.fetchCurrentUserId(retry: true);
-      Navigator.pushAndRemoveUntil(
-        context,
+      await _accountRepo.fetchCurrentUserId(retry: true);
+      navigatorState.pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (c) {
             return const HomePage();
           },
         ),
         (r) => false,
-      );
+      ).ignore();
     } else {
-      Navigator.push(
-        context,
+      navigatorState.push(
         MaterialPageRoute(
           builder: (c) {
             return const AccountSettings(forceToSetUsernameAndName: true);
           },
         ),
-      );
+      ).ignore();
     }
   }
 

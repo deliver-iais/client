@@ -166,16 +166,16 @@ class FileService {
     String name,
     String directory,
   ) async {
-    if (isWeb) {
-      saveDownloadedFile(path, name);
-    } else {
-      final downloadDir =
-          await ExtStorage.getExternalStoragePublicDirectory(directory);
-      final f = io.File('$downloadDir/$name');
-      try {
+    try {
+      if (isWeb) {
+        return saveDownloadedFile(path, name);
+      } else {
+        final downloadDir =
+            await ExtStorage.getExternalStoragePublicDirectory(directory);
+        final f = io.File('$downloadDir/$name');
         await f.writeAsBytes(io.File(path).readAsBytesSync());
-      } catch (_) {}
-    }
+      }
+    } catch (_) {}
   }
 
   Future<String> _getFileThumbnail(
