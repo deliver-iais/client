@@ -162,7 +162,7 @@ class CallRepo {
                   _isVideo = false;
                 }
                 _incomingCall(event.roomUid!);
-              } else {
+              } else if(callEvent.id != _callService.getCallId) {
                 final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
                 _messageRepo.sendCallMessage(
                   CallEvent_CallStatus.BUSY,

@@ -197,8 +197,6 @@ class MessageRepo {
                 roomMetadata.lastMessageId.toInt(),
                 type: FetchMessagesReq_Type.FORWARD_FETCH,
               );
-            } else{
-              _logger.i("USER not CALLLL !!!");
             }
 
             if (room != null &&
@@ -334,14 +332,11 @@ class MessageRepo {
           ..roomUid = roomUid
           ..pointer = Int64(pointer)
           ..type = type
-          ..limit = 10,
+          ..limit = 5,
         options: CallOptions(timeout: const Duration(seconds: 3)),
       );
-      _logger.i("try fetch Incoming call for" + roomUid.node);
       for (message_pb.Message message in fetchMessagesRes.messages.reversed) {
-        if (_callService.getUserCallState != UserCallState.NOCALL &&
-            message.whichType() == message_pb.Message_Type.callEvent) {
-          _logger.i("its fetch from message Repo");
+        if (message.whichType() == message_pb.Message_Type.callEvent) {
           var callEvents = CallEvents.callEvent(message.callEvent,
               roomUid: message.from, callId: message.callEvent.id);
           if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
