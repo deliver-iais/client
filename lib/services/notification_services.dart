@@ -28,11 +28,8 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:win_toast/win_toast.dart';
 
-/// A notification action which triggers a url launch event
-const String urlLaunchActionId = 'id_1';
-
 /// A notification action which triggers a App navigation event
-const String navigationActionId = 'id_3';
+const String navigationActionId = 'navigationActionId';
 
 /// Defines a iOS/MacOS notification category for text input actions.
 const String darwinNotificationCategoryText = 'textCategory';
@@ -53,6 +50,7 @@ Future<void> notificationTapBackground(
   try {
     if (!GetIt.I.isRegistered<MessageRepo>()) {
       await setupDI();
+      await GetIt.I.get<CoreServices>().initStreamConnection();
     }
     Logger().i(
       'notification(${notificationResponse!.id}) action tapped: '
@@ -60,15 +58,16 @@ Future<void> notificationTapBackground(
       ' payload: ${notificationResponse.payload}',
     );
     final _messageRepo = GetIt.I.get<MessageRepo>();
-    await GetIt.I.get<CoreServices>().initStreamConnection();
-    final _roomRepo = GetIt.I.get<RoomRepo>();
     if (notificationResponse.input?.isNotEmpty ?? false) {
       if (notificationResponse.actionId == replyActionId) {
         replyToMessage(_messageRepo, notificationResponse);
-        markAsRead(_messageRepo, notificationResponse, _roomRepo);
+        markAsRead(notificationResponse);
       }
     } else if (notificationResponse.actionId == markAsReadActionId) {
-      markAsRead(_messageRepo, notificationResponse, _roomRepo);
+      Logger().i(
+        'mark as read notification(${notificationResponse.id! - notificationResponse.payload.hashCode}) id',
+      );
+      markAsRead(notificationResponse);
     }
 
     final send = IsolateNameServer.lookupPortByName('notification_send_port');
@@ -90,17 +89,21 @@ void replyToMessage(
 }
 
 void markAsRead(
-  MessageRepo _messageRepo,
-  NotificationResponse notificationResponse,
-  RoomRepo _roomRepo,
-) {
+  NotificationResponse notificationResponse, {
+  int? messageId,
+  String? payload,
+}) {
+  final _messageRepo = GetIt.I.get<MessageRepo>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
   _messageRepo.sendSeen(
-    notificationResponse.id! - notificationResponse.payload.hashCode,
-    notificationResponse.payload!.asUid(),
+    messageId ??
+        notificationResponse.id! - notificationResponse.payload.hashCode,
+    payload?.asUid() ?? notificationResponse.payload!.asUid(),
   );
   _roomRepo.updateMySeen(
-    uid: notificationResponse.payload!,
-    messageId: notificationResponse.id! - notificationResponse.payload.hashCode,
+    uid: payload ?? notificationResponse.payload!,
+    messageId: messageId ??
+        notificationResponse.id! - notificationResponse.payload.hashCode,
     hiddenMessageCount: 0,
   );
 }
@@ -413,6 +416,16 @@ class LinuxNotifier implements Notifier {
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
 
+  void linuxSelectNotification(
+    String? payload,
+  ) {
+    final room = payload?.split('#')[0];
+    if (room != null && room.isNotEmpty) {
+      DesktopWindow.focus();
+      _routingService.openRoom(room);
+    }
+  }
+
   @override
   Future<void> cancelById(int id) async {}
 
@@ -425,13 +438,20 @@ class LinuxNotifier implements Notifier {
       onDidReceiveNotificationResponse: (notificationResponse) {
         switch (notificationResponse.notificationResponseType) {
           case NotificationResponseType.selectedNotification:
-            final room = notificationResponse.payload;
-            if (room != null && room.isNotEmpty) {
-              DesktopWindow.focus();
-              _routingService.openRoom(room);
-            }
+            linuxSelectNotification(notificationResponse.payload);
             break;
           case NotificationResponseType.selectedNotificationAction:
+            if (notificationResponse.actionId == navigationActionId) {
+              linuxSelectNotification(notificationResponse.payload);
+            } else if (notificationResponse.actionId == markAsReadActionId) {
+              markAsRead(
+                notificationResponse,
+                messageId:
+                    int.parse(notificationResponse.payload!.split('#')[1]),
+                payload: notificationResponse.payload!.split('#')[0],
+              );
+            }
+
             break;
         }
         return;
@@ -465,12 +485,12 @@ class LinuxNotifier implements Notifier {
       icon: icon,
       actions: <LinuxNotificationAction>[
         const LinuxNotificationAction(
-          key: urlLaunchActionId,
-          label: 'Action 1',
+          key: navigationActionId,
+          label: 'show chat',
         ),
         const LinuxNotificationAction(
-          key: navigationActionId,
-          label: 'Action 2',
+          key: markAsReadActionId,
+          label: 'Mark as read',
         ),
       ],
     );
@@ -480,7 +500,7 @@ class LinuxNotifier implements Notifier {
       message.roomName,
       createNotificationTextFromMessageBrief(message),
       notificationDetails: platformChannelSpecifics,
-      payload: message.roomUid.asString(),
+      payload: message.roomUid.asString() + "#" + message.id.toString(),
     );
   }
 
