@@ -9,7 +9,9 @@ import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/operation_on_message.dart';
+import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -18,6 +20,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -53,6 +56,8 @@ class _AllImagePageState extends State<AllImagePage> {
   final _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _messageDao = GetIt.I.get<MessageDao>();
+  final _i18n = GetIt.I.get<I18N>();
+  final _autRepo = GetIt.I.get<AuthRepo>();
   final BehaviorSubject<int> _currentIndex = BehaviorSubject.seeded(-1);
   final BehaviorSubject<int> _allImageCount = BehaviorSubject.seeded(0);
   final _mediaCache = <int, Media>{};
@@ -364,37 +369,81 @@ class _AllImagePageState extends State<AllImagePage> {
                     ),
                   ),
                   const Spacer(),
+                  StreamBuilder<int>(
+                    stream: _currentIndex.stream,
+                    builder: (c, index) {
+                      if (index.hasData && index.data != -1) {
+                        return FutureBuilder<Media?>(
+                          future: _getMedia(index.data!),
+                          builder: (context, mediaSnapShot) {
+                            if (mediaSnapShot.hasData &&
+                                mediaSnapShot.data != null) {
+                              return FutureBuilder<Message?>(
+                                future: _messageDao.getMessage(
+                                  widget.roomUid,
+                                  mediaSnapShot.data!.messageId,
+                                ),
+                                builder: (context, message) {
+                                  if (message.hasData &&
+                                      message.data != null &&
+                                      _autRepo
+                                          .isCurrentUserSender(message.data!)) {
+                                    return IconButton(
+                                      onPressed: () async {
+                                        final message = await getMessage();
+                                        await OperationOnMessageSelection(
+                                          message: message!,
+                                          context: context,
+                                          onEdit: widget.onEdit,
+                                        ).selectOperation(
+                                          OperationOnMessage.EDIT,
+                                        );
+                                        _routingService.pop();
+                                      },
+                                      tooltip: _i18n.get("edit"),
+                                      icon: Icon(
+                                        Icons.brush_outlined,
+                                        color: theme.primaryColorLight,
+                                      ),
+                                    );
+                                  } else {
+                                    return const SizedBox.shrink();
+                                  }
+                                },
+                              );
+                            } else {
+                              return const SizedBox.shrink();
+                            }
+                          },
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
+                  ),
                   IconButton(
+                    tooltip: isDesktop
+                        ? _i18n.get("show_in_folder")
+                        : _i18n.get("share"),
                     onPressed: () async {
-                      final message = await _messageDao.getMessage(
-                        widget.roomUid,
-                        widget.messageId,
-                      );
+                      final message = await getMessage();
                       await OperationOnMessageSelection(
                         message: message!,
                         context: context,
                         onEdit: widget.onEdit,
-                      ).selectOperation(OperationOnMessage.EDIT);
-                      _routingService.pop();
+                      ).selectOperation(
+                        isDesktop
+                            ? OperationOnMessage.SHOW_IN_FOLDER
+                            : OperationOnMessage.SHARE,
+                      );
                     },
                     icon: Icon(
-                      Icons.brush_outlined,
+                      isDesktop ? CupertinoIcons.folder_open : Icons.share,
                       color: theme.primaryColorLight,
                     ),
                   ),
-                  IconButton(
-                    onPressed: () async {
-                      final message = await _messageDao.getMessage(
-                        widget.roomUid,
-                        widget.messageId,
-                      );
-                      await OperationOnMessageSelection(
-                        message: message!,
-                        context: context,
-                        onEdit: widget.onEdit,
-                      ).selectOperation(OperationOnMessage.SHARE);
-                    },
-                    icon: Icon(Icons.share, color: theme.primaryColorLight),
+                  const SizedBox(
+                    width: 10,
                   ),
                 ],
               ),
@@ -402,6 +451,15 @@ class _AllImagePageState extends State<AllImagePage> {
           ),
       ],
     );
+  }
+
+  Future<Message?> getMessage() async {
+    final media = await _getMedia(_currentIndex.value);
+    final message = await _messageDao.getMessage(
+      widget.roomUid,
+      media!.messageId,
+    );
+    return message;
   }
 
   Widget buildBottomAppBar(int index) {
@@ -450,6 +508,42 @@ class _AllImagePageState extends State<AllImagePage> {
   PreferredSizeWidget buildAppBar() {
     return AppBar(
       backgroundColor: Colors.black.withAlpha(120),
+      actions: [
+        IconButton(
+          icon: Icon(
+            CupertinoIcons.arrowshape_turn_up_right,
+            color: theme.primaryColorLight,
+          ),
+          tooltip: _i18n.get("forward"),
+          onPressed: () async {
+            final message = await getMessage();
+            await OperationOnMessageSelection(
+              message: message!,
+              context: context,
+              onEdit: widget.onEdit,
+            ).selectOperation(OperationOnMessage.FORWARD);
+          },
+        ),
+        const SizedBox(
+          width: 10,
+        ),
+        if (!isDesktop)
+          IconButton(
+            icon: Icon(
+              CupertinoIcons.down_arrow,
+              color: theme.primaryColorLight,
+            ),
+            onPressed: () async {
+              final message = await getMessage();
+              await OperationOnMessageSelection(
+                message: message!,
+                context: context,
+                onEdit: widget.onEdit,
+              ).selectOperation(OperationOnMessage.SAVE_TO_GALLERY);
+            },
+            tooltip: _i18n.get("save_to_gallery"),
+          ),
+      ],
       title: StreamBuilder<int?>(
         stream: _allImageCount.stream,
         builder: (context, snapshot) {
