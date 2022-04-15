@@ -20,6 +20,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/widgets/edit_image/paint_on_image/_ported_interactive_viewer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -201,44 +202,48 @@ class _AllImagePageState extends State<AllImagePage> {
                                     jsonDecode(mediaSnapShot.data!.json) as Map;
                                 return Hero(
                                   tag: json['uuid'],
-                                  child: FutureBuilder<String?>(
-                                    initialData: _fileCache.get(index),
-                                    future: _fileRepo.getFile(
-                                      json['uuid'],
-                                      json['name'],
-                                    ),
-                                    builder: (c, filePath) {
-                                      if (filePath.hasData &&
-                                          filePath.data != null) {
-                                        _fileCache.set(
-                                          index,
-                                          filePath.data,
-                                        );
+                                  child: ImagePainterTransformer(
+                                    maxScale: 2.4,
+                                    minScale: 1,
+                                    child: FutureBuilder<String?>(
+                                      initialData: _fileCache.get(index),
+                                      future: _fileRepo.getFile(
+                                        json['uuid'],
+                                        json['name'],
+                                      ),
+                                      builder: (c, filePath) {
+                                        if (filePath.hasData &&
+                                            filePath.data != null) {
+                                          _fileCache.set(
+                                            index,
+                                            filePath.data,
+                                          );
 
-                                        return isWeb
-                                            ? Image.network(
-                                                filePath.data!,
-                                              )
-                                            : GestureDetector(
-                                                onTap: () {
-                                                  setState(() {
-                                                    initialIndex = index;
-                                                    _isBarShowing =
-                                                        !_isBarShowing;
-                                                  });
-                                                },
-                                                child: Image.file(
-                                                  File(filePath.data!),
-                                                ),
-                                              );
-                                      } else {
-                                        return const Center(
-                                          child: CircularProgressIndicator(
-                                            color: Colors.blue,
-                                          ),
-                                        );
-                                      }
-                                    },
+                                          return isWeb
+                                              ? Image.network(
+                                                  filePath.data!,
+                                                )
+                                              : GestureDetector(
+                                                  onTap: () {
+                                                    setState(() {
+                                                      initialIndex = index;
+                                                      _isBarShowing =
+                                                          !_isBarShowing;
+                                                    });
+                                                  },
+                                                  child: Image.file(
+                                                    File(filePath.data!),
+                                                  ),
+                                                );
+                                        } else {
+                                          return const Center(
+                                            child: CircularProgressIndicator(
+                                              color: Colors.blue,
+                                            ),
+                                          );
+                                        }
+                                      },
+                                    ),
                                   ),
                                 );
                               } else {
@@ -508,42 +513,44 @@ class _AllImagePageState extends State<AllImagePage> {
   PreferredSizeWidget buildAppBar() {
     return AppBar(
       backgroundColor: Colors.black.withAlpha(120),
-      actions: [
-        IconButton(
-          icon: Icon(
-            CupertinoIcons.arrowshape_turn_up_right,
-            color: theme.primaryColorLight,
-          ),
-          tooltip: _i18n.get("forward"),
-          onPressed: () async {
-            final message = await getMessage();
-            await OperationOnMessageSelection(
-              message: message!,
-              context: context,
-              onEdit: widget.onEdit,
-            ).selectOperation(OperationOnMessage.FORWARD);
-          },
-        ),
-        const SizedBox(
-          width: 10,
-        ),
-        if (!isDesktop)
-          IconButton(
-            icon: Icon(
-              CupertinoIcons.down_arrow,
-              color: theme.primaryColorLight,
-            ),
-            onPressed: () async {
-              final message = await getMessage();
-              await OperationOnMessageSelection(
-                message: message!,
-                context: context,
-                onEdit: widget.onEdit,
-              ).selectOperation(OperationOnMessage.SAVE_TO_GALLERY);
-            },
-            tooltip: _i18n.get("save_to_gallery"),
-          ),
-      ],
+      actions: widget.isSingleImage
+          ? null
+          : [
+              IconButton(
+                icon: Icon(
+                  CupertinoIcons.arrowshape_turn_up_right,
+                  color: theme.primaryColorLight,
+                ),
+                tooltip: _i18n.get("forward"),
+                onPressed: () async {
+                  final message = await getMessage();
+                  await OperationOnMessageSelection(
+                    message: message!,
+                    context: context,
+                    onEdit: widget.onEdit,
+                  ).selectOperation(OperationOnMessage.FORWARD);
+                },
+              ),
+              const SizedBox(
+                width: 10,
+              ),
+              if (!isDesktop)
+                IconButton(
+                  icon: Icon(
+                    CupertinoIcons.down_arrow,
+                    color: theme.primaryColorLight,
+                  ),
+                  onPressed: () async {
+                    final message = await getMessage();
+                    await OperationOnMessageSelection(
+                      message: message!,
+                      context: context,
+                      onEdit: widget.onEdit,
+                    ).selectOperation(OperationOnMessage.SAVE_TO_GALLERY);
+                  },
+                  tooltip: _i18n.get("save_to_gallery"),
+                ),
+            ],
       title: StreamBuilder<int?>(
         stream: _allImageCount.stream,
         builder: (context, snapshot) {
