@@ -13,7 +13,7 @@ const TEXT = "text";
 const JOIN = "join";
 const LOGIN = "login";
 // if change the VERSION , is necessary to change version in pubspec.yaml file
-const VERSION = "1.8.3";
+const VERSION = "1.8.4";
 const LOG_OUT = "log_out";
 const int MEDIA_PAGE_SIZE = 30;
 const double DOWNLOAD_COMPLETE = 200;
