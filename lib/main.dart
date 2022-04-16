@@ -399,37 +399,32 @@ class MyApp extends StatelessWidget {
                   ? KeyEventResult.handled
                   : KeyEventResult.ignored;
             },
-            child: WithForegroundTask(
-              child: MaterialApp(
-                debugShowCheckedModeBanner: false,
-                title: APPLICATION_NAME,
-                locale: _i18n.locale,
-                theme: _uxService.theme,
-                navigatorKey: _routingService.mainNavigatorState,
-                supportedLocales: const [
-                  Locale('en', 'US'),
-                  Locale('fa', 'IR')
-                ],
-                localizationsDelegates: [
-                  I18N.delegate,
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate
-                ],
-                home: const SplashScreen(),
-                localeResolutionCallback: (deviceLocale, supportedLocale) {
-                  for (final locale in supportedLocale) {
-                    if (locale.languageCode == deviceLocale!.languageCode &&
-                        locale.countryCode == deviceLocale.countryCode) {
-                      return deviceLocale;
-                    }
+            child: MaterialApp(
+              debugShowCheckedModeBanner: false,
+              title: APPLICATION_NAME,
+              locale: _i18n.locale,
+              theme: _uxService.theme,
+              navigatorKey: _routingService.mainNavigatorState,
+              supportedLocales: const [Locale('en', 'US'), Locale('fa', 'IR')],
+              localizationsDelegates: [
+                I18N.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate
+              ],
+              home: const WithForegroundTask(child: SplashScreen()),
+              localeResolutionCallback: (deviceLocale, supportedLocale) {
+                for (final locale in supportedLocale) {
+                  if (locale.languageCode == deviceLocale!.languageCode &&
+                      locale.countryCode == deviceLocale.countryCode) {
+                    return deviceLocale;
                   }
-                  return supportedLocale.first;
-                },
-                builder: (x, c) => Directionality(
-                  textDirection: TextDirection.ltr,
-                  child: c!,
-                ),
+                }
+                return supportedLocale.first;
+              },
+              builder: (x, c) => Directionality(
+                textDirection: TextDirection.ltr,
+                child: c!,
               ),
             ),
           ),
