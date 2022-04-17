@@ -407,6 +407,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
   Widget setPassword(String email) {
     final _pasController = TextEditingController();
     final _repPasController = TextEditingController();
+    final _hintPasController = TextEditingController();
     return StatefulBuilder(
       builder: (c, set) {
         return AlertDialog(
@@ -422,8 +423,9 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                 final navigatorState = Navigator.of(c);
                 if (_pasFormKey.currentState!.validate() &&
                     _repPasFormKey.currentState!.validate()) {
-                  final isSet = await _accountRepo
-                      .enableTwoStepVerification(_repPasController.text);
+                  final isSet = await _accountRepo.updatePassword(
+                      newPassword: _pasController.text,
+                      passwordHint: _hintPasController.text);
                   if (isSet) {
                     ToastDisplay.showToast(
                       toastContext: c,
@@ -501,6 +503,15 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                 ),
               ),
               const SizedBox(
+                height: 5,
+              ),
+              TextFormField(
+                controller: _hintPasController,
+                decoration: InputDecoration(
+                  hintText: _i18n.get("password_hint"),
+                ),
+              ),
+              const SizedBox(
                 height: 20,
               ),
               Text(
@@ -527,7 +538,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
 
   Widget changeTwoStepVerificationPassword() {
     final _pasTextController = TextEditingController();
-    final _newPpasTextController = TextEditingController();
+    final _newPasTextController = TextEditingController();
     final _repNewPasTextController = TextEditingController();
     return StatefulBuilder(
       builder: (context, setState2) => AlertDialog(
@@ -553,7 +564,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
             TextField(
               onChanged: (p) => setState2(() => _pass = p),
               obscureText: true,
-              controller: _newPpasTextController,
+              controller: _newPasTextController,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
                 hintText: _i18n.get("new_password"),

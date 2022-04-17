@@ -181,7 +181,7 @@ class DataStreamServices {
       if (roomUid.category == Categories.GROUP) {
         if (message.text.text
             .split(" ")
-            .contains("@${(await _accountRepo.getAccount()).userName}")) {
+            .contains("@${(await _accountRepo.getAccount())!.username}")) {
           hasMentioned = true;
         }
       }

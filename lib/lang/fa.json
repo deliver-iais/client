@@ -329,5 +329,8 @@
   "password_changed": "رمز تغییر کرد.",
   "notwork_is_unavailable": "شبکه در دسترس نمی باشد.",
   "message_not_supported": "این پیام در این نسخه قابلیت نمایش ندارد، لطفا نسخه اپلیکیشن خود را به روزرسانی نمایید.",
-  "username_not_valid": "شناسه کاربری معتبر نیست."
+  "username_not_valid": "شناسه کاربری معتبر نیست.",
+  "email_not_verified": "ایمبل شما تایید نشده است.",
+  "error_occurred_in_save_email": "خطایی در ذخیره ایمیل  رخ داده است.",
+  "password_hint": "راهنما رمز"
 }

@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:deliver/box/account.dart';
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/models/account.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
@@ -10,6 +10,7 @@ import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -39,12 +40,11 @@ class _AccountSettingsState extends State<AccountSettings> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
-  String _username = "";
-  String _newUsername = "";
-  String _email = "";
-  String _lastName = "";
-  String _firstName = "";
-  String _lastUserName = "";
+  final _usernameTextController = TextEditingController();
+  final _firstnameTextController = TextEditingController();
+  final _lastnameTextController = TextEditingController();
+  final _emailTextController = TextEditingController();
+
   Account? _account;
   final _formKey = GlobalKey<FormState>();
   final _usernameFormKey = GlobalKey<FormState>();
@@ -147,7 +147,8 @@ class _AccountSettingsState extends State<AccountSettings> {
           .debounceTime(const Duration(milliseconds: 250))
           .listen((username) async {
         if (_usernameFormKey.currentState?.validate() ?? false) {
-          if (_lastUserName != username) {
+          if ((_account == null || _account!.username == null) ||
+              _account!.username != _usernameTextController.text) {
             _usernameIsAvailable
                 .add(await _accountRepo.checkUserName(username));
           } else {
@@ -188,15 +189,18 @@ class _AccountSettingsState extends State<AccountSettings> {
           ),
         ),
         body: FluidContainerWidget(
-          child: FutureBuilder<Account>(
+          child: FutureBuilder<Account?>(
             future: _accountRepo.getAccount(),
             builder: (c, snapshot) {
               if (!snapshot.hasData || snapshot.data == null) {
                 return const SizedBox.shrink();
               }
               _account = snapshot.data;
-              if (snapshot.data!.userName != null) {
-                _lastUserName = snapshot.data!.userName!;
+              if (_account != null) {
+                _usernameTextController.text = _account!.username ?? "";
+                _firstnameTextController.text = _account!.firstname ?? "";
+                _lastnameTextController.text = _account!.lastname ?? "";
+                _emailTextController.text = _account!.email ?? "";
               }
               return ListView(
                 children: [
@@ -289,14 +293,10 @@ class _AccountSettingsState extends State<AccountSettings> {
                                     key: _usernameFormKey,
                                     child: TextFormField(
                                       minLines: 1,
-                                      initialValue: snapshot.data!.userName,
+                                      controller: _usernameTextController,
                                       textInputAction: TextInputAction.send,
                                       onChanged: (str) {
-                                        setState(() {
-                                          _newUsername = str;
-                                          _username = str;
-                                          subject.add(str);
-                                        });
+                                        subject.add(str);
                                       },
                                       validator: validateUsername,
                                       decoration: buildInputDecoration(
@@ -308,23 +308,22 @@ class _AccountSettingsState extends State<AccountSettings> {
                                   const SizedBox(
                                     height: 5,
                                   ),
-                                  if (_newUsername.isEmpty)
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            _i18n.get("username_helper"),
-                                            textAlign: TextAlign.justify,
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 2,
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.blueAccent,
-                                            ),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          _i18n.get("username_helper"),
+                                          textAlign: TextAlign.justify,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 2,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.blueAccent,
                                           ),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
+                                  ),
                                   StreamBuilder<bool>(
                                     stream: _usernameIsAvailable.stream,
                                     builder: (context, snapshot) {
@@ -353,15 +352,9 @@ class _AccountSettingsState extends State<AccountSettings> {
                                     height: 20,
                                   ),
                                   TextFormField(
-                                    initialValue:
-                                        snapshot.data!.firstName ?? "",
                                     minLines: 1,
+                                    controller: _firstnameTextController,
                                     textInputAction: TextInputAction.send,
-                                    onChanged: (str) {
-                                      setState(() {
-                                        _firstName = str;
-                                      });
-                                    },
                                     validator: validateFirstName,
                                     decoration: buildInputDecoration(
                                       _i18n.get("firstName"),
@@ -372,14 +365,9 @@ class _AccountSettingsState extends State<AccountSettings> {
                                     height: 20,
                                   ),
                                   TextFormField(
-                                    initialValue: snapshot.data!.lastName ?? "",
                                     minLines: 1,
+                                    controller: _lastnameTextController,
                                     textInputAction: TextInputAction.send,
-                                    onChanged: (str) {
-                                      setState(() {
-                                        _lastName = str;
-                                      });
-                                    },
                                     decoration: buildInputDecoration(
                                       _i18n.get("lastName"),
                                     ),
@@ -388,14 +376,9 @@ class _AccountSettingsState extends State<AccountSettings> {
                                     height: 20,
                                   ),
                                   TextFormField(
-                                    initialValue: snapshot.data!.email ?? "",
                                     minLines: 1,
+                                    controller: _emailTextController,
                                     textInputAction: TextInputAction.send,
-                                    onChanged: (str) {
-                                      setState(() {
-                                        _email = str;
-                                      });
-                                    },
                                     validator: validateEmail,
                                     decoration: buildInputDecoration(
                                       _i18n.get("email"),
@@ -485,12 +468,31 @@ class _AccountSettingsState extends State<AccountSettings> {
       final isValidated = _formKey.currentState?.validate() ?? false;
       if (isValidated) {
         if (_usernameIsAvailable.value) {
-          final setPrivateInfo = await _accountRepo.setAccountDetails(
-            _username.isNotEmpty ? _username : _account!.userName,
-            _firstName.isNotEmpty ? _firstName : _account!.firstName,
-            _lastName.isNotEmpty ? _lastName : _account!.lastName,
-            _email.isNotEmpty ? _email : _account!.email,
+          var setPrivateInfo = await _accountRepo.setAccountDetails(
+            username: _usernameTextController.text,
+            firstname: _firstnameTextController.text,
+            lastname: _lastnameTextController.text,
           );
+          if (_emailTextController.text.isNotEmpty) {
+            try {
+              final res =
+                  await _accountRepo.updateEmail(_emailTextController.text);
+              if (!res) {
+                ToastDisplay.showToast(
+                  toastContext: context,
+                  toastText: _i18n.get("email_not_verified"),
+                );
+                setPrivateInfo = false;
+              }
+            } catch (e) {
+              ToastDisplay.showToast(
+                toastContext: context,
+                toastText: _i18n.get("error_occurred_in_save_email"),
+              );
+              setPrivateInfo = false;
+            }
+          }
+
           if (setPrivateInfo) {
             if (widget.forceToSetUsernameAndName) {
               navigatorState.pushAndRemoveUntil(

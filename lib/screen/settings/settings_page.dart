@@ -1,5 +1,5 @@
+import 'package:deliver/box/account.dart';
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/models/account.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
@@ -83,8 +83,8 @@ class _SettingsPageState extends State<SettingsPage> {
                       ),
                       const SizedBox(width: 10),
                       Expanded(
-                        child: FutureBuilder<Account?>(
-                          future: _accountRepo.getAccount(),
+                        child: StreamBuilder<Account?>(
+                          stream: _accountRepo.getAccountAsStream(),
                           builder: (context, snapshot) {
                             if (snapshot.data != null) {
                               return Column(
@@ -92,7 +92,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    "${snapshot.data!.firstName ?? ""} ${snapshot.data!.lastName ?? ""}"
+                                    "${snapshot.data!.firstname ?? ""} ${snapshot.data!.lastname ?? ""}"
                                         .trim(),
                                     overflow: TextOverflow.fade,
                                     // maxLines: 1,
@@ -102,7 +102,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    snapshot.data!.userName ?? "",
+                                    snapshot.data!.username ?? "",
                                     style: theme.primaryTextTheme.subtitle1,
                                   ),
                                   const SizedBox(height: 4),
@@ -142,10 +142,10 @@ class _SettingsPageState extends State<SettingsPage> {
                     showQrCode(
                       context,
                       buildShareUserUrl(
-                        account.countryCode!,
+                        account!.countryCode!,
                         account.nationalNumber!,
-                        account.firstName!,
-                        account.lastName!,
+                        account.firstname!,
+                        account.lastname!,
                       ),
                     );
                   },

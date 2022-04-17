@@ -615,8 +615,8 @@ class MucRepo {
                 final a = await _accountRepo.getAccount();
                 return UidIdName(
                   uid: member.memberUid,
-                  id: a.userName,
-                  name: a.firstName,
+                  id: a!.username,
+                  name: a.firstname,
                 );
               } else {
                 final uidIdName =
