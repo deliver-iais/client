@@ -81,7 +81,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_foreground_task/ui/with_foreground_task.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -412,7 +411,7 @@ class MyApp extends StatelessWidget {
                 GlobalWidgetsLocalizations.delegate,
                 GlobalCupertinoLocalizations.delegate
               ],
-              home: const WithForegroundTask(child: SplashScreen()),
+              home: const SplashScreen(),
               localeResolutionCallback: (deviceLocale, supportedLocale) {
                 for (final locale in supportedLocale) {
                   if (locale.languageCode == deviceLocale!.languageCode &&
