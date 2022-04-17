@@ -129,7 +129,7 @@ class _AllVideoPageState extends State<AllVideoPage> {
                                 if (filePath.hasData && filePath.data != null) {
                                   _fileCache.set(index, filePath.data);
                                   if (isDesktop) {
-                                    OpenFile.open(filePath.data);
+                                    OpenFile.open(filePath.data??"");
                                     _routingServices.pop();
                                     return const SizedBox.shrink();
                                   } else {
