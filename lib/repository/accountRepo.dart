@@ -140,10 +140,11 @@ class AccountRepo {
     }
   }
 
-  Future<bool> updatePassword(
-      {String? currentPassword,
-      required String newPassword,
-      String? passwordHint,}) async {
+  Future<bool> updatePassword({
+    String? currentPassword,
+    required String newPassword,
+    String? passwordHint,
+  }) async {
     final updatePasswordReq = UpdatePasswordReq()
       ..newPassword = newPassword
       ..passwordHint = passwordHint ?? "";
@@ -162,9 +163,11 @@ class AccountRepo {
 
   Future<bool> disableTwoStepVerification(String password) async {
     try {
-      final res = await _profileServiceClient.updatePassword(UpdatePasswordReq()
-        ..currentPassword = password
-        ..newPassword = "",);
+      final res = await _profileServiceClient.updatePassword(
+        UpdatePasswordReq()
+          ..currentPassword = password
+          ..newPassword = "",
+      );
       if (res.profile.isPasswordProtected) {
         return false;
       } else {
