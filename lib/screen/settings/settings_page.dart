@@ -256,6 +256,25 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ],
             ),
+            Section(
+              title: 'Data Usage',
+              children: [
+                SettingsTile(
+                  title: 'Automatic download',
+                  subtitle: 'On',
+                  subtitleTextStyle: TextStyle(
+                    color: theme.primaryColor,
+                  ),
+                  leading: const Icon(CupertinoIcons.download_circle),
+                  onPressed: (c) {},
+                ),
+                SettingsTile(
+                  title: 'Data Usage',
+                  leading: const Icon(Icons.data_usage_rounded),
+                  onPressed: (context) => _routingService.openDataUsage(),
+                ),
+              ],
+            ),
             if (UxService.isDeveloperMode)
               Section(
                 title: 'Developer Mode',

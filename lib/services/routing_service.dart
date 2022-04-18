@@ -21,6 +21,7 @@ import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver/screen/room/pages/room_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
+import 'package:deliver/screen/settings/pages/data_usage_page.dart';
 import 'package:deliver/screen/settings/pages/developer_page.dart';
 import 'package:deliver/screen/settings/pages/devices_page.dart';
 import 'package:deliver/screen/settings/pages/language_settings.dart';
@@ -57,6 +58,8 @@ const _developerPage = DeveloperPage(key: ValueKey("/developer-page"));
 
 const _devices = DevicesPage(key: ValueKey("/devices"));
 
+const _dataUsage = DataUsagePage(key: ValueKey("/data_usage"));
+
 const _contacts = ContactsPage(key: ValueKey("/contacts"));
 
 const _newContact = NewContact(key: ValueKey("/new-contact"));
@@ -92,6 +95,8 @@ class RoutingService {
   void openDeveloperPage() => _push(_developerPage);
 
   void openDevices() => _push(_devices);
+
+  void openDataUsage() => _push(_dataUsage);
 
   void openContacts() => _push(_contacts);
 
