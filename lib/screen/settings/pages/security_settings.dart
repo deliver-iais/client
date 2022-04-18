@@ -107,7 +107,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                               showDialog(
                                 context: context,
                                 builder: (context) {
-                                  return setPassword(email);
+                                  return enableTwoStepVerification(email);
                                 },
                               ).ignore();
                             } else {
@@ -179,6 +179,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
     final _currentPasswordController = TextEditingController();
     final _newPasswordController = TextEditingController();
     final _repNewPasswordController = TextEditingController();
+    final _hintPassController = TextEditingController();
     return AlertDialog(
       content: Column(
         mainAxisSize: MainAxisSize.min,
@@ -258,7 +259,13 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                 labelText: _i18n.get("repeat_new_password"),
               ),
             ),
-          )
+          ),
+          TextFormField(
+            controller: _hintPassController,
+            decoration: InputDecoration(
+              hintText: _i18n.get("password_hint"),
+            ),
+          ),
         ],
       ),
       actions: [
@@ -384,7 +391,6 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
             height: 40,
             child: TextButton(
               onPressed: () async {
-                //todo after server change
                 if (await _accountRepo
                     .disableTwoStepVerification(_textController.text)) {
                   setState(() {});
@@ -404,7 +410,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
     );
   }
 
-  Widget setPassword(String email) {
+  Widget enableTwoStepVerification(String email) {
     final _pasController = TextEditingController();
     final _repPasController = TextEditingController();
     final _hintPasController = TextEditingController();
@@ -425,7 +431,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                     _repPasFormKey.currentState!.validate()) {
                   final isSet = await _accountRepo.updatePassword(
                       newPassword: _pasController.text,
-                      passwordHint: _hintPasController.text);
+                      passwordHint: _hintPasController.text,);
                   if (isSet) {
                     ToastDisplay.showToast(
                       toastContext: c,
@@ -536,95 +542,6 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
     );
   }
 
-  Widget changeTwoStepVerificationPassword() {
-    final _pasTextController = TextEditingController();
-    final _newPasTextController = TextEditingController();
-    final _repNewPasTextController = TextEditingController();
-    return StatefulBuilder(
-      builder: (context, setState2) => AlertDialog(
-        titlePadding: EdgeInsets.zero,
-        actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Form(
-              key: _pasFormKey,
-              child: TextFormField(
-                onChanged: (p) => setState2(() => _currentPass = p),
-                obscureText: true,
-                controller: _pasTextController,
-                decoration: InputDecoration(
-                  border: const OutlineInputBorder(),
-                  hintText: _i18n.get("current_password"),
-                ),
-              ),
-            ),
-            const SizedBox(height: 40),
-            TextField(
-              onChanged: (p) => setState2(() => _pass = p),
-              obscureText: true,
-              controller: _newPasTextController,
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                hintText: _i18n.get("new_password"),
-              ),
-            ),
-            const SizedBox(height: 10),
-            TextField(
-              obscureText: true,
-              controller: _repNewPasTextController,
-              decoration: InputDecoration(
-                border: const OutlineInputBorder(),
-                hintText: _i18n.get("repeat_password"),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          SizedBox(
-            height: 40,
-            child: TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: Text(_i18n.get("cancel")),
-            ),
-          ),
-          SizedBox(
-            height: 40,
-            child: TextButton(
-              onPressed: _pass == _repeatedPass && _pass.isNotEmpty
-                  ? () {
-                      _authRepo.setLocalPassword(_pass);
-                      setState(() {});
-                      Navigator.of(context).pop();
-                    }
-                  : null,
-              child: Text(_i18n.get("save")),
-            ),
-          ),
-          SizedBox(
-            height: 40,
-            child: TextButton(
-              onPressed: _pass == _repeatedPass &&
-                      _pass.isNotEmpty &&
-                      _currentPass.isNotEmpty
-                  ? () {
-                      if (_authRepo.localPasswordIsCorrect(_currentPass)) {
-                        _authRepo.setLocalPassword(_pass);
-                        setState(() {});
-                        Navigator.of(context).pop();
-                      } else {
-                        // TODO(hasan): show error, https://gitlab.iais.co/deliver/wiki/-/issues/418
-                      }
-                    }
-                  : null,
-              child: Text(_i18n.get("change")),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   Widget setLocalPassword() {
     final checkCurrentPassword = _authRepo.isLocalLockEnabled();

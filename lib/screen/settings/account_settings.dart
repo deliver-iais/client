@@ -45,7 +45,7 @@ class _AccountSettingsState extends State<AccountSettings> {
   final _lastnameTextController = TextEditingController();
   final _emailTextController = TextEditingController();
 
-  Account? _account;
+  Account _account = Account();
   final _formKey = GlobalKey<FormState>();
   final _usernameFormKey = GlobalKey<FormState>();
   final BehaviorSubject<bool> _usernameIsAvailable =
@@ -147,8 +147,8 @@ class _AccountSettingsState extends State<AccountSettings> {
           .debounceTime(const Duration(milliseconds: 250))
           .listen((username) async {
         if (_usernameFormKey.currentState?.validate() ?? false) {
-          if ((_account == null || _account!.username == null) ||
-              _account!.username != _usernameTextController.text) {
+          if ((_account.username == null) ||
+              _account.username != _usernameTextController.text) {
             _usernameIsAvailable
                 .add(await _accountRepo.checkUserName(username));
           } else {
@@ -195,13 +195,15 @@ class _AccountSettingsState extends State<AccountSettings> {
               if (!snapshot.hasData || snapshot.data == null) {
                 return const SizedBox.shrink();
               }
-              _account = snapshot.data;
-              if (_account != null) {
-                _usernameTextController.text = _account!.username ?? "";
-                _firstnameTextController.text = _account!.firstname ?? "";
-                _lastnameTextController.text = _account!.lastname ?? "";
-                _emailTextController.text = _account!.email ?? "";
+              if (snapshot.hasData && snapshot.data != null) {
+                _account = snapshot.data!;
               }
+
+              _usernameTextController.text = _account.username ?? "";
+              _firstnameTextController.text = _account.firstname ?? "";
+              _lastnameTextController.text = _account.lastname ?? "";
+              _emailTextController.text = _account.email ?? "";
+
               return ListView(
                 children: [
                   Section(
@@ -469,11 +471,12 @@ class _AccountSettingsState extends State<AccountSettings> {
       if (isValidated) {
         if (_usernameIsAvailable.value) {
           var setPrivateInfo = await _accountRepo.setAccountDetails(
-            username: _usernameTextController.text,
-            firstname: _firstnameTextController.text,
-            lastname: _lastnameTextController.text,
-          );
-          if (_emailTextController.text.isNotEmpty) {
+              username: _usernameTextController.text != _account.username
+                  ? _usernameTextController.text
+                  : null,
+              firstname: _firstnameTextController.text,
+              lastname: _lastnameTextController.text);
+          if (_emailTextController.text != _account.email) {
             try {
               final res =
                   await _accountRepo.updateEmail(_emailTextController.text);

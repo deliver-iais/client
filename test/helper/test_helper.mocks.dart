@@ -1688,8 +1688,16 @@ class MockAccountRepo extends _i1.Mock implements _i57.AccountRepo {
           }),
           returnValue: Future<bool>.value(false)) as _i16.Future<bool>);
   @override
-  _i16.Future<bool> updatePassword(String? pas) =>
-      (super.noSuchMethod(Invocation.method(#enableTwoStepVerification, [pas]),
+  _i16.Future<bool> updatePassword(
+          {String? currentPassword,
+          String? newPassword,
+          String? passwordHint}) =>
+      (super.noSuchMethod(
+          Invocation.method(#updatePassword, [], {
+            #currentPassword: currentPassword,
+            #newPassword: newPassword,
+            #passwordHint: passwordHint
+          }),
           returnValue: Future<bool>.value(false)) as _i16.Future<bool>);
   @override
   _i16.Future<bool> disableTwoStepVerification(String? password) => (super

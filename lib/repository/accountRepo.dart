@@ -119,24 +119,20 @@ class AccountRepo {
     try {
       if (username != null) {
         await _queryServiceClient.setId(SetIdReq()..id = username);
+        _saveProfilePrivateData(username: username);
       }
       if (firstname != null || lastname != null) {
-        final saveUserProfileReq = SaveUserProfileReq();
-        if (firstname != null) {
-          saveUserProfileReq.firstName = firstname;
-        }
-        if (lastname != null) {
-          saveUserProfileReq.lastName = lastname;
-        }
-        await _profileServiceClient.saveUserProfile(saveUserProfileReq);
+        final saveUserProfileReq = SaveUserProfileReq()
+          ..firstName = firstname ?? ""
+          ..lastName = lastname ?? "";
+
+        final res =
+            await _profileServiceClient.saveUserProfile(saveUserProfileReq);
+        _saveProfilePrivateData(
+          firstName: res.profile.firstName,
+          lastName: res.profile.lastName,
+        );
       }
-
-      _saveProfilePrivateData(
-        username: username,
-        firstName: firstname ?? "",
-        lastName: lastname ?? "",
-      );
-
       return true;
     } catch (e) {
       _logger.e(e);
@@ -147,7 +143,7 @@ class AccountRepo {
   Future<bool> updatePassword(
       {String? currentPassword,
       required String newPassword,
-      String? passwordHint}) async {
+      String? passwordHint,}) async {
     final updatePasswordReq = UpdatePasswordReq()
       ..newPassword = newPassword
       ..passwordHint = passwordHint ?? "";
@@ -168,7 +164,7 @@ class AccountRepo {
     try {
       final res = await _profileServiceClient.updatePassword(UpdatePasswordReq()
         ..currentPassword = password
-        ..newPassword = "");
+        ..newPassword = "",);
       if (res.profile.isPasswordProtected) {
         return false;
       } else {
