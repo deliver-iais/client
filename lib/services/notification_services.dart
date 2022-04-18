@@ -7,6 +7,7 @@ import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/file_service.dart';
@@ -442,7 +443,8 @@ class AndroidNotifier implements Notifier {
         .getNotificationAppLaunchDetails()
         .then((notificationAppLaunchDetails) {
       if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
-        androidOnSelectNotification(notificationAppLaunchDetails!.payload);
+        modifyRoutingByNotificationTap
+            .add(notificationAppLaunchDetails!.payload!);
       }
     });
   }
