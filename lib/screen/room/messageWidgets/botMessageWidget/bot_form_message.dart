@@ -2,8 +2,9 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/checkbox_form_field.dart';
+import 'package:deliver/screen/room/messageWidgets/botMessageWidget/date_and_time_field_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_list_widget.dart';
-import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_text_field_widget.dart';
+import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_simple_input_field_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
@@ -54,10 +55,8 @@ class _BotFormMessageState extends State<BotFormMessage> {
       switch (field.whichType()) {
         case proto_pb.Form_Field_Type.textField:
         case proto_pb.Form_Field_Type.numberField:
-        case proto_pb.Form_Field_Type.dateField:
-        case proto_pb.Form_Field_Type.timeField:
           _widgets.add(
-            FormInputTextFieldWidget(
+            FormSimpleInputFieldWidget(
               formField: form.fields[index],
               setFormKey: (key) {
                 formFieldsKey[form.fields[index].id] = key;
@@ -67,6 +66,18 @@ class _BotFormMessageState extends State<BotFormMessage> {
               },
             ),
           );
+          break;
+        case proto_pb.Form_Field_Type.dateField:
+        case proto_pb.Form_Field_Type.timeField:
+          _widgets.add(DateAndTimeFieldWidget(
+            formField: form.fields[index],
+            setFormKey: (key) {
+              formFieldsKey[form.fields[index].id] = key;
+            },
+            setResult: (value) {
+              _setResult(index, value);
+            },
+          ),);
           break;
         case proto_pb.Form_Field_Type.checkbox:
           _widgets.add(
