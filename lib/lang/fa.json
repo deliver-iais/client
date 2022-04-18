@@ -333,5 +333,7 @@
   "email_not_verified": "ایمبل شما تایید نشده است.",
   "error_occurred_in_save_email": "خطایی در ذخیره ایمیل  رخ داده است.",
   "password_hint": "راهنما رمز",
-  "confirm": "تایید"
+  "confirm": "تایید",
+  "select_date": "تاریخ را  انتخاب کنید",
+  "select_time": "زمان را انتخاب کنید",
 }

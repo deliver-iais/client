@@ -69,6 +69,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
           break;
         case proto_pb.Form_Field_Type.dateField:
         case proto_pb.Form_Field_Type.timeField:
+        case proto_pb.Form_Field_Type.dateAndTimeField:
           _widgets.add(DateAndTimeFieldWidget(
             formField: form.fields[index],
             setFormKey: (key) {

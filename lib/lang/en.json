@@ -329,5 +329,7 @@
   "email_not_verified": "your email not verified",
   "error_occurred_in_save_email": "error occurred to save email",
   "password_hint": "Password hint",
-  "confirm": "Confirm"
+  "confirm": "Confirm",
+  "select_date": "Select date",
+  "select_time": "Select time"
 }
