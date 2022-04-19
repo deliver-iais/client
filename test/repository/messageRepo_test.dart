@@ -1346,16 +1346,20 @@ void main() {
       test('When called should savePendingMessage', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
           final messageDao = getAndRegisterMessageDao();
+          final formResult = FormResult();
+          formResult.values["test"] = "test";
           MessageRepo()
-              .sendFormResultMessage(testUid.asString(), {"test": "test"}, 0);
+              .sendFormResultMessage(testUid.asString(), formResult, 0);
           verify(messageDao.savePendingMessage(pm));
         });
       });
       test('When called should updateRoomLastMessage', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
           final roomDao = getAndRegisterRoomDao();
+          final formResult = FormResult();
+          formResult.values["test"] = "test";
           MessageRepo()
-              .sendFormResultMessage(testUid.asString(), {"test": "test"}, 0);
+              .sendFormResultMessage(testUid.asString(), formResult, 0);
           verify(
             roomDao.updateRoom(
               uid: pm.roomUid,
@@ -1369,9 +1373,11 @@ void main() {
       });
       test('When called should sendMessageToServer', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
+          final formResult = FormResult();
+          formResult.values["test"] = "test";
           final coreServices = getAndRegisterCoreServices();
           MessageRepo()
-              .sendFormResultMessage(testUid.asString(), {"test": "test"}, 0);
+              .sendFormResultMessage(testUid.asString(), formResult, 0);
           final byClient = message_pb.MessageByClient()
             ..packetId = pm.msg.packetId
             ..to = pm.msg.to.asUid()
@@ -1437,16 +1443,16 @@ void main() {
       test('When called should savePendingMessage', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
           final messageDao = getAndRegisterMessageDao();
-          MessageRepo()
-              .sendPrivateDataAcceptanceMessage(testUid, PrivateDataType.EMAIL, "test");
+          MessageRepo().sendPrivateDataAcceptanceMessage(
+              testUid, PrivateDataType.EMAIL, "test");
           verify(messageDao.savePendingMessage(pm));
         });
       });
       test('When called should updateRoomLastMessage', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
           final roomDao = getAndRegisterRoomDao();
-          MessageRepo()
-              .sendPrivateDataAcceptanceMessage(testUid, PrivateDataType.EMAIL, "test");
+          MessageRepo().sendPrivateDataAcceptanceMessage(
+              testUid, PrivateDataType.EMAIL, "test");
           verify(
             roomDao.updateRoom(
               uid: pm.roomUid,
@@ -1461,8 +1467,8 @@ void main() {
       test('When called should sendMessageToServer', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
           final coreServices = getAndRegisterCoreServices();
-          MessageRepo()
-              .sendPrivateDataAcceptanceMessage(testUid, PrivateDataType.EMAIL, "test");
+          MessageRepo().sendPrivateDataAcceptanceMessage(
+              testUid, PrivateDataType.EMAIL, "test");
           final byClient = message_pb.MessageByClient()
             ..packetId = pm.msg.packetId
             ..to = pm.msg.to.asUid()

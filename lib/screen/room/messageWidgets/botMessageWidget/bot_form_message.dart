@@ -9,12 +9,14 @@ import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as proto_pb;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
+import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 import 'package:rxdart/rxdart.dart';
 
 class BotFormMessage extends StatefulWidget {
@@ -38,7 +40,7 @@ class BotFormMessage extends StatefulWidget {
 class _BotFormMessageState extends State<BotFormMessage> {
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _i18n = GetIt.I.get<I18N>();
-  final Map<String, String> formResultMap = {};
+  final proto_pb.FormResult _formResult = proto_pb.FormResult();
   final Map<String, GlobalKey<FormState>> formFieldsKey = {};
   final List<Widget> _widgets = [];
   final BehaviorSubject<String> _errorText = BehaviorSubject.seeded("");
@@ -58,35 +60,27 @@ class _BotFormMessageState extends State<BotFormMessage> {
           _widgets.add(
             FormSimpleInputFieldWidget(
               formField: form.fields[index],
-              setFormKey: (key) {
-                formFieldsKey[form.fields[index].id] = key;
-              },
-              setResult: (value) {
-                _setResult(index, value);
-              },
+              setFormKey: (key) => formFieldsKey[field.id] = key,
+              setResult: (value) => _setResult(field, value),
             ),
           );
           break;
         case proto_pb.Form_Field_Type.dateField:
         case proto_pb.Form_Field_Type.timeField:
         case proto_pb.Form_Field_Type.dateAndTimeField:
-          _widgets.add(DateAndTimeFieldWidget(
-            formField: form.fields[index],
-            setFormKey: (key) {
-              formFieldsKey[form.fields[index].id] = key;
-            },
-            setResult: (value) {
-              _setResult(index, value);
-            },
-          ),);
+          _widgets.add(
+            DateAndTimeFieldWidget(
+              formField: field,
+              setFormKey: (key) => formFieldsKey[field.id] = key,
+              setResult: (value) => _setResult(field, value),
+            ),
+          );
           break;
         case proto_pb.Form_Field_Type.checkbox:
           _widgets.add(
             CheckBoxFormField(
-              formField: form.fields[index],
-              selected: (value) {
-                _setResult(index, value);
-              },
+              formField: field,
+              selected: (value) => _setResult(field, value),
             ),
           );
 
@@ -95,13 +89,9 @@ class _BotFormMessageState extends State<BotFormMessage> {
         case proto_pb.Form_Field_Type.list:
           _widgets.add(
             FormListWidget(
-              formField: form.fields[index],
-              setFormKey: (key) {
-                formFieldsKey[form.fields[index].id] = key;
-              },
-              selected: (value) {
-                _setResult(index, value);
-              },
+              formField: field,
+              setFormKey: (key) => formFieldsKey[field.id] = key,
+              selected: (value) => _setResult(field, value),
             ),
           );
           break;
@@ -308,7 +298,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
         if (validate) {
           _messageRepo.sendFormResultMessage(
             widget.message.from,
-            formResultMap,
+            _formResult,
             widget.message.id!,
           );
           Navigator.pop(c);
@@ -320,7 +310,28 @@ class _BotFormMessageState extends State<BotFormMessage> {
     );
   }
 
-  void _setResult(int index, value) {
-    formResultMap[form.fields[index].id] = value;
+  void _setResult(proto_pb.Form_Field field, value) {
+    _formResult.values[field.id] = value;
+    if (field.whichType() == proto_pb.Form_Field_Type.dateField) {
+      final dateTime = DateTime.fromMillisecondsSinceEpoch(int.parse(value));
+      if (field.dateField.isHijriShamsi) {
+        final jalali = Jalali.fromDateTime(dateTime);
+        _formResult.previewOverride[field.id] = jalali.formatFullDate();
+      } else {
+        _formResult.previewOverride[field.id] = dateTimeFormat(dateTime);
+      }
+    } else if (field.whichType() == proto_pb.Form_Field_Type.timeField) {
+      final dateTime = DateTime.fromMillisecondsSinceEpoch(int.parse(value));
+      _formResult.previewOverride[field.id] =
+          "${dateTime.hour}:${dateTime.minute}";
+    } else if (field.whichType() == proto_pb.Form_Field_Type.dateAndTimeField) {
+      final dateTime = DateTime.fromMillisecondsSinceEpoch(int.parse(value));
+      if (field.dateAndTimeField.isHijriShamsi) {
+        final jalali = Jalali.fromDateTime(dateTime);
+        _formResult.previewOverride[field.id] = jalali.formatFullDate();
+      } else {
+        _formResult.previewOverride[field.id] = dateTimeFormat(dateTime);
+      }
+    }
   }
 }

@@ -53,7 +53,8 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                           readOnly: true,
                           style: const TextStyle(fontSize: 16),
                           controller: TextEditingController(
-                            text: formResult.values[key],
+                            text: formResult.previewOverride[key] ??
+                                formResult.values[key],
                           ),
                           decoration: InputDecoration(
                             border: const OutlineInputBorder(

@@ -25,9 +25,11 @@ class DateAndTimeFieldWidget extends StatefulWidget {
 
 class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
   final _i18n = GetIt.I.get<I18N>();
+
   final _formKey = GlobalKey<FormState>();
 
   final TextEditingController _timeEditingController = TextEditingController();
+
   final TextEditingController _dateEditingController = TextEditingController();
 
   DateTime? _selectedDate;
@@ -49,7 +51,7 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
                 ? buildTimeField(context)
                 : widget.formField.whichType() ==
                         form_pb.Form_Field_Type.dateAndTimeField
-                    ? buildDateAndTimeField(context)
+                    ? buildDateWithTimeField(context)
                     : Container(),
       ),
     );
@@ -87,7 +89,7 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
     );
   }
 
-  Widget buildDateAndTimeField(BuildContext context) {
+  Widget buildDateWithTimeField(BuildContext context) {
     return DateWithTimePicker(
       formField: widget.formField,
       dateEditingController: _dateEditingController,
@@ -141,12 +143,16 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
-    if (widget.formField.dateField.isHijriShamsi) {
+    if ((widget.formField.whichType() ==
+                form_pb.Form_Field_Type.dateAndTimeField &&
+            widget.formField.dateAndTimeField.isHijriShamsi) ||
+        (widget.formField.whichType() == form_pb.Form_Field_Type.dateField &&
+            widget.formField.dateField.isHijriShamsi)) {
       final picked = await showPersianDatePicker(
         context: context,
         initialDate: _selectedDateJalali ?? Jalali.now(),
-        firstDate: Jalali(1300),
-        lastDate: Jalali(1450, 12, 29),
+        firstDate: getJalaliFirstDate(),
+        lastDate: getJalaliEndDate(),
       );
       if (picked != null) {
         _selectedDate = picked.toDateTime();
@@ -161,9 +167,8 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
         }
         widget.setResult(_selectedDate!.millisecondsSinceEpoch.toString());
         _selectedDateJalali = picked;
-        final label = picked.formatFullDate();
         _dateEditingController
-          ..text = label
+          ..text = picked.formatFullDate()
           ..selection = TextSelection.fromPosition(
             TextPosition(
               offset: _dateEditingController.text.length,
@@ -175,12 +180,8 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
       var newSelectedDate = await showDatePicker(
         context: context,
         initialDate: _selectedDate ?? DateTime.now(),
-        firstDate: DateTime.fromMillisecondsSinceEpoch(
-          int.parse(widget.formField.dateField.validStartDate),
-        ),
-        lastDate: DateTime.fromMillisecondsSinceEpoch(
-          int.parse(widget.formField.dateField.validEndDate),
-        ),
+        firstDate: getFirstDate(),
+        lastDate: getEndDate(),
         builder: (context, child) {
           return child!;
         },
@@ -196,7 +197,7 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
             _selectedTime!.minute,
           );
         }
-        widget.setResult(newSelectedDate.microsecondsSinceEpoch.toString());
+        widget.setResult(newSelectedDate.millisecondsSinceEpoch.toString());
         _selectedDate = newSelectedDate;
         _dateEditingController
           ..text = dateTimeFormat(_selectedDate!)
@@ -207,6 +208,66 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
             ),
           );
       }
+    }
+  }
+
+  DateTime getFirstDate() {
+    if (widget.formField.whichType() ==
+        form_pb.Form_Field_Type.dateAndTimeField) {
+      return widget.formField.dateAndTimeField.validStartDate.isNotEmpty
+          ? DateTime.parse(widget.formField.dateAndTimeField.validStartDate)
+          : DateTime(1970);
+    } else {
+      return widget.formField.dateField.validStartDate.isNotEmpty
+          ? DateTime.parse(widget.formField.dateField.validStartDate)
+          : DateTime(1970);
+    }
+  }
+
+  DateTime getEndDate() {
+    if (widget.formField.whichType() ==
+        form_pb.Form_Field_Type.dateAndTimeField) {
+      return widget.formField.dateAndTimeField.validEndDate.isNotEmpty
+          ? DateTime.parse(widget.formField.dateAndTimeField.validStartDate)
+          : DateTime(2050);
+    } else {
+      return widget.formField.dateField.validEndDate.isNotEmpty
+          ? DateTime.parse(widget.formField.dateField.validStartDate)
+          : DateTime(2050);
+    }
+  }
+
+  Jalali getJalaliFirstDate() {
+    if (widget.formField.whichType() ==
+        form_pb.Form_Field_Type.dateAndTimeField) {
+      return widget.formField.dateAndTimeField.validStartDate.isNotEmpty
+          ? Jalali.fromDateTime(
+              DateTime.parse(widget.formField.dateAndTimeField.validStartDate),
+            )
+          : Jalali(1300);
+    } else {
+      return widget.formField.dateField.validStartDate.isNotEmpty
+          ? Jalali.fromDateTime(
+              DateTime.parse(widget.formField.dateAndTimeField.validStartDate),
+            )
+          : Jalali(1300);
+    }
+  }
+
+  Jalali getJalaliEndDate() {
+    if (widget.formField.whichType() ==
+        form_pb.Form_Field_Type.dateAndTimeField) {
+      return widget.formField.dateAndTimeField.validEndDate.isNotEmpty
+          ? Jalali.fromDateTime(
+              DateTime.parse(widget.formField.dateAndTimeField.validEndDate),
+            )
+          : Jalali(1450);
+    } else {
+      return widget.formField.dateField.validEndDate.isNotEmpty
+          ? Jalali.fromDateTime(
+              DateTime.parse(widget.formField.dateAndTimeField.validEndDate),
+            )
+          : Jalali(1450);
     }
   }
 

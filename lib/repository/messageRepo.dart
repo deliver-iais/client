@@ -834,20 +834,13 @@ class MessageRepo {
 
   Future<void> sendFormResultMessage(
     String botUid,
-    Map<String, String> formResultMap,
-    int formMessageId, {
-    String? forwardFromAsString,
-  }) async {
-    final formResult = FormResult();
-    for (final fileId in formResultMap.keys) {
-      formResult.values[fileId] = formResultMap[fileId]!;
-    }
+    FormResult formResult,
+    int formMessageId,
+  ) async {
     final jsonString = (formResult).writeToJson();
-
     final msg = _createMessage(
       botUid.asUid(),
       replyId: formMessageId,
-      forwardedFrom: forwardFromAsString,
     ).copyWith(type: MessageType.FORM_RESULT, json: jsonString);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
