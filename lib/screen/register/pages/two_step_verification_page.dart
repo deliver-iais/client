@@ -6,6 +6,7 @@ import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:grpc/grpc.dart';
 import 'package:lottie/lottie.dart';
 
 class TwoStepVerificationPage extends StatefulWidget {
@@ -41,30 +42,55 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
       child: Scaffold(
         backgroundColor: theme.backgroundColor,
         floatingActionButton: FloatingActionButton(
-          backgroundColor: theme.primaryColor,
-          foregroundColor: theme.buttonTheme.colorScheme!.onPrimary,
-          child: const Icon(Icons.arrow_forward),
-          onPressed: () async {
-            final res = widget.verificationCode != null
-                ? await _autRepo.sendVerificationCode(
-                    widget.verificationCode!,
-                    password: _password,
-                  )
-                : await _autRepo.checkQrCodeToken(
-                    widget.token!,password:
-                    _password ?? "",
+            backgroundColor: theme.primaryColor,
+            foregroundColor: theme.buttonTheme.colorScheme!.onPrimary,
+            child: const Icon(Icons.arrow_forward),
+            onPressed: () async {
+              try {
+                final res = widget.verificationCode != null
+                    ? await _autRepo.sendVerificationCode(
+                        widget.verificationCode!,
+                        password: _password,
+                      )
+                    : await _autRepo.checkQrCodeToken(
+                        widget.token!,
+                        password: _password ?? "",
+                      );
+                if (res.status == AccessTokenRes_Status.OK) {
+                  widget.navigationToHomePage();
+                } else if (res.status ==
+                    AccessTokenRes_Status.PASSWORD_PROTECTED) {
+                  _textController.clear();
+                  ToastDisplay.showToast(
+                    toastContext: context,
+                    toastText: _i18n.get("password_not_correct"),
                   );
-            if (res.status == AccessTokenRes_Status.OK) {
-              widget.navigationToHomePage();
-            } else if (res.status == AccessTokenRes_Status.PASSWORD_PROTECTED) {
-              ToastDisplay.showToast(
-                toastContext: context,
-                toastText: _i18n.get("password_not_correct"),
-              );
-              _textController.clear();
-            }
-          },
-        ),
+                }
+              } on GrpcError catch (e) {
+                if (e.code == StatusCode.permissionDenied) {
+                  _textController.clear();
+                  ToastDisplay.showToast(
+                    toastContext: context,
+                    toastText: _i18n.get("password_not_correct"),
+                  );
+                } else if (e.code == StatusCode.unavailable) {
+                  ToastDisplay.showToast(
+                    toastText: _i18n.get("notwork_is_unavailable"),
+                    toastContext: context,
+                  );
+                } else {
+                  ToastDisplay.showToast(
+                    toastText: _i18n.get("error_occurred"),
+                    toastContext: context,
+                  );
+                }
+              } catch (_) {
+                ToastDisplay.showToast(
+                  toastText: _i18n.get("error_occurred"),
+                  toastContext: context,
+                );
+              }
+            }),
         appBar: AppBar(
           backgroundColor: theme.backgroundColor,
           title: Text(

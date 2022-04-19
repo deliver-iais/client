@@ -5,6 +5,7 @@ import 'package:deliver/screen/room/messageWidgets/botMessageWidget/checkbox_for
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/date_and_time_field_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_list_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_simple_input_field_widget.dart';
+import 'package:deliver/screen/room/messageWidgets/botMessageWidget/formatted_TextField_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
@@ -94,6 +95,16 @@ class _BotFormMessageState extends State<BotFormMessage> {
               selected: (value) => _setResult(field, value),
             ),
           );
+          break;
+        case proto_pb.Form_Field_Type.formattedTextField:
+          _widgets.add(
+            FormattedTextFieldWidget(
+              formField: field,
+              setFormKey: (key) => formFieldsKey[field.id] = key,
+              setResult: (value) => _setResult(field, value),
+            ),
+          );
+
           break;
         case proto_pb.Form_Field_Type.notSet:
           _widgets.add(const SizedBox.shrink());
@@ -312,6 +323,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
 
   void _setResult(proto_pb.Form_Field field, value) {
     _formResult.values[field.id] = value;
+
     if (field.whichType() == proto_pb.Form_Field_Type.dateField) {
       final dateTime = DateTime.fromMillisecondsSinceEpoch(int.parse(value));
       if (field.dateField.isHijriShamsi) {

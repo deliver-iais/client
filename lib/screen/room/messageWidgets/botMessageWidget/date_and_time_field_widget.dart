@@ -90,10 +90,42 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
   }
 
   Widget buildDateWithTimeField(BuildContext context) {
-    return DateWithTimePicker(
-      formField: widget.formField,
-      dateEditingController: _dateEditingController,
-      timeEditingController: _timeEditingController,
+    return FormValidator(
+      label: widget.formField.id,
+      widget: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              readOnly: true,
+              onTap: () => _selectDate(context),
+              controller: _dateEditingController,
+              decoration: const InputDecoration(
+                prefixIcon: Icon(
+                  Icons.date_range,
+                  size: 18,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(
+            width: 5,
+          ),
+          SizedBox(
+            width: 102,
+            child: TextField(
+              readOnly: true,
+              onTap: () => _selectTime(context),
+              controller: _timeEditingController,
+              decoration: const InputDecoration(
+                prefixIcon: Icon(
+                  CupertinoIcons.time,
+                  size: 18,
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
       validator: (s) {
         if (!widget.formField.isOptional) {
           if (_selectedDate == null) {
@@ -105,8 +137,6 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
 
         return null;
       },
-      selectDate: _selectDate,
-      selectTime: _selectTime,
     );
   }
 
@@ -307,20 +337,14 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
   }
 }
 
-class DateWithTimePicker extends FormField<String> {
-  final form_pb.Form_Field formField;
-  final void Function(BuildContext) selectTime;
-  final void Function(BuildContext) selectDate;
-  final TextEditingController timeEditingController;
-  final TextEditingController dateEditingController;
+class FormValidator extends FormField<String> {
+  final String label;
+  final Widget widget;
 
-  DateWithTimePicker({
+  FormValidator({
     Key? key,
-    required this.formField,
-    required this.selectDate,
-    required this.selectTime,
-    required this.timeEditingController,
-    required this.dateEditingController,
+    required this.widget,
+    required this.label,
     validator,
   }) : super(
           key: key,
@@ -331,45 +355,12 @@ class DateWithTimePicker extends FormField<String> {
             return InputDecorator(
               decoration: InputDecoration(
                 label: Text(
-                  formField.id,
+                  label,
                   style: const TextStyle(fontSize: 16),
                 ),
                 errorText: field.hasError ? field.errorText : null,
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      readOnly: true,
-                      onTap: () => selectDate(field.context),
-                      controller: dateEditingController,
-                      decoration: const InputDecoration(
-                        prefixIcon: Icon(
-                          Icons.date_range,
-                          size: 18,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 5,
-                  ),
-                  SizedBox(
-                    width: 102,
-                    child: TextField(
-                      readOnly: true,
-                      onTap: () => selectTime(field.context),
-                      controller: timeEditingController,
-                      decoration: const InputDecoration(
-                        prefixIcon: Icon(
-                          CupertinoIcons.time,
-                          size: 18,
-                        ),
-                      ),
-                    ),
-                  )
-                ],
-              ),
+              child: widget,
             );
           },
         );
