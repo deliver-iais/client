@@ -90,7 +90,7 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
                   toastContext: context,
                 );
               }
-            }),
+            },),
         appBar: AppBar(
           backgroundColor: theme.backgroundColor,
           title: Text(

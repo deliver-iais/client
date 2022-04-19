@@ -1444,7 +1444,7 @@ void main() {
         withClock(Clock.fixed(DateTime(2000)), () async {
           final messageDao = getAndRegisterMessageDao();
           MessageRepo().sendPrivateDataAcceptanceMessage(
-              testUid, PrivateDataType.EMAIL, "test");
+              testUid, PrivateDataType.EMAIL, "test",);
           verify(messageDao.savePendingMessage(pm));
         });
       });
@@ -1452,7 +1452,7 @@ void main() {
         withClock(Clock.fixed(DateTime(2000)), () async {
           final roomDao = getAndRegisterRoomDao();
           MessageRepo().sendPrivateDataAcceptanceMessage(
-              testUid, PrivateDataType.EMAIL, "test");
+              testUid, PrivateDataType.EMAIL, "test",);
           verify(
             roomDao.updateRoom(
               uid: pm.roomUid,
@@ -1468,7 +1468,7 @@ void main() {
         withClock(Clock.fixed(DateTime(2000)), () async {
           final coreServices = getAndRegisterCoreServices();
           MessageRepo().sendPrivateDataAcceptanceMessage(
-              testUid, PrivateDataType.EMAIL, "test");
+              testUid, PrivateDataType.EMAIL, "test",);
           final byClient = message_pb.MessageByClient()
             ..packetId = pm.msg.packetId
             ..to = pm.msg.to.asUid()

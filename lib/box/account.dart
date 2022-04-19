@@ -48,7 +48,7 @@ class Account {
           String? lastname,
           bool? passwordProtected,
           String? email,
-          String? description}) =>
+          String? description,}) =>
       Account(
           countryCode: countryCode ?? this.countryCode,
           nationalNumber: nationalNumber ?? this.nationalNumber,
@@ -57,5 +57,5 @@ class Account {
           lastname: lastname ?? this.lastname,
           email: email ?? this.email,
           passwordProtected: passwordProtected ?? this.passwordProtected,
-          description: description ?? this.description);
+          description: description ?? this.description,);
 }

@@ -475,7 +475,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                   ? _usernameTextController.text
                   : null,
               firstname: _firstnameTextController.text,
-              lastname: _lastnameTextController.text);
+              lastname: _lastnameTextController.text,);
           if (_emailTextController.text != _account.email) {
             try {
               final res =

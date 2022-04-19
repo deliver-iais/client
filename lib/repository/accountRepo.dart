@@ -3,7 +3,7 @@
 import 'dart:async';
 
 import 'package:deliver/box/account.dart';
-import 'package:deliver/box/dao/accountDao.dart';
+import 'package:deliver/box/dao/account_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/repository/authRepo.dart';

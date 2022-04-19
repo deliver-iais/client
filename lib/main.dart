@@ -6,7 +6,7 @@ import 'package:deliver/box/call_info.dart';
 import 'package:deliver/box/call_status.dart';
 import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/contact.dart';
-import 'package:deliver/box/dao/accountDao.dart';
+import 'package:deliver/box/dao/account_dao.dart';
 import 'package:deliver/box/dao/avatar_dao.dart';
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
