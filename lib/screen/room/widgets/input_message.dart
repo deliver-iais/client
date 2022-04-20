@@ -394,7 +394,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                           style: theme.textTheme.subtitle1,
                                           onTap: () => _backSubject.add(false),
                                           onChanged: (str) {
-                                            if (str.trim().length < 2) {
+                                            if (true) {
                                               final dir = getDirection(str);
                                               if (dir != value) {
                                                 _textDir.value = dir;
