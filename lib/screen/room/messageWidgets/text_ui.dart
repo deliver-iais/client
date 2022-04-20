@@ -122,7 +122,7 @@ class TextUI extends StatelessWidget {
       if (searchTerm != null && searchTerm!.isNotEmpty)
         SearchTermParser(searchTerm!),
       UrlParser(),
-      if (isGroupMessage) IdParser(onUsernameClick),
+      IdParser(onUsernameClick),
       if (isBotMessage) BotCommandParser(onBotCommandClick),
       BoldTextParser(),
       ItalicTextParser()
