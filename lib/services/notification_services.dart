@@ -443,7 +443,7 @@ class AndroidNotifier implements Notifier {
         .getNotificationAppLaunchDetails()
         .then((notificationAppLaunchDetails) {
       if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
-        modifyRoutingByNotificationTap
+        modifyRoutingByNotificationTapInBackgroundInAndroid
             .add(notificationAppLaunchDetails!.payload!);
       }
     });

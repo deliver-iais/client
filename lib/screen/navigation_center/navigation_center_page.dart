@@ -24,7 +24,7 @@ import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
 
-BehaviorSubject<String> modifyRoutingByNotificationTap =
+BehaviorSubject<String> modifyRoutingByNotificationTapInBackgroundInAndroid =
     BehaviorSubject.seeded("");
 
 class NavigationCenter extends StatefulWidget {
@@ -51,7 +51,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   @override
   void initState() {
-    modifyRoutingByNotificationTap.listen((event) {
+    modifyRoutingByNotificationTapInBackgroundInAndroid.listen((event) {
       if (event.isNotEmpty) {
         _routingService.openRoom(event);
       }
