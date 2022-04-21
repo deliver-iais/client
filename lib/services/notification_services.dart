@@ -7,6 +7,7 @@ import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/file_service.dart';
@@ -434,15 +435,17 @@ class AndroidNotifier implements Notifier {
       notificationSetting,
       onSelectNotification: androidOnSelectNotification,
     );
-    androidDidNotificationLaunchApp();
+    _setupAndroidDidNotificationLaunchApp();
   }
 
-  Future<void> androidDidNotificationLaunchApp() {
+  Future<void> _setupAndroidDidNotificationLaunchApp() {
     return _flutterLocalNotificationsPlugin
         .getNotificationAppLaunchDetails()
         .then((notificationAppLaunchDetails) {
       if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
-        androidOnSelectNotification(notificationAppLaunchDetails!.payload);
+        // TODO(hasan): Refactor routing service to accept offline open room actions and apply them after launch, https://gitlab.iais.co/deliver/wiki/-/issues/473
+        modifyRoutingByNotificationTapInBackgroundInAndroid
+            .add(notificationAppLaunchDetails!.payload!);
       }
     });
   }
