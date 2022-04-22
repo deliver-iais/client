@@ -430,7 +430,7 @@ class _AllImagePageState extends State<AllImagePage> {
                             : _i18n.get("share"),
                         onPressed: () async {
                           final message = await getMessage();
-                          await OperationOnMessageSelection(
+                          return OperationOnMessageSelection(
                             message: message!,
                             context: context,
                           ).selectOperation(
@@ -523,7 +523,7 @@ class _AllImagePageState extends State<AllImagePage> {
                 tooltip: _i18n.get("forward"),
                 onPressed: () async {
                   final message = await getMessage();
-                  await OperationOnMessageSelection(
+                  return OperationOnMessageSelection(
                     message: message!,
                     context: context,
                   ).selectOperation(OperationOnMessage.FORWARD);

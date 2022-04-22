@@ -407,7 +407,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       return;
     }
 
-    await OperationOnMessageSelection(
+    return OperationOnMessageSelection(
       message: widget.message,
       context: context,
       onDelete: widget.onDelete,
@@ -457,7 +457,7 @@ class OperationOnMessageSelection {
   Future<void> selectOperation(OperationOnMessage operationOnMessage) async {
     switch (operationOnMessage) {
       case OperationOnMessage.REPLY:
-        onReply!();
+        onReply?.call();
         break;
       case OperationOnMessage.COPY:
         onCopy();
@@ -491,10 +491,10 @@ class OperationOnMessageSelection {
         onDeletePendingMessage();
         break;
       case OperationOnMessage.PIN_MESSAGE:
-        onPin!();
+        onPin?.call();
         break;
       case OperationOnMessage.UN_PIN_MESSAGE:
-        onUnPin!();
+        onUnPin?.call();
         break;
       case OperationOnMessage.SHOW_IN_FOLDER:
         final path = await _fileRepo.getFileIfExist(
@@ -537,7 +537,7 @@ class OperationOnMessageSelection {
     switch (message.type) {
       case MessageType.TEXT:
       case MessageType.FILE:
-        onEdit!();
+        onEdit?.call();
         break;
       case MessageType.STICKER:
       case MessageType.LOCATION:
@@ -612,7 +612,7 @@ class OperationOnMessageSelection {
     showDeleteMsgDialog(
       [message],
       context,
-      onDelete!,
+      onDelete ?? () {},
     );
   }
 
