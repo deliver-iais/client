@@ -982,13 +982,9 @@ class _RoomPageState extends State<RoomPage> {
                   return _selectMultiMessageAppBar();
                 } else {
                   if (widget.roomId.isMuc()) {
-                    return MucAppbarTitle(
-                      mucUid: widget.roomId,
-                    );
+                    return MucAppbarTitle(mucUid: widget.roomId);
                   } else if (widget.roomId.asUid().category == Categories.BOT) {
-                    return BotAppbarTitle(
-                      botUid: widget.roomId.asUid(),
-                    );
+                    return BotAppbarTitle(botUid: widget.roomId.asUid());
                   } else {
                     return UserAppbarTitle(
                       userUid: widget.roomId.asUid(),

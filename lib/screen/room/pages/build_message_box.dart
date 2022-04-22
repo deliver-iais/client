@@ -537,7 +537,7 @@ class OperationOnMessageSelection {
     switch (message.type) {
       case MessageType.TEXT:
       case MessageType.FILE:
-        onEdit!(message);
+        onEdit!();
         break;
       case MessageType.STICKER:
       case MessageType.LOCATION:
