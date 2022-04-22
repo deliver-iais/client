@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media_type.dart';
-import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -21,7 +20,6 @@ class ImageTabUi extends StatefulWidget {
   final Uid roomUid;
   final void Function(Media) addSelectedMedia;
   final List<Media> selectedMedia;
-  final void Function(Message) onEdit;
 
   const ImageTabUi(
     this.imagesCount,
@@ -29,7 +27,6 @@ class ImageTabUi extends StatefulWidget {
     Key? key,
     required this.addSelectedMedia,
     required this.selectedMedia,
-    required this.onEdit,
   }) : super(key: key);
 
   @override
@@ -108,7 +105,6 @@ class _ImageTabUiState extends State<ImageTabUi> {
                 uid: widget.roomUid.asString(),
                 messageId: media.messageId,
                 initIndex: index,
-                onEdit: widget.onEdit,
               );
             },
             onLongPress: () => _addSelectedMedia(media),

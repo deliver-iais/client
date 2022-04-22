@@ -9,19 +9,15 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../box/message.dart';
-
 class BotAppbarTitle extends StatelessWidget {
   final _routingService = GetIt.I.get<RoutingService>();
   final Uid botUid;
 
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final void Function(Message) onEdit;
 
   BotAppbarTitle({
     Key? key,
     required this.botUid,
-    required this.onEdit,
   }) : super(key: key);
 
   @override
@@ -53,7 +49,6 @@ class BotAppbarTitle extends StatelessWidget {
         onTap: () {
           _routingService.openProfile(
             botUid.asString(),
-            onEdit,
           );
         },
       ),

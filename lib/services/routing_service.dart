@@ -152,13 +152,11 @@ class RoutingService {
 
   void openProfile(
     String roomId,
-    Function(Message) onEdit,
   ) =>
       _push(
         ProfilePage(
           roomId.asUid(),
           key: ValueKey("/room/$roomId/profile"),
-          onEdit: onEdit,
         ),
       );
 
@@ -194,7 +192,6 @@ class RoutingService {
     required String uid,
     required int initIndex,
     required int messageId,
-    required Function(Message) onEdit,
   }) =>
       _push(
         AllImagePage(
@@ -202,7 +199,6 @@ class RoutingService {
           messageId: messageId,
           initIndex: initIndex,
           roomUid: uid,
-          onEdit: onEdit,
         ),
       );
 

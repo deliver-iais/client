@@ -8,20 +8,16 @@ import 'package:deliver/shared/widgets/title_status.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../box/message.dart';
-
 class MucAppbarTitle extends StatelessWidget {
   final _routingService = GetIt.I.get<RoutingService>();
   final _mucRepo = GetIt.I.get<MucRepo>();
   final i18n = GetIt.I.get<I18N>();
 
   final String mucUid;
-  final void Function(Message) onEdit;
 
   MucAppbarTitle({
     Key? key,
     required this.mucUid,
-    required this.onEdit,
   }) : super(key: key);
 
   @override
@@ -97,7 +93,7 @@ class MucAppbarTitle extends StatelessWidget {
           ],
         ),
         onTap: () {
-          _routingService.openProfile(mucUid, onEdit);
+          _routingService.openProfile(mucUid);
         },
       ),
     );

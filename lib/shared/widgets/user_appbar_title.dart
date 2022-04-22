@@ -11,8 +11,6 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../box/message.dart';
-
 const NOTIFICATION_SERVICE = "Notification Service";
 
 class UserAppbarTitle extends StatelessWidget {
@@ -23,12 +21,10 @@ class UserAppbarTitle extends StatelessWidget {
 
   final Uid userUid;
   final Future<String> _name;
-  final void Function(Message) onEdit;
 
   UserAppbarTitle({
     Key? key,
     required this.userUid,
-    required this.onEdit,
   })  : _name = _getName(userUid),
         super(key: key);
 
@@ -115,7 +111,7 @@ class UserAppbarTitle extends StatelessWidget {
           ],
         ),
         onTap: () {
-          _routingService.openProfile(userUid.asString(), onEdit);
+          _routingService.openProfile(userUid.asString());
         },
       ),
     );

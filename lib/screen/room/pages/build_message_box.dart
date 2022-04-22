@@ -313,9 +313,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           ),
         ),
         onTap: () {
-          _routingServices.openProfile(widget.message.from, (message) {
-            widget.onEdit(message);
-          });
+          _routingServices.openProfile(widget.message.from);
         },
       ),
     );
@@ -376,9 +374,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
                   ),
                 ),
                 onTap: () {
-                  _routingServices.openProfile(message.from, (message) {
-                    widget.onEdit(message);
-                  });
+                  _routingServices.openProfile(message.from);
                 },
               ),
             ),
@@ -441,7 +437,7 @@ class OperationOnMessageSelection {
   static final _routingServices = GetIt.I.get<RoutingService>();
 
   final void Function()? onReply;
-  final void Function(Message) onEdit;
+  final void Function(Message)? onEdit;
   final void Function()? onDelete;
   final void Function()? onPin;
   final void Function()? onUnPin;
@@ -450,7 +446,7 @@ class OperationOnMessageSelection {
 
   OperationOnMessageSelection({
     this.onReply,
-    required this.onEdit,
+    this.onEdit,
     this.onDelete,
     this.onPin,
     this.onUnPin,
@@ -541,7 +537,7 @@ class OperationOnMessageSelection {
     switch (message.type) {
       case MessageType.TEXT:
       case MessageType.FILE:
-        onEdit(message);
+        onEdit!(message);
         break;
       case MessageType.STICKER:
       case MessageType.LOCATION:

@@ -33,7 +33,7 @@ class AllImagePage extends StatefulWidget {
   final int? initIndex;
   final String? filePath;
   final bool isSingleImage;
-  final void Function(Message) onEdit;
+  final void Function(Message)? onEdit;
 
   const AllImagePage(
     Key? key, {
@@ -42,7 +42,7 @@ class AllImagePage extends StatefulWidget {
     this.initIndex,
     this.filePath,
     this.isSingleImage = false,
-    required this.onEdit,
+    this.onEdit,
   }) : super(key: key);
 
   @override
@@ -374,58 +374,60 @@ class _AllImagePageState extends State<AllImagePage> {
                     ),
                   ),
                   const Spacer(),
-                  StreamBuilder<int>(
-                    stream: _currentIndex.stream,
-                    builder: (c, index) {
-                      if (index.hasData && index.data != -1) {
-                        return FutureBuilder<Media?>(
-                          future: _getMedia(index.data!),
-                          builder: (context, mediaSnapShot) {
-                            if (mediaSnapShot.hasData &&
-                                mediaSnapShot.data != null) {
-                              return FutureBuilder<Message?>(
-                                future: _messageDao.getMessage(
-                                  widget.roomUid,
-                                  mediaSnapShot.data!.messageId,
-                                ),
-                                builder: (context, message) {
-                                  if (message.hasData &&
-                                      message.data != null &&
-                                      _autRepo
-                                          .isCurrentUserSender(message.data!)) {
-                                    return IconButton(
-                                      onPressed: () async {
-                                        final message = await getMessage();
-                                        await OperationOnMessageSelection(
-                                          message: message!,
-                                          context: context,
-                                          onEdit: widget.onEdit,
-                                        ).selectOperation(
-                                          OperationOnMessage.EDIT,
-                                        );
-                                        _routingService.pop();
-                                      },
-                                      tooltip: _i18n.get("edit"),
-                                      icon: Icon(
-                                        Icons.brush_outlined,
-                                        color: theme.primaryColorLight,
-                                      ),
-                                    );
-                                  } else {
-                                    return const SizedBox.shrink();
-                                  }
-                                },
-                              );
-                            } else {
-                              return const SizedBox.shrink();
-                            }
-                          },
-                        );
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    },
-                  ),
+                  if (widget.onEdit != null)
+                    StreamBuilder<int>(
+                      stream: _currentIndex.stream,
+                      builder: (c, index) {
+                        if (index.hasData && index.data != -1) {
+                          return FutureBuilder<Media?>(
+                            future: _getMedia(index.data!),
+                            builder: (context, mediaSnapShot) {
+                              if (mediaSnapShot.hasData &&
+                                  mediaSnapShot.data != null) {
+                                return FutureBuilder<Message?>(
+                                  future: _messageDao.getMessage(
+                                    widget.roomUid,
+                                    mediaSnapShot.data!.messageId,
+                                  ),
+                                  builder: (context, message) {
+                                    if (message.hasData &&
+                                        message.data != null &&
+                                        _autRepo.isCurrentUserSender(
+                                          message.data!,
+                                        )) {
+                                      return IconButton(
+                                        onPressed: () async {
+                                          final message = await getMessage();
+                                          await OperationOnMessageSelection(
+                                            message: message!,
+                                            context: context,
+                                            onEdit: widget.onEdit,
+                                          ).selectOperation(
+                                            OperationOnMessage.EDIT,
+                                          );
+                                          _routingService.pop();
+                                        },
+                                        tooltip: _i18n.get("edit"),
+                                        icon: Icon(
+                                          Icons.brush_outlined,
+                                          color: theme.primaryColorLight,
+                                        ),
+                                      );
+                                    } else {
+                                      return const SizedBox.shrink();
+                                    }
+                                  },
+                                );
+                              } else {
+                                return const SizedBox.shrink();
+                              }
+                            },
+                          );
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      },
+                    ),
                   IconButton(
                     tooltip: isDesktop
                         ? _i18n.get("show_in_folder")
@@ -435,7 +437,6 @@ class _AllImagePageState extends State<AllImagePage> {
                       await OperationOnMessageSelection(
                         message: message!,
                         context: context,
-                        onEdit: widget.onEdit,
                       ).selectOperation(
                         isDesktop
                             ? OperationOnMessage.SHOW_IN_FOLDER
@@ -527,7 +528,6 @@ class _AllImagePageState extends State<AllImagePage> {
                   await OperationOnMessageSelection(
                     message: message!,
                     context: context,
-                    onEdit: widget.onEdit,
                   ).selectOperation(OperationOnMessage.FORWARD);
                 },
               ),
@@ -545,7 +545,6 @@ class _AllImagePageState extends State<AllImagePage> {
                     await OperationOnMessageSelection(
                       message: message!,
                       context: context,
-                      onEdit: widget.onEdit,
                     ).selectOperation(OperationOnMessage.SAVE_TO_GALLERY);
                   },
                   tooltip: _i18n.get("save_to_gallery"),
