@@ -2,7 +2,7 @@ import 'dart:io';
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
-import 'package:deliver/shared/widgets/edit_image/Change_image_color/color_filter_page.dart';
+import 'package:deliver/shared/widgets/edit_image/change_image_color/color_filter_page.dart';
 import 'package:deliver/shared/widgets/edit_image/crop_image/crop_image.dart';
 import 'package:deliver/shared/widgets/edit_image/paint_on_image/page/paint_on_image_page.dart';
 import 'package:flutter/cupertino.dart';
