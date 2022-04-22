@@ -22,10 +22,8 @@ class UserAppbarTitle extends StatelessWidget {
   final Uid userUid;
   final Future<String> _name;
 
-  UserAppbarTitle({
-    Key? key,
-    required this.userUid,
-  })  : _name = _getName(userUid),
+  UserAppbarTitle({Key? key, required this.userUid})
+      : _name = _getName(userUid),
         super(key: key);
 
   static Future<String> _getName(Uid uid) =>

@@ -15,10 +15,7 @@ class BotAppbarTitle extends StatelessWidget {
 
   final _roomRepo = GetIt.I.get<RoomRepo>();
 
-  BotAppbarTitle({
-    Key? key,
-    required this.botUid,
-  }) : super(key: key);
+  BotAppbarTitle({Key? key, required this.botUid}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -47,9 +44,7 @@ class BotAppbarTitle extends StatelessWidget {
           ],
         ),
         onTap: () {
-          _routingService.openProfile(
-            botUid.asString(),
-          );
+          _routingService.openProfile(botUid.asString());
         },
       ),
     );

@@ -15,10 +15,7 @@ class MucAppbarTitle extends StatelessWidget {
 
   final String mucUid;
 
-  MucAppbarTitle({
-    Key? key,
-    required this.mucUid,
-  }) : super(key: key);
+  MucAppbarTitle({Key? key, required this.mucUid}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
