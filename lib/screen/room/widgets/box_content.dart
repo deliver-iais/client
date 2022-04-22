@@ -42,6 +42,7 @@ class BoxContent extends StatefulWidget {
   final void Function(String) onBotCommandClick;
   final void Function(int, int) scrollToMessage;
   final void Function() onArrowIconClick;
+  final void Function() onEdit;
 
   const BoxContent({
     Key? key,
@@ -58,6 +59,7 @@ class BoxContent extends StatefulWidget {
     required this.storePosition,
     required this.onUsernameClick,
     this.pattern,
+    required this.onEdit,
   }) : super(key: key);
 
   Type getState() {
@@ -234,6 +236,7 @@ class _BoxContentState extends State<BoxContent> {
           colorScheme: widget.colorScheme,
           isSender: widget.isSender,
           isSeen: widget.isSeen,
+          onEdit: widget.onEdit,
         );
 
       case MessageType.STICKER:
