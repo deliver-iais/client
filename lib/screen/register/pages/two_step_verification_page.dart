@@ -8,15 +8,18 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:lottie/lottie.dart';
+import 'package:rxdart/rxdart.dart';
 
 class TwoStepVerificationPage extends StatefulWidget {
   final Function() navigationToHomePage;
   final String? verificationCode;
   final String? token;
+  final AccessTokenRes accessTokenRes;
 
   const TwoStepVerificationPage({
     Key? key,
     required this.navigationToHomePage,
+    required this.accessTokenRes,
     this.verificationCode,
     this.token,
   }) : super(key: key);
@@ -35,6 +38,8 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
 
   String? _password;
 
+  final BehaviorSubject<bool> _showPasswordHint = BehaviorSubject.seeded(false);
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -42,55 +47,58 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
       child: Scaffold(
         backgroundColor: theme.backgroundColor,
         floatingActionButton: FloatingActionButton(
-            backgroundColor: theme.primaryColor,
-            foregroundColor: theme.buttonTheme.colorScheme!.onPrimary,
-            child: const Icon(Icons.arrow_forward),
-            onPressed: () async {
-              try {
-                final res = widget.verificationCode != null
-                    ? await _autRepo.sendVerificationCode(
-                        widget.verificationCode!,
-                        password: _password,
-                      )
-                    : await _autRepo.checkQrCodeToken(
-                        widget.token!,
-                        password: _password ?? "",
-                      );
-                if (res.status == AccessTokenRes_Status.OK) {
-                  widget.navigationToHomePage();
-                } else if (res.status ==
-                    AccessTokenRes_Status.PASSWORD_PROTECTED) {
-                  _textController.clear();
-                  ToastDisplay.showToast(
-                    toastContext: context,
-                    toastText: _i18n.get("password_not_correct"),
-                  );
-                }
-              } on GrpcError catch (e) {
-                if (e.code == StatusCode.permissionDenied) {
-                  _textController.clear();
-                  ToastDisplay.showToast(
-                    toastContext: context,
-                    toastText: _i18n.get("password_not_correct"),
-                  );
-                } else if (e.code == StatusCode.unavailable) {
-                  ToastDisplay.showToast(
-                    toastText: _i18n.get("notwork_is_unavailable"),
-                    toastContext: context,
-                  );
-                } else {
-                  ToastDisplay.showToast(
-                    toastText: _i18n.get("error_occurred"),
-                    toastContext: context,
-                  );
-                }
-              } catch (_) {
+          backgroundColor: theme.primaryColor,
+          foregroundColor: theme.buttonTheme.colorScheme!.onPrimary,
+          child: const Icon(Icons.arrow_forward),
+          onPressed: () async {
+            try {
+              final res = widget.verificationCode != null
+                  ? await _autRepo.sendVerificationCode(
+                      widget.verificationCode!,
+                      password: _password,
+                    )
+                  : await _autRepo.checkQrCodeToken(
+                      widget.token!,
+                      password: _password ?? "",
+                    );
+              if (res.status == AccessTokenRes_Status.OK) {
+                widget.navigationToHomePage();
+              } else if (res.status ==
+                  AccessTokenRes_Status.PASSWORD_PROTECTED) {
+                _showPasswordHint.add(true);
+                _textController.clear();
+                ToastDisplay.showToast(
+                  toastContext: context,
+                  toastText: _i18n.get("password_not_correct"),
+                );
+              }
+            } on GrpcError catch (e) {
+              if (e.code == StatusCode.permissionDenied) {
+                _showPasswordHint.add(true);
+                _textController.clear();
+                ToastDisplay.showToast(
+                  toastContext: context,
+                  toastText: _i18n.get("password_not_correct"),
+                );
+              } else if (e.code == StatusCode.unavailable) {
+                ToastDisplay.showToast(
+                  toastText: _i18n.get("notwork_is_unavailable"),
+                  toastContext: context,
+                );
+              } else {
                 ToastDisplay.showToast(
                   toastText: _i18n.get("error_occurred"),
                   toastContext: context,
                 );
               }
-            },),
+            } catch (_) {
+              ToastDisplay.showToast(
+                toastText: _i18n.get("error_occurred"),
+                toastContext: context,
+              );
+            }
+          },
+        ),
         appBar: AppBar(
           backgroundColor: theme.backgroundColor,
           title: Text(
@@ -133,17 +141,27 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
                   Padding(
                     padding:
                         const EdgeInsets.only(left: 30, right: 30, bottom: 30),
-                    child: TextField(
-                      controller: _textController,
-                      obscureText: true,
-                      autofocus: true,
-                      onChanged: (s) {
-                        _password = s;
+                    child: StreamBuilder<bool>(
+                      stream: _showPasswordHint.stream,
+                      builder: (context, snapshot) {
+                        return TextField(
+                          controller: _textController,
+                          obscureText: true,
+                          autofocus: true,
+                          onChanged: (s) {
+                            _password = s;
+                          },
+                          decoration: InputDecoration(
+                            border: const OutlineInputBorder(),
+                            hintText: _i18n.get("password"),
+                            helperText: snapshot.hasData &&
+                                    snapshot.data != null &&
+                                    snapshot.data!
+                                ? widget.accessTokenRes.passwordHint
+                                : null,
+                          ),
+                        );
                       },
-                      decoration: InputDecoration(
-                        border: const OutlineInputBorder(),
-                        hintText: _i18n.get("password"),
-                      ),
                     ),
                   ),
                   RichText(
@@ -156,8 +174,13 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
                             fontSize: 13,
                           ),
                           recognizer: TapGestureRecognizer()
-                            ..onTap = () {
-                              //todo send forget password to email
+                            ..onTap = () async {
+                              await _autRepo.sendForgetPasswordEmail();
+                              ToastDisplay.showToast(
+                                toastContext: context,
+                                toastText:
+                                    "${_i18n.get("forget_password_send_link")} ${widget.accessTokenRes.forgotEmailHint}",
+                              );
                             },
                         ),
                       ],

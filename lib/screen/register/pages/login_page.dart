@@ -96,6 +96,7 @@ class _LoginPageState extends State<LoginPage> {
           builder: (c) {
             return TwoStepVerificationPage(
               token: loginToken.value,
+              accessTokenRes: res,
               navigationToHomePage: _navigationToHome,
             );
           },

@@ -331,5 +331,8 @@
   "password_hint": "Password hint",
   "confirm": "Confirm",
   "select_date": "Select date",
-  "select_time": "Select time"
+  "select_time": "Select time",
+  "forget_password_send_link": "we send forget link to",
+  "password_helper": "Minimum eight characters, at least one uppercase letter, one lowercase letter and one number",
+  "password_not_valid": "Password not valid"
 }
