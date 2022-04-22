@@ -33,7 +33,7 @@ class AllImagePage extends StatefulWidget {
   final int? initIndex;
   final String? filePath;
   final bool isSingleImage;
-  final void Function(Message)? onEdit;
+  final void Function()? onEdit;
 
   const AllImagePage(
     Key? key, {
@@ -332,7 +332,6 @@ class _AllImagePageState extends State<AllImagePage> {
                                   child: Text(
                                     json["caption"],
                                     textDirection: TextDirection.rtl,
-
                                     style: theme.textTheme.bodyText2!.copyWith(
                                       color: Colors.white,
                                     ),

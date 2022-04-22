@@ -42,7 +42,7 @@ class BuildMessageBox extends StatefulWidget {
   final String roomId;
   final void Function(int, int) scrollToMessage;
   final void Function() onReply;
-  final void Function(Message) onEdit;
+  final void Function() onEdit;
   final void Function() addForwardMessage;
   final void Function() onDelete;
   final void Function() onPin;
@@ -437,7 +437,7 @@ class OperationOnMessageSelection {
   static final _routingServices = GetIt.I.get<RoutingService>();
 
   final void Function()? onReply;
-  final void Function(Message)? onEdit;
+  final void Function()? onEdit;
   final void Function()? onDelete;
   final void Function()? onPin;
   final void Function()? onUnPin;

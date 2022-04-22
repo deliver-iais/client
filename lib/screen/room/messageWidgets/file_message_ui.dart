@@ -18,7 +18,7 @@ class FileMessageUi extends StatefulWidget {
   final void Function(String) onUsernameClick;
   final bool isSeen;
   final CustomColorScheme colorScheme;
-  final void Function(Message) onEdit;
+  final void Function() onEdit;
 
   const FileMessageUi({
     Key? key,

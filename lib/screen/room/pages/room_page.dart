@@ -1217,7 +1217,7 @@ class _RoomPageState extends State<RoomPage> {
       selectMultiMessageSubject: _selectMultiMessageSubject,
       hasPermissionInGroup: _hasPermissionInGroup.value,
       hasPermissionInChannel: _hasPermissionInChannel,
-      onEdit: onEdit,
+      onEdit: () => onEdit(message),
       onPin: () => onPin(message),
       onUnPin: () => onUnPin(message),
       onReply: () => onReply(message),
