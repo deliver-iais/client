@@ -333,7 +333,6 @@ class _AllImagePageState extends State<AllImagePage> {
                                     json["caption"],
                                     textDirection: TextDirection.rtl,
                                     style: theme.textTheme.bodyText2!.copyWith(
-                                      height: 1,
                                       color: Colors.white,
                                     ),
                                   ),
