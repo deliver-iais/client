@@ -150,10 +150,7 @@ class RoutingService {
     );
   }
 
-  void openProfile(
-    String roomId,
-  ) =>
-      _push(
+  void openProfile(String roomId) => _push(
         ProfilePage(
           roomId.asUid(),
           key: ValueKey("/room/$roomId/profile"),
