@@ -142,9 +142,11 @@ class _AllImagePageState extends State<AllImagePage> {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(10),
-        child: isWeb
-            ? Image.network(widget.filePath!)
-            : Image.file(File(widget.filePath!)),
+        child: widget.filePath == null
+            ? const SizedBox.shrink()
+            : isWeb
+                ? Image.network(widget.filePath!)
+                : Image.file(File(widget.filePath!)),
       ),
     );
   }
@@ -307,46 +309,112 @@ class _AllImagePageState extends State<AllImagePage> {
             alignment: Alignment.bottomCenter,
             child: Container(
               color: Colors.black.withAlpha(120),
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 10.0,
-                      horizontal: 20,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(
-                          height: 10,
+                  StreamBuilder<int>(
+                    stream: _currentIndex.stream,
+                    builder: (context, index) {
+                      if (index.hasData &&
+                          index.data != null &&
+                          index.data != -1) {
+                        return FutureBuilder<Media?>(
+                          future: _getMedia(index.data!),
+                          builder: (c, mediaSnapShot) {
+                            if (mediaSnapShot.hasData &&
+                                mediaSnapShot.data != null) {
+                              final json =
+                                  jsonDecode(mediaSnapShot.data!.json) as Map;
+                              if (json["caption"].toString().isNotEmpty) {
+                                return Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: Text(
+                                    json["caption"],
+                                    textDirection: TextDirection.rtl,
+                                    style: theme.textTheme.bodyText2!.copyWith(
+                                      height: 1,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                );
+                              } else {
+                                return const SizedBox.shrink();
+                              }
+                            } else {
+                              return const SizedBox.shrink();
+                            }
+                          },
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
+                  ),
+                  Row(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 10.0,
+                          horizontal: 20,
                         ),
+                        child: StreamBuilder<int>(
+                          stream: _currentIndex.stream,
+                          builder: (c, index) {
+                            if (index.hasData && index.data != -1) {
+                              return buildBottomAppBar(index.data!);
+                            } else {
+                              return const SizedBox.shrink();
+                            }
+                          },
+                        ),
+                      ),
+                      const Spacer(),
+                      if (widget.onEdit != null)
                         StreamBuilder<int>(
                           stream: _currentIndex.stream,
-                          builder: (context, index) {
-                            if (index.hasData &&
-                                index.data != null &&
-                                index.data != -1) {
+                          builder: (c, index) {
+                            if (index.hasData && index.data != -1) {
                               return FutureBuilder<Media?>(
                                 future: _getMedia(index.data!),
-                                builder: (c, mediaSnapShot) {
+                                builder: (context, mediaSnapShot) {
                                   if (mediaSnapShot.hasData &&
                                       mediaSnapShot.data != null) {
-                                    final json =
-                                        jsonDecode(mediaSnapShot.data!.json)
-                                            as Map;
-                                    if (json["caption"].toString().isNotEmpty) {
-                                      return Text(
-                                        json["caption"],
-                                        style:
-                                            theme.textTheme.bodyText2!.copyWith(
-                                          height: 1,
-                                          color: Colors.white,
-                                        ),
-                                      );
-                                    } else {
-                                      return const SizedBox.shrink();
-                                    }
+                                    return FutureBuilder<Message?>(
+                                      future: _messageDao.getMessage(
+                                        widget.roomUid,
+                                        mediaSnapShot.data!.messageId,
+                                      ),
+                                      builder: (context, message) {
+                                        if (message.hasData &&
+                                            message.data != null &&
+                                            _autRepo.isCurrentUserSender(
+                                              message.data!,
+                                            )) {
+                                          return IconButton(
+                                            onPressed: () async {
+                                              final message =
+                                                  await getMessage();
+                                              await OperationOnMessageSelection(
+                                                message: message!,
+                                                context: context,
+                                                onEdit: widget.onEdit,
+                                              ).selectOperation(
+                                                OperationOnMessage.EDIT,
+                                              );
+                                              _routingService.pop();
+                                            },
+                                            tooltip: _i18n.get("edit"),
+                                            icon: Icon(
+                                              Icons.brush_outlined,
+                                              color: theme.primaryColorLight,
+                                            ),
+                                          );
+                                        } else {
+                                          return const SizedBox.shrink();
+                                        }
+                                      },
+                                    );
                                   } else {
                                     return const SizedBox.shrink();
                                   }
@@ -357,99 +425,30 @@ class _AllImagePageState extends State<AllImagePage> {
                             }
                           },
                         ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        StreamBuilder<int>(
-                          stream: _currentIndex.stream,
-                          builder: (c, index) {
-                            if (index.hasData && index.data != -1) {
-                              return buildBottomAppBar(index.data!);
-                            } else {
-                              return const SizedBox.shrink();
-                            }
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
-                  const Spacer(),
-                  if (widget.onEdit != null)
-                    StreamBuilder<int>(
-                      stream: _currentIndex.stream,
-                      builder: (c, index) {
-                        if (index.hasData && index.data != -1) {
-                          return FutureBuilder<Media?>(
-                            future: _getMedia(index.data!),
-                            builder: (context, mediaSnapShot) {
-                              if (mediaSnapShot.hasData &&
-                                  mediaSnapShot.data != null) {
-                                return FutureBuilder<Message?>(
-                                  future: _messageDao.getMessage(
-                                    widget.roomUid,
-                                    mediaSnapShot.data!.messageId,
-                                  ),
-                                  builder: (context, message) {
-                                    if (message.hasData &&
-                                        message.data != null &&
-                                        _autRepo.isCurrentUserSender(
-                                          message.data!,
-                                        )) {
-                                      return IconButton(
-                                        onPressed: () async {
-                                          final message = await getMessage();
-                                          await OperationOnMessageSelection(
-                                            message: message!,
-                                            context: context,
-                                            onEdit: widget.onEdit,
-                                          ).selectOperation(
-                                            OperationOnMessage.EDIT,
-                                          );
-                                          _routingService.pop();
-                                        },
-                                        tooltip: _i18n.get("edit"),
-                                        icon: Icon(
-                                          Icons.brush_outlined,
-                                          color: theme.primaryColorLight,
-                                        ),
-                                      );
-                                    } else {
-                                      return const SizedBox.shrink();
-                                    }
-                                  },
-                                );
-                              } else {
-                                return const SizedBox.shrink();
-                              }
-                            },
+                      IconButton(
+                        tooltip: isDesktop
+                            ? _i18n.get("show_in_folder")
+                            : _i18n.get("share"),
+                        onPressed: () async {
+                          final message = await getMessage();
+                          await OperationOnMessageSelection(
+                            message: message!,
+                            context: context,
+                          ).selectOperation(
+                            isDesktop
+                                ? OperationOnMessage.SHOW_IN_FOLDER
+                                : OperationOnMessage.SHARE,
                           );
-                        } else {
-                          return const SizedBox.shrink();
-                        }
-                      },
-                    ),
-                  IconButton(
-                    tooltip: isDesktop
-                        ? _i18n.get("show_in_folder")
-                        : _i18n.get("share"),
-                    onPressed: () async {
-                      final message = await getMessage();
-                      await OperationOnMessageSelection(
-                        message: message!,
-                        context: context,
-                      ).selectOperation(
-                        isDesktop
-                            ? OperationOnMessage.SHOW_IN_FOLDER
-                            : OperationOnMessage.SHARE,
-                      );
-                    },
-                    icon: Icon(
-                      isDesktop ? CupertinoIcons.folder_open : Icons.share,
-                      color: theme.primaryColorLight,
-                    ),
-                  ),
-                  const SizedBox(
-                    width: 10,
+                        },
+                        icon: Icon(
+                          isDesktop ? CupertinoIcons.folder_open : Icons.share,
+                          color: theme.primaryColorLight,
+                        ),
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                    ],
                   ),
                 ],
               ),
