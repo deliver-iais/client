@@ -108,24 +108,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle(
-        systemNavigationBarColor:
-            _uxService.themeIsDark ? Colors.black : Colors.white,
-        systemNavigationBarIconBrightness:
-            _uxService.themeIsDark ? Brightness.light : Brightness.dark,
-      ),
-      child: WillPopScope(
-        onWillPop: () async {
-          if (!_routingService.canPop()) return true;
-          _routingService.maybePop();
-          return false;
-        },
-        child: WithForegroundTask(
-          child: Container(
-            color: theme.colorScheme.background,
-            child: _routingService.outlet(context),
-          ),
+    return WillPopScope(
+      onWillPop: () async {
+        if (!_routingService.canPop()) return true;
+        _routingService.maybePop();
+        return false;
+      },
+      child: WithForegroundTask(
+        child: Container(
+          color: theme.colorScheme.background,
+          child: _routingService.outlet(context),
         ),
       ),
     );
