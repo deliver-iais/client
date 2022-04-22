@@ -310,7 +310,7 @@ class _AllImagePageState extends State<AllImagePage> {
             child: Container(
               color: Colors.black.withAlpha(120),
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.end,
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   StreamBuilder<int>(
@@ -332,6 +332,7 @@ class _AllImagePageState extends State<AllImagePage> {
                                   child: Text(
                                     json["caption"],
                                     textDirection: TextDirection.rtl,
+
                                     style: theme.textTheme.bodyText2!.copyWith(
                                       color: Colors.white,
                                     ),
