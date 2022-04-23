@@ -215,7 +215,7 @@ class _DataUsagePageState extends State<DataUsagePage>
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Text("you dint access to app to get information"),
+          const Text("permission not granted"),
           TextButton(
             child: const Text("go to settings"),
             onPressed: () async {
