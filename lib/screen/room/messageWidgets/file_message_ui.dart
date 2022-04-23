@@ -141,6 +141,13 @@ class _FileMessageUiState extends State<FileMessageUi> {
         ? await _autoDownloadDao.isPhotoAutoDownloadEnable(category)
         : await _autoDownloadDao.isFileAutoDownloadEnable(category);
     if (isAutoDownloadEnable) {
+      if (!isImageFile(type)) {
+        final limitSize =
+            await _autoDownloadDao.getFileSizeLimitForAutoDownload(category);
+        if (file.size > limitSize) {
+          return;
+        }
+      }
       await downloadFile(file);
     }
   }
