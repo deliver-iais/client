@@ -21,7 +21,7 @@ class AutoDownload {
   AutoDownload({
     this.photoAutoDownload = false,
     this.fileAutoDownload = false,
-    this.fileAutoDownloadSize = 0,
+    this.fileAutoDownloadSize = 1,
     required this.roomCategory,
   });
 

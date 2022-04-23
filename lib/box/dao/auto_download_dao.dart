@@ -18,6 +18,15 @@ abstract class AutoDownloadDao {
 
   Future<void> disableFileAutoDownload(AutoDownloadRoomCategory category);
 
+  Future<void> setFileSizeLimitForAutoDownload(
+    AutoDownloadRoomCategory category,
+    int size,
+  );
+
+  Future<int> getFileSizeLimitForAutoDownload(
+    AutoDownloadRoomCategory category,
+  );
+
   AutoDownloadRoomCategory convertCategory(Categories categories);
 }
 
@@ -108,5 +117,29 @@ class AutoDownloadDaoImpl implements AutoDownloadDao {
         return AutoDownloadRoomCategory.IN_GROUP;
     }
     return AutoDownloadRoomCategory.IN_PRIVATE_CHATS;
+  }
+
+  @override
+  Future<void> setFileSizeLimitForAutoDownload(
+    AutoDownloadRoomCategory category,
+    int size,
+  ) async {
+    final box = await _open();
+    final auto = box.get(category.toString()) ??
+        AutoDownload(
+          roomCategory: category,
+        );
+    return box.put(
+      category.toString(),
+      auto.copyWith(fileAutoDownloadSize: size),
+    );
+  }
+
+  @override
+  Future<int> getFileSizeLimitForAutoDownload(
+    AutoDownloadRoomCategory category,
+  ) async {
+    final box = await _open();
+    return box.get(category.toString())?.fileAutoDownloadSize ?? 1;
   }
 }

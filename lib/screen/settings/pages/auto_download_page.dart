@@ -28,27 +28,29 @@ class _AutoDownloadPageState extends State<AutoDownloadPage> {
       ),
       body: FluidContainerWidget(
         showStandardContainer: true,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            buildAutoDownloadRow(
-              title: 'In Private Chats',
-              icon: CupertinoIcons.person_solid,
-              category: AutoDownloadRoomCategory.IN_PRIVATE_CHATS,
-            ),
-            const Divider(),
-            buildAutoDownloadRow(
-              title: 'In Groups',
-              icon: CupertinoIcons.person_2_fill,
-              category: AutoDownloadRoomCategory.IN_GROUP,
-            ),
-            const Divider(),
-            buildAutoDownloadRow(
-              title: 'In Channels',
-              icon: CupertinoIcons.news_solid,
-              category: AutoDownloadRoomCategory.IN_CHANNEL,
-            ),
-          ],
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              buildAutoDownloadRow(
+                title: 'In Private Chats',
+                icon: CupertinoIcons.person_solid,
+                category: AutoDownloadRoomCategory.IN_PRIVATE_CHATS,
+              ),
+              const Divider(),
+              buildAutoDownloadRow(
+                title: 'In Groups',
+                icon: CupertinoIcons.person_2_fill,
+                category: AutoDownloadRoomCategory.IN_GROUP,
+              ),
+              const Divider(),
+              buildAutoDownloadRow(
+                title: 'In Channels',
+                icon: CupertinoIcons.news_solid,
+                category: AutoDownloadRoomCategory.IN_CHANNEL,
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -118,6 +120,50 @@ class _AutoDownloadPageState extends State<AutoDownloadPage> {
             );
           },
         ),
+        FutureBuilder<int>(
+          future: _autoDownloadDao.getFileSizeLimitForAutoDownload(category),
+          builder: (context, snapshot) {
+            return Column(
+              children: [
+                ListTile(
+                  title: const Text('Limit by size'),
+                  trailing: Text("up to ${snapshot.data ?? "1"} MB"),
+                ),
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                  child: SliderTheme(
+                    data: SliderTheme.of(context).copyWith(
+                      activeTrackColor: Theme.of(context).colorScheme.primary,
+                      trackHeight: 5,
+                      thumbShape:
+                          const RoundSliderThumbShape(enabledThumbRadius: 12.0),
+                      inactiveTrackColor: Colors.grey,
+                    ),
+                    child: SizedBox(
+                      width: 400,
+                      child: Slider.adaptive(
+                        max: 500,
+                        min: 1,
+                        value: snapshot.data?.toDouble() == 0
+                            ? 1
+                            : snapshot.data?.toDouble() ?? 1,
+                        onChanged: (value) {
+                          setState(() {
+                            _autoDownloadDao.setFileSizeLimitForAutoDownload(
+                              category,
+                              value.toInt(),
+                            );
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        )
       ],
     );
   }
