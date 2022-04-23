@@ -1,3 +1,5 @@
+import 'package:deliver/box/auto_download.dart';
+import 'package:deliver/box/auto_download_room_category.dart';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/call_event.dart';
@@ -5,6 +7,7 @@ import 'package:deliver/box/call_info.dart';
 import 'package:deliver/box/call_status.dart';
 import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/contact.dart';
+import 'package:deliver/box/dao/auto_download_dao.dart';
 import 'package:deliver/box/dao/avatar_dao.dart';
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
@@ -137,7 +140,9 @@ Future<void> setupDI() async {
     ..registerAdapter(CallInfoAdapter())
     ..registerAdapter(CallEventAdapter())
     ..registerAdapter(CallStatusAdapter())
-    ..registerAdapter(CallTypeAdapter());
+    ..registerAdapter(CallTypeAdapter())
+    ..registerAdapter(AutoDownloadRoomCategoryAdapter())
+    ..registerAdapter(AutoDownloadAdapter());
 
   GetIt.I.registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
   GetIt.I.registerSingleton<AvatarDao>(AvatarDaoImpl());
@@ -158,6 +163,7 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<DBManager>(DBManager());
   GetIt.I.registerSingleton<LiveLocationDao>(LiveLocationDaoImpl());
   GetIt.I.registerSingleton<CallInfoDao>(CallInfoDaoImpl());
+  GetIt.I.registerSingleton<AutoDownloadDao>(AutoDownloadDaoImpl());
 
   GetIt.I.registerSingleton<I18N>(I18N());
 

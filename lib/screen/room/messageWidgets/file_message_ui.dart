@@ -1,14 +1,19 @@
 import 'dart:math';
 
+import 'package:deliver/box/dao/auto_download_dao.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/debug/commons_widgets.dart';
+import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/audio_and_document_file_ui.dart';
 import 'package:deliver/screen/room/messageWidgets/image_message/image_ui.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/video_message.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/theme/color_scheme.dart';
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class FileMessageUi extends StatefulWidget {
   final Message message;
@@ -35,6 +40,9 @@ class FileMessageUi extends StatefulWidget {
 }
 
 class _FileMessageUiState extends State<FileMessageUi> {
+  final _fileRepo = GetIt.I.get<FileRepo>();
+  final _autoDownloadDao = GetIt.I.get<AutoDownloadDao>();
+
   @override
   Widget build(BuildContext context) {
     final file = widget.message.json.toFile();
@@ -44,7 +52,8 @@ class _FileMessageUiState extends State<FileMessageUi> {
         getImageDimensions(file.width.toDouble(), file.height.toDouble());
 
     final width = dimensions.width;
-
+    WidgetsBinding.instance
+        ?.addPostFrameCallback((_) => mediaAutomaticDownload(file, type));
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
@@ -72,9 +81,7 @@ class _FileMessageUiState extends State<FileMessageUi> {
   }
 
   Widget _buildMainUi(String type) {
-    if (type.contains('image') ||
-        type.contains("png") ||
-        type.contains("jpg")) {
+    if (isImageFile(type)) {
       return ImageUi(
         message: widget.message,
         maxWidth: widget.maxWidth,
@@ -121,5 +128,39 @@ class _FileMessageUiState extends State<FileMessageUi> {
     }
 
     return Size(w, h);
+  }
+
+  Future<void> mediaAutomaticDownload(File file, String type) async {
+    final category = _autoDownloadDao.convertCategory(
+      widget.message.roomUid.asUid().category,
+    );
+    final isAutoDownloadEnable = isImageFile(type)
+        ? await _autoDownloadDao.isPhotoAutoDownloadEnable(category)
+        : await _autoDownloadDao.isFileAutoDownloadEnable(category);
+    if (isAutoDownloadEnable) {
+      await downloadFile(file);
+    }
+  }
+
+  Future<void> downloadFile(File file) async {
+    final isExist = await _fileRepo.isExist(
+      file.uuid,
+      file.name,
+    );
+    if (!isExist) {
+      await _fileRepo.getFile(
+        file.uuid,
+        file.name,
+      );
+      if (mounted) {
+        setState(() {});
+      }
+    }
+  }
+
+  bool isImageFile(String type) {
+    return type.contains('image') ||
+        type.contains("png") ||
+        type.contains("jpg");
   }
 }

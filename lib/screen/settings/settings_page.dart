@@ -261,12 +261,11 @@ class _SettingsPageState extends State<SettingsPage> {
               children: [
                 SettingsTile(
                   title: 'Automatic download',
-                  subtitle: 'On',
                   subtitleTextStyle: TextStyle(
                     color: theme.primaryColor,
                   ),
-                  leading: const Icon(CupertinoIcons.download_circle),
-                  onPressed: (c) {},
+                  leading: const Icon(CupertinoIcons.arrow_down_circle),
+                  onPressed: (context) => _routingService.openAutoDownload(),
                 ),
                 SettingsTile(
                   title: 'Data Usage',
