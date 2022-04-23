@@ -334,5 +334,11 @@
   "select_time": "Select time",
   "forget_password_send_link": "we send forget link to",
   "password_helper": "Minimum eight characters, at least one uppercase letter, one lowercase letter and one number",
-  "password_not_valid": "Password not valid"
+  "password_not_valid": "Password not valid",
+  "insert_phone_number": "Insert  phone number",
+  "send_email": "Send email",
+  "remind_me_later": "Remind me later",
+  "download_now": "Download now",
+  "update_we": "Update We"
+
 }

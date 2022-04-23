@@ -1,7 +1,9 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
+import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -34,7 +36,11 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
 
   final _autRepo = GetIt.I.get<AuthRepo>();
 
-  final _textController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
+
+  PhoneNumber? phoneNumber;
 
   String? _password;
 
@@ -66,7 +72,7 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
               } else if (res.status ==
                   AccessTokenRes_Status.PASSWORD_PROTECTED) {
                 _showPasswordHint.add(true);
-                _textController.clear();
+                _passwordController.clear();
                 ToastDisplay.showToast(
                   toastContext: context,
                   toastText: _i18n.get("password_not_correct"),
@@ -75,7 +81,7 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
             } on GrpcError catch (e) {
               if (e.code == StatusCode.permissionDenied) {
                 _showPasswordHint.add(true);
-                _textController.clear();
+                _passwordController.clear();
                 ToastDisplay.showToast(
                   toastContext: context,
                   toastText: _i18n.get("password_not_correct"),
@@ -145,7 +151,7 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
                       stream: _showPasswordHint.stream,
                       builder: (context, snapshot) {
                         return TextField(
-                          controller: _textController,
+                          controller: _passwordController,
                           obscureText: true,
                           autofocus: true,
                           onChanged: (s) {
@@ -175,12 +181,59 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
                           ),
                           recognizer: TapGestureRecognizer()
                             ..onTap = () async {
-                              await _autRepo.sendForgetPasswordEmail();
-                              ToastDisplay.showToast(
-                                toastContext: context,
-                                toastText:
-                                    "${_i18n.get("forget_password_send_link")} ${widget.accessTokenRes.forgotEmailHint}",
-                              );
+                              await showDialog(
+                                  context: context,
+                                  builder: (c) {
+                                    return AlertDialog(
+                                      actions: [
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.pop(c);
+                                          },
+                                          child: Text(_i18n.get("cancel")),
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () async {
+                                            await _sendEmail();
+                                          },
+                                          child: Text(_i18n.get("send_email")),
+                                        ),
+                                      ],
+                                      content: Column(
+                                        children: [
+                                          Text(
+                                            _i18n.get("insert_phone_number"),
+                                          ),
+                                          const SizedBox(height: 5),
+                                          Form(
+                                            key: _formKey,
+                                            child: IntlPhoneField(
+                                              controller:
+                                                  _phoneNumberController,
+                                              validator: (value) => value ==
+                                                      null
+                                                  ? _i18n.get(
+                                                      "insert_phone_number")
+                                                  : value.length != 10 ||
+                                                          (value.isNotEmpty &&
+                                                              value[0] == '0')
+                                                      ? _i18n.get(
+                                                          "invalid_mobile_number")
+                                                      : null,
+                                              onChanged: (p) {
+                                                phoneNumber = p;
+                                              },
+                                              onSubmitted: (p) {
+                                                phoneNumber = p;
+                                                _sendEmail();
+                                              },
+                                            ),
+                                          ),
+                                          const SizedBox(height: 15),
+                                        ],
+                                      ),
+                                    );
+                                  });
                             },
                         ),
                       ],
@@ -195,5 +248,23 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
         ),
       ),
     );
+  }
+
+  Future<void> _sendEmail() async {
+    if (_formKey.currentState!.validate()) {
+      try {
+        await _autRepo.sendForgetPasswordEmail(phoneNumber!);
+        ToastDisplay.showToast(
+          toastContext: context,
+          toastText:
+              "${_i18n.get("forget_password_send_link")} ${widget.accessTokenRes.forgotEmailHint}",
+        );
+      } catch (e) {
+        ToastDisplay.showToast(
+          toastContext: context,
+          toastText: _i18n.get("error_occurred"),
+        );
+      }
+    }
   }
 }
