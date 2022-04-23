@@ -128,17 +128,39 @@ class _DataUsagePageState extends State<DataUsagePage>
     return SingleChildScrollView(
       child: Column(
         children: [
-          buildInformationBox("Wifi Usage for this month", [
+          buildInformationBox("Wifi Usage for last 30 days", [
             {
               "Send": networkInfo?.wifiStatsTxTotalBytes ?? "0",
             },
             {"Receive": networkInfo?.wifiStatsRxTotalBytes ?? "0"}
           ]),
-          buildInformationBox("mobile Usage for this month", [
+          buildInformationBox("mobile Usage for last 30 days", [
             {
               "Send": networkInfo?.mobileStatsTxTotalBytes ?? "0",
             },
             {"Receive": networkInfo?.mobileStatsRxTotalBytes ?? "0"}
+          ]),
+          buildInformationBox("Time Usage for last 30 days", [
+            {
+              "First Time Stamp": DateTime.fromMillisecondsSinceEpoch(
+                int.parse(eventUsageInfo.firstTimeStamp!),
+              ).toString()
+            },
+            {
+              "Last Time Stamp": DateTime.fromMillisecondsSinceEpoch(
+                int.parse(eventUsageInfo.lastTimeStamp!),
+              ).toString()
+            },
+            {
+              "Last Time Used": DateTime.fromMillisecondsSinceEpoch(
+                int.parse(eventUsageInfo.lastTimeUsed!),
+              ).toString()
+            },
+            {
+              "Total Time In Foreground":
+                  (int.parse(eventUsageInfo.totalTimeInForeground!) / 1000 / 60)
+                      .toString()
+            }
           ]),
         ],
       ),
