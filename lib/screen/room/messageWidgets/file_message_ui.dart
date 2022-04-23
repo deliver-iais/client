@@ -23,6 +23,7 @@ class FileMessageUi extends StatefulWidget {
   final void Function(String) onUsernameClick;
   final bool isSeen;
   final CustomColorScheme colorScheme;
+  final void Function() onEdit;
 
   const FileMessageUi({
     Key? key,
@@ -33,6 +34,7 @@ class FileMessageUi extends StatefulWidget {
     required this.onUsernameClick,
     required this.colorScheme,
     required this.isSeen,
+    required this.onEdit,
   }) : super(key: key);
 
   @override
@@ -89,6 +91,7 @@ class _FileMessageUiState extends State<FileMessageUi> {
         isSender: widget.isSender,
         isSeen: widget.isSeen,
         colorScheme: widget.colorScheme,
+        onEdit: widget.onEdit,
       );
     } else if (type.contains('video')) {
       return VideoMessage(

@@ -19,6 +19,7 @@ class SentMessageBox extends StatelessWidget {
   final String? pattern;
   final void Function() onArrowIconClick;
   final void Function(TapDownDetails) storePosition;
+  final void Function() onEdit;
 
   const SentMessageBox({
     Key? key,
@@ -30,6 +31,7 @@ class SentMessageBox extends StatelessWidget {
     required this.onUsernameClick,
     required this.storePosition,
     required this.onArrowIconClick,
+    required this.onEdit,
   }) : super(key: key);
 
   @override
@@ -58,6 +60,7 @@ class SentMessageBox extends StatelessWidget {
       onArrowIconClick: onArrowIconClick,
       colorScheme: colorScheme,
       storePosition: storePosition,
+      onEdit: onEdit,
     );
 
     return doNotNeedsWrapper()
