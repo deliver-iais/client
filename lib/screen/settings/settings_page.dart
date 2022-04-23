@@ -257,10 +257,10 @@ class _SettingsPageState extends State<SettingsPage> {
               ],
             ),
             Section(
-              title: 'Data Usage',
+              title: _i18n.get("automatic_download"),
               children: [
                 SettingsTile(
-                  title: 'Automatic download',
+                  title:_i18n.get("automatic_download"),
                   subtitleTextStyle: TextStyle(
                     color: theme.primaryColor,
                   ),
@@ -268,7 +268,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   onPressed: (context) => _routingService.openAutoDownload(),
                 ),
                 SettingsTile(
-                  title: 'Data Usage',
+                  title: _i18n.get("data_usage"),
                   leading: const Icon(Icons.data_usage_rounded),
                   onPressed: (context) => _routingService.openDataUsage(),
                 ),

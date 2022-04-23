@@ -42,7 +42,7 @@ class _DataUsagePageState extends State<DataUsagePage>
     final startDate = endDate.subtract(const Duration(days: 1));
     return Scaffold(
       appBar: AppBar(
-        title: Text(_i18n.get("devices")),
+        title: Text(_i18n.get("data_usage")),
       ),
       body: !_permissionGranted
           ? generatePermissionWidget()

@@ -1,5 +1,6 @@
 import 'package:deliver/box/auto_download_room_category.dart';
 import 'package:deliver/box/dao/auto_download_dao.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:expandable/expandable.dart';
@@ -16,6 +17,7 @@ class AutoDownloadPage extends StatefulWidget {
 
 class _AutoDownloadPageState extends State<AutoDownloadPage> {
   final _autoDownloadDao = GetIt.I.get<AutoDownloadDao>();
+  final _i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +25,7 @@ class _AutoDownloadPageState extends State<AutoDownloadPage> {
       appBar: UltimateAppBar(
         child: AppBar(
           titleSpacing: 8,
-          title: const Text('Auto Download'),
+          title: Text(_i18n.get("automatic_download")),
         ),
       ),
       body: FluidContainerWidget(
@@ -33,19 +35,19 @@ class _AutoDownloadPageState extends State<AutoDownloadPage> {
             mainAxisSize: MainAxisSize.min,
             children: [
               buildAutoDownloadRow(
-                title: 'In Private Chats',
+                title: _i18n.get("in_private_chat"),
                 icon: CupertinoIcons.person_solid,
                 category: AutoDownloadRoomCategory.IN_PRIVATE_CHATS,
               ),
               const Divider(),
               buildAutoDownloadRow(
-                title: 'In Groups',
+                title: _i18n.get("in_group_chat"),
                 icon: CupertinoIcons.person_2_fill,
                 category: AutoDownloadRoomCategory.IN_GROUP,
               ),
               const Divider(),
               buildAutoDownloadRow(
-                title: 'In Channels',
+                title: _i18n.get("in_channel_chat"),
                 icon: CupertinoIcons.news_solid,
                 category: AutoDownloadRoomCategory.IN_CHANNEL,
               ),
@@ -82,7 +84,7 @@ class _AutoDownloadPageState extends State<AutoDownloadPage> {
           future: _autoDownloadDao.isPhotoAutoDownloadEnable(category),
           builder: (context, snapshot) {
             return ListTile(
-              title: const Text('Photos'),
+              title: Text(_i18n.get("photos")),
               trailing: Switch(
                 activeColor: Theme.of(context).colorScheme.primary,
                 value: snapshot.data ?? false,
@@ -103,7 +105,7 @@ class _AutoDownloadPageState extends State<AutoDownloadPage> {
           future: _autoDownloadDao.isFileAutoDownloadEnable(category),
           builder: (context, snapshot) {
             return ListTile(
-              title: const Text('Files'),
+              title: Text(_i18n.get("files")),
               trailing: Switch(
                 value: snapshot.data ?? false,
                 activeColor: Theme.of(context).colorScheme.primary,
@@ -126,8 +128,9 @@ class _AutoDownloadPageState extends State<AutoDownloadPage> {
             return Column(
               children: [
                 ListTile(
-                  title: const Text('Limit by size'),
-                  trailing: Text("up to ${snapshot.data ?? "1"} MB"),
+                  title: Text(_i18n.get("limit_size")),
+                  trailing:
+                      Text("${_i18n.get("up_to")} ${snapshot.data ?? "1"} MB"),
                 ),
                 Padding(
                   padding:

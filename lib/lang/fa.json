@@ -329,5 +329,14 @@
   "password_changed": "رمز تغییر کرد.",
   "notwork_is_unavailable": "شبکه در دسترس نمی باشد.",
   "message_not_supported": "این پیام در این نسخه قابلیت نمایش ندارد، لطفا نسخه اپلیکیشن خود را به روزرسانی نمایید.",
-  "username_not_valid": "شناسه کاربری معتبر نیست."
+  "username_not_valid": "شناسه کاربری معتبر نیست.",
+  "automatic_download": "دانلود اوتوماتیک",
+  "data_usage": "مصرف داده",
+  "photos": "عکس ها",
+  "files": "فایل ها",
+  "limit_size": "محدود شده به سایز",
+  "up_to": "تا",
+  "in_private_chat": "در چت های خصوصی",
+  "in_group_chat": "در گروه ها",
+  "in_channel_chat": "در کانال ها"
 }
