@@ -65,6 +65,8 @@ class _FormattedTextFieldWidgetState extends State<FormattedTextFieldWidget> {
                     padding: const EdgeInsets.only(left: 2, right: 2),
                     child: TextField(
                       onChanged: (t) => _changeResult(),
+                      maxLength: widget
+                          .formField.formattedTextField.partitionsSizes[i],
                       controller: _textControllerList[i],
                       inputFormatters: [
                         LengthLimitingTextInputFormatter(
