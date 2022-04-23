@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
@@ -27,6 +28,7 @@ class ImageUi extends StatefulWidget {
   final bool isSender;
   final bool isSeen;
   final CustomColorScheme colorScheme;
+  final void Function() onEdit;
 
   late final file_pb.File image = message.json.toFile();
 
@@ -38,6 +40,7 @@ class ImageUi extends StatefulWidget {
     required this.isSender,
     required this.colorScheme,
     required this.isSeen,
+    required this.onEdit,
   }) : super(key: key);
 
   @override
@@ -50,6 +53,7 @@ class _ImageUiState extends State<ImageUi> {
   static final _fileRepo = GetIt.I.get<FileRepo>();
   static final _fileServices = GetIt.I.get<FileService>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _mediaDao = GetIt.I.get<MediaDao>();
 
   @override
   void initState() {
@@ -95,11 +99,34 @@ class _ImageUiState extends State<ImageUi> {
                             context,
                             CupertinoPageRoute(
                               builder: (context) {
-                                return AllImagePage(
-                                  const Key("/all_image_page"),
-                                  roomUid: widget.message.roomUid,
-                                  filePath: s.data,
-                                  messageId: widget.message.id!,
+                                return FutureBuilder<int?>(
+                                  future: _mediaDao.getIndexOfMedia(
+                                    widget.message.roomUid,
+                                    widget.message.id!,
+                                  ),
+                                  builder: (context, snapshot) {
+                                    final hasIndex = snapshot.hasData &&
+                                        snapshot.data != null &&
+                                        snapshot.data != -1;
+                                    final isSingleImage =
+                                        snapshot.connectionState ==
+                                                ConnectionState.done &&
+                                            snapshot.data == -1;
+                                    if (hasIndex || isSingleImage) {
+                                      return AllImagePage(
+                                        const Key("/all_image_page"),
+                                        roomUid: widget.message.roomUid,
+                                        filePath: s.data,
+                                        initIndex:
+                                            hasIndex ? snapshot.data : null,
+                                        isSingleImage: isSingleImage,
+                                        messageId: widget.message.id!,
+                                        onEdit: widget.onEdit,
+                                      );
+                                    } else {
+                                      return const SizedBox.shrink();
+                                    }
+                                  },
                                 );
                               },
                             ),

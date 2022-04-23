@@ -18,6 +18,7 @@ class ReceivedMessageBox extends StatelessWidget {
   final CustomColorScheme colorScheme;
   final void Function(TapDownDetails) storePosition;
   final bool isFirstMessageInGroupedMessages;
+  final void Function() onEdit;
 
   const ReceivedMessageBox({
     Key? key,
@@ -30,6 +31,7 @@ class ReceivedMessageBox extends StatelessWidget {
     required this.storePosition,
     required this.isFirstMessageInGroupedMessages,
     this.pattern,
+    required this.onEdit,
   }) : super(key: key);
 
   @override
@@ -48,6 +50,7 @@ class ReceivedMessageBox extends StatelessWidget {
       onArrowIconClick: onArrowIconClick,
       colorScheme: colorScheme,
       storePosition: storePosition,
+      onEdit: onEdit,
     );
 
     return doNotNeedsWrapper()
