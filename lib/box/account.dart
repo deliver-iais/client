@@ -29,6 +29,9 @@ class Account {
   @HiveField(7)
   String? description;
 
+  @HiveField(8)
+  bool? emailVerified;
+
   Account({
     this.countryCode,
     this.nationalNumber,
@@ -38,24 +41,29 @@ class Account {
     this.passwordProtected,
     this.email,
     this.description,
+    this.emailVerified,
   });
 
-  Account copyWith(
-          {String? countryCode,
-          String? nationalNumber,
-          String? username,
-          String? firstname,
-          String? lastname,
-          bool? passwordProtected,
-          String? email,
-          String? description,}) =>
+  Account copyWith({
+    String? countryCode,
+    String? nationalNumber,
+    String? username,
+    String? firstname,
+    String? lastname,
+    bool? passwordProtected,
+    bool? emailVerified,
+    String? email,
+    String? description,
+  }) =>
       Account(
-          countryCode: countryCode ?? this.countryCode,
-          nationalNumber: nationalNumber ?? this.nationalNumber,
-          username: username ?? this.username,
-          firstname: firstname ?? this.firstname,
-          lastname: lastname ?? this.lastname,
-          email: email ?? this.email,
-          passwordProtected: passwordProtected ?? this.passwordProtected,
-          description: description ?? this.description,);
+        countryCode: countryCode ?? this.countryCode,
+        nationalNumber: nationalNumber ?? this.nationalNumber,
+        username: username ?? this.username,
+        firstname: firstname ?? this.firstname,
+        lastname: lastname ?? this.lastname,
+        email: email ?? this.email,
+        emailVerified: emailVerified ?? this.emailVerified,
+        passwordProtected: passwordProtected ?? this.passwordProtected,
+        description: description ?? this.description,
+      );
 }

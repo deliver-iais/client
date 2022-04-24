@@ -3,7 +3,6 @@ import 'package:deliver/screen/room/messageWidgets/botMessageWidget/date_and_tim
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 
 class FormattedTextFieldWidget extends StatefulWidget {
@@ -15,7 +14,8 @@ class FormattedTextFieldWidget extends StatefulWidget {
   const FormattedTextFieldWidget({
     Key? key,
     required this.formField,
-    required this.setResult,
+    required this.
+    setResult,
     required this.setFormKey,
   }) : super(key: key);
 
