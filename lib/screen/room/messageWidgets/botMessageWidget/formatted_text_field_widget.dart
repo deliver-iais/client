@@ -69,12 +69,6 @@ class _FormattedTextFieldWidgetState extends State<FormattedTextFieldWidget> {
                       maxLength: widget
                           .formField.formattedTextField.partitionsSizes[i],
                       controller: _textControllerList[i],
-                      inputFormatters: [
-                        LengthLimitingTextInputFormatter(
-                          widget
-                              .formField.formattedTextField.partitionsSizes[i],
-                        )
-                      ],
                     ),
                   ),
                 ),
