@@ -1,4 +1,5 @@
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/screen/room/widgets/input_message.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -24,6 +25,8 @@ class FormSimpleInputFieldWidget extends StatefulWidget {
 class _FormSimpleInputFieldWidgetState
     extends State<FormSimpleInputFieldWidget> {
   final _i18n = GetIt.I.get<I18N>();
+  final ValueNotifier<TextDirection> _textDir =
+      ValueNotifier(TextDirection.ltr);
 
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _textEditingController = TextEditingController();
@@ -48,23 +51,35 @@ class _FormSimpleInputFieldWidgetState
     );
   }
 
-  TextFormField buildSimpleInputFormField(
+  Widget buildSimpleInputFormField(
     TextInputType keyboardType, {
     int? maxLength,
   }) {
-    return TextFormField(
-      minLines: 1,
-      maxLength: maxLength != null && maxLength > 0 ? maxLength : null,
-      inputFormatters: [
-        if (keyboardType == TextInputType.number)
-          FilteringTextInputFormatter.digitsOnly
-      ],
-      validator: validateFormTextField,
-      controller: _textEditingController,
-      onChanged: (str) {
-        widget.setResult(str);
+    return ValueListenableBuilder<TextDirection>(
+      valueListenable: _textDir,
+      builder: (context, value, child) {
+        return TextFormField(
+          minLines: 1,
+          maxLength: maxLength != null && maxLength > 0 ? maxLength : null,
+          inputFormatters: [
+            if (keyboardType == TextInputType.number)
+              FilteringTextInputFormatter.digitsOnly
+          ],
+          validator: validateFormTextField,
+          controller: _textEditingController,
+          textDirection: value,
+          onChanged: (str) {
+            if (str.isNotEmpty) {
+              final dir = getDirection(str);
+              if (dir != value) {
+                _textDir.value = dir;
+              }
+            }
+            widget.setResult(str);
+          },
+          decoration: buildInputDecoration(),
+        );
       },
-      decoration: buildInputDecoration(),
     );
   }
 

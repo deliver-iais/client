@@ -323,27 +323,5 @@ class _BotFormMessageState extends State<BotFormMessage> {
 
   void _setResult(proto_pb.Form_Field field, value) {
     _formResult.values[field.id] = value;
-
-    if (field.whichType() == proto_pb.Form_Field_Type.dateField) {
-      final dateTime = DateTime.fromMillisecondsSinceEpoch(int.parse(value));
-      if (field.dateField.isHijriShamsi) {
-        final jalali = Jalali.fromDateTime(dateTime);
-        _formResult.previewOverride[field.id] = jalali.formatFullDate();
-      } else {
-        _formResult.previewOverride[field.id] = dateTimeFormat(dateTime);
-      }
-    } else if (field.whichType() == proto_pb.Form_Field_Type.timeField) {
-      final dateTime = DateTime.fromMillisecondsSinceEpoch(int.parse(value));
-      _formResult.previewOverride[field.id] =
-          "${dateTime.hour}:${dateTime.minute}";
-    } else if (field.whichType() == proto_pb.Form_Field_Type.dateAndTimeField) {
-      final dateTime = DateTime.fromMillisecondsSinceEpoch(int.parse(value));
-      if (field.dateAndTimeField.isHijriShamsi) {
-        final jalali = Jalali.fromDateTime(dateTime);
-        _formResult.previewOverride[field.id] = jalali.formatFullDate();
-      } else {
-        _formResult.previewOverride[field.id] = dateTimeFormat(dateTime);
-      }
-    }
   }
 }

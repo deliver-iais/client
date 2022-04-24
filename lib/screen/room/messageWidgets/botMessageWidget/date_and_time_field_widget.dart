@@ -5,6 +5,7 @@ import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:intl/intl.dart';
 import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 
 class DateAndTimeFieldWidget extends StatefulWidget {
@@ -195,7 +196,8 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
             _selectedTime!.minute,
           );
         }
-        widget.setResult(_selectedDate!.millisecondsSinceEpoch.toString());
+        widget
+            .setResult(Jalali.fromDateTime(_selectedDate!).formatCompactDate());
         _selectedDateJalali = picked;
         _dateEditingController
           ..text = picked.formatFullDate()
@@ -227,7 +229,8 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
             _selectedTime!.minute,
           );
         }
-        widget.setResult(newSelectedDate.millisecondsSinceEpoch.toString());
+        widget.setResult(getDateFormatter(newSelectedDate));
+
         _selectedDate = newSelectedDate;
         _dateEditingController
           ..text = dateTimeFormat(_selectedDate!)
@@ -310,20 +313,30 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
       initialTime: TimeOfDay.fromDateTime(DateTime.now()),
     );
     if (timeOfDay != null) {
-      _selectedTime = timeOfDay;
-      var currentTime = DateTime.now();
-      if (_selectedDate != null) {
-        currentTime = _selectedDate!;
+      if (widget.formField.whichType() == form_pb.Form_Field_Type.timeField) {
+        widget.setResult("${timeOfDay.hour}:${timeOfDay.minute}");
+      } else if (widget.formField.whichType() ==
+          form_pb.Form_Field_Type.dateAndTimeField) {
+        _selectedTime = timeOfDay;
+        var currentTime = DateTime.now();
+        if (_selectedDate != null) {
+          if (widget.formField.dateAndTimeField.isHijriShamsi) {
+            widget.setResult(
+                "${Jalali.fromDateTime(_selectedDate!).formatCompactDate()} ${_selectedTime!.hour}:${_selectedTime!.minute}",);
+          } else {
+            currentTime = _selectedDate!;
+            widget.setResult(getDateFormatter(
+              DateTime(
+                currentTime.year,
+                currentTime.month,
+                currentTime.day,
+                timeOfDay.hour,
+                timeOfDay.minute,
+              ),
+            ),);
+          }
+        }
       }
-      widget.setResult(
-        DateTime(
-          currentTime.year,
-          currentTime.month,
-          currentTime.day,
-          timeOfDay.hour,
-          timeOfDay.minute,
-        ).millisecondsSinceEpoch.toString(),
-      );
 
       _timeEditingController
         ..text = "${timeOfDay.hour}:${timeOfDay.minute}"
@@ -334,6 +347,11 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
           ),
         );
     }
+  }
+
+  String getDateFormatter(DateTime dateTime) {
+    final outputFormat = DateFormat('yyyy/MM/dd hh:mm ');
+    return outputFormat.format(dateTime);
   }
 }
 
