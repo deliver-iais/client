@@ -239,7 +239,7 @@ class AuthRepo {
   Future<void> sendForgetPasswordEmail(PhoneNumber phoneNumber) async {
     await _authServiceClient.sendErasePasswordEmail(SendErasePasswordEmailReq()
       ..platform = await getPlatformPB()
-      ..phoneNumber = phoneNumber);
+      ..phoneNumber = phoneNumber,);
   }
 }
 

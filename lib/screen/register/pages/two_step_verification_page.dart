@@ -213,12 +213,12 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
                                               validator: (value) => value ==
                                                       null
                                                   ? _i18n.get(
-                                                      "insert_phone_number")
+                                                      "insert_phone_number",)
                                                   : value.length != 10 ||
                                                           (value.isNotEmpty &&
                                                               value[0] == '0')
                                                       ? _i18n.get(
-                                                          "invalid_mobile_number")
+                                                          "invalid_mobile_number",)
                                                       : null,
                                               onChanged: (p) {
                                                 phoneNumber = p;
@@ -233,7 +233,7 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
                                         ],
                                       ),
                                     );
-                                  });
+                                  },);
                             },
                         ),
                       ],
