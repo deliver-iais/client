@@ -250,7 +250,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       Text(
                         "${_i18n.get(
                           "version",
-                        )} 1.8.5 - Size ${snapshot.data!.size}",
+                        )} ${snapshot.data!.version} - Size ${snapshot.data!.size}",
                       ),
                       const SizedBox(
                         height: 10,
