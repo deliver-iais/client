@@ -200,6 +200,7 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
                                         ),
                                       ],
                                       content: Column(
+                                        mainAxisSize: MainAxisSize.min,
                                         children: [
                                           Text(
                                             _i18n.get("insert_phone_number"),

@@ -302,7 +302,7 @@
   "you_create_group": "Create Group",
   "you_already_in_call": "you are already in a call with another user",
   "two_step_verification": "Two step verification",
-  "need_to_set_email": "you not set  email, to active two-step-verification go to  account setting and   set email",
+  "need_to_set_email": "your email not set,to active two-step-verification go to account setting and set email",
   "go_setting": "go setting",
   "two_step_verification_des": "This password will be asked when you login on a  new  device in addition to SMS code",
   "email_for_two_step": "when you forget the password we send password to this email",
@@ -339,6 +339,6 @@
   "send_email": "Send email",
   "remind_me_later": "Remind me later",
   "download_now": "Download now",
-  "update_we": "Update We"
-
+  "update_we": "Update We",
+  "your_password_update": "Your password updated"
 }

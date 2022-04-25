@@ -6,6 +6,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 
 import 'package:deliver/screen/home/pages/home_page.dart';
+import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/register/pages/two_step_verification_page.dart';
 import 'package:deliver/screen/register/pages/verification_page.dart';
 import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
@@ -18,6 +19,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
+import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 
@@ -92,15 +94,20 @@ class _LoginPageState extends State<LoginPage> {
         await _fireBaseServices.sendFireBaseToken();
         _navigationToHome();
       } else if (res.status == AccessTokenRes_Status.PASSWORD_PROTECTED) {
-        MaterialPageRoute(
-          builder: (c) {
-            return TwoStepVerificationPage(
-              token: loginToken.value,
-              accessTokenRes: res,
-              navigationToHomePage: _navigationToHome,
-            );
-          },
-        );
+        if (!mounted) return;
+        if (checkTimer != null) checkTimer!.cancel();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (c) {
+              return TwoStepVerificationPage(
+                token: loginToken.value,
+                accessTokenRes: res,
+                navigationToHomePage: _navigationToHome,
+              );
+            },
+          ),
+        ).ignore();
       }
     } catch (e) {
       _logger.e(e);
@@ -109,7 +116,9 @@ class _LoginPageState extends State<LoginPage> {
 
   void _navigationToHome() {
     _contactRepo.getContacts();
-    _accountRepo..hasProfile(retry: true)..fetchCurrentUserId(retry: true);
+    _accountRepo
+      ..hasProfile(retry: true)
+      ..fetchCurrentUserId(retry: true);
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(

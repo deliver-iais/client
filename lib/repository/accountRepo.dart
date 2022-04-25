@@ -108,7 +108,15 @@ class AccountRepo {
   Future<bool> updateEmail(String email) async {
     final res = await _profileServiceClient
         .updateEmail(UpdateEmailReq()..email = email);
-    return res.profile.isEmailVerified;
+    if (res.profile.isEmailVerified) {
+      _accountDao
+          .updateAccount(
+            email: res.profile.email,
+          )
+          .ignore();
+      return true;
+    }
+    return false;
   }
 
   Future<bool> setAccountDetails({
@@ -148,7 +156,7 @@ class AccountRepo {
     final updatePasswordReq = UpdatePasswordReq()
       ..newPassword = newPassword
       ..passwordHint = passwordHint ?? "";
-    if (currentPassword != null) {
+    if (currentPassword != null && currentPassword.isNotEmpty) {
       updatePasswordReq.currentPassword = currentPassword;
     }
     try {

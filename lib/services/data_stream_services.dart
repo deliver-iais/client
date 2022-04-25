@@ -210,6 +210,13 @@ class DataStreamServices {
       );
     }
 
+    if (isOnlineMessage) {
+      _roomRepo.updateActivity(Activity()
+        ..from = message.from
+        ..to = message.to
+        ..typeOfActivity = ActivityType.NO_ACTIVITY);
+    }
+
     if (isOnlineMessage && message.from.category == Categories.USER) {
       _updateLastActivityTime(
         _lastActivityDao,

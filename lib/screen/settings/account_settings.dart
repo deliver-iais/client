@@ -12,6 +12,7 @@ import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
@@ -377,15 +378,16 @@ class _AccountSettingsState extends State<AccountSettings> {
                                   const SizedBox(
                                     height: 20,
                                   ),
-                                  TextFormField(
-                                    minLines: 1,
-                                    controller: _emailTextController,
-                                    textInputAction: TextInputAction.send,
-                                    validator: validateEmail,
-                                    decoration: InputDecoration(
-                                      labelText: _i18n.get("email"),
+                                  if (TWO_STEP_VERIFICATION_IS_AVAILABLE)
+                                    TextFormField(
+                                      minLines: 1,
+                                      controller: _emailTextController,
+                                      textInputAction: TextInputAction.send,
+                                      validator: validateEmail,
+                                      decoration: InputDecoration(
+                                        labelText: _i18n.get("email"),
+                                      ),
                                     ),
-                                  ),
                                 ],
                               ),
                             ),
@@ -477,7 +479,8 @@ class _AccountSettingsState extends State<AccountSettings> {
             firstname: _firstnameTextController.text,
             lastname: _lastnameTextController.text,
           );
-          if (_emailTextController.text != _account.email) {
+          if (_emailTextController.text.isNotEmpty &&
+              _emailTextController.text != _account.email) {
             try {
               final res =
                   await _accountRepo.updateEmail(_emailTextController.text);

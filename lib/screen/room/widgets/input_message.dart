@@ -847,8 +847,6 @@ class _InputMessageWidget extends State<InputMessage> {
         widget.textController.text.contains("@") &&
         isMentionSelected) {
       isMentionSelected = false;
-    } else {
-      noActivitySubject.add(ActivityType.NO_ACTIVITY);
     }
     if (widget.waitingForForward == true) {
       widget.sendForwardMessage?.call();
