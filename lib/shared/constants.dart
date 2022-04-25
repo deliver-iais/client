@@ -5,15 +5,14 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
 const APPLICATION_NAME = "We";
-const app_name2 = "We";
-const APPLICATION_DOMAIN = "deliver-co.ir";
-// const APPLICATION_DOMAIN = "wemessenger.ir";
+// const APPLICATION_DOMAIN = "deliver-co.ir";
+const APPLICATION_DOMAIN = "wemessenger.ir";
 const SPDA = "spda";
 const TEXT = "text";
 const JOIN = "join";
 const LOGIN = "login";
 // if change the VERSION , is necessary to change version in pubspec.yaml file
-const VERSION = "1.8.4";
+const VERSION = "1.8.5";
 const LOG_OUT = "log_out";
 const int MEDIA_PAGE_SIZE = 30;
 const double DOWNLOAD_COMPLETE = 200;
