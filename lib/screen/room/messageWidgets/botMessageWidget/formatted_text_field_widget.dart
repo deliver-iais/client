@@ -3,6 +3,7 @@ import 'package:deliver/screen/room/messageWidgets/botMessageWidget/date_and_tim
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 
 class FormattedTextFieldWidget extends StatefulWidget {
@@ -14,8 +15,7 @@ class FormattedTextFieldWidget extends StatefulWidget {
   const FormattedTextFieldWidget({
     Key? key,
     required this.formField,
-    required this.
-    setResult,
+    required this.setResult,
     required this.setFormKey,
   }) : super(key: key);
 
@@ -48,6 +48,9 @@ class _FormattedTextFieldWidgetState extends State<FormattedTextFieldWidget> {
         child: FormValidator(
           label: widget.formField.id,
           validator: (s) {
+            if (widget.formField.formattedTextField.partitionsSizes.isEmpty) {
+              return null;
+            }
             if (!widget.formField.isOptional && (result.isEmpty)) {
               return _i18n.get(
                 "this_filed_not_empty",
@@ -84,10 +87,10 @@ class _FormattedTextFieldWidgetState extends State<FormattedTextFieldWidget> {
     for (final element in _textControllerList) {
       result = result + element.text;
     }
-    if(result.isPersian()){
+    if (result.isPersian()) {
       result = "";
       for (final element in _textControllerList) {
-        result = element.text+result;
+        result = element.text + result;
       }
     }
     widget.setResult(result);
