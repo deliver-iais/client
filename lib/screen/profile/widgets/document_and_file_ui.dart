@@ -89,7 +89,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                             ListTile(
                               title: GestureDetector(
                                 onTap: () {
-                                  OpenFile.open(filePath.data);
+                                  OpenFile.open(filePath.data??"");
                                 },
                                 child: Row(
                                   children: <Widget>[
@@ -118,7 +118,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                           ),
                                           onPressed: () {
                                             OpenFile.open(
-                                              filePath.data,
+                                              filePath.data??"",
                                             );
                                           },
                                         ),

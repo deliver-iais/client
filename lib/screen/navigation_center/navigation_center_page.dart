@@ -24,6 +24,9 @@ import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
 
+BehaviorSubject<String> modifyRoutingByNotificationTapInBackgroundInAndroid =
+    BehaviorSubject.seeded("");
+
 class NavigationCenter extends StatefulWidget {
   const NavigationCenter({Key? key}) : super(key: key);
 
@@ -48,6 +51,11 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   @override
   void initState() {
+    modifyRoutingByNotificationTapInBackgroundInAndroid.listen((event) {
+      if (event.isNotEmpty) {
+        _routingService.openRoom(event);
+      }
+    });
     _queryTermDebouncedSubject.stream
         .debounceTime(const Duration(milliseconds: 250))
         .listen((text) => _searchMode.add(text));
@@ -194,13 +202,13 @@ class _NavigationCenterState extends State<NavigationCenter> {
   }
 
   bool onWindowSizeChange(SizeChangedLayoutNotification notification) {
-    if(isDesktop && !isWeb) {
+    if (isDesktop && !isWeb) {
       getWindowInfo().then((size) {
-      _sharedDao.put(
-        SHARED_DAO_WINDOWS_SIZE,
-        '${size.frame.left}-${size.frame.top}-${size.frame.right}-${size.frame.bottom}',
-      );
-    });
+        _sharedDao.put(
+          SHARED_DAO_WINDOWS_SIZE,
+          '${size.frame.left}-${size.frame.top}-${size.frame.right}-${size.frame.bottom}',
+        );
+      });
     }
     return true;
   }

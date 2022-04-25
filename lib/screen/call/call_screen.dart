@@ -51,6 +51,8 @@ class _CallScreenState extends State<CallScreen> {
 
   final List<StreamSubscription<dynamic>> _streamSubscriptions =
       <StreamSubscription<dynamic>>[];
+  final List<StreamSubscription<AccelerometerEvent>?> _accelerometerEvents =
+      <StreamSubscription<AccelerometerEvent>>[];
 
   @override
   void initState() {
@@ -70,14 +72,36 @@ class _CallScreenState extends State<CallScreen> {
   void dispose() {
     super.dispose();
     if (isAndroid) {
-      for (final subscription in _streamSubscriptions) {
-        subscription.cancel();
+      for (final subscription in _accelerometerEvents) {
+        subscription?.cancel();
       }
+      closeProximitySensor();
+    }
+  }
+
+  void closeProximitySensor() {
+    for (final subscription in _streamSubscriptions) {
+      subscription.cancel();
     }
   }
 
   Future<void> _listenSensor() async {
-    _streamSubscriptions.add(proximityEvents!.listen((event) {}));
+    _accelerometerEvents.add(
+      accelerometerEvents?.listen((event) {
+        if (event.z < 5 && event.y > 1) {
+          _logger.i('Proximity sensor detected');
+          if (_streamSubscriptions.isEmpty) {
+            if (_streamSubscriptions.isEmpty) {
+              _streamSubscriptions.add(proximityEvents!.listen((event) {}));
+            }
+          }
+        } else {
+          _logger.i('Proximity sensor not detected');
+          closeProximitySensor();
+          _streamSubscriptions.clear();
+        }
+      }),
+    );
   }
 
   Future<void> startCall() async {
@@ -255,7 +279,8 @@ class _CallScreenState extends State<CallScreen> {
 
             Timer(const Duration(milliseconds: 1500), () async {
               if (_routingService.canPop() && !isDesktop) {
-                _routingService.openRoom(widget.roomUid.asString(),popAllBeforePush: true);
+                _routingService.openRoom(widget.roomUid.asString(),
+                    popAllBeforePush: true);
               }
             });
             callRepo.disposeRenderer();
