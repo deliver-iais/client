@@ -392,46 +392,53 @@ class MyApp extends StatelessWidget {
       builder: (ctx, snapshot) {
         return ExtraTheme(
           extraThemeData: _uxService.extraTheme,
-          child: Focus(
-            focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
-            onKey: (_, event) {
-              _rawKeyboardService
-                ..escapeHandling(event)
-                ..searchHandling(event);
-              return event.physicalKey == PhysicalKeyboardKey.shiftRight
-                  ? KeyEventResult.handled
-                  : KeyEventResult.ignored;
-            },
-            child: WithForegroundTask(
-              child: MaterialApp(
-                debugShowCheckedModeBanner: false,
-                title: APPLICATION_NAME,
-                locale: _i18n.locale,
-                theme: _uxService.theme,
-                navigatorKey: _routingService.mainNavigatorState,
-                supportedLocales: const [
-                  Locale('en', 'US'),
-                  Locale('fa', 'IR')
-                ],
-                localizationsDelegates: [
-                  I18N.delegate,
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate
-                ],
-                home: const SplashScreen(),
-                localeResolutionCallback: (deviceLocale, supportedLocale) {
-                  for (final locale in supportedLocale) {
-                    if (locale.languageCode == deviceLocale!.languageCode &&
-                        locale.countryCode == deviceLocale.countryCode) {
-                      return deviceLocale;
+          child: AnnotatedRegion<SystemUiOverlayStyle>(
+            value: SystemUiOverlayStyle(
+              systemNavigationBarColor: _uxService.theme.colorScheme.background,
+              systemNavigationBarIconBrightness:
+                  _uxService.themeIsDark ? Brightness.light : Brightness.dark,
+            ),
+            child: Focus(
+              focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
+              onKey: (_, event) {
+                _rawKeyboardService
+                  ..escapeHandling(event)
+                  ..searchHandling(event);
+                return event.physicalKey == PhysicalKeyboardKey.shiftRight
+                    ? KeyEventResult.handled
+                    : KeyEventResult.ignored;
+              },
+              child: WithForegroundTask(
+                child: MaterialApp(
+                  debugShowCheckedModeBanner: false,
+                  title: APPLICATION_NAME,
+                  locale: _i18n.locale,
+                  theme: _uxService.theme,
+                  navigatorKey: _routingService.mainNavigatorState,
+                  supportedLocales: const [
+                    Locale('en', 'US'),
+                    Locale('fa', 'IR')
+                  ],
+                  localizationsDelegates: [
+                    I18N.delegate,
+                    GlobalMaterialLocalizations.delegate,
+                    GlobalWidgetsLocalizations.delegate,
+                    GlobalCupertinoLocalizations.delegate
+                  ],
+                  home: const SplashScreen(),
+                  localeResolutionCallback: (deviceLocale, supportedLocale) {
+                    for (final locale in supportedLocale) {
+                      if (locale.languageCode == deviceLocale!.languageCode &&
+                          locale.countryCode == deviceLocale.countryCode) {
+                        return deviceLocale;
+                      }
                     }
-                  }
-                  return supportedLocale.first;
-                },
-                builder: (x, c) => Directionality(
-                  textDirection: TextDirection.ltr,
-                  child: c!,
+                    return supportedLocale.first;
+                  },
+                  builder: (x, c) => Directionality(
+                    textDirection: TextDirection.ltr,
+                    child: c!,
+                  ),
                 ),
               ),
             ),
