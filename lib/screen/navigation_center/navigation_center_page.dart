@@ -10,22 +10,29 @@ import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/connection_status.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:lottie/lottie.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:window_size/window_size.dart';
 
 BehaviorSubject<String> modifyRoutingByNotificationTapInBackgroundInAndroid =
     BehaviorSubject.seeded("");
+
+BehaviorSubject<NewerVersionInformation?> newVersionInformation =
+    BehaviorSubject.seeded(null);
 
 class NavigationCenter extends StatefulWidget {
   const NavigationCenter({Key? key}) : super(key: key);
@@ -56,6 +63,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
         _routingService.openRoom(event);
       }
     });
+
     _queryTermDebouncedSubject.stream
         .debounceTime(const Duration(milliseconds: 250))
         .listen((text) => _searchMode.add(text));
@@ -192,7 +200,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       );
                     }
                   },
-                )
+                ),
+                _newVersionInfo(),
               ],
             ),
           ),
@@ -211,6 +220,102 @@ class _NavigationCenterState extends State<NavigationCenter> {
       });
     }
     return true;
+  }
+
+  Widget _newVersionInfo() {
+    return StreamBuilder<NewerVersionInformation?>(
+      stream: newVersionInformation.stream,
+      builder: (context, snapshot) {
+        if (snapshot.hasData && snapshot.data != null) {
+          Future.delayed(Duration.zero, () {
+            showFloatingModalBottomSheet(
+              context: context,
+              enableDrag: false,
+              isDismissible: false,
+              builder: (c) {
+                return Padding(
+                  padding:
+                      const EdgeInsets.only(bottom: 8, left: 24, right: 24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Lottie.asset(
+                        "assets/animations/new_version.zip",
+                        height: 200,
+                      ),
+                      Text(
+                        _i18n.get("update_we"),
+                        style: const TextStyle(fontSize: 25),
+                      ),
+                      Text(
+                        "${_i18n.get(
+                          "version",
+                        )} ${snapshot.data!.version} - Size ${snapshot.data!.size}",
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        snapshot.data!.description,
+                        maxLines: 5,
+                        style: const TextStyle(fontSize: 19),
+                      ),
+                      const SizedBox(
+                        height: 16,
+                      ),
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 8,
+                        runSpacing: 4,
+                        children: [
+                          for (var downloadLink in snapshot.data!.downloadLinks)
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                              ),
+                              onPressed: () {
+                                launch(
+                                  downloadLink.url,
+                                );
+                              },
+                              child: Text(
+                                downloadLink.label,
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            ),
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                            ),
+                            child: Text(
+                              _i18n.get("remind_me_later"),
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                            onPressed: () {
+                              Navigator.pop(c);
+                            },
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                );
+              },
+            ).ignore();
+          });
+
+          return const SizedBox.shrink();
+        } else {
+          return const SizedBox.shrink();
+        }
+      },
+    );
   }
 
   Widget buildMenu(BuildContext context) {

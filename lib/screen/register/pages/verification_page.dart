@@ -53,6 +53,7 @@ class _VerificationPageState extends State<VerificationPage> {
             builder: (c) {
               return TwoStepVerificationPage(
                 verificationCode: _verificationCode,
+                accessTokenRes: accessTokenResponse,
                 navigationToHomePage: _navigationToHome,
               );
             },

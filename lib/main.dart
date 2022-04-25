@@ -1,3 +1,4 @@
+import 'package:deliver/box/account.dart';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/call_event.dart';
@@ -5,6 +6,7 @@ import 'package:deliver/box/call_info.dart';
 import 'package:deliver/box/call_status.dart';
 import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/contact.dart';
+import 'package:deliver/box/dao/account_dao.dart';
 import 'package:deliver/box/dao/avatar_dao.dart';
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
@@ -117,6 +119,7 @@ Future<void> setupDI() async {
 
   Hive
     ..registerAdapter(AvatarAdapter())
+    ..registerAdapter(AccountAdapter())
     ..registerAdapter(LastActivityAdapter())
     ..registerAdapter(ContactAdapter())
     ..registerAdapter(UidIdNameAdapter())
@@ -141,6 +144,7 @@ Future<void> setupDI() async {
     ..registerAdapter(CallTypeAdapter());
 
   GetIt.I.registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
+  GetIt.I.registerSingleton<AccountDao>(AccountDaoImpl());
   GetIt.I.registerSingleton<AvatarDao>(AvatarDaoImpl());
   GetIt.I.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
   GetIt.I.registerSingleton<SharedDao>(SharedDaoImpl());
