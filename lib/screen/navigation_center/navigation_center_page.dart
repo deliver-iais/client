@@ -215,7 +215,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
       getWindowInfo().then((size) {
         _sharedDao.put(
           SHARED_DAO_WINDOWS_SIZE,
-          '${size.frame.left}-${size.frame.top}-${size.frame.right}-${size.frame.bottom}',
+          '${size.frame.left}_${size.frame.top}_${size.frame.right}_${size.frame.bottom}',
         );
       });
     }
