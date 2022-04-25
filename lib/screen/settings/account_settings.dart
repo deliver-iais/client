@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:deliver/box/account.dart';
@@ -203,6 +204,7 @@ class _AccountSettingsState extends State<AccountSettings> {
               _usernameTextController.text = _account.username ?? "";
               _firstnameTextController.text = _account.firstname ?? "";
               _lastnameTextController.text = _account.lastname ?? "";
+              _descriptionTextController.text = _account.description ?? "";
               _emailTextController.text = _account.email ?? "";
 
               return ListView(
@@ -395,7 +397,6 @@ class _AccountSettingsState extends State<AccountSettings> {
                                     minLines: 1,
                                     controller: _descriptionTextController,
                                     textInputAction: TextInputAction.send,
-                                    validator: validateEmail,
                                     decoration: InputDecoration(
                                       labelText:  _i18n.get("description"),
                                     ),
@@ -490,7 +491,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                 : null,
             firstname: _firstnameTextController.text,
             lastname: _lastnameTextController.text,
-            Icons.description:_descriptionTextController.text,
+            description:_descriptionTextController.text,
           );
           if (_emailTextController.text.isNotEmpty &&
               _emailTextController.text != _account.email) {
