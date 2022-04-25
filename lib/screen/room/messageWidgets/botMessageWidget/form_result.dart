@@ -3,6 +3,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -53,8 +54,13 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                           readOnly: true,
                           style: const TextStyle(fontSize: 16),
                           controller: TextEditingController(
-                            text: formResult.values[key],
+                            text: formResult.previewOverride[key] ??
+                                formResult.values[key],
                           ),
+                          textDirection:
+                              formResult.values[key].toString().isPersian()
+                                  ? TextDirection.rtl
+                                  : TextDirection.ltr,
                           decoration: InputDecoration(
                             border: const OutlineInputBorder(
                               borderRadius: secondaryBorder,
