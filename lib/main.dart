@@ -88,6 +88,7 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
+
 import 'box/dao/contact_dao.dart';
 import 'box/dao/custom_notification_dao.dart';
 import 'box/dao/media_dao.dart';
@@ -355,7 +356,7 @@ void main() async {
 Future<void> _setWindowSize() async {
   final _sharedDao = GetIt.I.get<SharedDao>();
   final size = await _sharedDao.get('SHARED_DAO_WINDOWS_SIZE');
-  final rect = size?.split('-');
+  final rect = size?.split('_');
   if (rect != null) {
     setWindowFrame(
       Rect.fromLTRB(
