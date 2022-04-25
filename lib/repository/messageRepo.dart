@@ -603,8 +603,6 @@ class MessageRepo {
     final byClient = _createMessageByClient(pm.msg);
 
     _coreServices.sendMessage(byClient);
-    // TODO(dansi): remove later, we don't need send no activity after sending messages, every time we received message we should set activity of room as no activity, https://gitlab.iais.co/deliver/wiki/-/issues/427
-    sendActivity(byClient.to, ActivityType.NO_ACTIVITY);
   }
 
   message_pb.MessageByClient _createMessageByClient(Message message) {
