@@ -612,10 +612,10 @@ class MucRepo {
         await Stream.fromIterable(await getAllMembers(roomUid))
             .asyncMap((member) async {
               if (_authRepo.isCurrentUser(member!.memberUid)) {
-                final a = await _accountRepo.getAccount();
+                final a = (await _accountRepo.getAccount())!;
                 return UidIdName(
                   uid: member.memberUid,
-                  id: a!.username,
+                  id: a.username,
                   name: a.firstname,
                 );
               } else {
