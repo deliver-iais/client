@@ -10,6 +10,7 @@ import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/core_services.dart';
@@ -51,6 +52,9 @@ Future<void> notificationTapBackground(
     if (!GetIt.I.isRegistered<MessageRepo>()) {
       await setupDI();
       await GetIt.I.get<CoreServices>().initStreamConnection();
+      Logger().i(
+        'setUpDI',
+      );
     }
     Logger().i(
       'notification(${notificationResponse!.id}) action tapped: '
@@ -575,7 +579,7 @@ class AndroidNotifier implements Notifier {
       if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
         // TODO(hasan): Refactor routing service to accept offline open room actions and apply them after launch, https://gitlab.iais.co/deliver/wiki/-/issues/473
         modifyRoutingByNotificationTapInBackgroundInAndroid
-            .add(notificationAppLaunchDetails!.payload!);
+            .add(notificationAppLaunchDetails!.notificationResponse!.payload!);
       }
     });
   }
