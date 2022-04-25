@@ -38,6 +38,8 @@ class CoreServices {
   @visibleForTesting
   bool responseChecked = false;
 
+  bool _streamInitialized = false;
+
   @visibleForTesting
   int backoffTime = MIN_BACKOFF_TIME;
 
@@ -149,6 +151,7 @@ class CoreServices {
             break;
         }
       });
+      _streamInitialized = true;
     } catch (e) {
       _logger.e(e);
       return startStream();
@@ -231,6 +234,8 @@ class CoreServices {
     try {
       if (isWeb) {
         await _grpcCoreService.sendClientPacket(packet);
+      } else if(!_streamInitialized){
+        startStream();
       } else if (!_clientPacketStream.isClosed &&
           (forceToSend ||
               _connectionStatus.value == ConnectionStatus.Connected)) {
