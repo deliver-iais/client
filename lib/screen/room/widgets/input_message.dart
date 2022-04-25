@@ -550,7 +550,6 @@ class _InputMessageWidget extends State<InputMessage> {
 
                                 // _soundRecorder.closeAudioSession();
                                 recordAudioTimer.cancel();
-                                noActivitySubject.add(ActivityType.NO_ACTIVITY);
                                 setState(() {
                                   startAudioRecorder = false;
                                   x = 0;
