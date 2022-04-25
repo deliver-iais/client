@@ -327,7 +327,7 @@ class MessageRepo {
       int lastMessageId, {
         required FetchMessagesReq_Type type,
       }) async {
-    var pointer = lastMessageId;
+    final pointer = lastMessageId;
     try {
       final fetchMessagesRes = await _queryServiceClient.fetchMessages(
         FetchMessagesReq()
