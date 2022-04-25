@@ -1776,15 +1776,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.0"
-  usage_stats:
-    dependency: "direct main"
-    description:
-      path: "."
-      ref: master
-      resolved-ref: "0fd35aab9db2809430fa2c1e71b06deb6462cc98"
-      url: "https://github.com/androidwoman/usage_stats-1.1.1.git"
-    source: git
-    version: "1.1.1"
   uuid:
     dependency: transitive
     description:
