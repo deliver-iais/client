@@ -401,12 +401,20 @@ MockSeenDao getAndRegisterSeenDao({int messageId = 0}) {
   GetIt.I.registerSingleton<SeenDao>(service);
   when(service.getOthersSeen(testUid.asString())).thenAnswer(
     (realInvocation) => Future.value(
-      seen_box.Seen(uid: testUid.asString(), messageId: messageId),
+      seen_box.Seen(
+        uid: testUid.asString(),
+        messageId: messageId,
+        hiddenMessageCount: 0,
+      ),
     ),
   );
   when(service.getMySeen(testUid.asString())).thenAnswer(
     (realInvocation) => Future.value(
-      seen_box.Seen(uid: testUid.asString(), messageId: messageId),
+      seen_box.Seen(
+        uid: testUid.asString(),
+        messageId: messageId,
+        hiddenMessageCount: 0,
+      ),
     ),
   );
   when(service.watchMySeen(testUid.asString()))
@@ -420,14 +428,14 @@ MockMucServices getAndRegisterMucServices({bool pinMessageGetError = false}) {
   GetIt.I.registerSingleton<MucServices>(service);
   pinMessageGetError
       ? when(service.pinMessage(testMessage))
-          .thenThrow((realInvocation) => Future.value())
+          .thenThrow((realInvocation) => Future.error(""))
       : when(service.pinMessage(testMessage))
-          .thenAnswer((realInvocation) => Future.value(true));
+          .thenAnswer((realInvocation) => Future.value());
   pinMessageGetError
       ? when(service.unpinMessage(testMessage))
-          .thenThrow((realInvocation) => Future.value())
+          .thenThrow((realInvocation) => Future.error(""))
       : when(service.unpinMessage(testMessage))
-          .thenAnswer((realInvocation) => Future.value(true));
+          .thenAnswer((realInvocation) => Future.value());
   return service;
 }
 
@@ -660,8 +668,8 @@ MockSharedDao getAndRegisterSharedDao() {
   _removeRegistrationIfExists<SharedDao>();
   final service = MockSharedDao();
   GetIt.I.registerSingleton<SharedDao>(service);
-  when(service.get(SHARED_DAO_FETCH_ALL_ROOM))
-      .thenAnswer((realInvocation) => Future.value(""));
+  when(service.getBoolean(SHARED_DAO_ALL_ROOMS_FETCHED))
+      .thenAnswer((realInvocation) => Future.value(false));
   return service;
 }
 

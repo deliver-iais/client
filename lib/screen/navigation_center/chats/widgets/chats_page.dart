@@ -66,12 +66,12 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   }
 
   void onUnPin(Room room) {
-    _roomDao.updateRoom(Room(uid: room.uid));
+    _roomDao.updateRoom(uid: room.uid, pinned: false);
   }
 
   void onPin(Room room, {bool canBePinned = false}) {
     if (canBePinned) {
-      _roomDao.updateRoom(Room(uid: room.uid, pinned: true));
+      _roomDao.updateRoom(uid: room.uid, pinned: true);
     } else {
       showDialog(
         context: context,
@@ -124,7 +124,6 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                           a.lastMessage?.id == b.lastMessage?.id &&
                           a.mentioned == b.mentioned &&
                           a.pinned == b.pinned &&
-                          a.lastUpdatedMessageId == b.lastUpdatedMessageId &&
                           a.lastUpdateTime == b.lastUpdateTime &&
                           a.draft == b.draft,
                     ),
@@ -142,7 +141,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                           );
                         },
                         onLongPress: () {
-                          //ToDo new design for android
+                          // ToDo new design for android
                           _showCustomMenu(
                             context,
                             room,

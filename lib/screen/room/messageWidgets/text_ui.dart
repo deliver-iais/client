@@ -25,7 +25,6 @@ class TextUI extends StatelessWidget {
   final void Function(String) onUsernameClick;
   final void Function(String) onBotCommandClick;
   final bool isBotMessage;
-  final bool isGroupMessage;
   final CustomColorScheme colorScheme;
 
   TextUI({
@@ -40,7 +39,6 @@ class TextUI extends StatelessWidget {
     this.isSeen = false,
     this.searchTerm,
   })  : isBotMessage = message.roomUid.asUid().isBot(),
-        isGroupMessage = message.roomUid.asUid().isGroup(),
         super(key: key);
 
   @override
@@ -122,7 +120,7 @@ class TextUI extends StatelessWidget {
       if (searchTerm != null && searchTerm!.isNotEmpty)
         SearchTermParser(searchTerm!),
       UrlParser(),
-      if (isGroupMessage) IdParser(onUsernameClick),
+      IdParser(onUsernameClick),
       if (isBotMessage) BotCommandParser(onBotCommandClick),
       BoldTextParser(),
       ItalicTextParser()
@@ -154,7 +152,7 @@ class UrlParser implements Parser {
           if (uri.contains("$APPLICATION_DOMAIN/$JOIN") ||
               uri.contains("$APPLICATION_DOMAIN/$SPDA") ||
               uri.contains("$APPLICATION_DOMAIN/$TEXT")) {
-            handleJoinUri(context, uri);
+            await handleJoinUri(context, uri);
           } else {
             await launch(uri);
           }

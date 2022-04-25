@@ -1,4 +1,5 @@
 import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/uid_id_name.dart';
 import 'package:hive/hive.dart';
 
@@ -38,32 +39,18 @@ class UidIdNameDaoImpl implements UidIdNameDao {
 
     final byUid = box.get(uid);
     if (byUid == null) {
-      box.put(uid, UidIdName(uid: uid, id: id, name: name));
+      await box.put(uid, UidIdName(uid: uid, id: id, name: name));
     } else {
-      box.put(uid, byUid.copyWith(uid: uid, id: id, name: name));
+      await box.put(uid, byUid.copyWith(uid: uid, id: id, name: name));
     }
 
     if (byUid != null && byUid.id != null && byUid.id != id) {
-      box2.delete(byUid.id);
+      await box2.delete(byUid.id);
     }
 
     if (id != null) {
-      box2.put(id, uid);
+      await box2.put(id, uid);
     }
-  }
-
-  static String _key() => "uid-id-name";
-
-  static String _key2() => "id-uid-name";
-
-  static Future<Box<UidIdName>> _open() {
-    BoxInfo.addBox(_key());
-    return Hive.openBox<UidIdName>(_key());
-  }
-
-  static Future<Box<String>> _open2() {
-    BoxInfo.addBox(_key2());
-    return Hive.openBox<String>(_key2());
   }
 
   @override
@@ -80,5 +67,19 @@ class UidIdNameDaoImpl implements UidIdNameDao {
         )
         .toList();
     return res;
+  }
+
+  static String _key() => "uid-id-name";
+
+  static String _key2() => "id-uid-name";
+
+  static Future<BoxPlus<UidIdName>> _open() {
+    BoxInfo.addBox(_key());
+    return gen(Hive.openBox<UidIdName>(_key()));
+  }
+
+  static Future<BoxPlus<String>> _open2() {
+    BoxInfo.addBox(_key2());
+    return gen(Hive.openBox<String>(_key2()));
   }
 }

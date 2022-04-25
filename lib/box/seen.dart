@@ -15,15 +15,19 @@ class Seen {
   int messageId;
 
   @HiveField(2)
-  int? hiddenMessageCount;
+  int hiddenMessageCount;
 
-  Seen({required this.uid, required this.messageId, this.hiddenMessageCount});
+  Seen({required this.uid, required this.messageId, required this.hiddenMessageCount});
 
-  Seen copy({String? newUid, int? newMessageId, int? newHiddenMessageCount}) =>
+  Seen copyWith({
+    String? uid,
+    int? messageId,
+    int? hiddenMessageCount,
+  }) =>
       Seen(
-        uid: newUid ?? uid,
-        messageId: newMessageId ?? messageId,
-        hiddenMessageCount: newHiddenMessageCount ?? hiddenMessageCount,
+        uid: uid ?? this.uid,
+        messageId: messageId ?? this.messageId,
+        hiddenMessageCount: hiddenMessageCount ?? this.hiddenMessageCount,
       );
 
   @override

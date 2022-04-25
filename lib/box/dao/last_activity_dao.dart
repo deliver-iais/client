@@ -1,4 +1,5 @@
 import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/last_activity.dart';
 import 'package:hive/hive.dart';
 
@@ -31,13 +32,13 @@ class LastActivityDaoImpl implements LastActivityDao {
   Future<void> save(LastActivity lastActivity) async {
     final box = await _open();
 
-    box.put(lastActivity.uid, lastActivity);
+    return box.put(lastActivity.uid, lastActivity);
   }
 
   static String _key() => "last-activity";
 
-  static Future<Box<LastActivity>> _open() {
+  static Future<BoxPlus<LastActivity>> _open() {
     BoxInfo.addBox(_key());
-    return Hive.openBox<LastActivity>(_key());
+    return gen(Hive.openBox<LastActivity>(_key()));
   }
 }

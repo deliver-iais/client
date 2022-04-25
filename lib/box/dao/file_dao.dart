@@ -1,5 +1,6 @@
 import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/file_info.dart';
+import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
 abstract class FileDao {
@@ -26,20 +27,20 @@ class FileDaoImpl implements FileDao {
   Future<void> save(FileInfo fileInfo) async {
     final box = await _open(fileInfo.sizeType);
 
-    box.put(fileInfo.uuid, fileInfo);
+    return box.put(fileInfo.uuid, fileInfo);
   }
 
   @override
   Future<void> remove(FileInfo fileInfo) async {
     final box = await _open(fileInfo.sizeType);
 
-    box.delete(fileInfo.uuid);
+    return box.delete(fileInfo.uuid);
   }
 
   static String _key(String size) => "file-info-$size";
 
-  static Future<Box<FileInfo>> _open(String size) {
+  static Future<BoxPlus<FileInfo>> _open(String size) {
     BoxInfo.addBox(_key(size));
-    return Hive.openBox<FileInfo>(_key(size));
+    return gen(Hive.openBox<FileInfo>(_key(size)));
   }
 }

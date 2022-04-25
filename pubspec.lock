@@ -329,11 +329,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.11.28"
-      resolved-ref: "0e6bfc0adb992c0a06651644d1c847aead5c6144"
+      ref: "tags/v1.12.10"
+      resolved-ref: "9529c0047ff28df1d9c8c3cc7eb89cc8749ce3e2"
       url: "https://github.com/deliver-iais/pub-dart-artifactory"
     source: git
-    version: "1.11.28"
+    version: "1.12.10"
   dependency_validator:
     dependency: "direct dev"
     description:
@@ -783,7 +783,7 @@ packages:
       name: hive
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.4"
+    version: "2.1.0"
   hive_flutter:
     dependency: "direct main"
     description:
@@ -890,7 +890,7 @@ packages:
     source: hosted
     version: "1.0.0"
   intl:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: intl
       url: "https://pub.dartlang.org"

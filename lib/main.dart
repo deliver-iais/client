@@ -1,3 +1,4 @@
+import 'package:deliver/box/account.dart';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/call_event.dart';
@@ -5,6 +6,7 @@ import 'package:deliver/box/call_info.dart';
 import 'package:deliver/box/call_status.dart';
 import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/contact.dart';
+import 'package:deliver/box/dao/account_dao.dart';
 import 'package:deliver/box/dao/avatar_dao.dart';
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
@@ -88,6 +90,7 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
+
 import 'box/dao/contact_dao.dart';
 import 'box/dao/custom_notification_dao.dart';
 import 'box/dao/media_dao.dart';
@@ -116,6 +119,7 @@ Future<void> setupDI() async {
 
   Hive
     ..registerAdapter(AvatarAdapter())
+    ..registerAdapter(AccountAdapter())
     ..registerAdapter(LastActivityAdapter())
     ..registerAdapter(ContactAdapter())
     ..registerAdapter(UidIdNameAdapter())
@@ -140,6 +144,7 @@ Future<void> setupDI() async {
     ..registerAdapter(CallTypeAdapter());
 
   GetIt.I.registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
+  GetIt.I.registerSingleton<AccountDao>(AccountDaoImpl());
   GetIt.I.registerSingleton<AvatarDao>(AvatarDaoImpl());
   GetIt.I.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
   GetIt.I.registerSingleton<SharedDao>(SharedDaoImpl());
@@ -320,16 +325,6 @@ void main() async {
 
   Logger().i("Application has been started.");
 
-  if (isDesktop && !isWeb) {
-    try {
-      _setWindowSize();
-
-      setWindowTitle(APPLICATION_NAME);
-    } catch (e) {
-      Logger().e(e);
-    }
-  }
-
   if (hasFirebaseCapability) {
     await initializeFirebase();
   }
@@ -344,6 +339,16 @@ void main() async {
 
   Logger().i("Dependency Injection setup done.");
 
+  if (isDesktop && !isWeb) {
+    try {
+      await _setWindowSize();
+
+      setWindowTitle(APPLICATION_NAME);
+    } catch (e) {
+      Logger().e(e);
+    }
+  }
+
   runApp(
     FeatureDiscovery.withProvider(
       persistenceProvider: const NoPersistenceProvider(),
@@ -352,8 +357,29 @@ void main() async {
   );
 }
 
-void _setWindowSize() {
-  setWindowMinSize(const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
+Future<void> _setWindowSize() async {
+  final _sharedDao = GetIt.I.get<SharedDao>();
+  final size = await _sharedDao.get('SHARED_DAO_WINDOWS_SIZE');
+  final rect = size?.split('_');
+
+  if (rect != null) {
+    try {
+      setWindowFrame(
+        Rect.fromLTRB(
+          double.parse(rect[0]),
+          double.parse(rect[1]),
+          double.parse(rect[2]),
+          double.parse(rect[3]),
+        ),
+      );
+    } catch (e) {
+      setWindowMinSize(
+        const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100),
+      );
+    }
+  } else {
+    setWindowMinSize(const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
+  }
 }
 
 class MyApp extends StatelessWidget {
@@ -375,46 +401,53 @@ class MyApp extends StatelessWidget {
       builder: (ctx, snapshot) {
         return ExtraTheme(
           extraThemeData: _uxService.extraTheme,
-          child: Focus(
-            focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
-            onKey: (_, event) {
-              _rawKeyboardService
-                ..escapeHandling(event)
-                ..searchHandling(event);
-              return event.physicalKey == PhysicalKeyboardKey.shiftRight
-                  ? KeyEventResult.handled
-                  : KeyEventResult.ignored;
-            },
-            child: WithForegroundTask(
-              child: MaterialApp(
-                debugShowCheckedModeBanner: false,
-                title: APPLICATION_NAME,
-                locale: _i18n.locale,
-                theme: _uxService.theme,
-                navigatorKey: _routingService.mainNavigatorState,
-                supportedLocales: const [
-                  Locale('en', 'US'),
-                  Locale('fa', 'IR')
-                ],
-                localizationsDelegates: [
-                  I18N.delegate,
-                  GlobalMaterialLocalizations.delegate,
-                  GlobalWidgetsLocalizations.delegate,
-                  GlobalCupertinoLocalizations.delegate
-                ],
-                home: const SplashScreen(),
-                localeResolutionCallback: (deviceLocale, supportedLocale) {
-                  for (final locale in supportedLocale) {
-                    if (locale.languageCode == deviceLocale!.languageCode &&
-                        locale.countryCode == deviceLocale.countryCode) {
-                      return deviceLocale;
+          child: AnnotatedRegion<SystemUiOverlayStyle>(
+            value: SystemUiOverlayStyle(
+              systemNavigationBarColor: _uxService.theme.colorScheme.background,
+              systemNavigationBarIconBrightness:
+                  _uxService.themeIsDark ? Brightness.light : Brightness.dark,
+            ),
+            child: Focus(
+              focusNode: FocusNode(skipTraversal: true, canRequestFocus: false),
+              onKey: (_, event) {
+                _rawKeyboardService
+                  ..escapeHandling(event)
+                  ..searchHandling(event);
+                return event.physicalKey == PhysicalKeyboardKey.shiftRight
+                    ? KeyEventResult.handled
+                    : KeyEventResult.ignored;
+              },
+              child: WithForegroundTask(
+                child: MaterialApp(
+                  debugShowCheckedModeBanner: false,
+                  title: APPLICATION_NAME,
+                  locale: _i18n.locale,
+                  theme: _uxService.theme,
+                  navigatorKey: _routingService.mainNavigatorState,
+                  supportedLocales: const [
+                    Locale('en', 'US'),
+                    Locale('fa', 'IR')
+                  ],
+                  localizationsDelegates: [
+                    I18N.delegate,
+                    GlobalMaterialLocalizations.delegate,
+                    GlobalWidgetsLocalizations.delegate,
+                    GlobalCupertinoLocalizations.delegate
+                  ],
+                  home: const SplashScreen(),
+                  localeResolutionCallback: (deviceLocale, supportedLocale) {
+                    for (final locale in supportedLocale) {
+                      if (locale.languageCode == deviceLocale!.languageCode &&
+                          locale.countryCode == deviceLocale.countryCode) {
+                        return deviceLocale;
+                      }
                     }
-                  }
-                  return supportedLocale.first;
-                },
-                builder: (x, c) => Directionality(
-                  textDirection: TextDirection.ltr,
-                  child: c!,
+                    return supportedLocale.first;
+                  },
+                  builder: (x, c) => Directionality(
+                    textDirection: TextDirection.ltr,
+                    child: c!,
+                  ),
                 ),
               ),
             ),

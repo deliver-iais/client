@@ -1,7 +1,7 @@
+import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
-import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/call/has_call_row.dart';
@@ -10,18 +10,29 @@ import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/connection_status.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:lottie/lottie.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:window_size/window_size.dart';
+
+BehaviorSubject<String> modifyRoutingByNotificationTapInBackgroundInAndroid =
+    BehaviorSubject.seeded("");
+
+BehaviorSubject<NewerVersionInformation?> newVersionInformation =
+    BehaviorSubject.seeded(null);
 
 class NavigationCenter extends StatefulWidget {
   const NavigationCenter({Key? key}) : super(key: key);
@@ -38,7 +49,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _botRepo = GetIt.I.get<BotRepo>();
-  static final _callRepo = GetIt.I.get<CallRepo>();
+  static final _sharedDao = GetIt.I.get<SharedDao>();
 
   final ScrollController _scrollController = ScrollController();
   final BehaviorSubject<String> _searchMode = BehaviorSubject.seeded("");
@@ -47,15 +58,15 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   @override
   void initState() {
+    modifyRoutingByNotificationTapInBackgroundInAndroid.listen((event) {
+      if (event.isNotEmpty) {
+        _routingService.openRoom(event);
+      }
+    });
+
     _queryTermDebouncedSubject.stream
         .debounceTime(const Duration(milliseconds: 250))
         .listen((text) => _searchMode.add(text));
-    // TODO(chitsaz): why here?, why not just do it in CallList page itself, https://gitlab.iais.co/deliver/wiki/-/issues/424
-    _callRepo.fetchUserCallList(
-      _authRepo.currentUserUid,
-      DateTime.now().month,
-      DateTime.now().year,
-    );
     super.initState();
   }
 
@@ -72,120 +83,238 @@ class _NavigationCenterState extends State<NavigationCenter> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Scaffold(
-      backgroundColor: theme.colorScheme.background,
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(56),
-        child: GestureDetector(
-          onTap: () {
-            if (_scrollController.hasClients) {
-              _scrollController.animateTo(
-                0.0,
-                curve: Curves.easeOut,
-                duration: ANIMATION_DURATION * 3,
-              );
-            }
-          },
-          child: AppBar(
-            backgroundColor: Colors.transparent,
-            leading: Row(
-              children: [
-                const SizedBox(
-                  width: 10,
-                ),
-                DescribedFeatureOverlay(
-                  featureId: feature3,
-                  tapTarget: CircleAvatarWidget(_authRepo.currentUserUid, 20),
-                  backgroundColor: Colors.indigo,
-                  targetColor: Colors.indigoAccent,
-                  title: const Text('You can go to setting'),
-                  overflowMode: OverflowMode.extendBackground,
-                  description: _featureDiscoveryDescriptionWidget(
-                    isCircleAvatarWidget: true,
-                    description:
-                        "1. You can chang your profile in the setting\n2. You can sync your contact and start chat with one of theme \n3. You can chang app theme\n4. You can chang app",
-                  ),
-                  child: GestureDetector(
-                    child: Center(
-                      child: MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: CircleAvatarWidget(_authRepo.currentUserUid, 20),
-                      ),
-                    ),
-                    onTap: () {
-                      _routingServices.openSettings(popAllBeforePush: true);
-                    },
-                  ),
-                ),
-              ],
-            ),
-            titleSpacing: 8.0,
-            title: Text(
-              _i18n.get("chats"),
-              style: theme.textTheme.headline6,
-              key: ValueKey(randomString(10)),
-            ),
-            actions: [
-              if (!isDesktop)
-                DescribedFeatureOverlay(
-                  featureId: feature2,
-                  tapTarget: const Icon(
-                    CupertinoIcons.qrcode_viewfinder,
-                  ),
-                  backgroundColor: Colors.deepPurple,
-                  targetColor: Colors.deepPurpleAccent,
-                  title: const Text('You can scan QR Code'),
-                  description: _featureDiscoveryDescriptionWidget(
-                    description:
-                        'for desktop app you can scan QR Code and login to your account',
-                  ),
-                  child: IconButton(
-                    onPressed: () {
-                      _routingService.openScanQrCode();
-                    },
-                    icon: const Icon(
-                      CupertinoIcons.qrcode_viewfinder,
-                    ),
-                  ),
-                ),
-              const SizedBox(
-                width: 8,
-              ),
-              buildMenu(context),
-              const SizedBox(
-                width: 8,
-              )
-            ],
-          ),
-        ),
-      ),
-      body: RepaintBoundary(
-        child: Column(
-          children: <Widget>[
-            const HasCallRow(),
-            const ConnectionStatus(),
-            RepaintBoundary(
-              child: SearchBox(
-                onChange: _queryTermDebouncedSubject.add,
-                onCancel: () => _queryTermDebouncedSubject.add(""),
-              ),
-            ),
-            if (!isLarge(context)) AudioPlayerAppBar(),
-            StreamBuilder<String>(
-              stream: _searchMode.stream,
-              builder: (c, s) {
-                if (s.hasData && s.data!.isNotEmpty) {
-                  return searchResult(s.data!);
-                } else {
-                  return Expanded(
-                    child: ChatsPage(scrollController: _scrollController),
+    return NotificationListener<SizeChangedLayoutNotification>(
+      onNotification: onWindowSizeChange,
+      child: SizeChangedLayoutNotifier(
+        child: Scaffold(
+          backgroundColor: theme.colorScheme.background,
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(56),
+            child: GestureDetector(
+              onTap: () {
+                if (_scrollController.hasClients) {
+                  _scrollController.animateTo(
+                    0.0,
+                    curve: Curves.easeOut,
+                    duration: ANIMATION_DURATION * 3,
                   );
                 }
               },
-            )
-          ],
+              child: AppBar(
+                backgroundColor: Colors.transparent,
+                leading: Row(
+                  children: [
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    DescribedFeatureOverlay(
+                      featureId: feature3,
+                      tapTarget:
+                          CircleAvatarWidget(_authRepo.currentUserUid, 20),
+                      backgroundColor: Colors.indigo,
+                      targetColor: Colors.indigoAccent,
+                      title: const Text('You can go to setting'),
+                      overflowMode: OverflowMode.extendBackground,
+                      description: _featureDiscoveryDescriptionWidget(
+                        isCircleAvatarWidget: true,
+                        description:
+                            "1. You can chang your profile in the setting\n2. You can sync your contact and start chat with one of theme \n3. You can chang app theme\n4. You can chang app",
+                      ),
+                      child: GestureDetector(
+                        child: Center(
+                          child: MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: CircleAvatarWidget(
+                              _authRepo.currentUserUid,
+                              20,
+                            ),
+                          ),
+                        ),
+                        onTap: () {
+                          _routingServices.openSettings(popAllBeforePush: true);
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+                titleSpacing: 8.0,
+                title: Text(
+                  _i18n.get("chats"),
+                  style: theme.textTheme.headline6,
+                  key: ValueKey(randomString(10)),
+                ),
+                actions: [
+                  if (!isDesktop)
+                    DescribedFeatureOverlay(
+                      featureId: feature2,
+                      tapTarget: const Icon(
+                        CupertinoIcons.qrcode_viewfinder,
+                      ),
+                      backgroundColor: Colors.deepPurple,
+                      targetColor: Colors.deepPurpleAccent,
+                      title: const Text('You can scan QR Code'),
+                      description: _featureDiscoveryDescriptionWidget(
+                        description:
+                            'for desktop app you can scan QR Code and login to your account',
+                      ),
+                      child: IconButton(
+                        onPressed: () {
+                          _routingService.openScanQrCode();
+                        },
+                        icon: const Icon(
+                          CupertinoIcons.qrcode_viewfinder,
+                        ),
+                      ),
+                    ),
+                  const SizedBox(
+                    width: 8,
+                  ),
+                  buildMenu(context),
+                  const SizedBox(
+                    width: 8,
+                  )
+                ],
+              ),
+            ),
+          ),
+          body: RepaintBoundary(
+            child: Column(
+              children: <Widget>[
+                const HasCallRow(),
+                const ConnectionStatus(),
+                RepaintBoundary(
+                  child: SearchBox(
+                    onChange: _queryTermDebouncedSubject.add,
+                    onCancel: () => _queryTermDebouncedSubject.add(""),
+                  ),
+                ),
+                if (!isLarge(context)) AudioPlayerAppBar(),
+                StreamBuilder<String>(
+                  stream: _searchMode.stream,
+                  builder: (c, s) {
+                    if (s.hasData && s.data!.isNotEmpty) {
+                      return searchResult(s.data!);
+                    } else {
+                      return Expanded(
+                        child: ChatsPage(scrollController: _scrollController),
+                      );
+                    }
+                  },
+                ),
+                _newVersionInfo(),
+              ],
+            ),
+          ),
         ),
       ),
+    );
+  }
+
+  bool onWindowSizeChange(SizeChangedLayoutNotification notification) {
+    if (isDesktop && !isWeb) {
+      getWindowInfo().then((size) {
+        _sharedDao.put(
+          SHARED_DAO_WINDOWS_SIZE,
+          '${size.frame.left}_${size.frame.top}_${size.frame.right}_${size.frame.bottom}',
+        );
+      });
+    }
+    return true;
+  }
+
+  Widget _newVersionInfo() {
+    return StreamBuilder<NewerVersionInformation?>(
+      stream: newVersionInformation.stream,
+      builder: (context, snapshot) {
+        if (snapshot.hasData && snapshot.data != null) {
+          Future.delayed(Duration.zero, () {
+            showFloatingModalBottomSheet(
+              context: context,
+              enableDrag: false,
+              isDismissible: false,
+              builder: (c) {
+                return Padding(
+                  padding:
+                      const EdgeInsets.only(bottom: 8, left: 24, right: 24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Lottie.asset(
+                        "assets/animations/new_version.zip",
+                        height: 200,
+                      ),
+                      Text(
+                        _i18n.get("update_we"),
+                        style: const TextStyle(fontSize: 25),
+                      ),
+                      Text(
+                        "${_i18n.get(
+                          "version",
+                        )} ${snapshot.data!.version} - Size ${snapshot.data!.size}",
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Text(
+                        snapshot.data!.description,
+                        maxLines: 5,
+                        style: const TextStyle(fontSize: 19),
+                      ),
+                      const SizedBox(
+                        height: 16,
+                      ),
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 8,
+                        runSpacing: 4,
+                        children: [
+                          for (var downloadLink in snapshot.data!.downloadLinks)
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                              ),
+                              onPressed: () {
+                                launch(
+                                  downloadLink.url,
+                                );
+                              },
+                              child: Text(
+                                downloadLink.label,
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                            ),
+                          TextButton(
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                            ),
+                            child: Text(
+                              _i18n.get("remind_me_later"),
+                              style: const TextStyle(fontSize: 16),
+                            ),
+                            onPressed: () {
+                              Navigator.pop(c);
+                            },
+                          )
+                        ],
+                      )
+                    ],
+                  ),
+                );
+              },
+            ).ignore();
+          });
+
+          return const SizedBox.shrink();
+        } else {
+          return const SizedBox.shrink();
+        }
+      },
     );
   }
 
@@ -334,7 +463,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
             child: GestureDetector(
               behavior: HitTestBehavior.translucent,
               onTap: () {
-                _roomRepo.insertRoom(uidList[index].asString());
+                _roomRepo.createRoomIfNotExist(uidList[index].asString());
                 _routingServices.openRoom(uidList[index].asString());
               },
               child:

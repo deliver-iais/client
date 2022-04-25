@@ -19,8 +19,8 @@ import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/models/file.dart' as model;
+import 'package:deliver/models/message_event.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
@@ -69,6 +69,9 @@ enum TitleStatusConditions { Disconnected, Updating, Normal, Connecting }
 
 const EMPTY_MESSAGE = "{}";
 
+BehaviorSubject<MessageEvent?> messageEventSubject =
+    BehaviorSubject.seeded(null);
+
 class MessageRepo {
   final _logger = GetIt.I.get<Logger>();
   final _messageDao = GetIt.I.get<MessageDao>();
@@ -85,9 +88,9 @@ class MessageRepo {
   final _coreServices = GetIt.I.get<CoreServices>();
   final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   final _sharedDao = GetIt.I.get<SharedDao>();
-  final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _mediaRepo = GetIt.I.get<MediaRepo>();
+  final _dataStreamServices = GetIt.I.get<DataStreamServices>();
   final _sendActivitySubject = BehaviorSubject.seeded(0);
 
   Map<String, RoomMetadata> _allRoomMetaData = {};
@@ -108,7 +111,7 @@ class MessageRepo {
 
           updatingStatus.add(TitleStatusConditions.Normal);
 
-          sendPendingMessages();
+          unawaited(sendPendingMessages());
           break;
         case ConnectionStatus.Disconnected:
           updatingStatus.add(TitleStatusConditions.Disconnected);
@@ -122,14 +125,12 @@ class MessageRepo {
 
   final _completerMap = <String, Completer<List<Message?>>>{};
 
-  Future<void> updateNewMuc(Uid roomUid, int lastMessageId) async {
+  void updateNewMuc(Uid roomUid, int lastMessageId) {
     try {
       _roomDao.updateRoom(
-        Room(
-          uid: roomUid.asString(),
-          lastMessageId: lastMessageId,
-          lastUpdateTime: clock.now().millisecondsSinceEpoch,
-        ),
+        uid: roomUid.asString(),
+        lastMessageId: lastMessageId,
+        lastUpdateTime: clock.now().millisecondsSinceEpoch,
       );
     } catch (e) {
       _logger.e(e);
@@ -141,7 +142,8 @@ class MessageRepo {
     _allRoomMetaData = {};
     var finished = false;
     var pointer = 0;
-    final fetchAllRoom = await _sharedDao.get(SHARED_DAO_FETCH_ALL_ROOM);
+    final allRoomFetched =
+        await _sharedDao.getBoolean(SHARED_DAO_ALL_ROOMS_FETCHED);
 
     while (!finished && pointer < 10000) {
       try {
@@ -152,19 +154,15 @@ class MessageRepo {
             ..limit = 10,
         );
         finished = getAllUserRoomMetaRes.finished;
-        if (finished) _sharedDao.put(SHARED_DAO_FETCH_ALL_ROOM, "true");
+        if (finished) {
+          await _sharedDao.putBoolean(SHARED_DAO_ALL_ROOMS_FETCHED, true);
+        }
         for (final roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
           _allRoomMetaData[roomMetadata.roomUid.asString()] = roomMetadata;
           final room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
-          if (room == null) {
-            _seenDao.saveMySeen(
-              Seen(uid: roomMetadata.roomUid.asString(), messageId: -1),
-            );
-          }
           if (roomMetadata.presenceType == PresenceType.ACTIVE) {
             if (room != null &&
-                room.lastMessageId != null &&
-                room.lastMessageId! < roomMetadata.lastMessageId.toInt() &&
+                room.lastMessageId < roomMetadata.lastMessageId.toInt() &&
                 hasFirebaseCapability) {
               await _fireBaseServices.sendGlitchReportForFirebaseNotification(
                 roomMetadata.roomUid.asString(),
@@ -175,51 +173,36 @@ class MessageRepo {
                 room.lastMessage!.id != null &&
                 room.lastMessage!.id! >= roomMetadata.lastMessageId.toInt() &&
                 room.lastMessage!.id != 0 &&
-                room.lastUpdateTime != null &&
-                room.lastUpdateTime! >= roomMetadata.lastUpdate.toInt()) {
-              if (fetchAllRoom != null) {
+                room.lastUpdateTime >= roomMetadata.lastUpdate.toInt()) {
+              if (allRoomFetched) {
                 finished = true;
               } // no more updating needed after this room
               break;
             }
 
-            _roomDao.updateRoom(
-              Room(
-                uid: roomMetadata.roomUid.asString(),
-                deleted: false,
-                lastMessageId: roomMetadata.lastMessageId.toInt(),
-                firstMessageId: roomMetadata.firstMessageId.toInt(),
-                lastUpdateTime: roomMetadata.lastUpdate.toInt(),
-              ),
+            await _roomDao.updateRoom(
+              uid: roomMetadata.roomUid.asString(),
+              deleted: false,
+              lastMessageId: roomMetadata.lastMessageId.toInt(),
+              firstMessageId: roomMetadata.firstMessageId.toInt(),
+              lastUpdateTime: roomMetadata.lastUpdate.toInt(),
             );
 
-            await fetchLastMessages(
+            await _dataStreamServices.fetchLastNotHiddenMessage(
               roomMetadata.roomUid,
               roomMetadata.lastMessageId.toInt(),
               roomMetadata.firstMessageId.toInt(),
-              room,
-              type: FetchMessagesReq_Type.BACKWARD_FETCH,
             );
-            if (room != null &&
-                room.lastMessageId != null &&
-                roomMetadata.lastMessageId.toInt() > room.lastMessageId!) {
-              await fetchHiddenMessageCount(
-                roomMetadata.roomUid,
-                room.lastMessageId!,
-              );
-            }
             if (room != null && room.uid.asUid().category == Categories.GROUP) {
               await getMentions(room);
             }
           } else {
-            _roomDao.updateRoom(
-              Room(
-                uid: roomMetadata.roomUid.asString(),
-                deleted: true,
-                lastMessageId: roomMetadata.lastMessageId.toInt(),
-                firstMessageId: roomMetadata.firstMessageId.toInt(),
-                lastUpdateTime: roomMetadata.lastUpdate.toInt(),
-              ),
+            await _roomDao.updateRoom(
+              uid: roomMetadata.roomUid.asString(),
+              deleted: true,
+              lastMessageId: roomMetadata.lastMessageId.toInt(),
+              firstMessageId: roomMetadata.firstMessageId.toInt(),
+              lastUpdateTime: roomMetadata.lastUpdate.toInt(),
             );
           }
         }
@@ -233,12 +216,13 @@ class MessageRepo {
   Future<void> updatingLastSeen() async {
     final rooms = await _roomDao.getAllRooms();
     for (final r in rooms) {
-      if (r.lastMessage == null) return;
+      if (r.lastMessage == null || r.lastMessage!.id == null) return;
       final category = r.lastMessage!.to.asUid().category;
-      if (r.lastMessage!.id == null) return;
       if (!_authRepo.isCurrentUser(r.lastMessage!.from) &&
           _allRoomMetaData[r.uid] != null &&
-          (category == Categories.GROUP || category == Categories.USER)) {
+          (category == Categories.GROUP ||
+              category == Categories.USER ||
+              category == Categories.CHANNEL)) {
         await fetchCurrentUserLastSeen(_allRoomMetaData[r.uid]!);
       }
       final othersSeen = await _seenDao.getOthersSeen(r.lastMessage!.to);
@@ -248,129 +232,44 @@ class MessageRepo {
     }
   }
 
-  Future<void> fetchHiddenMessageCount(Uid roomUid, int id) async {
-    try {
-      final res = await _queryServiceClient.countIsHiddenMessages(
-        CountIsHiddenMessagesReq()
-          ..roomUid = roomUid
-          ..messageId = Int64(id + 1),
-      );
-      final s = await _seenDao.getMySeen(roomUid.asString());
-      _seenDao.saveMySeen(
-        s.copy(newUid: roomUid.asString(), newHiddenMessageCount: res.count),
-      );
-    } catch (e) {
-      _logger.e(e);
-    }
-  }
+  Future<void> fetchHiddenMessageCount(Uid roomUid, int id) =>
+      _queryServiceClient
+          .countIsHiddenMessages(
+            CountIsHiddenMessagesReq()
+              ..roomUid = roomUid
+              ..messageId = Int64(id + 1),
+          )
+          .then(
+            (res) => _seenDao.updateMySeen(
+              uid: roomUid.asString(),
+              hiddenMessageCount: res.count,
+            ),
+          )
+          .catchError((e) => _logger.e(e));
 
-  Future<Message?> fetchLastMessages(
-    Uid roomUid,
-    int lastMessageId,
-    int firstMessageId,
-    Room? room, {
-    bool retry = true,
-    required FetchMessagesReq_Type type,
-  }) async {
-    var pointer = lastMessageId + 1;
-    Message? lastMessage;
-    while (pointer > 0) {
-      pointer -= 1;
-
-      try {
-        final msg = await _messageDao.getMessage(roomUid.asString(), pointer);
-
-        if (msg != null) {
-          if (msg.id! <= firstMessageId || (msg.isHidden && msg.id == 1)) {
-            _roomDao.updateRoom(Room(uid: roomUid.asString(), deleted: true));
-            break;
-          } else if (!msg.isHidden) {
-            lastMessage = msg;
-            break;
-          }
-        } else {
-          lastMessage = await getLastMessageFromServer(
-            roomUid,
-            lastMessageId,
-            lastMessageId,
-            type,
-            25,
-            firstMessageId,
-          );
-          break;
-        }
-      } catch (_) {
-        break;
-      }
-    }
-
-    if (lastMessage != null) {
-      _roomDao.updateRoom(
-        Room(
-          uid: roomUid.asString(),
-          firstMessageId: firstMessageId,
-          lastUpdateTime: lastMessage.time,
-          lastMessageId: lastMessageId,
-          lastMessage: lastMessage,
-        ),
-      );
-      return lastMessage;
+  Future<void> fetchOtherSeen(Uid roomUid) {
+    if (roomUid.category == Categories.USER ||
+        roomUid.category == Categories.GROUP) {
+      return _queryServiceClient
+          .fetchLastOtherUserSeenData(
+            FetchLastOtherUserSeenDataReq()..roomUid = roomUid,
+          )
+          .then(
+            (fetchLastOtherUserSeenData) => _seenDao.saveOthersSeen(
+              Seen(
+                uid: roomUid.asString(),
+                messageId: fetchLastOtherUserSeenData.seen.id.toInt(),
+                hiddenMessageCount: 0,
+              ),
+            ),
+          )
+          .catchError((e) {
+        _logger
+          ..wtf("roomUid: $roomUid")
+          ..e(e);
+      });
     } else {
-      return null;
-    }
-  }
-
-  Future<Message?> getLastMessageFromServer(
-    Uid roomUid,
-    int lastMessageId,
-    int pointer,
-    FetchMessagesReq_Type type,
-    int limit,
-    int firstMessageId,
-  ) async {
-    Message? lastMessage;
-    final fetchMessagesRes = await _queryServiceClient.fetchMessages(
-      FetchMessagesReq()
-        ..roomUid = roomUid
-        ..pointer = Int64(pointer)
-        ..type = type
-        ..limit = limit,
-      options: CallOptions(timeout: const Duration(seconds: 3)),
-    );
-
-    final messages = await _saveFetchMessages(fetchMessagesRes.messages);
-
-    for (final msg in messages) {
-      if (msg.id! <= firstMessageId && (msg.isHidden && msg.id == 1)) {
-        _roomDao.updateRoom(Room(uid: roomUid.asString(), deleted: true));
-        break;
-      } else if (!msg.isHidden) {
-        lastMessage = msg;
-        break;
-      }
-    }
-    return lastMessage;
-  }
-
-  Future<void> fetchOtherSeen(Uid roomUid) async {
-    try {
-      if (roomUid.category == Categories.USER ||
-          roomUid.category == Categories.GROUP) {
-        final fetchLastOtherUserSeenData =
-            await _queryServiceClient.fetchLastOtherUserSeenData(
-          FetchLastOtherUserSeenDataReq()..roomUid = roomUid,
-        );
-        _seenDao.saveOthersSeen(
-          Seen(
-            uid: roomUid.asString(),
-            messageId: fetchLastOtherUserSeenData.seen.id.toInt(),
-          ),
-        );
-      }
-    } catch (e) {
-      _logger
-        ..wtf("roomUid: $roomUid")
-        ..e(e);
+      return Future.value();
     }
   }
 
@@ -381,46 +280,49 @@ class MessageRepo {
         FetchCurrentUserSeenDataReq()..roomUid = room.roomUid,
       );
 
-      final lastSeen = await _seenDao.getMySeen(room.roomUid.asString());
-      if (lastSeen.messageId != -1 &&
-          lastSeen.messageId >
-              max(
-                fetchCurrentUserSeenData.seen.id.toInt(),
-                room.lastCurrentUserSentMessageId.toInt(),
-              )) return;
-      _seenDao.saveMySeen(
-        Seen(
-          uid: room.roomUid.asString(),
-          hiddenMessageCount: lastSeen.hiddenMessageCount ?? 0,
-          messageId: max(
-            fetchCurrentUserSeenData.seen.id.toInt(),
-            room.lastCurrentUserSentMessageId.toInt(),
-          ),
-        ),
+      final newSeenMessageId = max(
+        fetchCurrentUserSeenData.seen.id.toInt(),
+        room.lastCurrentUserSentMessageId.toInt(),
+      );
+
+      await _seenDao.updateMySeen(
+        uid: room.roomUid.asString(),
+        messageId: newSeenMessageId,
+      );
+
+      return fetchHiddenMessageCount(
+        room.roomUid,
+        newSeenMessageId,
       );
     } on GrpcError catch (e) {
-      _logger.e(e);
+      _logger
+        ..wtf(room.roomUid.asString())
+        ..e(e);
       if (e.code == StatusCode.notFound) {
-        _seenDao.saveMySeen(Seen(uid: room.roomUid.asString(), messageId: 0));
+        return _seenDao.updateMySeen(
+          uid: room.roomUid.asString(),
+          messageId: 0,
+        );
       }
     } catch (e) {
       _logger.e(e);
     }
   }
 
-  Future getMentions(Room room) async {
-    try {
-      final mentionResult = await _queryServiceClient.fetchMentionList(
-        FetchMentionListReq()
-          ..group = room.uid.asUid()
-          ..afterId = Int64.parseInt(room.lastMessage!.id.toString()),
-      );
+  Future<void> getMentions(Room room) {
+    return _queryServiceClient
+        .fetchMentionList(
+      FetchMentionListReq()
+        ..group = room.uid.asUid()
+        ..afterId = Int64.parseInt(room.lastMessage!.id.toString()),
+    )
+        .then((mentionResult) {
       if (mentionResult.idList.isNotEmpty) {
-        _roomDao.updateRoom(Room(uid: room.uid, mentioned: true));
+        _roomDao.updateRoom(uid: room.uid, mentioned: true);
       }
-    } catch (e) {
+    }).catchError((e) {
       _logger.e(e);
-    }
+    });
   }
 
   Future<void> sendTextMessage(
@@ -628,9 +530,9 @@ class MessageRepo {
 
     final m = await _sendFileToServerOfPendingMessage(pm);
     if (m != null && m.status == SendingStatus.UPLOAD_FILE_COMPELED) {
-      await _sendMessageToServer(m);
+      _sendMessageToServer(m);
     } else if (m != null) {
-      _messageDao.savePendingMessage(m);
+      return _messageDao.savePendingMessage(m);
     }
   }
 
@@ -689,7 +591,7 @@ class MessageRepo {
       // Update pending messages table
       await _savePendingMessage(newPm);
 
-      _updateRoomLastMessage(newPm);
+      await _updateRoomLastMessage(newPm);
       return newPm;
     } else {
       final newPm = pm.copyWith(status: SendingStatus.UPLIOD_FILE_FAIL);
@@ -697,12 +599,10 @@ class MessageRepo {
     }
   }
 
-  Future<void> _sendMessageToServer(PendingMessage pm) async {
+  void _sendMessageToServer(PendingMessage pm) {
     final byClient = _createMessageByClient(pm.msg);
 
     _coreServices.sendMessage(byClient);
-    // TODO(dansi): remove later, we don't need send no activity after sending messages, every time we received message we should set activity of room as no activity, https://gitlab.iais.co/deliver/wiki/-/issues/427
-    sendActivity(byClient.to, ActivityType.NO_ACTIVITY);
   }
 
   message_pb.MessageByClient _createMessageByClient(Message message) {
@@ -768,12 +668,12 @@ class MessageRepo {
             break;
           case SendingStatus.PENDING:
           case SendingStatus.UPLOAD_FILE_COMPELED:
-            await _sendMessageToServer(pendingMessage);
+            _sendMessageToServer(pendingMessage);
             break;
           case SendingStatus.UPLIOD_FILE_FAIL:
             final pm = await _sendFileToServerOfPendingMessage(pendingMessage);
             if (pm != null) {
-              await _sendMessageToServer(pm);
+              _sendMessageToServer(pm);
             }
             break;
         }
@@ -789,9 +689,8 @@ class MessageRepo {
         status: status,
       );
 
-  Future<void> _savePendingMessage(PendingMessage pm) async {
-    _messageDao.savePendingMessage(pm);
-  }
+  Future<void> _savePendingMessage(PendingMessage pm) =>
+      _messageDao.savePendingMessage(pm);
 
   Future<void> sendSeen(int messageId, Uid to) async {
     final seen = await _seenDao.getMySeen(to.asString());
@@ -803,17 +702,13 @@ class MessageRepo {
     );
   }
 
-  Future<void> _updateRoomLastMessage(PendingMessage pm) async {
-    await _roomDao.updateRoom(
-      Room(
+  Future<void> _updateRoomLastMessage(PendingMessage pm) => _roomDao.updateRoom(
         uid: pm.roomUid,
         lastMessage: pm.msg,
         lastMessageId: pm.msg.id,
         deleted: false,
         lastUpdateTime: pm.msg.time,
-      ),
-    );
-  }
+      );
 
   Future<void> sendForwardedMessage(
     Uid room,
@@ -875,10 +770,10 @@ class MessageRepo {
     String roomId,
     int containsId,
     int lastMessageId, {
-    int pageSize = 16,
-  }) async {
+    int pageSize = PAGE_SIZE,
+  }) {
     if (containsId > lastMessageId) {
-      return [];
+      return Future.value([]);
     }
 
     var completer = _completerMap["$roomId-$page"];
@@ -889,8 +784,8 @@ class MessageRepo {
     completer = Completer();
     _completerMap["$roomId-$page"] = completer;
 
-    _messageDao.getMessagePage(roomId, page)!.then((messages) async {
-      if (messages.any((element) => element!.id == containsId)) {
+    _messageDao.getMessagePage(roomId, page).then((messages) async {
+      if (messages.any((element) => element.id == containsId)) {
         completer!.complete(messages);
       } else {
         await getMessages(roomId, page, pageSize, completer!, lastMessageId);
@@ -905,9 +800,8 @@ class MessageRepo {
     int page,
     int pageSize,
     Completer<List<Message?>> completer,
-    int lastMessageId, {
-    bool retry = true,
-  }) async {
+    int lastMessageId,
+  ) async {
     try {
       final fetchMessagesRes = await _queryServiceClient.fetchMessages(
         FetchMessagesReq()
@@ -916,154 +810,12 @@ class MessageRepo {
           ..type = FetchMessagesReq_Type.FORWARD_FETCH
           ..limit = pageSize,
       );
-      final res = await _saveFetchMessages(fetchMessagesRes.messages);
-      if (res.isNotEmpty && res.last.id == lastMessageId) {
-        _roomDao.updateRoom(
-          Room(
-            lastMessage: res.last,
-            uid: roomId,
-            lastMessageId: lastMessageId,
-          ),
-        );
-      }
+      final res = await _dataStreamServices
+          .saveFetchMessages(fetchMessagesRes.messages);
       completer.complete(res);
     } catch (e) {
       _logger.e(e);
-      if (retry) {
-        getMessages(
-          roomId,
-          page,
-          pageSize,
-          completer,
-          lastMessageId,
-          retry: false,
-        );
-      } else {
-        completer
-          ..complete([])
-          ..completeError(e);
-      }
-    }
-  }
-
-// TODO(hasan): Some parts of this function should be transform to DataStreamServices class, https://gitlab.iais.co/deliver/wiki/-/issues/428
-  Future<List<Message>> _saveFetchMessages(
-    List<message_pb.Message> messages,
-  ) async {
-    final msgList = <Message>[];
-    for (final message in messages) {
-      _messageDao.deletePendingMessage(message.packetId);
-      try {
-        if (message.whichType() == message_pb.Message_Type.persistEvent) {
-          switch (message.persistEvent.whichType()) {
-            case PersistentEvent_Type.mucSpecificPersistentEvent:
-              switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
-                case MucSpecificPersistentEvent_Issue.DELETED:
-                  _roomDao.updateRoom(
-                    Room(uid: message.from.asString(), deleted: true),
-                  );
-                  continue;
-                case MucSpecificPersistentEvent_Issue.ADD_USER:
-                  _roomDao.updateRoom(
-                    Room(uid: message.from.asString(), deleted: false),
-                  );
-                  break;
-                case MucSpecificPersistentEvent_Issue.KICK_USER:
-                  if (_authRepo.isCurrentUserUid(
-                    message.persistEvent.mucSpecificPersistentEvent.assignee,
-                  )) {
-                    _roomDao.updateRoom(
-                      Room(uid: message.from.asString(), deleted: true),
-                    );
-                    continue;
-                  }
-                  break;
-                case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
-                  _avatarRepo.fetchAvatar(message.from, forceToUpdate: true);
-                  break;
-                case MucSpecificPersistentEvent_Issue.JOINED_USER:
-                case MucSpecificPersistentEvent_Issue.LEAVE_USER:
-                case MucSpecificPersistentEvent_Issue.MUC_CREATED:
-                case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
-                case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
-                  // TODO(dansi): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/417
-                  break;
-              }
-              break;
-            case PersistentEvent_Type.messageManipulationPersistentEvent:
-              final roomUid = getRoomUid(_authRepo, message);
-              switch (message
-                  .persistEvent.messageManipulationPersistentEvent.action) {
-                case MessageManipulationPersistentEvent_Action.EDITED:
-                  fetchEditedMsg(
-                    roomUid,
-                    message.persistEvent.messageManipulationPersistentEvent
-                        .messageId
-                        .toInt(),
-                  );
-                  break;
-                case MessageManipulationPersistentEvent_Action.DELETED:
-                  final mes = await _messageDao.getMessage(
-                    roomUid.asString(),
-                    message.persistEvent.messageManipulationPersistentEvent
-                        .messageId
-                        .toInt(),
-                  );
-                  if (mes != null) {
-                    if (mes.type == MessageType.FILE && mes.id != null) {
-                      _mediaDao.deleteMedia(roomUid.asString(), mes.id!);
-                    }
-                    _messageDao.saveMessage(mes.copyDeleted());
-                    _roomDao.updateRoom(
-                      Room(
-                        uid: roomUid.asString(),
-                        lastUpdatedMessageId: mes.id,
-                      ),
-                    );
-                  }
-
-                  break;
-              }
-              break;
-            case PersistentEvent_Type.adminSpecificPersistentEvent:
-            case PersistentEvent_Type.botSpecificPersistentEvent:
-            case PersistentEvent_Type.notSet:
-              break;
-          }
-        } else {}
-      } catch (e) {
-        _logger.e(e);
-      }
-      final m = await saveMessageInMessagesDB(_authRepo, _messageDao, message);
-      msgList.add(m!);
-    }
-    return msgList;
-  }
-
-  Future<void> fetchEditedMsg(
-    Uid roomUid,
-    int id,
-  ) async {
-    final res = await _queryServiceClient.fetchMessages(
-      FetchMessagesReq()
-        ..roomUid = roomUid
-        ..limit = 1
-        ..pointer = Int64(id)
-        ..type = FetchMessagesReq_Type.FORWARD_FETCH,
-    );
-    final msg = await saveMessageInMessagesDB(
-      _authRepo,
-      _messageDao,
-      res.messages.first,
-    );
-    final room = await _roomDao.getRoom(roomUid.asString());
-    await _roomDao.updateRoom(
-      room!.copyWith(
-        lastUpdatedMessageId: id,
-      ),
-    );
-    if (room.lastMessageId == id) {
-      _roomDao.updateRoom(room.copyWith(lastMessage: msg));
+      completer.complete([]);
     }
   }
 
@@ -1080,20 +832,13 @@ class MessageRepo {
 
   Future<void> sendFormResultMessage(
     String botUid,
-    Map<String, String> formResultMap,
-    int formMessageId, {
-    String? forwardFromAsString,
-  }) async {
-    final formResult = FormResult();
-    for (final fileId in formResultMap.keys) {
-      formResult.values[fileId] = formResultMap[fileId]!;
-    }
+    FormResult formResult,
+    int formMessageId,
+  ) async {
     final jsonString = (formResult).writeToJson();
-
     final msg = _createMessage(
       botUid.asUid(),
       replyId: formMessageId,
-      forwardedFrom: forwardFromAsString,
     ).copyWith(type: MessageType.FORM_RESULT, json: jsonString);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
@@ -1114,7 +859,7 @@ class MessageRepo {
     _saveAndSend(pm);
   }
 
-  Future<void> sendPrivateMessageAccept(
+  Future<void> sendPrivateDataAcceptanceMessage(
     Uid to,
     PrivateDataType privateDataType,
     String token,
@@ -1157,23 +902,10 @@ class MessageRepo {
     _messageDao.deletePendingMessage(packetId);
   }
 
-  Future<bool> pinMessage(Message message) async {
-    try {
-      return await _mucServices.pinMessage(message);
-    } catch (e) {
-      _logger.e(e);
-      return false;
-    }
-  }
+  Future<void> pinMessage(Message message) => _mucServices.pinMessage(message);
 
-  Future<bool> unpinMessage(Message message) async {
-    try {
-      return await _mucServices.unpinMessage(message);
-    } catch (e) {
-      _logger.e(e);
-      return false;
-    }
-  }
+  Future<void> unpinMessage(Message message) =>
+      _mucServices.unpinMessage(message);
 
   Future<void> sendLiveLocationMessage(
     Uid roomUid,
@@ -1223,28 +955,39 @@ class MessageRepo {
         final msg = message.copyDeleted();
 
         if (msg.type == MessageType.FILE && msg.id != null) {
-          _mediaDao.deleteMedia(msg.roomUid, msg.id!);
+          unawaited(_mediaDao.deleteMedia(msg.roomUid, msg.id!));
         }
         if (msg.id == null) {
           deletePendingMessage(msg.packetId);
         } else {
           if (await _deleteMessage(msg)) {
-            final room = await _roomRepo.getRoom(msg.roomUid);
-            if (room != null) {
-              if (msg.id == room.lastMessageId) {
-                _roomDao.updateRoom(
-                  Room(
-                    uid: msg.roomUid,
-                    lastMessage: msg,
-                    lastUpdateTime: clock.now().millisecondsSinceEpoch,
-                  ),
-                );
-              }
+            await _messageDao.saveMessage(msg);
+            messageEventSubject.add(
+              MessageEvent(
+                message.roomUid,
+                DateTime.now().millisecondsSinceEpoch,
+                message.id!,
+                MessageManipulationPersistentEvent_Action.DELETED,
+              ),
+            );
+
+            final room = (await _roomRepo.getRoom(msg.roomUid))!;
+
+            Message? lastNotHiddenMessage;
+
+            if (msg.id == room.lastMessage?.id) {
+              lastNotHiddenMessage =
+                  await _dataStreamServices.fetchLastNotHiddenMessage(
+                room.uid.asUid(),
+                room.lastMessageId,
+                room.firstMessageId,
+              );
             }
 
-            _messageDao.saveMessage(msg);
-            _roomDao.updateRoom(
-              Room(uid: msg.roomUid, lastUpdatedMessageId: msg.id),
+            return _roomDao.updateRoom(
+              uid: msg.roomUid,
+              lastMessage: lastNotHiddenMessage,
+              lastUpdateTime: clock.now().millisecondsSinceEpoch,
             );
           }
         }
@@ -1258,7 +1001,6 @@ class MessageRepo {
     Uid roomUid,
     Message editableMessage,
     String text,
-    int? roomLastMessageId,
   ) async {
     try {
       final updatedMessage = message_pb.MessageByClient()
@@ -1273,16 +1015,21 @@ class MessageRepo {
       editableMessage
         ..json = (message_pb.Text()..text = text).writeToJson()
         ..edited = true;
-      _messageDao.saveMessage(editableMessage);
-      _roomDao.updateRoom(
-        Room(
-          uid: roomUid.asString(),
-          lastUpdatedMessageId: editableMessage.id,
+      await _messageDao.saveMessage(editableMessage);
+      messageEventSubject.add(
+        MessageEvent(
+          editableMessage.roomUid,
+          DateTime.now().millisecondsSinceEpoch,
+          editableMessage.id!,
+          MessageManipulationPersistentEvent_Action.EDITED,
         ),
       );
-      if (editableMessage.id == roomLastMessageId) {
-        _roomDao.updateRoom(
-          Room(uid: roomUid.asString(), lastMessage: editableMessage),
+      final room = (await _roomDao.getRoom(editableMessage.roomUid))!;
+
+      if (editableMessage.id == room.lastMessage?.id) {
+        await _roomDao.updateRoom(
+          uid: roomUid.asString(),
+          lastMessage: editableMessage,
         );
       }
     } catch (e) {
@@ -1312,7 +1059,7 @@ class MessageRepo {
     } else {
       final preFile = editableMessage.json.toFile();
       updatedFile = file_pb.File.create()
-        ..caption = caption!
+        ..caption = caption ?? ""
         ..name = preFile.name
         ..uuid = preFile.uuid
         ..type = preFile.type
@@ -1336,13 +1083,24 @@ class MessageRepo {
     editableMessage
       ..json = updatedFile.writeToJson()
       ..edited = true;
-    _messageDao.saveMessage(editableMessage);
-    _mediaRepo.updateMedia(editableMessage);
-    _roomDao.updateRoom(
-      Room(
-        uid: roomUid.asString(),
-        lastUpdatedMessageId: editableMessage.id,
+    await _messageDao.saveMessage(editableMessage);
+    await _mediaRepo.updateMedia(editableMessage);
+    messageEventSubject.add(
+      MessageEvent(
+        editableMessage.roomUid,
+        DateTime.now().millisecondsSinceEpoch,
+        editableMessage.id!,
+        MessageManipulationPersistentEvent_Action.EDITED,
       ),
     );
+
+    final room = (await _roomDao.getRoom(editableMessage.roomUid))!;
+
+    if (editableMessage.id == room.lastMessage?.id) {
+      await _roomDao.updateRoom(
+        uid: roomUid.asString(),
+        lastMessage: editableMessage,
+      );
+    }
   }
 }

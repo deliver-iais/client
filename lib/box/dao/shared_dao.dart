@@ -1,4 +1,5 @@
 import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
 abstract class SharedDao {
@@ -39,14 +40,14 @@ class SharedDaoImpl implements SharedDao {
   Future<void> put(String key, String value) async {
     final box = await _open();
 
-    box.put(key, value);
+    return box.put(key, value);
   }
 
   @override
   Future<void> remove(String key) async {
     final box = await _open();
 
-    box.delete(key);
+    return box.delete(key);
   }
 
   @override
@@ -62,8 +63,8 @@ class SharedDaoImpl implements SharedDao {
   Future<void> putBoolean(String key, bool value) =>
       put(key, value ? "t" : "f");
 
-  static Future<Box> _open() {
+  static Future<BoxPlus> _open() {
     BoxInfo.addBox("shared");
-    return Hive.openBox("shared");
+    return gen(Hive.openBox("shared"));
   }
 }

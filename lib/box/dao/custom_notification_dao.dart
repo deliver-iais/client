@@ -1,4 +1,5 @@
 import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
 abstract class CustomNotificationDao {
@@ -12,9 +13,9 @@ abstract class CustomNotificationDao {
 class CustomNotificationDaoImpl implements CustomNotificationDao {
   static String _key() => "customnotification";
 
-  static Future<Box<String>> _open() {
+  static Future<BoxPlus<String>> _open() {
     BoxInfo.addBox(_key());
-    return Hive.openBox<String>(_key());
+    return gen(Hive.openBox<String>(_key()));
   }
 
   @override
@@ -31,7 +32,7 @@ class CustomNotificationDaoImpl implements CustomNotificationDao {
   Future<void> setCustomNotif(String uid, String fileName) async {
     final box = await _open();
 
-    box.put(uid, fileName);
+    return box.put(uid, fileName);
   }
 
   @override

@@ -1,4 +1,5 @@
 import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/media_meta_data.dart';
 import 'package:hive/hive.dart';
 
@@ -26,14 +27,7 @@ class MediaMetaDataDaoImpl implements MediaMetaDataDao {
   @override
   Future<void> save(MediaMetaData mediaMetaData) async {
     final box = await _open();
-    box.put(mediaMetaData.roomId, mediaMetaData);
-  }
-
-  static String _key() => "media_meta_data";
-
-  static Future<Box<MediaMetaData>> _open() {
-    BoxInfo.addBox(_key());
-    return Hive.openBox<MediaMetaData>(_key());
+    return box.put(mediaMetaData.roomId, mediaMetaData);
   }
 
   @override
@@ -50,5 +44,12 @@ class MediaMetaDataDaoImpl implements MediaMetaDataDao {
   Future clear(String roomUid) async {
     final box = await _open();
     await box.delete(roomUid);
+  }
+
+  static String _key() => "media_meta_data";
+
+  static Future<BoxPlus<MediaMetaData>> _open() {
+    BoxInfo.addBox(_key());
+    return gen(Hive.openBox<MediaMetaData>(_key()));
   }
 }

@@ -43,7 +43,7 @@ dependencies:
   dcache: 0.4.0
   deliver_public_protocol:
     git:
-      ref: tags/v1.11.28
+      ref: tags/v1.12.10
       url: https://github.com/deliver-iais/pub-dart-artifactory
   desktop_drop: 0.3.3
   desktop_lifecycle: 0.1.0
@@ -90,7 +90,7 @@ dependencies:
     git:
       ref: 29af7df647c0999a41c6b4186de8709574d81de5
       url: https://github.com/deliver-iais/grpc-dart
-  hive: 2.0.4
+  hive: 2.1.0
   hive_flutter: 1.1.0
   hovering: 1.0.4
   http: 0.13.4
@@ -98,6 +98,7 @@ dependencies:
   image_compression_flutter: 1.0.2
   image_picker: 0.8.4+11
   image_size_getter: 1.0.0
+  intl: 0.17.0
   js: 0.6.3
   jwt_decoder: 2.0.1
   latlong2: 0.8.1
@@ -172,6 +173,7 @@ flutter:
     - assets/animations/arrow.json
     - assets/animations/audio_wave.tgs
     - assets/animations/clock.json
+    - assets/animations/lock.json
     - assets/animations/done.tgs
     - assets/animations/file-save.json
     - assets/animations/not-found.tgs
@@ -194,6 +196,7 @@ flutter:
     - lib/lang/fa.json
     - assets/animations/end_of_call.json
     - assets/audios/end_call.mp3
+    - assets/animations/new_version.zip
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

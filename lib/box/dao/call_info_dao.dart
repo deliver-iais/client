@@ -1,5 +1,6 @@
 import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/call_info.dart';
+import 'package:deliver/box/hive_plus.dart';
 
 import 'package:hive/hive.dart';
 
@@ -26,17 +27,21 @@ class CallInfoDaoImpl implements CallInfoDao {
     return box.put(callList.callEvent.id, callList);
   }
 
-  static String _key() => "call_list";
-
-  static Future<Box<CallInfo>> _open() {
-    BoxInfo.addBox(_key());
-    return Hive.openBox<CallInfo>(_key());
-  }
-
   @override
   Stream<List<CallInfo>> watchAllCalls() async* {
     final box = await _open();
 
     yield box.values.toList();
+
+    yield* box.watch().map(
+          (event) => box.values.toList(),
+        );
+  }
+
+  static String _key() => "call_list";
+
+  static Future<BoxPlus<CallInfo>> _open() {
+    BoxInfo.addBox(_key());
+    return gen(Hive.openBox<CallInfo>(_key()));
   }
 }

@@ -39,7 +39,7 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
           ? () => handleCopy(delegate, clipboardStatus)
           : null,
       handlePaste: canPaste(delegate)
-          ? () async {
+          ? () {
               handlePaste(delegate);
               _rawKeyboardService.controlVHandle(
                 textController,

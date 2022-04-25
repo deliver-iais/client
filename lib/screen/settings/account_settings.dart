@@ -1,7 +1,7 @@
 import 'dart:io';
 
+import 'package:deliver/box/account.dart';
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/models/account.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
@@ -9,7 +9,9 @@ import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
@@ -38,18 +40,17 @@ class _AccountSettingsState extends State<AccountSettings> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
-  String _username = "";
-  String _newUsername = "";
-  String _email = "";
-  String _lastName = "";
-  String _firstName = "";
-  String _lastUserName = "";
-  String _description = "";
-  Account? _account;
+  final _usernameTextController = TextEditingController();
+  final _firstnameTextController = TextEditingController();
+  final _lastnameTextController = TextEditingController();
+  final _emailTextController = TextEditingController();
+  final _descriptionTextController = TextEditingController();
+
+  Account _account = Account();
   final _formKey = GlobalKey<FormState>();
   final _usernameFormKey = GlobalKey<FormState>();
-  bool usernameIsAvailable = true;
-  bool _userNameCorrect = false;
+  final BehaviorSubject<bool> _usernameIsAvailable =
+      BehaviorSubject.seeded(true);
 
   final BehaviorSubject<String> _newAvatarPath = BehaviorSubject.seeded("");
 
@@ -79,43 +80,43 @@ class _AccountSettingsState extends State<AccountSettings> {
         cropAvatar(path);
       }
     } else {
-      showModalBottomSheet(
-        context: context,
-        isScrollControlled: true,
-        isDismissible: true,
-        backgroundColor: Colors.transparent,
-        builder: (context) {
-          return DraggableScrollableSheet(
-            initialChildSize: 0.3,
-            minChildSize: 0.2,
-            expand: false,
-            builder: (context, scrollController) {
-              return Container(
-                color: Colors.white,
-                child: Stack(
-                  children: <Widget>[
-                    Container(
-                      padding: const EdgeInsets.all(0),
-                      child: ShareBoxGallery(
-                        pop: () => Navigator.pop(context),
-                        scrollController: scrollController,
-                        setAvatar: (filePath) async {
-                          cropAvatar(filePath);
-                        },
-                        roomUid: _authRepo.currentUserUid,
+      unawaited(
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          isDismissible: true,
+          backgroundColor: Colors.transparent,
+          builder: (context) {
+            return DraggableScrollableSheet(
+              initialChildSize: 0.3,
+              minChildSize: 0.2,
+              expand: false,
+              builder: (context, scrollController) {
+                return Container(
+                  color: Colors.white,
+                  child: Stack(
+                    children: <Widget>[
+                      Container(
+                        padding: const EdgeInsets.all(0),
+                        child: ShareBoxGallery(
+                          pop: () => Navigator.pop(context),
+                          scrollController: scrollController,
+                          setAvatar: cropAvatar,
+                          roomUid: _authRepo.currentUserUid,
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          );
-        },
+                    ],
+                  ),
+                );
+              },
+            );
+          },
+        ),
       );
     }
   }
 
-  Future<void> cropAvatar(String imagePath) async {
+  void cropAvatar(String imagePath) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -146,17 +147,13 @@ class _AccountSettingsState extends State<AccountSettings> {
       subject.stream
           .debounceTime(const Duration(milliseconds: 250))
           .listen((username) async {
-        _usernameFormKey.currentState?.validate();
-        if (_userNameCorrect) {
-          if (_lastUserName != username) {
-            final validUsername = await _accountRepo.checkUserName(username);
-            setState(() {
-              usernameIsAvailable = validUsername;
-            });
+        if (_usernameFormKey.currentState?.validate() ?? false) {
+          if ((_account.username == null) ||
+              _account.username != _usernameTextController.text) {
+            _usernameIsAvailable
+                .add(await _accountRepo.checkUserName(username));
           } else {
-            setState(() {
-              usernameIsAvailable = true;
-            });
+            _usernameIsAvailable.add(true);
           }
         }
       });
@@ -193,16 +190,21 @@ class _AccountSettingsState extends State<AccountSettings> {
           ),
         ),
         body: FluidContainerWidget(
-          child: FutureBuilder<Account>(
+          child: FutureBuilder<Account?>(
             future: _accountRepo.getAccount(),
             builder: (c, snapshot) {
               if (!snapshot.hasData || snapshot.data == null) {
                 return const SizedBox.shrink();
               }
-              _account = snapshot.data;
-              if (snapshot.data!.userName != null) {
-                _lastUserName = snapshot.data!.userName!;
+              if (snapshot.hasData && snapshot.data != null) {
+                _account = snapshot.data!;
               }
+
+              _usernameTextController.text = _account.username ?? "";
+              _firstnameTextController.text = _account.firstname ?? "";
+              _lastnameTextController.text = _account.lastname ?? "";
+              _emailTextController.text = _account.email ?? "";
+
               return ListView(
                 children: [
                   Section(
@@ -294,14 +296,10 @@ class _AccountSettingsState extends State<AccountSettings> {
                                     key: _usernameFormKey,
                                     child: TextFormField(
                                       minLines: 1,
-                                      initialValue: snapshot.data!.userName,
+                                      controller: _usernameTextController,
                                       textInputAction: TextInputAction.send,
                                       onChanged: (str) {
-                                        setState(() {
-                                          _newUsername = str;
-                                          _username = str;
-                                          subject.add(str);
-                                        });
+                                        subject.add(str);
                                       },
                                       validator: validateUsername,
                                       decoration: buildInputDecoration(
@@ -313,48 +311,53 @@ class _AccountSettingsState extends State<AccountSettings> {
                                   const SizedBox(
                                     height: 5,
                                   ),
-                                  if (_newUsername.isEmpty)
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            _i18n.get("username_helper"),
-                                            textAlign: TextAlign.justify,
-                                            overflow: TextOverflow.ellipsis,
-                                            maxLines: 2,
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              color: Colors.blueAccent,
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  if (usernameIsAvailable)
-                                    Row(
-                                      children: [
-                                        Text(
-                                          _i18n.get("username_already_exist"),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          _i18n.get("username_helper"),
+                                          textAlign: TextAlign.justify,
+                                          overflow: TextOverflow.ellipsis,
+                                          maxLines: 2,
                                           style: const TextStyle(
-                                            fontSize: 10,
-                                            color: Colors.red,
+                                            fontSize: 14,
+                                            color: Colors.blueAccent,
                                           ),
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                    ],
+                                  ),
+                                  StreamBuilder<bool>(
+                                    stream: _usernameIsAvailable.stream,
+                                    builder: (context, snapshot) {
+                                      if (snapshot.hasData &&
+                                          snapshot.data != null &&
+                                          !snapshot.data!) {
+                                        return Row(
+                                          children: [
+                                            Text(
+                                              _i18n.get(
+                                                "username_already_exist",
+                                              ),
+                                              style: const TextStyle(
+                                                fontSize: 10,
+                                                color: Colors.red,
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      } else {
+                                        return const SizedBox.shrink();
+                                      }
+                                    },
+                                  ),
                                   const SizedBox(
                                     height: 20,
                                   ),
                                   TextFormField(
-                                    initialValue:
-                                        snapshot.data!.firstName ?? "",
                                     minLines: 1,
+                                    controller: _firstnameTextController,
                                     textInputAction: TextInputAction.send,
-                                    onChanged: (str) {
-                                      setState(() {
-                                        _firstName = str;
-                                      });
-                                    },
                                     validator: validateFirstName,
                                     decoration: buildInputDecoration(
                                       _i18n.get("firstName"),
@@ -365,14 +368,9 @@ class _AccountSettingsState extends State<AccountSettings> {
                                     height: 20,
                                   ),
                                   TextFormField(
-                                    initialValue: snapshot.data!.lastName ?? "",
                                     minLines: 1,
+                                    controller: _lastnameTextController,
                                     textInputAction: TextInputAction.send,
-                                    onChanged: (str) {
-                                      setState(() {
-                                        _lastName = str;
-                                      });
-                                    },
                                     decoration: buildInputDecoration(
                                       _i18n.get("lastName"),
                                     ),
@@ -380,34 +378,26 @@ class _AccountSettingsState extends State<AccountSettings> {
                                   const SizedBox(
                                     height: 20,
                                   ),
-                                  TextFormField(
-                                    initialValue: snapshot.data!.email ?? "",
-                                    minLines: 1,
-                                    textInputAction: TextInputAction.send,
-                                    onChanged: (str) {
-                                      setState(() {
-                                        _email = str;
-                                      });
-                                    },
-                                    validator: validateEmail,
-                                    decoration: buildInputDecoration(
-                                      _i18n.get("email"),
+                                  if (TWO_STEP_VERIFICATION_IS_AVAILABLE)
+                                    TextFormField(
+                                      minLines: 1,
+                                      controller: _emailTextController,
+                                      textInputAction: TextInputAction.send,
+                                      validator: validateEmail,
+                                      decoration: InputDecoration(
+                                        labelText: _i18n.get("email"),
+                                      ),
                                     ),
-                                  ),
                                   const SizedBox(
                                     height: 20,
                                   ),
                                   TextFormField(
-                                    initialValue: snapshot.data!.description ?? "",
                                     minLines: 1,
+                                    controller: _descriptionTextController,
                                     textInputAction: TextInputAction.send,
-                                    onChanged: (str) {
-                                      setState(() {
-                                        _description = str;
-                                      });
-                                    },
-                                    decoration: buildInputDecoration(
-                                      _i18n.get("description"),
+                                    validator: validateEmail,
+                                    decoration: InputDecoration(
+                                      labelText:  _i18n.get("description"),
                                     ),
                                   ),
                                 ],
@@ -418,9 +408,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                               alignment: Alignment.centerRight,
                               child: ElevatedButton(
                                 child: Text(_i18n.get("save")),
-                                onPressed: () async {
-                                  checkAndSend();
-                                },
+                                onPressed: checkAndSend,
                               ),
                             )
                           ],
@@ -468,21 +456,11 @@ class _AccountSettingsState extends State<AccountSettings> {
     const Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
     final regex = RegExp(pattern.toString());
     if (value!.isEmpty) {
-      setState(() {
-        _userNameCorrect = false;
-        usernameIsAvailable = true;
-      });
+      _usernameIsAvailable.add(true);
       return _i18n.get("username_not_empty");
     } else if (!regex.hasMatch(value)) {
-      setState(() {
-        _userNameCorrect = false;
-        usernameIsAvailable = true;
-      });
-      return _i18n.get("username_length");
-    } else {
-      setState(() {
-        _userNameCorrect = true;
-      });
+      _usernameIsAvailable.add(true);
+      return _i18n.get("username_not_valid");
     }
     return null;
   }
@@ -505,14 +483,36 @@ class _AccountSettingsState extends State<AccountSettings> {
     if (checkUserName) {
       final isValidated = _formKey.currentState?.validate() ?? false;
       if (isValidated) {
-        if (usernameIsAvailable) {
-          final setPrivateInfo = await _accountRepo.setAccountDetails(
-            _username.isNotEmpty ? _username : _account!.userName,
-            _firstName.isNotEmpty ? _firstName : _account!.firstName,
-            _lastName.isNotEmpty ? _lastName : _account!.lastName,
-            _email.isNotEmpty ? _email : _account!.email,
-            _description.isNotEmpty ? _description : _account!.description,
+        if (_usernameIsAvailable.value) {
+          var setPrivateInfo = await _accountRepo.setAccountDetails(
+            username: _usernameTextController.text != _account.username
+                ? _usernameTextController.text
+                : null,
+            firstname: _firstnameTextController.text,
+            lastname: _lastnameTextController.text,
+            Icons.description:_descriptionTextController.text,
           );
+          if (_emailTextController.text.isNotEmpty &&
+              _emailTextController.text != _account.email) {
+            try {
+              final res =
+                  await _accountRepo.updateEmail(_emailTextController.text);
+              if (!res) {
+                ToastDisplay.showToast(
+                  toastContext: context,
+                  toastText: _i18n.get("email_not_verified"),
+                );
+                setPrivateInfo = false;
+              }
+            } catch (e) {
+              ToastDisplay.showToast(
+                toastContext: context,
+                toastText: _i18n.get("error_occurred_in_save_email"),
+              );
+              setPrivateInfo = false;
+            }
+          }
+
           if (setPrivateInfo) {
             if (widget.forceToSetUsernameAndName) {
               navigatorState.pushAndRemoveUntil(
@@ -522,7 +522,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                   },
                 ),
                 (r) => false,
-              );
+              ).ignore();
             } else {
               _routingService.pop();
             }

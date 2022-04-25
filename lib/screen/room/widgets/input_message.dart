@@ -54,7 +54,7 @@ class InputMessage extends StatefulWidget {
   final Message? editableMessage;
   final FocusNode focusNode;
   final TextEditingController textController;
-  final Function(int dir,bool,bool) handleScrollToMessage;
+  final Function(int dir, bool, bool) handleScrollToMessage;
   final Function() deleteSelectedMessage;
 
   @override
@@ -358,7 +358,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                       child:
                                           ValueListenableBuilder<TextDirection>(
                                         valueListenable: _textDir,
-                                        builder: (context, value, child) =>
+                                        builder: (context, textDirection, child) =>
                                             TextField(
                                           selectionControls: isDesktop
                                               ? selectionControls
@@ -390,13 +390,13 @@ class _InputMessageWidget extends State<InputMessage> {
                                             )
                                             //max line of text field
                                           ],
-                                          textDirection: value,
+                                          textDirection: textDirection,
                                           style: theme.textTheme.subtitle1,
                                           onTap: () => _backSubject.add(false),
                                           onChanged: (str) {
-                                            if (str.trim().length < 2) {
+                                            if (str.isNotEmpty) {
                                               final dir = getDirection(str);
-                                              if (dir != value) {
+                                              if (dir != textDirection) {
                                                 _textDir.value = dir;
                                               }
                                             }
@@ -530,7 +530,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                   recordSubject.add(DateTime.now());
                                   setTime();
                                   sendRecordActivity();
-                                  Vibration.vibrate(duration: 200);
+                                  Vibration.vibrate(duration: 200).ignore();
                                   // Start recording
                                   await record.start(
                                     path: path,
@@ -550,7 +550,6 @@ class _InputMessageWidget extends State<InputMessage> {
 
                                 // _soundRecorder.closeAudioSession();
                                 recordAudioTimer.cancel();
-                                noActivitySubject.add(ActivityType.NO_ACTIVITY);
                                 setState(() {
                                   startAudioRecorder = false;
                                   x = 0;
@@ -558,9 +557,11 @@ class _InputMessageWidget extends State<InputMessage> {
                                 });
                                 if (started) {
                                   try {
-                                    messageRepo.sendFileMessage(
-                                      widget.currentRoom.uid.asUid(),
-                                      File(res!, res),
+                                    unawaited(
+                                      messageRepo.sendFileMessage(
+                                        widget.currentRoom.uid.asUid(),
+                                        File(res!, res),
+                                      ),
                                     );
                                   } catch (_) {}
                                 }
@@ -748,24 +749,26 @@ class _InputMessageWidget extends State<InputMessage> {
         TextPosition(offset: widget.textController.text.length),
       );
     } else {
-      // ignore: use_build_context_synchronously
-      _rawKeyboardService.controlVHandle(
-        widget.textController,
-        context,
-        widget.currentRoom.uid.asUid(),
+      unawaited(
+        // ignore: use_build_context_synchronously
+        _rawKeyboardService.controlVHandle(
+          widget.textController,
+          context,
+          widget.currentRoom.uid.asUid(),
+        ),
       );
     }
   }
 
   KeyEventResult _handleArrow(RawKeyEvent event) {
     if (event.physicalKey == PhysicalKeyboardKey.arrowUp &&
-        widget.textController.selection.baseOffset <=0) {
-
-      widget.handleScrollToMessage(-1,event.isControlPressed,true);
-    } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown &&(
-        widget.textController.selection.baseOffset ==
-            widget.textController.text.length ||widget.textController.selection.baseOffset<0)) {
-      widget.handleScrollToMessage(1,event.isControlPressed,true);
+        widget.textController.selection.baseOffset <= 0) {
+      widget.handleScrollToMessage(-1, event.isControlPressed, true);
+    } else if (event.physicalKey == PhysicalKeyboardKey.arrowDown &&
+        (widget.textController.selection.baseOffset ==
+                widget.textController.text.length ||
+            widget.textController.selection.baseOffset < 0)) {
+      widget.handleScrollToMessage(1, event.isControlPressed, true);
     }
     return KeyEventResult.handled;
   }
@@ -787,7 +790,7 @@ class _InputMessageWidget extends State<InputMessage> {
     }
   }
 
-  Future<void> sendBotCommandByEnter() async {
+  void sendBotCommandByEnter() {
     _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then(
           (value) => {
             if (value != null)
@@ -843,8 +846,6 @@ class _InputMessageWidget extends State<InputMessage> {
         widget.textController.text.contains("@") &&
         isMentionSelected) {
       isMentionSelected = false;
-    } else {
-      noActivitySubject.add(ActivityType.NO_ACTIVITY);
     }
     if (widget.waitingForForward == true) {
       widget.sendForwardMessage?.call();
@@ -866,7 +867,6 @@ class _InputMessageWidget extends State<InputMessage> {
             currentRoom.uid.asUid(),
             widget.editableMessage!,
             widget.textController.text,
-            currentRoom.lastMessageId,
           );
           widget.resetRoomPageDetails!();
         } else {
@@ -934,11 +934,11 @@ class _InputMessageWidget extends State<InputMessage> {
     });
   }
 
-  Future<void> showCaptionDialog({
+  void showCaptionDialog({
     IconData? icons,
     String? type,
     required List<File> files,
-  }) async {
+  }) {
     if (files.isEmpty) return;
 
     showDialog(

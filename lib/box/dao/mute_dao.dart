@@ -1,4 +1,5 @@
 import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
 abstract class MuteDao {
@@ -32,20 +33,20 @@ class MuteDaoImpl implements MuteDao {
   Future<void> mute(String uid) async {
     final box = await _open();
 
-    box.put(uid, true);
+    return box.put(uid, true);
   }
 
   @override
   Future<void> unmute(String uid) async {
     final box = await _open();
 
-    box.delete(uid);
+    return box.delete(uid);
   }
 
   static String _key() => "mute";
 
-  static Future<Box<bool>> _open() {
+  static Future<BoxPlus<bool>> _open() {
     BoxInfo.addBox(_key());
-    return Hive.openBox<bool>(_key());
+    return gen(Hive.openBox<bool>(_key()));
   }
 }

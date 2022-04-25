@@ -34,7 +34,7 @@ class MediaRepo {
     try {
       final mediaResponse = await _queryServiceClient
           .getMediaMetadata(GetMediaMetadataReq()..with_1 = uid);
-      updateMediaMetaData(uid, mediaResponse, updateAllMedia: true);
+      return updateMediaMetaData(uid, mediaResponse);
     } catch (e) {
       _logger.e(e);
     }
@@ -47,43 +47,43 @@ class MediaRepo {
   Future<MediaMetaData?> getMediaMetaData(String roomUid) async =>
       _mediaMetaDataDao.getAsFuture(roomUid);
 
-  Future updateMediaMetaData(
+  Future<void> updateMediaMetaData(
     Uid roomUid,
-    query_pb.GetMediaMetadataRes mediaResponse, {
-    bool updateAllMedia = false,
-  }) async {
-    final oldMetaMediaData =
-        await _mediaMetaDataDao.getAsFuture(roomUid.asString());
-    if (oldMetaMediaData != null) {
-      checkNeedFetchMedia(
-        roomUid.asString(),
-        oldMetaMediaData,
-        mediaResponse,
-        updateOtherMedia: updateAllMedia,
-      );
-    } else {
-      //get all image  for build  first tab
-      fetchLastMedia(
-        roomUid.asString(),
-        0,
-        query_pb.FetchMediasReq_MediaType.IMAGES,
-        mediaResponse.allImagesCount.toInt(),
-      );
-    }
+    query_pb.GetMediaMetadataRes mediaResponse,
+  ) {
+    return _mediaMetaDataDao
+        .getAsFuture(roomUid.asString())
+        .then((oldMetaMediaData) {
+      if (oldMetaMediaData != null) {
+        checkNeedFetchMedia(
+          roomUid.asString(),
+          oldMetaMediaData,
+          mediaResponse,
+        );
+      } else {
+        //get all image  for build  first tab
+        fetchLastMedia(
+          roomUid.asString(),
+          0,
+          query_pb.FetchMediasReq_MediaType.IMAGES,
+          mediaResponse.allImagesCount.toInt(),
+        );
+      }
 
-    _mediaMetaDataDao.save(
-      MediaMetaData(
-        roomId: roomUid.asString(),
-        imagesCount: mediaResponse.allImagesCount.toInt(),
-        videosCount: mediaResponse.allVideosCount.toInt(),
-        filesCount: mediaResponse.allFilesCount.toInt(),
-        documentsCount: mediaResponse.allDocumentsCount.toInt(),
-        audiosCount: mediaResponse.allAudiosCount.toInt(),
-        musicsCount: mediaResponse.allMusicsCount.toInt(),
-        linkCount: mediaResponse.allLinksCount.toInt(),
-        lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
-      ),
-    );
+      _mediaMetaDataDao.save(
+        MediaMetaData(
+          roomId: roomUid.asString(),
+          imagesCount: mediaResponse.allImagesCount.toInt(),
+          videosCount: mediaResponse.allVideosCount.toInt(),
+          filesCount: mediaResponse.allFilesCount.toInt(),
+          documentsCount: mediaResponse.allDocumentsCount.toInt(),
+          audiosCount: mediaResponse.allAudiosCount.toInt(),
+          musicsCount: mediaResponse.allMusicsCount.toInt(),
+          linkCount: mediaResponse.allLinksCount.toInt(),
+          lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
+        ),
+      );
+    });
   }
 
   void _updateMetaMediaData(
@@ -105,67 +105,64 @@ class MediaRepo {
     );
   }
 
-  Future checkNeedFetchMedia(
+  void checkNeedFetchMedia(
     String roomUid,
     MediaMetaData oldMediaMetaData,
-    GetMediaMetadataRes getMediaMetadataRes, {
-    bool updateOtherMedia = false,
-  }) async {
+    GetMediaMetadataRes getMediaMetadataRes,
+  ) {
     if (oldMediaMetaData.imagesCount !=
         getMediaMetadataRes.allImagesCount.toInt()) {
-      await fetchLastMedia(
+      fetchLastMedia(
         oldMediaMetaData.roomId,
         oldMediaMetaData.imagesCount,
         query_pb.FetchMediasReq_MediaType.IMAGES,
         getMediaMetadataRes.allImagesCount.toInt(),
       );
     }
-    if (updateOtherMedia) {
-      if (oldMediaMetaData.audiosCount !=
-          getMediaMetadataRes.allAudiosCount.toInt()) {
-        fetchLastMedia(
-          oldMediaMetaData.roomId,
-          oldMediaMetaData.audiosCount,
-          query_pb.FetchMediasReq_MediaType.AUDIOS,
-          getMediaMetadataRes.allAudiosCount.toInt(),
-        );
-      }
-      if (oldMediaMetaData.musicsCount !=
-          getMediaMetadataRes.allMusicsCount.toInt()) {
-        fetchLastMedia(
-          oldMediaMetaData.roomId,
-          oldMediaMetaData.audiosCount,
-          query_pb.FetchMediasReq_MediaType.MUSICS,
-          getMediaMetadataRes.allMusicsCount.toInt(),
-        );
-      }
-      if (oldMediaMetaData.filesCount !=
-          getMediaMetadataRes.allFilesCount.toInt()) {
-        fetchLastMedia(
-          oldMediaMetaData.roomId,
-          oldMediaMetaData.filesCount,
-          query_pb.FetchMediasReq_MediaType.FILES,
-          getMediaMetadataRes.allFilesCount.toInt(),
-        );
-      }
-      if (oldMediaMetaData.videosCount !=
-          getMediaMetadataRes.allVideosCount.toInt()) {
-        fetchLastMedia(
-          oldMediaMetaData.roomId,
-          oldMediaMetaData.videosCount,
-          query_pb.FetchMediasReq_MediaType.VIDEOS,
-          getMediaMetadataRes.allVideosCount.toInt(),
-        );
-      }
-      if (oldMediaMetaData.linkCount !=
-          getMediaMetadataRes.allLinksCount.toInt()) {
-        fetchLastMedia(
-          oldMediaMetaData.roomId,
-          oldMediaMetaData.linkCount,
-          query_pb.FetchMediasReq_MediaType.LINKS,
-          getMediaMetadataRes.allLinksCount.toInt(),
-        );
-      }
+    if (oldMediaMetaData.audiosCount !=
+        getMediaMetadataRes.allAudiosCount.toInt()) {
+      fetchLastMedia(
+        oldMediaMetaData.roomId,
+        oldMediaMetaData.audiosCount,
+        query_pb.FetchMediasReq_MediaType.AUDIOS,
+        getMediaMetadataRes.allAudiosCount.toInt(),
+      );
+    }
+    if (oldMediaMetaData.musicsCount !=
+        getMediaMetadataRes.allMusicsCount.toInt()) {
+      fetchLastMedia(
+        oldMediaMetaData.roomId,
+        oldMediaMetaData.audiosCount,
+        query_pb.FetchMediasReq_MediaType.MUSICS,
+        getMediaMetadataRes.allMusicsCount.toInt(),
+      );
+    }
+    if (oldMediaMetaData.filesCount !=
+        getMediaMetadataRes.allFilesCount.toInt()) {
+      fetchLastMedia(
+        oldMediaMetaData.roomId,
+        oldMediaMetaData.filesCount,
+        query_pb.FetchMediasReq_MediaType.FILES,
+        getMediaMetadataRes.allFilesCount.toInt(),
+      );
+    }
+    if (oldMediaMetaData.videosCount !=
+        getMediaMetadataRes.allVideosCount.toInt()) {
+      fetchLastMedia(
+        oldMediaMetaData.roomId,
+        oldMediaMetaData.videosCount,
+        query_pb.FetchMediasReq_MediaType.VIDEOS,
+        getMediaMetadataRes.allVideosCount.toInt(),
+      );
+    }
+    if (oldMediaMetaData.linkCount !=
+        getMediaMetadataRes.allLinksCount.toInt()) {
+      fetchLastMedia(
+        oldMediaMetaData.roomId,
+        oldMediaMetaData.linkCount,
+        query_pb.FetchMediasReq_MediaType.LINKS,
+        getMediaMetadataRes.allLinksCount.toInt(),
+      );
     }
 
     _updateMetaMediaData(roomUid, getMediaMetadataRes);
@@ -217,7 +214,7 @@ class MediaRepo {
       );
       if (getMediasReq.medias.isEmpty) {
         time = DateTime(year - 1, 12, 30).millisecondsSinceEpoch;
-        _fetchLastMedia(roomUid, mediaType, time, year - 1, limit);
+        return _fetchLastMedia(roomUid, mediaType, time, year - 1, limit);
       } else {
         await _saveFetchedMedias(getMediasReq.medias, roomUid, mediaType);
       }
@@ -268,7 +265,7 @@ class MediaRepo {
         json: json,
       );
       mediaList.add(insertedMedia);
-      _mediaDao.save(insertedMedia);
+      unawaited(_mediaDao.save(insertedMedia));
     }
     return mediaList;
   }
@@ -432,18 +429,16 @@ class MediaRepo {
         "duration": file.duration
       });
 
-  Future<void> updateMedia(Message message) async {
-    _mediaDao.save(
-      Media(
-        createdOn: DateTime.now().millisecondsSinceEpoch,
-        json: buildJsonFromFile(message.json.toFile()),
-        roomId: message.roomUid,
-        messageId: message.id!,
-        type: loadTypeFromString(message.json.toFile().type),
-        createdBy: message.from,
-      ),
-    );
-  }
+  Future<void> updateMedia(Message message) => _mediaDao.save(
+        Media(
+          createdOn: DateTime.now().millisecondsSinceEpoch,
+          json: buildJsonFromFile(message.json.toFile()),
+          roomId: message.roomUid,
+          messageId: message.id!,
+          type: loadTypeFromString(message.json.toFile().type),
+          createdBy: message.from,
+        ),
+      );
 
   MediaType loadTypeFromString(String type) {
     if (type.contains("image")) {

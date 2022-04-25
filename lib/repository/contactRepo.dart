@@ -1,12 +1,13 @@
 // ignore_for_file: file_names
 
+import 'dart:async';
+
 import 'package:contacts_service/contacts_service.dart' as contacts_service_pb;
 import 'package:deliver/box/contact.dart' as contact_pb;
 import 'package:deliver/box/dao/contact_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/member.dart';
-import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -41,7 +42,7 @@ class ContactRepo {
     if (_requestLock.locked) {
       return;
     }
-    _requestLock.synchronized(() async {
+    return _requestLock.synchronized(() async {
       if (await _checkPermission.checkContactPermission() ||
           isDesktop ||
           isIOS) {
@@ -89,7 +90,7 @@ class ContactRepo {
     }
   }
 
-  Future sendContacts(List<Contact> contacts) async {
+  void sendContacts(List<Contact> contacts) {
     try {
       var i = 0;
       while (i <= contacts.length) {
@@ -169,27 +170,27 @@ class ContactRepo {
         contact.uid.asString(),
         name: "${contact.firstName} ${contact.lastName}",
       );
-      _roomDao.updateRoom(Room(uid: contact.uid.asString()));
+      _roomDao.updateRoom(uid: contact.uid.asString());
     }
   }
 
-  Future<String?> getUserIdByUid(Uid uid) async {
+  Future<void> getUserIdByUid(Uid uid) async {
     try {
       // For now, Group and Bot not supported in server side!!
       final result =
           await _queryServiceClient.getIdByUid(GetIdByUidReq()..uid = uid);
-      _uidIdNameDao.update(uid.asString(), id: result.id);
-      return result.id;
+      return _uidIdNameDao.update(uid.asString(), id: result.id);
     } catch (e) {
       _logger.e(e);
-      return null;
     }
   }
 
   Future<void> fetchMemberId(Member member) async {
     if (!member.memberUid.asUid().isUser()) return;
     final m = await _uidIdNameDao.getByUid(member.memberUid);
-    if (m == null || m.id == null) getUserIdByUid(member.memberUid.asUid());
+    if (m == null || m.id == null) {
+      return getUserIdByUid(member.memberUid.asUid());
+    }
   }
 
   Future<List<Uid>> searchUser(String query) async {
@@ -225,7 +226,7 @@ class ContactRepo {
       final contact = await _contactServices
           .getUserByUid(GetUserByUidReq()..uid = contactUid);
       final name = buildName(contact.user.firstName, contact.user.lastName);
-      _uidIdNameDao.update(contactUid.asString(), name: name);
+      unawaited(_uidIdNameDao.update(contactUid.asString(), name: name));
       return name;
     } catch (e) {
       _logger.e(e);

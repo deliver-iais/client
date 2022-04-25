@@ -11,6 +11,7 @@ import 'package:deliver/screen/room/messageWidgets/call_message/call_message_wid
 import 'package:deliver/screen/room/messageWidgets/file_message_ui.dart';
 import 'package:deliver/screen/room/messageWidgets/live_location_message.dart';
 import 'package:deliver/screen/room/messageWidgets/location_message.dart';
+import 'package:deliver/screen/room/messageWidgets/not_supported_message.dart';
 import 'package:deliver/screen/room/messageWidgets/reply_widgets/reply_brief.dart';
 import 'package:deliver/screen/room/messageWidgets/sticker_messge_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
@@ -39,8 +40,9 @@ class BoxContent extends StatefulWidget {
   final void Function(TapDownDetails) storePosition;
   final void Function(String) onUsernameClick;
   final void Function(String) onBotCommandClick;
-  final void Function(int) scrollToMessage;
+  final void Function(int, int) scrollToMessage;
   final void Function() onArrowIconClick;
+  final void Function() onEdit;
 
   const BoxContent({
     Key? key,
@@ -57,6 +59,7 @@ class BoxContent extends StatefulWidget {
     required this.storePosition,
     required this.onUsernameClick,
     this.pattern,
+    required this.onEdit,
   }) : super(key: key);
 
   Type getState() {
@@ -138,7 +141,10 @@ class _BoxContentState extends State<BoxContent> {
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
-          widget.scrollToMessage(widget.message.replyToId);
+          widget.scrollToMessage(
+            widget.message.replyToId,
+            widget.message.id ?? 0,
+          );
         },
         child: ReplyBrief(
           roomId: widget.message.roomUid,
@@ -230,6 +236,7 @@ class _BoxContentState extends State<BoxContent> {
           colorScheme: widget.colorScheme,
           isSender: widget.isSender,
           isSeen: widget.isSeen,
+          onEdit: widget.onEdit,
         );
 
       case MessageType.STICKER:
@@ -268,7 +275,6 @@ class _BoxContentState extends State<BoxContent> {
       case MessageType.FORM:
         return BotFormMessage(
           message: widget.message,
-          maxWidth: widget.maxWidth * 0.85,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
           colorScheme: widget.colorScheme,
@@ -286,9 +292,6 @@ class _BoxContentState extends State<BoxContent> {
           message: widget.message,
           colorScheme: widget.colorScheme,
         );
-      case MessageType.PERSISTENT_EVENT:
-        // we show peristant event message in roompage
-        break;
       case MessageType.SHARE_UID:
         return ShareUidMessageWidget(
           message: widget.message,
@@ -311,14 +314,19 @@ class _BoxContentState extends State<BoxContent> {
           isSender: widget.isSender,
           colorScheme: widget.colorScheme,
         );
-      case MessageType.NOT_SET:
-        // TODO(hasan): Show not supported in this version... in MessageType.NOT_SET, https://gitlab.iais.co/deliver/wiki/-/issues/433
-        break;
       case MessageType.CALL:
         return CallMessageWidget(
           message: widget.message,
           colorScheme: widget.colorScheme,
         );
+      case MessageType.NOT_SET:
+        return NotSupportedMessage(
+          maxWidth: widget.maxWidth,
+          colorScheme: widget.colorScheme,
+        );
+      case MessageType.PERSISTENT_EVENT:
+        // we show persistent event message in room page
+        break;
     }
     return Container();
   }

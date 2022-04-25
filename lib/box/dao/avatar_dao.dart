@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
 abstract class AvatarDao {
@@ -40,10 +43,10 @@ class AvatarDaoImpl implements AvatarDao {
     final box = await _open(uid);
 
     for (final value in avatars) {
-      box.put(value.createdOn.toString(), value);
+      box.put(value.createdOn.toString(), value).ignore();
     }
 
-    await saveLastAvatar(avatars, uid);
+    return saveLastAvatar(avatars, uid);
   }
 
   Future<void> saveLastAvatar(List<Avatar> avatars, String uid) async {
@@ -62,7 +65,7 @@ class AvatarDaoImpl implements AvatarDao {
 
     if (lastAvatar == null ||
         lastAvatar.createdOn < lastAvatarOfList!.createdOn) {
-      box2.put(
+      return box2.put(
         lastAvatarOfList!.uid,
         lastAvatarOfList.copyWith(
           lastUpdate: DateTime.now().millisecondsSinceEpoch,
@@ -75,7 +78,7 @@ class AvatarDaoImpl implements AvatarDao {
   Future<void> saveLastAvatarAsNull(String uid) async {
     final box2 = await _open2();
 
-    box2.put(
+    return box2.put(
       uid,
       Avatar(
         uid: uid,
@@ -108,7 +111,7 @@ class AvatarDaoImpl implements AvatarDao {
                   : element,
         );
 
-        box2.put(
+        return box2.put(
           lastAvatarOfList!.uid,
           lastAvatarOfList.copyWith(
             lastUpdate: DateTime.now().millisecondsSinceEpoch,
@@ -138,17 +141,17 @@ class AvatarDaoImpl implements AvatarDao {
 
   static String _key2() => "last-avatar";
 
-  static Future<Box<Avatar>> _open(String uid) {
+  static Future<BoxPlus<Avatar>> _open(String uid) {
     BoxInfo.addBox(_key(uid.replaceAll(":", "-")));
-    return Hive.openBox<Avatar>(_key(uid.replaceAll(":", "-")));
+    return gen(Hive.openBox<Avatar>(_key(uid.replaceAll(":", "-"))));
   }
 
   @override
   Future<void> closeAvatarBox(String uid) =>
       Hive.box<Avatar>(_key(uid)).close();
 
-  static Future<Box<Avatar>> _open2() {
+  static Future<BoxPlus<Avatar>> _open2() {
     BoxInfo.addBox(_key2());
-    return Hive.openBox<Avatar>(_key2());
+    return gen(Hive.openBox<Avatar>(_key2()));
   }
 }

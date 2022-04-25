@@ -1,9 +1,10 @@
+import 'dart:async';
+
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -20,18 +21,7 @@ class SyncContact {
         context: context,
         builder: (context) {
           return AlertDialog(
-            titlePadding: EdgeInsets.zero,
-            actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
-            backgroundColor: Colors.white,
-            title: Container(
-              height: 80,
-              color: Colors.blue,
-              child: const Icon(
-                CupertinoIcons.profile_circled,
-                color: Colors.white,
-                size: 40,
-              ),
-            ),
+            actionsPadding: const EdgeInsets.only(bottom: 8, right: 8),
             content: SizedBox(
               width: 200,
               child: Text(
@@ -58,7 +48,7 @@ class SyncContact {
         },
       );
     } else {
-      _contactRepo.syncContacts();
+      unawaited(_contactRepo.syncContacts());
     }
   }
 }

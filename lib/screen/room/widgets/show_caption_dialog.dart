@@ -304,6 +304,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
   }
 
   Future<void> openEditImagePage(int? index) async {
+    final navigatorState = Navigator.of(context);
     String? path = "";
     if (widget.files!.isEmpty && _editedFile == null) {
       path = await _fileRepo.getFileIfExist(
@@ -312,9 +313,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
       );
     }
     if (widget.files!.isNotEmpty || _editedFile != null || path != null) {
-      // ignore: use_build_context_synchronously
-      Navigator.push(
-        context,
+      navigatorState.push(
         MaterialPageRoute(
           builder: (c) {
             return OpenImagePage(
@@ -339,7 +338,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
             );
           },
         ),
-      );
+      ).ignore();
     }
   }
 
@@ -355,9 +354,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
   Widget imageUi(int? index) {
     //if index==null isSingleImage
     return GestureDetector(
-      onTap: () async {
-        openEditImagePage(index);
-      },
+      onTap: () => openEditImagePage(index),
       child: SizedBox(
         height: index == null ? MediaQuery.of(context).size.height / 3 : null,
         child: Stack(
