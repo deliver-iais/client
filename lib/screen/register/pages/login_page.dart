@@ -6,7 +6,6 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 
 import 'package:deliver/screen/home/pages/home_page.dart';
-import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/register/pages/two_step_verification_page.dart';
 import 'package:deliver/screen/register/pages/verification_page.dart';
 import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
