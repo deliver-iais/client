@@ -65,7 +65,6 @@ import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:tuple/tuple.dart';
 
-
 const APPBAR_HEIGHT = 54.0;
 
 class RoomPage extends StatefulWidget {

@@ -151,7 +151,10 @@ class RoutingService {
   }
 
   void openProfile(String roomId) => _push(
-        ProfilePage(roomId.asUid(), key: ValueKey("/room/$roomId/profile")),
+        ProfilePage(
+          roomId.asUid(),
+          key: ValueKey("/room/$roomId/profile"),
+        ),
       );
 
   void openShowAllAvatars({
