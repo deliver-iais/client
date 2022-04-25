@@ -25,7 +25,6 @@ class TextUI extends StatelessWidget {
   final void Function(String) onUsernameClick;
   final void Function(String) onBotCommandClick;
   final bool isBotMessage;
-  final bool isGroupMessage;
   final CustomColorScheme colorScheme;
 
   TextUI({
@@ -40,7 +39,6 @@ class TextUI extends StatelessWidget {
     this.isSeen = false,
     this.searchTerm,
   })  : isBotMessage = message.roomUid.asUid().isBot(),
-        isGroupMessage = message.roomUid.asUid().isGroup(),
         super(key: key);
 
   @override
