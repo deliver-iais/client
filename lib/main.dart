@@ -361,15 +361,22 @@ Future<void> _setWindowSize() async {
   final _sharedDao = GetIt.I.get<SharedDao>();
   final size = await _sharedDao.get('SHARED_DAO_WINDOWS_SIZE');
   final rect = size?.split('_');
+
   if (rect != null) {
-    setWindowFrame(
-      Rect.fromLTRB(
-        double.parse(rect[0]),
-        double.parse(rect[1]),
-        double.parse(rect[2]),
-        double.parse(rect[3]),
-      ),
-    );
+    try {
+      setWindowFrame(
+        Rect.fromLTRB(
+          double.parse(rect[0]),
+          double.parse(rect[1]),
+          double.parse(rect[2]),
+          double.parse(rect[3]),
+        ),
+      );
+    } catch (e) {
+      setWindowMinSize(
+        const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100),
+      );
+    }
   } else {
     setWindowMinSize(const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
   }
