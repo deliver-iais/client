@@ -457,8 +457,10 @@ class _AccountSettingsState extends State<AccountSettings> {
     const Pattern pattern = r'^[a-zA-Z]([a-zA-Z0-9_]){4,19}$';
     final regex = RegExp(pattern.toString());
     if (value!.isEmpty) {
+      _usernameIsAvailable.add(true);
       return _i18n.get("username_not_empty");
     } else if (!regex.hasMatch(value)) {
+      _usernameIsAvailable.add(true);
       return _i18n.get("username_not_valid");
     }
     return null;

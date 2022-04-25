@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:deliver/services/file_service.dart';
-import 'package:deliver/shared/widgets/edit_image/Chang_image_color/color_filter_generator.dart';
+import 'package:deliver/shared/widgets/edit_image/change_image_color/color_filter_generator.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:screenshot/screenshot.dart';

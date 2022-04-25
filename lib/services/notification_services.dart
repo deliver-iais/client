@@ -565,17 +565,17 @@ class AndroidNotifier implements Notifier {
       },
       onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
     );
-    androidDidNotificationLaunchApp();
+    _setupAndroidDidNotificationLaunchApp();
   }
 
-  Future<void> androidDidNotificationLaunchApp() {
+  Future<void> _setupAndroidDidNotificationLaunchApp() {
     return _flutterLocalNotificationsPlugin
         .getNotificationAppLaunchDetails()
         .then((notificationAppLaunchDetails) {
       if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
-        androidOnSelectNotification(
-          notificationAppLaunchDetails!.notificationResponse!.payload,
-        );
+        // TODO(hasan): Refactor routing service to accept offline open room actions and apply them after launch, https://gitlab.iais.co/deliver/wiki/-/issues/473
+        modifyRoutingByNotificationTapInBackgroundInAndroid
+            .add(notificationAppLaunchDetails!.payload!);
       }
     });
   }
