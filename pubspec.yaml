@@ -137,10 +137,6 @@ dependencies:
   uni_links: 0.5.1
   universal_html: 2.0.8
   url_launcher: 6.0.20
-  usage_stats:
-    git:
-      ref: master
-      url: https://github.com/androidwoman/usage_stats-1.1.1.git
   vibration: 1.7.4-nullsafety.0
   video_player: 2.3.0
   wakelock: 0.6.1+1

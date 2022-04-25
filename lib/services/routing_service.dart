@@ -22,7 +22,6 @@ import 'package:deliver/screen/room/messageWidgets/forward_widgets/selection_to_
 import 'package:deliver/screen/room/pages/room_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/screen/settings/pages/auto_download_page.dart';
-import 'package:deliver/screen/settings/pages/data_usage_page.dart';
 import 'package:deliver/screen/settings/pages/developer_page.dart';
 import 'package:deliver/screen/settings/pages/devices_page.dart';
 import 'package:deliver/screen/settings/pages/language_settings.dart';
@@ -58,8 +57,6 @@ const _securitySettings =
 const _developerPage = DeveloperPage(key: ValueKey("/developer-page"));
 
 const _devices = DevicesPage(key: ValueKey("/devices"));
-
-const _dataUsage = DataUsagePage(key: ValueKey("/data_usage"));
 
 const _autoDownload = AutoDownloadPage(key: ValueKey("/auto_download"));
 
@@ -98,8 +95,6 @@ class RoutingService {
   void openDeveloperPage() => _push(_developerPage);
 
   void openDevices() => _push(_devices);
-
-  void openDataUsage() => _push(_dataUsage);
 
   void openAutoDownload() => _push(_autoDownload);
 

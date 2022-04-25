@@ -260,17 +260,12 @@ class _SettingsPageState extends State<SettingsPage> {
               title: _i18n.get("automatic_download"),
               children: [
                 SettingsTile(
-                  title:_i18n.get("automatic_download"),
+                  title: _i18n.get("automatic_download"),
                   subtitleTextStyle: TextStyle(
                     color: theme.primaryColor,
                   ),
                   leading: const Icon(CupertinoIcons.arrow_down_circle),
                   onPressed: (context) => _routingService.openAutoDownload(),
-                ),
-                SettingsTile(
-                  title: _i18n.get("data_usage"),
-                  leading: const Icon(Icons.data_usage_rounded),
-                  onPressed: (context) => _routingService.openDataUsage(),
                 ),
               ],
             ),
