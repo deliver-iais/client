@@ -134,7 +134,7 @@ class AuthRepo {
       });
 
   Future<String> getAccessToken() async {
-    if (!_isExpired(_accessToken)) {
+    if (_isExpired(_accessToken)) {
       if (_refreshToken == null) {
         return "";
       }
