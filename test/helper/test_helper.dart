@@ -422,20 +422,15 @@ MockSeenDao getAndRegisterSeenDao({int messageId = 0}) {
   return service;
 }
 
-MockMucServices getAndRegisterMucServices({bool pinMessageGetError = false}) {
+MockMucServices getAndRegisterMucServices() {
   _removeRegistrationIfExists<MucServices>();
   final service = MockMucServices();
   GetIt.I.registerSingleton<MucServices>(service);
-  pinMessageGetError
-      ? when(service.pinMessage(testMessage))
-          .thenThrow((realInvocation) => Future.error(""))
-      : when(service.pinMessage(testMessage))
-          .thenAnswer((realInvocation) => Future.value());
-  pinMessageGetError
-      ? when(service.unpinMessage(testMessage))
-          .thenThrow((realInvocation) => Future.error(""))
-      : when(service.unpinMessage(testMessage))
-          .thenAnswer((realInvocation) => Future.value());
+
+  when(service.pinMessage(testMessage))
+      .thenAnswer((realInvocation) => Future.value());
+  when(service.unpinMessage(testMessage))
+      .thenAnswer((realInvocation) => Future.value());
   return service;
 }
 
@@ -444,7 +439,6 @@ MockQueryServiceClient getAndRegisterQueryServiceClient({
   PresenceType presenceType = PresenceType.ACTIVE,
   int? lastMessageId,
   int? lastUpdate,
-  bool countIsHiddenMessagesGetError = false,
   int fetchMessagesId = 0,
   String? fetchMessagesText,
   int fetchMessagesLimit = 0,
@@ -509,25 +503,17 @@ MockQueryServiceClient getAndRegisterQueryServiceClient({
       ),
     ),
   );
-  countIsHiddenMessagesGetError
-      ? when(
-          service.countIsHiddenMessages(
-            CountIsHiddenMessagesReq()
-              ..roomUid = testUid
-              ..messageId = Int64(0 + 1),
-          ),
-        ).thenThrow((realInvocation) => Future.value())
-      : when(
-          service.countIsHiddenMessages(
-            CountIsHiddenMessagesReq()
-              ..roomUid = testUid
-              ..messageId = Int64(0 + 1),
-          ),
-        ).thenAnswer(
-          (realInvocation) => MockResponseFuture<CountIsHiddenMessagesRes>(
-            CountIsHiddenMessagesRes(count: 0),
-          ),
-        );
+  when(
+    service.countIsHiddenMessages(
+      CountIsHiddenMessagesReq()
+        ..roomUid = testUid
+        ..messageId = Int64(0 + 1),
+    ),
+  ).thenAnswer(
+    (realInvocation) => MockResponseFuture<CountIsHiddenMessagesRes>(
+      CountIsHiddenMessagesRes(count: 0),
+    ),
+  );
 
   when(
     service.fetchMessages(
