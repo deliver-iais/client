@@ -33,8 +33,6 @@ import 'package:window_size/window_size.dart';
 BehaviorSubject<String> modifyRoutingByNotificationTapInBackgroundInAndroid =
     BehaviorSubject.seeded("");
 
-BehaviorSubject<NewerVersionInformation?> newVersionInformation =
-    BehaviorSubject.seeded(null);
 
 class NavigationCenter extends StatefulWidget {
   const NavigationCenter({Key? key}) : super(key: key);
@@ -204,7 +202,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   },
                 ),
                 _newVersionInfo(),
-                _oldVersionInfo()
+                _outOfDateWidget()
               ],
             ),
           ),
@@ -225,7 +223,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
     return true;
   }
 
-  Widget _oldVersionInfo() {
+  Widget _outOfDateWidget() {
     return StreamBuilder<bool>(
       stream: outOfDateObject.stream,
       builder: (c, snapshot) {

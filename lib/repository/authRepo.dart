@@ -5,7 +5,6 @@ import 'dart:async';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/message.dart';
-import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
