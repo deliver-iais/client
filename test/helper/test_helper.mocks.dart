@@ -12,14 +12,17 @@ import 'package:deliver/box/bot_info.dart' as _i13;
 import 'package:deliver/box/contact.dart' as _i55;
 import 'package:deliver/box/dao/block_dao.dart' as _i47;
 import 'package:deliver/box/dao/custom_notification_dao.dart' as _i63;
+import 'package:deliver/box/dao/last_activity_dao.dart' as _i74;
 import 'package:deliver/box/dao/media_dao.dart' as _i64;
 import 'package:deliver/box/dao/media_meta_data_dao.dart' as _i70;
 import 'package:deliver/box/dao/message_dao.dart' as _i18;
+import 'package:deliver/box/dao/muc_dao.dart' as _i76;
 import 'package:deliver/box/dao/mute_dao.dart' as _i50;
 import 'package:deliver/box/dao/room_dao.dart' as _i21;
 import 'package:deliver/box/dao/seen_dao.dart' as _i37;
 import 'package:deliver/box/dao/shared_dao.dart' as _i45;
 import 'package:deliver/box/dao/uid_id_name_dao.dart' as _i51;
+import 'package:deliver/box/last_activity.dart' as _i75;
 import 'package:deliver/box/livelocation.dart' as _i35;
 import 'package:deliver/box/media.dart' as _i65;
 import 'package:deliver/box/media_meta_data.dart' as _i68;
@@ -33,6 +36,7 @@ import 'package:deliver/box/room.dart' as _i22;
 import 'package:deliver/box/seen.dart' as _i2;
 import 'package:deliver/box/uid_id_name.dart' as _i52;
 import 'package:deliver/localization/i18n.dart' as _i48;
+import 'package:deliver/models/call_event_type.dart' as _i72;
 import 'package:deliver/repository/accountRepo.dart' as _i57;
 import 'package:deliver/repository/analytics_repo.dart' as _i15;
 import 'package:deliver/repository/authRepo.dart' as _i25;
@@ -44,11 +48,13 @@ import 'package:deliver/repository/liveLocationRepo.dart' as _i34;
 import 'package:deliver/repository/mediaRepo.dart' as _i67;
 import 'package:deliver/repository/mucRepo.dart' as _i59;
 import 'package:deliver/repository/roomRepo.dart' as _i23;
+import 'package:deliver/services/call_service.dart' as _i71;
 import 'package:deliver/services/core_services.dart' as _i44;
 import 'package:deliver/services/data_stream_services.dart' as _i39;
 import 'package:deliver/services/file_service.dart' as _i33;
 import 'package:deliver/services/firebase_services.dart' as _i29;
 import 'package:deliver/services/muc_services.dart' as _i38;
+import 'package:deliver/services/notification_services.dart' as _i73;
 import 'package:deliver/shared/language.dart' as _i49;
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart' as _i7;
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart' as _i42;
@@ -613,6 +619,13 @@ class MockAuthRepo extends _i1.Mock implements _i25.AuthRepo {
   void saveTestUserInfo() =>
       super.noSuchMethod(Invocation.method(#saveTestUserInfo, []),
           returnValueForMissingStub: null);
+  @override
+  _i16.Future<void> sendForgetPasswordEmail(_i27.PhoneNumber? phoneNumber) =>
+      (super.noSuchMethod(
+              Invocation.method(#sendForgetPasswordEmail, [phoneNumber]),
+              returnValue: Future<void>.value(),
+              returnValueForMissingStub: Future<void>.value())
+          as _i16.Future<void>);
 }
 
 /// A class which mocks [FireBaseServices].
@@ -2185,4 +2198,171 @@ class MockMediaMetaDataDao extends _i1.Mock implements _i70.MediaMetaDataDao {
   _i16.Future<dynamic> clear(String? roomUid) =>
       (super.noSuchMethod(Invocation.method(#clear, [roomUid]),
           returnValue: Future<dynamic>.value()) as _i16.Future<dynamic>);
+}
+
+/// A class which mocks [CallService].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockCallService extends _i1.Mock implements _i71.CallService {
+  @override
+  _i8.BehaviorSubject<_i72.CallEvents> get callEvents =>
+      (super.noSuchMethod(Invocation.getter(#callEvents),
+              returnValue: _FakeBehaviorSubject_7<_i72.CallEvents>())
+          as _i8.BehaviorSubject<_i72.CallEvents>);
+  @override
+  _i8.BehaviorSubject<_i72.CallEvents> get groupCallEvents =>
+      (super.noSuchMethod(Invocation.getter(#groupCallEvents),
+              returnValue: _FakeBehaviorSubject_7<_i72.CallEvents>())
+          as _i8.BehaviorSubject<_i72.CallEvents>);
+  @override
+  _i71.UserCallState get getUserCallState =>
+      (super.noSuchMethod(Invocation.getter(#getUserCallState),
+          returnValue: _i71.UserCallState.INGROUPCALL) as _i71.UserCallState);
+  @override
+  set setUserCallState(_i71.UserCallState? cs) =>
+      super.noSuchMethod(Invocation.setter(#setUserCallState, cs),
+          returnValueForMissingStub: null);
+  @override
+  _i3.Uid get getCallOwner =>
+      (super.noSuchMethod(Invocation.getter(#getCallOwner),
+          returnValue: _FakeUid_1()) as _i3.Uid);
+  @override
+  set setCallOwner(_i3.Uid? uid) =>
+      super.noSuchMethod(Invocation.setter(#setCallOwner, uid),
+          returnValueForMissingStub: null);
+  @override
+  String get getCallId =>
+      (super.noSuchMethod(Invocation.getter(#getCallId), returnValue: '')
+          as String);
+  @override
+  set setCallId(String? callId) =>
+      super.noSuchMethod(Invocation.setter(#setCallId, callId),
+          returnValueForMissingStub: null);
+  @override
+  void addCallEvent(_i72.CallEvents? event) =>
+      super.noSuchMethod(Invocation.method(#addCallEvent, [event]),
+          returnValueForMissingStub: null);
+  @override
+  void addGroupCallEvent(_i72.CallEvents? event) =>
+      super.noSuchMethod(Invocation.method(#addGroupCallEvent, [event]),
+          returnValueForMissingStub: null);
+}
+
+/// A class which mocks [NotificationServices].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockNotificationServices extends _i1.Mock
+    implements _i73.NotificationServices {
+  @override
+  void notifyOutgoingMessage(String? roomUid) =>
+      super.noSuchMethod(Invocation.method(#notifyOutgoingMessage, [roomUid]),
+          returnValueForMissingStub: null);
+  @override
+  void notifyIncomingMessage(_i40.Message? message, String? roomUid,
+          {String? roomName}) =>
+      super.noSuchMethod(
+          Invocation.method(#notifyIncomingMessage, [message, roomUid],
+              {#roomName: roomName}),
+          returnValueForMissingStub: null);
+  @override
+  _i16.Future<void> notifyIncomingCall(String? roomUid, {String? roomName}) =>
+      (super.noSuchMethod(
+              Invocation.method(
+                  #notifyIncomingCall, [roomUid], {#roomName: roomName}),
+              returnValue: Future<void>.value(),
+              returnValueForMissingStub: Future<void>.value())
+          as _i16.Future<void>);
+  @override
+  void cancelRoomNotifications(String? roomUid) =>
+      super.noSuchMethod(Invocation.method(#cancelRoomNotifications, [roomUid]),
+          returnValueForMissingStub: null);
+  @override
+  void cancelNotificationById(int? id) =>
+      super.noSuchMethod(Invocation.method(#cancelNotificationById, [id]),
+          returnValueForMissingStub: null);
+  @override
+  void cancelAllNotifications() =>
+      super.noSuchMethod(Invocation.method(#cancelAllNotifications, []),
+          returnValueForMissingStub: null);
+}
+
+/// A class which mocks [LastActivityDao].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockLastActivityDao extends _i1.Mock implements _i74.LastActivityDao {
+  @override
+  _i16.Future<_i75.LastActivity?> get(String? uid) =>
+      (super.noSuchMethod(Invocation.method(#get, [uid]),
+              returnValue: Future<_i75.LastActivity?>.value())
+          as _i16.Future<_i75.LastActivity?>);
+  @override
+  _i16.Stream<_i75.LastActivity?> watch(String? uid) =>
+      (super.noSuchMethod(Invocation.method(#watch, [uid]),
+              returnValue: Stream<_i75.LastActivity?>.empty())
+          as _i16.Stream<_i75.LastActivity?>);
+  @override
+  _i16.Future<void> save(_i75.LastActivity? lastActivity) =>
+      (super.noSuchMethod(Invocation.method(#save, [lastActivity]),
+              returnValue: Future<void>.value(),
+              returnValueForMissingStub: Future<void>.value())
+          as _i16.Future<void>);
+}
+
+/// A class which mocks [MucDao].
+///
+/// See the documentation for Mockito's code generation for more information.
+class MockMucDao extends _i1.Mock implements _i76.MucDao {
+  @override
+  _i16.Future<_i60.Muc?> get(String? uid) =>
+      (super.noSuchMethod(Invocation.method(#get, [uid]),
+          returnValue: Future<_i60.Muc?>.value()) as _i16.Future<_i60.Muc?>);
+  @override
+  _i16.Stream<_i60.Muc?> watch(String? uid) =>
+      (super.noSuchMethod(Invocation.method(#watch, [uid]),
+          returnValue: Stream<_i60.Muc?>.empty()) as _i16.Stream<_i60.Muc?>);
+  @override
+  _i16.Future<void> save(_i60.Muc? muc) => (super.noSuchMethod(
+      Invocation.method(#save, [muc]),
+      returnValue: Future<void>.value(),
+      returnValueForMissingStub: Future<void>.value()) as _i16.Future<void>);
+  @override
+  _i16.Future<void> update(_i60.Muc? muc) => (super.noSuchMethod(
+      Invocation.method(#update, [muc]),
+      returnValue: Future<void>.value(),
+      returnValueForMissingStub: Future<void>.value()) as _i16.Future<void>);
+  @override
+  _i16.Future<void> delete(String? uid) => (super.noSuchMethod(
+      Invocation.method(#delete, [uid]),
+      returnValue: Future<void>.value(),
+      returnValueForMissingStub: Future<void>.value()) as _i16.Future<void>);
+  @override
+  _i16.Future<_i56.Member?> getMember(String? mucUid, String? memberUid) =>
+      (super.noSuchMethod(Invocation.method(#getMember, [mucUid, memberUid]),
+              returnValue: Future<_i56.Member?>.value())
+          as _i16.Future<_i56.Member?>);
+  @override
+  _i16.Future<List<_i56.Member?>> getAllMembers(String? mucUid) =>
+      (super.noSuchMethod(Invocation.method(#getAllMembers, [mucUid]),
+              returnValue: Future<List<_i56.Member?>>.value(<_i56.Member?>[]))
+          as _i16.Future<List<_i56.Member?>>);
+  @override
+  _i16.Stream<List<_i56.Member?>> watchAllMembers(String? mucUid) =>
+      (super.noSuchMethod(Invocation.method(#watchAllMembers, [mucUid]),
+              returnValue: Stream<List<_i56.Member?>>.empty())
+          as _i16.Stream<List<_i56.Member?>>);
+  @override
+  _i16.Future<void> saveMember(_i56.Member? member) => (super.noSuchMethod(
+      Invocation.method(#saveMember, [member]),
+      returnValue: Future<void>.value(),
+      returnValueForMissingStub: Future<void>.value()) as _i16.Future<void>);
+  @override
+  _i16.Future<void> deleteMember(_i56.Member? member) => (super.noSuchMethod(
+      Invocation.method(#deleteMember, [member]),
+      returnValue: Future<void>.value(),
+      returnValueForMissingStub: Future<void>.value()) as _i16.Future<void>);
+  @override
+  _i16.Future<void> deleteAllMembers(String? mucUid) => (super.noSuchMethod(
+      Invocation.method(#deleteAllMembers, [mucUid]),
+      returnValue: Future<void>.value(),
+      returnValueForMissingStub: Future<void>.value()) as _i16.Future<void>);
 }

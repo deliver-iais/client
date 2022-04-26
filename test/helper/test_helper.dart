@@ -4,9 +4,11 @@ import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart' as contact_pb;
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/custom_notification_dao.dart';
+import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/media_meta_data_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
+import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/mute_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
@@ -31,10 +33,12 @@ import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/muc_services.dart';
+import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/live_location.pb.dart';
@@ -100,6 +104,10 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
     MockSpec<MediaDao>(returnNullOnMissingStub: true),
     MockSpec<MediaRepo>(returnNullOnMissingStub: true),
     MockSpec<MediaMetaDataDao>(returnNullOnMissingStub: true),
+    MockSpec<CallService>(returnNullOnMissingStub: true),
+    MockSpec<NotificationServices>(returnNullOnMissingStub: true),
+    MockSpec<LastActivityDao>(returnNullOnMissingStub: true),
+    MockSpec<MucDao>(returnNullOnMissingStub: true),
   ],
 )
 MockCoreServices getAndRegisterCoreServices({
@@ -313,6 +321,7 @@ MockRoomDao getAndRegisterRoomDao({List<Room>? rooms}) {
 MockRoomRepo getAndRegisterRoomRepo({
   Room? room,
   bool getRoomGetError = false,
+  bool isRoomBlocked = false,
 }) {
   _removeRegistrationIfExists<RoomRepo>();
   final service = MockRoomRepo();
@@ -324,6 +333,9 @@ MockRoomRepo getAndRegisterRoomRepo({
           (realInvocation) =>
               Future.value(room ?? Room(uid: testUid.asString())),
         );
+  when(service.isRoomBlocked(testUid.asString())).thenAnswer(
+    (realInvocation) => Future.value(isRoomBlocked),
+  );
   return service;
 }
 
@@ -392,6 +404,34 @@ MockMediaMetaDataDao getAndRegisterMediaMetaDataDao() {
   GetIt.I.registerSingleton<MediaMetaDataDao>(service);
   when(service.clear(testUid.asString()))
       .thenAnswer((realInvocation) => Future.value());
+  return service;
+}
+
+MockMucDao getAndRegisterMucDao() {
+  _removeRegistrationIfExists<MucDao>();
+  final service = MockMucDao();
+  GetIt.I.registerSingleton<MucDao>(service);
+  return service;
+}
+
+MockCallService getAndRegisterCallService() {
+  _removeRegistrationIfExists<CallService>();
+  final service = MockCallService();
+  GetIt.I.registerSingleton<CallService>(service);
+  return service;
+}
+
+MockLastActivityDao getAndRegisterLastActivityDao() {
+  _removeRegistrationIfExists<LastActivityDao>();
+  final service = MockLastActivityDao();
+  GetIt.I.registerSingleton<LastActivityDao>(service);
+  return service;
+}
+
+MockNotificationServices getAndRegisterNotificationServices() {
+  _removeRegistrationIfExists<NotificationServices>();
+  final service = MockNotificationServices();
+  GetIt.I.registerSingleton<NotificationServices>(service);
   return service;
 }
 
@@ -720,6 +760,10 @@ void registerServices() {
   getAndRegisterMediaDao();
   getAndRegisterCustomNotificationDao();
   getAndRegisterMediaMetaDataDao();
+  getAndRegisterCallService();
+  getAndRegisterNotificationServices();
+  getAndRegisterLastActivityDao();
+  getAndRegisterMucDao();
 }
 
 void unregisterServices() {
@@ -748,6 +792,10 @@ void unregisterServices() {
   GetIt.I.unregister<CustomNotificationDao>();
   GetIt.I.unregister<MediaDao>();
   GetIt.I.unregister<MediaMetaDataDao>();
+  GetIt.I.unregister<CallService>();
+  GetIt.I.unregister<NotificationServices>();
+  GetIt.I.unregister<LastActivityDao>();
+  GetIt.I.unregister<MucDao>();
 }
 
 void _removeRegistrationIfExists<T extends Object>() {
