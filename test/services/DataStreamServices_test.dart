@@ -1,6 +1,7 @@
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:fixnum/fixnum.dart';
@@ -78,6 +79,159 @@ void main() {
             ),
           ),
         );
+      });
+
+      test(
+          'When called if message type is MucSpecificPersistentEvent_Issue.KICK_USER and assignee to current user should updateRoom and return null',
+          () async {
+        final roomDao = getAndRegisterRoomDao();
+        getAndRegisterAuthRepo(isCurrentUser: true);
+        final message = Message(
+          from: testUid,
+          to: testUid,
+          persistEvent: PersistentEvent(
+            mucSpecificPersistentEvent: MucSpecificPersistentEvent(
+              issue: MucSpecificPersistentEvent_Issue.KICK_USER,
+              assignee: testUid,
+            ),
+          ),
+        );
+        final value = await DataStreamServices().handleIncomingMessage(
+          message,
+          isOnlineMessage: true,
+        );
+        verify(roomDao.updateRoom(uid: testUid.asString(), deleted: true));
+        expect(value, null);
+      });
+      test(
+          'When called if message type is MucSpecificPersistentEvent_Issue.JOINED_USER or MucSpecificPersistentEvent_Issue.ADD_USER and assignee to current user should updateRoom',
+          () async {
+        final roomDao = getAndRegisterRoomDao();
+        getAndRegisterAuthRepo(isCurrentUser: true);
+        final message = Message(
+          from: testUid,
+          to: testUid,
+          persistEvent: PersistentEvent(
+            mucSpecificPersistentEvent: MucSpecificPersistentEvent(
+              issue: MucSpecificPersistentEvent_Issue.JOINED_USER,
+              assignee: testUid,
+            ),
+          ),
+        );
+        await DataStreamServices().handleIncomingMessage(
+          message,
+          isOnlineMessage: true,
+        );
+        verify(roomDao.updateRoom(uid: testUid.asString(), deleted: false));
+      });
+      test(
+          'When called if message type is MucSpecificPersistentEvent_Issue.LEAVE_USER and assignee to current user should updateRoom and return null',
+          () async {
+        final roomDao = getAndRegisterRoomDao();
+        getAndRegisterAuthRepo(isCurrentUser: true);
+        final message = Message(
+          from: testUid,
+          to: testUid,
+          persistEvent: PersistentEvent(
+            mucSpecificPersistentEvent: MucSpecificPersistentEvent(
+              issue: MucSpecificPersistentEvent_Issue.LEAVE_USER,
+              assignee: testUid,
+            ),
+          ),
+        );
+        final value = await DataStreamServices().handleIncomingMessage(
+          message,
+          isOnlineMessage: true,
+        );
+        verify(roomDao.updateRoom(uid: testUid.asString(), deleted: true));
+        expect(value, null);
+      });
+    });
+    group('shouldNotifyForThisMessage -', () {
+      test('When called if message shouldBeQuiet should return false',
+          () async {
+        final message = Message(
+          from: testUid,
+          to: testUid,
+          shouldBeQuiet: true,
+        );
+        final value = await DataStreamServices().shouldNotifyForThisMessage(
+          message,
+        );
+        expect(value, false);
+      });
+      test(
+          'When called if isAllNotificationDisabled or isRoomMuted should return false',
+          () async {
+        final uxService =
+            getAndRegisterUxService(isAllNotificationDisabled: true);
+        final message = Message(
+          from: testUid,
+          to: testUid,
+        );
+        final value = await DataStreamServices().shouldNotifyForThisMessage(
+          message,
+        );
+        verify(uxService.isAllNotificationDisabled);
+        expect(value, false);
+      });
+      test(
+          'When called if isAllNotificationDisabled or isRoomMuted should return false',
+          () async {
+        final roomRepo = getAndRegisterRoomRepo(isRoomMuted: true);
+        final message = Message(
+          from: testUid,
+          to: testUid,
+        );
+        final value = await DataStreamServices().shouldNotifyForThisMessage(
+          message,
+        );
+        verify(roomRepo.isRoomMuted(testUid.asString()));
+        expect(value, false);
+      });
+      test('When called if isCurrentUser should return false', () async {
+        final authRepo = getAndRegisterAuthRepo(isCurrentUser: true);
+        final message = Message(
+          from: testUid,
+          to: testUid,
+        );
+        final value = await DataStreamServices().shouldNotifyForThisMessage(
+          message,
+        );
+        verify(authRepo.isCurrentUser(testUid.asString()));
+        expect(value, false);
+      });
+      test('When called if message type is callEvent should return false',
+          () async {
+        final message = Message(
+          from: testUid,
+          to: testUid,
+          callEvent: CallEvent(),
+        );
+        final value = await DataStreamServices().shouldNotifyForThisMessage(
+          message,
+        );
+        expect(value, false);
+      });
+      test(
+          'When called if message type is mucSpecificPersistentEvent should return !authRepo.isCurrentUser for issuer',
+          () async {
+        final authRepo = getAndRegisterAuthRepo(isCurrentUser: true);
+        final message = Message(
+          from: testUid,
+          to: testUid,
+          persistEvent: PersistentEvent(
+            mucSpecificPersistentEvent: MucSpecificPersistentEvent(
+              issue: MucSpecificPersistentEvent_Issue.DELETED,
+              issuer: testUid,
+            ),
+          ),
+        );
+        final value = await DataStreamServices().shouldNotifyForThisMessage(
+          message,
+        );
+        verify(authRepo.isCurrentUser(testUid.asString()));
+        expect(value, false);
       });
     });
   });

@@ -126,10 +126,13 @@ MockCoreServices getAndRegisterCoreServices({
   return service;
 }
 
-MockUxService getAndRegisterUxService() {
+MockUxService getAndRegisterUxService(
+    {bool isAllNotificationDisabled = false}) {
   _removeRegistrationIfExists<UxService>();
   final service = MockUxService();
   GetIt.I.registerSingleton<UxService>(service);
+  when(service.isAllNotificationDisabled)
+      .thenAnswer((realInvocation) => isAllNotificationDisabled);
   return service;
 }
 
@@ -331,6 +334,7 @@ MockRoomRepo getAndRegisterRoomRepo({
   Room? room,
   bool getRoomGetError = false,
   bool isRoomBlocked = false,
+  bool isRoomMuted = false,
 }) {
   _removeRegistrationIfExists<RoomRepo>();
   final service = MockRoomRepo();
@@ -344,6 +348,9 @@ MockRoomRepo getAndRegisterRoomRepo({
         );
   when(service.isRoomBlocked(testUid.asString())).thenAnswer(
     (realInvocation) => Future.value(isRoomBlocked),
+  );
+  when(service.isRoomMuted(testUid.asString())).thenAnswer(
+    (realInvocation) => Future.value(isRoomMuted),
   );
   return service;
 }
