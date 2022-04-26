@@ -338,5 +338,20 @@
   "up_to": "تا",
   "in_private_chat": "در چت های خصوصی",
   "in_group_chat": "در گروه ها",
-  "in_channel_chat": "در کانال ها"
+  "in_channel_chat": "در کانال ها",
+  "email_not_verified": "ایمبل شما تایید نشده است.",
+  "error_occurred_in_save_email": "خطایی در ذخیره ایمیل  رخ داده است.",
+  "password_hint": "راهنما رمز",
+  "confirm": "تایید",
+  "select_date": "تاریخ را  انتخاب کنید",
+  "select_time": "زمان را انتخاب کنید",
+  "forget_password_send_link": "ما لینک  فراموشی رمز را فرستادیم به ",
+  "password_helper": "رمز باید حداقل 8 حرف باشد به علاوه فقط باید از اعداد یا  حروف لاتین باشد و شامل یک حرف بزرگ ، یک حرف کوچک و یک عدد باشد.",
+  "password_not_valid": "رمز معتبر نمی باشد",
+  "insert_phone_number": "شماره تلفن را وارد کنید.",
+  "send_email": "ارسال ایمیل",
+  "remind_me_later": "بعدا یاداوری شود.",
+  "download_now": "بروزرسانی",
+  "update_we": "بروزرسانی We",
+  "your_password_update": "رمز شما بروز شد."
 }

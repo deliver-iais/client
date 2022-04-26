@@ -358,7 +358,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                       child:
                                           ValueListenableBuilder<TextDirection>(
                                         valueListenable: _textDir,
-                                        builder: (context, value, child) =>
+                                        builder: (context, textDirection, child) =>
                                             TextField(
                                           selectionControls: isDesktop
                                               ? selectionControls
@@ -390,13 +390,13 @@ class _InputMessageWidget extends State<InputMessage> {
                                             )
                                             //max line of text field
                                           ],
-                                          textDirection: value,
+                                          textDirection: textDirection,
                                           style: theme.textTheme.subtitle1,
                                           onTap: () => _backSubject.add(false),
                                           onChanged: (str) {
-                                            if (str.trim().length < 2) {
+                                            if (str.isNotEmpty) {
                                               final dir = getDirection(str);
-                                              if (dir != value) {
+                                              if (dir != textDirection) {
                                                 _textDir.value = dir;
                                               }
                                             }
@@ -550,7 +550,6 @@ class _InputMessageWidget extends State<InputMessage> {
 
                                 // _soundRecorder.closeAudioSession();
                                 recordAudioTimer.cancel();
-                                noActivitySubject.add(ActivityType.NO_ACTIVITY);
                                 setState(() {
                                   startAudioRecorder = false;
                                   x = 0;
@@ -847,8 +846,6 @@ class _InputMessageWidget extends State<InputMessage> {
         widget.textController.text.contains("@") &&
         isMentionSelected) {
       isMentionSelected = false;
-    } else {
-      noActivitySubject.add(ActivityType.NO_ACTIVITY);
     }
     if (widget.waitingForForward == true) {
       widget.sendForwardMessage?.call();

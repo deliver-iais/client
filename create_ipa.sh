@@ -1,4 +1,4 @@
-flutter build ios --release --build-name 1.7.0
+flutter build ios
 
 rm -r installer/ipa_creator/Payload
 
