@@ -25,13 +25,14 @@ class AccountAdapter extends TypeAdapter<Account> {
       passwordProtected: fields[5] as bool?,
       email: fields[6] as String?,
       description: fields[7] as String?,
+      emailVerified: fields[8] as bool?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Account obj) {
     writer
-      ..writeByte(8)
+      ..writeByte(9)
       ..writeByte(0)
       ..write(obj.countryCode)
       ..writeByte(1)
@@ -47,7 +48,9 @@ class AccountAdapter extends TypeAdapter<Account> {
       ..writeByte(6)
       ..write(obj.email)
       ..writeByte(7)
-      ..write(obj.description);
+      ..write(obj.description)
+      ..writeByte(8)
+      ..write(obj.emailVerified);
   }
 
   @override
