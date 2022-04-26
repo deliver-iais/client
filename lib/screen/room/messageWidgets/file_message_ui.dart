@@ -20,12 +20,13 @@ class FileMessageUi extends StatefulWidget {
   final double maxWidth;
   final double minWidth;
   final bool isSender;
-  final void Function(String) onUsernameClick;
-  final bool isSeen;
   final CustomColorScheme colorScheme;
+  final void Function(String) onUsernameClick;
   final void Function() onEdit;
+  final bool isSeen;
+  final File file;
 
-  const FileMessageUi({
+  FileMessageUi({
     Key? key,
     required this.message,
     required this.maxWidth,
@@ -35,7 +36,8 @@ class FileMessageUi extends StatefulWidget {
     required this.colorScheme,
     required this.isSeen,
     required this.onEdit,
-  }) : super(key: key);
+  })  : file = message.json.toFile(),
+        super(key: key);
 
   @override
   _FileMessageUiState createState() => _FileMessageUiState();
@@ -46,25 +48,25 @@ class _FileMessageUiState extends State<FileMessageUi> {
   final _autoDownloadDao = GetIt.I.get<AutoDownloadDao>();
 
   @override
-  Widget build(BuildContext context) {
-    final file = widget.message.json.toFile();
-    final type = file.type;
-    final caption = file.caption;
-    final dimensions =
-        getImageDimensions(file.width.toDouble(), file.height.toDouble());
+  void initState() {
+    super.initState();
+    mediaAutomaticDownload();
+  }
 
-    final width = dimensions.width;
-    WidgetsBinding.instance
-        ?.addPostFrameCallback((_) => mediaAutomaticDownload(file, type));
+  @override
+  Widget build(BuildContext context) {
+    final dimensions = getImageDimensions();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         if (isDebugEnabled())
-          DebugC(label: "file details", children: [Debug(file)]),
-        _buildMainUi(type),
-        if (caption.isNotEmpty)
+          DebugC(label: "file details", children: [Debug(widget.file)]),
+        _buildMainUi(),
+        if (widget.file.caption.isNotEmpty)
           SizedBox(
-            width: width,
+            // TODO(hasan): detect more precisely for width in captions;
+            width: dimensions.width,
             child: Padding(
               padding: const EdgeInsets.only(top: 4),
               child: TextUI(
@@ -82,8 +84,8 @@ class _FileMessageUiState extends State<FileMessageUi> {
     );
   }
 
-  Widget _buildMainUi(String type) {
-    if (isImageFile(type)) {
+  Widget _buildMainUi() {
+    if (isImageFile()) {
       return ImageUi(
         message: widget.message,
         maxWidth: widget.maxWidth,
@@ -93,7 +95,7 @@ class _FileMessageUiState extends State<FileMessageUi> {
         colorScheme: widget.colorScheme,
         onEdit: widget.onEdit,
       );
-    } else if (type.contains('video')) {
+    } else if (isVideoFile()) {
       return VideoMessage(
         message: widget.message,
         maxWidth: widget.maxWidth,
@@ -113,7 +115,10 @@ class _FileMessageUiState extends State<FileMessageUi> {
     }
   }
 
-  Size getImageDimensions(double width, double height) {
+  Size getImageDimensions() {
+    var width = widget.file.width.toDouble();
+    var height = widget.file.height.toDouble();
+
     final maxWidth = widget.maxWidth;
     if (width == 0 || height == 0) {
       width = maxWidth;
@@ -133,34 +138,34 @@ class _FileMessageUiState extends State<FileMessageUi> {
     return Size(w, h);
   }
 
-  Future<void> mediaAutomaticDownload(File file, String type) async {
+  Future<void> mediaAutomaticDownload() async {
     final category = _autoDownloadDao.convertCategory(
       widget.message.roomUid.asUid().category,
     );
-    final isAutoDownloadEnable = isImageFile(type)
+    final isAutoDownloadEnable = isImageFile()
         ? await _autoDownloadDao.isPhotoAutoDownloadEnable(category)
         : await _autoDownloadDao.isFileAutoDownloadEnable(category);
     if (isAutoDownloadEnable) {
-      if (!isImageFile(type)) {
+      if (!isImageFile()) {
         final limitSize =
             await _autoDownloadDao.getFileSizeLimitForAutoDownload(category);
-        if (file.size > limitSize) {
+        if (widget.file.size > limitSize) {
           return;
         }
       }
-      await downloadFile(file);
+      await downloadFile();
     }
   }
 
-  Future<void> downloadFile(File file) async {
+  Future<void> downloadFile() async {
     final isExist = await _fileRepo.isExist(
-      file.uuid,
-      file.name,
+      widget.file.uuid,
+      widget.file.name,
     );
     if (!isExist) {
       await _fileRepo.getFile(
-        file.uuid,
-        file.name,
+        widget.file.uuid,
+        widget.file.name,
       );
       if (mounted) {
         setState(() {});
@@ -168,9 +173,13 @@ class _FileMessageUiState extends State<FileMessageUi> {
     }
   }
 
-  bool isImageFile(String type) {
-    return type.contains('image') ||
-        type.contains("png") ||
-        type.contains("jpg");
+  bool isImageFile() {
+    return widget.file.type.contains('image') ||
+        widget.file.type.contains("png") ||
+        widget.file.type.contains("jpg");
+  }
+
+  bool isVideoFile() {
+    return widget.file.type.contains('video');
   }
 }
