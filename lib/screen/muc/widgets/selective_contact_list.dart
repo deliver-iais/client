@@ -162,8 +162,8 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
             }
             if (snapshot.data! > 0) {
               return Positioned(
-                bottom: 0,
-                right: 0,
+                bottom: 5,
+                right: 15,
                 child: Container(
                   width: 40,
                   height: 40,

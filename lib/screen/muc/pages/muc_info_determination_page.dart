@@ -29,8 +29,6 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
   late TextEditingController idController;
   late TextEditingController infoController;
 
-  String mucName = '';
-  String channelId = "";
   bool autofocus = false;
   bool _showIcon = true;
   final _routingService = GetIt.I.get<RoutingService>();
@@ -75,57 +73,26 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
         showStandardContainer: true,
         child: Stack(
           children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Flexible(
-                      child: Form(
-                        key: mucNameKey,
-                        child: TextFormField(
-                          minLines: 1,
-                          autofocus: autofocus,
-                          validator: checkMucNameIsSet,
-                          textInputAction: TextInputAction.send,
-                          controller: controller,
-                          onChanged: (str) {
-                            setState(() {
-                              mucName = str;
-                            });
-                          },
-                          decoration: buildInputDecoration(
-                            widget.isChannel
-                                ? _i18n.get("enter_channel_name")
-                                : _i18n.get("enter_group_name"),
-                            context,
-                            isOptional: true,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 10),
-                if (widget.isChannel)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                   Row(
                     children: [
                       Flexible(
                         child: Form(
-                          key: _channelIdKey,
+                          key: mucNameKey,
                           child: TextFormField(
                             minLines: 1,
                             autofocus: autofocus,
+                            validator: checkMucNameIsSet,
                             textInputAction: TextInputAction.send,
-                            controller: idController,
-                            validator: validateUsername,
-                            onChanged: (str) {
-                              setState(() {
-                                channelId = str;
-                              });
-                            },
+                            controller: controller,
                             decoration: buildInputDecoration(
-                              _i18n.get("enter_channel_id"),
+                              widget.isChannel
+                                  ? _i18n.get("enter_channel_name")
+                                  : _i18n.get("enter_group_name"),
                               context,
                               isOptional: true,
                             ),
@@ -134,89 +101,114 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                       ),
                     ],
                   ),
-                StreamBuilder<bool>(
-                  stream: showChannelIdError.stream,
-                  builder: (c, e) {
-                    if (e.hasData && e.data!) {
-                      return Text(
-                        _i18n.get("channel_id_is_exist"),
-                        style: theme.textTheme.overline!
-                            .copyWith(color: Colors.red),
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  },
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                Row(
-                  children: [
-                    Flexible(
-                      child: Form(
-                        child: TextFormField(
-                          minLines: 1,
-                          maxLines: 4,
-                          autofocus: autofocus,
-                          textInputAction: TextInputAction.newline,
-                          controller: infoController,
-                          validator: validateUsername,
-                          onChanged: (str) {
-                            setState(() {
-                              channelId = str;
-                            });
-                          },
-                          decoration: buildInputDecoration(
-                            widget.isChannel
-                                ? _i18n.get("enter_channel_desc")
-                                : _i18n.get("enter_group_desc"),
-                            context,
+                  const SizedBox(height: 10),
+                  if (widget.isChannel)
+                    Row(
+                      children: [
+                        Flexible(
+                          child: Form(
+                            key: _channelIdKey,
+                            child: TextFormField(
+                              minLines: 1,
+                              autofocus: autofocus,
+                              textInputAction: TextInputAction.send,
+                              controller: idController,
+                              validator: validateUsername,
+                              decoration: InputDecoration(
+                                disabledBorder: const OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.red),
+                                  borderRadius: mainBorder,
+                                ),
+                                suffixIcon: const Padding(
+                                  padding: EdgeInsets.only(top: 20, left: 25),
+                                  child: Text("*"),
+                                ),
+                                helperText: _i18n.get("username_helper"),
+                                labelText: _i18n.get("enter_channel_id"),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  StreamBuilder<bool>(
+                    stream: showChannelIdError.stream,
+                    builder: (c, e) {
+                      if (e.hasData && e.data!) {
+                        return Text(
+                          _i18n.get("channel_id_is_exist"),
+                          style: theme.textTheme.overline!
+                              .copyWith(color: Colors.red),
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
+                  ),
+                  const SizedBox(
+                    height: 10,
+                  ),
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Form(
+                          child: TextFormField(
+                            minLines: 1,
+                            maxLines: 4,
+                            autofocus: autofocus,
+                            textInputAction: TextInputAction.newline,
+                            controller: infoController,
+                            decoration: buildInputDecoration(
+                              widget.isChannel
+                                  ? _i18n.get("enter_channel_desc")
+                                  : _i18n.get("enter_group_desc"),
+                              context,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                StreamBuilder<int>(
-                  stream: _createMucService.selectedLengthStream(),
-                  builder: (context, snapshot) {
-                    if (!snapshot.hasData) {
-                      return const SizedBox.shrink();
-                    }
-                    return Text(
-                      '${snapshot.data} ${_i18n.get("members")}',
-                      style: theme.primaryTextTheme.subtitle2,
-                    );
-                  },
-                ),
-                const SizedBox(
-                  height: 8,
-                ),
-                Expanded(
-                  child: StreamBuilder<int>(
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 20,
+                  ),
+                  StreamBuilder<int>(
                     stream: _createMucService.selectedLengthStream(),
                     builder: (context, snapshot) {
                       if (!snapshot.hasData) {
                         return const SizedBox.shrink();
                       }
-                      return ListView.builder(
-                        itemCount: snapshot.data,
-                        itemBuilder: (context, index) => ContactWidget(
-                          contact: _createMucService.contacts[index],
-                        ),
+                      return Text(
+                        '${snapshot.data} ${_i18n.get("members")}',
+                        style: theme.primaryTextTheme.subtitle2,
                       );
                     },
                   ),
-                )
-              ],
+                  const SizedBox(
+                    height: 8,
+                  ),
+                  Expanded(
+                    child: StreamBuilder<int>(
+                      stream: _createMucService.selectedLengthStream(),
+                      builder: (context, snapshot) {
+                        if (!snapshot.hasData) {
+                          return const SizedBox.shrink();
+                        }
+                        return ListView.builder(
+                          itemCount: snapshot.data,
+                          itemBuilder: (context, index) => ContactWidget(
+                            contact: _createMucService.contacts[index],
+                          ),
+                        );
+                      },
+                    ),
+                  )
+                ],
+              ),
             ),
             Positioned(
-              bottom: 0,
-              right: 0,
+              bottom: 5,
+              right: 15,
               child: _showIcon
                   ? Container(
                       width: 40,
@@ -248,19 +240,16 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                               );
                             }
                             if (widget.isChannel) {
-                              final result =
-                                  _channelIdKey.currentState?.validate() ??
-                                      false;
-                              if (result) {
-                                if (await checkChannelD(channelId)) {
-                                  mucUid = await _mucRepo.createNewChannel(
-                                    idController.text,
-                                    memberUidList,
-                                    controller.text,
-                                    ChannelType.PUBLIC,
-                                    infoController.text,
-                                  );
-                                }
+                              if ((_channelIdKey.currentState?.validate() ??
+                                      false) &&
+                                  await checkChannelD(idController.text)) {
+                                mucUid = await _mucRepo.createNewChannel(
+                                  idController.text,
+                                  memberUidList,
+                                  controller.text,
+                                  ChannelType.PUBLIC,
+                                  infoController.text,
+                                );
                               }
                             } else {
                               mucUid = await _mucRepo.createNewGroup(
@@ -293,8 +282,8 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                     ),
             ),
             Positioned(
-              bottom: 0,
-              left: 0,
+              bottom: 5,
+              left: 15,
               child: Container(
                 width: 40,
                 height: 40,

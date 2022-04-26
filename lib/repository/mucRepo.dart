@@ -58,45 +58,51 @@ class MucRepo {
     ChannelType channelType,
     String info,
   ) async {
-    final channelUid = await _mucServices.createNewChannel(
-      channelName,
-      channelType,
-      channelId,
-      info,
-    );
+    try {
+      final channelUid = await _mucServices.createNewChannel(
+        channelName,
+        channelType,
+        channelId,
+        info,
+      );
 
-    if (channelUid != null) {
-      await sendMembers(channelUid, memberUidList);
-      unawaited(
-        _mucDao.saveMember(
-          Member(
-            memberUid: _authRepo.currentUserUid.asString(),
-            mucUid: channelUid.asString(),
-            role: MucRole.OWNER,
+      if (channelUid != null) {
+        await sendMembers(channelUid, memberUidList);
+        unawaited(
+          _mucDao.saveMember(
+            Member(
+              memberUid: _authRepo.currentUserUid.asString(),
+              mucUid: channelUid.asString(),
+              role: MucRole.OWNER,
+            ),
           ),
-        ),
-      );
-      unawaited(
-        _insertToDb(
-          channelUid,
-          channelName,
-          memberUidList.length + 1,
-          info,
-          channelId: channelId,
-        ),
-      );
-      unawaited(fetchMucInfo(channelUid));
-      unawaited(fetchChannelMembers(channelUid, memberUidList.length));
-      return channelUid;
+        );
+        unawaited(
+          _insertToDb(
+            channelUid,
+            channelName,
+            memberUidList.length + 1,
+            info,
+            channelId: channelId,
+          ),
+        );
+        unawaited(fetchMucInfo(channelUid));
+        unawaited(fetchChannelMembers(channelUid, memberUidList.length));
+        return channelUid;
+      }
+    } catch (e) {
+      return null;
     }
-
-    return null;
   }
 
   Future<bool> channelIdIsAvailable(String id) async {
-    final result =
-        await _queryServices.idIsAvailable(IdIsAvailableReq()..id = id);
-    return result.isAvailable;
+    try {
+      final result =
+          await _queryServices.idIsAvailable(IdIsAvailableReq()..id = id);
+      return result.isAvailable;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<void> fetchGroupMembers(Uid groupUid, int len) async {

@@ -226,7 +226,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
     return StreamBuilder<NewerVersionInformation?>(
       stream: newVersionInformation.stream,
       builder: (context, snapshot) {
-        if (snapshot.hasData && snapshot.data != null) {
+        if (snapshot.hasData && snapshot.data != null && snapshot.data!.version.isNotEmpty) {
           Future.delayed(Duration.zero, () {
             showFloatingModalBottomSheet(
               context: context,
