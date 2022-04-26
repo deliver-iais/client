@@ -141,14 +141,19 @@ class AuthRepo {
       try {
         final renewAccessTokenRes = await _getAccessToken(_refreshToken!);
         _saveTokens(renewAccessTokenRes);
-        if( renewAccessTokenRes.newerVersionInformation.version.isNotEmpty && renewAccessTokenRes.newerVersionInformation.version!=VERSION && !newVersionInformation.hasValue){
-          newVersionInformation.add(renewAccessTokenRes.newerVersionInformation);
+        if (renewAccessTokenRes.newerVersionInformation.version.isNotEmpty &&
+            renewAccessTokenRes.newerVersionInformation.version != VERSION &&
+            !newVersionInformation.hasValue) {
+          newVersionInformation
+              .add(renewAccessTokenRes.newerVersionInformation);
         }
         return renewAccessTokenRes.accessToken;
       } on GrpcError catch (e) {
         _logger.e(e);
         if (_refreshToken != null && e.code == StatusCode.unauthenticated) {
           unawaited(GetIt.I.get<RoutingService>().logout());
+        } else if (e.code == StatusCode.permissionDenied && !oldVersion.value) {
+          oldVersion.add(true);
         }
         return "";
       } catch (e) {
@@ -237,9 +242,11 @@ class AuthRepo {
   }
 
   Future<void> sendForgetPasswordEmail(PhoneNumber phoneNumber) async {
-    await _authServiceClient.sendErasePasswordEmail(SendErasePasswordEmailReq()
-      ..platform = await getPlatformPB()
-      ..phoneNumber = phoneNumber,);
+    await _authServiceClient.sendErasePasswordEmail(
+      SendErasePasswordEmailReq()
+        ..platform = await getPlatformPB()
+        ..phoneNumber = phoneNumber,
+    );
   }
 }
 

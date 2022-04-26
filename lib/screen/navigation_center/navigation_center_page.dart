@@ -34,6 +34,8 @@ BehaviorSubject<String> modifyRoutingByNotificationTapInBackgroundInAndroid =
 BehaviorSubject<NewerVersionInformation?> newVersionInformation =
     BehaviorSubject.seeded(null);
 
+BehaviorSubject<bool> oldVersion = BehaviorSubject.seeded(false);
+
 class NavigationCenter extends StatefulWidget {
   const NavigationCenter({Key? key}) : super(key: key);
 
@@ -202,6 +204,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   },
                 ),
                 _newVersionInfo(),
+                _oldVersionInfo()
               ],
             ),
           ),
@@ -222,11 +225,79 @@ class _NavigationCenterState extends State<NavigationCenter> {
     return true;
   }
 
+  Widget _oldVersionInfo() {
+    return StreamBuilder<bool>(
+      stream: oldVersion.stream,
+      builder: (c, snapshot) {
+        if (snapshot.hasData && snapshot.data != null && snapshot.data!) {
+          Future.delayed(Duration.zero, () {
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (c) {
+                return AlertDialog(
+                  content: Padding(
+                    padding: const EdgeInsets.only(
+                      bottom: 8,
+                      left: 24,
+                      right: 24,
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Lottie.asset(
+                          "assets/animations/out_of_date.zip",
+                          height: 200,
+                        ),
+                        Text(
+                          _i18n.get("update_we"),
+                          style: const TextStyle(fontSize: 25),
+                        ),
+                        Text(_i18n.get("out_of_date_desc")),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Wrap(
+                          alignment: WrapAlignment.center,
+                          spacing: 8,
+                          runSpacing: 4,
+                          children: [
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                              ),
+                              onPressed: () {
+                                launch("https://www.$APPLICATION_DOMAIN",
+                                );
+                              },
+                              child: Text(_i18n.get("update_now")),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                );
+              },
+            );
+          });
+          return const SizedBox.shrink();
+        }
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
   Widget _newVersionInfo() {
     return StreamBuilder<NewerVersionInformation?>(
       stream: newVersionInformation.stream,
       builder: (context, snapshot) {
-        if (snapshot.hasData && snapshot.data != null && snapshot.data!.version.isNotEmpty) {
+        if (snapshot.hasData &&
+            snapshot.data != null &&
+            snapshot.data!.version.isNotEmpty) {
           Future.delayed(Duration.zero, () {
             showFloatingModalBottomSheet(
               context: context,
