@@ -1,3 +1,4 @@
+import 'package:deliver/box/member.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -145,6 +146,34 @@ void main() {
         );
         verify(roomDao.updateRoom(uid: testUid.asString(), deleted: true));
         expect(value, null);
+      });
+      test(
+          'When called if message type is MucSpecificPersistentEvent_Issue.LEAVE_USER and is not assignee to current user should delete member',
+          () async {
+        final mucDao = getAndRegisterMucDao();
+        final message = Message(
+          from: testUid,
+          to: testUid,
+          persistEvent: PersistentEvent(
+            mucSpecificPersistentEvent: MucSpecificPersistentEvent(
+              issue: MucSpecificPersistentEvent_Issue.LEAVE_USER,
+              issuer: testUid,
+              assignee: testUid,
+            ),
+          ),
+        );
+        await DataStreamServices().handleIncomingMessage(
+          message,
+          isOnlineMessage: true,
+        );
+        verify(
+          mucDao.deleteMember(
+            Member(
+              memberUid: testUid.asString(),
+              mucUid: testUid.asString(),
+            ),
+          ),
+        );
       });
     });
     group('shouldNotifyForThisMessage -', () {
