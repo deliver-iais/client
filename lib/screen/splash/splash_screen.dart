@@ -13,7 +13,10 @@ import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get_it/get_it.dart';
+import 'package:rxdart/rxdart.dart';
 
+
+BehaviorSubject<bool> outOfDateObject = BehaviorSubject.seeded(false);
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
 

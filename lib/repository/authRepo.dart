@@ -6,6 +6,7 @@ import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
+import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -134,7 +135,7 @@ class AuthRepo {
       });
 
   Future<String> getAccessToken() async {
-    if (_isExpired(_accessToken)) {
+    if (!_isExpired(_accessToken)) {
       if (_refreshToken == null) {
         return "";
       }
@@ -152,8 +153,8 @@ class AuthRepo {
         _logger.e(e);
         if (_refreshToken != null && e.code == StatusCode.unauthenticated) {
           unawaited(GetIt.I.get<RoutingService>().logout());
-        } else if (e.code == StatusCode.permissionDenied && !oldVersion.value) {
-          oldVersion.add(true);
+        } else if (e.code == StatusCode.aborted && !outOfDateObject.value) {
+          outOfDateObject.add(true);
         }
         return "";
       } catch (e) {
