@@ -613,6 +613,13 @@ class MockAuthRepo extends _i1.Mock implements _i25.AuthRepo {
   void saveTestUserInfo() =>
       super.noSuchMethod(Invocation.method(#saveTestUserInfo, []),
           returnValueForMissingStub: null);
+  @override
+  _i16.Future<void> sendForgetPasswordEmail(_i27.PhoneNumber? phoneNumber) =>
+      (super.noSuchMethod(
+              Invocation.method(#sendForgetPasswordEmail, [phoneNumber]),
+              returnValue: Future<void>.value(),
+              returnValueForMissingStub: Future<void>.value())
+          as _i16.Future<void>);
 }
 
 /// A class which mocks [FireBaseServices].
