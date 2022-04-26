@@ -16,6 +16,7 @@ import 'package:deliver/shared/methods/phone.dart';
 
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
+import 'package:deliver/shared/widgets/out_of_date.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
@@ -108,6 +109,10 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ).ignore();
       }
+    } on GrpcError catch (e) {
+      if (e.code == StatusCode.aborted) {
+        showOutOfDateDialog(context);
+      }
     } catch (e) {
       _logger.e(e);
     }
@@ -168,6 +173,8 @@ class _LoginPageState extends State<LoginPage> {
               toastText: _i18n.get("notwork_is_unavailable"),
               toastContext: context,
             );
+          } else if (e.code == StatusCode.aborted) {
+            showOutOfDateDialog(context);
           } else {
             ToastDisplay.showToast(
               toastText: _i18n.get("error_occurred"),

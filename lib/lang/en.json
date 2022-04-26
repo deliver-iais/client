@@ -343,12 +343,17 @@
   "select_date": "Select date",
   "select_time": "Select time",
   "forget_password_send_link": "we send forget link to",
-  "password_helper": "Minimum eight characters, at least one uppercase letter, one lowercase letter and one number",
+  "password_helper": "Minimum eight characters, at least one uppercase letter, one lowercase letter and one number and one special character",
   "password_not_valid": "Password not valid",
   "insert_phone_number": "Insert  phone number",
   "send_email": "Send email",
   "remind_me_later": "Remind me later",
   "download_now": "Download now",
   "update_we": "Update We",
-  "your_password_update": "Your password updated"
+  "your_password_update": "Your password updated",
+  "out_of_date_title": "This app is out of date",
+  "out_of_date_desc": "You should update this app. The version you're using doesn't include the latest security features to keep you protected. This updating is necessary.",
+  "update_now": "Update Now"
+
+
 }
