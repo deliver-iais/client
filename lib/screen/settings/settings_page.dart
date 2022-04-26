@@ -257,7 +257,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ],
             ),
             Section(
-              title: _i18n.get("automatic_download"),
+              title: _i18n.get("network"),
               children: [
                 SettingsTile(
                   title: _i18n.get("automatic_download"),

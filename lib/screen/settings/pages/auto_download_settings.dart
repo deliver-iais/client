@@ -8,14 +8,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-class AutoDownloadPage extends StatefulWidget {
-  const AutoDownloadPage({Key? key}) : super(key: key);
+class AutoDownloadSettingsPage extends StatefulWidget {
+  const AutoDownloadSettingsPage({Key? key}) : super(key: key);
 
   @override
-  State<AutoDownloadPage> createState() => _AutoDownloadPageState();
+  State<AutoDownloadSettingsPage> createState() => _AutoDownloadSettingsPageState();
 }
 
-class _AutoDownloadPageState extends State<AutoDownloadPage> {
+class _AutoDownloadSettingsPageState extends State<AutoDownloadSettingsPage> {
   final _autoDownloadDao = GetIt.I.get<AutoDownloadDao>();
   final _i18n = GetIt.I.get<I18N>();
 

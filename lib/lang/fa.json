@@ -330,6 +330,7 @@
   "notwork_is_unavailable": "شبکه در دسترس نمی باشد.",
   "message_not_supported": "این پیام در این نسخه قابلیت نمایش ندارد، لطفا نسخه اپلیکیشن خود را به روزرسانی نمایید.",
   "username_not_valid": "شناسه کاربری معتبر نیست.",
+  "network": "شبکه",
   "automatic_download": "دانلود اوتوماتیک",
   "data_usage": "مصرف داده",
   "photos": "عکس ها",

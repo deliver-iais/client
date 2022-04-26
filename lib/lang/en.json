@@ -326,6 +326,7 @@
   "notwork_is_unavailable": "Network is unavailable",
   "message_not_supported": "This message is not supported in this version, please update your client.",
   "username_not_valid": "username not valid",
+  "network": "Network",
   "automatic_download": "Automatic download",
   "data_usage": "Data usage",
   "photos": "Photos",

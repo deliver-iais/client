@@ -21,7 +21,7 @@ import 'package:deliver/screen/register/pages/login_page.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/selection_to_forward_page.dart';
 import 'package:deliver/screen/room/pages/room_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
-import 'package:deliver/screen/settings/pages/auto_download_page.dart';
+import 'package:deliver/screen/settings/pages/auto_download_settings.dart';
 import 'package:deliver/screen/settings/pages/developer_page.dart';
 import 'package:deliver/screen/settings/pages/devices_page.dart';
 import 'package:deliver/screen/settings/pages/language_settings.dart';
@@ -58,7 +58,7 @@ const _developerPage = DeveloperPage(key: ValueKey("/developer-page"));
 
 const _devices = DevicesPage(key: ValueKey("/devices"));
 
-const _autoDownload = AutoDownloadPage(key: ValueKey("/auto_download"));
+const _autoDownload = AutoDownloadSettingsPage(key: ValueKey("/auto_download"));
 
 const _contacts = ContactsPage(key: ValueKey("/contacts"));
 

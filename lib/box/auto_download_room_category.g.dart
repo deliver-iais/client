@@ -9,7 +9,7 @@ part of 'auto_download_room_category.dart';
 class AutoDownloadRoomCategoryAdapter
     extends TypeAdapter<AutoDownloadRoomCategory> {
   @override
-  final int typeId = 25;
+  final int typeId = 26;
 
   @override
   AutoDownloadRoomCategory read(BinaryReader reader) {

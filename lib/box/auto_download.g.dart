@@ -8,7 +8,7 @@ part of 'auto_download.dart';
 
 class AutoDownloadAdapter extends TypeAdapter<AutoDownload> {
   @override
-  final int typeId = 24;
+  final int typeId = 25;
 
   @override
   AutoDownload read(BinaryReader reader) {

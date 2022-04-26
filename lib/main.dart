@@ -1,6 +1,6 @@
+import 'package:deliver/box/account.dart';
 import 'package:deliver/box/auto_download.dart';
 import 'package:deliver/box/auto_download_room_category.dart';
-import 'package:deliver/box/account.dart';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/call_event.dart';
@@ -8,8 +8,8 @@ import 'package:deliver/box/call_info.dart';
 import 'package:deliver/box/call_status.dart';
 import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/contact.dart';
-import 'package:deliver/box/dao/auto_download_dao.dart';
 import 'package:deliver/box/dao/account_dao.dart';
+import 'package:deliver/box/dao/auto_download_dao.dart';
 import 'package:deliver/box/dao/avatar_dao.dart';
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
@@ -365,7 +365,7 @@ void main() async {
 
 Future<void> _setWindowSize() async {
   final _sharedDao = GetIt.I.get<SharedDao>();
-  final size = await _sharedDao.get('SHARED_DAO_WINDOWS_SIZE');
+  final size = await _sharedDao.get(SHARED_DAO_WINDOWS_SIZE);
   final rect = size?.split('_');
 
   if (rect != null) {
