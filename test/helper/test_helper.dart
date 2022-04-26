@@ -39,6 +39,7 @@ import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/services/notification_services.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/live_location.pb.dart';
@@ -108,6 +109,7 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
     MockSpec<NotificationServices>(returnNullOnMissingStub: true),
     MockSpec<LastActivityDao>(returnNullOnMissingStub: true),
     MockSpec<MucDao>(returnNullOnMissingStub: true),
+    MockSpec<UxService>(returnNullOnMissingStub: true),
   ],
 )
 MockCoreServices getAndRegisterCoreServices({
@@ -121,6 +123,13 @@ MockCoreServices getAndRegisterCoreServices({
         ..add(connectionStatus);
   when(service.connectionStatus)
       .thenAnswer((realInvocation) => _connectionStatus);
+  return service;
+}
+
+MockUxService getAndRegisterUxService() {
+  _removeRegistrationIfExists<UxService>();
+  final service = MockUxService();
+  GetIt.I.registerSingleton<UxService>(service);
   return service;
 }
 
@@ -411,6 +420,10 @@ MockMucDao getAndRegisterMucDao() {
   _removeRegistrationIfExists<MucDao>();
   final service = MockMucDao();
   GetIt.I.registerSingleton<MucDao>(service);
+  when(service.get(testUid.asString())).thenAnswer(
+    (realInvocation) =>
+        Future.value(Muc(uid: testUid.asString(), pinMessagesIdList: [])),
+  );
   return service;
 }
 
@@ -764,6 +777,7 @@ void registerServices() {
   getAndRegisterNotificationServices();
   getAndRegisterLastActivityDao();
   getAndRegisterMucDao();
+  getAndRegisterUxService();
 }
 
 void unregisterServices() {
@@ -796,6 +810,7 @@ void unregisterServices() {
   GetIt.I.unregister<NotificationServices>();
   GetIt.I.unregister<LastActivityDao>();
   GetIt.I.unregister<MucDao>();
+  GetIt.I.unregister<UxService>();
 }
 
 void _removeRegistrationIfExists<T extends Object>() {
