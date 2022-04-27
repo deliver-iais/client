@@ -175,6 +175,50 @@ void main() {
           ),
         );
       });
+      test(
+          'When called if message type is MucSpecificPersistentEvent_Issue.AVATAR_CHANGED should fetchAvatar',
+          () async {
+        final avatarRepo = getAndRegisterAvatarRepo();
+        final message = Message(
+          from: testUid,
+          to: testUid,
+          persistEvent: PersistentEvent(
+            mucSpecificPersistentEvent: MucSpecificPersistentEvent(
+              issue: MucSpecificPersistentEvent_Issue.AVATAR_CHANGED,
+            ),
+          ),
+        );
+        await DataStreamServices().handleIncomingMessage(
+          message,
+          isOnlineMessage: true,
+        );
+        verify(
+          avatarRepo.fetchAvatar(testUid, forceToUpdate: true),
+        );
+      });
+      test(
+          'When called if message type is  MessageManipulationPersistentEvent_Action.EDITED should getMessage from messageDao',
+          () async {
+        final messageDao = getAndRegisterMessageDao();
+        final message = Message(
+          from: testUid,
+          to: testUid,
+          persistEvent: PersistentEvent(
+            messageManipulationPersistentEvent:
+                MessageManipulationPersistentEvent(
+              action: MessageManipulationPersistentEvent_Action.EDITED,
+              messageId: Int64(),
+            ),
+          ),
+        );
+        await DataStreamServices().handleIncomingMessage(
+          message,
+          isOnlineMessage: true,
+        );
+        verify(
+          messageDao.getMessage(testUid.asString(), 0),
+        );
+      });
     });
     group('shouldNotifyForThisMessage -', () {
       test('When called if message shouldBeQuiet should return false',
