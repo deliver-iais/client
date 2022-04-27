@@ -1,10 +1,12 @@
 import 'package:deliver/box/member.dart';
+import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
@@ -196,10 +198,7 @@ void main() {
           avatarRepo.fetchAvatar(testUid, forceToUpdate: true),
         );
       });
-      test(
-          'When called if message type is  MessageManipulationPersistentEvent_Action.EDITED should getMessage from messageDao',
-          () async {
-        final messageDao = getAndRegisterMessageDao();
+      group('_onMessageEdited -', () {
         final message = Message(
           from: testUid,
           to: testUid,
@@ -211,12 +210,111 @@ void main() {
             ),
           ),
         );
-        await DataStreamServices().handleIncomingMessage(
+        test(
+            'When called if message type is  MessageManipulationPersistentEvent_Action.EDITED should getMessage from messageDao',
+            () async {
+          final messageDao = getAndRegisterMessageDao();
+          await DataStreamServices().handleIncomingMessage(
+            message,
+            isOnlineMessage: true,
+          );
+          verify(
+            messageDao.getMessage(testUid.asString(), 0),
+          );
+        });
+        test(
+            'When called if message type is  MessageManipulationPersistentEvent_Action.EDITED should getMessage from messageDao and if message is not null should fetchMessages',
+            () async {
+          final queryServiceClient = getAndRegisterQueryServiceClient(
+            fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
+            fetchMessagesHasOptions: false,
+            fetchMessagesLimit: 1,
+          );
+          getAndRegisterMessageDao(message: testMessage);
+
+          await DataStreamServices().handleIncomingMessage(
+            message,
+            isOnlineMessage: true,
+          );
+          verify(
+            queryServiceClient.fetchMessages(
+              FetchMessagesReq()
+                ..roomUid = testUid
+                ..limit = 1
+                ..pointer = Int64()
+                ..type = FetchMessagesReq_Type.FORWARD_FETCH,
+            ),
+          );
+        });
+        test(
+            'When called if message type is  MessageManipulationPersistentEvent_Action.EDITED should getMessage from messageDao and if message is not null should fetchMessages',
+            () async {
+          final queryServiceClient = getAndRegisterQueryServiceClient(
+            fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
+            fetchMessagesHasOptions: false,
+            fetchMessagesLimit: 1,
+          );
+          getAndRegisterMessageDao(message: testMessage);
+
+          await DataStreamServices().handleIncomingMessage(
+            message,
+            isOnlineMessage: true,
+          );
+          verify(
+            queryServiceClient.fetchMessages(
+              FetchMessagesReq()
+                ..roomUid = testUid
+                ..limit = 1
+                ..pointer = Int64()
+                ..type = FetchMessagesReq_Type.FORWARD_FETCH,
+            ),
+          );
+        });
+        test(
+            'When called if message type is  MessageManipulationPersistentEvent_Action.EDITED should getMessage from messageDao and if message is not null should getRoom',
+            () async {
+          final roomDao = getAndRegisterRoomDao();
+          getAndRegisterQueryServiceClient(
+            fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
+            fetchMessagesHasOptions: false,
+            fetchMessagesLimit: 1,
+          );
+          getAndRegisterMessageDao(message: testMessage);
+
+          await DataStreamServices().handleIncomingMessage(
+            message,
+            isOnlineMessage: true,
+          );
+          verify(
+            roomDao.getRoom(
+              testUid.asString(),
+            ),
+          );
+        });
+      });
+    });
+    group('saveMessageInMessagesDB -', () {
+      test('When called should saveMessage into messageDao', () async {
+        final messageDao = getAndRegisterMessageDao();
+        final message = Message(
+          from: testUid,
+          to: testUid,
+          text: Text(text: "test"),
+        );
+        await DataStreamServices().saveMessageInMessagesDB(
           message,
-          isOnlineMessage: true,
         );
         verify(
-          messageDao.getMessage(testUid.asString(), 0),
+          messageDao.saveMessage(
+            testMessage.copyWith(
+              id: 0,
+              json: "{\"1\":\"test\"}",
+              type: MessageType.TEXT,
+              isHidden: false,
+              packetId: "",
+              forwardedFrom: "0:",
+            ),
+          ),
         );
       });
     });
