@@ -372,7 +372,7 @@ void main() {
           verify(seenDao.getMySeen(testUid.asString()));
         });
         test(
-            'When called if message type is  MessageManipulationPersistentEvent_Action.DELETED should getMySeen and if 0 < mySeen.messageId && mySeen.messageId <= id increaseHiddenMessageCount',
+            'When called if message type is MessageManipulationPersistentEvent_Action.DELETED should getMySeen and if 0 < mySeen.messageId && mySeen.messageId <= id increaseHiddenMessageCount',
             () async {
           getAndRegisterMessageDao(getMessageId: 2);
           final seenDao = getAndRegisterSeenDao(
@@ -389,6 +389,45 @@ void main() {
               hiddenMessageCount: 1,
             ),
           );
+        });
+        test(
+            'When called if message type is MessageManipulationPersistentEvent_Action.DELETED should get message from message Dao',
+            () async {
+          final messageDao = getAndRegisterMessageDao(getMessageId: 2);
+          await DataStreamServices().handleIncomingMessage(
+            message,
+            isOnlineMessage: true,
+          );
+          verify(messageDao.getMessage(testUid.asString(), 2));
+        });
+        test(
+            'When called if message type is MessageManipulationPersistentEvent_Action.DELETED should get message and if message type file should delete media',
+            () async {
+          getAndRegisterMessageDao(
+            getMessageId: 2,
+            message: testMessage.copyWith(type: MessageType.FILE, id: 0),
+          );
+          final mediaDao = getAndRegisterMediaDao();
+          await DataStreamServices().handleIncomingMessage(
+            message,
+            isOnlineMessage: true,
+          );
+          verify(mediaDao.deleteMedia(testUid.asString(), 0));
+        });
+        test(
+            'When called if message type is MessageManipulationPersistentEvent_Action.DELETED should save a new message and get the room ',
+            () async {
+          final roomDao = getAndRegisterRoomDao();
+          final messageDao = getAndRegisterMessageDao(
+            getMessageId: 2,
+            message: testMessage,
+          );
+          await DataStreamServices().handleIncomingMessage(
+            message,
+            isOnlineMessage: true,
+          );
+          verify(messageDao.saveMessage(testMessage.copyDeleted()));
+          verify(roomDao.getRoom(testUid.asString()));
         });
       });
     });
