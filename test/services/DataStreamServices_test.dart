@@ -1,6 +1,9 @@
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
+import 'package:deliver/box/room.dart';
+import 'package:deliver/models/message_event.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
@@ -288,6 +291,59 @@ void main() {
           verify(
             roomDao.getRoom(
               testUid.asString(),
+            ),
+          );
+        });
+        test(
+            'When called if message type is  MessageManipulationPersistentEvent_Action.EDITED should add MessageEvent messageEventSubject',
+            () async {
+          final roomDao = getAndRegisterRoomDao(
+            rooms: [
+              Room(
+                uid: testUid.asString(),
+                lastMessage: testMessage.copyWith(id: 1),
+              )
+            ],
+          );
+          getAndRegisterQueryServiceClient(
+            fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
+            fetchMessagesHasOptions: false,
+            fetchMessagesLimit: 1,
+          );
+          getAndRegisterMessageDao(message: testMessage);
+
+          await DataStreamServices().handleIncomingMessage(
+            message,
+            isOnlineMessage: true,
+          );
+          verify(
+            roomDao.updateRoom(
+              uid: testUid.asString(),
+              lastUpdateTime: 0,
+            ),
+          );
+        });
+        test(
+            'When called if message type is  MessageManipulationPersistentEvent_Action.EDITED should update room',
+            () async {
+          getAndRegisterQueryServiceClient(
+            fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
+            fetchMessagesHasOptions: false,
+            fetchMessagesLimit: 1,
+          );
+          getAndRegisterMessageDao(message: testMessage);
+
+          await DataStreamServices().handleIncomingMessage(
+            message,
+            isOnlineMessage: true,
+          );
+          expect(
+            messageEventSubject.value,
+            MessageEvent(
+              testUid.asString(),
+              0,
+              0,
+              MessageManipulationPersistentEvent_Action.EDITED,
             ),
           );
         });
