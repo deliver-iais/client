@@ -271,17 +271,18 @@ MockMessageDao getAndRegisterMessageDao({
   bool getError = false,
   PendingMessage? allPendingMessage,
   PendingMessage? pendingMessage,
+  int getMessageId = 0,
 }) {
   _removeRegistrationIfExists<MessageDao>();
   final service = MockMessageDao();
   GetIt.I.registerSingleton<MessageDao>(service);
   message == null
       ? getError
-          ? when(service.getMessage(testUid.asString(), 0))
+          ? when(service.getMessage(testUid.asString(), getMessageId))
               .thenThrow((realInvocation) => "error")
-          : when(service.getMessage(testUid.asString(), 0))
+          : when(service.getMessage(testUid.asString(), getMessageId))
               .thenAnswer((realInvocation) => Future.value(null))
-      : when(service.getMessage(testUid.asString(), 0))
+      : when(service.getMessage(testUid.asString(), getMessageId))
           .thenAnswer((realInvocation) => Future.value(message));
   when(service.getMessagePage(testUid.asString(), 0)).thenAnswer(
     (realInvocation) => Future.value([testMessage.copyWith(id: 0)]),

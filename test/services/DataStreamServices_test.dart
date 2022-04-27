@@ -348,6 +348,49 @@ void main() {
           );
         });
       });
+      group('_onMessageDeleted -', () {
+        final message = Message(
+          from: testUid,
+          to: testUid,
+          persistEvent: PersistentEvent(
+            messageManipulationPersistentEvent:
+                MessageManipulationPersistentEvent(
+              action: MessageManipulationPersistentEvent_Action.DELETED,
+              messageId: Int64(2),
+            ),
+          ),
+        );
+        test(
+            'When called if message type is  MessageManipulationPersistentEvent_Action.DELETED should getMySeen',
+            () async {
+          final seenDao = getAndRegisterSeenDao();
+          getAndRegisterMessageDao(getMessageId: 2);
+          await DataStreamServices().handleIncomingMessage(
+            message,
+            isOnlineMessage: true,
+          );
+          verify(seenDao.getMySeen(testUid.asString()));
+        });
+        test(
+            'When called if message type is  MessageManipulationPersistentEvent_Action.DELETED should getMySeen and if 0 < mySeen.messageId && mySeen.messageId <= id increaseHiddenMessageCount',
+            () async {
+          getAndRegisterMessageDao(getMessageId: 2);
+          final seenDao = getAndRegisterSeenDao(
+            messageId: 1,
+          );
+          await DataStreamServices().handleIncomingMessage(
+            message,
+            isOnlineMessage: true,
+          );
+          verify(seenDao.getMySeen(testUid.asString()));
+          verify(
+            seenDao.updateMySeen(
+              uid: testUid.asString(),
+              hiddenMessageCount: 1,
+            ),
+          );
+        });
+      });
     });
     group('saveMessageInMessagesDB -', () {
       test('When called should saveMessage into messageDao', () async {
