@@ -429,6 +429,28 @@ void main() {
           verify(messageDao.saveMessage(testMessage.copyDeleted()));
           verify(roomDao.getRoom(testUid.asString()));
         });
+        test(
+            'When called should get the room and if room!.lastMessage != null && room.lastMessage!.id != id should update the room with new lastUpdateTime',
+            () async {
+          final roomDao = getAndRegisterRoomDao(
+            rooms: [
+              testRoom.copyWith(
+                lastMessage: testMessage.copyWith(id: 1),
+              ),
+            ],
+          );
+          getAndRegisterMessageDao(
+            getMessageId: 2,
+            message: testMessage,
+          );
+          await DataStreamServices().handleIncomingMessage(
+            message,
+            isOnlineMessage: true,
+          );
+          verify(
+            roomDao.updateRoom(uid: testUid.asString(), lastUpdateTime: 0),
+          );
+        });
       });
     });
     group('saveMessageInMessagesDB -', () {
@@ -452,6 +474,80 @@ void main() {
               packetId: "",
               forwardedFrom: "0:",
             ),
+          ),
+        );
+      });
+    });
+    group('fetchLastNotHiddenMessage -', () {
+      test('When called should getMessage from messageDao', () async {
+        final messageDao = getAndRegisterMessageDao();
+        final value = await DataStreamServices().fetchLastNotHiddenMessage(
+          testUid,
+          1,
+          0,
+        );
+        verify(
+          messageDao.getMessage(
+            testUid.asString(),
+            1,
+          ),
+        );
+        expect(value, null);
+      });
+      test(
+          'When called should getMessage from messageDao and if msg not be null and msg.id! <= firstMessageId || (msg.isHidden && msg.id == 1) should update the room with deleted=true',
+          () async {
+        final roomDao = getAndRegisterRoomDao();
+        getAndRegisterMessageDao(
+          getMessageId: 1,
+          message: testMessage.copyWith(
+            id: 1,
+            isHidden: true,
+          ),
+        );
+        final value = await DataStreamServices().fetchLastNotHiddenMessage(
+          testUid,
+          1,
+          0,
+        );
+        verify(
+          roomDao.updateRoom(
+            uid: testUid.asString(),
+            deleted: true,
+          ),
+        );
+        expect(value, null);
+      });
+      test(
+          'When called should getMessage from messageDao and if msg not be hidden should return msg and update with new value',
+          () async {
+        final roomDao = getAndRegisterRoomDao();
+        getAndRegisterMessageDao(
+          getMessageId: 1,
+          message: testMessage.copyWith(
+            id: 1,
+          ),
+        );
+        final value = await DataStreamServices().fetchLastNotHiddenMessage(
+          testUid,
+          1,
+          0,
+        );
+        verify(
+          roomDao.updateRoom(
+            uid: testUid.asString(),
+            firstMessageId: 0,
+            lastUpdateTime: 0,
+            lastMessageId: 1,
+            lastMessage: testMessage.copyWith(
+              id: 1,
+            ),
+          ),
+        );
+        expect(
+          value,
+          testMessage.copyWith(
+            id: 1,
           ),
         );
       });
