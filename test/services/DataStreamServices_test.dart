@@ -671,6 +671,67 @@ void main() {
         });
       });
     });
-    group('saveFetchMessages -', () {});
+    group('saveFetchMessages -', () {
+      final message = Message(from: testUid, to: testUid, packetId: "");
+      test('When called should deletePendingMessage for every message',
+          () async {
+        final messageDao = getAndRegisterMessageDao();
+        await DataStreamServices().saveFetchMessages(
+          [message],
+        );
+        verify(
+          messageDao.deletePendingMessage(""),
+        );
+      });
+      test('When called should deletePendingMessage for every message',
+          () async {
+        final messageDao = getAndRegisterMessageDao();
+        await DataStreamServices().saveFetchMessages(
+          [message],
+        );
+        verify(
+          messageDao.deletePendingMessage(""),
+        );
+      });
+      test(
+          'When called should pass every message to handleIncomingMessage and add new message to message list and return it',
+          () async {
+        final value = await DataStreamServices().saveFetchMessages(
+          [message],
+        );
+        expect(
+          value,
+          [
+            testMessage.copyWith(
+              packetId: "",
+              json: "{}",
+              isHidden: true,
+              id: 0,
+              forwardedFrom: "0:",
+            )
+          ],
+        );
+      });
+      test(
+          'When called should pass every message to handleIncomingMessage and add new message to message list and return it',
+          () async {
+        final message = Message(
+          from: testUid,
+          to: testUid,
+          persistEvent: PersistentEvent(
+            mucSpecificPersistentEvent: MucSpecificPersistentEvent(
+              issue: MucSpecificPersistentEvent_Issue.DELETED,
+            ),
+          ),
+        );
+        final value = await DataStreamServices().saveFetchMessages(
+          [message],
+        );
+        expect(
+          value,
+          [],
+        );
+      });
+    });
   });
 }
