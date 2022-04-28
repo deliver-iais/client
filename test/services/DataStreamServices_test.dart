@@ -669,6 +669,50 @@ void main() {
             ),
           );
         });
+        test(
+            'When called should saveFetchMessages and if returned message be null should return null',
+            () async {
+          getAndRegisterMessageDao(
+            getMessageId: 1,
+          );
+          getAndRegisterQueryServiceClient(
+            fetchMessagesLimit: 1,
+            fetchMessagesPointer: 1,
+            justNotHiddenMessages: true,
+            fetchMessagesPersistEvent: PersistentEvent(
+              mucSpecificPersistentEvent: MucSpecificPersistentEvent(
+                issue: MucSpecificPersistentEvent_Issue.DELETED,
+              ),
+            ),
+          );
+          final value = await DataStreamServices().fetchLastNotHiddenMessage(
+            testUid,
+            1,
+            0,
+          );
+          expect(value, null);
+        });
+        test(
+            'When called should saveFetchMessages and if returned message not be null and  if msg.id! <= firstMessageId && (msg.isHidden && msg.id == 1) should update room with deleted true and return null',
+            () async {
+          final roomDao = getAndRegisterRoomDao();
+          getAndRegisterMessageDao(
+            getMessageId: 1,
+          );
+          getAndRegisterQueryServiceClient(
+            fetchMessagesLimit: 1,
+            fetchMessagesPointer: 1,
+            fetchMessagesId: 1,
+            justNotHiddenMessages: true,
+          );
+          final value = await DataStreamServices().fetchLastNotHiddenMessage(
+            testUid,
+            1,
+            2,
+          );
+          verify(roomDao.updateRoom(uid: testUid.asString(), deleted: true));
+          expect(value, null);
+        });
       });
     });
     group('saveFetchMessages -', () {
