@@ -126,8 +126,9 @@ MockCoreServices getAndRegisterCoreServices({
   return service;
 }
 
-MockUxService getAndRegisterUxService(
-    {bool isAllNotificationDisabled = false}) {
+MockUxService getAndRegisterUxService({
+  bool isAllNotificationDisabled = false,
+}) {
   _removeRegistrationIfExists<UxService>();
   final service = MockUxService();
   GetIt.I.registerSingleton<UxService>(service);
@@ -506,6 +507,8 @@ MockQueryServiceClient getAndRegisterQueryServiceClient({
   bool fetchMessagesHasOptions = true,
   FetchMessagesReq_Type fetchMessagesType =
       FetchMessagesReq_Type.BACKWARD_FETCH,
+  int fetchMessagesPointer = 0,
+  bool justNotHiddenMessages = false,
   PersistentEvent? fetchMessagesPersistEvent,
   int? mentionIdList,
   int updateMessageId = 0,
@@ -578,9 +581,11 @@ MockQueryServiceClient getAndRegisterQueryServiceClient({
 
   when(
     service.fetchMessages(
-      FetchMessagesReq()
+      FetchMessagesReq(
+        justNotHiddenMessages: justNotHiddenMessages ? true : null,
+      )
         ..roomUid = testUid
-        ..pointer = Int64()
+        ..pointer = Int64(fetchMessagesPointer)
         ..type = fetchMessagesType
         ..limit = fetchMessagesLimit,
       options: fetchMessagesHasOptions

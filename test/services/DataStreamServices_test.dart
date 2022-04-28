@@ -11,6 +11,7 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:grpc/grpc.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 
@@ -453,6 +454,94 @@ void main() {
         });
       });
     });
+
+    group('shouldNotifyForThisMessage -', () {
+      test('When called if message shouldBeQuiet should return false',
+          () async {
+        final message = Message(
+          from: testUid,
+          to: testUid,
+          shouldBeQuiet: true,
+        );
+        final value = await DataStreamServices().shouldNotifyForThisMessage(
+          message,
+        );
+        expect(value, false);
+      });
+      test(
+          'When called if isAllNotificationDisabled or isRoomMuted should return false',
+          () async {
+        final uxService =
+            getAndRegisterUxService(isAllNotificationDisabled: true);
+        final message = Message(
+          from: testUid,
+          to: testUid,
+        );
+        final value = await DataStreamServices().shouldNotifyForThisMessage(
+          message,
+        );
+        verify(uxService.isAllNotificationDisabled);
+        expect(value, false);
+      });
+      test(
+          'When called if isAllNotificationDisabled or isRoomMuted should return false',
+          () async {
+        final roomRepo = getAndRegisterRoomRepo(isRoomMuted: true);
+        final message = Message(
+          from: testUid,
+          to: testUid,
+        );
+        final value = await DataStreamServices().shouldNotifyForThisMessage(
+          message,
+        );
+        verify(roomRepo.isRoomMuted(testUid.asString()));
+        expect(value, false);
+      });
+      test('When called if isCurrentUser should return false', () async {
+        final authRepo = getAndRegisterAuthRepo(isCurrentUser: true);
+        final message = Message(
+          from: testUid,
+          to: testUid,
+        );
+        final value = await DataStreamServices().shouldNotifyForThisMessage(
+          message,
+        );
+        verify(authRepo.isCurrentUser(testUid.asString()));
+        expect(value, false);
+      });
+      test('When called if message type is callEvent should return false',
+          () async {
+        final message = Message(
+          from: testUid,
+          to: testUid,
+          callEvent: CallEvent(),
+        );
+        final value = await DataStreamServices().shouldNotifyForThisMessage(
+          message,
+        );
+        expect(value, false);
+      });
+      test(
+          'When called if message type is mucSpecificPersistentEvent should return !authRepo.isCurrentUser for issuer',
+          () async {
+        final authRepo = getAndRegisterAuthRepo(isCurrentUser: true);
+        final message = Message(
+          from: testUid,
+          to: testUid,
+          persistEvent: PersistentEvent(
+            mucSpecificPersistentEvent: MucSpecificPersistentEvent(
+              issue: MucSpecificPersistentEvent_Issue.DELETED,
+              issuer: testUid,
+            ),
+          ),
+        );
+        final value = await DataStreamServices().shouldNotifyForThisMessage(
+          message,
+        );
+        verify(authRepo.isCurrentUser(testUid.asString()));
+        expect(value, false);
+      });
+    });
     group('saveMessageInMessagesDB -', () {
       test('When called should saveMessage into messageDao', () async {
         final messageDao = getAndRegisterMessageDao();
@@ -551,93 +640,37 @@ void main() {
           ),
         );
       });
-    });
-    group('shouldNotifyForThisMessage -', () {
-      test('When called if message shouldBeQuiet should return false',
-          () async {
-        final message = Message(
-          from: testUid,
-          to: testUid,
-          shouldBeQuiet: true,
-        );
-        final value = await DataStreamServices().shouldNotifyForThisMessage(
-          message,
-        );
-        expect(value, false);
-      });
-      test(
-          'When called if isAllNotificationDisabled or isRoomMuted should return false',
-          () async {
-        final uxService =
-            getAndRegisterUxService(isAllNotificationDisabled: true);
-        final message = Message(
-          from: testUid,
-          to: testUid,
-        );
-        final value = await DataStreamServices().shouldNotifyForThisMessage(
-          message,
-        );
-        verify(uxService.isAllNotificationDisabled);
-        expect(value, false);
-      });
-      test(
-          'When called if isAllNotificationDisabled or isRoomMuted should return false',
-          () async {
-        final roomRepo = getAndRegisterRoomRepo(isRoomMuted: true);
-        final message = Message(
-          from: testUid,
-          to: testUid,
-        );
-        final value = await DataStreamServices().shouldNotifyForThisMessage(
-          message,
-        );
-        verify(roomRepo.isRoomMuted(testUid.asString()));
-        expect(value, false);
-      });
-      test('When called if isCurrentUser should return false', () async {
-        final authRepo = getAndRegisterAuthRepo(isCurrentUser: true);
-        final message = Message(
-          from: testUid,
-          to: testUid,
-        );
-        final value = await DataStreamServices().shouldNotifyForThisMessage(
-          message,
-        );
-        verify(authRepo.isCurrentUser(testUid.asString()));
-        expect(value, false);
-      });
-      test('When called if message type is callEvent should return false',
-          () async {
-        final message = Message(
-          from: testUid,
-          to: testUid,
-          callEvent: CallEvent(),
-        );
-        final value = await DataStreamServices().shouldNotifyForThisMessage(
-          message,
-        );
-        expect(value, false);
-      });
-      test(
-          'When called if message type is mucSpecificPersistentEvent should return !authRepo.isCurrentUser for issuer',
-          () async {
-        final authRepo = getAndRegisterAuthRepo(isCurrentUser: true);
-        final message = Message(
-          from: testUid,
-          to: testUid,
-          persistEvent: PersistentEvent(
-            mucSpecificPersistentEvent: MucSpecificPersistentEvent(
-              issue: MucSpecificPersistentEvent_Issue.DELETED,
-              issuer: testUid,
+      group('_getLastNotHiddenMessageFromServer -', () {
+        test(
+            'When called should getMessage from messageDao and if msg be null should get justNotHiddenMessages from server',
+            () async {
+          final queryServicesClient = getAndRegisterQueryServiceClient(
+            fetchMessagesLimit: 1,
+            fetchMessagesPointer: 1,
+            justNotHiddenMessages: true,
+          );
+          getAndRegisterMessageDao(
+            getMessageId: 1,
+          );
+          await DataStreamServices().fetchLastNotHiddenMessage(
+            testUid,
+            1,
+            0,
+          );
+          verify(
+            queryServicesClient.fetchMessages(
+              FetchMessagesReq()
+                ..roomUid = testUid
+                ..pointer = Int64(1)
+                ..justNotHiddenMessages = true
+                ..type = FetchMessagesReq_Type.BACKWARD_FETCH
+                ..limit = 1,
+              options: CallOptions(timeout: const Duration(seconds: 3)),
             ),
-          ),
-        );
-        final value = await DataStreamServices().shouldNotifyForThisMessage(
-          message,
-        );
-        verify(authRepo.isCurrentUser(testUid.asString()));
-        expect(value, false);
+          );
+        });
       });
     });
+    group('saveFetchMessages -', () {});
   });
 }
