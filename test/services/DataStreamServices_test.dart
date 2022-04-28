@@ -713,6 +713,42 @@ void main() {
           verify(roomDao.updateRoom(uid: testUid.asString(), deleted: true));
           expect(value, null);
         });
+        test(
+            'When called should saveFetchMessages and if returned message not be null and message not be hidden should return message and update room with new value',
+            () async {
+          final roomDao = getAndRegisterRoomDao();
+          getAndRegisterMessageDao(
+            getMessageId: 1,
+          );
+          getAndRegisterQueryServiceClient(
+            fetchMessagesLimit: 1,
+            fetchMessagesPointer: 1,
+            justNotHiddenMessages: true,
+            fetchMessagesText: 'test',
+          );
+          final value = await DataStreamServices().fetchLastNotHiddenMessage(
+            testUid,
+            1,
+            0,
+          );
+          final returnedMessage = testMessage.copyWith(
+            json: '{\"1\":\"test\"}',
+            id: 0,
+            packetId: "",
+            forwardedFrom: testUid.asString(),
+            type: MessageType.TEXT,
+          );
+          verify(
+            roomDao.updateRoom(
+              uid: testUid.asString(),
+              firstMessageId: 0,
+              lastUpdateTime: 0,
+              lastMessageId: 1,
+              lastMessage: returnedMessage,
+            ),
+          );
+          expect(value, returnedMessage);
+        });
       });
     });
     group('saveFetchMessages -', () {
