@@ -4,6 +4,7 @@ import 'package:deliver/box/member.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/room.dart';
+import 'package:deliver/box/seen.dart' as model_seen;
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/models/message_event.dart';
 import 'package:deliver/repository/messageRepo.dart';
@@ -13,6 +14,7 @@ import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:grpc/grpc.dart';
@@ -723,7 +725,74 @@ void main() {
         });
       });
     });
-
+    group('handleSeen -', () {
+      final seen = Seen(
+        from: testUid,
+        to: testUid,
+      );
+      test('When called if seen is taken from current user should getRoom',
+          () async {
+        final roomDao = getAndRegisterRoomDao();
+        final authRepo = getAndRegisterAuthRepo(isCurrentUser: true);
+        await DataStreamServices().handleSeen(
+          seen,
+        );
+        verify(authRepo.isCurrentUser(testUid.asString()));
+        verify(roomDao.getRoom(testUid.asString()));
+      });
+      test(
+          'When called if seen is taken from current user should getRoom and if returned room last message id is equal to seen id should update my seen with hiddenMessageCount=0 ',
+          () async {
+        getAndRegisterRoomDao(
+          rooms: [testRoom.copyWith(lastMessage: testMessage.copyWith(id: 0))],
+        );
+        getAndRegisterAuthRepo(isCurrentUser: true);
+        final seenDao = getAndRegisterSeenDao();
+        final notificationServices = getAndRegisterNotificationServices();
+        await DataStreamServices().handleSeen(
+          seen,
+        );
+        verify(
+          seenDao.updateMySeen(
+            uid: testUid.asString(),
+            messageId: 0,
+            hiddenMessageCount: 0,
+          ),
+        );
+        verify(
+          notificationServices.cancelRoomNotifications(testUid.asString()),
+        );
+      });
+      test(
+          'When called if seen is not taken from current user should saveOthersSeen and updateLastActivityTime',
+          () async {
+        await withClock(Clock.fixed(DateTime(2000)), () async {
+          final seenDao = getAndRegisterSeenDao();
+          final lastActivityDao = getAndRegisterLastActivityDao();
+          await DataStreamServices().handleSeen(
+            seen,
+          );
+          verify(
+            seenDao.saveOthersSeen(
+              model_seen.Seen(
+                uid: testUid.asString(),
+                messageId: 0,
+                hiddenMessageCount: 0,
+              ),
+            ),
+          );
+          verify(
+            lastActivityDao.save(
+              LastActivity(
+                uid: testUid.asString(),
+                time: clock.now().millisecondsSinceEpoch,
+                lastUpdate: clock.now().millisecondsSinceEpoch,
+              ),
+            ),
+          );
+        });
+      });
+    });
     group('shouldNotifyForThisMessage -', () {
       test('When called if message shouldBeQuiet should return false',
           () async {
