@@ -389,7 +389,7 @@ class DataStreamServices {
     _updateLastActivityTime(
       _lastActivityDao,
       activity.from,
-      DateTime.now().millisecondsSinceEpoch,
+      clock.now().millisecondsSinceEpoch,
     );
   }
 

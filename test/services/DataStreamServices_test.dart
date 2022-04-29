@@ -793,6 +793,34 @@ void main() {
         });
       });
     });
+    group('handleActivity -', () {
+      final activity = Activity(from: testUid, to: testUid);
+      test('When called should updateActivity', () async {
+        final roomRepo = getAndRegisterRoomRepo();
+        DataStreamServices().handleActivity(
+          activity,
+        );
+        verify(roomRepo.updateActivity(activity));
+      });
+      test('When called should updateLastActivityTime', () async {
+        await withClock(Clock.fixed(DateTime(2000)), () async {
+          final lastActivityDao = getAndRegisterLastActivityDao();
+          DataStreamServices().handleActivity(
+            activity,
+          );
+          verify(
+            lastActivityDao.save(
+              LastActivity(
+                uid: testUid.asString(),
+                time: clock.now().millisecondsSinceEpoch,
+                lastUpdate: clock.now().millisecondsSinceEpoch,
+              ),
+            ),
+          );
+        });
+      });
+    });
+
     group('shouldNotifyForThisMessage -', () {
       test('When called if message shouldBeQuiet should return false',
           () async {
