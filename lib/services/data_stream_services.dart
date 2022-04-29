@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
@@ -429,7 +430,7 @@ class DataStreamServices {
       LastActivity(
         uid: userUid.asString(),
         time: time,
-        lastUpdate: DateTime.now().millisecondsSinceEpoch,
+        lastUpdate: clock.now().millisecondsSinceEpoch,
       ),
     );
   }

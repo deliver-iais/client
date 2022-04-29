@@ -1,3 +1,5 @@
+import 'package:clock/clock.dart';
+import 'package:deliver/box/last_activity.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
@@ -693,6 +695,32 @@ void main() {
               ..typeOfActivity = ActivityType.NO_ACTIVITY,
           ),
         );
+      });
+      group('_updateLastActivityTime -', () {
+        test(
+            'When called if isOnlineMessage is true and message.from category is user should updateLastActivityTime',
+            () async {
+          await withClock(Clock.fixed(DateTime(2000)), () async {
+            final message = Message(
+              from: testUid,
+              to: testUid,
+            );
+            final lastActivityDao = getAndRegisterLastActivityDao();
+            await DataStreamServices().handleIncomingMessage(
+              message,
+              isOnlineMessage: true,
+            );
+            verify(
+              lastActivityDao.save(
+                LastActivity(
+                  uid: testUid.asString(),
+                  time: 0,
+                  lastUpdate: clock.now().millisecondsSinceEpoch,
+                ),
+              ),
+            );
+          });
+        });
       });
     });
 
