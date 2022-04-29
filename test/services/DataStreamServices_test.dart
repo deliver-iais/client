@@ -10,10 +10,12 @@ import 'package:deliver/models/message_event.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/core.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:fixnum/fixnum.dart';
@@ -877,6 +879,93 @@ void main() {
           messageDeliveryAck..id = Int64(),
         );
         verifyNever(messageDao.getPendingMessage(""));
+      });
+    });
+    group('handleRoomPresenceTypeChange -', () {
+      test(
+          'When called if PresenceType is PresenceType.DELETED should updateRoom with deleted=true',
+          () async {
+        final roomDao = getAndRegisterRoomDao();
+        DataStreamServices().handleRoomPresenceTypeChange(
+          RoomPresenceTypeChanged(
+            uid: testUid,
+            presenceType: PresenceType.DELETED,
+          ),
+        );
+        verify(
+          roomDao.updateRoom(
+            uid: testUid.asString(),
+            deleted: true,
+          ),
+        );
+      });
+      test(
+          'When called if PresenceType is PresenceType.BANNED should updateRoom with deleted=true',
+          () async {
+        final roomDao = getAndRegisterRoomDao();
+        DataStreamServices().handleRoomPresenceTypeChange(
+          RoomPresenceTypeChanged(
+            uid: testUid,
+            presenceType: PresenceType.BANNED,
+          ),
+        );
+        verify(
+          roomDao.updateRoom(
+            uid: testUid.asString(),
+            deleted: true,
+          ),
+        );
+      });
+      test(
+          'When called if PresenceType is PresenceType.KICKED should updateRoom with deleted=true',
+          () async {
+        final roomDao = getAndRegisterRoomDao();
+        DataStreamServices().handleRoomPresenceTypeChange(
+          RoomPresenceTypeChanged(
+            uid: testUid,
+            presenceType: PresenceType.KICKED,
+          ),
+        );
+        verify(
+          roomDao.updateRoom(
+            uid: testUid.asString(),
+            deleted: true,
+          ),
+        );
+      });
+      test(
+          'When called if PresenceType is PresenceType.LEFT should updateRoom with deleted=true',
+          () async {
+        final roomDao = getAndRegisterRoomDao();
+        DataStreamServices().handleRoomPresenceTypeChange(
+          RoomPresenceTypeChanged(
+            uid: testUid,
+            presenceType: PresenceType.LEFT,
+          ),
+        );
+        verify(
+          roomDao.updateRoom(
+            uid: testUid.asString(),
+            deleted: true,
+          ),
+        );
+      });
+      test(
+          'When called if PresenceType is PresenceType.ACTIVE should updateRoom with deleted=false',
+          () async {
+        final roomDao = getAndRegisterRoomDao();
+        DataStreamServices().handleRoomPresenceTypeChange(
+          RoomPresenceTypeChanged(
+            uid: testUid,
+            presenceType: PresenceType.ACTIVE,
+          ),
+        );
+        verify(
+          roomDao.updateRoom(
+            uid: testUid.asString(),
+            deleted: false,
+          ),
+        );
       });
     });
     group('shouldNotifyForThisMessage -', () {
