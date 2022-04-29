@@ -197,6 +197,7 @@ flutter:
     - assets/animations/end_of_call.json
     - assets/audios/end_call.mp3
     - assets/animations/new_version.zip
+    - assets/animations/out_of_date.zip
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 
