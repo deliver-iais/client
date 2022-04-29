@@ -2,6 +2,7 @@ import 'package:deliver/box/member.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/room.dart';
+import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/models/message_event.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/data_stream_services.dart';
@@ -498,6 +499,179 @@ void main() {
             ),
           );
         });
+      });
+      test(
+          'When called if message type is callEvent should add event to callService',
+          () async {
+        final message = Message(
+          from: testUid,
+          to: testUid,
+          callEvent: CallEvent(
+            id: "0",
+            callType: CallEvent_CallType.GROUP_VIDEO,
+          ),
+        );
+        final callService = getAndRegisterCallService();
+        await DataStreamServices().handleIncomingMessage(
+          message,
+          isOnlineMessage: true,
+        );
+        verify(
+          callService.addGroupCallEvent(
+            CallEvents.callEvent(
+              message.callEvent,
+              roomUid: testUid,
+              callId: "0",
+            ),
+          ),
+        );
+      });
+      test(
+          'When called if message type is callEvent should add event to callService',
+          () async {
+        final message = Message(
+          from: testUid,
+          to: testUid,
+          callEvent: CallEvent(
+            id: "0",
+            callType: CallEvent_CallType.AUDIO,
+          ),
+        );
+        final callService = getAndRegisterCallService();
+        await DataStreamServices().handleIncomingMessage(
+          message,
+          isOnlineMessage: true,
+        );
+        verify(
+          callService.addCallEvent(
+            CallEvents.callEvent(
+              message.callEvent,
+              roomUid: testUid,
+              callId: "0",
+            ),
+          ),
+        );
+      });
+      test(
+          'When called if isOnlineMessage is true and room category is group should check for mention and update the room',
+          () async {
+        final message = Message(
+          id: Int64(),
+          from: groupUid,
+          to: groupUid,
+          text: Text(text: "@test"),
+        );
+        final returnedMessage = testMessage.copyWith(
+          id: 0,
+          type: MessageType.TEXT,
+          roomUid: groupUid.asString(),
+          from: groupUid.asString(),
+          packetId: "",
+          forwardedFrom: "0:",
+          json: "{\"1\":\"@test\"}",
+          to: groupUid.asString(),
+        );
+        final roomDao = getAndRegisterRoomDao();
+        final accountRepo = getAndRegisterAccountRepo();
+        final value = await DataStreamServices().handleIncomingMessage(
+          message,
+          isOnlineMessage: true,
+        );
+        verify(accountRepo.getAccount());
+        verify(
+          roomDao.updateRoom(
+            uid: groupUid.asString(),
+            lastMessage: returnedMessage,
+            lastMessageId: 0,
+            lastUpdateTime: 0,
+            mentioned: true,
+            deleted: false,
+          ),
+        );
+        expect(value, returnedMessage);
+      });
+      group('_fetchMySeen -', () {
+        test('When called should getMySeen', () async {
+          final message = Message(
+            from: testUid,
+            to: testUid,
+          );
+          final seenDao = getAndRegisterSeenDao();
+          await DataStreamServices().handleIncomingMessage(
+            message,
+            isOnlineMessage: true,
+          );
+          verify(seenDao.getMySeen(testUid.asString()));
+          verifyNever(
+            seenDao.updateMySeen(
+              uid: testUid.asString(),
+              messageId: 0,
+              hiddenMessageCount: 0,
+            ),
+          );
+        });
+        test(
+            'When called should getMySeen and if mySeen.messageId < 0 should updateMySeen',
+            () async {
+          final message = Message(
+            from: testUid,
+            to: testUid,
+          );
+          final seenDao = getAndRegisterSeenDao(messageId: -1);
+          await DataStreamServices().handleIncomingMessage(
+            message,
+            isOnlineMessage: true,
+          );
+          verify(
+            seenDao.updateMySeen(
+              uid: testUid.asString(),
+              messageId: 0,
+              hiddenMessageCount: 0,
+            ),
+          );
+        });
+      });
+      test(
+          'When called if isOnlineMessage is true and msg is hidden should increaseHiddenMessageCount',
+          () async {
+        final message = Message(
+          from: testUid,
+          to: testUid,
+        );
+        final seenDao = getAndRegisterSeenDao();
+        await DataStreamServices().handleIncomingMessage(
+          message,
+          isOnlineMessage: true,
+        );
+        verify(seenDao.getMySeen(testUid.asString()));
+        verify(
+          seenDao.updateMySeen(
+            uid: testUid.asString(),
+            hiddenMessageCount: 1,
+          ),
+        );
+      });
+      test(
+          'When called if isOnlineMessage is true and msg is not hidden and shouldNotifyForThisMessage should notifyIncomingMessage',
+          () async {
+        final message = Message(
+          from: testUid,
+          to: testUid,
+          text: Text(text: "test"),
+        );
+        final notificationServices = getAndRegisterNotificationServices();
+        await DataStreamServices().handleIncomingMessage(
+          message,
+          isOnlineMessage: true,
+          roomName: 'test',
+        );
+        verify(
+          notificationServices.notifyIncomingMessage(
+            message,
+            testUid.asString(),
+            roomName: 'test',
+          ),
+        );
       });
     });
 

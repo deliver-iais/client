@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:deliver/box/account.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart' as contact_pb;
 import 'package:deliver/box/dao/block_dao.dart';
@@ -235,6 +236,13 @@ MockAccountRepo getAndRegisterAccountRepo() {
   final service = MockAccountRepo();
   GetIt.I.registerSingleton<AccountRepo>(service);
   when(service.getName()).thenAnswer((realInvocation) => Future.value("test"));
+  when(service.getAccount()).thenAnswer(
+    (realInvocation) => Future.value(
+      Account(
+        username: "test",
+      ),
+    ),
+  );
   return service;
 }
 
@@ -348,10 +356,10 @@ MockRoomRepo getAndRegisterRoomRepo({
           (realInvocation) =>
               Future.value(room ?? Room(uid: testUid.asString())),
         );
-  when(service.isRoomBlocked(testUid.asString())).thenAnswer(
+  when(service.isRoomBlocked(any)).thenAnswer(
     (realInvocation) => Future.value(isRoomBlocked),
   );
-  when(service.isRoomMuted(testUid.asString())).thenAnswer(
+  when(service.isRoomMuted(any)).thenAnswer(
     (realInvocation) => Future.value(isRoomMuted),
   );
   return service;
@@ -470,7 +478,7 @@ MockSeenDao getAndRegisterSeenDao({int messageId = 0}) {
       ),
     ),
   );
-  when(service.getMySeen(testUid.asString())).thenAnswer(
+  when(service.getMySeen(any)).thenAnswer(
     (realInvocation) => Future.value(
       seen_box.Seen(
         uid: testUid.asString(),
