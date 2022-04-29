@@ -7,6 +7,7 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chats_page.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
+import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -15,6 +16,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/connection_status.dart';
+import 'package:deliver/shared/widgets/out_of_date.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
@@ -31,8 +33,6 @@ import 'package:window_size/window_size.dart';
 BehaviorSubject<String> modifyRoutingByNotificationTapInBackgroundInAndroid =
     BehaviorSubject.seeded("");
 
-BehaviorSubject<NewerVersionInformation?> newVersionInformation =
-    BehaviorSubject.seeded(null);
 
 class NavigationCenter extends StatefulWidget {
   const NavigationCenter({Key? key}) : super(key: key);
@@ -202,6 +202,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   },
                 ),
                 _newVersionInfo(),
+                _outOfDateWidget()
               ],
             ),
           ),
@@ -222,11 +223,26 @@ class _NavigationCenterState extends State<NavigationCenter> {
     return true;
   }
 
+  Widget _outOfDateWidget() {
+    return StreamBuilder<bool>(
+      stream: outOfDateObject.stream,
+      builder: (c, snapshot) {
+        if (snapshot.hasData && snapshot.data != null && snapshot.data!) {
+          showOutOfDateDialog(context);
+          return const SizedBox.shrink();
+        }
+        return const SizedBox.shrink();
+      },
+    );
+  }
+
   Widget _newVersionInfo() {
     return StreamBuilder<NewerVersionInformation?>(
       stream: newVersionInformation.stream,
       builder: (context, snapshot) {
-        if (snapshot.hasData && snapshot.data != null) {
+        if (snapshot.hasData &&
+            snapshot.data != null &&
+            snapshot.data!.version.isNotEmpty) {
           Future.delayed(Duration.zero, () {
             showFloatingModalBottomSheet(
               context: context,
