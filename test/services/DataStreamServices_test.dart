@@ -431,7 +431,7 @@ void main() {
           verify(roomDao.getRoom(testUid.asString()));
         });
         test(
-            'When called should get the room and if room!.lastMessage != null && room.lastMessage!.id != id should update the room with new lastUpdateTime',
+            'When called should get the room and if room!.lastMessage != null && room.lastMessage!.id != id should update the room with new lastUpdateTime and add MessageEvent to the messageEventSubject',
             () async {
           final roomDao = getAndRegisterRoomDao(
             rooms: [
@@ -450,6 +450,52 @@ void main() {
           );
           verify(
             roomDao.updateRoom(uid: testUid.asString(), lastUpdateTime: 0),
+          );
+          expect(
+            messageEventSubject.value,
+            MessageEvent(
+              testUid.asString(),
+              0,
+              2,
+              MessageManipulationPersistentEvent_Action.DELETED,
+            ),
+          );
+        });
+        test(
+            'When called should get the room and if room!.lastMessage != null && room.lastMessage!.id != id not happen should fetchLastNotHiddenMessage and update the room with new lastMessage and add MessageEvent to the messageEventSubject',
+            () async {
+          final roomDao = getAndRegisterRoomDao(
+            rooms: [
+              testRoom.copyWith(
+                lastMessage: testMessage.copyWith(id: 2),
+                lastMessageId: 2,
+                firstMessageId: 0,
+              ),
+            ],
+          );
+          getAndRegisterMessageDao(
+            getMessageId: 2,
+            message: testMessage.copyWith(id: 2),
+          );
+          await DataStreamServices().handleIncomingMessage(
+            message,
+            isOnlineMessage: true,
+          );
+          verify(
+            roomDao.updateRoom(
+              uid: testUid.asString(),
+              lastUpdateTime: 0,
+              lastMessage: testMessage.copyWith(id: 2),
+            ),
+          );
+          expect(
+            messageEventSubject.value,
+            MessageEvent(
+              testUid.asString(),
+              0,
+              2,
+              MessageManipulationPersistentEvent_Action.DELETED,
+            ),
           );
         });
       });
@@ -732,7 +778,7 @@ void main() {
             0,
           );
           final returnedMessage = testMessage.copyWith(
-            json: '{\"1\":\"test\"}',
+            json: '{"1":"test"}',
             id: 0,
             packetId: "",
             forwardedFrom: testUid.asString(),
