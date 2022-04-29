@@ -7,6 +7,7 @@ import 'package:deliver/models/message_event.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
@@ -670,6 +671,26 @@ void main() {
             message,
             testUid.asString(),
             roomName: 'test',
+          ),
+        );
+      });
+      test('When called if isOnlineMessage is true should updateActivity',
+          () async {
+        final message = Message(
+          from: testUid,
+          to: testUid,
+        );
+        final roomRepo = getAndRegisterRoomRepo();
+        await DataStreamServices().handleIncomingMessage(
+          message,
+          isOnlineMessage: true,
+        );
+        verify(
+          roomRepo.updateActivity(
+            Activity()
+              ..from = testUid
+              ..to = testUid
+              ..typeOfActivity = ActivityType.NO_ACTIVITY,
           ),
         );
       });

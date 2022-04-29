@@ -198,33 +198,26 @@ class DataStreamServices {
       if (msg.isHidden) {
         await _increaseHiddenMessageCount(roomUid.asString());
       }
-    }
-
-    if (isOnlineMessage &&
-        !msg.isHidden &&
-        await shouldNotifyForThisMessage(message)) {
-      _notificationServices.notifyIncomingMessage(
-        message,
-        roomUid.asString(),
-        roomName: roomName,
-      );
-    }
-
-    if (isOnlineMessage) {
+      if (!msg.isHidden && await shouldNotifyForThisMessage(message)) {
+        _notificationServices.notifyIncomingMessage(
+          message,
+          roomUid.asString(),
+          roomName: roomName,
+        );
+      }
       _roomRepo.updateActivity(
         Activity()
           ..from = message.from
           ..to = message.to
           ..typeOfActivity = ActivityType.NO_ACTIVITY,
       );
-    }
-
-    if (isOnlineMessage && message.from.category == Categories.USER) {
-      _updateLastActivityTime(
-        _lastActivityDao,
-        message.from,
-        message.time.toInt(),
-      );
+      if (message.from.category == Categories.USER) {
+        _updateLastActivityTime(
+          _lastActivityDao,
+          message.from,
+          message.time.toInt(),
+        );
+      }
     }
 
     return msg;
