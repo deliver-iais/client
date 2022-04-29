@@ -820,7 +820,65 @@ void main() {
         });
       });
     });
-
+    group('handleAckMessage -', () {
+      final messageDeliveryAck = MessageDeliveryAck(
+        to: testUid,
+        from: testUid,
+        packetId: "",
+        id: Int64(1),
+        time: Int64(),
+      );
+      test(
+          'When called if messageDeliveryAck.id is not 0 should getPendingMessage',
+          () async {
+        final messageDao = getAndRegisterMessageDao();
+        await DataStreamServices().handleAckMessage(
+          messageDeliveryAck,
+        );
+        verify(messageDao.getPendingMessage(""));
+      });
+      test(
+          'When called if messageDeliveryAck.id is not 0 should getPendingMessage and if pm is not null should deletePendingMessage and save message with new id and time',
+          () async {
+        final messageDao =
+            getAndRegisterMessageDao(pendingMessage: testPendingMessage);
+        await DataStreamServices().handleAckMessage(
+          messageDeliveryAck,
+        );
+        verify(messageDao.deletePendingMessage(""));
+        verify(
+          messageDao
+              .saveMessage(testPendingMessage.msg.copyWith(time: 0, id: 1)),
+        );
+      });
+      test(
+          'When called if messageDeliveryAck.id is not 0 should getPendingMessage and if pm is not null should updateRoom with new last message and last message id and notifyOutgoingMessage',
+          () async {
+        getAndRegisterMessageDao(pendingMessage: testPendingMessage);
+        final roomDao = getAndRegisterRoomDao();
+        final notificationServices = getAndRegisterNotificationServices();
+        await DataStreamServices().handleAckMessage(
+          messageDeliveryAck,
+        );
+        verify(
+          roomDao.updateRoom(
+            uid: testUid.asString(),
+            lastMessage: testPendingMessage.msg.copyWith(time: 0, id: 1),
+            lastMessageId: 1,
+          ),
+        );
+        verify(notificationServices.notifyOutgoingMessage(testUid.asString()));
+      });
+      test(
+          'When called if messageDeliveryAck.id is 0 should never getPendingMessage',
+          () async {
+        final messageDao = getAndRegisterMessageDao();
+        await DataStreamServices().handleAckMessage(
+          messageDeliveryAck..id = Int64(),
+        );
+        verifyNever(messageDao.getPendingMessage(""));
+      });
+    });
     group('shouldNotifyForThisMessage -', () {
       test('When called if message shouldBeQuiet should return false',
           () async {
