@@ -1016,6 +1016,54 @@ void main() {
         );
       });
     });
+    group('handleCallAnswer -', () {
+      test(
+          'When called if callType is group call should addGroupCallEvent to callService',
+          () async {
+        final callAnswer = CallAnswer(
+          id: "0",
+          callType: CallEvent_CallType.GROUP_VIDEO,
+          to: testUid,
+          from: testUid,
+        );
+        final callService = getAndRegisterCallService();
+        DataStreamServices().handleCallAnswer(
+          callAnswer,
+        );
+        verify(
+          callService.addGroupCallEvent(
+            CallEvents.callAnswer(
+              callAnswer,
+              roomUid: testUid,
+              callId: "0",
+            ),
+          ),
+        );
+      });
+      test(
+          'When called if callType is normal call should addGroupCallEvent to callService',
+          () async {
+        final callAnswer = CallAnswer(
+          id: "0",
+          callType: CallEvent_CallType.AUDIO,
+          to: testUid,
+          from: testUid,
+        );
+        final callService = getAndRegisterCallService();
+        DataStreamServices().handleCallAnswer(
+          callAnswer,
+        );
+        verify(
+          callService.addCallEvent(
+            CallEvents.callAnswer(
+              callAnswer,
+              roomUid: testUid,
+              callId: "0",
+            ),
+          ),
+        );
+      });
+    });
     group('shouldNotifyForThisMessage -', () {
       test('When called if message shouldBeQuiet should return false',
           () async {
