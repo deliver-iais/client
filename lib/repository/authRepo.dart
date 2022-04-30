@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -140,11 +141,19 @@ class AuthRepo {
       try {
         final renewAccessTokenRes = await _getAccessToken(_refreshToken!);
         _saveTokens(renewAccessTokenRes);
+        if (renewAccessTokenRes.newerVersionInformation.version.isNotEmpty &&
+            renewAccessTokenRes.newerVersionInformation.version != VERSION &&
+            !newVersionInformation.hasValue) {
+          newVersionInformation
+              .add(renewAccessTokenRes.newerVersionInformation);
+        }
         return renewAccessTokenRes.accessToken;
       } on GrpcError catch (e) {
         _logger.e(e);
         if (_refreshToken != null && e.code == StatusCode.unauthenticated) {
           unawaited(GetIt.I.get<RoutingService>().logout());
+        } else if (e.code == StatusCode.aborted && !outOfDateObject.value) {
+          outOfDateObject.add(true);
         }
         return "";
       } catch (e) {
@@ -230,6 +239,14 @@ class AuthRepo {
   void saveTestUserInfo() {
     currentUserUid = TEST_USER_UID;
     _sharedDao.put(SHARED_DAO_CURRENT_USER_UID, TEST_USER_UID.asString());
+  }
+
+  Future<void> sendForgetPasswordEmail(PhoneNumber phoneNumber) async {
+    await _authServiceClient.sendErasePasswordEmail(
+      SendErasePasswordEmailReq()
+        ..platform = await getPlatformPB()
+        ..phoneNumber = phoneNumber,
+    );
   }
 }
 

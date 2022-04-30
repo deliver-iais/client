@@ -43,7 +43,7 @@ dependencies:
   dcache: 0.4.0
   deliver_public_protocol:
     git:
-      ref: tags/v1.11.29
+      ref: tags/v1.12.10
       url: https://github.com/deliver-iais/pub-dart-artifactory
   desktop_drop: 0.3.3
   desktop_lifecycle: 0.1.0
@@ -98,6 +98,7 @@ dependencies:
   image_compression_flutter: 1.0.2
   image_picker: 0.8.4+11
   image_size_getter: 1.0.0
+  intl: 0.17.0
   js: 0.6.3
   jwt_decoder: 2.0.1
   latlong2: 0.8.1
@@ -195,6 +196,8 @@ flutter:
     - lib/lang/fa.json
     - assets/animations/end_of_call.json
     - assets/audios/end_call.mp3
+    - assets/animations/new_version.zip
+    - assets/animations/out_of_date.zip
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

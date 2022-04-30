@@ -2,8 +2,10 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/checkbox_form_field.dart';
+import 'package:deliver/screen/room/messageWidgets/botMessageWidget/date_and_time_field_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_list_widget.dart';
-import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_text_field_widget.dart';
+import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_simple_input_field_widget.dart';
+import 'package:deliver/screen/room/messageWidgets/botMessageWidget/formatted_text_field_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
@@ -37,7 +39,7 @@ class BotFormMessage extends StatefulWidget {
 class _BotFormMessageState extends State<BotFormMessage> {
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _i18n = GetIt.I.get<I18N>();
-  final Map<String, String> formResultMap = {};
+  final proto_pb.FormResult _formResult = proto_pb.FormResult();
   final Map<String, GlobalKey<FormState>> formFieldsKey = {};
   final List<Widget> _widgets = [];
   final BehaviorSubject<String> _errorText = BehaviorSubject.seeded("");
@@ -54,27 +56,30 @@ class _BotFormMessageState extends State<BotFormMessage> {
       switch (field.whichType()) {
         case proto_pb.Form_Field_Type.textField:
         case proto_pb.Form_Field_Type.numberField:
+          _widgets.add(
+            FormSimpleInputFieldWidget(
+              formField: form.fields[index],
+              setFormKey: (key) => formFieldsKey[field.id] = key,
+              setResult: (value) => _setResult(field, value),
+            ),
+          );
+          break;
         case proto_pb.Form_Field_Type.dateField:
         case proto_pb.Form_Field_Type.timeField:
+        case proto_pb.Form_Field_Type.dateAndTimeField:
           _widgets.add(
-            FormInputTextFieldWidget(
-              formField: form.fields[index],
-              setFormKey: (key) {
-                formFieldsKey[form.fields[index].id] = key;
-              },
-              setResult: (value) {
-                _setResult(index, value);
-              },
+            DateAndTimeFieldWidget(
+              formField: field,
+              setFormKey: (key) => formFieldsKey[field.id] = key,
+              setResult: (value) => _setResult(field, value),
             ),
           );
           break;
         case proto_pb.Form_Field_Type.checkbox:
           _widgets.add(
             CheckBoxFormField(
-              formField: form.fields[index],
-              selected: (value) {
-                _setResult(index, value);
-              },
+              formField: field,
+              selected: (value) => _setResult(field, value),
             ),
           );
 
@@ -83,15 +88,21 @@ class _BotFormMessageState extends State<BotFormMessage> {
         case proto_pb.Form_Field_Type.list:
           _widgets.add(
             FormListWidget(
-              formField: form.fields[index],
-              setFormKey: (key) {
-                formFieldsKey[form.fields[index].id] = key;
-              },
-              selected: (value) {
-                _setResult(index, value);
-              },
+              formField: field,
+              setFormKey: (key) => formFieldsKey[field.id] = key,
+              selected: (value) => _setResult(field, value),
             ),
           );
+          break;
+        case proto_pb.Form_Field_Type.formattedTextField:
+          _widgets.add(
+            FormattedTextFieldWidget(
+              formField: field,
+              setFormKey: (key) => formFieldsKey[field.id] = key,
+              setResult: (value) => _setResult(field, value),
+            ),
+          );
+
           break;
         case proto_pb.Form_Field_Type.notSet:
           _widgets.add(const SizedBox.shrink());
@@ -296,7 +307,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
         if (validate) {
           _messageRepo.sendFormResultMessage(
             widget.message.from,
-            formResultMap,
+            _formResult,
             widget.message.id!,
           );
           Navigator.pop(c);
@@ -308,7 +319,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
     );
   }
 
-  void _setResult(int index, value) {
-    formResultMap[form.fields[index].id] = value;
+  void _setResult(proto_pb.Form_Field field, value) {
+    _formResult.values[field.id] = value;
   }
 }

@@ -1,3 +1,6 @@
+import 'package:deliver/box/account.dart';
+import 'package:deliver/box/auto_download.dart';
+import 'package:deliver/box/auto_download_room_category.dart';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/call_event.dart';
@@ -5,6 +8,8 @@ import 'package:deliver/box/call_info.dart';
 import 'package:deliver/box/call_status.dart';
 import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/contact.dart';
+import 'package:deliver/box/dao/account_dao.dart';
+import 'package:deliver/box/dao/auto_download_dao.dart';
 import 'package:deliver/box/dao/avatar_dao.dart';
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
@@ -88,6 +93,7 @@ import 'package:hive_flutter/adapters.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
+
 import 'box/dao/contact_dao.dart';
 import 'box/dao/custom_notification_dao.dart';
 import 'box/dao/media_dao.dart';
@@ -119,6 +125,7 @@ Future<void> setupDI() async {
 
   Hive
     ..registerAdapter(AvatarAdapter())
+    ..registerAdapter(AccountAdapter())
     ..registerAdapter(LastActivityAdapter())
     ..registerAdapter(ContactAdapter())
     ..registerAdapter(UidIdNameAdapter())
@@ -140,9 +147,12 @@ Future<void> setupDI() async {
     ..registerAdapter(CallInfoAdapter())
     ..registerAdapter(CallEventAdapter())
     ..registerAdapter(CallStatusAdapter())
-    ..registerAdapter(CallTypeAdapter());
+    ..registerAdapter(CallTypeAdapter())
+    ..registerAdapter(AutoDownloadRoomCategoryAdapter())
+    ..registerAdapter(AutoDownloadAdapter());
 
   GetIt.I.registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
+  GetIt.I.registerSingleton<AccountDao>(AccountDaoImpl());
   GetIt.I.registerSingleton<AvatarDao>(AvatarDaoImpl());
   GetIt.I.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
   GetIt.I.registerSingleton<SharedDao>(SharedDaoImpl());
@@ -161,6 +171,7 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<DBManager>(DBManager());
   GetIt.I.registerSingleton<LiveLocationDao>(LiveLocationDaoImpl());
   GetIt.I.registerSingleton<CallInfoDao>(CallInfoDaoImpl());
+  GetIt.I.registerSingleton<AutoDownloadDao>(AutoDownloadDaoImpl());
 
   GetIt.I.registerSingleton<I18N>(I18N());
 
@@ -357,17 +368,24 @@ void main() async {
 
 Future<void> _setWindowSize() async {
   final _sharedDao = GetIt.I.get<SharedDao>();
-  final size = await _sharedDao.get('SHARED_DAO_WINDOWS_SIZE');
-  final rect = size?.split('-');
+  final size = await _sharedDao.get(SHARED_DAO_WINDOWS_SIZE);
+  final rect = size?.split('_');
+
   if (rect != null) {
-    setWindowFrame(
-      Rect.fromLTRB(
-        double.parse(rect[0]),
-        double.parse(rect[1]),
-        double.parse(rect[2]),
-        double.parse(rect[3]),
-      ),
-    );
+    try {
+      setWindowFrame(
+        Rect.fromLTRB(
+          double.parse(rect[0]),
+          double.parse(rect[1]),
+          double.parse(rect[2]),
+          double.parse(rect[3]),
+        ),
+      );
+    } catch (e) {
+      setWindowMinSize(
+        const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100),
+      );
+    }
   } else {
     setWindowMinSize(const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
   }

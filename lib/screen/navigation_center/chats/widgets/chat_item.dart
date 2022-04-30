@@ -106,7 +106,7 @@ class _ChatItemState extends State<ChatItem> {
                                   const SizedBox(
                                     width: 16,
                                     child: Icon(
-                                      CupertinoIcons.group,
+                                      CupertinoIcons.person_2_fill,
                                       size: 16,
                                     ),
                                   ),
@@ -115,7 +115,7 @@ class _ChatItemState extends State<ChatItem> {
                                   const SizedBox(
                                     width: 16,
                                     child: Icon(
-                                      CupertinoIcons.news,
+                                      CupertinoIcons.news_solid,
                                       size: 16,
                                     ),
                                   ),

@@ -16,8 +16,10 @@ import 'package:deliver/shared/methods/phone.dart';
 
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
+import 'package:deliver/shared/widgets/out_of_date.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
+import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 
@@ -92,14 +94,24 @@ class _LoginPageState extends State<LoginPage> {
         await _fireBaseServices.sendFireBaseToken();
         _navigationToHome();
       } else if (res.status == AccessTokenRes_Status.PASSWORD_PROTECTED) {
-        MaterialPageRoute(
-          builder: (c) {
-            return TwoStepVerificationPage(
-              token: loginToken.value,
-              navigationToHomePage: _navigationToHome,
-            );
-          },
-        );
+        if (!mounted) return;
+        if (checkTimer != null) checkTimer!.cancel();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (c) {
+              return TwoStepVerificationPage(
+                token: loginToken.value,
+                accessTokenRes: res,
+                navigationToHomePage: _navigationToHome,
+              );
+            },
+          ),
+        ).ignore();
+      }
+    } on GrpcError catch (e) {
+      if (e.code == StatusCode.aborted) {
+        showOutOfDateDialog(context);
       }
     } catch (e) {
       _logger.e(e);
@@ -108,7 +120,9 @@ class _LoginPageState extends State<LoginPage> {
 
   void _navigationToHome() {
     _contactRepo.getContacts();
-    _accountRepo..hasProfile(retry: true)..fetchCurrentUserId(retry: true);
+    _accountRepo
+      ..hasProfile(retry: true)
+      ..fetchCurrentUserId(retry: true);
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(
@@ -159,6 +173,8 @@ class _LoginPageState extends State<LoginPage> {
               toastText: _i18n.get("notwork_is_unavailable"),
               toastContext: context,
             );
+          } else if (e.code == StatusCode.aborted) {
+            showOutOfDateDialog(context);
           } else {
             ToastDisplay.showToast(
               toastText: _i18n.get("error_occurred"),
