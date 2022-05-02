@@ -10,6 +10,7 @@ import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/widgets/count_down_timer.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as proto_pb;
 import 'package:flutter/cupertino.dart';
@@ -46,11 +47,18 @@ class _BotFormMessageState extends State<BotFormMessage> {
 
   late proto_pb.Form form;
 
+  final BehaviorSubject<bool> _locked = BehaviorSubject.seeded(false);
+
   final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
     form = widget.message.json.toForm();
+    if (!form.lockAfter.isZero &&
+        DateTime.now().millisecondsSinceEpoch - widget.message.time >
+            form.lockAfter.toInt()) {
+      _locked.add(true);
+    }
     for (final field in form.fields) {
       final index = form.fields.indexOf(field);
       switch (field.whichType()) {
@@ -112,6 +120,15 @@ class _BotFormMessageState extends State<BotFormMessage> {
     super.initState();
   }
 
+  Widget? timer;
+
+  Widget buildTimer() => timer ??= CountDownTimer(
+        message: widget.message,
+        currentTime: DateTime.now().millisecondsSinceEpoch,
+        lockAfter: form.lockAfter.toInt(),
+        lock: (l) => _locked.add(l),
+      );
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -121,157 +138,175 @@ class _BotFormMessageState extends State<BotFormMessage> {
           theme.colorScheme.copyWith(primary: widget.colorScheme.primary),
     );
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.end,
+    return Stack(
       children: [
-        MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(
-            onTap: () {
-              _errorText.add("");
-              if (isLarge(context)) {
-                showDialog(
-                  context: context,
-                  builder: (c) {
-                    return Theme(
-                      data: formTheme,
-                      child: AlertDialog(
-                        title: buildTitle(theme, _errorText),
-                        content: buildContent(),
-                        titlePadding: const EdgeInsets.only(top: 8, bottom: 8),
-                        contentPadding:
-                            const EdgeInsets.symmetric(horizontal: 8),
-                        actionsPadding: const EdgeInsets.only(
-                          left: 4,
-                          right: 4,
-                          bottom: 4,
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () {
-                              Navigator.pop(c);
-                            },
-                            child: Text(
-                              _i18n.get("close"),
+        if (!form.lockAfter.isZero) buildTimer(),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                onTap: () {
+                  _errorText.add("");
+                  if (isLarge(context)) {
+                    showDialog(
+                      context: context,
+                      builder: (c) {
+                        return Theme(
+                          data: formTheme,
+                          child: AlertDialog(
+                            title: buildTitle(theme, _errorText),
+                            content: buildContent(),
+                            titlePadding:
+                                const EdgeInsets.only(top: 8, bottom: 8),
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 8),
+                            actionsPadding: const EdgeInsets.only(
+                              left: 4,
+                              right: 4,
+                              bottom: 4,
                             ),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pop(c);
+                                },
+                                child: Text(
+                                  _i18n.get("close"),
+                                ),
+                              ),
+                              buildSubmit(_errorText, c),
+                            ],
                           ),
-                          buildSubmit(_errorText, c),
-                        ],
+                        );
+                      },
+                    );
+                  } else {
+                    FocusScope.of(context).unfocus();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (c) {
+                          return Theme(
+                            data: formTheme,
+                            child: Scaffold(
+                              appBar: AppBar(
+                                leading: IconButton(
+                                  icon: Icon(
+                                    CupertinoIcons.clear,
+                                    color: formTheme.colorScheme.primary,
+                                  ),
+                                  onPressed: () => Navigator.pop(c),
+                                ),
+                                centerTitle: true,
+                                title: buildTitle(theme, _errorText),
+                              ),
+                              body: buildContent(),
+                              floatingActionButton: buildSubmit(_errorText, c),
+                            ),
+                          );
+                        },
+                        fullscreenDialog: true,
                       ),
                     );
-                  },
-                );
-              } else {
-                FocusScope.of(context).unfocus();
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (c) {
-                      return Theme(
-                        data: formTheme,
-                        child: Scaffold(
-                          appBar: AppBar(
-                            leading: IconButton(
-                              icon: Icon(
-                                CupertinoIcons.clear,
-                                color: formTheme.colorScheme.primary,
-                              ),
-                              onPressed: () => Navigator.pop(c),
-                            ),
-                            centerTitle: true,
-                            title: buildTitle(theme, _errorText),
-                          ),
-                          body: buildContent(),
-                          floatingActionButton: buildSubmit(_errorText, c),
-                        ),
-                      );
-                    },
-                    fullscreenDialog: true,
+                  }
+                },
+                child: Padding(
+                  padding: EdgeInsets.only(
+                    top: form.lockAfter.isZero ? 5 : 50,
+                    left: 5,
+                    right: 5,
+                    bottom: 5,
                   ),
-                );
-              }
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(5.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: theme.backgroundColor,
-                  borderRadius: secondaryBorder,
-                ),
-                child: Row(
-                  children: [
-                    Lottie.asset(
-                      "assets/animations/touch.zip",
-                      width: 80,
-                      height: 80,
-                      delegates: LottieDelegates(
-                        values: [
-                          ValueDelegate.color(
-                            const ['**'],
-                            value: widget.colorScheme.primary,
-                          ),
-                        ],
-                      ),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: theme.backgroundColor,
+                      borderRadius: secondaryBorder,
                     ),
-                    Column(
+                    child: Row(
                       children: [
-                        Text(
-                          _i18n.get("form"),
-                          style: theme.textTheme.bodyText1?.copyWith(
-                            color: widget.colorScheme.onPrimaryContainer,
+                        Lottie.asset(
+                          "assets/animations/touch.zip",
+                          width: 80,
+                          height: 80,
+                          delegates: LottieDelegates(
+                            values: [
+                              ValueDelegate.color(
+                                const ['**'],
+                                value: widget.colorScheme.primary,
+                              ),
+                            ],
                           ),
                         ),
-                        Text(
-                          form.title,
-                          style: theme.textTheme.bodyText2?.copyWith(
-                            color: widget.colorScheme.onPrimaryContainer,
-                          ),
+                        Column(
+                          children: [
+                            Text(
+                              _i18n.get("form"),
+                              style: theme.textTheme.bodyText1?.copyWith(
+                                color: widget.colorScheme.onPrimaryContainer,
+                              ),
+                            ),
+                            Text(
+                              form.title,
+                              style: theme.textTheme.bodyText2?.copyWith(
+                                color: widget.colorScheme.onPrimaryContainer,
+                              ),
+                            ),
+                          ],
                         ),
+                        const SizedBox(
+                          width: 24,
+                        )
                       ],
                     ),
-                    const SizedBox(
-                      width: 24,
-                    )
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
-        TimeAndSeenStatus(
-          widget.message,
-          isSender: widget.isSender,
-          isSeen: widget.isSeen,
-          backgroundColor: widget.colorScheme.primaryContainer,
-          needsPositioned: false,
-          needsPadding: true,
-          foregroundColor: widget.colorScheme.onPrimaryContainerLowlight(),
+            TimeAndSeenStatus(
+              widget.message,
+              isSender: widget.isSender,
+              isSeen: widget.isSeen,
+              backgroundColor: widget.colorScheme.primaryContainer,
+              needsPositioned: false,
+              needsPadding: true,
+              foregroundColor: widget.colorScheme.onPrimaryContainerLowlight(),
+            ),
+          ],
         ),
       ],
     );
   }
 
   Widget buildTitle(ThemeData theme, BehaviorSubject<String> _errorText) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
+    return Row(
       children: [
-        Text(
-          form.title.titleCase,
-          style: theme.textTheme.subtitle2
-              ?.copyWith(color: widget.colorScheme.primary, fontSize: 18),
+        if (!form.lockAfter.isZero) buildTimer(),
+        Center(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                form.title.titleCase,
+                style: theme.textTheme.subtitle2
+                    ?.copyWith(color: widget.colorScheme.primary, fontSize: 18),
+              ),
+              StreamBuilder<String>(
+                stream: _errorText.stream,
+                builder: (c, s) {
+                  if (s.hasData && s.data!.isNotEmpty) {
+                    return Text(
+                      s.data!,
+                      style: const TextStyle(color: Colors.red, fontSize: 13),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              )
+            ],
+          ),
         ),
-        StreamBuilder<String>(
-          stream: _errorText.stream,
-          builder: (c, s) {
-            if (s.hasData && s.data!.isNotEmpty) {
-              return Text(
-                s.data!,
-                style: const TextStyle(color: Colors.red, fontSize: 13),
-              );
-            }
-            return const SizedBox.shrink();
-          },
-        )
       ],
     );
   }
@@ -286,36 +321,51 @@ class _BotFormMessageState extends State<BotFormMessage> {
     );
   }
 
-  ElevatedButton buildSubmit(
+  Widget buildSubmit(
     BehaviorSubject<String> _errorText,
     BuildContext c,
   ) {
-    return ElevatedButton(
-      onPressed: () {
-        var validate = true;
-        for (final field in formFieldsKey.values) {
-          if (field.currentState == null || !field.currentState!.validate()) {
-            _errorText.add(
-              form.fields[formFieldsKey.values.toList().indexOf(field)].id +
-                  "  " +
-                  _i18n.get("not_empty"),
-            );
-            validate = false;
-            break;
-          }
-        }
-        if (validate) {
-          _messageRepo.sendFormResultMessage(
-            widget.message.from,
-            _formResult,
-            widget.message.id!,
-          );
-          Navigator.pop(c);
-        }
+    return StreamBuilder<bool>(
+      initialData: _locked.value,
+      stream: _locked.stream,
+      builder: (context, snapshot) {
+        return ElevatedButton(
+          onPressed: !snapshot.data!
+              ? () {
+                  var validate = true;
+                  for (final field in formFieldsKey.values) {
+                    if (field.currentState == null ||
+                        !field.currentState!.validate()) {
+                      _errorText.add(
+                        form
+                                .fields[formFieldsKey.values
+                                    .toList()
+                                    .indexOf(field)]
+                                .id +
+                            "  " +
+                            _i18n.get("not_empty"),
+                      );
+                      validate = false;
+                      break;
+                    }
+                  }
+                  if (validate) {
+                    _messageRepo.sendFormResultMessage(
+                      widget.message.from,
+                      _formResult,
+                      widget.message.id!,
+                    );
+                    Navigator.pop(c);
+                  }
+                }
+              : null,
+          child: Text(
+            _i18n.get("submit"),
+            style:
+                snapshot.data! ? Theme.of(context).textTheme.bodyText1 : null,
+          ),
+        );
       },
-      child: Text(
-        _i18n.get("submit"),
-      ),
     );
   }
 
