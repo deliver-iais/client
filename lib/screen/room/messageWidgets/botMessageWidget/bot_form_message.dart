@@ -79,7 +79,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
             DateAndTimeFieldWidget(
               formField: field,
               setFormKey: (key) => formFieldsKey[field.id] = key,
-              setResult: (value) => _setResult(field, value),
+              formResult: _formResult,
             ),
           );
           break;
