@@ -40,6 +40,14 @@ class CallEvents {
         callOffer = null,
         callType = CallTypes.Event;
 
+  const CallEvents.callOffer(
+      this.callOffer, {
+        required this.roomUid,
+        required this.callId,
+      })  : callEvent = null,
+        callAnswer = null,
+        callType = CallTypes.Offer;
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -62,12 +70,4 @@ class CallEvents {
         const DeepCollectionEquality().hash(callId),
         const DeepCollectionEquality().hash(callOffer),
       );
-
-  const CallEvents.callOffer(
-    this.callOffer, {
-    required this.roomUid,
-    required this.callId,
-  })  : callEvent = null,
-        callAnswer = null,
-        callType = CallTypes.Offer;
 }
