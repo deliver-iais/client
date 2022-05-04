@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/data_stream_services.dart';
@@ -162,7 +163,7 @@ class CoreServices {
     try {
       final clientPacket = ClientPacket()
         ..message = message
-        ..id = DateTime.now().microsecondsSinceEpoch.toString();
+        ..id = clock.now().microsecondsSinceEpoch.toString();
       await _sendPacket(clientPacket);
       Timer(
         const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
@@ -191,7 +192,7 @@ class CoreServices {
     final ping = Ping()..lastPongTime = Int64(_lastPongTime);
     final clientPacket = ClientPacket()
       ..ping = ping
-      ..id = DateTime.now().microsecondsSinceEpoch.toString();
+      ..id = clock.now().microsecondsSinceEpoch.toString();
     _sendPacket(clientPacket, forceToSend: true);
   }
 

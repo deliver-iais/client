@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, constant_identifier_names
+// ignore_for_file: file_names
 
 import 'dart:async';
 import 'dart:convert';
@@ -193,6 +193,12 @@ class MessageRepo {
               roomMetadata.lastMessageId.toInt(),
               roomMetadata.firstMessageId.toInt(),
             );
+
+            await _dataStreamServices.getAndProcessLastIncomingCallsFromServer(
+              roomMetadata.roomUid,
+              roomMetadata.lastMessageId.toInt(),
+            );
+
             if (room != null && room.uid.asUid().category == Categories.GROUP) {
               await getMentions(room);
             }
@@ -965,7 +971,7 @@ class MessageRepo {
             messageEventSubject.add(
               MessageEvent(
                 message.roomUid,
-                DateTime.now().millisecondsSinceEpoch,
+                clock.now().millisecondsSinceEpoch,
                 message.id!,
                 MessageManipulationPersistentEvent_Action.DELETED,
               ),
@@ -1019,7 +1025,7 @@ class MessageRepo {
       messageEventSubject.add(
         MessageEvent(
           editableMessage.roomUid,
-          DateTime.now().millisecondsSinceEpoch,
+          clock.now().millisecondsSinceEpoch,
           editableMessage.id!,
           MessageManipulationPersistentEvent_Action.EDITED,
         ),
@@ -1088,7 +1094,7 @@ class MessageRepo {
     messageEventSubject.add(
       MessageEvent(
         editableMessage.roomUid,
-        DateTime.now().millisecondsSinceEpoch,
+        clock.now().millisecondsSinceEpoch,
         editableMessage.id!,
         MessageManipulationPersistentEvent_Action.EDITED,
       ),

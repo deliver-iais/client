@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:clock/clock.dart';
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -586,7 +587,7 @@ class AndroidNotifier implements Notifier {
     }
     //callType: 0 ==>Audio call 1 ==>Video call
     await ConnectycubeFlutterCallKit.showCallNotification(
-      sessionId: DateTime.now().millisecondsSinceEpoch.toString(),
+      sessionId: clock.now().millisecondsSinceEpoch.toString(),
       callerId: 123456789,
       callType: 0,
       path: path,

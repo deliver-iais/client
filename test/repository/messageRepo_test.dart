@@ -326,19 +326,6 @@ void main() {
           ),
         );
       });
-      test('When called should countIsHiddenMessages', () async {
-        final seenDo = getAndRegisterSeenDao();
-        getAndRegisterQueryServiceClient(countIsHiddenMessagesGetError: true);
-        await MessageRepo().fetchHiddenMessageCount(testUid, 0);
-        verifyNever(seenDo.getMySeen(testUid.asString()));
-        verifyNever(
-          seenDo.updateMySeen(
-            uid: testUid.asString(),
-            messageId: 0,
-            hiddenMessageCount: 0,
-          ),
-        );
-      });
     });
 
     // group('fetchLastMessages -', () {
@@ -1444,7 +1431,10 @@ void main() {
         withClock(Clock.fixed(DateTime(2000)), () async {
           final messageDao = getAndRegisterMessageDao();
           MessageRepo().sendPrivateDataAcceptanceMessage(
-              testUid, PrivateDataType.EMAIL, "test",);
+            testUid,
+            PrivateDataType.EMAIL,
+            "test",
+          );
           verify(messageDao.savePendingMessage(pm));
         });
       });
@@ -1452,7 +1442,10 @@ void main() {
         withClock(Clock.fixed(DateTime(2000)), () async {
           final roomDao = getAndRegisterRoomDao();
           MessageRepo().sendPrivateDataAcceptanceMessage(
-              testUid, PrivateDataType.EMAIL, "test",);
+            testUid,
+            PrivateDataType.EMAIL,
+            "test",
+          );
           verify(
             roomDao.updateRoom(
               uid: pm.roomUid,
@@ -1468,7 +1461,10 @@ void main() {
         withClock(Clock.fixed(DateTime(2000)), () async {
           final coreServices = getAndRegisterCoreServices();
           MessageRepo().sendPrivateDataAcceptanceMessage(
-              testUid, PrivateDataType.EMAIL, "test",);
+            testUid,
+            PrivateDataType.EMAIL,
+            "test",
+          );
           final byClient = message_pb.MessageByClient()
             ..packetId = pm.msg.packetId
             ..to = pm.msg.to.asUid()
@@ -1574,14 +1570,6 @@ void main() {
         verify(mucServices.pinMessage(testMessage));
         expect(MessageRepo().pinMessage(testMessage), completes);
       });
-      test('When called should pinMessage and if get error should return false',
-          () async {
-        getAndRegisterMucServices(pinMessageGetError: true);
-        expect(
-          MessageRepo().pinMessage(testMessage),
-          throwsException,
-        );
-      });
     });
     group('unpinMessage -', () {
       test('When called should unpinMessage', () async {
@@ -1589,14 +1577,6 @@ void main() {
         await MessageRepo().unpinMessage(testMessage);
         verify(mucServices.unpinMessage(testMessage));
         expect(MessageRepo().unpinMessage(testMessage), completes);
-      });
-      test(
-          'When called should unpinMessage and if get error should return false',
-          () async {
-        final mucServices = getAndRegisterMucServices(pinMessageGetError: true);
-        await MessageRepo().unpinMessage(testMessage);
-        verify(mucServices.unpinMessage(testMessage));
-        expect(MessageRepo().unpinMessage(testMessage), throwsException);
       });
     });
     group('sendLiveLocationMessage -', () {

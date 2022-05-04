@@ -1,7 +1,7 @@
 // ignore_for_file: constant_identifier_names
 
-import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart'
-    as call_pb;
+import 'package:collection/collection.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 enum CallTypes { None, Answer, Event, Offer }
@@ -24,18 +24,50 @@ class CallEvents {
         callId = "-1",
         callType = CallTypes.None;
 
-  const CallEvents.callAnswer(this.callAnswer, {required this.roomUid, required this.callId})
-      : callEvent = null,
+  const CallEvents.callAnswer(
+    this.callAnswer, {
+    required this.roomUid,
+    required this.callId,
+  })  : callEvent = null,
         callOffer = null,
         callType = CallTypes.Answer;
 
-  const CallEvents.callEvent(this.callEvent, {required this.roomUid, required this.callId})
-      : callAnswer = null,
+  const CallEvents.callEvent(
+    this.callEvent, {
+    required this.roomUid,
+    required this.callId,
+  })  : callAnswer = null,
         callOffer = null,
         callType = CallTypes.Event;
 
-  const CallEvents.callOffer(this.callOffer, {required this.roomUid, required this.callId})
-      : callEvent = null,
+  const CallEvents.callOffer(
+      this.callOffer, {
+        required this.roomUid,
+        required this.callId,
+      })  : callEvent = null,
         callAnswer = null,
         callType = CallTypes.Offer;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other.runtimeType == runtimeType &&
+          other is CallEvents &&
+          const DeepCollectionEquality().equals(other.callEvent, callEvent) &&
+          const DeepCollectionEquality().equals(other.callAnswer, callAnswer) &&
+          const DeepCollectionEquality().equals(other.callType, callType) &&
+          const DeepCollectionEquality().equals(other.roomUid, roomUid) &&
+          const DeepCollectionEquality().equals(other.callId, callId) &&
+          const DeepCollectionEquality().equals(other.callOffer, callOffer));
+
+  @override
+  int get hashCode => Object.hash(
+        runtimeType,
+        const DeepCollectionEquality().hash(callEvent),
+        const DeepCollectionEquality().hash(callAnswer),
+        const DeepCollectionEquality().hash(callType),
+        const DeepCollectionEquality().hash(roomUid),
+        const DeepCollectionEquality().hash(callId),
+        const DeepCollectionEquality().hash(callOffer),
+      );
 }

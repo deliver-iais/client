@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:isolate';
 
+import 'package:clock/clock.dart';
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
 import 'package:deliver/box/call_event.dart' as call_event;
 import 'package:deliver/box/call_info.dart' as call_info;
@@ -163,8 +164,8 @@ class CallRepo {
                   _isVideo = false;
                 }
                 _incomingCall(event.roomUid!);
-              } else {
-                final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
+              } else if (callEvent.id != _callService.getCallId) {
+                final endOfCallDuration = clock.now().millisecondsSinceEpoch;
                 _messageRepo.sendCallMessage(
                   CallEvent_CallStatus.BUSY,
                   event.roomUid!,
@@ -492,7 +493,7 @@ class CallRepo {
     }
     startCallTimer();
     if (_startCallTime == 0) {
-      _startCallTime = DateTime.now().millisecondsSinceEpoch;
+      _startCallTime = clock.now().millisecondsSinceEpoch;
     }
     if (_isDCRecived) {
       await _dataChannel!
@@ -784,7 +785,7 @@ class CallRepo {
     _notificationServices.notifyIncomingCall(roomId.asString());
     _roomUid = roomId;
     callingStatus.add(CallStatus.CREATED);
-    final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
+    final endOfCallDuration = clock.now().millisecondsSinceEpoch;
     _messageRepo.sendCallMessage(
       CallEvent_CallStatus.IS_RINGING,
       _roomUid!,
@@ -824,7 +825,7 @@ class CallRepo {
 
   void _sendStartCallEvent() {
     // TODO(AmirHossein): handle recivied Created on fetchMessage when User offline then go online
-    final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
+    final endOfCallDuration = clock.now().millisecondsSinceEpoch;
     _messageRepo.sendCallMessageWithMemberOrCallOwnerPvp(
       CallEvent_CallStatus.CREATED,
       _roomUid!,
@@ -838,13 +839,16 @@ class CallRepo {
 
   void _callIdGenerator() {
     final random = randomAlphaNumeric(10);
-    final time = DateTime.now().millisecondsSinceEpoch;
+    final time = clock.now().millisecondsSinceEpoch;
     //call event id: (Epoch time milliseconds)-(Random String with alphabet and numerics with 10 characters length)
     final callId = time.toString() + "-" + random;
     _callService.setCallId = callId;
   }
 
   Future<void> acceptCall(Uid roomId) async {
+    if (isWindows) {
+      _notificationServices.cancelRoomNotifications(roomUid!.node);
+    }
     _roomUid = roomId;
     callingStatus.add(CallStatus.ACCEPTED);
     _dataChannel = await _createDataChannel();
@@ -864,9 +868,12 @@ class CallRepo {
   }
 
   Future<void> declineCall() async {
+    if (isWindows) {
+      _notificationServices.cancelRoomNotifications(roomUid!.node);
+    }
     _logger.i("declineCall");
     callingStatus.add(CallStatus.DECLINED);
-    final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
+    final endOfCallDuration = clock.now().millisecondsSinceEpoch;
     await _messageRepo.sendCallMessage(
       CallEvent_CallStatus.DECLINED,
       _roomUid!,
@@ -937,7 +944,7 @@ class CallRepo {
     if (_isCaller) {
       _callDuration = calculateCallEndTime();
       _logger.i("Call Duration on Caller(1): " + _callDuration.toString());
-      final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
+      final endOfCallDuration = clock.now().millisecondsSinceEpoch;
       await _messageRepo.sendCallMessage(
         CallEvent_CallStatus.ENDED,
         _roomUid!,
@@ -957,6 +964,9 @@ class CallRepo {
 
   // TODO(AmirHossein): removed Force End Call and we need Handle it with third-party Service.
   void endCall() {
+    if (isWindows) {
+      _notificationServices.cancelRoomNotifications(roomUid!.node);
+    }
     if (_callService.getUserCallState != CallStatus.NO_CALL) {
       if (_isCaller) {
         receivedEndCall(0);
@@ -973,7 +983,7 @@ class CallRepo {
   int calculateCallEndTime() {
     var time = 0;
     if (_startCallTime != null && _isConnected) {
-      _endCallTime = DateTime.now().millisecondsSinceEpoch;
+      _endCallTime = clock.now().millisecondsSinceEpoch;
       time = _endCallTime! - _startCallTime!;
     }
     return time;
@@ -1025,11 +1035,11 @@ class CallRepo {
     final completer = Completer();
     _logger.i(
       "Time for w8:" +
-          (DateTime.now().millisecondsSinceEpoch - _candidateStartTime)
+          (clock.now().millisecondsSinceEpoch - _candidateStartTime)
               .toString(),
     );
     if ((_candidate.length >= _candidateNumber) ||
-        (DateTime.now().millisecondsSinceEpoch - _candidateStartTime >
+        (clock.now().millisecondsSinceEpoch - _candidateStartTime >
             _candidateTimeLimit)) {
       completer.complete();
     } else {
@@ -1040,7 +1050,7 @@ class CallRepo {
   }
 
   Future<void> _calculateCandidateAndSendOffer() async {
-    _candidateStartTime = DateTime.now().millisecondsSinceEpoch;
+    _candidateStartTime = clock.now().millisecondsSinceEpoch;
     //w8 till candidate gathering conditions complete
     await _waitUntilCandidateConditionDone();
     _logger.i("Candidate Number is :" + _candidate.length.toString());
@@ -1060,7 +1070,7 @@ class CallRepo {
   }
 
   Future<void> _calculateCandidateAndSendAnswer() async {
-    _candidateStartTime = DateTime.now().millisecondsSinceEpoch;
+    _candidateStartTime = clock.now().millisecondsSinceEpoch;
     //w8 till candidate gathering conditions complete
     await _waitUntilCandidateConditionDone();
     _logger.i("Candidate Number is :" + _candidate.length.toString());
@@ -1233,13 +1243,13 @@ class CallRepo {
     Uid roomUid,
   ) async {
     try {
-      var date = DateTime.now();
+      var date = clock.now();
       for (var i = 0; i < 6; i++) {
         final callLists = await _queryServiceClient.fetchUserCalls(
           FetchUserCallsReq()
             ..roomUid = roomUid
             ..limit = 200
-            ..pointer = Int64(DateTime.now().millisecondsSinceEpoch)
+            ..pointer = Int64(clock.now().millisecondsSinceEpoch)
             ..fetchingDirectionType =
                 FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH
             ..month = date.month - 1

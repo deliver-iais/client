@@ -346,7 +346,7 @@ class _CallScreenState extends State<CallScreen> {
     );
   }
 
-  Future<void> _hangUp() async {
+  void _hangUp() {
     _logger.i("Call hang Up ...!");
     _audioService.stopBeepSound();
     callRepo.endCall();

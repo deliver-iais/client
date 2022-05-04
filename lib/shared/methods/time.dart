@@ -1,8 +1,9 @@
+import 'package:clock/clock.dart';
 import 'package:date_time_format/date_time_format.dart';
 import 'package:deliver/shared/constants.dart';
 
 bool isOnline(int time) {
-  return DateTime.now().millisecondsSinceEpoch - time < ONLINE_TIME;
+  return clock.now().millisecondsSinceEpoch - time < ONLINE_TIME;
 }
 
 DateTime date(int time) {
@@ -17,7 +18,7 @@ String durationTimeFormat(Duration duration) {
 }
 
 String dateTimeFromNowFormat(DateTime time, {String weekFormat = 'D'}) {
-  final now = DateTime.now();
+  final now = clock.now();
   final difference = now.difference(time);
   if (difference.inDays < 1 && time.day == now.day) {
     return DateTimeFormat.format(time, format: 'H:i');
@@ -35,7 +36,7 @@ String dateTimeFormat(DateTime time) {
   );
 }
 String sameDayTitle(DateTime time) {
-  final now = DateTime.now();
+  final now = clock.now();
   final difference = now.difference(time);
   if (difference.inDays < 1 && time.day == now.day) {
     return "Today";
