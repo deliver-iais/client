@@ -33,20 +33,19 @@ class CoreServices {
   final _dataStreamServices = GetIt.I.get<DataStreamServices>();
   final _messageDao = GetIt.I.get<MessageDao>();
 
-  Timer? _connectionTimer;
-  var _lastPongTime = 0;
-
   @visibleForTesting
   bool responseChecked = false;
-
-  bool _streamInitialized = false;
 
   @visibleForTesting
   int backoffTime = MIN_BACKOFF_TIME;
 
-  late StreamController<ClientPacket> _clientPacketStream;
+  StreamController<ClientPacket>? _clientPacketStream;
 
-  late ResponseStream<ServerPacket> _responseStream;
+  ResponseStream<ServerPacket>? _responseStream;
+
+  Timer? _connectionTimer;
+
+  var _lastPongTime = 0;
 
   BehaviorSubject<ConnectionStatus> connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Connecting);
@@ -67,7 +66,7 @@ class CoreServices {
 
   void closeConnection() {
     _connectionStatus.add(ConnectionStatus.Disconnected);
-    _clientPacketStream.close();
+    _clientPacketStream?.close();
     if (_connectionTimer != null) _connectionTimer!.cancel();
   }
 
@@ -107,8 +106,8 @@ class CoreServices {
       _responseStream = isWeb
           ? _grpcCoreService
               .establishServerSideStream(EstablishServerSideStreamReq())
-          : _grpcCoreService.establishStream(_clientPacketStream.stream);
-      _responseStream.listen((serverPacket) {
+          : _grpcCoreService.establishStream(_clientPacketStream!.stream);
+      _responseStream!.listen((serverPacket) {
         _logger.d(serverPacket);
 
         gotResponse();
@@ -152,7 +151,6 @@ class CoreServices {
             break;
         }
       });
-      _streamInitialized = true;
     } catch (e) {
       _logger.e(e);
       return startStream();
@@ -196,7 +194,7 @@ class CoreServices {
     final clientPacket = ClientPacket()
       ..ping = ping
       ..id = clock.now().microsecondsSinceEpoch.toString();
-    _sendClientPacket(clientPacket, forceToSend: true);
+    _sendClientPacket(clientPacket, forceToSendEvenNotConnected: true);
   }
 
   void sendSeen(
@@ -236,25 +234,21 @@ class CoreServices {
 
   Future<void> _sendClientPacket(
     ClientPacket packet, {
-    bool forceToSend = false,
+    bool forceToSendEvenNotConnected = false,
     bool useUnary = false,
   }) async {
+    final clientPacketStreamNotAvailableYet =
+        _clientPacketStream == null || _clientPacketStream!.isClosed;
+
     try {
-      if (isWeb || useUnary) {
+      if (isWeb || clientPacketStreamNotAvailableYet) {
         await _grpcCoreService.sendClientPacket(packet);
-      } else if (!_streamInitialized){
-        startStream();
-      }else if (!_clientPacketStream.isClosed &&
-          (forceToSend ||
-              _connectionStatus.value == ConnectionStatus.Connected)) {
-        _clientPacketStream.add(packet);
-      } else {
-        startStream();
-        // throw Exception("no active stream");
+      } else if (forceToSendEvenNotConnected ||
+          _connectionStatus.value == ConnectionStatus.Connected) {
+        _clientPacketStream!.add(packet);
       }
     } catch (e) {
       _logger.e(e);
-      // rethrow;
     }
   }
 }
