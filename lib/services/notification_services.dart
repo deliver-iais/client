@@ -66,9 +66,6 @@ Future<void> androidNotificationTapBackground(
         markAsRead(notificationResponse);
       }
     } else if (notificationResponse.actionId == markAsReadActionId) {
-      Logger().i(
-        'mark as read notification(${notificationResponse.id! - notificationResponse.payload.hashCode}) id',
-      );
       markAsRead(notificationResponse);
     }
 

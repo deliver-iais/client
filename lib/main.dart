@@ -104,9 +104,6 @@ import 'box/media.dart';
 import 'repository/mucRepo.dart';
 
 Future<void> setupDI() async {
-  // if(GetIt.I.isRegistered<AnalyticsRepo>()){
-  //   return;
-  // }
   GetIt.I.registerSingleton<AnalyticsRepo>(AnalyticsRepo());
   GetIt.I.registerSingleton<AnalyticsClientInterceptor>(
     AnalyticsClientInterceptor(),
@@ -322,9 +319,6 @@ Future<void> setupDI() async {
   GetIt.I.registerSingleton<RawKeyboardService>(RawKeyboardService());
 
   GetIt.I.registerSingleton<CallRepo>(CallRepo());
-  // final callRepo = CallRepo();
-  // GetIt.I.registerSingleton<CallRepo>(callRepo);
-  // await GetIt.I.isReady<CallRepo>(instance: callRepo);
 }
 
 Future initializeFirebase() async {
