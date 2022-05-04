@@ -336,7 +336,7 @@ class MessageRepo {
     String text, {
     int replyId = 0,
     String? forwardedFrom,
-    bool usePacketStream = true,
+    bool useUnary = false,
   }) async {
     final textsBlocks = text.split("\n").toList();
     final result = <String>[];
@@ -370,7 +370,7 @@ class MessageRepo {
         room,
         replyId,
         forwardedFrom,
-        usePacketStream: usePacketStream,
+        useUnary: useUnary,
       );
       i++;
     }
@@ -381,7 +381,7 @@ class MessageRepo {
     Uid room,
     int replyId,
     String? forwardedFrom, {
-    bool usePacketStream = true,
+    bool useUnary = false,
   }) {
     final json = (message_pb.Text()..text = text).writeToJson();
     final msg =
@@ -389,13 +389,13 @@ class MessageRepo {
             .copyWith(type: MessageType.TEXT, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
-    _saveAndSend(pm, usePacketStream: usePacketStream);
+    _saveAndSend(pm, useUnary: useUnary);
   }
 
-  void _saveAndSend(PendingMessage pm, {bool usePacketStream = true}) {
+  void _saveAndSend(PendingMessage pm, {bool useUnary = false}) {
     _savePendingMessage(pm);
     _updateRoomLastMessage(pm);
-    _sendMessageToServer(pm, usePacketStream: usePacketStream);
+    _sendMessageToServer(pm, useUnary: useUnary);
   }
 
   Future<void> sendCallMessage(
@@ -610,11 +610,11 @@ class MessageRepo {
 
   void _sendMessageToServer(
     PendingMessage pm, {
-    bool usePacketStream = true,
+    bool useUnary = false,
   }) {
     final byClient = _createMessageByClient(pm.msg);
 
-    _coreServices.sendMessage(byClient,usePacketStream: usePacketStream);
+    _coreServices.sendMessage(byClient,useUnary: useUnary);
   }
 
   message_pb.MessageByClient _createMessageByClient(Message message) {
@@ -707,7 +707,7 @@ class MessageRepo {
   Future<void> sendSeen(
     int messageId,
     Uid to, {
-    bool usePacketStream = true,
+    bool useUnary = false,
   }) async {
     final seen = await _seenDao.getMySeen(to.asString());
     if (seen.messageId >= messageId) return;
@@ -715,7 +715,7 @@ class MessageRepo {
       seen_pb.SeenByClient()
         ..to = to
         ..id = Int64.parseInt(messageId.toString()),
-      usePacketStream: usePacketStream,
+      useUnary: useUnary,
     );
   }
 

@@ -70,7 +70,7 @@ void replyToMessage(
     notificationResponse.payload!.asUid(),
     notificationResponse.input!,
     replyId: notificationResponse.id! - notificationResponse.payload.hashCode,
-    usePacketStream: false,
+    useUnary: true,
   );
 }
 
@@ -85,7 +85,7 @@ void markAsRead(
     messageId ??
         notificationResponse.id! - notificationResponse.payload.hashCode,
     payload?.asUid() ?? notificationResponse.payload!.asUid(),
-    usePacketStream: false,
+    useUnary: true,
   );
   _roomRepo.updateMySeen(
     uid: payload ?? notificationResponse.payload!,

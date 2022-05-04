@@ -161,13 +161,13 @@ class CoreServices {
 
   Future<void> sendMessage(
     MessageByClient message, {
-    bool usePacketStream = true,
+    bool useUnary = false,
   }) async {
     try {
       final clientPacket = ClientPacket()
         ..message = message
         ..id = clock.now().microsecondsSinceEpoch.toString();
-      await _sendPacket(clientPacket, usePacketStream: usePacketStream);
+      await _sendClientPacket(clientPacket, useUnary: useUnary);
       Timer(
         const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
         () => _checkPendingStatus(message.packetId),
@@ -196,31 +196,31 @@ class CoreServices {
     final clientPacket = ClientPacket()
       ..ping = ping
       ..id = clock.now().microsecondsSinceEpoch.toString();
-    _sendPacket(clientPacket, forceToSend: true);
+    _sendClientPacket(clientPacket, forceToSend: true);
   }
 
   void sendSeen(
     seen_pb.SeenByClient seen, {
-    bool usePacketStream = true,
+    bool useUnary = false,
   }) {
     final clientPacket = ClientPacket()
       ..seen = seen
       ..id = seen.id.toString();
-    _sendPacket(clientPacket, usePacketStream: usePacketStream);
+    _sendClientPacket(clientPacket, useUnary: useUnary);
   }
 
   void sendCallAnswer(call_pb.CallAnswerByClient callAnswerByClient) {
     final clientPacket = ClientPacket()
       ..callAnswer = callAnswerByClient
       ..id = callAnswerByClient.id;
-    _sendPacket(clientPacket);
+    _sendClientPacket(clientPacket);
   }
 
   void sendCallOffer(call_pb.CallOfferByClient callOfferByClient) {
     final clientPacket = ClientPacket()
       ..callOffer = callOfferByClient
       ..id = callOfferByClient.id;
-    _sendPacket(clientPacket);
+    _sendClientPacket(clientPacket);
   }
 
   void sendActivity(ActivityByClient activity, String id) {
@@ -229,18 +229,18 @@ class CoreServices {
         ..activity = activity
         ..id = id;
       if (!_authRepo.isCurrentUser(activity.to.asString())) {
-        _sendPacket(clientPacket);
+        _sendClientPacket(clientPacket);
       }
     }
   }
 
-  Future<void> _sendPacket(
+  Future<void> _sendClientPacket(
     ClientPacket packet, {
     bool forceToSend = false,
-    bool usePacketStream = true,
+    bool useUnary = false,
   }) async {
     try {
-      if (isWeb || !usePacketStream) {
+      if (isWeb || useUnary) {
         await _grpcCoreService.sendClientPacket(packet);
       } else if (!_streamInitialized){
         startStream();
