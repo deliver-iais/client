@@ -1,5 +1,6 @@
 // ignore_for_file: file_names
 
+import 'package:clock/clock.dart';
 import 'package:deliver/models/sticker_packet.dart';
 import 'package:deliver_public_protocol/pub/v1/sticker.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/sticker.pbgrpc.dart' as proto;
@@ -53,7 +54,7 @@ class StickerRepo {
   //         packId: stickerPack.id));
   //   }
   //   _stickerIdDao.upsertStickerPack(StickerId(
-  //       getPackTime: DateTime.now(),
+  //       getPackTime: clock.now(),
   //       packId: stickerPack.id,
   //       packISDownloaded: true));
   // }

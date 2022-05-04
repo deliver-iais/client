@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:clock/clock.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/widgets/edit_image/change_image_color/color_filter_generator.dart';
 import 'package:flutter/material.dart';
@@ -166,7 +167,7 @@ class _ColorFilterPageState extends State<ColorFilterPage> {
         .capture(delay: const Duration(milliseconds: 10))
         .then((binaryIntList) async {
       final outPutFile = await _fileServices.localFile(
-        "_filter-${DateTime.now().millisecondsSinceEpoch}",
+        "_filter-${clock.now().millisecondsSinceEpoch}",
         widget.imagePath.split(".").last,
       );
       await outPutFile.writeAsBytes(List<int>.from(binaryIntList!));

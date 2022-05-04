@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:clock/clock.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/widgets/edit_image/paint_on_image/_paint_over_image.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +52,7 @@ class _PaintOnImagePageState extends State<PaintOnImagePage> {
   Future<void> saveImage(BuildContext context) async {
     final image = await _imageKey.currentState!.exportImage();
     final outPutFile = await _fileServices.localFile(
-      "_draw-${DateTime.now().millisecondsSinceEpoch}",
+      "_draw-${clock.now().millisecondsSinceEpoch}",
       widget.file.path.split(".").last,
     );
     outPutFile.writeAsBytesSync(image!);
