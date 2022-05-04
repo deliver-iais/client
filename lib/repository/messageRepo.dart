@@ -971,7 +971,7 @@ class MessageRepo {
             messageEventSubject.add(
               MessageEvent(
                 message.roomUid,
-                DateTime.now().millisecondsSinceEpoch,
+                clock.now().millisecondsSinceEpoch,
                 message.id!,
                 MessageManipulationPersistentEvent_Action.DELETED,
               ),
@@ -1025,7 +1025,7 @@ class MessageRepo {
       messageEventSubject.add(
         MessageEvent(
           editableMessage.roomUid,
-          DateTime.now().millisecondsSinceEpoch,
+          clock.now().millisecondsSinceEpoch,
           editableMessage.id!,
           MessageManipulationPersistentEvent_Action.EDITED,
         ),
@@ -1094,7 +1094,7 @@ class MessageRepo {
     messageEventSubject.add(
       MessageEvent(
         editableMessage.roomUid,
-        DateTime.now().millisecondsSinceEpoch,
+        clock.now().millisecondsSinceEpoch,
         editableMessage.id!,
         MessageManipulationPersistentEvent_Action.EDITED,
       ),

@@ -1,5 +1,6 @@
 // ignore_for_file: file_names
 
+import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/last_activity.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -18,7 +19,7 @@ class LastActivityRepo {
   Future<void> updateLastActivity(Uid userUId) async {
     final la = await _lastActivityDao.get(userUId.asString());
     if (la != null &&
-        DateTime.now().millisecondsSinceEpoch - la.lastUpdate < 10 * 60) {
+        clock.now().millisecondsSinceEpoch - la.lastUpdate < 10 * 60) {
       return;
     } else {
       return _getLastActivityTime(userUId);
@@ -39,7 +40,7 @@ class LastActivityRepo {
       LastActivity(
         uid: currentUserUid.asString(),
         time: lastActivityTime.lastActivityTime.toInt(),
-        lastUpdate: DateTime.now().millisecondsSinceEpoch,
+        lastUpdate: clock.now().millisecondsSinceEpoch,
       ),
     );
   }

@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
@@ -177,6 +178,9 @@ class DataStreamServices {
     final msg = (await saveMessageInMessagesDB(message))!;
 
     if (isOnlineMessage) {
+      // Step 1 - Update Room Info
+
+      // Check if Mentioned.
       bool? hasMentioned;
       if (roomUid.category == Categories.GROUP) {
         if (message.text.text
@@ -185,6 +189,7 @@ class DataStreamServices {
           hasMentioned = true;
         }
       }
+
       await _roomDao.updateRoom(
         uid: roomUid.asString(),
         lastMessage: msg.isHidden ? null : msg,
@@ -194,37 +199,40 @@ class DataStreamServices {
         deleted: false,
       );
 
+      // Step 2 - Update User's Seen
       await _fetchMySeen(roomUid.asString());
+
+      // Step 3 - Update Hidden Message Count
       if (msg.isHidden) {
         await _increaseHiddenMessageCount(roomUid.asString());
       }
-    }
 
-    if (isOnlineMessage &&
-        !msg.isHidden &&
-        await shouldNotifyForThisMessage(message)) {
-      _notificationServices.notifyIncomingMessage(
-        message,
-        roomUid.asString(),
-        roomName: roomName,
-      );
-    }
+      // Step 4 - Notify Message
+      if (!msg.isHidden && await shouldNotifyForThisMessage(message)) {
+        _notificationServices.notifyIncomingMessage(
+          message,
+          roomUid.asString(),
+          roomName: roomName,
+        );
+      }
 
-    if (isOnlineMessage) {
+
+      // Step 5 - Update Activity to NO_ACTIVITY
       _roomRepo.updateActivity(
         Activity()
           ..from = message.from
           ..to = message.to
           ..typeOfActivity = ActivityType.NO_ACTIVITY,
       );
-    }
 
-    if (isOnlineMessage && message.from.category == Categories.USER) {
-      _updateLastActivityTime(
-        _lastActivityDao,
-        message.from,
-        message.time.toInt(),
-      );
+      // Step 6 - Update Activity Time of User
+      if (message.from.category == Categories.USER) {
+        _updateLastActivityTime(
+          _lastActivityDao,
+          message.from,
+          message.time.toInt(),
+        );
+      }
     }
 
     return msg;
@@ -254,7 +262,7 @@ class DataStreamServices {
     final id = message.persistEvent.messageManipulationPersistentEvent.messageId
         .toInt();
 
-    final time = message.time.toInt();
+    final deleteActionTime = message.time.toInt();
 
     final mySeen = await _seenDao.getMySeen(roomUid.asString());
     if (0 < mySeen.messageId && mySeen.messageId <= id) {
@@ -274,10 +282,10 @@ class DataStreamServices {
 
       final room = await _roomDao.getRoom(roomUid.asString());
 
-      if (room!.lastMessage!.id != id) {
+      if (room!.lastMessage != null && room.lastMessage!.id != id) {
         await _roomDao.updateRoom(
           uid: roomUid.asString(),
-          lastUpdateTime: time,
+          lastUpdateTime: deleteActionTime,
         );
       } else {
         final lastNotHiddenMessage = await fetchLastNotHiddenMessage(
@@ -289,13 +297,13 @@ class DataStreamServices {
         await _roomDao.updateRoom(
           uid: roomUid.asString(),
           lastMessage: lastNotHiddenMessage ?? savedMsg,
-          lastUpdateTime: time,
+          lastUpdateTime: deleteActionTime,
         );
       }
       messageEventSubject.add(
         MessageEvent(
           roomUid.asString(),
-          time,
+          deleteActionTime,
           id,
           MessageManipulationPersistentEvent_Action.DELETED,
         ),
@@ -385,7 +393,7 @@ class DataStreamServices {
       _updateLastActivityTime(
         _lastActivityDao,
         seen.from,
-        DateTime.now().millisecondsSinceEpoch,
+        clock.now().millisecondsSinceEpoch,
       );
     }
   }
@@ -395,7 +403,7 @@ class DataStreamServices {
     _updateLastActivityTime(
       _lastActivityDao,
       activity.from,
-      DateTime.now().millisecondsSinceEpoch,
+      clock.now().millisecondsSinceEpoch,
     );
   }
 
@@ -436,7 +444,7 @@ class DataStreamServices {
       LastActivity(
         uid: userUid.asString(),
         time: time,
-        lastUpdate: DateTime.now().millisecondsSinceEpoch,
+        lastUpdate: clock.now().millisecondsSinceEpoch,
       ),
     );
   }

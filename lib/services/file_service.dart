@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:io' as io;
 
+import 'package:clock/clock.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/check_permissions_service.dart';
@@ -225,7 +226,7 @@ class FileService {
 
       final param = ImageFileConfiguration(input: input, config: config);
       final output = await compressor.compressJpg(param);
-      final name = DateTime.now().millisecondsSinceEpoch.toString();
+      final name = clock.now().millisecondsSinceEpoch.toString();
       final outPutFile = await localFile(name, "jpg");
       outPutFile.writeAsBytesSync(output.rawBytes);
       return outPutFile.path;
@@ -238,7 +239,7 @@ class FileService {
     File file,
   ) async {
     try {
-      final name = DateTime.now().millisecondsSinceEpoch.toString();
+      final name = clock.now().millisecondsSinceEpoch.toString();
       final targetFilePath = await localFilePath(name, "jpeg");
       final result = await FlutterImageCompress.compressAndGetFile(
         file.path,
