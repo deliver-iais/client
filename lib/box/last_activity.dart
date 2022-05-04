@@ -16,8 +16,11 @@ class LastActivity {
   @HiveField(2)
   int lastUpdate;
 
-  LastActivity(
-      {required this.uid, required this.time, required this.lastUpdate});
+  LastActivity({
+    required this.uid,
+    required this.time,
+    required this.lastUpdate,
+  });
 
   @override
   bool operator ==(Object other) =>
