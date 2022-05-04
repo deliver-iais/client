@@ -427,8 +427,10 @@ class AndroidNotifier implements Notifier {
     ConnectycubeFlutterCallKit.instance
         .init(onCallAccepted: onCallAccepted, onCallRejected: onCallRejected);
 
-    ConnectycubeFlutterCallKit.onCallRejectedWhenTerminated = onCallRejectedWhenTerminated;
-    ConnectycubeFlutterCallKit.onCallAcceptedWhenTerminated = onCallAcceptedWhenTerminated;
+    ConnectycubeFlutterCallKit.onCallRejectedWhenTerminated =
+        onCallRejectedWhenTerminated;
+    ConnectycubeFlutterCallKit.onCallAcceptedWhenTerminated =
+        onCallAcceptedWhenTerminated;
 
     _flutterLocalNotificationsPlugin.createNotificationChannel(channel);
 
@@ -484,24 +486,22 @@ class AndroidNotifier implements Notifier {
   }
 
   Future<void> onCallRejectedWhenTerminated(
-      String sessionId,
-      int callType,
-      int callerId,
-      String callerName,
-      Set<int> opponentsIds,
-      Map<String, String>? userInfo) async {
-
-  }
+    String sessionId,
+    int callType,
+    int callerId,
+    String callerName,
+    Set<int> opponentsIds,
+    Map<String, String>? userInfo,
+  ) async {}
 
   Future<void> onCallAcceptedWhenTerminated(
-      String sessionId,
-      int callType,
-      int callerId,
-      String callerName,
-      Set<int> opponentsIds,
-      Map<String, String>? userInfo) async {
-
-  }
+    String sessionId,
+    int callType,
+    int callerId,
+    String callerName,
+    Set<int> opponentsIds,
+    Map<String, String>? userInfo,
+  ) async {}
 
   @override
   Future<void> cancelById(int id) {

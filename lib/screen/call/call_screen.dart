@@ -279,8 +279,10 @@ class _CallScreenState extends State<CallScreen> {
 
             Timer(const Duration(milliseconds: 1500), () async {
               if (_routingService.canPop() && !isDesktop) {
-                _routingService.openRoom(widget.roomUid.asString(),
-                    popAllBeforePush: true);
+                _routingService.openRoom(
+                  widget.roomUid.asString(),
+                  popAllBeforePush: true,
+                );
               }
             });
             callRepo.disposeRenderer();
