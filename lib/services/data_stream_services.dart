@@ -262,7 +262,7 @@ class DataStreamServices {
     final id = message.persistEvent.messageManipulationPersistentEvent.messageId
         .toInt();
 
-    final time = message.time.toInt();
+    final deleteActionTime = message.time.toInt();
 
     final mySeen = await _seenDao.getMySeen(roomUid.asString());
     if (0 < mySeen.messageId && mySeen.messageId <= id) {
@@ -285,7 +285,7 @@ class DataStreamServices {
       if (room!.lastMessage != null && room.lastMessage!.id != id) {
         await _roomDao.updateRoom(
           uid: roomUid.asString(),
-          lastUpdateTime: time,
+          lastUpdateTime: deleteActionTime,
         );
       } else {
         final lastNotHiddenMessage = await fetchLastNotHiddenMessage(
@@ -297,13 +297,13 @@ class DataStreamServices {
         await _roomDao.updateRoom(
           uid: roomUid.asString(),
           lastMessage: lastNotHiddenMessage ?? savedMsg,
-          lastUpdateTime: time,
+          lastUpdateTime: deleteActionTime,
         );
       }
       messageEventSubject.add(
         MessageEvent(
           roomUid.asString(),
-          time,
+          deleteActionTime,
           id,
           MessageManipulationPersistentEvent_Action.DELETED,
         ),
