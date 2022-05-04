@@ -962,15 +962,15 @@ class CallRepo {
   }
 
   // TODO(AmirHossein): removed Force End Call and we need Handle it with third-party Service.
-  Future<void> endCall() async {
+  void endCall() {
     if (isWindows) {
       _notificationServices.cancelRoomNotifications(roomUid!.node);
     }
     if (_callService.getUserCallState != CallStatus.NO_CALL) {
       if (_isCaller) {
-        await receivedEndCall(0);
+        receivedEndCall(0);
       } else {
-        await _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
+        _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
         timerEndCallDispose = Timer(const Duration(seconds: 8), () {
           // if don't received EndCall from callee we force to end call
           _dispose();

@@ -319,9 +319,9 @@ class _CallScreenState extends State<CallScreen> {
     );
   }
 
-  Future<void> _hangUp() {
+  void _hangUp() {
     _logger.i("Call hang Up ...!");
     _audioService.stopBeepSound();
-    return callRepo.endCall();
+    callRepo.endCall();
   }
 }
