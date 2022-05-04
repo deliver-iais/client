@@ -1,4 +1,4 @@
-// ignore_for_file: file_names, constant_identifier_names
+// ignore_for_file: file_names
 
 import 'dart:async';
 import 'dart:convert';
@@ -193,6 +193,12 @@ class MessageRepo {
               roomMetadata.lastMessageId.toInt(),
               roomMetadata.firstMessageId.toInt(),
             );
+
+            await _dataStreamServices.getAndProcessLastIncomingCallsFromServer(
+              roomMetadata.roomUid,
+              roomMetadata.lastMessageId.toInt(),
+            );
+
             if (room != null && room.uid.asUid().category == Categories.GROUP) {
               await getMentions(room);
             }

@@ -598,6 +598,45 @@ class DataStreamServices {
     return null;
   }
 
+  Future<void> getAndProcessLastIncomingCallsFromServer(
+    Uid roomUid,
+    int lastMessageId,
+  ) async {
+    if (_callService.getUserCallState != UserCallState.NOCALL) {
+      return; // Dont do anything if there is an active call.
+    }
+
+    final pointer = lastMessageId;
+    try {
+      // TODO(hasan): Add just hidden message flag in protocol for better query to server just for hidden message of calls.
+      final fetchMessagesRes = await _queryServicesClient.fetchMessages(
+        FetchMessagesReq()
+          ..roomUid = roomUid
+          ..pointer = Int64(pointer)
+          ..type = FetchMessagesReq_Type.FORWARD_FETCH
+          ..limit = 10,
+        options: CallOptions(timeout: const Duration(seconds: 3)),
+      );
+      for (final message in fetchMessagesRes.messages.reversed) {
+        if (message.whichType() == Message_Type.callEvent) {
+          final callEvents = CallEvents.callEvent(
+            message.callEvent,
+            roomUid: message.from,
+            callId: message.callEvent.id,
+          );
+          if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
+              message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
+            // its group Call
+            _callService.addGroupCallEvent(callEvents);
+          } else {
+            _callService.addCallEvent(callEvents);
+          }
+          break;
+        }
+      }
+    } catch (_) {}
+  }
+
   Future<List<message_model.Message>> saveFetchMessages(
     List<Message> messages,
   ) async {
