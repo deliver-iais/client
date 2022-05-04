@@ -57,6 +57,13 @@ class _AudioCallScreenState extends State<AudioCallScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        iconTheme: const IconThemeData(
+          color: Colors.white, //change your color here
+        ),
+        backgroundColor: Colors.transparent,
+      ),
       body: Stack(
         children: [
           FutureBuilder<Avatar?>(

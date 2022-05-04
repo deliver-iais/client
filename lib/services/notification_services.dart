@@ -427,6 +427,11 @@ class AndroidNotifier implements Notifier {
     ConnectycubeFlutterCallKit.instance
         .init(onCallAccepted: onCallAccepted, onCallRejected: onCallRejected);
 
+    ConnectycubeFlutterCallKit.onCallRejectedWhenTerminated =
+        onCallRejectedWhenTerminated;
+    ConnectycubeFlutterCallKit.onCallAcceptedWhenTerminated =
+        onCallAcceptedWhenTerminated;
+
     _flutterLocalNotificationsPlugin.createNotificationChannel(channel);
 
     const notificationSetting =
@@ -479,6 +484,24 @@ class AndroidNotifier implements Notifier {
   ) async {
     Notifier.onCallAccept(userInfo!["uid"]!);
   }
+
+  Future<void> onCallRejectedWhenTerminated(
+    String sessionId,
+    int callType,
+    int callerId,
+    String callerName,
+    Set<int> opponentsIds,
+    Map<String, String>? userInfo,
+  ) async {}
+
+  Future<void> onCallAcceptedWhenTerminated(
+    String sessionId,
+    int callType,
+    int callerId,
+    String callerName,
+    Set<int> opponentsIds,
+    Map<String, String>? userInfo,
+  ) async {}
 
   @override
   Future<void> cancelById(int id) {
