@@ -163,7 +163,7 @@ class CallRepo {
                   _isVideo = false;
                 }
                 _incomingCall(event.roomUid!);
-              } else if(callEvent.id != _callService.getCallId) {
+              } else if (callEvent.id != _callService.getCallId) {
                 final endOfCallDuration = DateTime.now().millisecondsSinceEpoch;
                 _messageRepo.sendCallMessage(
                   CallEvent_CallStatus.BUSY,
@@ -968,9 +968,9 @@ class CallRepo {
     }
     if (_callService.getUserCallState != CallStatus.NO_CALL) {
       if (_isCaller) {
-        receivedEndCall(0);
+        await receivedEndCall(0);
       } else {
-        _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
+        await _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
         timerEndCallDispose = Timer(const Duration(seconds: 8), () {
           // if don't received EndCall from callee we force to end call
           _dispose();
