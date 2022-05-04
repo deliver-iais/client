@@ -178,6 +178,9 @@ class DataStreamServices {
     final msg = (await saveMessageInMessagesDB(message))!;
 
     if (isOnlineMessage) {
+      // Step 1 - Update Room Info
+
+      // Check if Mentioned.
       bool? hasMentioned;
       if (roomUid.category == Categories.GROUP) {
         if (message.text.text
@@ -186,6 +189,7 @@ class DataStreamServices {
           hasMentioned = true;
         }
       }
+
       await _roomDao.updateRoom(
         uid: roomUid.asString(),
         lastMessage: msg.isHidden ? null : msg,
@@ -195,10 +199,15 @@ class DataStreamServices {
         deleted: false,
       );
 
+      // Step 2 - Update User's Seen
       await _fetchMySeen(roomUid.asString());
+
+      // Step 3 - Update Hidden Message Count
       if (msg.isHidden) {
         await _increaseHiddenMessageCount(roomUid.asString());
       }
+
+      // Step 4 - Notify Message
       if (!msg.isHidden && await shouldNotifyForThisMessage(message)) {
         _notificationServices.notifyIncomingMessage(
           message,
@@ -206,12 +215,17 @@ class DataStreamServices {
           roomName: roomName,
         );
       }
+
+
+      // Step 5 - Update Activity to NO_ACTIVITY
       _roomRepo.updateActivity(
         Activity()
           ..from = message.from
           ..to = message.to
           ..typeOfActivity = ActivityType.NO_ACTIVITY,
       );
+
+      // Step 6 - Update Activity Time of User
       if (message.from.category == Categories.USER) {
         _updateLastActivityTime(
           _lastActivityDao,
