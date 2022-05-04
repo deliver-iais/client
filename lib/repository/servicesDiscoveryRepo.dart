@@ -116,7 +116,7 @@ final webFirebaseServicesClientChannel = GrpcWebClientChannel.xhr(
 );
 
 final webLiveLocationClientChannel = GrpcWebClientChannel.xhr(
-  Uri(scheme: "https", host: "gwp-ms-firebase.$APPLICATION_DOMAIN"),
+  Uri(scheme: "https", host: "gwp-ms-livelocation.$APPLICATION_DOMAIN"),
 );
 
 // ignore: non_constant_identifier_names
