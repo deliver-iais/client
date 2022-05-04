@@ -38,8 +38,6 @@ class CoreServices {
   @visibleForTesting
   bool responseChecked = false;
 
-  bool _streamInitialized = false;
-
   @visibleForTesting
   int backoffTime = MIN_BACKOFF_TIME;
 
@@ -151,7 +149,6 @@ class CoreServices {
             break;
         }
       });
-      _streamInitialized = true;
     } catch (e) {
       _logger.e(e);
       return startStream();
@@ -198,11 +195,14 @@ class CoreServices {
     _sendPacket(clientPacket, forceToSend: true);
   }
 
-  void sendSeen(seen_pb.SeenByClient seen,{bool usePacketStream = true,}) {
+  void sendSeen(
+    seen_pb.SeenByClient seen, {
+    bool usePacketStream = true,
+  }) {
     final clientPacket = ClientPacket()
       ..seen = seen
       ..id = seen.id.toString();
-    _sendPacket(clientPacket,usePacketStream: usePacketStream);
+    _sendPacket(clientPacket, usePacketStream: usePacketStream);
   }
 
   void sendCallAnswer(call_pb.CallAnswerByClient callAnswerByClient) {
@@ -238,8 +238,6 @@ class CoreServices {
     try {
       if (isWeb || !usePacketStream) {
         await _grpcCoreService.sendClientPacket(packet);
-      } else if (!_streamInitialized) {
-        startStream();
       } else if (!_clientPacketStream.isClosed &&
           (forceToSend ||
               _connectionStatus.value == ConnectionStatus.Connected)) {
