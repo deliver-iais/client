@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 
+import 'package:clock/clock.dart';
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/main.dart';
@@ -534,6 +535,11 @@ class AndroidNotifier implements Notifier {
     ConnectycubeFlutterCallKit.instance
         .init(onCallAccepted: onCallAccepted, onCallRejected: onCallRejected);
 
+    ConnectycubeFlutterCallKit.onCallRejectedWhenTerminated =
+        onCallRejectedWhenTerminated;
+    ConnectycubeFlutterCallKit.onCallAcceptedWhenTerminated =
+        onCallAcceptedWhenTerminated;
+
     _flutterLocalNotificationsPlugin.createNotificationChannel(channel);
 
     const notificationSetting =
@@ -596,6 +602,24 @@ class AndroidNotifier implements Notifier {
   ) async {
     Notifier.onCallAccept(userInfo!["uid"]!);
   }
+
+  Future<void> onCallRejectedWhenTerminated(
+    String sessionId,
+    int callType,
+    int callerId,
+    String callerName,
+    Set<int> opponentsIds,
+    Map<String, String>? userInfo,
+  ) async {}
+
+  Future<void> onCallAcceptedWhenTerminated(
+    String sessionId,
+    int callType,
+    int callerId,
+    String callerName,
+    Set<int> opponentsIds,
+    Map<String, String>? userInfo,
+  ) async {}
 
   @override
   Future<void> cancelById(int id) {
@@ -696,7 +720,7 @@ class AndroidNotifier implements Notifier {
     }
     //callType: 0 ==>Audio call 1 ==>Video call
     await ConnectycubeFlutterCallKit.showCallNotification(
-      sessionId: DateTime.now().millisecondsSinceEpoch.toString(),
+      sessionId: clock.now().millisecondsSinceEpoch.toString(),
       callerId: 123456789,
       callType: 0,
       path: path,

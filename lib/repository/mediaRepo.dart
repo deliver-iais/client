@@ -3,6 +3,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/media_meta_data_dao.dart';
 import 'package:deliver/box/media.dart';
@@ -80,7 +81,7 @@ class MediaRepo {
           audiosCount: mediaResponse.allAudiosCount.toInt(),
           musicsCount: mediaResponse.allMusicsCount.toInt(),
           linkCount: mediaResponse.allLinksCount.toInt(),
-          lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
+          lastUpdateTime: clock.now().millisecondsSinceEpoch,
         ),
       );
     });
@@ -100,7 +101,7 @@ class MediaRepo {
         audiosCount: getMediaMetadataRes.allAudiosCount.toInt(),
         musicsCount: getMediaMetadataRes.allMusicsCount.toInt(),
         linkCount: getMediaMetadataRes.allLinksCount.toInt(),
-        lastUpdateTime: DateTime.now().millisecondsSinceEpoch,
+        lastUpdateTime: clock.now().millisecondsSinceEpoch,
       ),
     );
   }
@@ -232,7 +233,7 @@ class MediaRepo {
     final getMediaReq = FetchMediasReq()
       ..roomUid = roomId
       ..pointer = Int64(pointer)
-      ..year = DateTime.now().year
+      ..year = clock.now().year
       ..mediaType = mediaType
       ..fetchingDirectionType = directionType
       ..limit = 30;
@@ -366,7 +367,7 @@ class MediaRepo {
         if (room != null && room.lastMessage != null) {
           pointer = room.lastMessage!.time;
         } else {
-          pointer = DateTime.now().millisecondsSinceEpoch;
+          pointer = clock.now().millisecondsSinceEpoch;
         }
       }
       final result = await _queryServiceClient.fetchMedias(
@@ -431,7 +432,7 @@ class MediaRepo {
 
   Future<void> updateMedia(Message message) => _mediaDao.save(
         Media(
-          createdOn: DateTime.now().millisecondsSinceEpoch,
+          createdOn: clock.now().millisecondsSinceEpoch,
           json: buildJsonFromFile(message.json.toFile()),
           roomId: message.roomUid,
           messageId: message.id!,

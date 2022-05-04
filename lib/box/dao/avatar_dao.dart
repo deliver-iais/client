@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:clock/clock.dart';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/hive_plus.dart';
@@ -68,7 +69,7 @@ class AvatarDaoImpl implements AvatarDao {
       return box2.put(
         lastAvatarOfList!.uid,
         lastAvatarOfList.copyWith(
-          lastUpdate: DateTime.now().millisecondsSinceEpoch,
+          lastUpdate: clock.now().millisecondsSinceEpoch,
         ),
       );
     }
@@ -83,7 +84,7 @@ class AvatarDaoImpl implements AvatarDao {
       Avatar(
         uid: uid,
         createdOn: 0,
-        lastUpdate: DateTime.now().millisecondsSinceEpoch,
+        lastUpdate: clock.now().millisecondsSinceEpoch,
       ),
     );
   }
@@ -114,7 +115,7 @@ class AvatarDaoImpl implements AvatarDao {
         return box2.put(
           lastAvatarOfList!.uid,
           lastAvatarOfList.copyWith(
-            lastUpdate: DateTime.now().millisecondsSinceEpoch,
+            lastUpdate: clock.now().millisecondsSinceEpoch,
           ),
         );
       }

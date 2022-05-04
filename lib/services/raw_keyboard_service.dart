@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:clock/clock.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -42,7 +43,7 @@ class RawKeyboardService {
     } else if (image != null) {
       final tempDir = await getTemporaryDirectory();
       final file = await File(
-        '${tempDir.path}/screenshot-${DateTime.now().hashCode}.png',
+        '${tempDir.path}/screenshot-${clock.now().hashCode}.png',
       ).create();
       file.writeAsBytesSync(image);
       name = file.path.replaceAll("\\", "/").split("/").last;
