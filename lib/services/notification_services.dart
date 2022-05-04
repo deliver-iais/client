@@ -28,22 +28,7 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:win_toast/win_toast.dart';
 
-/// A notification action which triggers a App navigation event
-const String navigationActionId = 'navigationActionId';
-
-/// Defines a iOS/MacOS notification category for text input actions.
-const String darwinNotificationCategoryText = 'textCategory';
-
-/// Defines a iOS/MacOS notification category for plain actions.
-const String iosNotificationCategoryPlain = 'plainCategory';
-
-/// action id for reply
-const String replyActionId = 'reply';
-
-/// action id for mark as read
-const String markAsReadActionId = 'mark_as_read';
-
-///should always in top or static
+//should always in top or static
 Future<void> androidNotificationTapBackground(
   NotificationResponse? notificationResponse,
 ) async {
@@ -61,11 +46,11 @@ Future<void> androidNotificationTapBackground(
     );
     final _messageRepo = GetIt.I.get<MessageRepo>();
     if (notificationResponse.input?.isNotEmpty ?? false) {
-      if (notificationResponse.actionId == replyActionId) {
+      if (notificationResponse.actionId == REPLY_ACTION_ID) {
         replyToMessage(_messageRepo, notificationResponse);
         markAsRead(notificationResponse);
       }
-    } else if (notificationResponse.actionId == markAsReadActionId) {
+    } else if (notificationResponse.actionId == MARK_AS_READ_ACTION_ID) {
       markAsRead(notificationResponse);
     }
 
@@ -442,9 +427,10 @@ class LinuxNotifier implements Notifier {
             linuxSelectNotification(notificationResponse.payload);
             break;
           case NotificationResponseType.selectedNotificationAction:
-            if (notificationResponse.actionId == navigationActionId) {
+            if (notificationResponse.actionId == NAVIGATION_ACTION_ID) {
               linuxSelectNotification(notificationResponse.payload);
-            } else if (notificationResponse.actionId == markAsReadActionId) {
+            } else if (notificationResponse.actionId ==
+                MARK_AS_READ_ACTION_ID) {
               markAsRead(
                 notificationResponse,
                 messageId:
@@ -486,11 +472,11 @@ class LinuxNotifier implements Notifier {
       icon: icon,
       actions: <LinuxNotificationAction>[
         const LinuxNotificationAction(
-          key: navigationActionId,
+          key: NAVIGATION_ACTION_ID,
           label: 'show chat',
         ),
         const LinuxNotificationAction(
-          key: markAsReadActionId,
+          key: MARK_AS_READ_ACTION_ID,
           label: 'Mark as read',
         ),
       ],
@@ -757,7 +743,7 @@ class MacOSNotifier implements Notifier {
   MacOSNotifier() {
     final darwinNotificationCategories = <DarwinNotificationCategory>[
       DarwinNotificationCategory(
-        darwinNotificationCategoryText,
+        DARWIN_NOTIFICATION_CATEGORY_TEXT,
         actions: <DarwinNotificationAction>[
           DarwinNotificationAction.text(
             'text_1',
@@ -768,7 +754,7 @@ class MacOSNotifier implements Notifier {
         ],
       ),
       DarwinNotificationCategory(
-        iosNotificationCategoryPlain,
+        IOS_NOTIFICATION_CATEGORY_PLAIN,
         actions: <DarwinNotificationAction>[
           DarwinNotificationAction.plain('id_1', 'Action 1'),
           DarwinNotificationAction.plain(
@@ -779,7 +765,7 @@ class MacOSNotifier implements Notifier {
             },
           ),
           DarwinNotificationAction.plain(
-            navigationActionId,
+            NAVIGATION_ACTION_ID,
             'Action 3 (foreground)',
             options: <DarwinNotificationActionOption>{
               DarwinNotificationActionOption.foreground,
@@ -844,7 +830,7 @@ class MacOSNotifier implements Notifier {
     final darwinNotificationDetails = DarwinNotificationDetails(
       attachments: attachments,
       badgeNumber: 0,
-      categoryIdentifier: darwinNotificationCategoryText,
+      categoryIdentifier: DARWIN_NOTIFICATION_CATEGORY_TEXT,
     );
 
     await _flutterLocalNotificationsPlugin.show(
