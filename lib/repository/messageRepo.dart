@@ -330,6 +330,7 @@ class MessageRepo {
     String text, {
     int replyId = 0,
     String? forwardedFrom,
+    bool usePacketStream = true,
   }) async {
     final textsBlocks = text.split("\n").toList();
     final result = <String>[];
@@ -363,6 +364,7 @@ class MessageRepo {
         room,
         replyId,
         forwardedFrom,
+        usePacketStream: usePacketStream,
       );
       i++;
     }
@@ -372,21 +374,22 @@ class MessageRepo {
     String text,
     Uid room,
     int replyId,
-    String? forwardedFrom,
-  ) {
+    String? forwardedFrom, {
+    bool usePacketStream = true,
+  }) {
     final json = (message_pb.Text()..text = text).writeToJson();
     final msg =
         _createMessage(room, replyId: replyId, forwardedFrom: forwardedFrom)
             .copyWith(type: MessageType.TEXT, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
-    _saveAndSend(pm);
+    _saveAndSend(pm, usePacketStream: usePacketStream);
   }
 
-  void _saveAndSend(PendingMessage pm) {
+  void _saveAndSend(PendingMessage pm, {bool usePacketStream = true}) {
     _savePendingMessage(pm);
     _updateRoomLastMessage(pm);
-    _sendMessageToServer(pm);
+    _sendMessageToServer(pm, usePacketStream: usePacketStream);
   }
 
   Future<void> sendCallMessage(
@@ -599,10 +602,13 @@ class MessageRepo {
     }
   }
 
-  void _sendMessageToServer(PendingMessage pm) {
+  void _sendMessageToServer(
+    PendingMessage pm, {
+    bool usePacketStream = true,
+  }) {
     final byClient = _createMessageByClient(pm.msg);
 
-    _coreServices.sendMessage(byClient);
+    _coreServices.sendMessage(byClient, usePacketStream: usePacketStream);
     // TODO(dansi): remove later, we don't need send no activity after sending messages, every time we received message we should set activity of room as no activity, https://gitlab.iais.co/deliver/wiki/-/issues/427
     sendActivity(byClient.to, ActivityType.NO_ACTIVITY);
   }
@@ -694,13 +700,18 @@ class MessageRepo {
   Future<void> _savePendingMessage(PendingMessage pm) =>
       _messageDao.savePendingMessage(pm);
 
-  Future<void> sendSeen(int messageId, Uid to) async {
+  Future<void> sendSeen(
+    int messageId,
+    Uid to, {
+    bool usePacketStream = true,
+  }) async {
     final seen = await _seenDao.getMySeen(to.asString());
     if (seen.messageId >= messageId) return;
     _coreServices.sendSeen(
       seen_pb.SeenByClient()
         ..to = to
         ..id = Int64.parseInt(messageId.toString()),
+      usePacketStream: usePacketStream,
     );
   }
 

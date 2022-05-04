@@ -158,12 +158,15 @@ class CoreServices {
     }
   }
 
-  Future<void> sendMessage(MessageByClient message) async {
+  Future<void> sendMessage(
+    MessageByClient message, {
+    bool usePacketStream = true,
+  }) async {
     try {
       final clientPacket = ClientPacket()
         ..message = message
         ..id = DateTime.now().microsecondsSinceEpoch.toString();
-      await _sendPacket(clientPacket);
+      await _sendPacket(clientPacket, usePacketStream: usePacketStream);
       Timer(
         const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
         () => _checkPendingStatus(message.packetId),
@@ -195,11 +198,11 @@ class CoreServices {
     _sendPacket(clientPacket, forceToSend: true);
   }
 
-  void sendSeen(seen_pb.SeenByClient seen) {
+  void sendSeen(seen_pb.SeenByClient seen,{bool usePacketStream = true,}) {
     final clientPacket = ClientPacket()
       ..seen = seen
       ..id = seen.id.toString();
-    _sendPacket(clientPacket);
+    _sendPacket(clientPacket,usePacketStream: usePacketStream);
   }
 
   void sendCallAnswer(call_pb.CallAnswerByClient callAnswerByClient) {
@@ -230,11 +233,12 @@ class CoreServices {
   Future<void> _sendPacket(
     ClientPacket packet, {
     bool forceToSend = false,
+    bool usePacketStream = true,
   }) async {
     try {
-      if (isWeb) {
+      if (isWeb || !usePacketStream) {
         await _grpcCoreService.sendClientPacket(packet);
-      } else if(!_streamInitialized){
+      } else if (!_streamInitialized) {
         startStream();
       } else if (!_clientPacketStream.isClosed &&
           (forceToSend ||

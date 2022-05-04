@@ -13,7 +13,6 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/services/audio_service.dart';
-import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -45,13 +44,12 @@ const String replyActionId = 'reply';
 const String markAsReadActionId = 'mark_as_read';
 
 ///should always in top or static
-Future<void> notificationTapBackground(
+Future<void> androidNotificationTapBackground(
   NotificationResponse? notificationResponse,
 ) async {
   try {
     if (!GetIt.I.isRegistered<MessageRepo>()) {
       await setupDI();
-      await GetIt.I.get<CoreServices>().initStreamConnection();
       Logger().i(
         'setUpDI',
       );
@@ -89,6 +87,7 @@ void replyToMessage(
     notificationResponse.payload!.asUid(),
     notificationResponse.input!,
     replyId: notificationResponse.id! - notificationResponse.payload.hashCode,
+    usePacketStream: false,
   );
 }
 
@@ -103,6 +102,7 @@ void markAsRead(
     messageId ??
         notificationResponse.id! - notificationResponse.payload.hashCode,
     payload?.asUid() ?? notificationResponse.payload!.asUid(),
+    usePacketStream: false,
   );
   _roomRepo.updateMySeen(
     uid: payload ?? notificationResponse.payload!,
@@ -567,7 +567,8 @@ class AndroidNotifier implements Notifier {
             break;
         }
       },
-      onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
+      onDidReceiveBackgroundNotificationResponse:
+          androidNotificationTapBackground,
     );
     _setupAndroidDidNotificationLaunchApp();
   }
