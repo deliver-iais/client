@@ -75,7 +75,7 @@ dependencies:
       ref: b24aeffc07dc047016b4da1f1320ec524d96b161
   flutter_image_compress: 1.1.0
   flutter_keyboard_visibility: 5.1.1
-  flutter_local_notifications: 10.0.0-dev.12
+  flutter_local_notifications: 10.0.0-dev.13
   flutter_localizations:
     sdk: flutter
   flutter_map: 0.14.0

@@ -167,7 +167,6 @@ class CoreServices {
       final clientPacket = ClientPacket()
         ..message = message
         ..id = clock.now().microsecondsSinceEpoch.toString();
-        ..id = DateTime.now().microsecondsSinceEpoch.toString();
       await _sendPacket(clientPacket, usePacketStream: usePacketStream);
       Timer(
         const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
