@@ -608,9 +608,7 @@ class MessageRepo {
   }) {
     final byClient = _createMessageByClient(pm.msg);
 
-    _coreServices.sendMessage(byClient, usePacketStream: usePacketStream);
-    // TODO(dansi): remove later, we don't need send no activity after sending messages, every time we received message we should set activity of room as no activity, https://gitlab.iais.co/deliver/wiki/-/issues/427
-    sendActivity(byClient.to, ActivityType.NO_ACTIVITY);
+    _coreServices.sendMessage(byClient,usePacketStream: usePacketStream);
   }
 
   message_pb.MessageByClient _createMessageByClient(Message message) {
@@ -845,20 +843,13 @@ class MessageRepo {
 
   Future<void> sendFormResultMessage(
     String botUid,
-    Map<String, String> formResultMap,
-    int formMessageId, {
-    String? forwardFromAsString,
-  }) async {
-    final formResult = FormResult();
-    for (final fileId in formResultMap.keys) {
-      formResult.values[fileId] = formResultMap[fileId]!;
-    }
+    FormResult formResult,
+    int formMessageId,
+  ) async {
     final jsonString = (formResult).writeToJson();
-
     final msg = _createMessage(
       botUid.asUid(),
       replyId: formMessageId,
-      forwardedFrom: forwardFromAsString,
     ).copyWith(type: MessageType.FORM_RESULT, json: jsonString);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);

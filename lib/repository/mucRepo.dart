@@ -89,14 +89,17 @@ class MucRepo {
       unawaited(fetchChannelMembers(channelUid, memberUidList.length));
       return channelUid;
     }
-
     return null;
   }
 
   Future<bool> channelIdIsAvailable(String id) async {
-    final result =
-        await _queryServices.idIsAvailable(IdIsAvailableReq()..id = id);
-    return result.isAvailable;
+    try {
+      final result =
+          await _queryServices.idIsAvailable(IdIsAvailableReq()..id = id);
+      return result.isAvailable;
+    } catch (e) {
+      return false;
+    }
   }
 
   Future<void> fetchGroupMembers(Uid groupUid, int len) async {
@@ -612,11 +615,11 @@ class MucRepo {
         await Stream.fromIterable(await getAllMembers(roomUid))
             .asyncMap((member) async {
               if (_authRepo.isCurrentUser(member!.memberUid)) {
-                final a = await _accountRepo.getAccount();
+                final a = (await _accountRepo.getAccount())!;
                 return UidIdName(
                   uid: member.memberUid,
-                  id: a.userName,
-                  name: a.firstName,
+                  id: a.username,
+                  name: a.firstname,
                 );
               } else {
                 final uidIdName =
