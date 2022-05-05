@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:clock/clock.dart';
 import 'package:contacts_service/contacts_service.dart' as contacts_service_pb;
 import 'package:deliver/box/contact.dart' as contact_pb;
 import 'package:deliver/box/dao/contact_dao.dart';
@@ -169,6 +170,7 @@ class ContactRepo {
       _uidIdNameDao.update(
         contact.uid.asString(),
         name: "${contact.firstName} ${contact.lastName}",
+        lastUpdateTime: clock.now().millisecondsSinceEpoch,
       );
       _roomDao.updateRoom(uid: contact.uid.asString());
     }
@@ -179,7 +181,11 @@ class ContactRepo {
       // For now, Group and Bot not supported in server side!!
       final result =
           await _queryServiceClient.getIdByUid(GetIdByUidReq()..uid = uid);
-      return _uidIdNameDao.update(uid.asString(), id: result.id);
+      return _uidIdNameDao.update(
+        uid.asString(),
+        id: result.id,
+        lastUpdateTime: clock.now().millisecondsSinceEpoch,
+      );
     } catch (e) {
       _logger.e(e);
     }
@@ -226,7 +232,26 @@ class ContactRepo {
       final contact = await _contactServices
           .getUserByUid(GetUserByUidReq()..uid = contactUid);
       final name = buildName(contact.user.firstName, contact.user.lastName);
-      unawaited(_uidIdNameDao.update(contactUid.asString(), name: name));
+
+      //update uidIdName table
+      unawaited(
+        _uidIdNameDao.update(
+          contactUid.asString(),
+          name: name,
+          lastUpdateTime: clock.now().millisecondsSinceEpoch,
+        ),
+      );
+      //update contact table
+      await _contactDao.save(
+        contact_pb.Contact(
+          uid: contactUid.asString(),
+          countryCode: contact.user.phoneNumber.countryCode.toString(),
+          nationalNumber: contact.user.phoneNumber.nationalNumber.toString(),
+          firstName: contact.user.firstName,
+          lastName: contact.user.lastName,
+          description: contact.user.description,
+        ),
+      );
       return name;
     } catch (e) {
       _logger.e(e);

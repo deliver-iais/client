@@ -84,6 +84,7 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   void initState() {
+    _roomRepo.updateUserInfo(widget.roomUid);
     _setupRoomSettings();
 
     if (_uxService.getTabIndex(widget.roomUid.asString()) == null) {

@@ -8,7 +8,12 @@ abstract class UidIdNameDao {
 
   Future<String?> getUidById(String id);
 
-  Future<void> update(String uid, {String? id, String? name});
+  Future<void> update(
+    String uid, {
+    String? id,
+    String? name,
+    required int lastUpdateTime,
+  });
 
   Future<List<UidIdName>> search(String text);
 }
@@ -29,7 +34,12 @@ class UidIdNameDaoImpl implements UidIdNameDao {
   }
 
   @override
-  Future<void> update(String uid, {String? id, String? name}) async {
+  Future<void> update(
+    String uid, {
+    String? id,
+    String? name,
+    required int lastUpdateTime,
+  }) async {
     if (name != null) {
       name = name.trim();
     }
@@ -39,9 +49,20 @@ class UidIdNameDaoImpl implements UidIdNameDao {
 
     final byUid = box.get(uid);
     if (byUid == null) {
-      await box.put(uid, UidIdName(uid: uid, id: id, name: name));
+      await box.put(
+        uid,
+        UidIdName(uid: uid, id: id, name: name, lastUpdate: lastUpdateTime),
+      );
     } else {
-      await box.put(uid, byUid.copyWith(uid: uid, id: id, name: name));
+      await box.put(
+        uid,
+        byUid.copyWith(
+          uid: uid,
+          id: id,
+          name: name,
+          lastUpdate: lastUpdateTime,
+        ),
+      );
     }
 
     if (byUid != null && byUid.id != null && byUid.id != id) {

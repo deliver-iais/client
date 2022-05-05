@@ -112,7 +112,13 @@ class RoomRepo {
               (contact.lastName != null && contact.lastName!.isNotEmpty))) {
         final name = buildName(contact.firstName, contact.lastName);
         roomNameCache.set(uid.asString(), name);
-        unawaited(_uidIdNameDao.update(uid.asString(), name: name));
+        unawaited(
+          _uidIdNameDao.update(
+            uid.asString(),
+            name: name,
+            lastUpdateTime: clock.now().millisecondsSinceEpoch,
+          ),
+        );
         return name;
       } else {
         final name = await _contactRepo.getContactFromServer(uid);
@@ -129,7 +135,13 @@ class RoomRepo {
       final muc = await _mucRepo.fetchMucInfo(uid);
       if (muc != null && muc.name != null && muc.name!.isNotEmpty) {
         roomNameCache.set(uid.asString(), muc.name!);
-        unawaited(_uidIdNameDao.update(uid.asString(), name: muc.name));
+        unawaited(
+          _uidIdNameDao.update(
+            uid.asString(),
+            name: muc.name,
+            lastUpdateTime: clock.now().millisecondsSinceEpoch,
+          ),
+        );
 
         return muc.name!;
       }
@@ -148,7 +160,13 @@ class RoomRepo {
 
     if (username != null) {
       roomNameCache.set(uid.asString(), username);
-      unawaited(_uidIdNameDao.update(uid.asString(), id: username));
+      unawaited(
+        _uidIdNameDao.update(
+          uid.asString(),
+          id: username,
+          lastUpdateTime: clock.now().millisecondsSinceEpoch,
+        ),
+      );
     }
 
     return (username ?? unknownName) ?? "Unknown";
@@ -190,11 +208,69 @@ class RoomRepo {
     try {
       final result =
           await _queryServiceClient.getIdByUid(GetIdByUidReq()..uid = uid);
-      _uidIdNameDao.update(uid.asString(), id: result.id).ignore();
+      _uidIdNameDao
+          .update(
+            uid.asString(),
+            id: result.id,
+            lastUpdateTime: clock.now().millisecondsSinceEpoch,
+          )
+          .ignore();
       return result.id;
     } catch (e) {
       _logger.e(e);
       return null;
+    }
+  }
+
+  Future<bool> _isUserInfoNeedsToBeUpdated(Uid uid) async {
+    final nowTime = clock.now().millisecondsSinceEpoch;
+    final uidIdName = await _uidIdNameDao.getByUid(uid.asString());
+
+    if (uidIdName == null) {
+      _logger.i("last uidIdName is null - $uid");
+      return true;
+    } else if (uidIdName.name == null || uidIdName.lastUpdate == null) {
+      // has no user info
+      _logger.i(
+        "user info WAS NULL - $uid",
+      );
+      return true;
+    } else if ((nowTime - uidIdName.lastUpdate!) > USER_INFO_CACHE_TIME) {
+      // 24 hours
+      _logger.i("exceeded from $AVATAR_CACHE_TIME in DAO - $uid");
+      return true;
+    } else {
+      _logger.i("no need to update user info - $uid");
+      return false;
+    }
+  }
+
+  Future<void> updateUserInfo(
+    Uid uid,
+  ) async {
+    if (await _isUserInfoNeedsToBeUpdated(uid)) {
+      // Is User
+      if (uid.category == Categories.USER) {
+        final name = await _contactRepo.getContactFromServer(uid);
+        if (name != null) {
+          roomNameCache.set(uid.asString(), name);
+        }
+      }
+      // Is Group or Channel
+      if (uid.category == Categories.GROUP ||
+          uid.category == Categories.CHANNEL) {
+        final muc = await _mucRepo.fetchMucInfo(uid);
+        if (muc != null && muc.name != null && muc.name!.isNotEmpty) {
+          roomNameCache.set(uid.asString(), muc.name!);
+          unawaited(
+            _uidIdNameDao.update(
+              uid.asString(),
+              name: muc.name,
+              lastUpdateTime: clock.now().millisecondsSinceEpoch,
+            ),
+          );
+        }
+      }
     }
   }
 
@@ -331,7 +407,13 @@ class RoomRepo {
       return uid;
     } else {
       final uid = await fetchUidById(synthesizeId);
-      unawaited(_uidIdNameDao.update(uid.asString(), id: synthesizeId));
+      unawaited(
+        _uidIdNameDao.update(
+          uid.asString(),
+          id: synthesizeId,
+          lastUpdateTime: clock.now().millisecondsSinceEpoch,
+        ),
+      );
       return uid.asString();
     }
   }
