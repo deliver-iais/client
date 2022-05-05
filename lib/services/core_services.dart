@@ -157,15 +157,12 @@ class CoreServices {
     }
   }
 
-  Future<void> sendMessage(
-    MessageByClient message, {
-    bool useUnary = false,
-  }) async {
+  Future<void> sendMessage(MessageByClient message) async {
     try {
       final clientPacket = ClientPacket()
         ..message = message
         ..id = clock.now().microsecondsSinceEpoch.toString();
-      await _sendClientPacket(clientPacket, useUnary: useUnary);
+      await _sendClientPacket(clientPacket);
       Timer(
         const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
         () => _checkPendingStatus(message.packetId),
@@ -197,14 +194,11 @@ class CoreServices {
     _sendClientPacket(clientPacket, forceToSendEvenNotConnected: true);
   }
 
-  void sendSeen(
-    seen_pb.SeenByClient seen, {
-    bool useUnary = false,
-  }) {
+  void sendSeen(seen_pb.SeenByClient seen) {
     final clientPacket = ClientPacket()
       ..seen = seen
       ..id = seen.id.toString();
-    _sendClientPacket(clientPacket, useUnary: useUnary);
+    _sendClientPacket(clientPacket);
   }
 
   void sendCallAnswer(call_pb.CallAnswerByClient callAnswerByClient) {
@@ -235,13 +229,11 @@ class CoreServices {
   Future<void> _sendClientPacket(
     ClientPacket packet, {
     bool forceToSendEvenNotConnected = false,
-    bool useUnary = false,
   }) async {
-    final clientPacketStreamNotAvailableYet =
-        _clientPacketStream == null || _clientPacketStream!.isClosed;
-
     try {
-      if (isWeb || clientPacketStreamNotAvailableYet) {
+      if (isWeb ||
+          _clientPacketStream == null ||
+          _clientPacketStream!.isClosed) {
         await _grpcCoreService.sendClientPacket(packet);
       } else if (forceToSendEvenNotConnected ||
           _connectionStatus.value == ConnectionStatus.Connected) {

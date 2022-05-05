@@ -336,7 +336,6 @@ class MessageRepo {
     String text, {
     int replyId = 0,
     String? forwardedFrom,
-    bool useUnary = false,
   }) async {
     final textsBlocks = text.split("\n").toList();
     final result = <String>[];
@@ -370,7 +369,6 @@ class MessageRepo {
         room,
         replyId,
         forwardedFrom,
-        useUnary: useUnary,
       );
       i++;
     }
@@ -380,22 +378,21 @@ class MessageRepo {
     String text,
     Uid room,
     int replyId,
-    String? forwardedFrom, {
-    bool useUnary = false,
-  }) {
+    String? forwardedFrom,
+  ) {
     final json = (message_pb.Text()..text = text).writeToJson();
     final msg =
         _createMessage(room, replyId: replyId, forwardedFrom: forwardedFrom)
             .copyWith(type: MessageType.TEXT, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
-    _saveAndSend(pm, useUnary: useUnary);
+    _saveAndSend(pm);
   }
 
-  void _saveAndSend(PendingMessage pm, {bool useUnary = false}) {
+  void _saveAndSend(PendingMessage pm) {
     _savePendingMessage(pm);
     _updateRoomLastMessage(pm);
-    _sendMessageToServer(pm, useUnary: useUnary);
+    _sendMessageToServer(pm);
   }
 
   Future<void> sendCallMessage(
@@ -608,13 +605,10 @@ class MessageRepo {
     }
   }
 
-  void _sendMessageToServer(
-    PendingMessage pm, {
-    bool useUnary = false,
-  }) {
+  void _sendMessageToServer(PendingMessage pm) {
     final byClient = _createMessageByClient(pm.msg);
 
-    _coreServices.sendMessage(byClient,useUnary: useUnary);
+    _coreServices.sendMessage(byClient);
   }
 
   message_pb.MessageByClient _createMessageByClient(Message message) {
@@ -715,7 +709,6 @@ class MessageRepo {
       seen_pb.SeenByClient()
         ..to = to
         ..id = Int64.parseInt(messageId.toString()),
-      useUnary: useUnary,
     );
   }
 

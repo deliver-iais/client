@@ -98,13 +98,13 @@ const DELIVER_COLOR = Color(0xff1a88f7);
 //Local Notification Id
 
 // A notification action which triggers a App navigation event
-const String NAVIGATION_ACTION_ID = 'navigationActionId';
+const String OPEN_CHAT_ACTION_ID = 'open_chat';
 
 // Defines a iOS/MacOS notification category for text input actions.
 const String DARWIN_NOTIFICATION_CATEGORY_TEXT = 'textCategory';
 
-// Defines a iOS/MacOS notification category for plain actions.
-const String IOS_NOTIFICATION_CATEGORY_PLAIN = 'plainCategory';
+// action id for close
+const String CLOSE_ACTION_ID = 'close';
 
 // action id for reply
 const String REPLY_ACTION_ID = 'reply';

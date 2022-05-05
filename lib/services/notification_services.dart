@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 
 import 'package:clock/clock.dart';
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
@@ -27,73 +26,8 @@ import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:tuple/tuple.dart';
 import 'package:win_toast/win_toast.dart';
-
-//should always in top or static
-Future<void> androidNotificationTapBackground(
-  NotificationResponse? notificationResponse,
-) async {
-  try {
-    if (!GetIt.I.isRegistered<MessageRepo>()) {
-      await setupDI();
-      Logger().i(
-        'setUpDI',
-      );
-    }
-    Logger().i(
-      'notification(${notificationResponse!.id}) action tapped: '
-      '${notificationResponse.actionId} with'
-      ' payload: ${notificationResponse.payload}',
-    );
-    final _messageRepo = GetIt.I.get<MessageRepo>();
-    if (notificationResponse.input?.isNotEmpty ?? false) {
-      if (notificationResponse.actionId == REPLY_ACTION_ID) {
-        replyToMessage(_messageRepo, notificationResponse);
-        markAsRead(notificationResponse);
-      }
-    } else if (notificationResponse.actionId == MARK_AS_READ_ACTION_ID) {
-      markAsRead(notificationResponse);
-    }
-
-    final send = IsolateNameServer.lookupPortByName('notification_send_port');
-    send?.send(notificationResponse);
-  } catch (e) {
-    Logger().e(e);
-  }
-}
-
-void replyToMessage(
-  MessageRepo _messageRepo,
-  NotificationResponse notificationResponse,
-) {
-  _messageRepo.sendTextMessage(
-    notificationResponse.payload!.asUid(),
-    notificationResponse.input!,
-    replyId: notificationResponse.id! - notificationResponse.payload.hashCode,
-    useUnary: true,
-  );
-}
-
-void markAsRead(
-  NotificationResponse notificationResponse, {
-  int? messageId,
-  String? payload,
-}) {
-  final _messageRepo = GetIt.I.get<MessageRepo>();
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-  _messageRepo.sendSeen(
-    messageId ??
-        notificationResponse.id! - notificationResponse.payload.hashCode,
-    payload?.asUid() ?? notificationResponse.payload!.asUid(),
-    useUnary: true,
-  );
-  _roomRepo.updateMySeen(
-    uid: payload ?? notificationResponse.payload!,
-    messageId: messageId ??
-        notificationResponse.id! - notificationResponse.payload.hashCode,
-    hiddenMessageCount: 0,
-  );
-}
 
 abstract class Notifier {
   static void onCallAccept(String roomUid) {
@@ -104,6 +38,69 @@ abstract class Notifier {
 
   static void onCallReject() {
     GetIt.I.get<CallRepo>().declineCall();
+  }
+
+  static void replyToMessage(NotificationResponse notificationResponse) {
+    final payload = parsePayload(notificationResponse.payload);
+
+    if (payload == null) {
+      return;
+    }
+
+    GetIt.I.get<MessageRepo>().sendTextMessage(
+          payload.item1.asUid(),
+          notificationResponse.input!,
+          replyId: payload.item2,
+        );
+  }
+
+  static void markAsRead(NotificationResponse notificationResponse) {
+    final payload = parsePayload(notificationResponse.payload);
+
+    if (payload == null) {
+      return;
+    }
+
+    GetIt.I.get<MessageRepo>().sendSeen(payload.item2, payload.item1.asUid());
+    GetIt.I.get<RoomRepo>().updateMySeen(
+          uid: payload.item1,
+          messageId: payload.item2,
+          hiddenMessageCount: 0,
+        );
+  }
+
+  static void openChat(NotificationResponse response) {
+    final payload = Notifier.parsePayload(response.payload);
+
+    if (payload == null) {
+      return;
+    }
+
+    if (isDesktop) {
+      DesktopWindow.focus();
+    }
+
+    GetIt.I.get<RoutingService>().openRoom(payload.item1);
+  }
+
+  static String genPayload(String roomUid, int id) => "$roomUid#$id";
+
+  static Tuple2<String, int>? parsePayload(String? payload) {
+    if (payload == null) {
+      return null;
+    }
+
+    final list = payload.split("#");
+
+    if (list.length < 2 || list[0].isEmpty) {
+      return null;
+    }
+
+    try {
+      return Tuple2(list[0], int.parse(list[1]));
+    } catch (_) {
+      return null;
+    }
   }
 
   Future<void> notifyText(MessageBrief message);
@@ -198,23 +195,6 @@ class NotificationServices {
 }
 
 class FakeNotifier implements Notifier {
-  @override
-  Future<void> notifyText(MessageBrief message) async {}
-
-  @override
-  Future<void> notifyIncomingCall(String roomUid, String roomName) async {}
-
-  @override
-  Future<void> cancel(int id, String roomUid) async {}
-
-  @override
-  Future<void> cancelAll() async {}
-
-  @override
-  Future<void> cancelById(int id) async {}
-}
-
-class IOSNotifier implements Notifier {
   @override
   Future<void> notifyText(MessageBrief message) async {}
 
@@ -401,17 +381,7 @@ class LinuxNotifier implements Notifier {
       LinuxFlutterLocalNotificationsPlugin();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
-  final _routingService = GetIt.I.get<RoutingService>();
-
-  void linuxSelectNotification(
-    String? payload,
-  ) {
-    final room = payload?.split('#')[0];
-    if (room != null && room.isNotEmpty) {
-      DesktopWindow.focus();
-      _routingService.openRoom(room);
-    }
-  }
+  final _i18n = GetIt.I.get<I18N>();
 
   @override
   Future<void> cancelById(int id) async {}
@@ -425,21 +395,15 @@ class LinuxNotifier implements Notifier {
       onDidReceiveNotificationResponse: (notificationResponse) {
         switch (notificationResponse.notificationResponseType) {
           case NotificationResponseType.selectedNotification:
-            linuxSelectNotification(notificationResponse.payload);
+            Notifier.openChat(notificationResponse);
             break;
           case NotificationResponseType.selectedNotificationAction:
-            if (notificationResponse.actionId == NAVIGATION_ACTION_ID) {
-              linuxSelectNotification(notificationResponse.payload);
+            if (notificationResponse.actionId == OPEN_CHAT_ACTION_ID) {
+              Notifier.openChat(notificationResponse);
             } else if (notificationResponse.actionId ==
                 MARK_AS_READ_ACTION_ID) {
-              markAsRead(
-                notificationResponse,
-                messageId:
-                    int.parse(notificationResponse.payload!.split('#')[1]),
-                payload: notificationResponse.payload!.split('#')[0],
-              );
+              Notifier.markAsRead(notificationResponse);
             }
-
             break;
         }
         return;
@@ -472,13 +436,13 @@ class LinuxNotifier implements Notifier {
     final platformChannelSpecifics = LinuxNotificationDetails(
       icon: icon,
       actions: <LinuxNotificationAction>[
-        const LinuxNotificationAction(
-          key: NAVIGATION_ACTION_ID,
-          label: 'show chat',
+        LinuxNotificationAction(
+          key: OPEN_CHAT_ACTION_ID,
+          label: _i18n.get("open_chat"),
         ),
-        const LinuxNotificationAction(
+        LinuxNotificationAction(
           key: MARK_AS_READ_ACTION_ID,
-          label: 'Mark as read',
+          label: _i18n.get("mark_as_read"),
         ),
       ],
     );
@@ -488,7 +452,7 @@ class LinuxNotifier implements Notifier {
       message.roomName,
       createNotificationTextFromMessageBrief(message),
       notificationDetails: platformChannelSpecifics,
-      payload: message.roomUid.asString() + "#" + message.id.toString(),
+      payload: Notifier.genPayload(message.roomUid.asString(), message.id!),
     );
   }
 
@@ -520,8 +484,8 @@ class AndroidNotifier implements Notifier {
       AndroidFlutterLocalNotificationsPlugin();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
-  final _routingService = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _i18n = GetIt.I.get<I18N>();
 
   AndroidNotificationChannel channel = const AndroidNotificationChannel(
     'notifications', // id
@@ -534,7 +498,6 @@ class AndroidNotifier implements Notifier {
   AndroidNotifier() {
     ConnectycubeFlutterCallKit.instance
         .init(onCallAccepted: onCallAccepted, onCallRejected: onCallRejected);
-
     ConnectycubeFlutterCallKit.onCallRejectedWhenTerminated =
         onCallRejectedWhenTerminated;
     ConnectycubeFlutterCallKit.onCallAcceptedWhenTerminated =
@@ -550,7 +513,7 @@ class AndroidNotifier implements Notifier {
       onDidReceiveNotificationResponse: (notificationResponse) {
         switch (notificationResponse.notificationResponseType) {
           case NotificationResponseType.selectedNotification:
-            androidOnSelectNotification(notificationResponse.payload);
+            Notifier.openChat(notificationResponse);
             break;
           case NotificationResponseType.selectedNotificationAction:
             break;
@@ -560,6 +523,30 @@ class AndroidNotifier implements Notifier {
           androidNotificationTapBackground,
     );
     _setupAndroidDidNotificationLaunchApp();
+  }
+
+  //should always in top or static
+  static Future<void> androidNotificationTapBackground(
+    NotificationResponse? notificationResponse,
+  ) async {
+    try {
+      await setupDI();
+
+      if (notificationResponse == null) {
+        return;
+      }
+
+      if (notificationResponse.input?.isNotEmpty ?? false) {
+        if (notificationResponse.actionId == REPLY_ACTION_ID) {
+          Notifier.replyToMessage(notificationResponse);
+          Notifier.markAsRead(notificationResponse);
+        }
+      } else if (notificationResponse.actionId == MARK_AS_READ_ACTION_ID) {
+        Notifier.markAsRead(notificationResponse);
+      }
+    } catch (e) {
+      Logger().e(e);
+    }
   }
 
   Future<void> _setupAndroidDidNotificationLaunchApp() {
@@ -572,13 +559,6 @@ class AndroidNotifier implements Notifier {
             .add(notificationAppLaunchDetails!.notificationResponse!.payload!);
       }
     });
-  }
-
-  Future<void> androidOnSelectNotification(String? room) async {
-    if (room != null && room.isNotEmpty) {
-      _routingService.openRoom(room);
-    }
-    return;
   }
 
   Future<void> onCallRejected(
@@ -681,17 +661,17 @@ class AndroidNotifier implements Notifier {
       styleInformation: const BigTextStyleInformation(''),
       actions: <AndroidNotificationAction>[
         AndroidNotificationAction(
-          'reply',
-          'Reply to ${message.roomName}',
+          REPLY_ACTION_ID,
+          '${_i18n.get("reply_to")} ${message.roomName}',
           inputs: <AndroidNotificationActionInput>[
-            const AndroidNotificationActionInput(
-              label: 'Enter a message',
+            AndroidNotificationActionInput(
+              label: _i18n.get("enter_a_message"),
             ),
           ],
         ),
-        const AndroidNotificationAction(
-          'mark_as_read',
-          "Mark as read",
+        AndroidNotificationAction(
+          MARK_AS_READ_ACTION_ID,
+          _i18n.get("mark_as_read"),
         ),
       ],
       sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
@@ -702,7 +682,7 @@ class AndroidNotifier implements Notifier {
           message.roomName,
           createNotificationTextFromMessageBrief(message),
           notificationDetails: platformChannelSpecifics,
-          payload: message.roomUid.asString(),
+          payload: Notifier.genPayload(message.roomUid.asString(), message.id!),
         )
         .ignore();
   }
@@ -756,62 +736,35 @@ class AndroidNotifier implements Notifier {
   }
 }
 
-class MacOSNotifier implements Notifier {
+class IOSNotifier implements Notifier {
   final _logger = GetIt.I.get<Logger>();
-  final _flutterLocalNotificationsPlugin =
-      MacOSFlutterLocalNotificationsPlugin();
+  final _flutterLocalNotificationsPlugin = IOSFlutterLocalNotificationsPlugin();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
-  final _routingService = GetIt.I.get<RoutingService>();
+  final _i18n = GetIt.I.get<I18N>();
 
-  MacOSNotifier() {
+  IOSNotifier() {
     final darwinNotificationCategories = <DarwinNotificationCategory>[
       DarwinNotificationCategory(
         DARWIN_NOTIFICATION_CATEGORY_TEXT,
         actions: <DarwinNotificationAction>[
           DarwinNotificationAction.text(
-            'text_1',
-            'Action 1',
+            REPLY_ACTION_ID,
+            _i18n.get("reply"),
             buttonTitle: 'Send',
-            placeholder: 'Placeholder',
+            placeholder: _i18n.get("enter_a_message"),
           ),
-        ],
-      ),
-      DarwinNotificationCategory(
-        IOS_NOTIFICATION_CATEGORY_PLAIN,
-        actions: <DarwinNotificationAction>[
-          DarwinNotificationAction.plain('id_1', 'Action 1'),
           DarwinNotificationAction.plain(
-            'id_2',
-            'Action 2 (destructive)',
+            MARK_AS_READ_ACTION_ID,
+            _i18n.get("mark_as_read"),
             options: <DarwinNotificationActionOption>{
               DarwinNotificationActionOption.destructive,
             },
           ),
-          DarwinNotificationAction.plain(
-            NAVIGATION_ACTION_ID,
-            'Action 3 (foreground)',
-            options: <DarwinNotificationActionOption>{
-              DarwinNotificationActionOption.foreground,
-            },
-          ),
-          DarwinNotificationAction.plain(
-            'id_4',
-            'Action 4 (auth required)',
-            options: <DarwinNotificationActionOption>{
-              DarwinNotificationActionOption.authenticationRequired,
-            },
-          ),
         ],
-        options: <DarwinNotificationCategoryOption>{
-          DarwinNotificationCategoryOption.hiddenPreviewShowTitle,
-        },
       )
     ];
     final initializationSettingsDarwin = DarwinInitializationSettings(
-      requestAlertPermission: false,
-      requestBadgePermission: false,
-      requestSoundPermission: false,
       notificationCategories: darwinNotificationCategories,
     );
 
@@ -820,12 +773,16 @@ class MacOSNotifier implements Notifier {
       onDidReceiveNotificationResponse: (notificationResponse) {
         switch (notificationResponse.notificationResponseType) {
           case NotificationResponseType.selectedNotification:
-            final room = notificationResponse.payload;
-            if (room != null && room.isNotEmpty) {
-              _routingService.openRoom(room);
-            }
+            Notifier.openChat(notificationResponse);
             break;
           case NotificationResponseType.selectedNotificationAction:
+            if (notificationResponse.actionId == REPLY_ACTION_ID) {
+              Notifier.replyToMessage(notificationResponse);
+              Notifier.markAsRead(notificationResponse);
+            } else if (notificationResponse.actionId ==
+                MARK_AS_READ_ACTION_ID) {
+              Notifier.markAsRead(notificationResponse);
+            }
             break;
         }
       },
@@ -840,7 +797,7 @@ class MacOSNotifier implements Notifier {
 
     final la = await _avatarRepo.getLastAvatar(message.roomUid);
 
-    if (la != null) {
+    if (la != null && la.fileId != null && la.fileName != null) {
       final path = await _fileRepo.getFileIfExist(
         la.fileId!,
         la.fileName!,
@@ -857,12 +814,125 @@ class MacOSNotifier implements Notifier {
       categoryIdentifier: DARWIN_NOTIFICATION_CATEGORY_TEXT,
     );
 
-    await _flutterLocalNotificationsPlugin.show(
+    return _flutterLocalNotificationsPlugin.show(
       message.roomUid.asString().hashCode,
       message.roomName,
       createNotificationTextFromMessageBrief(message),
       notificationDetails: darwinNotificationDetails,
-      payload: message.roomUid.asString(),
+      payload: Notifier.genPayload(message.roomUid.asString(), message.id!),
+    );
+  }
+
+  @override
+  Future<void> notifyIncomingCall(String roomUid, String roomName) async {}
+
+  @override
+  Future<void> cancel(int id, String roomUid) async {
+    try {
+      await _flutterLocalNotificationsPlugin.cancel(id);
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+
+  @override
+  Future<void> cancelAll() async {
+    try {
+      await _flutterLocalNotificationsPlugin.cancelAll();
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+
+  @override
+  Future<void> cancelById(int id) async {}
+}
+
+class MacOSNotifier implements Notifier {
+  final _logger = GetIt.I.get<Logger>();
+  final _flutterLocalNotificationsPlugin =
+      MacOSFlutterLocalNotificationsPlugin();
+  final _avatarRepo = GetIt.I.get<AvatarRepo>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
+  final _i18n = GetIt.I.get<I18N>();
+
+  MacOSNotifier() {
+    final darwinNotificationCategories = <DarwinNotificationCategory>[
+      DarwinNotificationCategory(
+        DARWIN_NOTIFICATION_CATEGORY_TEXT,
+        actions: <DarwinNotificationAction>[
+          DarwinNotificationAction.text(
+            REPLY_ACTION_ID,
+            _i18n.get("reply"),
+            buttonTitle: 'Send',
+            placeholder: _i18n.get("enter_a_message"),
+          ),
+          DarwinNotificationAction.plain(
+            MARK_AS_READ_ACTION_ID,
+            _i18n.get("mark_as_read"),
+            options: <DarwinNotificationActionOption>{
+              DarwinNotificationActionOption.destructive,
+            },
+          ),
+        ],
+      )
+    ];
+    final initializationSettingsDarwin = DarwinInitializationSettings(
+      notificationCategories: darwinNotificationCategories,
+    );
+
+    _flutterLocalNotificationsPlugin.initialize(
+      initializationSettingsDarwin,
+      onDidReceiveNotificationResponse: (notificationResponse) {
+        switch (notificationResponse.notificationResponseType) {
+          case NotificationResponseType.selectedNotification:
+            Notifier.openChat(notificationResponse);
+            break;
+          case NotificationResponseType.selectedNotificationAction:
+            if (notificationResponse.actionId == REPLY_ACTION_ID) {
+              Notifier.replyToMessage(notificationResponse);
+              Notifier.markAsRead(notificationResponse);
+            } else if (notificationResponse.actionId ==
+                MARK_AS_READ_ACTION_ID) {
+              Notifier.markAsRead(notificationResponse);
+            }
+            break;
+        }
+      },
+    );
+  }
+
+  @override
+  Future<void> notifyText(MessageBrief message) async {
+    if (message.ignoreNotification) return;
+
+    final attachments = <DarwinNotificationAttachment>[];
+
+    final la = await _avatarRepo.getLastAvatar(message.roomUid);
+
+    if (la != null && la.fileId != null && la.fileName != null) {
+      final path = await _fileRepo.getFileIfExist(
+        la.fileId!,
+        la.fileName!,
+        thumbnailSize: ThumbnailSize.medium,
+      );
+
+      if (path != null && path.isNotEmpty) {
+        attachments.add(DarwinNotificationAttachment(path));
+      }
+    }
+    final darwinNotificationDetails = DarwinNotificationDetails(
+      attachments: attachments,
+      badgeNumber: 0,
+      categoryIdentifier: DARWIN_NOTIFICATION_CATEGORY_TEXT,
+    );
+
+    return _flutterLocalNotificationsPlugin.show(
+      message.roomUid.asString().hashCode,
+      message.roomName,
+      createNotificationTextFromMessageBrief(message),
+      notificationDetails: darwinNotificationDetails,
+      payload: Notifier.genPayload(message.roomUid.asString(), message.id!),
     );
   }
 
