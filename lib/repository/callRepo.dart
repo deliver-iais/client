@@ -153,10 +153,26 @@ class CallRepo {
             case CallEvent_CallStatus.CREATED:
               if (event.roomUid == _roomUid ||
                   _callService.getUserCallState == UserCallState.NOCALL) {
+                //get call Info and Save on DB
+                final currentCallEvent = call_event.CallEvent(
+                  callDuration: callEvent.callDuration.toInt(),
+                  endOfCallTime: callEvent.endOfCallTime.toInt(),
+                  callType: findCallEventType(callEvent.callType),
+                  newStatus: findCallEventStatus(callEvent.newStatus),
+                  id: callEvent.id,
+                );
+                final callInfo = call_info.CallInfo(
+                  callEvent: currentCallEvent,
+                  from: event.roomUid.toString(),
+                  to: _authRepo.currentUserUid.toString(),
+                );
+
                 _callService
+                  ..saveCallOnDb(callInfo)
                   ..setUserCallState = UserCallState.INUSERCALL
                   ..setCallOwner = callEvent.memberOrCallOwnerPvp
                   ..setCallId = callEvent.id;
+
                 if (callEvent.callType == CallEvent_CallType.VIDEO) {
                   _logger.i("VideoCall");
                   _isVideo = true;
@@ -1163,6 +1179,7 @@ class CallRepo {
         await disposeRenderer();
       }
       _callService.setUserCallState = UserCallState.NOCALL;
+      await _callService.removeCallFromDb();
     });
   }
 

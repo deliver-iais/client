@@ -1,6 +1,10 @@
+import 'package:deliver/box/dao/current_call_dao.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
+
+import '../box/call_info.dart';
 
 enum UserCallState {
   /// User in Group Call then he Can't join any User or Start Own Call
@@ -17,6 +21,9 @@ enum UserCallState {
 }
 
 class CallService {
+
+  final _currentCall = GetIt.I.get<CurrentCallInfoDao>();
+
   final BehaviorSubject<CallEvents> callEvents =
       BehaviorSubject.seeded(CallEvents.none);
 
@@ -44,6 +51,14 @@ class CallService {
 
   void addGroupCallEvent(CallEvents event) {
     _groupCallEvents.add(event);
+  }
+
+  Future<void> saveCallOnDb(CallInfo callInfo) async {
+    await _currentCall.save(callInfo);
+  }
+
+  Future<void> removeCallFromDb() async {
+    await _currentCall.remove();
   }
 
   UserCallState _callState = UserCallState.NOCALL;
