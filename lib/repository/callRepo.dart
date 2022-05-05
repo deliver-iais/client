@@ -928,9 +928,12 @@ class CallRepo {
 
   Future<void> receivedEndCall(int callDuration) async {
     _logger.i("Call Duration Received: " + callDuration.toString());
-    final sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
-    await ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
-    await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
+    if(isAndroid && !_isCaller) {
+      final sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
+      await ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
+      await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
+          isVisible: true);
+    }
     if (isWindows) {
       _notificationServices.cancelRoomNotifications(roomUid!.node);
     }
