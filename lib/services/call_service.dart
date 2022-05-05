@@ -61,6 +61,10 @@ class CallService {
     await _currentCall.remove();
   }
 
+  Future<CallInfo?> loadCurrentCall() async {
+    return _currentCall.get();
+  }
+
   UserCallState _callState = UserCallState.NOCALL;
 
   Uid _callOwner = Uid.getDefault();
