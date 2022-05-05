@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:hive/hive.dart';
 
@@ -78,5 +79,37 @@ class Muc {
         pinMessagesIdList: pinMessagesIdList ?? this.pinMessagesIdList,
         population: population ?? this.population,
         showPinMessage: showPinMessage ?? this.showPinMessage,
+      );
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other.runtimeType == runtimeType &&
+          other is Muc &&
+          const DeepCollectionEquality().equals(other.uid, uid) &&
+          const DeepCollectionEquality().equals(other.name, name) &&
+          const DeepCollectionEquality().equals(other.token, token) &&
+          const DeepCollectionEquality().equals(other.id, id) &&
+          const DeepCollectionEquality().equals(other.info, info) &&
+          const DeepCollectionEquality()
+              .equals(other.pinMessagesIdList, pinMessagesIdList) &&
+          const DeepCollectionEquality().equals(other.population, population) &&
+          const DeepCollectionEquality()
+              .equals(other.lastMessageId, lastMessageId) &&
+          const DeepCollectionEquality()
+              .equals(other.showPinMessage, showPinMessage));
+
+  @override
+  int get hashCode => Object.hash(
+        runtimeType,
+        const DeepCollectionEquality().hash(uid),
+        const DeepCollectionEquality().hash(name),
+        const DeepCollectionEquality().hash(token),
+        const DeepCollectionEquality().hash(id),
+        const DeepCollectionEquality().hash(info),
+        const DeepCollectionEquality().hash(pinMessagesIdList),
+        const DeepCollectionEquality().hash(population),
+        const DeepCollectionEquality().hash(lastMessageId),
+        const DeepCollectionEquality().hash(showPinMessage),
       );
 }

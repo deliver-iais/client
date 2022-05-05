@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/data_stream_services.dart';
@@ -37,6 +38,8 @@ class CoreServices {
 
   @visibleForTesting
   bool responseChecked = false;
+
+  bool _streamInitialized = false;
 
   @visibleForTesting
   int backoffTime = MIN_BACKOFF_TIME;
@@ -149,6 +152,7 @@ class CoreServices {
             break;
         }
       });
+      _streamInitialized = true;
     } catch (e) {
       _logger.e(e);
       return startStream();
@@ -159,7 +163,7 @@ class CoreServices {
     try {
       final clientPacket = ClientPacket()
         ..message = message
-        ..id = DateTime.now().microsecondsSinceEpoch.toString();
+        ..id = clock.now().microsecondsSinceEpoch.toString();
       await _sendPacket(clientPacket);
       Timer(
         const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
@@ -188,7 +192,7 @@ class CoreServices {
     final ping = Ping()..lastPongTime = Int64(_lastPongTime);
     final clientPacket = ClientPacket()
       ..ping = ping
-      ..id = DateTime.now().microsecondsSinceEpoch.toString();
+      ..id = clock.now().microsecondsSinceEpoch.toString();
     _sendPacket(clientPacket, forceToSend: true);
   }
 
@@ -231,7 +235,9 @@ class CoreServices {
     try {
       if (isWeb) {
         await _grpcCoreService.sendClientPacket(packet);
-      } else if (!_clientPacketStream.isClosed &&
+      } else if (!_streamInitialized){
+        startStream();
+      }else if (!_clientPacketStream.isClosed &&
           (forceToSend ||
               _connectionStatus.value == ConnectionStatus.Connected)) {
         _clientPacketStream.add(packet);

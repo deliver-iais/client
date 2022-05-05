@@ -2,6 +2,7 @@
 
 import 'dart:io';
 
+import 'package:clock/clock.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/dao/avatar_dao.dart';
@@ -61,7 +62,7 @@ class AvatarRepo {
               uid: userUid.asString(),
               createdOn: e.createdOn.toInt(),
               fileId: e.fileUuid,
-              lastUpdate: DateTime.now().millisecondsSinceEpoch,
+              lastUpdate: clock.now().millisecondsSinceEpoch,
               fileName: e.fileName,
             ),
           )
@@ -84,7 +85,7 @@ class AvatarRepo {
       _logger.v("current user avatar update needed");
       return true;
     }
-    final nowTime = DateTime.now().millisecondsSinceEpoch;
+    final nowTime = clock.now().millisecondsSinceEpoch;
 
     final key = _getAvatarCacheKey(userUid);
 
@@ -212,7 +213,7 @@ class AvatarRepo {
     await _fileRepo.cloneFileInLocalDirectory(File(path), uid.node, path);
     final fileInfo = await _fileRepo.uploadClonedFile(uid.node, path);
     if (fileInfo != null) {
-      final createdOn = DateTime.now().millisecondsSinceEpoch;
+      final createdOn = clock.now().millisecondsSinceEpoch;
       await _setAvatarAtServer(fileInfo, createdOn, uid);
     }
   }
@@ -239,7 +240,7 @@ class AvatarRepo {
             createdOn: createOn,
             fileId: fileInfo.uuid,
             fileName: fileInfo.name,
-            lastUpdate: DateTime.now().millisecondsSinceEpoch,
+            lastUpdate: clock.now().millisecondsSinceEpoch,
           )
         ]);
       }

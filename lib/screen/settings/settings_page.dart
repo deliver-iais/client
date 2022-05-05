@@ -256,6 +256,19 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
               ],
             ),
+            Section(
+              title: _i18n.get("network"),
+              children: [
+                SettingsTile(
+                  title: _i18n.get("automatic_download"),
+                  subtitleTextStyle: TextStyle(
+                    color: theme.primaryColor,
+                  ),
+                  leading: const Icon(CupertinoIcons.arrow_down_circle),
+                  onPressed: (context) => _routingService.openAutoDownload(),
+                ),
+              ],
+            ),
             if (UxService.isDeveloperMode)
               Section(
                 title: 'Developer Mode',

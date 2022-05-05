@@ -1,12 +1,15 @@
 import 'dart:async';
 
+import 'package:deliver/box/account.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/contact.dart' as contact_pb;
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/custom_notification_dao.dart';
+import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/media_meta_data_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
+import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/mute_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
@@ -31,10 +34,13 @@ import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/muc_services.dart';
+import 'package:deliver/services/notification_services.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/live_location.pb.dart';
@@ -100,6 +106,11 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
     MockSpec<MediaDao>(returnNullOnMissingStub: true),
     MockSpec<MediaRepo>(returnNullOnMissingStub: true),
     MockSpec<MediaMetaDataDao>(returnNullOnMissingStub: true),
+    MockSpec<CallService>(returnNullOnMissingStub: true),
+    MockSpec<NotificationServices>(returnNullOnMissingStub: true),
+    MockSpec<LastActivityDao>(returnNullOnMissingStub: true),
+    MockSpec<MucDao>(returnNullOnMissingStub: true),
+    MockSpec<UxService>(returnNullOnMissingStub: true),
   ],
 )
 MockCoreServices getAndRegisterCoreServices({
@@ -113,6 +124,17 @@ MockCoreServices getAndRegisterCoreServices({
         ..add(connectionStatus);
   when(service.connectionStatus)
       .thenAnswer((realInvocation) => _connectionStatus);
+  return service;
+}
+
+MockUxService getAndRegisterUxService({
+  bool isAllNotificationDisabled = false,
+}) {
+  _removeRegistrationIfExists<UxService>();
+  final service = MockUxService();
+  GetIt.I.registerSingleton<UxService>(service);
+  when(service.isAllNotificationDisabled)
+      .thenAnswer((realInvocation) => isAllNotificationDisabled);
   return service;
 }
 
@@ -214,6 +236,13 @@ MockAccountRepo getAndRegisterAccountRepo() {
   final service = MockAccountRepo();
   GetIt.I.registerSingleton<AccountRepo>(service);
   when(service.getName()).thenAnswer((realInvocation) => Future.value("test"));
+  when(service.getAccount()).thenAnswer(
+    (realInvocation) => Future.value(
+      Account(
+        username: "test",
+      ),
+    ),
+  );
   return service;
 }
 
@@ -251,17 +280,18 @@ MockMessageDao getAndRegisterMessageDao({
   bool getError = false,
   PendingMessage? allPendingMessage,
   PendingMessage? pendingMessage,
+  int getMessageId = 0,
 }) {
   _removeRegistrationIfExists<MessageDao>();
   final service = MockMessageDao();
   GetIt.I.registerSingleton<MessageDao>(service);
   message == null
       ? getError
-          ? when(service.getMessage(testUid.asString(), 0))
+          ? when(service.getMessage(testUid.asString(), getMessageId))
               .thenThrow((realInvocation) => "error")
-          : when(service.getMessage(testUid.asString(), 0))
+          : when(service.getMessage(testUid.asString(), getMessageId))
               .thenAnswer((realInvocation) => Future.value(null))
-      : when(service.getMessage(testUid.asString(), 0))
+      : when(service.getMessage(testUid.asString(), getMessageId))
           .thenAnswer((realInvocation) => Future.value(message));
   when(service.getMessagePage(testUid.asString(), 0)).thenAnswer(
     (realInvocation) => Future.value([testMessage.copyWith(id: 0)]),
@@ -313,6 +343,8 @@ MockRoomDao getAndRegisterRoomDao({List<Room>? rooms}) {
 MockRoomRepo getAndRegisterRoomRepo({
   Room? room,
   bool getRoomGetError = false,
+  bool isRoomBlocked = false,
+  bool isRoomMuted = false,
 }) {
   _removeRegistrationIfExists<RoomRepo>();
   final service = MockRoomRepo();
@@ -324,6 +356,12 @@ MockRoomRepo getAndRegisterRoomRepo({
           (realInvocation) =>
               Future.value(room ?? Room(uid: testUid.asString())),
         );
+  when(service.isRoomBlocked(any)).thenAnswer(
+    (realInvocation) => Future.value(isRoomBlocked),
+  );
+  when(service.isRoomMuted(any)).thenAnswer(
+    (realInvocation) => Future.value(isRoomMuted),
+  );
   return service;
 }
 
@@ -395,6 +433,38 @@ MockMediaMetaDataDao getAndRegisterMediaMetaDataDao() {
   return service;
 }
 
+MockMucDao getAndRegisterMucDao() {
+  _removeRegistrationIfExists<MucDao>();
+  final service = MockMucDao();
+  GetIt.I.registerSingleton<MucDao>(service);
+  when(service.get(testUid.asString())).thenAnswer(
+    (realInvocation) =>
+        Future.value(Muc(uid: testUid.asString(), pinMessagesIdList: [])),
+  );
+  return service;
+}
+
+MockCallService getAndRegisterCallService() {
+  _removeRegistrationIfExists<CallService>();
+  final service = MockCallService();
+  GetIt.I.registerSingleton<CallService>(service);
+  return service;
+}
+
+MockLastActivityDao getAndRegisterLastActivityDao() {
+  _removeRegistrationIfExists<LastActivityDao>();
+  final service = MockLastActivityDao();
+  GetIt.I.registerSingleton<LastActivityDao>(service);
+  return service;
+}
+
+MockNotificationServices getAndRegisterNotificationServices() {
+  _removeRegistrationIfExists<NotificationServices>();
+  final service = MockNotificationServices();
+  GetIt.I.registerSingleton<NotificationServices>(service);
+  return service;
+}
+
 MockSeenDao getAndRegisterSeenDao({int messageId = 0}) {
   _removeRegistrationIfExists<SeenDao>();
   final service = MockSeenDao();
@@ -408,7 +478,7 @@ MockSeenDao getAndRegisterSeenDao({int messageId = 0}) {
       ),
     ),
   );
-  when(service.getMySeen(testUid.asString())).thenAnswer(
+  when(service.getMySeen(any)).thenAnswer(
     (realInvocation) => Future.value(
       seen_box.Seen(
         uid: testUid.asString(),
@@ -422,20 +492,15 @@ MockSeenDao getAndRegisterSeenDao({int messageId = 0}) {
   return service;
 }
 
-MockMucServices getAndRegisterMucServices({bool pinMessageGetError = false}) {
+MockMucServices getAndRegisterMucServices() {
   _removeRegistrationIfExists<MucServices>();
   final service = MockMucServices();
   GetIt.I.registerSingleton<MucServices>(service);
-  pinMessageGetError
-      ? when(service.pinMessage(testMessage))
-          .thenThrow((realInvocation) => Future.error(""))
-      : when(service.pinMessage(testMessage))
-          .thenAnswer((realInvocation) => Future.value());
-  pinMessageGetError
-      ? when(service.unpinMessage(testMessage))
-          .thenThrow((realInvocation) => Future.error(""))
-      : when(service.unpinMessage(testMessage))
-          .thenAnswer((realInvocation) => Future.value());
+
+  when(service.pinMessage(testMessage))
+      .thenAnswer((realInvocation) => Future.value());
+  when(service.unpinMessage(testMessage))
+      .thenAnswer((realInvocation) => Future.value());
   return service;
 }
 
@@ -444,13 +509,14 @@ MockQueryServiceClient getAndRegisterQueryServiceClient({
   PresenceType presenceType = PresenceType.ACTIVE,
   int? lastMessageId,
   int? lastUpdate,
-  bool countIsHiddenMessagesGetError = false,
   int fetchMessagesId = 0,
   String? fetchMessagesText,
   int fetchMessagesLimit = 0,
   bool fetchMessagesHasOptions = true,
   FetchMessagesReq_Type fetchMessagesType =
       FetchMessagesReq_Type.BACKWARD_FETCH,
+  int fetchMessagesPointer = 0,
+  bool justNotHiddenMessages = false,
   PersistentEvent? fetchMessagesPersistEvent,
   int? mentionIdList,
   int updateMessageId = 0,
@@ -509,31 +575,25 @@ MockQueryServiceClient getAndRegisterQueryServiceClient({
       ),
     ),
   );
-  countIsHiddenMessagesGetError
-      ? when(
-          service.countIsHiddenMessages(
-            CountIsHiddenMessagesReq()
-              ..roomUid = testUid
-              ..messageId = Int64(0 + 1),
-          ),
-        ).thenThrow((realInvocation) => Future.value())
-      : when(
-          service.countIsHiddenMessages(
-            CountIsHiddenMessagesReq()
-              ..roomUid = testUid
-              ..messageId = Int64(0 + 1),
-          ),
-        ).thenAnswer(
-          (realInvocation) => MockResponseFuture<CountIsHiddenMessagesRes>(
-            CountIsHiddenMessagesRes(count: 0),
-          ),
-        );
+  when(
+    service.countIsHiddenMessages(
+      CountIsHiddenMessagesReq()
+        ..roomUid = testUid
+        ..messageId = Int64(0 + 1),
+    ),
+  ).thenAnswer(
+    (realInvocation) => MockResponseFuture<CountIsHiddenMessagesRes>(
+      CountIsHiddenMessagesRes(count: 0),
+    ),
+  );
 
   when(
     service.fetchMessages(
-      FetchMessagesReq()
+      FetchMessagesReq(
+        justNotHiddenMessages: justNotHiddenMessages ? true : null,
+      )
         ..roomUid = testUid
-        ..pointer = Int64()
+        ..pointer = Int64(fetchMessagesPointer)
         ..type = fetchMessagesType
         ..limit = fetchMessagesLimit,
       options: fetchMessagesHasOptions
@@ -734,6 +794,11 @@ void registerServices() {
   getAndRegisterMediaDao();
   getAndRegisterCustomNotificationDao();
   getAndRegisterMediaMetaDataDao();
+  getAndRegisterCallService();
+  getAndRegisterNotificationServices();
+  getAndRegisterLastActivityDao();
+  getAndRegisterMucDao();
+  getAndRegisterUxService();
 }
 
 void unregisterServices() {
@@ -762,6 +827,11 @@ void unregisterServices() {
   GetIt.I.unregister<CustomNotificationDao>();
   GetIt.I.unregister<MediaDao>();
   GetIt.I.unregister<MediaMetaDataDao>();
+  GetIt.I.unregister<CallService>();
+  GetIt.I.unregister<NotificationServices>();
+  GetIt.I.unregister<LastActivityDao>();
+  GetIt.I.unregister<MucDao>();
+  GetIt.I.unregister<UxService>();
 }
 
 void _removeRegistrationIfExists<T extends Object>() {

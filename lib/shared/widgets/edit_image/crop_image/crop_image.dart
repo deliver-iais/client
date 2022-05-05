@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:clock/clock.dart';
 import 'package:custom_image_crop/custom_image_crop.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:flutter/cupertino.dart';
@@ -55,7 +56,7 @@ class _CropImageState extends State<CropImage> {
                   memoryImage = image;
                 });
                 final outPutFile = await _fileServices.localFile(
-                  "_crop-${DateTime.now().millisecondsSinceEpoch}",
+                  "_crop-${clock.now().millisecondsSinceEpoch}",
                   widget.imagePath.split(".").last,
                 );
                 outPutFile.writeAsBytesSync(image.bytes);

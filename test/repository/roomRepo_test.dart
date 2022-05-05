@@ -139,24 +139,26 @@ void main() {
         expect(roomNameCache[groupUid.asString()], "test");
       });
       test(
-          'When called if category is Bot should getBotInfo and if botInfo not be empty should update uidIdNameDao and save it in cache',
+          'When called if category is Bot should getBotInfo and if botInfo not be empty should return botInfo.name',
           () async {
         roomNameCache.clear();
-        final uidIdNameDao = getAndRegisterUidIdNameDao();
         final botRepo = getAndRegisterBotRepo(
           botInfo: BotInfo(uid: botUid.asString(), isOwner: true, name: "test"),
         );
         final name = await RoomRepo().getName(botUid);
         verify(botRepo.getBotInfo(botUid));
-        verify(
-          uidIdNameDao.update(
-            botUid.asString(),
-            name: "test",
-            id: botUid.node,
-          ),
-        );
         expect(name, "test");
-        expect(roomNameCache[botUid.asString()], "test");
+      });
+      test(
+          'When called if category is Bot should getBotInfo and if botInfo  be empty should return uid.node',
+          () async {
+        roomNameCache.clear();
+        final botRepo = getAndRegisterBotRepo(
+          botInfo: BotInfo(uid: botUid.asString(), isOwner: true, name: ""),
+        );
+        final name = await RoomRepo().getName(botUid);
+        verify(botRepo.getBotInfo(botUid));
+        expect(name, botUid.node);
       });
       test(
           'When called should getIdByUid and if username not be empty should update uidIdNameDao and save it in cache',
