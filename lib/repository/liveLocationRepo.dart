@@ -2,6 +2,7 @@
 
 import 'dart:async';
 
+import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/live_location_dao.dart';
 import 'package:deliver/box/livelocation.dart';
 import 'package:deliver_public_protocol/pub/v1/live_location.pbgrpc.dart';
@@ -26,7 +27,7 @@ class LiveLocationRepo {
 
   void updateLiveLocation(pb.LiveLocation liveLocation) {
     Timer? timer;
-    if (DateTime.now().millisecondsSinceEpoch > liveLocation.time.toInt()) {
+    if (clock.now().millisecondsSinceEpoch > liveLocation.time.toInt()) {
       return;
     }
     timer = Timer.periodic(const Duration(minutes: 1), (t) async {
@@ -51,7 +52,7 @@ class LiveLocationRepo {
     return _liveLocationDao.saveLiveLocation(
       LiveLocation(
         uuid: uuid,
-        lastUpdate: DateTime.now().millisecondsSinceEpoch,
+        lastUpdate: clock.now().millisecondsSinceEpoch,
         locations: locations,
       ),
     );
@@ -77,7 +78,7 @@ class LiveLocationRepo {
         duration: duration,
         uuid: uuid,
         locations: [location],
-        lastUpdate: DateTime.now().millisecondsSinceEpoch,
+        lastUpdate: clock.now().millisecondsSinceEpoch,
       ),
     );
     Geolocator.getPositionStream(timeLimit: Duration(seconds: duration))
@@ -100,7 +101,7 @@ class LiveLocationRepo {
     return _liveLocationDao.saveLiveLocation(
       LiveLocation(
         uuid: uuid,
-        lastUpdate: DateTime.now().millisecondsSinceEpoch,
+        lastUpdate: clock.now().millisecondsSinceEpoch,
         locations: locations,
         duration: duration,
       ),

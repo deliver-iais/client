@@ -2,7 +2,6 @@ import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
-
 import 'package:hive/hive.dart';
 
 abstract class MediaDao {
@@ -14,7 +13,7 @@ abstract class MediaDao {
 
   Future<int?> getIndexOfMedia(String roomUid, int messageId);
 
-  Future deleteMedia(String roomId, int messageId);
+  Future<void> deleteMedia(String roomId, int messageId);
 
   Future clear(String roomId);
 }
@@ -76,7 +75,7 @@ class MediaDaoImpl implements MediaDao {
   }
 
   @override
-  Future deleteMedia(String roomId, int messageId) async {
+  Future<void> deleteMedia(String roomId, int messageId) async {
     final box = await _open(roomId);
     return box.delete(messageId);
   }
