@@ -172,16 +172,9 @@ class RoomRepo {
     return (username ?? unknownName) ?? "Unknown";
   }
 
-  Future<String?>? getId(Uid uid) async {
-    if (uid.isBot()) return uid.node;
-
-    final userInfo = await _uidIdNameDao.getByUid(uid.asString());
-    if (userInfo != null && userInfo.id != null) {
-      return userInfo.id!;
-    } else {
-      final res = await getIdByUid(uid);
-      return res;
-    }
+  Stream<String?> getId(Uid uid) {
+    if (uid.isBot()) return Stream.value(uid.node);
+    return _uidIdNameDao.watchIdByUid(uid.asString());
   }
 
   Future<bool> deleteRoom(Uid roomUid) async {
@@ -227,31 +220,25 @@ class RoomRepo {
     final uidIdName = await _uidIdNameDao.getByUid(uid.asString());
 
     if (uidIdName == null) {
-      _logger.i("last uidIdName is null - $uid");
       return true;
     } else if (uidIdName.name == null || uidIdName.lastUpdate == null) {
-      // has no user info
-      _logger.i(
-        "user info WAS NULL - $uid",
-      );
       return true;
     } else if ((nowTime - uidIdName.lastUpdate!) > USER_INFO_CACHE_TIME) {
-      // 24 hours
-      _logger.i("exceeded from $AVATAR_CACHE_TIME in DAO - $uid");
       return true;
     } else {
-      _logger.i("no need to update user info - $uid");
       return false;
     }
   }
 
   Future<void> updateUserInfo(
-    Uid uid,
-  ) async {
-    if (await _isUserInfoNeedsToBeUpdated(uid)) {
+    Uid uid, {
+    bool foreToUpdate = false,
+  }) async {
+    if (foreToUpdate || await _isUserInfoNeedsToBeUpdated(uid)) {
       // Is User
       if (uid.category == Categories.USER) {
         final name = await _contactRepo.getContactFromServer(uid);
+        await getIdByUid(uid);
         if (name != null) {
           roomNameCache.set(uid.asString(), name);
         }

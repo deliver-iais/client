@@ -242,14 +242,16 @@ class ContactRepo {
         ),
       );
       //update contact table
-      await _contactDao.save(
-        contact_pb.Contact(
-          uid: contactUid.asString(),
-          countryCode: contact.user.phoneNumber.countryCode.toString(),
-          nationalNumber: contact.user.phoneNumber.nationalNumber.toString(),
-          firstName: contact.user.firstName,
-          lastName: contact.user.lastName,
-          description: contact.user.description,
+      unawaited(
+        _contactDao.save(
+          contact_pb.Contact(
+            uid: contactUid.asString(),
+            countryCode: contact.user.phoneNumber.countryCode.toString(),
+            nationalNumber: contact.user.phoneNumber.nationalNumber.toString(),
+            firstName: contact.user.firstName,
+            lastName: contact.user.lastName,
+            description: contact.user.description,
+          ),
         ),
       );
       return name;

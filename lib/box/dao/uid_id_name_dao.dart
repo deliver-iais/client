@@ -6,6 +6,8 @@ import 'package:hive/hive.dart';
 abstract class UidIdNameDao {
   Future<UidIdName?> getByUid(String uid);
 
+  Stream<String?> watchIdByUid(String uid);
+
   Future<String?> getUidById(String id);
 
   Future<void> update(
@@ -102,5 +104,16 @@ class UidIdNameDaoImpl implements UidIdNameDao {
   static Future<BoxPlus<String>> _open2() {
     BoxInfo.addBox(_key2());
     return gen(Hive.openBox<String>(_key2()));
+  }
+
+  @override
+  Stream<String?> watchIdByUid(String uid) async* {
+    final box = await _open();
+
+    yield box.get(uid)?.id;
+
+    yield* box.watch().map(
+          (event) => box.get(uid)?.id,
+        );
   }
 }

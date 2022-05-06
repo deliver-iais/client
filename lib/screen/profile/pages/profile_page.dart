@@ -28,6 +28,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/box.dart';
@@ -84,7 +85,7 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   void initState() {
-    _roomRepo.updateUserInfo(widget.roomUid);
+    _roomRepo.updateUserInfo(widget.roomUid, foreToUpdate: true);
     _setupRoomSettings();
 
     if (_uxService.getTabIndex(widget.roomUid.asString()) == null) {
@@ -380,8 +381,8 @@ class _ProfilePageState extends State<ProfilePage>
               ],
             ),
             if (!widget.roomUid.isGroup())
-              FutureBuilder<String?>(
-                future: _roomRepo.getId(widget.roomUid),
+              StreamBuilder<String?>(
+                stream: _roomRepo.getId(widget.roomUid),
                 builder: (context, snapshot) {
                   if (snapshot.data != null) {
                     return Padding(
@@ -495,7 +496,8 @@ class _ProfilePageState extends State<ProfilePage>
                 future: _contactRepo.getContact(widget.roomUid),
                 builder: (context, snapshot) {
                   if (snapshot.data != null &&
-                      snapshot.data!.description != null) {
+                      snapshot.data!.description != null &&
+                      snapshot.data!.description!.isNotEmpty) {
                     return description(snapshot.data!.description!, context);
                   } else {
                     return const SizedBox.shrink();
@@ -549,14 +551,21 @@ class _ProfilePageState extends State<ProfilePage>
 
   Padding description(String info, BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 8.0),
+      padding: const EdgeInsets.only(top: 8.0, bottom: 10.0),
       child: SettingsTile(
         title: _i18n.get("description"),
-        subtitleMaxLines: 8,
-        subtitleTextStyle:
-            TextStyle(color: Theme.of(context).primaryColor, fontSize: 16),
         leading: const Icon(Icons.info),
-        trailing: SizedBox(width: 300, child: Text(info)),
+        trailing: SizedBox(
+          width: 200,
+          child: Text(
+            info,
+            maxLines: 8,
+            textDirection:
+                info.isPersian() ? TextDirection.rtl : TextDirection.ltr,
+            style:
+                TextStyle(color: Theme.of(context).primaryColor, fontSize: 16),
+          ),
+        ),
       ),
     );
   }
