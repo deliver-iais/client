@@ -89,14 +89,14 @@ class _CallScreenState extends State<CallScreen> {
     _accelerometerEvents.add(
       accelerometerEvents?.listen((event) {
         if (event.z < 5 && event.y > 1) {
-          _logger.i('Proximity sensor detected');
+          //_logger.i('Proximity sensor detected');
           if (_streamSubscriptions.isEmpty) {
             if (_streamSubscriptions.isEmpty) {
               _streamSubscriptions.add(proximityEvents!.listen((event) {}));
             }
           }
         } else {
-          _logger.i('Proximity sensor not detected');
+          //_logger.i('Proximity sensor not detected');
           closeProximitySensor();
           _streamSubscriptions.clear();
         }

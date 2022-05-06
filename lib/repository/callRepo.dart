@@ -486,11 +486,14 @@ class CallRepo {
     }
   }
 
-  Future<void> _startCallTimerAndChangeStatus() async {
+  Future<void> _foregroundTaskInitializing() async {
     if (isAndroid) {
       await _initForegroundTask();
       await _startForegroundTask();
     }
+  }
+
+  Future<void> _startCallTimerAndChangeStatus() async {
     startCallTimer();
     if (_startCallTime == 0) {
       _startCallTime = clock.now().millisecondsSinceEpoch;
@@ -781,12 +784,12 @@ class CallRepo {
     return false;
   }
 
-  void _incomingCall(Uid roomId) {
+  Future<void> _incomingCall(Uid roomId) async {
     _notificationServices.notifyIncomingCall(roomId.asString());
     _roomUid = roomId;
     callingStatus.add(CallStatus.CREATED);
     final endOfCallDuration = clock.now().millisecondsSinceEpoch;
-    _messageRepo.sendCallMessage(
+    await _messageRepo.sendCallMessage(
       CallEvent_CallStatus.IS_RINGING,
       _roomUid!,
       _callService.getCallId,
@@ -794,6 +797,7 @@ class CallRepo {
       endOfCallDuration,
       _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
     );
+    await _foregroundTaskInitializing();
   }
 
   Future<void> startCall(Uid roomId, {bool isVideo = false}) async {
@@ -818,6 +822,7 @@ class CallRepo {
       });
       _callIdGenerator();
       _sendStartCallEvent();
+      await _foregroundTaskInitializing();
     } else {
       _logger.i("User on Call ... !");
     }
