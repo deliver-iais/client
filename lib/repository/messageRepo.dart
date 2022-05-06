@@ -698,7 +698,11 @@ class MessageRepo {
   Future<void> _savePendingMessage(PendingMessage pm) =>
       _messageDao.savePendingMessage(pm);
 
-  Future<void> sendSeen(int messageId, Uid to) async {
+  Future<void> sendSeen(
+    int messageId,
+    Uid to, {
+    bool useUnary = false,
+  }) async {
     final seen = await _seenDao.getMySeen(to.asString());
     if (seen.messageId >= messageId) return;
     _coreServices.sendSeen(

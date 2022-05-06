@@ -103,18 +103,21 @@ import 'box/dao/muc_dao.dart';
 import 'box/media.dart';
 import 'repository/mucRepo.dart';
 
-Future<void> setupDI() async {
-  if(GetIt.I.isRegistered<AnalyticsRepo>()){
-    return;
+void registerSingleton<T extends Object>(T instance) {
+  if (!GetIt.I.isRegistered<T>()) {
+    GetIt.I.registerSingleton<T>(instance);
   }
-  GetIt.I.registerSingleton<AnalyticsRepo>(AnalyticsRepo());
-  GetIt.I.registerSingleton<AnalyticsClientInterceptor>(
+}
+
+Future<void> setupDI() async {
+  registerSingleton<AnalyticsRepo>(AnalyticsRepo());
+  registerSingleton<AnalyticsClientInterceptor>(
     AnalyticsClientInterceptor(),
   );
 
   // Setup Logger
-  GetIt.I.registerSingleton<DeliverLogFilter>(DeliverLogFilter());
-  GetIt.I.registerSingleton<Logger>(
+  registerSingleton<DeliverLogFilter>(DeliverLogFilter());
+  registerSingleton<Logger>(
     Logger(
       filter: GetIt.I.get<DeliverLogFilter>(),
       level: kDebugMode ? Level.info : Level.nothing,
@@ -151,177 +154,175 @@ Future<void> setupDI() async {
     ..registerAdapter(AutoDownloadRoomCategoryAdapter())
     ..registerAdapter(AutoDownloadAdapter());
 
-  GetIt.I.registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
-  GetIt.I.registerSingleton<AccountDao>(AccountDaoImpl());
-  GetIt.I.registerSingleton<AvatarDao>(AvatarDaoImpl());
-  GetIt.I.registerSingleton<LastActivityDao>(LastActivityDaoImpl());
-  GetIt.I.registerSingleton<SharedDao>(SharedDaoImpl());
-  GetIt.I.registerSingleton<UidIdNameDao>(UidIdNameDaoImpl());
-  GetIt.I.registerSingleton<SeenDao>(SeenDaoImpl());
-  GetIt.I.registerSingleton<FileDao>(FileDaoImpl());
-  GetIt.I.registerSingleton<BlockDao>(BlockDaoImpl());
-  GetIt.I.registerSingleton<MuteDao>(MuteDaoImpl());
-  GetIt.I.registerSingleton<MucDao>(MucDaoImpl());
-  GetIt.I.registerSingleton<BotDao>(BotDaoImpl());
-  GetIt.I.registerSingleton<ContactDao>(ContactDaoImpl());
-  GetIt.I.registerSingleton<MessageDao>(MessageDaoImpl());
-  GetIt.I.registerSingleton<RoomDao>(RoomDaoImpl());
-  GetIt.I.registerSingleton<MediaDao>(MediaDaoImpl());
-  GetIt.I.registerSingleton<MediaMetaDataDao>(MediaMetaDataDaoImpl());
-  GetIt.I.registerSingleton<DBManager>(DBManager());
-  GetIt.I.registerSingleton<LiveLocationDao>(LiveLocationDaoImpl());
-  GetIt.I.registerSingleton<CallInfoDao>(CallInfoDaoImpl());
-  GetIt.I.registerSingleton<AutoDownloadDao>(AutoDownloadDaoImpl());
+  registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
+  registerSingleton<AccountDao>(AccountDaoImpl());
+  registerSingleton<AvatarDao>(AvatarDaoImpl());
+  registerSingleton<LastActivityDao>(LastActivityDaoImpl());
+  registerSingleton<SharedDao>(SharedDaoImpl());
+  registerSingleton<UidIdNameDao>(UidIdNameDaoImpl());
+  registerSingleton<SeenDao>(SeenDaoImpl());
+  registerSingleton<FileDao>(FileDaoImpl());
+  registerSingleton<BlockDao>(BlockDaoImpl());
+  registerSingleton<MuteDao>(MuteDaoImpl());
+  registerSingleton<MucDao>(MucDaoImpl());
+  registerSingleton<BotDao>(BotDaoImpl());
+  registerSingleton<ContactDao>(ContactDaoImpl());
+  registerSingleton<MessageDao>(MessageDaoImpl());
+  registerSingleton<RoomDao>(RoomDaoImpl());
+  registerSingleton<MediaDao>(MediaDaoImpl());
+  registerSingleton<MediaMetaDataDao>(MediaMetaDataDaoImpl());
+  registerSingleton<DBManager>(DBManager());
+  registerSingleton<LiveLocationDao>(LiveLocationDaoImpl());
+  registerSingleton<CallInfoDao>(CallInfoDaoImpl());
+  registerSingleton<AutoDownloadDao>(AutoDownloadDaoImpl());
 
-  GetIt.I.registerSingleton<I18N>(I18N());
+  registerSingleton<I18N>(I18N());
 
   // Order is important, don't change it!
-  GetIt.I.registerSingleton<AuthServiceClient>(
+  registerSingleton<AuthServiceClient>(
     AuthServiceClient(
       isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
     ),
   );
-  GetIt.I.registerSingleton<RoutingService>(RoutingService());
-  final authRepo = AuthRepo();
-  GetIt.I.registerSingleton<AuthRepo>(authRepo);
-  await authRepo.setCurrentUserUid();
-  GetIt.I
-      .registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
+  registerSingleton<RoutingService>(RoutingService());
+  registerSingleton<AuthRepo>(AuthRepo());
+  await GetIt.I.get<AuthRepo>().setCurrentUserUid();
+  registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
 
   final grpcClientInterceptors = [
     GetIt.I.get<DeliverClientInterceptor>(),
     GetIt.I.get<AnalyticsClientInterceptor>()
   ];
 
-  GetIt.I.registerSingleton<UserServiceClient>(
+  registerSingleton<UserServiceClient>(
     UserServiceClient(
       isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
       interceptors: grpcClientInterceptors,
     ),
   );
-  GetIt.I.registerSingleton<ContactServiceClient>(
+  registerSingleton<ContactServiceClient>(
     ContactServiceClient(
       isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
       interceptors: grpcClientInterceptors,
     ),
   );
-  GetIt.I.registerSingleton<QueryServiceClient>(
+  registerSingleton<QueryServiceClient>(
     QueryServiceClient(
       isWeb ? webQueryClientChannel : QueryClientChannel,
       interceptors: grpcClientInterceptors,
     ),
   );
-  GetIt.I.registerSingleton<CoreServiceClient>(
+  registerSingleton<CoreServiceClient>(
     CoreServiceClient(
       isWeb ? webCoreServicesClientChannel : CoreServicesClientChannel,
       interceptors: grpcClientInterceptors,
     ),
   );
-  GetIt.I.registerSingleton<BotServiceClient>(
+  registerSingleton<BotServiceClient>(
     BotServiceClient(
       isWeb ? webBotClientChannel : BotClientChannel,
       interceptors: grpcClientInterceptors,
     ),
   );
-  GetIt.I.registerSingleton<StickerServiceClient>(
+  registerSingleton<StickerServiceClient>(
     StickerServiceClient(
       isWeb ? webStickerClientChannel : StickerClientChannel,
       interceptors: grpcClientInterceptors,
     ),
   );
-  GetIt.I.registerSingleton<GroupServiceClient>(
+  registerSingleton<GroupServiceClient>(
     GroupServiceClient(
       isWeb ? webMucServicesClientChannel : MucServicesClientChannel,
       interceptors: grpcClientInterceptors,
     ),
   );
-  GetIt.I.registerSingleton<ChannelServiceClient>(
+  registerSingleton<ChannelServiceClient>(
     ChannelServiceClient(
       isWeb ? webMucServicesClientChannel : MucServicesClientChannel,
       interceptors: grpcClientInterceptors,
     ),
   );
-  GetIt.I.registerSingleton<AvatarServiceClient>(
+  registerSingleton<AvatarServiceClient>(
     AvatarServiceClient(
       isWeb ? webAvatarServicesClientChannel : AvatarServicesClientChannel,
       interceptors: grpcClientInterceptors,
     ),
   );
-  GetIt.I.registerSingleton<FirebaseServiceClient>(
+  registerSingleton<FirebaseServiceClient>(
     FirebaseServiceClient(
       isWeb ? webFirebaseServicesClientChannel : FirebaseServicesClientChannel,
       interceptors: grpcClientInterceptors,
     ),
   );
 
-  GetIt.I.registerSingleton<SessionServiceClient>(
+  registerSingleton<SessionServiceClient>(
     SessionServiceClient(
       isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
       interceptors: grpcClientInterceptors,
     ),
   );
-  GetIt.I.registerSingleton<LiveLocationServiceClient>(
+  registerSingleton<LiveLocationServiceClient>(
     LiveLocationServiceClient(
       isWeb ? webLiveLocationClientChannel : LiveLocationServiceClientChannel,
       interceptors: grpcClientInterceptors,
     ),
   );
-  GetIt.I.registerSingleton<AccountRepo>(AccountRepo());
+  registerSingleton<AccountRepo>(AccountRepo());
 
-  GetIt.I.registerSingleton<CheckPermissionsService>(CheckPermissionsService());
-  GetIt.I.registerSingleton<UxService>(UxService());
-  GetIt.I.registerSingleton<FileService>(FileService());
-  GetIt.I.registerSingleton<MucServices>(MucServices());
-  GetIt.I.registerSingleton<CreateMucService>(CreateMucService());
-  GetIt.I.registerSingleton<BotRepo>(BotRepo());
-  GetIt.I.registerSingleton<StickerRepo>(StickerRepo());
-  GetIt.I.registerSingleton<FileRepo>(FileRepo());
-  GetIt.I.registerSingleton<ContactRepo>(ContactRepo());
-  GetIt.I.registerSingleton<AvatarRepo>(AvatarRepo());
-  GetIt.I.registerSingleton<MucRepo>(MucRepo());
-  GetIt.I.registerSingleton<RoomRepo>(RoomRepo());
-  GetIt.I.registerSingleton<MediaRepo>(MediaRepo());
-  GetIt.I.registerSingleton<LastActivityRepo>(LastActivityRepo());
-  GetIt.I.registerSingleton<LiveLocationRepo>(LiveLocationRepo());
+  registerSingleton<CheckPermissionsService>(CheckPermissionsService());
+  registerSingleton<UxService>(UxService());
+  registerSingleton<FileService>(FileService());
+  registerSingleton<MucServices>(MucServices());
+  registerSingleton<CreateMucService>(CreateMucService());
+  registerSingleton<BotRepo>(BotRepo());
+  registerSingleton<StickerRepo>(StickerRepo());
+  registerSingleton<FileRepo>(FileRepo());
+  registerSingleton<ContactRepo>(ContactRepo());
+  registerSingleton<AvatarRepo>(AvatarRepo());
+  registerSingleton<MucRepo>(MucRepo());
+  registerSingleton<RoomRepo>(RoomRepo());
+  registerSingleton<MediaRepo>(MediaRepo());
+  registerSingleton<LastActivityRepo>(LastActivityRepo());
+  registerSingleton<LiveLocationRepo>(LiveLocationRepo());
 
   if (isLinux || isWindows) {
     // DartVLC.initialize();
-    GetIt.I.registerSingleton<AudioPlayerModule>(VlcAudioPlayer());
+    registerSingleton<AudioPlayerModule>(VlcAudioPlayer());
   } else {
-    GetIt.I.registerSingleton<AudioPlayerModule>(NormalAudioPlayer());
+    registerSingleton<AudioPlayerModule>(NormalAudioPlayer());
   }
   try {
-    GetIt.I.registerSingleton<AudioService>(AudioService());
+    registerSingleton<AudioService>(AudioService());
   } catch (_) {}
 
   if (isWeb) {
-    GetIt.I.registerSingleton<Notifier>(WebNotifier());
+    registerSingleton<Notifier>(WebNotifier());
   } else if (isMacOS) {
-    GetIt.I.registerSingleton<Notifier>(MacOSNotifier());
+    registerSingleton<Notifier>(MacOSNotifier());
   } else if (isAndroid) {
-    GetIt.I.registerSingleton<Notifier>(AndroidNotifier());
+    registerSingleton<Notifier>(AndroidNotifier());
   } else if (isIOS) {
-    GetIt.I.registerSingleton<Notifier>(IOSNotifier());
+    registerSingleton<Notifier>(IOSNotifier());
   } else if (isLinux) {
-    GetIt.I.registerSingleton<Notifier>(LinuxNotifier());
+    registerSingleton<Notifier>(LinuxNotifier());
   } else if (isWindows) {
-    GetIt.I.registerSingleton<Notifier>(WindowsNotifier());
+    registerSingleton<Notifier>(WindowsNotifier());
   } else {
-    GetIt.I.registerSingleton<Notifier>(FakeNotifier());
+    registerSingleton<Notifier>(FakeNotifier());
   }
 
-  GetIt.I.registerSingleton<NotificationServices>(NotificationServices());
+  registerSingleton<NotificationServices>(NotificationServices());
 
-  GetIt.I.registerSingleton<CallService>(CallService());
+  registerSingleton<CallService>(CallService());
 
-  GetIt.I.registerSingleton<DataStreamServices>(DataStreamServices());
-  GetIt.I.registerSingleton<CoreServices>(CoreServices());
-  GetIt.I.registerSingleton<FireBaseServices>(FireBaseServices());
+  registerSingleton<DataStreamServices>(DataStreamServices());
+  registerSingleton<CoreServices>(CoreServices());
+  registerSingleton<FireBaseServices>(FireBaseServices());
 
-  GetIt.I.registerSingleton<MessageRepo>(MessageRepo());
-  GetIt.I.registerSingleton<RawKeyboardService>(RawKeyboardService());
+  registerSingleton<MessageRepo>(MessageRepo());
+  registerSingleton<RawKeyboardService>(RawKeyboardService());
 
-  GetIt.I.registerSingleton<CallRepo>(CallRepo());
+  registerSingleton<CallRepo>(CallRepo());
 }
 
 Future initializeFirebase() async {
