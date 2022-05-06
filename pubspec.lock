@@ -222,11 +222,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: master
-      resolved-ref: "0eab6089f96678a9306a2d3288146908673182ba"
-      url: "https://github.com/deliver-iais/connectycube_flutter_call_kit-0.1.0-dev.2.git"
+      ref: "5bfed5f9794aa95f785cf6abc0004983eaf995d7"
+      resolved-ref: "5bfed5f9794aa95f785cf6abc0004983eaf995d7"
+      url: "https://github.com/androidwoman/connectycube-flutter-call-kit.git"
     source: git
-    version: "0.1.0-dev.2"
+    version: "2.0.2"
   contacts_service:
     dependency: "direct main"
     description:

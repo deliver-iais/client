@@ -571,45 +571,17 @@ class AndroidNotifier implements Notifier {
     });
   }
 
-  Future<void> onCallRejected(
-    String sessionId,
-    int callType,
-    int callerId,
-    String callerName,
-    Set<int> opponentsIds,
-    Map<String, String>? userInfo,
-  ) async {
+  Future<void> onCallRejected(CallEvent callEvent) async {
     Notifier.onCallReject();
   }
 
-  Future<void> onCallAccepted(
-    String sessionId,
-    int callType,
-    int callerId,
-    String callerName,
-    Set<int> opponentsIds,
-    Map<String, String>? userInfo,
-  ) async {
-    Notifier.onCallAccept(userInfo!["uid"]!);
+  Future<void> onCallAccepted(CallEvent callEvent) async {
+    Notifier.onCallAccept(callEvent.userInfo!["uid"]!);
   }
 
-  Future<void> onCallRejectedWhenTerminated(
-    String sessionId,
-    int callType,
-    int callerId,
-    String callerName,
-    Set<int> opponentsIds,
-    Map<String, String>? userInfo,
-  ) async {}
+  Future<void> onCallRejectedWhenTerminated(CallEvent callEvent) async {}
 
-  Future<void> onCallAcceptedWhenTerminated(
-    String sessionId,
-    int callType,
-    int callerId,
-    String callerName,
-    Set<int> opponentsIds,
-    Map<String, String>? userInfo,
-  ) async {}
+  Future<void> onCallAcceptedWhenTerminated(CallEvent callEvent) async {}
 
   @override
   Future<void> cancelById(int id) {
@@ -710,13 +682,15 @@ class AndroidNotifier implements Notifier {
     }
     //callType: 0 ==>Audio call 1 ==>Video call
     await ConnectycubeFlutterCallKit.showCallNotification(
-      sessionId: clock.now().millisecondsSinceEpoch.toString(),
-      callerId: 123456789,
-      callType: 0,
-      path: path,
-      callerName: roomName,
-      userInfo: {"uid": roomUid},
-      opponentsIds: {1},
+      CallEvent(
+        sessionId: clock.now().millisecondsSinceEpoch.toString(),
+        callerId: 123456789,
+        callType: 0,
+        avatarPath: path,
+        callerName: roomName,
+        userInfo: {"uid": roomUid},
+        opponentsIds: const {1},
+      ),
     );
     await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
   }
@@ -751,6 +725,7 @@ class IOSNotifier implements Notifier {
   final _flutterLocalNotificationsPlugin = IOSFlutterLocalNotificationsPlugin();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
+
   // final _i18n = GetIt.I.get<I18N>();
 
   IOSNotifier() {
