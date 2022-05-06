@@ -33,20 +33,19 @@ class CoreServices {
   final _dataStreamServices = GetIt.I.get<DataStreamServices>();
   final _messageDao = GetIt.I.get<MessageDao>();
 
-  Timer? _connectionTimer;
-  var _lastPongTime = 0;
-
   @visibleForTesting
   bool responseChecked = false;
-
-  bool _streamInitialized = false;
 
   @visibleForTesting
   int backoffTime = MIN_BACKOFF_TIME;
 
-  late StreamController<ClientPacket> _clientPacketStream;
+  StreamController<ClientPacket>? _clientPacketStream;
 
-  late ResponseStream<ServerPacket> _responseStream;
+  ResponseStream<ServerPacket>? _responseStream;
+
+  Timer? _connectionTimer;
+
+  var _lastPongTime = 0;
 
   BehaviorSubject<ConnectionStatus> connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Connecting);
@@ -67,7 +66,7 @@ class CoreServices {
 
   void closeConnection() {
     _connectionStatus.add(ConnectionStatus.Disconnected);
-    _clientPacketStream.close();
+    _clientPacketStream?.close();
     if (_connectionTimer != null) _connectionTimer!.cancel();
   }
 
@@ -107,8 +106,8 @@ class CoreServices {
       _responseStream = isWeb
           ? _grpcCoreService
               .establishServerSideStream(EstablishServerSideStreamReq())
-          : _grpcCoreService.establishStream(_clientPacketStream.stream);
-      _responseStream.listen((serverPacket) {
+          : _grpcCoreService.establishStream(_clientPacketStream!.stream);
+      _responseStream!.listen((serverPacket) {
         _logger.d(serverPacket);
 
         gotResponse();
@@ -152,7 +151,6 @@ class CoreServices {
             break;
         }
       });
-      _streamInitialized = true;
     } catch (e) {
       _logger.e(e);
       return startStream();
@@ -164,7 +162,7 @@ class CoreServices {
       final clientPacket = ClientPacket()
         ..message = message
         ..id = clock.now().microsecondsSinceEpoch.toString();
-      await _sendPacket(clientPacket);
+      await _sendClientPacket(clientPacket);
       Timer(
         const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
         () => _checkPendingStatus(message.packetId),
@@ -193,28 +191,28 @@ class CoreServices {
     final clientPacket = ClientPacket()
       ..ping = ping
       ..id = clock.now().microsecondsSinceEpoch.toString();
-    _sendPacket(clientPacket, forceToSend: true);
+    _sendClientPacket(clientPacket, forceToSendEvenNotConnected: true);
   }
 
   void sendSeen(seen_pb.SeenByClient seen) {
     final clientPacket = ClientPacket()
       ..seen = seen
       ..id = seen.id.toString();
-    _sendPacket(clientPacket);
+    _sendClientPacket(clientPacket);
   }
 
   void sendCallAnswer(call_pb.CallAnswerByClient callAnswerByClient) {
     final clientPacket = ClientPacket()
       ..callAnswer = callAnswerByClient
       ..id = callAnswerByClient.id;
-    _sendPacket(clientPacket);
+    _sendClientPacket(clientPacket);
   }
 
   void sendCallOffer(call_pb.CallOfferByClient callOfferByClient) {
     final clientPacket = ClientPacket()
       ..callOffer = callOfferByClient
       ..id = callOfferByClient.id;
-    _sendPacket(clientPacket);
+    _sendClientPacket(clientPacket);
   }
 
   void sendActivity(ActivityByClient activity, String id) {
@@ -223,31 +221,26 @@ class CoreServices {
         ..activity = activity
         ..id = id;
       if (!_authRepo.isCurrentUser(activity.to.asString())) {
-        _sendPacket(clientPacket);
+        _sendClientPacket(clientPacket);
       }
     }
   }
 
-  Future<void> _sendPacket(
+  Future<void> _sendClientPacket(
     ClientPacket packet, {
-    bool forceToSend = false,
+    bool forceToSendEvenNotConnected = false,
   }) async {
     try {
-      if (isWeb) {
+      if (isWeb ||
+          _clientPacketStream == null ||
+          _clientPacketStream!.isClosed) {
         await _grpcCoreService.sendClientPacket(packet);
-      } else if (!_streamInitialized){
-        startStream();
-      }else if (!_clientPacketStream.isClosed &&
-          (forceToSend ||
-              _connectionStatus.value == ConnectionStatus.Connected)) {
-        _clientPacketStream.add(packet);
-      } else {
-        startStream();
-        // throw Exception("no active stream");
+      } else if (forceToSendEvenNotConnected ||
+          _connectionStatus.value == ConnectionStatus.Connected) {
+        _clientPacketStream!.add(packet);
       }
     } catch (e) {
       _logger.e(e);
-      // rethrow;
     }
   }
 }

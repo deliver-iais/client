@@ -372,22 +372,23 @@ class _RoomPageState extends State<RoomPage> {
 
   @override
   void initState() {
-    _roomRepo.updateUserInfo(widget.roomId.asUid());
-    DesktopLifecycle.instance.isActive.addListener(() {
-      _appIsActive = DesktopLifecycle.instance.isActive.value;
+    if (isDesktop) {
+      DesktopLifecycle.instance.isActive.addListener(() {
+        _appIsActive = DesktopLifecycle.instance.isActive.value;
 
-      if (_appIsActive) {
-        _sendSeenMessage(_backgroundMessages);
-        _backgroundMessages.clear();
-      }
-    });
+        if (_appIsActive) {
+          _sendSeenMessage(_backgroundMessages);
+          _backgroundMessages.clear();
+        }
+      });
+    }
 
     initRoomStream();
     initPendingMessages();
 
     // Log page data
     _getScrollPosition();
-    if (!isDesktop) {
+    if (hasFirebaseCapability) {
       _fireBaseServices.sendFireBaseToken();
     }
     _getLastShowMessageId();
