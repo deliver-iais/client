@@ -579,23 +579,9 @@ class AndroidNotifier implements Notifier {
     Notifier.onCallAccept(callEvent.userInfo!["uid"]!);
   }
 
-  Future<void> onCallRejectedWhenTerminated(
-    String sessionId,
-    int callType,
-    int callerId,
-    String callerName,
-    Set<int> opponentsIds,
-    Map<String, String>? userInfo,
-  ) async {}
+  Future<void> onCallRejectedWhenTerminated(CallEvent callEvent) async {}
 
-  Future<void> onCallAcceptedWhenTerminated(
-    String sessionId,
-    int callType,
-    int callerId,
-    String callerName,
-    Set<int> opponentsIds,
-    Map<String, String>? userInfo,
-  ) async {}
+  Future<void> onCallAcceptedWhenTerminated(CallEvent callEvent) async {}
 
   @override
   Future<void> cancelById(int id) {
@@ -739,6 +725,7 @@ class IOSNotifier implements Notifier {
   final _flutterLocalNotificationsPlugin = IOSFlutterLocalNotificationsPlugin();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
+
   // final _i18n = GetIt.I.get<I18N>();
 
   IOSNotifier() {
