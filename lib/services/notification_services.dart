@@ -69,7 +69,10 @@ abstract class Notifier {
         );
   }
 
-  static void openChat(NotificationResponse response) {
+  static void openChat(
+    NotificationResponse response, {
+    bool appIsInBackground = false,
+  }) {
     final payload = Notifier.parsePayload(response.payload);
 
     if (payload == null) {
@@ -80,7 +83,12 @@ abstract class Notifier {
       DesktopWindow.focus();
     }
 
-    GetIt.I.get<RoutingService>().openRoom(payload.item1);
+    if (appIsInBackground) {
+      // TODO(hasan): Refactor routing service to accept offline open room actions and apply them after launch, https://gitlab.iais.co/deliver/wiki/-/issues/473
+      modifyRoutingByNotificationTapInBackgroundInAndroid.add(payload.item1);
+    } else {
+      GetIt.I.get<RoutingService>().openRoom(payload.item1);
+    }
   }
 
   static String genPayload(String roomUid, int id) => "$roomUid#$id";
@@ -553,10 +561,12 @@ class AndroidNotifier implements Notifier {
     return _flutterLocalNotificationsPlugin
         .getNotificationAppLaunchDetails()
         .then((notificationAppLaunchDetails) {
-      if (notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) {
-        // TODO(hasan): Refactor routing service to accept offline open room actions and apply them after launch, https://gitlab.iais.co/deliver/wiki/-/issues/473
-        modifyRoutingByNotificationTapInBackgroundInAndroid
-            .add(notificationAppLaunchDetails!.notificationResponse!.payload!);
+      if ((notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) &&
+          notificationAppLaunchDetails!.notificationResponse != null) {
+        Notifier.openChat(
+          notificationAppLaunchDetails.notificationResponse!,
+          appIsInBackground: true,
+        );
       }
     });
   }
@@ -741,27 +751,27 @@ class IOSNotifier implements Notifier {
   final _flutterLocalNotificationsPlugin = IOSFlutterLocalNotificationsPlugin();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
-  final _i18n = GetIt.I.get<I18N>();
+  // final _i18n = GetIt.I.get<I18N>();
 
   IOSNotifier() {
     final darwinNotificationCategories = <DarwinNotificationCategory>[
-      DarwinNotificationCategory(
+      const DarwinNotificationCategory(
         DARWIN_NOTIFICATION_CATEGORY_TEXT,
-        actions: <DarwinNotificationAction>[
-          DarwinNotificationAction.text(
-            REPLY_ACTION_ID,
-            _i18n.get("reply"),
-            buttonTitle: 'Send',
-            placeholder: _i18n.get("enter_a_message"),
-          ),
-          DarwinNotificationAction.plain(
-            MARK_AS_READ_ACTION_ID,
-            _i18n.get("mark_as_read"),
-            options: <DarwinNotificationActionOption>{
-              DarwinNotificationActionOption.destructive,
-            },
-          ),
-        ],
+        // actions: <DarwinNotificationAction>[
+        //   DarwinNotificationAction.text(
+        //     REPLY_ACTION_ID,
+        //     _i18n.get("reply"),
+        //     buttonTitle: 'Send',
+        //     placeholder: _i18n.get("enter_a_message"),
+        //   ),
+        //   DarwinNotificationAction.plain(
+        //     MARK_AS_READ_ACTION_ID,
+        //     _i18n.get("mark_as_read"),
+        //     options: <DarwinNotificationActionOption>{
+        //       DarwinNotificationActionOption.destructive,
+        //     },
+        //   ),
+        // ],
       )
     ];
     final initializationSettingsDarwin = DarwinInitializationSettings(
@@ -787,6 +797,22 @@ class IOSNotifier implements Notifier {
         }
       },
     );
+
+    _setupIOSDidNotificationLaunchApp();
+  }
+
+  Future<void> _setupIOSDidNotificationLaunchApp() {
+    return _flutterLocalNotificationsPlugin
+        .getNotificationAppLaunchDetails()
+        .then((notificationAppLaunchDetails) {
+      if ((notificationAppLaunchDetails?.didNotificationLaunchApp ?? false) &&
+          notificationAppLaunchDetails!.notificationResponse != null) {
+        Notifier.openChat(
+          notificationAppLaunchDetails.notificationResponse!,
+          appIsInBackground: true,
+        );
+      }
+    });
   }
 
   @override
