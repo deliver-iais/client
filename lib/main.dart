@@ -185,11 +185,9 @@ Future<void> setupDI() async {
     ),
   );
   registerSingleton<RoutingService>(RoutingService());
-  final authRepo = AuthRepo();
-  registerSingleton<AuthRepo>(authRepo);
-  await authRepo.setCurrentUserUid();
-  GetIt.I
-      .registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
+  registerSingleton<AuthRepo>(AuthRepo());
+  await GetIt.I.get<AuthRepo>().setCurrentUserUid();
+  registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
 
   final grpcClientInterceptors = [
     GetIt.I.get<DeliverClientInterceptor>(),
