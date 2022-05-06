@@ -725,6 +725,7 @@ class IOSNotifier implements Notifier {
   final _flutterLocalNotificationsPlugin = IOSFlutterLocalNotificationsPlugin();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
+
   // final _i18n = GetIt.I.get<I18N>();
 
   IOSNotifier() {
