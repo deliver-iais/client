@@ -82,6 +82,7 @@ import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/sticker.pbgrpc.dart';
 import 'package:feature_discovery/feature_discovery.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -361,6 +362,12 @@ void main() async {
       child: MyApp(),
     ),
   );
+  if (hasFirebaseCapability) {
+    //its work property without VPN
+    Logger().i("Some Events.");
+    await FirebaseAnalytics.instance.logAppOpen();
+    Logger().i("Some Events Ends.");
+  }
 }
 
 Future<void> _setWindowSize() async {

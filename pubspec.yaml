@@ -58,11 +58,12 @@ dependencies:
   file_picker: 4.5.1
   file_selector: 0.8.2+1
   file_selector_linux: 0.0.2+1
+  firebase_analytics: ^9.1.7
   firebase_core: 1.12.0
-  firebase_messaging:
-    git:
-      ref: 7fcaebdf56e7285014422e7e484ce0c2ec403d24
-      url: https://github.com/deliver-iais/firebase-messaging.git
+  firebase_messaging: ^11.3.0
+#    git:
+#      ref: 7fcaebdf56e7285014422e7e484ce0c2ec403d24
+#      url: https://github.com/deliver-iais/firebase-messaging.git
   fixnum: 1.0.0
   flare_flutter: 3.0.2
   flutter:
