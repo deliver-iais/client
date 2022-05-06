@@ -226,6 +226,7 @@ class _CallScreenState extends State<CallScreen> {
                     hangUp: _hangUp,
                   );
           case CallStatus.IS_RINGING:
+            _audioService.playBeepSound();
             return widget.isVideoCall
                 ? StartVideoCallPage(
                     roomUid: widget.roomUid,

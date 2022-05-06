@@ -147,7 +147,6 @@ class CallRepo {
             case CallEvent_CallStatus.IS_RINGING:
               if (_callService.getCallId == callEvent.id) {
                 callingStatus.add(CallStatus.IS_RINGING);
-                _audioService.playBeepSound();
               }
               break;
             case CallEvent_CallStatus.CREATED:
