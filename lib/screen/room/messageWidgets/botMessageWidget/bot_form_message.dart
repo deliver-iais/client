@@ -47,6 +47,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
 
   late proto_pb.Form form;
 
+
   final BehaviorSubject<bool> _locked = BehaviorSubject.seeded(false);
 
   final ScrollController _scrollController = ScrollController();
@@ -120,11 +121,9 @@ class _BotFormMessageState extends State<BotFormMessage> {
     super.initState();
   }
 
-  Widget? timer;
 
-  Widget buildTimer() => timer ??= CountDownTimer(
+  Widget buildTimer() =>   CountDownTimer(
         message: widget.message,
-        currentTime: DateTime.now().millisecondsSinceEpoch,
         lockAfter: form.lockAfter.toInt(),
         lock: (l) => _locked.add(l),
       );

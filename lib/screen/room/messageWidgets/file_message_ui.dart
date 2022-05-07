@@ -56,7 +56,6 @@ class _FileMessageUiState extends State<FileMessageUi> {
   @override
   Widget build(BuildContext context) {
     final dimensions = getImageDimensions();
-    print(widget.file.type);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,

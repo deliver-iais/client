@@ -28,7 +28,7 @@ class BotTableWidget extends StatelessWidget {
       columns = [];
       for (var i = 0; i < row.columns.length; ++i) {
         columnWidths[i] = FixedColumnWidth(
-            table.columnWidths.isNotEmpty ? table.columnWidths[i] : 150);
+            table.columnWidths.isNotEmpty ? table.columnWidths[i] : 150,);
         columns.add(
           Container(
             margin: const EdgeInsets.all(8),

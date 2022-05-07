@@ -57,9 +57,8 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
               if (!buttons.lockAfter.isZero)
                 CountDownTimer(
                     message: widget.message,
-                    currentTime: DateTime.now().millisecondsSinceEpoch,
                     lockAfter: buttons.lockAfter.toInt(),
-                    lock: (l) => _locked.add(l)),
+                    lock: (l) => _locked.add(l),),
               Container(
                 padding: EdgeInsets.only(
                   top: buttons.lockAfter.isZero ? 1 : 50,

@@ -7,14 +7,12 @@ import 'package:flutter/material.dart';
 class CountDownTimer extends StatelessWidget {
   final Message message;
   final int lockAfter;
-  final int currentTime;
   final Function(bool) lock;
 
   const CountDownTimer({
     Key? key,
     required this.message,
     required this.lockAfter,
-    required this.currentTime,
     required this.lock,
   }) : super(key: key);
 
@@ -28,20 +26,18 @@ class CountDownTimer extends StatelessWidget {
         right: 70,
       ),
       child: CircularCountDownTimer(
-        // tod o check time be big of message time
         duration: lockAfter ~/ 1000,
         controller: CountDownController(),
         width: 30,
+        strokeCap: StrokeCap.round,
         height: 30,
         initialDuration: min(
           lockAfter ~/ 1000,
-          ((currentTime - message.time).abs() /
-                  1000)
+          ((DateTime.now().millisecondsSinceEpoch - message.time).abs() / 1000)
               .round(),
         ),
-
-        ringColor: Colors.red,
-        fillColor: Colors.blueAccent,
+        ringColor: Colors.black26,
+        fillColor: Colors.amber,
         textStyle: Theme.of(context).textTheme.bodyText2,
         textFormat: CountdownTextFormat.S,
         isReverse: true,

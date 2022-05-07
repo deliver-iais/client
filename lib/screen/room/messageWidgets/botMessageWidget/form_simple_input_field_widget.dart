@@ -33,7 +33,9 @@ class _FormSimpleInputFieldWidgetState
     _textEditingController.text =
         widget.formField.whichType() == form_pb.Form_Field_Type.textField
             ? widget.formField.textField.defaultText
-            : widget.formField.numberField.defaultNumber.toString();
+            : widget.formField.numberField.defaultNumber.toInt() != 0
+                ? widget.formField.numberField.defaultNumber.toString()
+                : "";
     super.initState();
   }
 
