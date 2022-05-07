@@ -28,6 +28,17 @@ class _FormSimpleInputFieldWidgetState
   final ValueNotifier<TextDirection> _textDir =
       ValueNotifier(TextDirection.ltr);
 
+  @override
+  void initState() {
+    _textEditingController.text =
+        widget.formField.whichType() == form_pb.Form_Field_Type.textField
+            ? widget.formField.textField.defaultText
+            : widget.formField.numberField.defaultNumber.toInt() != 0
+                ? widget.formField.numberField.defaultNumber.toString()
+                : "";
+    super.initState();
+  }
+
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _textEditingController = TextEditingController();
 
@@ -108,6 +119,15 @@ class _FormSimpleInputFieldWidgetState
         return _i18n.get("enter_numeric_value");
       }
     }
+    if (widget.formField.whichType() == form_pb.Form_Field_Type.textField &&
+        widget.formField.textField.preValidationRegex.isNotEmpty) {
+      final Pattern pattern = widget.formField.textField.preValidationRegex;
+      final regex = RegExp(pattern.toString());
+      if (!regex.hasMatch(value)) {
+        return _i18n.get("not_valid_input");
+      }
+    }
+
     final max =
         widget.formField.whichType() == form_pb.Form_Field_Type.textField
             ? widget.formField.textField.max

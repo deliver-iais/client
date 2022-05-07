@@ -20,7 +20,7 @@ class _CheckBoxFormFieldState extends State<CheckBoxFormField> {
 
   @override
   void initState() {
-    _selected = widget.formField.checkbox.selected;
+    _selected = widget.formField.checkbox.defaultSelected;
     super.initState();
   }
 
