@@ -382,7 +382,7 @@ class _ProfilePageState extends State<ProfilePage>
             ),
             if (!widget.roomUid.isGroup())
               StreamBuilder<String?>(
-                stream: _roomRepo.getId(widget.roomUid),
+                stream: _roomRepo.watchId(widget.roomUid),
                 builder: (context, snapshot) {
                   if (snapshot.data != null) {
                     return Padding(

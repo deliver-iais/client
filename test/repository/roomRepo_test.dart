@@ -174,19 +174,19 @@ void main() {
     });
     group('getId -', () {
       test('When called if category is bot should return uid.node', () async {
-        expect(await RoomRepo().getId(botUid).first, botUid.node);
+        expect(await RoomRepo().watchId(botUid).first, botUid.node);
       });
       test('When called should userInfo and if not be null should return it',
           () async {
         final uidIdNameDao = getAndRegisterUidIdNameDao(getByUidHasData: true);
-        expect(await RoomRepo().getId(testUid).first, "test");
+        expect(await RoomRepo().watchId(testUid).first, "test");
         verify(uidIdNameDao.getByUid(testUid.asString()));
       });
       test(
           'When called should userInfo and if  be null should return getIdByUid',
           () async {
         getAndRegisterQueryServiceClient(getIdByUidData: "test");
-        expect(await RoomRepo().getId(testUid).first, "test");
+        expect(await RoomRepo().watchId(testUid).first, "test");
       });
     });
     group('deleteRoom -', () {

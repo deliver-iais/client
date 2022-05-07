@@ -154,7 +154,7 @@ class RoomRepo {
     return (username ?? unknownName) ?? "Unknown";
   }
 
-  Stream<String?> getId(Uid uid) {
+  Stream<String?> watchId(Uid uid) {
     if (uid.isBot()) return Stream.value(uid.node);
     return _uidIdNameDao.watchIdByUid(uid.asString());
   }

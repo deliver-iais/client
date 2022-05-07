@@ -373,7 +373,7 @@ class MockRoomRepo extends _i1.Mock implements _i26.RoomRepo {
           Invocation.method(#getName, [uid], {#unknownName: unknownName}),
           returnValue: Future<String>.value('')) as _i19.Future<String>);
   @override
-  _i19.Stream<String?> getId(_i3.Uid? uid) =>
+  _i19.Stream<String?> watchId(_i3.Uid? uid) =>
       (super.noSuchMethod(Invocation.method(#getId, [uid]),
           returnValue: Stream<String?>.empty()) as _i19.Stream<String?>);
   @override
