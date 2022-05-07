@@ -88,17 +88,12 @@ class _ProfilePageState extends State<ProfilePage>
     _roomRepo.updateUserInfo(widget.roomUid, foreToUpdate: true);
     _setupRoomSettings();
 
-    if (_uxService.getTabIndex(widget.roomUid.asString()) == null) {
-      _uxService.setTabIndex(widget.roomUid.asString(), 0);
-    }
-
     super.initState();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
-    _uxService.setTabIndex(widget.roomUid.asString(), 0);
     super.dispose();
   }
 
@@ -142,14 +137,7 @@ class _ProfilePageState extends State<ProfilePage>
                   ? _tabsCount + 1
                   : _tabsCount,
               vsync: this,
-              initialIndex: _uxService.getTabIndex(widget.roomUid.asString())!,
             );
-            _tabController.addListener(() {
-              _uxService.setTabIndex(
-                widget.roomUid.asString(),
-                _tabController.index,
-              );
-            });
 
             return DefaultTabController(
               length: (widget.roomUid.isGroup() ||
@@ -225,12 +213,6 @@ class _ProfilePageState extends State<ProfilePage>
                                 );
                               } else {
                                 return TabBar(
-                                  onTap: (index) {
-                                    _uxService.setTabIndex(
-                                      widget.roomUid.asString(),
-                                      index,
-                                    );
-                                  },
                                   tabs: [
                                     if (widget.roomUid.isGroup() ||
                                         (widget.roomUid.isChannel() &&
