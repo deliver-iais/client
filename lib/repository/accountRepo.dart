@@ -134,13 +134,19 @@ class AccountRepo {
     String? description,
   }) async {
     try {
-      if (username != null) {
-        await _queryServiceClient.setId(SetIdReq()..id = username);
-        _saveProfilePrivateData(username: username);
+      if (firstname == null ||
+          firstname.isEmpty ||
+          username == null ||
+          username.isEmpty) {
+        return false;
       }
-      if (firstname != null || lastname != null || description != null) {
+
+      await _queryServiceClient.setId(SetIdReq()..id = username);
+      _saveProfilePrivateData(username: username);
+
+      if (lastname != null || description != null) {
         final saveUserProfileReq = SaveUserProfileReq()
-          ..firstName = firstname ?? ""
+          ..firstName = firstname
           ..description = description ?? ""
           ..lastName = lastname ?? "";
 
