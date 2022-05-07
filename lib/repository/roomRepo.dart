@@ -112,9 +112,7 @@ class RoomRepo {
               (contact.lastName != null && contact.lastName!.isNotEmpty))) {
         final name = buildName(contact.firstName, contact.lastName);
         roomNameCache.set(uid.asString(), name);
-        unawaited(
-          _uidIdNameDao.update(uid.asString(), name: name),
-        );
+        unawaited(_uidIdNameDao.update(uid.asString(), name: name));
         return name;
       } else {
         final name = await _contactRepo.getContactFromServer(uid);
@@ -131,9 +129,7 @@ class RoomRepo {
       final muc = await _mucRepo.fetchMucInfo(uid);
       if (muc != null && muc.name != null && muc.name!.isNotEmpty) {
         roomNameCache.set(uid.asString(), muc.name!);
-        unawaited(
-          _uidIdNameDao.update(uid.asString(), name: muc.name),
-        );
+        unawaited(_uidIdNameDao.update(uid.asString(), name: muc.name));
 
         return muc.name!;
       }
