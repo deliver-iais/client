@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:flutter/material.dart';
 
@@ -10,8 +11,8 @@ class ChatTime extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var outT = '';
-    final currentDay = DateTime.now().day;
-    final currentMonth = DateTime.now().month;
+    final currentDay = clock.now().day;
+    final currentMonth = clock.now().month;
     if (currentDay == currentMessageTime.day &&
         currentMonth == currentMessageTime.month) {
       outT = 'Today';

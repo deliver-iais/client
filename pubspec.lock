@@ -183,20 +183,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.3.1"
-  circular_countdown:
-    dependency: "direct main"
-    description:
-      name: circular_countdown
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.1.0"
-  circular_countdown_timer:
-    dependency: "direct main"
-    description:
-      name: circular_countdown_timer
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.2.1"
   cli_dialog:
     dependency: transitive
     description:
@@ -236,11 +222,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: master
-      resolved-ref: "0eab6089f96678a9306a2d3288146908673182ba"
-      url: "https://github.com/deliver-iais/connectycube_flutter_call_kit-0.1.0-dev.2"
+      ref: "5bfed5f9794aa95f785cf6abc0004983eaf995d7"
+      resolved-ref: "5bfed5f9794aa95f785cf6abc0004983eaf995d7"
+      url: "https://github.com/androidwoman/connectycube-flutter-call-kit.git"
     source: git
-    version: "0.1.0-dev.2"
+    version: "2.0.2"
   contacts_service:
     dependency: "direct main"
     description:
@@ -331,7 +317,7 @@ packages:
       name: dbus
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.5.6"
+    version: "0.7.3"
   dcache:
     dependency: "direct main"
     description:
@@ -343,11 +329,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.12.12"
-      resolved-ref: "4c63a4ec465bfe4a44afabbfd07666e2ab533813"
+      ref: "tags/v1.12.10"
+      resolved-ref: "9529c0047ff28df1d9c8c3cc7eb89cc8749ce3e2"
       url: "https://github.com/deliver-iais/pub-dart-artifactory"
     source: git
-    version: "1.12.12"
+    version: "1.12.10"
   dependency_validator:
     dependency: "direct dev"
     description:
@@ -375,7 +361,7 @@ packages:
       path: "."
       ref: main
       resolved-ref: "2d219279a379c8c23ce31a4b9039e50a527ad300"
-      url: "https://github.com/deliver-iais/desktop_window"
+      url: "https://github.com/deliver-iais/desktop_window.git"
     source: git
     version: "0.4.0"
   device_info:
@@ -503,7 +489,7 @@ packages:
       path: "."
       ref: "7fcaebdf56e7285014422e7e484ce0c2ec403d24"
       resolved-ref: "7fcaebdf56e7285014422e7e484ce0c2ec403d24"
-      url: "https://github.com/deliver-iais/firebase-messaging"
+      url: "https://github.com/deliver-iais/firebase-messaging.git"
     source: git
     version: "11.2.6"
   firebase_messaging_platform_interface:
@@ -573,7 +559,7 @@ packages:
       path: "."
       ref: b24aeffc07dc047016b4da1f1320ec524d96b161
       resolved-ref: b24aeffc07dc047016b4da1f1320ec524d96b161
-      url: "https://github.com/androidwoman/flutter_foreground_task"
+      url: "https://github.com/androidwoman/flutter_foreground_task.git"
     source: git
     version: "3.5.5"
   flutter_image_compress:
@@ -617,21 +603,21 @@ packages:
       name: flutter_local_notifications
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "9.1.4"
+    version: "10.0.0-dev.13"
   flutter_local_notifications_linux:
     dependency: transitive
     description:
       name: flutter_local_notifications_linux
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.0"
+    version: "0.5.0-dev.4"
   flutter_local_notifications_platform_interface:
     dependency: transitive
     description:
       name: flutter_local_notifications_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "5.0.0"
+    version: "6.0.0-dev.4"
   flutter_localizations:
     dependency: "direct main"
     description: flutter
@@ -1197,13 +1183,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.5"
-  pedantic:
-    dependency: transitive
-    description:
-      name: pedantic
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.11.1"
   percent_indicator:
     dependency: "direct main"
     description:
@@ -1943,7 +1922,7 @@ packages:
       path: "packages/win_toast"
       ref: "5357c2a594a20534bf759eb28c86f8669d3914f3"
       resolved-ref: "5357c2a594a20534bf759eb28c86f8669d3914f3"
-      url: "https://github.com/AmirhosseinShk/flutter-plugins"
+      url: "https://github.com/AmirhosseinShk/flutter-plugins.git"
     source: git
     version: "0.0.2"
   window_size:
@@ -1952,7 +1931,7 @@ packages:
       path: "plugins/window_size"
       ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
       resolved-ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
-      url: "https://github.com/google/flutter-desktop-embedding"
+      url: "https://github.com/google/flutter-desktop-embedding.git"
     source: git
     version: "0.1.0"
   wkt_parser:
@@ -1991,5 +1970,5 @@ packages:
     source: hosted
     version: "3.1.0"
 sdks:
-  dart: ">=2.16.1 <3.0.0"
+  dart: ">=2.16.0 <3.0.0"
   flutter: ">=2.10.0"

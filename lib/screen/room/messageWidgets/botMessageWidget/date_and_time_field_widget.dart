@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_simple_input_field_widget.dart';
 import 'package:deliver/shared/methods/time.dart';
@@ -213,7 +214,7 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
     } else {
       var newSelectedDate = await showDatePicker(
         context: context,
-        initialDate: _selectedDate ?? DateTime.now(),
+        initialDate: _selectedDate ?? clock.now(),
         firstDate: getFirstDate(),
         lastDate: getEndDate(),
         builder: (context, child) {
@@ -316,7 +317,7 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
       cancelText: _i18n.get("close"),
       confirmText: _i18n.get("confirm"),
       context: context,
-      initialTime: TimeOfDay.fromDateTime(DateTime.now()),
+      initialTime: TimeOfDay.fromDateTime(clock.now()),
     );
     if (timeOfDay != null) {
       if (widget.formField.whichType() == form_pb.Form_Field_Type.timeField) {
@@ -325,7 +326,7 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
       } else if (widget.formField.whichType() ==
           form_pb.Form_Field_Type.dateAndTimeField) {
         _selectedTime = timeOfDay;
-        var currentTime = DateTime.now();
+        var currentTime = clock.now();
         if (_selectedDate != null) {
           if (widget.formField.dateAndTimeField.isHijriShamsi) {
             widget.formResult.values[widget.formField.id] = DateTime(
