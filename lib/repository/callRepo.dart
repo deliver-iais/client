@@ -150,8 +150,7 @@ class CallRepo {
               }
               break;
             case CallEvent_CallStatus.CREATED:
-              if (event.roomUid == _roomUid ||
-                  _callService.getUserCallState == UserCallState.NOCALL) {
+              if (_callService.getUserCallState == UserCallState.NOCALL) {
                 _callService
                   ..setUserCallState = UserCallState.INUSERCALL
                   ..setCallOwner = callEvent.memberOrCallOwnerPvp
@@ -162,8 +161,11 @@ class CallRepo {
                 } else {
                   _isVideo = false;
                 }
-                _incomingCall(event.roomUid!);
-              } else if (callEvent.id != _callService.getCallId) {
+                _incomingCall(event.roomUid!, false);
+              }else if(event.roomUid == _roomUid){
+                _incomingCall(event.roomUid!, true);
+              }
+              else if (callEvent.id != _callService.getCallId) {
                 final endOfCallDuration = clock.now().millisecondsSinceEpoch;
                 _messageRepo.sendCallMessage(
                   CallEvent_CallStatus.BUSY,
@@ -783,9 +785,12 @@ class CallRepo {
     return false;
   }
 
-  Future<void> _incomingCall(Uid roomId) async {
-    _notificationServices.notifyIncomingCall(roomId.asString());
+  Future<void> _incomingCall(Uid roomId, bool isDuplicated) async {
+    if(!isDuplicated) {
+      _notificationServices.notifyIncomingCall(roomId.asString());
+    }
     _roomUid = roomId;
+    _logger.i("incoming Call and Created !!!");
     callingStatus.add(CallStatus.CREATED);
     final endOfCallDuration = clock.now().millisecondsSinceEpoch;
     await _messageRepo.sendCallMessage(
@@ -796,7 +801,6 @@ class CallRepo {
       endOfCallDuration,
       _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
     );
-    await _foregroundTaskInitializing();
   }
 
   Future<void> startCall(Uid roomId, {bool isVideo = false}) async {
@@ -808,6 +812,7 @@ class CallRepo {
       _isVideo = isVideo;
       _roomUid = roomId;
       await initCall();
+      _logger.i("Start Call and Created !!!");
       callingStatus.add(CallStatus.CREATED);
       //Set Timer 50 sec for end call
       timerDeclined = Timer(const Duration(seconds: 50), () {
@@ -869,6 +874,7 @@ class CallRepo {
         endCall();
       }
     });
+    await _foregroundTaskInitializing();
   }
 
   Future<void> declineCall() async {
@@ -972,18 +978,20 @@ class CallRepo {
 
   // TODO(AmirHossein): removed Force End Call and we need Handle it with third-party Service.
   void endCall() {
-    if (isWindows) {
-      _notificationServices.cancelRoomNotifications(roomUid!.node);
-    }
-    if (_callService.getUserCallState != CallStatus.NO_CALL) {
-      if (_isCaller) {
-        receivedEndCall(0);
-      } else {
-        _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
-        timerEndCallDispose = Timer(const Duration(seconds: 8), () {
-          // if don't received EndCall from callee we force to end call
-          _dispose();
-        });
+    if(callingStatus != CallStatus.ENDED) {
+      if (isWindows) {
+        _notificationServices.cancelRoomNotifications(roomUid!.node);
+      }
+      if (_callService.getUserCallState != CallStatus.NO_CALL) {
+        if (_isCaller) {
+          receivedEndCall(0);
+        } else {
+          _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
+          timerEndCallDispose = Timer(const Duration(seconds: 8), () {
+            // if don't received EndCall from callee we force to end call
+            _dispose();
+          });
+        }
       }
     }
   }

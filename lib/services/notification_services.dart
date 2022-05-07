@@ -506,10 +506,6 @@ class AndroidNotifier implements Notifier {
   AndroidNotifier() {
     ConnectycubeFlutterCallKit.instance
         .init(onCallAccepted: onCallAccepted, onCallRejected: onCallRejected);
-    ConnectycubeFlutterCallKit.onCallRejectedWhenTerminated =
-        onCallRejectedWhenTerminated;
-    ConnectycubeFlutterCallKit.onCallAcceptedWhenTerminated =
-        onCallAcceptedWhenTerminated;
 
     _flutterLocalNotificationsPlugin.createNotificationChannel(channel);
 
