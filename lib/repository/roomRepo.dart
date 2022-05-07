@@ -78,7 +78,8 @@ class RoomRepo {
     if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
 
     // Is System Id
-    if (uid.category == Categories.SYSTEM) {
+    if (uid.category == Categories.SYSTEM &&
+        uid.node == "Notification Service") {
       return APPLICATION_NAME;
     }
 
