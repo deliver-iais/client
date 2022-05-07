@@ -357,5 +357,6 @@
   "your_password_update": "Your password updated",
   "out_of_date_title": "This app is out of date",
   "out_of_date_desc": "You should update this app. The version you're using doesn't include the latest security features to keep you protected. This updating is necessary.",
-  "update_now": "Update Now"
+  "update_now": "Update Now",
+  "not_valid_input": "Not valid input"
 }
