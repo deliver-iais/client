@@ -366,9 +366,7 @@ class RoomRepo {
       return uid;
     } else {
       final uid = await fetchUidById(synthesizeId);
-      unawaited(
-        _uidIdNameDao.update(uid.asString(), id: synthesizeId),
-      );
+      unawaited(_uidIdNameDao.update(uid.asString(), id: synthesizeId));
       return uid.asString();
     }
   }
