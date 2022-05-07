@@ -148,9 +148,7 @@ class RoomRepo {
 
     if (username != null) {
       roomNameCache.set(uid.asString(), username);
-      unawaited(
-        _uidIdNameDao.update(uid.asString(), id: username),
-      );
+      unawaited(_uidIdNameDao.update(uid.asString(), id: username));
     }
 
     return (username ?? unknownName) ?? "Unknown";
