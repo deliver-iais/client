@@ -341,7 +341,11 @@ void main() async {
 
   Logger().i("OS based setups done.");
 
-  await setupDI();
+  try {
+    await setupDI();
+  } catch (e) {
+    Logger().e(e);
+  }
 
   Logger().i("Dependency Injection setup done.");
 
