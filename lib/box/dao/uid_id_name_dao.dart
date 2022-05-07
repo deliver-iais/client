@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/uid_id_name.dart';
@@ -10,12 +11,7 @@ abstract class UidIdNameDao {
 
   Future<String?> getUidById(String id);
 
-  Future<void> update(
-    String uid, {
-    String? id,
-    String? name,
-    required int lastUpdateTime,
-  });
+  Future<void> update(String uid, {String? id, String? name});
 
   Future<List<UidIdName>> search(String text);
 }
@@ -36,12 +32,9 @@ class UidIdNameDaoImpl implements UidIdNameDao {
   }
 
   @override
-  Future<void> update(
-    String uid, {
-    String? id,
-    String? name,
-    required int lastUpdateTime,
-  }) async {
+  Future<void> update(String uid, {String? id, String? name}) async {
+    final lastUpdateTime = clock.now().millisecondsSinceEpoch;
+
     if (name != null) {
       name = name.trim();
     }

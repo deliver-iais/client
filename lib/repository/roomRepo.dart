@@ -113,11 +113,7 @@ class RoomRepo {
         final name = buildName(contact.firstName, contact.lastName);
         roomNameCache.set(uid.asString(), name);
         unawaited(
-          _uidIdNameDao.update(
-            uid.asString(),
-            name: name,
-            lastUpdateTime: clock.now().millisecondsSinceEpoch,
-          ),
+          _uidIdNameDao.update(uid.asString(), name: name),
         );
         return name;
       } else {
@@ -136,11 +132,7 @@ class RoomRepo {
       if (muc != null && muc.name != null && muc.name!.isNotEmpty) {
         roomNameCache.set(uid.asString(), muc.name!);
         unawaited(
-          _uidIdNameDao.update(
-            uid.asString(),
-            name: muc.name,
-            lastUpdateTime: clock.now().millisecondsSinceEpoch,
-          ),
+          _uidIdNameDao.update(uid.asString(), name: muc.name),
         );
 
         return muc.name!;
@@ -161,11 +153,7 @@ class RoomRepo {
     if (username != null) {
       roomNameCache.set(uid.asString(), username);
       unawaited(
-        _uidIdNameDao.update(
-          uid.asString(),
-          id: username,
-          lastUpdateTime: clock.now().millisecondsSinceEpoch,
-        ),
+        _uidIdNameDao.update(uid.asString(), id: username),
       );
     }
 
@@ -201,13 +189,7 @@ class RoomRepo {
     try {
       final result =
           await _queryServiceClient.getIdByUid(GetIdByUidReq()..uid = uid);
-      _uidIdNameDao
-          .update(
-            uid.asString(),
-            id: result.id,
-            lastUpdateTime: clock.now().millisecondsSinceEpoch,
-          )
-          .ignore();
+      _uidIdNameDao.update(uid.asString(), id: result.id).ignore();
       return result.id;
     } catch (e) {
       _logger.e(e);
@@ -250,11 +232,7 @@ class RoomRepo {
         if (muc != null && muc.name != null && muc.name!.isNotEmpty) {
           roomNameCache.set(uid.asString(), muc.name!);
           unawaited(
-            _uidIdNameDao.update(
-              uid.asString(),
-              name: muc.name,
-              lastUpdateTime: clock.now().millisecondsSinceEpoch,
-            ),
+            _uidIdNameDao.update(uid.asString(), name: muc.name),
           );
         }
       }
@@ -395,11 +373,7 @@ class RoomRepo {
     } else {
       final uid = await fetchUidById(synthesizeId);
       unawaited(
-        _uidIdNameDao.update(
-          uid.asString(),
-          id: synthesizeId,
-          lastUpdateTime: clock.now().millisecondsSinceEpoch,
-        ),
+        _uidIdNameDao.update(uid.asString(), id: synthesizeId),
       );
       return uid.asString();
     }

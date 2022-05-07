@@ -2,7 +2,6 @@
 
 import 'dart:async';
 
-import 'package:clock/clock.dart';
 import 'package:contacts_service/contacts_service.dart' as contacts_service_pb;
 import 'package:deliver/box/contact.dart' as contact_pb;
 import 'package:deliver/box/dao/contact_dao.dart';
@@ -170,7 +169,6 @@ class ContactRepo {
       _uidIdNameDao.update(
         contact.uid.asString(),
         name: "${contact.firstName} ${contact.lastName}",
-        lastUpdateTime: clock.now().millisecondsSinceEpoch,
       );
       _roomDao.updateRoom(uid: contact.uid.asString());
     }
@@ -181,11 +179,7 @@ class ContactRepo {
       // For now, Group and Bot not supported in server side!!
       final result =
           await _queryServiceClient.getIdByUid(GetIdByUidReq()..uid = uid);
-      return _uidIdNameDao.update(
-        uid.asString(),
-        id: result.id,
-        lastUpdateTime: clock.now().millisecondsSinceEpoch,
-      );
+      return _uidIdNameDao.update(uid.asString(), id: result.id);
     } catch (e) {
       _logger.e(e);
     }
@@ -235,11 +229,7 @@ class ContactRepo {
 
       //update uidIdName table
       unawaited(
-        _uidIdNameDao.update(
-          contactUid.asString(),
-          name: name,
-          lastUpdateTime: clock.now().millisecondsSinceEpoch,
-        ),
+        _uidIdNameDao.update(contactUid.asString(), name: name),
       );
       //update contact table
       unawaited(

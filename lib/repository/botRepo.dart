@@ -2,7 +2,6 @@
 
 import 'dart:async';
 
-import 'package:clock/clock.dart';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
@@ -35,7 +34,6 @@ class BotRepo {
         botUid.asString(),
         name: result.name,
         id: botUid.asString(),
-        lastUpdateTime: clock.now().millisecondsSinceEpoch,
       ),
     );
 
