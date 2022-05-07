@@ -76,8 +76,10 @@ class AccountRepo {
     }
   }
 
-  Future<bool> fetchCurrentUserId(
-      {bool retry = false, bool forceToUpdate = false}) async {
+  Future<bool> fetchCurrentUserId({
+    bool retry = false,
+    bool forceToUpdate = false,
+  }) async {
     try {
       final account = await _accountDao.getAccount();
       if ((account != null && account.username != null) && !forceToUpdate) {
