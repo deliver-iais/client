@@ -85,6 +85,17 @@ class UidIdNameDaoImpl implements UidIdNameDao {
     return res;
   }
 
+  @override
+  Stream<String?> watchIdByUid(String uid) async* {
+    final box = await _open();
+
+    yield box.get(uid)?.id;
+
+    yield* box.watch().map(
+          (event) => box.get(uid)?.id,
+    );
+  }
+
   static String _key() => "uid-id-name";
 
   static String _key2() => "id-uid-name";
@@ -97,16 +108,5 @@ class UidIdNameDaoImpl implements UidIdNameDao {
   static Future<BoxPlus<String>> _open2() {
     BoxInfo.addBox(_key2());
     return gen(Hive.openBox<String>(_key2()));
-  }
-
-  @override
-  Stream<String?> watchIdByUid(String uid) async* {
-    final box = await _open();
-
-    yield box.get(uid)?.id;
-
-    yield* box.watch().map(
-          (event) => box.get(uid)?.id,
-        );
   }
 }
