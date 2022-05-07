@@ -227,11 +227,10 @@ class ContactRepo {
           .getUserByUid(GetUserByUidReq()..uid = contactUid);
       final name = buildName(contact.user.firstName, contact.user.lastName);
 
-      //update uidIdName table
-      unawaited(
-        _uidIdNameDao.update(contactUid.asString(), name: name),
-      );
-      //update contact table
+      // Update uidIdName table
+      unawaited(_uidIdNameDao.update(contactUid.asString(), name: name));
+
+      // Update contact table
       unawaited(
         _contactDao.save(
           contact_pb.Contact(
