@@ -45,6 +45,7 @@ class _AccountSettingsState extends State<AccountSettings> {
   final _firstnameTextController = TextEditingController();
   final _lastnameTextController = TextEditingController();
   final _emailTextController = TextEditingController();
+  final _descriptionTextController = TextEditingController();
 
   Account _account = Account();
   final _formKey = GlobalKey<FormState>();
@@ -203,6 +204,7 @@ class _AccountSettingsState extends State<AccountSettings> {
               _usernameTextController.text = _account.username ?? "";
               _firstnameTextController.text = _account.firstname ?? "";
               _lastnameTextController.text = _account.lastname ?? "";
+              _descriptionTextController.text = _account.description ?? "";
               _emailTextController.text = _account.email ?? "";
 
               return ListView(
@@ -388,6 +390,17 @@ class _AccountSettingsState extends State<AccountSettings> {
                                         labelText: _i18n.get("email"),
                                       ),
                                     ),
+                                  const SizedBox(
+                                    height: 20,
+                                  ),
+                                  TextFormField(
+                                    minLines: 1,
+                                    controller: _descriptionTextController,
+                                    textInputAction: TextInputAction.send,
+                                    decoration: InputDecoration(
+                                      labelText: _i18n.get("description"),
+                                    ),
+                                  ),
                                 ],
                               ),
                             ),
@@ -473,11 +486,10 @@ class _AccountSettingsState extends State<AccountSettings> {
       if (isValidated) {
         if (_usernameIsAvailable.value) {
           var setPrivateInfo = await _accountRepo.setAccountDetails(
-            username: _usernameTextController.text != _account.username
-                ? _usernameTextController.text
-                : null,
+            username: _usernameTextController.text,
             firstname: _firstnameTextController.text,
             lastname: _lastnameTextController.text,
+            description: _descriptionTextController.text,
           );
           if (_emailTextController.text.isNotEmpty &&
               _emailTextController.text != _account.email) {

@@ -373,9 +373,9 @@ class MockRoomRepo extends _i1.Mock implements _i26.RoomRepo {
           Invocation.method(#getName, [uid], {#unknownName: unknownName}),
           returnValue: Future<String>.value('')) as _i19.Future<String>);
   @override
-  _i19.Future<String?>? getId(_i3.Uid? uid) =>
-      (super.noSuchMethod(Invocation.method(#getId, [uid]))
-          as _i19.Future<String?>?);
+  _i19.Stream<String?> watchId(_i3.Uid? uid) =>
+      (super.noSuchMethod(Invocation.method(#getId, [uid]),
+          returnValue: Stream<String?>.empty()) as _i19.Stream<String?>);
   @override
   _i19.Future<bool> deleteRoom(_i3.Uid? roomUid) =>
       (super.noSuchMethod(Invocation.method(#deleteRoom, [roomUid]),
@@ -384,6 +384,15 @@ class MockRoomRepo extends _i1.Mock implements _i26.RoomRepo {
   _i19.Future<String?> getIdByUid(_i3.Uid? uid) =>
       (super.noSuchMethod(Invocation.method(#getIdByUid, [uid]),
           returnValue: Future<String?>.value()) as _i19.Future<String?>);
+  @override
+  _i19.Future<void> updateUserInfo(_i3.Uid? uid,
+          {bool? foreToUpdate = false}) =>
+      (super.noSuchMethod(
+              Invocation.method(
+                  #updateUserInfo, [uid], {#foreToUpdate: foreToUpdate}),
+              returnValue: Future<void>.value(),
+              returnValueForMissingStub: Future<void>.value())
+          as _i19.Future<void>);
   @override
   void updateActivity(_i27.Activity? activity) =>
       super.noSuchMethod(Invocation.method(#updateActivity, [activity]),
@@ -1051,6 +1060,15 @@ class MockDataStreamServices extends _i1.Mock
               returnValue: Future<_i22.Message?>.value())
           as _i19.Future<_i22.Message?>);
   @override
+  _i19.Future<void> getAndProcessLastIncomingCallsFromServer(
+          _i3.Uid? roomUid, int? lastMessageId) =>
+      (super.noSuchMethod(
+              Invocation.method(#getAndProcessLastIncomingCallsFromServer,
+                  [roomUid, lastMessageId]),
+              returnValue: Future<void>.value(),
+              returnValueForMissingStub: Future<void>.value())
+          as _i19.Future<void>);
+  @override
   _i19.Future<List<_i22.Message>> saveFetchMessages(
           List<_i43.Message>? messages) =>
       (super.noSuchMethod(Invocation.method(#saveFetchMessages, [messages]),
@@ -1588,13 +1606,19 @@ class MockUidIdNameDao extends _i1.Mock implements _i54.UidIdNameDao {
               returnValue: Future<_i55.UidIdName?>.value())
           as _i19.Future<_i55.UidIdName?>);
   @override
+  _i19.Stream<String?> watchIdByUid(String? uid) =>
+      (super.noSuchMethod(Invocation.method(#watchIdByUid, [uid]),
+          returnValue: Stream<String?>.empty()) as _i19.Stream<String?>);
+  @override
   _i19.Future<String?> getUidById(String? id) =>
       (super.noSuchMethod(Invocation.method(#getUidById, [id]),
           returnValue: Future<String?>.value()) as _i19.Future<String?>);
   @override
-  _i19.Future<void> update(String? uid, {String? id, String? name}) =>
+  _i19.Future<void> update(String? uid,
+          {String? id, String? name, int? lastUpdateTime}) =>
       (super.noSuchMethod(
-              Invocation.method(#update, [uid], {#id: id, #name: name}),
+              Invocation.method(#update, [uid],
+                  {#id: id, #name: name, #lastUpdateTime: lastUpdateTime}),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
           as _i19.Future<void>);
@@ -1678,12 +1702,19 @@ class MockAccountRepo extends _i1.Mock implements _i60.AccountRepo {
       (super.noSuchMethod(Invocation.method(#hasProfile, [], {#retry: retry}),
           returnValue: Future<bool>.value(false)) as _i19.Future<bool>);
   @override
+  _i19.Future<bool> getUserProfileFromServer() =>
+      (super.noSuchMethod(Invocation.method(#getUserProfileFromServer, []),
+          returnValue: Future<bool>.value(false)) as _i19.Future<bool>);
+  @override
   _i19.Future<bool> profileInfoIsSet() =>
       (super.noSuchMethod(Invocation.method(#profileInfoIsSet, []),
           returnValue: Future<bool>.value(false)) as _i19.Future<bool>);
   @override
-  _i19.Future<bool> fetchCurrentUserId({bool? retry = false}) => (super
-      .noSuchMethod(Invocation.method(#fetchCurrentUserId, [], {#retry: retry}),
+  _i19.Future<bool> fetchCurrentUserId(
+          {bool? retry = false, bool? forceToUpdate = false}) =>
+      (super.noSuchMethod(
+          Invocation.method(#fetchCurrentUserId, [],
+              {#retry: retry, #forceToUpdate: forceToUpdate}),
           returnValue: Future<bool>.value(false)) as _i19.Future<bool>);
   @override
   _i19.Future<_i61.Account?> getAccount() =>
@@ -1705,12 +1736,16 @@ class MockAccountRepo extends _i1.Mock implements _i60.AccountRepo {
           returnValue: Future<bool>.value(false)) as _i19.Future<bool>);
   @override
   _i19.Future<bool> setAccountDetails(
-          {String? username, String? firstname, String? lastname}) =>
+          {String? username,
+          String? firstname,
+          String? lastname,
+          String? description}) =>
       (super.noSuchMethod(
           Invocation.method(#setAccountDetails, [], {
             #username: username,
             #firstname: firstname,
-            #lastname: lastname
+            #lastname: lastname,
+            #description: description
           }),
           returnValue: Future<bool>.value(false)) as _i19.Future<bool>);
   @override

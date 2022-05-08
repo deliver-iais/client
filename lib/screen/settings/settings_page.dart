@@ -43,6 +43,14 @@ class _SettingsPageState extends State<SettingsPage> {
   int developerModeCounterCountDown = kDebugMode ? 1 : 10;
 
   @override
+  void initState() {
+    _accountRepo
+      ..getUserProfileFromServer()
+      ..fetchCurrentUserId(forceToUpdate: true);
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(

@@ -161,6 +161,7 @@ class ContactRepo {
           nationalNumber: contact.phoneNumber.nationalNumber.toString(),
           firstName: contact.firstName,
           lastName: contact.lastName,
+          description: contact.description,
         ),
       );
 
@@ -225,7 +226,23 @@ class ContactRepo {
       final contact = await _contactServices
           .getUserByUid(GetUserByUidReq()..uid = contactUid);
       final name = buildName(contact.user.firstName, contact.user.lastName);
+
+      // Update uidIdName table
       unawaited(_uidIdNameDao.update(contactUid.asString(), name: name));
+
+      // Update contact table
+      unawaited(
+        _contactDao.save(
+          contact_pb.Contact(
+            uid: contactUid.asString(),
+            countryCode: contact.user.phoneNumber.countryCode.toString(),
+            nationalNumber: contact.user.phoneNumber.nationalNumber.toString(),
+            firstName: contact.user.firstName,
+            lastName: contact.user.lastName,
+            description: contact.user.description,
+          ),
+        ),
+      );
       return name;
     } catch (e) {
       _logger.e(e);

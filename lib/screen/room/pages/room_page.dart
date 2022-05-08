@@ -372,6 +372,7 @@ class _RoomPageState extends State<RoomPage> {
 
   @override
   void initState() {
+    _roomRepo.updateUserInfo(widget.roomId.asUid());
     if (isDesktop) {
       DesktopLifecycle.instance.isActive.addListener(() {
         _appIsActive = DesktopLifecycle.instance.isActive.value;

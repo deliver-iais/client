@@ -28,6 +28,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/box.dart';
@@ -84,11 +85,8 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   void initState() {
+    _roomRepo.updateUserInfo(widget.roomUid, foreToUpdate: true);
     _setupRoomSettings();
-
-    if (_uxService.getTabIndex(widget.roomUid.asString()) == null) {
-      _uxService.setTabIndex(widget.roomUid.asString(), 0);
-    }
 
     super.initState();
   }
@@ -96,7 +94,6 @@ class _ProfilePageState extends State<ProfilePage>
   @override
   void dispose() {
     _tabController.dispose();
-    _uxService.setTabIndex(widget.roomUid.asString(), 0);
     super.dispose();
   }
 
@@ -140,14 +137,7 @@ class _ProfilePageState extends State<ProfilePage>
                   ? _tabsCount + 1
                   : _tabsCount,
               vsync: this,
-              initialIndex: _uxService.getTabIndex(widget.roomUid.asString())!,
             );
-            _tabController.addListener(() {
-              _uxService.setTabIndex(
-                widget.roomUid.asString(),
-                _tabController.index,
-              );
-            });
 
             return DefaultTabController(
               length: (widget.roomUid.isGroup() ||
@@ -223,12 +213,6 @@ class _ProfilePageState extends State<ProfilePage>
                                 );
                               } else {
                                 return TabBar(
-                                  onTap: (index) {
-                                    _uxService.setTabIndex(
-                                      widget.roomUid.asString(),
-                                      index,
-                                    );
-                                  },
                                   tabs: [
                                     if (widget.roomUid.isGroup() ||
                                         (widget.roomUid.isChannel() &&
@@ -379,8 +363,8 @@ class _ProfilePageState extends State<ProfilePage>
               ],
             ),
             if (!widget.roomUid.isGroup())
-              FutureBuilder<String?>(
-                future: _roomRepo.getId(widget.roomUid),
+              StreamBuilder<String?>(
+                stream: _roomRepo.watchId(widget.roomUid),
                 builder: (context, snapshot) {
                   if (snapshot.data != null) {
                     return Padding(
@@ -489,6 +473,19 @@ class _ProfilePageState extends State<ProfilePage>
                 }
               },
             ),
+            if (widget.roomUid.isUser())
+              FutureBuilder<Contact?>(
+                future: _contactRepo.getContact(widget.roomUid),
+                builder: (context, snapshot) {
+                  if (snapshot.data != null &&
+                      snapshot.data!.description != null &&
+                      snapshot.data!.description!.isNotEmpty) {
+                    return description(snapshot.data!.description!, context);
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
             if (widget.roomUid.isBot())
               FutureBuilder<BotInfo?>(
                 future: _botRepo.getBotInfo(widget.roomUid),
@@ -536,14 +533,21 @@ class _ProfilePageState extends State<ProfilePage>
 
   Padding description(String info, BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 8.0),
+      padding: const EdgeInsets.only(top: 8.0, bottom: 10.0),
       child: SettingsTile(
         title: _i18n.get("description"),
-        subtitleMaxLines: 8,
-        subtitleTextStyle:
-            TextStyle(color: Theme.of(context).primaryColor, fontSize: 16),
         leading: const Icon(Icons.info),
-        trailing: SizedBox(width: 300, child: Text(info)),
+        trailing: SizedBox(
+          width: 200,
+          child: Text(
+            info,
+            maxLines: 8,
+            textDirection:
+                info.isPersian() ? TextDirection.rtl : TextDirection.ltr,
+            style:
+                TextStyle(color: Theme.of(context).primaryColor, fontSize: 16),
+          ),
+        ),
       ),
     );
   }
