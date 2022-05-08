@@ -1,19 +1,19 @@
 import 'dart:math' as math;
 
 import 'package:deliver/box/call_info.dart';
-import 'package:deliver/box/call_status.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/call_message/call_status.dart';
 import 'package:deliver/screen/room/messageWidgets/call_message/call_time.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
-import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
+
+import '../../../services/call_service.dart';
 
 class CallDetailPage extends StatefulWidget {
   final CallInfo callEvent;
@@ -34,6 +34,7 @@ class CallDetailPage extends StatefulWidget {
 class _CallDetailPageState extends State<CallDetailPage> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _callService = GetIt.I.get<CallService>();
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +73,7 @@ class _CallDetailPageState extends State<CallDetailPage> {
                 children: [
                   CallState(
                     textStyle: const TextStyle(fontSize: 17),
-                    callStatus: findCallEventStatus(
+                    callStatus: _callService.findCallEventStatusDB(
                       widget.callEvent.callEvent.newStatus,
                     ),
                     time: widget.callEvent.callEvent.callDuration,
@@ -113,28 +114,5 @@ class _CallDetailPageState extends State<CallDetailPage> {
         ),
       ],
     );
-  }
-
-  CallEvent_CallStatus findCallEventStatus(CallStatus eventCallStatus) {
-    switch (eventCallStatus) {
-      case CallStatus.CREATED:
-        return CallEvent_CallStatus.CREATED;
-      case CallStatus.BUSY:
-        return CallEvent_CallStatus.BUSY;
-      case CallStatus.DECLINED:
-        return CallEvent_CallStatus.DECLINED;
-      case CallStatus.ENDED:
-        return CallEvent_CallStatus.ENDED;
-      case CallStatus.INVITE:
-        return CallEvent_CallStatus.INVITE;
-      case CallStatus.IS_RINGING:
-        return CallEvent_CallStatus.IS_RINGING;
-      case CallStatus.JOINED:
-        return CallEvent_CallStatus.JOINED;
-      case CallStatus.KICK:
-        return CallEvent_CallStatus.KICK;
-      case CallStatus.LEFT:
-        return CallEvent_CallStatus.LEFT;
-    }
   }
 }

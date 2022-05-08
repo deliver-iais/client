@@ -24,5 +24,5 @@ enum CallStatus {
   @HiveField(7)
   LEFT,
   @HiveField(8)
-  DECLINED
+  DECLINED,
 }

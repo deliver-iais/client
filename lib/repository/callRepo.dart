@@ -8,8 +8,6 @@ import 'package:clock/clock.dart';
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
 import 'package:deliver/box/call_event.dart' as call_event;
 import 'package:deliver/box/call_info.dart' as call_info;
-import 'package:deliver/box/call_status.dart' as call_status;
-import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/dao/call_info_dao.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/models/call_timer.dart';
@@ -147,14 +145,34 @@ class CallRepo {
             case CallEvent_CallStatus.IS_RINGING:
               if (_callService.getCallId == callEvent.id) {
                 callingStatus.add(CallStatus.IS_RINGING);
+                if(_isCaller) {
+                  _audioService.playBeepSound();
+                }
               }
               break;
             case CallEvent_CallStatus.CREATED:
               if (_callService.getUserCallState == UserCallState.NOCALL) {
+                //get call Info and Save on DB
+                callEvent.writeToJson();
+                final currentCallEvent = call_event.CallEvent(
+                  callDuration: callEvent.callDuration.toInt(),
+                  endOfCallTime: callEvent.endOfCallTime.toInt(),
+                  callType: _callService.findCallEventType(callEvent.callType),
+                  newStatus: _callService.findCallEventStatusProto(callEvent.newStatus),
+                  id: callEvent.id,
+                );
+                final callInfo = call_info.CallInfo(
+                  callEvent: currentCallEvent,
+                  from: event.roomUid.toString(),
+                  to: _authRepo.currentUserUid.toString(),
+                );
+
                 _callService
+                  ..saveCallOnDb(callInfo)
                   ..setUserCallState = UserCallState.INUSERCALL
                   ..setCallOwner = callEvent.memberOrCallOwnerPvp
                   ..setCallId = callEvent.id;
+
                 if (callEvent.callType == CallEvent_CallType.VIDEO) {
                   _logger.i("VideoCall");
                   _isVideo = true;
@@ -1178,6 +1196,7 @@ class CallRepo {
         await disposeRenderer();
       }
       _callService.setUserCallState = UserCallState.NOCALL;
+      await _callService.removeCallFromDb();
     });
   }
 
@@ -1274,8 +1293,8 @@ class CallRepo {
           final callEvent = call_event.CallEvent(
             callDuration: call.callEvent.callDuration.toInt(),
             endOfCallTime: call.callEvent.endOfCallTime.toInt(),
-            callType: findCallEventType(call.callEvent.callType),
-            newStatus: findCallEventStatus(call.callEvent.newStatus),
+            callType: _callService.findCallEventType(call.callEvent.callType),
+            newStatus: _callService.findCallEventStatusProto(call.callEvent.newStatus),
             id: call.callEvent.id,
           );
           final callList = call_info.CallInfo(
@@ -1290,46 +1309,6 @@ class CallRepo {
     } catch (e) {
       _logger.e(e);
     }
-  }
-
-  call_status.CallStatus findCallEventStatus(
-    CallEvent_CallStatus eventCallStatus,
-  ) {
-    switch (eventCallStatus) {
-      case CallEvent_CallStatus.CREATED:
-        return call_status.CallStatus.CREATED;
-      case CallEvent_CallStatus.BUSY:
-        return call_status.CallStatus.BUSY;
-      case CallEvent_CallStatus.DECLINED:
-        return call_status.CallStatus.DECLINED;
-      case CallEvent_CallStatus.ENDED:
-        return call_status.CallStatus.ENDED;
-      case CallEvent_CallStatus.INVITE:
-        return call_status.CallStatus.INVITE;
-      case CallEvent_CallStatus.IS_RINGING:
-        return call_status.CallStatus.IS_RINGING;
-      case CallEvent_CallStatus.JOINED:
-        return call_status.CallStatus.JOINED;
-      case CallEvent_CallStatus.KICK:
-        return call_status.CallStatus.KICK;
-      case CallEvent_CallStatus.LEFT:
-        return call_status.CallStatus.LEFT;
-    }
-    return call_status.CallStatus.ENDED;
-  }
-
-  CallType findCallEventType(CallEvent_CallType eventCallType) {
-    switch (eventCallType) {
-      case CallEvent_CallType.VIDEO:
-        return CallType.VIDEO;
-      case CallEvent_CallType.AUDIO:
-        return CallType.AUDIO;
-      case CallEvent_CallType.GROUP_AUDIO:
-        return CallType.GROUP_AUDIO;
-      case CallEvent_CallType.GROUP_VIDEO:
-        return CallType.GROUP_VIDEO;
-    }
-    return CallType.AUDIO;
   }
 }
 

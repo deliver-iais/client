@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:vibration/vibration.dart';
@@ -78,14 +79,18 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
     }
     if (_dragExtent < -50) {
       if (showRightIcon == false) {
-        Vibration.vibrate(duration: 50);
+        if(isAndroid) {
+          Vibration.vibrate(duration: 50);
+        }
         setState(() {
           showRightIcon = true;
         });
       }
     } else {
       if (showRightIcon == true) {
-        Vibration.vibrate(duration: 50);
+        if(isAndroid) {
+          Vibration.vibrate(duration: 50);
+        }
         setState(() {
           showRightIcon = false;
         });

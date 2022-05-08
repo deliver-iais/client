@@ -15,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:random_string/random_string.dart';
 
 import 'videoCallScreen/in_video_call_page.dart';
 
@@ -48,6 +49,7 @@ class _CallScreenState extends State<CallScreen> {
   final _logger = GetIt.I.get<Logger>();
   final _audioService = GetIt.I.get<AudioService>();
   final _routingService = GetIt.I.get<RoutingService>();
+  late final String random ;
 
   final List<StreamSubscription<dynamic>> _streamSubscriptions =
       <StreamSubscription<dynamic>>[];
@@ -56,6 +58,7 @@ class _CallScreenState extends State<CallScreen> {
 
   @override
   void initState() {
+    random = randomAlphaNumeric(10);
     callRepo.initRenderer();
     _localRenderer = callRepo.getLocalRenderer;
     _remoteRenderer = callRepo.getRemoteRenderer;
@@ -135,7 +138,7 @@ class _CallScreenState extends State<CallScreen> {
     return StreamBuilder(
       stream: callRepo.callingStatus,
       builder: (context, snapshot) {
-        _logger.i("callStatus: " + snapshot.data.toString());
+        _logger.i("callStatus-"+ random + ": " + snapshot.data.toString());
         switch (snapshot.data) {
           case CallStatus.CONNECTED:
             _audioService.stopBeepSound();
