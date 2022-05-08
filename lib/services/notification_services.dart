@@ -118,7 +118,7 @@ abstract class Notifier {
 
   Future<void> notifyText(MessageBrief message);
 
-  Future<void> notifyIncomingCall(String roomUid, String roomName, String? callEventJson);
+  Future<void> notifyIncomingCall(String roomUid, String roomName);
 
   Future<void> cancel(int id, String roomUid);
 
@@ -159,7 +159,7 @@ class NotificationServices {
   }) async {
     final rn = roomName ?? await _roomRepo.getSlangName(roomUid.asUid());
 
-    return _notifier.notifyIncomingCall(roomUid, rn, "");
+    return _notifier.notifyIncomingCall(roomUid, rn);
   }
 
   void cancelRoomNotifications(String roomUid) {
@@ -212,7 +212,7 @@ class FakeNotifier implements Notifier {
   Future<void> notifyText(MessageBrief message) async {}
 
   @override
-  Future<void> notifyIncomingCall(String roomUid, String roomName, String? callEventJson) async {}
+  Future<void> notifyIncomingCall(String roomUid, String roomName) async {}
 
   @override
   Future<void> cancel(int id, String roomUid) async {}
@@ -292,7 +292,7 @@ class WindowsNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyIncomingCall(String roomUid, String roomName, String? callEventJson) async {
+  Future<void> notifyIncomingCall(String roomUid, String roomName) async {
     final actions = <String>['Accept', 'Decline'];
     Toast? toast;
     if (!toastByRoomId.containsKey(
@@ -385,7 +385,7 @@ class WebNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyIncomingCall(String roomUid, String roomName, String? callEventJson) async {}
+  Future<void> notifyIncomingCall(String roomUid, String roomName) async {}
 }
 
 class LinuxNotifier implements Notifier {
@@ -470,7 +470,7 @@ class LinuxNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyIncomingCall(String roomUid, String roomName, String? callEventJson) async {}
+  Future<void> notifyIncomingCall(String roomUid, String roomName) async {}
 
   @override
   Future<void> cancel(int id, String roomUid) async {
@@ -580,24 +580,6 @@ class AndroidNotifier implements Notifier {
 
   Future<void> onCallAccepted(CallEvent callEvent) async {
     Notifier.onCallAccept(callEvent.userInfo!["uid"]!);
-
-    final callEventInfo = call_pro.CallEvent.fromJson(callEvent.userInfo!["callEventJson"]!);
-    //here status be JOINED means ACCEPT CALL and when app Start should go on accepting status
-    final currentCallEvent = call_event.CallEvent(
-      callDuration: callEventInfo.callDuration.toInt(),
-      endOfCallTime: callEventInfo.endOfCallTime.toInt(),
-      callType: _callService.findCallEventType(callEventInfo.callType),
-      newStatus: _callService.findCallEventStatusProto(CallEvent_CallStatus.JOINED),
-      id: callEventInfo.id,
-    );
-
-    final callInfo = call_info.CallInfo(
-      callEvent: currentCallEvent,
-      from: callEvent.userInfo!["uid"]!,
-      to: _authRepo.currentUserUid.toString(),
-    );
-
-    await _callService.saveCallOnDb(callInfo);
   }
 
   @override
@@ -687,7 +669,7 @@ class AndroidNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyIncomingCall(String roomUid, String roomName, String? callEventJson) async {
+  Future<void> notifyIncomingCall(String roomUid, String roomName) async {
     final la = await _avatarRepo.getLastAvatar(roomUid.asUid());
     String? path;
     if (la != null && la.fileId != null && la.fileName != null) {
@@ -698,7 +680,6 @@ class AndroidNotifier implements Notifier {
       );
     }
     //callType: 0 ==>Audio call 1 ==>Video call
-    final ceJson = callEventJson ?? "{}";
     await ConnectycubeFlutterCallKit.showCallNotification(
       CallEvent(
         sessionId: clock.now().millisecondsSinceEpoch.toString(),
@@ -706,8 +687,7 @@ class AndroidNotifier implements Notifier {
         callType: 0,
         avatarPath: path,
         callerName: roomName,
-        userInfo: {"uid": roomUid,
-                    "callEventJson" : ceJson},
+        userInfo: {"uid": roomUid},
         opponentsIds: const {1},
       ),
     );
@@ -844,7 +824,7 @@ class IOSNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyIncomingCall(String roomUid, String roomName, String? callEventJson) async {}
+  Future<void> notifyIncomingCall(String roomUid, String roomName) async {}
 
   @override
   Future<void> cancel(int id, String roomUid) async {
@@ -957,7 +937,7 @@ class MacOSNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyIncomingCall(String roomUid, String roomName, String? callEventJson) async {}
+  Future<void> notifyIncomingCall(String roomUid, String roomName) async {}
 
   @override
   Future<void> cancel(int id, String roomUid) async {

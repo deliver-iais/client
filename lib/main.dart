@@ -14,7 +14,6 @@ import 'package:deliver/box/dao/avatar_dao.dart';
 import 'package:deliver/box/dao/block_dao.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
 import 'package:deliver/box/dao/call_info_dao.dart';
-import 'package:deliver/box/dao/current_call_dao.dart';
 import 'package:deliver/box/dao/file_dao.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/dao/live_location_dao.dart';
@@ -176,7 +175,6 @@ Future<void> setupDI() async {
   registerSingleton<LiveLocationDao>(LiveLocationDaoImpl());
   registerSingleton<CallInfoDao>(CallInfoDaoImpl());
   registerSingleton<AutoDownloadDao>(AutoDownloadDaoImpl());
-  registerSingleton<CurrentCallInfoDao>(CurrentCallInfoDaoImpl());
 
   registerSingleton<I18N>(I18N());
 
