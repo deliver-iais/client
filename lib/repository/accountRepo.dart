@@ -34,24 +34,7 @@ class AccountRepo {
       return true;
     }
     try {
-      final result =
-          await _profileServiceClient.getUserProfile(GetUserProfileReq());
-      _savePhoneNumber(
-        result.profile.phoneNumber.countryCode,
-        result.profile.phoneNumber.nationalNumber.toInt(),
-      );
-
-      if (result.hasProfile() && result.profile.firstName.isNotEmpty) {
-        _saveProfilePrivateData(
-          firstName: result.profile.firstName,
-          lastName: result.profile.lastName,
-          email: result.profile.email,
-          twoStepVerificationEnabled: result.profile.isPasswordProtected,
-        );
-        return true;
-      } else {
-        return false;
-      }
+      return getUserProfileFromServer();
     } catch (e) {
       _logger.e(e);
       if (retry) {
@@ -59,6 +42,28 @@ class AccountRepo {
       } else {
         return false;
       }
+    }
+  }
+
+  Future<bool> getUserProfileFromServer() async {
+    final result =
+        await _profileServiceClient.getUserProfile(GetUserProfileReq());
+    _savePhoneNumber(
+      result.profile.phoneNumber.countryCode,
+      result.profile.phoneNumber.nationalNumber.toInt(),
+    );
+
+    if (result.hasProfile() && result.profile.firstName.isNotEmpty) {
+      _saveProfilePrivateData(
+        firstName: result.profile.firstName,
+        lastName: result.profile.lastName,
+        email: result.profile.email,
+        description: result.profile.description,
+        twoStepVerificationEnabled: result.profile.isPasswordProtected,
+      );
+      return true;
+    } else {
+      return false;
     }
   }
 
@@ -71,10 +76,13 @@ class AccountRepo {
     }
   }
 
-  Future<bool> fetchCurrentUserId({bool retry = false}) async {
+  Future<bool> fetchCurrentUserId({
+    bool retry = false,
+    bool forceToUpdate = false,
+  }) async {
     try {
       final account = await _accountDao.getAccount();
-      if (account != null && account.username != null) {
+      if ((account != null && account.username != null) && !forceToUpdate) {
         return true;
       }
       final getIdRequest = await _queryServiceClient
@@ -123,15 +131,27 @@ class AccountRepo {
     String? username,
     String? firstname,
     String? lastname,
+    String? description,
   }) async {
     try {
-      if (username != null) {
+      final account = await getAccount();
+
+      if (firstname == null ||
+          firstname.isEmpty ||
+          username == null ||
+          username.isEmpty) {
+        return false;
+      }
+
+      if (account?.username != null && account?.username != username) {
         await _queryServiceClient.setId(SetIdReq()..id = username);
         _saveProfilePrivateData(username: username);
       }
-      if (firstname != null || lastname != null) {
+
+      if (lastname != null || description != null) {
         final saveUserProfileReq = SaveUserProfileReq()
-          ..firstName = firstname ?? ""
+          ..firstName = firstname
+          ..description = description ?? ""
           ..lastName = lastname ?? "";
 
         final res =
@@ -139,6 +159,7 @@ class AccountRepo {
         _saveProfilePrivateData(
           firstName: res.profile.firstName,
           lastName: res.profile.lastName,
+          description: res.profile.description,
         );
       }
       return true;
@@ -200,12 +221,14 @@ class AccountRepo {
     String? lastName,
     String? email,
     bool? twoStepVerificationEnabled,
+    String? description,
   }) {
     _accountDao.updateAccount(
       username: username,
       firstname: firstName,
       lastname: lastName,
       email: email,
+      description: description,
       passwordProtected: twoStepVerificationEnabled,
     );
   }
