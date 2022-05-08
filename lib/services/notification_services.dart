@@ -13,7 +13,6 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/services/audio_service.dart';
-import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -22,7 +21,6 @@ import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
-import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -30,9 +28,6 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:tuple/tuple.dart';
 import 'package:win_toast/win_toast.dart';
-import 'package:deliver/box/call_event.dart' as call_event;
-import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pro;
-import 'package:deliver/box/call_info.dart' as call_info;
 
 abstract class Notifier {
   static void onCallAccept(String roomUid) {
@@ -499,8 +494,6 @@ class AndroidNotifier implements Notifier {
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _i18n = GetIt.I.get<I18N>();
-  final _callService = GetIt.I.get<CallService>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
 
   AndroidNotificationChannel channel = const AndroidNotificationChannel(
     'notifications', // id

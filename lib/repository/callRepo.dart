@@ -24,6 +24,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
@@ -130,6 +131,24 @@ class CallRepo {
   ReceivePort? _receivePort;
 
   CallRepo() {
+    _callService.watchCurrentCall().listen((call) {
+      if (call != null) {
+        _callService.callEvents.add(
+          CallEvents.callEvent(
+            call_pb.CallEvent()
+              ..newStatus =
+                  _callService.findCallEventStatusDB(call.callEvent.newStatus)
+              ..id = call.callEvent.id
+              ..callDuration = Int64(call.callEvent.callDuration)
+              ..endOfCallTime = Int64(call.callEvent.endOfCallTime)
+              ..callType =
+                  _callService.findProtoCallEventType(call.callEvent.callType),
+            roomUid: call.from.asUid(),
+            callId: call.callEvent.id,
+          ),
+        );
+      }
+    });
     _callService.callEvents.listen((event) {
       switch (event.callType) {
         case CallTypes.Answer:
@@ -145,7 +164,7 @@ class CallRepo {
             case CallEvent_CallStatus.IS_RINGING:
               if (_callService.getCallId == callEvent.id) {
                 callingStatus.add(CallStatus.IS_RINGING);
-                if(_isCaller) {
+                if (_isCaller) {
                   _audioService.playBeepSound();
                 }
               }
@@ -158,13 +177,14 @@ class CallRepo {
                   callDuration: callEvent.callDuration.toInt(),
                   endOfCallTime: callEvent.endOfCallTime.toInt(),
                   callType: _callService.findCallEventType(callEvent.callType),
-                  newStatus: _callService.findCallEventStatusProto(callEvent.newStatus),
+                  newStatus: _callService
+                      .findCallEventStatusProto(callEvent.newStatus),
                   id: callEvent.id,
                 );
                 final callInfo = call_info.CallInfo(
                   callEvent: currentCallEvent,
-                  from: event.roomUid.toString(),
-                  to: _authRepo.currentUserUid.toString(),
+                  from: event.roomUid!.asString(),
+                  to: _authRepo.currentUserUid.asString(),
                 );
 
                 _callService
@@ -180,10 +200,9 @@ class CallRepo {
                   _isVideo = false;
                 }
                 _incomingCall(event.roomUid!, false);
-              }else if(event.roomUid == _roomUid){
+              } else if (event.roomUid == _roomUid) {
                 _incomingCall(event.roomUid!, true);
-              }
-              else if (callEvent.id != _callService.getCallId) {
+              } else if (callEvent.id != _callService.getCallId) {
                 final endOfCallDuration = clock.now().millisecondsSinceEpoch;
                 _messageRepo.sendCallMessage(
                   CallEvent_CallStatus.BUSY,
@@ -804,8 +823,8 @@ class CallRepo {
   }
 
   Future<void> _incomingCall(Uid roomId, bool isDuplicated) async {
-    if(!isDuplicated) {
-      _notificationServices.notifyIncomingCall(roomId.asString());
+    if (!isDuplicated) {
+      unawaited(_notificationServices.notifyIncomingCall(roomId.asString()));
     }
     _roomUid = roomId;
     _logger.i("incoming Call and Created !!!");
@@ -996,7 +1015,7 @@ class CallRepo {
 
   // TODO(AmirHossein): removed Force End Call and we need Handle it with third-party Service.
   void endCall() {
-    if(callingStatus != CallStatus.ENDED) {
+    if (callingStatus != CallStatus.ENDED) {
       if (isWindows) {
         _notificationServices.cancelRoomNotifications(roomUid!.node);
       }
@@ -1293,7 +1312,8 @@ class CallRepo {
             callDuration: call.callEvent.callDuration.toInt(),
             endOfCallTime: call.callEvent.endOfCallTime.toInt(),
             callType: _callService.findCallEventType(call.callEvent.callType),
-            newStatus: _callService.findCallEventStatusProto(call.callEvent.newStatus),
+            newStatus:
+                _callService.findCallEventStatusProto(call.callEvent.newStatus),
             id: call.callEvent.id,
           );
           final callList = call_info.CallInfo(

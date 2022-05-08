@@ -1,11 +1,10 @@
+import 'package:deliver/box/call_status.dart' as call_status;
+import 'package:deliver/box/call_type.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:deliver/box/call_status.dart' as call_status;
-import 'package:deliver/box/call_type.dart';
-
 
 import '../box/call_info.dart';
 import '../box/call_status.dart';
@@ -26,7 +25,6 @@ enum UserCallState {
 }
 
 class CallService {
-
   final _currentCall = GetIt.I.get<CurrentCallInfoDao>();
 
   final BehaviorSubject<CallEvents> callEvents =
@@ -58,9 +56,12 @@ class CallService {
     _groupCallEvents.add(event);
   }
 
-
   Future<void> saveCallOnDb(CallInfo callInfo) async {
     await _currentCall.save(callInfo);
+  }
+
+  Stream<CallInfo?> watchCurrentCall() {
+    return _currentCall.watchCurrentCall();
   }
 
   Future<void> removeCallFromDb() async {
@@ -70,7 +71,6 @@ class CallService {
   Future<CallInfo?> loadCurrentCall() async {
     return _currentCall.get();
   }
-
 
   UserCallState _callState = UserCallState.NOCALL;
 
@@ -90,10 +90,9 @@ class CallService {
 
   set setCallId(String callId) => _callId = callId;
 
-
   call_status.CallStatus findCallEventStatusProto(
-      CallEvent_CallStatus eventCallStatus,
-      ) {
+    CallEvent_CallStatus eventCallStatus,
+  ) {
     switch (eventCallStatus) {
       case CallEvent_CallStatus.CREATED:
         return call_status.CallStatus.CREATED;
@@ -131,6 +130,19 @@ class CallService {
     return CallType.AUDIO;
   }
 
+  CallEvent_CallType findProtoCallEventType(CallType eventCallType) {
+    switch (eventCallType) {
+      case CallType.VIDEO:
+        return CallEvent_CallType.VIDEO;
+      case CallType.AUDIO:
+        return CallEvent_CallType.AUDIO;
+      case CallType.GROUP_AUDIO:
+        return CallEvent_CallType.GROUP_AUDIO;
+      case CallType.GROUP_VIDEO:
+        return CallEvent_CallType.GROUP_VIDEO;
+    }
+  }
+
   CallEvent_CallStatus findCallEventStatusDB(CallStatus eventCallStatus) {
     switch (eventCallStatus) {
       case CallStatus.CREATED:
@@ -152,7 +164,5 @@ class CallService {
       case CallStatus.LEFT:
         return CallEvent_CallStatus.LEFT;
     }
-
   }
-
 }
