@@ -364,9 +364,8 @@ void main() async {
   );
   if (hasFirebaseCapability) {
     //its work property without VPN
-    Logger().i("Some Events.");
+    Logger().i("app Open Event.");
     await FirebaseAnalytics.instance.logAppOpen();
-    Logger().i("Some Events Ends.");
   }
 }
 
