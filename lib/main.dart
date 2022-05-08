@@ -269,6 +269,10 @@ Future<void> setupDI() async {
       interceptors: grpcClientInterceptors,
     ),
   );
+
+  //call Service should be here
+  registerSingleton<CallService>(CallService());
+
   registerSingleton<AccountRepo>(AccountRepo());
 
   registerSingleton<CheckPermissionsService>(CheckPermissionsService());
@@ -314,8 +318,6 @@ Future<void> setupDI() async {
   }
 
   registerSingleton<NotificationServices>(NotificationServices());
-
-  registerSingleton<CallService>(CallService());
 
   registerSingleton<DataStreamServices>(DataStreamServices());
   registerSingleton<CoreServices>(CoreServices());
