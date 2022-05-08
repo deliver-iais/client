@@ -152,7 +152,23 @@ class CallRepo {
               break;
             case CallEvent_CallStatus.CREATED:
               if (_callService.getUserCallState == UserCallState.NOCALL) {
+                //get call Info and Save on DB
+                callEvent.writeToJson();
+                final currentCallEvent = call_event.CallEvent(
+                  callDuration: callEvent.callDuration.toInt(),
+                  endOfCallTime: callEvent.endOfCallTime.toInt(),
+                  callType: _callService.findCallEventType(callEvent.callType),
+                  newStatus: _callService.findCallEventStatusProto(callEvent.newStatus),
+                  id: callEvent.id,
+                );
+                final callInfo = call_info.CallInfo(
+                  callEvent: currentCallEvent,
+                  from: event.roomUid.toString(),
+                  to: _authRepo.currentUserUid.toString(),
+                );
+
                 _callService
+                  ..saveCallOnDb(callInfo)
                   ..setUserCallState = UserCallState.INUSERCALL
                   ..setCallOwner = callEvent.memberOrCallOwnerPvp
                   ..setCallId = callEvent.id;

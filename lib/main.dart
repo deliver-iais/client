@@ -95,6 +95,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
 
 import 'box/dao/contact_dao.dart';
+import 'box/dao/current_call_dao.dart';
 import 'box/dao/custom_notification_dao.dart';
 import 'box/dao/media_dao.dart';
 import 'box/dao/media_meta_data_dao.dart';
@@ -175,6 +176,7 @@ Future<void> setupDI() async {
   registerSingleton<LiveLocationDao>(LiveLocationDaoImpl());
   registerSingleton<CallInfoDao>(CallInfoDaoImpl());
   registerSingleton<AutoDownloadDao>(AutoDownloadDaoImpl());
+  registerSingleton<CurrentCallInfoDao>(CurrentCallInfoDaoImpl());
 
   registerSingleton<I18N>(I18N());
 
