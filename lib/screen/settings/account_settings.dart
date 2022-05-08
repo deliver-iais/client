@@ -398,7 +398,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                     controller: _descriptionTextController,
                                     textInputAction: TextInputAction.send,
                                     decoration: InputDecoration(
-                                      labelText:  _i18n.get("description"),
+                                      labelText: _i18n.get("description"),
                                     ),
                                   ),
                                 ],
@@ -486,12 +486,10 @@ class _AccountSettingsState extends State<AccountSettings> {
       if (isValidated) {
         if (_usernameIsAvailable.value) {
           var setPrivateInfo = await _accountRepo.setAccountDetails(
-            username: _usernameTextController.text != _account.username
-                ? _usernameTextController.text
-                : null,
+            username: _usernameTextController.text,
             firstname: _firstnameTextController.text,
             lastname: _lastnameTextController.text,
-            description:_descriptionTextController.text,
+            description: _descriptionTextController.text,
           );
           if (_emailTextController.text.isNotEmpty &&
               _emailTextController.text != _account.email) {

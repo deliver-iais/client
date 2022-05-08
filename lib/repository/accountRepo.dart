@@ -134,6 +134,8 @@ class AccountRepo {
     String? description,
   }) async {
     try {
+      final account = await getAccount();
+
       if (firstname == null ||
           firstname.isEmpty ||
           username == null ||
@@ -141,8 +143,10 @@ class AccountRepo {
         return false;
       }
 
-      await _queryServiceClient.setId(SetIdReq()..id = username);
-      _saveProfilePrivateData(username: username);
+      if (account?.username != null && account?.username != username) {
+        await _queryServiceClient.setId(SetIdReq()..id = username);
+        _saveProfilePrivateData(username: username);
+      }
 
       if (lastname != null || description != null) {
         final saveUserProfileReq = SaveUserProfileReq()
