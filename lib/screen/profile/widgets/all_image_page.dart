@@ -461,7 +461,7 @@ class _AllImagePageState extends State<AllImagePage> {
                           },
                           tooltip: _i18n.get("edit"),
                           icon: Icon(
-                            Icons.brush_outlined,
+                            CupertinoIcons.paintbrush,
                             color: theme.primaryColorLight,
                           ),
                         );
