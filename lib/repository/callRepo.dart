@@ -15,6 +15,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
@@ -199,9 +200,17 @@ class CallRepo {
                 } else {
                   _isVideo = false;
                 }
-                _incomingCall(event.roomUid!, false);
+                _incomingCall(
+                  event.roomUid!,
+                  false,
+                  _callService.writeCallEventsToJson(event),
+                );
               } else if (event.roomUid == _roomUid) {
-                _incomingCall(event.roomUid!, true);
+                _incomingCall(
+                  event.roomUid!,
+                  true,
+                  _callService.writeCallEventsToJson(event),
+                );
               } else if (callEvent.id != _callService.getCallId) {
                 final endOfCallDuration = clock.now().millisecondsSinceEpoch;
                 _messageRepo.sendCallMessage(
@@ -231,8 +240,11 @@ class CallRepo {
                 receivedEndCall(callEvent.callDuration.toInt());
               }
               break;
-            case CallEvent_CallStatus.INVITE:
             case CallEvent_CallStatus.JOINED:
+              modifyRoutingByNotificationAcceptCallInBackgroundInAndroid
+                  .add(event.roomUid!.asString());
+              break;
+            case CallEvent_CallStatus.INVITE:
             case CallEvent_CallStatus.KICK:
             case CallEvent_CallStatus.LEFT:
               _logger.w(
@@ -822,9 +834,18 @@ class CallRepo {
     return false;
   }
 
-  Future<void> _incomingCall(Uid roomId, bool isDuplicated) async {
+  Future<void> _incomingCall(
+    Uid roomId,
+    bool isDuplicated,
+    String callEventJson,
+  ) async {
     if (!isDuplicated) {
-      unawaited(_notificationServices.notifyIncomingCall(roomId.asString()));
+      unawaited(
+        _notificationServices.notifyIncomingCall(
+          roomId.asString(),
+          callEventJson: callEventJson,
+        ),
+      );
     }
     _roomUid = roomId;
     _logger.i("incoming Call and Created !!!");
@@ -1015,7 +1036,7 @@ class CallRepo {
 
   // TODO(AmirHossein): removed Force End Call and we need Handle it with third-party Service.
   void endCall() {
-    if (callingStatus != CallStatus.ENDED) {
+    if (callingStatus.value != CallStatus.ENDED) {
       if (isWindows) {
         _notificationServices.cancelRoomNotifications(roomUid!.node);
       }
