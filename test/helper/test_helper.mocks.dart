@@ -2280,7 +2280,7 @@ class MockNotificationServices extends _i1.Mock
               {#roomName: roomName}),
           returnValueForMissingStub: null);
   @override
-  _i19.Future<void> notifyIncomingCall(String? roomUid, {String? roomName}) =>
+  _i19.Future<void> notifyIncomingCall(String? roomUid, {String? roomName, String? callEventJson}) =>
       (super.noSuchMethod(
               Invocation.method(
                   #notifyIncomingCall, [roomUid], {#roomName: roomName}),

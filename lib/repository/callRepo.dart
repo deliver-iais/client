@@ -103,6 +103,7 @@ class CallRepo {
   bool _isInitRenderer = false;
   bool _isDCRecived = false;
   bool _reconnectTry = false;
+  bool _isEnded = false;
 
   bool get isCaller => _isCaller;
   Uid? _roomUid;
@@ -349,7 +350,7 @@ class CallRepo {
             }
             break;
           case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
-            if (!_reconnectTry) {
+            if (!_reconnectTry && !_isEnded) {
               callingStatus.add(CallStatus.DISCONNECTED);
               _audioService.stopBeepSound();
             }
@@ -397,7 +398,7 @@ class CallRepo {
             }
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateDisconnected:
-            if (!_reconnectTry) {
+            if (!_reconnectTry && !_isEnded) {
               callingStatus.add(CallStatus.DISCONNECTED);
               _audioService.stopBeepSound();
             }
@@ -1041,6 +1042,7 @@ class CallRepo {
         _notificationServices.cancelRoomNotifications(roomUid!.node);
       }
       if (_callService.getUserCallState != CallStatus.NO_CALL) {
+        _isEnded = true;
         if (_isCaller) {
           receivedEndCall(0);
         } else {
@@ -1229,6 +1231,7 @@ class CallRepo {
     _isVideo = false;
     _isConnected = false;
     _reconnectTry = false;
+    _isEnded = false;
     _callDuration = 0;
     _startCallTime = 0;
     _callDuration = 0;
