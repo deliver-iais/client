@@ -165,4 +165,14 @@ class CallService {
         return CallEvent_CallStatus.LEFT;
     }
   }
+
+  String writeCallEventsToJson(CallEvents event) {
+    return (CallEvent()
+          ..id = event.callId
+          ..callType = event.callEvent!.callType
+          ..endOfCallTime = event.callEvent!.endOfCallTime
+          ..callDuration = event.callEvent!.callDuration
+          ..newStatus = event.callEvent!.newStatus)
+        .writeToJson();
+  }
 }
