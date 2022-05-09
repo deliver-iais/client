@@ -86,7 +86,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_foreground_task/ui/with_foreground_task.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -431,37 +430,35 @@ class MyApp extends StatelessWidget {
                     ? KeyEventResult.handled
                     : KeyEventResult.ignored;
               },
-              child: WithForegroundTask(
-                child: MaterialApp(
-                  debugShowCheckedModeBanner: false,
-                  title: APPLICATION_NAME,
-                  locale: _i18n.locale,
-                  theme: _uxService.theme,
-                  navigatorKey: _routingService.mainNavigatorState,
-                  supportedLocales: const [
-                    Locale('en', 'US'),
-                    Locale('fa', 'IR')
-                  ],
-                  localizationsDelegates: [
-                    I18N.delegate,
-                    GlobalMaterialLocalizations.delegate,
-                    GlobalWidgetsLocalizations.delegate,
-                    GlobalCupertinoLocalizations.delegate
-                  ],
-                  home: const SplashScreen(),
-                  localeResolutionCallback: (deviceLocale, supportedLocale) {
-                    for (final locale in supportedLocale) {
-                      if (locale.languageCode == deviceLocale!.languageCode &&
-                          locale.countryCode == deviceLocale.countryCode) {
-                        return deviceLocale;
-                      }
+              child: MaterialApp(
+                debugShowCheckedModeBanner: false,
+                title: APPLICATION_NAME,
+                locale: _i18n.locale,
+                theme: _uxService.theme,
+                navigatorKey: _routingService.mainNavigatorState,
+                supportedLocales: const [
+                  Locale('en', 'US'),
+                  Locale('fa', 'IR')
+                ],
+                localizationsDelegates: [
+                  I18N.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate
+                ],
+                home: const SplashScreen(),
+                localeResolutionCallback: (deviceLocale, supportedLocale) {
+                  for (final locale in supportedLocale) {
+                    if (locale.languageCode == deviceLocale!.languageCode &&
+                        locale.countryCode == deviceLocale.countryCode) {
+                      return deviceLocale;
                     }
-                    return supportedLocale.first;
-                  },
-                  builder: (x, c) => Directionality(
-                    textDirection: TextDirection.ltr,
-                    child: c!,
-                  ),
+                  }
+                  return supportedLocale.first;
+                },
+                builder: (x, c) => Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: c!,
                 ),
               ),
             ),
