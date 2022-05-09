@@ -249,7 +249,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
               child: Row(
                 children: [
                   const Icon(
-                    CupertinoIcons.bandage,
+                    CupertinoIcons.paintbrush,
                     size: 18,
                   ),
                   const SizedBox(width: 10),
