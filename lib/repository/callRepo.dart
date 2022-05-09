@@ -1180,6 +1180,8 @@ class CallRepo {
         timerConnectionFailed!.cancel();
       }
       timerDeclined!.cancel();
+    } else {
+      await _callService.removeCallFromDb();
     }
     _logger.i("end call in service");
     await _cleanLocalStream();
