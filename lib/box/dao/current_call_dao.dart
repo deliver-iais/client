@@ -12,6 +12,8 @@ abstract class CurrentCallInfoDao {
   Future<void> remove();
 
   Stream<CallInfo?> watchCurrentCall();
+
+  Future<void> clear();
 }
 
 class CurrentCallInfoDaoImpl implements CurrentCallInfoDao {
@@ -50,5 +52,12 @@ class CurrentCallInfoDaoImpl implements CurrentCallInfoDao {
     yield box.get("current_call_id");
 
     yield* box.watch().map((event) => box.get("current_call_id"));
+  }
+
+  @override
+  Future<void> clear() async {
+    final box = await _open();
+
+    return box.clear();
   }
 }

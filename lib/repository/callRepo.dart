@@ -351,10 +351,12 @@ class CallRepo {
             }
             break;
           case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
-            if (!_reconnectTry && !_isEnded) {
-              callingStatus.add(CallStatus.DISCONNECTED);
-              _audioService.stopBeepSound();
-            }
+            Timer(const Duration(seconds: 1), () {
+              if (!_reconnectTry && !_isEnded) {
+                callingStatus.add(CallStatus.DISCONNECTED);
+                _audioService.stopBeepSound();
+              }
+            });
             break;
           case RTCIceConnectionState.RTCIceConnectionStateNew:
           case RTCIceConnectionState.RTCIceConnectionStateChecking:
@@ -399,10 +401,12 @@ class CallRepo {
             }
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateDisconnected:
-            if (!_reconnectTry && !_isEnded) {
-              callingStatus.add(CallStatus.DISCONNECTED);
-              _audioService.stopBeepSound();
-            }
+            Timer(const Duration(seconds: 1), () {
+              if (!_reconnectTry && !_isEnded) {
+                callingStatus.add(CallStatus.DISCONNECTED);
+                _audioService.stopBeepSound();
+              }
+            });
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
             //Try reconnect
@@ -850,7 +854,7 @@ class CallRepo {
       );
     }
     _roomUid = roomId;
-    _logger.i("incoming Call and Created !!!");
+    _logger.i("incoming Call and Created!!! - " + isDuplicated.toString());
     callingStatus.add(CallStatus.CREATED);
     final endOfCallDuration = clock.now().millisecondsSinceEpoch;
     await _messageRepo.sendCallMessage(
@@ -1004,6 +1008,7 @@ class CallRepo {
   }
 
   Future<void> receivedEndCall(int callDuration) async {
+    _isEnded = true;
     _logger.i("Call Duration Received: " + callDuration.toString());
     if (isAndroid && !_isCaller) {
       final sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
@@ -1232,7 +1237,6 @@ class CallRepo {
     _isVideo = false;
     _isConnected = false;
     _reconnectTry = false;
-    _isEnded = false;
     _callDuration = 0;
     _startCallTime = 0;
     _callDuration = 0;
@@ -1242,6 +1246,7 @@ class CallRepo {
         await disposeRenderer();
       }
       _callService.setUserCallState = UserCallState.NOCALL;
+      _isEnded = false;
     });
   }
 

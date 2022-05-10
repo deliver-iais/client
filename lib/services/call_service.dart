@@ -40,6 +40,7 @@ class CallService {
       BehaviorSubject.seeded(CallEvents.none);
 
   CallService() {
+    _currentCall.clear();
     _callEvents.distinct().listen((event) {
       callEvents.add(event);
     });
