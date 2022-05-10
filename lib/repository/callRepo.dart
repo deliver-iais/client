@@ -245,6 +245,20 @@ class CallRepo {
             case CallEvent_CallStatus.JOINED:
               modifyRoutingByNotificationAcceptCallInBackgroundInAndroid
                   .add(event.roomUid!.asString());
+              if (_callService.getUserCallState == UserCallState.NOCALL) {
+                _callService
+                  ..setUserCallState = UserCallState.INUSERCALL
+                  ..setCallOwner = callEvent.memberOrCallOwnerPvp
+                  ..setCallId = callEvent.id;
+
+                if (callEvent.callType == CallEvent_CallType.VIDEO) {
+                  _logger.i("VideoCall");
+                  _isVideo = true;
+                } else {
+                  _isVideo = false;
+                }
+                acceptCall(event.roomUid!);
+              }
               break;
             case CallEvent_CallStatus.INVITE:
             case CallEvent_CallStatus.KICK:
