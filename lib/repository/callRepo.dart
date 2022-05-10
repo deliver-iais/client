@@ -176,7 +176,6 @@ class CallRepo {
               if (_callService.getUserCallState == UserCallState.NOCALL) {
                 _callService.setUserCallState = UserCallState.INUSERCALL;
                 //get call Info and Save on DB
-                callEvent.writeToJson();
                 final currentCallEvent = call_event.CallEvent(
                   callDuration: callEvent.callDuration.toInt(),
                   endOfCallTime: callEvent.endOfCallTime.toInt(),
@@ -257,7 +256,6 @@ class CallRepo {
                 } else {
                   _isVideo = false;
                 }
-                acceptCall(event.roomUid!);
               }
               break;
             case CallEvent_CallStatus.INVITE:
