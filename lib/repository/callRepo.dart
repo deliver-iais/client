@@ -134,7 +134,8 @@ class CallRepo {
 
   CallRepo() {
     _callService.watchCurrentCall().listen((call) {
-      if (call != null) {
+      if (call != null && _callService.getUserCallState == UserCallState.NOCALL) {
+        _logger.i("read call from DB");
         _callService.callEvents.add(
           CallEvents.callEvent(
             call_pb.CallEvent()
@@ -173,6 +174,7 @@ class CallRepo {
               break;
             case CallEvent_CallStatus.CREATED:
               if (_callService.getUserCallState == UserCallState.NOCALL) {
+                _callService.setUserCallState = UserCallState.INUSERCALL;
                 //get call Info and Save on DB
                 callEvent.writeToJson();
                 final currentCallEvent = call_event.CallEvent(
@@ -191,7 +193,6 @@ class CallRepo {
 
                 _callService
                   ..saveCallOnDb(callInfo)
-                  ..setUserCallState = UserCallState.INUSERCALL
                   ..setCallOwner = callEvent.memberOrCallOwnerPvp
                   ..setCallId = callEvent.id;
 

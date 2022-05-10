@@ -282,7 +282,7 @@ class _CallScreenState extends State<CallScreen> {
             _audioService.playEndCallSound();
 
             Timer(const Duration(milliseconds: 1500), () async {
-              if (_routingService.canPop() && !isDesktop) {
+              if (_routingService.canPop()) {
                 _routingService.openRoom(
                   widget.roomUid.asString(),
                   popAllBeforePush: true,
@@ -297,7 +297,7 @@ class _CallScreenState extends State<CallScreen> {
               hangUp: _hangUp,
             );
           case CallStatus.NO_CALL:
-            return widget.lastWidget;
+            return new Container(width: 0.0, height: 0.0);
           case CallStatus.BUSY:
             _audioService.stopBeepSound();
             _audioService.playBusySound();
