@@ -25,7 +25,6 @@ class CallScreen extends StatefulWidget {
   final bool isCallInitialized;
   final bool isIncomingCall;
   final bool isVideoCall;
-  final Widget lastWidget;
 
   const CallScreen({
     Key? key,
@@ -34,7 +33,6 @@ class CallScreen extends StatefulWidget {
     this.isCallInitialized = false,
     this.isIncomingCall = false,
     this.isVideoCall = false,
-    required this.lastWidget,
   }) : super(key: key);
 
   @override
@@ -49,7 +47,7 @@ class _CallScreenState extends State<CallScreen> {
   final _logger = GetIt.I.get<Logger>();
   final _audioService = GetIt.I.get<AudioService>();
   final _routingService = GetIt.I.get<RoutingService>();
-  late final String random ;
+  late final String random;
 
   final List<StreamSubscription<dynamic>> _streamSubscriptions =
       <StreamSubscription<dynamic>>[];
@@ -138,7 +136,7 @@ class _CallScreenState extends State<CallScreen> {
     return StreamBuilder(
       stream: callRepo.callingStatus,
       builder: (context, snapshot) {
-        _logger.i("callStatus-"+ random + ": " + snapshot.data.toString());
+        _logger.i("callStatus-" + random + ": " + snapshot.data.toString());
         switch (snapshot.data) {
           case CallStatus.CONNECTED:
             _audioService.stopBeepSound();
@@ -297,7 +295,7 @@ class _CallScreenState extends State<CallScreen> {
               hangUp: _hangUp,
             );
           case CallStatus.NO_CALL:
-            return new Container(width: 0.0, height: 0.0);
+            return const Scaffold();
           case CallStatus.BUSY:
             _audioService.stopBeepSound();
             _audioService.playBusySound();
@@ -345,7 +343,7 @@ class _CallScreenState extends State<CallScreen> {
 
           default:
             {
-              return widget.lastWidget;
+              return const Scaffold();
             }
         }
       },
