@@ -1,8 +1,6 @@
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/screen/room/messageWidgets/botMessageWidget/bot_radio_group.dart';
 import 'package:deliver/shared/widgets/shake_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -54,7 +52,7 @@ class FormListWidget extends StatelessWidget {
                         e,
                       ),
                       value: e,
-                    ))
+                    ),)
                 .toList(),
             onChanged: (value) {
               selected(value);

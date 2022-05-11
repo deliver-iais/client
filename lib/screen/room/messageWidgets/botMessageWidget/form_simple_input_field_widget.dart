@@ -113,7 +113,7 @@ class _FormSimpleInputFieldWidgetState
                 ),
               ),
         labelText: widget.formField.id,
-        helperText: widget.formField.hint.isNotEmpty?widget.formField.hint:null);
+        helperText: widget.formField.hint.isNotEmpty?widget.formField.hint:null,);
   }
 
   String? validateFormTextField(String? value) {
