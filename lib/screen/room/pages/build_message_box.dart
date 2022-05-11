@@ -630,7 +630,7 @@ class OperationOnMessageSelection {
   void onShowInFolder(String path) {
     final shell = Shell();
     if (isWindows) {
-      shell.run('start "" "$path"');
+      shell.run('explorer.exe /select,"${path.replaceAll("/", "\\")}"');
     } else if (isLinux) {
       shell.run('nautilus "$path"');
     } else if (isMacOS) {
