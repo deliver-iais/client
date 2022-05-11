@@ -7,6 +7,7 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/activity_status.dart';
 import 'package:deliver/shared/widgets/drag_and_drop_widget.dart';
@@ -58,24 +59,19 @@ class _ChatItemState extends State<ChatItem> {
     return FutureBuilder<String>(
       initialData: _roomRepo.fastForwardName(widget.room.uid.asUid()),
       future: _roomRepo.getName(widget.room.uid.asUid()),
-      builder: (c, name) {
-        if (name.hasData && name.data!.isNotEmpty ||
-            _authRepo.isCurrentUser(widget.room.uid)) {
-          return StreamBuilder<String>(
-            stream: _routingService.currentRouteStream,
-            builder: (context, snapshot) {
-              return isLarge(context) || (snapshot.data == "/")
-                  ? DragDropWidget(
-                      roomUid: widget.room.uid,
-                      height: 66,
-                      child: buildChatItemWidget(name, lastMessage),
-                    )
-                  : buildChatItemWidget(name, lastMessage);
-            },
-          );
-        } else {
-          return defaultChatItem();
-        }
+      builder: (c, nameSnapshot) {
+        final name = _authRepo.isCurrentUser(widget.room.uid)
+            ? _i18n.get("saved_message")
+            : nameSnapshot.data ?? "";
+
+        return StreamBuilder<String>(
+          stream: _routingService.currentRouteStream,
+          builder: (context, snapshot) => DragDropWidget(
+            roomUid: widget.room.uid,
+            height: 66,
+            child: buildChatItemWidget(name, lastMessage),
+          ),
+        );
       },
     );
   }
@@ -144,136 +140,125 @@ class _ChatItemState extends State<ChatItem> {
     );
   }
 
-  Widget buildChatItemWidget(AsyncSnapshot name, Message lastMessage) {
+  Widget buildChatItemWidget(String name, Message lastMessage) {
     final theme = Theme.of(context);
     final activeHoverColor =
         Color.lerp(theme.focusColor, theme.dividerColor, 0.1);
     final hoverColor = theme.hoverColor;
-    return StreamBuilder<String>(
-      stream: _routingService.currentRouteStream,
-      builder: (context, snapshot) {
-        return HoverContainer(
-          cursor: SystemMouseCursors.click,
-          margin: const EdgeInsets.only(right: 6, left: 6),
-          padding: const EdgeInsets.all(8),
-          hoverDecoration: BoxDecoration(
-            color: _routingService.isInRoom(widget.room.uid)
-                ? activeHoverColor
-                : hoverColor,
-            borderRadius: secondaryBorder,
+
+    return HoverContainer(
+      cursor: SystemMouseCursors.click,
+      margin: const EdgeInsets.only(right: 6, left: 6),
+      padding: const EdgeInsets.all(8),
+      hoverDecoration: BoxDecoration(
+        color: _routingService.isInRoom(widget.room.uid)
+            ? activeHoverColor
+            : hoverColor,
+        borderRadius: secondaryBorder,
+      ),
+      decoration: BoxDecoration(
+        color: _routingService.isInRoom(widget.room.uid)
+            ? theme.focusColor
+            : Colors.transparent,
+        borderRadius: secondaryBorder,
+      ),
+      height: 66,
+      child: Row(
+        children: <Widget>[
+          ContactPic(widget.room.uid.asUid()),
+          const SizedBox(
+            width: 8,
           ),
-          decoration: BoxDecoration(
-            color: _routingService.isInRoom(widget.room.uid)
-                ? theme.focusColor
-                : Colors.transparent,
-            borderRadius: secondaryBorder,
-          ),
-          height: 66,
-          child: Row(
-            children: <Widget>[
-              ContactPic(widget.room.uid.asUid()),
-              const SizedBox(
-                width: 8,
-              ),
-              Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: <Widget>[
-                    Row(
-                      children: [
-                        if (widget.room.uid.asUid().category ==
-                            Categories.GROUP)
-                          const SizedBox(
-                            width: 16,
-                            child: Icon(
-                              CupertinoIcons.person_2_fill,
-                              size: 16,
-                            ),
-                          ),
-                        if (widget.room.uid.asUid().category ==
-                            Categories.CHANNEL)
-                          const SizedBox(
-                            width: 16,
-                            child: Icon(
-                              CupertinoIcons.news_solid,
-                              size: 16,
-                            ),
-                          ),
-                        if (widget.room.uid.asUid().category == Categories.BOT)
-                          const SizedBox(
-                            width: 16,
-                            child: Icon(
-                              CupertinoIcons.bolt_horizontal_circle,
-                              size: 16,
-                            ),
-                          ),
-                        Expanded(
-                          flex: 80,
-                          child: Padding(
-                            padding: widget.room.uid.asUid().isGroup() ||
-                                    widget.room.uid.asUid().isChannel() ||
-                                    widget.room.uid.asUid().isBot()
-                                ? const EdgeInsets.only(
-                                    left: 4.0,
-                                  )
-                                : EdgeInsets.zero,
-                            child: RoomName(
-                              uid: widget.room.uid.asUid(),
-                              name: _authRepo.isCurrentUser(
-                                widget.room.uid,
-                              )
-                                  ? _i18n.get("saved_message")
-                                  : name.data!,
-                            ),
-                          ),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: <Widget>[
+                Row(
+                  children: [
+                    if (widget.room.uid.asUid().category == Categories.GROUP)
+                      const SizedBox(
+                        width: 16,
+                        child: Icon(
+                          CupertinoIcons.person_2_fill,
+                          size: 16,
                         ),
-                        if (widget.room.lastMessage != null)
-                          Text(
-                            dateTimeFromNowFormat(
-                              date(widget.room.lastMessage!.time),
-                            ),
-                            maxLines: 1,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.w100,
-                              fontSize: 11,
-                            ),
-                          ),
-                      ],
+                      ),
+                    if (widget.room.uid.asUid().category == Categories.CHANNEL)
+                      const SizedBox(
+                        width: 16,
+                        child: Icon(
+                          CupertinoIcons.news_solid,
+                          size: 16,
+                        ),
+                      ),
+                    if (widget.room.uid.asUid().category == Categories.BOT)
+                      const SizedBox(
+                        width: 16,
+                        child: Icon(
+                          CupertinoIcons.bolt_horizontal_circle,
+                          size: 16,
+                        ),
+                      ),
+                    Expanded(
+                      flex: 80,
+                      child: Padding(
+                        padding: widget.room.uid.asUid().isGroup() ||
+                                widget.room.uid.asUid().isChannel() ||
+                                widget.room.uid.asUid().isBot()
+                            ? const EdgeInsets.only(
+                                left: 4.0,
+                              )
+                            : EdgeInsets.zero,
+                        child: RoomName(
+                          uid: widget.room.uid.asUid(),
+                          name: name,
+                        ),
+                      ),
                     ),
-                    StreamBuilder<Activity>(
-                      stream: _roomRepo
-                          .activityObject[widget.room.uid.asUid().node],
-                      builder: (c, s) {
-                        if (s.hasData &&
-                            s.data != null &&
-                            s.data!.typeOfActivity !=
-                                ActivityType.NO_ACTIVITY) {
-                          return Row(
-                            children: [
-                              ActivityStatus(
-                                activity: s.data!,
-                                roomUid: widget.room.uid.asUid(),
-                              ),
-                            ],
-                          );
-                        } else {
-                          return widget.room.draft != null &&
-                                  widget.room.draft!.isNotEmpty
-                              ? buildDraftMessageWidget(
-                                  _i18n,
-                                  context,
-                                )
-                              : buildLastMessage(lastMessage);
-                        }
-                      },
-                    ),
+                    if (widget.room.lastMessage != null)
+                      Text(
+                        dateTimeFromNowFormat(
+                          date(widget.room.lastMessage!.time),
+                        ),
+                        maxLines: 1,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w100,
+                          fontSize: 11,
+                        ),
+                      ),
                   ],
                 ),
-              ),
-            ],
+                StreamBuilder<Activity>(
+                  stream:
+                      _roomRepo.activityObject[widget.room.uid.asUid().node],
+                  builder: (c, s) {
+                    if (s.hasData &&
+                        s.data != null &&
+                        s.data!.typeOfActivity != ActivityType.NO_ACTIVITY) {
+                      return Row(
+                        children: [
+                          ActivityStatus(
+                            activity: s.data!,
+                            roomUid: widget.room.uid.asUid(),
+                          ),
+                        ],
+                      );
+                    } else {
+                      return widget.room.draft != null &&
+                              widget.room.draft!.isNotEmpty
+                          ? buildDraftMessageWidget(
+                              _i18n,
+                              context,
+                            )
+                          : buildLastMessage(lastMessage);
+                    }
+                  },
+                ),
+              ],
+            ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 
