@@ -612,33 +612,11 @@ class AndroidNotifier implements Notifier {
         selectedNotificationSound = selectedSound;
       }
     }
-
-    const inboxStyleInformation =
-        InboxStyleInformation([], contentTitle: 'new messages');
-
-    final androidNotificationDetails = AndroidNotificationDetails(
-      selectedNotificationSound + message.roomUid.asString(),
-      channel.name,
-      channelDescription: channel.description,
-      styleInformation: inboxStyleInformation,
-      groupKey: channel.groupId,
-      sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
-      setAsGroupSummary: true,
-    );
-    _flutterLocalNotificationsPlugin
-        .show(
-          message.roomUid.hashCode,
-          'Attention',
-          'new messages',
-          notificationDetails: androidNotificationDetails,
-        )
-        .ignore();
-
     final platformChannelSpecifics = AndroidNotificationDetails(
       selectedNotificationSound + message.roomUid.asString(),
       channel.name,
       channelDescription: channel.description,
-      groupKey: channel.groupId,
+      groupKey: message.roomUid.asString(),
       largeIcon: largeIcon,
       styleInformation: const BigTextStyleInformation(''),
       actions: <AndroidNotificationAction>[
@@ -658,15 +636,25 @@ class AndroidNotifier implements Notifier {
       ],
       sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
     );
-    _flutterLocalNotificationsPlugin
-        .show(
-          message.roomUid.asString().hashCode + message.id!,
-          message.roomName,
-          createNotificationTextFromMessageBrief(message),
-          notificationDetails: platformChannelSpecifics,
-          payload: Notifier.genPayload(message.roomUid.asString(), message.id!),
-        )
-        .ignore();
+    final res = await _flutterLocalNotificationsPlugin.getActiveNotifications();
+    var text = "";
+    for (final element in res) {
+      if (element.groupKey == message.roomUid.asString() &&
+          element.body != null &&
+          element.body!.isNotEmpty) {
+        text = text + element.body!;
+      }
+    }
+    if (text.isNotEmpty) text = text + "\n";
+    text = text + createNotificationTextFromMessageBrief(message);
+
+    _flutterLocalNotificationsPlugin.show(
+      message.roomUid.asString().hashCode,
+      message.roomName,
+      text,
+      notificationDetails: platformChannelSpecifics,
+      payload: Notifier.genPayload(message.roomUid.asString(), message.id!),
+    ).ignore();
   }
 
   @override
