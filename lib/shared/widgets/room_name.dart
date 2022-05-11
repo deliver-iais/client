@@ -1,4 +1,5 @@
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/shared/loaders/text_loader.dart';
 import 'package:deliver/shared/widgets/dot_animation/dot_animation.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
@@ -15,7 +16,12 @@ class RoomName extends StatelessWidget {
   final TextStyle? style;
   final bool shouldShowDotAnimation;
 
-  const RoomName({Key? key, required this.uid, this.name, this.style, this.shouldShowDotAnimation=false})
+  const RoomName(
+      {Key? key,
+      required this.uid,
+      this.name,
+      this.style,
+      this.shouldShowDotAnimation = false})
       : super(key: key);
 
   @override
@@ -31,14 +37,19 @@ class RoomName extends StatelessWidget {
         }
         return Row(
           children: [
-            Text(
-              name,
-              style: (style ?? theme.textTheme.subtitle2)!.copyWith(height: 1),
-              maxLines: 1,
-              softWrap: false,
-              overflow: TextOverflow.fade,
+            TextLoader(
+              Text(
+                name,
+                style:
+                    (style ?? theme.textTheme.subtitle2)!.copyWith(height: 1),
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.fade,
+              ),
+              width: 120,
             ),
-            if(shouldShowDotAnimation) DotAnimation(dotsColor: Theme.of(context).primaryColor),
+            if (shouldShowDotAnimation)
+              DotAnimation(dotsColor: Theme.of(context).primaryColor),
             FutureBuilder<bool>(
               future: _roomRepo.isVerified(uid),
               builder: (context, snapshot) {
@@ -64,7 +75,7 @@ class RoomName extends StatelessWidget {
   }
 
   Future<String> getName() async {
-    if (name != null) {
+    if (name != null && name!.isNotEmpty) {
       return name!;
     }
 

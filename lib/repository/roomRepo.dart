@@ -99,10 +99,16 @@ class RoomRepo {
     if (uidIdName != null &&
         ((uidIdName.id != null && uidIdName.id!.isNotEmpty) ||
             uidIdName.name != null && uidIdName.name!.isNotEmpty)) {
-      // Set in cache
-      roomNameCache.set(uid.asString(), uidIdName.name ?? uidIdName.id!);
+      var name = uidIdName.name!;
 
-      return uidIdName.name ?? uidIdName.id!;
+      if (name.isEmpty) {
+        name = uidIdName.id!;
+      }
+
+      // Set in cache
+      roomNameCache.set(uid.asString(), name);
+
+      return name;
     }
 
     // Is User
@@ -139,7 +145,7 @@ class RoomRepo {
     // Is bot
     if (uid.isBot()) {
       final botInfo = await _botRepo.getBotInfo(uid);
-      if (botInfo != null && botInfo.name!.isNotEmpty) {
+      if (botInfo != null && botInfo.name != null && botInfo.name!.isNotEmpty) {
         return botInfo.name!;
       }
       return uid.node;
