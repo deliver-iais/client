@@ -632,7 +632,7 @@ class OperationOnMessageSelection {
     if (isWindows) {
       shell.run('start "" "$path"');
     } else if (isLinux) {
-      shell.run('nautilus $path');
+      shell.run('nautilus "$path"');
     } else if (isMacOS) {
       shell.run('open $path');
     }
