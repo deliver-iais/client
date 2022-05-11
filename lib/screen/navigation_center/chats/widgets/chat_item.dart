@@ -68,6 +68,7 @@ class _ChatItemState extends State<ChatItem> {
           stream: _routingService.currentRouteStream,
           builder: (context, snapshot) => DragDropWidget(
             roomUid: widget.room.uid,
+            enabled: isLarge(context) || (snapshot.data == "/"),
             height: 66,
             child: buildChatItemWidget(name, lastMessage),
           ),
