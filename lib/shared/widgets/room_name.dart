@@ -16,18 +16,19 @@ class RoomName extends StatelessWidget {
   final TextStyle? style;
   final bool shouldShowDotAnimation;
 
-  const RoomName(
-      {Key? key,
-      required this.uid,
-      this.name,
-      this.style,
-      this.shouldShowDotAnimation = false})
-      : super(key: key);
+  const RoomName({
+    Key? key,
+    required this.uid,
+    this.name,
+    this.style,
+    this.shouldShowDotAnimation = false,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return FutureBuilder<String>(
+      initialData: fastForwardGetName(),
       future: getName(),
       builder: (context, snapshot) {
         var name = (snapshot.data ?? "");
@@ -51,6 +52,7 @@ class RoomName extends StatelessWidget {
             if (shouldShowDotAnimation)
               DotAnimation(dotsColor: Theme.of(context).primaryColor),
             FutureBuilder<bool>(
+              initialData: _roomRepo.fastForwardIsVerified(uid),
               future: _roomRepo.isVerified(uid),
               builder: (context, snapshot) {
                 if (snapshot.hasData && snapshot.data!) {
@@ -74,11 +76,19 @@ class RoomName extends StatelessWidget {
     );
   }
 
-  Future<String> getName() async {
+  Future<String> getName() {
+    if (name != null && name!.isNotEmpty) {
+      return Future.value(name);
+    }
+
+    return _roomRepo.getName(uid);
+  }
+
+  String? fastForwardGetName() {
     if (name != null && name!.isNotEmpty) {
       return name!;
     }
 
-    return _roomRepo.getName(uid);
+    return _roomRepo.fastForwardName(uid);
   }
 }

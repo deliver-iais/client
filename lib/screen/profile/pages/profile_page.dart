@@ -25,7 +25,6 @@ import 'package:deliver/screen/profile/widgets/profile_avatar.dart';
 import 'package:deliver/screen/profile/widgets/video_tab_ui.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
@@ -61,7 +60,6 @@ class _ProfilePageState extends State<ProfilePage>
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
-  final _uxService = GetIt.I.get<UxService>();
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();

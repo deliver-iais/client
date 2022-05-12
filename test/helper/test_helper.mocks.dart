@@ -2488,11 +2488,4 @@ class MockUxService extends _i1.Mock implements _i80.UxService {
   void changeLogLevel(String? level) =>
       super.noSuchMethod(Invocation.method(#changeLogLevel, [level]),
           returnValueForMissingStub: null);
-  @override
-  int? getTabIndex(String? fileId) =>
-      (super.noSuchMethod(Invocation.method(#getTabIndex, [fileId])) as int?);
-  @override
-  void setTabIndex(String? fileId, int? index) =>
-      super.noSuchMethod(Invocation.method(#setTabIndex, [fileId, index]),
-          returnValueForMissingStub: null);
 }

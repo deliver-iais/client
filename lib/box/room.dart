@@ -36,6 +36,9 @@ class Room {
   @HiveField(8)
   bool pinned;
 
+  // Transient
+  bool isInRoom;
+
   Room({
     required this.uid,
     this.lastMessage,
@@ -46,6 +49,7 @@ class Room {
     this.mentioned = false,
     this.deleted = false,
     this.pinned = false,
+    this.isInRoom = false,
   });
 
   Room copyWith({
@@ -59,6 +63,7 @@ class Room {
     bool? mentioned,
     bool? pinned,
     int? hiddenMessageCount,
+    bool? isInRoom,
   }) =>
       Room(
         uid: uid ?? this.uid,
@@ -70,6 +75,7 @@ class Room {
         firstMessageId: firstMessageId ?? this.firstMessageId,
         lastMessageId: lastMessageId ?? this.lastMessageId,
         pinned: pinned ?? this.pinned,
+        isInRoom: isInRoom ?? this.isInRoom,
       );
 
   @override
@@ -89,7 +95,8 @@ class Room {
               .equals(other.firstMessageId, firstMessageId) &&
           const DeepCollectionEquality()
               .equals(other.lastMessageId, lastMessageId) &&
-          const DeepCollectionEquality().equals(other.pinned, pinned));
+          const DeepCollectionEquality().equals(other.pinned, pinned) &&
+          const DeepCollectionEquality().equals(other.isInRoom, isInRoom));
 
   @override
   int get hashCode => Object.hash(
@@ -103,5 +110,11 @@ class Room {
         const DeepCollectionEquality().hash(firstMessageId),
         const DeepCollectionEquality().hash(lastMessageId),
         const DeepCollectionEquality().hash(pinned),
+        const DeepCollectionEquality().hash(isInRoom),
       );
+
+  @override
+  String toString() {
+    return "Room [uid:$uid] [deleted:$deleted] [draft:$draft] [lastUpdateTime:$lastUpdateTime] [mentioned:$mentioned] [firstMessageId:$firstMessageId] [lastMessageId:$lastMessageId] [pinned:$pinned] [isInRoom:$isInRoom] [lastMessage:$lastMessage]";
+  }
 }

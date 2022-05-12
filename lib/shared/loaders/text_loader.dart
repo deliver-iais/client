@@ -1,7 +1,5 @@
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
-import 'package:path/path.dart';
 import 'package:simple_animations/simple_animations.dart';
 
 class TextLoader extends StatelessWidget {
@@ -20,11 +18,6 @@ class TextLoader extends StatelessWidget {
 
   Widget buildLoader(BuildContext context) {
     final theme = Theme.of(context);
-
-    final color =
-        elevation(theme.colorScheme.surface, theme.colorScheme.primary, 2);
-    final color2 =
-        elevation(theme.colorScheme.surface, theme.colorScheme.primary, 10);
 
     return MirrorAnimation<Color?>(
       tween: ColorTween(

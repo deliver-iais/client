@@ -63,6 +63,9 @@ class RoomRepo {
     }
   }
 
+  bool fastForwardIsVerified(Uid uid) =>
+      uid.isSystem() || (uid.isBot() && uid.node == "father_bot");
+
   Future<bool> isVerified(Uid uid) async =>
       uid.isSystem() || (uid.isBot() && uid.node == "father_bot");
 
@@ -177,7 +180,6 @@ class RoomRepo {
         uid: roomUid.asString(),
         deleted: true,
         firstMessageId: room!.lastMessageId,
-        lastUpdateTime: clock.now().millisecondsSinceEpoch,
       );
       return true;
     } catch (e) {
