@@ -69,22 +69,22 @@ class LastMessage extends StatelessWidget {
                   iconColor: primaryColor,
                 ),
               ),
+            if (mb!.senderIsAUserOrBot && showSender)
+              Text(
+                mb.sender.trim() + (showSenderInSeparatedLine ? "\n" : ": "),
+                style: theme.primaryTextTheme.caption
+                    ?.copyWith(color: primaryColor),
+              ),
             Flexible(
               fit: expandContent ? FlexFit.tight : FlexFit.loose,
               child: RichText(
                 maxLines: showSenderInSeparatedLine && showSender ? 2 : 1,
-                overflow: TextOverflow.fade,
-                textDirection: TextDirection.ltr,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.end,
+                textDirection: TextDirection.rtl,
                 softWrap: false,
                 text: TextSpan(
                   children: [
-                    if (mb!.senderIsAUserOrBot && showSender)
-                      TextSpan(
-                        text: mb.sender.trim() +
-                            (showSenderInSeparatedLine ? "\n" : ": "),
-                        style: theme.primaryTextTheme.caption
-                            ?.copyWith(color: primaryColor),
-                      ),
                     if (mb.typeDetails.isNotEmpty)
                       TextSpan(
                         text: mb.typeDetails,
@@ -100,8 +100,9 @@ class LastMessage extends StatelessWidget {
                     if (mb.text.isNotEmpty)
                       TextSpan(
                         children: buildText(mb, context),
-                        style: theme.textTheme.caption
-                            ?.copyWith(color: naturalColor),
+                        style: theme.textTheme.caption?.copyWith(
+                          color: Colors.green,
+                        ),
                       ),
                   ],
                 ),
