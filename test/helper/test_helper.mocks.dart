@@ -1901,11 +1901,6 @@ class MockMucRepo extends _i1.Mock implements _i62.MucRepo {
       (super.noSuchMethod(Invocation.method(#isMucOwner, [userUid, mucUid]),
           returnValue: Future<bool>.value(false)) as _i19.Future<bool>);
   @override
-  _i19.Future<void> updateMuc(_i63.Muc? muc) => (super.noSuchMethod(
-      Invocation.method(#updateMuc, [muc]),
-      returnValue: Future<void>.value(),
-      returnValueForMissingStub: Future<void>.value()) as _i19.Future<void>);
-  @override
   _i19.Future<List<_i59.Member>> searchMemberByNameOrId(String? mucUid) =>
       (super.noSuchMethod(Invocation.method(#searchMemberByNameOrId, [mucUid]),
               returnValue: Future<List<_i59.Member>>.value(<_i59.Member>[]))
@@ -2389,7 +2384,7 @@ class MockMucDao extends _i1.Mock implements _i79.MucDao {
   _i19.Future<void> updateMuc(
           {String? uid,
           String? info,
-          List<int>? pinMessages,
+          List<int>? pinMessagesIdList,
           int? lastCanceledPinMessageId,
           int? population,
           String? id,
@@ -2399,7 +2394,7 @@ class MockMucDao extends _i1.Mock implements _i79.MucDao {
               Invocation.method(#updateMuc, [], {
                 #uid: uid,
                 #info: info,
-                #pinMessages: pinMessages,
+                #pinMessagesIdList: pinMessagesIdList,
                 #lastCanceledPinMessageId: lastCanceledPinMessageId,
                 #population: population,
                 #id: id,

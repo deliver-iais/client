@@ -24,12 +24,10 @@ class SenderAndContent extends StatelessWidget {
     return LastMessage(
       message: messages.first,
       showSender: true,
-      showSenderInSeparatedLine: true,
       showSeenStatus: false,
       showRoomDetails: false,
       lastMessageId: messages.first.id!,
       expandContent: expandContent,
-      primaryColor: highlightColor,
     );
   }
 }

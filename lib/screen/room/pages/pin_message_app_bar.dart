@@ -50,7 +50,7 @@ class PinMessageAppBar extends StatelessWidget {
                   borderRadius: secondaryBorder,
                   child: Container(
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.inverseSurface,
+                      color: theme.colorScheme.surface,
                       borderRadius: secondaryBorder,
                     ),
                     height: 60,
@@ -114,7 +114,7 @@ class PinMessageAppBar extends StatelessWidget {
                                   i18n.get("pinned_message"),
                                   style: theme.primaryTextTheme.subtitle2
                                       ?.copyWith(
-                                    color: theme.colorScheme.inversePrimary,
+                                    color: theme.colorScheme.primary,
                                   ),
                                 ),
                               if (mes != null)
@@ -122,10 +122,6 @@ class PinMessageAppBar extends StatelessWidget {
                                   message: mes,
                                   lastMessageId: mes.id!,
                                   showSeenStatus: false,
-                                  primaryColor:
-                                      theme.colorScheme.inversePrimary,
-                                  naturalColor:
-                                      theme.colorScheme.onInverseSurface,
                                 ),
                             ],
                           ),
