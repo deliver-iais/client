@@ -304,8 +304,6 @@ class MucRepo {
     return false;
   }
 
-  Future<void> updateMuc(Muc muc) => _mucDao.save(muc);
-
   Future<List<Member>> searchMemberByNameOrId(String mucUid) async => [];
 
   Future<List<Member?>> getAllMembers(String mucUid) =>
@@ -556,18 +554,16 @@ class MucRepo {
   Future<void> _insertToDb(
     Uid mucUid,
     String mucName,
-    int memberCount,
+    int population,
     String info, {
     String? channelId,
   }) async {
-    await _mucDao.save(
-      Muc(
-        uid: mucUid.asString(),
-        name: mucName,
-        info: info,
-        population: memberCount,
-        id: channelId ?? "",
-      ),
+    await _mucDao.updateMuc(
+      uid: mucUid.asString(),
+      name: mucName,
+      info: info,
+      population: population,
+      id: channelId,
     );
     await _roomDao.updateRoom(uid: mucUid.asString());
   }
