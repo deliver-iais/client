@@ -21,6 +21,8 @@ import 'package:hovering/hovering.dart';
 import 'contact_pic.dart';
 import 'last_message.dart';
 
+const chatItemHeight = 85.0;
+
 class RoomWrapper {
   final Room room;
   final bool isInRoom;
@@ -74,7 +76,7 @@ class _ChatItemState extends State<ChatItem> {
     return DragDropWidget(
       roomUid: widget.room.uid,
       enabled: isLarge(context) || (_routingService.notInRoom()),
-      height: 66,
+      height: chatItemHeight,
       child: HoverContainer(
         cursor: SystemMouseCursors.click,
         margin: const EdgeInsets.only(right: 6, left: 6),
@@ -87,7 +89,7 @@ class _ChatItemState extends State<ChatItem> {
           color: widget.isInRoom ? theme.focusColor : Colors.transparent,
           borderRadius: secondaryBorder,
         ),
-        height: 66,
+        height: chatItemHeight,
         child: FutureBuilder<String>(
           initialData: _roomRepo.fastForwardName(widget.room.uid.asUid()),
           future: _roomRepo.getName(widget.room.uid.asUid()),
@@ -118,12 +120,10 @@ class _ChatItemState extends State<ChatItem> {
     return Row(
       children: <Widget>[
         ContactPic(widget.room.uid.asUid()),
-        const SizedBox(
-          width: 8,
-        ),
+        const SizedBox(width: 8),
         Expanded(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Row(
                 children: [
@@ -180,6 +180,7 @@ class _ChatItemState extends State<ChatItem> {
                     ),
                 ],
               ),
+              const SizedBox(height: 4),
               StreamBuilder<Activity>(
                 stream: _roomRepo.activityObject[widget.room.uid.asUid().node],
                 builder: (c, s) {
