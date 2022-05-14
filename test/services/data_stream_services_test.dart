@@ -2,7 +2,6 @@ import 'package:clock/clock.dart';
 import 'package:deliver/box/last_activity.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/message_type.dart';
-import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart' as model_seen;
 import 'package:deliver/models/call_event_type.dart';
@@ -88,7 +87,7 @@ void main() {
         verify(mucDao.updateMuc(
           uid: testUid.asString(),
           pinMessages: [1],
-        ));
+        ),);
       });
 
       test(
