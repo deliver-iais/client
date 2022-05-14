@@ -2,6 +2,7 @@ import 'package:clock/clock.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_simple_input_field_widget.dart';
 import 'package:deliver/shared/methods/time.dart';
+import 'package:deliver/shared/widgets/shake_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -33,6 +34,7 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
   final TextEditingController _timeEditingController = TextEditingController();
 
   final TextEditingController _dateEditingController = TextEditingController();
+  final ShakeWidgetController _shakeWidgetController = ShakeWidgetController();
 
   DateTime? _selectedDate;
 
@@ -43,18 +45,23 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
   @override
   Widget build(BuildContext context) {
     widget.setFormKey(_formKey);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      child: Form(
-        key: _formKey,
-        child: widget.formField.whichType() == form_pb.Form_Field_Type.dateField
-            ? buildDateField(context)
-            : widget.formField.whichType() == form_pb.Form_Field_Type.timeField
-                ? buildTimeField(context)
-                : widget.formField.whichType() ==
-                        form_pb.Form_Field_Type.dateAndTimeField
-                    ? buildDateWithTimeField(context)
-                    : Container(),
+    return ShakeWidget(
+      controller: _shakeWidgetController,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Form(
+          key: _formKey,
+          child:
+              widget.formField.whichType() == form_pb.Form_Field_Type.dateField
+                  ? buildDateField(context)
+                  : widget.formField.whichType() ==
+                          form_pb.Form_Field_Type.timeField
+                      ? buildTimeField(context)
+                      : widget.formField.whichType() ==
+                              form_pb.Form_Field_Type.dateAndTimeField
+                          ? buildDateWithTimeField(context)
+                          : Container(),
+        ),
       ),
     );
   }
@@ -131,8 +138,10 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
       validator: (s) {
         if (!widget.formField.isOptional) {
           if (_selectedDate == null) {
+            _shakeWidgetController.shake();
             return _i18n.get("select_date");
           } else if (_selectedTime == null) {
+            _shakeWidgetController.shake();
             return _i18n.get("select_time");
           }
         }
@@ -151,6 +160,7 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
       controller: _timeEditingController,
       validator: (time) {
         if (!widget.formField.isOptional && (time == null || time.isEmpty)) {
+          _shakeWidgetController.shake();
           return _i18n.get("select_time");
         }
         return null;

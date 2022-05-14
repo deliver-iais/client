@@ -1,5 +1,6 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/input_message.dart';
+import 'package:deliver/shared/widgets/shake_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -36,27 +37,36 @@ class _FormSimpleInputFieldWidgetState
             : widget.formField.numberField.defaultNumber.toInt() != 0
                 ? widget.formField.numberField.defaultNumber.toString()
                 : "";
+    if (_textEditingController.text.isNotEmpty) {
+      widget.setResult(_textEditingController.text);
+    }
     super.initState();
   }
 
   final _formKey = GlobalKey<FormState>();
+  final ShakeWidgetController shakeWidgetController = ShakeWidgetController();
   final TextEditingController _textEditingController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     widget.setFormKey(_formKey);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      child: Form(
-        key: _formKey,
-        child: buildSimpleInputFormField(
-          widget.formField.whichType() == form_pb.Form_Field_Type.textField
-              ? TextInputType.text
-              : TextInputType.number,
-          maxLength:
-              widget.formField.whichType() == form_pb.Form_Field_Type.textField
-                  ? widget.formField.textField.max
-                  : widget.formField.numberField.max.toInt(),
+    return ShakeWidget(
+      horizontalPadding: 5,
+      animationRange: 5,
+      controller: shakeWidgetController,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Form(
+          key: _formKey,
+          child: buildSimpleInputFormField(
+            widget.formField.whichType() == form_pb.Form_Field_Type.textField
+                ? TextInputType.text
+                : TextInputType.number,
+            maxLength: widget.formField.whichType() ==
+                    form_pb.Form_Field_Type.textField
+                ? widget.formField.textField.max
+                : widget.formField.numberField.max.toInt(),
+          ),
         ),
       ),
     );
@@ -106,16 +116,20 @@ class _FormSimpleInputFieldWidgetState
               ),
             ),
       labelText: widget.formField.id,
+      helperText:
+          widget.formField.hint.isNotEmpty ? widget.formField.hint : null,
     );
   }
 
   String? validateFormTextField(String? value) {
     if (value == null) return null;
     if (value.isEmpty && !widget.formField.isOptional) {
+      shakeWidgetController.shake();
       return _i18n.get("this_filed_not_empty");
     }
     if (widget.formField.whichType() == form_pb.Form_Field_Type.numberField) {
       if (!_isNumeric(value)) {
+        shakeWidgetController.shake();
         return _i18n.get("enter_numeric_value");
       }
     }
@@ -124,6 +138,7 @@ class _FormSimpleInputFieldWidgetState
       final Pattern pattern = widget.formField.textField.preValidationRegex;
       final regex = RegExp(pattern.toString());
       if (!regex.hasMatch(value)) {
+        shakeWidgetController.shake();
         return _i18n.get("not_valid_input");
       }
     }
