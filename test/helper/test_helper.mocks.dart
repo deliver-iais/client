@@ -240,7 +240,7 @@ class MockMessageDao extends _i1.Mock implements _i21.MessageDao {
           as _i19.Future<_i22.Message?>);
   @override
   _i19.Future<List<_i22.Message>> getMessagePage(String? roomUid, int? page,
-          {int? pageSize = 16}) =>
+          {int? pageSize = 50}) =>
       (super.noSuchMethod(
               Invocation.method(
                   #getMessagePage, [roomUid, page], {#pageSize: pageSize}),
@@ -374,7 +374,7 @@ class MockRoomRepo extends _i1.Mock implements _i26.RoomRepo {
           returnValue: Future<String>.value('')) as _i19.Future<String>);
   @override
   _i19.Stream<String?> watchId(_i3.Uid? uid) =>
-      (super.noSuchMethod(Invocation.method(#getId, [uid]),
+      (super.noSuchMethod(Invocation.method(#watchId, [uid]),
           returnValue: Stream<String?>.empty()) as _i19.Stream<String?>);
   @override
   _i19.Future<bool> deleteRoom(_i3.Uid? roomUid) =>
@@ -971,16 +971,16 @@ class MockMucServices extends _i1.Mock implements _i41.MucServices {
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i19.Future<void>);
   @override
-  _i19.Future<String?> getGroupJointToken({_i3.Uid? groupUid}) =>
+  _i19.Future<String> getGroupJointToken({_i3.Uid? groupUid}) =>
       (super.noSuchMethod(
           Invocation.method(#getGroupJointToken, [], {#groupUid: groupUid}),
-          returnValue: Future<String?>.value()) as _i19.Future<String?>);
+          returnValue: Future<String>.value('')) as _i19.Future<String>);
   @override
-  _i19.Future<String?> getChannelJointToken({_i3.Uid? channelUid}) =>
+  _i19.Future<String> getChannelJointToken({_i3.Uid? channelUid}) =>
       (super.noSuchMethod(
           Invocation.method(
               #getChannelJointToken, [], {#channelUid: channelUid}),
-          returnValue: Future<String?>.value()) as _i19.Future<String?>);
+          returnValue: Future<String>.value('')) as _i19.Future<String>);
   @override
   _i19.Future<void> unpinMessage(_i22.Message? message) => (super.noSuchMethod(
       Invocation.method(#unpinMessage, [message]),
@@ -1614,11 +1614,9 @@ class MockUidIdNameDao extends _i1.Mock implements _i54.UidIdNameDao {
       (super.noSuchMethod(Invocation.method(#getUidById, [id]),
           returnValue: Future<String?>.value()) as _i19.Future<String?>);
   @override
-  _i19.Future<void> update(String? uid,
-          {String? id, String? name, int? lastUpdateTime}) =>
+  _i19.Future<void> update(String? uid, {String? id, String? name}) =>
       (super.noSuchMethod(
-              Invocation.method(#update, [uid],
-                  {#id: id, #name: name, #lastUpdateTime: lastUpdateTime}),
+              Invocation.method(#update, [uid], {#id: id, #name: name}),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
           as _i19.Future<void>);
@@ -1865,16 +1863,16 @@ class MockMucRepo extends _i1.Mock implements _i62.MucRepo {
               returnValueForMissingStub: Future<void>.value())
       as _i19.Future<void>);
   @override
-  _i19.Future<String?> getGroupJointToken({_i3.Uid? groupUid}) =>
+  _i19.Future<String> getGroupJointToken({_i3.Uid? groupUid}) =>
       (super.noSuchMethod(
           Invocation.method(#getGroupJointToken, [], {#groupUid: groupUid}),
-          returnValue: Future<String?>.value()) as _i19.Future<String?>);
+          returnValue: Future<String>.value('')) as _i19.Future<String>);
   @override
-  _i19.Future<String?> getChannelJointToken({_i3.Uid? channelUid}) =>
+  _i19.Future<String> getChannelJointToken({_i3.Uid? channelUid}) =>
       (super.noSuchMethod(
           Invocation.method(
               #getChannelJointToken, [], {#channelUid: channelUid}),
-          returnValue: Future<String?>.value()) as _i19.Future<String?>);
+          returnValue: Future<String>.value('')) as _i19.Future<String>);
   @override
   _i19.Future<void> fetchChannelMembers(_i3.Uid? channelUid, int? len) =>
       (super.noSuchMethod(
@@ -1883,8 +1881,11 @@ class MockMucRepo extends _i1.Mock implements _i62.MucRepo {
               returnValueForMissingStub: Future<void>.value())
           as _i19.Future<void>);
   @override
-  _i19.Future<_i63.Muc?> fetchMucInfo(_i3.Uid? mucUid) =>
-      (super.noSuchMethod(Invocation.method(#fetchMucInfo, [mucUid]),
+  _i19.Future<_i63.Muc?> fetchMucInfo(_i3.Uid? mucUid,
+          {bool? createNewRoom = false}) =>
+      (super.noSuchMethod(
+          Invocation.method(
+              #fetchMucInfo, [mucUid], {#createNewRoom: createNewRoom}),
           returnValue: Future<_i63.Muc?>.value()) as _i19.Future<_i63.Muc?>);
   @override
   _i19.Future<bool> isMucAdminOrOwner(String? memberUid, String? mucUid) =>
@@ -2376,15 +2377,34 @@ class MockMucDao extends _i1.Mock implements _i79.MucDao {
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i19.Future<void>);
   @override
-  _i19.Future<void> update(_i63.Muc? muc) => (super.noSuchMethod(
-      Invocation.method(#update, [muc]),
-      returnValue: Future<void>.value(),
-      returnValueForMissingStub: Future<void>.value()) as _i19.Future<void>);
-  @override
   _i19.Future<void> delete(String? uid) => (super.noSuchMethod(
       Invocation.method(#delete, [uid]),
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i19.Future<void>);
+  @override
+  _i19.Future<void> updateMuc(
+          {String? uid,
+          String? info,
+          List<int>? pinMessages,
+          int? lastCanceledPinMessageId,
+          int? population,
+          String? id,
+          String? token,
+          String? name}) =>
+      (super.noSuchMethod(
+              Invocation.method(#updateMuc, [], {
+                #uid: uid,
+                #info: info,
+                #pinMessages: pinMessages,
+                #lastCanceledPinMessageId: lastCanceledPinMessageId,
+                #population: population,
+                #id: id,
+                #token: token,
+                #name: name
+              }),
+              returnValue: Future<void>.value(),
+              returnValueForMissingStub: Future<void>.value())
+          as _i19.Future<void>);
   @override
   _i19.Future<_i59.Member?> getMember(String? mucUid, String? memberUid) =>
       (super.noSuchMethod(Invocation.method(#getMember, [mucUid, memberUid]),
@@ -2487,12 +2507,5 @@ class MockUxService extends _i1.Mock implements _i80.UxService {
   @override
   void changeLogLevel(String? level) =>
       super.noSuchMethod(Invocation.method(#changeLogLevel, [level]),
-          returnValueForMissingStub: null);
-  @override
-  int? getTabIndex(String? fileId) =>
-      (super.noSuchMethod(Invocation.method(#getTabIndex, [fileId])) as int?);
-  @override
-  void setTabIndex(String? fileId, int? index) =>
-      super.noSuchMethod(Invocation.method(#setTabIndex, [fileId, index]),
           returnValueForMissingStub: null);
 }

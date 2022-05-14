@@ -37,6 +37,9 @@ class _FormSimpleInputFieldWidgetState
             : widget.formField.numberField.defaultNumber.toInt() != 0
                 ? widget.formField.numberField.defaultNumber.toString()
                 : "";
+    if (_textEditingController.text.isNotEmpty) {
+      widget.setResult(_textEditingController.text);
+    }
     super.initState();
   }
 
@@ -103,17 +106,19 @@ class _FormSimpleInputFieldWidgetState
 
   InputDecoration buildInputDecoration() {
     return InputDecoration(
-        suffixIcon: widget.formField.isOptional
-            ? const SizedBox.shrink()
-            : const Padding(
-                padding: EdgeInsets.only(top: 20, left: 25),
-                child: Text(
-                  "*",
-                  style: TextStyle(color: Colors.red),
-                ),
+      suffixIcon: widget.formField.isOptional
+          ? const SizedBox.shrink()
+          : const Padding(
+              padding: EdgeInsets.only(top: 20, left: 25),
+              child: Text(
+                "*",
+                style: TextStyle(color: Colors.red),
               ),
-        labelText: widget.formField.id,
-        helperText: widget.formField.hint.isNotEmpty?widget.formField.hint:null,);
+            ),
+      labelText: widget.formField.id,
+      helperText:
+          widget.formField.hint.isNotEmpty ? widget.formField.hint : null,
+    );
   }
 
   String? validateFormTextField(String? value) {

@@ -39,7 +39,7 @@ class MucAppbarTitle extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          snapshot.data!.name!,
+                          snapshot.data!.name,
                           maxLines: 1,
                           overflow: TextOverflow.fade,
                           softWrap: false,

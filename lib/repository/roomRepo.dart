@@ -128,11 +128,11 @@ class RoomRepo {
     if (uid.category == Categories.GROUP ||
         uid.category == Categories.CHANNEL) {
       final muc = await _mucRepo.fetchMucInfo(uid);
-      if (muc != null && muc.name != null && muc.name!.isNotEmpty) {
-        roomNameCache.set(uid.asString(), muc.name!);
+      if (muc != null && muc.name.isNotEmpty) {
+        roomNameCache.set(uid.asString(), muc.name);
         unawaited(_uidIdNameDao.update(uid.asString(), name: muc.name));
 
-        return muc.name!;
+        return muc.name;
       }
     }
 
@@ -224,8 +224,8 @@ class RoomRepo {
       if (uid.category == Categories.GROUP ||
           uid.category == Categories.CHANNEL) {
         final muc = await _mucRepo.fetchMucInfo(uid);
-        if (muc != null && muc.name != null && muc.name!.isNotEmpty) {
-          roomNameCache.set(uid.asString(), muc.name!);
+        if (muc != null  && muc.name.isNotEmpty) {
+          roomNameCache.set(uid.asString(), muc.name);
           unawaited(
             _uidIdNameDao.update(uid.asString(), name: muc.name),
           );

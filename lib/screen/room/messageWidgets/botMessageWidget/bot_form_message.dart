@@ -277,9 +277,9 @@ class _BotFormMessageState extends State<BotFormMessage> {
   }
 
   Widget buildTitle(ThemeData theme, BehaviorSubject<String> _errorText) {
-    return Row(
+    return Stack(
       children: [
-        if (!form.lockAfter.isZero) buildTimer(),
+       if (!form.lockAfter.isZero) buildTimer(),
         Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,

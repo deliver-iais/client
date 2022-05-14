@@ -75,22 +75,6 @@ class DataStreamServices {
               await _roomDao.updateRoom(uid: roomUid.asString(), deleted: true);
               return null;
             case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
-              if (isOnlineMessage) {
-                break;
-              }
-              final muc = await _mucDao.get(roomUid.asString());
-              final pinMessages = muc!.pinMessagesIdList;
-              pinMessages!.add(
-                message.persistEvent.mucSpecificPersistentEvent.messageId
-                    .toInt(),
-              );
-              await _mucDao.update(
-                muc.copyWith(
-                  uid: muc.uid,
-                  pinMessagesIdList: pinMessages,
-                  showPinMessage: true,
-                ),
-              );
               break;
 
             case MucSpecificPersistentEvent_Issue.KICK_USER:
@@ -215,7 +199,6 @@ class DataStreamServices {
           roomName: roomName,
         );
       }
-
 
       // Step 5 - Update Activity to NO_ACTIVITY
       _roomRepo.updateActivity(

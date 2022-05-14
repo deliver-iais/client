@@ -85,15 +85,10 @@ void main() {
           isOnlineMessage: false,
         );
         verify(mucDao.get(testUid.asString()));
-        verify(
-          mucDao.update(
-            Muc(
-              uid: testUid.asString(),
-              showPinMessage: true,
-              pinMessagesIdList: [1],
-            ),
-          ),
-        );
+        verify(mucDao.updateMuc(
+          uid: testUid.asString(),
+          pinMessages: [1],
+        ));
       });
 
       test(

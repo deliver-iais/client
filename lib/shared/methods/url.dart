@@ -1,6 +1,5 @@
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -24,7 +23,6 @@ String buildShareUserUrl(
 
 Future<void> handleJoinUri(BuildContext context, String initialLink) async {
   final _mucDao = GetIt.I.get<MucDao>();
-  final _messageRepo = GetIt.I.get<MessageRepo>();
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _i18n = GetIt.I.get<I18N>();
   final _routingService = GetIt.I.get<RoutingService>();
@@ -87,12 +85,6 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
                             );
                             if (muc != null) {
                               navigatorState.pop();
-
-                              _messageRepo.updateNewMuc(
-                                roomUid,
-                                muc.lastMessageId!,
-                              );
-
                               _routingService.openRoom(roomUid.asString());
                             }
                           } else {
@@ -102,12 +94,6 @@ Future<void> handleJoinUri(BuildContext context, String initialLink) async {
                             );
                             if (muc != null) {
                               navigatorState.pop();
-
-                              _messageRepo.updateNewMuc(
-                                roomUid,
-                                muc.lastMessageId!,
-                              );
-
                               _routingService.openRoom(roomUid.asString());
                             }
                           }
