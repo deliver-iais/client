@@ -79,7 +79,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_map: 0.14.0
-  flutter_webrtc: 0.8.5
+  flutter_webrtc: 0.8.6
   fluttertoast: 8.0.8
   fuzzy: 0.4.0-nullsafety.0
   geolocator: 7.7.1
