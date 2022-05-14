@@ -360,6 +360,10 @@ class MockRoomRepo extends _i1.Mock implements _i26.RoomRepo {
           Invocation.method(#getSlangName, [uid], {#unknownName: unknownName}),
           returnValue: Future<String>.value('')) as _i19.Future<String>);
   @override
+  bool fastForwardIsVerified(_i3.Uid? uid) =>
+      (super.noSuchMethod(Invocation.method(#fastForwardIsVerified, [uid]),
+          returnValue: false) as bool);
+  @override
   _i19.Future<bool> isVerified(_i3.Uid? uid) =>
       (super.noSuchMethod(Invocation.method(#isVerified, [uid]),
           returnValue: Future<bool>.value(false)) as _i19.Future<bool>);
@@ -374,7 +378,7 @@ class MockRoomRepo extends _i1.Mock implements _i26.RoomRepo {
           returnValue: Future<String>.value('')) as _i19.Future<String>);
   @override
   _i19.Stream<String?> watchId(_i3.Uid? uid) =>
-      (super.noSuchMethod(Invocation.method(#getId, [uid]),
+      (super.noSuchMethod(Invocation.method(#watchId, [uid]),
           returnValue: Stream<String?>.empty()) as _i19.Stream<String?>);
   @override
   _i19.Future<bool> deleteRoom(_i3.Uid? roomUid) =>
@@ -1614,11 +1618,9 @@ class MockUidIdNameDao extends _i1.Mock implements _i54.UidIdNameDao {
       (super.noSuchMethod(Invocation.method(#getUidById, [id]),
           returnValue: Future<String?>.value()) as _i19.Future<String?>);
   @override
-  _i19.Future<void> update(String? uid,
-          {String? id, String? name, int? lastUpdateTime}) =>
+  _i19.Future<void> update(String? uid, {String? id, String? name}) =>
       (super.noSuchMethod(
-              Invocation.method(#update, [uid],
-                  {#id: id, #name: name, #lastUpdateTime: lastUpdateTime}),
+              Invocation.method(#update, [uid], {#id: id, #name: name}),
               returnValue: Future<void>.value(),
               returnValueForMissingStub: Future<void>.value())
           as _i19.Future<void>);
