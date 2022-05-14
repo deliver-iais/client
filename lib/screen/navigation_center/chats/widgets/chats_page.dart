@@ -99,44 +99,34 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Room>>(
+      initialData: const [],
       stream: _roomRepo.watchAllRooms().distinct(
             (a, b) => deepEquality.equals(a, b),
           ),
       builder: (context, snapshot) {
-        final rooms = <Room>[...(snapshot.data ?? [])];
+        final rooms = snapshot.data ?? const [];
 
         return StreamBuilder<RouteEvent>(
           stream: _routingService.currentRouteStream,
           builder: (c, s) {
             rearrangeChatItem(rooms);
 
-            if (s.hasData) {
-              final routeEvent = s.data!;
-
-              final prevIndex = rooms.indexWhere(
-                (room) => _routingService.isPrevRoom(routeEvent, room.uid),
-              );
-
-              final nextIndex = rooms.indexWhere(
-                (room) => _routingService.isNextRoom(routeEvent, room.uid),
-              );
-
-              if (prevIndex > -1) {
-                rooms[prevIndex].isInRoom = false;
-              }
-
-              if (nextIndex > -1) {
-                rooms[nextIndex].isInRoom = true;
-              }
-            }
+            final rw = rooms
+                .map(
+                  (r) => RoomWrapper(
+                    room: r,
+                    isInRoom: _routingService.isInRoom(r.uid),
+                  ),
+                )
+                .toList();
 
             return PageStorage(
               bucket: PageStorage.of(context)!,
               child: Scrollbar(
                 controller: widget.scrollController,
-                child: AutomaticAnimatedListView<Room>(
+                child: AutomaticAnimatedListView<RoomWrapper>(
                   scrollController: widget.scrollController,
-                  list: rooms,
+                  list: rw,
                   listController: _controller,
                   animator: const DefaultAnimatedListAnimator(
                     dismissIncomingDuration:
@@ -145,20 +135,21 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                     resizeDuration: kResizeAnimationDuration,
                     movingDuration: kMovingAnimationDuration,
                   ),
-                  comparator: AnimatedListDiffListComparator<Room>(
-                    sameItem: (a, b) => a.uid == b.uid,
-                    sameContent: (a, b) => a == b,
+                  comparator: AnimatedListDiffListComparator<RoomWrapper>(
+                    sameItem: (a, b) => a.room.uid == b.room.uid,
+                    sameContent: (a, b) =>
+                        a.room == b.room && a.isInRoom == b.isInRoom,
                   ),
-                  itemBuilder: (ctx, room, data) {
+                  itemBuilder: (ctx, rw, data) {
                     return GestureDetector(
                       behavior: HitTestBehavior.translucent,
                       child: ChatItem(
-                        key: ValueKey("chatItem/${room.uid}"),
-                        room: room,
+                        key: ValueKey("chatItem/${rw.room.uid}"),
+                        roomWrapper: rw,
                       ),
                       onTap: () {
                         _routingService.openRoom(
-                          room.uid,
+                          rw.room.uid,
                           popAllBeforePush: true,
                         );
                       },
@@ -166,7 +157,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                         // ToDo new design for android
                         _showCustomMenu(
                           context,
-                          room,
+                          rw.room,
                           canBePinned(rooms),
                         );
                       },
@@ -177,7 +168,7 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                           : () {
                               _showCustomMenu(
                                 context,
-                                room,
+                                rw.room,
                                 canBePinned(rooms),
                               );
                             },

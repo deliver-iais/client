@@ -261,13 +261,6 @@ class RoutingService {
   bool isInRoom(String roomId) =>
       _path() == "/room/$roomId" || _path() == "/room/$roomId/profile";
 
-  bool isPrevRoom(RouteEvent event, String roomId) =>
-      event.previousRoute == "/room/$roomId" ||
-      event.previousRoute == "/room/$roomId/profile";
-
-  bool isNextRoom(RouteEvent event, String roomId) =>
-      event.nextRoute == "/room/$roomId" ||
-      event.nextRoute == "/room/$roomId/profile";
 
   String _path() => _navigatorObserver.currentRoute.value.nextRoute;
 
@@ -382,10 +375,10 @@ class RoutingService {
 }
 
 class RouteEvent {
-  final String previousRoute;
+  final String prevRoute;
   final String nextRoute;
 
-  RouteEvent(this.previousRoute, this.nextRoute);
+  RouteEvent(this.prevRoute, this.nextRoute);
 }
 
 class RoutingServiceNavigatorObserver extends NavigatorObserver {

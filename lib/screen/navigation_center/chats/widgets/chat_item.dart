@@ -21,10 +21,21 @@ import 'package:hovering/hovering.dart';
 import 'contact_pic.dart';
 import 'last_message.dart';
 
+class RoomWrapper {
+  final Room room;
+  final bool isInRoom;
+
+  const RoomWrapper({required this.room, required this.isInRoom});
+}
+
 class ChatItem extends StatefulWidget {
   final Room room;
+  final bool isInRoom;
 
-  const ChatItem({Key? key, required this.room}) : super(key: key);
+  ChatItem({Key? key, required RoomWrapper roomWrapper})
+      : room = roomWrapper.room,
+        isInRoom = roomWrapper.isInRoom,
+        super(key: key);
 
   @override
   _ChatItemState createState() => _ChatItemState();
@@ -69,11 +80,11 @@ class _ChatItemState extends State<ChatItem> {
         margin: const EdgeInsets.only(right: 6, left: 6),
         padding: const EdgeInsets.all(8),
         hoverDecoration: BoxDecoration(
-          color: widget.room.isInRoom ? activeHoverColor : hoverColor,
+          color: widget.isInRoom ? activeHoverColor : hoverColor,
           borderRadius: secondaryBorder,
         ),
         decoration: BoxDecoration(
-          color: widget.room.isInRoom ? theme.focusColor : Colors.transparent,
+          color: widget.isInRoom ? theme.focusColor : Colors.transparent,
           borderRadius: secondaryBorder,
         ),
         height: 66,
