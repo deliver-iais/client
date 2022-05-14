@@ -216,7 +216,6 @@ class DataStreamServices {
         );
       }
 
-
       // Step 5 - Update Activity to NO_ACTIVITY
       _roomRepo.updateActivity(
         Activity()
@@ -282,12 +281,7 @@ class DataStreamServices {
 
       final room = await _roomDao.getRoom(roomUid.asString());
 
-      if (room!.lastMessage != null && room.lastMessage!.id != id) {
-        await _roomDao.updateRoom(
-          uid: roomUid.asString(),
-          lastUpdateTime: deleteActionTime,
-        );
-      } else {
+      if (room!.lastMessage != null && room.lastMessage!.id == id) {
         final lastNotHiddenMessage = await fetchLastNotHiddenMessage(
           roomUid,
           room.lastMessageId,
@@ -297,7 +291,6 @@ class DataStreamServices {
         await _roomDao.updateRoom(
           uid: roomUid.asString(),
           lastMessage: lastNotHiddenMessage ?? savedMsg,
-          lastUpdateTime: deleteActionTime,
         );
       }
       messageEventSubject.add(
@@ -345,7 +338,6 @@ class DataStreamServices {
       uid: room.uid,
       lastMessage:
           (room.lastMessage != null && room.lastMessage!.id != id) ? null : msg,
-      lastUpdateTime: time,
     );
   }
 
@@ -573,7 +565,6 @@ class DataStreamServices {
       await _roomDao.updateRoom(
         uid: roomUid.asString(),
         firstMessageId: firstMessageId,
-        lastUpdateTime: lastNotHiddenMessage.time,
         lastMessageId: lastMessageId,
         lastMessage: lastNotHiddenMessage,
       );
