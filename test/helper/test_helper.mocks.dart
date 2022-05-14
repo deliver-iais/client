@@ -360,6 +360,10 @@ class MockRoomRepo extends _i1.Mock implements _i26.RoomRepo {
           Invocation.method(#getSlangName, [uid], {#unknownName: unknownName}),
           returnValue: Future<String>.value('')) as _i19.Future<String>);
   @override
+  bool fastForwardIsVerified(_i3.Uid? uid) =>
+      (super.noSuchMethod(Invocation.method(#fastForwardIsVerified, [uid]),
+          returnValue: false) as bool);
+  @override
   _i19.Future<bool> isVerified(_i3.Uid? uid) =>
       (super.noSuchMethod(Invocation.method(#isVerified, [uid]),
           returnValue: Future<bool>.value(false)) as _i19.Future<bool>);

@@ -19,12 +19,14 @@ class DragDropWidget extends StatelessWidget {
   final double height;
   final void Function()? resetRoomPageDetails;
   final int? replyMessageId;
+  final bool enabled;
 
   DragDropWidget({
     Key? key,
     required this.child,
     required this.roomUid,
     required this.height,
+    this.enabled = true,
     this.resetRoomPageDetails,
     this.replyMessageId,
   }) : super(key: key);
@@ -39,38 +41,25 @@ class DragDropWidget extends StatelessWidget {
     return isWeb
         ? Stack(
             children: [
-              SizedBox(
-                height: height,
-                child: DropzoneView(
-                  operation: DragOperation.copy,
-                  cursor: CursorType.grab,
-                  onCreated: (ctrl) {},
-                  onHover: () {},
-                  onDrop: (blob) async {
-                    try {
-                      final file = blob as File;
-                      final url = Url.createObjectUrlFromBlob(file.slice());
-                      final modelFile = model.File(
-                        url,
-                        file.name,
-                        extension: file.type,
-                        size: file.size,
-                      );
-                      if (!roomUid.asUid().isChannel()) {
-                        showDialogInDesktop(
-                          [modelFile],
-                          context,
-                          file.type,
-                          replyMessageId,
-                          resetRoomPageDetails,
+              if (enabled)
+                SizedBox(
+                  height: height,
+                  child: DropzoneView(
+                    operation: DragOperation.copy,
+                    cursor: CursorType.grab,
+                    onCreated: (ctrl) {},
+                    onHover: () {},
+                    onDrop: (blob) async {
+                      try {
+                        final file = blob as File;
+                        final url = Url.createObjectUrlFromBlob(file.slice());
+                        final modelFile = model.File(
+                          url,
+                          file.name,
+                          extension: file.type,
+                          size: file.size,
                         );
-                      } else {
-                        final res = await _mucRepo.isMucAdminOrOwner(
-                          _authRepo.currentUserUid.asString(),
-                          roomUid,
-                        );
-                        if (res) {
-                          // ignore: use_build_context_synchronously
+                        if (!roomUid.asUid().isChannel()) {
                           showDialogInDesktop(
                             [modelFile],
                             context,
@@ -78,20 +67,35 @@ class DragDropWidget extends StatelessWidget {
                             replyMessageId,
                             resetRoomPageDetails,
                           );
+                        } else {
+                          final res = await _mucRepo.isMucAdminOrOwner(
+                            _authRepo.currentUserUid.asString(),
+                            roomUid,
+                          );
+                          if (res) {
+                            // ignore: use_build_context_synchronously
+                            showDialogInDesktop(
+                              [modelFile],
+                              context,
+                              file.type,
+                              replyMessageId,
+                              resetRoomPageDetails,
+                            );
+                          }
                         }
+                      } catch (e) {
+                        _logger.e(e);
                       }
-                    } catch (e) {
-                      _logger.e(e);
-                    }
-                  },
-                  onLeave: () {},
+                    },
+                    onLeave: () {},
+                  ),
                 ),
-              ),
               child,
             ],
           )
         : DropTarget(
             child: child,
+            enable: enabled,
             onDragDone: (d) async {
               final files = <model.File>[];
               for (final element in d.files) {

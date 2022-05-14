@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -92,81 +93,90 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
     }
   }
 
+  final DeepCollectionEquality deepEquality =
+      const DeepCollectionEquality.unordered();
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Room>>(
-      stream: _roomRepo.watchAllRooms(),
+      initialData: const [],
+      stream: _roomRepo.watchAllRooms().distinct(
+            (a, b) => deepEquality.equals(a, b),
+          ),
       builder: (context, snapshot) {
-        return StreamBuilder(
+        final rooms = snapshot.data ?? const [];
+
+        return StreamBuilder<RouteEvent>(
           stream: _routingService.currentRouteStream,
           builder: (c, s) {
-            if (snapshot.hasData) {
-              final rooms = snapshot.data!.toList();
-              rearrangeChatItem(rooms);
-              return PageStorage(
-                bucket: PageStorage.of(context)!,
-                child: Scrollbar(
-                  controller: widget.scrollController,
-                  child: AutomaticAnimatedListView<Room>(
-                    scrollController: widget.scrollController,
-                    list: rooms,
-                    listController: _controller,
-                    animator: const DefaultAnimatedListAnimator(
-                      dismissIncomingDuration:
-                          kDismissOrIncomingAnimationDuration,
-                      reorderDuration: kReorderAnimationDuration,
-                      resizeDuration: kResizeAnimationDuration,
-                      movingDuration: kMovingAnimationDuration,
-                    ),
-                    comparator: AnimatedListDiffListComparator<Room>(
-                      sameItem: (a, b) => a.uid == b.uid,
-                      sameContent: (a, b) =>
-                          a.lastMessage?.id == b.lastMessage?.id &&
-                          a.mentioned == b.mentioned &&
-                          a.pinned == b.pinned &&
-                          a.lastUpdateTime == b.lastUpdateTime &&
-                          a.draft == b.draft,
-                    ),
-                    itemBuilder: (ctx, room, data) {
-                      return GestureDetector(
-                        behavior: HitTestBehavior.translucent,
-                        child: ChatItem(
-                          key: ValueKey("chatItem/${room.uid}"),
-                          room: room,
-                        ),
-                        onTap: () {
-                          _routingService.openRoom(
-                            room.uid,
-                            popAllBeforePush: true,
-                          );
-                        },
-                        onLongPress: () {
-                          // ToDo new design for android
-                          _showCustomMenu(
-                            context,
-                            room,
-                            canBePinned(rooms),
-                          );
-                        },
-                        onTapDown: storePosition,
-                        onSecondaryTapDown: storePosition,
-                        onSecondaryTap: !isDesktop
-                            ? null
-                            : () {
-                                _showCustomMenu(
-                                  context,
-                                  room,
-                                  canBePinned(rooms),
-                                );
-                              },
-                      );
-                    },
+            rearrangeChatItem(rooms);
+
+            final rw = rooms
+                .map(
+                  (r) => RoomWrapper(
+                    room: r,
+                    isInRoom: _routingService.isInRoom(r.uid),
                   ),
+                )
+                .toList();
+
+            return PageStorage(
+              bucket: PageStorage.of(context)!,
+              child: Scrollbar(
+                controller: widget.scrollController,
+                child: AutomaticAnimatedListView<RoomWrapper>(
+                  scrollController: widget.scrollController,
+                  list: rw,
+                  listController: _controller,
+                  animator: const DefaultAnimatedListAnimator(
+                    dismissIncomingDuration:
+                        kDismissOrIncomingAnimationDuration,
+                    reorderDuration: kReorderAnimationDuration,
+                    resizeDuration: kResizeAnimationDuration,
+                    movingDuration: kMovingAnimationDuration,
+                  ),
+                  comparator: AnimatedListDiffListComparator<RoomWrapper>(
+                    sameItem: (a, b) => a.room.uid == b.room.uid,
+                    sameContent: (a, b) =>
+                        a.room == b.room && a.isInRoom == b.isInRoom,
+                  ),
+                  itemBuilder: (ctx, rw, data) {
+                    return GestureDetector(
+                      behavior: HitTestBehavior.translucent,
+                      child: ChatItem(
+                        key: ValueKey("chatItem/${rw.room.uid}"),
+                        roomWrapper: rw,
+                      ),
+                      onTap: () {
+                        _routingService.openRoom(
+                          rw.room.uid,
+                          popAllBeforePush: true,
+                        );
+                      },
+                      onLongPress: () {
+                        // ToDo new design for android
+                        _showCustomMenu(
+                          context,
+                          rw.room,
+                          canBePinned(rooms),
+                        );
+                      },
+                      onTapDown: storePosition,
+                      onSecondaryTapDown: storePosition,
+                      onSecondaryTap: !isDesktop
+                          ? null
+                          : () {
+                              _showCustomMenu(
+                                context,
+                                rw.room,
+                                canBePinned(rooms),
+                              );
+                            },
+                    );
+                  },
                 ),
-              );
-            } else {
-              return Container();
-            }
+              ),
+            );
           },
         );
       },

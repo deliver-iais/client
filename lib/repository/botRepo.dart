@@ -33,11 +33,17 @@ class BotRepo {
       _uidIdNameDao.update(
         botUid.asString(),
         name: result.name,
-        id: botUid.asString(),
+        id: botUid.node,
       ),
     );
 
-    roomNameCache.set(botUid.asString(), result.name);
+    var name = result.name;
+
+    if (name.isEmpty) {
+      name = botUid.node;
+    }
+
+    roomNameCache.set(botUid.asString(), name);
 
     unawaited(_botDao.save(botInfo));
 
