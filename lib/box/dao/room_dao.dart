@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/hive_plus.dart';
@@ -105,20 +106,19 @@ class RoomDaoImpl implements RoomDao {
 
     final r = box.get(uid) ?? Room(uid: uid);
 
-    return box.put(
-      uid,
-      r.copyWith(
-        lastMessage: lastMessage,
-        lastMessageId: lastMessageId,
-        deleted: deleted,
-        draft: draft,
-        lastUpdateTime: lastUpdateTime,
-        firstMessageId: firstMessageId,
-        mentioned: mentioned,
-        pinned: pinned,
-        hiddenMessageCount: hiddenMessageCount,
-      ),
+    final clone = r.copyWith(
+      lastMessage: lastMessage,
+      lastMessageId: lastMessageId,
+      deleted: deleted,
+      draft: draft,
+      lastUpdateTime: max(lastUpdateTime ?? 0, r.lastUpdateTime),
+      firstMessageId: firstMessageId,
+      mentioned: mentioned,
+      pinned: pinned,
+      hiddenMessageCount: hiddenMessageCount,
     );
+
+    if (clone != r) return box.put(uid, clone);
   }
 
   @override

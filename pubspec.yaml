@@ -133,6 +133,7 @@ dependencies:
   sdp_transform: 0.3.2
   service_worker: 0.2.4
   share: 2.0.4
+  simple_animations: 4.0.2
   sms_autofill: 2.2.0
   synchronized: 3.0.0+2
   tuple: 2.0.0

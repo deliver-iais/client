@@ -130,7 +130,6 @@ class MessageRepo {
       _roomDao.updateRoom(
         uid: roomUid.asString(),
         lastMessageId: lastMessageId,
-        lastUpdateTime: clock.now().millisecondsSinceEpoch,
       );
     } catch (e) {
       _logger.e(e);
@@ -717,7 +716,6 @@ class MessageRepo {
         lastMessage: pm.msg,
         lastMessageId: pm.msg.id,
         deleted: false,
-        lastUpdateTime: pm.msg.time,
       );
 
   Future<void> sendForwardedMessage(
@@ -997,7 +995,6 @@ class MessageRepo {
             return _roomDao.updateRoom(
               uid: msg.roomUid,
               lastMessage: lastNotHiddenMessage,
-              lastUpdateTime: clock.now().millisecondsSinceEpoch,
             );
           }
         }

@@ -104,4 +104,9 @@ class Room {
         const DeepCollectionEquality().hash(lastMessageId),
         const DeepCollectionEquality().hash(pinned),
       );
+
+  @override
+  String toString() {
+    return "Room [uid:$uid] [deleted:$deleted] [draft:$draft] [lastUpdateTime:$lastUpdateTime] [mentioned:$mentioned] [firstMessageId:$firstMessageId] [lastMessageId:$lastMessageId] [pinned:$pinned] [lastMessage:$lastMessage]";
+  }
 }
