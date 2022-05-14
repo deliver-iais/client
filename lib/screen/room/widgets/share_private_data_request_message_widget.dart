@@ -4,6 +4,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
 import 'package:flutter/material.dart';
@@ -31,38 +32,58 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sharePrivateDataRequest = message.json.toSharePrivateDataRequest();
-    return Stack(
+    return Column(
       children: [
-        Container(
-          constraints: const BoxConstraints(minHeight: 35),
-          width: maxWidth,
-          margin: const EdgeInsets.only(bottom: 17),
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(primary: colorScheme.primary),
-            onPressed: () {
-              FocusScope.of(context).unfocus();
-              _showGetAccessPrivateData(context, sharePrivateDataRequest);
-            },
+        if (sharePrivateDataRequest.description.isNotEmpty)
+          Padding(
+            padding: const EdgeInsets.all(8.0),
             child: Text(
-              sharePrivateDataRequest.data == PrivateDataType.PHONE_NUMBER
-                  ? _i18n.get("get_access_phone_number")
-                  : sharePrivateDataRequest.data == PrivateDataType.EMAIL
-                      ? _i18n.get("get_access_email")
-                      : sharePrivateDataRequest.data == PrivateDataType.NAME
-                          ? _i18n.get("get_access_name")
-                          : _i18n.get("get_access_username"),
-              textAlign: TextAlign.center,
+              sharePrivateDataRequest.description,
+              textDirection: sharePrivateDataRequest.description.isPersian()
+                  ? TextDirection.rtl
+                  : TextDirection.ltr,
             ),
           ),
+        Stack(
+          children: [
+            Container(
+              constraints: const BoxConstraints(minHeight: 35),
+              width: maxWidth,
+              margin: const EdgeInsets.only(bottom: 23),
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  primary: colorScheme.primary,
+                  backgroundColor: colorScheme.onPrimary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                ),
+                onPressed: () {
+                  FocusScope.of(context).unfocus();
+                  _showGetAccessPrivateData(context, sharePrivateDataRequest);
+                },
+                child: Text(
+                  sharePrivateDataRequest.data == PrivateDataType.PHONE_NUMBER
+                      ? _i18n.get("get_access_phone_number")
+                      : sharePrivateDataRequest.data == PrivateDataType.EMAIL
+                          ? _i18n.get("get_access_email")
+                          : sharePrivateDataRequest.data == PrivateDataType.NAME
+                              ? _i18n.get("get_access_name")
+                              : _i18n.get("get_access_username"),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+            TimeAndSeenStatus(
+              message,
+              isSender: isSender,
+              isSeen: isSeen,
+              needsPadding: true,
+              backgroundColor: colorScheme.primaryContainer,
+              foregroundColor: colorScheme.onPrimaryContainerLowlight(),
+            )
+          ],
         ),
-        TimeAndSeenStatus(
-          message,
-          isSender: isSender,
-          isSeen: isSeen,
-          needsPadding: true,
-          backgroundColor: colorScheme.primaryContainer,
-          foregroundColor: colorScheme.onPrimaryContainerLowlight(),
-        )
       ],
     );
   }
