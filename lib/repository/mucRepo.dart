@@ -199,7 +199,6 @@ class MucRepo {
           await _roomDao.updateRoom(
             uid: mucUid.asString(),
             lastMessageId: group.lastMessageId.toInt(),
-            lastUpdateTime: clock.now().millisecondsSinceEpoch,
           );
         }
         final muc = Muc(
@@ -233,7 +232,6 @@ class MucRepo {
         if (createNewRoom) {
           await _roomDao.updateRoom(
             uid: mucUid.asString(),
-            lastUpdateTime: clock.now().millisecondsSinceEpoch,
             lastMessageId: channel.lastMessageId.toInt(),
           );
           GetIt.I.get<DataStreamServices>()
