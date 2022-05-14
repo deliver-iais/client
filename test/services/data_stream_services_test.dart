@@ -86,7 +86,7 @@ void main() {
         verify(mucDao.get(testUid.asString()));
         verify(mucDao.updateMuc(
           uid: testUid.asString(),
-          pinMessages: [1],
+          pinMessagesIdList: [1],
         ),);
       });
 

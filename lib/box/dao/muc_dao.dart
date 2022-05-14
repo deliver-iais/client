@@ -16,7 +16,7 @@ abstract class MucDao {
   Future<void> updateMuc({
     required String uid,
     String? info,
-    List<int>? pinMessages,
+    List<int>? pinMessagesIdList,
     int? lastCanceledPinMessageId,
     int? population,
     String? id,
@@ -129,7 +129,7 @@ class MucDaoImpl implements MucDao {
   Future<void> updateMuc(
       {required String uid,
       String? info,
-      List<int>? pinMessages,
+      List<int>? pinMessagesIdList,
       int? lastCanceledPinMessageId,
       int? population,
       String? id,
@@ -145,7 +145,7 @@ class MucDaoImpl implements MucDao {
               info: info,
               id: id,
               population: population,
-              pinMessagesIdList: pinMessages,
+              pinMessagesIdList: pinMessagesIdList,
               lastCanceledPinMessageId: lastCanceledPinMessageId,
               token: token,
               name: name,

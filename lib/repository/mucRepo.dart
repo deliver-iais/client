@@ -38,7 +38,6 @@ class MucRepo {
   final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
 
-
   Future<Uid?> createNewGroup(
     List<Uid> memberUids,
     String groupName,
@@ -200,17 +199,17 @@ class MucRepo {
             lastMessageId: group.lastMessageId.toInt(),
           );
         }
-        final muc = Muc(
-          name: group.info.name,
-          population: group.population.toInt(),
-          uid: mucUid.asString(),
-          info: group.info.info,
-          token: group.token,
-          lastCanceledPinMessageId: m != null ? m.lastCanceledPinMessageId : 0,
-          pinMessagesIdList: group.pinMessages.map((e) => e.toInt()).toList(),
-        );
 
-        unawaited(_mucDao.save(muc));
+        unawaited(
+          _mucDao.updateMuc(
+            uid: mucUid.asString(),
+            name: group.info.name,
+            population: group.population.toInt(),
+            info: group.info.info,
+            token: group.token,
+            pinMessagesIdList: group.pinMessages.map((e) => e.toInt()).toList(),
+          ),
+        );
 
         unawaited(fetchGroupMembers(mucUid, group.population.toInt()));
         if (m != null) {
@@ -221,7 +220,8 @@ class MucRepo {
             m.pinMessagesIdList,
           );
         }
-        return muc;
+
+        return _mucDao.get(mucUid.asString());
       }
       return null;
     } else {
@@ -233,24 +233,31 @@ class MucRepo {
             uid: mucUid.asString(),
             lastMessageId: channel.lastMessageId.toInt(),
           );
-          GetIt.I.get<DataStreamServices>()
+          GetIt.I
+              .get<DataStreamServices>()
               .fetchLastNotHiddenMessage(
-                  mucUid, channel.lastMessageId.toInt(), 0,)
+                mucUid,
+                channel.lastMessageId.toInt(),
+                0,
+              )
               .ignore();
         }
 
-        final muc = Muc(
-          name: channel.info.name,
-          population: channel.population.toInt(),
-          uid: mucUid.asString(),
-          info: channel.info.info,
-          token: channel.token,
-          lastCanceledPinMessageId: c != null ? c.lastCanceledPinMessageId : 0,
-          pinMessagesIdList: channel.pinMessages.map((e) => e.toInt()).toList(),
-          id: channel.info.id,
+        unawaited(
+          _mucDao.updateMuc(
+            uid: mucUid.asString(),
+            name: channel.info.name,
+            population: channel.population.toInt(),
+            info: channel.info.info,
+            token: channel.token,
+            lastCanceledPinMessageId:
+                c != null ? c.lastCanceledPinMessageId : 0,
+            pinMessagesIdList:
+                channel.pinMessages.map((e) => e.toInt()).toList(),
+            id: channel.info.id,
+          ),
         );
 
-        unawaited(_mucDao.save(muc));
         if (c != null) {
           _checkShowPin(
             mucUid,
@@ -264,7 +271,8 @@ class MucRepo {
             channel.requesterRole != muc_pb.Role.MEMBER) {
           unawaited(fetchChannelMembers(mucUid, channel.population.toInt()));
         }
-        return muc;
+
+        return _mucDao.get(mucUid.asString());
       }
       return null;
     }
