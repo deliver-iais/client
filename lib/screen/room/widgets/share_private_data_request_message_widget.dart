@@ -37,40 +37,47 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
         if (sharePrivateDataRequest.description.isNotEmpty)
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Text(
-              sharePrivateDataRequest.description,
-              textDirection: sharePrivateDataRequest.description.isPersian()
-                  ? TextDirection.rtl
-                  : TextDirection.ltr,
+            child: SizedBox(
+              width: maxWidth,
+              child: Text(
+                sharePrivateDataRequest.description,
+                textDirection: sharePrivateDataRequest.description.isPersian()
+                    ? TextDirection.rtl
+                    : TextDirection.ltr,
+              ),
             ),
           ),
         Stack(
           children: [
-            Container(
-              constraints: const BoxConstraints(minHeight: 35),
-              width: maxWidth,
-              margin: const EdgeInsets.only(bottom: 23),
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  primary: colorScheme.primary,
-                  backgroundColor: colorScheme.onPrimary,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Container(
+                constraints: const BoxConstraints(minHeight: 35),
+                width: maxWidth,
+                margin: const EdgeInsets.only(bottom: 23),
+                child: TextButton(
+                  style: TextButton.styleFrom(
+                    primary: colorScheme.primary,
+                    backgroundColor: colorScheme.onPrimary,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                   ),
-                ),
-                onPressed: () {
-                  FocusScope.of(context).unfocus();
-                  _showGetAccessPrivateData(context, sharePrivateDataRequest);
-                },
-                child: Text(
-                  sharePrivateDataRequest.data == PrivateDataType.PHONE_NUMBER
-                      ? _i18n.get("get_access_phone_number")
-                      : sharePrivateDataRequest.data == PrivateDataType.EMAIL
-                          ? _i18n.get("get_access_email")
-                          : sharePrivateDataRequest.data == PrivateDataType.NAME
-                              ? _i18n.get("get_access_name")
-                              : _i18n.get("get_access_username"),
-                  textAlign: TextAlign.center,
+                  onPressed: () {
+                    FocusScope.of(context).unfocus();
+                    _showGetAccessPrivateData(context, sharePrivateDataRequest);
+                  },
+                  child: Text(
+                    sharePrivateDataRequest.data == PrivateDataType.PHONE_NUMBER
+                        ? _i18n.get("get_access_phone_number")
+                        : sharePrivateDataRequest.data == PrivateDataType.EMAIL
+                            ? _i18n.get("get_access_email")
+                            : sharePrivateDataRequest.data ==
+                                    PrivateDataType.NAME
+                                ? _i18n.get("get_access_name")
+                                : _i18n.get("get_access_username"),
+                    textAlign: TextAlign.center,
+                  ),
                 ),
               ),
             ),
