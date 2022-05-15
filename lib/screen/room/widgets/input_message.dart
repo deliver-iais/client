@@ -745,7 +745,7 @@ class _InputMessageWidget extends State<InputMessage> {
     final files = await Pasteboard.files();
     if (files.isEmpty) {
       final data = await Clipboard.getData(Clipboard.kTextPlain);
-      widget.textController.text = widget.textController.text + data!.text!;
+      widget.textController.text = widget.textController.text + data!.text!.replaceAll("\r", "");
       widget.textController.selection = TextSelection.fromPosition(
         TextPosition(offset: widget.textController.text.length),
       );
