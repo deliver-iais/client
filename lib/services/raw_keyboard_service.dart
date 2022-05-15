@@ -52,7 +52,7 @@ class RawKeyboardService {
     } else {
       final data = await Clipboard.getData(Clipboard.kTextPlain);
       controller
-        ..text = controller.text + data!.text!
+        ..text = controller.text + data!.text!.replaceAll("\r\n", "\n")
         ..selection = TextSelection.fromPosition(
           TextPosition(offset: controller.text.length),
         );
