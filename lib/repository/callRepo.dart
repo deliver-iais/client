@@ -8,6 +8,7 @@ import 'package:clock/clock.dart';
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
 import 'package:deliver/box/call_event.dart' as call_event;
 import 'package:deliver/box/call_info.dart' as call_info;
+import 'package:deliver/box/current_call_info.dart' as current_call_info;
 import 'package:deliver/box/dao/call_info_dao.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/models/call_timer.dart';
@@ -24,8 +25,8 @@ import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
@@ -136,20 +137,26 @@ class CallRepo {
     _callService.watchCurrentCall().listen((call) {
       if (call != null && _callService.getUserCallState == UserCallState.NOCALL) {
         _logger.i("read call from DB");
-        _callService.callEvents.add(
-          CallEvents.callEvent(
-            call_pb.CallEvent()
-              ..newStatus =
-                  _callService.findCallEventStatusDB(call.callEvent.newStatus)
-              ..id = call.callEvent.id
-              ..callDuration = Int64(call.callEvent.callDuration)
-              ..endOfCallTime = Int64(call.callEvent.endOfCallTime)
-              ..callType =
-                  _callService.findProtoCallEventType(call.callEvent.callType),
-            roomUid: call.from.asUid(),
-            callId: call.callEvent.id,
-          ),
-        );
+        if (call.expireTime > clock
+            .now()
+            .millisecondsSinceEpoch) {
+          _callService.callEvents.add(
+            CallEvents.callEvent(
+              call_pb.CallEvent()
+                ..newStatus =
+                _callService.findCallEventStatusDB(call.callEvent.newStatus)
+                ..id = call.callEvent.id
+                ..callDuration = Int64(call.callEvent.callDuration)
+                ..endOfCallTime = Int64(call.callEvent.endOfCallTime)
+                ..callType =
+                _callService.findProtoCallEventType(call.callEvent.callType),
+              roomUid: call.from.asUid(),
+              callId: call.callEvent.id,
+            ),
+          );
+        }
+      }else{
+        _callService.removeCallFromDb();
       }
     });
     _callService.callEvents.listen((event) {
@@ -184,10 +191,11 @@ class CallRepo {
                       .findCallEventStatusProto(callEvent.newStatus),
                   id: callEvent.id,
                 );
-                final callInfo = call_info.CallInfo(
+                final callInfo = current_call_info.CurrentCallInfo(
                   callEvent: currentCallEvent,
                   from: event.roomUid!.asString(),
                   to: _authRepo.currentUserUid.asString(),
+                  expireTime: clock.now().millisecondsSinceEpoch + 60000
                 );
 
                 _callService

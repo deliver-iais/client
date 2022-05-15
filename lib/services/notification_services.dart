@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:clock/clock.dart';
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
 import 'package:deliver/box/call_event.dart' as call_event;
-import 'package:deliver/box/call_info.dart' as call_info;
+import 'package:deliver/box/current_call_info.dart' as current_call_info;
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/main.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -613,10 +613,11 @@ class AndroidNotifier implements Notifier {
       id: callEventInfo.id,
     );
 
-    final callInfo = call_info.CallInfo(
+    final callInfo = current_call_info.CurrentCallInfo(
       callEvent: currentCallEvent,
       from: callEvent.userInfo!["uid"]!,
       to: _authRepo.currentUserUid.toString(),
+      expireTime: clock.now().millisecondsSinceEpoch + 60000
     );
 
     await _callService.saveCallOnDb(callInfo);

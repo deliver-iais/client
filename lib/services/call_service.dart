@@ -6,8 +6,8 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
-import '../box/call_info.dart';
 import '../box/call_status.dart';
+import '../box/current_call_info.dart';
 import '../box/dao/current_call_dao.dart';
 
 enum UserCallState {
@@ -57,11 +57,11 @@ class CallService {
     _groupCallEvents.add(event);
   }
 
-  Future<void> saveCallOnDb(CallInfo callInfo) async {
+  Future<void> saveCallOnDb(CurrentCallInfo callInfo) async {
     await _currentCall.save(callInfo);
   }
 
-  Stream<CallInfo?> watchCurrentCall() {
+  Stream<CurrentCallInfo?> watchCurrentCall() {
     return _currentCall.watchCurrentCall();
   }
 
@@ -69,7 +69,7 @@ class CallService {
     await _currentCall.remove();
   }
 
-  Future<CallInfo?> loadCurrentCall() async {
+  Future<CurrentCallInfo?> loadCurrentCall() async {
     return _currentCall.get();
   }
 

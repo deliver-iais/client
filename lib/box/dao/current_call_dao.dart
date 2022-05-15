@@ -1,41 +1,41 @@
 import 'package:hive/hive.dart';
 
 import '../box_info.dart';
-import '../call_info.dart';
+import '../current_call_info.dart';
 import '../hive_plus.dart';
 
 abstract class CurrentCallInfoDao {
-  Future<CallInfo?> get();
+  Future<CurrentCallInfo?> get();
 
-  Future<void> save(CallInfo callInfo);
+  Future<void> save(CurrentCallInfo currentCallInfo);
 
   Future<void> remove();
 
-  Stream<CallInfo?> watchCurrentCall();
+  Stream<CurrentCallInfo?> watchCurrentCall();
 
   Future<void> clear();
 }
 
 class CurrentCallInfoDaoImpl implements CurrentCallInfoDao {
   @override
-  Future<CallInfo?> get() async {
+  Future<CurrentCallInfo?> get() async {
     final box = await _open();
 
     return box.get("current_call_id");
   }
 
   @override
-  Future<void> save(CallInfo callInfo) async {
+  Future<void> save(CurrentCallInfo currentCallInfo) async {
     final box = await _open();
 
-    return box.put("current_call_id", callInfo);
+    return box.put("current_call_id", currentCallInfo);
   }
 
   static String _key() => "current_call";
 
-  static Future<BoxPlus<CallInfo>> _open() {
+  static Future<BoxPlus<CurrentCallInfo>> _open() {
     BoxInfo.addBox(_key());
-    return gen(Hive.openBox<CallInfo>(_key()));
+    return gen(Hive.openBox<CurrentCallInfo>(_key()));
   }
 
   @override
@@ -46,7 +46,7 @@ class CurrentCallInfoDaoImpl implements CurrentCallInfoDao {
   }
 
   @override
-  Stream<CallInfo?> watchCurrentCall() async* {
+  Stream<CurrentCallInfo?> watchCurrentCall() async* {
     final box = await _open();
 
     yield box.get("current_call_id");
