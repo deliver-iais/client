@@ -96,7 +96,6 @@ void main() {
           Clock.fixed(DateTime(2000)),
           () async {
             // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
-            MessageRepo().updateNewMuc(testUid, 0);
             verify(
               roomDao.updateRoom(
                 uid: testUid.asString(),

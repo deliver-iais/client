@@ -47,7 +47,6 @@ class _BotFormMessageState extends State<BotFormMessage> {
 
   late proto_pb.Form form;
 
-
   final BehaviorSubject<bool> _locked = BehaviorSubject.seeded(false);
 
   final ScrollController _scrollController = ScrollController();
@@ -108,7 +107,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
             FormattedTextFieldWidget(
               formField: field,
               setFormKey: (key) => formFieldsKey[field.id] = key,
-              setResult: (value) => _setResult(field, value),
+              formResult: _formResult,
             ),
           );
 
@@ -121,8 +120,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
     super.initState();
   }
 
-
-  Widget buildTimer() =>   CountDownTimer(
+  Widget buildTimer() => CountDownTimer(
         message: widget.message,
         lockAfter: form.lockAfter.toInt(),
         lock: (l) => _locked.add(l),
@@ -279,9 +277,9 @@ class _BotFormMessageState extends State<BotFormMessage> {
   }
 
   Widget buildTitle(ThemeData theme, BehaviorSubject<String> _errorText) {
-    return Row(
+    return Stack(
       children: [
-        if (!form.lockAfter.isZero) buildTimer(),
+       if (!form.lockAfter.isZero) buildTimer(),
         Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,

@@ -503,8 +503,8 @@ class _ProfilePageState extends State<ProfilePage>
                 builder: (c, muc) {
                   if (muc.hasData &&
                       muc.data != null &&
-                      muc.data!.info!.isNotEmpty) {
-                    return description(muc.data!.info!, context);
+                      muc.data!.info.isNotEmpty) {
+                    return description(muc.data!.info, context);
                   } else {
                     return const SizedBox.shrink();
                   }
@@ -730,9 +730,9 @@ class _ProfilePageState extends State<ProfilePage>
 
   Future<void> createInviteLink() async {
     final muc = await _mucRepo.getMuc(widget.roomUid.asString());
-    if (muc != null && muc.token != null) {
+    if (muc != null) {
       var token = muc.token;
-      if (token!.isEmpty || token.isEmpty) {
+      if ( token.isEmpty) {
         if (widget.roomUid.category == Categories.GROUP) {
           token = await _mucRepo.getGroupJointToken(groupUid: widget.roomUid);
         } else {
@@ -740,7 +740,7 @@ class _ProfilePageState extends State<ProfilePage>
               await _mucRepo.getChannelJointToken(channelUid: widget.roomUid);
         }
       }
-      if (token != null && token.isNotEmpty) {
+      if (token.isNotEmpty) {
         _showInviteLinkDialog(token);
       } else {
         ToastDisplay.showToast(
@@ -893,7 +893,7 @@ class _ProfilePageState extends State<ProfilePage>
                     stream: _mucRepo.watchMuc(widget.roomUid.asString()),
                     builder: (c, muc) {
                       if (muc.hasData && muc.data != null) {
-                        _currentId = muc.data!.id!;
+                        _currentId = muc.data!.id;
                         return Column(
                           children: [
                             Form(
@@ -943,14 +943,14 @@ class _ProfilePageState extends State<ProfilePage>
                   stream: _mucRepo.watchMuc(widget.roomUid.asString()),
                   builder: (c, muc) {
                     if (muc.hasData && muc.data != null) {
-                      mucInfo = muc.data!.info!;
+                      mucInfo = muc.data!.info;
                       return TextFormField(
                         initialValue: muc.data!.info,
-                        minLines: muc.data!.info!.isNotEmpty
-                            ? muc.data!.info!.split("\n").length
+                        minLines: muc.data!.info.isNotEmpty
+                            ? muc.data!.info.split("\n").length
                             : 1,
-                        maxLines: muc.data!.info!.isNotEmpty
-                            ? muc.data!.info!.split("\n").length + 4
+                        maxLines: muc.data!.info.isNotEmpty
+                            ? muc.data!.info.split("\n").length + 4
                             : 4,
                         onChanged: (str) {
                           mucInfo = str;

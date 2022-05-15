@@ -16,12 +16,9 @@ class LastMessage extends StatelessWidget {
   final int lastMessageId;
   final bool hasMentioned;
   final bool showSender;
-  final bool showSenderInSeparatedLine;
   final bool showSeenStatus;
   final bool expandContent;
   final bool showRoomDetails;
-  final Color? primaryColor;
-  final Color? naturalColor;
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _i18n = GetIt.I.get<I18N>();
@@ -33,12 +30,9 @@ class LastMessage extends StatelessWidget {
     this.hasMentioned = false,
     this.showSender = false,
     this.showSeenStatus = true,
-    this.showSenderInSeparatedLine = false,
     this.expandContent = true,
     this.showRoomDetails = true,
     this.pinned = false,
-    this.primaryColor,
-    this.naturalColor,
   }) : super(key: key);
 
   @override
@@ -58,82 +52,91 @@ class LastMessage extends StatelessWidget {
           return Container(height: theme.textTheme.bodyText2!.fontSize! + 7);
         }
         final mb = snapshot.data;
-        return Row(
+        return Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (showSeenStatus && !isReceivedMessage)
-              Padding(
-                padding: const EdgeInsets.only(right: 4.0),
-                child: SeenStatus(
-                  message,
-                  iconColor: primaryColor,
-                ),
+            if (mb!.senderIsAUserOrBot && showSender)
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      mb.sender.trim(),
+                      textAlign: TextAlign.end,
+                      textDirection: TextDirection.rtl,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.primaryTextTheme.caption,
+                    ),
+                  ),
+                ],
               ),
-            Flexible(
-              fit: expandContent ? FlexFit.tight : FlexFit.loose,
-              child: RichText(
-                maxLines: showSenderInSeparatedLine && showSender ? 2 : 1,
-                overflow: TextOverflow.fade,
-                textDirection: TextDirection.ltr,
-                softWrap: false,
-                text: TextSpan(
-                  children: [
-                    if (mb!.senderIsAUserOrBot && showSender)
-                      TextSpan(
-                        text: mb.sender.trim() +
-                            (showSenderInSeparatedLine ? "\n" : ": "),
-                        style: theme.primaryTextTheme.caption
-                            ?.copyWith(color: primaryColor),
-                      ),
-                    if (mb.typeDetails.isNotEmpty)
-                      TextSpan(
-                        text: mb.typeDetails,
-                        style: theme.primaryTextTheme.caption
-                            ?.copyWith(color: primaryColor),
-                      ),
-                    if (mb.typeDetails.isNotEmpty && mb.text.isNotEmpty)
-                      TextSpan(
-                        text: ", ",
-                        style: theme.primaryTextTheme.caption
-                            ?.copyWith(color: primaryColor),
-                      ),
-                    if (mb.text.isNotEmpty)
-                      TextSpan(
-                        children: buildText(mb, context),
-                        style: theme.textTheme.caption
-                            ?.copyWith(color: naturalColor),
-                      ),
-                  ],
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (showSeenStatus && !isReceivedMessage)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 4.0),
+                    child: SeenStatus(message),
+                  ),
+                Flexible(
+                  fit: expandContent ? FlexFit.tight : FlexFit.loose,
+                  child: RichText(
+                    maxLines: showSender ? 1 : 2,
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.end,
+                    textDirection: TextDirection.rtl,
+                    softWrap: false,
+                    text: TextSpan(
+                      children: [
+                        if (mb.typeDetails.isNotEmpty)
+                          TextSpan(
+                            text: mb.typeDetails,
+                            style: theme.primaryTextTheme.caption,
+                          ),
+                        if (mb.typeDetails.isNotEmpty && mb.text.isNotEmpty)
+                          TextSpan(
+                            text: ", ",
+                            style: theme.primaryTextTheme.caption,
+                          ),
+                        if (mb.text.isNotEmpty)
+                          TextSpan(
+                            children: buildText(mb, context),
+                            style: theme.textTheme.caption?.copyWith(
+                              color: theme.colorScheme.tertiary,
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
                 ),
-              ),
+                if (showRoomDetails && hasMentioned)
+                  Container(
+                    width: 24,
+                    height: 24,
+                    decoration: BoxDecoration(
+                      color: theme.colorScheme.primary,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      CupertinoIcons.at,
+                      size: 15,
+                    ),
+                  ),
+                if (showRoomDetails && !_authRepo.isCurrentUser(message.from))
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4.0),
+                    child: UnreadMessageCounterWidget(
+                      message.roomUid,
+                      lastMessageId,
+                    ),
+                  ),
+                if (showRoomDetails && pinned)
+                  Icon(
+                    CupertinoIcons.pin,
+                    size: 16,
+                    color: theme.colorScheme.onSurface.withAlpha(120),
+                  ),
+              ],
             ),
-            if (showRoomDetails && hasMentioned)
-              Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: primaryColor ?? theme.primaryColor,
-                  shape: BoxShape.circle,
-                ),
-                child: const Icon(
-                  CupertinoIcons.at,
-                  size: 15,
-                ),
-              ),
-            if (showRoomDetails && !_authRepo.isCurrentUser(message.from))
-              Padding(
-                padding: const EdgeInsets.only(left: 4.0),
-                child: UnreadMessageCounterWidget(
-                  message.roomUid,
-                  lastMessageId,
-                ),
-              ),
-            if (showRoomDetails && pinned)
-              Icon(
-                CupertinoIcons.pin,
-                size: 16,
-                color: theme.colorScheme.onSurface.withAlpha(120),
-              ),
           ],
         );
       },

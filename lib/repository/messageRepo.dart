@@ -125,17 +125,6 @@ class MessageRepo {
 
   final _completerMap = <String, Completer<List<Message?>>>{};
 
-  void updateNewMuc(Uid roomUid, int lastMessageId) {
-    try {
-      _roomDao.updateRoom(
-        uid: roomUid.asString(),
-        lastMessageId: lastMessageId,
-      );
-    } catch (e) {
-      _logger.e(e);
-    }
-  }
-
   @visibleForTesting
   Future<void> updatingMessages() async {
     _allRoomMetaData = {};
