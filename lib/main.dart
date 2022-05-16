@@ -347,6 +347,7 @@ void main() async {
       // Force enable crashlytics collection enabled if we're testing it.
       await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
     } else {
+      Logger().i("crashlythic initial");
       // else only enable it in non-debug builds.
       // You could additionally extend this to allow users to opt-in.
       await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
