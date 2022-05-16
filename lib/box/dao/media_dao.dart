@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/media.dart';
@@ -11,7 +13,7 @@ abstract class MediaDao {
 
   Future save(Media media);
 
-  Future<int?> getIndexOfMedia(String roomUid, int messageId);
+  Future<int?> getIndexOfMedia(String roomUid, int messageId, String fileUuid);
 
   Future<void> deleteMedia(String roomId, int messageId);
 
@@ -46,13 +48,24 @@ class MediaDaoImpl implements MediaDao {
   }
 
   @override
-  Future<int?> getIndexOfMedia(String roomUid, int messageId) async {
+  Future<int?> getIndexOfMedia(
+      String roomUid, int messageId, String fileUuid,) async {
     final box = await _open(roomUid);
-    return box.values
+
+    final index = box.values
         .toList()
         .reversed
         .toList()
         .indexWhere((element) => element.messageId == messageId);
+
+    if (index >= 0 &&
+        (jsonDecode(box.values.toList().reversed.toList()[index].json)
+                as Map)['uuid']
+            .toString()
+            .contains(fileUuid)) {
+      return index;
+    }
+    return index;
   }
 
   @override
@@ -85,7 +98,6 @@ class MediaDaoImpl implements MediaDao {
     final box = await _open(roomId);
     await box.clear();
   }
-
 
   static String _key(String roomUid) => "media-$roomUid";
 

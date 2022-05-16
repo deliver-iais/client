@@ -101,22 +101,23 @@ class _ImageUiState extends State<ImageUi> {
                               builder: (context) {
                                 return FutureBuilder<int?>(
                                   future: _mediaDao.getIndexOfMedia(
-                                    widget.message.roomUid,
-                                    widget.message.id!,
-                                  ),
+                                      widget.message.roomUid,
+                                      widget.message.id!,
+                                      widget.image.uuid,),
                                   builder: (context, snapshot) {
                                     final hasIndex = snapshot.hasData &&
                                         snapshot.data != null &&
-                                        snapshot.data != -1;
+                                        snapshot.data! >= 0;
                                     final isSingleImage =
                                         snapshot.connectionState ==
                                                 ConnectionState.done &&
-                                            snapshot.data == -1;
+                                            snapshot.data! <= 0;
                                     if (hasIndex || isSingleImage) {
                                       return AllImagePage(
                                         const Key("/all_image_page"),
                                         roomUid: widget.message.roomUid,
                                         filePath: s.data,
+                                        fileUuid: widget.image.uuid,
                                         initIndex:
                                             hasIndex ? snapshot.data : null,
                                         isSingleImage: isSingleImage,
