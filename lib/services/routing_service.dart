@@ -84,7 +84,6 @@ class RoutingService {
 
   // Functions
   Future<void> openSettings({bool popAllBeforePush = false}) async {
-    await FirebaseAnalytics.instance.logEvent(name: "setting_page_open");
     if (_path() != "/settings") {
       _push(_settings, popAllBeforePush: popAllBeforePush);
     }

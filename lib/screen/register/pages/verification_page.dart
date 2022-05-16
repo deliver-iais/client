@@ -9,10 +9,13 @@ import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pb.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:sms_autofill/sms_autofill.dart';
+
+import '../../../shared/methods/platform.dart';
 
 class VerificationPage extends StatefulWidget {
   const VerificationPage({Key? key}) : super(key: key);
@@ -73,6 +76,12 @@ class _VerificationPageState extends State<VerificationPage> {
   }
 
   Future<void> _navigationToHome() async {
+    //this means user login successfully
+    if (hasFirebaseCapability) {
+      //its work property without VPN
+      await FirebaseAnalytics.instance.logEvent(name: "user_login");
+    }
+
     final navigatorState = Navigator.of(context);
     _contactRepo.getContacts().ignore();
 

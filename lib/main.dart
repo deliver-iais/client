@@ -82,8 +82,8 @@ import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/sticker.pbgrpc.dart';
 import 'package:feature_discovery/feature_discovery.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -290,7 +290,13 @@ Future<void> setupDI() async {
   }
   try {
     GetIt.I.registerSingleton<AudioService>(AudioService());
-  } catch (_) {}
+  } catch (e, s) {
+    // Crashlytics console.
+    if(hasFirebaseCapability) {
+      await FirebaseCrashlytics.instance.recordError(e, s,
+          reason: 'Audio Service error occurred');
+    }
+  }
 
   if (isWeb) {
     GetIt.I.registerSingleton<Notifier>(WebNotifier());
@@ -334,14 +340,34 @@ void main() async {
 
   if (hasFirebaseCapability) {
     await initializeFirebase();
+
+    // Pass all uncaught errors from the framework to Crashlytics.
+    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    if (kTestingCrashlytics) {
+      // Force enable crashlytics collection enabled if we're testing it.
+      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+    } else {
+      // else only enable it in non-debug builds.
+      // You could additionally extend this to allow users to opt-in.
+      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(
+          !kDebugMode);
+      //this is for test
+      await FirebaseCrashlytics.instance.log('This is a log example');
+      await FirebaseCrashlytics.instance.setCustomKey('example', 'flutterfire');
+    }
   }
 
   Logger().i("OS based setups done.");
 
   try {
     await setupDI();
-  } catch (e) {
+  } catch (e, s) {
     Logger().e(e);
+    // Crashlytics console.
+    if(hasFirebaseCapability) {
+      await FirebaseCrashlytics.instance.recordError(e, s,
+          reason: 'setupDi error occurred');
+    }
   }
 
   Logger().i("Dependency Injection setup done.");
@@ -362,11 +388,6 @@ void main() async {
       child: MyApp(),
     ),
   );
-  if (hasFirebaseCapability) {
-    //its work property without VPN
-    Logger().i("app Open Event.");
-    await FirebaseAnalytics.instance.logAppOpen();
-  }
 }
 
 Future<void> _setWindowSize() async {
