@@ -2,7 +2,9 @@ import 'package:deliver/box/call_event.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:hive/hive.dart';
 
-@HiveType(typeId: CALL_INFO_TRACK_ID)
+part 'current_call_info.g.dart';
+
+@HiveType(typeId: CURRENT_CALL_INFO_TRACK_ID)
 class CurrentCallInfo {
   // DbId
   @HiveField(0)

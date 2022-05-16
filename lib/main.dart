@@ -8,6 +8,7 @@ import 'package:deliver/box/call_info.dart';
 import 'package:deliver/box/call_status.dart';
 import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/contact.dart';
+import 'package:deliver/box/current_call_info.dart';
 import 'package:deliver/box/dao/account_dao.dart';
 import 'package:deliver/box/dao/auto_download_dao.dart';
 import 'package:deliver/box/dao/avatar_dao.dart';
@@ -152,6 +153,7 @@ Future<void> setupDI() async {
     ..registerAdapter(CallStatusAdapter())
     ..registerAdapter(CallTypeAdapter())
     ..registerAdapter(AutoDownloadRoomCategoryAdapter())
+    ..registerAdapter(CurrentCallInfoAdapter())
     ..registerAdapter(AutoDownloadAdapter());
 
   registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
