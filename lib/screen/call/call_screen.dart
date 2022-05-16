@@ -10,7 +10,6 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
@@ -327,6 +326,7 @@ class _CallScreenState extends State<CallScreen> {
                     hangUp: _hangUp,
                   );
           case CallStatus.ACCEPTED:
+            unawaited(callRepo.cancelCallNotification());
             return widget.isVideoCall
                 ? StartVideoCallPage(
                     roomUid: widget.roomUid,

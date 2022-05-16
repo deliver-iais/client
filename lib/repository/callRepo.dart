@@ -196,7 +196,7 @@ class CallRepo {
                   from: event.roomUid!.asString(),
                   to: _authRepo.currentUserUid.asString(),
                   expireTime: clock.now().millisecondsSinceEpoch + 60000
-                );
+                ,);
 
                 _callService
                   ..saveCallOnDb(callInfo)
@@ -1030,13 +1030,7 @@ class CallRepo {
   Future<void> receivedEndCall(int callDuration) async {
     _isEnded = true;
     _logger.i("Call Duration Received: " + callDuration.toString());
-    if (isAndroid && !_isCaller) {
-      final sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
-      await ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
-      await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
-        isVisible: true,
-      );
-    }
+    await cancelCallNotification();
     if (isWindows) {
       _notificationServices.cancelRoomNotifications(roomUid!.node);
     }
@@ -1059,6 +1053,16 @@ class CallRepo {
       _callDuration = callDuration;
     }
     await _dispose();
+  }
+
+  Future<void> cancelCallNotification() async {
+    if (isAndroid && !_isCaller) {
+      final sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
+      await ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
+      await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
+        isVisible: true,
+      );
+    }
   }
 
   // TODO(AmirHossein): removed Force End Call and we need Handle it with third-party Service.
