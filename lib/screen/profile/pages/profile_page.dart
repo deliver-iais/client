@@ -459,7 +459,7 @@ class _ProfilePageState extends State<ProfilePage>
                       switchValue: !snapshot.data!,
                       onToggle: (state) {
                         if (state) {
-                          _roomRepo.unmute(widget.roomUid.asString());
+                          _roomRepo.unMute(widget.roomUid.asString());
                         } else {
                           _roomRepo.mute(widget.roomUid.asString());
                         }
