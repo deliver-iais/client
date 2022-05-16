@@ -135,11 +135,9 @@ class CallRepo {
 
   CallRepo() {
     _callService.watchCurrentCall().listen((call) {
-      if (call != null && _callService.getUserCallState == UserCallState.NOCALL) {
+      if (call != null) {
         _logger.i("read call from DB");
-        if (call.expireTime > clock
-            .now()
-            .millisecondsSinceEpoch) {
+        if (call.expireTime > clock.now().millisecondsSinceEpoch && _callService.getUserCallState == UserCallState.NOCALL) {
           _callService.callEvents.add(
             CallEvents.callEvent(
               call_pb.CallEvent()
@@ -154,12 +152,12 @@ class CallRepo {
               callId: call.callEvent.id,
             ),
           );
+        }else{
+          _callService.removeCallFromDb();
         }
-      }else{
-        _callService.removeCallFromDb();
       }
     });
-    _callService.callEvents.listen((event) {
+    _callService.callEvents.listen((event) async {
       switch (event.callType) {
         case CallTypes.Answer:
           timerResendOffer!.cancel();
@@ -198,8 +196,10 @@ class CallRepo {
                   expireTime: clock.now().millisecondsSinceEpoch + 60000
                 ,);
 
+                await _callService.saveCallOnDb(callInfo);
+                _logger.i("save call on db!");
+
                 _callService
-                  ..saveCallOnDb(callInfo)
                   ..setCallOwner = callEvent.memberOrCallOwnerPvp
                   ..setCallId = callEvent.id;
 
