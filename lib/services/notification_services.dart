@@ -617,7 +617,7 @@ class AndroidNotifier implements Notifier {
       callEvent: currentCallEvent,
       from: callEvent.userInfo!["uid"]!,
       to: _authRepo.currentUserUid.toString(),
-      expireTime: clock.now().millisecondsSinceEpoch + 60000
+      expireTime: clock.now().millisecondsSinceEpoch + 60000,
     );
 
     await _callService.saveCallOnDb(callInfo);

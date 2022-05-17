@@ -137,27 +137,26 @@ class CallRepo {
     _callService.watchCurrentCall().listen((call) {
       if (call != null) {
         _logger.i("read call from DB");
-        if (call.expireTime > clock.now().millisecondsSinceEpoch && _callService.getUserCallState == UserCallState.NOCALL) {
+        if (call.expireTime > clock.now().millisecondsSinceEpoch &&
+            _callService.getUserCallState == UserCallState.NOCALL) {
           _callService.callEvents.add(
             CallEvents.callEvent(
               call_pb.CallEvent()
                 ..newStatus =
-                _callService.findCallEventStatusDB(call.callEvent.newStatus)
+                    _callService.findCallEventStatusDB(call.callEvent.newStatus)
                 ..id = call.callEvent.id
                 ..callDuration = Int64(call.callEvent.callDuration)
                 ..endOfCallTime = Int64(call.callEvent.endOfCallTime)
-                ..callType =
-                _callService.findProtoCallEventType(call.callEvent.callType),
+                ..callType = _callService
+                    .findProtoCallEventType(call.callEvent.callType),
               roomUid: call.from.asUid(),
               callId: call.callEvent.id,
             ),
           );
-        }else{
-          _callService.removeCallFromDb();
         }
       }
     });
-    _callService.callEvents.listen((event) async {
+    _callService.callEvents.listen((event) {
       switch (event.callType) {
         case CallTypes.Answer:
           timerResendOffer!.cancel();
@@ -193,10 +192,10 @@ class CallRepo {
                   callEvent: currentCallEvent,
                   from: event.roomUid!.asString(),
                   to: _authRepo.currentUserUid.asString(),
-                  expireTime: clock.now().millisecondsSinceEpoch + 60000
-                ,);
+                  expireTime: clock.now().millisecondsSinceEpoch + 60000,
+                );
 
-                await _callService.saveCallOnDb(callInfo);
+                _callService.saveCallOnDb(callInfo);
                 _logger.i("save call on db!");
 
                 _callService
