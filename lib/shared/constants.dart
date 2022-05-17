@@ -91,9 +91,28 @@ const ONLINE_TIME = 60000;
 const AVATAR_CACHE_TIME = 60 * 60 * 24 * 1000;
 const NULL_AVATAR_CACHE_TIME = 60 * 60 * 1 * 1000;
 
+const USER_INFO_CACHE_TIME = 60 * 60 * 24 * 7 * 1000;
+
 const SUPPORTED_IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif'];
 
 const DELIVER_COLOR = Color(0xff1a88f7);
+
+//Local Notification Id
+
+// A notification action which triggers a App navigation event
+const String OPEN_CHAT_ACTION_ID = 'open_chat';
+
+// Defines a iOS/MacOS notification category for text input actions.
+const String DARWIN_NOTIFICATION_CATEGORY_TEXT = 'textCategory';
+
+// action id for close
+const String CLOSE_ACTION_ID = 'close';
+
+// action id for reply
+const String REPLY_ACTION_ID = 'reply';
+
+// action id for mark as read
+const String MARK_AS_READ_ACTION_ID = 'mark_as_read';
 
 // Tables ID
 const AVATAR_TRACK_ID = 1;

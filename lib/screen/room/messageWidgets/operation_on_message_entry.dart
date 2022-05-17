@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/pending_message.dart';
@@ -248,7 +249,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
               child: Row(
                 children: [
                   const Icon(
-                    CupertinoIcons.bandage,
+                    CupertinoIcons.paintbrush,
                     size: 18,
                   ),
                   const SizedBox(width: 10),
@@ -302,7 +303,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
   }
 
   bool checkMessageTime(Message message) {
-    return DateTime.now().millisecondsSinceEpoch - message.time <=
+    return clock.now().millisecondsSinceEpoch - message.time <=
         3 * 24 * 60 * 60 * 1000;
   }
 }

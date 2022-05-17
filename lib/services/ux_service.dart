@@ -190,15 +190,4 @@ class UxService {
   void changeLogLevel(String level) {
     _sharedDao.put(SHARED_DAO_LOG_LEVEL, level);
   }
-
-  // TODO(hasan): tabIndex should not be store in UX service https://gitlab.iais.co/deliver/wiki/-/issues/409
-  final Map _tabIndexMap = <String, int>{};
-
-  int? getTabIndex(String fileId) {
-    return _tabIndexMap[fileId];
-  }
-
-  void setTabIndex(String fileId, int index) {
-    _tabIndexMap[fileId] = index;
-  }
 }

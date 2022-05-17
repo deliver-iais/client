@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:clock/clock.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/room.dart';
@@ -90,9 +91,9 @@ class _InputMessageWidget extends State<InputMessage> {
   double x = 0.0;
   double size = 1;
   bool started = false;
-  DateTime time = DateTime.now();
+  DateTime _time = clock.now();
   BehaviorSubject<DateTime> recordSubject =
-      BehaviorSubject.seeded(DateTime.now());
+      BehaviorSubject.seeded(clock.now());
 
   double dx = 150.0;
   bool recordAudioPermission = false;
@@ -486,7 +487,7 @@ class _InputMessageWidget extends State<InputMessage> {
                       else
                         RecordAudioSlideWidget(
                           opacity: opacity(),
-                          time: time,
+                          time: _time,
                           running: startAudioRecorder,
                           streamTime: recordSubject,
                         ),
@@ -526,8 +527,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                   final s =
                                       await getApplicationDocumentsDirectory();
                                   final path = s.path +
-                                      "/Deliver/${DateTime.now().millisecondsSinceEpoch}.m4a";
-                                  recordSubject.add(DateTime.now());
+                                      "/Deliver/${clock.now().millisecondsSinceEpoch}.m4a";
+                                  recordSubject.add(clock.now());
                                   setTime();
                                   sendRecordActivity();
                                   Vibration.vibrate(duration: 200).ignore();
@@ -540,7 +541,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                     startAudioRecorder = true;
                                     size = 2;
                                     started = true;
-                                    time = DateTime.now();
+                                    _time = clock.now();
                                   });
                                 }
                               },
@@ -744,7 +745,7 @@ class _InputMessageWidget extends State<InputMessage> {
     final files = await Pasteboard.files();
     if (files.isEmpty) {
       final data = await Clipboard.getData(Clipboard.kTextPlain);
-      widget.textController.text = widget.textController.text + data!.text!;
+      widget.textController.text = widget.textController.text + data!.text!.replaceAll("\r", "");
       widget.textController.selection = TextSelection.fromPosition(
         TextPosition(offset: widget.textController.text.length),
       );
@@ -929,7 +930,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
   void setTime() {
     _tickTimer = Timer(const Duration(milliseconds: 500), () {
-      recordSubject.add(DateTime.now());
+      recordSubject.add(clock.now());
       setTime();
     });
   }

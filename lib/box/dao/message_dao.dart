@@ -4,6 +4,7 @@ import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/pending_message.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:hive/hive.dart';
 
 abstract class MessageDao {
@@ -16,7 +17,7 @@ abstract class MessageDao {
   Future<List<Message>> getMessagePage(
     String roomUid,
     int page, {
-    int pageSize = 16,
+    int pageSize = PAGE_SIZE,
   });
 
   // Pending Messages
@@ -68,7 +69,7 @@ class MessageDaoImpl implements MessageDao {
   Future<List<Message>> getMessagePage(
     String roomUid,
     int page, {
-    int pageSize = 16,
+    int pageSize = PAGE_SIZE,
   }) async {
     final box = await _openMessages(roomUid);
 

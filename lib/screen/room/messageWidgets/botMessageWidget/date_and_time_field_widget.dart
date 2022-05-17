@@ -1,6 +1,8 @@
+import 'package:clock/clock.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_simple_input_field_widget.dart';
 import 'package:deliver/shared/methods/time.dart';
+import 'package:deliver/shared/widgets/shake_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -10,13 +12,13 @@ import 'package:persian_datetime_picker/persian_datetime_picker.dart';
 
 class DateAndTimeFieldWidget extends StatefulWidget {
   final form_pb.Form_Field formField;
-  final void Function(String) setResult;
+  final form_pb.FormResult formResult;
   final void Function(GlobalKey<FormState>) setFormKey;
 
   const DateAndTimeFieldWidget({
     Key? key,
     required this.formField,
-    required this.setResult,
+    required this.formResult,
     required this.setFormKey,
   }) : super(key: key);
 
@@ -32,6 +34,7 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
   final TextEditingController _timeEditingController = TextEditingController();
 
   final TextEditingController _dateEditingController = TextEditingController();
+  final ShakeWidgetController _shakeWidgetController = ShakeWidgetController();
 
   DateTime? _selectedDate;
 
@@ -42,18 +45,23 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
   @override
   Widget build(BuildContext context) {
     widget.setFormKey(_formKey);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      child: Form(
-        key: _formKey,
-        child: widget.formField.whichType() == form_pb.Form_Field_Type.dateField
-            ? buildDateField(context)
-            : widget.formField.whichType() == form_pb.Form_Field_Type.timeField
-                ? buildTimeField(context)
-                : widget.formField.whichType() ==
-                        form_pb.Form_Field_Type.dateAndTimeField
-                    ? buildDateWithTimeField(context)
-                    : Container(),
+    return ShakeWidget(
+      controller: _shakeWidgetController,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: Form(
+          key: _formKey,
+          child:
+              widget.formField.whichType() == form_pb.Form_Field_Type.dateField
+                  ? buildDateField(context)
+                  : widget.formField.whichType() ==
+                          form_pb.Form_Field_Type.timeField
+                      ? buildTimeField(context)
+                      : widget.formField.whichType() ==
+                              form_pb.Form_Field_Type.dateAndTimeField
+                          ? buildDateWithTimeField(context)
+                          : Container(),
+        ),
       ),
     );
   }
@@ -130,8 +138,10 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
       validator: (s) {
         if (!widget.formField.isOptional) {
           if (_selectedDate == null) {
+            _shakeWidgetController.shake();
             return _i18n.get("select_date");
           } else if (_selectedTime == null) {
+            _shakeWidgetController.shake();
             return _i18n.get("select_time");
           }
         }
@@ -150,6 +160,7 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
       controller: _timeEditingController,
       validator: (time) {
         if (!widget.formField.isOptional && (time == null || time.isEmpty)) {
+          _shakeWidgetController.shake();
           return _i18n.get("select_time");
         }
         return null;
@@ -196,8 +207,10 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
             _selectedTime!.minute,
           );
         }
-        widget
-            .setResult(Jalali.fromDateTime(_selectedDate!).formatCompactDate());
+        widget.formResult.previewOverride[widget.formField.id] =
+            (Jalali.fromDateTime(_selectedDate!).formatCompactDate());
+        widget.formResult.values[widget.formField.id] =
+            _selectedDate!.millisecondsSinceEpoch.toString();
         _selectedDateJalali = picked;
         _dateEditingController
           ..text = picked.formatFullDate()
@@ -211,7 +224,7 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
     } else {
       var newSelectedDate = await showDatePicker(
         context: context,
-        initialDate: _selectedDate ?? DateTime.now(),
+        initialDate: _selectedDate ?? clock.now(),
         firstDate: getFirstDate(),
         lastDate: getEndDate(),
         builder: (context, child) {
@@ -229,7 +242,11 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
             _selectedTime!.minute,
           );
         }
-        widget.setResult(getDateFormatter(newSelectedDate));
+
+        widget.formResult.previewOverride[widget.formField.id] =
+            getDateFormatter(newSelectedDate);
+        widget.formResult.values[widget.formField.id] =
+            newSelectedDate.millisecondsSinceEpoch.toString();
 
         _selectedDate = newSelectedDate;
         _dateEditingController
@@ -310,30 +327,41 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
       cancelText: _i18n.get("close"),
       confirmText: _i18n.get("confirm"),
       context: context,
-      initialTime: TimeOfDay.fromDateTime(DateTime.now()),
+      initialTime: TimeOfDay.fromDateTime(clock.now()),
     );
     if (timeOfDay != null) {
       if (widget.formField.whichType() == form_pb.Form_Field_Type.timeField) {
-        widget.setResult("${timeOfDay.hour}:${timeOfDay.minute}");
+        widget.formResult.values[widget.formField.id] =
+            "${timeOfDay.hour}:${timeOfDay.minute}";
       } else if (widget.formField.whichType() ==
           form_pb.Form_Field_Type.dateAndTimeField) {
         _selectedTime = timeOfDay;
-        var currentTime = DateTime.now();
+        var currentTime = clock.now();
         if (_selectedDate != null) {
           if (widget.formField.dateAndTimeField.isHijriShamsi) {
-            widget.setResult(
-                "${Jalali.fromDateTime(_selectedDate!).formatCompactDate()} ${_selectedTime!.hour}:${_selectedTime!.minute}",);
+            widget.formResult.values[widget.formField.id] = DateTime(
+              _selectedDate!.year,
+              _selectedDate!.month,
+              _selectedDate!.day,
+              _selectedTime!.hour,
+              _selectedTime!.minute,
+            ).millisecondsSinceEpoch.toString();
+            widget.formResult.previewOverride[widget.formField.id] =
+                ("${Jalali.fromDateTime(_selectedDate!).formatCompactDate()} ${_selectedTime!.hour}:${_selectedTime!.minute}");
           } else {
             currentTime = _selectedDate!;
-            widget.setResult(getDateFormatter(
-              DateTime(
-                currentTime.year,
-                currentTime.month,
-                currentTime.day,
-                timeOfDay.hour,
-                timeOfDay.minute,
-              ),
-            ),);
+            final dateTime = DateTime(
+              currentTime.year,
+              currentTime.month,
+              currentTime.day,
+              timeOfDay.hour,
+              timeOfDay.minute,
+            );
+
+            widget.formResult.values[widget.formField.id] =
+                dateTime.millisecondsSinceEpoch.toString();
+            widget.formResult.previewOverride[widget.formField.id] =
+                getDateFormatter(dateTime);
           }
         }
       }

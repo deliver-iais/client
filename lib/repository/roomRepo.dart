@@ -63,6 +63,9 @@ class RoomRepo {
     }
   }
 
+  bool fastForwardIsVerified(Uid uid) =>
+      uid.isSystem() || (uid.isBot() && uid.node == "father_bot");
+
   Future<bool> isVerified(Uid uid) async =>
       uid.isSystem() || (uid.isBot() && uid.node == "father_bot");
 
@@ -78,7 +81,8 @@ class RoomRepo {
     if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
 
     // Is System Id
-    if (uid.category == Categories.SYSTEM) {
+    if (uid.category == Categories.SYSTEM &&
+        uid.node == "Notification Service") {
       return APPLICATION_NAME;
     }
 
@@ -98,10 +102,16 @@ class RoomRepo {
     if (uidIdName != null &&
         ((uidIdName.id != null && uidIdName.id!.isNotEmpty) ||
             uidIdName.name != null && uidIdName.name!.isNotEmpty)) {
-      // Set in cache
-      roomNameCache.set(uid.asString(), uidIdName.name ?? uidIdName.id!);
+      var name = uidIdName.name!;
 
-      return uidIdName.name ?? uidIdName.id!;
+      if (name.isEmpty) {
+        name = uidIdName.id!;
+      }
+
+      // Set in cache
+      roomNameCache.set(uid.asString(), name);
+
+      return name;
     }
 
     // Is User
@@ -127,18 +137,18 @@ class RoomRepo {
     if (uid.category == Categories.GROUP ||
         uid.category == Categories.CHANNEL) {
       final muc = await _mucRepo.fetchMucInfo(uid);
-      if (muc != null && muc.name != null && muc.name!.isNotEmpty) {
-        roomNameCache.set(uid.asString(), muc.name!);
+      if (muc != null && muc.name.isNotEmpty) {
+        roomNameCache.set(uid.asString(), muc.name);
         unawaited(_uidIdNameDao.update(uid.asString(), name: muc.name));
 
-        return muc.name!;
+        return muc.name;
       }
     }
 
     // Is bot
     if (uid.isBot()) {
       final botInfo = await _botRepo.getBotInfo(uid);
-      if (botInfo != null && botInfo.name!.isNotEmpty) {
+      if (botInfo != null && botInfo.name != null && botInfo.name!.isNotEmpty) {
         return botInfo.name!;
       }
       return uid.node;
@@ -154,16 +164,9 @@ class RoomRepo {
     return (username ?? unknownName) ?? "Unknown";
   }
 
-  Future<String?>? getId(Uid uid) async {
-    if (uid.isBot()) return uid.node;
-
-    final userInfo = await _uidIdNameDao.getByUid(uid.asString());
-    if (userInfo != null && userInfo.id != null) {
-      return userInfo.id!;
-    } else {
-      final res = await getIdByUid(uid);
-      return res;
-    }
+  Stream<String?> watchId(Uid uid) {
+    if (uid.isBot()) return Stream.value(uid.node);
+    return _uidIdNameDao.watchIdByUid(uid.asString());
   }
 
   Future<bool> deleteRoom(Uid roomUid) async {
@@ -177,7 +180,6 @@ class RoomRepo {
         uid: roomUid.asString(),
         deleted: true,
         firstMessageId: room!.lastMessageId,
-        lastUpdateTime: clock.now().millisecondsSinceEpoch,
       );
       return true;
     } catch (e) {
@@ -195,6 +197,48 @@ class RoomRepo {
     } catch (e) {
       _logger.e(e);
       return null;
+    }
+  }
+
+  Future<bool> _isUserInfoNeedsToBeUpdated(Uid uid) async {
+    final nowTime = clock.now().millisecondsSinceEpoch;
+    final uidIdName = await _uidIdNameDao.getByUid(uid.asString());
+
+    if (uidIdName == null) {
+      return true;
+    } else if (uidIdName.name == null || uidIdName.lastUpdate == null) {
+      return true;
+    } else if ((nowTime - uidIdName.lastUpdate!) > USER_INFO_CACHE_TIME) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  Future<void> updateUserInfo(
+    Uid uid, {
+    bool foreToUpdate = false,
+  }) async {
+    if (foreToUpdate || await _isUserInfoNeedsToBeUpdated(uid)) {
+      // Is User
+      if (uid.category == Categories.USER) {
+        final name = await _contactRepo.getContactFromServer(uid);
+        await getIdByUid(uid);
+        if (name != null) {
+          roomNameCache.set(uid.asString(), name);
+        }
+      }
+      // Is Group or Channel
+      if (uid.category == Categories.GROUP ||
+          uid.category == Categories.CHANNEL) {
+        final muc = await _mucRepo.fetchMucInfo(uid);
+        if (muc != null  && muc.name.isNotEmpty) {
+          roomNameCache.set(uid.asString(), muc.name);
+          unawaited(
+            _uidIdNameDao.update(uid.asString(), name: muc.name),
+          );
+        }
+      }
     }
   }
 

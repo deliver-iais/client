@@ -1,20 +1,20 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/date_and_time_field_widget.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
+import 'package:deliver/shared/widgets/shake_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class FormattedTextFieldWidget extends StatefulWidget {
   final form_pb.Form_Field formField;
-
-  final Function(String) setResult;
+  final form_pb.FormResult formResult;
   final void Function(GlobalKey<FormState>) setFormKey;
 
   const FormattedTextFieldWidget({
     Key? key,
     required this.formField,
-    required this.setResult,
+    required this.formResult,
     required this.setFormKey,
   }) : super(key: key);
 
@@ -36,45 +36,52 @@ class _FormattedTextFieldWidgetState extends State<FormattedTextFieldWidget> {
   String result = "";
   final _formKey = GlobalKey<FormState>();
   final _i18n = GetIt.I.get<I18N>();
+  final ShakeWidgetController shakeWidgetController = ShakeWidgetController();
 
   @override
   Widget build(BuildContext context) {
     widget.setFormKey(_formKey);
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-      child: Form(
-        key: _formKey,
-        child: FormValidator(
-          label: widget.formField.id,
-          validator: (s) {
-            if (widget.formField.formattedTextField.partitionsSizes.isEmpty) {
-              return null;
-            }
-            if (!widget.formField.isOptional && (result.isEmpty)) {
-              return _i18n.get(
-                "this_filed_not_empty",
-              );
-            }
-          },
-          widget: Row(
-            children: [
-              for (int i = 0;
-                  i <
-                      widget
-                          .formField.formattedTextField.partitionsSizes.length;
-                  i++)
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(left: 2, right: 2),
-                    child: TextField(
-                      onChanged: (t) => _changeResult(),
-                      maxLength: widget
-                          .formField.formattedTextField.partitionsSizes[i],
-                      controller: _textControllerList[i],
+    return Form(
+      key: _formKey,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 4),
+        child: ShakeWidget(
+          horizontalPadding: 5,
+          animationRange: 5,
+          controller: shakeWidgetController,
+          child: FormValidator(
+            label: widget.formField.id,
+            validator: (s) {
+              if (widget.formField.formattedTextField.partitionsSizes.isEmpty) {
+                return null;
+              }
+              if (!widget.formField.isOptional && (result.isEmpty)) {
+                shakeWidgetController.shake();
+                return _i18n.get(
+                  "this_filed_not_empty",
+                );
+              }
+            },
+            widget: Row(
+              children: [
+                for (int i = 0;
+                    i <
+                        widget
+                            .formField.formattedTextField.partitionsSizes.length;
+                    i++)
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 2, right: 2),
+                      child: TextField(
+                        onChanged: (t) => _changeResult(),
+                        maxLength: widget
+                            .formField.formattedTextField.partitionsSizes[i],
+                        controller: _textControllerList[i],
+                      ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -83,15 +90,20 @@ class _FormattedTextFieldWidgetState extends State<FormattedTextFieldWidget> {
 
   void _changeResult() {
     result = "";
+    var label = "";
     for (final element in _textControllerList) {
       result = result + element.text;
+      label = label + (label.isNotEmpty ? "-" : "") + element.text;
     }
     if (result.isPersian()) {
       result = "";
+      label = "";
       for (final element in _textControllerList) {
         result = element.text + result;
+        label = element.text + label + (label.isNotEmpty ? "-" : "");
       }
     }
-    widget.setResult(result);
+    widget.formResult.values[widget.formField.id] = result;
+    widget.formResult.previewOverride[widget.formField.id] = label;
   }
 }

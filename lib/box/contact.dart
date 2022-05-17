@@ -21,11 +21,15 @@ class Contact {
   @HiveField(4)
   String? lastName;
 
+  @HiveField(5)
+  String? description;
+
   Contact({
     required this.countryCode,
     required this.nationalNumber,
     required this.uid,
     this.firstName,
     this.lastName,
+    this.description,
   });
 }

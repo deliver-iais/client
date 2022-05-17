@@ -3,11 +3,11 @@ import 'dart:math';
 
 import 'package:badges/badges.dart';
 import 'package:dcache/dcache.dart';
+import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
-import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
@@ -96,6 +96,7 @@ class _RoomPageState extends State<RoomPage> {
   static final _botRepo = GetIt.I.get<BotRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _sharedDao = GetIt.I.get<SharedDao>();
+  static final _mucDao = GetIt.I.get<MucDao>();
   static final _callService = GetIt.I.get<CallService>();
   static final _callRepo = GetIt.I.get<CallRepo>();
   static final _fireBaseServices = GetIt.I.get<FireBaseServices>();
@@ -372,21 +373,24 @@ class _RoomPageState extends State<RoomPage> {
 
   @override
   void initState() {
-    DesktopLifecycle.instance.isActive.addListener(() {
-      _appIsActive = DesktopLifecycle.instance.isActive.value;
+    _roomRepo.updateUserInfo(widget.roomId.asUid());
+    if (isDesktop) {
+      DesktopLifecycle.instance.isActive.addListener(() {
+        _appIsActive = DesktopLifecycle.instance.isActive.value;
 
-      if (_appIsActive) {
-        _sendSeenMessage(_backgroundMessages);
-        _backgroundMessages.clear();
-      }
-    });
+        if (_appIsActive) {
+          _sendSeenMessage(_backgroundMessages);
+          _backgroundMessages.clear();
+        }
+      });
+    }
 
     initRoomStream();
     initPendingMessages();
 
     // Log page data
     _getScrollPosition();
-    if (!isDesktop) {
+    if (hasFirebaseCapability) {
       _fireBaseServices.sendFireBaseToken();
     }
     _getLastShowMessageId();
@@ -660,10 +664,10 @@ class _RoomPageState extends State<RoomPage> {
 
   Future<void> watchPinMessages() async {
     _mucRepo.watchMuc(widget.roomId).listen((muc) {
-      if (muc != null && (muc.showPinMessage == null || muc.showPinMessage!)) {
+      if (muc != null && muc.lastCanceledPinMessageId == 0) {
         final pm = muc.pinMessagesIdList;
         _pinMessages.clear();
-        if (pm != null && pm.isNotEmpty) {
+        if (pm.isNotEmpty) {
           pm.reversed.toList().forEach((element) async {
             try {
               final m = await _getMessage(element);
@@ -699,7 +703,7 @@ class _RoomPageState extends State<RoomPage> {
   Future<void> fetchMucInfo(Uid uid) async {
     final muc = await _mucRepo.fetchMucInfo(widget.roomId.asUid());
     if (muc != null) {
-      _roomRepo.updateRoomName(uid, muc.name!);
+      _roomRepo.updateRoomName(uid, muc.name);
     }
   }
 
@@ -1422,9 +1426,9 @@ class _RoomPageState extends State<RoomPage> {
       },
       onClose: () {
         _lastPinedMessage.add(0);
-        _mucRepo.updateMuc(
-          Muc(uid: widget.roomId)
-              .copyWith(uid: widget.roomId, showPinMessage: false),
+        _mucDao.updateMuc(
+          uid: widget.roomId,
+          lastCanceledPinMessageId: _pinMessages.last.id,
         );
       },
     );

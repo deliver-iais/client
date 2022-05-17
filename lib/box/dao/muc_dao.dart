@@ -11,9 +11,18 @@ abstract class MucDao {
 
   Future<void> save(Muc muc);
 
-  Future<void> update(Muc muc);
-
   Future<void> delete(String uid);
+
+  Future<void> updateMuc({
+    required String uid,
+    String? info,
+    List<int>? pinMessagesIdList,
+    int? lastCanceledPinMessageId,
+    int? population,
+    String? id,
+    String? token,
+    String? name,
+  });
 
   Future<Member?> getMember(String mucUid, String memberUid);
 
@@ -48,14 +57,6 @@ class MucDaoImpl implements MucDao {
     final box = await _openMuc();
 
     return box.put(muc.uid, muc);
-  }
-
-  @override
-  Future<void> update(Muc muc) async {
-    final box = await _openMuc();
-
-    final m = box.get(muc.uid);
-    return box.put(muc.uid, m!.copy(muc));
   }
 
   @override
@@ -122,5 +123,33 @@ class MucDaoImpl implements MucDao {
   static Future<BoxPlus<Member>> _openMembers(String uid) {
     BoxInfo.addBox(_keyMembers(uid.replaceAll(":", "-")));
     return gen(Hive.openBox<Member>(_keyMembers(uid.replaceAll(":", "-"))));
+  }
+
+  @override
+  Future<void> updateMuc(
+      {required String uid,
+      String? info,
+      List<int>? pinMessagesIdList,
+      int? lastCanceledPinMessageId,
+      int? population,
+      String? id,
+      String? token,
+      String? name,}) async {
+    final box = await _openMuc();
+    final muc = box.get(uid) ?? Muc(uid: uid);
+    box
+        .put(
+            uid,
+            muc.copyWith(
+              uid: uid,
+              info: info,
+              id: id,
+              population: population,
+              pinMessagesIdList: pinMessagesIdList,
+              lastCanceledPinMessageId: lastCanceledPinMessageId,
+              token: token,
+              name: name,
+            ),)
+        .ignore();
   }
 }

@@ -31,6 +31,7 @@ dependencies:
   camera: 0.9.4+17
   card_swiper: 2.0.3
   chewie: 1.3.1
+  circular_countdown_timer: 0.2.1
   clock: 1.1.0
   collection: 1.15.0
   connectycube_flutter_call_kit:
@@ -43,14 +44,14 @@ dependencies:
   dcache: 0.4.0
   deliver_public_protocol:
     git:
-      ref: tags/v1.12.10
+      ref: tags/v1.12.12
       url: https://github.com/deliver-iais/pub-dart-artifactory
   desktop_drop: 0.3.3
   desktop_lifecycle: 0.1.0
   desktop_window:
     git:
       ref: main
-      url: https://github.com/deliver-iais/desktop_window.git
+      url: https://github.com/deliver-iais/desktop_window
   device_info: 2.0.3
   dio: 4.0.3
   expandable: 5.0.1
@@ -61,10 +62,11 @@ dependencies:
   firebase_analytics: ^9.1.7
   firebase_crashlytics: ^2.7.2
   firebase_core: 1.12.0
-  firebase_messaging: ^11.3.0
+  firebase_messaging: 11.3.0
+#  firebase_messaging:
 #    git:
 #      ref: 7fcaebdf56e7285014422e7e484ce0c2ec403d24
-#      url: https://github.com/deliver-iais/firebase-messaging.git
+#      url: https://github.com/deliver-iais/firebase-messaging
   fixnum: 1.0.0
   flare_flutter: 3.0.2
   flutter:
@@ -73,11 +75,11 @@ dependencies:
   flutter_dropzone: 3.0.3
   flutter_foreground_task:
     git:
-      url: https://github.com/androidwoman/flutter_foreground_task.git
+      url: https://github.com/androidwoman/flutter_foreground_task
       ref: b24aeffc07dc047016b4da1f1320ec524d96b161
   flutter_image_compress: 1.1.0
   flutter_keyboard_visibility: 5.1.1
-  flutter_local_notifications: 9.1.4
+  flutter_local_notifications: 10.0.0-dev.13
   flutter_localizations:
     sdk: flutter
   flutter_map: 0.14.0
@@ -135,6 +137,7 @@ dependencies:
   sdp_transform: 0.3.2
   service_worker: 0.2.4
   share: 2.0.4
+  simple_animations: 4.0.2
   sms_autofill: 2.2.0
   synchronized: 3.0.0+2
   tuple: 2.0.0
@@ -148,12 +151,12 @@ dependencies:
     git:
       path: packages/win_toast
       ref: 5357c2a594a20534bf759eb28c86f8669d3914f3
-      url: https://github.com/AmirhosseinShk/flutter-plugins.git
+      url: https://github.com/AmirhosseinShk/flutter-plugins
   window_size:
     git:
       path: plugins/window_size
       ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
-      url: https://github.com/google/flutter-desktop-embedding.git
+      url: https://github.com/google/flutter-desktop-embedding
 
 
 dev_dependencies:
