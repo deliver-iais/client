@@ -377,7 +377,7 @@ class MucServices {
     }
   }
 
-  Future<String?> getGroupJointToken({required Uid groupUid}) async {
+  Future<String> getGroupJointToken({required Uid groupUid}) async {
     try {
       final res = await groupServices.createToken(
         group_pb.CreateTokenReq()
@@ -387,11 +387,11 @@ class MucServices {
       );
       return res.joinToken;
     } catch (e) {
-      return null;
+      return "";
     }
   }
 
-  Future<String?> getChannelJointToken({required Uid channelUid}) async {
+  Future<String> getChannelJointToken({required Uid channelUid}) async {
     try {
       final res = await channelServices.createToken(
         channel_pb.CreateTokenReq()
@@ -400,7 +400,7 @@ class MucServices {
       );
       return res.joinToken;
     } catch (e) {
-      return null;
+      return "";
     }
   }
 

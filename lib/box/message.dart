@@ -133,4 +133,9 @@ class Message {
         const DeepCollectionEquality().hash(type),
         const DeepCollectionEquality().hash(json),
       );
+
+  @override
+  String toString() {
+    return "Message [roomUid:$roomUid] [id:$id] [packetId:$packetId] [time:$time] [from:$from] [to:$to] [replyToId:$replyToId] [forwardedFrom:$forwardedFrom] [isHidden:$isHidden] [edited:$edited] [encrypted:$encrypted] [type:$type] [json:$json]";
+  }
 }

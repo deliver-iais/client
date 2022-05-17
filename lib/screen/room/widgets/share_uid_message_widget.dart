@@ -1,6 +1,5 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -21,7 +20,6 @@ class ShareUidMessageWidget extends StatelessWidget {
 
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _routingServices = GetIt.I.get<RoutingService>();
-  final _messageRepo = GetIt.I.get<MessageRepo>();
   final _i18n = GetIt.I.get<I18N>();
 
   ShareUidMessageWidget({
@@ -128,14 +126,11 @@ class ShareUidMessageWidget extends StatelessWidget {
                                           _shareUid.joinToken,
                                         );
                                         if (res != null) {
-                                          _messageRepo.updateNewMuc(
-                                            _shareUid.uid,
-                                            res.lastMessageId!,
-                                          );
+                                          navigatorState.pop();
                                           _routingServices.openRoom(
                                             _shareUid.uid.asString(),
                                           );
-                                          navigatorState.pop();
+
                                         }
                                       } else {
                                         final res = await _mucRepo.joinChannel(
@@ -143,14 +138,11 @@ class ShareUidMessageWidget extends StatelessWidget {
                                           _shareUid.joinToken,
                                         );
                                         if (res != null) {
-                                          _messageRepo.updateNewMuc(
-                                            _shareUid.uid,
-                                            res.lastMessageId!,
-                                          );
+                                          navigatorState.pop();
                                           _routingServices.openRoom(
                                             _shareUid.uid.asString(),
                                           );
-                                          navigatorState.pop();
+
                                         }
                                       }
                                     } else {

@@ -25,9 +25,9 @@ import 'package:deliver/screen/profile/widgets/profile_avatar.dart';
 import 'package:deliver/screen/profile/widgets/video_tab_ui.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/box.dart';
@@ -60,7 +60,6 @@ class _ProfilePageState extends State<ProfilePage>
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
-  final _uxService = GetIt.I.get<UxService>();
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
@@ -84,11 +83,8 @@ class _ProfilePageState extends State<ProfilePage>
 
   @override
   void initState() {
+    _roomRepo.updateUserInfo(widget.roomUid, foreToUpdate: true);
     _setupRoomSettings();
-
-    if (_uxService.getTabIndex(widget.roomUid.asString()) == null) {
-      _uxService.setTabIndex(widget.roomUid.asString(), 0);
-    }
 
     super.initState();
   }
@@ -96,7 +92,6 @@ class _ProfilePageState extends State<ProfilePage>
   @override
   void dispose() {
     _tabController.dispose();
-    _uxService.setTabIndex(widget.roomUid.asString(), 0);
     super.dispose();
   }
 
@@ -140,14 +135,7 @@ class _ProfilePageState extends State<ProfilePage>
                   ? _tabsCount + 1
                   : _tabsCount,
               vsync: this,
-              initialIndex: _uxService.getTabIndex(widget.roomUid.asString())!,
             );
-            _tabController.addListener(() {
-              _uxService.setTabIndex(
-                widget.roomUid.asString(),
-                _tabController.index,
-              );
-            });
 
             return DefaultTabController(
               length: (widget.roomUid.isGroup() ||
@@ -223,12 +211,6 @@ class _ProfilePageState extends State<ProfilePage>
                                 );
                               } else {
                                 return TabBar(
-                                  onTap: (index) {
-                                    _uxService.setTabIndex(
-                                      widget.roomUid.asString(),
-                                      index,
-                                    );
-                                  },
                                   tabs: [
                                     if (widget.roomUid.isGroup() ||
                                         (widget.roomUid.isChannel() &&
@@ -379,8 +361,8 @@ class _ProfilePageState extends State<ProfilePage>
               ],
             ),
             if (!widget.roomUid.isGroup())
-              FutureBuilder<String?>(
-                future: _roomRepo.getId(widget.roomUid),
+              StreamBuilder<String?>(
+                stream: _roomRepo.watchId(widget.roomUid),
                 builder: (context, snapshot) {
                   if (snapshot.data != null) {
                     return Padding(
@@ -489,6 +471,19 @@ class _ProfilePageState extends State<ProfilePage>
                 }
               },
             ),
+            if (widget.roomUid.isUser())
+              FutureBuilder<Contact?>(
+                future: _contactRepo.getContact(widget.roomUid),
+                builder: (context, snapshot) {
+                  if (snapshot.data != null &&
+                      snapshot.data!.description != null &&
+                      snapshot.data!.description!.isNotEmpty) {
+                    return description(snapshot.data!.description!, context);
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
             if (widget.roomUid.isBot())
               FutureBuilder<BotInfo?>(
                 future: _botRepo.getBotInfo(widget.roomUid),
@@ -508,8 +503,8 @@ class _ProfilePageState extends State<ProfilePage>
                 builder: (c, muc) {
                   if (muc.hasData &&
                       muc.data != null &&
-                      muc.data!.info!.isNotEmpty) {
-                    return description(muc.data!.info!, context);
+                      muc.data!.info.isNotEmpty) {
+                    return description(muc.data!.info, context);
                   } else {
                     return const SizedBox.shrink();
                   }
@@ -536,14 +531,21 @@ class _ProfilePageState extends State<ProfilePage>
 
   Padding description(String info, BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(top: 8.0),
+      padding: const EdgeInsets.only(top: 8.0, bottom: 10.0),
       child: SettingsTile(
         title: _i18n.get("description"),
-        subtitleMaxLines: 8,
-        subtitleTextStyle:
-            TextStyle(color: Theme.of(context).primaryColor, fontSize: 16),
         leading: const Icon(Icons.info),
-        trailing: SizedBox(width: 300, child: Text(info)),
+        trailing: SizedBox(
+          width: 200,
+          child: Text(
+            info,
+            maxLines: 8,
+            textDirection:
+                info.isPersian() ? TextDirection.rtl : TextDirection.ltr,
+            style:
+                TextStyle(color: Theme.of(context).primaryColor, fontSize: 16),
+          ),
+        ),
       ),
     );
   }
@@ -728,9 +730,9 @@ class _ProfilePageState extends State<ProfilePage>
 
   Future<void> createInviteLink() async {
     final muc = await _mucRepo.getMuc(widget.roomUid.asString());
-    if (muc != null && muc.token != null) {
+    if (muc != null) {
       var token = muc.token;
-      if (token!.isEmpty || token.isEmpty) {
+      if ( token.isEmpty) {
         if (widget.roomUid.category == Categories.GROUP) {
           token = await _mucRepo.getGroupJointToken(groupUid: widget.roomUid);
         } else {
@@ -738,7 +740,7 @@ class _ProfilePageState extends State<ProfilePage>
               await _mucRepo.getChannelJointToken(channelUid: widget.roomUid);
         }
       }
-      if (token != null && token.isNotEmpty) {
+      if (token.isNotEmpty) {
         _showInviteLinkDialog(token);
       } else {
         ToastDisplay.showToast(
@@ -891,7 +893,7 @@ class _ProfilePageState extends State<ProfilePage>
                     stream: _mucRepo.watchMuc(widget.roomUid.asString()),
                     builder: (c, muc) {
                       if (muc.hasData && muc.data != null) {
-                        _currentId = muc.data!.id!;
+                        _currentId = muc.data!.id;
                         return Column(
                           children: [
                             Form(
@@ -941,14 +943,14 @@ class _ProfilePageState extends State<ProfilePage>
                   stream: _mucRepo.watchMuc(widget.roomUid.asString()),
                   builder: (c, muc) {
                     if (muc.hasData && muc.data != null) {
-                      mucInfo = muc.data!.info!;
+                      mucInfo = muc.data!.info;
                       return TextFormField(
                         initialValue: muc.data!.info,
-                        minLines: muc.data!.info!.isNotEmpty
-                            ? muc.data!.info!.split("\n").length
+                        minLines: muc.data!.info.isNotEmpty
+                            ? muc.data!.info.split("\n").length
                             : 1,
-                        maxLines: muc.data!.info!.isNotEmpty
-                            ? muc.data!.info!.split("\n").length + 4
+                        maxLines: muc.data!.info.isNotEmpty
+                            ? muc.data!.info.split("\n").length + 4
                             : 4,
                         onChanged: (str) {
                           mucInfo = str;

@@ -653,34 +653,36 @@ class AndroidNotifier implements Notifier {
       }
     }
 
-    const inboxStyleInformation =
-        InboxStyleInformation([], contentTitle: 'new messages');
+    final lines = <String>[];
 
-    final androidNotificationDetails = AndroidNotificationDetails(
-      selectedNotificationSound + message.roomUid.asString(),
-      channel.name,
-      channelDescription: channel.description,
-      styleInformation: inboxStyleInformation,
-      groupKey: channel.groupId,
-      sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
-      setAsGroupSummary: true,
+
+    final res = await _flutterLocalNotificationsPlugin.getActiveNotifications();
+    for (final element in res) {
+      if (element.groupKey == message.roomUid.asString() &&
+          element.body != null &&
+          element.body!.isNotEmpty) {
+        lines.addAll(element.body!.split("\n"));
+      }
+    }
+
+    lines.add(createNotificationTextFromMessageBrief(message));
+
+    final text = lines.join("\n");
+
+    final inboxStyleInformation = InboxStyleInformation(
+      lines,
+      contentTitle:
+          lines.length > 1 ? '${lines.length} messages' : "New messages",
+      summaryText: message.roomName,
     );
-    _flutterLocalNotificationsPlugin
-        .show(
-          message.roomUid.hashCode,
-          'Attention',
-          'new messages',
-          notificationDetails: androidNotificationDetails,
-        )
-        .ignore();
 
     final platformChannelSpecifics = AndroidNotificationDetails(
       selectedNotificationSound + message.roomUid.asString(),
       channel.name,
       channelDescription: channel.description,
-      groupKey: channel.groupId,
+      groupKey: message.roomUid.asString(),
       largeIcon: largeIcon,
-      styleInformation: const BigTextStyleInformation(''),
+      styleInformation: inboxStyleInformation,
       actions: <AndroidNotificationAction>[
         AndroidNotificationAction(
           REPLY_ACTION_ID,
@@ -698,11 +700,12 @@ class AndroidNotifier implements Notifier {
       ],
       sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
     );
+
     _flutterLocalNotificationsPlugin
         .show(
-          message.roomUid.asString().hashCode + message.id!,
+          message.roomUid.asString().hashCode,
           message.roomName,
-          createNotificationTextFromMessageBrief(message),
+          text,
           notificationDetails: platformChannelSpecifics,
           payload: Notifier.genPayload(message.roomUid.asString(), message.id!),
         )

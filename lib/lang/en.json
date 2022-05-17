@@ -8,8 +8,8 @@
   "about_update": "ABOUT UPDATE",
   "access_email": "Do you allow access to your email ?",
   "access_name": "Do you allow access to your name ?",
-  "access_phone_number": "Do you allow access to your phoneNumber ?",
-  "access_username": "Do you allow access to your username?",
+  "access_phone_number": "Do you allow access to your phone number ?",
+  "access_username": "Do you allow access to your username ?",
   "account_info": "Account Information",
   "actions": "Actions",
   "active_sessions": "Active Sessions",
@@ -124,10 +124,10 @@
   "forwarded_medias": "Forwarded medias",
   "forwarded_messages": "forwarded messages",
   "gallery": "Gallery",
-  "get_access_email": "Access to your email ?",
-  "get_access_name": "Access to your name ?",
-  "get_access_phone_number": "Access to your phoneNumber ?",
-  "get_access_username": "Access to your username ?",
+  "get_access_email": "Accept to access your email",
+  "get_access_name": "Accept to access to your name",
+  "get_access_phone_number": "Accept to access to your phone number",
+  "get_access_username": "Accept to access to your username",
   "get_private_data_access_EMAIL": "Wants to access to your email",
   "get_private_data_access_NAME": "Wants to access to your name",
   "get_private_data_access_PHONE_NUMBER": "Wants to access to your phone number",
@@ -357,5 +357,6 @@
   "your_password_update": "Your password updated",
   "out_of_date_title": "This app is out of date",
   "out_of_date_desc": "You should update this app. The version you're using doesn't include the latest security features to keep you protected. This updating is necessary.",
-  "update_now": "Update Now"
+  "update_now": "Update Now",
+  "not_valid_input": "Not valid input"
 }

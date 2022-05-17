@@ -22,13 +22,14 @@ class ContactAdapter extends TypeAdapter<Contact> {
       uid: fields[2] as String,
       firstName: fields[3] as String?,
       lastName: fields[4] as String?,
+      description: fields[5] as String?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Contact obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(6)
       ..writeByte(0)
       ..write(obj.countryCode)
       ..writeByte(1)
@@ -38,7 +39,9 @@ class ContactAdapter extends TypeAdapter<Contact> {
       ..writeByte(3)
       ..write(obj.firstName)
       ..writeByte(4)
-      ..write(obj.lastName);
+      ..write(obj.lastName)
+      ..writeByte(5)
+      ..write(obj.description);
   }
 
   @override

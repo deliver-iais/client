@@ -5,7 +5,7 @@ PODS:
     - Flutter
   - camera (0.0.1):
     - Flutter
-  - connectycube_flutter_call_kit (0.0.1):
+  - connectycube_flutter_call_kit (2.0.2):
     - Flutter
   - contacts_service (0.2.2):
     - Flutter
@@ -325,7 +325,7 @@ SPEC CHECKSUMS:
   all_sensors2: 5e204ae87a72b554b2df6c4de741c09031b8e64e
   audioplayers: 455322b54050b30ea4b1af7cd9e9d105f74efa8c
   camera: 9993f92f2c793e87b65e35f3a23c70582afb05b1
-  connectycube_flutter_call_kit: 3f5730ee17df32194fe1072f197bb1f87fb18955
+  connectycube_flutter_call_kit: 401db1dd3c1984ed754b0b14e957a6700f95067e
   contacts_service: 849e1f84281804c8bfbec1b4c3eedcb23c5d3eca
   device_info: d7d233b645a32c40dfdc212de5cf646ca482f175
   DKImagePickerController: 72fd378f244cef3d27288e0aebf217a4467e4012

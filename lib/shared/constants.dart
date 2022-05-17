@@ -91,6 +91,8 @@ const ONLINE_TIME = 60000;
 const AVATAR_CACHE_TIME = 60 * 60 * 24 * 1000;
 const NULL_AVATAR_CACHE_TIME = 60 * 60 * 1 * 1000;
 
+const USER_INFO_CACHE_TIME = 60 * 60 * 24 * 7 * 1000;
+
 const SUPPORTED_IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif'];
 
 const DELIVER_COLOR = Color(0xff1a88f7);

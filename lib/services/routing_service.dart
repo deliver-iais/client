@@ -68,6 +68,8 @@ const _scanQrCode = ScanQrCode(key: ValueKey("/scan-qr-code"));
 
 const _calls = CallListPage(key: ValueKey("/calls"));
 
+const _emptyRoute = "/";
+
 class RoutingService {
   final _analyticsRepo = GetIt.I.get<AnalyticsRepo>();
   final _homeNavigatorState = GlobalKey<NavigatorState>();
@@ -75,7 +77,7 @@ class RoutingService {
 
   final _navigatorObserver = RoutingServiceNavigatorObserver();
 
-  Stream<String> get currentRouteStream =>
+  Stream<RouteEvent> get currentRouteStream =>
       _navigatorObserver.currentRoute.stream;
 
   BehaviorSubject<bool> shouldScrollToLastMessageInRoom =
@@ -250,10 +252,13 @@ class RoutingService {
         ),
       );
 
+  bool notInRoom() => _path().startsWith("/room");
+
   bool isInRoom(String roomId) =>
       _path() == "/room/$roomId" || _path() == "/room/$roomId/profile";
 
-  String _path() => _navigatorObserver.currentRoute.value;
+
+  String _path() => _navigatorObserver.currentRoute.value.nextRoute;
 
   // Routing Functions
   void popAll() {
@@ -365,19 +370,37 @@ class RoutingService {
   }
 }
 
+class RouteEvent {
+  final String prevRoute;
+  final String nextRoute;
+
+  RouteEvent(this.prevRoute, this.nextRoute);
+}
+
 class RoutingServiceNavigatorObserver extends NavigatorObserver {
-  final currentRoute = BehaviorSubject.seeded("/");
+  final currentRoute =
+      BehaviorSubject.seeded(RouteEvent(_emptyRoute, _emptyRoute));
 
   RoutingServiceNavigatorObserver();
 
   @override
   void didPop(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    currentRoute.add(previousRoute?.settings.name ?? "/");
+    currentRoute.add(
+      RouteEvent(
+        route.settings.name ?? _emptyRoute,
+        previousRoute?.settings.name ?? _emptyRoute,
+      ),
+    );
   }
 
   @override
   void didPush(Route<dynamic> route, Route<dynamic>? previousRoute) {
-    currentRoute.add(route.settings.name ?? "/");
+    currentRoute.add(
+      RouteEvent(
+        previousRoute?.settings.name ?? _emptyRoute,
+        route.settings.name ?? _emptyRoute,
+      ),
+    );
   }
 }
 

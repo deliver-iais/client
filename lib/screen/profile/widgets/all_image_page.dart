@@ -304,157 +304,34 @@ class _AllImagePageState extends State<AllImagePage> {
               )
           ],
         ),
-        if (_isBarShowing)
-          Align(
-            alignment: Alignment.bottomCenter,
-            child: Container(
-              color: Colors.black.withAlpha(120),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  StreamBuilder<int>(
-                    stream: _currentIndex.stream,
-                    builder: (context, index) {
-                      if (index.hasData &&
-                          index.data != null &&
-                          index.data != -1) {
-                        return FutureBuilder<Media?>(
-                          future: _getMedia(index.data!),
-                          builder: (c, mediaSnapShot) {
-                            if (mediaSnapShot.hasData &&
-                                mediaSnapShot.data != null) {
-                              final json =
-                                  jsonDecode(mediaSnapShot.data!.json) as Map;
-                              if (json["caption"].toString().isNotEmpty) {
-                                return Padding(
-                                  padding: const EdgeInsets.all(8.0),
-                                  child: Text(
-                                    json["caption"],
-                                    textDirection: TextDirection.rtl,
-                                    style: theme.textTheme.bodyText2!.copyWith(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                );
-                              } else {
-                                return const SizedBox.shrink();
-                              }
-                            } else {
-                              return const SizedBox.shrink();
-                            }
-                          },
-                        );
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    },
-                  ),
-                  Row(
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 10.0,
-                          horizontal: 20,
-                        ),
-                        child: StreamBuilder<int>(
-                          stream: _currentIndex.stream,
-                          builder: (c, index) {
-                            if (index.hasData && index.data != -1) {
-                              return buildBottomAppBar(index.data!);
-                            } else {
-                              return const SizedBox.shrink();
-                            }
-                          },
-                        ),
-                      ),
-                      const Spacer(),
-                      if (widget.onEdit != null)
-                        StreamBuilder<int>(
-                          stream: _currentIndex.stream,
-                          builder: (c, index) {
-                            if (index.hasData && index.data != -1) {
-                              return FutureBuilder<Media?>(
-                                future: _getMedia(index.data!),
-                                builder: (context, mediaSnapShot) {
-                                  if (mediaSnapShot.hasData &&
-                                      mediaSnapShot.data != null) {
-                                    return FutureBuilder<Message?>(
-                                      future: _messageDao.getMessage(
-                                        widget.roomUid,
-                                        mediaSnapShot.data!.messageId,
-                                      ),
-                                      builder: (context, message) {
-                                        if (message.hasData &&
-                                            message.data != null &&
-                                            _autRepo.isCurrentUserSender(
-                                              message.data!,
-                                            )) {
-                                          return IconButton(
-                                            onPressed: () async {
-                                              final message =
-                                                  await getMessage();
-                                              await OperationOnMessageSelection(
-                                                message: message!,
-                                                context: context,
-                                                onEdit: widget.onEdit,
-                                              ).selectOperation(
-                                                OperationOnMessage.EDIT,
-                                              );
-                                              _routingService.pop();
-                                            },
-                                            tooltip: _i18n.get("edit"),
-                                            icon: Icon(
-                                              Icons.brush_outlined,
-                                              color: theme.primaryColorLight,
-                                            ),
-                                          );
-                                        } else {
-                                          return const SizedBox.shrink();
-                                        }
-                                      },
-                                    );
-                                  } else {
-                                    return const SizedBox.shrink();
-                                  }
-                                },
-                              );
-                            } else {
-                              return const SizedBox.shrink();
-                            }
-                          },
-                        ),
-                      IconButton(
-                        tooltip: isDesktop
-                            ? _i18n.get("show_in_folder")
-                            : _i18n.get("share"),
-                        onPressed: () async {
-                          final message = await getMessage();
-                          return OperationOnMessageSelection(
-                            message: message!,
-                            context: context,
-                          ).selectOperation(
-                            isDesktop
-                                ? OperationOnMessage.SHOW_IN_FOLDER
-                                : OperationOnMessage.SHARE,
-                          );
-                        },
-                        icon: Icon(
-                          isDesktop ? CupertinoIcons.folder_open : Icons.share,
-                          color: theme.primaryColorLight,
-                        ),
-                      ),
-                      const SizedBox(
-                        width: 10,
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: AnimatedOpacity(
+            duration: ANIMATION_DURATION * 2,
+            opacity: _isBarShowing ? 1 : 0,
+            child: StreamBuilder<int>(
+              stream: _currentIndex.stream,
+              builder: (context, index) {
+                return buildCaptionSection(index);
+              },
             ),
           ),
+        )
       ],
     );
+  }
+
+  Widget buildCaptionSection(AsyncSnapshot<int> index) {
+    if (index.hasData && index.data != null && index.data != -1) {
+      return Column(
+        children: [
+          const Spacer(),
+          buildBottomBar(index.data!),
+          buildFooter(index.data!)
+        ],
+      );
+    }
+    return const SizedBox.shrink();
   }
 
   Future<Message?> getMessage() async {
@@ -506,6 +383,122 @@ class _AllImagePageState extends State<AllImagePage> {
           return const SizedBox.shrink();
         }
       },
+    );
+  }
+
+  Widget buildBottomBar(int index) {
+    return Container(
+      constraints:
+          BoxConstraints(maxHeight: MediaQuery.of(context).size.height / 3),
+      color: Colors.black.withAlpha(120),
+      child: SingleChildScrollView(
+        child: FutureBuilder<Media?>(
+          future: _getMedia(index),
+          builder: (c, mediaSnapShot) {
+            if (mediaSnapShot.hasData && mediaSnapShot.data != null) {
+              final json = jsonDecode(mediaSnapShot.data!.json) as Map;
+              if (json["caption"].toString().isNotEmpty) {
+                return Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Text(
+                    (json["caption"] as String),
+                    textDirection: TextDirection.rtl,
+                    style: theme.textTheme.bodyText2!.copyWith(
+                      color: Colors.white,
+                    ),
+                  ),
+                );
+              } else {
+                return const SizedBox.shrink();
+              }
+            } else {
+              return const SizedBox.shrink();
+            }
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget buildFooter(int index) {
+    return Container(
+      color: Colors.black.withAlpha(120),
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 10.0,
+              horizontal: 20,
+            ),
+            child: buildBottomAppBar(index),
+          ),
+          const Spacer(),
+          if (widget.onEdit != null)
+            FutureBuilder<Media?>(
+              future: _getMedia(index),
+              builder: (context, mediaSnapShot) {
+                if (mediaSnapShot.hasData && mediaSnapShot.data != null) {
+                  return FutureBuilder<Message?>(
+                    future: _messageDao.getMessage(
+                      widget.roomUid,
+                      mediaSnapShot.data!.messageId,
+                    ),
+                    builder: (context, message) {
+                      if (message.hasData &&
+                          message.data != null &&
+                          _autRepo.isCurrentUserSender(
+                            message.data!,
+                          )) {
+                        return IconButton(
+                          onPressed: () async {
+                            final message = await getMessage();
+                            await OperationOnMessageSelection(
+                              message: message!,
+                              context: context,
+                              onEdit: widget.onEdit,
+                            ).selectOperation(OperationOnMessage.EDIT);
+                            _routingService.pop();
+                          },
+                          tooltip: _i18n.get("edit"),
+                          icon: Icon(
+                            CupertinoIcons.paintbrush,
+                            color: theme.primaryColorLight,
+                          ),
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
+              },
+            ),
+          IconButton(
+            tooltip:
+                isDesktop ? _i18n.get("show_in_folder") : _i18n.get("share"),
+            onPressed: () async {
+              final message = await getMessage();
+              return OperationOnMessageSelection(
+                message: message!,
+                context: context,
+              ).selectOperation(
+                isDesktop
+                    ? OperationOnMessage.SHOW_IN_FOLDER
+                    : OperationOnMessage.SHARE,
+              );
+            },
+            icon: Icon(
+              isDesktop ? CupertinoIcons.folder_open : Icons.share,
+              color: theme.primaryColorLight,
+            ),
+          ),
+          const SizedBox(
+            width: 10,
+          ),
+        ],
+      ),
     );
   }
 
