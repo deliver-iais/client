@@ -6,8 +6,6 @@ import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/audioCallScreen/audio_call_screen.dart';
 import 'package:deliver/screen/call/videoCallScreen/start_video_call_page.dart';
 import 'package:deliver/services/audio_service.dart';
-import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -45,7 +43,6 @@ class _CallScreenState extends State<CallScreen> {
   final callRepo = GetIt.I.get<CallRepo>();
   final _logger = GetIt.I.get<Logger>();
   final _audioService = GetIt.I.get<AudioService>();
-  final _routingService = GetIt.I.get<RoutingService>();
   late final String random;
 
   final List<StreamSubscription<dynamic>> _streamSubscriptions =
@@ -277,15 +274,6 @@ class _CallScreenState extends State<CallScreen> {
           case CallStatus.ENDED:
             _logger.i("END!");
             _audioService.playEndCallSound();
-
-            Timer(const Duration(milliseconds: 1500), () async {
-              if (_routingService.canPop()) {
-                _routingService.openRoom(
-                  widget.roomUid.asString(),
-                  popAllBeforePush: true,
-                );
-              }
-            });
             callRepo.disposeRenderer();
             return AudioCallScreen(
               roomUid: widget.roomUid,

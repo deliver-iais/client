@@ -22,6 +22,7 @@ import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/notification_services.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -65,6 +66,7 @@ class CallRepo {
   final _callListDao = GetIt.I.get<CallInfoDao>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _audioService = GetIt.I.get<AudioService>();
+  final _routingService = GetIt.I.get<RoutingService>();
 
   final _candidateNumber = 10;
   final _candidateTimeLimit = 1000; // 1 sec
@@ -1244,6 +1246,15 @@ class CallRepo {
     }
     _candidate = [];
     callingStatus.add(CallStatus.ENDED);
+    Timer(const Duration(milliseconds: 1500), () async {
+      if (_routingService.canPop()) {
+        _routingService.openRoom(
+          roomUid!.asString(),
+          popAllBeforePush: true,
+        );
+      }
+      _roomUid = null;
+    });
     _audioService.stopBeepSound();
     Timer(const Duration(seconds: 1), () async {
       callingStatus.add(CallStatus.NO_CALL);
@@ -1252,7 +1263,6 @@ class CallRepo {
     _offerSdp = "";
     _answerSdp = "";
     _callService.setCallId = "";
-    _roomUid = null;
     _isSharing = false;
     _isMicMuted = false;
     _isSpeaker = false;
