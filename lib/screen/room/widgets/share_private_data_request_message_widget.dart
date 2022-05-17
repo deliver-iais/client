@@ -35,49 +35,45 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
     return Column(
       children: [
         if (sharePrivateDataRequest.description.isNotEmpty)
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: SizedBox(
-              width: maxWidth,
-              child: Text(
-                sharePrivateDataRequest.description,
-                textDirection: sharePrivateDataRequest.description.isPersian()
-                    ? TextDirection.rtl
-                    : TextDirection.ltr,
-              ),
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0)
+                .copyWith(bottom: 0),
+            width: maxWidth,
+            child: Text(
+              sharePrivateDataRequest.description,
+              textDirection: sharePrivateDataRequest.description.isPersian()
+                  ? TextDirection.rtl
+                  : TextDirection.ltr,
             ),
           ),
-        Stack(
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Container(
-                constraints: const BoxConstraints(minHeight: 35),
-                width: maxWidth,
-                margin: const EdgeInsets.only(bottom: 23),
-                child: TextButton(
-                  style: TextButton.styleFrom(
-                    primary: colorScheme.primary,
-                    backgroundColor: colorScheme.onPrimary,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
+            Container(
+              margin: const EdgeInsets.all(4.0),
+              constraints: const BoxConstraints(minHeight: 35),
+              width: maxWidth,
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  primary: colorScheme.primary,
+                  backgroundColor: colorScheme.onPrimary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
                   ),
-                  onPressed: () {
-                    FocusScope.of(context).unfocus();
-                    _showGetAccessPrivateData(context, sharePrivateDataRequest);
-                  },
-                  child: Text(
-                    sharePrivateDataRequest.data == PrivateDataType.PHONE_NUMBER
-                        ? _i18n.get("get_access_phone_number")
-                        : sharePrivateDataRequest.data == PrivateDataType.EMAIL
-                            ? _i18n.get("get_access_email")
-                            : sharePrivateDataRequest.data ==
-                                    PrivateDataType.NAME
-                                ? _i18n.get("get_access_name")
-                                : _i18n.get("get_access_username"),
-                    textAlign: TextAlign.center,
-                  ),
+                ),
+                onPressed: () {
+                  FocusScope.of(context).unfocus();
+                  _showGetAccessPrivateData(context, sharePrivateDataRequest);
+                },
+                child: Text(
+                  sharePrivateDataRequest.data == PrivateDataType.PHONE_NUMBER
+                      ? _i18n.get("get_access_phone_number")
+                      : sharePrivateDataRequest.data == PrivateDataType.EMAIL
+                          ? _i18n.get("get_access_email")
+                          : sharePrivateDataRequest.data == PrivateDataType.NAME
+                              ? _i18n.get("get_access_name")
+                              : _i18n.get("get_access_username"),
+                  textAlign: TextAlign.center,
                 ),
               ),
             ),
@@ -111,25 +107,28 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                     : sharePrivateDataRequest.data == PrivateDataType.NAME
                         ? _i18n.get("access_name")
                         : _i18n.get("access_username"),
+            style: const TextStyle(fontSize: 16),
           ),
-          actionsPadding: const EdgeInsets.only(right: 8, bottom: 5),
+          actionsPadding: const EdgeInsets.only(right: 8, bottom: 8),
           actions: [
-            GestureDetector(
-              child: Text(
-                _i18n.get("cancel"),
-                style: const TextStyle(fontSize: 16, color: Colors.red),
+            TextButton(
+              style: TextButton.styleFrom(
+                primary: Theme.of(context).colorScheme.error,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
-              onTap: () => Navigator.pop(c),
+              child: Text(_i18n.get("cancel")),
+              onPressed: () => Navigator.pop(c),
             ),
-            const SizedBox(
-              width: 5,
-            ),
-            GestureDetector(
-              child: Text(
-                _i18n.get("ok"),
-                style: const TextStyle(color: Colors.blue, fontSize: 16),
+            TextButton(
+              child: Text(_i18n.get("ok")),
+              style: TextButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
-              onTap: () {
+              onPressed: () {
                 _messageRepo.sendPrivateDataAcceptanceMessage(
                   message.from.asUid(),
                   sharePrivateDataRequest.data,
@@ -138,7 +137,6 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                 Navigator.pop(c);
               },
             ),
-            const SizedBox(width: 5)
           ],
         );
       },
