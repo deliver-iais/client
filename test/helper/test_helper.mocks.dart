@@ -445,7 +445,7 @@ class MockRoomRepo extends _i1.Mock implements _i27.RoomRepo {
   void mute(String? uid) => super.noSuchMethod(Invocation.method(#mute, [uid]),
       returnValueForMissingStub: null);
   @override
-  void unmute(String? uid) =>
+  void unMute(String? uid) =>
       super.noSuchMethod(Invocation.method(#unmute, [uid]),
           returnValueForMissingStub: null);
   @override
