@@ -359,5 +359,12 @@
   "out_of_date_desc": "You should update this app. The version you're using doesn't include the latest security features to keep you protected. This updating is necessary.",
   "update_now": "Update Now",
   "not_valid_input": "Not valid input",
-  "selected_chats": "Selected Chats"
+  "selected_chats": "Selected Chats",
+  "click_to_send_file": "Click to send file",
+  "click_to_send_location": "Click to send location",
+  "enable_location_services": "Enable location services",
+  "enable_location_services_in_windows_helper": "Go to setting > privacy > location and enable location",
+  "i_realized": "I realized",
+  "send_location": "Send location",
+  "get_location_not_support_in_your_device": "Get location not  support in your device !"
 }

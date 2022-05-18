@@ -63,59 +63,64 @@ class _ShareInputFileState extends State<ShareInputFile> {
       ),
       body: Stack(
         children: <Widget>[
-          SearchBox(
-            onChange: _queryTermDebouncedSubject.add,
-            onCancel: () => _queryTermDebouncedSubject.add(""),
-          ),
-          StreamBuilder<String>(
-            stream: _queryTermDebouncedSubject.stream,
-            builder: (context, query) {
-              return Expanded(
-                child: FutureBuilder<List<Uid>>(
-                  future: query.data != null && query.data!.isNotEmpty
-                      ? _roomRepo.searchInRoomAndContacts(query.data!)
-                      : _roomRepo.getAllRooms(),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData &&
-                        snapshot.data != null &&
-                        snapshot.data!.isNotEmpty) {
-                      return ListView.builder(
-                        itemCount: snapshot.data!.length,
-                        itemBuilder: (ctx, index) {
-                          return GestureDetector(
-                            behavior: HitTestBehavior.translucent,
-                            onTap: () {
-                              if (_selectedRooms
-                                  .contains(snapshot.data![index].asString())) {
-                                _selectedRooms
-                                    .remove(snapshot.data![index].asString());
-                              } else {
-                                _selectedRooms
-                                    .add(snapshot.data![index].asString());
-                              }
-                              setState(() {});
+          Column(
+            children: [
+              SearchBox(
+                onChange: _queryTermDebouncedSubject.add,
+                onCancel: () => _queryTermDebouncedSubject.add(""),
+              ),
+              StreamBuilder<String>(
+                stream: _queryTermDebouncedSubject.stream,
+                builder: (context, query) {
+                  return Expanded(
+                    child: FutureBuilder<List<Uid>>(
+                      future: query.data != null && query.data!.isNotEmpty
+                          ? _roomRepo.searchInRoomAndContacts(query.data!)
+                          : _roomRepo.getAllRooms(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData &&
+                            snapshot.data != null &&
+                            snapshot.data!.isNotEmpty) {
+                          return ListView.builder(
+                            itemCount: snapshot.data!.length,
+                            itemBuilder: (ctx, index) {
+                              return GestureDetector(
+                                behavior: HitTestBehavior.translucent,
+                                onTap: () {
+                                  if (_selectedRooms.contains(
+                                      snapshot.data![index].asString())) {
+                                    _selectedRooms.remove(
+                                        snapshot.data![index].asString());
+                                  } else {
+                                    _selectedRooms
+                                        .add(snapshot.data![index].asString());
+                                  }
+                                  setState(() {});
+                                },
+                                child: Container(
+                                  color: _selectedRooms.contains(
+                                    snapshot.data![index].asString(),
+                                  )
+                                      ? theme.hoverColor
+                                      : theme.backgroundColor,
+                                  child: RoomWidget(
+                                    uid: snapshot.data![index],
+                                    selected: _selectedRooms.contains(
+                                        snapshot.data![index].asString()),
+                                  ),
+                                ),
+                              );
                             },
-                            child: Container(
-                              color: _selectedRooms.contains(
-                                      snapshot.data![index].asString())
-                                  ? theme.hoverColor
-                                  : theme.backgroundColor,
-                              child: RoomWidget(
-                                uid: snapshot.data![index],
-                                selected: _selectedRooms
-                                    .contains(snapshot.data![index].asString()),
-                              ),
-                            ),
                           );
-                        },
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  },
-                ),
-              );
-            },
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      },
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
           if (_selectedRooms.isNotEmpty)
             buildInputCaption(
@@ -133,6 +138,11 @@ class _ShareInputFileState extends State<ShareInputFile> {
                         .toList(),
                     caption: _textEditingController.text,
                   );
+                }
+                if (_selectedRooms.length == 1) {
+                  _routingServices.openRoom(_selectedRooms.first,popAllBeforePush: true);
+                } else {
+                  _routingServices.pop();
                 }
               },
             )

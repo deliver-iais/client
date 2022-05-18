@@ -31,33 +31,39 @@ class FormListWidget extends StatelessWidget {
         horizontalPadding: 5,
         animationRange: 5,
         controller: shakeWidgetController,
-        child: Form(
-          key: _formKey,
-          child: DropdownButtonFormField<String?>(
-            validator: (value) {
-              if (!formField.isOptional && value == null) {
-                shakeWidgetController.shake();
-                return _i18n.get("please_select_one");
-              } else {
-                return null;
-              }
-            },
-            decoration: InputDecoration(
-              helperText: formField.hint,
-              label: Text(formField.id),
+        child: Column(
+          children: [
+            Form(
+              key: _formKey,
+              child: DropdownButtonFormField<String?>(
+                validator: (value) {
+                  if (!formField.isOptional && value == null) {
+                    shakeWidgetController.shake();
+                    return _i18n.get("please_select_one");
+                  } else {
+                    return null;
+                  }
+                },
+                decoration: InputDecoration(
+                  helperText: formField.hint,
+                  label: Text(formField.id),
+                ),
+                items: res
+                    .map((e) => DropdownMenuItem<String?>(
+                          child: Text(
+                            e,
+                          ),
+                          value: e,
+                        ),)
+                    .toList(),
+                onChanged: (value) {
+                  selected(value);
+                },
+              ),
             ),
-            items: res
-                .map((e) => DropdownMenuItem<String?>(
-                      child: Text(
-                        e,
-                      ),
-                      value: e,
-                    ),)
-                .toList(),
-            onChanged: (value) {
-              selected(value);
-            },
-          ),
+            if(formField.hint.isNotEmpty)
+              Row(children: [Text(formField.hint)],)
+          ],
         ),
       ),
     );

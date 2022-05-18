@@ -8,6 +8,7 @@ import 'package:deliver/box/livelocation.dart';
 import 'package:deliver_public_protocol/pub/v1/live_location.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart' as pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 
@@ -65,7 +66,7 @@ class LiveLocationRepo {
       await _liveLocationClient.createLiveLocation(
         CreateLiveLocationReq()
           ..room = roomUid
-          ..duration = duration,
+          ..duration = Int64(duration),
       );
 
   void sendLiveLocationAsStream(
@@ -81,7 +82,9 @@ class LiveLocationRepo {
         lastUpdate: clock.now().millisecondsSinceEpoch,
       ),
     );
-    Geolocator.getPositionStream(timeLimit: Duration(seconds: duration))
+    Geolocator.getPositionStream(
+            locationSettings:
+                LocationSettings(timeLimit: Duration(seconds: duration)))
         .listen((p) {
       final location =
           pb.Location(latitude: p.latitude, longitude: p.longitude);

@@ -7,11 +7,12 @@ import 'package:deliver_public_protocol/pub/v1/models/payment.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/poll.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/sticker.pb.dart';
 
 extension JsonMapper on String {
   File toFile() => File.fromJson(this);
 
-  File toSticker() => File.fromJson(this);
+  Sticker toSticker() => Sticker.fromJson(this);
 
   Text toText() => Text.fromJson(this);
 

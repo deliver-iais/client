@@ -10,14 +10,12 @@ import 'package:deliver/screen/room/widgets/share_box/music.dart';
 import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
+import 'package:deliver/shared/widgets/attach_location.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
-import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:rxdart/rxdart.dart';
 
 class ShareBox extends StatefulWidget {
@@ -165,11 +163,10 @@ class _ShareBoxState extends State<ShareBox> {
                                           widget.resetRoomPageDetails,
                                     )
                                   : currentPage == Page.location
-                                      ? showLocation(
-                                          scrollController,
-                                          i18n,
-                                          co,
-                                        )
+                                      ? AttachLocation(
+                                          context,
+                                          widget.currentRoomId,
+                                        ).showLocation()
                                       : const SizedBox.shrink(),
                     ),
                     Column(
@@ -305,242 +302,7 @@ class _ShareBoxState extends State<ShareBox> {
     );
   }
 
-  FutureBuilder<Position> showLocation(
-    ScrollController scrollController,
-    I18N i18n,
-    BuildContext context,
-  ) {
-    return FutureBuilder(
-      future: Geolocator.getCurrentPosition(),
-      builder: (c, position) {
-        if (position.hasData && position.data != null) {
-          return ListView(
-            children: [
-              SizedBox(
-                height: MediaQuery.of(context).size.height / 3 - 40,
-                child: FlutterMap(
-                  options: MapOptions(
-                    center: LatLng(
-                      position.data!.latitude,
-                      position.data!.longitude,
-                    ),
-                    zoom: 14.0,
-                  ),
-                  layers: [
-                    TileLayerOptions(
-                      urlTemplate:
-                          "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                      subdomains: ['a', 'b', 'c'],
-                    ),
-                    MarkerLayerOptions(
-                      markers: [
-                        Marker(
-                          width: 170.0,
-                          height: 170.0,
-                          point: LatLng(
-                            position.data!.latitude,
-                            position.data!.longitude,
-                          ),
-                          builder: (ctx) => const Icon(
-                            Icons.location_pin,
-                            color: Colors.red,
-                            size: 28,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(
-                height: 5,
-              ),
-              GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                child: Row(
-                  children: [
-                    const SizedBox(
-                      width: 40,
-                      child: Icon(
-                        Icons.location_on_sharp,
-                        color: Colors.blueAccent,
-                        size: 28,
-                      ),
-                    ),
-                    Text(
-                      i18n.get(
-                        "send_this_location",
-                      ),
-                      style: const TextStyle(fontSize: 18),
-                    )
-                  ],
-                ),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  messageRepo.sendLocationMessage(
-                    position.data!,
-                    widget.currentRoomId,
-                  );
-                },
-              ),
-              const SizedBox(
-                height: 5,
-              ),
-              const Divider(),
-              //todo  liveLocation
-              // GestureDetector(
-              //   behavior: HitTestBehavior.translucent,
-              //   onTap: () {
-              //     liveLocation(i18n, context,position.data);
-              //   },
-              //   child: Row(
-              //     children: [
-              //       Container(
-              //           child: l.Lottie.asset(
-              //             'assets/animations/liveLocation.json',
-              //             width: 40,
-              //             height: 40,
-              //           )),
-              //       Text(
-              //         i18n.get(
-              //           "send_live_location",
-              //         ),
-              //         style: TextStyle(fontSize: 18),
-              //       )
-              //     ],
-              //   ),
-              // )
-            ],
-          );
-        } else {
-          return const SizedBox.shrink();
-        }
-      },
-    );
-  }
-
   bool isSelected() => finalSelected.values.isNotEmpty;
-
-  void liveLocation(I18N i18n, BuildContext context, Position position) {
-    final time = BehaviorSubject<String>.seeded("10");
-    showDialog(
-      context: context,
-      builder: (context) {
-        return StreamBuilder<String>(
-          stream: time.stream,
-          builder: (context, snapshot) {
-            return Padding(
-              padding: const EdgeInsets.only(top: 300, left: 30, right: 30),
-              child: Center(
-                child: ListView(
-                  children: [
-                    Container(
-                      height: 50,
-                      color: Colors.blue,
-                      child: const Icon(
-                        Icons.location_on,
-                        color: Colors.greenAccent,
-                        size: 40,
-                      ),
-                    ),
-                    Container(
-                      color: Colors.white,
-                      child: Text(
-                        i18n.get("choose_livelocation_time"),
-                        style: const TextStyle(fontSize: 20),
-                      ),
-                    ),
-                    Container(
-                      color: Colors.white,
-                      child: SizedBox(
-                        height: 200,
-                        child: ListView(
-                          children: [
-                            Section(
-                              children: [
-                                settingsTile(snapshot.data!, "10", () {
-                                  time.add("10");
-                                }),
-                                settingsTile(snapshot.data!, "15", () {
-                                  time.add("15");
-                                }),
-                                settingsTile(snapshot.data!, "30", () {
-                                  time.add("30");
-                                }),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Container(
-                      color: Colors.white,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          GestureDetector(
-                            child: Text(
-                              i18n.get("cancel"),
-                              style: const TextStyle(
-                                fontSize: 20,
-                                color: Colors.blue,
-                              ),
-                            ),
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                          ),
-                          GestureDetector(
-                            child: Text(
-                              i18n.get("share"),
-                              style: const TextStyle(
-                                fontSize: 20,
-                                color: Colors.red,
-                              ),
-                            ),
-                            onTap: () {
-                              Navigator.pop(context);
-                              messageRepo.sendLiveLocationMessage(
-                                widget.currentRoomId,
-                                int.parse(time.value),
-                                position,
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    )
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    );
-  }
-
-  SettingsTile settingsTile(String data, String t, void Function() on) {
-    return SettingsTile(
-      title: t,
-      leading: const Icon(
-        Icons.alarm,
-        color: Colors.blueAccent,
-      ),
-      trailing: data == t
-          ? const Icon(
-              Icons.done,
-              color: Colors.blueAccent,
-            )
-          : const SizedBox.shrink(),
-      onPressed: (context) {
-        on();
-      },
-    );
-  }
 }
 
 void showCaptionDialog({
