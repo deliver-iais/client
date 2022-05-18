@@ -118,7 +118,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
             formField: field,
             formResult: _formResult,
             setFormKey: (key) => formFieldsKey[field.id] = key,
-          ));
+          ),);
           break;
         case proto_pb.Form_Field_Type.notSet:
           _widgets.add(const SizedBox.shrink());

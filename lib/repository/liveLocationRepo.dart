@@ -84,7 +84,7 @@ class LiveLocationRepo {
     );
     Geolocator.getPositionStream(
             locationSettings:
-                LocationSettings(timeLimit: Duration(seconds: duration)))
+                LocationSettings(timeLimit: Duration(seconds: duration)),)
         .listen((p) {
       final location =
           pb.Location(latitude: p.latitude, longitude: p.longitude);

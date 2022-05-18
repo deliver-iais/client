@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:deliver/box/dao/media_dao.dart';
+import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
@@ -103,7 +104,7 @@ class _ImageUiState extends State<ImageUi> {
                                   future: _mediaDao.getIndexOfMedia(
                                       widget.message.roomUid,
                                       widget.message.id!,
-                                      widget.image.uuid,),
+                                      MediaType.IMAGE,),
                                   builder: (context, snapshot) {
                                     final hasIndex = snapshot.hasData &&
                                         snapshot.data != null &&

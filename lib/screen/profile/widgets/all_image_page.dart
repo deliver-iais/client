@@ -116,7 +116,7 @@ class _AllImagePageState extends State<AllImagePage> {
     final index = await _mediaDao.getIndexOfMedia(
       widget.roomUid,
       widget.messageId,
-      widget.fileUuid!,
+      MediaType.IMAGE,
     );
     setState(() {
       initialIndex = index;

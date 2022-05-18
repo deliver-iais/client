@@ -4,12 +4,10 @@
 import 'package:deliver/models/sticker_packet.dart';
 import 'package:deliver_public_protocol/pub/v1/models/sticker.pb.dart';
 
-import 'package:deliver_public_protocol/pub/v1/sticker.pbgrpc.dart' as proto;
 
-import 'package:get_it/get_it.dart';
 
 class StickerRepo {
-  final _stickerServices = GetIt.I.get<proto.StickerServiceClient>();
+  // final _stickerServices = GetIt.I.get<proto.StickerServiceClient>();
 
   StickerRepo() {
     //   getTrendPacks();

@@ -97,7 +97,7 @@ class _RichFormattedTextFieldWidgetState
                         controller: _textControllerList[i],
                         decoration: InputDecoration(
                             hintText: _richFormattedTextField
-                                .partitions[i].placeholder),
+                                .partitions[i].placeholder,),
                       ),
                     ),
                   ),

@@ -5,12 +5,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-class RoomWidget extends StatelessWidget {
+class ShareChatItem extends StatelessWidget {
   final Uid uid;
   final bool selected;
   final _roomRepo = GetIt.I.get<RoomRepo>();
 
-  RoomWidget({Key? key, required this.uid, required this.selected})
+  ShareChatItem({Key? key, required this.uid, required this.selected})
       : super(key: key);
 
   @override

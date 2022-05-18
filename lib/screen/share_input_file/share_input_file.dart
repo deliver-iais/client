@@ -4,7 +4,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
-import 'package:deliver/screen/share_input_file/room_widget.dart';
+import 'package:deliver/screen/share_input_file/share_chat_item.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -88,9 +88,9 @@ class _ShareInputFileState extends State<ShareInputFile> {
                                 behavior: HitTestBehavior.translucent,
                                 onTap: () {
                                   if (_selectedRooms.contains(
-                                      snapshot.data![index].asString())) {
+                                      snapshot.data![index].asString(),)) {
                                     _selectedRooms.remove(
-                                        snapshot.data![index].asString());
+                                        snapshot.data![index].asString(),);
                                   } else {
                                     _selectedRooms
                                         .add(snapshot.data![index].asString());
@@ -103,10 +103,10 @@ class _ShareInputFileState extends State<ShareInputFile> {
                                   )
                                       ? theme.hoverColor
                                       : theme.backgroundColor,
-                                  child: RoomWidget(
+                                  child: ShareChatItem(
                                     uid: snapshot.data![index],
                                     selected: _selectedRooms.contains(
-                                        snapshot.data![index].asString()),
+                                        snapshot.data![index].asString(),),
                                   ),
                                 ),
                               );
