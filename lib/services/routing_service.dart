@@ -85,7 +85,7 @@ class RoutingService {
       BehaviorSubject.seeded(false);
 
   // Functions
-  Future<void> openSettings({bool popAllBeforePush = false}) async {
+  void openSettings({bool popAllBeforePush = false}) {
     if (_path() != "/settings") {
       _push(_settings, popAllBeforePush: popAllBeforePush);
     }
