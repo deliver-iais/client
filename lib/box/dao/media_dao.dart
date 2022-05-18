@@ -11,7 +11,7 @@ abstract class MediaDao {
 
   Future save(Media media);
 
-  Future<int?> getIndexOfMedia(String roomUid, int messageId);
+  Future<int?> getIndexOfMedia(String roomUid, int messageId, MediaType type);
 
   Future<void> deleteMedia(String roomId, int messageId);
 
@@ -46,13 +46,15 @@ class MediaDaoImpl implements MediaDao {
   }
 
   @override
-  Future<int?> getIndexOfMedia(String roomUid, int messageId) async {
+  Future<int?> getIndexOfMedia(
+    String roomUid,
+    int messageId,
+    MediaType type,
+  ) async {
     final box = await _open(roomUid);
-    return box.values
-        .toList()
-        .reversed
-        .toList()
-        .indexWhere((element) => element.messageId == messageId);
+
+    return box.values.toList().reversed.toList().indexWhere(
+        (element) => element.messageId == messageId && element.type == type,);
   }
 
   @override
@@ -85,7 +87,6 @@ class MediaDaoImpl implements MediaDao {
     final box = await _open(roomId);
     await box.clear();
   }
-
 
   static String _key(String roomUid) => "media-$roomUid";
 

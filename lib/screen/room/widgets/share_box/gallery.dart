@@ -334,7 +334,6 @@ Stack buildInputCaption({
       Align(
         alignment: Alignment.bottomLeft,
         child: Container(
-          height: 50,
           color: theme.backgroundColor,
           child: TextField(
             decoration: InputDecoration(

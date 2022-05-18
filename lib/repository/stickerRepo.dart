@@ -2,13 +2,12 @@
 
 // import 'package:clock/clock.dart';
 import 'package:deliver/models/sticker_packet.dart';
-import 'package:deliver_public_protocol/pub/v1/sticker.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/sticker.pbgrpc.dart' as proto;
+import 'package:deliver_public_protocol/pub/v1/models/sticker.pb.dart';
 
-import 'package:get_it/get_it.dart';
+
 
 class StickerRepo {
-  final _stickerServices = GetIt.I.get<proto.StickerServiceClient>();
+  // final _stickerServices = GetIt.I.get<proto.StickerServiceClient>();
 
   StickerRepo() {
     //   getTrendPacks();
@@ -33,17 +32,17 @@ class StickerRepo {
 
   Future<Sticker?> getFirstStickerFromPack(String packId) async => null;
 
-  void getTrendPacks() {
-    _stickerServices.getTrendPacks(proto.GetTrendPacksReq());
-  }
-
-  Stream<List<Sticker>>? getAllSticker() => null;
-
-  Future<proto.StickerPack> downloadStickerPackByPackId(String packId) async {
-    final result = await _stickerServices
-        .getStickerPackByID(proto.GetStickerPackByIDReq()..id = packId);
-    return result.pack;
-  }
+  // void getTrendPacks() {
+  //   _stickerServices.getTrendPacks(proto.GetTrendPacksReq());
+  // }
+  //
+  // Stream<List<Sticker>>? getAllSticker() => null;
+  //
+  // Future<proto.StickerPack> downloadStickerPackByPackId(String packId) async {
+  //   final result = await _stickerServices
+  //       .getStickerPackByID(proto.GetStickerPackByIDReq()..id = packId);
+  //   return result.pack;
+  // }
 
   // void InsertStickerPack(proto.StickerPack stickerPack) {
   //   for (var sticker in stickerPack.stickers) {

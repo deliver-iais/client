@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:clock/clock.dart';
@@ -30,6 +31,7 @@ import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/keyboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/vibration.dart';
+import 'package:deliver/shared/widgets/attach_location.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_picker/file_picker.dart';
@@ -92,8 +94,7 @@ class _InputMessageWidget extends State<InputMessage> {
   double size = 1;
   bool started = false;
   DateTime _time = clock.now();
-  BehaviorSubject<DateTime> recordSubject =
-      BehaviorSubject.seeded(clock.now());
+  BehaviorSubject<DateTime> recordSubject = BehaviorSubject.seeded(clock.now());
 
   double dx = 150.0;
   bool recordAudioPermission = false;
@@ -359,8 +360,9 @@ class _InputMessageWidget extends State<InputMessage> {
                                       child:
                                           ValueListenableBuilder<TextDirection>(
                                         valueListenable: _textDir,
-                                        builder: (context, textDirection, child) =>
-                                            TextField(
+                                        builder:
+                                            (context, textDirection, child) =>
+                                                TextField(
                                           selectionControls: isDesktop
                                               ? selectionControls
                                               : null,
@@ -432,6 +434,26 @@ class _InputMessageWidget extends State<InputMessage> {
                                               ? ""
                                               : "-",
                                         ),
+                                      );
+                                    } else {
+                                      return const SizedBox.shrink();
+                                    }
+                                  },
+                                ),
+                              if (Platform.isWindows)
+                                StreamBuilder<bool>(
+                                  stream: _showSendIcon.stream,
+                                  builder: (c, sh) {
+                                    if (sh.hasData &&
+                                        !sh.data! &&
+                                        !widget.waitingForForward) {
+                                      return IconButton(
+                                        icon: const Icon(
+                                          CupertinoIcons.location,
+                                        ),
+                                        onPressed: () => AttachLocation(context,
+                                                currentRoom.uid.asUid(),)
+                                            .attachLocationInWindows(),
                                       );
                                     } else {
                                       return const SizedBox.shrink();
@@ -745,7 +767,8 @@ class _InputMessageWidget extends State<InputMessage> {
     final files = await Pasteboard.files();
     if (files.isEmpty) {
       final data = await Clipboard.getData(Clipboard.kTextPlain);
-      widget.textController.text = widget.textController.text + data!.text!.replaceAll("\r", "");
+      widget.textController.text =
+          widget.textController.text + data!.text!.replaceAll("\r", "");
       widget.textController.selection = TextSelection.fromPosition(
         TextPosition(offset: widget.textController.text.length),
       );
