@@ -8,8 +8,7 @@ import 'package:clock/clock.dart';
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
 import 'package:deliver/box/call_event.dart' as call_event;
 import 'package:deliver/box/call_info.dart' as call_info;
-import 'package:deliver/box/call_status.dart' as call_status;
-import 'package:deliver/box/call_type.dart';
+import 'package:deliver/box/current_call_info.dart' as current_call_info;
 import 'package:deliver/box/dao/call_info_dao.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/models/call_timer.dart';
@@ -17,14 +16,18 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/notification_services.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/methods/vibration.dart';
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
@@ -36,7 +39,6 @@ import 'package:logger/logger.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sdp_transform/sdp_transform.dart';
-import 'package:vibration/vibration.dart';
 
 enum CallStatus {
   CREATED,
@@ -64,6 +66,7 @@ class CallRepo {
   final _callListDao = GetIt.I.get<CallInfoDao>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _audioService = GetIt.I.get<AudioService>();
+  final _routingService = GetIt.I.get<RoutingService>();
 
   final _candidateNumber = 10;
   final _candidateTimeLimit = 1000; // 1 sec
@@ -103,6 +106,7 @@ class CallRepo {
   bool _isInitRenderer = false;
   bool _isDCRecived = false;
   bool _reconnectTry = false;
+  bool _isEnded = false;
 
   bool get isCaller => _isCaller;
   Uid? _roomUid;
@@ -132,6 +136,28 @@ class CallRepo {
   ReceivePort? _receivePort;
 
   CallRepo() {
+    _callService.watchCurrentCall().listen((call) {
+      if (call != null) {
+        _logger.i("read call from DB");
+        if (call.expireTime > clock.now().millisecondsSinceEpoch &&
+            _callService.getUserCallState == UserCallState.NOCALL) {
+          _callService.callEvents.add(
+            CallEvents.callEvent(
+              call_pb.CallEvent()
+                ..newStatus =
+                    _callService.findCallEventStatusDB(call.callEvent.newStatus)
+                ..id = call.callEvent.id
+                ..callDuration = Int64(call.callEvent.callDuration)
+                ..endOfCallTime = Int64(call.callEvent.endOfCallTime)
+                ..callType = _callService
+                    .findProtoCallEventType(call.callEvent.callType),
+              roomUid: call.from.asUid(),
+              callId: call.callEvent.id,
+            ),
+          );
+        }
+      }
+    });
     _callService.callEvents.listen((event) {
       switch (event.callType) {
         case CallTypes.Answer:
@@ -147,23 +173,54 @@ class CallRepo {
             case CallEvent_CallStatus.IS_RINGING:
               if (_callService.getCallId == callEvent.id) {
                 callingStatus.add(CallStatus.IS_RINGING);
-                _audioService.playBeepSound();
+                if (_isCaller) {
+                  _audioService.playBeepSound();
+                }
               }
               break;
             case CallEvent_CallStatus.CREATED:
-              if (event.roomUid == _roomUid ||
-                  _callService.getUserCallState == UserCallState.NOCALL) {
+              if (_callService.getUserCallState == UserCallState.NOCALL) {
+                _callService.setUserCallState = UserCallState.INUSERCALL;
+                //get call Info and Save on DB
+                final currentCallEvent = call_event.CallEvent(
+                  callDuration: callEvent.callDuration.toInt(),
+                  endOfCallTime: callEvent.endOfCallTime.toInt(),
+                  callType: _callService.findCallEventType(callEvent.callType),
+                  newStatus: _callService
+                      .findCallEventStatusProto(callEvent.newStatus),
+                  id: callEvent.id,
+                );
+                final callInfo = current_call_info.CurrentCallInfo(
+                  callEvent: currentCallEvent,
+                  from: event.roomUid!.asString(),
+                  to: _authRepo.currentUserUid.asString(),
+                  expireTime: clock.now().millisecondsSinceEpoch + 60000,
+                );
+
+                _callService.saveCallOnDb(callInfo);
+                _logger.i("save call on db!");
+
                 _callService
-                  ..setUserCallState = UserCallState.INUSERCALL
                   ..setCallOwner = callEvent.memberOrCallOwnerPvp
                   ..setCallId = callEvent.id;
+
                 if (callEvent.callType == CallEvent_CallType.VIDEO) {
                   _logger.i("VideoCall");
                   _isVideo = true;
                 } else {
                   _isVideo = false;
                 }
-                _incomingCall(event.roomUid!);
+                _incomingCall(
+                  event.roomUid!,
+                  false,
+                  _callService.writeCallEventsToJson(event),
+                );
+              } else if (event.roomUid == _roomUid) {
+                _incomingCall(
+                  event.roomUid!,
+                  true,
+                  _callService.writeCallEventsToJson(event),
+                );
               } else if (callEvent.id != _callService.getCallId) {
                 final endOfCallDuration = clock.now().millisecondsSinceEpoch;
                 _messageRepo.sendCallMessage(
@@ -193,8 +250,24 @@ class CallRepo {
                 receivedEndCall(callEvent.callDuration.toInt());
               }
               break;
-            case CallEvent_CallStatus.INVITE:
             case CallEvent_CallStatus.JOINED:
+              modifyRoutingByNotificationAcceptCallInBackgroundInAndroid
+                  .add(event.roomUid!.asString());
+              if (_callService.getUserCallState == UserCallState.NOCALL) {
+                _callService
+                  ..setUserCallState = UserCallState.INUSERCALL
+                  ..setCallOwner = callEvent.memberOrCallOwnerPvp
+                  ..setCallId = callEvent.id;
+
+                if (callEvent.callType == CallEvent_CallType.VIDEO) {
+                  _logger.i("VideoCall");
+                  _isVideo = true;
+                } else {
+                  _isVideo = false;
+                }
+              }
+              break;
+            case CallEvent_CallStatus.INVITE:
             case CallEvent_CallStatus.KICK:
             case CallEvent_CallStatus.LEFT:
               _logger.w(
@@ -289,7 +362,7 @@ class CallRepo {
             break;
           case RTCIceConnectionState.RTCIceConnectionStateConnected:
             callingStatus.add(CallStatus.CONNECTED);
-            Vibration.vibrate(duration: 50);
+            vibrate(duration: 50);
             _audioService.stopBeepSound();
             if (_reconnectTry) {
               _reconnectTry = false;
@@ -299,10 +372,12 @@ class CallRepo {
             }
             break;
           case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
-            if (!_reconnectTry) {
-              callingStatus.add(CallStatus.DISCONNECTED);
-              _audioService.stopBeepSound();
-            }
+            Timer(const Duration(seconds: 1), () {
+              if (!_reconnectTry && !_isEnded) {
+                callingStatus.add(CallStatus.DISCONNECTED);
+                _audioService.stopBeepSound();
+              }
+            });
             break;
           case RTCIceConnectionState.RTCIceConnectionStateNew:
           case RTCIceConnectionState.RTCIceConnectionStateChecking:
@@ -334,7 +409,7 @@ class CallRepo {
             //     params.encodings[0].scaleResolutionDownBy = 2;
             // await _videoSender.setParameters(params);
             callingStatus.add(CallStatus.CONNECTED);
-            Vibration.vibrate(duration: 50);
+            vibrate(duration: 50);
             _audioService.stopBeepSound();
             if (_reconnectTry) {
               _reconnectTry = false;
@@ -347,10 +422,12 @@ class CallRepo {
             }
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateDisconnected:
-            if (!_reconnectTry) {
-              callingStatus.add(CallStatus.DISCONNECTED);
-              _audioService.stopBeepSound();
-            }
+            Timer(const Duration(seconds: 1), () {
+              if (!_reconnectTry && !_isEnded) {
+                callingStatus.add(CallStatus.DISCONNECTED);
+                _audioService.stopBeepSound();
+              }
+            });
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
             //Try reconnect
@@ -459,7 +536,7 @@ class CallRepo {
                 _startCallTimerAndChangeStatus();
               } else {
                 callingStatus.add(CallStatus.CONNECTED);
-                Vibration.vibrate(duration: 50);
+                vibrate(duration: 50);
                 _audioService.stopBeepSound();
                 _reconnectTry = false;
               }
@@ -486,11 +563,14 @@ class CallRepo {
     }
   }
 
-  Future<void> _startCallTimerAndChangeStatus() async {
+  Future<void> _foregroundTaskInitializing() async {
     if (isAndroid) {
       await _initForegroundTask();
       await _startForegroundTask();
     }
+  }
+
+  Future<void> _startCallTimerAndChangeStatus() async {
     startCallTimer();
     if (_startCallTime == 0) {
       _startCallTime = clock.now().millisecondsSinceEpoch;
@@ -501,7 +581,7 @@ class CallRepo {
     }
     _logger.i("Start Call " + _startCallTime.toString());
     callingStatus.add(CallStatus.CONNECTED);
-    Vibration.vibrate(duration: 50).ignore();
+    vibrate(duration: 50).ignore();
     _audioService.stopBeepSound();
     if (timerConnectionFailed != null) {
       timerConnectionFailed!.cancel();
@@ -781,12 +861,24 @@ class CallRepo {
     return false;
   }
 
-  void _incomingCall(Uid roomId) {
-    _notificationServices.notifyIncomingCall(roomId.asString());
+  Future<void> _incomingCall(
+    Uid roomId,
+    bool isDuplicated,
+    String callEventJson,
+  ) async {
+    if (!isDuplicated) {
+      unawaited(
+        _notificationServices.notifyIncomingCall(
+          roomId.asString(),
+          callEventJson: callEventJson,
+        ),
+      );
+    }
     _roomUid = roomId;
+    _logger.i("incoming Call and Created!!! - " + isDuplicated.toString());
     callingStatus.add(CallStatus.CREATED);
     final endOfCallDuration = clock.now().millisecondsSinceEpoch;
-    _messageRepo.sendCallMessage(
+    await _messageRepo.sendCallMessage(
       CallEvent_CallStatus.IS_RINGING,
       _roomUid!,
       _callService.getCallId,
@@ -805,6 +897,7 @@ class CallRepo {
       _isVideo = isVideo;
       _roomUid = roomId;
       await initCall();
+      _logger.i("Start Call and Created !!!");
       callingStatus.add(CallStatus.CREATED);
       //Set Timer 50 sec for end call
       timerDeclined = Timer(const Duration(seconds: 50), () {
@@ -818,6 +911,7 @@ class CallRepo {
       });
       _callIdGenerator();
       _sendStartCallEvent();
+      await _foregroundTaskInitializing();
     } else {
       _logger.i("User on Call ... !");
     }
@@ -865,6 +959,7 @@ class CallRepo {
         endCall();
       }
     });
+    await _foregroundTaskInitializing();
   }
 
   Future<void> declineCall() async {
@@ -934,14 +1029,9 @@ class CallRepo {
   }
 
   Future<void> receivedEndCall(int callDuration) async {
+    _isEnded = true;
     _logger.i("Call Duration Received: " + callDuration.toString());
-    if (isAndroid && !_isCaller) {
-      final sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
-      await ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
-      await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
-        isVisible: true,
-      );
-    }
+    await cancelCallNotification();
     if (isWindows) {
       _notificationServices.cancelRoomNotifications(roomUid!.node);
     }
@@ -966,20 +1056,33 @@ class CallRepo {
     await _dispose();
   }
 
+  Future<void> cancelCallNotification() async {
+    if (isAndroid && !_isCaller) {
+      final sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
+      await ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
+      await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
+        isVisible: true,
+      );
+    }
+  }
+
   // TODO(AmirHossein): removed Force End Call and we need Handle it with third-party Service.
   void endCall() {
-    if (isWindows) {
-      _notificationServices.cancelRoomNotifications(roomUid!.node);
-    }
-    if (_callService.getUserCallState != CallStatus.NO_CALL) {
-      if (_isCaller) {
-        receivedEndCall(0);
-      } else {
-        _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
-        timerEndCallDispose = Timer(const Duration(seconds: 8), () {
-          // if don't received EndCall from callee we force to end call
-          _dispose();
-        });
+    if (callingStatus.value != CallStatus.ENDED) {
+      if (isWindows) {
+        _notificationServices.cancelRoomNotifications(roomUid!.node);
+      }
+      if (_callService.getUserCallState != CallStatus.NO_CALL) {
+        _isEnded = true;
+        if (_isCaller) {
+          receivedEndCall(0);
+        } else {
+          _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
+          timerEndCallDispose = Timer(const Duration(seconds: 8), () {
+            // if don't received EndCall from callee we force to end call
+            _dispose();
+          });
+        }
       }
     }
   }
@@ -1131,6 +1234,8 @@ class CallRepo {
         timerConnectionFailed!.cancel();
       }
       timerDeclined!.cancel();
+    } else {
+      await _callService.removeCallFromDb();
     }
     _logger.i("end call in service");
     await _cleanLocalStream();
@@ -1141,6 +1246,15 @@ class CallRepo {
     }
     _candidate = [];
     callingStatus.add(CallStatus.ENDED);
+    Timer(const Duration(milliseconds: 1500), () async {
+      if (_routingService.canPop()) {
+        _routingService.openRoom(
+          roomUid!.asString(),
+          popAllBeforePush: true,
+        );
+      }
+      _roomUid = null;
+    });
     _audioService.stopBeepSound();
     Timer(const Duration(seconds: 1), () async {
       callingStatus.add(CallStatus.NO_CALL);
@@ -1149,7 +1263,6 @@ class CallRepo {
     _offerSdp = "";
     _answerSdp = "";
     _callService.setCallId = "";
-    _roomUid = null;
     _isSharing = false;
     _isMicMuted = false;
     _isSpeaker = false;
@@ -1166,6 +1279,7 @@ class CallRepo {
         await disposeRenderer();
       }
       _callService.setUserCallState = UserCallState.NOCALL;
+      _isEnded = false;
     });
   }
 
@@ -1262,8 +1376,9 @@ class CallRepo {
           final callEvent = call_event.CallEvent(
             callDuration: call.callEvent.callDuration.toInt(),
             endOfCallTime: call.callEvent.endOfCallTime.toInt(),
-            callType: findCallEventType(call.callEvent.callType),
-            newStatus: findCallEventStatus(call.callEvent.newStatus),
+            callType: _callService.findCallEventType(call.callEvent.callType),
+            newStatus:
+                _callService.findCallEventStatusProto(call.callEvent.newStatus),
             id: call.callEvent.id,
           );
           final callList = call_info.CallInfo(
@@ -1278,46 +1393,6 @@ class CallRepo {
     } catch (e) {
       _logger.e(e);
     }
-  }
-
-  call_status.CallStatus findCallEventStatus(
-    CallEvent_CallStatus eventCallStatus,
-  ) {
-    switch (eventCallStatus) {
-      case CallEvent_CallStatus.CREATED:
-        return call_status.CallStatus.CREATED;
-      case CallEvent_CallStatus.BUSY:
-        return call_status.CallStatus.BUSY;
-      case CallEvent_CallStatus.DECLINED:
-        return call_status.CallStatus.DECLINED;
-      case CallEvent_CallStatus.ENDED:
-        return call_status.CallStatus.ENDED;
-      case CallEvent_CallStatus.INVITE:
-        return call_status.CallStatus.INVITE;
-      case CallEvent_CallStatus.IS_RINGING:
-        return call_status.CallStatus.IS_RINGING;
-      case CallEvent_CallStatus.JOINED:
-        return call_status.CallStatus.JOINED;
-      case CallEvent_CallStatus.KICK:
-        return call_status.CallStatus.KICK;
-      case CallEvent_CallStatus.LEFT:
-        return call_status.CallStatus.LEFT;
-    }
-    return call_status.CallStatus.ENDED;
-  }
-
-  CallType findCallEventType(CallEvent_CallType eventCallType) {
-    switch (eventCallType) {
-      case CallEvent_CallType.VIDEO:
-        return CallType.VIDEO;
-      case CallEvent_CallType.AUDIO:
-        return CallType.AUDIO;
-      case CallEvent_CallType.GROUP_AUDIO:
-        return CallType.GROUP_AUDIO;
-      case CallEvent_CallType.GROUP_VIDEO:
-        return CallType.GROUP_VIDEO;
-    }
-    return CallType.AUDIO;
   }
 }
 

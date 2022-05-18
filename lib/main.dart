@@ -8,6 +8,7 @@ import 'package:deliver/box/call_info.dart';
 import 'package:deliver/box/call_status.dart';
 import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/contact.dart';
+import 'package:deliver/box/current_call_info.dart';
 import 'package:deliver/box/dao/account_dao.dart';
 import 'package:deliver/box/dao/auto_download_dao.dart';
 import 'package:deliver/box/dao/avatar_dao.dart';
@@ -86,7 +87,6 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_foreground_task/ui/with_foreground_task.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:get_it/get_it.dart';
 import 'package:hive_flutter/adapters.dart';
@@ -95,6 +95,7 @@ import 'package:rxdart/rxdart.dart';
 import 'package:window_size/window_size.dart';
 
 import 'box/dao/contact_dao.dart';
+import 'box/dao/current_call_dao.dart';
 import 'box/dao/custom_notification_dao.dart';
 import 'box/dao/media_dao.dart';
 import 'box/dao/media_meta_data_dao.dart';
@@ -152,6 +153,7 @@ Future<void> setupDI() async {
     ..registerAdapter(CallStatusAdapter())
     ..registerAdapter(CallTypeAdapter())
     ..registerAdapter(AutoDownloadRoomCategoryAdapter())
+    ..registerAdapter(CurrentCallInfoAdapter())
     ..registerAdapter(AutoDownloadAdapter());
 
   registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
@@ -175,6 +177,7 @@ Future<void> setupDI() async {
   registerSingleton<LiveLocationDao>(LiveLocationDaoImpl());
   registerSingleton<CallInfoDao>(CallInfoDaoImpl());
   registerSingleton<AutoDownloadDao>(AutoDownloadDaoImpl());
+  registerSingleton<CurrentCallInfoDao>(CurrentCallInfoDaoImpl());
 
   registerSingleton<I18N>(I18N());
 
@@ -267,6 +270,10 @@ Future<void> setupDI() async {
       interceptors: grpcClientInterceptors,
     ),
   );
+
+  //call Service should be here
+  registerSingleton<CallService>(CallService());
+
   registerSingleton<AccountRepo>(AccountRepo());
 
   registerSingleton<CheckPermissionsService>(CheckPermissionsService());
@@ -312,8 +319,6 @@ Future<void> setupDI() async {
   }
 
   registerSingleton<NotificationServices>(NotificationServices());
-
-  registerSingleton<CallService>(CallService());
 
   registerSingleton<DataStreamServices>(DataStreamServices());
   registerSingleton<CoreServices>(CoreServices());
@@ -428,37 +433,35 @@ class MyApp extends StatelessWidget {
                     ? KeyEventResult.handled
                     : KeyEventResult.ignored;
               },
-              child: WithForegroundTask(
-                child: MaterialApp(
-                  debugShowCheckedModeBanner: false,
-                  title: APPLICATION_NAME,
-                  locale: _i18n.locale,
-                  theme: _uxService.theme,
-                  navigatorKey: _routingService.mainNavigatorState,
-                  supportedLocales: const [
-                    Locale('en', 'US'),
-                    Locale('fa', 'IR')
-                  ],
-                  localizationsDelegates: [
-                    I18N.delegate,
-                    GlobalMaterialLocalizations.delegate,
-                    GlobalWidgetsLocalizations.delegate,
-                    GlobalCupertinoLocalizations.delegate
-                  ],
-                  home: const SplashScreen(),
-                  localeResolutionCallback: (deviceLocale, supportedLocale) {
-                    for (final locale in supportedLocale) {
-                      if (locale.languageCode == deviceLocale!.languageCode &&
-                          locale.countryCode == deviceLocale.countryCode) {
-                        return deviceLocale;
-                      }
+              child: MaterialApp(
+                debugShowCheckedModeBanner: false,
+                title: APPLICATION_NAME,
+                locale: _i18n.locale,
+                theme: _uxService.theme,
+                navigatorKey: _routingService.mainNavigatorState,
+                supportedLocales: const [
+                  Locale('en', 'US'),
+                  Locale('fa', 'IR')
+                ],
+                localizationsDelegates: [
+                  I18N.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate
+                ],
+                home: const SplashScreen(),
+                localeResolutionCallback: (deviceLocale, supportedLocale) {
+                  for (final locale in supportedLocale) {
+                    if (locale.languageCode == deviceLocale!.languageCode &&
+                        locale.countryCode == deviceLocale.countryCode) {
+                      return deviceLocale;
                     }
-                    return supportedLocale.first;
-                  },
-                  builder: (x, c) => Directionality(
-                    textDirection: TextDirection.ltr,
-                    child: c!,
-                  ),
+                  }
+                  return supportedLocale.first;
+                },
+                builder: (x, c) => Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: c!,
                 ),
               ),
             ),

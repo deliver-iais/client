@@ -31,6 +31,7 @@ import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/keyboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/attach_location.dart';
+import 'package:deliver/shared/methods/vibration.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_picker/file_picker.dart';
@@ -46,7 +47,6 @@ import 'package:pasteboard/pasteboard.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:record/record.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:vibration/vibration.dart';
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
@@ -537,7 +537,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                   if (started) {
                                     started = false;
                                     _tickTimer.cancel();
-                                    Vibration.vibrate(duration: 200);
+                                    vibrate(duration: 200);
                                     setState(() {
                                       startAudioRecorder = false;
                                       x = 0;
@@ -555,7 +555,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                   recordSubject.add(clock.now());
                                   setTime();
                                   sendRecordActivity();
-                                  Vibration.vibrate(duration: 200).ignore();
+                                  vibrate(duration: 200).ignore();
                                   // Start recording
                                   await record.start(
                                     path: path,

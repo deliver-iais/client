@@ -36,7 +36,7 @@ dependencies:
   collection: 1.15.0
   connectycube_flutter_call_kit:
     git:
-      ref: 5bfed5f9794aa95f785cf6abc0004983eaf995d7
+      ref: 3159f29a6c1fd696184d9db8edb08b5905830a49
       url: https://github.com/androidwoman/connectycube-flutter-call-kit.git
   contacts_service: 0.6.3
   custom_image_crop: 0.0.4
@@ -59,6 +59,7 @@ dependencies:
   file_picker: 4.5.1
   file_selector: 0.8.2+1
   file_selector_linux: 0.0.2+1
+  firebase_analytics: 9.1.8
   firebase_core: 1.12.0
   firebase_messaging: 11.3.0
 #  firebase_messaging:
@@ -144,6 +145,8 @@ dependencies:
   vibration: 1.7.4-nullsafety.0
   video_player: 2.3.0
   wakelock: 0.6.1+1
+  # if want increse flutter_webrtc version we should remove this line and let get it from parent
+  webrtc_interface: 1.0.3
   win_toast:
     git:
       path: packages/win_toast

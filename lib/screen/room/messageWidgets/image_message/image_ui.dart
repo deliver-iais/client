@@ -233,9 +233,22 @@ class _ImageUiState extends State<ImageUi> {
                       max(widget.image.width, 1) / max(widget.image.height, 1),
                   child: Stack(
                     children: [
-                      BlurHash(
-                        hash: widget.image.blurHash,
-                        imageFit: BoxFit.cover,
+                      MouseRegion(
+                        cursor: SystemMouseCursors.click,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.translucent,
+                          onTap: () async {
+                            await _fileRepo.getFile(
+                              widget.image.uuid,
+                              widget.image.name,
+                            );
+                            setState(() {});
+                          },
+                          child: BlurHash(
+                            hash: widget.image.blurHash,
+                            imageFit: BoxFit.cover,
+                          ),
+                        ),
                       ),
                       Center(
                         child: LoadFileStatus(

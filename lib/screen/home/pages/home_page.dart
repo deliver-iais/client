@@ -11,6 +11,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/url.dart';
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_foreground_task/ui/with_foreground_task.dart';
 import 'package:get_it/get_it.dart';
@@ -47,6 +48,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
   @override
   void initState() {
+    //this means user login successfully
+    if (hasFirebaseCapability) {
+      //its work property without VPN
+      FirebaseAnalytics.instance.logEvent(name: "user_starts_app");
+    }
+
     window.onPlatformBrightnessChanged = () {
       setState(() {
         if (_uxService.isAutoNightModeEnable) {

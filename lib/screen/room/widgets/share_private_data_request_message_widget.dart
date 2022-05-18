@@ -7,6 +7,7 @@ import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/attach_location.dart';
 import 'package:deliver/theme/color_scheme.dart';
@@ -38,6 +39,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final sharePrivateDataRequest = message.json.toSharePrivateDataRequest();
+
     var label = "";
     switch (sharePrivateDataRequest.data) {
       case PrivateDataType.NAME:
@@ -59,67 +61,88 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
         _i18n.get("get_access_username");
         break;
     }
-    return Stack(
+    return Column(
       children: [
         if (sharePrivateDataRequest.description.isNotEmpty)
-          Text(sharePrivateDataRequest.description),
-        Container(
-          constraints: const BoxConstraints(minHeight: 35),
-          width: maxWidth,
-          margin: const EdgeInsets.only(bottom: 17),
-          child: ElevatedButton(
-            style: ElevatedButton.styleFrom(primary: colorScheme.primary),
-            onPressed: () {
-              FocusScope.of(context).unfocus();
-              if (sharePrivateDataRequest.data == PrivateDataType.FILE) {
-                _attachFile(sharePrivateDataRequest, context);
-              } else if (sharePrivateDataRequest.data ==
-                  PrivateDataType.LOCATION) {
-                if (isAndroid || isIOS) {
-                  showModalBottomSheet(
-                    context: context,
-                    builder: (c) {
-                      return DraggableScrollableSheet(
-                        initialChildSize: 1,
-                        builder: (c, s) {
-                          return AttachLocation(
-                            context,
-                            message.roomUid.asUid(),
-                          ).showLocation();
-                        },
-                      );
-                    },
-                  );
-                } else {
-                  if (isWindows) {
-                    AttachLocation(context, message.roomUid.asUid())
-                        .attachLocationInWindows();
-                  } else {
-                    ToastDisplay.showToast(
-                      toastContext: context,
-                      toastText:
-                          _i18n.get("get_location_not_support_in_your_device"),
-                    );
-                  }
-                }
-              } else {
-                _showGetAccessPrivateData(context, sharePrivateDataRequest);
-              }
-            },
+          Container(
+            margin: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 8.0)
+                .copyWith(bottom: 0),
+            width: maxWidth,
             child: Text(
-              label,
-              textAlign: TextAlign.center,
+              sharePrivateDataRequest.description,
+              textDirection: sharePrivateDataRequest.description.isPersian()
+                  ? TextDirection.rtl
+                  : TextDirection.ltr,
             ),
           ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Container(
+              margin: const EdgeInsets.all(4.0),
+              constraints: const BoxConstraints(minHeight: 35),
+              width: maxWidth,
+              child: TextButton(
+                style: TextButton.styleFrom(
+                  primary: colorScheme.primary,
+                  backgroundColor: colorScheme.onPrimary,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                onPressed: () {
+                  FocusScope.of(context).unfocus();
+                  if (sharePrivateDataRequest.data == PrivateDataType.FILE) {
+                    _attachFile(sharePrivateDataRequest, context);
+                  } else if (sharePrivateDataRequest.data ==
+                      PrivateDataType.LOCATION) {
+                    if (isAndroid || isIOS) {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (c) {
+                          return DraggableScrollableSheet(
+                            initialChildSize: 1,
+                            builder: (c, s) {
+                              return AttachLocation(
+                                context,
+                                message.roomUid.asUid(),
+                              ).showLocation();
+                            },
+                          );
+                        },
+                      );
+                    } else {
+                      if (isWindows) {
+                        AttachLocation(context, message.roomUid.asUid())
+                            .attachLocationInWindows();
+                      } else {
+                        ToastDisplay.showToast(
+                          toastContext: context,
+                          toastText:
+                          _i18n.get("get_location_not_support_in_your_device"),
+                        );
+                      }
+                    }
+                  } else {
+                    _showGetAccessPrivateData(context, sharePrivateDataRequest);
+                  }
+                },
+                child: Text(
+             label,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+            TimeAndSeenStatus(
+              message,
+              isSender: isSender,
+              isSeen: isSeen,
+              needsPadding: true,
+              backgroundColor: colorScheme.primaryContainer,
+              foregroundColor: colorScheme.onPrimaryContainerLowlight(),
+            )
+          ],
         ),
-        TimeAndSeenStatus(
-          message,
-          isSender: isSender,
-          isSeen: isSeen,
-          needsPadding: true,
-          backgroundColor: colorScheme.primaryContainer,
-          foregroundColor: colorScheme.onPrimaryContainerLowlight(),
-        )
       ],
     );
   }
@@ -213,25 +236,28 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                     : sharePrivateDataRequest.data == PrivateDataType.NAME
                         ? _i18n.get("access_name")
                         : _i18n.get("access_username"),
+            style: const TextStyle(fontSize: 16),
           ),
-          actionsPadding: const EdgeInsets.only(right: 8, bottom: 5),
+          actionsPadding: const EdgeInsets.only(right: 8, bottom: 8),
           actions: [
-            GestureDetector(
-              child: Text(
-                _i18n.get("cancel"),
-                style: const TextStyle(fontSize: 16, color: Colors.red),
+            TextButton(
+              style: TextButton.styleFrom(
+                primary: Theme.of(context).colorScheme.error,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
-              onTap: () => Navigator.pop(c),
+              child: Text(_i18n.get("cancel")),
+              onPressed: () => Navigator.pop(c),
             ),
-            const SizedBox(
-              width: 5,
-            ),
-            GestureDetector(
-              child: Text(
-                _i18n.get("ok"),
-                style: const TextStyle(color: Colors.blue, fontSize: 16),
+            TextButton(
+              child: Text(_i18n.get("ok")),
+              style: TextButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
-              onTap: () {
+              onPressed: () {
                 _messageRepo.sendPrivateDataAcceptanceMessage(
                   message.from.asUid(),
                   sharePrivateDataRequest.data,
@@ -240,7 +266,6 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                 Navigator.pop(c);
               },
             ),
-            const SizedBox(width: 5)
           ],
         );
       },

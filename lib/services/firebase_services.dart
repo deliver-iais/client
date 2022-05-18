@@ -16,6 +16,7 @@ import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as pb_seen;
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:get_it/get_it.dart';
+import 'package:hive/hive.dart';
 import 'package:logger/logger.dart';
 
 @js.JS('decodeMessageForCallFromJs')
@@ -126,6 +127,9 @@ Future<void> _backgroundRemoteMessageHandler(
     try {
       await setupDI();
     } catch (_) {}
+
+    // hive does not support multithreading
+    await Hive.close();
 
     try {
       final msg = _decodeMessage(remoteMessage.data["body"]);
