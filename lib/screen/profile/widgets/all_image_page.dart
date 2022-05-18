@@ -34,7 +34,6 @@ class AllImagePage extends StatefulWidget {
   final int messageId;
   final int? initIndex;
   final String? filePath;
-  final String? fileUuid;
   final bool isSingleImage;
   final void Function()? onEdit;
 
@@ -44,7 +43,6 @@ class AllImagePage extends StatefulWidget {
     required this.messageId,
     this.initIndex,
     this.filePath,
-    this.fileUuid,
     this.isSingleImage = false,
     this.onEdit,
   }) : super(key: key);
