@@ -53,8 +53,8 @@ class MediaDaoImpl implements MediaDao {
   ) async {
     final box = await _open(roomUid);
 
-    return box.values.toList().reversed.toList().indexWhere(
-        (element) => element.messageId == messageId && element.type == type,);
+    return box.values.where((element) => element.type ==type).toList().reversed.toList().indexWhere(
+        (element) => element.messageId == messageId);
   }
 
   @override
