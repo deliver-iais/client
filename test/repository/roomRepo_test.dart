@@ -348,7 +348,7 @@ void main() {
     group('unMute -', () {
       test('When called should unMute room', () async {
         final muteDao = getAndRegisterMuteDao();
-        RoomRepo().unmute(testUid.asString());
+        RoomRepo().unMute(testUid.asString());
         verify(muteDao.unmute(testUid.asString()));
       });
     });

@@ -59,6 +59,7 @@ dependencies:
   file_picker: 4.5.1
   file_selector: 0.8.2+1
   file_selector_linux: 0.0.2+1
+  firebase_analytics: 9.1.8
   firebase_core: 1.12.0
   firebase_messaging: 11.3.0
 #  firebase_messaging:
@@ -144,6 +145,7 @@ dependencies:
   vibration: 1.7.4-nullsafety.0
   video_player: 2.3.0
   wakelock: 0.6.1+1
+  webrtc_interface: 1.0.3
   win_toast:
     git:
       path: packages/win_toast
