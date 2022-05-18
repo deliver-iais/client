@@ -2110,7 +2110,7 @@ class MockMediaDao extends _i1.Mock implements _i68.MediaDao {
       (super.noSuchMethod(Invocation.method(#save, [media]),
           returnValue: Future<dynamic>.value()) as _i20.Future<dynamic>);
   @override
-  _i20.Future<int?> getIndexOfMedia(String? roomUid, int? messageId) => (super
+  _i20.Future<int?> getIndexOfMedia(String? roomUid, int? messageId,String ? fileUuid) => (super
       .noSuchMethod(Invocation.method(#getIndexOfMedia, [roomUid, messageId]),
           returnValue: Future<int?>.value()) as _i20.Future<int?>);
   @override
