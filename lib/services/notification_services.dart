@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:clock/clock.dart';
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
+import 'package:deliver/box/call_event.dart' as call_event;
+import 'package:deliver/box/current_call_info.dart' as current_call_info;
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/main.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -13,6 +15,7 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/services/audio_service.dart';
+import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -21,6 +24,8 @@ import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
+import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pro;
+import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
@@ -113,7 +118,11 @@ abstract class Notifier {
 
   Future<void> notifyText(MessageBrief message);
 
-  Future<void> notifyIncomingCall(String roomUid, String roomName);
+  Future<void> notifyIncomingCall(
+    String roomUid,
+    String roomName,
+    String? callEventJson,
+  );
 
   Future<void> cancel(int id, String roomUid);
 
@@ -151,10 +160,11 @@ class NotificationServices {
   Future<void> notifyIncomingCall(
     String roomUid, {
     String? roomName,
+    String? callEventJson,
   }) async {
     final rn = roomName ?? await _roomRepo.getSlangName(roomUid.asUid());
 
-    return _notifier.notifyIncomingCall(roomUid, rn);
+    return _notifier.notifyIncomingCall(roomUid, rn, callEventJson);
   }
 
   void cancelRoomNotifications(String roomUid) {
@@ -207,7 +217,11 @@ class FakeNotifier implements Notifier {
   Future<void> notifyText(MessageBrief message) async {}
 
   @override
-  Future<void> notifyIncomingCall(String roomUid, String roomName) async {}
+  Future<void> notifyIncomingCall(
+    String roomUid,
+    String roomName,
+    String? callEventJson,
+  ) async {}
 
   @override
   Future<void> cancel(int id, String roomUid) async {}
@@ -287,7 +301,11 @@ class WindowsNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyIncomingCall(String roomUid, String roomName) async {
+  Future<void> notifyIncomingCall(
+    String roomUid,
+    String roomName,
+    String? callEventJson,
+  ) async {
     final actions = <String>['Accept', 'Decline'];
     Toast? toast;
     if (!toastByRoomId.containsKey(
@@ -380,7 +398,11 @@ class WebNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyIncomingCall(String roomUid, String roomName) async {}
+  Future<void> notifyIncomingCall(
+    String roomUid,
+    String roomName,
+    String? callEventJson,
+  ) async {}
 }
 
 class LinuxNotifier implements Notifier {
@@ -465,7 +487,11 @@ class LinuxNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyIncomingCall(String roomUid, String roomName) async {}
+  Future<void> notifyIncomingCall(
+    String roomUid,
+    String roomName,
+    String? callEventJson,
+  ) async {}
 
   @override
   Future<void> cancel(int id, String roomUid) async {
@@ -494,6 +520,8 @@ class AndroidNotifier implements Notifier {
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _i18n = GetIt.I.get<I18N>();
+  final _callService = GetIt.I.get<CallService>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
 
   AndroidNotificationChannel channel = const AndroidNotificationChannel(
     'notifications', // id
@@ -506,10 +534,6 @@ class AndroidNotifier implements Notifier {
   AndroidNotifier() {
     ConnectycubeFlutterCallKit.instance
         .init(onCallAccepted: onCallAccepted, onCallRejected: onCallRejected);
-    ConnectycubeFlutterCallKit.onCallRejectedWhenTerminated =
-        onCallRejectedWhenTerminated;
-    ConnectycubeFlutterCallKit.onCallAcceptedWhenTerminated =
-        onCallAcceptedWhenTerminated;
 
     _flutterLocalNotificationsPlugin.createNotificationChannel(channel);
 
@@ -577,11 +601,27 @@ class AndroidNotifier implements Notifier {
 
   Future<void> onCallAccepted(CallEvent callEvent) async {
     Notifier.onCallAccept(callEvent.userInfo!["uid"]!);
+    final callEventInfo =
+        call_pro.CallEvent.fromJson(callEvent.userInfo!["callEventJson"]!);
+    //here status be JOINED means ACCEPT CALL and when app Start should go on accepting status
+    final currentCallEvent = call_event.CallEvent(
+      callDuration: callEventInfo.callDuration.toInt(),
+      endOfCallTime: callEventInfo.endOfCallTime.toInt(),
+      callType: _callService.findCallEventType(callEventInfo.callType),
+      newStatus:
+          _callService.findCallEventStatusProto(CallEvent_CallStatus.JOINED),
+      id: callEventInfo.id,
+    );
+
+    final callInfo = current_call_info.CurrentCallInfo(
+      callEvent: currentCallEvent,
+      from: callEvent.userInfo!["uid"]!,
+      to: _authRepo.currentUserUid.toString(),
+      expireTime: clock.now().millisecondsSinceEpoch + 60000,
+    );
+
+    await _callService.saveCallOnDb(callInfo);
   }
-
-  Future<void> onCallRejectedWhenTerminated(CallEvent callEvent) async {}
-
-  Future<void> onCallAcceptedWhenTerminated(CallEvent callEvent) async {}
 
   @override
   Future<void> cancelById(int id) {
@@ -673,7 +713,11 @@ class AndroidNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyIncomingCall(String roomUid, String roomName) async {
+  Future<void> notifyIncomingCall(
+    String roomUid,
+    String roomName,
+    String? callEventJson,
+  ) async {
     final la = await _avatarRepo.getLastAvatar(roomUid.asUid());
     String? path;
     if (la != null && la.fileId != null && la.fileName != null) {
@@ -684,6 +728,7 @@ class AndroidNotifier implements Notifier {
       );
     }
     //callType: 0 ==>Audio call 1 ==>Video call
+    final ceJson = callEventJson ?? "";
     await ConnectycubeFlutterCallKit.showCallNotification(
       CallEvent(
         sessionId: clock.now().millisecondsSinceEpoch.toString(),
@@ -691,7 +736,7 @@ class AndroidNotifier implements Notifier {
         callType: 0,
         avatarPath: path,
         callerName: roomName,
-        userInfo: {"uid": roomUid},
+        userInfo: {"uid": roomUid, "callEventJson": ceJson},
         opponentsIds: const {1},
       ),
     );
@@ -828,7 +873,11 @@ class IOSNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyIncomingCall(String roomUid, String roomName) async {}
+  Future<void> notifyIncomingCall(
+    String roomUid,
+    String roomName,
+    String? callEventJson,
+  ) async {}
 
   @override
   Future<void> cancel(int id, String roomUid) async {
@@ -941,7 +990,11 @@ class MacOSNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyIncomingCall(String roomUid, String roomName) async {}
+  Future<void> notifyIncomingCall(
+    String roomUid,
+    String roomName,
+    String? callEventJson,
+  ) async {}
 
   @override
   Future<void> cancel(int id, String roomUid) async {
