@@ -136,7 +136,7 @@ class DataStreamServices {
               await _onMessageEdited(roomUid, message, false);
               break;
             case MessageManipulationPersistentEvent_Action.DELETED:
-              await _onMessageDeleted(roomUid, message);
+              await _onMessageDeleted(roomUid, message, false);
               break;
           }
           break;
@@ -242,15 +242,17 @@ class DataStreamServices {
     );
   }
 
-  Future<void> _onMessageDeleted(Uid roomUid, Message message) async {
+  Future<void> _onMessageDeleted(Uid roomUid, Message message, bool fromFetch) async {
     final id = message.persistEvent.messageManipulationPersistentEvent.messageId
         .toInt();
 
     final deleteActionTime = message.time.toInt();
 
-    final mySeen = await _seenDao.getMySeen(roomUid.asString());
-    if (0 < mySeen.messageId && mySeen.messageId <= id) {
-      await _increaseHiddenMessageCount(roomUid.asString());
+    if(!fromFetch) {
+      final mySeen = await _seenDao.getMySeen(roomUid.asString());
+      if (0 < mySeen.messageId && mySeen.messageId <= id) {
+        await _increaseHiddenMessageCount(roomUid.asString());
+      }
     }
 
     final savedMsg = await _messageDao.getMessage(roomUid.asString(), id);
@@ -266,17 +268,19 @@ class DataStreamServices {
 
       final room = await _roomDao.getRoom(roomUid.asString());
 
-      if (room!.lastMessage != null && room.lastMessage!.id == id) {
-        final lastNotHiddenMessage = await fetchLastNotHiddenMessage(
-          roomUid,
-          room.lastMessageId,
-          room.firstMessageId,
-        );
+      if(!fromFetch) {
+        if (room!.lastMessage != null && room.lastMessage!.id == id) {
+          final lastNotHiddenMessage = await fetchLastNotHiddenMessage(
+            roomUid,
+            room.lastMessageId,
+            room.firstMessageId,
+          );
 
-        await _roomDao.updateRoom(
-          uid: roomUid.asString(),
-          lastMessage: lastNotHiddenMessage ?? savedMsg,
-        );
+          await _roomDao.updateRoom(
+            uid: roomUid.asString(),
+            lastMessage: lastNotHiddenMessage ?? savedMsg,
+          );
+        }
       }
       messageEventSubject.add(
         MessageEvent(
@@ -297,7 +301,7 @@ class DataStreamServices {
     final time = message.time.toInt();
 
     //if from fetch that means non repeated and should be save
-    if (fromFetch) {
+    if (!fromFetch) {
       final savedMsg = await _messageDao.getMessage(roomUid.asString(), id);
 
       // there is no message in db for editing, so if we fetch it eventually, it will be edited anyway
@@ -643,7 +647,7 @@ class DataStreamServices {
                 await _onMessageEdited(roomId.asUid(), message, true);
                 break;
               case MessageManipulationPersistentEvent_Action.DELETED:
-                await _onMessageDeleted(roomId.asUid(), message);
+                await _onMessageDeleted(roomId.asUid(), message, true);
                 break;
             }
             break;
