@@ -1603,7 +1603,7 @@ class MockMuteDao extends _i1.Mock implements _i53.MuteDao {
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i20.Future<void>);
   @override
-  _i20.Future<void> unmute(String? uid) => (super.noSuchMethod(
+  _i20.Future<void> unMute(String? uid) => (super.noSuchMethod(
       Invocation.method(#unmute, [uid]),
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i20.Future<void>);

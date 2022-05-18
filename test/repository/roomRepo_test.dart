@@ -349,7 +349,7 @@ void main() {
       test('When called should unMute room', () async {
         final muteDao = getAndRegisterMuteDao();
         RoomRepo().unMute(testUid.asString());
-        verify(muteDao.unmute(testUid.asString()));
+        verify(muteDao.unMute(testUid.asString()));
       });
     });
     group('isRoomBlocked -', () {
