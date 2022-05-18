@@ -807,6 +807,8 @@ class MessageRepo {
           ..type = FetchMessagesReq_Type.FORWARD_FETCH
           ..limit = pageSize,
       );
+      final nonRepeatedMessage = _nonRepeatedMessageForApplyingActions(fetchMessagesRes.messages);
+      await _dataStreamServices.handleFetchMessageAction(roomId, nonRepeatedMessage);
       final res = await _dataStreamServices
           .saveFetchMessages(fetchMessagesRes.messages);
       completer.complete(res);
@@ -814,6 +816,14 @@ class MessageRepo {
       _logger.e(e);
       completer.complete([]);
     }
+  }
+
+  List<message_pb.Message> _nonRepeatedMessageForApplyingActions(List<message_pb.Message> fetchMessages){
+    var messagesMap = <Int64, message_pb.Message>{};
+    for(final message in fetchMessages){
+      messagesMap.putIfAbsent(message.id , () => message);
+    }
+    return messagesMap.values.toList();
   }
 
   String _findType(String path) => mime(path) ?? "application/octet-stream";

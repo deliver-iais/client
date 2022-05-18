@@ -39,6 +39,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 
 /// All services about streams of data from Core service or Firebase Streams
 class DataStreamServices {
@@ -132,7 +133,7 @@ class DataStreamServices {
           switch (
               message.persistEvent.messageManipulationPersistentEvent.action) {
             case MessageManipulationPersistentEvent_Action.EDITED:
-              await _onMessageEdited(roomUid, message);
+              await _onMessageEdited(roomUid, message, false);
               break;
             case MessageManipulationPersistentEvent_Action.DELETED:
               await _onMessageDeleted(roomUid, message);
@@ -288,16 +289,20 @@ class DataStreamServices {
     }
   }
 
-  Future<void> _onMessageEdited(Uid roomUid, Message message) async {
+  Future<void> _onMessageEdited(
+      Uid roomUid, Message message, bool fromFetch) async {
     final id = message.persistEvent.messageManipulationPersistentEvent.messageId
         .toInt();
 
     final time = message.time.toInt();
 
-    final savedMsg = await _messageDao.getMessage(roomUid.asString(), id);
+    //if from fetch that means non repeated and should be save
+    if (fromFetch) {
+      final savedMsg = await _messageDao.getMessage(roomUid.asString(), id);
 
-    // there is no message in db for editing, so if we fetch it eventually, it will be edited anyway
-    if (savedMsg == null) return;
+      // there is no message in db for editing, so if we fetch it eventually, it will be edited anyway
+      if (savedMsg == null) return;
+    }
 
     final res = await _queryServicesClient.fetchMessages(
       FetchMessagesReq()
@@ -624,6 +629,33 @@ class DataStreamServices {
         }
       }
     } catch (_) {}
+  }
+
+  Future<void> handleFetchMessageAction(
+      String roomId, List<Message> messages) async {
+    for (final message in messages) {
+      if (message.whichType() == Message_Type.persistEvent) {
+        switch (message.persistEvent.whichType()) {
+          case PersistentEvent_Type.messageManipulationPersistentEvent:
+            switch (message
+                .persistEvent.messageManipulationPersistentEvent.action) {
+              case MessageManipulationPersistentEvent_Action.EDITED:
+                await _onMessageEdited(roomId.asUid(), message, true);
+                break;
+              case MessageManipulationPersistentEvent_Action.DELETED:
+                await _onMessageDeleted(roomId.asUid(), message);
+                break;
+            }
+            break;
+          case PersistentEvent_Type.mucSpecificPersistentEvent:
+          case PersistentEvent_Type.adminSpecificPersistentEvent:
+          case PersistentEvent_Type.botSpecificPersistentEvent:
+          case PersistentEvent_Type.notSet:
+            // i think we do nothing here
+            break;
+        }
+      }
+    }
   }
 
   Future<List<message_model.Message>> saveFetchMessages(
