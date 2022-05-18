@@ -82,7 +82,7 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
               ),
               onPressed: () {
                 if (isMuted.data!) {
-                  _roomRepo.unmute(widget.roomId);
+                  _roomRepo.unMute(widget.roomId);
                 } else {
                   _roomRepo.mute(widget.roomId);
                 }

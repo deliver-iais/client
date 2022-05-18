@@ -9,7 +9,7 @@ abstract class MuteDao {
 
   Future<void> mute(String uid);
 
-  Future<void> unmute(String uid);
+  Future<void> unMute(String uid);
 }
 
 class MuteDaoImpl implements MuteDao {
@@ -37,7 +37,7 @@ class MuteDaoImpl implements MuteDao {
   }
 
   @override
-  Future<void> unmute(String uid) async {
+  Future<void> unMute(String uid) async {
     final box = await _open();
 
     return box.delete(uid);
