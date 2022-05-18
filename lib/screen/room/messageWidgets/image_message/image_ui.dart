@@ -235,6 +235,7 @@ class _ImageUiState extends State<ImageUi> {
                       MouseRegion(
                         cursor: SystemMouseCursors.click,
                         child: GestureDetector(
+                          behavior: HitTestBehavior.translucent,
                           onTap: () async {
                             await _fileRepo.getFile(
                               widget.image.uuid,
