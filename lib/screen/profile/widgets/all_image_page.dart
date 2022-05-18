@@ -444,27 +444,38 @@ class _AllImagePageState extends State<AllImagePage> {
                       mediaSnapShot.data!.messageId,
                     ),
                     builder: (context, message) {
-                      if (message.hasData &&
-                          message.data != null &&
-                          _autRepo.isCurrentUserSender(
-                            message.data!,
-                          )) {
-                        return IconButton(
-                          onPressed: () async {
-                            final message = await getMessage();
-                            await OperationOnMessageSelection(
-                              message: message!,
-                              context: context,
-                              onEdit: widget.onEdit,
-                            ).selectOperation(OperationOnMessage.EDIT);
-                            _routingService.pop();
-                          },
-                          tooltip: _i18n.get("edit"),
-                          icon: Icon(
-                            CupertinoIcons.paintbrush,
-                            color: theme.primaryColorLight,
-                          ),
-                        );
+                      if (message.hasData && message.data != null) {
+                        if (_autRepo.isCurrentUserSender(
+                          message.data!,
+                        )) {
+                          return IconButton(
+                            onPressed: () async {
+                              final message = await getMessage();
+                              await OperationOnMessageSelection(
+                                message: message!,
+                                context: context,
+                                onEdit: widget.onEdit,
+                              ).selectOperation(OperationOnMessage.EDIT);
+                              _routingService.pop();
+                            },
+                            tooltip: _i18n.get("edit"),
+                            icon: Icon(
+                              CupertinoIcons.paintbrush,
+                              color: theme.primaryColorLight,
+                            ),
+                          );
+                        } else {
+                          return IconButton(
+                            onPressed: () async {
+
+                            },
+                            tooltip: _i18n.get("rotate"),
+                            icon: Icon(
+                              Icons.rotate_left,
+                              color: theme.primaryColorLight,
+                            ),
+                          );
+                        }
                       } else {
                         return const SizedBox.shrink();
                       }
