@@ -2,9 +2,9 @@ import 'dart:math' as math;
 
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/methods/vibration.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:vibration/vibration.dart';
 
 class Swipe extends StatefulWidget {
   final Widget child;
@@ -79,18 +79,14 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
     }
     if (_dragExtent < -50) {
       if (showRightIcon == false) {
-        if(isAndroid) {
-          Vibration.vibrate(duration: 50);
-        }
+        vibrate(duration: 50);
         setState(() {
           showRightIcon = true;
         });
       }
     } else {
       if (showRightIcon == true) {
-        if(isAndroid) {
-          Vibration.vibrate(duration: 50);
-        }
+        vibrate(duration: 50);
         setState(() {
           showRightIcon = false;
         });

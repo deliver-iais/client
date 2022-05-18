@@ -26,6 +26,8 @@ final isDesktop = isLinux || isWindows || isMacOS;
 
 final hasFirebaseCapability = isAndroid;
 
+final hasVibrationCapability = isAndroid || isIOS || isWeb;
+
 Future<platform_pb.Platform> getPlatformPB() async {
   final platform = platform_pb.Platform()..clientVersion = VERSION;
   if (isWeb) {

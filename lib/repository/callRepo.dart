@@ -26,6 +26,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/methods/vibration.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -38,7 +39,6 @@ import 'package:logger/logger.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sdp_transform/sdp_transform.dart';
-import 'package:vibration/vibration.dart';
 
 enum CallStatus {
   CREATED,
@@ -362,7 +362,7 @@ class CallRepo {
             break;
           case RTCIceConnectionState.RTCIceConnectionStateConnected:
             callingStatus.add(CallStatus.CONNECTED);
-            Vibration.vibrate(duration: 50);
+            vibrate(duration: 50);
             _audioService.stopBeepSound();
             if (_reconnectTry) {
               _reconnectTry = false;
@@ -409,7 +409,7 @@ class CallRepo {
             //     params.encodings[0].scaleResolutionDownBy = 2;
             // await _videoSender.setParameters(params);
             callingStatus.add(CallStatus.CONNECTED);
-            Vibration.vibrate(duration: 50);
+            vibrate(duration: 50);
             _audioService.stopBeepSound();
             if (_reconnectTry) {
               _reconnectTry = false;
@@ -536,7 +536,7 @@ class CallRepo {
                 _startCallTimerAndChangeStatus();
               } else {
                 callingStatus.add(CallStatus.CONNECTED);
-                Vibration.vibrate(duration: 50);
+                vibrate(duration: 50);
                 _audioService.stopBeepSound();
                 _reconnectTry = false;
               }
@@ -581,7 +581,7 @@ class CallRepo {
     }
     _logger.i("Start Call " + _startCallTime.toString());
     callingStatus.add(CallStatus.CONNECTED);
-    Vibration.vibrate(duration: 50).ignore();
+    vibrate(duration: 50).ignore();
     _audioService.stopBeepSound();
     if (timerConnectionFailed != null) {
       timerConnectionFailed!.cancel();
