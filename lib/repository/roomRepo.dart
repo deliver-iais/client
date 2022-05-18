@@ -287,7 +287,7 @@ class RoomRepo {
 
   void mute(String uid) => _muteDao.mute(uid);
 
-  void unmute(String uid) => _muteDao.unmute(uid);
+  void unMute(String uid) => _muteDao.unMute(uid);
 
   Future<bool> isRoomBlocked(String uid) => _blockDao.isBlocked(uid);
 

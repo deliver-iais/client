@@ -97,7 +97,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                 if (snapshot.data!) {
                   return PopupMenuItem(
                     onTap: () {
-                      _roomRepo.unmute(widget.room.uid);
+                      _roomRepo.unMute(widget.room.uid);
                     },
                     child: Row(
                       children: [
