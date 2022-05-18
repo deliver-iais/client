@@ -65,7 +65,7 @@ class MediaDaoImpl implements MediaDao {
             .contains(fileUuid)) {
       return index;
     }
-    return index;
+    return -1;
   }
 
   @override
