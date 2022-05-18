@@ -293,8 +293,7 @@ Future<void> setupDI() async {
   }
   try {
     registerSingleton<AudioService>(AudioService());
-  } catch (e) {
-  }
+  } catch (_) {}
 
   if (isWeb) {
     registerSingleton<Notifier>(WebNotifier());

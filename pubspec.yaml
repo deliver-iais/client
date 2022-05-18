@@ -83,7 +83,6 @@ dependencies:
     sdk: flutter
   flutter_map: 0.14.0
   flutter_webrtc: 0.8.5
-  webrtc_interface: 1.0.3
   fluttertoast: 8.0.8
   fuzzy: 0.4.0-nullsafety.0
   geolocator: 7.7.1
@@ -146,6 +145,7 @@ dependencies:
   vibration: 1.7.4-nullsafety.0
   video_player: 2.3.0
   wakelock: 0.6.1+1
+  webrtc_interface: 1.0.3
   win_toast:
     git:
       path: packages/win_toast
