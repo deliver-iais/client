@@ -718,7 +718,7 @@ packages:
     source: hosted
     version: "2.1.5"
   geolocator_windows:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: geolocator_windows
       url: "https://pub.dartlang.org"
