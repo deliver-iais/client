@@ -49,39 +49,48 @@ class _FormattedTextFieldWidgetState extends State<FormattedTextFieldWidget> {
           horizontalPadding: 5,
           animationRange: 5,
           controller: shakeWidgetController,
-          child: FormValidator(
-            label: widget.formField.id,
-            validator: (s) {
-              if (widget.formField.formattedTextField.partitionsSizes.isEmpty) {
-                return null;
-              }
-              if (!widget.formField.isOptional && (result.isEmpty)) {
-                shakeWidgetController.shake();
-                return _i18n.get(
-                  "this_filed_not_empty",
-                );
-              }
-            },
-            widget: Row(
-              children: [
-                for (int i = 0;
-                    i <
-                        widget
-                            .formField.formattedTextField.partitionsSizes.length;
-                    i++)
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 2, right: 2),
-                      child: TextField(
-                        onChanged: (t) => _changeResult(),
-                        maxLength: widget
-                            .formField.formattedTextField.partitionsSizes[i],
-                        controller: _textControllerList[i],
+          child: Column(
+            children: [
+              FormValidator(
+                label: widget.formField.id,
+                validator: (s) {
+                  if (widget
+                      .formField.formattedTextField.partitionsSizes.isEmpty) {
+                    return null;
+                  }
+                  if (!widget.formField.isOptional && (result.isEmpty)) {
+                    shakeWidgetController.shake();
+                    return _i18n.get(
+                      "this_filed_not_empty",
+                    );
+                  }
+                },
+                widget: Row(
+                  children: [
+                    for (int i = 0;
+                        i <
+                            widget.formField.formattedTextField.partitionsSizes
+                                .length;
+                        i++)
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 2, right: 2),
+                          child: TextField(
+                            onChanged: (t) => _changeResult(),
+                            maxLength: widget.formField.formattedTextField
+                                .partitionsSizes[i],
+                            controller: _textControllerList[i],
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-              ],
-            ),
+                  ],
+                ),
+              ),
+              if (widget.formField.hint.isNotEmpty)
+                Row(
+                  children: [Text(widget.formField.hint)],
+                )
+            ],
           ),
         ),
       ),

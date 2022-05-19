@@ -6,6 +6,7 @@ import 'package:deliver/screen/room/messageWidgets/botMessageWidget/date_and_tim
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_list_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_simple_input_field_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/formatted_text_field_widget.dart';
+import 'package:deliver/screen/room/messageWidgets/botMessageWidget/rich_formatted_text_field_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
@@ -110,7 +111,14 @@ class _BotFormMessageState extends State<BotFormMessage> {
               formResult: _formResult,
             ),
           );
+          break;
 
+        case proto_pb.Form_Field_Type.richFormattedTextField:
+          _widgets.add(RichFormattedTextFieldWidget(
+            formField: field,
+            formResult: _formResult,
+            setFormKey: (key) => formFieldsKey[field.id] = key,
+          ),);
           break;
         case proto_pb.Form_Field_Type.notSet:
           _widgets.add(const SizedBox.shrink());
@@ -279,7 +287,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
   Widget buildTitle(ThemeData theme, BehaviorSubject<String> _errorText) {
     return Stack(
       children: [
-       if (!form.lockAfter.isZero) buildTimer(),
+        if (!form.lockAfter.isZero) buildTimer(),
         Center(
           child: Column(
             mainAxisSize: MainAxisSize.min,

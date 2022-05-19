@@ -792,7 +792,7 @@ class IOSNotifier implements Notifier {
         //     _i18n.get("mark_as_read"),
         //     options: <DarwinNotificationActionOption>{
         //       DarwinNotificationActionOption.destructive,
-        //     },
+    //   },
         //   ),
         // ],
       )
