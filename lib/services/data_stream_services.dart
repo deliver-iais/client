@@ -242,13 +242,14 @@ class DataStreamServices {
     );
   }
 
-  Future<void> _onMessageDeleted(Uid roomUid, Message message, bool fromFetch) async {
+  Future<void> _onMessageDeleted(
+      Uid roomUid, Message message, bool fromFetch) async {
     final id = message.persistEvent.messageManipulationPersistentEvent.messageId
         .toInt();
 
     final deleteActionTime = message.time.toInt();
 
-    if(!fromFetch) {
+    if (!fromFetch) {
       final mySeen = await _seenDao.getMySeen(roomUid.asString());
       if (0 < mySeen.messageId && mySeen.messageId <= id) {
         await _increaseHiddenMessageCount(roomUid.asString());
@@ -267,20 +268,17 @@ class DataStreamServices {
       await _messageDao.saveMessage(msg);
 
       final room = await _roomDao.getRoom(roomUid.asString());
+      if (room!.lastMessage != null && room.lastMessage!.id == id) {
+        final lastNotHiddenMessage = await fetchLastNotHiddenMessage(
+          roomUid,
+          room.lastMessageId,
+          room.firstMessageId,
+        );
 
-      if(!fromFetch) {
-        if (room!.lastMessage != null && room.lastMessage!.id == id) {
-          final lastNotHiddenMessage = await fetchLastNotHiddenMessage(
-            roomUid,
-            room.lastMessageId,
-            room.firstMessageId,
-          );
-
-          await _roomDao.updateRoom(
-            uid: roomUid.asString(),
-            lastMessage: lastNotHiddenMessage ?? savedMsg,
-          );
-        }
+        await _roomDao.updateRoom(
+          uid: roomUid.asString(),
+          lastMessage: lastNotHiddenMessage ?? savedMsg,
+        );
       }
       messageEventSubject.add(
         MessageEvent(
@@ -639,25 +637,17 @@ class DataStreamServices {
       String roomId, List<Message> messages) async {
     for (final message in messages) {
       if (message.whichType() == Message_Type.persistEvent) {
-        switch (message.persistEvent.whichType()) {
-          case PersistentEvent_Type.messageManipulationPersistentEvent:
-            switch (message
-                .persistEvent.messageManipulationPersistentEvent.action) {
-              case MessageManipulationPersistentEvent_Action.EDITED:
-                await _onMessageEdited(roomId.asUid(), message, true);
-                break;
-              case MessageManipulationPersistentEvent_Action.DELETED:
-                await _onMessageDeleted(roomId.asUid(), message, true);
-                break;
-            }
+        //if message persistEvent they 100% be a messageManipulationPersistentEvent
+        switch (
+            message.persistEvent.messageManipulationPersistentEvent.action) {
+          case MessageManipulationPersistentEvent_Action.EDITED:
+            await _onMessageEdited(roomId.asUid(), message, true);
             break;
-          case PersistentEvent_Type.mucSpecificPersistentEvent:
-          case PersistentEvent_Type.adminSpecificPersistentEvent:
-          case PersistentEvent_Type.botSpecificPersistentEvent:
-          case PersistentEvent_Type.notSet:
-            // i think we do nothing here
+          case MessageManipulationPersistentEvent_Action.DELETED:
+            await _onMessageDeleted(roomId.asUid(), message, true);
             break;
         }
+        break;
       }
     }
   }
