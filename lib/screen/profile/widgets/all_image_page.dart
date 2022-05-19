@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:card_swiper/card_swiper.dart';
 import 'package:dcache/dcache.dart';
+import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/media_meta_data_dao.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/box/media.dart';
@@ -20,7 +21,8 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/widgets/edit_image/paint_on_image/_ported_interactive_viewer.dart';
+import 'package:deliver/shared/widgets/edit_image/paint_on_image/_ported_interactive_viewer.dart'
+    as por;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -57,6 +59,7 @@ class _AllImagePageState extends State<AllImagePage> {
   final _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _messageDao = GetIt.I.get<MessageDao>();
+  final _mediaDao = GetIt.I.get<MediaDao>();
   final _i18n = GetIt.I.get<I18N>();
   final _autRepo = GetIt.I.get<AuthRepo>();
   final BehaviorSubject<int> _currentIndex = BehaviorSubject.seeded(-1);
@@ -66,6 +69,9 @@ class _AllImagePageState extends State<AllImagePage> {
       LruCache<int, String>(storage: InMemoryStorage(500));
   bool _isBarShowing = true;
   int? initialIndex;
+  bool isSingleImage = false;
+  final por.TransformationController _transformationController =
+      por.TransformationController();
 
   Future<Media?> _getMedia(int index) async {
     if (_mediaCache.values.toList().isNotEmpty &&
@@ -90,16 +96,32 @@ class _AllImagePageState extends State<AllImagePage> {
 
   @override
   void initState() {
+    isSingleImage = widget.isSingleImage;
     if (widget.initIndex == null) {
-      _mediaQueryRepo.fetchMediaMetaData(
-        widget.roomUid.asUid(),
-        updateAllMedia: false,
-      );
+      _fetchMedia();
     } else {
       initialIndex = widget.initIndex;
     }
 
     super.initState();
+  }
+
+  Future<void> _fetchMedia() async {
+    await _mediaQueryRepo.fetchMediaMetaData(
+      widget.roomUid.asUid(),
+      updateAllMedia: false,
+    );
+    final index = await _mediaDao.getIndexOfMedia(
+      widget.roomUid,
+      widget.messageId,
+      MediaType.IMAGE,
+    );
+    if (index != -1) {
+      setState(() {
+        initialIndex = index;
+        isSingleImage = false;
+      });
+    }
   }
 
   late ThemeData theme;
@@ -137,16 +159,31 @@ class _AllImagePageState extends State<AllImagePage> {
     );
   }
 
-  Center singleImage() {
+  Widget singleImage() {
     _currentIndex.add(-1);
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: widget.filePath == null
-            ? const SizedBox.shrink()
-            : isWeb
-                ? Image.network(widget.filePath!)
-                : Image.file(File(widget.filePath!)),
+    return buildImage(widget.filePath!, -1);
+  }
+
+  Widget buildImage(String filePath, int index) {
+    return por.ImagePainterTransformer(
+      maxScale: 2.4,
+      minScale: 1,
+      transformationController: _transformationController,
+      child: GestureDetector(
+        onDoubleTapDown: (d) => _handleDoubleTap(d),
+        onDoubleTap: () {},
+        onTap: () {
+          setState(() {
+            initialIndex = index;
+            _isBarShowing = !_isBarShowing;
+          });
+        },
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(10),
+            child: isWeb ? Image.network(filePath) : Image.file(File(filePath)),
+          ),
+        ),
       ),
     );
   }
@@ -204,48 +241,31 @@ class _AllImagePageState extends State<AllImagePage> {
                                     jsonDecode(mediaSnapShot.data!.json) as Map;
                                 return Hero(
                                   tag: json['uuid'],
-                                  child: ImagePainterTransformer(
-                                    maxScale: 2.4,
-                                    minScale: 1,
-                                    child: FutureBuilder<String?>(
-                                      initialData: _fileCache.get(index),
-                                      future: _fileRepo.getFile(
-                                        json['uuid'],
-                                        json['name'],
-                                      ),
-                                      builder: (c, filePath) {
-                                        if (filePath.hasData &&
-                                            filePath.data != null) {
-                                          _fileCache.set(
-                                            index,
-                                            filePath.data,
-                                          );
-
-                                          return isWeb
-                                              ? Image.network(
-                                                  filePath.data!,
-                                                )
-                                              : GestureDetector(
-                                                  onTap: () {
-                                                    setState(() {
-                                                      initialIndex = index;
-                                                      _isBarShowing =
-                                                          !_isBarShowing;
-                                                    });
-                                                  },
-                                                  child: Image.file(
-                                                    File(filePath.data!),
-                                                  ),
-                                                );
-                                        } else {
-                                          return const Center(
-                                            child: CircularProgressIndicator(
-                                              color: Colors.blue,
-                                            ),
-                                          );
-                                        }
-                                      },
+                                  child: FutureBuilder<String?>(
+                                    initialData: _fileCache.get(index),
+                                    future: _fileRepo.getFile(
+                                      json['uuid'],
+                                      json['name'],
                                     ),
+                                    builder: (c, filePath) {
+                                      if (filePath.hasData &&
+                                          filePath.data != null) {
+                                        _fileCache.set(
+                                          index,
+                                          filePath.data,
+                                        );
+                                        return buildImage(
+                                          filePath.data!,
+                                          index,
+                                        );
+                                      } else {
+                                        return const Center(
+                                          child: CircularProgressIndicator(
+                                            color: Colors.blue,
+                                          ),
+                                        );
+                                      }
+                                    },
                                   ),
                                 );
                               } else {
@@ -319,6 +339,17 @@ class _AllImagePageState extends State<AllImagePage> {
         )
       ],
     );
+  }
+
+  void _handleDoubleTap(TapDownDetails details) {
+    if (_transformationController.value != Matrix4.identity()) {
+      _transformationController.value = Matrix4.identity();
+    } else {
+      final position = details.localPosition;
+      _transformationController.value = Matrix4.identity()
+        ..translate(-position.dx * 2, -position.dy * 2)
+        ..scale(3.0);
+    }
   }
 
   Widget buildCaptionSection(AsyncSnapshot<int> index) {

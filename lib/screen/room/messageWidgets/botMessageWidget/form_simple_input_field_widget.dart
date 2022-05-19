@@ -116,6 +116,10 @@ class _FormSimpleInputFieldWidgetState
               ),
             ),
       labelText: widget.formField.id,
+      hintText:
+          widget.formField.whichType() == form_pb.Form_Field_Type.textField
+              ? widget.formField.textField.placeholder
+              : "",
       helperText:
           widget.formField.hint.isNotEmpty ? widget.formField.hint : null,
     );

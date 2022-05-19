@@ -7,6 +7,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   desktop_lifecycle
   desktop_window
   flutter_webrtc
+  geolocator_windows
   image_compression_flutter
   pasteboard
   permission_handler_windows

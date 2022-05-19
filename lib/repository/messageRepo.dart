@@ -48,13 +48,13 @@ import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/sticker.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/sticker.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:geolocator/geolocator.dart' as location;
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:image_size_getter/file_input.dart';
@@ -432,7 +432,7 @@ class MessageRepo {
   }
 
   Future<void> sendLocationMessage(
-    Position locationData,
+    location.Position locationData,
     Uid room, {
     String? forwardedFrom,
     int replyId = 0,
@@ -923,7 +923,7 @@ class MessageRepo {
   Future<void> sendLiveLocationMessage(
     Uid roomUid,
     int duration,
-    Position position, {
+    location.Position position, {
     int replyId = 0,
     String? forwardedFrom,
   }) async {

@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/vibration.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
