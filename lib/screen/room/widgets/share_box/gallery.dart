@@ -12,9 +12,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:get_it/get_it.dart';
+import 'package:photo_manager/photo_manager.dart';
 import 'package:rxdart/rxdart.dart';
-
-import 'helper_classes.dart';
 
 class ShareBoxGallery extends StatefulWidget {
   final ScrollController scrollController;
@@ -44,8 +43,6 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
   final TextEditingController _captionEditingController =
       TextEditingController();
   final _keyboardVisibilityController = KeyboardVisibilityController();
-
-  late Future<List<StorageFile>> _future;
   late CameraController _controller;
   late List<CameraDescription> _cameras;
   late BehaviorSubject<CameraController> _cameraController;
@@ -53,7 +50,6 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
 
   @override
   void initState() {
-    _future = ImageItem.getImages();
     _keyboardVisibilityController.onChange.listen((event) {
       _insertCaption.add(event);
     });
@@ -95,25 +91,30 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      body: FutureBuilder<List<StorageFile>?>(
-        future: _future,
+      body: FutureBuilder<List<AssetPathEntity>?>(
+        future: PhotoManager.getAssetPathList(type: RequestType.image),
         builder: (context, folders) {
           if (folders.hasData &&
               folders.data != null &&
               folders.data!.isNotEmpty) {
             return GridView.builder(
               controller: widget.scrollController,
-              itemCount: folders.data!.length + 1,
+              itemCount: folders.data!
+                      .where((element) => element.assetCount > 0)
+                      .length +
+                  1,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
               ),
               itemBuilder: (co, index) {
-                final folder = index > 0 ? folders.data![index - 1] : null;
+                final folder = index > 0
+                    ? folders.data!
+                        .where((element) => element.assetCount > 0)
+                        .toList()[index - 1]
+                    : null;
                 if (index <= 0) {
                   return Container(
-                    width: 50,
-                    height: 50,
-                    margin: const EdgeInsets.all(4.0),
+                    margin: const EdgeInsets.all(15.0),
                     decoration: BoxDecoration(
                       color: Theme.of(co).primaryColor,
                       borderRadius: secondaryBorder,
@@ -165,42 +166,53 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.all(10),
                       child: Hero(
-                        tag: folder!.folderName,
-                        child: Container(
-                          width: 100,
-                          height: 100,
-                          decoration: BoxDecoration(
-                            borderRadius: secondaryBorder,
-                            image: DecorationImage(
-                              image: Image.file(
-                                File(
-                                  folder.files.first,
+                        tag: folder!.name,
+                        child: FutureBuilder<List<AssetEntity>>(
+                          future: folder.getAssetListPaged(page: 0, size: 1),
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData &&
+                                snapshot.data != null &&
+                                snapshot.data!.isNotEmpty) {
+                              return Container(
+                                width: 100,
+                                height: 100,
+                                decoration: BoxDecoration(
+                                  borderRadius: secondaryBorder,
+                                  image: DecorationImage(
+                                    image: Image.file(
+                                      File(
+                                        snapshot.data!.first.relativePath! +
+                                            "/${snapshot.data!.first.title!}",
+                                      ),
+                                      cacheWidth: 500,
+                                      cacheHeight: 500,
+                                    ).image,
+                                    fit: BoxFit.contain,
+                                  ),
                                 ),
-                                cacheWidth: 300,
-                                cacheHeight: 300,
-                              ).image,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
-                          child: Align(
-                            alignment: Alignment.bottomLeft,
-                            widthFactor: 200,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .hoverColor
-                                    .withOpacity(0.5),
-                                borderRadius: mainBorder,
-                              ),
-                              child: Text(
-                                folder.folderName,
-                                style: const TextStyle(
-                                  fontSize: 15,
-                                  color: Colors.white,
+                                child: Align(
+                                  alignment: Alignment.bottomLeft,
+                                  widthFactor: 200,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Theme.of(context)
+                                          .hoverColor
+                                          .withOpacity(0.5),
+                                      borderRadius: mainBorder,
+                                    ),
+                                    child: Text(
+                                      folder.name,
+                                      style: const TextStyle(
+                                        fontSize: 15,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ),
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
                         ),
                       ),
                     ),
