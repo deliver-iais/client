@@ -819,7 +819,7 @@ class MessageRepo {
   }
 
   List<message_pb.Message> _nonRepeatedMessageForApplyingActions(List<message_pb.Message> fetchMessages){
-    var messagesMap = <Int64, message_pb.Message>{};
+    final messagesMap = <Int64, message_pb.Message>{};
     for(final message in fetchMessages){
       if(message.whichType() == message_pb.Message_Type.persistEvent){
         if(message.persistEvent.whichType() == PersistentEvent_Type.messageManipulationPersistentEvent){

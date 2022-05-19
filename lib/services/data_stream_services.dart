@@ -39,7 +39,6 @@ import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 
 /// All services about streams of data from Core service or Firebase Streams
 class DataStreamServices {
@@ -133,10 +132,10 @@ class DataStreamServices {
           switch (
               message.persistEvent.messageManipulationPersistentEvent.action) {
             case MessageManipulationPersistentEvent_Action.EDITED:
-              await _onMessageEdited(roomUid, message, false);
+              await _onMessageEdited(roomUid, message, fromFetch: false);
               break;
             case MessageManipulationPersistentEvent_Action.DELETED:
-              await _onMessageDeleted(roomUid, message, false);
+              await _onMessageDeleted(roomUid, message, fromFetch: false);
               break;
           }
           break;
@@ -243,7 +242,9 @@ class DataStreamServices {
   }
 
   Future<void> _onMessageDeleted(
-      Uid roomUid, Message message, bool fromFetch) async {
+      Uid roomUid, Message message,
+      {required bool fromFetch,}
+      ) async {
     final id = message.persistEvent.messageManipulationPersistentEvent.messageId
         .toInt();
 
@@ -292,7 +293,9 @@ class DataStreamServices {
   }
 
   Future<void> _onMessageEdited(
-      Uid roomUid, Message message, bool fromFetch) async {
+      Uid roomUid, Message message,
+      {required bool fromFetch,}
+      ) async {
     final id = message.persistEvent.messageManipulationPersistentEvent.messageId
         .toInt();
 
@@ -634,17 +637,18 @@ class DataStreamServices {
   }
 
   Future<void> handleFetchMessageAction(
-      String roomId, List<Message> messages) async {
+      String roomId, List<Message> messages,
+      ) async {
     for (final message in messages) {
       if (message.whichType() == Message_Type.persistEvent) {
         //if message persistEvent they 100% be a messageManipulationPersistentEvent
         switch (
             message.persistEvent.messageManipulationPersistentEvent.action) {
           case MessageManipulationPersistentEvent_Action.EDITED:
-            await _onMessageEdited(roomId.asUid(), message, true);
+            await _onMessageEdited(roomId.asUid(), message, fromFetch: true);
             break;
           case MessageManipulationPersistentEvent_Action.DELETED:
-            await _onMessageDeleted(roomId.asUid(), message, true);
+            await _onMessageDeleted(roomId.asUid(), message, fromFetch: true);
             break;
         }
         break;
