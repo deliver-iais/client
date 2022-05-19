@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:card_swiper/card_swiper.dart';
 import 'package:dcache/dcache.dart';
@@ -51,7 +52,7 @@ class AllImagePage extends StatefulWidget {
   State<AllImagePage> createState() => _AllImagePageState();
 }
 
-class _AllImagePageState extends State<AllImagePage> {
+class _AllImagePageState extends State<AllImagePage> with SingleTickerProviderStateMixin {
   final SwiperController _swiperController = SwiperController();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
@@ -72,6 +73,11 @@ class _AllImagePageState extends State<AllImagePage> {
   bool isSingleImage = false;
   final por.TransformationController _transformationController =
       por.TransformationController();
+
+  late List<Animation<double>> animationList ;
+  late AnimationController controller;
+  int animationIndex = 0;
+  bool disableRotate = false;
 
   Future<Media?> _getMedia(int index) async {
     if (_mediaCache.values.toList().isNotEmpty &&
@@ -102,8 +108,27 @@ class _AllImagePageState extends State<AllImagePage> {
     } else {
       initialIndex = widget.initIndex;
     }
-
+    controller = AnimationController(duration: const Duration(milliseconds: 500), vsync: this);
+    controller.addStatusListener((status) async{
+      if(status == AnimationStatus.completed){
+        await Future.delayed(Duration(milliseconds: 100));
+        animationIndex = (animationIndex + 1) % 4;
+        disableRotate = false;
+      }
+    });
+    animationList = [];
+    animationList.add(Tween<double>(begin: 0, end: pi/2).animate(controller));
+    animationList.add(Tween<double>(begin: pi/2, end: pi).animate(controller));
+    animationList.add(Tween<double>(begin: pi, end: 3*pi/2).animate(controller));
+    animationList.add(Tween<double>(begin: 3*pi/2, end: 2*pi).animate(controller));
     super.initState();
+  }
+
+  @override
+  void dispose(){
+    controller.dispose();
+
+    super.dispose();
   }
 
   Future<void> _fetchMedia() async {
@@ -181,7 +206,14 @@ class _AllImagePageState extends State<AllImagePage> {
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(10),
-            child: isWeb ? Image.network(filePath) : Image.file(File(filePath)),
+            child: AnimatedBuilder(
+              animation: animationList[animationIndex],
+              child: isWeb ? Image.network(filePath) : Image.file(File(filePath)),
+              builder: (context, child) => Transform.rotate(
+                angle: animationList[animationIndex].value,
+                child: child,
+              ),
+            )
           ),
         ),
       ),
@@ -497,12 +529,15 @@ class _AllImagePageState extends State<AllImagePage> {
                           );
                         } else {
                           return IconButton(
-                            onPressed: () async {
-
+                            onPressed: () {
+                              if(!disableRotate) {
+                                disableRotate = true;
+                                controller.forward(from: 0);
+                              }
                             },
                             tooltip: _i18n.get("rotate"),
                             icon: Icon(
-                              Icons.rotate_left,
+                              Icons.rotate_right,
                               color: theme.primaryColorLight,
                             ),
                           );
