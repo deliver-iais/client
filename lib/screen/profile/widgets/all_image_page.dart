@@ -116,10 +116,12 @@ class _AllImagePageState extends State<AllImagePage> {
       widget.messageId,
       MediaType.IMAGE,
     );
-    setState(() {
-      initialIndex = index;
-      // isSingleImage = false;
-    });
+    if (index != -1) {
+      setState(() {
+        initialIndex = index;
+        isSingleImage = false;
+      });
+    }
   }
 
   late ThemeData theme;
