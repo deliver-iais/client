@@ -5,6 +5,7 @@ import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/image_folder_widget.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
+import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/constants.dart';
 
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -40,50 +41,65 @@ class ShareBoxGallery extends StatefulWidget {
 class _ShareBoxGalleryState extends State<ShareBoxGallery> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
+  final _checkPermissionServices = GetIt.I.get<CheckPermissionsService>();
   final TextEditingController _captionEditingController =
       TextEditingController();
   final _keyboardVisibilityController = KeyboardVisibilityController();
-  late CameraController _controller;
+  CameraController? _controller;
   late List<CameraDescription> _cameras;
   late BehaviorSubject<CameraController> _cameraController;
   final BehaviorSubject<bool> _insertCaption = BehaviorSubject.seeded(false);
+  final BehaviorSubject<List<AssetPathEntity>> _folders =
+      BehaviorSubject.seeded([]);
 
   @override
   void initState() {
+    _initFolders();
     _keyboardVisibilityController.onChange.listen((event) {
       _insertCaption.add(event);
     });
-    _initCamera();
 
     super.initState();
   }
 
-  Future<void> _initCamera() async {
-    _cameras = await availableCameras();
-    if (_cameras.isNotEmpty) {
-      _controller = CameraController(_cameras[0], ResolutionPreset.max);
-      return _controller.initialize().then((_) {
-        if (!mounted) {
-          return;
-        }
-        _cameraController = BehaviorSubject.seeded(_controller);
-        setState(() {});
-      });
+  Future<void> _initFolders() async {
+    if (await _checkPermissionServices.checkStoragePermission() &&
+        await _checkPermissionServices.checkStorage2Permission()) {
+      _folders
+          .add(await PhotoManager.getAssetPathList(type: RequestType.image));
     }
+    try {
+      if (await _checkPermissionServices.checkCameraRecorderPermission() &&
+          await _checkPermissionServices.checkCameraRecorderPermission()) {
+        _cameras = await availableCameras();
+        if (_cameras.isNotEmpty) {
+          _controller = CameraController(_cameras[0], ResolutionPreset.max);
+          return _controller!.initialize().then((_) {
+            if (!mounted) {
+              return;
+            }
+            _cameraController = BehaviorSubject.seeded(_controller!);
+            setState(() {
+            });
+          });
+        }
+
+      }
+    } catch (_) {}
   }
 
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (!_controller.value.isInitialized) {
+    if (!_controller!.value.isInitialized) {
       return;
     }
     if (state == AppLifecycleState.inactive) {
-      _controller.dispose();
+      _controller!.dispose();
     } else if (state == AppLifecycleState.resumed) {}
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _controller!.dispose();
     super.dispose();
   }
 
@@ -91,8 +107,8 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      body: FutureBuilder<List<AssetPathEntity>?>(
-        future: PhotoManager.getAssetPathList(type: RequestType.image),
+      body: StreamBuilder<List<AssetPathEntity>?>(
+        stream: _folders,
         builder: (context, folders) {
           if (folders.hasData &&
               folders.data != null &&
@@ -119,24 +135,25 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                       color: Theme.of(co).primaryColor,
                       borderRadius: secondaryBorder,
                     ),
-                    child: _controller.value.isInitialized
-                        ? GestureDetector(
-                            onTap: () {
-                              openCamera(() {
-                                widget.pop();
-                                Navigator.pop(context);
-                              });
-                            },
-                            child: CameraPreview(
-                              _controller,
-                              child: const Icon(
-                                Icons.photo_camera,
-                                size: 50,
-                                color: Colors.white,
-                              ),
-                            ),
-                          )
-                        : const SizedBox.shrink(),
+                    child:
+                        _controller != null && _controller!.value.isInitialized
+                            ? GestureDetector(
+                                onTap: () {
+                                  openCamera(() {
+                                    widget.pop();
+                                    Navigator.pop(context);
+                                  });
+                                },
+                                child: CameraPreview(
+                                  _controller!,
+                                  child: const Icon(
+                                    Icons.photo_camera,
+                                    size: 50,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              )
+                            : const SizedBox.shrink(),
                   );
                 } else {
                   return GestureDetector(
@@ -241,7 +258,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                     return SizedBox(
                       height: MediaQuery.of(context).size.height,
                       child: CameraPreview(
-                        snapshot.data ?? _controller,
+                        snapshot.data ?? _controller!,
                       ),
                     );
                   },
@@ -253,7 +270,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                     child: IconButton(
                       onPressed: () async {
                         final navigatorState = Navigator.of(context);
-                        final file = await _controller.takePicture();
+                        final file = await _controller!.takePicture();
                         if (widget.setAvatar != null) {
                           widget.pop();
                           navigatorState.pop();
@@ -278,13 +295,13 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                       child: IconButton(
                         onPressed: () async {
                           _controller = CameraController(
-                            _controller.description == _cameras[1]
+                            _controller!.description == _cameras[1]
                                 ? _cameras[0]
                                 : _cameras[1],
                             ResolutionPreset.max,
                           );
-                          await _controller.initialize();
-                          _cameraController.add(_controller);
+                          await _controller!.initialize();
+                          _cameraController.add(_controller!);
                         },
                         icon: const Icon(
                           CupertinoIcons.switch_camera,
