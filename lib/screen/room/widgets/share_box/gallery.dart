@@ -79,27 +79,25 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
               return;
             }
             _cameraController = BehaviorSubject.seeded(_controller!);
-            setState(() {
-            });
+            setState(() {});
           });
         }
-
       }
     } catch (_) {}
   }
 
   void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (!_controller!.value.isInitialized) {
+    if (!(_controller?.value.isInitialized ?? false)) {
       return;
     }
     if (state == AppLifecycleState.inactive) {
-      _controller!.dispose();
+      _controller?.dispose();
     } else if (state == AppLifecycleState.resumed) {}
   }
 
   @override
   void dispose() {
-    _controller!.dispose();
+    _controller?.dispose();
     super.dispose();
   }
 
@@ -187,9 +185,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                         child: FutureBuilder<List<AssetEntity>>(
                           future: folder.getAssetListPaged(page: 0, size: 1),
                           builder: (context, snapshot) {
-                            if (snapshot.hasData &&
-                                snapshot.data != null &&
-                                snapshot.data!.isNotEmpty) {
+                            if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                               return Container(
                                 width: 100,
                                 height: 100,
