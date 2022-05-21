@@ -132,11 +132,18 @@ class DataStreamServices {
           switch (
               message.persistEvent.messageManipulationPersistentEvent.action) {
             case MessageManipulationPersistentEvent_Action.EDITED:
-              await _onMessageEdited(roomUid, message);
+              await _onMessageEdited(
+                roomUid,
+                message,
+                isOnlineMessage: isOnlineMessage,
+              );
               break;
             case MessageManipulationPersistentEvent_Action.DELETED:
-              await _onMessageDeleted(roomUid, message,
-                  isOnlineMessage: isOnlineMessage);
+              await _onMessageDeleted(
+                roomUid,
+                message,
+                isOnlineMessage: isOnlineMessage,
+              );
               break;
           }
           break;
