@@ -13,7 +13,6 @@ import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/operation_on_message.dart';
-import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -52,7 +51,8 @@ class AllImagePage extends StatefulWidget {
   State<AllImagePage> createState() => _AllImagePageState();
 }
 
-class _AllImagePageState extends State<AllImagePage> with SingleTickerProviderStateMixin {
+class _AllImagePageState extends State<AllImagePage>
+    with SingleTickerProviderStateMixin {
   final SwiperController _swiperController = SwiperController();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
@@ -62,7 +62,6 @@ class _AllImagePageState extends State<AllImagePage> with SingleTickerProviderSt
   final _messageDao = GetIt.I.get<MessageDao>();
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _i18n = GetIt.I.get<I18N>();
-  final _autRepo = GetIt.I.get<AuthRepo>();
   final BehaviorSubject<int> _currentIndex = BehaviorSubject.seeded(-1);
   final BehaviorSubject<int> _allImageCount = BehaviorSubject.seeded(0);
   final _mediaCache = <int, Media>{};
@@ -74,7 +73,8 @@ class _AllImagePageState extends State<AllImagePage> with SingleTickerProviderSt
   final por.TransformationController _transformationController =
       por.TransformationController();
 
-  late List<Animation<double>> animationList ;
+  late List<Animation<double>> animationList;
+
   late AnimationController controller;
   int animationIndex = 0;
   bool disableRotate = false;
@@ -102,30 +102,35 @@ class _AllImagePageState extends State<AllImagePage> with SingleTickerProviderSt
 
   @override
   void initState() {
+    super.initState();
+
     isSingleImage = widget.isSingleImage;
     if (widget.initIndex == null) {
       _fetchMedia();
     } else {
       initialIndex = widget.initIndex;
     }
-    controller = AnimationController(duration: const Duration(milliseconds: 500), vsync: this);
-    controller.addStatusListener((status) async{
-      if(status == AnimationStatus.completed){
-        await Future.delayed(Duration(milliseconds: 100));
-        animationIndex = (animationIndex + 1) % 4;
-        disableRotate = false;
-      }
-    });
-    animationList = [];
-    animationList.add(Tween<double>(begin: 0, end: pi/2).animate(controller));
-    animationList.add(Tween<double>(begin: pi/2, end: pi).animate(controller));
-    animationList.add(Tween<double>(begin: pi, end: 3*pi/2).animate(controller));
-    animationList.add(Tween<double>(begin: 3*pi/2, end: 2*pi).animate(controller));
-    super.initState();
+    controller = AnimationController(
+      duration: ANIMATION_DURATION * 2,
+      vsync: this,
+    )..addStatusListener((status) async {
+        if (status == AnimationStatus.completed) {
+          await Future.delayed(ANIMATION_DURATION);
+          animationIndex = (animationIndex + 1) % 4;
+          disableRotate = false;
+        }
+      });
+
+    animationList = [
+      Tween<double>(begin: 0, end: pi / 2).animate(controller),
+      Tween<double>(begin: pi / 2, end: pi).animate(controller),
+      Tween<double>(begin: pi, end: 3 * pi / 2).animate(controller),
+      Tween<double>(begin: 3 * pi / 2, end: 2 * pi).animate(controller)
+    ];
   }
 
   @override
-  void dispose(){
+  void dispose() {
     controller.dispose();
 
     super.dispose();
@@ -208,12 +213,13 @@ class _AllImagePageState extends State<AllImagePage> with SingleTickerProviderSt
             padding: const EdgeInsets.all(10),
             child: AnimatedBuilder(
               animation: animationList[animationIndex],
-              child: isWeb ? Image.network(filePath) : Image.file(File(filePath)),
+              child:
+                  isWeb ? Image.network(filePath) : Image.file(File(filePath)),
               builder: (context, child) => Transform.rotate(
                 angle: animationList[animationIndex].value,
                 child: child,
               ),
-            )
+            ),
           ),
         ),
       ),
@@ -508,40 +514,22 @@ class _AllImagePageState extends State<AllImagePage> with SingleTickerProviderSt
                     ),
                     builder: (context, message) {
                       if (message.hasData && message.data != null) {
-                        if (_autRepo.isCurrentUserSender(
-                          message.data!,
-                        )) {
-                          return IconButton(
-                            onPressed: () async {
-                              final message = await getMessage();
-                              await OperationOnMessageSelection(
-                                message: message!,
-                                context: context,
-                                onEdit: widget.onEdit,
-                              ).selectOperation(OperationOnMessage.EDIT);
-                              _routingService.pop();
-                            },
-                            tooltip: _i18n.get("edit"),
-                            icon: Icon(
-                              CupertinoIcons.paintbrush,
-                              color: theme.primaryColorLight,
-                            ),
-                          );
-                        } else {
-                          return IconButton(
-                            onPressed: () {
-                              if(!disableRotate) {
-                                disableRotate = true;
-                                controller.forward(from: 0);
-                              }
-                            },
-                            tooltip: _i18n.get("rotate"),
-                            icon: Icon(
-                              Icons.rotate_right,
-                              color: theme.primaryColorLight,
-                            ),
-                          );
-                        }
+                        return IconButton(
+                          onPressed: () async {
+                            final message = await getMessage();
+                            await OperationOnMessageSelection(
+                              message: message!,
+                              context: context,
+                              onEdit: widget.onEdit,
+                            ).selectOperation(OperationOnMessage.EDIT);
+                            _routingService.pop();
+                          },
+                          tooltip: _i18n.get("edit"),
+                          icon: Icon(
+                            CupertinoIcons.paintbrush,
+                            color: theme.primaryColorLight,
+                          ),
+                        );
                       } else {
                         return const SizedBox.shrink();
                       }
@@ -552,6 +540,19 @@ class _AllImagePageState extends State<AllImagePage> with SingleTickerProviderSt
                 }
               },
             ),
+          IconButton(
+            onPressed: () {
+              if (!disableRotate) {
+                disableRotate = true;
+                controller.forward(from: 0);
+              }
+            },
+            tooltip: _i18n.get("rotate"),
+            icon: Icon(
+              Icons.rotate_right,
+              color: theme.primaryColorLight,
+            ),
+          ),
           IconButton(
             tooltip:
                 isDesktop ? _i18n.get("show_in_folder") : _i18n.get("share"),
