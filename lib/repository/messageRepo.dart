@@ -809,7 +809,7 @@ class MessageRepo {
       );
       final nonRepeatedMessage =
           _nonRepeatedMessageForApplyingActions(fetchMessagesRes.messages);
-      await _dataStreamServices.handleFetchMessageAction(
+      await _dataStreamServices.handleFetchMessagesActions(
         roomId,
         nonRepeatedMessage,
       );

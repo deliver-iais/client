@@ -636,7 +636,7 @@ class DataStreamServices {
     } catch (_) {}
   }
 
-  Future<void> handleFetchMessageAction(
+  Future<void> handleFetchMessagesActions(
       String roomId, List<Message> messages,
       ) async {
     for (final message in messages) {
