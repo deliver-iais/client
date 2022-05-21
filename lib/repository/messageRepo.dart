@@ -810,7 +810,9 @@ class MessageRepo {
       final nonRepeatedMessage =
           _nonRepeatedMessageForApplyingActions(fetchMessagesRes.messages);
       await _dataStreamServices.handleFetchMessageAction(
-          roomId, nonRepeatedMessage);
+        roomId,
+        nonRepeatedMessage,
+      );
       final res = await _dataStreamServices
           .saveFetchMessages(fetchMessagesRes.messages);
       completer.complete(res);
