@@ -132,10 +132,11 @@ class DataStreamServices {
           switch (
               message.persistEvent.messageManipulationPersistentEvent.action) {
             case MessageManipulationPersistentEvent_Action.EDITED:
-              await _onMessageEdited(roomUid, message, fromFetch: false);
+              await _onMessageEdited(roomUid, message);
               break;
             case MessageManipulationPersistentEvent_Action.DELETED:
-              await _onMessageDeleted(roomUid, message, fromFetch: false);
+              await _onMessageDeleted(roomUid, message,
+                  isOnlineMessage: isOnlineMessage);
               break;
           }
           break;
@@ -242,15 +243,16 @@ class DataStreamServices {
   }
 
   Future<void> _onMessageDeleted(
-      Uid roomUid, Message message,
-      {required bool fromFetch,}
-      ) async {
+    Uid roomUid,
+    Message message, {
+    required bool isOnlineMessage,
+  }) async {
     final id = message.persistEvent.messageManipulationPersistentEvent.messageId
         .toInt();
 
     final deleteActionTime = message.time.toInt();
 
-    if (!fromFetch) {
+    if (isOnlineMessage) {
       final mySeen = await _seenDao.getMySeen(roomUid.asString());
       if (0 < mySeen.messageId && mySeen.messageId <= id) {
         await _increaseHiddenMessageCount(roomUid.asString());
@@ -292,22 +294,17 @@ class DataStreamServices {
     }
   }
 
-  Future<void> _onMessageEdited(
-      Uid roomUid, Message message,
-      {required bool fromFetch,}
-      ) async {
+  Future<void> _onMessageEdited(Uid roomUid, Message message) async {
     final id = message.persistEvent.messageManipulationPersistentEvent.messageId
         .toInt();
 
     final time = message.time.toInt();
 
     //if from fetch that means non repeated and should be save
-    if (!fromFetch) {
-      final savedMsg = await _messageDao.getMessage(roomUid.asString(), id);
+    final savedMsg = await _messageDao.getMessage(roomUid.asString(), id);
 
-      // there is no message in db for editing, so if we fetch it eventually, it will be edited anyway
-      if (savedMsg == null) return;
-    }
+    // there is no message in db for editing, so if we fetch it eventually, it will be edited anyway
+    if (savedMsg == null) return;
 
     final res = await _queryServicesClient.fetchMessages(
       FetchMessagesReq()
@@ -637,18 +634,23 @@ class DataStreamServices {
   }
 
   Future<void> handleFetchMessagesActions(
-      String roomId, List<Message> messages,
-      ) async {
+    String roomId,
+    List<Message> messages,
+  ) async {
     for (final message in messages) {
       if (message.whichType() == Message_Type.persistEvent) {
-        //if message persistEvent they 100% be a messageManipulationPersistentEvent
+        // if message persistEvent they are one hundred percent be a messageManipulationPersistentEvent
         switch (
             message.persistEvent.messageManipulationPersistentEvent.action) {
           case MessageManipulationPersistentEvent_Action.EDITED:
-            await _onMessageEdited(roomId.asUid(), message, fromFetch: true);
+            await _onMessageEdited(roomId.asUid(), message);
             break;
           case MessageManipulationPersistentEvent_Action.DELETED:
-            await _onMessageDeleted(roomId.asUid(), message, fromFetch: true);
+            await _onMessageDeleted(
+              roomId.asUid(),
+              message,
+              isOnlineMessage: false,
+            );
             break;
         }
         break;
