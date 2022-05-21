@@ -211,6 +211,7 @@ class _ProfilePageState extends State<ProfilePage>
                                 );
                               } else {
                                 return TabBar(
+                                  isScrollable: true,
                                   tabs: [
                                     if (widget.roomUid.isGroup() ||
                                         (widget.roomUid.isChannel() &&
@@ -732,7 +733,7 @@ class _ProfilePageState extends State<ProfilePage>
     final muc = await _mucRepo.getMuc(widget.roomUid.asString());
     if (muc != null) {
       var token = muc.token;
-      if ( token.isEmpty) {
+      if (token.isEmpty) {
         if (widget.roomUid.category == Categories.GROUP) {
           token = await _mucRepo.getGroupJointToken(groupUid: widget.roomUid);
         } else {
