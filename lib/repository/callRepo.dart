@@ -1029,31 +1029,35 @@ class CallRepo {
   }
 
   Future<void> receivedEndCall(int callDuration) async {
-    _isEnded = true;
-    _logger.i("Call Duration Received: " + callDuration.toString());
-    await cancelCallNotification();
-    if (isWindows) {
-      _notificationServices.cancelRoomNotifications(roomUid!.node);
-    }
-    if (_isCaller) {
-      _callDuration = calculateCallEndTime();
-      _logger.i("Call Duration on Caller(1): " + _callDuration.toString());
-      final endOfCallDuration = clock.now().millisecondsSinceEpoch;
-      await _messageRepo.sendCallMessage(
-        CallEvent_CallStatus.ENDED,
-        _roomUid!,
-        _callService.getCallId,
-        _callDuration!,
-        endOfCallDuration,
-        _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
-      );
-    } else {
-      if (timerEndCallDispose != null) {
-        timerEndCallDispose!.cancel();
+    if(!_isEnded) {
+      _isEnded = true;
+      _logger.i("Call Duration Received: " + callDuration.toString());
+      await cancelCallNotification();
+      if (isWindows) {
+        _notificationServices.cancelRoomNotifications(roomUid!.node);
       }
-      _callDuration = callDuration;
+      if (_isCaller) {
+        _callDuration = calculateCallEndTime();
+        _logger.i("Call Duration on Caller(1): " + _callDuration.toString());
+        final endOfCallDuration = clock
+            .now()
+            .millisecondsSinceEpoch;
+        await _messageRepo.sendCallMessage(
+          CallEvent_CallStatus.ENDED,
+          _roomUid!,
+          _callService.getCallId,
+          _callDuration!,
+          endOfCallDuration,
+          _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
+        );
+      } else {
+        if (timerEndCallDispose != null) {
+          timerEndCallDispose!.cancel();
+        }
+        _callDuration = callDuration;
+      }
+      await _dispose();
     }
-    await _dispose();
   }
 
   Future<void> cancelCallNotification() async {
@@ -1073,7 +1077,6 @@ class CallRepo {
         _notificationServices.cancelRoomNotifications(roomUid!.node);
       }
       if (_callService.getUserCallState != CallStatus.NO_CALL) {
-        _isEnded = true;
         if (_isCaller) {
           receivedEndCall(0);
         } else {
