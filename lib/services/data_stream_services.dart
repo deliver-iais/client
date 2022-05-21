@@ -270,18 +270,20 @@ class DataStreamServices {
 
       await _messageDao.saveMessage(msg);
 
-      final room = await _roomDao.getRoom(roomUid.asString());
-      if (room!.lastMessage != null && room.lastMessage!.id == id) {
-        final lastNotHiddenMessage = await fetchLastNotHiddenMessage(
-          roomUid,
-          room.lastMessageId,
-          room.firstMessageId,
-        );
+      if (isOnlineMessage) {
+        final room = await _roomDao.getRoom(roomUid.asString());
+        if (room!.lastMessage != null && room.lastMessage!.id == id) {
+          final lastNotHiddenMessage = await fetchLastNotHiddenMessage(
+            roomUid,
+            room.lastMessageId,
+            room.firstMessageId,
+          );
 
-        await _roomDao.updateRoom(
-          uid: roomUid.asString(),
-          lastMessage: lastNotHiddenMessage ?? savedMsg,
-        );
+          await _roomDao.updateRoom(
+            uid: roomUid.asString(),
+            lastMessage: lastNotHiddenMessage ?? savedMsg,
+          );
+        }
       }
       messageEventSubject.add(
         MessageEvent(
@@ -294,7 +296,11 @@ class DataStreamServices {
     }
   }
 
-  Future<void> _onMessageEdited(Uid roomUid, Message message) async {
+  Future<void> _onMessageEdited(
+    Uid roomUid,
+    Message message, {
+    required bool isOnlineMessage,
+  }) async {
     final id = message.persistEvent.messageManipulationPersistentEvent.messageId
         .toInt();
 
@@ -314,7 +320,14 @@ class DataStreamServices {
         ..type = FetchMessagesReq_Type.FORWARD_FETCH,
     );
     final msg = await saveMessageInMessagesDB(res.messages.first);
-    final room = (await _roomDao.getRoom(roomUid.asString()))!;
+
+    if (isOnlineMessage) {
+      final room = (await _roomDao.getRoom(roomUid.asString()))!;
+      await _roomDao.updateRoom(
+        uid: room.uid,
+        lastMessage: (room.lastMessage?.id == id) ? msg : null,
+      );
+    }
 
     messageEventSubject.add(
       MessageEvent(
@@ -323,12 +336,6 @@ class DataStreamServices {
         id,
         MessageManipulationPersistentEvent_Action.EDITED,
       ),
-    );
-
-    await _roomDao.updateRoom(
-      uid: room.uid,
-      lastMessage:
-          (room.lastMessage != null && room.lastMessage!.id != id) ? null : msg,
     );
   }
 
