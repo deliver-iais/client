@@ -32,6 +32,18 @@ extension PermissionsExtension on CheckPermissionsService {
     }
   }
 
+  Future<bool> checkCameraRecorderPermission() async {
+    try {
+      if (!await Permission.camera.isGranted) {
+        return await Permission.camera.request().isGranted;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      return false;
+    }
+  }
+
   Future<bool> checkLocationPermission() async {
     try {
       if (!await Permission.location.isGranted) {
