@@ -519,7 +519,7 @@ class MessageRepo {
   }) async {
     final packetId = _getPacketId();
     final msg = buildMessageFromFile(room, file, packetId,
-        replyToId: replyToId, caption: caption);
+        replyToId: replyToId, caption: caption,);
 
     await _fileRepo.cloneFileInLocalDirectory(
       dart_file.File(file.path),
