@@ -30,7 +30,7 @@ class _ShareInputFileState extends State<ShareInputFile> {
   final _i18n = GetIt.I.get<I18N>();
   final _keyboardVisibilityController = KeyboardVisibilityController();
   final BehaviorSubject<bool> _insertCaption = BehaviorSubject.seeded(false);
-  final _selectedRooms = [];
+  final _selectedRooms = <Uid>[];
   final TextEditingController _textEditingController = TextEditingController();
 
   final BehaviorSubject<String> _queryTermDebouncedSubject =
@@ -88,25 +88,27 @@ class _ShareInputFileState extends State<ShareInputFile> {
                                 behavior: HitTestBehavior.translucent,
                                 onTap: () {
                                   if (_selectedRooms.contains(
-                                      snapshot.data![index].asString(),)) {
+                                    snapshot.data![index],
+                                  )) {
                                     _selectedRooms.remove(
-                                        snapshot.data![index].asString(),);
+                                      snapshot.data![index],
+                                    );
                                   } else {
-                                    _selectedRooms
-                                        .add(snapshot.data![index].asString());
+                                    _selectedRooms.add(snapshot.data![index]);
                                   }
                                   setState(() {});
                                 },
                                 child: Container(
                                   color: _selectedRooms.contains(
-                                    snapshot.data![index].asString(),
+                                    snapshot.data![index],
                                   )
                                       ? theme.hoverColor
                                       : theme.backgroundColor,
                                   child: ShareChatItem(
                                     uid: snapshot.data![index],
                                     selected: _selectedRooms.contains(
-                                        snapshot.data![index].asString(),),
+                                      snapshot.data![index],
+                                    ),
                                   ),
                                 ),
                               );
@@ -130,17 +132,21 @@ class _ShareInputFileState extends State<ShareInputFile> {
               captionEditingController: _textEditingController,
               count: _selectedRooms.length,
               send: () {
-                for (final String roomUid in _selectedRooms) {
-                  _messageRepo.sendMultipleFilesMessages(
-                    roomUid.asUid(),
-                    widget.inputSharedFilePath
-                        .map((e) => File(e, e.split(".").last))
-                        .toList(),
-                    caption: _textEditingController.text,
+                for (final path in widget.inputSharedFilePath) {
+                  _messageRepo.sendFileToChats(
+                    _selectedRooms,
+                    File(path, path.split(".").last),
+                    caption: widget.inputSharedFilePath.last == path
+                        ? _textEditingController.text
+                        : "",
                   );
                 }
+
                 if (_selectedRooms.length == 1) {
-                  _routingServices.openRoom(_selectedRooms.first,popAllBeforePush: true);
+                  _routingServices.openRoom(
+                    _selectedRooms.first.asString(),
+                    popAllBeforePush: true,
+                  );
                 } else {
                   _routingServices.pop();
                 }
