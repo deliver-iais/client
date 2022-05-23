@@ -57,6 +57,10 @@ abstract class AudioPlayerModule {
   void stopIncomingCallSound();
 
   void playEndCallSound();
+
+  void changePlaybackRate(double rate);
+
+  double getPlaybackRate();
 }
 
 class AudioService {
@@ -170,10 +174,19 @@ class AudioService {
   void playEndCallSound() {
     _playerModule.playEndCallSound();
   }
+
+  void changePlayBackRate(double rate) {
+    _playerModule.changePlaybackRate(rate);
+  }
+
+  double getPlayBackRate() {
+    return _playerModule.getPlaybackRate();
+  }
 }
 
 class NormalAudioPlayer implements AudioPlayerModule {
   final AudioPlayer _audioPlayer = AudioPlayer();
+  double playbackRate = 1.0;
 
   final AudioCache _fastAudioPlayer =
       AudioCache(prefix: 'assets/audios/', fixedPlayer: AudioPlayer());
@@ -202,7 +215,9 @@ class NormalAudioPlayer implements AudioPlayerModule {
 
   @override
   void play(String path) {
-    _audioPlayer.play(path, isLocal: false);
+    _audioPlayer
+      ..play(path, isLocal: false)
+      ..setPlaybackRate(playbackRate);
   }
 
   @override
@@ -278,6 +293,17 @@ class NormalAudioPlayer implements AudioPlayerModule {
   @override
   void stopIncomingCallSound() {
     _callFastAudioPlayer.fixedPlayer?.stop();
+  }
+
+  @override
+  void changePlaybackRate(double playbackRate) {
+    this.playbackRate = playbackRate;
+    _audioPlayer.setPlaybackRate(playbackRate);
+  }
+
+  @override
+  double getPlaybackRate() {
+    return playbackRate;
   }
 }
 
@@ -376,4 +402,12 @@ class VlcAudioPlayer implements AudioPlayerModule {
 
   @override
   void playEndCallSound() {}
+
+  @override
+  void changePlaybackRate(double rate) {}
+
+  @override
+  double getPlaybackRate() {
+    return 0.0;
+  }
 }
