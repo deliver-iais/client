@@ -1225,6 +1225,11 @@ class CallRepo {
     if (isAndroid) {
       _receivePort?.close();
       await _stopForegroundTask();
+      if (!_isCaller) {
+        await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
+          isVisible: false,
+        );
+      }
     }
     if (timer != null) {
       _logger.i("timer canceled");
