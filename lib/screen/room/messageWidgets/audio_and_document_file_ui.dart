@@ -34,57 +34,60 @@ class _AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
     final file = widget.message.json.toFile();
     return Padding(
       padding: const EdgeInsets.only(left: 8.0, top: 6),
-      child: Row(
-        crossAxisAlignment: file.name.isPersian()
-            ? CrossAxisAlignment.end
-            : CrossAxisAlignment.start,
-        children: <Widget>[
-          CircularFileStatusIndicator(
-            message: widget.message,
-            backgroundColor: widget.colorScheme.onPrimary,
-            foregroundColor: widget.colorScheme.primary,
-          ),
-          Container(
-            margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Column(
+      child: Stack(
+        children: [
+          Row(
+            crossAxisAlignment: file.name.isPersian()
+                ? CrossAxisAlignment.end
+                : CrossAxisAlignment.start,
+            children: <Widget>[
+              CircularFileStatusIndicator(
+                message: widget.message,
+                backgroundColor: widget.colorScheme.onPrimary,
+                foregroundColor: widget.colorScheme.primary,
+              ),
+              Container(
+                width: 200,
+                height: 100,
+                margin:
+                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          file.name,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
+                        SizedBox(
+                          width: 180,
+                          child: Text(
+                            file.name,
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            overflow: TextOverflow.ellipsis,
+                            softWrap: false,
+                            maxLines: 1,
                           ),
-                          overflow: TextOverflow.ellipsis,
-                          softWrap: false,
-                          maxLines: 1,
                         ),
                       ],
                     ),
-                    FileDetails(file: file)
+                    FileDetails(file: file,colorScheme: widget.colorScheme,)
                   ],
                 ),
-                if (file.caption.isEmpty)
-                  TimeAndSeenStatus(
-                    widget.message,
-                    isSender: widget.isSender,
-                    isSeen: widget.isSeen,
-                    foregroundColor:
-                        widget.colorScheme.onPrimaryContainerLowlight(),
-                    backgroundColor: widget.colorScheme.primaryContainer,
-                    needsPadding: true,
-                    needsPositioned: false,
-                  )
-              ],
-            ),
+              ),
+            ],
           ),
+          if (file.caption.isEmpty)
+            TimeAndSeenStatus(
+              widget.message,
+              isSender: widget.isSender,
+              isSeen: widget.isSeen,
+              foregroundColor: widget.colorScheme.onPrimaryContainerLowlight(),
+              backgroundColor: widget.colorScheme.primaryContainer,
+              needsPadding: true,
+            )
         ],
       ),
     );

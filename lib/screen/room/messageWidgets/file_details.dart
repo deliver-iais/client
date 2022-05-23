@@ -1,13 +1,16 @@
 import 'package:deliver/screen/room/messageWidgets/audio_message/audio_play_progress.dart';
 import 'package:deliver/screen/room/messageWidgets/size_formater.dart';
 import 'package:deliver/shared/methods/find_file_type.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
 
 class FileDetails extends StatelessWidget {
   final File file;
+  final CustomColorScheme colorScheme;
 
-  const FileDetails({Key? key, required this.file}) : super(key: key);
+  const FileDetails({Key? key, required this.file, required this.colorScheme})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -15,10 +18,19 @@ class FileDetails extends StatelessWidget {
         ? AudioPlayProgress(
             audio: file,
             audioUuid: file.uuid,
+            colorScheme: colorScheme,
           )
-        : Text(
-            sizeFormatter(file.size.toInt()) + " " + findFileType(file.name),
-            style: const TextStyle(fontSize: 10),
+        : SizedBox(
+            height: 40,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                sizeFormatter(file.size.toInt()) +
+                    " " +
+                    findFileType(file.name),
+                style: const TextStyle(fontSize: 10),
+              ),
+            ),
           );
   }
 }
