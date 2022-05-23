@@ -24,10 +24,12 @@ class BoxInfo {
 
   static String _key() => "box_info";
 
-  static Future<void> deleteAllBox() async {
+  static Future<void> deleteAllBox({bool deleteSharedDao=true}) async {
     final box = await Hive.openBox<String>(_key());
     box.values.toList().forEach((key) async {
-      await _deleteBox(key);
+      if(deleteSharedDao || key != 'shared') {
+        await _deleteBox(key);
+      }
     });
     return _deleteBox(_key());
   }
