@@ -102,9 +102,10 @@ class _ImageUiState extends State<ImageUi> {
                               builder: (context) {
                                 return FutureBuilder<int?>(
                                   future: _mediaDao.getIndexOfMedia(
-                                      widget.message.roomUid,
-                                      widget.message.id!,
-                                      MediaType.IMAGE,),
+                                    widget.message.roomUid,
+                                    widget.message.id!,
+                                    MediaType.IMAGE,
+                                  ),
                                   builder: (context, snapshot) {
                                     final hasIndex = snapshot.hasData &&
                                         snapshot.data != null &&

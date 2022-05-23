@@ -243,7 +243,9 @@ class AccountRepo {
     if (pv != null) {
       // Migrations
       if (shouldRemoveDB(pv)) {
-        await _dbManager.deleteDB();
+        await _dbManager.deleteDB(deleteSharedDao: false);
+        await _sharedDao.put(SHARED_DAO_APP_VERSION, VERSION);
+        await _sharedDao.putBoolean(SHARED_DAO_ALL_ROOMS_FETCHED, false);
       }
 
       if (shouldMigrateDB(pv)) {

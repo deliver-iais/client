@@ -470,6 +470,47 @@ class MessageRepo {
     }
   }
 
+  Future<void> sendFileToChats(
+    List<Uid> rooms,
+    model.File file, {
+    String? caption,
+  }) async {
+    final fileUuid = _getPacketId();
+    await _fileRepo.cloneFileInLocalDirectory(
+      dart_file.File(file.path),
+      fileUuid,
+      file.name,
+    );
+    final pendingMessages = <PendingMessage>[];
+    for (final room in rooms) {
+      final msg = buildMessageFromFile(room, file, fileUuid, caption: caption);
+      final pm =
+          _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_INPROGRSS);
+
+      await _savePendingMessage(pm);
+      pendingMessages.add(pm);
+    }
+
+    final fileInfo = await _fileRepo.uploadClonedFile(
+      fileUuid,
+      file.name,
+      sendActivity: (i) => _sendActivitySubject.add(i),
+    );
+
+    if (fileInfo != null) {
+      final newJson = fileInfo.writeToJson();
+      for (final pendingMessage in pendingMessages) {
+        final newPm = pendingMessage.copyWith(
+          msg: pendingMessage.msg.copyWith(json: newJson),
+          status: SendingStatus.UPLOAD_FILE_COMPELED,
+        );
+        _sendMessageToServer(newPm);
+        await _savePendingMessage(newPm);
+        await _updateRoomLastMessage(newPm);
+      }
+    }
+  }
+
   Future<void> sendFileMessage(
     Uid room,
     model.File file, {
@@ -477,10 +518,38 @@ class MessageRepo {
     int replyToId = 0,
   }) async {
     final packetId = _getPacketId();
+    final msg = buildMessageFromFile(room, file, packetId,
+        replyToId: replyToId, caption: caption,);
+
+    await _fileRepo.cloneFileInLocalDirectory(
+      dart_file.File(file.path),
+      packetId,
+      file.name,
+    );
+
+    final pm = _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_INPROGRSS);
+
+    await _savePendingMessage(pm);
+
+    final m = await _sendFileToServerOfPendingMessage(pm);
+    if (m != null && m.status == SendingStatus.UPLOAD_FILE_COMPELED) {
+      _sendMessageToServer(m);
+    } else if (m != null) {
+      return _messageDao.savePendingMessage(m);
+    }
+  }
+
+  Message buildMessageFromFile(
+    Uid room,
+    model.File file,
+    String fileUuid, {
+    String? caption,
+    int replyToId = 0,
+  }) {
     var tempDimension = Size.zero;
     int? tempFileSize;
     final tempType = file.extension ?? _findType(file.path);
-    _fileRepo.initUploadProgress(packetId);
+    _fileRepo.initUploadProgress(fileUuid);
 
     final f = dart_file.File(file.path);
     // Get size of image
@@ -501,7 +570,7 @@ class MessageRepo {
     // Get type with file name
 
     final sendingFakeFile = file_pb.File()
-      ..uuid = packetId
+      ..uuid = fileUuid
       ..caption = caption ?? ""
       ..width = tempDimension.width
       ..height = tempDimension.height
@@ -510,24 +579,11 @@ class MessageRepo {
       ..name = file.name
       ..duration = 0;
 
-    final msg = _createMessage(room, replyId: replyToId).copyWith(
-      packetId: packetId,
+    return _createMessage(room, replyId: replyToId).copyWith(
+      packetId: _getPacketId(),
       type: MessageType.FILE,
       json: sendingFakeFile.writeToJson(),
     );
-
-    await _fileRepo.cloneFileInLocalDirectory(f, packetId, file.name);
-
-    final pm = _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_INPROGRSS);
-
-    await _savePendingMessage(pm);
-
-    final m = await _sendFileToServerOfPendingMessage(pm);
-    if (m != null && m.status == SendingStatus.UPLOAD_FILE_COMPELED) {
-      _sendMessageToServer(m);
-    } else if (m != null) {
-      return _messageDao.savePendingMessage(m);
-    }
   }
 
   Future<void> sendStickerMessage({
@@ -564,11 +620,9 @@ class MessageRepo {
 
     final fakeFileInfo = file_pb.File.fromJson(pm.msg.json);
 
-    final packetId = pm.msg.packetId;
-
     // Upload to file server
     final fileInfo = await _fileRepo.uploadClonedFile(
-      packetId,
+      fakeFileInfo.uuid,
       fakeFileInfo.name,
       sendActivity: (i) => _sendActivitySubject.add(i),
     );

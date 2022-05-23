@@ -31,23 +31,21 @@ class RoomName extends StatelessWidget {
       initialData: fastForwardGetName(),
       future: getName(),
       builder: (context, snapshot) {
-        var name = (snapshot.data ?? "");
-        const maxNameLength = 28;
-        if (name.length > maxNameLength) {
-          name = name.substring(0, maxNameLength - 3) + "...";
-        }
+        final name = (snapshot.data ?? "");
         return Row(
           children: [
-            TextLoader(
-              Text(
-                name,
-                style:
-                    (style ?? theme.textTheme.subtitle2)!.copyWith(height: 1),
-                maxLines: 1,
-                softWrap: false,
-                overflow: TextOverflow.fade,
+            Flexible(
+              child: TextLoader(
+                Text(
+                  name,
+                  style:
+                      (style ?? theme.textTheme.subtitle2)!.copyWith(height: 1),
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                width: 120,
               ),
-              width: 120,
             ),
             if (shouldShowDotAnimation)
               DotAnimation(dotsColor: Theme.of(context).primaryColor),
