@@ -102,7 +102,7 @@ class _InputMessageWidget extends State<InputMessage> {
   late Timer recordAudioTimer;
   final BehaviorSubject<bool> _backSubject = BehaviorSubject.seeded(false);
   final BehaviorSubject<bool> _showSendIcon = BehaviorSubject.seeded(false);
-  final BehaviorSubject<String> _mentionQuery = BehaviorSubject.seeded("-");
+  final BehaviorSubject<String?> _mentionQuery = BehaviorSubject.seeded(null);
   final BehaviorSubject<String> _botCommandQuery = BehaviorSubject.seeded("-");
   late Timer _tickTimer;
   TextEditingController captionTextController = TextEditingController();
@@ -201,7 +201,7 @@ class _InputMessageWidget extends State<InputMessage> {
             str.lastIndexOf("@", widget.textController.selection.start);
 
         if (start == -1) {
-          _mentionQuery.add("-");
+          _mentionQuery.add(null);
         }
 
         try {
@@ -221,13 +221,13 @@ class _InputMessageWidget extends State<InputMessage> {
                   .substring(start + 1, widget.textController.selection.start),
             );
           } else {
-            _mentionQuery.add("-");
+            _mentionQuery.add(null);
           }
         } catch (e) {
-          _mentionQuery.add("-");
+          _mentionQuery.add(null);
         }
       } else if (widget.textController.text.isEmpty) {
-        _mentionQuery.add("-");
+        _mentionQuery.add(null);
       }
     });
     selectionControls = CustomTextSelectionController(
@@ -265,11 +265,11 @@ class _InputMessageWidget extends State<InputMessage> {
         data: IconThemeData(opacity: 0.6, color: theme.iconTheme.color),
         child: Column(
           children: <Widget>[
-            StreamBuilder<String>(
+            StreamBuilder<String?>(
               stream: _mentionQuery.stream.distinct(),
               builder: (c, showMention) {
                 _mentionData = showMention.data ?? "-";
-                if (showMention.hasData) {
+                if (showMention.hasData && showMention.data != null) {
                   return ShowMentionList(
                     query: _mentionData,
                     onSelected: (s) {
@@ -451,9 +451,10 @@ class _InputMessageWidget extends State<InputMessage> {
                                         icon: const Icon(
                                           CupertinoIcons.location,
                                         ),
-                                        onPressed: () => AttachLocation(context,
-                                                currentRoom.uid.asUid(),)
-                                            .attachLocationInWindows(),
+                                        onPressed: () => AttachLocation(
+                                          context,
+                                          currentRoom.uid.asUid(),
+                                        ).attachLocationInWindows(),
                                       );
                                     } else {
                                       return const SizedBox.shrink();
@@ -678,7 +679,7 @@ class _InputMessageWidget extends State<InputMessage> {
         offset: widget.textController.text.length - block_2.length,
       ),
     );
-    _mentionQuery.add("-");
+    _mentionQuery.add(null);
     isMentionSelected = true;
     if (isDesktop) {
       widget.focusNode.requestFocus();

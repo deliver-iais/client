@@ -43,6 +43,8 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   final _i18n = GetIt.I.get<I18N>();
   final _controller = AnimatedListController();
 
+  List<Room> rooms = <Room>[];
+
   void _showCustomMenu(BuildContext context, Room room, bool canBePinned) {
     this.showMenu(
       context: context,
@@ -67,12 +69,21 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   }
 
   void onUnPin(Room room) {
-    _roomDao.updateRoom(uid: room.uid, pinned: false);
+    _roomDao.updateRoom(uid: room.uid, pinned: false, pinId: 0);
   }
 
   void onPin(Room room, {bool canBePinned = false}) {
     if (canBePinned) {
-      _roomDao.updateRoom(uid: room.uid, pinned: true);
+      final pinned = <Room>[
+        room,
+        ...rooms.where((element) => element.pinned).toList()
+          ..sort((a, b) => (a.pinId - b.pinId))
+      ];
+
+      for (final room in pinned) {
+        _roomDao.updateRoom(
+            uid: room.uid, pinned: true, pinId: pinned.indexOf(room) + 1,);
+      }
     } else {
       showDialog(
         context: context,
@@ -104,12 +115,12 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
             (a, b) => deepEquality.equals(a, b),
           ),
       builder: (context, snapshot) {
-        final rooms = snapshot.data ?? const [];
+        rooms = snapshot.data ?? const [];
 
         return StreamBuilder<RouteEvent>(
           stream: _routingService.currentRouteStream,
           builder: (c, s) {
-            rearrangeChatItem(rooms);
+            rooms = rearrangeChatItem(rooms);
 
             final rw = rooms
                 .map(
@@ -187,13 +198,19 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
     return rooms.where((element) => element.pinned).toList().length < 5;
   }
 
-  void rearrangeChatItem(List<Room> rooms) {
+  List<Room> rearrangeChatItem(List<Room> rooms) {
+    final pinned = <Room>[];
     for (final room in rooms) {
-      if (room.pinned == true) {
-        rooms
-          ..remove(room)
-          ..insert(0, room);
+      if (room.pinned) {
+        pinned.add(room);
       }
     }
+    for (final room in pinned) {
+      rooms.remove(room);
+    }
+    pinned
+      ..sort((a, b) => (a.pinId - b.pinId))
+      ..addAll(rooms);
+    return pinned;
   }
 }
