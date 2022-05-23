@@ -3,10 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:marquee/marquee.dart';
 
-class AudioPlayerAppBar extends StatelessWidget {
-  final audioPlayerService = GetIt.I.get<AudioService>();
+class AudioPlayerAppBar extends StatefulWidget {
+  const AudioPlayerAppBar({Key? key}) : super(key: key);
 
-  AudioPlayerAppBar({Key? key}) : super(key: key);
+  @override
+  State<AudioPlayerAppBar> createState() => _AudioPlayerAppBarState();
+}
+
+class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
+  final audioPlayerService = GetIt.I.get<AudioService>();
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +26,10 @@ class AudioPlayerAppBar extends StatelessWidget {
               color: theme.appBarTheme.backgroundColor,
               boxShadow: [
                 BoxShadow(
-                  color: theme.dividerColor,
+                  color: Color.alphaBlend(
+                    theme.focusColor,
+                    theme.scaffoldBackgroundColor,
+                  ),
                   blurRadius: 2,
                   offset: const Offset(1, 1), // Shadow position
                 ),
@@ -53,7 +61,7 @@ class AudioPlayerAppBar extends StatelessWidget {
                 Expanded(
                   child: Center(
                     child: SizedBox(
-                      height: 20,
+                      height: 25,
                       child: LayoutBuilder(
                         builder: (context, constraints) => RepaintBoundary(
                           child: audioPlayerService.audioName.length >
@@ -75,8 +83,7 @@ class AudioPlayerAppBar extends StatelessWidget {
                                   child: Text(
                                     audioPlayerService.audioName,
                                     maxLines: 1,
-                                    overflow: TextOverflow.fade,
-                                    softWrap: false,
+                                    overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                       fontSize: 16,
                                     ),
@@ -87,7 +94,45 @@ class AudioPlayerAppBar extends StatelessWidget {
                     ),
                   ),
                 ),
+                TextButton(
+                  style: theme.textButtonTheme.style!.copyWith(
+                    padding: MaterialStateProperty.all(
+                      EdgeInsets.zero,
+                    ),
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      audioPlayerService.changePlayBackRate(
+                        audioPlayerService.getPlayBackRate() == 1
+                            ? 1.5
+                            : audioPlayerService.getPlayBackRate() == 1.5
+                                ? 2
+                                : 1,
+                      );
+                    });
+                  },
+                  child: Container(
+                    width: 40,
+                    height: 20,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(5),
+                      color: theme.primaryColorLight,
+                    ),
+                    child: Center(
+                      child: Text(
+                        audioPlayerService.getPlayBackRate() == 1
+                            ? "1x"
+                            : audioPlayerService.getPlayBackRate() == 1.5
+                                ? "1.5x"
+                                : "2x",
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ),
+                  ),
+                ),
                 IconButton(
+                  padding: const EdgeInsets.only(right: 5),
+                  constraints: const BoxConstraints(),
                   onPressed: () {
                     audioPlayerService.close();
                   },

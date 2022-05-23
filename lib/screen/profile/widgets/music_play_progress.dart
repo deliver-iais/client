@@ -43,7 +43,7 @@ class MusicPlayProgress extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(left: 8.0, top: 28),
+          padding: const EdgeInsets.only(top: 38),
           child: TimeProgressIndicator(
             audioUuid: audioUuid,
             duration: duration,
