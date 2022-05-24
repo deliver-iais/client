@@ -32,9 +32,9 @@ import 'package:window_size/window_size.dart';
 
 BehaviorSubject<String> modifyRoutingByNotificationTapInBackgroundInAndroid =
     BehaviorSubject.seeded("");
-BehaviorSubject<String> modifyRoutingByNotificationAcceptCallInBackgroundInAndroid =
-BehaviorSubject.seeded("");
-
+BehaviorSubject<String>
+    modifyRoutingByNotificationAcceptCallInBackgroundInAndroid =
+    BehaviorSubject.seeded("");
 
 class NavigationCenter extends StatefulWidget {
   const NavigationCenter({Key? key}) : super(key: key);
@@ -67,7 +67,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
     });
     modifyRoutingByNotificationAcceptCallInBackgroundInAndroid.listen((event) {
       if (event.isNotEmpty) {
-        _routingService.openCallScreen(event.asUid(),isCallAccepted: true);
+        _routingService.openCallScreen(event.asUid(), isCallAccepted: true);
       }
     });
 
@@ -437,6 +437,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
           return ListView(
             children: [
+              buildTitle(_i18n.get("saved_message")),
+              ...searchResultWidget([_authRepo.currentUserUid]),
               if (global.isNotEmpty) buildTitle(_i18n.get("global_search")),
               if (global.isNotEmpty) ...searchResultWidget(global),
               if (bots.isNotEmpty) buildTitle(_i18n.get("bots")),
@@ -507,7 +509,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
       children: [
         Row(
           children: [
-            CircleAvatarWidget(uid, 24),
+            CircleAvatarWidget(uid, 24,showSavedMessageLogoIfNeeded: true),
             const SizedBox(
               width: 20,
             ),
@@ -515,7 +517,9 @@ class _NavigationCenterState extends State<NavigationCenter> {
               future: _roomRepo.getName(uid),
               builder: (c, snaps) {
                 return Text(
-                  snaps.data ?? "",
+                  _authRepo.isCurrentUser(uid.asString())
+                      ? _i18n.get("saved_message")
+                      : snaps.data ?? "",
                   style: theme.textTheme.subtitle1,
                 );
               },
