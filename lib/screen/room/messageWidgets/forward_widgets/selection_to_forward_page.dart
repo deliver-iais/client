@@ -1,5 +1,6 @@
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/chat_item_to_forward.dart';
@@ -33,6 +34,7 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
       BehaviorSubject<String>.seeded("");
   final _routingService = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
 
   @override
   void dispose() {
@@ -67,6 +69,16 @@ class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
                     if (snapshot.hasData &&
                         snapshot.data != null &&
                         snapshot.data!.isNotEmpty) {
+                      if (snapshot.data!
+                          .map((e) => e.asString())
+                          .contains(_authRepo.currentUserUid.asString())) {
+                        final index = snapshot.data!
+                            .map((e) => e.asString())
+                            .toList()
+                            .indexOf(_authRepo.currentUserUid.asString());
+                        snapshot.data!.removeAt(index);
+                      }
+                      snapshot.data!.insert(0, _authRepo.currentUserUid);
                       return Container(
                         child: buildListView(snapshot.data!),
                       );
