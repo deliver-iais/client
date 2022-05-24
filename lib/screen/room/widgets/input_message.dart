@@ -901,7 +901,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
       widget.textController.clear();
 
-      _mentionQuery.add("-");
+      _mentionQuery.add(null);
     }
     widget.scrollToLastSentMessage();
   }
