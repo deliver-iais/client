@@ -227,7 +227,7 @@ class _SettingsPageState extends State<SettingsPage> {
               ],
             ),
             Section(
-              title: 'Theme',
+              title: _i18n.get("theme"),
               children: [
                 SettingsTile(
                   title: "Main Color",
@@ -260,6 +260,13 @@ class _SettingsPageState extends State<SettingsPage> {
                     setState(() {
                       _uxService.toggleIsAutoNightMode();
                     });
+                  },
+                ),
+                SettingsTile(
+                  title: _i18n.get("advanced_settings"),
+                  leading: const Icon(CupertinoIcons.paintbrush),
+                  onPressed: (context) {
+                    _routingService.openThemeSettings();
                   },
                 ),
               ],

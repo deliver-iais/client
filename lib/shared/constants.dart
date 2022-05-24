@@ -142,6 +142,7 @@ const ACCOUNT_TRACK_ID = 24;
 const AUTO_DOWNLOAD_TRACK_ID = 25;
 const AUTO_DOWNLOAD_ROOM_CATEGORY_TRACK_ID = 26;
 const CURRENT_CALL_INFO_TRACK_ID = 27;
+const MESSAGE_BRIEF_TRACK_ID = 28;
 // Animation
 const ANIMATION_DURATION = Duration(milliseconds: 100);
 
@@ -170,11 +171,6 @@ const secondaryBorder = BorderRadius.all(Radius.circular(12));
 const tertiaryBorder = BorderRadius.all(Radius.circular(8));
 
 const messageBorder = BorderRadius.all(Radius.circular(14));
-
-const backgroundBorder = BorderRadius.only(
-  topLeft: Radius.circular(12),
-  topRight: Radius.circular(12),
-);
 
 const buttonBorder = BorderRadius.all(Radius.circular(20));
 

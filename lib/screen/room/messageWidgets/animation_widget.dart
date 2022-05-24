@@ -148,6 +148,7 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
             foregroundColor: widget.colorScheme.onPrimaryContainerLowlight(),
           ),
         ),
+        const SizedBox(height: 4),
       ],
     );
   }

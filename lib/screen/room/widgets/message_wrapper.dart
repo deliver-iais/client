@@ -22,6 +22,7 @@ class MessageWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     var border = messageBorder;
 
     if (isFirstMessageInGroupedMessages) {
@@ -40,13 +41,21 @@ class MessageWrapper extends StatelessWidget {
       children: [
         Container(
           clipBehavior: Clip.hardEdge,
-          margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 2)
-              .copyWith(
-            top: isFirstMessageInGroupedMessages ? (isSender ? 16 : 0) : 2,
+          margin: const EdgeInsets.symmetric(horizontal: 10.0).copyWith(
+            top: isFirstMessageInGroupedMessages && isSender ? 16 : 0,
+            bottom: 6,
           ),
           decoration: BoxDecoration(
             borderRadius: border,
             color: color,
+            boxShadow: [
+              BoxShadow(
+                color: theme.colorScheme.shadow.withOpacity(0.1),
+                spreadRadius: 2,
+                blurRadius: 3,
+                offset: const Offset(0, 3), // changes position of shadow
+              ),
+            ],
           ),
           child: child,
         ),

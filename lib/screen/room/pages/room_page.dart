@@ -45,6 +45,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/audio_player_appbar.dart';
+import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/bot_appbar_title.dart';
 import 'package:deliver/shared/widgets/drag_and_drop_widget.dart';
 import 'package:deliver/shared/widgets/muc_appbar_title.dart';
@@ -180,6 +181,7 @@ class _RoomPageState extends State<RoomPage> {
   Stack buildBody() {
     return Stack(
       children: [
+        const Background(),
         Column(
           children: <Widget>[
             buildAllMessagesBox(),
@@ -305,7 +307,7 @@ class _RoomPageState extends State<RoomPage> {
                   );
                 },
               ),
-            AudioPlayerAppBar(),
+            const AudioPlayerAppBar(),
             pinMessageWidget(),
           ],
         ),

@@ -1,4 +1,5 @@
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_brief.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -11,7 +12,8 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class LastMessage extends StatelessWidget {
-  final Message message;
+  final Message? message;
+  final MessageReplyBrief? messageReplyBrief;
   final bool pinned;
   final int lastMessageId;
   final bool hasMentioned;
@@ -19,9 +21,13 @@ class LastMessage extends StatelessWidget {
   final bool showSeenStatus;
   final bool expandContent;
   final bool showRoomDetails;
+  final Color? highlightColor;
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _i18n = GetIt.I.get<I18N>();
+
+  final String from;
+  final String roomUid;
 
   LastMessage({
     Key? key,
@@ -33,20 +39,47 @@ class LastMessage extends StatelessWidget {
     this.expandContent = true,
     this.showRoomDetails = true,
     this.pinned = false,
-  }) : super(key: key);
+    this.highlightColor,
+  })  : messageReplyBrief = null,
+        from = message!.from,
+        roomUid = message.roomUid,
+        super(key: key);
+
+  LastMessage.messageReplyBrief({
+    Key? key,
+    required this.messageReplyBrief,
+    required this.lastMessageId,
+    this.hasMentioned = false,
+    this.showSender = false,
+    this.showSeenStatus = true,
+    this.expandContent = true,
+    this.showRoomDetails = true,
+    this.pinned = false,
+    this.highlightColor,
+  })  : message = null,
+        from = messageReplyBrief!.from,
+        roomUid = messageReplyBrief.roomUid,
+        super(key: key);
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isReceivedMessage = !_authRepo.isCurrentUser(message.from);
+    final isReceivedMessage = !_authRepo.isCurrentUser(from);
 
     return FutureBuilder<MessageBrief>(
-      future: extractMessageBrief(
-        _i18n,
-        _roomRepo,
-        _authRepo,
-        extractProtocolBufferMessage(message),
-      ),
+      future: message != null
+          ? extractMessageBrief(
+              _i18n,
+              _roomRepo,
+              _authRepo,
+              extractProtocolBufferMessage(message!),
+            )
+          : extractMessageBriefFromMessageReplyBrief(
+              _i18n,
+              _roomRepo,
+              _authRepo,
+              messageReplyBrief!,
+            ),
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Container(height: theme.textTheme.bodyText2!.fontSize! + 7);
@@ -64,7 +97,9 @@ class LastMessage extends StatelessWidget {
                       textAlign: TextAlign.end,
                       textDirection: TextDirection.rtl,
                       overflow: TextOverflow.ellipsis,
-                      style: theme.primaryTextTheme.caption,
+                      style: theme.primaryTextTheme.caption?.copyWith(
+                        color: highlightColor,
+                      ),
                     ),
                   ),
                 ],
@@ -72,10 +107,10 @@ class LastMessage extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (showSeenStatus && !isReceivedMessage)
+                if (showSeenStatus && !isReceivedMessage && message != null)
                   Padding(
                     padding: const EdgeInsets.only(right: 4.0),
-                    child: SeenStatus(message),
+                    child: SeenStatus(roomUid, message!.packetId),
                   ),
                 Flexible(
                   fit: expandContent ? FlexFit.tight : FlexFit.loose,
@@ -121,11 +156,11 @@ class LastMessage extends StatelessWidget {
                       size: 15,
                     ),
                   ),
-                if (showRoomDetails && !_authRepo.isCurrentUser(message.from))
+                if (showRoomDetails && !_authRepo.isCurrentUser(from))
                   Padding(
                     padding: const EdgeInsets.only(left: 4.0),
                     child: UnreadMessageCounterWidget(
-                      message.roomUid,
+                      roomUid,
                       lastMessageId,
                     ),
                   ),

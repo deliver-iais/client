@@ -68,7 +68,9 @@ class TimeAndSeenStatus extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 2.0),
                   child: SeenStatus(
-                    message,
+                    message.roomUid,
+                    message.packetId,
+                    messageId: message.id,
                     isSeen: isSeen,
                     iconColor: foregroundColor,
                   ),

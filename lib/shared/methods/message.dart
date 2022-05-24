@@ -1,4 +1,5 @@
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_brief.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -62,6 +63,33 @@ class MessageBrief {
         id: id ?? this.id,
         ignoreNotification: ignoreNotification ?? this.ignoreNotification,
       );
+}
+
+Future<MessageBrief> extractMessageBriefFromMessageReplyBrief(
+  I18N i18n,
+  RoomRepo roomRepo,
+  AuthRepo authRepo,
+  MessageReplyBrief mrb,
+) async {
+  final roomUid = getRoomUidOf(authRepo, mrb.from.asUid(), mrb.to.asUid());
+  final roomName = await roomRepo.getSlangName(roomUid);
+  final sender = await roomRepo.getSlangName(mrb.from.asUid());
+  final type = mrb.type;
+  const typeDetails = "";
+  final text = mrb.text;
+  const ignoreNotification = false;
+
+  return MessageBrief(
+    roomUid: roomUid,
+    roomName: roomName,
+    sender: sender,
+    senderIsAUserOrBot: mrb.from.asUid().isUser() || mrb.to.asUid().isBot(),
+    type: type,
+    id: mrb.id,
+    typeDetails: typeDetails,
+    text: text,
+    ignoreNotification: ignoreNotification,
+  );
 }
 
 Future<MessageBrief> extractMessageBrief(
@@ -404,7 +432,7 @@ message_pb.Message extractProtocolBufferMessage(Message message) {
     case MessageType.CALL:
       msg.callEvent = message.json.toCallEvent();
       break;
-    case MessageType.Table:
+    case MessageType.TABLE:
       msg.table = message.json.toTable();
       break;
     case MessageType.NOT_SET:
@@ -454,7 +482,7 @@ bool isHiddenPbMessage(message_pb.Message message) {
     case MessageType.FORM_RESULT:
     case MessageType.SHARE_PRIVATE_DATA_REQUEST:
     case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
-    case MessageType.Table:
+    case MessageType.TABLE:
     case MessageType.FORM:
       return false;
 
@@ -506,7 +534,7 @@ bool isHiddenMessage(Message message) {
     case MessageType.FORM_RESULT:
     case MessageType.SHARE_PRIVATE_DATA_REQUEST:
     case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
-    case MessageType.Table:
+    case MessageType.TABLE:
     case MessageType.FORM:
       return false;
 
@@ -589,7 +617,7 @@ String messageBodyToJson(message_pb.Message message) {
     case MessageType.CALL:
       return message.callEvent.writeToJson();
 
-    case MessageType.Table:
+    case MessageType.TABLE:
       return message.table.writeToJson();
 
     case MessageType.NOT_SET:
@@ -628,7 +656,7 @@ MessageType getMessageType(message_pb.Message_Type messageType) {
     case message_pb.Message_Type.callEvent:
       return MessageType.CALL;
     case message_pb.Message_Type.table:
-      return MessageType.Table;
+      return MessageType.TABLE;
     case message_pb.Message_Type.transaction:
       return MessageType.NOT_SET;
     case message_pb.Message_Type.notSet:

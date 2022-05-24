@@ -1,4 +1,5 @@
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_brief.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/screen/room/messageWidgets/animation_widget.dart';
 import 'package:deliver/screen/room/widgets/box_content.dart';
@@ -12,6 +13,7 @@ import 'package:flutter/material.dart';
 
 class SentMessageBox extends StatelessWidget {
   final Message message;
+  final MessageReplyBrief? messageReplyBrief;
   final void Function(int, int) scrollToMessage;
   final bool isSeen;
   final bool isFirstMessageInGroupedMessages;
@@ -24,6 +26,7 @@ class SentMessageBox extends StatelessWidget {
   const SentMessageBox({
     Key? key,
     required this.message,
+    required this.messageReplyBrief,
     required this.isSeen,
     required this.isFirstMessageInGroupedMessages,
     required this.scrollToMessage,
@@ -48,6 +51,7 @@ class SentMessageBox extends StatelessWidget {
 
     final boxContent = BoxContent(
       message: message,
+      messageReplyBrief: messageReplyBrief,
       maxWidth: maxWidthOfMessage(context),
       minWidth: minWidthOfMessage(context),
       isSender: true,

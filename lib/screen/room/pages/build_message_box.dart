@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_brief.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/operation_on_message.dart';
@@ -38,6 +39,7 @@ import 'package:share/share.dart';
 
 class BuildMessageBox extends StatefulWidget {
   final Message message;
+  final MessageReplyBrief? messageReplyBrief;
   final Message? messageBefore;
   final String roomId;
   final void Function(int, int) scrollToMessage;
@@ -70,6 +72,7 @@ class BuildMessageBox extends StatefulWidget {
     required this.hasPermissionInGroup,
     required this.hasPermissionInChannel,
     required this.addForwardMessage,
+    this.messageReplyBrief,
   }) : super(key: key);
 
   @override
@@ -85,14 +88,20 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   @override
   Widget build(BuildContext context) {
-    return _buildMessageBox(context, widget.message, widget.messageBefore);
+    return _buildMessageBox(
+      context,
+      widget.message,
+      widget.messageBefore,
+      messageReplyBrief: widget.messageReplyBrief,
+    );
   }
 
   Widget _buildMessageBox(
     BuildContext context,
     Message msg,
-    Message? msgBefore,
-  ) {
+    Message? msgBefore, {
+    MessageReplyBrief? messageReplyBrief,
+  }) {
     if (msg.isHidden) {
       return const SizedBox.shrink();
     }
@@ -104,7 +113,12 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     } else if (msg.type == MessageType.CALL) {
       return _createCallMessageWidget(context, msg);
     } else {
-      return _createSidedMessageWidget(context, msg, isFirstMsgOfOnePerson);
+      return _createSidedMessageWidget(
+        context,
+        msg,
+        isFirstMsgOfOnePerson,
+        messageReplyBrief: messageReplyBrief,
+      );
     }
   }
 
@@ -126,6 +140,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   Widget _createCallMessageWidget(BuildContext context, Message msg) {
+    final theme = Theme.of(context);
     final colorsScheme = ExtraTheme.of(context).secondaryColorsScheme;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -135,6 +150,14 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           decoration: BoxDecoration(
             color: colorsScheme.primaryContainer,
             borderRadius: secondaryBorder,
+            boxShadow: [
+              BoxShadow(
+                color: theme.colorScheme.shadow.withOpacity(0.1),
+                spreadRadius: 2,
+                blurRadius: 3,
+                offset: const Offset(0, 3), // changes position of shadow
+              ),
+            ],
           ),
           child: CallMessageWidget(
             message: widget.message,
@@ -196,18 +219,21 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   Widget _createSidedMessageWidget(
     BuildContext context,
     Message message,
-    bool isFirstMessageInGroupedMessages,
-  ) {
+    bool isFirstMessageInGroupedMessages, {
+    MessageReplyBrief? messageReplyBrief,
+  }) {
     Widget messageWidget;
 
     if (_authRepo.isCurrentUser(message.from)) {
       messageWidget = showSentMessage(
         message,
+        messageReplyBrief: messageReplyBrief,
         isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
       );
     } else {
       messageWidget = showReceivedMessage(
         message,
+        messageReplyBrief: messageReplyBrief,
         isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
       );
     }
@@ -256,10 +282,12 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   Widget showSentMessage(
     Message message, {
+    MessageReplyBrief? messageReplyBrief,
     bool isFirstMessageInGroupedMessages = false,
   }) {
     final messageWidget = SentMessageBox(
       message: message,
+      messageReplyBrief: messageReplyBrief,
       onArrowIconClick: () => _showCustomMenu(context, message),
       isSeen: message.id != null && message.id! <= widget.lastSeenMessageId,
       pattern: "",
@@ -281,46 +309,9 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     _messageRepo.sendTextMessage(widget.roomId.asUid(), command);
   }
 
-  Widget senderNameBox(CustomColorScheme colorScheme) {
-    return Container(
-      padding: const EdgeInsets.only(right: 8.0, left: 8.0, top: 2, bottom: 2),
-      child: FutureBuilder<String>(
-        future: _roomRepo.getName(widget.message.from.asUid()),
-        builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data != null) {
-            return showName(colorScheme, snapshot.data!);
-          } else {
-            return const Text("");
-          }
-        },
-      ),
-    );
-  }
-
-  Widget showName(CustomColorScheme colorScheme, String name) {
-    final minWidth = minWidthOfMessage(context);
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        child: Container(
-          constraints: BoxConstraints.loose(Size.fromWidth(minWidth - 16)),
-          child: Text(
-            name.trim(),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-            softWrap: false,
-            style: TextStyle(fontSize: 13, color: colorScheme.primary),
-          ),
-        ),
-        onTap: () {
-          _routingServices.openProfile(widget.message.from);
-        },
-      ),
-    );
-  }
-
   Widget showReceivedMessage(
     Message message, {
+    MessageReplyBrief? messageReplyBrief,
     bool isFirstMessageInGroupedMessages = false,
   }) {
     final CustomColorScheme colorScheme;
@@ -333,8 +324,9 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       colorScheme = ExtraTheme.of(context).messageColorScheme(message.from);
     }
 
-    Widget messageWidget = ReceivedMessageBox(
+    final Widget messageWidget = ReceivedMessageBox(
       message: message,
+      messageReplyBrief: messageReplyBrief,
       pattern: "",
       colorScheme: colorScheme,
       onBotCommandClick: onBotCommandClick,
@@ -345,15 +337,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       storePosition: storePosition,
       onEdit: widget.onEdit,
     );
-
-    if (isFirstMessageInGroupedMessages &&
-        widget.message.roomUid.asUid().category == Categories.GROUP) {
-      messageWidget = Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [senderNameBox(colorScheme), messageWidget],
-      );
-    }
 
     return Padding(
       padding: EdgeInsets.only(top: isFirstMessageInGroupedMessages ? 12.0 : 0),
@@ -552,7 +535,7 @@ class OperationOnMessageSelection {
       case MessageType.SHARE_PRIVATE_DATA_REQUEST:
       case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
       case MessageType.CALL:
-      case MessageType.Table:
+      case MessageType.TABLE:
         break;
     }
   }

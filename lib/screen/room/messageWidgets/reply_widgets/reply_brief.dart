@@ -1,4 +1,6 @@
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_brief.dart';
+import 'package:deliver/box/message_type.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/sender_and_content.dart';
 import 'package:deliver/shared/constants.dart';
@@ -11,6 +13,7 @@ class ReplyBrief extends StatelessWidget {
   final double maxWidth;
   final Color backgroundColor;
   final Color foregroundColor;
+  final MessageReplyBrief? messageReplyBrief;
   final _messageRepo = GetIt.I.get<MessageRepo>();
 
   ReplyBrief({
@@ -20,6 +23,7 @@ class ReplyBrief extends StatelessWidget {
     required this.maxWidth,
     required this.backgroundColor,
     required this.foregroundColor,
+    this.messageReplyBrief,
   }) : super(key: key);
 
   @override
@@ -36,30 +40,57 @@ class ReplyBrief extends StatelessWidget {
       child: FutureBuilder<Message?>(
         future: _messageRepo.getMessage(roomId, replyToId),
         builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data != null) {
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  CupertinoIcons.reply,
-                  size: 20,
-                  color: foregroundColor,
-                ),
-                const SizedBox(width: 4),
-                Flexible(
-                  child: SenderAndContent(
-                    messages: [snapshot.data!],
-                    expandContent: false,
-                    highlightColor: foregroundColor,
-                  ),
-                ),
-              ],
-            );
+          if (snapshot.hasData) {
+            return repliedMessageBox(snapshot.data!);
+          } else if (messageReplyBrief != null) {
+            return repliedMessageBoxByMessageReplyBrief(messageReplyBrief!);
           } else {
             return const SizedBox.shrink();
           }
         },
       ),
+    );
+  }
+
+  Row repliedMessageBox(Message message) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          CupertinoIcons.reply,
+          size: 20,
+          color: foregroundColor,
+        ),
+        const SizedBox(width: 4),
+        Flexible(
+          child: SenderAndContent.message(
+            message: message,
+            highlightColor: foregroundColor,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Row repliedMessageBoxByMessageReplyBrief(
+    MessageReplyBrief messageReplyBrief,
+  ) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          CupertinoIcons.reply,
+          size: 20,
+          color: foregroundColor,
+        ),
+        const SizedBox(width: 4),
+        Flexible(
+          child: SenderAndContent.messageReplyBrief(
+            messageReplyBrief: messageReplyBrief,
+            highlightColor: foregroundColor,
+          ),
+        ),
+      ],
     );
   }
 }

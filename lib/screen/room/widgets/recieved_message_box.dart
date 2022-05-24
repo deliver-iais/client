@@ -1,4 +1,5 @@
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_brief.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/screen/room/messageWidgets/animation_widget.dart';
 import 'package:deliver/screen/room/widgets/box_content.dart';
@@ -10,6 +11,7 @@ import 'message_wrapper.dart';
 
 class ReceivedMessageBox extends StatelessWidget {
   final Message message;
+  final MessageReplyBrief? messageReplyBrief;
   final void Function(int, int) scrollToMessage;
   final void Function(String) onUsernameClick;
   final String? pattern;
@@ -30,6 +32,7 @@ class ReceivedMessageBox extends StatelessWidget {
     required this.colorScheme,
     required this.storePosition,
     required this.isFirstMessageInGroupedMessages,
+    this.messageReplyBrief,
     this.pattern,
     required this.onEdit,
   }) : super(key: key);
@@ -38,6 +41,7 @@ class ReceivedMessageBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final boxContent = BoxContent(
       message: message,
+      messageReplyBrief: messageReplyBrief,
       maxWidth: maxWidthOfMessage(context),
       minWidth: minWidthOfMessage(context),
       onBotCommandClick: onBotCommandClick,

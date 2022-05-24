@@ -53,5 +53,5 @@ enum MessageType {
   CALL,
 
   @HiveField(15)
-  Table
+  TABLE
 }

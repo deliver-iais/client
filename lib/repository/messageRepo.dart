@@ -692,7 +692,7 @@ class MessageRepo {
       case MessageType.CALL:
         byClient.callEvent = call_pb.CallEvent.fromJson(message.json);
         break;
-      case MessageType.Table:
+      case MessageType.TABLE:
         byClient.table = form_pb.Table.fromJson(message.json);
         break;
       case MessageType.LIVE_LOCATION:

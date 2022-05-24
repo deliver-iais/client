@@ -1,4 +1,5 @@
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_brief.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -30,6 +31,7 @@ import 'package:get_it/get_it.dart';
 
 class BoxContent extends StatefulWidget {
   final Message message;
+  final MessageReplyBrief? messageReplyBrief;
   final double maxWidth;
   final double minWidth;
   final bool isSender;
@@ -59,6 +61,7 @@ class BoxContent extends StatefulWidget {
     required this.storePosition,
     required this.onUsernameClick,
     this.pattern,
+    this.messageReplyBrief,
     required this.onEdit,
   }) : super(key: key);
 
@@ -99,8 +102,10 @@ class _BoxContentState extends State<BoxContent> {
                     children: [
                       Debug(widget.message.id, label: "id"),
                       Debug(widget.message.packetId, label: "packetId"),
+                      Debug(widget.message.json, label: "json"),
                     ],
                   ),
+                if (shouldShowSenderName()) senderNameBox(widget.colorScheme),
                 if (hasReply()) replyToIdBox(),
                 if (isForwarded()) forwardedFromBox(),
                 messageBox()
@@ -149,6 +154,7 @@ class _BoxContentState extends State<BoxContent> {
         child: ReplyBrief(
           roomId: widget.message.roomUid,
           replyToId: widget.message.replyToId,
+          messageReplyBrief: widget.messageReplyBrief,
           maxWidth: widget.minWidth,
           backgroundColor: widget.colorScheme.onPrimary,
           foregroundColor: widget.colorScheme.primary,
@@ -219,7 +225,9 @@ class _BoxContentState extends State<BoxContent> {
         return TextUI(
           message: widget.message,
           maxWidth: widget.maxWidth,
-          minWidth: isForwarded() || hasReply() ? widget.minWidth : 0,
+          minWidth: isForwarded() || hasReply() || shouldShowSenderName()
+              ? widget.minWidth
+              : 0,
           isSender: widget.isSender,
           isSeen: widget.isSeen,
           colorScheme: widget.colorScheme,
@@ -287,7 +295,7 @@ class _BoxContentState extends State<BoxContent> {
           isSender: widget.isSender,
           colorScheme: widget.colorScheme,
         );
-      case MessageType.Table:
+      case MessageType.TABLE:
         return BotTableWidget(
           message: widget.message,
           colorScheme: widget.colorScheme,
@@ -338,5 +346,60 @@ class _BoxContentState extends State<BoxContent> {
 
   bool isForwarded() {
     return (widget.message.forwardedFrom?.length ?? 0) > 3;
+  }
+
+  bool shouldShowSenderName() {
+    return !widget.isSender &&
+        widget.isFirstMessageInGroupedMessages &&
+        widget.message.roomUid.asUid().category == Categories.GROUP;
+  }
+
+  Widget senderNameBox(CustomColorScheme colorScheme) {
+    final minWidth = minWidthOfMessage(context);
+    return Container(
+      constraints: BoxConstraints.loose(Size.fromWidth(minWidth - 16)),
+      height: 18,
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Expanded(
+            child: FutureBuilder<String>(
+              future: _roomRepo.getName(widget.message.from.asUid()),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data != null) {
+                  return showName(colorScheme, snapshot.data!);
+                } else {
+                  return const Text("");
+                }
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget showName(CustomColorScheme colorScheme, String name) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        child: Text(
+          name.trim(),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          softWrap: false,
+          textAlign: TextAlign.left,
+          style: TextStyle(
+            fontSize: 13,
+            color: colorScheme.primary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        onTap: () {
+          _routingServices.openProfile(widget.message.from);
+        },
+      ),
+    );
   }
 }

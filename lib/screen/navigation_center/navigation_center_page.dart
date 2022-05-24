@@ -32,9 +32,9 @@ import 'package:window_size/window_size.dart';
 
 BehaviorSubject<String> modifyRoutingByNotificationTapInBackgroundInAndroid =
     BehaviorSubject.seeded("");
-BehaviorSubject<String> modifyRoutingByNotificationAcceptCallInBackgroundInAndroid =
-BehaviorSubject.seeded("");
-
+BehaviorSubject<String>
+    modifyRoutingByNotificationAcceptCallInBackgroundInAndroid =
+    BehaviorSubject.seeded("");
 
 class NavigationCenter extends StatefulWidget {
   const NavigationCenter({Key? key}) : super(key: key);
@@ -67,7 +67,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
     });
     modifyRoutingByNotificationAcceptCallInBackgroundInAndroid.listen((event) {
       if (event.isNotEmpty) {
-        _routingService.openCallScreen(event.asUid(),isCallAccepted: true);
+        _routingService.openCallScreen(event.asUid(), isCallAccepted: true);
       }
     });
 
@@ -195,7 +195,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     onCancel: () => _queryTermDebouncedSubject.add(""),
                   ),
                 ),
-                if (!isLarge(context)) AudioPlayerAppBar(),
+                if (!isLarge(context)) const AudioPlayerAppBar(),
                 StreamBuilder<String>(
                   stream: _searchMode.stream,
                   builder: (c, s) {
