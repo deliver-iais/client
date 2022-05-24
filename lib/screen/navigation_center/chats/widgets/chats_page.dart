@@ -82,7 +82,10 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
 
       for (final room in pinned) {
         _roomDao.updateRoom(
-            uid: room.uid, pinned: true, pinId: pinned.indexOf(room) + 1,);
+          uid: room.uid,
+          pinned: true,
+          pinId: pinned.indexOf(room) + 1,
+        );
       }
     } else {
       showDialog(

@@ -195,7 +195,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                     onCancel: () => _queryTermDebouncedSubject.add(""),
                   ),
                 ),
-                if (!isLarge(context)) AudioPlayerAppBar(),
+                if (!isLarge(context)) const AudioPlayerAppBar(),
                 StreamBuilder<String>(
                   stream: _searchMode.stream,
                   builder: (c, s) {

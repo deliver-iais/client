@@ -63,7 +63,8 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
   }
 
   Future<void> _initFolders() async {
-    if (await _checkPermissionServices.checkStoragePermission() &&
+    if ((await PhotoManager.requestPermissionExtend()).isAuth &&
+        await _checkPermissionServices.checkStoragePermission() &&
         await _checkPermissionServices.checkStorage2Permission()) {
       _folders
           .add(await PhotoManager.getAssetPathList(type: RequestType.image));

@@ -19,6 +19,7 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/pages/build_message_box.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/edit_image/paint_on_image/_ported_interactive_viewer.dart'
@@ -33,6 +34,7 @@ class AllImagePage extends StatefulWidget {
   final String roomUid;
   final int messageId;
   final int? initIndex;
+  final Message? message;
   final String? filePath;
   final bool isSingleImage;
   final void Function()? onEdit;
@@ -43,6 +45,7 @@ class AllImagePage extends StatefulWidget {
     required this.messageId,
     this.initIndex,
     this.filePath,
+    this.message,
     this.isSingleImage = false,
     this.onEdit,
   }) : super(key: key);
@@ -67,6 +70,8 @@ class _AllImagePageState extends State<AllImagePage>
   final _mediaCache = <int, Media>{};
   final LruCache _fileCache =
       LruCache<int, String>(storage: InMemoryStorage(500));
+  final BehaviorSubject<Widget> _widget =
+      BehaviorSubject.seeded(const SizedBox.shrink());
   bool _isBarShowing = true;
   int? initialIndex;
   bool isSingleImage = false;
@@ -129,29 +134,46 @@ class _AllImagePageState extends State<AllImagePage>
     ];
   }
 
-  @override
-  void dispose() {
-    controller.dispose();
-
-    super.dispose();
+  void _fetchMedia() {
+    _mediaQueryRepo
+        .fetchMediaMetaData(
+          widget.roomUid.asUid(),
+          updateAllMedia: false,
+        )
+        .ignore();
   }
 
-  Future<void> _fetchMedia() async {
-    await _mediaQueryRepo.fetchMediaMetaData(
-      widget.roomUid.asUid(),
-      updateAllMedia: false,
+  Future<void> _initImage() async {
+    _mediaDao
+        .getIndexOfMediaAsStream(
+          widget.roomUid,
+          widget.messageId,
+          MediaType.IMAGE,
+        )
+        .distinct()
+        .listen((event) {
+      if (event >= 0) {
+        initialIndex = event;
+        _currentIndex.add(event);
+        _widget.add(buildImageByIndex(event));
+      }
+    });
+  }
+
+  Widget buildAnimation() {
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 200),
+      transitionBuilder: (child, animation) {
+        return ScaleTransition(scale: animation, child: child);
+      },
+      child: StreamBuilder<Widget>(
+        stream: _widget.stream,
+        initialData: const SizedBox.shrink(),
+        builder: (c, w) {
+          return w.data!;
+        },
+      ),
     );
-    final index = await _mediaDao.getIndexOfMedia(
-      widget.roomUid,
-      widget.messageId,
-      MediaType.IMAGE,
-    );
-    if (index != -1) {
-      setState(() {
-        initialIndex = index;
-        isSingleImage = false;
-      });
-    }
   }
 
   late ThemeData theme;
@@ -173,15 +195,18 @@ class _AllImagePageState extends State<AllImagePage>
             stream: _mediaMetaDataDao.get(widget.roomUid),
             builder: (c, snapshot) {
               if (snapshot.hasData && snapshot.data != null) {
+                if (initialIndex == null || initialIndex! >= 0) {
+                  _initImage();
+                }
                 _allImageCount.add(snapshot.data!.imagesCount);
-                return initialIndex != null
-                    ? buildImageByIndex(initialIndex!)
-                    : widget.isSingleImage
-                        ? singleImage()
-                        : const SizedBox.shrink();
-              } else {
-                return singleImage();
+                if (initialIndex != null && initialIndex! >= 0) {
+                  _widget.add(buildImageByIndex(initialIndex!));
+                } else {
+                  _widget.add(singleImage());
+                }
               }
+
+              return buildAnimation();
             },
           ),
         ),
@@ -190,8 +215,24 @@ class _AllImagePageState extends State<AllImagePage>
   }
 
   Widget singleImage() {
-    _currentIndex.add(-1);
-    return buildImage(widget.filePath!, -1);
+    return Stack(
+      children: [
+        buildImage(widget.filePath!, -1),
+        Align(
+          alignment: Alignment.bottomCenter,
+          child: AnimatedOpacity(
+            duration: ANIMATION_DURATION * 2,
+            opacity: _isBarShowing ? 1 : 0,
+            child: buildCaptionSection(
+              createdOn: widget.message!.time,
+              createdBy: widget.roomUid,
+              messageId: widget.messageId,
+              caption: widget.message!.json.toFile().caption,
+            ),
+          ),
+        )
+      ],
+    );
   }
 
   Widget buildImage(String filePath, int index) {
@@ -370,7 +411,25 @@ class _AllImagePageState extends State<AllImagePage>
             child: StreamBuilder<int>(
               stream: _currentIndex.stream,
               builder: (context, index) {
-                return buildCaptionSection(index);
+                if (index.hasData && index.data != null) {
+                  return FutureBuilder<Media?>(
+                    future: _getMedia(index.data!),
+                    builder: (c, mediaSnapshot) {
+                      if (mediaSnapshot.hasData && mediaSnapshot.data != null) {
+                        final json =
+                            jsonDecode(mediaSnapshot.data!.json) as Map;
+                        return buildCaptionSection(
+                          createdOn: mediaSnapshot.data!.createdOn,
+                          createdBy: mediaSnapshot.data!.createdBy,
+                          messageId: mediaSnapshot.data!.messageId,
+                          caption: (json["caption"].toString()),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  );
+                }
+                return const SizedBox.shrink();
               },
             ),
           ),
@@ -390,17 +449,23 @@ class _AllImagePageState extends State<AllImagePage>
     }
   }
 
-  Widget buildCaptionSection(AsyncSnapshot<int> index) {
-    if (index.hasData && index.data != null && index.data != -1) {
-      return Column(
-        children: [
-          const Spacer(),
-          buildBottomBar(index.data!),
-          buildFooter(index.data!)
-        ],
-      );
-    }
-    return const SizedBox.shrink();
+  Widget buildCaptionSection({
+    required String caption,
+    required int messageId,
+    required String createdBy,
+    required int createdOn,
+  }) {
+    return Column(
+      children: [
+        const Spacer(),
+        buildCaption(caption),
+        buildFooter(
+          createdBy: createdBy,
+          createdOn: createdOn,
+          messageId: messageId,
+        )
+      ],
+    );
   }
 
   Future<Message?> getMessage() async {
@@ -412,84 +477,64 @@ class _AllImagePageState extends State<AllImagePage>
     return message;
   }
 
-  Widget buildBottomAppBar(int index) {
-    return FutureBuilder<Media?>(
-      future: _getMedia(index),
-      builder: (context, mediaSnapShot) {
-        if (mediaSnapShot.hasData && mediaSnapShot.data != null) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              FutureBuilder<String>(
-                future:
-                    _roomRepo.getName(mediaSnapShot.data!.createdBy.asUid()),
-                builder: (c, name) {
-                  if (name.hasData && name.data != null) {
-                    return Text(
-                      name.data!,
-                      style: theme.textTheme.bodyText2!
-                          .copyWith(height: 1, color: Colors.white),
-                    );
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-              Text(
-                DateTime.fromMillisecondsSinceEpoch(
-                  mediaSnapShot.data!.createdOn,
-                ).toString().substring(0, 19),
+  Widget buildBottomAppBar(String createdBy, int createdOn) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        FutureBuilder<String>(
+          future: _roomRepo.getName(createdBy.asUid()),
+          builder: (c, name) {
+            if (name.hasData && name.data != null) {
+              return Text(
+                name.data!,
                 style: theme.textTheme.bodyText2!
                     .copyWith(height: 1, color: Colors.white),
-              )
-            ],
-          );
-        } else {
-          return const SizedBox.shrink();
-        }
-      },
-    );
-  }
-
-  Widget buildBottomBar(int index) {
-    return Container(
-      constraints:
-          BoxConstraints(maxHeight: MediaQuery.of(context).size.height / 3),
-      color: Colors.black.withAlpha(120),
-      child: SingleChildScrollView(
-        child: FutureBuilder<Media?>(
-          future: _getMedia(index),
-          builder: (c, mediaSnapShot) {
-            if (mediaSnapShot.hasData && mediaSnapShot.data != null) {
-              final json = jsonDecode(mediaSnapShot.data!.json) as Map;
-              if (json["caption"].toString().isNotEmpty) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Text(
-                    (json["caption"] as String),
-                    textDirection: TextDirection.rtl,
-                    style: theme.textTheme.bodyText2!.copyWith(
-                      color: Colors.white,
-                    ),
-                  ),
-                );
-              } else {
-                return const SizedBox.shrink();
-              }
+              );
             } else {
               return const SizedBox.shrink();
             }
           },
         ),
+        const SizedBox(
+          height: 10,
+        ),
+        Text(
+          DateTime.fromMillisecondsSinceEpoch(
+            createdOn,
+          ).toString().substring(0, 19),
+          style: theme.textTheme.bodyText2!
+              .copyWith(height: 1, color: Colors.white),
+        )
+      ],
+    );
+  }
+
+  Widget buildCaption(String caption) {
+    return Container(
+      constraints:
+          BoxConstraints(maxHeight: MediaQuery.of(context).size.height / 3),
+      color: Colors.black.withAlpha(120),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            caption,
+            textDirection: TextDirection.rtl,
+            style: theme.textTheme.bodyText2!.copyWith(
+              color: Colors.white,
+            ),
+          ),
+        ),
       ),
     );
   }
 
-  Widget buildFooter(int index) {
+  Widget buildFooter({
+    required int messageId,
+    required String createdBy,
+    required int createdOn,
+  }) {
     return Container(
       color: Colors.black.withAlpha(120),
       child: Row(
@@ -499,41 +544,32 @@ class _AllImagePageState extends State<AllImagePage>
               vertical: 10.0,
               horizontal: 20,
             ),
-            child: buildBottomAppBar(index),
+            child: buildBottomAppBar(createdBy, createdOn),
           ),
           const Spacer(),
           if (widget.onEdit != null)
-            FutureBuilder<Media?>(
-              future: _getMedia(index),
-              builder: (context, mediaSnapShot) {
-                if (mediaSnapShot.hasData && mediaSnapShot.data != null) {
-                  return FutureBuilder<Message?>(
-                    future: _messageDao.getMessage(
-                      widget.roomUid,
-                      mediaSnapShot.data!.messageId,
-                    ),
-                    builder: (context, message) {
-                      if (message.hasData && message.data != null) {
-                        return IconButton(
-                          onPressed: () async {
-                            final message = await getMessage();
-                            await OperationOnMessageSelection(
-                              message: message!,
-                              context: context,
-                              onEdit: widget.onEdit,
-                            ).selectOperation(OperationOnMessage.EDIT);
-                            _routingService.pop();
-                          },
-                          tooltip: _i18n.get("edit"),
-                          icon: Icon(
-                            CupertinoIcons.paintbrush,
-                            color: theme.primaryColorLight,
-                          ),
-                        );
-                      } else {
-                        return const SizedBox.shrink();
-                      }
+            FutureBuilder<Message?>(
+              future: _messageDao.getMessage(
+                widget.roomUid,
+                messageId,
+              ),
+              builder: (context, message) {
+                if (message.hasData && message.data != null) {
+                  return IconButton(
+                    onPressed: () async {
+                      final message = await getMessage();
+                      await OperationOnMessageSelection(
+                        message: message!,
+                        context: context,
+                        onEdit: widget.onEdit,
+                      ).selectOperation(OperationOnMessage.EDIT);
+                      _routingService.pop();
                     },
+                    tooltip: _i18n.get("edit"),
+                    icon: Icon(
+                      CupertinoIcons.paintbrush,
+                      color: theme.primaryColorLight,
+                    ),
                   );
                 } else {
                   return const SizedBox.shrink();
