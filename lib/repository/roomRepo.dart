@@ -232,7 +232,7 @@ class RoomRepo {
       if (uid.category == Categories.GROUP ||
           uid.category == Categories.CHANNEL) {
         final muc = await _mucRepo.fetchMucInfo(uid);
-        if (muc != null  && muc.name.isNotEmpty) {
+        if (muc != null && muc.name.isNotEmpty) {
           roomNameCache.set(uid.asString(), muc.name);
           unawaited(
             _uidIdNameDao.update(uid.asString(), name: muc.name),
@@ -362,6 +362,9 @@ class RoomRepo {
           (element.uid.isUser() &&
               element.name != null &&
               element.name!.isNotEmpty)) searchResult.add(element.uid.asUid());
+    }
+    if ('saved message'.contains(text.toLowerCase())) {
+      searchResult.add(_authRepo.currentUserUid);
     }
 
     return searchResult;
