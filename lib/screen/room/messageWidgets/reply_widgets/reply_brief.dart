@@ -1,6 +1,5 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_brief.dart';
-import 'package:deliver/box/message_type.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/sender_and_content.dart';
 import 'package:deliver/shared/constants.dart';
@@ -65,7 +64,6 @@ class ReplyBrief extends StatelessWidget {
         Flexible(
           child: SenderAndContent.message(
             message: message,
-            highlightColor: foregroundColor,
           ),
         ),
       ],
@@ -87,7 +85,6 @@ class ReplyBrief extends StatelessWidget {
         Flexible(
           child: SenderAndContent.messageReplyBrief(
             messageReplyBrief: messageReplyBrief,
-            highlightColor: foregroundColor,
           ),
         ),
       ],

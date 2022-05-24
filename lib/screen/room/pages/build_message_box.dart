@@ -25,9 +25,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
-import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver/theme/extra_theme.dart';
-import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -314,21 +312,10 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     MessageReplyBrief? messageReplyBrief,
     bool isFirstMessageInGroupedMessages = false,
   }) {
-    final CustomColorScheme colorScheme;
-    if (message.type == MessageType.CALL &&
-        (message.json.toCallEvent().newStatus == CallEvent_CallStatus.BUSY ||
-            message.json.toCallEvent().newStatus ==
-                CallEvent_CallStatus.DECLINED)) {
-      colorScheme = ExtraTheme.of(context).messageColorScheme(message.to);
-    } else {
-      colorScheme = ExtraTheme.of(context).messageColorScheme(message.from);
-    }
-
     final Widget messageWidget = ReceivedMessageBox(
       message: message,
       messageReplyBrief: messageReplyBrief,
       pattern: "",
-      colorScheme: colorScheme,
       onBotCommandClick: onBotCommandClick,
       scrollToMessage: widget.scrollToMessage,
       onUsernameClick: onUsernameClick,

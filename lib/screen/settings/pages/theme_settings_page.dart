@@ -41,8 +41,13 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
       cm(1, cUser, fakeUser, "سلام"),
       cm(2, cUser, fakeUser, "امروز میخواستیم با بچه ها بریم فوتبال، میای ؟"),
       cm(3, fakeUser, cUser, "حتما، چه ساعتیه ؟!", replyId: 2),
-      cm(4, cUser, fakeUser, "ایول\\n \\n ساعت ۹ شب، همونجای همیشگی. منتظرتیم",
-          replyId: 3),
+      cm(
+        4,
+        cUser,
+        fakeUser,
+        "ایول\\n \\n ساعت ۹ شب، همونجای همیشگی. منتظرتیم",
+        replyId: 3,
+      ),
     ];
   }
 
@@ -102,8 +107,6 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
     if (msgId > 1) {
       bMsg = messages[msgId - 2];
     }
-
-    print(cfm(replyId));
 
     return BuildMessageBox(
       message: msg,
@@ -196,7 +199,8 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                         ),
                         SettingsTile.switchTile(
                           title: _i18n.get("auto_night_mode"),
-                          leading: const Icon(CupertinoIcons.circle_lefthalf_fill),
+                          leading:
+                              const Icon(CupertinoIcons.circle_lefthalf_fill),
                           switchValue: _uxService.isAutoNightModeEnable,
                           onToggle: (value) {
                             setState(() {
@@ -234,7 +238,8 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                         ),
                         SettingsTile.switchTile(
                           title: _i18n.get("auto_night_mode"),
-                          leading: const Icon(CupertinoIcons.circle_lefthalf_fill),
+                          leading:
+                              const Icon(CupertinoIcons.circle_lefthalf_fill),
                           switchValue: _uxService.isAutoNightModeEnable,
                           onToggle: (value) {
                             setState(() {

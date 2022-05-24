@@ -1,6 +1,7 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_brief.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/last_message.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 class SenderAndContent extends StatelessWidget {
@@ -8,13 +9,11 @@ class SenderAndContent extends StatelessWidget {
   final MessageReplyBrief? messageReplyBrief;
 
   final bool expandContent;
-  final Color? highlightColor;
 
   const SenderAndContent.message({
     Key? key,
     required this.message,
     this.expandContent = true,
-    this.highlightColor,
     // ignore: avoid_field_initializers_in_const_classes
   })  : messageReplyBrief = null,
         super(key: key);
@@ -23,7 +22,6 @@ class SenderAndContent extends StatelessWidget {
     Key? key,
     required this.messageReplyBrief,
     this.expandContent = true,
-    this.highlightColor,
     // ignore: avoid_field_initializers_in_const_classes
   })  : message = null,
         super(key: key);
@@ -31,23 +29,27 @@ class SenderAndContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (message != null) {
+      final colorScheme =
+          ExtraTheme.of(context).messageColorScheme(message!.from);
       return LastMessage(
         message: message,
         showSender: true,
         showSeenStatus: false,
         showRoomDetails: false,
         lastMessageId: 0,
-        highlightColor: highlightColor,
+        highlightColor: colorScheme.primary,
         expandContent: expandContent,
       );
     } else {
+      final colorScheme =
+          ExtraTheme.of(context).messageColorScheme(messageReplyBrief!.from);
       return LastMessage.messageReplyBrief(
         messageReplyBrief: messageReplyBrief,
         showSender: true,
         showSeenStatus: false,
         showRoomDetails: false,
         lastMessageId: 0,
-        highlightColor: highlightColor,
+        highlightColor: colorScheme.primary,
         expandContent: expandContent,
       );
     }

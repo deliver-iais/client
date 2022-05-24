@@ -1,13 +1,12 @@
 import 'dart:math';
 
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/theme/color_scheme.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 class MessageWrapper extends StatelessWidget {
   final Widget child;
   final String uid;
-  final CustomColorScheme colorScheme;
   final bool isSender;
   final bool isFirstMessageInGroupedMessages;
 
@@ -15,7 +14,6 @@ class MessageWrapper extends StatelessWidget {
     Key? key,
     required this.child,
     required this.uid,
-    required this.colorScheme,
     required this.isSender,
     this.isFirstMessageInGroupedMessages = true,
   }) : super(key: key);
@@ -23,6 +21,9 @@ class MessageWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final color =
+        ExtraTheme.of(context).messageColorScheme(uid).primaryContainer;
+
     var border = messageBorder;
 
     if (isFirstMessageInGroupedMessages) {
@@ -35,7 +36,6 @@ class MessageWrapper extends StatelessWidget {
 
     const width = 6.0;
     const height = 30.0;
-    final color = colorScheme.primaryContainer;
 
     return Stack(
       children: [

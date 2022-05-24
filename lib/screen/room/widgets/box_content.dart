@@ -25,6 +25,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver/theme/color_scheme.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
@@ -37,7 +38,6 @@ class BoxContent extends StatefulWidget {
   final bool isSender;
   final bool isSeen;
   final bool isFirstMessageInGroupedMessages;
-  final CustomColorScheme colorScheme;
   final String? pattern;
   final void Function(TapDownDetails) storePosition;
   final void Function(String) onUsernameClick;
@@ -57,7 +57,6 @@ class BoxContent extends StatefulWidget {
     required this.isFirstMessageInGroupedMessages,
     required this.scrollToMessage,
     required this.onArrowIconClick,
-    required this.colorScheme,
     required this.storePosition,
     required this.onUsernameClick,
     this.pattern,
@@ -76,7 +75,16 @@ class BoxContent extends StatefulWidget {
 class _BoxContentState extends State<BoxContent> {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _routingServices = GetIt.I.get<RoutingService>();
+  late final CustomColorScheme colorScheme;
   bool hideArrowDopIcon = true;
+
+  @override
+  void initState() {
+    colorScheme =
+        ExtraTheme.of(context).messageColorScheme(widget.message.from);
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -105,7 +113,7 @@ class _BoxContentState extends State<BoxContent> {
                       Debug(widget.message.json, label: "json"),
                     ],
                   ),
-                if (shouldShowSenderName()) senderNameBox(widget.colorScheme),
+                if (shouldShowSenderName()) senderNameBox(colorScheme),
                 if (hasReply()) replyToIdBox(),
                 if (isForwarded()) forwardedFromBox(),
                 messageBox()
@@ -156,8 +164,8 @@ class _BoxContentState extends State<BoxContent> {
           replyToId: widget.message.replyToId,
           messageReplyBrief: widget.messageReplyBrief,
           maxWidth: widget.minWidth,
-          backgroundColor: widget.colorScheme.onPrimary,
-          foregroundColor: widget.colorScheme.primary,
+          backgroundColor: colorScheme.onPrimary,
+          foregroundColor: colorScheme.primary,
         ),
       ),
     );
@@ -170,7 +178,7 @@ class _BoxContentState extends State<BoxContent> {
       constraints: BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
       decoration: BoxDecoration(
         borderRadius: secondaryBorder,
-        color: widget.colorScheme.primary,
+        color: colorScheme.primary,
       ),
       child: FutureBuilder<String>(
         future: _roomRepo.getName(widget.message.forwardedFrom!.asUid()),
@@ -185,7 +193,7 @@ class _BoxContentState extends State<BoxContent> {
                   Icon(
                     CupertinoIcons.arrowshape_turn_up_right,
                     size: 15,
-                    color: widget.colorScheme.onPrimary,
+                    color: colorScheme.onPrimary,
                   ),
                   Flexible(
                     child: Text(
@@ -194,7 +202,7 @@ class _BoxContentState extends State<BoxContent> {
                       maxLines: 1,
                       overflow: TextOverflow.fade,
                       style: TextStyle(
-                        color: widget.colorScheme.onPrimary,
+                        color: colorScheme.onPrimary,
                         fontSize: 12,
                       ),
                     ),
@@ -216,7 +224,7 @@ class _BoxContentState extends State<BoxContent> {
       return AnimatedEmoji(
         message: widget.message,
         isSeen: widget.isSeen,
-        colorScheme: widget.colorScheme,
+        colorScheme: colorScheme,
       );
     }
 
@@ -230,7 +238,7 @@ class _BoxContentState extends State<BoxContent> {
               : 0,
           isSender: widget.isSender,
           isSeen: widget.isSeen,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
           searchTerm: widget.pattern,
           onUsernameClick: widget.onUsernameClick,
           onBotCommandClick: widget.onBotCommandClick,
@@ -241,7 +249,7 @@ class _BoxContentState extends State<BoxContent> {
           maxWidth: widget.maxWidth,
           minWidth: widget.minWidth,
           onUsernameClick: widget.onUsernameClick,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
           isSender: widget.isSender,
           isSeen: widget.isSeen,
           onEdit: widget.onEdit,
@@ -252,7 +260,7 @@ class _BoxContentState extends State<BoxContent> {
           widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
         );
 
       case MessageType.LOCATION:
@@ -260,7 +268,7 @@ class _BoxContentState extends State<BoxContent> {
           message: widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
         );
 
       case MessageType.LIVE_LOCATION:
@@ -268,7 +276,7 @@ class _BoxContentState extends State<BoxContent> {
           widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
         );
 
       case MessageType.POLL:
@@ -278,14 +286,14 @@ class _BoxContentState extends State<BoxContent> {
           message: widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
         );
       case MessageType.FORM:
         return BotFormMessage(
           message: widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
         );
       case MessageType.BUTTONS:
         return BotButtonsWidget(
@@ -293,19 +301,19 @@ class _BoxContentState extends State<BoxContent> {
           maxWidth: widget.maxWidth * 0.85,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
         );
       case MessageType.TABLE:
         return BotTableWidget(
           message: widget.message,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
         );
       case MessageType.SHARE_UID:
         return ShareUidMessageWidget(
           message: widget.message,
           isSender: widget.isSender,
           isSeen: widget.isSeen,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
         );
       case MessageType.SHARE_PRIVATE_DATA_REQUEST:
         return SharePrivateDataRequestMessageWidget(
@@ -313,24 +321,24 @@ class _BoxContentState extends State<BoxContent> {
           isSeen: widget.isSeen,
           maxWidth: widget.maxWidth * 0.75,
           isSender: widget.isSender,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
         );
       case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
         return SharePrivateDataAcceptMessageWidget(
           message: widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
         );
       case MessageType.CALL:
         return CallMessageWidget(
           message: widget.message,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
         );
       case MessageType.NOT_SET:
         return NotSupportedMessage(
           maxWidth: widget.maxWidth,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
         );
       case MessageType.PERSISTENT_EVENT:
         // we show persistent event message in room page
