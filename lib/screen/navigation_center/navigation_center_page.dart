@@ -509,17 +509,15 @@ class _NavigationCenterState extends State<NavigationCenter> {
       children: [
         Row(
           children: [
-            CircleAvatarWidget(uid, 24,showSavedMessageLogoIfNeeded: true),
+            CircleAvatarWidget(uid, 24, showSavedMessageLogoIfNeeded: true),
             const SizedBox(
               width: 20,
             ),
             FutureBuilder<String>(
-              future: _roomRepo.getName(uid),
+              future: _roomRepo.getName(uid, forceToReturnSavedMessage: true),
               builder: (c, snaps) {
                 return Text(
-                  _authRepo.isCurrentUser(uid.asString())
-                      ? _i18n.get("saved_message")
-                      : snaps.data ?? "",
+                  snaps.data ?? "",
                   style: theme.textTheme.subtitle1,
                 );
               },

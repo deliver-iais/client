@@ -1,7 +1,4 @@
-import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -14,8 +11,6 @@ class ChatItemToForward extends StatelessWidget {
   ChatItemToForward({Key? key, required this.uid, required this.send})
       : super(key: key);
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
-  final _i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
@@ -36,15 +31,13 @@ class ChatItemToForward extends StatelessWidget {
               ),
               Flexible(
                 child: FutureBuilder<String>(
-                  future: _roomRepo.getName(uid),
+                  future: _roomRepo.getName(uid, forceToReturnSavedMessage: true),
                   builder: (c, snaps) {
                     if (snaps.hasData && snaps.data != null) {
                       return Text(
-                        _authRepo.isCurrentUser(uid.asString())
-                            ? _i18n.get("saved_message")
-                            : snaps.data!,
+                        snaps.data!,
                         style: const TextStyle(fontSize: 18),
-                        overflow:TextOverflow.ellipsis ,
+                        overflow: TextOverflow.ellipsis,
                       );
                     } else {
                       return const Text(
@@ -55,7 +48,6 @@ class ChatItemToForward extends StatelessWidget {
                   },
                 ),
               ),
-
             ],
           ),
         ),

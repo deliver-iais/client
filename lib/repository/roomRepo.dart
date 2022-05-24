@@ -77,7 +77,8 @@ class RoomRepo {
     return null;
   }
 
-  Future<String> getName(Uid uid, {String? unknownName}) async {
+  Future<String> getName(Uid uid,
+      {String? unknownName, bool forceToReturnSavedMessage = false,}) async {
     if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
 
     // Is System Id
@@ -88,6 +89,9 @@ class RoomRepo {
 
     // Is Current User
     if (_authRepo.isCurrentUser(uid.asString())) {
+      if (forceToReturnSavedMessage) {
+        return _i18n.get("saved_message");
+      }
       return _accountRepo.getName();
     }
 
