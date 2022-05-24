@@ -41,7 +41,8 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
       cm(1, cUser, fakeUser, "سلام"),
       cm(2, cUser, fakeUser, "امروز میخواستیم با بچه ها بریم فوتبال، میای ؟"),
       cm(3, fakeUser, cUser, "حتما، چه ساعتیه ؟!", replyId: 2),
-      cm(4, cUser, fakeUser, "ایول\\n \\n ساعت ۹ شب، همونجای همیشگی. منتظرتیم"),
+      cm(4, cUser, fakeUser, "ایول\\n \\n ساعت ۹ شب، همونجای همیشگی. منتظرتیم",
+          replyId: 3),
     ];
   }
 
@@ -133,89 +134,121 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         preferredSize: const Size.fromHeight(60.0),
         child: AppBar(
           titleSpacing: 8,
-          title: Text(_i18n.get("advanced_settings")),
+          title: Text(_i18n.get("theme")),
           leading: _routingService.backButtonLeading(),
         ),
       ),
       body: FluidContainerWidget(
-        child: Container(
-          margin: const EdgeInsets.all(24.0),
-          // height: MediaQuery.of(context).size.height - 100,
-          decoration: const BoxDecoration(
-            borderRadius: mainBorder,
-          ),
-          clipBehavior: Clip.hardEdge,
-          child: ListView(
-            children: [
-              SizedBox(
-                height: 450,
-                child: Stack(
+        child: ListView(
+          children: [
+            SizedBox(
+              height: 480,
+              child: Stack(
+                children: [
+                  const Background(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      children: [
+                        ...createFakeMessages(),
+                        const Spacer(),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Transform.translate(
+              offset: Offset(0, -(mainBorder.topLeft.x)),
+              child: Container(
+                padding: const EdgeInsets.only(bottom: 12, top: 4),
+                decoration: BoxDecoration(
+                  borderRadius: mainBorder,
+                  color: Theme.of(context).colorScheme.background,
+                ),
+                child: Column(
                   children: [
-                    const Background(),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Column(
-                        children: [
-                          const Spacer(),
-                          ...createFakeMessages(),
-                          const Spacer(),
-                        ],
-                      ),
+                    Section(
+                      title: _i18n.get("theme"),
+                      children: [
+                        SettingsTile(
+                          title: "Main Color",
+                          leading: const Icon(CupertinoIcons.color_filter),
+                          trailing: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                for (var i = 0; i < palettes.length; i++)
+                                  color(palettes[i], i)
+                              ],
+                            ),
+                          ),
+                        ),
+                        SettingsTile.switchTile(
+                          title: _i18n.get("dark_mode"),
+                          leading: const Icon(CupertinoIcons.moon),
+                          switchValue: _uxService.themeIsDark,
+                          onToggle: (value) {
+                            setState(() {
+                              _uxService.toggleThemeLightingMode();
+                            });
+                          },
+                        ),
+                        SettingsTile.switchTile(
+                          title: _i18n.get("auto_night_mode"),
+                          leading: const Icon(CupertinoIcons.circle_lefthalf_fill),
+                          switchValue: _uxService.isAutoNightModeEnable,
+                          onToggle: (value) {
+                            setState(() {
+                              _uxService.toggleIsAutoNightMode();
+                            });
+                          },
+                        ),
+                      ],
+                    ),
+                    Section(
+                      title: _i18n.get("advanced_settings"),
+                      children: [
+                        SettingsTile(
+                          title: "Main Color",
+                          leading: const Icon(CupertinoIcons.color_filter),
+                          trailing: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                for (var i = 0; i < palettes.length; i++)
+                                  color(palettes[i], i)
+                              ],
+                            ),
+                          ),
+                        ),
+                        SettingsTile.switchTile(
+                          title: _i18n.get("dark_mode"),
+                          leading: const Icon(CupertinoIcons.moon),
+                          switchValue: _uxService.themeIsDark,
+                          onToggle: (value) {
+                            setState(() {
+                              _uxService.toggleThemeLightingMode();
+                            });
+                          },
+                        ),
+                        SettingsTile.switchTile(
+                          title: _i18n.get("auto_night_mode"),
+                          leading: const Icon(CupertinoIcons.circle_lefthalf_fill),
+                          switchValue: _uxService.isAutoNightModeEnable,
+                          onToggle: (value) {
+                            setState(() {
+                              _uxService.toggleIsAutoNightMode();
+                            });
+                          },
+                        ),
+                      ],
                     ),
                   ],
                 ),
               ),
-              Transform.translate(
-                offset: Offset(0, -(mainBorder.topLeft.x)),
-                child: Container(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  decoration: BoxDecoration(
-                    borderRadius: mainBorder,
-                    color: Theme.of(context).colorScheme.background,
-                  ),
-                  child: Section(
-                    title: _i18n.get("theme"),
-                    children: [
-                      SettingsTile(
-                        title: "Main Color",
-                        leading: const Icon(CupertinoIcons.color_filter),
-                        trailing: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Row(
-                            children: [
-                              for (var i = 0; i < palettes.length; i++)
-                                color(palettes[i], i)
-                            ],
-                          ),
-                        ),
-                      ),
-                      SettingsTile.switchTile(
-                        title: _i18n.get("dark_mode"),
-                        leading: const Icon(CupertinoIcons.moon),
-                        switchValue: _uxService.themeIsDark,
-                        onToggle: (value) {
-                          setState(() {
-                            _uxService.toggleThemeLightingMode();
-                          });
-                        },
-                      ),
-                      SettingsTile.switchTile(
-                        title: _i18n.get("auto_night_mode"),
-                        leading:
-                            const Icon(CupertinoIcons.circle_lefthalf_fill),
-                        switchValue: _uxService.isAutoNightModeEnable,
-                        onToggle: (value) {
-                          setState(() {
-                            _uxService.toggleIsAutoNightMode();
-                          });
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            ],
-          ),
+            )
+          ],
         ),
       ),
     );

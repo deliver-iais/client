@@ -185,6 +185,13 @@ class _SettingsPageState extends State<SettingsPage> {
             Section(
               title: _i18n.get("user_experience"),
               children: [
+                SettingsTile(
+                  title: _i18n.get("theme"),
+                  leading: const Icon(CupertinoIcons.paintbrush),
+                  onPressed: (context) {
+                    _routingService.openThemeSettings();
+                  },
+                ),
                 SettingsTile.switchTile(
                   title: _i18n.get("notification"),
                   leading: const Icon(CupertinoIcons.bell),
@@ -223,52 +230,7 @@ class _SettingsPageState extends State<SettingsPage> {
                     onToggle: (value) {
                       setState(() => _uxService.toggleSendByEnter());
                     },
-                  )
-              ],
-            ),
-            Section(
-              title: _i18n.get("theme"),
-              children: [
-                SettingsTile(
-                  title: "Main Color",
-                  leading: const Icon(CupertinoIcons.color_filter),
-                  trailing: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        for (var i = 0; i < palettes.length; i++)
-                          color(palettes[i], i)
-                      ],
-                    ),
                   ),
-                ),
-                SettingsTile.switchTile(
-                  title: _i18n.get("dark_mode"),
-                  leading: const Icon(CupertinoIcons.moon),
-                  switchValue: _uxService.themeIsDark,
-                  onToggle: (value) {
-                    setState(() {
-                      _uxService.toggleThemeLightingMode();
-                    });
-                  },
-                ),
-                SettingsTile.switchTile(
-                  title: _i18n.get("auto_night_mode"),
-                  leading: const Icon(CupertinoIcons.circle_lefthalf_fill),
-                  switchValue: _uxService.isAutoNightModeEnable,
-                  onToggle: (value) {
-                    setState(() {
-                      _uxService.toggleIsAutoNightMode();
-                    });
-                  },
-                ),
-                SettingsTile(
-                  title: _i18n.get("advanced_settings"),
-                  leading: const Icon(CupertinoIcons.paintbrush),
-                  onPressed: (context) {
-                    _routingService.openThemeSettings();
-                  },
-                ),
               ],
             ),
             Section(
