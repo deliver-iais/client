@@ -5,14 +5,19 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/room/pages/build_message_box.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
+import 'package:deliver/theme/theme.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
+
+import '../../../shared/widgets/settings_ui/box_ui.dart';
 
 const fakeUser = "0:fake_user";
 
@@ -24,6 +29,7 @@ class ThemeSettingsPage extends StatefulWidget {
 }
 
 class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
+  static final _uxService = GetIt.I.get<UxService>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _i18n = GetIt.I.get<I18N>();
   final _authRepo = GetIt.I.get<AuthRepo>();
@@ -132,45 +138,114 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         ),
       ),
       body: FluidContainerWidget(
-        child: Center(
-          child: Container(
-            height: MediaQuery.of(context).size.height - 100,
-            decoration: const BoxDecoration(
-              borderRadius: mainBorder,
-            ),
-            clipBehavior: Clip.hardEdge,
-            child: ListView(
-              children: [
-                SizedBox(
-                  height: 450,
-                  child: Stack(
+        child: Container(
+          margin: const EdgeInsets.all(24.0),
+          // height: MediaQuery.of(context).size.height - 100,
+          decoration: const BoxDecoration(
+            borderRadius: mainBorder,
+          ),
+          clipBehavior: Clip.hardEdge,
+          child: ListView(
+            children: [
+              SizedBox(
+                height: 450,
+                child: Stack(
+                  children: [
+                    const Background(),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: Column(
+                        children: [
+                          const Spacer(),
+                          ...createFakeMessages(),
+                          const Spacer(),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Transform.translate(
+                offset: Offset(0, -(mainBorder.topLeft.x)),
+                child: Container(
+                  padding: const EdgeInsets.only(bottom: 12),
+                  decoration: BoxDecoration(
+                    borderRadius: mainBorder,
+                    color: Theme.of(context).colorScheme.background,
+                  ),
+                  child: Section(
+                    title: _i18n.get("theme"),
                     children: [
-                      const Background(),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                        child: Column(
-                          children: [
-                            const Spacer(),
-                            ...createFakeMessages(),
-                            const Spacer(),
-                          ],
+                      SettingsTile(
+                        title: "Main Color",
+                        leading: const Icon(CupertinoIcons.color_filter),
+                        trailing: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Row(
+                            children: [
+                              for (var i = 0; i < palettes.length; i++)
+                                color(palettes[i], i)
+                            ],
+                          ),
                         ),
+                      ),
+                      SettingsTile.switchTile(
+                        title: _i18n.get("dark_mode"),
+                        leading: const Icon(CupertinoIcons.moon),
+                        switchValue: _uxService.themeIsDark,
+                        onToggle: (value) {
+                          setState(() {
+                            _uxService.toggleThemeLightingMode();
+                          });
+                        },
+                      ),
+                      SettingsTile.switchTile(
+                        title: _i18n.get("auto_night_mode"),
+                        leading:
+                            const Icon(CupertinoIcons.circle_lefthalf_fill),
+                        switchValue: _uxService.isAutoNightModeEnable,
+                        onToggle: (value) {
+                          setState(() {
+                            _uxService.toggleIsAutoNightMode();
+                          });
+                        },
                       ),
                     ],
                   ),
                 ),
-                Transform.translate(
-                  offset: Offset(0, -(mainBorder.topLeft.x)),
-                  child: Container(
-                    height: 850,
-                    decoration: const BoxDecoration(
-                      borderRadius: mainBorder,
-                      color: Colors.red,
-                    ),
-                  ),
-                )
-              ],
+              )
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget color(Color color, int index) {
+    final isSelected = _uxService.themeIndex == index;
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () {
+          _uxService.selectTheme(index);
+        },
+        child: AnimatedContainer(
+          duration: ANIMATION_DURATION * 2,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: isSelected
+                ? Border.all(color: Theme.of(context).primaryColor, width: 2)
+                : null,
+          ),
+          padding: const EdgeInsets.all(4),
+          child: AnimatedContainer(
+            duration: ANIMATION_DURATION * 2,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: color,
             ),
+            width: 24,
+            height: 24,
           ),
         ),
       ),
