@@ -473,6 +473,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                       ),
                                       onPressed: () {
                                         _backSubject.add(false);
+
                                         showButtonSheet();
                                       },
                                     );
