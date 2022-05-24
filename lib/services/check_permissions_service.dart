@@ -77,4 +77,24 @@ extension PermissionsExtension on CheckPermissionsService {
       return false;
     }
   }
+  Future<bool> checkStorage3Permission() async {
+    try {
+      return await Permission.mediaLibrary.isGranted ||
+          await requestLock.synchronized(() async {
+            return Permission.mediaLibrary.request().isGranted;
+          });
+    } catch (e) {
+      return false;
+    }
+  }
+  Future<bool> checkStorage4Permission() async {
+    try {
+      return await Permission.storage.isGranted ||
+          await requestLock.synchronized(() async {
+            return Permission.storage.request().isGranted;
+          });
+    } catch (e) {
+      return false;
+    }
+  }
 }

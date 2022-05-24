@@ -65,7 +65,9 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
   Future<void> _initFolders() async {
     if ((await PhotoManager.requestPermissionExtend()).isAuth &&
         await _checkPermissionServices.checkStoragePermission() &&
-        await _checkPermissionServices.checkStorage2Permission()) {
+        await _checkPermissionServices.checkStorage2Permission() &&
+        await _checkPermissionServices.checkStorage3Permission() &&
+        await _checkPermissionServices.checkStorage4Permission()) {
       _folders
           .add(await PhotoManager.getAssetPathList(type: RequestType.image));
     }
@@ -193,11 +195,10 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                 decoration: BoxDecoration(
                                   borderRadius: secondaryBorder,
                                   image: DecorationImage(
-                                    image: Image.file(
-                                      File(
-                                        snapshot.data!.first.relativePath! +
+                                    image: Image.asset(
+                                        snapshot.data!.first.relativePath!+
                                             "/${snapshot.data!.first.title!}",
-                                      ),
+
                                       cacheWidth: 500,
                                       cacheHeight: 500,
                                     ).image,
