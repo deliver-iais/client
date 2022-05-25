@@ -62,18 +62,6 @@ android {
             storePassword keystoreProperties['storePassword']
         }
     }
-    rootProject.allprojects {
-        subprojects {
-            project.configurations.all {
-                resolutionStrategy.eachDependency { details ->
-                    if (details.requested.group == 'com.github.bumptech.glide'
-                            && details.requested.name.contains('glide')) {
-                        details.useVersion '4.11.0'
-                    }
-                }
-            }
-        }
-    }
     packagingOptions {
         // Fixes duplicate libraries build issue,
         // when your project uses more than one plugin that depend on C++ libs.

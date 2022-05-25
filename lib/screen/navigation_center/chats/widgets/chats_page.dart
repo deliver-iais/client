@@ -123,74 +123,80 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
         return StreamBuilder<RouteEvent>(
           stream: _routingService.currentRouteStream,
           builder: (c, s) {
-            rooms = rearrangeChatItem(rooms);
+            if (s.hasData &&
+                s.data != null &&
+                s.connectionState == ConnectionState.active) {
+              rooms = rearrangeChatItem(rooms);
 
-            final rw = rooms
-                .map(
-                  (r) => RoomWrapper(
-                    room: r,
-                    isInRoom: _routingService.isInRoom(r.uid),
-                  ),
-                )
-                .toList();
+              final rw = rooms
+                  .map(
+                    (r) => RoomWrapper(
+                      room: r,
+                      isInRoom: _routingService.isInRoom(r.uid),
+                    ),
+                  )
+                  .toList();
 
-            return PageStorage(
-              bucket: PageStorage.of(context)!,
-              child: Scrollbar(
-                controller: widget.scrollController,
-                child: AutomaticAnimatedListView<RoomWrapper>(
-                  scrollController: widget.scrollController,
-                  list: rw,
-                  listController: _controller,
-                  animator: const DefaultAnimatedListAnimator(
-                    dismissIncomingDuration:
-                        kDismissOrIncomingAnimationDuration,
-                    reorderDuration: kReorderAnimationDuration,
-                    resizeDuration: kResizeAnimationDuration,
-                    movingDuration: kMovingAnimationDuration,
+              return PageStorage(
+                bucket: PageStorage.of(context)!,
+                child: Scrollbar(
+                  controller: widget.scrollController,
+                  child: AutomaticAnimatedListView<RoomWrapper>(
+                    scrollController: widget.scrollController,
+                    list: rw,
+                    listController: _controller,
+                    animator: const DefaultAnimatedListAnimator(
+                      dismissIncomingDuration:
+                          kDismissOrIncomingAnimationDuration,
+                      reorderDuration: kReorderAnimationDuration,
+                      resizeDuration: kResizeAnimationDuration,
+                      movingDuration: kMovingAnimationDuration,
+                    ),
+                    comparator: AnimatedListDiffListComparator<RoomWrapper>(
+                      sameItem: (a, b) => a.room.uid == b.room.uid,
+                      sameContent: (a, b) =>
+                          a.room == b.room && a.isInRoom == b.isInRoom,
+                    ),
+                    itemBuilder: (ctx, rw, data) {
+                      return GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        child: ChatItem(
+                          key: ValueKey("chatItem/${rw.room.uid}"),
+                          roomWrapper: rw,
+                        ),
+                        onTap: () {
+                          _routingService.openRoom(
+                            rw.room.uid,
+                            popAllBeforePush: true,
+                          );
+                        },
+                        onLongPress: () {
+                          // ToDo new design for android
+                          _showCustomMenu(
+                            context,
+                            rw.room,
+                            canBePinned(rooms),
+                          );
+                        },
+                        onTapDown: storePosition,
+                        onSecondaryTapDown: storePosition,
+                        onSecondaryTap: !isDesktop
+                            ? null
+                            : () {
+                                _showCustomMenu(
+                                  context,
+                                  rw.room,
+                                  canBePinned(rooms),
+                                );
+                              },
+                      );
+                    },
                   ),
-                  comparator: AnimatedListDiffListComparator<RoomWrapper>(
-                    sameItem: (a, b) => a.room.uid == b.room.uid,
-                    sameContent: (a, b) =>
-                        a.room == b.room && a.isInRoom == b.isInRoom,
-                  ),
-                  itemBuilder: (ctx, rw, data) {
-                    return GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      child: ChatItem(
-                        key: ValueKey("chatItem/${rw.room.uid}"),
-                        roomWrapper: rw,
-                      ),
-                      onTap: () {
-                        _routingService.openRoom(
-                          rw.room.uid,
-                          popAllBeforePush: true,
-                        );
-                      },
-                      onLongPress: () {
-                        // ToDo new design for android
-                        _showCustomMenu(
-                          context,
-                          rw.room,
-                          canBePinned(rooms),
-                        );
-                      },
-                      onTapDown: storePosition,
-                      onSecondaryTapDown: storePosition,
-                      onSecondaryTap: !isDesktop
-                          ? null
-                          : () {
-                              _showCustomMenu(
-                                context,
-                                rw.room,
-                                canBePinned(rooms),
-                              );
-                            },
-                    );
-                  },
                 ),
-              ),
-            );
+              );
+            } else {
+              return const SizedBox.shrink();
+            }
           },
         );
       },
@@ -199,6 +205,11 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
 
   bool canBePinned(List<Room> rooms) {
     return rooms.where((element) => element.pinned).toList().length < 5;
+  }
+
+  @override
+  void initState() {
+    super.initState();
   }
 
   List<Room> rearrangeChatItem(List<Room> rooms) {

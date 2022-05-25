@@ -440,7 +440,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                     }
                                   },
                                 ),
-                              if (Platform.isWindows)
+                              if (isWindows || isMacOS)
                                 StreamBuilder<bool>(
                                   stream: _showSendIcon.stream,
                                   builder: (c, sh) {

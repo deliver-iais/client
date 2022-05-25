@@ -64,16 +64,12 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
 
   Future<void> _initFolders() async {
     if ((await PhotoManager.requestPermissionExtend()).isAuth &&
-        await _checkPermissionServices.checkStoragePermission() &&
-        await _checkPermissionServices.checkStorage2Permission() &&
-        await _checkPermissionServices.checkStorage3Permission() &&
-        await _checkPermissionServices.checkStorage4Permission()) {
+        await _checkPermissionServices.checkAccessMediaLocationPermission()) {
       _folders
           .add(await PhotoManager.getAssetPathList(type: RequestType.image));
     }
     try {
-      if (await _checkPermissionServices.checkCameraRecorderPermission() &&
-          await _checkPermissionServices.checkCameraRecorderPermission()) {
+      if (await _checkPermissionServices.checkCameraRecorderPermission()) {
         _cameras = await availableCameras();
         if (_cameras.isNotEmpty) {
           _controller = CameraController(_cameras[0], ResolutionPreset.max);

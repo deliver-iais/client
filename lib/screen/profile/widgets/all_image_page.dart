@@ -162,7 +162,7 @@ class _AllImagePageState extends State<AllImagePage>
 
   Widget buildAnimation() {
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 200),
+      duration: const Duration(milliseconds: 500),
       transitionBuilder: (child, animation) {
         return ScaleTransition(scale: animation, child: child);
       },

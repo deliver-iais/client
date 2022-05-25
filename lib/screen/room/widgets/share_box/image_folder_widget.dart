@@ -149,6 +149,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                                         onEditEnd: (path) {
                                           imagePath = path;
                                         },
+                                        sendSingleImage: true,
                                         insertCaption: _insertCaption,
                                         onTap: onTap,
                                         selectedImage: _selectedImage,
@@ -177,8 +178,8 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                                     image: DecorationImage(
                                       image: Image.file(
                                         File(imagePath),
-                                        cacheWidth: 300,
-                                        cacheHeight: 300,
+                                        cacheWidth: 500,
+                                        cacheHeight: 500,
                                       ).image,
                                       fit: BoxFit.contain,
                                     ),
