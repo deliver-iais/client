@@ -6,44 +6,47 @@ part of 'message_brief.dart';
 // TypeAdapterGenerator
 // **************************************************************************
 
-class MessageBriefAdapter extends TypeAdapter<MessageReplyBrief> {
+class MessageBriefAdapter extends TypeAdapter<MessageBrief> {
   @override
   final int typeId = 28;
 
   @override
-  MessageReplyBrief read(BinaryReader reader) {
+  MessageBrief read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return MessageReplyBrief(
+    return MessageBrief(
       roomUid: fields[0] as String,
-      id: fields[1] as int,
-      time: fields[2] as int,
-      from: fields[3] as String,
-      to: fields[4] as String,
-      text: fields[5] as String,
-      type: fields[6] as MessageType,
+      packetId: fields[1] as String,
+      id: fields[2] as int,
+      time: fields[3] as int,
+      from: fields[4] as String,
+      to: fields[5] as String,
+      text: fields[6] as String,
+      type: fields[7] as MessageType,
     );
   }
 
   @override
-  void write(BinaryWriter writer, MessageReplyBrief obj) {
+  void write(BinaryWriter writer, MessageBrief obj) {
     writer
-      ..writeByte(7)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.roomUid)
       ..writeByte(1)
-      ..write(obj.id)
+      ..write(obj.packetId)
       ..writeByte(2)
-      ..write(obj.time)
+      ..write(obj.id)
       ..writeByte(3)
-      ..write(obj.from)
+      ..write(obj.time)
       ..writeByte(4)
-      ..write(obj.to)
+      ..write(obj.from)
       ..writeByte(5)
-      ..write(obj.text)
+      ..write(obj.to)
       ..writeByte(6)
+      ..write(obj.text)
+      ..writeByte(7)
       ..write(obj.type);
   }
 

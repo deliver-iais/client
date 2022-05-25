@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 
 class SentMessageBox extends StatelessWidget {
   final Message message;
-  final MessageReplyBrief? messageReplyBrief;
+  final MessageBrief? messageReplyBrief;
   final void Function(int, int) scrollToMessage;
   final bool isSeen;
   final bool isFirstMessageInGroupedMessages;

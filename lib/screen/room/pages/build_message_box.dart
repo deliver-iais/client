@@ -37,7 +37,7 @@ import 'package:share/share.dart';
 
 class BuildMessageBox extends StatefulWidget {
   final Message message;
-  final MessageReplyBrief? messageReplyBrief;
+  final MessageBrief? messageReplyBrief;
   final Message? messageBefore;
   final String roomId;
   final void Function(int, int) scrollToMessage;
@@ -98,7 +98,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     BuildContext context,
     Message msg,
     Message? msgBefore, {
-    MessageReplyBrief? messageReplyBrief,
+    MessageBrief? messageReplyBrief,
   }) {
     if (msg.isHidden) {
       return const SizedBox.shrink();
@@ -218,7 +218,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     BuildContext context,
     Message message,
     bool isFirstMessageInGroupedMessages, {
-    MessageReplyBrief? messageReplyBrief,
+    MessageBrief? messageReplyBrief,
   }) {
     Widget messageWidget;
 
@@ -280,7 +280,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   Widget showSentMessage(
     Message message, {
-    MessageReplyBrief? messageReplyBrief,
+    MessageBrief? messageReplyBrief,
     bool isFirstMessageInGroupedMessages = false,
   }) {
     final messageWidget = SentMessageBox(
@@ -309,7 +309,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   Widget showReceivedMessage(
     Message message, {
-    MessageReplyBrief? messageReplyBrief,
+    MessageBrief? messageReplyBrief,
     bool isFirstMessageInGroupedMessages = false,
   }) {
     final Widget messageWidget = ReceivedMessageBox(
@@ -523,6 +523,7 @@ class OperationOnMessageSelection {
       case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
       case MessageType.CALL:
       case MessageType.TABLE:
+      case MessageType.TRANSACTION:
         break;
     }
   }

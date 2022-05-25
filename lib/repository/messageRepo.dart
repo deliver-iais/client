@@ -706,6 +706,7 @@ class MessageRepo {
       case MessageType.NOT_SET:
       case MessageType.BUTTONS:
       case MessageType.SHARE_PRIVATE_DATA_REQUEST:
+      case MessageType.TRANSACTION:
         break;
     }
     return byClient;

@@ -13,7 +13,7 @@ import 'package:get_it/get_it.dart';
 
 class LastMessage extends StatelessWidget {
   final Message? message;
-  final MessageReplyBrief? messageReplyBrief;
+  final MessageBrief? messageReplyBrief;
   final bool pinned;
   final int lastMessageId;
   final bool hasMentioned;
@@ -66,15 +66,15 @@ class LastMessage extends StatelessWidget {
     final theme = Theme.of(context);
     final isReceivedMessage = !_authRepo.isCurrentUser(from);
 
-    return FutureBuilder<NotificationPayload>(
+    return FutureBuilder<MessageSimpleRepresentative>(
       future: message != null
-          ? extractNotificationPayload(
+          ? extractMessageSimpleRepresentative(
               _i18n,
               _roomRepo,
               _authRepo,
               extractProtocolBufferMessage(message!),
             )
-          : extractNotificationPayloadFromMessageReplyBrief(
+          : extractMessageSimpleRepresentativeFromMessageReplyBrief(
               _i18n,
               _roomRepo,
               _authRepo,
@@ -178,7 +178,7 @@ class LastMessage extends StatelessWidget {
     );
   }
 
-  List<TextSpan> buildText(NotificationPayload mb, BuildContext context) =>
+  List<TextSpan> buildText(MessageSimpleRepresentative mb, BuildContext context) =>
       extractBlocks(
         mb.text
             .split("\n")

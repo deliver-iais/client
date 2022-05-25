@@ -16,7 +16,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 
-class NotificationPayload {
+class MessageSimpleRepresentative {
   final Uid roomUid;
   final String sender;
   final String roomName;
@@ -29,7 +29,7 @@ class NotificationPayload {
   // Should not notify user
   final bool ignoreNotification;
 
-  NotificationPayload({
+  MessageSimpleRepresentative({
     required this.sender,
     required this.roomName,
     required this.type,
@@ -41,7 +41,7 @@ class NotificationPayload {
     this.id,
   });
 
-  NotificationPayload copyWith({
+  MessageSimpleRepresentative copyWith({
     Uid? roomUid,
     String? sender,
     String? roomName,
@@ -52,7 +52,7 @@ class NotificationPayload {
     bool? ignoreNotification,
     int? id,
   }) =>
-      NotificationPayload(
+      MessageSimpleRepresentative(
         roomUid: roomUid ?? this.roomUid,
         sender: sender ?? this.sender,
         roomName: roomName ?? this.roomName,
@@ -65,11 +65,60 @@ class NotificationPayload {
       );
 }
 
-Future<NotificationPayload> extractNotificationPayloadFromMessageReplyBrief(
+MessageBrief extractMessageBrief(Message msg) {
+  var text = "";
+
+  switch (msg.type) {
+    case MessageType.TEXT:
+      text = msg.json.toText().text;
+      break;
+    case MessageType.FILE:
+      text = msg.json.toFile().caption;
+      break;
+    case MessageType.STICKER:
+      if (msg.json.toSticker().emojis.isNotEmpty) {
+        text = msg.json.toSticker().emojis.first;
+      }
+      break;
+    case MessageType.FORM:
+      text = msg.json.toForm().title;
+      break;
+    case MessageType.TRANSACTION:
+      text = msg.json.toTransaction().description;
+      break;
+    case MessageType.SHARE_PRIVATE_DATA_REQUEST:
+    case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
+    case MessageType.CALL:
+    case MessageType.FORM_RESULT:
+    case MessageType.TABLE:
+    case MessageType.LOCATION:
+    case MessageType.LIVE_LOCATION:
+    case MessageType.POLL:
+    case MessageType.PERSISTENT_EVENT:
+    case MessageType.NOT_SET:
+    case MessageType.BUTTONS:
+    case MessageType.SHARE_UID:
+      break;
+  }
+
+  return MessageBrief(
+    roomUid: msg.roomUid,
+    packetId: msg.packetId,
+    id: msg.id ?? 0,
+    time: msg.time,
+    from: msg.from,
+    to: msg.to,
+    text: text,
+    type: msg.type,
+  );
+}
+
+Future<MessageSimpleRepresentative>
+    extractMessageSimpleRepresentativeFromMessageReplyBrief(
   I18N i18n,
   RoomRepo roomRepo,
   AuthRepo authRepo,
-  MessageReplyBrief mrb,
+  MessageBrief mrb,
 ) async {
   final roomUid = getRoomUidOf(authRepo, mrb.from.asUid(), mrb.to.asUid());
   final roomName = await roomRepo.getSlangName(roomUid);
@@ -79,7 +128,7 @@ Future<NotificationPayload> extractNotificationPayloadFromMessageReplyBrief(
   final text = mrb.text;
   const ignoreNotification = false;
 
-  return NotificationPayload(
+  return MessageSimpleRepresentative(
     roomUid: roomUid,
     roomName: roomName,
     sender: sender,
@@ -92,7 +141,7 @@ Future<NotificationPayload> extractNotificationPayloadFromMessageReplyBrief(
   );
 }
 
-Future<NotificationPayload> extractNotificationPayload(
+Future<MessageSimpleRepresentative> extractMessageSimpleRepresentative(
   I18N i18n,
   RoomRepo roomRepo,
   AuthRepo authRepo,
@@ -102,6 +151,7 @@ Future<NotificationPayload> extractNotificationPayload(
   final roomName = await roomRepo.getSlangName(roomUid);
   final sender = await roomRepo.getSlangName(msg.from);
   final type = getMessageType(msg.whichType());
+
   var typeDetails = "";
   var text = "";
   var ignoreNotification = authRepo.isCurrentUser(msg.from.asString());
@@ -121,7 +171,9 @@ Future<NotificationPayload> extractNotificationPayload(
       break;
     case message_pb.Message_Type.sticker:
       typeDetails = i18n.get("sticker");
-      text = msg.file.caption;
+      if (msg.sticker.emojis.isNotEmpty) {
+        text = msg.sticker.emojis.first;
+      }
       break;
     case message_pb.Message_Type.liveLocation:
       typeDetails = i18n.get("live_location");
@@ -199,7 +251,7 @@ Future<NotificationPayload> extractNotificationPayload(
       break;
   }
 
-  return NotificationPayload(
+  return MessageSimpleRepresentative(
     roomUid: roomUid,
     roomName: roomName,
     sender: sender,
@@ -435,6 +487,9 @@ message_pb.Message extractProtocolBufferMessage(Message message) {
     case MessageType.TABLE:
       msg.table = message.json.toTable();
       break;
+    case MessageType.TRANSACTION:
+      msg.transaction = message.json.toTransaction();
+      break;
     case MessageType.NOT_SET:
       break;
   }
@@ -515,6 +570,7 @@ bool isHiddenPbMessage(message_pb.Message message) {
       }
       return true;
 
+    case MessageType.TRANSACTION:
     case MessageType.NOT_SET:
       return true;
   }
@@ -567,6 +623,7 @@ bool isHiddenMessage(Message message) {
       }
       return true;
 
+    case MessageType.TRANSACTION:
     case MessageType.NOT_SET:
       return true;
   }
@@ -620,6 +677,9 @@ String messageBodyToJson(message_pb.Message message) {
     case MessageType.TABLE:
       return message.table.writeToJson();
 
+    case MessageType.TRANSACTION:
+      return message.transaction.writeToJson();
+
     case MessageType.NOT_SET:
       return EMPTY_MESSAGE;
   }
@@ -658,7 +718,7 @@ MessageType getMessageType(message_pb.Message_Type messageType) {
     case message_pb.Message_Type.table:
       return MessageType.TABLE;
     case message_pb.Message_Type.transaction:
-      return MessageType.NOT_SET;
+      return MessageType.TRANSACTION;
     case message_pb.Message_Type.notSet:
       return MessageType.NOT_SET;
   }

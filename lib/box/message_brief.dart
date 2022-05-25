@@ -7,30 +7,34 @@ import 'message_type.dart';
 part 'message_brief.g.dart';
 
 @HiveType(typeId: MESSAGE_BRIEF_TRACK_ID)
-class MessageReplyBrief {
+class MessageBrief {
   @HiveField(0)
   String roomUid;
 
   @HiveField(1)
-  int id;
+  String packetId;
 
   @HiveField(2)
-  int time;
+  int id;
 
   @HiveField(3)
-  String from;
+  int time;
 
   @HiveField(4)
-  String to;
+  String from;
 
   @HiveField(5)
-  String text;
+  String to;
 
   @HiveField(6)
+  String text;
+
+  @HiveField(7)
   MessageType type;
 
-  MessageReplyBrief({
+  MessageBrief({
     required this.roomUid,
+    required this.packetId,
     required this.id,
     required this.time,
     required this.from,
@@ -43,8 +47,9 @@ class MessageReplyBrief {
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other.runtimeType == runtimeType &&
-          other is MessageReplyBrief &&
+          other is MessageBrief &&
           const DeepCollectionEquality().equals(other.roomUid, roomUid) &&
+          const DeepCollectionEquality().equals(other.packetId, packetId) &&
           const DeepCollectionEquality().equals(other.id, id) &&
           const DeepCollectionEquality().equals(other.time, time) &&
           const DeepCollectionEquality().equals(other.from, from) &&
@@ -56,6 +61,7 @@ class MessageReplyBrief {
   int get hashCode => Object.hash(
         runtimeType,
         const DeepCollectionEquality().hash(roomUid),
+        const DeepCollectionEquality().hash(packetId),
         const DeepCollectionEquality().hash(id),
         const DeepCollectionEquality().hash(time),
         const DeepCollectionEquality().hash(from),

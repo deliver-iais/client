@@ -81,7 +81,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
     );
   }
 
-  MessageReplyBrief? cfm(int id) {
+  MessageBrief? cfm(int id) {
     if (id <= 0) {
       return null;
     }
@@ -89,13 +89,15 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
     final m = messages[id - 1];
     final text = m.json.toText().text;
 
-    return MessageReplyBrief(
+    return MessageBrief(
       roomUid: m.roomUid,
-      id: id,
+      packetId: m.packetId,
+      id: m.id ?? 0,
       time: m.time,
       from: m.from,
       to: m.to,
       text: text,
+      type: m.type,
     );
   }
 

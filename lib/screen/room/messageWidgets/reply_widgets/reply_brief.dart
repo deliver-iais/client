@@ -12,7 +12,7 @@ class ReplyBrief extends StatelessWidget {
   final double maxWidth;
   final Color backgroundColor;
   final Color foregroundColor;
-  final MessageReplyBrief? messageReplyBrief;
+  final MessageBrief? messageReplyBrief;
   final _messageRepo = GetIt.I.get<MessageRepo>();
 
   ReplyBrief({
@@ -71,7 +71,7 @@ class ReplyBrief extends StatelessWidget {
   }
 
   Row repliedMessageBoxByMessageReplyBrief(
-    MessageReplyBrief messageReplyBrief,
+    MessageBrief messageReplyBrief,
   ) {
     return Row(
       mainAxisSize: MainAxisSize.min,

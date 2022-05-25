@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 class SenderAndContent extends StatelessWidget {
   final Message? message;
-  final MessageReplyBrief? messageReplyBrief;
+  final MessageBrief? messageReplyBrief;
 
   final bool expandContent;
 

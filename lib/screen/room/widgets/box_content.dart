@@ -32,7 +32,7 @@ import 'package:get_it/get_it.dart';
 
 class BoxContent extends StatefulWidget {
   final Message message;
-  final MessageReplyBrief? messageReplyBrief;
+  final MessageBrief? messageReplyBrief;
   final double maxWidth;
   final double minWidth;
   final bool isSender;
@@ -341,6 +341,7 @@ class _BoxContentState extends State<BoxContent> {
           message: widget.message,
           colorScheme: colorScheme,
         );
+      case MessageType.TRANSACTION:
       case MessageType.NOT_SET:
         return NotSupportedMessage(
           maxWidth: widget.maxWidth,
