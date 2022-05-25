@@ -97,7 +97,6 @@ class _InputMessageWidget extends State<InputMessage> {
 
   double dx = 150.0;
   bool recordAudioPermission = false;
-  late String mentionQuery;
   late Timer recordAudioTimer;
   final BehaviorSubject<bool> _backSubject = BehaviorSubject.seeded(false);
   final BehaviorSubject<bool> _showSendIcon = BehaviorSubject.seeded(false);
@@ -193,7 +192,6 @@ class _InputMessageWidget extends State<InputMessage> {
 
       if (currentRoom.uid.asUid().category == Categories.GROUP &&
           widget.textController.selection.start > 0) {
-        mentionQuery = "-";
         final str = widget.textController.text;
         final start =
             str.lastIndexOf("@", widget.textController.selection.start);
