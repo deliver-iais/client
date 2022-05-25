@@ -66,15 +66,15 @@ class LastMessage extends StatelessWidget {
     final theme = Theme.of(context);
     final isReceivedMessage = !_authRepo.isCurrentUser(from);
 
-    return FutureBuilder<MessageBrief>(
+    return FutureBuilder<NotificationPayload>(
       future: message != null
-          ? extractMessageBrief(
+          ? extractNotificationPayload(
               _i18n,
               _roomRepo,
               _authRepo,
               extractProtocolBufferMessage(message!),
             )
-          : extractMessageBriefFromMessageReplyBrief(
+          : extractNotificationPayloadFromMessageReplyBrief(
               _i18n,
               _roomRepo,
               _authRepo,
@@ -178,7 +178,7 @@ class LastMessage extends StatelessWidget {
     );
   }
 
-  List<TextSpan> buildText(MessageBrief mb, BuildContext context) =>
+  List<TextSpan> buildText(NotificationPayload mb, BuildContext context) =>
       extractBlocks(
         mb.text
             .split("\n")

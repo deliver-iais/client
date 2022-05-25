@@ -16,7 +16,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
 
-class MessageBrief {
+class NotificationPayload {
   final Uid roomUid;
   final String sender;
   final String roomName;
@@ -29,7 +29,7 @@ class MessageBrief {
   // Should not notify user
   final bool ignoreNotification;
 
-  MessageBrief({
+  NotificationPayload({
     required this.sender,
     required this.roomName,
     required this.type,
@@ -41,7 +41,7 @@ class MessageBrief {
     this.id,
   });
 
-  MessageBrief copyWith({
+  NotificationPayload copyWith({
     Uid? roomUid,
     String? sender,
     String? roomName,
@@ -52,7 +52,7 @@ class MessageBrief {
     bool? ignoreNotification,
     int? id,
   }) =>
-      MessageBrief(
+      NotificationPayload(
         roomUid: roomUid ?? this.roomUid,
         sender: sender ?? this.sender,
         roomName: roomName ?? this.roomName,
@@ -65,7 +65,7 @@ class MessageBrief {
       );
 }
 
-Future<MessageBrief> extractMessageBriefFromMessageReplyBrief(
+Future<NotificationPayload> extractNotificationPayloadFromMessageReplyBrief(
   I18N i18n,
   RoomRepo roomRepo,
   AuthRepo authRepo,
@@ -79,7 +79,7 @@ Future<MessageBrief> extractMessageBriefFromMessageReplyBrief(
   final text = mrb.text;
   const ignoreNotification = false;
 
-  return MessageBrief(
+  return NotificationPayload(
     roomUid: roomUid,
     roomName: roomName,
     sender: sender,
@@ -92,7 +92,7 @@ Future<MessageBrief> extractMessageBriefFromMessageReplyBrief(
   );
 }
 
-Future<MessageBrief> extractMessageBrief(
+Future<NotificationPayload> extractNotificationPayload(
   I18N i18n,
   RoomRepo roomRepo,
   AuthRepo authRepo,
@@ -199,7 +199,7 @@ Future<MessageBrief> extractMessageBrief(
       break;
   }
 
-  return MessageBrief(
+  return NotificationPayload(
     roomUid: roomUid,
     roomName: roomName,
     sender: sender,

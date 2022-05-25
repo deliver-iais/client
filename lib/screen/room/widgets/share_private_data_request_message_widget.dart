@@ -154,70 +154,71 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
     final res = <File>[];
     final typeGroup = <XTypeGroup>[];
 
-    if (isLinux) {
-      if (sharePrivateDataRequest.fileTypeFilter.canPickAudios) {
-        typeGroup
-          ..add(XTypeGroup(label: 'music'))
-          ..add(XTypeGroup(label: 'audio'));
-      }
-      if (sharePrivateDataRequest.fileTypeFilter.canPickDocuments) {
-        typeGroup.add(XTypeGroup(extensions: ["pdf,docx,xlsx,xls,text,txt"]));
-      }
-      if (sharePrivateDataRequest.fileTypeFilter.canPickVideos) {
-        typeGroup.add(XTypeGroup(label: 'videos'));
-      }
-      if (sharePrivateDataRequest.fileTypeFilter.canPickImages) {
-        typeGroup.add(XTypeGroup(label: 'images'));
-      }
-
-      final result = await openFiles(acceptedTypeGroups: typeGroup);
-      for (final file in result) {
-        res.add(
-          File(
-            file.path,
-            file.name,
-            extension: file.mimeType,
-            size: await file.length(),
-          ),
-        );
-      }
-    } else {
-      var type = FileType.any;
-      if (sharePrivateDataRequest.fileTypeFilter.canPickDocuments) {
-        type = FileType.custom;
-      } else if (sharePrivateDataRequest.fileTypeFilter.canPickImages) {
-        type = FileType.image;
-      } else if (sharePrivateDataRequest.fileTypeFilter.canPickAudios) {
-        type = FileType.audio;
-      } else if (sharePrivateDataRequest.fileTypeFilter.canPickVideos) {
-        type = FileType.video;
-      }
-      final result = await FilePicker.platform.pickFiles(
-        type: type,
-        allowedExtensions:
-            type == FileType.custom ? ["pdf,docx,xlsx,xls,text,txt"] : [],
-      );
-
-      if (result != null) {
-        for (final file in result.files) {
-          res.add(
-            File(
-              isWeb
-                  ? Uri.dataFromBytes(file.bytes!.toList()).toString()
-                  : file.path!,
-              file.name,
-              size: file.size,
-              extension: file.extension,
-            ),
-          );
-        }
-      }
-    }
-    showCaptionDialog(
-      roomUid: message.roomUid.asUid(),
-      context: context,
-      files: res,
-    );
+    // TODO(dansi): Update models of file type filter.
+    // if (isLinux) {
+    //   if (sharePrivateDataRequest.fileTypeFilter.canPickAudios) {
+    //     typeGroup
+    //       ..add(XTypeGroup(label: 'music'))
+    //       ..add(XTypeGroup(label: 'audio'));
+    //   }
+    //   if (sharePrivateDataRequest.fileTypeFilter.canPickDocuments) {
+    //     typeGroup.add(XTypeGroup(extensions: ["pdf,docx,xlsx,xls,text,txt"]));
+    //   }
+    //   if (sharePrivateDataRequest.fileTypeFilter.canPickVideos) {
+    //     typeGroup.add(XTypeGroup(label: 'videos'));
+    //   }
+    //   if (sharePrivateDataRequest.fileTypeFilter.canPickImages) {
+    //     typeGroup.add(XTypeGroup(label: 'images'));
+    //   }
+    //
+    //   final result = await openFiles(acceptedTypeGroups: typeGroup);
+    //   for (final file in result) {
+    //     res.add(
+    //       File(
+    //         file.path,
+    //         file.name,
+    //         extension: file.mimeType,
+    //         size: await file.length(),
+    //       ),
+    //     );
+    //   }
+    // } else {
+    //   var type = FileType.any;
+    //   if (sharePrivateDataRequest.fileTypeFilter.canPickDocuments) {
+    //     type = FileType.custom;
+    //   } else if (sharePrivateDataRequest.fileTypeFilter.canPickImages) {
+    //     type = FileType.image;
+    //   } else if (sharePrivateDataRequest.fileTypeFilter.canPickAudios) {
+    //     type = FileType.audio;
+    //   } else if (sharePrivateDataRequest.fileTypeFilter.canPickVideos) {
+    //     type = FileType.video;
+    //   }
+    //   final result = await FilePicker.platform.pickFiles(
+    //     type: type,
+    //     allowedExtensions:
+    //         type == FileType.custom ? ["pdf,docx,xlsx,xls,text,txt"] : [],
+    //   );
+    //
+    //   if (result != null) {
+    //     for (final file in result.files) {
+    //       res.add(
+    //         File(
+    //           isWeb
+    //               ? Uri.dataFromBytes(file.bytes!.toList()).toString()
+    //               : file.path!,
+    //           file.name,
+    //           size: file.size,
+    //           extension: file.extension,
+    //         ),
+    //       );
+    //     }
+    //   }
+    // }
+    // showCaptionDialog(
+    //   roomUid: message.roomUid.asUid(),
+    //   context: context,
+    //   files: res,
+    // );
   }
 
   void _showGetAccessPrivateData(

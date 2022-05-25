@@ -116,7 +116,7 @@ abstract class Notifier {
     }
   }
 
-  Future<void> notifyText(MessageBrief message);
+  Future<void> notifyText(NotificationPayload message);
 
   Future<void> notifyIncomingCall(
     String roomUid,
@@ -184,14 +184,14 @@ class NotificationServices {
     String roomUid, {
     String? roomName,
   }) async {
-    final mb = (await extractMessageBrief(_i18n, _roomRepo, _authRepo, message))
+    final mb = (await extractNotificationPayload(_i18n, _roomRepo, _authRepo, message))
         .copyWith(roomName: roomName);
     if (!mb.ignoreNotification) {
       return _notifier.notifyText(_synthesize(mb));
     }
   }
 
-  MessageBrief _synthesize(MessageBrief mb) {
+  NotificationPayload _synthesize(NotificationPayload mb) {
     if (mb.text.isNotEmpty) {
       return mb.copyWith(
         text: BoldTextParser.transformer(
@@ -214,7 +214,7 @@ class NotificationServices {
 
 class FakeNotifier implements Notifier {
   @override
-  Future<void> notifyText(MessageBrief message) async {}
+  Future<void> notifyText(NotificationPayload message) async {}
 
   @override
   Future<void> notifyIncomingCall(
@@ -255,7 +255,7 @@ class WindowsNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyText(MessageBrief message) async {
+  Future<void> notifyText(NotificationPayload message) async {
     Toast? toast;
     if (!toastByRoomId.containsKey(message.roomUid.node)) {
       toastByRoomId[message.roomUid.node] = {};
@@ -390,7 +390,7 @@ class WebNotifier implements Notifier {
   Future<void> cancelAll() async {}
 
   @override
-  Future<void> notifyText(MessageBrief message) async {
+  Future<void> notifyText(NotificationPayload message) async {
     js.context.callMethod(
       "showNotification",
       [message.roomName, createNotificationTextFromMessageBrief(message)],
@@ -442,7 +442,7 @@ class LinuxNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyText(MessageBrief message) async {
+  Future<void> notifyText(NotificationPayload message) async {
     if (message.ignoreNotification) return;
 
     LinuxNotificationIcon icon = AssetsLinuxIcon(
@@ -629,7 +629,7 @@ class AndroidNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyText(MessageBrief message) async {
+  Future<void> notifyText(NotificationPayload message) async {
     if (message.ignoreNotification) return;
     AndroidBitmap<Object>? largeIcon;
     var selectedNotificationSound = "that_was_quick";
@@ -839,7 +839,7 @@ class IOSNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyText(MessageBrief message) async {
+  Future<void> notifyText(NotificationPayload message) async {
     if (message.ignoreNotification) return;
 
     final attachments = <DarwinNotificationAttachment>[];
@@ -956,7 +956,7 @@ class MacOSNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyText(MessageBrief message) async {
+  Future<void> notifyText(NotificationPayload message) async {
     if (message.ignoreNotification) return;
 
     final attachments = <DarwinNotificationAttachment>[];
@@ -1018,7 +1018,7 @@ class MacOSNotifier implements Notifier {
   Future<void> cancelById(int id) async {}
 }
 
-String createNotificationTextFromMessageBrief(MessageBrief mb) {
+String createNotificationTextFromMessageBrief(NotificationPayload mb) {
   var text = "";
   if (!(mb.roomUid.isBot() || mb.roomUid.isUser()) && mb.senderIsAUserOrBot) {
     text += "${mb.sender.trim()}: ";
