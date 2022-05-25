@@ -13,6 +13,7 @@ class CallEvents {
   final CallTypes callType;
   final Uid? roomUid;
   final String callId;
+  final int time;
 
   static CallEvents none = const CallEvents._none();
 
@@ -22,6 +23,7 @@ class CallEvents {
         callAnswer = null,
         roomUid = null,
         callId = "-1",
+        time = 0,
         callType = CallTypes.None;
 
   const CallEvents.callAnswer(
@@ -30,13 +32,15 @@ class CallEvents {
     required this.callId,
   })  : callEvent = null,
         callOffer = null,
+        time = 0,
         callType = CallTypes.Answer;
 
   const CallEvents.callEvent(
     this.callEvent, {
     required this.roomUid,
     required this.callId,
-  })  : callAnswer = null,
+    required this.time
+    })  : callAnswer = null,
         callOffer = null,
         callType = CallTypes.Event;
 
@@ -46,6 +50,7 @@ class CallEvents {
         required this.callId,
       })  : callEvent = null,
         callAnswer = null,
+        time = 0,
         callType = CallTypes.Offer;
 
   @override
