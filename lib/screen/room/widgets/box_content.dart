@@ -75,19 +75,18 @@ class BoxContent extends StatefulWidget {
 class _BoxContentState extends State<BoxContent> {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _routingServices = GetIt.I.get<RoutingService>();
-  late final CustomColorScheme colorScheme;
   bool hideArrowDopIcon = true;
 
   @override
   void initState() {
-    colorScheme =
-        ExtraTheme.of(context).messageColorScheme(widget.message.from);
-
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme =
+        ExtraTheme.of(context).messageColorScheme(widget.message.from);
+
     return MouseRegion(
       onHover: (s) {
         hideArrowDopIcon = false;
@@ -150,6 +149,9 @@ class _BoxContentState extends State<BoxContent> {
   }
 
   Widget replyToIdBox() {
+    final colorScheme =
+        ExtraTheme.of(context).messageColorScheme(widget.message.from);
+
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
@@ -172,6 +174,8 @@ class _BoxContentState extends State<BoxContent> {
   }
 
   Widget forwardedFromBox() {
+    final colorScheme =
+        ExtraTheme.of(context).messageColorScheme(widget.message.from);
     return Container(
       margin: const EdgeInsets.all(4),
       padding: const EdgeInsets.only(left: 4, right: 8, top: 4, bottom: 2),
@@ -220,6 +224,8 @@ class _BoxContentState extends State<BoxContent> {
   }
 
   Widget messageBox() {
+    final colorScheme =
+        ExtraTheme.of(context).messageColorScheme(widget.message.from);
     if (AnimatedEmoji.isAnimatedEmoji(widget.message)) {
       return AnimatedEmoji(
         message: widget.message,
