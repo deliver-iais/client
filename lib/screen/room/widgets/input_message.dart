@@ -114,7 +114,6 @@ class _InputMessageWidget extends State<InputMessage> {
 
   Subject<ActivityType> isTypingActivitySubject = BehaviorSubject();
   Subject<ActivityType> noActivitySubject = BehaviorSubject();
-  late String _mentionData;
   late String _botCommandData;
   int mentionSelectedIndex = 0;
   int botCommandSelectedIndex = 0;
@@ -267,10 +266,9 @@ class _InputMessageWidget extends State<InputMessage> {
             StreamBuilder<String?>(
               stream: _mentionQuery.stream.distinct(),
               builder: (c, showMention) {
-                _mentionData = showMention.data ?? "-";
                 if (showMention.hasData && showMention.data != null) {
                   return ShowMentionList(
-                    query: _mentionData,
+                    query: showMention.data!,
                     onSelected: (s) {
                       onMentionSelected(s);
                     },
@@ -709,8 +707,8 @@ class _InputMessageWidget extends State<InputMessage> {
         isEnterClicked(event)) {
       if (widget.currentRoom.uid.isGroup() &&
           mentionSelectedIndex >= 0 &&
-          _mentionData != "_") {
-        sendMentionByEnter();
+          _mentionQuery.value != null) {
+        addMentionByEnter();
       } else {
         sendMessage();
       }
@@ -720,8 +718,8 @@ class _InputMessageWidget extends State<InputMessage> {
         isEnterClicked(event)) {
       if (widget.currentRoom.uid.isGroup() &&
           mentionSelectedIndex >= 0 &&
-          _mentionData != "_") {
-        sendMentionByEnter();
+          _mentionQuery.value != null) {
+        addMentionByEnter();
       } else {
         sendMessage();
       }
@@ -741,7 +739,7 @@ class _InputMessageWidget extends State<InputMessage> {
     if (widget.currentRoom.uid.asUid().isGroup()) {
       setState(() {
         _rawKeyboardService.navigateInMentions(
-          _mentionData,
+          _mentionQuery.value,
           scrollDownInMentions,
           event,
           mentionSelectedIndex,
@@ -826,10 +824,10 @@ class _InputMessageWidget extends State<InputMessage> {
         );
   }
 
-  Future<void> sendMentionByEnter() async {
+  Future<void> addMentionByEnter() async {
     final value = await _mucRepo.getFilteredMember(
       widget.currentRoom.uid,
-      query: _mentionData,
+      query: _mentionQuery.value,
     );
     if (value.isNotEmpty) {
       onMentionSelected(value[mentionSelectedIndex]!.id);
@@ -856,7 +854,9 @@ class _InputMessageWidget extends State<InputMessage> {
 
   void scrollUpInMentions() {
     if (mentionSelectedIndex <= 0) {
-      _mucRepo.getFilteredMember(currentRoom.uid, query: _mentionData).then(
+      _mucRepo
+          .getFilteredMember(currentRoom.uid, query: _mentionQuery.value)
+          .then(
             (value) => {
               mentionSelectedIndex = value.length - 1,
             },
@@ -982,7 +982,9 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   void scrollDownInMentions() {
-    _mucRepo.getFilteredMember(currentRoom.uid, query: _mentionData).then(
+    _mucRepo
+        .getFilteredMember(currentRoom.uid, query: _mentionQuery.value)
+        .then(
           (value) => {
             if (mentionSelectedIndex >= value.length)
               {mentionSelectedIndex = 0}
