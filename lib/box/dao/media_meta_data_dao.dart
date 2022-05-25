@@ -16,12 +16,17 @@ abstract class MediaMetaDataDao {
 class MediaMetaDataDaoImpl implements MediaMetaDataDao {
   @override
   Stream<MediaMetaData?> get(String roomUid) async* {
-    try {
-      final box = await _open();
-      yield box.values
-          .where((element) => element.roomId.contains(roomUid))
-          .first;
-    } catch (_) {}
+    final box = await _open();
+
+    final res = box.values.where((element) => element.roomId.contains(roomUid));
+    if (res.isNotEmpty) {
+      yield res.first;
+    }
+    yield* box.watch().map(
+          (event) => box.values
+              .where((element) => element.roomId.contains(roomUid))
+              .first,
+        );
   }
 
   @override

@@ -119,6 +119,7 @@ class _ImageUiState extends State<ImageUi> {
                                         const Key("/all_image_page"),
                                         roomUid: widget.message.roomUid,
                                         filePath: s.data,
+                                        message: widget.message,
                                         initIndex:
                                             hasIndex ? snapshot.data : null,
                                         isSingleImage: isSingleImage,

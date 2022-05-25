@@ -106,16 +106,10 @@ class RoomRepo {
     if (uidIdName != null &&
         ((uidIdName.id != null && uidIdName.id!.isNotEmpty) ||
             uidIdName.name != null && uidIdName.name!.isNotEmpty)) {
-      var name = uidIdName.name!;
-
-      if (name.isEmpty) {
-        name = uidIdName.id!;
-      }
-
       // Set in cache
-      roomNameCache.set(uid.asString(), name);
+      roomNameCache.set(uid.asString(), uidIdName.name ?? uidIdName.id!);
 
-      return name;
+      return roomNameCache.get(uid.asString())!;
     }
 
     // Is User
