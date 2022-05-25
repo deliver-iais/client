@@ -127,88 +127,100 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                 future: _getImageAtIndex(index),
                 builder: (context, snapshot) {
                   if (snapshot.hasData && snapshot.data != null) {
-                    var imagePath = snapshot.data!.relativePath! +
-                        "/${snapshot.data!.title!}";
-                    return GestureDetector(
-                      onTap: () {
-                        if (widget.setAvatar != null) {
-                          widget.pop();
-                          Navigator.pop(context);
-                          widget.setAvatar!(imagePath);
-                        } else {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (c) {
-                                return OpenImagePage(
-                                  imagePath: imagePath,
-                                  onEditEnd: (path) {
-                                    imagePath = path;
-                                  },
-                                  insertCaption: _insertCaption,
-                                  onTap: onTap,
-                                  selectedImage: _selectedImage,
-                                  send: _send,
-                                  pop: widget.pop,
-                                  textEditingController: _textEditingController,
+                    return FutureBuilder<File?>(
+                      future: snapshot.data!.file,
+                      builder: (context, fileSnapshot) {
+                        if (fileSnapshot.hasData &&
+                            fileSnapshot.data!.existsSync()) {
+                          var imagePath = fileSnapshot.data!.path;
+                          return GestureDetector(
+                            onTap: () {
+                              if (widget.setAvatar != null) {
+                                widget.pop();
+                                Navigator.pop(context);
+                                widget.setAvatar!(imagePath);
+                              } else {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (c) {
+                                      return OpenImagePage(
+                                        imagePath: imagePath,
+                                        onEditEnd: (path) {
+                                          imagePath = path;
+                                        },
+                                        sendSingleImage: true,
+                                        insertCaption: _insertCaption,
+                                        onTap: onTap,
+                                        selectedImage: _selectedImage,
+                                        send: _send,
+                                        pop: widget.pop,
+                                        textEditingController:
+                                            _textEditingController,
+                                      );
+                                    },
+                                  ),
                                 );
-                              },
+                              }
+                            },
+                            child: AnimatedPadding(
+                              duration: const Duration(milliseconds: 200),
+                              padding: EdgeInsets.all(
+                                _selectedImage.contains(imagePath) ? 8.0 : 4.0,
+                              ),
+                              child: Hero(
+                                tag: imagePath,
+                                child: Container(
+                                  width: 50,
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    borderRadius: secondaryBorder,
+                                    image: DecorationImage(
+                                      image: Image.file(
+                                        File(imagePath),
+                                        cacheWidth: 500,
+                                        cacheHeight: 500,
+                                      ).image,
+                                      fit: BoxFit.contain,
+                                    ),
+                                  ),
+                                  child: widget.setAvatar != null
+                                      ? const SizedBox.shrink()
+                                      : Align(
+                                          alignment: Alignment.bottomRight,
+                                          child: GestureDetector(
+                                            onTap: () => onTap(imagePath),
+                                            child: Container(
+                                              width: 28,
+                                              height: 28,
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(24),
+                                                color: Theme.of(context)
+                                                    .hoverColor
+                                                    .withOpacity(0.5),
+                                              ),
+                                              child: Center(
+                                                child: Icon(
+                                                  _selectedImage
+                                                          .contains(imagePath)
+                                                      ? Icons
+                                                          .check_circle_outline
+                                                      : Icons.panorama_fish_eye,
+                                                  color: Colors.white,
+                                                  size: 28,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                ),
+                              ),
                             ),
                           );
                         }
+                        return const SizedBox.shrink();
                       },
-                      child: AnimatedPadding(
-                        duration: const Duration(milliseconds: 200),
-                        padding: EdgeInsets.all(
-                          _selectedImage.contains(imagePath) ? 8.0 : 4.0,
-                        ),
-                        child: Hero(
-                          tag: imagePath,
-                          child: Container(
-                            width: 50,
-                            height: 50,
-                            decoration: BoxDecoration(
-                              borderRadius: secondaryBorder,
-                              image: DecorationImage(
-                                image: Image.file(
-                                  File(imagePath),
-                                  cacheWidth: 300,
-                                  cacheHeight: 300,
-                                ).image,
-                                fit: BoxFit.contain,
-                              ),
-                            ),
-                            child: widget.setAvatar != null
-                                ? const SizedBox.shrink()
-                                : Align(
-                                    alignment: Alignment.bottomRight,
-                                    child: GestureDetector(
-                                      onTap: () => onTap(imagePath),
-                                      child: Container(
-                                        width: 28,
-                                        height: 28,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(24),
-                                          color: Theme.of(context)
-                                              .hoverColor
-                                              .withOpacity(0.5),
-                                        ),
-                                        child: Center(
-                                          child: Icon(
-                                            _selectedImage.contains(imagePath)
-                                                ? Icons.check_circle_outline
-                                                : Icons.panorama_fish_eye,
-                                            color: Colors.white,
-                                            size: 28,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                          ),
-                        ),
-                      ),
                     );
                   }
                   return const SizedBox.shrink();

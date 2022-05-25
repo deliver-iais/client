@@ -39,16 +39,16 @@ class CallEvents {
     this.callEvent, {
     required this.roomUid,
     required this.callId,
-    required this.time
-    })  : callAnswer = null,
+    required this.time,
+  })  : callAnswer = null,
         callOffer = null,
         callType = CallTypes.Event;
 
   const CallEvents.callOffer(
-      this.callOffer, {
-        required this.roomUid,
-        required this.callId,
-      })  : callEvent = null,
+    this.callOffer, {
+    required this.roomUid,
+    required this.callId,
+  })  : callEvent = null,
         callAnswer = null,
         time = 0,
         callType = CallTypes.Offer;

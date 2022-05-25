@@ -102,16 +102,10 @@ class RoomRepo {
     if (uidIdName != null &&
         ((uidIdName.id != null && uidIdName.id!.isNotEmpty) ||
             uidIdName.name != null && uidIdName.name!.isNotEmpty)) {
-      var name = uidIdName.name!;
-
-      if (name.isEmpty) {
-        name = uidIdName.id!;
-      }
-
       // Set in cache
-      roomNameCache.set(uid.asString(), name);
+      roomNameCache.set(uid.asString(), uidIdName.name ?? uidIdName.id!);
 
-      return name;
+      return roomNameCache.get(uid.asString())!;
     }
 
     // Is User
@@ -232,7 +226,7 @@ class RoomRepo {
       if (uid.category == Categories.GROUP ||
           uid.category == Categories.CHANNEL) {
         final muc = await _mucRepo.fetchMucInfo(uid);
-        if (muc != null  && muc.name.isNotEmpty) {
+        if (muc != null && muc.name.isNotEmpty) {
           roomNameCache.set(uid.asString(), muc.name);
           unawaited(
             _uidIdNameDao.update(uid.asString(), name: muc.name),

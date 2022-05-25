@@ -153,7 +153,7 @@ class CallRepo {
                     .findProtoCallEventType(call.callEvent.callType),
               roomUid: call.from.asUid(),
               callId: call.callEvent.id,
-              time: call.expireTime - 60000
+              time: call.expireTime - 60000,
             ),
           );
         }
@@ -180,7 +180,8 @@ class CallRepo {
               }
               break;
             case CallEvent_CallStatus.CREATED:
-              if (_callService.getUserCallState == UserCallState.NOCALL && (clock.now().millisecondsSinceEpoch - event.time < 50000)) {
+              if (_callService.getUserCallState == UserCallState.NOCALL &&
+                  (clock.now().millisecondsSinceEpoch - event.time < 50000)) {
                 _callService.setUserCallState = UserCallState.INUSERCALL;
                 //get call Info and Save on DB
                 final currentCallEvent = call_event.CallEvent(
@@ -1030,7 +1031,7 @@ class CallRepo {
   }
 
   Future<void> receivedEndCall(int callDuration) async {
-    if(!_isEnded) {
+    if (!_isEnded) {
       _isEnded = true;
       _logger.i("Call Duration Received: " + callDuration.toString());
       await cancelCallNotification();
@@ -1040,9 +1041,7 @@ class CallRepo {
       if (_isCaller) {
         _callDuration = calculateCallEndTime();
         _logger.i("Call Duration on Caller(1): " + _callDuration.toString());
-        final endOfCallDuration = clock
-            .now()
-            .millisecondsSinceEpoch;
+        final endOfCallDuration = clock.now().millisecondsSinceEpoch;
         await _messageRepo.sendCallMessage(
           CallEvent_CallStatus.ENDED,
           _roomUid!,
