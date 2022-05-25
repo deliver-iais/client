@@ -361,7 +361,7 @@ class RoomRepo {
               element.name != null &&
               element.name!.isNotEmpty)) searchResult.add(element.uid.asUid());
     }
-    if ('saved message'.contains(text.toLowerCase())) {
+    if (_i18n.get("saved_message").toLowerCase().contains(text.toLowerCase())) {
       searchResult.add(_authRepo.currentUserUid);
     }
 
