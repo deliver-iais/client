@@ -523,6 +523,7 @@ void main() {
               message.callEvent,
               roomUid: testUid,
               callId: "0",
+              time: 0,
             ),
           ),
         );
@@ -549,6 +550,7 @@ void main() {
               message.callEvent,
               roomUid: testUid,
               callId: "0",
+              time: 0,
             ),
           ),
         );
