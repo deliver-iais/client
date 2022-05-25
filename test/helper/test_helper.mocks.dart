@@ -383,9 +383,15 @@ class MockRoomRepo extends _i1.Mock implements _i27.RoomRepo {
       (super.noSuchMethod(Invocation.method(#fastForwardName, [uid]))
           as String?);
   @override
-  _i20.Future<String> getName(_i3.Uid? uid, {String? unknownName}) =>
+  _i20.Future<String> getName(_i3.Uid? uid,
+          {String? unknownName, bool? forceToReturnSavedMessage = false}) =>
       (super.noSuchMethod(
-          Invocation.method(#getName, [uid], {#unknownName: unknownName}),
+          Invocation.method(#getName, [
+            uid
+          ], {
+            #unknownName: unknownName,
+            #forceToReturnSavedMessage: forceToReturnSavedMessage
+          }),
           returnValue: Future<String>.value('')) as _i20.Future<String>);
   @override
   _i20.Stream<String?> watchId(_i3.Uid? uid) =>
@@ -2124,6 +2130,13 @@ class MockMediaDao extends _i1.Mock implements _i67.MediaDao {
       (super.noSuchMethod(
           Invocation.method(#getIndexOfMedia, [roomUid, messageId, type]),
           returnValue: Future<int?>.value()) as _i20.Future<int?>);
+  @override
+  _i20.Stream<int> getIndexOfMediaAsStream(
+          String? roomUid, int? messageId, _i69.MediaType? type) =>
+      (super.noSuchMethod(
+          Invocation.method(
+              #getIndexOfMediaAsStream, [roomUid, messageId, type]),
+          returnValue: Stream<int>.empty()) as _i20.Stream<int>);
   @override
   _i20.Future<void> deleteMedia(String? roomId, int? messageId) =>
       (super.noSuchMethod(Invocation.method(#deleteMedia, [roomId, messageId]),
