@@ -158,7 +158,7 @@ class DataStreamServices {
         message.callEvent,
         roomUid: message.from,
         callId: message.callEvent.id,
-        time: message.time.toInt()
+        time: message.time.toInt(),
       );
       if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
           message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
@@ -634,7 +634,7 @@ class DataStreamServices {
             message.callEvent,
             roomUid: message.from,
             callId: message.callEvent.id,
-            time: message.time.toInt()
+            time: message.time.toInt(),
           );
           if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
               message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
