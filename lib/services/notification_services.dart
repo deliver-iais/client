@@ -195,7 +195,13 @@ class NotificationServices {
     if (mb.text.isNotEmpty) {
       return mb.copyWith(
         text: BoldTextParser.transformer(
-          ItalicTextParser.transformer(mb.text),
+          ItalicTextParser.transformer(
+            UnderlineTextParser.transformer(
+              StrikethroughTextParser.transformer(
+                mb.text,
+              ),
+            ),
+          ),
         ),
       );
     }
@@ -655,7 +661,6 @@ class AndroidNotifier implements Notifier {
 
     final lines = <String>[];
 
-
     final res = await _flutterLocalNotificationsPlugin.getActiveNotifications();
     for (final element in res) {
       if (element.groupKey == message.roomUid.asString() &&
@@ -792,7 +797,7 @@ class IOSNotifier implements Notifier {
         //     _i18n.get("mark_as_read"),
         //     options: <DarwinNotificationActionOption>{
         //       DarwinNotificationActionOption.destructive,
-    //   },
+        //   },
         //   ),
         // ],
       )

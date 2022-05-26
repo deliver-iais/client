@@ -123,7 +123,10 @@ class TextUI extends StatelessWidget {
       IdParser(onUsernameClick),
       if (isBotMessage) BotCommandParser(onBotCommandClick),
       BoldTextParser(),
-      ItalicTextParser()
+      ItalicTextParser(),
+      UnderlineTextParser(),
+      StrikethroughTextParser(),
+      InlineUrlTextParser(),
     ];
 
     for (final p in parsers) {
@@ -178,9 +181,9 @@ class IdParser implements Parser {
 }
 
 class BoldTextParser implements Parser {
-  final RegExp regex = RegExp(r"\*\*(.+)\*\*", dotAll: true);
+  final RegExp regex = RegExp(r"\*(.+)\*", dotAll: true);
 
-  static String transformer(String m) => m.replaceAll("**", "");
+  static String transformer(String m) => m.replaceAll("*", "");
 
   @override
   List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
@@ -193,6 +196,23 @@ class BoldTextParser implements Parser {
 }
 
 class ItalicTextParser implements Parser {
+  final RegExp regex = RegExp(r"_(.+)_", dotAll: true);
+
+  static String transformer(String m) => m.replaceAll("_", "");
+
+  @override
+  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+        blocks,
+        regex,
+        "italic",
+        transformer: ItalicTextParser.transformer,
+        style: const TextStyle(
+          fontStyle: FontStyle.italic,
+        ),
+      );
+}
+
+class UnderlineTextParser implements Parser {
   final RegExp regex = RegExp(r"__(.+)__", dotAll: true);
 
   static String transformer(String m) => m.replaceAll("__", "");
@@ -201,9 +221,70 @@ class ItalicTextParser implements Parser {
   List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
         blocks,
         regex,
-        "italic",
-        transformer: ItalicTextParser.transformer,
-        style: const TextStyle(fontStyle: FontStyle.italic),
+        "underline",
+        transformer: UnderlineTextParser.transformer,
+        style: const TextStyle(
+          decoration: TextDecoration.underline,
+        ),
+      );
+}
+
+class StrikethroughTextParser implements Parser {
+  final RegExp regex = RegExp(r"~(.+)~", dotAll: true);
+
+  static String transformer(String m) => m.replaceAll("~", "");
+
+  @override
+  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+        blocks,
+        regex,
+        "strikethrough",
+        transformer: StrikethroughTextParser.transformer,
+        style: const TextStyle(
+          decoration: TextDecoration.overline,
+        ),
+      );
+}
+
+class SpoilerTextParser implements Parser {
+  final RegExp regex = RegExp(r"||(.+)||", dotAll: true);
+
+  static String transformer(String m) => m.replaceAll("||", "");
+
+  @override
+  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+        blocks,
+        regex,
+        "spoiler",
+        transformer: StrikethroughTextParser.transformer,
+        style: TextStyle(
+          color: Theme.of(context).primaryColor,
+        ),
+      );
+}
+
+class InlineUrlTextParser implements Parser {
+  final RegExp regex = RegExp(
+    r"\[(.+)\]",
+    dotAll: true,
+  );
+  @override
+  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+        blocks,
+        regex,
+        "inlineURL",
+        onTap: (uri) async {
+          if (uri.contains("$APPLICATION_DOMAIN/$JOIN") ||
+              uri.contains("$APPLICATION_DOMAIN/$SPDA") ||
+              uri.contains("$APPLICATION_DOMAIN/$TEXT")) {
+            await handleJoinUri(context, uri);
+          } else {
+            await launch(uri);
+          }
+        },
+        style: TextStyle(
+          color: Theme.of(context).primaryColor,
+        ),
       );
 }
 
