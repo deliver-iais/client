@@ -52,7 +52,7 @@ class TextUI extends StatelessWidget {
         text: b.text,
         style: b.style,
         recognizer: (b.onTap != null)
-            ? (TapGestureRecognizer()..onTap = () => b.onTap!(b.text))
+            ? (TapGestureRecognizer()..onTap = () => b.onTap!(text))
             : null,
       );
     }).toList();
@@ -119,6 +119,7 @@ class TextUI extends StatelessWidget {
       EmojiParser(),
       if (searchTerm != null && searchTerm!.isNotEmpty)
         SearchTermParser(searchTerm!),
+      InlineUrlTextParser(),
       UrlParser(),
       IdParser(onUsernameClick),
       if (isBotMessage) BotCommandParser(onBotCommandClick),
@@ -126,7 +127,6 @@ class TextUI extends StatelessWidget {
       ItalicTextParser(),
       UnderlineTextParser(),
       StrikethroughTextParser(),
-      InlineUrlTextParser(),
     ];
 
     for (final p in parsers) {
@@ -258,6 +258,7 @@ class SpoilerTextParser implements Parser {
         "spoiler",
         transformer: StrikethroughTextParser.transformer,
         style: TextStyle(
+          backgroundColor: Colors.black.withOpacity(0.5),
           color: Theme.of(context).primaryColor,
         ),
       );
@@ -265,15 +266,21 @@ class SpoilerTextParser implements Parser {
 
 class InlineUrlTextParser implements Parser {
   final RegExp regex = RegExp(
-    r"\[(.+)\]",
+    r"\[(.+)\]\((https?:\/\/(www\.)?)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)\)",
     dotAll: true,
   );
+
+  static String transformer(String m) {
+    return m.substring(1, m.indexOf("]"));
+  }
+
   @override
   List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
         blocks,
         regex,
         "inlineURL",
-        onTap: (uri) async {
+        onTap: (text) async {
+          final uri = text.substring(text.indexOf("]") + 2, text.indexOf(")"));
           if (uri.contains("$APPLICATION_DOMAIN/$JOIN") ||
               uri.contains("$APPLICATION_DOMAIN/$SPDA") ||
               uri.contains("$APPLICATION_DOMAIN/$TEXT")) {
@@ -282,6 +289,7 @@ class InlineUrlTextParser implements Parser {
             await launch(uri);
           }
         },
+        transformer: InlineUrlTextParser.transformer,
         style: TextStyle(
           color: Theme.of(context).primaryColor,
         ),
@@ -392,7 +400,7 @@ List<Block> parseText(
 
   for (final match in matches) {
     result
-      ..add(Block(text: transformer(text.substring(start, match.start))))
+      ..add(Block(text: text.substring(start, match.start)))
       ..add(
         Block(
           text: transformer(match[0]!),
@@ -405,7 +413,7 @@ List<Block> parseText(
     start = match.end;
   }
 
-  result.add(Block(text: transformer(text.substring(start))));
+  result.add(Block(text: text.substring(start)));
 
   return result;
 }
