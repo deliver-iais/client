@@ -77,7 +77,8 @@ class RoomRepo {
     return null;
   }
 
-  Future<String> getName(Uid uid, {String? unknownName}) async {
+  Future<String> getName(Uid uid,
+      {String? unknownName, bool forceToReturnSavedMessage = false,}) async {
     if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
 
     // Is System Id
@@ -88,6 +89,9 @@ class RoomRepo {
 
     // Is Current User
     if (_authRepo.isCurrentUser(uid.asString())) {
+      if (forceToReturnSavedMessage) {
+        return _i18n.get("saved_message");
+      }
       return _accountRepo.getName();
     }
 
@@ -102,16 +106,10 @@ class RoomRepo {
     if (uidIdName != null &&
         ((uidIdName.id != null && uidIdName.id!.isNotEmpty) ||
             uidIdName.name != null && uidIdName.name!.isNotEmpty)) {
-      var name = uidIdName.name!;
-
-      if (name.isEmpty) {
-        name = uidIdName.id!;
-      }
-
       // Set in cache
-      roomNameCache.set(uid.asString(), name);
+      roomNameCache.set(uid.asString(), uidIdName.name ?? uidIdName.id!);
 
-      return name;
+      return roomNameCache.get(uid.asString())!;
     }
 
     // Is User
@@ -232,7 +230,7 @@ class RoomRepo {
       if (uid.category == Categories.GROUP ||
           uid.category == Categories.CHANNEL) {
         final muc = await _mucRepo.fetchMucInfo(uid);
-        if (muc != null  && muc.name.isNotEmpty) {
+        if (muc != null && muc.name.isNotEmpty) {
           roomNameCache.set(uid.asString(), muc.name);
           unawaited(
             _uidIdNameDao.update(uid.asString(), name: muc.name),
@@ -362,6 +360,9 @@ class RoomRepo {
           (element.uid.isUser() &&
               element.name != null &&
               element.name!.isNotEmpty)) searchResult.add(element.uid.asUid());
+    }
+    if (_i18n.get("saved_message").toLowerCase().contains(text.toLowerCase())) {
+      searchResult.add(_authRepo.currentUserUid);
     }
 
     return searchResult;

@@ -112,7 +112,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                         },
                       );
                     } else {
-                      if (isWindows) {
+                      if (isWindows || isMacOS) {
                         AttachLocation(context, message.roomUid.asUid())
                             .attachLocationInWindows();
                       } else {

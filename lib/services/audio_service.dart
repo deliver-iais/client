@@ -227,7 +227,9 @@ class NormalAudioPlayer implements AudioPlayerModule {
 
   @override
   void pause() {
-    _audioPlayer.pause();
+    if (_audioPlayer.state == PlayerState.PLAYING) {
+      _audioPlayer.pause();
+    }
   }
 
   @override
