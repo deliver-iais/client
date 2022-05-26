@@ -1,18 +1,14 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_brief.dart';
-import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/last_message.dart';
+import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/shared/methods/message.dart';
-import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class SenderAndContent extends StatelessWidget {
-  static final _roomRepo = GetIt.I.get<RoomRepo>();
-  static final _authRepo = GetIt.I.get<AuthRepo>();
-  static final _i18n = GetIt.I.get<I18N>();
+  static final _messageExtractorServices =
+      GetIt.I.get<MessageExtractorServices>();
 
   final Future<MessageSimpleRepresentative> messageSRF;
   final bool expandContent;
@@ -23,11 +19,9 @@ class SenderAndContent extends StatelessWidget {
     required Message message,
     this.expandContent = true,
     this.highlightColor,
-  })  : messageSRF = extractMessageSimpleRepresentative(
-          _i18n,
-          _roomRepo,
-          _authRepo,
-          extractProtocolBufferMessage(message),
+  })  : messageSRF =
+            _messageExtractorServices.extractMessageSimpleRepresentative(
+          _messageExtractorServices.extractProtocolBufferMessage(message),
         ),
         super(key: key);
 
@@ -36,10 +30,8 @@ class SenderAndContent extends StatelessWidget {
     required MessageBrief messageBrief,
     this.expandContent = true,
     this.highlightColor,
-  })  : messageSRF = extractMessageSimpleRepresentativeFromMessageBrief(
-          _i18n,
-          _roomRepo,
-          _authRepo,
+  })  : messageSRF = _messageExtractorServices
+            .extractMessageSimpleRepresentativeFromMessageBrief(
           messageBrief,
         ),
         super(key: key);

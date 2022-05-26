@@ -1,10 +1,9 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_brief.dart';
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
+import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/widgets/seen_status.dart';
@@ -13,9 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class LastMessage extends StatelessWidget {
-  static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _messageExtractorServices =
+      GetIt.I.get<MessageExtractorServices>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
-  static final _i18n = GetIt.I.get<I18N>();
 
   final Future<MessageSimpleRepresentative> messageSRF;
   final bool pinned;
@@ -51,11 +50,9 @@ class LastMessage extends StatelessWidget {
     this.showRoomDetails = true,
     this.pinned = false,
     this.highlightColor,
-  })  : messageSRF = extractMessageSimpleRepresentative(
-          _i18n,
-          _roomRepo,
-          _authRepo,
-          extractProtocolBufferMessage(message),
+  })  : messageSRF =
+            _messageExtractorServices.extractMessageSimpleRepresentative(
+          _messageExtractorServices.extractProtocolBufferMessage(message),
         ),
         super(key: key);
 
@@ -70,10 +67,8 @@ class LastMessage extends StatelessWidget {
     this.showRoomDetails = true,
     this.pinned = false,
     this.highlightColor,
-  })  : messageSRF = extractMessageSimpleRepresentativeFromMessageBrief(
-          _i18n,
-          _roomRepo,
-          _authRepo,
+  })  : messageSRF = _messageExtractorServices
+            .extractMessageSimpleRepresentativeFromMessageBrief(
           messageBrief,
         ),
         super(key: key);

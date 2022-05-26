@@ -64,6 +64,7 @@ import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/firebase_services.dart';
+import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
@@ -318,6 +319,7 @@ Future<void> setupDI() async {
     registerSingleton<Notifier>(FakeNotifier());
   }
 
+  registerSingleton<MessageExtractorServices>(MessageExtractorServices());
   registerSingleton<NotificationServices>(NotificationServices());
 
   registerSingleton<DataStreamServices>(DataStreamServices());
