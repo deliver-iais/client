@@ -124,6 +124,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       overflowMode: OverflowMode.extendBackground,
                       description: _featureDiscoveryDescriptionWidget(
                         isCircleAvatarWidget: true,
+                        // TODO(hasan): more use of i18n
                         description:
                             "1. You can chang your profile in the setting\n2. You can sync your contact and start chat with one of theme \n3. You can chang app theme\n4. You can chang app",
                       ),
@@ -160,6 +161,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       backgroundColor: Colors.deepPurple,
                       targetColor: Colors.deepPurpleAccent,
                       title: const Text('You can scan QR Code'),
+                      // TODO(hasan): more use of i18n
                       description: _featureDiscoveryDescriptionWidget(
                         description:
                             'for desktop app you can scan QR Code and login to your account',
@@ -349,6 +351,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
       backgroundColor: Colors.blue,
       targetColor: Colors.lightBlueAccent,
       title: const Text('You can create new group and new channel'),
+      // TODO(hasan): more use of i18n
       description: _featureDiscoveryDescriptionWidget(
         description:
             'If you touch this icon you can create new channel or new group with the your contact',
