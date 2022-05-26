@@ -20,12 +20,8 @@ class MessageWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final color =
-        ExtraTheme
-            .of(context)
-            .messageColorScheme(uid)
-            .primaryContainer;
+        ExtraTheme.of(context).messageColorScheme(uid).primaryContainer;
 
     var border = messageBorder;
 
@@ -69,17 +65,17 @@ class MessageWrapper extends StatelessWidget {
             top: isSender ? 16 : 0,
             child: !isSender
                 ? CustomPaint(
-              size: const Size(width, height),
-              foregroundPainter: OPainter(color),
-            )
+                    size: const Size(width, height),
+                    foregroundPainter: OPainter(color),
+                  )
                 : Transform(
-              alignment: Alignment.center,
-              transform: Matrix4.rotationY(pi),
-              child: CustomPaint(
-                size: const Size(width, height),
-                foregroundPainter: OPainter(color),
-              ),
-            ),
+                    alignment: Alignment.center,
+                    transform: Matrix4.rotationY(pi),
+                    child: CustomPaint(
+                      size: const Size(width, height),
+                      foregroundPainter: OPainter(color),
+                    ),
+                  ),
           ),
       ],
     );
@@ -93,8 +89,7 @@ class OPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color;
+    final paint = Paint()..color = color;
 
     final path = Path();
 
@@ -102,7 +97,8 @@ class OPainter extends CustomPainter {
     final y = size.height;
 
     path
-      ..moveTo(x, 0)..moveTo(0, 0)
+      ..moveTo(x, 0)
+      ..moveTo(0, 0)
       ..arcToPoint(
         Offset(x, y),
         radius: Radius.circular(y * 2),

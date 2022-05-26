@@ -83,8 +83,8 @@ class ReplyBrief extends StatelessWidget {
         ),
         const SizedBox(width: 4),
         Flexible(
-          child: SenderAndContent.messageReplyBrief(
-            messageReplyBrief: messageReplyBrief,
+          child: SenderAndContent.messageBrief(
+            messageBrief: messageReplyBrief,
           ),
         ),
       ],

@@ -23,6 +23,7 @@ class MessageSimpleRepresentative {
   final MessageType type;
   final String typeDetails;
   final String text;
+  final String packetId;
   final bool senderIsAUserOrBot;
   final int? id;
 
@@ -38,6 +39,7 @@ class MessageSimpleRepresentative {
     required this.senderIsAUserOrBot,
     required this.text,
     required this.ignoreNotification,
+    required this.packetId,
     this.id,
   });
 
@@ -50,6 +52,7 @@ class MessageSimpleRepresentative {
     String? typeDetails,
     String? text,
     bool? ignoreNotification,
+    String? packetId,
     int? id,
   }) =>
       MessageSimpleRepresentative(
@@ -62,6 +65,7 @@ class MessageSimpleRepresentative {
         text: text ?? this.text,
         id: id ?? this.id,
         ignoreNotification: ignoreNotification ?? this.ignoreNotification,
+        packetId: packetId ?? this.packetId,
       );
 }
 
@@ -114,7 +118,7 @@ MessageBrief extractMessageBrief(Message msg) {
 }
 
 Future<MessageSimpleRepresentative>
-    extractMessageSimpleRepresentativeFromMessageReplyBrief(
+    extractMessageSimpleRepresentativeFromMessageBrief(
   I18N i18n,
   RoomRepo roomRepo,
   AuthRepo authRepo,
@@ -135,6 +139,7 @@ Future<MessageSimpleRepresentative>
     senderIsAUserOrBot: mrb.from.asUid().isUser() || mrb.to.asUid().isBot(),
     type: type,
     id: mrb.id,
+    packetId: mrb.packetId,
     typeDetails: typeDetails,
     text: text,
     ignoreNotification: ignoreNotification,
@@ -258,6 +263,7 @@ Future<MessageSimpleRepresentative> extractMessageSimpleRepresentative(
     senderIsAUserOrBot: msg.from.isUser() || msg.from.isBot(),
     type: type,
     id: msg.id.toInt(),
+    packetId: msg.packetId,
     typeDetails: typeDetails,
     text: text,
     ignoreNotification: ignoreNotification,

@@ -1,9 +1,7 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/models/file.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
-import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -12,8 +10,6 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/attach_location.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -118,8 +114,8 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                       } else {
                         ToastDisplay.showToast(
                           toastContext: context,
-                          toastText:
-                          _i18n.get("get_location_not_support_in_your_device"),
+                          toastText: _i18n
+                              .get("get_location_not_support_in_your_device"),
                         );
                       }
                     }
@@ -128,7 +124,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                   }
                 },
                 child: Text(
-             label,
+                  label,
                   textAlign: TextAlign.center,
                 ),
               ),
@@ -151,10 +147,10 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
     SharePrivateDataRequest sharePrivateDataRequest,
     BuildContext context,
   ) async {
-    final res = <File>[];
-    final typeGroup = <XTypeGroup>[];
-
     // TODO(dansi): Update models of file type filter.
+    // final res = <File>[];
+    // final typeGroup = <XTypeGroup>[];
+
     // if (isLinux) {
     //   if (sharePrivateDataRequest.fileTypeFilter.canPickAudios) {
     //     typeGroup

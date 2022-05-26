@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 
 class SenderAndContent extends StatelessWidget {
   final Message? message;
-  final MessageBrief? messageReplyBrief;
+  final MessageBrief? messageBrief;
 
   final bool expandContent;
 
@@ -15,12 +15,12 @@ class SenderAndContent extends StatelessWidget {
     required this.message,
     this.expandContent = true,
     // ignore: avoid_field_initializers_in_const_classes
-  })  : messageReplyBrief = null,
+  })  : messageBrief = null,
         super(key: key);
 
-  const SenderAndContent.messageReplyBrief({
+  const SenderAndContent.messageBrief({
     Key? key,
-    required this.messageReplyBrief,
+    required this.messageBrief,
     this.expandContent = true,
     // ignore: avoid_field_initializers_in_const_classes
   })  : message = null,
@@ -42,9 +42,9 @@ class SenderAndContent extends StatelessWidget {
       );
     } else {
       final colorScheme =
-          ExtraTheme.of(context).messageColorScheme(messageReplyBrief!.from);
-      return LastMessage.messageReplyBrief(
-        messageBrief: messageReplyBrief!,
+          ExtraTheme.of(context).messageColorScheme(messageBrief!.from);
+      return LastMessage.messageBrief(
+        messageBrief: messageBrief!,
         showSender: true,
         showSeenStatus: false,
         showRoomDetails: false,
