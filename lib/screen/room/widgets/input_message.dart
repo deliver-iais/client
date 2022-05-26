@@ -20,6 +20,7 @@ import 'package:deliver/screen/room/widgets/record_audio_slide_widget.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/screen/room/widgets/show_mention_list.dart';
+import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/ux_service.dart';
@@ -87,6 +88,7 @@ class _InputMessageWidget extends State<InputMessage> {
   final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
   final _logger = GetIt.I.get<Logger>();
   final checkPermission = GetIt.I.get<CheckPermissionsService>();
+  final _audioPlayerService = GetIt.I.get<AudioService>();
   late Room currentRoom;
   bool autofocus = false;
   double x = 0.0;
@@ -547,6 +549,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                       await getApplicationDocumentsDirectory();
                                   final path = s.path +
                                       "/Deliver/${clock.now().millisecondsSinceEpoch}.m4a";
+                                  _audioPlayerService.pause();
                                   recordSubject.add(clock.now());
                                   setTime();
                                   sendRecordActivity();
