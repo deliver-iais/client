@@ -440,8 +440,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
           return ListView(
             children: [
-              buildTitle(_i18n.get("saved_message")),
-              ...searchResultWidget([_authRepo.currentUserUid]),
               if (global.isNotEmpty) buildTitle(_i18n.get("global_search")),
               if (global.isNotEmpty) ...searchResultWidget(global),
               if (bots.isNotEmpty) buildTitle(_i18n.get("bots")),
