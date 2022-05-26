@@ -27,7 +27,20 @@ class LastMessage extends StatelessWidget {
   final bool showRoomDetails;
   final Color? highlightColor;
 
-  LastMessage({
+  const LastMessage({
+    Key? key,
+    required this.messageSRF,
+    required this.lastMessageId,
+    this.hasMentioned = false,
+    this.showSender = false,
+    this.showSeenStatus = true,
+    this.expandContent = true,
+    this.showRoomDetails = true,
+    this.pinned = false,
+    this.highlightColor,
+  }) : super(key: key);
+
+  LastMessage.viaMessage({
     Key? key,
     required Message message,
     required this.lastMessageId,
@@ -46,7 +59,7 @@ class LastMessage extends StatelessWidget {
         ),
         super(key: key);
 
-  LastMessage.messageBrief({
+  LastMessage.viaMessageBrief({
     Key? key,
     required MessageBrief messageBrief,
     required this.lastMessageId,

@@ -35,7 +35,7 @@ class ReplyPreview extends StatelessWidget {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(2.0),
-                child: SenderAndContent.message(message: message),
+                child: SenderAndContent.viaMessage(message: message),
               ),
             ),
             IconButton(

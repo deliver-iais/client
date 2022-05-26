@@ -1,57 +1,59 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_brief.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/last_message.dart';
+import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class SenderAndContent extends StatelessWidget {
-  final Message? message;
-  final MessageBrief? messageBrief;
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
 
+  final Future<MessageSimpleRepresentative> messageSRF;
   final bool expandContent;
+  final Color? highlightColor;
 
-  const SenderAndContent.message({
+  SenderAndContent.viaMessage({
     Key? key,
-    required this.message,
+    required Message message,
     this.expandContent = true,
-    // ignore: avoid_field_initializers_in_const_classes
-  })  : messageBrief = null,
+    this.highlightColor,
+  })  : messageSRF = extractMessageSimpleRepresentative(
+          _i18n,
+          _roomRepo,
+          _authRepo,
+          extractProtocolBufferMessage(message),
+        ),
         super(key: key);
 
-  const SenderAndContent.messageBrief({
+  SenderAndContent.viaMessageBrief({
     Key? key,
-    required this.messageBrief,
+    required MessageBrief messageBrief,
     this.expandContent = true,
-    // ignore: avoid_field_initializers_in_const_classes
-  })  : message = null,
+    this.highlightColor,
+  })  : messageSRF = extractMessageSimpleRepresentativeFromMessageBrief(
+          _i18n,
+          _roomRepo,
+          _authRepo,
+          messageBrief,
+        ),
         super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (message != null) {
-      final colorScheme =
-          ExtraTheme.of(context).messageColorScheme(message!.from);
-      return LastMessage(
-        message: message!,
-        showSender: true,
-        showSeenStatus: false,
-        showRoomDetails: false,
-        lastMessageId: 0,
-        highlightColor: colorScheme.primary,
-        expandContent: expandContent,
-      );
-    } else {
-      final colorScheme =
-          ExtraTheme.of(context).messageColorScheme(messageBrief!.from);
-      return LastMessage.messageBrief(
-        messageBrief: messageBrief!,
-        showSender: true,
-        showSeenStatus: false,
-        showRoomDetails: false,
-        lastMessageId: 0,
-        highlightColor: colorScheme.primary,
-        expandContent: expandContent,
-      );
-    }
+    return LastMessage(
+      messageSRF: messageSRF,
+      showSender: true,
+      showSeenStatus: false,
+      showRoomDetails: false,
+      lastMessageId: 0,
+      highlightColor: highlightColor,
+      expandContent: expandContent,
+    );
   }
 }

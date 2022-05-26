@@ -62,7 +62,7 @@ class ReplyBrief extends StatelessWidget {
         ),
         const SizedBox(width: 4),
         Flexible(
-          child: SenderAndContent.message(
+          child: SenderAndContent.viaMessage(
             message: message,
           ),
         ),
@@ -83,7 +83,7 @@ class ReplyBrief extends StatelessWidget {
         ),
         const SizedBox(width: 4),
         Flexible(
-          child: SenderAndContent.messageBrief(
+          child: SenderAndContent.viaMessageBrief(
             messageBrief: messageReplyBrief,
           ),
         ),

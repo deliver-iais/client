@@ -106,7 +106,7 @@ class _ChatItemState extends State<ChatItem> {
   }
 
   LastMessage buildLastMessage(Message message) {
-    return LastMessage(
+    return LastMessage.viaMessage(
       message: message,
       lastMessageId: widget.room.lastMessageId,
       hasMentioned: widget.room.mentioned == true,
