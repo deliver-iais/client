@@ -12,8 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class LastMessage extends StatelessWidget {
-  final Message? message;
-  final MessageBrief? messageReplyBrief;
+  final Future<MessageSimpleRepresentative> messageSRF;
   final bool pinned;
   final int lastMessageId;
   final bool hasMentioned;
@@ -22,16 +21,17 @@ class LastMessage extends StatelessWidget {
   final bool expandContent;
   final bool showRoomDetails;
   final Color? highlightColor;
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
-  final _i18n = GetIt.I.get<I18N>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
 
   final String from;
   final String roomUid;
+  final String packetId;
 
   LastMessage({
     Key? key,
-    required this.message,
+    required Message message,
     required this.lastMessageId,
     this.hasMentioned = false,
     this.showSender = false,
@@ -40,14 +40,20 @@ class LastMessage extends StatelessWidget {
     this.showRoomDetails = true,
     this.pinned = false,
     this.highlightColor,
-  })  : messageReplyBrief = null,
-        from = message!.from,
+  })  : messageSRF = extractMessageSimpleRepresentative(
+          _i18n,
+          _roomRepo,
+          _authRepo,
+          extractProtocolBufferMessage(message),
+        ),
+        from = message.from,
         roomUid = message.roomUid,
+        packetId = message.packetId,
         super(key: key);
 
   LastMessage.messageReplyBrief({
     Key? key,
-    required this.messageReplyBrief,
+    required MessageBrief messageBrief,
     required this.lastMessageId,
     this.hasMentioned = false,
     this.showSender = false,
@@ -56,9 +62,15 @@ class LastMessage extends StatelessWidget {
     this.showRoomDetails = true,
     this.pinned = false,
     this.highlightColor,
-  })  : message = null,
-        from = messageReplyBrief!.from,
-        roomUid = messageReplyBrief.roomUid,
+  })  : messageSRF = extractMessageSimpleRepresentativeFromMessageReplyBrief(
+          _i18n,
+          _roomRepo,
+          _authRepo,
+          messageBrief,
+        ),
+        from = messageBrief.from,
+        roomUid = messageBrief.roomUid,
+        packetId = messageBrief.packetId,
         super(key: key);
 
   @override
@@ -67,19 +79,7 @@ class LastMessage extends StatelessWidget {
     final isReceivedMessage = !_authRepo.isCurrentUser(from);
 
     return FutureBuilder<MessageSimpleRepresentative>(
-      future: message != null
-          ? extractMessageSimpleRepresentative(
-              _i18n,
-              _roomRepo,
-              _authRepo,
-              extractProtocolBufferMessage(message!),
-            )
-          : extractMessageSimpleRepresentativeFromMessageReplyBrief(
-              _i18n,
-              _roomRepo,
-              _authRepo,
-              messageReplyBrief!,
-            ),
+      future: messageSRF,
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
           return Container(height: theme.textTheme.bodyText2!.fontSize! + 7);
@@ -107,10 +107,14 @@ class LastMessage extends StatelessWidget {
             Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                if (showSeenStatus && !isReceivedMessage && message != null)
+                if (showSeenStatus && !isReceivedMessage)
                   Padding(
                     padding: const EdgeInsets.only(right: 4.0),
-                    child: SeenStatus(roomUid, message!.packetId),
+                    child: SeenStatus(
+                      roomUid,
+                      packetId,
+                      messageId: mb.id,
+                    ),
                   ),
                 Flexible(
                   fit: expandContent ? FlexFit.tight : FlexFit.loose,
@@ -178,7 +182,8 @@ class LastMessage extends StatelessWidget {
     );
   }
 
-  List<TextSpan> buildText(MessageSimpleRepresentative mb, BuildContext context) =>
+  List<TextSpan> buildText(
+          MessageSimpleRepresentative mb, BuildContext context) =>
       extractBlocks(
         mb.text
             .split("\n")

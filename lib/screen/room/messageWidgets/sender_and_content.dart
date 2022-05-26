@@ -32,7 +32,7 @@ class SenderAndContent extends StatelessWidget {
       final colorScheme =
           ExtraTheme.of(context).messageColorScheme(message!.from);
       return LastMessage(
-        message: message,
+        message: message!,
         showSender: true,
         showSeenStatus: false,
         showRoomDetails: false,
@@ -44,7 +44,7 @@ class SenderAndContent extends StatelessWidget {
       final colorScheme =
           ExtraTheme.of(context).messageColorScheme(messageReplyBrief!.from);
       return LastMessage.messageReplyBrief(
-        messageReplyBrief: messageReplyBrief,
+        messageBrief: messageReplyBrief!,
         showSender: true,
         showSeenStatus: false,
         showRoomDetails: false,
