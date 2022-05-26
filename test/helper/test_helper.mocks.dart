@@ -1316,6 +1316,22 @@ class MockQueryServiceClient extends _i1.Mock
               returnValue: _FakeResponseFuture_8<_i14.FetchMediasRes>())
           as _i9.ResponseFuture<_i14.FetchMediasRes>);
   @override
+  _i9.ResponseFuture<_i14.GetMetaCountsRes> getMetaCounts(
+          _i14.GetMetaCountsReq? request,
+          {_i9.CallOptions? options}) =>
+      (super.noSuchMethod(
+              Invocation.method(#getMetaCounts, [request], {#options: options}),
+              returnValue: _FakeResponseFuture_8<_i14.GetMetaCountsRes>())
+          as _i9.ResponseFuture<_i14.GetMetaCountsRes>);
+  @override
+  _i9.ResponseFuture<_i14.FetchMetaRes> fetchMetaList(
+          _i14.FetchMetaReq? request,
+          {_i9.CallOptions? options}) =>
+      (super.noSuchMethod(
+              Invocation.method(#fetchMetaList, [request], {#options: options}),
+              returnValue: _FakeResponseFuture_8<_i14.FetchMetaRes>())
+          as _i9.ResponseFuture<_i14.FetchMetaRes>);
+  @override
   _i9.ResponseFuture<_i14.FetchMentionListRes> fetchMentionList(
           _i14.FetchMentionListReq? request,
           {_i9.CallOptions? options}) =>
