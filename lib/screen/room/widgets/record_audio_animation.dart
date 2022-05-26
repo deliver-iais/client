@@ -1,5 +1,5 @@
-import 'package:deliver/shared/widgets/animation_wave_button.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/widgets/animation_wave_button.dart';
 import 'package:flutter/material.dart';
 
 class RecordAudioAnimation extends StatelessWidget {

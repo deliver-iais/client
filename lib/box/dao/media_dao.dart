@@ -13,6 +13,9 @@ abstract class MediaDao {
 
   Future<int?> getIndexOfMedia(String roomUid, int messageId, MediaType type);
 
+  Stream<int> getIndexOfMediaAsStream(
+      String roomUid, int messageId, MediaType type,);
+
   Future<void> deleteMedia(String roomId, int messageId);
 
   Future clear(String roomId);
@@ -53,8 +56,38 @@ class MediaDaoImpl implements MediaDao {
   ) async {
     final box = await _open(roomUid);
 
-    return box.values.where((element) => element.type ==type).toList().reversed.toList().indexWhere(
-        (element) => element.messageId == messageId,);
+    return box.values
+        .where((element) => element.type == type)
+        .toList()
+        .reversed
+        .toList()
+        .indexWhere(
+          (element) => element.messageId == messageId,
+        );
+  }
+
+  @override
+  Stream<int> getIndexOfMediaAsStream(
+      String roomUid, int messageId, MediaType type,) async* {
+    final box = await _open(roomUid);
+
+    yield box.values
+        .where((element) => element.type == type)
+        .toList()
+        .reversed
+        .toList()
+        .indexWhere(
+          (element) => element.messageId == messageId,
+        );
+
+    yield* box.watch().map((event) => box.values
+        .where((element) => element.type == type)
+        .toList()
+        .reversed
+        .toList()
+        .indexWhere(
+          (element) => element.messageId == messageId,
+        ),);
   }
 
   @override

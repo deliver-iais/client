@@ -655,7 +655,6 @@ class AndroidNotifier implements Notifier {
 
     final lines = <String>[];
 
-
     final res = await _flutterLocalNotificationsPlugin.getActiveNotifications();
     for (final element in res) {
       if (element.groupKey == message.roomUid.asString() &&
@@ -682,6 +681,7 @@ class AndroidNotifier implements Notifier {
       channelDescription: channel.description,
       groupKey: message.roomUid.asString(),
       largeIcon: largeIcon,
+      fullScreenIntent: true,
       styleInformation: inboxStyleInformation,
       actions: <AndroidNotificationAction>[
         AndroidNotificationAction(
