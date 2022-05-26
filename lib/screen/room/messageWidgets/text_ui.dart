@@ -48,11 +48,15 @@ class TextUI extends StatelessWidget {
     final text = extractText(message);
     final blocks = extractBlocks(text, context);
     final spans = blocks.map<TextSpan>((b) {
+      var tap = b.text;
+      if (b.type == "inlineURL" || b.type == "inlineId") {
+        tap = text;
+      }
       return TextSpan(
         text: b.text,
         style: b.style,
         recognizer: (b.onTap != null)
-            ? (TapGestureRecognizer()..onTap = () => b.onTap!(text))
+            ? (TapGestureRecognizer()..onTap = () => b.onTap!(tap))
             : null,
       );
     }).toList();
