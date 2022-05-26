@@ -21,7 +21,7 @@ class ShareChatItem extends StatelessWidget {
         child: SizedBox(
           height: 50,
           child: FutureBuilder<String>(
-            future: _roomRepo.getName(uid),
+            future: _roomRepo.getName(uid, forceToReturnSavedMessage: true),
             builder: (context, snapshot) {
               if (snapshot.hasData && snapshot.data != null) {
                 return Row(
@@ -44,11 +44,13 @@ class ShareChatItem extends StatelessWidget {
                     const SizedBox(
                       width: 12,
                     ),
-                    Text(
-                      snapshot.data!,
-                      style: const TextStyle(fontSize: 18),
+                    Flexible(
+                      child: Text(
+                        snapshot.data!,
+                        style: const TextStyle(fontSize: 18),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                    const Spacer(),
                   ],
                 );
               } else {

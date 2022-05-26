@@ -47,23 +47,24 @@ class _AudioProgressIndicatorState extends State<AudioProgressIndicator> {
                       if (snapshot.data != null) {
                         final samplesData =
                             loadParseJson(snapshot.data!.toList(), 100);
-
                         return RectangleWaveform(
                           isRoundedRectangle: true,
                           isCentered: true,
                           borderWidth: 0,
                           inactiveBorderColor: Color.alphaBlend(
-                              widget.colorScheme?.primary.withAlpha(70) ??
-                                  theme.primaryColor.withAlpha(70),
-                              Colors.white10,),
+                            widget.colorScheme?.primary.withAlpha(70) ??
+                                theme.primaryColor.withAlpha(70),
+                            Colors.white10,
+                          ),
                           activeBorderColor:
                               widget.colorScheme?.primary ?? theme.primaryColor,
                           maxDuration:
                               Duration(seconds: widget.duration.ceil()),
                           inactiveColor: Color.alphaBlend(
-                              widget.colorScheme?.primary.withAlpha(70) ??
-                                  theme.primaryColor.withAlpha(70),
-                              Colors.white10,),
+                            widget.colorScheme?.primary.withAlpha(70) ??
+                                theme.primaryColor.withAlpha(70),
+                            Colors.white10,
+                          ),
                           activeColor:
                               widget.colorScheme?.primary ?? theme.primaryColor,
                           elapsedDuration: duration.data,
@@ -84,7 +85,8 @@ class _AudioProgressIndicatorState extends State<AudioProgressIndicator> {
                         overlayShape: SliderComponentShape.noOverlay,
                       ),
                       child: Slider(
-                        value: min(duration.data!.inMilliseconds / 1000, widget.duration),
+                        value: min(duration.data!.inMilliseconds / 1000,
+                            widget.duration,),
                         max: widget.duration + 1,
                         onChanged: (value) {
                           setState(() {

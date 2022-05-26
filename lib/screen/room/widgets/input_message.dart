@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 import 'dart:math';
 
 import 'package:clock/clock.dart';
@@ -100,11 +99,10 @@ class _InputMessageWidget extends State<InputMessage> {
 
   double dx = 150.0;
   bool recordAudioPermission = false;
-  late String mentionQuery;
   late Timer recordAudioTimer;
   final BehaviorSubject<bool> _backSubject = BehaviorSubject.seeded(false);
   final BehaviorSubject<bool> _showSendIcon = BehaviorSubject.seeded(false);
-  final BehaviorSubject<String> _mentionQuery = BehaviorSubject.seeded("-");
+  final BehaviorSubject<String?> _mentionQuery = BehaviorSubject.seeded(null);
   final BehaviorSubject<String> _botCommandQuery = BehaviorSubject.seeded("-");
   late Timer _tickTimer;
   TextEditingController captionTextController = TextEditingController();
@@ -117,7 +115,6 @@ class _InputMessageWidget extends State<InputMessage> {
 
   Subject<ActivityType> isTypingActivitySubject = BehaviorSubject();
   Subject<ActivityType> noActivitySubject = BehaviorSubject();
-  late String _mentionData;
   late String _botCommandData;
   int mentionSelectedIndex = 0;
   int botCommandSelectedIndex = 0;
@@ -197,13 +194,12 @@ class _InputMessageWidget extends State<InputMessage> {
 
       if (currentRoom.uid.asUid().category == Categories.GROUP &&
           widget.textController.selection.start > 0) {
-        mentionQuery = "-";
         final str = widget.textController.text;
         final start =
             str.lastIndexOf("@", widget.textController.selection.start);
 
         if (start == -1) {
-          _mentionQuery.add("-");
+          _mentionQuery.add(null);
         }
 
         try {
@@ -223,13 +219,13 @@ class _InputMessageWidget extends State<InputMessage> {
                   .substring(start + 1, widget.textController.selection.start),
             );
           } else {
-            _mentionQuery.add("-");
+            _mentionQuery.add(null);
           }
         } catch (e) {
-          _mentionQuery.add("-");
+          _mentionQuery.add(null);
         }
       } else if (widget.textController.text.isEmpty) {
-        _mentionQuery.add("-");
+        _mentionQuery.add(null);
       }
     });
     selectionControls = CustomTextSelectionController(
@@ -267,13 +263,12 @@ class _InputMessageWidget extends State<InputMessage> {
         data: IconThemeData(opacity: 0.6, color: theme.iconTheme.color),
         child: Column(
           children: <Widget>[
-            StreamBuilder<String>(
+            StreamBuilder<String?>(
               stream: _mentionQuery.stream.distinct(),
               builder: (c, showMention) {
-                _mentionData = showMention.data ?? "-";
-                if (showMention.hasData) {
+                if (showMention.hasData && showMention.data != null) {
                   return ShowMentionList(
-                    query: _mentionData,
+                    query: showMention.data!,
                     onSelected: (s) {
                       onMentionSelected(s);
                     },
@@ -442,7 +437,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                     }
                                   },
                                 ),
-                              if (Platform.isWindows)
+                              if (isWindows || isMacOS)
                                 StreamBuilder<bool>(
                                   stream: _showSendIcon.stream,
                                   builder: (c, sh) {
@@ -475,6 +470,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                       ),
                                       onPressed: () {
                                         _backSubject.add(false);
+
                                         showButtonSheet();
                                       },
                                     );
@@ -682,7 +678,7 @@ class _InputMessageWidget extends State<InputMessage> {
         offset: widget.textController.text.length - block_2.length,
       ),
     );
-    _mentionQuery.add("-");
+    _mentionQuery.add(null);
     isMentionSelected = true;
     if (isDesktop) {
       widget.focusNode.requestFocus();
@@ -712,8 +708,8 @@ class _InputMessageWidget extends State<InputMessage> {
         isEnterClicked(event)) {
       if (widget.currentRoom.uid.isGroup() &&
           mentionSelectedIndex >= 0 &&
-          _mentionData != "_") {
-        sendMentionByEnter();
+          _mentionQuery.value != null) {
+        addMentionByEnter();
       } else {
         sendMessage();
       }
@@ -723,8 +719,8 @@ class _InputMessageWidget extends State<InputMessage> {
         isEnterClicked(event)) {
       if (widget.currentRoom.uid.isGroup() &&
           mentionSelectedIndex >= 0 &&
-          _mentionData != "_") {
-        sendMentionByEnter();
+          _mentionQuery.value != null) {
+        addMentionByEnter();
       } else {
         sendMessage();
       }
@@ -744,7 +740,7 @@ class _InputMessageWidget extends State<InputMessage> {
     if (widget.currentRoom.uid.asUid().isGroup()) {
       setState(() {
         _rawKeyboardService.navigateInMentions(
-          _mentionData,
+          _mentionQuery.value,
           scrollDownInMentions,
           event,
           mentionSelectedIndex,
@@ -829,10 +825,10 @@ class _InputMessageWidget extends State<InputMessage> {
         );
   }
 
-  Future<void> sendMentionByEnter() async {
+  Future<void> addMentionByEnter() async {
     final value = await _mucRepo.getFilteredMember(
       widget.currentRoom.uid,
-      query: _mentionData,
+      query: _mentionQuery.value,
     );
     if (value.isNotEmpty) {
       onMentionSelected(value[mentionSelectedIndex]!.id);
@@ -859,7 +855,9 @@ class _InputMessageWidget extends State<InputMessage> {
 
   void scrollUpInMentions() {
     if (mentionSelectedIndex <= 0) {
-      _mucRepo.getFilteredMember(currentRoom.uid, query: _mentionData).then(
+      _mucRepo
+          .getFilteredMember(currentRoom.uid, query: _mentionQuery.value)
+          .then(
             (value) => {
               mentionSelectedIndex = value.length - 1,
             },
@@ -904,7 +902,7 @@ class _InputMessageWidget extends State<InputMessage> {
 
       widget.textController.clear();
 
-      _mentionQuery.add("-");
+      _mentionQuery.add(null);
     }
     widget.scrollToLastSentMessage();
   }
@@ -985,7 +983,9 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   void scrollDownInMentions() {
-    _mucRepo.getFilteredMember(currentRoom.uid, query: _mentionData).then(
+    _mucRepo
+        .getFilteredMember(currentRoom.uid, query: _mentionQuery.value)
+        .then(
           (value) => {
             if (mentionSelectedIndex >= value.length)
               {mentionSelectedIndex = 0}

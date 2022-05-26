@@ -305,7 +305,7 @@ class _RoomPageState extends State<RoomPage> {
                   );
                 },
               ),
-            AudioPlayerAppBar(),
+            const AudioPlayerAppBar(),
             pinMessageWidget(),
           ],
         ),

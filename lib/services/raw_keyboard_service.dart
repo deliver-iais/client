@@ -125,7 +125,7 @@ class RawKeyboardService {
   }
 
   void navigateInMentions(
-    String mentionData,
+    String? mentionData,
     void Function() scrollDownInMention,
     RawKeyEvent event,
     int mentionSelectedIndex,
@@ -133,12 +133,12 @@ class RawKeyboardService {
   ) {
     if (isKeyPressed(event, PhysicalKeyboardKey.arrowUp) &&
         !event.isAltPressed &&
-        mentionData != "-") {
+        mentionData != null) {
       scrollUpInMentions(scrollUpInMention);
     }
     if (isKeyPressed(event, PhysicalKeyboardKey.arrowDown) &&
         !event.isAltPressed &&
-        mentionData != "-") {
+        mentionData != null) {
       scrollDownInMentions(scrollDownInMention);
     }
   }

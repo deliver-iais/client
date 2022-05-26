@@ -56,7 +56,7 @@ extension PermissionsExtension on CheckPermissionsService {
     }
   }
 
-  Future<bool> checkStoragePermission() async {
+  Future<bool> checkMediaLibraryPermission() async {
     try {
       return await Permission.mediaLibrary.isGranted &&
           await requestLock.synchronized(() async {
@@ -67,7 +67,7 @@ extension PermissionsExtension on CheckPermissionsService {
     }
   }
 
-  Future<bool> checkStorage2Permission() async {
+  Future<bool> checkAccessMediaLocationPermission() async {
     try {
       return await Permission.accessMediaLocation.isGranted ||
           await requestLock.synchronized(() async {

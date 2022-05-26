@@ -43,6 +43,8 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   final _i18n = GetIt.I.get<I18N>();
   final _controller = AnimatedListController();
 
+  List<Room> rooms = <Room>[];
+
   void _showCustomMenu(BuildContext context, Room room, bool canBePinned) {
     this.showMenu(
       context: context,
@@ -67,12 +69,24 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   }
 
   void onUnPin(Room room) {
-    _roomDao.updateRoom(uid: room.uid, pinned: false);
+    _roomDao.updateRoom(uid: room.uid, pinned: false, pinId: 0);
   }
 
   void onPin(Room room, {bool canBePinned = false}) {
     if (canBePinned) {
-      _roomDao.updateRoom(uid: room.uid, pinned: true);
+      final pinned = <Room>[
+        room,
+        ...rooms.where((element) => element.pinned).toList()
+          ..sort((a, b) => (a.pinId - b.pinId))
+      ];
+
+      for (final room in pinned) {
+        _roomDao.updateRoom(
+          uid: room.uid,
+          pinned: true,
+          pinId: pinned.indexOf(room) + 1,
+        );
+      }
     } else {
       showDialog(
         context: context,
@@ -104,79 +118,85 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
             (a, b) => deepEquality.equals(a, b),
           ),
       builder: (context, snapshot) {
-        final rooms = snapshot.data ?? const [];
+        rooms = snapshot.data ?? const [];
 
         return StreamBuilder<RouteEvent>(
           stream: _routingService.currentRouteStream,
           builder: (c, s) {
-            rearrangeChatItem(rooms);
+            if (s.hasData &&
+                s.data != null &&
+                s.connectionState == ConnectionState.active) {
+              rooms = rearrangeChatItem(rooms);
 
-            final rw = rooms
-                .map(
-                  (r) => RoomWrapper(
-                    room: r,
-                    isInRoom: _routingService.isInRoom(r.uid),
-                  ),
-                )
-                .toList();
+              final rw = rooms
+                  .map(
+                    (r) => RoomWrapper(
+                      room: r,
+                      isInRoom: _routingService.isInRoom(r.uid),
+                    ),
+                  )
+                  .toList();
 
-            return PageStorage(
-              bucket: PageStorage.of(context)!,
-              child: Scrollbar(
-                controller: widget.scrollController,
-                child: AutomaticAnimatedListView<RoomWrapper>(
-                  scrollController: widget.scrollController,
-                  list: rw,
-                  listController: _controller,
-                  animator: const DefaultAnimatedListAnimator(
-                    dismissIncomingDuration:
-                        kDismissOrIncomingAnimationDuration,
-                    reorderDuration: kReorderAnimationDuration,
-                    resizeDuration: kResizeAnimationDuration,
-                    movingDuration: kMovingAnimationDuration,
+              return PageStorage(
+                bucket: PageStorage.of(context)!,
+                child: Scrollbar(
+                  controller: widget.scrollController,
+                  child: AutomaticAnimatedListView<RoomWrapper>(
+                    scrollController: widget.scrollController,
+                    list: rw,
+                    listController: _controller,
+                    animator: const DefaultAnimatedListAnimator(
+                      dismissIncomingDuration:
+                          kDismissOrIncomingAnimationDuration,
+                      reorderDuration: kReorderAnimationDuration,
+                      resizeDuration: kResizeAnimationDuration,
+                      movingDuration: kMovingAnimationDuration,
+                    ),
+                    comparator: AnimatedListDiffListComparator<RoomWrapper>(
+                      sameItem: (a, b) => a.room.uid == b.room.uid,
+                      sameContent: (a, b) =>
+                          a.room == b.room && a.isInRoom == b.isInRoom,
+                    ),
+                    itemBuilder: (ctx, rw, data) {
+                      return GestureDetector(
+                        behavior: HitTestBehavior.translucent,
+                        child: ChatItem(
+                          key: ValueKey("chatItem/${rw.room.uid}"),
+                          roomWrapper: rw,
+                        ),
+                        onTap: () {
+                          _routingService.openRoom(
+                            rw.room.uid,
+                            popAllBeforePush: true,
+                          );
+                        },
+                        onLongPress: () {
+                          // ToDo new design for android
+                          _showCustomMenu(
+                            context,
+                            rw.room,
+                            canBePinned(rooms),
+                          );
+                        },
+                        onTapDown: storePosition,
+                        onSecondaryTapDown: storePosition,
+                        onSecondaryTap: !isDesktop
+                            ? null
+                            : () {
+                                _showCustomMenu(
+                                  context,
+                                  rw.room,
+                                  canBePinned(rooms),
+                                );
+                              },
+                      );
+                    },
                   ),
-                  comparator: AnimatedListDiffListComparator<RoomWrapper>(
-                    sameItem: (a, b) => a.room.uid == b.room.uid,
-                    sameContent: (a, b) =>
-                        a.room == b.room && a.isInRoom == b.isInRoom,
-                  ),
-                  itemBuilder: (ctx, rw, data) {
-                    return GestureDetector(
-                      behavior: HitTestBehavior.translucent,
-                      child: ChatItem(
-                        key: ValueKey("chatItem/${rw.room.uid}"),
-                        roomWrapper: rw,
-                      ),
-                      onTap: () {
-                        _routingService.openRoom(
-                          rw.room.uid,
-                          popAllBeforePush: true,
-                        );
-                      },
-                      onLongPress: () {
-                        // ToDo new design for android
-                        _showCustomMenu(
-                          context,
-                          rw.room,
-                          canBePinned(rooms),
-                        );
-                      },
-                      onTapDown: storePosition,
-                      onSecondaryTapDown: storePosition,
-                      onSecondaryTap: !isDesktop
-                          ? null
-                          : () {
-                              _showCustomMenu(
-                                context,
-                                rw.room,
-                                canBePinned(rooms),
-                              );
-                            },
-                    );
-                  },
                 ),
-              ),
-            );
+              );
+            } else {
+              return const SizedBox.shrink();
+            }
           },
         );
       },
@@ -187,13 +207,24 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
     return rooms.where((element) => element.pinned).toList().length < 5;
   }
 
-  void rearrangeChatItem(List<Room> rooms) {
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  List<Room> rearrangeChatItem(List<Room> rooms) {
+    final pinned = <Room>[];
     for (final room in rooms) {
-      if (room.pinned == true) {
-        rooms
-          ..remove(room)
-          ..insert(0, room);
+      if (room.pinned) {
+        pinned.add(room);
       }
     }
+    for (final room in pinned) {
+      rooms.remove(room);
+    }
+    pinned
+      ..sort((a, b) => (a.pinId - b.pinId))
+      ..addAll(rooms);
+    return pinned;
   }
 }
