@@ -127,6 +127,7 @@ class TextUI extends StatelessWidget {
       ItalicTextParser(),
       UnderlineTextParser(),
       StrikethroughTextParser(),
+      InlineIdParser(onUsernameClick: onUsernameClick),
     ];
 
     for (final p in parsers) {
@@ -256,7 +257,7 @@ class SpoilerTextParser implements Parser {
         blocks,
         regex,
         "spoiler",
-        transformer: StrikethroughTextParser.transformer,
+        transformer: SpoilerTextParser.transformer,
         style: TextStyle(
           backgroundColor: Colors.black.withOpacity(0.5),
           color: Theme.of(context).primaryColor,
@@ -293,6 +294,35 @@ class InlineUrlTextParser implements Parser {
         style: TextStyle(
           color: Theme.of(context).primaryColor,
         ),
+      );
+}
+
+class InlineIdParser implements Parser {
+  final void Function(String)? onUsernameClick;
+  final RegExp regex =
+      RegExp(r"\[(.+)\]\(we:\/\/user\?id=[a-zA-Z]([a-zA-Z0-9_]){4,19}\)");
+
+  InlineIdParser({this.onUsernameClick});
+
+  static String transformer(String m) {
+    return m.substring(1, m.indexOf("]"));
+  }
+
+  @override
+  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+        blocks,
+        regex,
+        "inlineId",
+        transformer: InlineIdParser.transformer,
+        onTap: (text) {
+          final id =
+              text.substring(text.indexOf("?id=") + 4, text.lastIndexOf(")"));
+          if (onUsernameClick != null) {
+            // ignore: prefer_null_aware_method_calls
+            onUsernameClick!("@" + id);
+          }
+        },
+        style: TextStyle(color: Theme.of(context).primaryColor),
       );
 }
 

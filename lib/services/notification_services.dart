@@ -198,7 +198,8 @@ class NotificationServices {
           ItalicTextParser.transformer(
             UnderlineTextParser.transformer(
               StrikethroughTextParser.transformer(
-                mb.text,
+                InlineUrlTextParser.transformer(
+                    InlineIdParser.transformer(mb.text)),
               ),
             ),
           ),
