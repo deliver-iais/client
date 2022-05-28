@@ -152,16 +152,17 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         child: ListView(
           children: [
             SizedBox(
-              height: 520,
+              height: 528,
               child: Stack(
                 children: [
                   StreamBuilder<int>(
-                      stream: _idSubject.stream,
-                      builder: (context, snapshot) {
-                        return Background(
-                          id: snapshot.data ?? 0,
-                        );
-                      }),
+                    stream: _idSubject.stream,
+                    builder: (context, snapshot) {
+                      return Background(
+                        id: snapshot.data ?? 0,
+                      );
+                    },
+                  ),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Column(
@@ -172,12 +173,12 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                     ),
                   ),
                   Transform.translate(
-                    offset: Offset(0, -(mainBorder.topLeft.x)),
+                    offset: Offset(0, -(mainBorder.topLeft.x) - 8),
                     child: Align(
                       alignment: Alignment.bottomCenter,
-                      child: IconButton(
+                      child: FloatingActionButton(
                         onPressed: () => _idSubject.add(_idSubject.value + 1),
-                        icon: const Icon(Icons.rotate_right),
+                        child: const Icon(Icons.rotate_right),
                       ),
                     ),
                   )
