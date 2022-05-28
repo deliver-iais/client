@@ -77,7 +77,6 @@ class SenderAndContent extends StatelessWidget {
                 ),
               if (iconData != null) const SizedBox(width: 4),
               Flexible(
-                fit: FlexFit.loose,
                 child: LastMessage(
                   messageSR: snapshot.data!,
                   showSender: true,
