@@ -77,9 +77,17 @@ class RoomRepo {
     return null;
   }
 
-  Future<String> getName(Uid uid,
-      {String? unknownName, bool forceToReturnSavedMessage = false,}) async {
+  Future<String> getName(
+    Uid uid, {
+    String? unknownName,
+    bool forceToReturnSavedMessage = false,
+  }) async {
     if (uid.isUser() && uid.node.isEmpty) return ""; // Empty Uid
+
+    // Fake user name needed for theming page.
+    if (uid.isSameEntity(FAKE_USER_UID.asString())) {
+      return FAKE_USER_NAME;
+    }
 
     // Is System Id
     if (uid.category == Categories.SYSTEM &&

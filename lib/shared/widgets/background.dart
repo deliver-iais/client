@@ -143,7 +143,7 @@ class Background extends StatelessWidget {
               ),
               SizedBox.expand(
                 child: Image(
-                  image: const AssetImage("assets/backgrounds/pattern-24.webp"),
+                  image: const AssetImage("assets/backgrounds/pattern-2.webp"),
                   fit: BoxFit.scaleDown,
                   color: foregroundColor,
                   repeat: ImageRepeat.repeat,

@@ -414,6 +414,7 @@ class MyApp extends StatelessWidget {
       stream: MergeStream([
         _uxService.themeIndexStream,
         _uxService.themeIsDarkStream,
+        _uxService.showColorfulStream,
         _i18n.localeStream,
       ]),
       builder: (ctx, snapshot) {

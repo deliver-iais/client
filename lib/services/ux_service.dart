@@ -70,7 +70,7 @@ class UxService {
 
   final _themeIndex = BehaviorSubject.seeded(0);
   final _themeIsDark = BehaviorSubject.seeded(false);
-  final _colorful = BehaviorSubject.seeded(true);
+  final _showColorful = BehaviorSubject.seeded(false);
 
   final _isAllNotificationDisabled = BehaviorSubject.seeded(false);
   final _isAutoNightModeEnable = BehaviorSubject.seeded(true);
@@ -94,9 +94,9 @@ class UxService {
         .listen((isEnable) => _isAutoNightModeEnable.add(isEnable));
 
     _sharedDao
-        .getBooleanStream(SHARED_DAO_SHOW_COLORFUL, defaultValue: true)
+        .getBooleanStream(SHARED_DAO_SHOW_COLORFUL)
         .distinct()
-        .listen((isEnable) => _colorful.add(isEnable));
+        .listen((isEnable) => _showColorful.add(isEnable));
 
     _sharedDao
         .getBooleanStream(SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED)
@@ -130,6 +130,9 @@ class UxService {
   Stream get themeIsDarkStream =>
       _themeIsDark.stream.distinct().map((event) => event);
 
+  Stream get showColorfulStream =>
+      _showColorful.stream.distinct().map((event) => event);
+
   ThemeData get theme =>
       getThemeScheme(_themeIndex.value).theme(isDark: _themeIsDark.value);
 
@@ -138,7 +141,7 @@ class UxService {
 
   bool get themeIsDark => _themeIsDark.value;
 
-  bool get colorful => _colorful.value;
+  bool get showColorful => _showColorful.value;
 
   int get themeIndex => _themeIndex.value;
 
@@ -166,6 +169,16 @@ class UxService {
   void toggleThemeToDarkMode() {
     _sharedDao.putBoolean(SHARED_DAO_THEME_IS_DARK, true);
     _themeIsDark.add(true);
+  }
+
+  void toggleShowColorful() {
+    if (_showColorful.value) {
+      _sharedDao.putBoolean(SHARED_DAO_SHOW_COLORFUL, false);
+      _showColorful.add(false);
+    } else {
+      _sharedDao.putBoolean(SHARED_DAO_SHOW_COLORFUL, true);
+      _showColorful.add(true);
+    }
   }
 
   void selectTheme(int index) {

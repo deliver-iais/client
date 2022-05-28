@@ -1,3 +1,5 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'dart:math';
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -20,16 +22,24 @@ const int TEXT_MESSAGE_MAX_LENGTH = 50;
 const int TEXT_MESSAGE_MAX_LINE = 25;
 const int PAGE_SIZE = 50;
 const bool TWO_STEP_VERIFICATION_IS_AVAILABLE = false;
+
 //TEXT FIELD
 const INPUT_MESSAGE_TEXT_FIELD_MAX_LINE = TEXT_MESSAGE_MAX_LINE * 4;
 const INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH =
     INPUT_MESSAGE_TEXT_FIELD_MAX_LINE * TEXT_MESSAGE_MAX_LENGTH;
+
 const String TEST_USER_ACCESS_TOKEN =
     "eyJUT0tFTl9UWVBFIjoiYWNjZXNzX3Rva2VuIiwiQ0FURUdPUlkiOjAsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJERUxJVkVSLUFVVEgiLCJpYXQiOjE2MzY0Mzc3OTYsImV4cCI6MTc5MTk1Nzc5Niwic3ViIjoiMzA0OTk4N2ItZTE1ZC00Mjg4LTk3Y2QtNDJkYmM2ZDczYWJkIiwianRpIjoiZTI2MWI4ZjItZTE1Zi00NjQ0LWE5ZTMtYTBjZjFhMmNlODIwIn0.e2bx71LfQpLWQ0I1ElPMOJQkOw0Sud-PjlcMNbR92MA";
-// ignore: non_constant_identifier_names
+
 final Uid TEST_USER_UID = Uid.create()
   ..category = Categories.USER
   ..node = "3049987b-e15d-4288-97cd-42dbc6d73abd";
+
+final FAKE_USER_UID = Uid()
+  ..category = Categories.USER
+  ..node = "fake_user";
+
+const FAKE_USER_NAME = "John Doe";
 
 const TEST_USER_PHONE_NUMBER = "1234567890";
 
@@ -85,8 +95,7 @@ const SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE =
 const SHARED_DAO_TWO_STEP_VERIFICATION_ENABLED =
     "SHARED_DAO_TWO_STEP_VERIFICATION_ENABLED";
 const SHARED_DAO_WINDOWS_SIZE = "SHARED_DAO_WINDOWS_SIZE";
-const SHARED_DAO_SHOW_COLORFUL =
-    "SHARED_DAO_SHOW_COLORFUL";
+const SHARED_DAO_SHOW_COLORFUL = "SHARED_DAO_SHOW_COLORFUL";
 
 const ONLINE_TIME = 60000;
 
@@ -183,7 +192,6 @@ bool isLarge(BuildContext context) =>
     isLargeWidth(MediaQuery.of(context).size.width);
 
 // Dynamics
-// ignore: non_constant_identifier_names
 double animationSquareSize(BuildContext context) => isLarge(context)
     ? min(FLUID_MAX_WIDTH * 0.7, FLUID_MAX_HEIGHT * 0.4)
     : min(

@@ -19,8 +19,6 @@ import 'package:rxdart/rxdart.dart';
 
 import '../../../shared/widgets/settings_ui/box_ui.dart';
 
-const fakeUser = "0:fake_user";
-
 class ThemeSettingsPage extends StatefulWidget {
   const ThemeSettingsPage({Key? key}) : super(key: key);
 
@@ -38,13 +36,18 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
   void createMessages() {
     final cUser = _authRepo.currentUserUid.asString();
     messages = [
-      cm(1, cUser, fakeUser, "سلام"),
-      cm(2, cUser, fakeUser, "امروز میخواستیم با بچه ها بریم فوتبال، میای ؟"),
-      cm(3, fakeUser, cUser, "حتما، چه ساعتیه ؟!", replyId: 2),
+      cm(1, cUser, FAKE_USER_UID.asString(), "سلام"),
+      cm(
+        2,
+        cUser,
+        FAKE_USER_UID.asString(),
+        "امروز میخواستیم با بچه ها بریم فوتبال، میای ؟",
+      ),
+      cm(3, FAKE_USER_UID.asString(), cUser, "حتما، چه ساعتیه ؟!", replyId: 2),
       cm(
         4,
         cUser,
-        fakeUser,
+        FAKE_USER_UID.asString(),
         "ایول\\n \\n ساعت ۹ شب، همونجای همیشگی. منتظرتیم",
         replyId: 3,
       ),
@@ -77,7 +80,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
       isHidden: false,
       json: '{"1":"$text"}',
       packetId: '',
-      roomUid: fakeUser,
+      roomUid: FAKE_USER_UID.asString(),
     );
   }
 
@@ -114,8 +117,8 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
       message: msg,
       messageReplyBrief: cfm(replyId),
       messageBefore: bMsg,
-      roomId: fakeUser,
-      lastSeenMessageId: 1,
+      roomId: FAKE_USER_UID.asString(),
+      lastSeenMessageId: messages.length - 1,
       pinMessages: const [],
       selectMultiMessageSubject: BehaviorSubject.seeded(false),
       hasPermissionInGroup: false,
@@ -176,19 +179,6 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                     Section(
                       title: _i18n.get("theme"),
                       children: [
-                        SettingsTile(
-                          title: "Main Color",
-                          leading: const Icon(CupertinoIcons.color_filter),
-                          trailing: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                for (var i = 0; i < palettes.length; i++)
-                                  color(palettes[i], i)
-                              ],
-                            ),
-                          ),
-                        ),
                         SettingsTile.switchTile(
                           title: _i18n.get("dark_mode"),
                           leading: const Icon(CupertinoIcons.moon),
@@ -229,23 +219,12 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                           ),
                         ),
                         SettingsTile.switchTile(
-                          title: _i18n.get("dark_mode"),
-                          leading: const Icon(CupertinoIcons.moon),
-                          switchValue: _uxService.themeIsDark,
+                          title: "Colorful Messages",
+                          leading: const Icon(CupertinoIcons.paintbrush),
+                          switchValue: _uxService.showColorful,
                           onToggle: (value) {
                             setState(() {
-                              _uxService.toggleThemeLightingMode();
-                            });
-                          },
-                        ),
-                        SettingsTile.switchTile(
-                          title: _i18n.get("auto_night_mode"),
-                          leading:
-                              const Icon(CupertinoIcons.circle_lefthalf_fill),
-                          switchValue: _uxService.isAutoNightModeEnable,
-                          onToggle: (value) {
-                            setState(() {
-                              _uxService.toggleIsAutoNightMode();
+                              _uxService.toggleShowColorful();
                             });
                           },
                         ),

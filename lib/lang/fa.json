@@ -372,5 +372,6 @@
   "enable_location_services_in_windows_helper": "با مراجعه به تنظیمات،سرویس، موقعیت مکانی را فعال کنید",
   "i_realized": "متوجه شدم.",
   "send_location": "فرستادن موقیعت مکانی",
+  "write_a_message": "پیام خود را بنویسید...",
   "get_location_not_support_in_your_device": "گرفتن موقعیت مکانی در دستگاه شما پشتیبانی نمی شود."
 }

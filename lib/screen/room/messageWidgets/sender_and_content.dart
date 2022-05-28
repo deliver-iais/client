@@ -1,6 +1,7 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/last_message.dart';
 import 'package:deliver/services/message_extractor_services.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/theme/extra_theme.dart';
@@ -61,8 +62,15 @@ class SenderAndContent extends StatelessWidget {
           constraints: maxWidth != null
               ? BoxConstraints(maxWidth: maxWidth! - 14.0)
               : null,
-          color: showBackgroundColor
-              ? messageColorScheme.primaryContainer.withOpacity(0.2)
+          decoration: showBackgroundColor
+              ? BoxDecoration(
+                  borderRadius: secondaryBorder,
+                  color: messageColorScheme.primaryContainer.withOpacity(0.2),
+                  border: Border.all(
+                    color: messageColorScheme.primary,
+                    width: 2,
+                  ),
+                )
               : null,
           padding:
               const EdgeInsets.only(left: 4.0, top: 4, bottom: 4, right: 8),
