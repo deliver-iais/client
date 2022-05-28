@@ -10,6 +10,12 @@ final palettes = [
   Colors.yellow,
 ];
 
+final patterns = [
+  "pattern-1",
+  "pattern-2",
+  "pattern-24",
+];
+
 ThemeScheme getThemeScheme(int index) =>
     ThemeScheme(CorePalette.of(palettes[index % palettes.length].value));
 

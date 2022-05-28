@@ -413,6 +413,7 @@ class MyApp extends StatelessWidget {
     return StreamBuilder(
       stream: MergeStream([
         _uxService.themeIndexStream,
+        _uxService.patternIndexStream,
         _uxService.themeIsDarkStream,
         _uxService.showColorfulStream,
         _i18n.localeStream,

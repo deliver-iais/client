@@ -31,6 +31,8 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _i18n = GetIt.I.get<I18N>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _idSubject = BehaviorSubject.seeded(0);
+
   List<Message> messages = [];
 
   void createMessages() {
@@ -150,10 +152,16 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         child: ListView(
           children: [
             SizedBox(
-              height: 480,
+              height: 520,
               child: Stack(
                 children: [
-                  const Background(),
+                  StreamBuilder<int>(
+                      stream: _idSubject.stream,
+                      builder: (context, snapshot) {
+                        return Background(
+                          id: snapshot.data ?? 0,
+                        );
+                      }),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Column(
@@ -163,6 +171,16 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                       ],
                     ),
                   ),
+                  Transform.translate(
+                    offset: Offset(0, -(mainBorder.topLeft.x)),
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: IconButton(
+                        onPressed: () => _idSubject.add(_idSubject.value + 1),
+                        icon: const Icon(Icons.rotate_right),
+                      ),
+                    ),
+                  )
                 ],
               ),
             ),
@@ -218,6 +236,19 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                             ),
                           ),
                         ),
+                        SettingsTile(
+                          title: "Pattern",
+                          leading: const Icon(CupertinoIcons.photo),
+                          trailing: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Row(
+                              children: [
+                                for (var i = 0; i < patterns.length; i++)
+                                  pattern(patterns[i], i)
+                              ],
+                            ),
+                          ),
+                        ),
                         SettingsTile.switchTile(
                           title: "Colorful Messages",
                           leading: const Icon(CupertinoIcons.paintbrush),
@@ -265,6 +296,40 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
             ),
             width: 24,
             height: 24,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget pattern(String pattern, int index) {
+    final isSelected = _uxService.patternIndex == index;
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        onTap: () {
+          _uxService.selectPattern(index);
+        },
+        child: AnimatedContainer(
+          duration: ANIMATION_DURATION * 2,
+          clipBehavior: Clip.hardEdge,
+          margin: const EdgeInsets.symmetric(horizontal: 4.0),
+          decoration: BoxDecoration(
+            borderRadius: secondaryBorder,
+            border: isSelected
+                ? Border.all(color: Theme.of(context).primaryColor, width: 2)
+                : Border.all(width: 2),
+          ),
+          child: AnimatedContainer(
+            duration: ANIMATION_DURATION * 2,
+            child: Image(
+              image: AssetImage("assets/backgrounds/$pattern-thumb.webp"),
+              color: isSelected ? Theme.of(context).primaryColor : null,
+              fit: BoxFit.cover,
+              repeat: ImageRepeat.repeat,
+            ),
+            width: 80,
+            height: 100,
           ),
         ),
       ),

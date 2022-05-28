@@ -1,6 +1,11 @@
+import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class Background extends StatelessWidget {
+  static final _uxService = GetIt.I.get<UxService>();
+
   final int id;
 
   const Background({Key? key, this.id = 0}) : super(key: key);
@@ -143,7 +148,8 @@ class Background extends StatelessWidget {
               ),
               SizedBox.expand(
                 child: Image(
-                  image: const AssetImage("assets/backgrounds/pattern-2.webp"),
+                  image: AssetImage(
+                      "assets/backgrounds/${patterns[_uxService.patternIndex]}.webp"),
                   fit: BoxFit.scaleDown,
                   color: foregroundColor,
                   repeat: ImageRepeat.repeat,

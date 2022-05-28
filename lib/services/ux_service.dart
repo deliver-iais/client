@@ -69,6 +69,7 @@ class UxService {
   final _sharedDao = GetIt.I.get<SharedDao>();
 
   final _themeIndex = BehaviorSubject.seeded(0);
+  final _patternIndex = BehaviorSubject.seeded(0);
   final _themeIsDark = BehaviorSubject.seeded(false);
   final _showColorful = BehaviorSubject.seeded(false);
 
@@ -94,7 +95,7 @@ class UxService {
         .listen((isEnable) => _isAutoNightModeEnable.add(isEnable));
 
     _sharedDao
-        .getBooleanStream(SHARED_DAO_SHOW_COLORFUL)
+        .getBooleanStream(SHARED_DAO_THEME_SHOW_COLORFUL)
         .distinct()
         .listen((isEnable) => _showColorful.add(isEnable));
 
@@ -122,10 +123,22 @@ class UxService {
         } catch (_) {}
       }
     });
+
+    _sharedDao.get(SHARED_DAO_THEME_PATTERN).then((event) {
+      if (event != null) {
+        try {
+          final patternIndex = int.parse(event);
+          _patternIndex.add(patternIndex);
+        } catch (_) {}
+      }
+    });
   }
 
   Stream get themeIndexStream =>
       _themeIndex.stream.distinct().map((event) => event);
+
+  Stream get patternIndexStream =>
+      _patternIndex.stream.distinct().map((event) => event);
 
   Stream get themeIsDarkStream =>
       _themeIsDark.stream.distinct().map((event) => event);
@@ -144,6 +157,8 @@ class UxService {
   bool get showColorful => _showColorful.value;
 
   int get themeIndex => _themeIndex.value;
+
+  int get patternIndex => _patternIndex.value;
 
   bool get sendByEnter => isDesktop && _sendByEnter.value;
 
@@ -173,10 +188,10 @@ class UxService {
 
   void toggleShowColorful() {
     if (_showColorful.value) {
-      _sharedDao.putBoolean(SHARED_DAO_SHOW_COLORFUL, false);
+      _sharedDao.putBoolean(SHARED_DAO_THEME_SHOW_COLORFUL, false);
       _showColorful.add(false);
     } else {
-      _sharedDao.putBoolean(SHARED_DAO_SHOW_COLORFUL, true);
+      _sharedDao.putBoolean(SHARED_DAO_THEME_SHOW_COLORFUL, true);
       _showColorful.add(true);
     }
   }
@@ -184,6 +199,11 @@ class UxService {
   void selectTheme(int index) {
     _sharedDao.put(SHARED_DAO_THEME_COLOR, index.toString());
     _themeIndex.add(index);
+  }
+
+  void selectPattern(int index) {
+    _sharedDao.put(SHARED_DAO_THEME_PATTERN, index.toString());
+    _patternIndex.add(index);
   }
 
   void toggleSendByEnter() {

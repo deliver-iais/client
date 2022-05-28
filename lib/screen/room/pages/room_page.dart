@@ -181,7 +181,12 @@ class _RoomPageState extends State<RoomPage> {
   Stack buildBody() {
     return Stack(
       children: [
-        const Background(),
+        StreamBuilder<Room>(
+          stream: _room.stream,
+          builder: (context, snapshot) => Background(
+            id: snapshot.data?.lastMessageId ?? 0,
+          ),
+        ),
         Column(
           children: <Widget>[
             buildAllMessagesBox(),
