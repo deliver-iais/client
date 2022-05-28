@@ -118,7 +118,7 @@ class PinMessageAppBar extends StatelessWidget {
                                   ),
                                 ),
                               if (mes != null)
-                                LastMessage.viaMessage(
+                                AsyncLastMessage(
                                   message: mes,
                                   lastMessageId: mes.id!,
                                   showSeenStatus: false,

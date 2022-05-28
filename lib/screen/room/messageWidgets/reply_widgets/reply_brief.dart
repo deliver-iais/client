@@ -2,11 +2,16 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_brief.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/sender_and_content.dart';
+import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/message.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 
 class ReplyBrief extends StatelessWidget {
+  static final _messageExtractorServices =
+      GetIt.I.get<MessageExtractorServices>();
+
   final String roomId;
   final int replyToId;
   final double maxWidth;
@@ -39,55 +44,34 @@ class ReplyBrief extends StatelessWidget {
       child: FutureBuilder<Message?>(
         future: _messageRepo.getMessage(roomId, replyToId),
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return repliedMessageBox(snapshot.data!);
-          } else if (messageReplyBrief != null) {
-            return repliedMessageBoxByMessageReplyBrief(messageReplyBrief!);
-          } else {
+          final future = extractMessageSimpleRepresentative(snapshot.data);
+
+          if (future == null) {
             return const SizedBox.shrink();
           }
+
+          return SenderAndContent(messageSRF: future);
         },
       ),
     );
   }
 
-  Row repliedMessageBox(Message message) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          CupertinoIcons.reply,
-          size: 20,
-          color: foregroundColor,
-        ),
-        const SizedBox(width: 4),
-        Flexible(
-          child: SenderAndContent.viaMessage(
-            message: message,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Row repliedMessageBoxByMessageReplyBrief(
-    MessageBrief messageReplyBrief,
+  Future<MessageSimpleRepresentative>? extractMessageSimpleRepresentative(
+    Message? message,
   ) {
-    return Row(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Icon(
-          CupertinoIcons.reply,
-          size: 20,
-          color: foregroundColor,
-        ),
-        const SizedBox(width: 4),
-        Flexible(
-          child: SenderAndContent.viaMessageBrief(
-            messageBrief: messageReplyBrief,
-          ),
-        ),
-      ],
-    );
+    Future<MessageSimpleRepresentative>? messageSRF;
+
+    if (message != null) {
+      messageSRF = _messageExtractorServices.extractMessageSimpleRepresentative(
+        _messageExtractorServices.extractProtocolBufferMessage(message),
+      );
+    } else if (messageReplyBrief != null) {
+      messageSRF = _messageExtractorServices
+          .extractMessageSimpleRepresentativeFromMessageBrief(
+        messageReplyBrief!,
+      );
+    }
+
+    return messageSRF;
   }
 }

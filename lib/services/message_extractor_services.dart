@@ -75,6 +75,7 @@ class MessageExtractorServices {
     MessageBrief mrb,
   ) async {
     final roomUid = getRoomUidOf(_authRepo, mrb.from.asUid(), mrb.to.asUid());
+    final from = mrb.from.asUid();
     final roomName = await _roomRepo.getSlangName(roomUid);
     final sender = await _roomRepo.getSlangName(mrb.from.asUid());
     final type = mrb.type;
@@ -84,6 +85,7 @@ class MessageExtractorServices {
 
     return MessageSimpleRepresentative(
       roomUid: roomUid,
+      from: from,
       roomName: roomName,
       sender: sender,
       senderIsAUserOrBot: mrb.from.asUid().isUser() || mrb.to.asUid().isBot(),
@@ -100,6 +102,7 @@ class MessageExtractorServices {
     message_pb.Message msg,
   ) async {
     final roomUid = getRoomUid(_authRepo, msg);
+    final from = msg.from;
     final roomName = await _roomRepo.getSlangName(roomUid);
     final sender = await _roomRepo.getSlangName(msg.from);
     final type = getMessageType(msg.whichType());
@@ -201,6 +204,7 @@ class MessageExtractorServices {
 
     return MessageSimpleRepresentative(
       roomUid: roomUid,
+      from: from,
       roomName: roomName,
       sender: sender,
       senderIsAUserOrBot: msg.from.isUser() || msg.from.isBot(),

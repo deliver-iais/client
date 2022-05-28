@@ -12,6 +12,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 
 class MessageSimpleRepresentative {
   final Uid roomUid;
+  final Uid from;
   final String sender;
   final String roomName;
   final MessageType type;
@@ -26,6 +27,7 @@ class MessageSimpleRepresentative {
 
   MessageSimpleRepresentative({
     required this.sender,
+    required this.from,
     required this.roomName,
     required this.type,
     required this.typeDetails,
@@ -39,6 +41,7 @@ class MessageSimpleRepresentative {
 
   MessageSimpleRepresentative copyWith({
     Uid? roomUid,
+    Uid? from,
     String? sender,
     String? roomName,
     bool? senderIsAUserOrBot,
@@ -51,6 +54,7 @@ class MessageSimpleRepresentative {
   }) =>
       MessageSimpleRepresentative(
         roomUid: roomUid ?? this.roomUid,
+        from: from ?? this.from,
         sender: sender ?? this.sender,
         roomName: roomName ?? this.roomName,
         senderIsAUserOrBot: senderIsAUserOrBot ?? this.senderIsAUserOrBot,
