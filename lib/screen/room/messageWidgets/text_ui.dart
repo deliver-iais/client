@@ -127,11 +127,14 @@ class TextUI extends StatelessWidget {
       UrlParser(),
       IdParser(onUsernameClick),
       if (isBotMessage) BotCommandParser(onBotCommandClick),
+      UnderlineTextParser(),
       BoldTextParser(),
       ItalicTextParser(),
-      UnderlineTextParser(),
       StrikethroughTextParser(),
       InlineIdParser(onUsernameClick: onUsernameClick),
+      TildeTextParser(),
+      UnderScoreTextParser(),
+      StarTextParser(),
     ];
 
     for (final p in parsers) {
@@ -186,7 +189,7 @@ class IdParser implements Parser {
 }
 
 class BoldTextParser implements Parser {
-  final RegExp regex = RegExp(r"\*(.+)\*", dotAll: true);
+  final RegExp regex = RegExp(r"(\*.+)([^\\])(\*)", dotAll: true);
 
   static String transformer(String m) => m.replaceAll("*", "");
 
@@ -200,8 +203,53 @@ class BoldTextParser implements Parser {
       );
 }
 
+class StarTextParser implements Parser {
+  final RegExp regex = RegExp(r"(\\*.+)", dotAll: true);
+
+  static String transformer(String m) => m.replaceAll("\\*", "*");
+
+  @override
+  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+        blocks,
+        regex,
+        "star",
+        transformer: StarTextParser.transformer,
+        style: const TextStyle(),
+      );
+}
+
+class UnderScoreTextParser implements Parser {
+  final RegExp regex = RegExp(r"(\\_.+)", dotAll: true);
+
+  static String transformer(String m) => m.replaceAll("\\_", "_");
+
+  @override
+  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+        blocks,
+        regex,
+        "underScore",
+        transformer: UnderScoreTextParser.transformer,
+        style: const TextStyle(),
+      );
+}
+
+class TildeTextParser implements Parser {
+  final RegExp regex = RegExp(r"(\\~.+)", dotAll: true);
+
+  static String transformer(String m) => m.replaceAll("\\~", "~");
+
+  @override
+  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+        blocks,
+        regex,
+        "tilde",
+        transformer: TildeTextParser.transformer,
+        style: const TextStyle(),
+      );
+}
+
 class ItalicTextParser implements Parser {
-  final RegExp regex = RegExp(r"_(.+)_", dotAll: true);
+  final RegExp regex = RegExp(r"_(.+)([^\\])_", dotAll: true);
 
   static String transformer(String m) => m.replaceAll("_", "");
 
@@ -218,7 +266,7 @@ class ItalicTextParser implements Parser {
 }
 
 class UnderlineTextParser implements Parser {
-  final RegExp regex = RegExp(r"__(.+)__", dotAll: true);
+  final RegExp regex = RegExp(r"__(.+)([^\\])__", dotAll: true);
 
   static String transformer(String m) => m.replaceAll("__", "");
 
@@ -235,7 +283,7 @@ class UnderlineTextParser implements Parser {
 }
 
 class StrikethroughTextParser implements Parser {
-  final RegExp regex = RegExp(r"~(.+)~", dotAll: true);
+  final RegExp regex = RegExp(r"~(.+)([^\\])~", dotAll: true);
 
   static String transformer(String m) => m.replaceAll("~", "");
 
@@ -246,13 +294,13 @@ class StrikethroughTextParser implements Parser {
         "strikethrough",
         transformer: StrikethroughTextParser.transformer,
         style: const TextStyle(
-          decoration: TextDecoration.overline,
+          decoration: TextDecoration.lineThrough,
         ),
       );
 }
 
 class SpoilerTextParser implements Parser {
-  final RegExp regex = RegExp(r"||(.+)||", dotAll: true);
+  final RegExp regex = RegExp(r"||(.+)([^\\])||", dotAll: true);
 
   static String transformer(String m) => m.replaceAll("||", "");
 

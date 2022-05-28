@@ -195,11 +195,18 @@ class NotificationServices {
     if (mb.text.isNotEmpty) {
       return mb.copyWith(
         text: BoldTextParser.transformer(
-          ItalicTextParser.transformer(
-            UnderlineTextParser.transformer(
+          UnderlineTextParser.transformer(
+            ItalicTextParser.transformer(
               StrikethroughTextParser.transformer(
                 InlineUrlTextParser.transformer(
-                    InlineIdParser.transformer(mb.text)),
+                  InlineIdParser.transformer(
+                    TildeTextParser.transformer(
+                      UnderScoreTextParser.transformer(
+                        StarTextParser.transformer(mb.text),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             ),
           ),

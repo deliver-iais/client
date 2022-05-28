@@ -161,11 +161,15 @@ class LastMessage extends StatelessWidget {
     final parsers = <Parser>[
       EmojiParser(fontSize: 16),
       BoldTextParser(),
-      ItalicTextParser(),
       UnderlineTextParser(),
+      ItalicTextParser(),
       StrikethroughTextParser(),
+      SpoilerTextParser(),
       InlineIdParser(),
       InlineUrlTextParser(),
+      TildeTextParser(),
+      UnderlineTextParser(),
+      StarTextParser(),
     ];
 
     for (final p in parsers) {
