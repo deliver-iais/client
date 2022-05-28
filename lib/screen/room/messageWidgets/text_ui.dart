@@ -26,6 +26,8 @@ class TextUI extends StatelessWidget {
   final void Function(String) onBotCommandClick;
   final bool isBotMessage;
   final CustomColorScheme colorScheme;
+  final void Function() onSpoilerClick;
+  final bool spoilText;
 
   TextUI({
     Key? key,
@@ -38,6 +40,8 @@ class TextUI extends StatelessWidget {
     this.isSender = false,
     this.isSeen = false,
     this.searchTerm,
+    required this.onSpoilerClick,
+    required this.spoilText,
   })  : isBotMessage = message.roomUid.asUid().isBot(),
         super(key: key);
 
@@ -131,6 +135,7 @@ class TextUI extends StatelessWidget {
       BoldTextParser(),
       ItalicTextParser(),
       StrikethroughTextParser(),
+      SpoilerTextParser(onSpoilerClick, spoil: spoilText),
       InlineIdParser(onUsernameClick: onUsernameClick),
       TildeTextParser(),
       UnderScoreTextParser(),
@@ -300,9 +305,13 @@ class StrikethroughTextParser implements Parser {
 }
 
 class SpoilerTextParser implements Parser {
-  final RegExp regex = RegExp(r"||(.+)([^\\])||", dotAll: true);
+  final bool spoil;
+  final void Function() onSpoilerClick;
+  final RegExp regex = RegExp(r"\|\|(.+)\|\|", dotAll: true);
 
   static String transformer(String m) => m.replaceAll("||", "");
+
+  SpoilerTextParser(this.onSpoilerClick, {required this.spoil});
 
   @override
   List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
@@ -310,9 +319,12 @@ class SpoilerTextParser implements Parser {
         regex,
         "spoiler",
         transformer: SpoilerTextParser.transformer,
+        onTap: (text) {
+          onSpoilerClick();
+        },
         style: TextStyle(
-          backgroundColor: Colors.black.withOpacity(0.5),
-          color: Theme.of(context).primaryColor,
+          backgroundColor: !spoil ? Theme.of(context).primaryColorDark : null,
+          color: !spoil ? Theme.of(context).primaryColorDark : null,
         ),
       );
 }

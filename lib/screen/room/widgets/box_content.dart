@@ -75,6 +75,8 @@ class _BoxContentState extends State<BoxContent> {
   static final _routingServices = GetIt.I.get<RoutingService>();
   bool hideArrowDopIcon = true;
 
+  bool spoilText = false;
+
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
@@ -226,6 +228,14 @@ class _BoxContentState extends State<BoxContent> {
           searchTerm: widget.pattern,
           onUsernameClick: widget.onUsernameClick,
           onBotCommandClick: widget.onBotCommandClick,
+          onSpoilerClick: () {
+            setState(() {
+              if (!spoilText) {
+                spoilText = true;
+              }
+            });
+          },
+          spoilText: spoilText,
         );
       case MessageType.FILE:
         return FileMessageUi(
