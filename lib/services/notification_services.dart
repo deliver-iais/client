@@ -36,6 +36,9 @@ import 'package:win_toast/win_toast.dart';
 
 abstract class Notifier {
   static void onCallAccept(String roomUid) {
+     ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
+      isVisible: false,
+    );
     GetIt.I
         .get<RoutingService>()
         .openCallScreen(roomUid.asUid(), isCallAccepted: true);
