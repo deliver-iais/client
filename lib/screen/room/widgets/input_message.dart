@@ -119,6 +119,7 @@ class _InputMessageWidget extends State<InputMessage> {
   late String _botCommandData;
   int mentionSelectedIndex = 0;
   int botCommandSelectedIndex = 0;
+  bool _shouldSynthesize = true;
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
   final record = Record();
@@ -460,6 +461,19 @@ class _InputMessageWidget extends State<InputMessage> {
                                     }
                                   },
                                 ),
+                              IconButton(
+                                icon: Icon(
+                                  CupertinoIcons
+                                      .chevron_left_slash_chevron_right,
+                                  color:
+                                      !_shouldSynthesize ? Colors.blue : null,
+                                ),
+                                onPressed: () {
+                                  setState(() {
+                                    _shouldSynthesize = !_shouldSynthesize;
+                                  });
+                                },
+                              ),
                               StreamBuilder<bool>(
                                 stream: _showSendIcon.stream,
                                 builder: (c, sh) {
@@ -875,7 +889,7 @@ class _InputMessageWidget extends State<InputMessage> {
       widget.sendForwardMessage?.call();
     }
 
-    final text = widget.textController.text.trim();
+    final text = _synthesize(widget.textController.text.trim());
 
     if (text.isNotEmpty) {
       if (_replyMessageId > 0) {
@@ -903,6 +917,16 @@ class _InputMessageWidget extends State<InputMessage> {
       _mentionQuery.add("-");
     }
     widget.scrollToLastSentMessage();
+  }
+
+  String _synthesize(String text) {
+    if (_shouldSynthesize) {
+      return text
+          .replaceAll("*", "\\*")
+          .replaceAll("_", "\\_")
+          .replaceAll("~", "\\~");
+    }
+    return text;
   }
 
   void sendRecordActivity() {
