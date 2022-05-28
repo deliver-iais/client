@@ -14,9 +14,13 @@ class Background extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final backgroundColor = theme.colorScheme.tertiaryContainer;
+    final backgroundColor = theme.brightness == Brightness.light
+        ? const Color(0xFF94c697)
+        : const Color(0xFF00101A);
 
-    final foregroundColor = theme.colorScheme.onBackground.withOpacity(0.1);
+    final foregroundColor = theme.brightness == Brightness.light
+        ? const Color(0xFF7ab07e).withOpacity(0.7)
+        : const Color(0xFF00233B).withOpacity(0.8);
 
     final yellow = theme.brightness == Brightness.light
         ? const Color(0xFFbbd494)
@@ -27,7 +31,7 @@ class Background extends StatelessWidget {
         : const Color(0x00002031);
 
     final white =
-        theme.brightness == Brightness.light ? const Color(0xFFccdcb7) : yellow;
+    theme.brightness == Brightness.light ? const Color(0xFFccdcb7) : yellow;
 
     final whiteTransparent = theme.brightness == Brightness.light
         ? const Color(0x00ccdcb7)
@@ -40,6 +44,7 @@ class Background extends StatelessWidget {
     final darkTransparent = theme.brightness == Brightness.light
         ? const Color(0x0075ba94)
         : const Color(0x00000C11);
+
 
     const pp = <Alignment>[
       Alignment(-0.9, -1),
