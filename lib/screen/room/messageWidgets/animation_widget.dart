@@ -135,17 +135,14 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
           },
         ),
         Container(
-          decoration: BoxDecoration(
-            borderRadius: mainBorder,
-            color: widget.colorScheme.primaryContainer,
-          ),
+          decoration: const BoxDecoration(borderRadius: mainBorder),
           child: TimeAndSeenStatus(
             widget.message,
             isSender: isSender,
             isSeen: widget.isSeen,
             needsPositioned: false,
+            showBackground: true,
             needsPadding: true,
-            foregroundColor: widget.colorScheme.onPrimaryContainerLowlight(),
           ),
         ),
         const SizedBox(height: 4),

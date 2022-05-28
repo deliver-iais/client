@@ -6,6 +6,7 @@ import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class ReplyBrief extends StatelessWidget {
@@ -33,9 +34,8 @@ class ReplyBrief extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: BoxConstraints.loose(Size.fromWidth(maxWidth - 14.0)),
       height: 50,
-      padding: const EdgeInsets.only(left: 4.0, top: 4, bottom: 4, right: 8),
+      clipBehavior: Clip.antiAlias,
       margin: const EdgeInsets.only(top: 4.0, left: 4.0, right: 4.0),
       decoration: BoxDecoration(
         color: backgroundColor,
@@ -50,7 +50,12 @@ class ReplyBrief extends StatelessWidget {
             return const SizedBox.shrink();
           }
 
-          return SenderAndContent(messageSRF: future);
+          return SenderAndContent(
+            iconData: CupertinoIcons.reply,
+            maxWidth: maxWidth,
+            showBackgroundColor: true,
+            messageSRF: future,
+          );
         },
       ),
     );

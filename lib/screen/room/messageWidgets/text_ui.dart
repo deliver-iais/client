@@ -94,8 +94,6 @@ class TextUI extends StatelessWidget {
             message,
             isSender: isSender,
             isSeen: isSeen,
-            backgroundColor: colorScheme.primaryContainer,
-            foregroundColor: colorScheme.onPrimaryContainerLowlight(),
             needsPositioned: false,
           )
         ],

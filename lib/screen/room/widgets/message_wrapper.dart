@@ -20,8 +20,7 @@ class MessageWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final color =
-        ExtraTheme.of(context).messageColorScheme(uid).primaryContainer;
+    final color = ExtraTheme.of(context).messageBackgroundColor(uid);
 
     var border = messageBorder;
 

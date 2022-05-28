@@ -26,16 +26,13 @@ class ReplyPreview extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(
-              CupertinoIcons.reply,
-              color: theme.primaryColor,
-              size: 25,
-            ),
-            const SizedBox(width: 10),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(2.0),
-                child: SenderAndContent.viaMessage(message: message),
+                child: SenderAndContent.viaMessage(
+                  iconData: CupertinoIcons.reply,
+                  message: message,
+                ),
               ),
             ),
             IconButton(

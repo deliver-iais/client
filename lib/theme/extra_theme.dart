@@ -1,11 +1,13 @@
 import 'dart:math';
 
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class ExtraThemeData {
+  static final _usServices = GetIt.I.get<UxService>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   final Material3ColorScheme colorScheme;
   final List<CustomColorScheme> customColorsSchemeList;
@@ -34,6 +36,22 @@ class ExtraThemeData {
     final finalHash = hash.abs() % (100);
     final r = Random(finalHash);
     return customColorsSchemeList[r.nextInt(customColorsSchemeList.length)];
+  }
+
+  Color messageBackgroundColor(String uid) {
+    if (_authRepo.isCurrentUser(uid) || (_usServices.colorful && false)) {
+      return messageColorScheme(uid).primaryContainer;
+    } else {
+      return colorScheme.surface;
+    }
+  }
+
+  Color messageForegroundColor(String uid) {
+    if (_authRepo.isCurrentUser(uid) || (_usServices.colorful && false)) {
+      return messageColorScheme(uid).onPrimaryContainerLowlight();
+    } else {
+      return colorScheme.onSurface;
+    }
   }
 
   ExtraThemeData({

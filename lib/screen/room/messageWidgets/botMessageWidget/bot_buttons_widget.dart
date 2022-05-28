@@ -56,9 +56,10 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
             children: [
               if (!buttons.lockAfter.isZero)
                 CountDownTimer(
-                    message: widget.message,
-                    lockAfter: buttons.lockAfter.toInt(),
-                    lock: (l) => _locked.add(l),),
+                  message: widget.message,
+                  lockAfter: buttons.lockAfter.toInt(),
+                  lock: (l) => _locked.add(l),
+                ),
               Container(
                 padding: EdgeInsets.only(
                   top: buttons.lockAfter.isZero ? 1 : 50,
@@ -103,9 +104,6 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
                         isSender: widget.isSender,
                         isSeen: widget.isSeen,
                         needsPositioned: false,
-                        backgroundColor: widget.colorScheme.primaryContainer,
-                        foregroundColor:
-                            widget.colorScheme.onPrimaryContainerLowlight(),
                       ),
                     ),
                   ],

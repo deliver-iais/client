@@ -134,8 +134,6 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
               isSender: isSender,
               isSeen: isSeen,
               needsPadding: true,
-              backgroundColor: colorScheme.primaryContainer,
-              foregroundColor: colorScheme.onPrimaryContainerLowlight(),
             )
           ],
         ),

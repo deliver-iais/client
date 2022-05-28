@@ -4,7 +4,6 @@ import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/theme/extra_theme.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -14,19 +13,28 @@ class SenderAndContent extends StatelessWidget {
 
   final Future<MessageSimpleRepresentative> messageSRF;
   final bool expandContent;
+  final bool showBackgroundColor;
+  final double? maxWidth;
+  final IconData? iconData;
   final Color? highlightColor;
 
   const SenderAndContent({
     Key? key,
     required this.messageSRF,
+    this.maxWidth,
+    this.iconData,
     this.expandContent = true,
+    this.showBackgroundColor = false,
     this.highlightColor,
   }) : super(key: key);
 
   SenderAndContent.viaMessage({
     Key? key,
     required Message message,
+    this.maxWidth,
+    this.iconData,
     this.expandContent = true,
+    this.showBackgroundColor = false,
     this.highlightColor,
   })  : messageSRF =
             _messageExtractorServices.extractMessageSimpleRepresentative(
@@ -49,26 +57,39 @@ class SenderAndContent extends StatelessWidget {
         final messageColorScheme =
             extraTheme.messageColorScheme(snapshot.data!.from.asString());
 
-        return Row(
-          children: [
-            Icon(
-              CupertinoIcons.reply,
-              size: 20,
-              color: messageColorScheme.primary,
-            ),
-            const SizedBox(width: 4),
-            Flexible(
-              child: LastMessage(
-                messageSR: snapshot.data!,
-                showSender: true,
-                showSeenStatus: false,
-                showRoomDetails: false,
-                lastMessageId: 0,
-                highlightColor: messageColorScheme.primary,
-                expandContent: expandContent,
+        return Container(
+          constraints: maxWidth != null
+              ? BoxConstraints(maxWidth: maxWidth! - 14.0)
+              : null,
+          color: showBackgroundColor
+              ? messageColorScheme.primaryContainer.withOpacity(0.2)
+              : null,
+          padding:
+              const EdgeInsets.only(left: 4.0, top: 4, bottom: 4, right: 8),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (iconData != null)
+                Icon(
+                  iconData,
+                  size: 22,
+                  color: messageColorScheme.primary,
+                ),
+              if (iconData != null) const SizedBox(width: 4),
+              Flexible(
+                fit: FlexFit.loose,
+                child: LastMessage(
+                  messageSR: snapshot.data!,
+                  showSender: true,
+                  showSeenStatus: false,
+                  showRoomDetails: false,
+                  lastMessageId: 0,
+                  highlightColor: messageColorScheme.primary,
+                  expandContent: expandContent,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         );
       },
     );

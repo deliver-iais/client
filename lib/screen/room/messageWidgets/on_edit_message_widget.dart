@@ -25,16 +25,13 @@ class OnEditMessageWidget extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(
-              Icons.edit,
-              color: theme.primaryColor,
-              size: 25,
-            ),
-            const SizedBox(width: 10),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(2.0),
-                child: SenderAndContent.viaMessage(message: message),
+                child: SenderAndContent.viaMessage(
+                  iconData: Icons.edit,
+                  message: message,
+                ),
               ),
             ),
             IconButton(
