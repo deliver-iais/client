@@ -130,7 +130,6 @@ class ShareUidMessageWidget extends StatelessWidget {
                                           _routingServices.openRoom(
                                             _shareUid.uid.asString(),
                                           );
-
                                         }
                                       } else {
                                         final res = await _mucRepo.joinChannel(
@@ -142,7 +141,6 @@ class ShareUidMessageWidget extends StatelessWidget {
                                           _routingServices.openRoom(
                                             _shareUid.uid.asString(),
                                           );
-
                                         }
                                       }
                                     } else {
@@ -173,8 +171,6 @@ class ShareUidMessageWidget extends StatelessWidget {
             isSender: isSender,
             isSeen: isSeen,
             needsPositioned: false,
-            backgroundColor: colorScheme.primaryContainer,
-            foregroundColor: colorScheme.onPrimaryContainerLowlight(),
           ),
         ],
       ),

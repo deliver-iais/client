@@ -17,6 +17,7 @@ import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/file_service.dart';
+import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -119,7 +120,7 @@ abstract class Notifier {
     }
   }
 
-  Future<void> notifyText(MessageBrief message);
+  Future<void> notifyText(MessageSimpleRepresentative message);
 
   Future<void> notifyIncomingCall(
     String roomUid,
@@ -135,9 +136,8 @@ abstract class Notifier {
 }
 
 class NotificationServices {
-  final _i18n = GetIt.I.get<I18N>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
+  final _messageExtractorServices = GetIt.I.get<MessageExtractorServices>();
   final _notifier = GetIt.I.get<Notifier>();
   final _audioService = GetIt.I.get<AudioService>();
   final _routingService = GetIt.I.get<RoutingService>();
@@ -187,14 +187,15 @@ class NotificationServices {
     String roomUid, {
     String? roomName,
   }) async {
-    final mb = (await extractMessageBrief(_i18n, _roomRepo, _authRepo, message))
+    final mb = (await _messageExtractorServices
+            .extractMessageSimpleRepresentative(message))
         .copyWith(roomName: roomName);
     if (!mb.ignoreNotification) {
       return _notifier.notifyText(_synthesize(mb));
     }
   }
 
-  MessageBrief _synthesize(MessageBrief mb) {
+  MessageSimpleRepresentative _synthesize(MessageSimpleRepresentative mb) {
     if (mb.text.isNotEmpty) {
       return mb.copyWith(
         text: BoldTextParser.transformer(
@@ -217,7 +218,7 @@ class NotificationServices {
 
 class FakeNotifier implements Notifier {
   @override
-  Future<void> notifyText(MessageBrief message) async {}
+  Future<void> notifyText(MessageSimpleRepresentative message) async {}
 
   @override
   Future<void> notifyIncomingCall(
@@ -258,7 +259,7 @@ class WindowsNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyText(MessageBrief message) async {
+  Future<void> notifyText(MessageSimpleRepresentative message) async {
     Toast? toast;
     if (!toastByRoomId.containsKey(message.roomUid.node)) {
       toastByRoomId[message.roomUid.node] = {};
@@ -393,7 +394,7 @@ class WebNotifier implements Notifier {
   Future<void> cancelAll() async {}
 
   @override
-  Future<void> notifyText(MessageBrief message) async {
+  Future<void> notifyText(MessageSimpleRepresentative message) async {
     js.context.callMethod(
       "showNotification",
       [message.roomName, createNotificationTextFromMessageBrief(message)],
@@ -445,7 +446,7 @@ class LinuxNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyText(MessageBrief message) async {
+  Future<void> notifyText(MessageSimpleRepresentative message) async {
     if (message.ignoreNotification) return;
 
     LinuxNotificationIcon icon = AssetsLinuxIcon(
@@ -632,7 +633,7 @@ class AndroidNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyText(MessageBrief message) async {
+  Future<void> notifyText(MessageSimpleRepresentative message) async {
     if (message.ignoreNotification) return;
     AndroidBitmap<Object>? largeIcon;
     var selectedNotificationSound = "that_was_quick";
@@ -795,7 +796,7 @@ class IOSNotifier implements Notifier {
         //     _i18n.get("mark_as_read"),
         //     options: <DarwinNotificationActionOption>{
         //       DarwinNotificationActionOption.destructive,
-    //   },
+        //   },
         //   ),
         // ],
       )
@@ -842,7 +843,7 @@ class IOSNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyText(MessageBrief message) async {
+  Future<void> notifyText(MessageSimpleRepresentative message) async {
     if (message.ignoreNotification) return;
 
     final attachments = <DarwinNotificationAttachment>[];
@@ -959,7 +960,7 @@ class MacOSNotifier implements Notifier {
   }
 
   @override
-  Future<void> notifyText(MessageBrief message) async {
+  Future<void> notifyText(MessageSimpleRepresentative message) async {
     if (message.ignoreNotification) return;
 
     final attachments = <DarwinNotificationAttachment>[];
@@ -1021,7 +1022,7 @@ class MacOSNotifier implements Notifier {
   Future<void> cancelById(int id) async {}
 }
 
-String createNotificationTextFromMessageBrief(MessageBrief mb) {
+String createNotificationTextFromMessageBrief(MessageSimpleRepresentative mb) {
   var text = "";
   if (!(mb.roomUid.isBot() || mb.roomUid.isUser()) && mb.senderIsAUserOrBot) {
     text += "${mb.sender.trim()}: ";

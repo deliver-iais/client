@@ -94,7 +94,6 @@ class _FormResultWidgetState extends State<FormResultWidget> {
                   isSeen: widget.isSeen,
                   needsPadding: true,
                   needsPositioned: false,
-                  foregroundColor: widget.colorScheme.onPrimaryContainer,
                 ),
               ],
             )

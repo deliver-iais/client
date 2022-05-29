@@ -1,13 +1,12 @@
 import 'dart:math';
 
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/theme/color_scheme.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 
 class MessageWrapper extends StatelessWidget {
   final Widget child;
   final String uid;
-  final CustomColorScheme colorScheme;
   final bool isSender;
   final bool isFirstMessageInGroupedMessages;
 
@@ -15,13 +14,14 @@ class MessageWrapper extends StatelessWidget {
     Key? key,
     required this.child,
     required this.uid,
-    required this.colorScheme,
     required this.isSender,
     this.isFirstMessageInGroupedMessages = true,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final color = ExtraTheme.of(context).messageBackgroundColor(uid);
+
     var border = messageBorder;
 
     if (isFirstMessageInGroupedMessages) {
@@ -34,19 +34,26 @@ class MessageWrapper extends StatelessWidget {
 
     const width = 6.0;
     const height = 30.0;
-    final color = colorScheme.primaryContainer;
 
     return Stack(
       children: [
         Container(
           clipBehavior: Clip.hardEdge,
-          margin: const EdgeInsets.symmetric(horizontal: 10.0, vertical: 2)
-              .copyWith(
-            top: isFirstMessageInGroupedMessages ? (isSender ? 16 : 0) : 2,
+          margin: const EdgeInsets.symmetric(horizontal: 10.0).copyWith(
+            top: isFirstMessageInGroupedMessages && isSender ? 16 : 0,
+            bottom: 6,
           ),
           decoration: BoxDecoration(
             borderRadius: border,
             color: color,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                spreadRadius: 2,
+                blurRadius: 3,
+                offset: const Offset(0, 3), // changes position of shadow
+              ),
+            ],
           ),
           child: child,
         ),

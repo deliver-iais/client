@@ -84,8 +84,6 @@ class _AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
               widget.message,
               isSender: widget.isSender,
               isSeen: widget.isSeen,
-              foregroundColor: widget.colorScheme.onPrimaryContainerLowlight(),
-              backgroundColor: widget.colorScheme.primaryContainer,
               needsPadding: true,
             )
         ],

@@ -1,7 +1,11 @@
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class Background extends StatelessWidget {
+  static final _uxService = GetIt.I.get<UxService>();
+
   final int id;
 
   const Background({Key? key, this.id = 0}) : super(key: key);
@@ -9,6 +13,7 @@ class Background extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+
     final backgroundColor = theme.brightness == Brightness.light
         ? const Color(0xFF94c697)
         : const Color(0xFF00101A);
@@ -72,8 +77,6 @@ class Background extends StatelessWidget {
           clipBehavior: Clip.antiAlias,
           decoration: BoxDecoration(
             color: backgroundColor,
-            borderRadius:
-                isLarge(context) ? backgroundBorder : BorderRadius.zero,
           ),
           child: Stack(
             children: [
@@ -149,7 +152,9 @@ class Background extends StatelessWidget {
               ),
               SizedBox.expand(
                 child: Image(
-                  image: const AssetImage("assets/backgrounds/pattern-24.png"),
+                  image: AssetImage(
+                    "assets/backgrounds/${patterns[_uxService.patternIndex]}.webp",
+                  ),
                   fit: BoxFit.scaleDown,
                   color: foregroundColor,
                   repeat: ImageRepeat.repeat,

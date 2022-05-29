@@ -105,8 +105,8 @@ class _ChatItemState extends State<ChatItem> {
     );
   }
 
-  LastMessage buildLastMessage(Message message) {
-    return LastMessage(
+  Widget buildLastMessage(Message message) {
+    return AsyncLastMessage(
       message: message,
       lastMessageId: widget.room.lastMessageId,
       hasMentioned: widget.room.mentioned == true,

@@ -1,5 +1,4 @@
 import 'package:deliver/box/dao/seen_dao.dart';
-import 'package:deliver/box/message.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/repository/messageRepo.dart';
@@ -8,12 +7,20 @@ import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
 
 class SeenStatus extends StatelessWidget {
-  final Message message;
+  final String roomUid;
+  final String messagePacketId;
+  final int? messageId;
   final bool? isSeen;
   final Color? iconColor;
 
-  const SeenStatus(this.message, {Key? key, this.isSeen, this.iconColor})
-      : super(key: key);
+  const SeenStatus(
+    this.roomUid,
+    this.messagePacketId, {
+    Key? key,
+    this.messageId,
+    this.isSeen,
+    this.iconColor,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -44,9 +51,9 @@ class SeenStatus extends StatelessWidget {
       ),
     );
 
-    if (message.id == null) {
+    if (messageId == null) {
       return FutureBuilder<PendingMessage?>(
-        future: messageRepo.getPendingMessage(message.packetId),
+        future: messageRepo.getPendingMessage(messagePacketId),
         builder: ((c, pm) {
           if (pm.hasData && pm.data != null && pm.data!.failed) {
             return const Icon(Icons.warning, color: Colors.red, size: 15);
@@ -63,11 +70,11 @@ class SeenStatus extends StatelessWidget {
       );
     } else {
       return StreamBuilder<Seen?>(
-        stream: seenDao.watchOthersSeen(message.roomUid),
+        stream: seenDao.watchOthersSeen(roomUid),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return Icon(
-              snapshot.data!.messageId >= message.id!
+              snapshot.data!.messageId >= messageId!
                   ? Icons.done_all
                   : Icons.done,
               color: color,

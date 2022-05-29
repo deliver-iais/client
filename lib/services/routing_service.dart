@@ -26,6 +26,7 @@ import 'package:deliver/screen/settings/pages/developer_page.dart';
 import 'package:deliver/screen/settings/pages/devices_page.dart';
 import 'package:deliver/screen/settings/pages/language_settings.dart';
 import 'package:deliver/screen/settings/pages/security_settings.dart';
+import 'package:deliver/screen/settings/pages/theme_settings_page.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/share_input_file/share_input_file.dart';
 import 'package:deliver/services/core_services.dart';
@@ -50,6 +51,8 @@ const _settings = SettingsPage(key: ValueKey("/settings"));
 
 const _languageSettings =
     LanguageSettingsPage(key: ValueKey("/language-settings"));
+
+const _themeSettings = ThemeSettingsPage(key: ValueKey("/theme-settings"));
 
 const _securitySettings =
     SecuritySettingsPage(key: ValueKey("/security-settings"));
@@ -91,6 +94,8 @@ class RoutingService {
   }
 
   void openLanguageSettings() => _push(_languageSettings);
+
+  void openThemeSettings() => _push(_themeSettings);
 
   void openSecuritySettings() => _push(_securitySettings);
 
@@ -256,7 +261,6 @@ class RoutingService {
 
   bool isInRoom(String roomId) =>
       _path() == "/room/$roomId" || _path() == "/room/$roomId/profile";
-
 
   String _path() => _navigatorObserver.currentRoute.value.nextRoute;
 
