@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
+import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
@@ -33,11 +34,124 @@ class AnimatedEmoji extends StatefulWidget {
     final content = message.json.toText().text;
 
     switch (content) {
+      case "😀":
+      case "😃":
+      case "😄":
+      case "😆":
+      case "😅":
+      case "😇":
+      case "😌":
+      case "🥲":
+      case "😗":
+      case "😙":
+      case "😚":
+      case "😝":
+      case "😜":
+      case "🤪":
+      case "🧐":
+      case "🤩":
+      case "🥳":
+      case "😏":
+      case "😟":
+      case "😕":
+      case "🙁":
+      case "😖":
+      case "😫":
+      case "😩":
+      case "😭":
+      case "😤":
+      case "😨":
+      case "😰":
+      case "😓":
+      case "🤗":
+      case "🤭":
+      case "🥱":
+      case "🤫":
+      case "🤥":
+      case "😶":
+      case "😑":
+      case "😬":
+      case "🙄":
+      case "😯":
+      case "😦":
+      case "😧":
+      case "😮":
+      case "😲":
+      case "😴":
+      case "🤤":
+      case "😪":
+      case "🤐":
+      case "🥴":
+      case "🤢":
+      case "🤮":
+      case "🤧":
+      case "😷":
+      case "🤒":
+      case "🤕":
+      case "🤑":
+      case "🤠":
+      case "🥸":
+      case "😈":
+      case "👿":
+      case "🤡":
+      case "💩":
+      case "👻":
+      case "💀":
+      case "☠️":
+      case "🤖":
+      case "😺":
+      case "😸":
+      case "😹":
+      case "😻":
+      case "😼":
+      case "😽":
+      case "🙀":
+      case "😿":
+      case "😾":
+      case "🙈":
+      case "🙊":
+      case "💫":
+      case "💥":
+      case "💌":
+      case "❤️":
+      case "🧡":
+      case "💛":
+      case "💚":
+      case "💙":
+      case "💜":
+      case "🖤":
+      case "🤎":
+      case "🤍":
+      case "💔":
+      case "❣️":
+      case "💕":
+      case "💞":
+      case "💓":
+      case "💖":
+      case "💘":
+      case "💝":
+      case "💟":
+      case "💯":
+      case "💢":
+      case "💤":
+      case "💬":
+      case "💭":
+      case "💗":
+      case "🤲":
+      case "👐":
+      case "🙌":
+      case "👏":
+      case "🤝":
       case "👍":
+      case "👎":
+      case "👊":
+      case "✊":
+      case "🤛":
+      case "🤜":
+      case "🤞":
       case "😘":
       case "🤔":
       case "😂":
-      case "❤️":
       case "😍":
       case "😁":
       case "😉":
@@ -83,7 +197,9 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
   @override
   void initState() {
     super.initState();
-    _composition = _loadComposition();
+    try {
+      _composition = _loadComposition();
+    } catch (_) {}
     _controller = AnimationController(vsync: this);
   }
 
@@ -107,6 +223,14 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
 
     return Column(
       children: [
+        if (isDebugEnabled())
+          DebugC(
+            isOpen: true,
+            children: [
+              Debug(shortname(), label: "Path"),
+              Debug(content(), label: "content"),
+            ],
+          ),
         FutureBuilder<LottieComposition?>(
           future: _composition,
           builder: (context, snapshot) {
@@ -158,12 +282,16 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
     return 'assets/emoji/$shortName.tgs';
   }
 
-  String getAlt() {
+  String shortname() {
     final content = widget.message.json.toText().text;
 
     final shortName = Emoji.byChar(content).shortName;
 
-    return 'assets/emoji/$shortName - $content';
+    return shortName;
+  }
+
+  String content() {
+    return widget.message.json.toText().text;
   }
 }
 
