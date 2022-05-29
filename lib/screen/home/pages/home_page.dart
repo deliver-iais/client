@@ -53,15 +53,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       //its work property without VPN
       FirebaseAnalytics.instance.logEvent(name: "user_starts_app");
     }
+    if (mounted) {
+      toggleTheme();
+    }
 
     window.onPlatformBrightnessChanged = () {
-      setState(() {
-        if (_uxService.isAutoNightModeEnable) {
-          window.platformBrightness == Brightness.dark
-              ? _uxService.toggleThemeToDarkMode()
-              : _uxService.toggleThemeToLightMode();
-        }
-      });
+      toggleTheme();
     };
     _coreServices.initStreamConnection();
     if (isAndroid || isIOS) {
@@ -80,6 +77,16 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     checkAddToHomeInWeb(context);
 
     super.initState();
+  }
+
+  void toggleTheme() {
+    setState(() {
+      if (_uxService.isAutoNightModeEnable) {
+        window.platformBrightness == Brightness.dark
+            ? _uxService.toggleThemeToDarkMode()
+            : _uxService.toggleThemeToLightMode();
+      }
+    });
   }
 
   Future<void> checkAddToHomeInWeb(BuildContext context) async {
