@@ -31,6 +31,7 @@ import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_brief.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/pending_message.dart';
@@ -143,6 +144,7 @@ Future<void> setupDI() async {
     ..registerAdapter(RoomAdapter())
     ..registerAdapter(PendingMessageAdapter())
     ..registerAdapter(MessageAdapter())
+    ..registerAdapter(MessageBriefAdapter())
     ..registerAdapter(MessageTypeAdapter())
     ..registerAdapter(SendingStatusAdapter())
     ..registerAdapter(MediaAdapter())
