@@ -34,7 +34,7 @@ class ReplyBrief extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 50,
+      height: 58,
       clipBehavior: Clip.antiAlias,
       margin: const EdgeInsets.only(top: 4.0, left: 4.0, right: 4.0),
       decoration: BoxDecoration(
