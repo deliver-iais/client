@@ -16,13 +16,13 @@ class ColorUtils {
   }
 
   static String stringToHexColor(String value) {
-    var c = (_hash(value) & 0x00FFFFFF).toRadixString(16).toUpperCase();
+    final c = (_hash(value) & 0x00FFFFFF).toRadixString(16).toUpperCase();
     return "0xFF00000".substring(0, 10 - c.length) + c;
   }
 
   static int stringToHexInt(String value) {
-    var c = (_hash(value) & 0x00FFFFFF).toRadixString(16).toUpperCase();
-    var hex = "FF00000".substring(0, 8 - c.length) + c;
+    final c = (_hash(value) & 0x00FFFFFF).toRadixString(16).toUpperCase();
+    final hex = "FF00000".substring(0, 8 - c.length) + c;
     return int.parse(hex, radix: 16);
   }
 

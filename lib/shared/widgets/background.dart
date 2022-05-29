@@ -31,7 +31,7 @@ class Background extends StatelessWidget {
         : const Color(0x00002031);
 
     final white =
-    theme.brightness == Brightness.light ? const Color(0xFFccdcb7) : yellow;
+        theme.brightness == Brightness.light ? const Color(0xFFccdcb7) : yellow;
 
     final whiteTransparent = theme.brightness == Brightness.light
         ? const Color(0x00ccdcb7)
@@ -44,7 +44,6 @@ class Background extends StatelessWidget {
     final darkTransparent = theme.brightness == Brightness.light
         ? const Color(0x0075ba94)
         : const Color(0x00000C11);
-
 
     const pp = <Alignment>[
       Alignment(-0.9, -1),
@@ -154,7 +153,8 @@ class Background extends StatelessWidget {
               SizedBox.expand(
                 child: Image(
                   image: AssetImage(
-                      "assets/backgrounds/${patterns[_uxService.patternIndex]}.webp"),
+                    "assets/backgrounds/${patterns[_uxService.patternIndex]}.webp",
+                  ),
                   fit: BoxFit.scaleDown,
                   color: foregroundColor,
                   repeat: ImageRepeat.repeat,

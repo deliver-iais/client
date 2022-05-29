@@ -6,7 +6,6 @@ import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class ReplyBrief extends StatelessWidget {
