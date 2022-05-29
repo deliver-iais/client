@@ -222,9 +222,7 @@ class _ImageUiState extends State<ImageUi> {
                           isSender: widget.isSender,
                           isSeen: widget.isSeen,
                           needsPadding: true,
-                          backgroundColor:
-                              widget.colorScheme.onPrimaryContainerLowlight(),
-                          foregroundColor: widget.colorScheme.primaryContainer,
+                          showBackground: true,
                         )
                     ],
                   ),
@@ -275,9 +273,7 @@ class _ImageUiState extends State<ImageUi> {
                           isSender: widget.isSender,
                           isSeen: widget.isSeen,
                           needsPadding: true,
-                          backgroundColor:
-                              widget.colorScheme.onPrimaryContainerLowlight(),
-                          foregroundColor: widget.colorScheme.primaryContainer,
+                          showBackground: true,
                         )
                     ],
                   ),

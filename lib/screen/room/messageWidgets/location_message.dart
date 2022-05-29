@@ -60,8 +60,7 @@ class LocationMessageWidget extends StatelessWidget {
           isSender: isSender,
           isSeen: isSeen,
           needsPadding: true,
-          backgroundColor: colorScheme.primaryContainer,
-          foregroundColor: colorScheme.onPrimaryContainerLowlight(),
+          showBackground: true,
         ),
       ],
     );

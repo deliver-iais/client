@@ -2,7 +2,6 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:material_color_utilities/blend/blend.dart';
-import 'package:material_color_utilities/hct/hct.dart';
 import 'package:material_color_utilities/palettes/core_palette.dart';
 import 'package:material_color_utilities/palettes/tonal_palette.dart';
 
@@ -330,34 +329,5 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
   );
 }
 
-ExtraThemeData getExtraThemeData(
-  Material3ColorScheme colorScheme,
-  List<HctColor> customHctList,
-) {
-  late final List<CustomColorScheme> _customColorSchemeList;
-
-  if (colorScheme.brightness == Brightness.light) {
-    _customColorSchemeList = customHctList
-        .map(
-          (e) => CustomColorScheme.light(
-            TonalPalette.of(e.hue, e.chroma),
-            colorScheme.primary,
-          ),
-        )
-        .toList();
-  } else {
-    _customColorSchemeList = customHctList
-        .map(
-          (e) => CustomColorScheme.dark(
-            TonalPalette.of(e.hue, e.chroma),
-            colorScheme.primary,
-          ),
-        )
-        .toList();
-  }
-
-  return ExtraThemeData(
-    colorScheme: colorScheme,
-    customColorsSchemeList: _customColorSchemeList,
-  );
-}
+ExtraThemeData getExtraThemeData(Material3ColorScheme colorScheme) =>
+    ExtraThemeData(colorScheme: colorScheme);

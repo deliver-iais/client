@@ -1,14 +1,15 @@
-import 'dart:math';
-
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/shared/methods/colors.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:material_color_utilities/material_color_utilities.dart';
 
 class ExtraThemeData {
+  static final _usServices = GetIt.I.get<UxService>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   final Material3ColorScheme colorScheme;
-  final List<CustomColorScheme> customColorsSchemeList;
   final CustomColorScheme primaryColorsScheme;
   final CustomColorScheme secondaryColorsScheme;
   final CustomColorScheme tertiaryColorsScheme;
@@ -27,18 +28,43 @@ class ExtraThemeData {
     if (_authRepo.isCurrentUser(uid)) {
       return primaryColorsScheme;
     }
-    var hash = 0;
-    for (var i = 0; i < uid.length; i++) {
-      hash = uid.codeUnitAt(i) + ((hash << 5) - hash);
+    return createColorWithString(uid);
+  }
+
+  CustomColorScheme createColorWithString(String str) {
+    final hctColor = HctColor.fromInt(ColorUtils.stringToHexInt(str));
+
+    if (colorScheme.brightness == Brightness.light) {
+      return CustomColorScheme.light(
+        TonalPalette.of(hctColor.hue, hctColor.chroma),
+        colorScheme.primary,
+      );
+    } else {
+      return CustomColorScheme.light(
+        TonalPalette.of(hctColor.hue, hctColor.chroma),
+        colorScheme.primary,
+      );
     }
-    final finalHash = hash.abs() % (100);
-    final r = Random(finalHash);
-    return customColorsSchemeList[r.nextInt(customColorsSchemeList.length)];
+  }
+
+  Color messageBackgroundColor(String uid) {
+    if (_authRepo.isCurrentUser(uid) || _usServices.showColorful) {
+      return messageColorScheme(uid).primaryContainer;
+    } else {
+      return colorScheme.surface;
+    }
+  }
+
+  Color messageForegroundColor(String uid) {
+    if (_authRepo.isCurrentUser(uid) || _usServices.showColorful) {
+      return messageColorScheme(uid).onPrimaryContainerLowlight();
+    } else {
+      return colorScheme.onSurface;
+    }
   }
 
   ExtraThemeData({
     required this.colorScheme,
-    required this.customColorsSchemeList,
   })  : primaryColorsScheme = CustomColorScheme(
           colorScheme.primary,
           colorScheme.onPrimary,

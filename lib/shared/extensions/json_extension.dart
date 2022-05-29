@@ -18,7 +18,7 @@ extension JsonMapper on String {
 
   Location toLocation() => Location.fromJson(this);
 
-  Transaction toPaymentTransaction() => Transaction.fromJson(this);
+  Transaction toTransaction() => Transaction.fromJson(this);
 
   Poll toPoll() => Poll.fromJson(this);
 
