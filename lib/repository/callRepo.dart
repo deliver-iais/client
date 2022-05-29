@@ -180,8 +180,9 @@ class CallRepo {
               }
               break;
             case CallEvent_CallStatus.CREATED:
-              if (_callService.getUserCallState == UserCallState.NOCALL &&
-                  (clock.now().millisecondsSinceEpoch - event.time < 50000)) {
+              if (_callService.getUserCallState == UserCallState.NOCALL
+                  //&& (clock.now().millisecondsSinceEpoch - event.time < 50000)
+              ) {
                 _callService.setUserCallState = UserCallState.INUSERCALL;
                 //get call Info and Save on DB
                 final currentCallEvent = call_event.CallEvent(
