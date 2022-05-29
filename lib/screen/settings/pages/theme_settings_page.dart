@@ -125,6 +125,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
       selectMultiMessageSubject: BehaviorSubject.seeded(false),
       hasPermissionInGroup: false,
       hasPermissionInChannel: BehaviorSubject.seeded(false),
+      menuDisabled: true,
       onEdit: () {},
       onPin: () {},
       onUnPin: () {},

@@ -47,6 +47,7 @@ class BuildMessageBox extends StatefulWidget {
   final void Function() onDelete;
   final void Function() onPin;
   final void Function() onUnPin;
+  final bool menuDisabled;
   final int lastSeenMessageId;
   final List<Message> pinMessages;
   final bool hasPermissionInGroup;
@@ -70,6 +71,7 @@ class BuildMessageBox extends StatefulWidget {
     required this.hasPermissionInGroup,
     required this.hasPermissionInChannel,
     required this.addForwardMessage,
+    this.menuDisabled = false,
     this.messageReplyBrief,
   }) : super(key: key);
 
@@ -361,6 +363,10 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     BuildContext context,
     Message message,
   ) async {
+    if (widget.menuDisabled) {
+      return;
+    }
+
     final selectedValue = await this.showMenu(
       context: context,
       items: <PopupMenuEntry<OperationOnMessage>>[
