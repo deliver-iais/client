@@ -37,12 +37,12 @@ class ExtraThemeData {
     if (colorScheme.brightness == Brightness.light) {
       return CustomColorScheme.light(
         TonalPalette.of(hctColor.hue, hctColor.chroma),
-        colorScheme.primary,
+        Colors.black,
       );
     } else {
       return CustomColorScheme.light(
         TonalPalette.of(hctColor.hue, hctColor.chroma),
-        colorScheme.primary,
+        Colors.white,
       );
     }
   }

@@ -65,7 +65,7 @@ class SenderAndContent extends StatelessWidget {
           decoration: showBackgroundColor
               ? BoxDecoration(
                   borderRadius: secondaryBorder,
-                  color: messageColorScheme.primaryContainer.withOpacity(0.2),
+                  color: messageColorScheme.primaryContainer,
                   border: Border.all(
                     color: messageColorScheme.primary,
                     width: 2,

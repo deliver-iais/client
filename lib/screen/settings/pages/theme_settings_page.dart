@@ -174,9 +174,9 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                     ),
                   ),
                   Transform.translate(
-                    offset: Offset(0, -(mainBorder.topLeft.x) - 8),
+                    offset: Offset(8, -(mainBorder.topLeft.x) - 8),
                     child: Align(
-                      alignment: Alignment.bottomCenter,
+                      alignment: Alignment.bottomLeft,
                       child: FloatingActionButton(
                         onPressed: () => _idSubject.add(_idSubject.value + 1),
                         child: const Icon(Icons.rotate_right),

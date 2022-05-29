@@ -156,7 +156,8 @@ class LastMessage extends StatelessWidget {
                     if (mb.text.isNotEmpty)
                       TextSpan(
                         children: buildText(mb, context),
-                        style: theme.textTheme.caption,
+                        style: theme.textTheme.caption
+                            ?.copyWith(color: highlightColor),
                       ),
                   ],
                 ),

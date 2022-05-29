@@ -3,7 +3,6 @@ import 'package:deliver/box/message_brief.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/sender_and_content.dart';
 import 'package:deliver/services/message_extractor_services.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
@@ -34,12 +33,7 @@ class ReplyBrief extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 58,
-      clipBehavior: Clip.antiAlias,
       margin: const EdgeInsets.only(top: 4.0, left: 4.0, right: 4.0),
-      decoration: BoxDecoration(
-        color: backgroundColor,
-        borderRadius: secondaryBorder,
-      ),
       child: FutureBuilder<Message?>(
         future: _messageRepo.getMessage(roomId, replyToId),
         builder: (context, snapshot) {
