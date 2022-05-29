@@ -319,14 +319,22 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
           decoration: BoxDecoration(
             borderRadius: secondaryBorder,
             border: isSelected
-                ? Border.all(color: Theme.of(context).primaryColor, width: 2)
-                : Border.all(width: 2),
+                ? Border.all(
+                    color: Theme.of(context).colorScheme.primary,
+                    width: 2,
+                  )
+                : Border.all(
+                    color: Theme.of(context).colorScheme.outline,
+                    width: 2,
+                  ),
           ),
           child: AnimatedContainer(
             duration: ANIMATION_DURATION * 2,
             child: Image(
               image: AssetImage("assets/backgrounds/$pattern-thumb.webp"),
-              color: isSelected ? Theme.of(context).primaryColor : null,
+              color: isSelected
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.outline,
               fit: BoxFit.cover,
               repeat: ImageRepeat.repeat,
             ),
