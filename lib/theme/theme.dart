@@ -13,7 +13,7 @@ final palettes = [
 final patterns = [
   "pattern-1",
   "pattern-2",
-  "pattern-24",
+  "pattern-3",
 ];
 
 ThemeScheme getThemeScheme(int index) =>
