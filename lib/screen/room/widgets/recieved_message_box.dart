@@ -1,21 +1,21 @@
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_brief.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/screen/room/messageWidgets/animation_widget.dart';
 import 'package:deliver/screen/room/widgets/box_content.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
 
 import 'message_wrapper.dart';
 
 class ReceivedMessageBox extends StatelessWidget {
   final Message message;
+  final MessageBrief? messageReplyBrief;
   final void Function(int, int) scrollToMessage;
   final void Function(String) onUsernameClick;
   final String? pattern;
   final void Function(String) onBotCommandClick;
   final void Function() onArrowIconClick;
-  final CustomColorScheme colorScheme;
   final void Function(TapDownDetails) storePosition;
   final bool isFirstMessageInGroupedMessages;
   final void Function() onEdit;
@@ -27,9 +27,9 @@ class ReceivedMessageBox extends StatelessWidget {
     required this.scrollToMessage,
     required this.onUsernameClick,
     required this.onArrowIconClick,
-    required this.colorScheme,
     required this.storePosition,
     required this.isFirstMessageInGroupedMessages,
+    this.messageReplyBrief,
     this.pattern,
     required this.onEdit,
   }) : super(key: key);
@@ -38,6 +38,7 @@ class ReceivedMessageBox extends StatelessWidget {
   Widget build(BuildContext context) {
     final boxContent = BoxContent(
       message: message,
+      messageReplyBrief: messageReplyBrief,
       maxWidth: maxWidthOfMessage(context),
       minWidth: minWidthOfMessage(context),
       onBotCommandClick: onBotCommandClick,
@@ -48,7 +49,6 @@ class ReceivedMessageBox extends StatelessWidget {
       isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
       onUsernameClick: onUsernameClick,
       onArrowIconClick: onArrowIconClick,
-      colorScheme: colorScheme,
       storePosition: storePosition,
       onEdit: onEdit,
     );
@@ -57,7 +57,6 @@ class ReceivedMessageBox extends StatelessWidget {
         ? boxContent
         : MessageWrapper(
             uid: message.from,
-            colorScheme: colorScheme,
             child: boxContent,
             isSender: false,
             isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,

@@ -122,8 +122,7 @@ class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
           isSender: widget.isSender,
           isSeen: widget.isSeen,
           needsPadding: true,
-          backgroundColor: widget.colorScheme.primaryContainer,
-          foregroundColor: widget.colorScheme.onPrimaryContainerLowlight(),
+          showBackground: true,
         ),
       ],
     );

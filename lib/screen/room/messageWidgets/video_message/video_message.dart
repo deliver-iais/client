@@ -249,8 +249,7 @@ class _VideoMessageState extends State<VideoMessage> {
             isSender: widget.isSender,
             isSeen: widget.isSeen,
             needsPadding: true,
-            backgroundColor: widget.colorScheme.onPrimaryContainerLowlight(),
-            foregroundColor: widget.colorScheme.primaryContainer,
+            showBackground: true,
           )
       ],
     );

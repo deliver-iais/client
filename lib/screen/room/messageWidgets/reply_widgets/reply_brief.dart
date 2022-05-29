@@ -1,16 +1,23 @@
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_brief.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/sender_and_content.dart';
+import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/message.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 
 class ReplyBrief extends StatelessWidget {
+  static final _messageExtractorServices =
+      GetIt.I.get<MessageExtractorServices>();
+
   final String roomId;
   final int replyToId;
   final double maxWidth;
   final Color backgroundColor;
   final Color foregroundColor;
+  final MessageBrief? messageReplyBrief;
   final _messageRepo = GetIt.I.get<MessageRepo>();
 
   ReplyBrief({
@@ -20,14 +27,14 @@ class ReplyBrief extends StatelessWidget {
     required this.maxWidth,
     required this.backgroundColor,
     required this.foregroundColor,
+    this.messageReplyBrief,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      constraints: BoxConstraints.loose(Size.fromWidth(maxWidth - 14.0)),
-      height: 50,
-      padding: const EdgeInsets.only(left: 4.0, top: 4, bottom: 4, right: 8),
+      height: 58,
+      clipBehavior: Clip.antiAlias,
       margin: const EdgeInsets.only(top: 4.0, left: 4.0, right: 4.0),
       decoration: BoxDecoration(
         color: backgroundColor,
@@ -36,30 +43,39 @@ class ReplyBrief extends StatelessWidget {
       child: FutureBuilder<Message?>(
         future: _messageRepo.getMessage(roomId, replyToId),
         builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data != null) {
-            return Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  CupertinoIcons.reply,
-                  size: 20,
-                  color: foregroundColor,
-                ),
-                const SizedBox(width: 4),
-                Flexible(
-                  child: SenderAndContent(
-                    messages: [snapshot.data!],
-                    expandContent: false,
-                    highlightColor: foregroundColor,
-                  ),
-                ),
-              ],
-            );
-          } else {
+          final future = extractMessageSimpleRepresentative(snapshot.data);
+
+          if (future == null) {
             return const SizedBox.shrink();
           }
+
+          return SenderAndContent(
+            iconData: CupertinoIcons.reply,
+            maxWidth: maxWidth,
+            showBackgroundColor: true,
+            messageSRF: future,
+          );
         },
       ),
     );
+  }
+
+  Future<MessageSimpleRepresentative>? extractMessageSimpleRepresentative(
+    Message? message,
+  ) {
+    Future<MessageSimpleRepresentative>? messageSRF;
+
+    if (message != null) {
+      messageSRF = _messageExtractorServices.extractMessageSimpleRepresentative(
+        _messageExtractorServices.extractProtocolBufferMessage(message),
+      );
+    } else if (messageReplyBrief != null) {
+      messageSRF = _messageExtractorServices
+          .extractMessageSimpleRepresentativeFromMessageBrief(
+        messageReplyBrief!,
+      );
+    }
+
+    return messageSRF;
   }
 }

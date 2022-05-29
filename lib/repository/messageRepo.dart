@@ -39,7 +39,6 @@ import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
-import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
     as location_pb;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
@@ -48,7 +47,8 @@ import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/sticker.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/sticker.pb.dart'
+    as sticker_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
@@ -518,8 +518,13 @@ class MessageRepo {
     int replyToId = 0,
   }) async {
     final packetId = _getPacketId();
-    final msg = buildMessageFromFile(room, file, packetId,
-        replyToId: replyToId, caption: caption,);
+    final msg = buildMessageFromFile(
+      room,
+      file,
+      packetId,
+      replyToId: replyToId,
+      caption: caption,
+    );
 
     await _fileRepo.cloneFileInLocalDirectory(
       dart_file.File(file.path),
@@ -588,7 +593,7 @@ class MessageRepo {
 
   Future<void> sendStickerMessage({
     required Uid room,
-    required Sticker sticker,
+    required sticker_pb.Sticker sticker,
     int? replyId,
     String? forwardedFromAsString,
   }) async {
@@ -674,10 +679,10 @@ class MessageRepo {
         byClient.location = location_pb.Location.fromJson(message.json);
         break;
       case MessageType.STICKER:
-        byClient.sticker = file_pb.File.fromJson(message.json);
+        byClient.sticker = sticker_pb.Sticker.fromJson(message.json);
         break;
       case MessageType.FORM_RESULT:
-        byClient.formResult = FormResult.fromJson(message.json);
+        byClient.formResult = form_pb.FormResult.fromJson(message.json);
         break;
       case MessageType.SHARE_UID:
         byClient.shareUid = message_pb.ShareUid.fromJson(message.json);
@@ -692,7 +697,7 @@ class MessageRepo {
       case MessageType.CALL:
         byClient.callEvent = call_pb.CallEvent.fromJson(message.json);
         break;
-      case MessageType.Table:
+      case MessageType.TABLE:
         byClient.table = form_pb.Table.fromJson(message.json);
         break;
       case MessageType.LIVE_LOCATION:
@@ -701,6 +706,7 @@ class MessageRepo {
       case MessageType.NOT_SET:
       case MessageType.BUTTONS:
       case MessageType.SHARE_PRIVATE_DATA_REQUEST:
+      case MessageType.TRANSACTION:
         break;
     }
     return byClient;
@@ -909,7 +915,7 @@ class MessageRepo {
 
   Future<void> sendFormResultMessage(
     String botUid,
-    FormResult formResult,
+    form_pb.FormResult formResult,
     int formMessageId,
   ) async {
     final jsonString = (formResult).writeToJson();

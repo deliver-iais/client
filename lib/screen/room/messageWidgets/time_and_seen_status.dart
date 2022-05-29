@@ -15,8 +15,7 @@ class TimeAndSeenStatus extends StatelessWidget {
   final bool isSeen;
   final bool needsPositioned;
   final bool needsPadding;
-  final Color? backgroundColor;
-  final Color? foregroundColor;
+  final bool showBackground;
 
   const TimeAndSeenStatus(
     this.message, {
@@ -25,8 +24,7 @@ class TimeAndSeenStatus extends StatelessWidget {
     required this.isSeen,
     this.needsPositioned = true,
     this.needsPadding = false,
-    this.backgroundColor,
-    this.foregroundColor,
+    this.showBackground = false,
   }) : super(key: key);
 
   @override
@@ -45,17 +43,21 @@ class TimeAndSeenStatus extends StatelessWidget {
   }
 
   Widget buildWidget(BuildContext context) {
+    final theme = Theme.of(context).colorScheme;
+
     return RepaintBoundary(
       child: Container(
         margin: const EdgeInsets.all(4),
         padding: needsPadding
             ? const EdgeInsets.only(bottom: 2, right: 4, left: 4)
             : null,
-        decoration:
-            BoxDecoration(color: backgroundColor, borderRadius: tertiaryBorder),
+        decoration: BoxDecoration(
+          color: showBackground ? theme.surface : null,
+          borderRadius: tertiaryBorder,
+        ),
         child: DefaultTextStyle(
           style: TextStyle(
-            color: foregroundColor,
+            color: theme.onSurface,
             fontSize: 13,
           ),
           child: Row(
@@ -68,9 +70,11 @@ class TimeAndSeenStatus extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 2.0),
                   child: SeenStatus(
-                    message,
+                    message.roomUid,
+                    message.packetId,
+                    messageId: message.id,
                     isSeen: isSeen,
-                    iconColor: foregroundColor,
+                    iconColor: theme.onSurface,
                   ),
                 )
             ],

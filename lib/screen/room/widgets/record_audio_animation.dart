@@ -15,11 +15,11 @@ class RecordAudioAnimation extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      right: rightPadding + (( size-1) * 3),
+      right: rightPadding + ((size - 1) * 3),
       child: AnimatedContainer(
         duration: ANIMATION_DURATION,
-        width: 60 ,
-        height: 50 ,
+        width: 60,
+        height: 50,
         color: Colors.transparent,
         child: (1 - size) == 0
             ? const Icon(Icons.mic)

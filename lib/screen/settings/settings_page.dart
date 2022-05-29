@@ -16,7 +16,6 @@ import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
-import 'package:deliver/theme/theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -223,25 +222,12 @@ class _SettingsPageState extends State<SettingsPage> {
                     onToggle: (value) {
                       setState(() => _uxService.toggleSendByEnter());
                     },
-                  )
+                  ),
               ],
             ),
             Section(
-              title: 'Theme',
+              title: _i18n.get("theme"),
               children: [
-                SettingsTile(
-                  title: "Main Color",
-                  leading: const Icon(CupertinoIcons.color_filter),
-                  trailing: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      children: [
-                        for (var i = 0; i < palettes.length; i++)
-                          color(palettes[i], i)
-                      ],
-                    ),
-                  ),
-                ),
                 SettingsTile.switchTile(
                   title: _i18n.get("dark_mode"),
                   leading: const Icon(CupertinoIcons.moon),
@@ -260,6 +246,13 @@ class _SettingsPageState extends State<SettingsPage> {
                     setState(() {
                       _uxService.toggleIsAutoNightMode();
                     });
+                  },
+                ),
+                SettingsTile(
+                  title: _i18n.get("advanced_settings"),
+                  leading: const Icon(CupertinoIcons.paintbrush),
+                  onPressed: (context) {
+                    _routingService.openThemeSettings();
                   },
                 ),
               ],
@@ -355,37 +348,6 @@ class _SettingsPageState extends State<SettingsPage> {
           ],
         );
       },
-    );
-  }
-
-  Widget color(Color color, int index) {
-    final isSelected = _uxService.themeIndex == index;
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: () {
-          _uxService.selectTheme(index);
-        },
-        child: AnimatedContainer(
-          duration: ANIMATION_DURATION * 2,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: isSelected
-                ? Border.all(color: Theme.of(context).primaryColor, width: 2)
-                : null,
-          ),
-          padding: const EdgeInsets.all(4),
-          child: AnimatedContainer(
-            duration: ANIMATION_DURATION * 2,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: color,
-            ),
-            width: 24,
-            height: 24,
-          ),
-        ),
-      ),
     );
   }
 }

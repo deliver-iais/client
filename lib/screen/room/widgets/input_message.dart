@@ -376,7 +376,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                             ),
                                             border: InputBorder.none,
                                             counterText: "",
-                                            hintText: i18n.get("message"),
+                                            hintText: i18n.get("write_a_message"),
                                           ),
                                           textInputAction:
                                               TextInputAction.newline,

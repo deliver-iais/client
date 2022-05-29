@@ -25,17 +25,12 @@ class OnEditMessageWidget extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(
-              Icons.edit,
-              color: theme.primaryColor,
-              size: 25,
-            ),
-            const SizedBox(width: 10),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(2.0),
-                child: SenderAndContent(
-                  messages: List<Message>.filled(1, message),
+                child: SenderAndContent.viaMessage(
+                  iconData: Icons.edit,
+                  message: message,
                 ),
               ),
             ),

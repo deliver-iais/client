@@ -25,6 +25,7 @@
   "add_user_to_muc": "added ",
   "added": "added",
   "admin": "Admin",
+  "advanced_settings": "Advanced Settings",
   "audio": "Audio",
   "audios": "Audios",
   "auto_night_mode": "Auto-Night Mode",
@@ -277,6 +278,7 @@
   "table": "Table",
   "terminate_all_other_sessions": "Terminate all other sessions",
   "text": "Text",
+  "theme": "Theme",
   "this_device": "This device",
   "this_filed_not_empty": "This field should not be empty",
   "to": "to",
@@ -367,5 +369,6 @@
   "enable_location_services_in_windows_helper": "Go to setting > privacy > location and enable location",
   "i_realized": "I realized",
   "send_location": "Send location",
+  "write_a_message": "Write a message...",
   "get_location_not_support_in_your_device": "Get location not  support in your device !"
 }
