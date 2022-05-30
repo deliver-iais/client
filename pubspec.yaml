@@ -36,7 +36,7 @@ dependencies:
   collection: 1.15.0
   connectycube_flutter_call_kit:
     git:
-      ref: 0b3113b76147bab0f07c5bcb3834271f5776dd4f
+      ref: 94cc4e2a67ceeeeaf4225218efe68cdc7faef539
       url: https://github.com/androidwoman/connectycube-flutter-call-kit.git
   contacts_service: 0.6.3
   custom_image_crop: 0.0.4
