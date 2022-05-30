@@ -183,6 +183,8 @@ class LastMessage extends StatelessWidget {
       InlineUrlTextParser(),
       TildeTextParser(),
       UnderlineTextParser(),
+      PipeTextParser(),
+      UnderScoreTextParser(),
       StarTextParser(),
     ];
 

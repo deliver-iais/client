@@ -155,6 +155,7 @@ class TextUI extends StatelessWidget {
       InlineIdParser(onUsernameClick: onUsernameClick),
       TildeTextParser(),
       UnderScoreTextParser(),
+      PipeTextParser(),
       StarTextParser(),
     ];
 
@@ -323,7 +324,7 @@ class StrikethroughTextParser implements Parser {
 class SpoilerTextParser implements Parser {
   final bool spoil;
   final void Function() onSpoilerClick;
-  final RegExp regex = RegExp(r"\|\|(.+)\|\|", dotAll: true);
+  final RegExp regex = RegExp(r"\|\|(.+)([^\\])\|\|", dotAll: true);
 
   static String transform(String m) => m.replaceAll("||", "");
 
@@ -344,6 +345,21 @@ class SpoilerTextParser implements Parser {
           backgroundColor: !spoil ? Theme.of(context).primaryColorDark : null,
           color: !spoil ? Theme.of(context).primaryColorDark : null,
         ),
+      );
+}
+
+class PipeTextParser implements Parser {
+  final RegExp regex = RegExp(r"\\\|\|(.+)", dotAll: true);
+
+  static String transformer(String m) => m.replaceAll("\\||", "||");
+
+  @override
+  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+        blocks,
+        regex,
+        "pipe",
+        transformer: PipeTextParser.transformer,
+        style: const TextStyle(),
       );
 }
 

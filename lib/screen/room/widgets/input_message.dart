@@ -924,6 +924,7 @@ class _InputMessageWidget extends State<InputMessage> {
       return text
           .replaceAll("*", "\\*")
           .replaceAll("_", "\\_")
+          .replaceAll("||", "\\||")
           .replaceAll("~", "\\~");
     }
     return text;

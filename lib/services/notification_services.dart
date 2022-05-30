@@ -203,7 +203,9 @@ class NotificationServices {
                     InlineIdParser.transformer(
                       TildeTextParser.transformer(
                         UnderScoreTextParser.transformer(
-                          StarTextParser.transformer(mb.text),
+                          PipeTextParser.transformer(
+                            StarTextParser.transformer(mb.text),
+                          ),
                         ),
                       ),
                     ),
