@@ -14,7 +14,7 @@ const List<String> FARSI_FEATURE_LIST = [
   'رفع مشکل قطع کردن نوتیفیکیشن در اندروید',
   'رفع مشکل show in folder در لینوکس',
   'رفع مشکل پیام های سنجاق شده که بسته نمیشدند',
-  'و رفع برخی باگ های گزارش شده...'
+  'و رفع تعدادی از باگ های گزارش شده...'
 ];
 
 const List<String> ENGLISH_FEATURE_LIST = [
@@ -31,5 +31,5 @@ const List<String> ENGLISH_FEATURE_LIST = [
   'Bugfix in disabling notifications in Android',
   'Bugfix in show in folder in Linux',
   'Bugfix in closing Pin Messages',
-  'And some other bugs fixed ...',
+  'And many other bugs fixed ...',
 ];

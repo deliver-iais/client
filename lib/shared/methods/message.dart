@@ -1,10 +1,7 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
@@ -12,24 +9,25 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:fixnum/fixnum.dart';
-import 'package:flutter/foundation.dart';
 
-class MessageBrief {
+class MessageSimpleRepresentative {
   final Uid roomUid;
+  final Uid from;
   final String sender;
   final String roomName;
   final MessageType type;
   final String typeDetails;
   final String text;
+  final String packetId;
   final bool senderIsAUserOrBot;
   final int? id;
 
   // Should not notify user
   final bool ignoreNotification;
 
-  MessageBrief({
+  MessageSimpleRepresentative({
     required this.sender,
+    required this.from,
     required this.roomName,
     required this.type,
     required this.typeDetails,
@@ -37,11 +35,13 @@ class MessageBrief {
     required this.senderIsAUserOrBot,
     required this.text,
     required this.ignoreNotification,
+    required this.packetId,
     this.id,
   });
 
-  MessageBrief copyWith({
+  MessageSimpleRepresentative copyWith({
     Uid? roomUid,
+    Uid? from,
     String? sender,
     String? roomName,
     bool? senderIsAUserOrBot,
@@ -49,10 +49,12 @@ class MessageBrief {
     String? typeDetails,
     String? text,
     bool? ignoreNotification,
+    String? packetId,
     int? id,
   }) =>
-      MessageBrief(
+      MessageSimpleRepresentative(
         roomUid: roomUid ?? this.roomUid,
+        from: from ?? this.from,
         sender: sender ?? this.sender,
         roomName: roomName ?? this.roomName,
         senderIsAUserOrBot: senderIsAUserOrBot ?? this.senderIsAUserOrBot,
@@ -61,383 +63,8 @@ class MessageBrief {
         text: text ?? this.text,
         id: id ?? this.id,
         ignoreNotification: ignoreNotification ?? this.ignoreNotification,
+        packetId: packetId ?? this.packetId,
       );
-}
-
-Future<MessageBrief> extractMessageBrief(
-  I18N i18n,
-  RoomRepo roomRepo,
-  AuthRepo authRepo,
-  message_pb.Message msg,
-) async {
-  final roomUid = getRoomUid(authRepo, msg);
-  final roomName = await roomRepo.getSlangName(roomUid);
-  final sender = await roomRepo.getSlangName(msg.from);
-  final type = getMessageType(msg.whichType());
-  var typeDetails = "";
-  var text = "";
-  var ignoreNotification = authRepo.isCurrentUser(msg.from.asString());
-
-  switch (msg.whichType()) {
-    case message_pb.Message_Type.text:
-      text = msg.text.text;
-      break;
-    case message_pb.Message_Type.file:
-      final type = msg.file.type.split("/").first;
-      if (type == "application") {
-        typeDetails = msg.file.name;
-      } else {
-        typeDetails = i18n.get(type);
-      }
-      text = msg.file.caption;
-      break;
-    case message_pb.Message_Type.sticker:
-      typeDetails = i18n.get("sticker");
-      text = msg.file.caption;
-      break;
-    case message_pb.Message_Type.liveLocation:
-      typeDetails = i18n.get("live_location");
-      break;
-    case message_pb.Message_Type.location:
-      typeDetails = i18n.get("location");
-      break;
-    case message_pb.Message_Type.poll:
-      typeDetails = i18n.get("poll");
-      break;
-    case message_pb.Message_Type.buttons:
-      typeDetails = i18n.get("actions");
-      break;
-    case message_pb.Message_Type.form:
-      typeDetails = i18n.get("form");
-      text = msg.form.title;
-      break;
-    case message_pb.Message_Type.shareUid:
-      if (msg.shareUid.uid.isUser()) {
-        typeDetails = i18n.get("contact_information");
-      } else {
-        typeDetails = i18n.get("join_link");
-      }
-      text = msg.shareUid.name;
-      break;
-    case message_pb.Message_Type.formResult:
-      typeDetails = i18n.get("form_result");
-      break;
-    case message_pb.Message_Type.sharePrivateDataRequest:
-      typeDetails =
-          "${i18n.get("spdr")} ${i18n.get(msg.sharePrivateDataRequest.data.name).toLowerCase()}";
-      break;
-    case message_pb.Message_Type.sharePrivateDataAcceptance:
-      typeDetails =
-          "${i18n.get("spda")} ${i18n.get(msg.sharePrivateDataRequest.data.name).toLowerCase()}";
-      break;
-    case message_pb.Message_Type.transaction:
-      typeDetails = i18n.get("payment_transaction");
-      text = msg.transaction.description;
-      break;
-    case message_pb.Message_Type.persistEvent:
-      typeDetails = await getPersistentEventText(
-        i18n,
-        roomRepo,
-        authRepo,
-        msg.persistEvent,
-        isChannel: msg.to.isChannel(),
-      );
-      if (typeDetails.trim().isEmpty) {
-        ignoreNotification = true;
-      }
-      break;
-    case message_pb.Message_Type.callEvent:
-      ignoreNotification = true;
-      final callStatus = msg.callEvent.newStatus;
-      final time = msg.callEvent.callDuration.toInt();
-      final fromCurrentUser = authRepo.isCurrentUserUid(msg.from);
-      typeDetails = getCallText(
-            i18n,
-            callStatus,
-            time,
-            fromCurrentUser: fromCurrentUser,
-          ) ??
-          "";
-      break;
-
-    case message_pb.Message_Type.table:
-      typeDetails = i18n.get("table");
-      break;
-    case message_pb.Message_Type.notSet:
-      ignoreNotification = true;
-      if (kDebugMode) {
-        text = "____NO_TYPE_OF_MESSAGE_PROVIDED____";
-      }
-      break;
-  }
-
-  return MessageBrief(
-    roomUid: roomUid,
-    roomName: roomName,
-    sender: sender,
-    senderIsAUserOrBot: msg.from.isUser() || msg.from.isBot(),
-    type: type,
-    id: msg.id.toInt(),
-    typeDetails: typeDetails,
-    text: text,
-    ignoreNotification: ignoreNotification,
-  );
-}
-
-String? getCallText(
-  I18N i18n,
-  CallEvent_CallStatus callStatus,
-  int time, {
-  bool fromCurrentUser = false,
-}) {
-  if (callStatus == CallEvent_CallStatus.ENDED &&
-      fromCurrentUser &&
-      time == 0) {
-    return i18n.get("canceled_call");
-  } else if (callStatus == CallEvent_CallStatus.DECLINED && time == 0) {
-    return i18n.get("declined_call");
-  } else if (callStatus == CallEvent_CallStatus.BUSY && time == 0) {
-    return i18n.get("busy");
-  } else if (callStatus == CallEvent_CallStatus.ENDED && time == 0) {
-    return i18n.get("missed_call");
-  } else if (callStatus == CallEvent_CallStatus.ENDED &&
-      fromCurrentUser &&
-      time != 0) {
-    return i18n.get("outgoing_call");
-  } else if (callStatus == CallEvent_CallStatus.ENDED && time != 0) {
-    return i18n.get("incoming_call");
-  } else {
-    return null;
-  }
-}
-
-Future<String> getPersistentEventText(
-  I18N i18n,
-  RoomRepo roomRepo,
-  AuthRepo authRepo,
-  PersistentEvent pe, {
-  bool isChannel = false,
-}) async {
-  switch (pe.whichType()) {
-    case PersistentEvent_Type.mucSpecificPersistentEvent:
-      final String? issuer =
-          await roomRepo.getSlangName(pe.mucSpecificPersistentEvent.issuer);
-      final String? assignee =
-          await roomRepo.getSlangName(pe.mucSpecificPersistentEvent.assignee);
-      switch (pe.mucSpecificPersistentEvent.issue) {
-        case MucSpecificPersistentEvent_Issue.ADD_USER:
-          return [
-            issuer,
-            i18n.verb(
-              "added",
-              isFirstPerson: authRepo.isCurrentUser(
-                pe.mucSpecificPersistentEvent.issuer.asString(),
-              ),
-            ),
-            assignee
-          ].join(" ").trim();
-
-        case MucSpecificPersistentEvent_Issue.AVATAR_CHANGED:
-          return [
-            issuer,
-            i18n.verb(
-              isChannel ? "change_channel_avatar" : "change_group_avatar",
-              isFirstPerson: authRepo.isCurrentUser(
-                pe.mucSpecificPersistentEvent.issuer.asString(),
-              ),
-            ),
-            // assignee
-          ].join(" ").trim();
-
-        case MucSpecificPersistentEvent_Issue.JOINED_USER:
-          return [
-            issuer,
-            i18n.verb(
-              "joined",
-              isFirstPerson: authRepo.isCurrentUser(
-                pe.mucSpecificPersistentEvent.issuer.asString(),
-              ),
-            ),
-            // assignee
-          ].join(" ").trim();
-
-        case MucSpecificPersistentEvent_Issue.KICK_USER:
-          return [
-            issuer,
-            i18n.verb(
-              "kicked",
-              isFirstPerson: authRepo.isCurrentUser(
-                pe.mucSpecificPersistentEvent.issuer.asString(),
-              ),
-            ),
-            assignee
-          ].join(" ").trim();
-
-        case MucSpecificPersistentEvent_Issue.LEAVE_USER:
-          return [
-            issuer,
-            i18n.verb(
-              "left",
-              isFirstPerson: authRepo.isCurrentUser(
-                pe.mucSpecificPersistentEvent.issuer.asString(),
-              ),
-            ),
-            // assignee
-          ].join(" ").trim();
-
-        case MucSpecificPersistentEvent_Issue.MUC_CREATED:
-          return [
-            issuer,
-            i18n.verb(
-              "created",
-              isFirstPerson: authRepo.isCurrentUser(
-                pe.mucSpecificPersistentEvent.issuer.asString(),
-              ),
-            ),
-            assignee
-          ].join(" ").trim();
-
-        case MucSpecificPersistentEvent_Issue.NAME_CHANGED:
-          return [
-            issuer,
-            i18n.verb(
-              "changed_name",
-              isFirstPerson: authRepo.isCurrentUser(
-                pe.mucSpecificPersistentEvent.issuer.asString(),
-              ),
-            ),
-            assignee
-          ].join(" ").trim();
-
-        case MucSpecificPersistentEvent_Issue.PIN_MESSAGE:
-          return [
-            issuer,
-            i18n.verb(
-              "pinned",
-              isFirstPerson: authRepo.isCurrentUser(
-                pe.mucSpecificPersistentEvent.issuer.asString(),
-              ),
-            ),
-            assignee
-          ].join(" ").trim();
-        case MucSpecificPersistentEvent_Issue.DELETED:
-          break;
-      }
-      break;
-    case PersistentEvent_Type.messageManipulationPersistentEvent:
-      return "";
-    case PersistentEvent_Type.botSpecificPersistentEvent:
-      return pe.botSpecificPersistentEvent.errorMessage.isNotEmpty
-          ? pe.botSpecificPersistentEvent.errorMessage
-          : i18n.get("bot_not_responding");
-
-    case PersistentEvent_Type.adminSpecificPersistentEvent:
-      switch (pe.adminSpecificPersistentEvent.event) {
-        case AdminSpecificPersistentEvent_Event.NEW_CONTACT_ADDED:
-          return [i18n.get("joined_to_app"), APPLICATION_NAME].join(" ").trim();
-
-        default:
-          return "";
-      }
-    case PersistentEvent_Type.notSet:
-      return "";
-  }
-  return "";
-}
-
-message_pb.Message extractProtocolBufferMessage(Message message) {
-  final msg = message_pb.Message()
-    ..id = Int64(message.id ?? 0)
-    ..packetId = message.packetId
-    ..from = message.from.asUid()
-    ..to = message.to.asUid()
-    ..time = Int64(message.time)
-    ..replyToId = Int64(message.replyToId)
-    ..edited = message.edited
-    ..encrypted = message.encrypted;
-
-  if (message.forwardedFrom != null) {
-    msg.forwardFrom = message.forwardedFrom!.asUid();
-  }
-
-  switch (message.type) {
-    case MessageType.TEXT:
-      msg.text = message.json.toText();
-      break;
-    case MessageType.FILE:
-      msg.file = message.json.toFile();
-      break;
-    case MessageType.STICKER:
-      msg.sticker = message.json.toSticker();
-      break;
-    case MessageType.LOCATION:
-      msg.location = message.json.toLocation();
-      break;
-    case MessageType.LIVE_LOCATION:
-      msg.liveLocation = message.json.toLiveLocation();
-      break;
-    case MessageType.POLL:
-      msg.poll = message.json.toPoll();
-      break;
-    case MessageType.FORM:
-      msg.form = message.json.toForm();
-      break;
-    case MessageType.PERSISTENT_EVENT:
-      msg.persistEvent = message.json.toPersistentEvent();
-      break;
-    case MessageType.BUTTONS:
-      msg.buttons = message.json.toButtons();
-      break;
-    case MessageType.SHARE_UID:
-      msg.shareUid = message.json.toShareUid();
-      break;
-    case MessageType.FORM_RESULT:
-      msg.formResult = message.json.toFormResult();
-      break;
-    case MessageType.SHARE_PRIVATE_DATA_REQUEST:
-      msg.sharePrivateDataRequest = message.json.toSharePrivateDataRequest();
-      break;
-    case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
-      msg.sharePrivateDataAcceptance =
-          message.json.toSharePrivateDataAcceptance();
-      break;
-    case MessageType.CALL:
-      msg.callEvent = message.json.toCallEvent();
-      break;
-    case MessageType.Table:
-      msg.table = message.json.toTable();
-      break;
-    case MessageType.NOT_SET:
-      break;
-  }
-
-  return msg;
-}
-
-Message extractMessage(AuthRepo authRepo, message_pb.Message message) {
-  var body = EMPTY_MESSAGE;
-  var isHidden = false;
-
-  try {
-    body = messageBodyToJson(message);
-    isHidden = isHiddenPbMessage(message);
-  } catch (_) {}
-
-  return Message(
-    id: message.id.toInt(),
-    roomUid: getRoomUid(authRepo, message).asString(),
-    packetId: message.packetId,
-    time: message.time.toInt(),
-    to: message.to.asString(),
-    from: message.from.asString(),
-    replyToId: message.replyToId.toInt(),
-    forwardedFrom: message.forwardFrom.asString(),
-    json: body,
-    edited: message.edited,
-    encrypted: message.encrypted,
-    type: getMessageType(message.whichType()),
-    isHidden: isHidden,
-  );
 }
 
 bool isHiddenPbMessage(message_pb.Message message) {
@@ -454,7 +81,7 @@ bool isHiddenPbMessage(message_pb.Message message) {
     case MessageType.FORM_RESULT:
     case MessageType.SHARE_PRIVATE_DATA_REQUEST:
     case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
-    case MessageType.Table:
+    case MessageType.TABLE:
     case MessageType.FORM:
       return false;
 
@@ -487,6 +114,7 @@ bool isHiddenPbMessage(message_pb.Message message) {
       }
       return true;
 
+    case MessageType.TRANSACTION:
     case MessageType.NOT_SET:
       return true;
   }
@@ -506,7 +134,7 @@ bool isHiddenMessage(Message message) {
     case MessageType.FORM_RESULT:
     case MessageType.SHARE_PRIVATE_DATA_REQUEST:
     case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
-    case MessageType.Table:
+    case MessageType.TABLE:
     case MessageType.FORM:
       return false;
 
@@ -539,6 +167,7 @@ bool isHiddenMessage(Message message) {
       }
       return true;
 
+    case MessageType.TRANSACTION:
     case MessageType.NOT_SET:
       return true;
   }
@@ -589,8 +218,11 @@ String messageBodyToJson(message_pb.Message message) {
     case MessageType.CALL:
       return message.callEvent.writeToJson();
 
-    case MessageType.Table:
+    case MessageType.TABLE:
       return message.table.writeToJson();
+
+    case MessageType.TRANSACTION:
+      return message.transaction.writeToJson();
 
     case MessageType.NOT_SET:
       return EMPTY_MESSAGE;
@@ -628,9 +260,9 @@ MessageType getMessageType(message_pb.Message_Type messageType) {
     case message_pb.Message_Type.callEvent:
       return MessageType.CALL;
     case message_pb.Message_Type.table:
-      return MessageType.Table;
+      return MessageType.TABLE;
     case message_pb.Message_Type.transaction:
-      return MessageType.NOT_SET;
+      return MessageType.TRANSACTION;
     case message_pb.Message_Type.notSet:
       return MessageType.NOT_SET;
   }

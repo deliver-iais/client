@@ -24,29 +24,30 @@ class ChatItemToForward extends StatelessWidget {
               const SizedBox(
                 width: 12,
               ),
-              CircleAvatarWidget(uid, 30),
+              CircleAvatarWidget(uid, 30, showSavedMessageLogoIfNeeded: true),
               // ContactPic(true, uid),
               const SizedBox(
                 width: 12,
               ),
-              FutureBuilder<String>(
-                future: _roomRepo.getName(uid),
-                builder: (c, snaps) {
-                  if (snaps.hasData && snaps.data != null) {
-                    return Text(
-                      snaps.data!,
-                      style: const TextStyle(fontSize: 18),
-                    );
-                  } else {
-                    return const Text(
-                      "Unknown",
-                      style: TextStyle(fontSize: 18),
-                    );
-                  }
-                },
+              Flexible(
+                child: FutureBuilder<String>(
+                  future: _roomRepo.getName(uid, forceToReturnSavedMessage: true),
+                  builder: (c, snaps) {
+                    if (snaps.hasData && snaps.data != null) {
+                      return Text(
+                        snaps.data!,
+                        style: const TextStyle(fontSize: 18),
+                        overflow: TextOverflow.ellipsis,
+                      );
+                    } else {
+                      return const Text(
+                        "Unknown",
+                        style: TextStyle(fontSize: 18),
+                      );
+                    }
+                  },
+                ),
               ),
-
-              const Spacer(),
             ],
           ),
         ),

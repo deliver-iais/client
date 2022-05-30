@@ -153,6 +153,7 @@ class CallRepo {
                     .findProtoCallEventType(call.callEvent.callType),
               roomUid: call.from.asUid(),
               callId: call.callEvent.id,
+              time: call.expireTime - 60000,
             ),
           );
         }
@@ -179,7 +180,9 @@ class CallRepo {
               }
               break;
             case CallEvent_CallStatus.CREATED:
-              if (_callService.getUserCallState == UserCallState.NOCALL) {
+              if (_callService.getUserCallState == UserCallState.NOCALL
+                  //&& (clock.now().millisecondsSinceEpoch - event.time < 50000)
+              ) {
                 _callService.setUserCallState = UserCallState.INUSERCALL;
                 //get call Info and Save on DB
                 final currentCallEvent = call_event.CallEvent(
@@ -194,7 +197,7 @@ class CallRepo {
                   callEvent: currentCallEvent,
                   from: event.roomUid!.asString(),
                   to: _authRepo.currentUserUid.asString(),
-                  expireTime: clock.now().millisecondsSinceEpoch + 60000,
+                  expireTime: event.time + 60000,
                 );
 
                 _callService.saveCallOnDb(callInfo);
@@ -1029,7 +1032,7 @@ class CallRepo {
   }
 
   Future<void> receivedEndCall(int callDuration) async {
-    if(!_isEnded) {
+    if (!_isEnded) {
       _isEnded = true;
       _logger.i("Call Duration Received: " + callDuration.toString());
       await cancelCallNotification();
@@ -1039,9 +1042,7 @@ class CallRepo {
       if (_isCaller) {
         _callDuration = calculateCallEndTime();
         _logger.i("Call Duration on Caller(1): " + _callDuration.toString());
-        final endOfCallDuration = clock
-            .now()
-            .millisecondsSinceEpoch;
+        final endOfCallDuration = clock.now().millisecondsSinceEpoch;
         await _messageRepo.sendCallMessage(
           CallEvent_CallStatus.ENDED,
           _roomUid!,
@@ -1225,6 +1226,11 @@ class CallRepo {
     if (isAndroid) {
       _receivePort?.close();
       await _stopForegroundTask();
+      if (!_isCaller) {
+        await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
+          isVisible: false,
+        );
+      }
     }
     if (timer != null) {
       _logger.i("timer canceled");
@@ -1251,17 +1257,15 @@ class CallRepo {
     callingStatus.add(CallStatus.ENDED);
     Timer(const Duration(milliseconds: 1500), () async {
       if (_routingService.canPop()) {
-        _routingService.openRoom(
-          roomUid!.asString(),
-          popAllBeforePush: true,
-        );
+        _routingService.pop();
       }
       _roomUid = null;
-    });
-    _audioService.stopBeepSound();
-    Timer(const Duration(seconds: 1), () async {
       callingStatus.add(CallStatus.NO_CALL);
     });
+    _audioService.stopBeepSound();
+    // Timer(const Duration(seconds: 2), () async {
+    //  callingStatus.add(CallStatus.NO_CALL);
+    // });
     switching.add(false);
     _offerSdp = "";
     _answerSdp = "";

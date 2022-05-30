@@ -63,14 +63,13 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
   }
 
   Future<void> _initFolders() async {
-    if (await _checkPermissionServices.checkStoragePermission() &&
-        await _checkPermissionServices.checkStorage2Permission()) {
+    if ((await PhotoManager.requestPermissionExtend()).isAuth &&
+        await _checkPermissionServices.checkAccessMediaLocationPermission()) {
       _folders
           .add(await PhotoManager.getAssetPathList(type: RequestType.image));
     }
     try {
-      if (await _checkPermissionServices.checkCameraRecorderPermission() &&
-          await _checkPermissionServices.checkCameraRecorderPermission()) {
+      if (await _checkPermissionServices.checkCameraRecorderPermission()) {
         _cameras = await availableCameras();
         if (_cameras.isNotEmpty) {
           _controller = CameraController(_cameras[0], ResolutionPreset.max);
@@ -186,42 +185,48 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                           future: folder.getAssetListPaged(page: 0, size: 1),
                           builder: (context, snapshot) {
                             if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                              return Container(
-                                width: 100,
-                                height: 100,
-                                decoration: BoxDecoration(
-                                  borderRadius: secondaryBorder,
-                                  image: DecorationImage(
-                                    image: Image.file(
-                                      File(
-                                        snapshot.data!.first.relativePath! +
-                                            "/${snapshot.data!.first.title!}",
+                              return FutureBuilder<File?>(
+                                future: snapshot.data!.first.file,
+                                builder: (context, fileSnapshot) {
+                                  if (fileSnapshot.hasData &&
+                                      fileSnapshot.data != null) {
+                                    return Container(
+                                      width: 100,
+                                      height: 100,
+                                      decoration: BoxDecoration(
+                                        borderRadius: secondaryBorder,
+                                        image: DecorationImage(
+                                          image: Image.file(
+                                            fileSnapshot.data!,
+                                            cacheWidth: 500,
+                                            cacheHeight: 500,
+                                          ).image,
+                                          fit: BoxFit.contain,
+                                        ),
                                       ),
-                                      cacheWidth: 500,
-                                      cacheHeight: 500,
-                                    ).image,
-                                    fit: BoxFit.contain,
-                                  ),
-                                ),
-                                child: Align(
-                                  alignment: Alignment.bottomLeft,
-                                  widthFactor: 200,
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Theme.of(context)
-                                          .hoverColor
-                                          .withOpacity(0.5),
-                                      borderRadius: mainBorder,
-                                    ),
-                                    child: Text(
-                                      folder.name,
-                                      style: const TextStyle(
-                                        fontSize: 15,
-                                        color: Colors.white,
+                                      child: Align(
+                                        alignment: Alignment.bottomLeft,
+                                        widthFactor: 200,
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            color: Theme.of(context)
+                                                .hoverColor
+                                                .withOpacity(0.5),
+                                            borderRadius: mainBorder,
+                                          ),
+                                          child: Text(
+                                            folder.name,
+                                            style: const TextStyle(
+                                              fontSize: 15,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ),
                                       ),
-                                    ),
-                                  ),
-                                ),
+                                    );
+                                  }
+                                  return const SizedBox.shrink();
+                                },
                               );
                             }
                             return const SizedBox.shrink();

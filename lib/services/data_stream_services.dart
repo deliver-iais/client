@@ -20,6 +20,7 @@ import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/call_service.dart';
+import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -56,6 +57,7 @@ class DataStreamServices {
   final _mucDao = GetIt.I.get<MucDao>();
   final _queryServicesClient = GetIt.I.get<QueryServiceClient>();
   final _mediaDao = GetIt.I.get<MediaDao>();
+  final _messageExtractorServices = GetIt.I.get<MessageExtractorServices>();
 
   Future<message_model.Message?> handleIncomingMessage(
     Message message, {
@@ -158,6 +160,7 @@ class DataStreamServices {
         message.callEvent,
         roomUid: message.from,
         callId: message.callEvent.id,
+        time: message.time.toInt(),
       );
       if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
           message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
@@ -523,7 +526,7 @@ class DataStreamServices {
     Message message,
   ) async {
     try {
-      final msg = extractMessage(_authRepo, message);
+      final msg = _messageExtractorServices.extractMessage(message);
       await _messageDao.saveMessage(msg);
       return msg;
     } catch (e) {
@@ -633,6 +636,7 @@ class DataStreamServices {
             message.callEvent,
             roomUid: message.from,
             callId: message.callEvent.id,
+            time: message.time.toInt(),
           );
           if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
               message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {

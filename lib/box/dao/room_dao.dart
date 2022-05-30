@@ -20,6 +20,7 @@ abstract class RoomDao {
     int? firstMessageId,
     bool? mentioned,
     bool? pinned,
+    int? pinId,
     int? hiddenMessageCount,
   });
 
@@ -101,6 +102,7 @@ class RoomDaoImpl implements RoomDao {
     bool? mentioned,
     bool? pinned,
     int? hiddenMessageCount,
+    int? pinId,
   }) async {
     final box = await _openRoom();
 
@@ -116,6 +118,7 @@ class RoomDaoImpl implements RoomDao {
       mentioned: mentioned,
       pinned: pinned,
       hiddenMessageCount: hiddenMessageCount,
+      pinId: pinId,
     );
 
     if (clone != r) return box.put(uid, clone);

@@ -229,8 +229,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "3159f29a6c1fd696184d9db8edb08b5905830a49"
-      resolved-ref: "3159f29a6c1fd696184d9db8edb08b5905830a49"
+      ref: "0b3113b76147bab0f07c5bcb3834271f5776dd4f"
+      resolved-ref: "0b3113b76147bab0f07c5bcb3834271f5776dd4f"
       url: "https://github.com/androidwoman/connectycube-flutter-call-kit.git"
     source: git
     version: "2.0.2"
@@ -336,11 +336,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.12.13-rc.2"
-      resolved-ref: "2729780684a9b93eee1667a4d0bebb2c78a1e287"
+      ref: "tags/v1.12.13-rc.11"
+      resolved-ref: b76d8a019799a2b827d6367a2ffa706e12a8cae5
       url: "https://github.com/deliver-iais/pub-dart-artifactory"
     source: git
-    version: "1.12.13-rc.2"
+    version: "1.12.13-rc.11"
   dependency_validator:
     dependency: "direct dev"
     description:

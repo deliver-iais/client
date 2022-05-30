@@ -114,11 +114,13 @@ class _BotFormMessageState extends State<BotFormMessage> {
           break;
 
         case proto_pb.Form_Field_Type.richFormattedTextField:
-          _widgets.add(RichFormattedTextFieldWidget(
-            formField: field,
-            formResult: _formResult,
-            setFormKey: (key) => formFieldsKey[field.id] = key,
-          ),);
+          _widgets.add(
+            RichFormattedTextFieldWidget(
+              formField: field,
+              formResult: _formResult,
+              setFormKey: (key) => formFieldsKey[field.id] = key,
+            ),
+          );
           break;
         case proto_pb.Form_Field_Type.notSet:
           _widgets.add(const SizedBox.shrink());
@@ -273,10 +275,8 @@ class _BotFormMessageState extends State<BotFormMessage> {
               widget.message,
               isSender: widget.isSender,
               isSeen: widget.isSeen,
-              backgroundColor: widget.colorScheme.primaryContainer,
               needsPositioned: false,
               needsPadding: true,
-              foregroundColor: widget.colorScheme.onPrimaryContainerLowlight(),
             ),
           ],
         ),

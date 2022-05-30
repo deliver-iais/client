@@ -1,4 +1,5 @@
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_brief.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -24,18 +25,19 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver/theme/color_scheme.dart';
+import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 
 class BoxContent extends StatefulWidget {
   final Message message;
+  final MessageBrief? messageReplyBrief;
   final double maxWidth;
   final double minWidth;
   final bool isSender;
   final bool isSeen;
   final bool isFirstMessageInGroupedMessages;
-  final CustomColorScheme colorScheme;
   final String? pattern;
   final void Function(TapDownDetails) storePosition;
   final void Function(String) onUsernameClick;
@@ -55,10 +57,10 @@ class BoxContent extends StatefulWidget {
     required this.isFirstMessageInGroupedMessages,
     required this.scrollToMessage,
     required this.onArrowIconClick,
-    required this.colorScheme,
     required this.storePosition,
     required this.onUsernameClick,
     this.pattern,
+    this.messageReplyBrief,
     required this.onEdit,
   }) : super(key: key);
 
@@ -78,7 +80,15 @@ class _BoxContentState extends State<BoxContent> {
   bool spoilText = false;
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final colorScheme =
+        ExtraTheme.of(context).messageColorScheme(widget.message.from);
+
     return MouseRegion(
       onHover: (s) {
         hideArrowDopIcon = false;
@@ -101,8 +111,10 @@ class _BoxContentState extends State<BoxContent> {
                     children: [
                       Debug(widget.message.id, label: "id"),
                       Debug(widget.message.packetId, label: "packetId"),
+                      Debug(widget.message.json, label: "json"),
                     ],
                   ),
+                if (shouldShowSenderName()) senderNameBox(colorScheme),
                 if (hasReply()) replyToIdBox(),
                 if (isForwarded()) forwardedFromBox(),
                 messageBox()
@@ -139,6 +151,9 @@ class _BoxContentState extends State<BoxContent> {
   }
 
   Widget replyToIdBox() {
+    final colorScheme =
+        ExtraTheme.of(context).messageColorScheme(widget.message.from);
+
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
@@ -151,22 +166,25 @@ class _BoxContentState extends State<BoxContent> {
         child: ReplyBrief(
           roomId: widget.message.roomUid,
           replyToId: widget.message.replyToId,
+          messageReplyBrief: widget.messageReplyBrief,
           maxWidth: widget.minWidth,
-          backgroundColor: widget.colorScheme.onPrimary,
-          foregroundColor: widget.colorScheme.primary,
+          backgroundColor: colorScheme.onPrimary,
+          foregroundColor: colorScheme.primary,
         ),
       ),
     );
   }
 
   Widget forwardedFromBox() {
+    final colorScheme =
+        ExtraTheme.of(context).messageColorScheme(widget.message.from);
     return Container(
       margin: const EdgeInsets.all(4),
       padding: const EdgeInsets.only(left: 4, right: 8, top: 4, bottom: 2),
       constraints: BoxConstraints.loose(Size.fromWidth(widget.minWidth - 16)),
       decoration: BoxDecoration(
         borderRadius: secondaryBorder,
-        color: widget.colorScheme.primary,
+        color: colorScheme.primary,
       ),
       child: FutureBuilder<String>(
         future: _roomRepo.getName(widget.message.forwardedFrom!.asUid()),
@@ -181,7 +199,7 @@ class _BoxContentState extends State<BoxContent> {
                   Icon(
                     CupertinoIcons.arrowshape_turn_up_right,
                     size: 15,
-                    color: widget.colorScheme.onPrimary,
+                    color: colorScheme.onPrimary,
                   ),
                   Flexible(
                     child: Text(
@@ -190,7 +208,7 @@ class _BoxContentState extends State<BoxContent> {
                       maxLines: 1,
                       overflow: TextOverflow.fade,
                       style: TextStyle(
-                        color: widget.colorScheme.onPrimary,
+                        color: colorScheme.onPrimary,
                         fontSize: 12,
                       ),
                     ),
@@ -208,11 +226,13 @@ class _BoxContentState extends State<BoxContent> {
   }
 
   Widget messageBox() {
+    final colorScheme =
+        ExtraTheme.of(context).messageColorScheme(widget.message.from);
     if (AnimatedEmoji.isAnimatedEmoji(widget.message)) {
       return AnimatedEmoji(
         message: widget.message,
         isSeen: widget.isSeen,
-        colorScheme: widget.colorScheme,
+        colorScheme: colorScheme,
       );
     }
 
@@ -221,10 +241,12 @@ class _BoxContentState extends State<BoxContent> {
         return TextUI(
           message: widget.message,
           maxWidth: widget.maxWidth,
-          minWidth: isForwarded() || hasReply() ? widget.minWidth : 0,
+          minWidth: isForwarded() || hasReply() || shouldShowSenderName()
+              ? widget.minWidth
+              : 0,
           isSender: widget.isSender,
           isSeen: widget.isSeen,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
           searchTerm: widget.pattern,
           onUsernameClick: widget.onUsernameClick,
           onBotCommandClick: widget.onBotCommandClick,
@@ -243,7 +265,7 @@ class _BoxContentState extends State<BoxContent> {
           maxWidth: widget.maxWidth,
           minWidth: widget.minWidth,
           onUsernameClick: widget.onUsernameClick,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
           isSender: widget.isSender,
           isSeen: widget.isSeen,
           onEdit: widget.onEdit,
@@ -254,7 +276,7 @@ class _BoxContentState extends State<BoxContent> {
           widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
         );
 
       case MessageType.LOCATION:
@@ -262,7 +284,7 @@ class _BoxContentState extends State<BoxContent> {
           message: widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
         );
 
       case MessageType.LIVE_LOCATION:
@@ -270,7 +292,7 @@ class _BoxContentState extends State<BoxContent> {
           widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
         );
 
       case MessageType.POLL:
@@ -280,14 +302,14 @@ class _BoxContentState extends State<BoxContent> {
           message: widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
         );
       case MessageType.FORM:
         return BotFormMessage(
           message: widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
         );
       case MessageType.BUTTONS:
         return BotButtonsWidget(
@@ -295,19 +317,19 @@ class _BoxContentState extends State<BoxContent> {
           maxWidth: widget.maxWidth * 0.85,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
         );
-      case MessageType.Table:
+      case MessageType.TABLE:
         return BotTableWidget(
           message: widget.message,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
         );
       case MessageType.SHARE_UID:
         return ShareUidMessageWidget(
           message: widget.message,
           isSender: widget.isSender,
           isSeen: widget.isSeen,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
         );
       case MessageType.SHARE_PRIVATE_DATA_REQUEST:
         return SharePrivateDataRequestMessageWidget(
@@ -315,24 +337,25 @@ class _BoxContentState extends State<BoxContent> {
           isSeen: widget.isSeen,
           maxWidth: widget.maxWidth * 0.75,
           isSender: widget.isSender,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
         );
       case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
         return SharePrivateDataAcceptMessageWidget(
           message: widget.message,
           isSeen: widget.isSeen,
           isSender: widget.isSender,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
         );
       case MessageType.CALL:
         return CallMessageWidget(
           message: widget.message,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
         );
+      case MessageType.TRANSACTION:
       case MessageType.NOT_SET:
         return NotSupportedMessage(
           maxWidth: widget.maxWidth,
-          colorScheme: widget.colorScheme,
+          colorScheme: colorScheme,
         );
       case MessageType.PERSISTENT_EVENT:
         // we show persistent event message in room page
@@ -348,5 +371,60 @@ class _BoxContentState extends State<BoxContent> {
 
   bool isForwarded() {
     return (widget.message.forwardedFrom?.length ?? 0) > 3;
+  }
+
+  bool shouldShowSenderName() {
+    return !widget.isSender &&
+        widget.isFirstMessageInGroupedMessages &&
+        widget.message.roomUid.asUid().category == Categories.GROUP;
+  }
+
+  Widget senderNameBox(CustomColorScheme colorScheme) {
+    final minWidth = minWidthOfMessage(context);
+    return Container(
+      constraints: BoxConstraints.loose(Size.fromWidth(minWidth - 16)),
+      height: 18,
+      margin: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Expanded(
+            child: FutureBuilder<String>(
+              future: _roomRepo.getName(widget.message.from.asUid()),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data != null) {
+                  return showName(colorScheme, snapshot.data!);
+                } else {
+                  return const Text("");
+                }
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget showName(CustomColorScheme colorScheme, String name) {
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      child: GestureDetector(
+        child: Text(
+          name.trim(),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          softWrap: false,
+          textAlign: TextAlign.left,
+          style: TextStyle(
+            fontSize: 13,
+            color: colorScheme.primary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        onTap: () {
+          _routingServices.openProfile(widget.message.from);
+        },
+      ),
+    );
   }
 }

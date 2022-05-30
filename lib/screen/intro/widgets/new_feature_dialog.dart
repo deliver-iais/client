@@ -18,6 +18,12 @@ class NewFeatureDialog extends StatelessWidget {
 
     return AlertDialog(
       actionsPadding: const EdgeInsets.only(bottom: 8, right: 8),
+      contentPadding: const EdgeInsets.only(
+        left: 24,
+        right: 24,
+        top: 16,
+        bottom: 8,
+      ),
       content: SizedBox(
         width: min(maxWidthOfMessage(context) * 1.3, pageSize.width - 50),
         child: Column(
@@ -44,10 +50,10 @@ class NewFeatureDialog extends StatelessWidget {
               ],
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 8),
+              padding: const EdgeInsets.only(top: 8),
               child: Container(
                 constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height - 180,
+                  maxHeight: MediaQuery.of(context).size.height - 170,
                 ),
                 child: ListView.separated(
                   shrinkWrap: true,
