@@ -51,11 +51,20 @@ class TextUI extends StatelessWidget {
     final theme = Theme.of(context);
 
     final text = extractText(message);
-    final blocks = extractBlocks(text, context);
+    final blocks = extractBlocks(
+      text,
+      onUsernameClick: onUsernameClick,
+      context: context,
+      isBotMessage: isBotMessage,
+      onBotCommandClick: onBotCommandClick,
+      searchTerm: searchTerm,
+      onSpoilerClick: onSpoilerClick,
+      onPrimaryContainer: colorScheme.onPrimaryContainer,
+    );
     final spans = blocks.map<InlineSpan>((b) {
       var tap = b.text;
       if (b.type == "inlineURL" || b.type == "inlineId") {
-        tap = text;
+        tap = b.matchText;
       }
       if (b.type == "spoiler" && !spoilText) {
         return WidgetSpan(
@@ -68,7 +77,7 @@ class TextUI extends StatelessWidget {
                 fitAsText: true,
               ),
             ),
-            onTap: () => b.onTap!(tap),
+            onTap: () => b.onTap,
           ),
         );
       }
@@ -135,41 +144,50 @@ class TextUI extends StatelessWidget {
       return "";
     }
   }
+}
 
-  List<Block> extractBlocks(String text, BuildContext context) {
-    var blocks = <Block>[
-      Block(text: text, style: TextStyle(color: colorScheme.onPrimaryContainer))
-    ];
-    final parsers = <Parser>[
-      EmojiParser(),
-      if (searchTerm != null && searchTerm!.isNotEmpty)
-        SearchTermParser(searchTerm!),
-      InlineUrlTextParser(),
-      UrlParser(),
-      IdParser(onUsernameClick),
-      if (isBotMessage) BotCommandParser(onBotCommandClick),
-      UnderlineTextParser(),
-      BoldTextParser(),
-      ItalicTextParser(),
-      StrikethroughTextParser(),
-      SpoilerTextParser(onSpoilerClick, spoil: spoilText),
-      InlineIdParser(onUsernameClick: onUsernameClick),
-      TildeTextParser(),
-      UnderScoreTextParser(),
-      PipeTextParser(),
-      StarTextParser(),
-    ];
+List<Block> extractBlocks(
+  String text, {
+  BuildContext? context,
+  Color? onPrimaryContainer,
+  String? searchTerm,
+  Function(String)? onUsernameClick,
+  Function(String)? onBotCommandClick,
+  bool isBotMessage = false,
+  Function()? onSpoilerClick,
+}) {
+  var blocks = <Block>[
+    Block(text: text, style: TextStyle(color: onPrimaryContainer))
+  ];
+  final parsers = <Parser>[
+    EmojiParser(),
+    if (searchTerm != null && searchTerm.isNotEmpty)
+      SearchTermParser(searchTerm),
+    InlineUrlTextParser(),
+    UrlParser(),
+    IdParser(onUsernameClick ?? (text) {}),
+    if (isBotMessage) BotCommandParser(onBotCommandClick ?? (text) {}),
+    UnderlineTextParser(),
+    BoldTextParser(),
+    ItalicTextParser(),
+    StrikethroughTextParser(),
+    SpoilerTextParser(onSpoilerClick ?? () {}),
+    InlineIdParser(onUsernameClick: onUsernameClick),
+    TildeTextParser(),
+    UnderScoreTextParser(),
+    PipeTextParser(),
+    StarTextParser(),
+  ];
 
-    for (final p in parsers) {
-      blocks = p.parse(blocks, context);
-    }
-
-    return blocks;
+  for (final p in parsers) {
+    blocks = p.parse(blocks, context);
   }
+
+  return blocks;
 }
 
 abstract class Parser {
-  List<Block> parse(List<Block> blocks, BuildContext context);
+  List<Block> parse(List<Block> blocks, BuildContext? context);
 }
 
 class UrlParser implements Parser {
@@ -178,20 +196,24 @@ class UrlParser implements Parser {
   );
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
         "url",
-        onTap: (uri) async {
-          if (uri.contains("$APPLICATION_DOMAIN/$JOIN") ||
-              uri.contains("$APPLICATION_DOMAIN/$SPDA") ||
-              uri.contains("$APPLICATION_DOMAIN/$TEXT")) {
-            await handleJoinUri(context, uri);
-          } else {
-            await launch(uri);
-          }
-        },
-        style: TextStyle(color: Theme.of(context).primaryColor),
+        onTap: context == null
+            ? (uri) {}
+            : (uri) async {
+                if (uri.contains("$APPLICATION_DOMAIN/$JOIN") ||
+                    uri.contains("$APPLICATION_DOMAIN/$SPDA") ||
+                    uri.contains("$APPLICATION_DOMAIN/$TEXT")) {
+                  await handleJoinUri(context, uri);
+                } else {
+                  await launch(uri);
+                }
+              },
+        style: context != null
+            ? TextStyle(color: Theme.of(context).primaryColor)
+            : null,
       );
 }
 
@@ -202,12 +224,14 @@ class IdParser implements Parser {
   IdParser(this.onUsernameClick);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
         "id",
         onTap: (id) => onUsernameClick(id),
-        style: TextStyle(color: Theme.of(context).primaryColor),
+        style: context != null
+            ? TextStyle(color: Theme.of(context).primaryColor)
+            : null,
       );
 }
 
@@ -217,7 +241,7 @@ class BoldTextParser implements Parser {
   static String transformer(String m) => m.replaceAll("*", "");
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
         "bold",
@@ -232,12 +256,11 @@ class StarTextParser implements Parser {
   static String transformer(String m) => m.replaceAll("\\*", "*");
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
         "star",
         transformer: StarTextParser.transformer,
-        style: const TextStyle(),
       );
 }
 
@@ -247,12 +270,11 @@ class UnderScoreTextParser implements Parser {
   static String transformer(String m) => m.replaceAll("\\_", "_");
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
         "underScore",
         transformer: UnderScoreTextParser.transformer,
-        style: const TextStyle(),
       );
 }
 
@@ -262,12 +284,11 @@ class TildeTextParser implements Parser {
   static String transformer(String m) => m.replaceAll("\\~", "~");
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
         "tilde",
         transformer: TildeTextParser.transformer,
-        style: const TextStyle(),
       );
 }
 
@@ -277,7 +298,7 @@ class ItalicTextParser implements Parser {
   static String transformer(String m) => m.replaceAll("_", "");
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
         "italic",
@@ -294,7 +315,7 @@ class UnderlineTextParser implements Parser {
   static String transformer(String m) => m.replaceAll("__", "");
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
         "underline",
@@ -311,7 +332,7 @@ class StrikethroughTextParser implements Parser {
   static String transformer(String m) => m.replaceAll("~", "");
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
         "strikethrough",
@@ -323,7 +344,6 @@ class StrikethroughTextParser implements Parser {
 }
 
 class SpoilerTextParser implements Parser {
-  final bool spoil;
   final void Function() onSpoilerClick;
   final RegExp regex = RegExp(r"\|\|(.+)([^\\])\|\|", dotAll: true);
 
@@ -331,10 +351,12 @@ class SpoilerTextParser implements Parser {
 
   static String transformer(String m) => "<hide text>";
 
-  SpoilerTextParser(this.onSpoilerClick, {required this.spoil});
+  SpoilerTextParser(
+    this.onSpoilerClick,
+  );
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
         "spoiler",
@@ -342,10 +364,6 @@ class SpoilerTextParser implements Parser {
         onTap: (text) {
           onSpoilerClick();
         },
-        style: TextStyle(
-          backgroundColor: !spoil ? Theme.of(context).primaryColorDark : null,
-          color: !spoil ? Theme.of(context).primaryColorDark : null,
-        ),
       );
 }
 
@@ -355,12 +373,11 @@ class PipeTextParser implements Parser {
   static String transformer(String m) => m.replaceAll("\\||", "||");
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
         "pipe",
         transformer: PipeTextParser.transformer,
-        style: const TextStyle(),
       );
 }
 
@@ -375,23 +392,26 @@ class InlineUrlTextParser implements Parser {
   }
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
         "inlineURL",
-        onTap: (text) async {
-          final uri = text.substring(text.indexOf("]") + 2, text.indexOf(")"));
-          if (uri.contains("$APPLICATION_DOMAIN/$JOIN") ||
-              uri.contains("$APPLICATION_DOMAIN/$SPDA") ||
-              uri.contains("$APPLICATION_DOMAIN/$TEXT")) {
-            await handleJoinUri(context, uri);
-          } else {
-            await launch(uri);
-          }
-        },
+        onTap: context == null
+            ? (text) {}
+            : (text) async {
+                final uri =
+                    text.substring(text.indexOf("]") + 2, text.indexOf(")"));
+                if (uri.contains("$APPLICATION_DOMAIN/$JOIN") ||
+                    uri.contains("$APPLICATION_DOMAIN/$SPDA") ||
+                    uri.contains("$APPLICATION_DOMAIN/$TEXT")) {
+                  await handleJoinUri(context, uri);
+                } else {
+                  await launch(uri);
+                }
+              },
         transformer: InlineUrlTextParser.transformer,
         style: TextStyle(
-          color: Theme.of(context).primaryColor,
+          color: context != null ? Theme.of(context).primaryColor : null,
         ),
       );
 }
@@ -408,7 +428,7 @@ class InlineIdParser implements Parser {
   }
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
         "inlineId",
@@ -421,7 +441,9 @@ class InlineIdParser implements Parser {
             onUsernameClick!("@" + id);
           }
         },
-        style: TextStyle(color: Theme.of(context).primaryColor),
+        style: context != null
+            ? TextStyle(color: Theme.of(context).primaryColor)
+            : null,
       );
 }
 
@@ -434,7 +456,7 @@ class EmojiParser implements Parser {
   EmojiParser({this.fontSize = 18});
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
         "emoji",
@@ -449,12 +471,14 @@ class BotCommandParser implements Parser {
   BotCommandParser(this.onBotCommandClick);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
         "bot",
         onTap: (id) => onBotCommandClick(id),
-        style: TextStyle(color: Theme.of(context).primaryColor),
+        style: context != null
+            ? TextStyle(color: Theme.of(context).primaryColor)
+            : null,
       );
 }
 
@@ -464,22 +488,26 @@ class SearchTermParser implements Parser {
   SearchTermParser(this.searchTerm);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         RegExp(searchTerm),
         "search",
-        style: TextStyle(color: Theme.of(context).primaryColor),
+        style: context != null
+            ? TextStyle(color: Theme.of(context).primaryColor)
+            : null,
       );
 }
 
 class Block {
   final String text;
   final bool locked;
+  final String matchText;
   final void Function(String)? onTap;
   final TextStyle? style;
   final String? type;
 
   Block({
+    this.matchText = "",
     required this.text,
     this.locked = false,
     this.onTap,
@@ -505,7 +533,7 @@ List<Block> parseBlocks(
             b.text,
             regex,
             onTap,
-            style!,
+            style ?? const TextStyle(),
             type,
             transformer: transformer,
           );
@@ -532,6 +560,7 @@ List<Block> parseText(
       ..add(Block(text: text.substring(start, match.start)))
       ..add(
         Block(
+          matchText: match[0]!,
           text: transformer(match[0]!),
           onTap: onTap,
           style: style,

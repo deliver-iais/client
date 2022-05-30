@@ -37,7 +37,7 @@ import 'package:win_toast/win_toast.dart';
 
 abstract class Notifier {
   static void onCallAccept(String roomUid) {
-     ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
+    ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
       isVisible: false,
     );
     GetIt.I
@@ -197,29 +197,9 @@ class NotificationServices {
 
   MessageSimpleRepresentative _synthesize(MessageSimpleRepresentative mb) {
     if (mb.text.isNotEmpty) {
-      return mb.copyWith(
-        text: BoldTextParser.transformer(
-          UnderlineTextParser.transformer(
-            ItalicTextParser.transformer(
-              StrikethroughTextParser.transformer(
-                SpoilerTextParser.transformer(
-                  InlineUrlTextParser.transformer(
-                    InlineIdParser.transformer(
-                      TildeTextParser.transformer(
-                        UnderScoreTextParser.transformer(
-                          PipeTextParser.transformer(
-                            StarTextParser.transformer(mb.text),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-      );
+      final blocks = extractBlocks(mb.text);
+      final result = blocks.map<String>((b) => b.text).toList().join();
+      return mb.copyWith(text: result);
     }
 
     return mb;

@@ -207,7 +207,7 @@ class LastMessage extends StatelessWidget {
             .map((e) => e.trim())
             .where((e) => e.trim().isNotEmpty)
             .join(" "),
-        context,
+        context: context,
       ).where((b) => b.text.isNotEmpty).map((e) {
         if (e.type == "spoiler") {
           return WidgetSpan(
@@ -225,29 +225,4 @@ class LastMessage extends StatelessWidget {
         }
         return TextSpan(text: e.text, style: e.style);
       }).toList();
-
-  List<Block> extractBlocks(String text, BuildContext context) {
-    var blocks = <Block>[Block(text: text)];
-    final parsers = <Parser>[
-      EmojiParser(fontSize: 16),
-      BoldTextParser(),
-      UnderlineTextParser(),
-      ItalicTextParser(),
-      StrikethroughTextParser(),
-      SpoilerTextParser(() {}, spoil: false),
-      InlineIdParser(),
-      InlineUrlTextParser(),
-      TildeTextParser(),
-      UnderlineTextParser(),
-      PipeTextParser(),
-      UnderScoreTextParser(),
-      StarTextParser(),
-    ];
-
-    for (final p in parsers) {
-      blocks = p.parse(blocks, context);
-    }
-
-    return blocks;
-  }
 }
