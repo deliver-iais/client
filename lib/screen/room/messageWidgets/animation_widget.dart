@@ -179,6 +179,77 @@ class AnimatedEmoji extends StatefulWidget {
       // case "☹️️":
       case "🥺":
       case "😔":
+      case "✌️":
+      case "🤟":
+      case "🤘":
+      case "👌":
+      case "🤏":
+      case "🤌":
+      case "👈":
+      case "👉":
+      case "👆":
+      case "👇":
+      case "☝️":
+      case "✋":
+      case "🤚":
+      case "🖐":
+      case "🖖":
+      case "👋":
+      case "🤙":
+      case "💪":
+      case "🦾":
+      case "✍️":
+      case "🙏":
+      case "🦶":
+      case "🦵":
+      case "🦿":
+      case "🎅":
+      case "🧛‍♀️":
+      case "🧛":
+      case "🧛‍♂️":
+      case "🧟‍♀️":
+      case "🧟":
+      case "🧟‍♂️":
+      case "🌝":
+      case "🌛":
+      case "🌜":
+      case "🌚":
+      case "🌕":
+      case "🌖":
+      case "🌗":
+      case "🌘":
+      case "🌑":
+      case "🌒":
+      case "🌓":
+      case "🌔":
+      case "⭐":
+      case "🌟":
+      case "⚡":
+      case "🔥":
+      case "☃️":
+      case "⛄":
+      case "🍔":
+      case "🌭":
+      case "🍟":
+      case "🍕":
+      case "🌮":
+      case "🍦":
+      case "🎮":
+      case "🚗":
+      case "🚕":
+      case "🚓":
+      case "🚑":
+      case "🗿":
+      case "⏳":
+      case "🎈":
+      case "📝":
+      case "❌":
+      case "♨️":
+      case "❗":
+      case "❕":
+      case "❓":
+      case "❔":
+      case "📣":
         return true;
     }
 
@@ -283,15 +354,23 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
   }
 
   String shortname() {
-    final content = widget.message.json.toText().text;
+    try {
+      final content = widget.message.json.toText().text;
 
-    final shortName = Emoji.byChar(content).shortName;
+      final shortName = Emoji.byChar(content).shortName;
 
-    return shortName;
+      return shortName;
+    } catch (e) {
+      return e.toString();
+    }
   }
 
   String content() {
-    return widget.message.json.toText().text;
+    try {
+      return widget.message.json.toText().text;
+    } catch (_) {
+      return "";
+    }
   }
 }
 
