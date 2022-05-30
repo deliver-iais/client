@@ -4,6 +4,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
+import 'package:deliver/shared/loaders/text_loader.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/widgets/seen_status.dart';
 import 'package:flutter/cupertino.dart';
@@ -143,7 +144,7 @@ class LastMessage extends StatelessWidget {
     );
   }
 
-  List<TextSpan> buildText(MessageBrief mb, BuildContext context) =>
+  List<InlineSpan> buildText(MessageBrief mb, BuildContext context) =>
       extractBlocks(
         mb.text
             .split("\n")
@@ -151,10 +152,23 @@ class LastMessage extends StatelessWidget {
             .where((e) => e.trim().isNotEmpty)
             .join(" "),
         context,
-      )
-          .where((b) => b.text.isNotEmpty)
-          .map((e) => TextSpan(text: e.text, style: e.style))
-          .toList();
+      ).where((b) => b.text.isNotEmpty).map((e) {
+        if (e.type == "spoiler") {
+          return WidgetSpan(
+            child: GestureDetector(
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: TextLoader(
+                  Text(e.text),
+                  showJustTextLoader: true,
+                  fitAsText: true,
+                ),
+              ),
+            ),
+          );
+        }
+        return TextSpan(text: e.text, style: e.style);
+      }).toList();
 
   List<Block> extractBlocks(String text, BuildContext context) {
     var blocks = <Block>[Block(text: text)];
@@ -164,7 +178,7 @@ class LastMessage extends StatelessWidget {
       UnderlineTextParser(),
       ItalicTextParser(),
       StrikethroughTextParser(),
-      SpoilerTextParser((){},spoil: false),
+      SpoilerTextParser(() {}, spoil: false),
       InlineIdParser(),
       InlineUrlTextParser(),
       TildeTextParser(),

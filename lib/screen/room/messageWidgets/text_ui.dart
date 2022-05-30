@@ -7,6 +7,7 @@ import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/loaders/text_loader.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:deliver/theme/color_scheme.dart';
@@ -51,10 +52,25 @@ class TextUI extends StatelessWidget {
 
     final text = extractText(message);
     final blocks = extractBlocks(text, context);
-    final spans = blocks.map<TextSpan>((b) {
+    final spans = blocks.map<InlineSpan>((b) {
       var tap = b.text;
       if (b.type == "inlineURL" || b.type == "inlineId") {
         tap = text;
+      }
+      if (b.type == "spoiler" && !spoilText) {
+        return WidgetSpan(
+          child: GestureDetector(
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: TextLoader(
+                Text(b.text),
+                showJustTextLoader: true,
+                fitAsText: true,
+              ),
+            ),
+            onTap: () => b.onTap!(tap),
+          ),
+        );
       }
       return TextSpan(
         text: b.text,
@@ -309,7 +325,9 @@ class SpoilerTextParser implements Parser {
   final void Function() onSpoilerClick;
   final RegExp regex = RegExp(r"\|\|(.+)\|\|", dotAll: true);
 
-  static String transformer(String m) => m.replaceAll("||", "");
+  static String transform(String m) => m.replaceAll("||", "");
+
+  static String transformer(String m) => "<hide text>";
 
   SpoilerTextParser(this.onSpoilerClick, {required this.spoil});
 
@@ -318,7 +336,7 @@ class SpoilerTextParser implements Parser {
         blocks,
         regex,
         "spoiler",
-        transformer: SpoilerTextParser.transformer,
+        transformer: SpoilerTextParser.transform,
         onTap: (text) {
           onSpoilerClick();
         },

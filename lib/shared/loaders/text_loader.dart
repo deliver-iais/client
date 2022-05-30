@@ -7,11 +7,23 @@ class TextLoader extends StatelessWidget {
 
   final double width;
 
-  const TextLoader(this.text, {Key? key, this.width = 80}) : super(key: key);
+  final bool showJustTextLoader;
+
+  final bool fitAsText;
+
+  const TextLoader(
+    this.text, {
+    Key? key,
+    this.width = 80,
+    this.showJustTextLoader = false,
+    this.fitAsText = false,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (text.data == null || text.data!.isEmpty) return buildLoader(context);
+    if (text.data == null || text.data!.isEmpty || showJustTextLoader) {
+      return buildLoader(context);
+    }
 
     return text;
   }
@@ -36,12 +48,13 @@ class TextLoader extends StatelessWidget {
       duration: ANIMATION_DURATION * 15,
       builder: (context, child, value) {
         return Container(
-          width: width,
-          height: text.style?.fontSize ?? 10,
+          width: fitAsText ? null : width,
+          height: fitAsText ? null : text.style?.fontSize ?? 10,
           decoration: BoxDecoration(
             color: value,
             borderRadius: const BorderRadius.all(Radius.circular(4)),
           ),
+          child: fitAsText ? Opacity(opacity: 0.0, child: text) : null,
         );
       },
     );
