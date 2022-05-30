@@ -137,7 +137,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   }
 
   Future<void> checkIfVersionChange() async {
-    if (await _accountRepo.shouldShowNewFeatureDialog() || true ) {
+    if (await _accountRepo.shouldShowNewFeatureDialog()) {
       showDialog(builder: (context) => NewFeatureDialog(), context: context)
           .ignore();
     }
