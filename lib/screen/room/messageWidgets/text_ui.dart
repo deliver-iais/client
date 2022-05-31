@@ -160,6 +160,12 @@ List<Block> extractBlocks(
     Block(text: text, style: TextStyle(color: onPrimaryContainer))
   ];
   final parsers = <Parser>[
+    UnderlineTextParser(),
+    BoldTextParser(),
+    ItalicTextParser(),
+    StrikethroughTextParser(),
+    SpoilerTextParser(onSpoilerClick ?? () {}),
+    InlineIdParser(onUsernameClick: onUsernameClick),
     EmojiParser(),
     if (searchTerm != null && searchTerm.isNotEmpty)
       SearchTermParser(searchTerm),
@@ -167,16 +173,6 @@ List<Block> extractBlocks(
     UrlParser(),
     IdParser(onUsernameClick ?? (text) {}),
     if (isBotMessage) BotCommandParser(onBotCommandClick ?? (text) {}),
-    UnderlineTextParser(),
-    BoldTextParser(),
-    ItalicTextParser(),
-    StrikethroughTextParser(),
-    SpoilerTextParser(onSpoilerClick ?? () {}),
-    InlineIdParser(onUsernameClick: onUsernameClick),
-    TildeTextParser(),
-    UnderScoreTextParser(),
-    PipeTextParser(),
-    StarTextParser(),
   ];
 
   for (final p in parsers) {
@@ -236,9 +232,10 @@ class IdParser implements Parser {
 }
 
 class BoldTextParser implements Parser {
-  final RegExp regex = RegExp(r"(\*.+)([^\\])(\*)", dotAll: true);
+  final RegExp regex = RegExp(r"(\*((?!\*).)+)([^\\])(\*)", dotAll: true);
 
-  static String transformer(String m) => m.replaceAll("*", "");
+  static String transformer(String m) =>
+      m.substring(m.indexOf("*") + 1, m.lastIndexOf("*"));
 
   @override
   List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
@@ -250,52 +247,11 @@ class BoldTextParser implements Parser {
       );
 }
 
-class StarTextParser implements Parser {
-  final RegExp regex = RegExp(r"(\\*.+)", dotAll: true);
-
-  static String transformer(String m) => m.replaceAll("\\*", "*");
-
-  @override
-  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
-        blocks,
-        regex,
-        "star",
-        transformer: StarTextParser.transformer,
-      );
-}
-
-class UnderScoreTextParser implements Parser {
-  final RegExp regex = RegExp(r"(\\_.+)", dotAll: true);
-
-  static String transformer(String m) => m.replaceAll("\\_", "_");
-
-  @override
-  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
-        blocks,
-        regex,
-        "underScore",
-        transformer: UnderScoreTextParser.transformer,
-      );
-}
-
-class TildeTextParser implements Parser {
-  final RegExp regex = RegExp(r"(\\~.+)", dotAll: true);
-
-  static String transformer(String m) => m.replaceAll("\\~", "~");
-
-  @override
-  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
-        blocks,
-        regex,
-        "tilde",
-        transformer: TildeTextParser.transformer,
-      );
-}
-
 class ItalicTextParser implements Parser {
-  final RegExp regex = RegExp(r"_(.+)([^\\])_", dotAll: true);
+  final RegExp regex = RegExp(r"_((?!_).)+([^\\])_", dotAll: true);
 
-  static String transformer(String m) => m.replaceAll("_", "");
+  static String transformer(String m) =>
+      m.substring(m.indexOf("_") + 1, m.lastIndexOf("_"));
 
   @override
   List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
@@ -310,9 +266,10 @@ class ItalicTextParser implements Parser {
 }
 
 class UnderlineTextParser implements Parser {
-  final RegExp regex = RegExp(r"__(.+)([^\\])__", dotAll: true);
+  final RegExp regex = RegExp(r"__((?!__).)+([^\\])__", dotAll: true);
 
-  static String transformer(String m) => m.replaceAll("__", "");
+  static String transformer(String m) =>
+      m.substring(m.indexOf("__") + 1, m.lastIndexOf("__"));
 
   @override
   List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
@@ -327,9 +284,10 @@ class UnderlineTextParser implements Parser {
 }
 
 class StrikethroughTextParser implements Parser {
-  final RegExp regex = RegExp(r"~(.+)([^\\])~", dotAll: true);
+  final RegExp regex = RegExp(r"~((?!~).)+([^\\])~", dotAll: true);
 
-  static String transformer(String m) => m.replaceAll("~", "");
+  static String transformer(String m) =>
+      m.substring(m.indexOf("~") + 1, m.lastIndexOf("~"));
 
   @override
   List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
@@ -345,9 +303,10 @@ class StrikethroughTextParser implements Parser {
 
 class SpoilerTextParser implements Parser {
   final void Function() onSpoilerClick;
-  final RegExp regex = RegExp(r"\|\|(.+)([^\\])\|\|", dotAll: true);
+  final RegExp regex = RegExp(r"\|\|((?!||).)+([^\\])\|\|", dotAll: true);
 
-  static String transform(String m) => m.replaceAll("||", "");
+  static String transform(String m) =>
+      m.substring(m.indexOf("||") + 1, m.lastIndexOf("||"));
 
   static String transformer(String m) => "<hide text>";
 
@@ -367,23 +326,9 @@ class SpoilerTextParser implements Parser {
       );
 }
 
-class PipeTextParser implements Parser {
-  final RegExp regex = RegExp(r"\\\|\|(.+)", dotAll: true);
-
-  static String transformer(String m) => m.replaceAll("\\||", "||");
-
-  @override
-  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
-        blocks,
-        regex,
-        "pipe",
-        transformer: PipeTextParser.transformer,
-      );
-}
-
 class InlineUrlTextParser implements Parser {
   final RegExp regex = RegExp(
-    r"\[(.+)\]\((https?:\/\/(www\.)?)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)\)",
+    r"\[(((?!]).)+)\]\((https?:\/\/(www\.)?)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)\)",
     dotAll: true,
   );
 
@@ -419,7 +364,7 @@ class InlineUrlTextParser implements Parser {
 class InlineIdParser implements Parser {
   final void Function(String)? onUsernameClick;
   final RegExp regex =
-      RegExp(r"\[(.+)\]\(we:\/\/user\?id=[a-zA-Z]([a-zA-Z0-9_]){4,19}\)");
+      RegExp(r"\[((?!]).)+\]\(we:\/\/user\?id=[a-zA-Z]([a-zA-Z0-9_]){4,19}\)");
 
   InlineIdParser({this.onUsernameClick});
 
@@ -549,6 +494,13 @@ List<Block> parseText(
   String type, {
   String Function(String) transformer = same,
 }) {
+  if (type == "inlineId") {
+    text = text
+        .replaceAll("\\*", "*")
+        .replaceAll("\\_", "_")
+        .replaceAll("\\||", "||")
+        .replaceAll("\\~", "~");
+  }
   var start = 0;
 
   final matches = regex.allMatches(text);
