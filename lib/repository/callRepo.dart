@@ -955,7 +955,7 @@ class CallRepo {
 
     //after accept Call w8 for 30 sec if don't connecting force end Call
     timerConnectionFailed = Timer(const Duration(seconds: 30), () {
-      if (callingStatus.value != CallStatus.CONNECTED) {
+      if (callingStatus.value != CallStatus.CONNECTED && !_reconnectTry) {
         _logger.i("Call Can't Connected !!");
         callingStatus.add(CallStatus.NO_ANSWER);
         _audioService.stopBeepSound();

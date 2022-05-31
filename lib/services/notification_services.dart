@@ -32,17 +32,20 @@ import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:tuple/tuple.dart';
 import 'package:win_toast/win_toast.dart';
 
 abstract class Notifier {
-  static void onCallAccept(String roomUid) {
-     ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
-      isVisible: false,
-    );
-    GetIt.I
-        .get<RoutingService>()
-        .openCallScreen(roomUid.asUid(), isCallAccepted: true);
+  static void onCallAccept(String roomUid) async{
+    if (await Permission.systemAlertWindow.request().isGranted) {
+      ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
+        isVisible: false,
+      );
+      GetIt.I
+          .get<RoutingService>()
+          .openCallScreen(roomUid.asUid(), isCallAccepted: true);
+    }
   }
 
   static void onCallReject() {
@@ -738,7 +741,6 @@ class AndroidNotifier implements Notifier {
         sessionId: clock.now().millisecondsSinceEpoch.toString(),
         callerId: 123456789,
         callType: 0,
-        avatarPath: path,
         callerName: roomName,
         userInfo: {"uid": roomUid, "callEventJson": ceJson},
         opponentsIds: const {1},

@@ -34,10 +34,10 @@ dependencies:
   circular_countdown_timer: 0.2.1
   clock: 1.1.0
   collection: 1.15.0
-  connectycube_flutter_call_kit:
-    git:
-      ref: 94cc4e2a67ceeeeaf4225218efe68cdc7faef539
-      url: https://github.com/androidwoman/connectycube-flutter-call-kit.git
+  connectycube_flutter_call_kit: ^2.0.4
+#    git:
+#      ref: 94cc4e2a67ceeeeaf4225218efe68cdc7faef539
+#      url: https://github.com/androidwoman/connectycube-flutter-call-kit.git
   contacts_service: 0.6.3
   custom_image_crop: 0.0.4
   date_time_format: 2.0.1
