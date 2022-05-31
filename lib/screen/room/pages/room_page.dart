@@ -26,6 +26,7 @@ import 'package:deliver/screen/room/messageWidgets/input_message_text_controller
 import 'package:deliver/screen/room/messageWidgets/on_edit_message_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver/screen/room/messageWidgets/reply_widgets/reply_preview.dart';
+import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/pages/build_message_box.dart';
 import 'package:deliver/screen/room/pages/pin_message_app_bar.dart';
 import 'package:deliver/screen/room/widgets/bot_start_widget.dart';
@@ -630,7 +631,7 @@ class _RoomPageState extends State<RoomPage> {
   void onEdit(Message message) {
     if (message.type == MessageType.TEXT) {
       _editableMessage.add(message);
-      _inputMessageTextController.text = message.json.toText().text;
+      _inputMessageTextController.text = synthesizeToOriginalWord(message.json.toText().text);
     } else if (message.type == MessageType.FILE) {
       showCaptionDialog(
         resetRoomPageDetails: _resetRoomPageDetails,
@@ -1366,14 +1367,14 @@ class _RoomPageState extends State<RoomPage> {
                     copyText = copyText +
                         await _roomRepo.getName(message.from.asUid()) +
                         ":\n" +
-                        message.json.toText().text +
+                        synthesizeToOriginalWord(message.json.toText().text) +
                         "\n";
                   } else if (message.type == MessageType.FILE &&
                       message.json.toFile().caption.isNotEmpty) {
                     copyText = copyText +
                         await _roomRepo.getName(message.from.asUid()) +
                         ":\n" +
-                        message.json.toFile().caption +
+                        synthesizeToOriginalWord(message.json.toFile().caption) +
                         "\n";
                   }
                 }

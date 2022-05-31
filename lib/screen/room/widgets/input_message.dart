@@ -13,6 +13,7 @@ import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/custom_text_selection_controller.dart';
 import 'package:deliver/screen/room/messageWidgets/max_lenght_text_input_formatter.dart';
+import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/widgets/bot_commands.dart';
 import 'package:deliver/screen/room/widgets/emoji_keybord.dart';
 import 'package:deliver/screen/room/widgets/record_audio_animation.dart';
@@ -377,7 +378,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                             ),
                                             border: InputBorder.none,
                                             counterText: "",
-                                            hintText: i18n.get("write_a_message"),
+                                            hintText:
+                                                i18n.get("write_a_message"),
                                           ),
                                           textInputAction:
                                               TextInputAction.newline,
@@ -891,7 +893,9 @@ class _InputMessageWidget extends State<InputMessage> {
       widget.sendForwardMessage?.call();
     }
 
-    final text = _synthesize(widget.textController.text.trim());
+    final text = _shouldSynthesize
+        ? synthesize(widget.textController.text.trim())
+        : widget.textController.text.trim();
 
     if (text.isNotEmpty) {
       if (_replyMessageId > 0) {
@@ -919,17 +923,6 @@ class _InputMessageWidget extends State<InputMessage> {
       _mentionQuery.add(null);
     }
     widget.scrollToLastSentMessage();
-  }
-
-  String _synthesize(String text) {
-    if (_shouldSynthesize) {
-      return text
-          .replaceAll("*", "\\*")
-          .replaceAll("_", "\\_")
-          .replaceAll("||", "\\||")
-          .replaceAll("~", "\\~");
-    }
-    return text;
   }
 
   void sendRecordActivity() {

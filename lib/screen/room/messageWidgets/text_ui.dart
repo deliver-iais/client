@@ -270,7 +270,7 @@ class UnderlineTextParser implements Parser {
   final RegExp regex = RegExp(r"__((?!__).)+([^\\])__", dotAll: true);
 
   static String transformer(String m) =>
-      m.substring(m.indexOf("__") + 1, m.lastIndexOf("__"));
+      m.substring(m.indexOf("__") + 2, m.lastIndexOf("__"));
 
   @override
   List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
@@ -305,10 +305,10 @@ class StrikethroughTextParser implements Parser {
 class SpoilerTextParser implements Parser {
   final void Function() onSpoilerClick;
   final String Function(String)? transformer;
-  final RegExp regex = RegExp(r"\|\|(.+)([^\\])\|\|", dotAll: true);
+  final RegExp regex = RegExp(r"\|\|(((?!\|\|).)+)([^\\])\|\|", dotAll: true);
 
   static String transform(String m) =>
-      m.substring(m.indexOf("||") + 1, m.lastIndexOf("||"));
+      m.substring(m.indexOf("||") + 2, m.lastIndexOf("||"));
 
   SpoilerTextParser(
     this.onSpoilerClick, {
@@ -437,6 +437,22 @@ class SearchTermParser implements Parser {
       );
 }
 
+String synthesizeToOriginalWord(String text) {
+  return text
+      .replaceAll("\\*", "*")
+      .replaceAll("\\_", "_")
+      .replaceAll("\\||", "||")
+      .replaceAll("\\~", "~");
+}
+
+String synthesize(String text) {
+  return text
+      .replaceAll("*", "\\*")
+      .replaceAll("_", "\\_")
+      .replaceAll("||", "\\||")
+      .replaceAll("~", "\\~");
+}
+
 class Block {
   final String text;
   final bool locked;
@@ -489,11 +505,7 @@ List<Block> parseText(
   String Function(String) transformer = same,
 }) {
   if (type == "inlineId") {
-    text = text
-        .replaceAll("\\*", "*")
-        .replaceAll("\\_", "_")
-        .replaceAll("\\||", "||")
-        .replaceAll("\\~", "~");
+    text = synthesizeToOriginalWord(text);
   }
   var start = 0;
 
