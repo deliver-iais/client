@@ -77,7 +77,7 @@ class TextUI extends StatelessWidget {
                 fitAsText: true,
               ),
             ),
-            onTap: () => b.onTap,
+            onTap: () => b.onTap!(tap),
           ),
         );
       }
@@ -155,6 +155,7 @@ List<Block> extractBlocks(
   Function(String)? onBotCommandClick,
   bool isBotMessage = false,
   Function()? onSpoilerClick,
+  String Function(String)? spoilTransformer,
 }) {
   var blocks = <Block>[
     Block(text: text, style: TextStyle(color: onPrimaryContainer))
@@ -164,7 +165,7 @@ List<Block> extractBlocks(
     BoldTextParser(),
     ItalicTextParser(),
     StrikethroughTextParser(),
-    SpoilerTextParser(onSpoilerClick ?? () {}),
+    SpoilerTextParser(onSpoilerClick ?? () {}, transformer: spoilTransformer),
     InlineIdParser(onUsernameClick: onUsernameClick),
     EmojiParser(),
     if (searchTerm != null && searchTerm.isNotEmpty)
@@ -182,6 +183,16 @@ List<Block> extractBlocks(
   return blocks;
 }
 
+Future<void> onUrlTap(String uri, BuildContext context) async {
+  if (uri.contains("$APPLICATION_DOMAIN/$JOIN") ||
+      uri.contains("$APPLICATION_DOMAIN/$SPDA") ||
+      uri.contains("$APPLICATION_DOMAIN/$TEXT")) {
+    await handleJoinUri(context, uri);
+  } else {
+    await launch(uri);
+  }
+}
+
 abstract class Parser {
   List<Block> parse(List<Block> blocks, BuildContext? context);
 }
@@ -196,17 +207,7 @@ class UrlParser implements Parser {
         blocks,
         regex,
         "url",
-        onTap: context == null
-            ? (uri) {}
-            : (uri) async {
-                if (uri.contains("$APPLICATION_DOMAIN/$JOIN") ||
-                    uri.contains("$APPLICATION_DOMAIN/$SPDA") ||
-                    uri.contains("$APPLICATION_DOMAIN/$TEXT")) {
-                  await handleJoinUri(context, uri);
-                } else {
-                  await launch(uri);
-                }
-              },
+        onTap: context == null ? (uri) {} : (uri) => onUrlTap((uri), context),
         style: context != null
             ? TextStyle(color: Theme.of(context).primaryColor)
             : null,
@@ -303,23 +304,23 @@ class StrikethroughTextParser implements Parser {
 
 class SpoilerTextParser implements Parser {
   final void Function() onSpoilerClick;
-  final RegExp regex = RegExp(r"\|\|((?!||).)+([^\\])\|\|", dotAll: true);
+  final String Function(String)? transformer;
+  final RegExp regex = RegExp(r"\|\|(.+)([^\\])\|\|", dotAll: true);
 
   static String transform(String m) =>
       m.substring(m.indexOf("||") + 1, m.lastIndexOf("||"));
 
-  static String transformer(String m) => "<hide text>";
-
   SpoilerTextParser(
-    this.onSpoilerClick,
-  );
+    this.onSpoilerClick, {
+    this.transformer,
+  });
 
   @override
   List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
         "spoiler",
-        transformer: SpoilerTextParser.transform,
+        transformer: transformer ?? SpoilerTextParser.transform,
         onTap: (text) {
           onSpoilerClick();
         },
@@ -343,17 +344,10 @@ class InlineUrlTextParser implements Parser {
         "inlineURL",
         onTap: context == null
             ? (text) {}
-            : (text) async {
-                final uri =
-                    text.substring(text.indexOf("]") + 2, text.indexOf(")"));
-                if (uri.contains("$APPLICATION_DOMAIN/$JOIN") ||
-                    uri.contains("$APPLICATION_DOMAIN/$SPDA") ||
-                    uri.contains("$APPLICATION_DOMAIN/$TEXT")) {
-                  await handleJoinUri(context, uri);
-                } else {
-                  await launch(uri);
-                }
-              },
+            : (text) => onUrlTap(
+                  (text.substring(text.indexOf("]") + 2, text.indexOf(")"))),
+                  context,
+                ),
         transformer: InlineUrlTextParser.transformer,
         style: TextStyle(
           color: context != null ? Theme.of(context).primaryColor : null,

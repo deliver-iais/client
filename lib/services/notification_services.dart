@@ -197,7 +197,8 @@ class NotificationServices {
 
   MessageSimpleRepresentative _synthesize(MessageSimpleRepresentative mb) {
     if (mb.text.isNotEmpty) {
-      final blocks = extractBlocks(mb.text);
+      final blocks =
+          extractBlocks(mb.text, spoilTransformer: (s) => "<hide text>");
       final result = blocks.map<String>((b) => b.text).toList().join();
       return mb.copyWith(text: result);
     }
