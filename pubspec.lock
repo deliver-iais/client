@@ -336,11 +336,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.12.13-rc.2"
-      resolved-ref: "2729780684a9b93eee1667a4d0bebb2c78a1e287"
+      ref: "tags/v1.12.13-rc.11"
+      resolved-ref: b76d8a019799a2b827d6367a2ffa706e12a8cae5
       url: "https://github.com/deliver-iais/pub-dart-artifactory"
     source: git
-    version: "1.12.13-rc.2"
+    version: "1.12.13-rc.11"
   dependency_validator:
     dependency: "direct dev"
     description:
@@ -551,6 +551,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_audio_waveforms:
+    dependency: "direct main"
+    description:
+      name: flutter_audio_waveforms
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.2.1+5"
   flutter_blurhash:
     dependency: "direct main"
     description:
@@ -1062,6 +1069,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
+  mobile_scanner:
+    dependency: "direct main"
+    description:
+      name: mobile_scanner
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.1"
   mockito:
     dependency: "direct dev"
     description:
@@ -1272,6 +1286,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.4.0"
+  photo_manager:
+    dependency: "direct main"
+    description:
+      name: photo_manager
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.1.1"
   pin_input_text_field:
     dependency: transitive
     description:
@@ -1374,9 +1395,9 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "0fe54cbb19d2cba155f5a0f05d1e7f10ebb0590c"
-      resolved-ref: "0fe54cbb19d2cba155f5a0f05d1e7f10ebb0590c"
-      url: "https://github.com/juliuscanute/qr_code_scanner.git"
+      ref: fix_break_changes_platform
+      resolved-ref: "0feca6f15042c279ff575c559a3430df917b623d"
+      url: "https://github.com/xeinebiu/qr_code_scanner.git"
     source: git
     version: "0.7.0"
   qr_flutter:

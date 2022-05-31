@@ -126,15 +126,16 @@ dependencies:
   photo_manager: 2.1.1
   platform_detect: 2.0.0
   process_run: 0.12.3+2
-  qr_code_scanner:
-    git:
-      url: https://github.com/juliuscanute/qr_code_scanner.git
-      ref: 0fe54cbb19d2cba155f5a0f05d1e7f10ebb0590c
 #  qr_code_scanner:
 #    git:
-#      url: https://github.com/xeinebiu/qr_code_scanner.git
-#      ref: fix_break_changes_platform
+#      url: https://github.com/juliuscanute/qr_code_scanner.git
+#      ref: 0fe54cbb19d2cba155f5a0f05d1e7f10ebb0590c
+  qr_code_scanner:
+    git:
+      url: https://github.com/xeinebiu/qr_code_scanner.git
+      ref: fix_break_changes_platform
   qr_flutter: 4.0.0
+  mobile_scanner: 1.1.1
   random_string: 2.3.1
   receive_sharing_intent: 1.4.5
   record: 3.0.4

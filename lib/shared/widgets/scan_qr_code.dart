@@ -24,6 +24,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class ScanQrCode extends StatefulWidget {
@@ -35,6 +36,7 @@ class ScanQrCode extends StatefulWidget {
 
 class _ScanQrCode extends State<ScanQrCode> {
   late QRViewController controller;
+  final _mobileScanController = MobileScannerController();
   final _logger = GetIt.I.get<Logger>();
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   final _routingServices = GetIt.I.get<RoutingService>();
@@ -78,18 +80,14 @@ class _ScanQrCode extends State<ScanQrCode> {
         ? 250.0
         : 350.0;
 
-    return QRView(
-      key: qrKey,
-      overlayMargin: const EdgeInsets.all(24.0).copyWith(bottom: 100),
-      onQRViewCreated: (controller) => _onQRViewCreated(controller, context),
-      overlay: QrScannerOverlayShape(
-        borderColor: theme.primaryColor,
-        borderRadius: 10,
-        borderLength: 30,
-        borderWidth: 10,
-        cutOutSize: scanArea,
-      ),
-    );
+    return MobileScanner(
+        allowDuplicates: true,
+        controller: _mobileScanController,
+        onDetect: (barcode, args) {
+          if (barcode.rawValue != null) {
+            _parseQrCode(barcode.rawValue!, context);
+          }
+        });
   }
 
   void _onQRViewCreated(QRViewController controller, BuildContext context) {
@@ -106,7 +104,7 @@ class _ScanQrCode extends State<ScanQrCode> {
 
   @override
   void dispose() {
-    controller.dispose();
+    _mobileScanController.dispose();
     super.dispose();
   }
 
