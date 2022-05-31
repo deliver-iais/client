@@ -201,7 +201,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                             cacheWidth: 500,
                                             cacheHeight: 500,
                                           ).image,
-                                          fit: BoxFit.contain,
+                                          fit: BoxFit.fill,
                                         ),
                                       ),
                                       child: Align(
