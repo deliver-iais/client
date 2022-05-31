@@ -20,6 +20,7 @@ import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/call_service.dart';
+import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -56,6 +57,7 @@ class DataStreamServices {
   final _mucDao = GetIt.I.get<MucDao>();
   final _queryServicesClient = GetIt.I.get<QueryServiceClient>();
   final _mediaDao = GetIt.I.get<MediaDao>();
+  final _messageExtractorServices = GetIt.I.get<MessageExtractorServices>();
 
   Future<message_model.Message?> handleIncomingMessage(
     Message message, {
@@ -132,10 +134,18 @@ class DataStreamServices {
           switch (
               message.persistEvent.messageManipulationPersistentEvent.action) {
             case MessageManipulationPersistentEvent_Action.EDITED:
-              await _onMessageEdited(roomUid, message);
+              await _onMessageEdited(
+                roomUid,
+                message,
+                isOnlineMessage: isOnlineMessage,
+              );
               break;
             case MessageManipulationPersistentEvent_Action.DELETED:
-              await _onMessageDeleted(roomUid, message);
+              await _onMessageDeleted(
+                roomUid,
+                message,
+                isOnlineMessage: isOnlineMessage,
+              );
               break;
           }
           break;
@@ -150,6 +160,7 @@ class DataStreamServices {
         message.callEvent,
         roomUid: message.from,
         callId: message.callEvent.id,
+        time: message.time.toInt(),
       );
       if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
           message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
@@ -241,15 +252,21 @@ class DataStreamServices {
     );
   }
 
-  Future<void> _onMessageDeleted(Uid roomUid, Message message) async {
+  Future<void> _onMessageDeleted(
+    Uid roomUid,
+    Message message, {
+    required bool isOnlineMessage,
+  }) async {
     final id = message.persistEvent.messageManipulationPersistentEvent.messageId
         .toInt();
 
     final deleteActionTime = message.time.toInt();
 
-    final mySeen = await _seenDao.getMySeen(roomUid.asString());
-    if (0 < mySeen.messageId && mySeen.messageId <= id) {
-      await _increaseHiddenMessageCount(roomUid.asString());
+    if (isOnlineMessage) {
+      final mySeen = await _seenDao.getMySeen(roomUid.asString());
+      if (0 < mySeen.messageId && mySeen.messageId <= id) {
+        await _increaseHiddenMessageCount(roomUid.asString());
+      }
     }
 
     final savedMsg = await _messageDao.getMessage(roomUid.asString(), id);
@@ -263,19 +280,20 @@ class DataStreamServices {
 
       await _messageDao.saveMessage(msg);
 
-      final room = await _roomDao.getRoom(roomUid.asString());
+      if (isOnlineMessage) {
+        final room = await _roomDao.getRoom(roomUid.asString());
+        if (room!.lastMessage != null && room.lastMessage!.id == id) {
+          final lastNotHiddenMessage = await fetchLastNotHiddenMessage(
+            roomUid,
+            room.lastMessageId,
+            room.firstMessageId,
+          );
 
-      if (room!.lastMessage != null && room.lastMessage!.id == id) {
-        final lastNotHiddenMessage = await fetchLastNotHiddenMessage(
-          roomUid,
-          room.lastMessageId,
-          room.firstMessageId,
-        );
-
-        await _roomDao.updateRoom(
-          uid: roomUid.asString(),
-          lastMessage: lastNotHiddenMessage ?? savedMsg,
-        );
+          await _roomDao.updateRoom(
+            uid: roomUid.asString(),
+            lastMessage: lastNotHiddenMessage ?? savedMsg,
+          );
+        }
       }
       messageEventSubject.add(
         MessageEvent(
@@ -288,12 +306,17 @@ class DataStreamServices {
     }
   }
 
-  Future<void> _onMessageEdited(Uid roomUid, Message message) async {
+  Future<void> _onMessageEdited(
+    Uid roomUid,
+    Message message, {
+    required bool isOnlineMessage,
+  }) async {
     final id = message.persistEvent.messageManipulationPersistentEvent.messageId
         .toInt();
 
     final time = message.time.toInt();
 
+    //if from fetch that means non repeated and should be save
     final savedMsg = await _messageDao.getMessage(roomUid.asString(), id);
 
     // there is no message in db for editing, so if we fetch it eventually, it will be edited anyway
@@ -307,7 +330,14 @@ class DataStreamServices {
         ..type = FetchMessagesReq_Type.FORWARD_FETCH,
     );
     final msg = await saveMessageInMessagesDB(res.messages.first);
-    final room = (await _roomDao.getRoom(roomUid.asString()))!;
+
+    if (isOnlineMessage) {
+      final room = (await _roomDao.getRoom(roomUid.asString()))!;
+      await _roomDao.updateRoom(
+        uid: room.uid,
+        lastMessage: (room.lastMessage?.id == id) ? msg : null,
+      );
+    }
 
     messageEventSubject.add(
       MessageEvent(
@@ -316,12 +346,6 @@ class DataStreamServices {
         id,
         MessageManipulationPersistentEvent_Action.EDITED,
       ),
-    );
-
-    await _roomDao.updateRoom(
-      uid: room.uid,
-      lastMessage:
-          (room.lastMessage != null && room.lastMessage!.id != id) ? null : msg,
     );
   }
 
@@ -502,7 +526,7 @@ class DataStreamServices {
     Message message,
   ) async {
     try {
-      final msg = extractMessage(_authRepo, message);
+      final msg = _messageExtractorServices.extractMessage(message);
       await _messageDao.saveMessage(msg);
       return msg;
     } catch (e) {
@@ -612,6 +636,7 @@ class DataStreamServices {
             message.callEvent,
             roomUid: message.from,
             callId: message.callEvent.id,
+            time: message.time.toInt(),
           );
           if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
               message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
@@ -624,6 +649,35 @@ class DataStreamServices {
         }
       }
     } catch (_) {}
+  }
+
+  Future<void> handleFetchMessagesActions(
+    String roomId,
+    List<Message> messages,
+  ) async {
+    for (final message in messages) {
+      if (message.whichType() == Message_Type.persistEvent) {
+        // if message persistEvent they are one hundred percent be a messageManipulationPersistentEvent
+        switch (
+            message.persistEvent.messageManipulationPersistentEvent.action) {
+          case MessageManipulationPersistentEvent_Action.EDITED:
+            await _onMessageEdited(
+              roomId.asUid(),
+              message,
+              isOnlineMessage: false,
+            );
+            break;
+          case MessageManipulationPersistentEvent_Action.DELETED:
+            await _onMessageDeleted(
+              roomId.asUid(),
+              message,
+              isOnlineMessage: false,
+            );
+            break;
+        }
+        break;
+      }
+    }
   }
 
   Future<List<message_model.Message>> saveFetchMessages(

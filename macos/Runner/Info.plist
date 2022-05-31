@@ -32,5 +32,9 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+    <string>In order to access your photo library</string>
+    <key>NSLocationUsageDescription</key>
+    <string>This app needs access to location.</string>
 </dict>
 </plist>

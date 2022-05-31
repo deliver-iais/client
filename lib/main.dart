@@ -31,6 +31,7 @@ import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_brief.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/pending_message.dart';
@@ -64,6 +65,7 @@ import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/firebase_services.dart';
+import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
@@ -142,6 +144,7 @@ Future<void> setupDI() async {
     ..registerAdapter(RoomAdapter())
     ..registerAdapter(PendingMessageAdapter())
     ..registerAdapter(MessageAdapter())
+    ..registerAdapter(MessageBriefAdapter())
     ..registerAdapter(MessageTypeAdapter())
     ..registerAdapter(SendingStatusAdapter())
     ..registerAdapter(MediaAdapter())
@@ -318,6 +321,7 @@ Future<void> setupDI() async {
     registerSingleton<Notifier>(FakeNotifier());
   }
 
+  registerSingleton<MessageExtractorServices>(MessageExtractorServices());
   registerSingleton<NotificationServices>(NotificationServices());
 
   registerSingleton<DataStreamServices>(DataStreamServices());
@@ -411,7 +415,9 @@ class MyApp extends StatelessWidget {
     return StreamBuilder(
       stream: MergeStream([
         _uxService.themeIndexStream,
+        _uxService.patternIndexStream,
         _uxService.themeIsDarkStream,
+        _uxService.showColorfulStream,
         _i18n.localeStream,
       ]),
       builder: (ctx, snapshot) {

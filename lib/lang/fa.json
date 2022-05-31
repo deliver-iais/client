@@ -25,6 +25,7 @@
   "add_user_to_muc": "اضافه کرد",
   "added": "اضافه کرد",
   "admin": "مدیر",
+  "advanced_settings": "تنظیمات پیشرفته",
   "audio": "فایل صوتی",
   "audios": "فایلهای صوتی",
   "auto_night_mode": "حالت شب خودکار",
@@ -261,6 +262,7 @@
   "share": "اشتراک گذاری",
   "should_set_username_and_name": "باید نام کاربری و اسم خود را پر کنید",
   "show_in_folder": "نمایش محل فایل",
+  "rotate": "چرخش",
   "skip": "رد شدن",
   "slideToCancel": "کشیدن برای کنسل کردن",
   "spda": "موافقت با اشتراک‌گذاری",
@@ -281,6 +283,7 @@
   "table": "جدول",
   "terminate_all_other_sessions": "حذف دیگر حساب های فعال",
   "text": "متن",
+  "theme": "رابط کاربری",
   "this_device": "دستگاته کنونی",
   "this_filed_not_empty": "این فیلد نباید خالی باشد",
   "to": "به",
@@ -369,5 +372,6 @@
   "enable_location_services_in_windows_helper": "با مراجعه به تنظیمات،سرویس، موقعیت مکانی را فعال کنید",
   "i_realized": "متوجه شدم.",
   "send_location": "فرستادن موقیعت مکانی",
+  "write_a_message": "پیام خود را بنویسید...",
   "get_location_not_support_in_your_device": "گرفتن موقعیت مکانی در دستگاه شما پشتیبانی نمی شود."
 }

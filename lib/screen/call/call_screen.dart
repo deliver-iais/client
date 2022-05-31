@@ -133,201 +133,201 @@ class _CallScreenState extends State<CallScreen> {
       stream: callRepo.callingStatus,
       builder: (context, snapshot) {
         _logger.i("callStatus-" + random + ": " + snapshot.data.toString());
-        switch (snapshot.data) {
-          case CallStatus.CONNECTED:
-            _audioService.stopBeepSound();
-            return widget.isVideoCall
-                ? StreamBuilder<bool>(
-                    stream: callRepo.switching,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData && snapshot.data != null) {
-                        if (snapshot.data == false) {
-                          return InVideoCallPage(
-                            localRenderer: _localRenderer,
-                            remoteRenderer: _remoteRenderer,
-                            roomUid: widget.roomUid,
-                            hangUp: _hangUp,
-                          );
-                        } else {
-                          return InVideoCallPage(
-                            localRenderer: _remoteRenderer,
-                            remoteRenderer: _localRenderer,
-                            roomUid: widget.roomUid,
-                            hangUp: _hangUp,
-                          );
-                        }
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    },
-                  )
-                : AudioCallScreen(
-                    roomUid: widget.roomUid,
-                    callStatus: "Connected",
-                    hangUp: _hangUp,
-                  );
-          case CallStatus.DISCONNECTED:
-            _audioService.stopBeepSound();
-            return widget.isVideoCall
-                ? InVideoCallPage(
-                    localRenderer: _localRenderer,
-                    remoteRenderer: _remoteRenderer,
-                    roomUid: widget.roomUid,
-                    hangUp: _hangUp,
-                  )
-                : AudioCallScreen(
-                    roomUid: widget.roomUid,
-                    callStatus: "disConnected",
-                    hangUp: _hangUp,
-                  );
-          case CallStatus.CONNECTING:
-            _audioService.stopBeepSound();
-            return widget.isVideoCall
-                ? InVideoCallPage(
-                    localRenderer: _localRenderer,
-                    remoteRenderer: _remoteRenderer,
-                    roomUid: widget.roomUid,
-                    hangUp: _hangUp,
-                  )
-                : AudioCallScreen(
-                    roomUid: widget.roomUid,
-                    callStatus: "Connecting",
-                    hangUp: _hangUp,
-                  );
-          case CallStatus.RECONNECTING:
-            _audioService.stopBeepSound();
-            return widget.isVideoCall
-                ? InVideoCallPage(
-                    localRenderer: _localRenderer,
-                    remoteRenderer: _remoteRenderer,
-                    roomUid: widget.roomUid,
-                    hangUp: _hangUp,
-                  )
-                : AudioCallScreen(
-                    roomUid: widget.roomUid,
-                    callStatus: "Reconnecting",
-                    hangUp: _hangUp,
-                  );
-          case CallStatus.FAILED:
-            _audioService.stopBeepSound();
-            return widget.isVideoCall
-                ? InVideoCallPage(
-                    localRenderer: _localRenderer,
-                    remoteRenderer: _remoteRenderer,
-                    roomUid: widget.roomUid,
-                    hangUp: _hangUp,
-                  )
-                : AudioCallScreen(
-                    roomUid: widget.roomUid,
-                    callStatus: "Connection failed",
-                    hangUp: _hangUp,
-                  );
-          case CallStatus.IS_RINGING:
-            _audioService.playBeepSound();
-            return widget.isVideoCall
-                ? StartVideoCallPage(
-                    roomUid: widget.roomUid,
-                    localRenderer: _localRenderer,
-                    text: "Ringing",
-                    remoteRenderer: _remoteRenderer,
-                    isIncomingCall: widget.isIncomingCall,
-                    hangUp: _hangUp,
-                  )
-                : AudioCallScreen(
-                    roomUid: widget.roomUid,
-                    callStatus: "Ringing",
-                    isIncomingCall: widget.isIncomingCall,
-                    hangUp: _hangUp,
-                  );
-          case CallStatus.NO_ANSWER:
-            return widget.isVideoCall
-                ? StartVideoCallPage(
-                    roomUid: widget.roomUid,
-                    localRenderer: _localRenderer,
-                    text: "User not answer",
-                    remoteRenderer: _remoteRenderer,
-                    isIncomingCall: widget.isIncomingCall,
-                    hangUp: _hangUp,
-                  )
-                : AudioCallScreen(
-                    roomUid: widget.roomUid,
-                    callStatus: "User not answer",
-                    isIncomingCall: widget.isIncomingCall,
-                    hangUp: _hangUp,
-                  );
-          case CallStatus.CREATED:
-            return widget.isVideoCall
-                ? StartVideoCallPage(
-                    roomUid: widget.roomUid,
-                    localRenderer: _localRenderer,
-                    text: "Calling",
-                    remoteRenderer: _remoteRenderer,
-                    isIncomingCall: !callRepo.isCaller,
-                    hangUp: _hangUp,
-                  )
-                : AudioCallScreen(
-                    roomUid: widget.roomUid,
-                    callStatus: "Calling",
-                    isIncomingCall: !callRepo.isCaller,
-                    hangUp: _hangUp,
-                  );
-          case CallStatus.ENDED:
-            _logger.i("END!");
-            _audioService.playEndCallSound();
-            callRepo.disposeRenderer();
-            return AudioCallScreen(
-              roomUid: widget.roomUid,
-              callStatus: "Ended",
-              isIncomingCall: widget.isIncomingCall,
-              hangUp: _hangUp,
-            );
-          case CallStatus.NO_CALL:
-            return const Scaffold();
-          case CallStatus.BUSY:
-            _audioService.stopBeepSound();
-            _audioService.playBusySound();
-            return widget.isVideoCall
-                ? StartVideoCallPage(
-                    roomUid: widget.roomUid,
-                    localRenderer: _localRenderer,
-                    text: "Busy....",
-                    remoteRenderer: _remoteRenderer,
-                    hangUp: _hangUp,
-                  )
-                : AudioCallScreen(
-                    roomUid: widget.roomUid,
-                    callStatus: "Busy....",
-                    hangUp: _hangUp,
-                  );
-          case CallStatus.DECLINED:
-            return widget.isVideoCall
-                ? StartVideoCallPage(
-                    roomUid: widget.roomUid,
-                    localRenderer: _localRenderer,
-                    text: "Declined....",
-                    remoteRenderer: _remoteRenderer,
-                    hangUp: _hangUp,
-                  )
-                : AudioCallScreen(
-                    roomUid: widget.roomUid,
-                    callStatus: "Declined....",
-                    hangUp: _hangUp,
-                  );
-          case CallStatus.ACCEPTED:
-            unawaited(callRepo.cancelCallNotification());
-            return widget.isVideoCall
-                ? StartVideoCallPage(
-                    roomUid: widget.roomUid,
-                    localRenderer: _localRenderer,
-                    text: "Accepted",
-                    remoteRenderer: _remoteRenderer,
-                    hangUp: _hangUp,
-                  )
-                : AudioCallScreen(
-                    roomUid: widget.roomUid,
-                    callStatus: "Accepted",
-                    hangUp: _hangUp,
-                  );
+          switch (snapshot.data) {
+            case CallStatus.CONNECTED:
+              _audioService.stopBeepSound();
+              return widget.isVideoCall
+                  ? StreamBuilder<bool>(
+                stream: callRepo.switching,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData && snapshot.data != null) {
+                    if (snapshot.data == false) {
+                      return InVideoCallPage(
+                        localRenderer: _localRenderer,
+                        remoteRenderer: _remoteRenderer,
+                        roomUid: widget.roomUid,
+                        hangUp: _hangUp,
+                      );
+                    } else {
+                      return InVideoCallPage(
+                        localRenderer: _remoteRenderer,
+                        remoteRenderer: _localRenderer,
+                        roomUid: widget.roomUid,
+                        hangUp: _hangUp,
+                      );
+                    }
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              )
+                  : AudioCallScreen(
+                roomUid: widget.roomUid,
+                callStatus: "Connected",
+                hangUp: _hangUp,
+              );
+            case CallStatus.DISCONNECTED:
+              _audioService.stopBeepSound();
+              return widget.isVideoCall
+                  ? InVideoCallPage(
+                localRenderer: _localRenderer,
+                remoteRenderer: _remoteRenderer,
+                roomUid: widget.roomUid,
+                hangUp: _hangUp,
+              )
+                  : AudioCallScreen(
+                roomUid: widget.roomUid,
+                callStatus: "disConnected",
+                hangUp: _hangUp,
+              );
+            case CallStatus.CONNECTING:
+              _audioService.stopBeepSound();
+              return widget.isVideoCall
+                  ? InVideoCallPage(
+                localRenderer: _localRenderer,
+                remoteRenderer: _remoteRenderer,
+                roomUid: widget.roomUid,
+                hangUp: _hangUp,
+              )
+                  : AudioCallScreen(
+                roomUid: widget.roomUid,
+                callStatus: "Connecting",
+                hangUp: _hangUp,
+              );
+            case CallStatus.RECONNECTING:
+              _audioService.stopBeepSound();
+              return widget.isVideoCall
+                  ? InVideoCallPage(
+                localRenderer: _localRenderer,
+                remoteRenderer: _remoteRenderer,
+                roomUid: widget.roomUid,
+                hangUp: _hangUp,
+              )
+                  : AudioCallScreen(
+                roomUid: widget.roomUid,
+                callStatus: "Reconnecting",
+                hangUp: _hangUp,
+              );
+            case CallStatus.FAILED:
+              _audioService.stopBeepSound();
+              return widget.isVideoCall
+                  ? InVideoCallPage(
+                localRenderer: _localRenderer,
+                remoteRenderer: _remoteRenderer,
+                roomUid: widget.roomUid,
+                hangUp: _hangUp,
+              )
+                  : AudioCallScreen(
+                roomUid: widget.roomUid,
+                callStatus: "Connection failed",
+                hangUp: _hangUp,
+              );
+            case CallStatus.IS_RINGING:
+              _audioService.playBeepSound();
+              return widget.isVideoCall
+                  ? StartVideoCallPage(
+                roomUid: widget.roomUid,
+                localRenderer: _localRenderer,
+                text: "Ringing",
+                remoteRenderer: _remoteRenderer,
+                isIncomingCall: widget.isIncomingCall,
+                hangUp: _hangUp,
+              )
+                  : AudioCallScreen(
+                roomUid: widget.roomUid,
+                callStatus: "Ringing",
+                isIncomingCall: widget.isIncomingCall,
+                hangUp: _hangUp,
+              );
+            case CallStatus.NO_ANSWER:
+              return widget.isVideoCall
+                  ? StartVideoCallPage(
+                roomUid: widget.roomUid,
+                localRenderer: _localRenderer,
+                text: "User not answer",
+                remoteRenderer: _remoteRenderer,
+                isIncomingCall: widget.isIncomingCall,
+                hangUp: _hangUp,
+              )
+                  : AudioCallScreen(
+                roomUid: widget.roomUid,
+                callStatus: "User not answer",
+                isIncomingCall: widget.isIncomingCall,
+                hangUp: _hangUp,
+              );
+            case CallStatus.CREATED:
+              return widget.isVideoCall
+                  ? StartVideoCallPage(
+                roomUid: widget.roomUid,
+                localRenderer: _localRenderer,
+                text: "Calling",
+                remoteRenderer: _remoteRenderer,
+                isIncomingCall: !callRepo.isCaller,
+                hangUp: _hangUp,
+              )
+                  : AudioCallScreen(
+                roomUid: widget.roomUid,
+                callStatus: "Calling",
+                isIncomingCall: !callRepo.isCaller,
+                hangUp: _hangUp,
+              );
+            case CallStatus.ENDED:
+              _logger.i("END!");
+              _audioService.playEndCallSound();
+              callRepo.disposeRenderer();
+              return AudioCallScreen(
+                roomUid: widget.roomUid,
+                callStatus: "Ended",
+                isIncomingCall: widget.isIncomingCall,
+                hangUp: _hangUp,
+              );
+            // case CallStatus.NO_CALL:
+            //   return const Scaffold();
+            case CallStatus.BUSY:
+              _audioService.stopBeepSound();
+              _audioService.playBusySound();
+              return widget.isVideoCall
+                  ? StartVideoCallPage(
+                roomUid: widget.roomUid,
+                localRenderer: _localRenderer,
+                text: "Busy....",
+                remoteRenderer: _remoteRenderer,
+                hangUp: _hangUp,
+              )
+                  : AudioCallScreen(
+                roomUid: widget.roomUid,
+                callStatus: "Busy....",
+                hangUp: _hangUp,
+              );
+            case CallStatus.DECLINED:
+              return widget.isVideoCall
+                  ? StartVideoCallPage(
+                roomUid: widget.roomUid,
+                localRenderer: _localRenderer,
+                text: "Declined....",
+                remoteRenderer: _remoteRenderer,
+                hangUp: _hangUp,
+              )
+                  : AudioCallScreen(
+                roomUid: widget.roomUid,
+                callStatus: "Declined....",
+                hangUp: _hangUp,
+              );
+            case CallStatus.ACCEPTED:
+              unawaited(callRepo.cancelCallNotification());
+              return widget.isVideoCall
+                  ? StartVideoCallPage(
+                roomUid: widget.roomUid,
+                localRenderer: _localRenderer,
+                text: "Accepted",
+                remoteRenderer: _remoteRenderer,
+                hangUp: _hangUp,
+              )
+                  : AudioCallScreen(
+                roomUid: widget.roomUid,
+                callStatus: "Accepted",
+                hangUp: _hangUp,
+              );
 
           default:
             {

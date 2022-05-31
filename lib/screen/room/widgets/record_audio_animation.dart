@@ -1,4 +1,5 @@
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/widgets/animation_wave_button.dart';
 import 'package:flutter/material.dart';
 
 class RecordAudioAnimation extends StatelessWidget {
@@ -13,24 +14,18 @@ class RecordAudioAnimation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return AnimatedPositioned(
-      duration: ANIMATION_DURATION,
-      bottom: (1 - size) * 25,
-      right: rightPadding + ((1 - size) * 25),
-      child: ClipOval(
-        child: AnimatedContainer(
-          duration: ANIMATION_DURATION,
-          width: 50 * size,
-          height: 50 * size,
-          color: (1 - size) == 0 ? Colors.transparent : theme.primaryColor,
-          child: Center(
-            child: Icon(
-              Icons.keyboard_voice,
-              size: 14 * (size - 1) + IconTheme.of(context).size!,
-            ),
-          ),
-        ),
+    return Positioned(
+      right: rightPadding + ((size - 1) * 3),
+      child: AnimatedContainer(
+        duration: ANIMATION_DURATION,
+        width: 60,
+        height: 50,
+        color: Colors.transparent,
+        child: (1 - size) == 0
+            ? const Icon(Icons.mic)
+            : const AnimationWaveButton(
+                initialIsPlaying: true,
+              ),
       ),
     );
   }

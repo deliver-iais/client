@@ -32,6 +32,18 @@ extension PermissionsExtension on CheckPermissionsService {
     }
   }
 
+  Future<bool> checkCameraRecorderPermission() async {
+    try {
+      if (!await Permission.camera.isGranted) {
+        return await Permission.camera.request().isGranted;
+      } else {
+        return true;
+      }
+    } catch (e) {
+      return false;
+    }
+  }
+
   Future<bool> checkLocationPermission() async {
     try {
       if (!await Permission.location.isGranted) {
@@ -44,7 +56,7 @@ extension PermissionsExtension on CheckPermissionsService {
     }
   }
 
-  Future<bool> checkStoragePermission() async {
+  Future<bool> checkMediaLibraryPermission() async {
     try {
       return await Permission.mediaLibrary.isGranted &&
           await requestLock.synchronized(() async {
@@ -55,7 +67,7 @@ extension PermissionsExtension on CheckPermissionsService {
     }
   }
 
-  Future<bool> checkStorage2Permission() async {
+  Future<bool> checkAccessMediaLocationPermission() async {
     try {
       return await Permission.accessMediaLocation.isGranted ||
           await requestLock.synchronized(() async {

@@ -39,7 +39,6 @@ import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
-import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
     as location_pb;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
@@ -48,7 +47,8 @@ import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
-import 'package:deliver_public_protocol/pub/v1/models/sticker.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/sticker.pb.dart'
+    as sticker_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
@@ -470,6 +470,47 @@ class MessageRepo {
     }
   }
 
+  Future<void> sendFileToChats(
+    List<Uid> rooms,
+    model.File file, {
+    String? caption,
+  }) async {
+    final fileUuid = _getPacketId();
+    await _fileRepo.cloneFileInLocalDirectory(
+      dart_file.File(file.path),
+      fileUuid,
+      file.name,
+    );
+    final pendingMessages = <PendingMessage>[];
+    for (final room in rooms) {
+      final msg = buildMessageFromFile(room, file, fileUuid, caption: caption);
+      final pm =
+          _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_INPROGRSS);
+
+      await _savePendingMessage(pm);
+      pendingMessages.add(pm);
+    }
+
+    final fileInfo = await _fileRepo.uploadClonedFile(
+      fileUuid,
+      file.name,
+      sendActivity: (i) => _sendActivitySubject.add(i),
+    );
+
+    if (fileInfo != null) {
+      final newJson = fileInfo.writeToJson();
+      for (final pendingMessage in pendingMessages) {
+        final newPm = pendingMessage.copyWith(
+          msg: pendingMessage.msg.copyWith(json: newJson),
+          status: SendingStatus.UPLOAD_FILE_COMPELED,
+        );
+        _sendMessageToServer(newPm);
+        await _savePendingMessage(newPm);
+        await _updateRoomLastMessage(newPm);
+      }
+    }
+  }
+
   Future<void> sendFileMessage(
     Uid room,
     model.File file, {
@@ -477,10 +518,43 @@ class MessageRepo {
     int replyToId = 0,
   }) async {
     final packetId = _getPacketId();
+    final msg = buildMessageFromFile(
+      room,
+      file,
+      packetId,
+      replyToId: replyToId,
+      caption: caption,
+    );
+
+    await _fileRepo.cloneFileInLocalDirectory(
+      dart_file.File(file.path),
+      packetId,
+      file.name,
+    );
+
+    final pm = _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_INPROGRSS);
+
+    await _savePendingMessage(pm);
+
+    final m = await _sendFileToServerOfPendingMessage(pm);
+    if (m != null && m.status == SendingStatus.UPLOAD_FILE_COMPELED) {
+      _sendMessageToServer(m);
+    } else if (m != null) {
+      return _messageDao.savePendingMessage(m);
+    }
+  }
+
+  Message buildMessageFromFile(
+    Uid room,
+    model.File file,
+    String fileUuid, {
+    String? caption,
+    int replyToId = 0,
+  }) {
     var tempDimension = Size.zero;
     int? tempFileSize;
     final tempType = file.extension ?? _findType(file.path);
-    _fileRepo.initUploadProgress(packetId);
+    _fileRepo.initUploadProgress(fileUuid);
 
     final f = dart_file.File(file.path);
     // Get size of image
@@ -501,7 +575,7 @@ class MessageRepo {
     // Get type with file name
 
     final sendingFakeFile = file_pb.File()
-      ..uuid = packetId
+      ..uuid = fileUuid
       ..caption = caption ?? ""
       ..width = tempDimension.width
       ..height = tempDimension.height
@@ -510,29 +584,16 @@ class MessageRepo {
       ..name = file.name
       ..duration = 0;
 
-    final msg = _createMessage(room, replyId: replyToId).copyWith(
-      packetId: packetId,
+    return _createMessage(room, replyId: replyToId).copyWith(
+      packetId: _getPacketId(),
       type: MessageType.FILE,
       json: sendingFakeFile.writeToJson(),
     );
-
-    await _fileRepo.cloneFileInLocalDirectory(f, packetId, file.name);
-
-    final pm = _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_INPROGRSS);
-
-    await _savePendingMessage(pm);
-
-    final m = await _sendFileToServerOfPendingMessage(pm);
-    if (m != null && m.status == SendingStatus.UPLOAD_FILE_COMPELED) {
-      _sendMessageToServer(m);
-    } else if (m != null) {
-      return _messageDao.savePendingMessage(m);
-    }
   }
 
   Future<void> sendStickerMessage({
     required Uid room,
-    required Sticker sticker,
+    required sticker_pb.Sticker sticker,
     int? replyId,
     String? forwardedFromAsString,
   }) async {
@@ -564,11 +625,9 @@ class MessageRepo {
 
     final fakeFileInfo = file_pb.File.fromJson(pm.msg.json);
 
-    final packetId = pm.msg.packetId;
-
     // Upload to file server
     final fileInfo = await _fileRepo.uploadClonedFile(
-      packetId,
+      fakeFileInfo.uuid,
       fakeFileInfo.name,
       sendActivity: (i) => _sendActivitySubject.add(i),
     );
@@ -620,10 +679,10 @@ class MessageRepo {
         byClient.location = location_pb.Location.fromJson(message.json);
         break;
       case MessageType.STICKER:
-        byClient.sticker = file_pb.File.fromJson(message.json);
+        byClient.sticker = sticker_pb.Sticker.fromJson(message.json);
         break;
       case MessageType.FORM_RESULT:
-        byClient.formResult = FormResult.fromJson(message.json);
+        byClient.formResult = form_pb.FormResult.fromJson(message.json);
         break;
       case MessageType.SHARE_UID:
         byClient.shareUid = message_pb.ShareUid.fromJson(message.json);
@@ -638,7 +697,7 @@ class MessageRepo {
       case MessageType.CALL:
         byClient.callEvent = call_pb.CallEvent.fromJson(message.json);
         break;
-      case MessageType.Table:
+      case MessageType.TABLE:
         byClient.table = form_pb.Table.fromJson(message.json);
         break;
       case MessageType.LIVE_LOCATION:
@@ -647,6 +706,7 @@ class MessageRepo {
       case MessageType.NOT_SET:
       case MessageType.BUTTONS:
       case MessageType.SHARE_PRIVATE_DATA_REQUEST:
+      case MessageType.TRANSACTION:
         break;
     }
     return byClient;
@@ -807,6 +867,12 @@ class MessageRepo {
           ..type = FetchMessagesReq_Type.FORWARD_FETCH
           ..limit = pageSize,
       );
+      final nonRepeatedMessage =
+          _nonRepeatedMessageForApplyingActions(fetchMessagesRes.messages);
+      await _dataStreamServices.handleFetchMessagesActions(
+        roomId,
+        nonRepeatedMessage,
+      );
       final res = await _dataStreamServices
           .saveFetchMessages(fetchMessagesRes.messages);
       completer.complete(res);
@@ -814,6 +880,26 @@ class MessageRepo {
       _logger.e(e);
       completer.complete([]);
     }
+  }
+
+  List<message_pb.Message> _nonRepeatedMessageForApplyingActions(
+    List<message_pb.Message> fetchMessages,
+  ) {
+    final messagesMap = <Int64, message_pb.Message>{};
+    for (final message in fetchMessages) {
+      if (message.whichType() == message_pb.Message_Type.persistEvent) {
+        if (message.persistEvent.whichType() ==
+            PersistentEvent_Type.messageManipulationPersistentEvent) {
+          messagesMap.putIfAbsent(
+            message.persistEvent.messageManipulationPersistentEvent.messageId,
+            () => message,
+          );
+        }
+      } else {
+        messagesMap.putIfAbsent(message.id, () => message);
+      }
+    }
+    return messagesMap.values.toList();
   }
 
   String _findType(String path) => mime(path) ?? "application/octet-stream";
@@ -829,7 +915,7 @@ class MessageRepo {
 
   Future<void> sendFormResultMessage(
     String botUid,
-    FormResult formResult,
+    form_pb.FormResult formResult,
     int formMessageId,
   ) async {
     final jsonString = (formResult).writeToJson();

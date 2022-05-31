@@ -44,7 +44,7 @@ dependencies:
   dcache: 0.4.0
   deliver_public_protocol:
     git:
-      ref: tags/v1.12.13-rc.2
+      ref: tags/v1.12.13-rc.11
       url: https://github.com/deliver-iais/pub-dart-artifactory
   desktop_drop: 0.3.3
   desktop_lifecycle: 0.1.0
@@ -62,14 +62,15 @@ dependencies:
   firebase_analytics: 9.1.8
   firebase_core: 1.12.0
   firebase_messaging: 11.3.0
-#  firebase_messaging:
-#    git:
-#      ref: 7fcaebdf56e7285014422e7e484ce0c2ec403d24
-#      url: https://github.com/deliver-iais/firebase-messaging
+  #  firebase_messaging:
+  #    git:
+  #      ref: 7fcaebdf56e7285014422e7e484ce0c2ec403d24
+  #      url: https://github.com/deliver-iais/firebase-messaging
   fixnum: 1.0.0
   flare_flutter: 3.0.2
   flutter:
     sdk: flutter
+  flutter_audio_waveforms: 1.2.1+5
   flutter_blurhash: 0.6.4
   flutter_dropzone: 3.0.3
   flutter_foreground_task:
@@ -122,6 +123,7 @@ dependencies:
   percent_indicator: 3.4.0
   permission_handler: 9.2.0
   persian_datetime_picker: 2.4.0
+  photo_manager: 2.1.1
   platform_detect: 2.0.0
   process_run: 0.12.3+2
   qr_code_scanner:
@@ -137,7 +139,7 @@ dependencies:
   receive_sharing_intent: 1.4.5
   record: 3.0.4
   rxdart: 0.27.3
-  screenshot: ^1.2.3
+  screenshot: 1.2.3
   scrollable_positioned_list: 0.2.3
   sdp_transform: 0.3.2
   service_worker: 0.2.4

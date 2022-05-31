@@ -102,9 +102,10 @@ class _ImageUiState extends State<ImageUi> {
                               builder: (context) {
                                 return FutureBuilder<int?>(
                                   future: _mediaDao.getIndexOfMedia(
-                                      widget.message.roomUid,
-                                      widget.message.id!,
-                                      MediaType.IMAGE,),
+                                    widget.message.roomUid,
+                                    widget.message.id!,
+                                    MediaType.IMAGE,
+                                  ),
                                   builder: (context, snapshot) {
                                     final hasIndex = snapshot.hasData &&
                                         snapshot.data != null &&
@@ -118,6 +119,7 @@ class _ImageUiState extends State<ImageUi> {
                                         const Key("/all_image_page"),
                                         roomUid: widget.message.roomUid,
                                         filePath: s.data,
+                                        message: widget.message,
                                         initIndex:
                                             hasIndex ? snapshot.data : null,
                                         isSingleImage: isSingleImage,
@@ -220,9 +222,7 @@ class _ImageUiState extends State<ImageUi> {
                           isSender: widget.isSender,
                           isSeen: widget.isSeen,
                           needsPadding: true,
-                          backgroundColor:
-                              widget.colorScheme.onPrimaryContainerLowlight(),
-                          foregroundColor: widget.colorScheme.primaryContainer,
+                          showBackground: true,
                         )
                     ],
                   ),
@@ -273,9 +273,7 @@ class _ImageUiState extends State<ImageUi> {
                           isSender: widget.isSender,
                           isSeen: widget.isSeen,
                           needsPadding: true,
-                          backgroundColor:
-                              widget.colorScheme.onPrimaryContainerLowlight(),
-                          foregroundColor: widget.colorScheme.primaryContainer,
+                          showBackground: true,
                         )
                     ],
                   ),

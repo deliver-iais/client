@@ -87,15 +87,14 @@ class TextUI extends StatelessWidget {
           LinkPreview(
             link: link,
             maxWidth: linkPreviewMaxWidth,
-            backgroundColor: colorScheme.onPrimary,
+            backgroundColor:
+                Theme.of(context).colorScheme.shadow.withOpacity(0.1),
             foregroundColor: colorScheme.primary,
           ),
           TimeAndSeenStatus(
             message,
             isSender: isSender,
             isSeen: isSeen,
-            backgroundColor: colorScheme.primaryContainer,
-            foregroundColor: colorScheme.onPrimaryContainerLowlight(),
             needsPositioned: false,
           )
         ],
@@ -114,7 +113,9 @@ class TextUI extends StatelessWidget {
   }
 
   List<Block> extractBlocks(String text, BuildContext context) {
-    var blocks = <Block>[Block(text: text)];
+    var blocks = <Block>[
+      Block(text: text, style: TextStyle(color: colorScheme.onPrimaryContainer))
+    ];
     final parsers = <Parser>[
       EmojiParser(),
       if (searchTerm != null && searchTerm!.isNotEmpty)

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
+import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/constants.dart';
@@ -33,11 +34,124 @@ class AnimatedEmoji extends StatefulWidget {
     final content = message.json.toText().text;
 
     switch (content) {
+      case "😀":
+      case "😃":
+      case "😄":
+      case "😆":
+      case "😅":
+      case "😇":
+      case "😌":
+      case "🥲":
+      case "😗":
+      case "😙":
+      case "😚":
+      case "😝":
+      case "😜":
+      case "🤪":
+      case "🧐":
+      case "🤩":
+      case "🥳":
+      case "😏":
+      case "😟":
+      case "😕":
+      case "🙁":
+      case "😖":
+      case "😫":
+      case "😩":
+      case "😭":
+      case "😤":
+      case "😨":
+      case "😰":
+      case "😓":
+      case "🤗":
+      case "🤭":
+      case "🥱":
+      case "🤫":
+      case "🤥":
+      case "😶":
+      case "😑":
+      case "😬":
+      case "🙄":
+      case "😯":
+      case "😦":
+      case "😧":
+      case "😮":
+      case "😲":
+      case "😴":
+      case "🤤":
+      case "😪":
+      case "🤐":
+      case "🥴":
+      case "🤢":
+      case "🤮":
+      case "🤧":
+      case "😷":
+      case "🤒":
+      case "🤕":
+      case "🤑":
+      case "🤠":
+      case "🥸":
+      case "😈":
+      case "👿":
+      case "🤡":
+      case "💩":
+      case "👻":
+      case "💀":
+      case "☠️":
+      case "🤖":
+      case "😺":
+      case "😸":
+      case "😹":
+      case "😻":
+      case "😼":
+      case "😽":
+      case "🙀":
+      case "😿":
+      case "😾":
+      case "🙈":
+      case "🙊":
+      case "💫":
+      case "💥":
+      case "💌":
+      case "❤️":
+      case "🧡":
+      case "💛":
+      case "💚":
+      case "💙":
+      case "💜":
+      case "🖤":
+      case "🤎":
+      case "🤍":
+      case "💔":
+      case "❣️":
+      case "💕":
+      case "💞":
+      case "💓":
+      case "💖":
+      case "💘":
+      case "💝":
+      case "💟":
+      case "💯":
+      case "💢":
+      case "💤":
+      case "💬":
+      case "💭":
+      case "💗":
+      case "🤲":
+      case "👐":
+      case "🙌":
+      case "👏":
+      case "🤝":
       case "👍":
+      case "👎":
+      case "👊":
+      case "✊":
+      case "🤛":
+      case "🤜":
+      case "🤞":
       case "😘":
       case "🤔":
       case "😂":
-      case "❤️":
       case "😍":
       case "😁":
       case "😉":
@@ -65,6 +179,77 @@ class AnimatedEmoji extends StatefulWidget {
       // case "☹️️":
       case "🥺":
       case "😔":
+      case "✌️":
+      case "🤟":
+      case "🤘":
+      case "👌":
+      case "🤏":
+      case "🤌":
+      case "👈":
+      case "👉":
+      case "👆":
+      case "👇":
+      case "☝️":
+      case "✋":
+      case "🤚":
+      case "🖐":
+      case "🖖":
+      case "👋":
+      case "🤙":
+      case "💪":
+      case "🦾":
+      case "✍️":
+      case "🙏":
+      case "🦶":
+      case "🦵":
+      case "🦿":
+      case "🎅":
+      case "🧛‍♀️":
+      case "🧛":
+      case "🧛‍♂️":
+      case "🧟‍♀️":
+      case "🧟":
+      case "🧟‍♂️":
+      case "🌝":
+      case "🌛":
+      case "🌜":
+      case "🌚":
+      case "🌕":
+      case "🌖":
+      case "🌗":
+      case "🌘":
+      case "🌑":
+      case "🌒":
+      case "🌓":
+      case "🌔":
+      case "⭐":
+      case "🌟":
+      case "⚡":
+      case "🔥":
+      case "☃️":
+      case "⛄":
+      case "🍔":
+      case "🌭":
+      case "🍟":
+      case "🍕":
+      case "🌮":
+      case "🍦":
+      case "🎮":
+      case "🚗":
+      case "🚕":
+      case "🚓":
+      case "🚑":
+      case "🗿":
+      case "⏳":
+      case "🎈":
+      case "📝":
+      case "❌":
+      case "♨️":
+      case "❗":
+      case "❕":
+      case "❓":
+      case "❔":
+      case "📣":
         return true;
     }
 
@@ -83,7 +268,9 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
   @override
   void initState() {
     super.initState();
-    _composition = _loadComposition();
+    try {
+      _composition = _loadComposition();
+    } catch (_) {}
     _controller = AnimationController(vsync: this);
   }
 
@@ -107,6 +294,14 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
 
     return Column(
       children: [
+        if (isDebugEnabled())
+          DebugC(
+            isOpen: true,
+            children: [
+              Debug(shortname(), label: "Path"),
+              Debug(content(), label: "content"),
+            ],
+          ),
         FutureBuilder<LottieComposition?>(
           future: _composition,
           builder: (context, snapshot) {
@@ -135,19 +330,17 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
           },
         ),
         Container(
-          decoration: BoxDecoration(
-            borderRadius: mainBorder,
-            color: widget.colorScheme.primaryContainer,
-          ),
+          decoration: const BoxDecoration(borderRadius: mainBorder),
           child: TimeAndSeenStatus(
             widget.message,
             isSender: isSender,
             isSeen: widget.isSeen,
             needsPositioned: false,
+            showBackground: true,
             needsPadding: true,
-            foregroundColor: widget.colorScheme.onPrimaryContainerLowlight(),
           ),
         ),
+        const SizedBox(height: 4),
       ],
     );
   }
@@ -160,12 +353,24 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
     return 'assets/emoji/$shortName.tgs';
   }
 
-  String getAlt() {
-    final content = widget.message.json.toText().text;
+  String shortname() {
+    try {
+      final content = widget.message.json.toText().text;
 
-    final shortName = Emoji.byChar(content).shortName;
+      final shortName = Emoji.byChar(content).shortName;
 
-    return 'assets/emoji/$shortName - $content';
+      return shortName;
+    } catch (e) {
+      return e.toString();
+    }
+  }
+
+  String content() {
+    try {
+      return widget.message.json.toText().text;
+    } catch (_) {
+      return "";
+    }
   }
 }
 

@@ -1,8 +1,7 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart';
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
+import 'package:deliver/screen/room/widgets/search_box_and_list_widget.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
 import 'package:deliver/screen/share_input_file/share_chat_item.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -24,17 +23,13 @@ class ShareInputFile extends StatefulWidget {
 }
 
 class _ShareInputFileState extends State<ShareInputFile> {
-  final _roomRepo = GetIt.I.get<RoomRepo>();
   final _routingServices = GetIt.I.get<RoutingService>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _i18n = GetIt.I.get<I18N>();
   final _keyboardVisibilityController = KeyboardVisibilityController();
   final BehaviorSubject<bool> _insertCaption = BehaviorSubject.seeded(false);
-  final _selectedRooms = [];
+  final _selectedRooms = <Uid>[];
   final TextEditingController _textEditingController = TextEditingController();
-
-  final BehaviorSubject<String> _queryTermDebouncedSubject =
-      BehaviorSubject<String>.seeded("");
 
   @override
   void initState() {
@@ -63,64 +58,9 @@ class _ShareInputFileState extends State<ShareInputFile> {
       ),
       body: Stack(
         children: <Widget>[
-          Column(
-            children: [
-              SearchBox(
-                onChange: _queryTermDebouncedSubject.add,
-                onCancel: () => _queryTermDebouncedSubject.add(""),
-              ),
-              StreamBuilder<String>(
-                stream: _queryTermDebouncedSubject.stream,
-                builder: (context, query) {
-                  return Expanded(
-                    child: FutureBuilder<List<Uid>>(
-                      future: query.data != null && query.data!.isNotEmpty
-                          ? _roomRepo.searchInRoomAndContacts(query.data!)
-                          : _roomRepo.getAllRooms(),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData &&
-                            snapshot.data != null &&
-                            snapshot.data!.isNotEmpty) {
-                          return ListView.builder(
-                            itemCount: snapshot.data!.length,
-                            itemBuilder: (ctx, index) {
-                              return GestureDetector(
-                                behavior: HitTestBehavior.translucent,
-                                onTap: () {
-                                  if (_selectedRooms.contains(
-                                      snapshot.data![index].asString(),)) {
-                                    _selectedRooms.remove(
-                                        snapshot.data![index].asString(),);
-                                  } else {
-                                    _selectedRooms
-                                        .add(snapshot.data![index].asString());
-                                  }
-                                  setState(() {});
-                                },
-                                child: Container(
-                                  color: _selectedRooms.contains(
-                                    snapshot.data![index].asString(),
-                                  )
-                                      ? theme.hoverColor
-                                      : theme.backgroundColor,
-                                  child: ShareChatItem(
-                                    uid: snapshot.data![index],
-                                    selected: _selectedRooms.contains(
-                                        snapshot.data![index].asString(),),
-                                  ),
-                                ),
-                              );
-                            },
-                          );
-                        } else {
-                          return const SizedBox.shrink();
-                        }
-                      },
-                    ),
-                  );
-                },
-              ),
-            ],
+          SearchBoxAndListWidget(
+            listWidget: buildSharedList,
+            emptyWidget: const SizedBox.shrink(),
           ),
           if (_selectedRooms.isNotEmpty)
             buildInputCaption(
@@ -130,17 +70,21 @@ class _ShareInputFileState extends State<ShareInputFile> {
               captionEditingController: _textEditingController,
               count: _selectedRooms.length,
               send: () {
-                for (final String roomUid in _selectedRooms) {
-                  _messageRepo.sendMultipleFilesMessages(
-                    roomUid.asUid(),
-                    widget.inputSharedFilePath
-                        .map((e) => File(e, e.split(".").last))
-                        .toList(),
-                    caption: _textEditingController.text,
+                for (final path in widget.inputSharedFilePath) {
+                  _messageRepo.sendFileToChats(
+                    _selectedRooms,
+                    File(path, path.split(".").last),
+                    caption: widget.inputSharedFilePath.last == path
+                        ? _textEditingController.text
+                        : "",
                   );
                 }
+
                 if (_selectedRooms.length == 1) {
-                  _routingServices.openRoom(_selectedRooms.first,popAllBeforePush: true);
+                  _routingServices.openRoom(
+                    _selectedRooms.first.asString(),
+                    popAllBeforePush: true,
+                  );
                 } else {
                   _routingServices.pop();
                 }
@@ -148,6 +92,43 @@ class _ShareInputFileState extends State<ShareInputFile> {
             )
         ],
       ),
+    );
+  }
+
+  Widget buildSharedList(List<Uid> uidList) {
+    final theme = Theme.of(context);
+    return ListView.builder(
+      itemCount: uidList.length,
+      itemBuilder: (ctx, index) {
+        return GestureDetector(
+          behavior: HitTestBehavior.translucent,
+          onTap: () {
+            if (_selectedRooms.contains(
+              uidList[index],
+            )) {
+              _selectedRooms.remove(
+                uidList[index],
+              );
+            } else {
+              _selectedRooms.add(uidList[index]);
+            }
+            setState(() {});
+          },
+          child: Container(
+            color: _selectedRooms.contains(
+              uidList[index],
+            )
+                ? theme.hoverColor
+                : theme.backgroundColor,
+            child: ShareChatItem(
+              uid: uidList[index],
+              selected: _selectedRooms.contains(
+                uidList[index],
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

@@ -313,6 +313,7 @@ class MockRoomDao extends _i1.Mock implements _i25.RoomDao {
           int? firstMessageId,
           bool? mentioned,
           bool? pinned,
+          int? pinId,
           int? hiddenMessageCount}) =>
       (super.noSuchMethod(
               Invocation.method(#updateRoom, [], {
@@ -325,6 +326,7 @@ class MockRoomDao extends _i1.Mock implements _i25.RoomDao {
                 #firstMessageId: firstMessageId,
                 #mentioned: mentioned,
                 #pinned: pinned,
+                #pinId: pinId,
                 #hiddenMessageCount: hiddenMessageCount
               }),
               returnValue: Future<void>.value(),
@@ -382,9 +384,15 @@ class MockRoomRepo extends _i1.Mock implements _i27.RoomRepo {
       (super.noSuchMethod(Invocation.method(#fastForwardName, [uid]))
           as String?);
   @override
-  _i20.Future<String> getName(_i3.Uid? uid, {String? unknownName}) =>
+  _i20.Future<String> getName(_i3.Uid? uid,
+          {String? unknownName, bool? forceToReturnSavedMessage = false}) =>
       (super.noSuchMethod(
-          Invocation.method(#getName, [uid], {#unknownName: unknownName}),
+          Invocation.method(#getName, [
+            uid
+          ], {
+            #unknownName: unknownName,
+            #forceToReturnSavedMessage: forceToReturnSavedMessage
+          }),
           returnValue: Future<String>.value('')) as _i20.Future<String>);
   @override
   _i20.Stream<String?> watchId(_i3.Uid? uid) =>
@@ -1083,6 +1091,14 @@ class MockDataStreamServices extends _i1.Mock
               returnValueForMissingStub: Future<void>.value())
           as _i20.Future<void>);
   @override
+  _i20.Future<void> handleFetchMessagesActions(
+          String? roomId, List<_i44.Message>? messages) =>
+      (super.noSuchMethod(
+          Invocation.method(#handleFetchMessagesActions, [roomId, messages]),
+          returnValue: Future<void>.value(),
+          returnValueForMissingStub:
+              Future<void>.value()) as _i20.Future<void>);
+  @override
   _i20.Future<List<_i23.Message>> saveFetchMessages(
           List<_i44.Message>? messages) =>
       (super.noSuchMethod(Invocation.method(#saveFetchMessages, [messages]),
@@ -1300,6 +1316,22 @@ class MockQueryServiceClient extends _i1.Mock
               Invocation.method(#fetchMedias, [request], {#options: options}),
               returnValue: _FakeResponseFuture_8<_i14.FetchMediasRes>())
           as _i9.ResponseFuture<_i14.FetchMediasRes>);
+  @override
+  _i9.ResponseFuture<_i14.GetMetaCountsRes> getMetaCounts(
+          _i14.GetMetaCountsReq? request,
+          {_i9.CallOptions? options}) =>
+      (super.noSuchMethod(
+              Invocation.method(#getMetaCounts, [request], {#options: options}),
+              returnValue: _FakeResponseFuture_8<_i14.GetMetaCountsRes>())
+          as _i9.ResponseFuture<_i14.GetMetaCountsRes>);
+  @override
+  _i9.ResponseFuture<_i14.FetchMetaRes> fetchMetaList(
+          _i14.FetchMetaReq? request,
+          {_i9.CallOptions? options}) =>
+      (super.noSuchMethod(
+              Invocation.method(#fetchMetaList, [request], {#options: options}),
+              returnValue: _FakeResponseFuture_8<_i14.FetchMetaRes>())
+          as _i9.ResponseFuture<_i14.FetchMetaRes>);
   @override
   _i9.ResponseFuture<_i14.FetchMentionListRes> fetchMentionList(
           _i14.FetchMentionListReq? request,
@@ -2110,9 +2142,18 @@ class MockMediaDao extends _i1.Mock implements _i68.MediaDao {
       (super.noSuchMethod(Invocation.method(#save, [media]),
           returnValue: Future<dynamic>.value()) as _i20.Future<dynamic>);
   @override
-  _i20.Future<int?> getIndexOfMedia(String? roomUid, int? messageId,_i70.MediaType ? mediaType) => (super
-      .noSuchMethod(Invocation.method(#getIndexOfMedia, [roomUid, messageId]),
+  _i20.Future<int?> getIndexOfMedia(
+          String? roomUid, int? messageId, _i70.MediaType? type) =>
+      (super.noSuchMethod(
+          Invocation.method(#getIndexOfMedia, [roomUid, messageId, type]),
           returnValue: Future<int?>.value()) as _i20.Future<int?>);
+  @override
+  _i20.Stream<int> getIndexOfMediaAsStream(
+          String? roomUid, int? messageId, _i70.MediaType? type) =>
+      (super.noSuchMethod(
+          Invocation.method(
+              #getIndexOfMediaAsStream, [roomUid, messageId, type]),
+          returnValue: Stream<int>.empty()) as _i20.Stream<int>);
   @override
   _i20.Future<void> deleteMedia(String? roomId, int? messageId) =>
       (super.noSuchMethod(Invocation.method(#deleteMedia, [roomId, messageId]),
@@ -2506,8 +2547,16 @@ class MockUxService extends _i1.Mock implements _i84.UxService {
       (super.noSuchMethod(Invocation.getter(#themeIndexStream),
           returnValue: Stream<dynamic>.empty()) as _i20.Stream<dynamic>);
   @override
+  _i20.Stream<dynamic> get patternIndexStream =>
+      (super.noSuchMethod(Invocation.getter(#patternIndexStream),
+          returnValue: Stream<dynamic>.empty()) as _i20.Stream<dynamic>);
+  @override
   _i20.Stream<dynamic> get themeIsDarkStream =>
       (super.noSuchMethod(Invocation.getter(#themeIsDarkStream),
+          returnValue: Stream<dynamic>.empty()) as _i20.Stream<dynamic>);
+  @override
+  _i20.Stream<dynamic> get showColorfulStream =>
+      (super.noSuchMethod(Invocation.getter(#showColorfulStream),
           returnValue: Stream<dynamic>.empty()) as _i20.Stream<dynamic>);
   @override
   _i16.ThemeData get theme => (super.noSuchMethod(Invocation.getter(#theme),
@@ -2521,8 +2570,16 @@ class MockUxService extends _i1.Mock implements _i84.UxService {
       (super.noSuchMethod(Invocation.getter(#themeIsDark), returnValue: false)
           as bool);
   @override
+  bool get showColorful =>
+      (super.noSuchMethod(Invocation.getter(#showColorful), returnValue: false)
+          as bool);
+  @override
   int get themeIndex =>
       (super.noSuchMethod(Invocation.getter(#themeIndex), returnValue: 0)
+          as int);
+  @override
+  int get patternIndex =>
+      (super.noSuchMethod(Invocation.getter(#patternIndex), returnValue: 0)
           as int);
   @override
   bool get sendByEnter =>
@@ -2549,8 +2606,16 @@ class MockUxService extends _i1.Mock implements _i84.UxService {
       super.noSuchMethod(Invocation.method(#toggleThemeToDarkMode, []),
           returnValueForMissingStub: null);
   @override
+  void toggleShowColorful() =>
+      super.noSuchMethod(Invocation.method(#toggleShowColorful, []),
+          returnValueForMissingStub: null);
+  @override
   void selectTheme(int? index) =>
       super.noSuchMethod(Invocation.method(#selectTheme, [index]),
+          returnValueForMissingStub: null);
+  @override
+  void selectPattern(int? index) =>
+      super.noSuchMethod(Invocation.method(#selectPattern, [index]),
           returnValueForMissingStub: null);
   @override
   void toggleSendByEnter() =>

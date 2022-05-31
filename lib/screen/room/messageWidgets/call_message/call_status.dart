@@ -1,17 +1,17 @@
-import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/shared/methods/message.dart';
+import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class CallState extends StatelessWidget {
-  final _i18n = GetIt.I.get<I18N>();
+  static final _messageExtractorServices =
+      GetIt.I.get<MessageExtractorServices>();
   final CallEvent_CallStatus callStatus;
   final int time;
   final bool isCurrentUser;
   final TextStyle? textStyle;
 
-  CallState({
+  const CallState({
     Key? key,
     required this.callStatus,
     required this.time,
@@ -21,8 +21,7 @@ class CallState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final text = getCallText(
-      _i18n,
+    final text = _messageExtractorServices.getCallText(
       callStatus,
       time,
       fromCurrentUser: isCurrentUser,

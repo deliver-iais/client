@@ -352,6 +352,7 @@ class PersistentEventMessage extends StatelessWidget {
     return "";
   }
 
+  // TODO(hasan): better implementation.
   Future<String> getPinnedMessageBriefContent() async {
     final m = await _messageDao.getMessage(
       message.roomUid,
@@ -383,7 +384,8 @@ class PersistentEventMessage extends StatelessWidget {
         case MessageType.SHARE_PRIVATE_DATA_REQUEST:
         case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
         case MessageType.CALL:
-        case MessageType.Table:
+        case MessageType.TABLE:
+        case MessageType.TRANSACTION:
         case MessageType.NOT_SET:
           return "";
       }

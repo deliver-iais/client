@@ -83,7 +83,7 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                       children: [
                                         Padding(
                                           padding: const EdgeInsets.only(
-                                            left: 15.0,
+                                            left: 8,
                                             top: 10,
                                           ),
                                           child: Text(
@@ -95,10 +95,13 @@ class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
-                                        MusicPlayProgress(
-                                          audioUuid: fileId,
-                                          duration:
-                                              double.parse(dur.toString()),
+                                        Padding(
+                                          padding: const EdgeInsets.only(top: 20,bottom: 10,left: 8),
+                                          child: MusicPlayProgress(
+                                            audioUuid: fileId,
+                                            duration:
+                                                double.parse(dur.toString()),
+                                          ),
                                         ),
                                       ],
                                     ),
