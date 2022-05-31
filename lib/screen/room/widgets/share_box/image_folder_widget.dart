@@ -171,8 +171,6 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                               child: Hero(
                                 tag: imagePath,
                                 child: Container(
-                                  width: 50,
-                                  height: 50,
                                   decoration: BoxDecoration(
                                     borderRadius: secondaryBorder,
                                     image: DecorationImage(

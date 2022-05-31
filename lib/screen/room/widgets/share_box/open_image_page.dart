@@ -184,8 +184,7 @@ class _OpenImagePageState extends State<OpenImagePage> {
               ),
             ),
           ),
-          if (widget.sendSingleImage ||
-              widget.forceToShowCaptionTextField ||
+          if (widget.sendSingleImage || widget.forceToShowCaptionTextField ||
               (widget.selectedImage != null &&
                   widget.selectedImage!.isNotEmpty &&
                   widget.selectedImage!.contains(imagePath)))
@@ -203,10 +202,8 @@ class _OpenImagePageState extends State<OpenImagePage> {
                 setState(() {
                   widget.onEditEnd(imagePath);
                 });
-                if (widget.sendSingleImage &&
-                    (widget.selectedImage == null ||
-                        widget.selectedImage!.isEmpty)) {
-                  widget.selectedImage!.add(imagePath);
+                if(widget.sendSingleImage && ( widget.selectedImage == null||widget.selectedImage!.isEmpty)){
+                 widget.selectedImage!.add(imagePath);
                 }
                 widget.send!();
               },
