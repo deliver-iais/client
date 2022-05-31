@@ -34,7 +34,7 @@ dependencies:
   circular_countdown_timer: 0.2.1
   clock: 1.1.0
   collection: 1.15.0
-  connectycube_flutter_call_kit: ^2.0.4
+  connectycube_flutter_call_kit: 2.0.4
 #    git:
 #      ref: 94cc4e2a67ceeeeaf4225218efe68cdc7faef539
 #      url: https://github.com/androidwoman/connectycube-flutter-call-kit.git
@@ -83,7 +83,10 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_map: 0.14.0
-  flutter_webrtc: 0.8.5
+  flutter_webrtc:
+    git:
+      ref: 31051218d1068b5f2566f1646ca2623d2ea89697
+      url: https://github.com/flutter-webrtc/flutter-webrtc
   fluttertoast: 8.0.8
   fuzzy: 0.4.0-nullsafety.0
   geolocator: 8.2.1
@@ -148,7 +151,7 @@ dependencies:
   video_player: 2.3.0
   wakelock: 0.6.1+1
   # if want increse flutter_webrtc version we should remove this line and let get it from parent
-  webrtc_interface: 1.0.3
+  #  webrtc_interface: 1.0.3
   win_toast:
     git:
       path: packages/win_toast

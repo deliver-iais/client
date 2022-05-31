@@ -98,7 +98,7 @@ packages:
       name: build_resolvers
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.8"
+    version: "2.0.9"
   build_runner:
     dependency: "direct dev"
     description:
@@ -126,7 +126,7 @@ packages:
       name: built_value
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "8.3.0"
+    version: "8.3.2"
   camera:
     dependency: "direct main"
     description:
@@ -140,7 +140,7 @@ packages:
       name: camera_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.6"
+    version: "2.2.0"
   camera_web:
     dependency: transitive
     description:
@@ -245,7 +245,7 @@ packages:
       name: convert
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.1"
+    version: "3.0.2"
   coverage:
     dependency: transitive
     description:
@@ -259,7 +259,7 @@ packages:
       name: cross_file
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.3.3"
+    version: "0.3.3+1"
   crypto:
     dependency: transitive
     description:
@@ -273,7 +273,7 @@ packages:
       name: csslib
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.17.1"
+    version: "0.17.2"
   cupertino_icons:
     dependency: transitive
     description:
@@ -308,7 +308,7 @@ packages:
       name: dart_webrtc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.5"
+    version: "1.0.6"
   date_time_format:
     dependency: "direct main"
     description:
@@ -480,14 +480,14 @@ packages:
       name: firebase_analytics_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.1.6"
+    version: "3.1.7"
   firebase_analytics_web:
     dependency: transitive
     description:
       name: firebase_analytics_web
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.0+13"
+    version: "0.4.0+14"
   firebase_core:
     dependency: "direct main"
     description:
@@ -522,14 +522,14 @@ packages:
       name: firebase_messaging_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.5.0"
+    version: "3.5.1"
   firebase_messaging_web:
     dependency: transitive
     description:
       name: firebase_messaging_web
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.4.0"
+    version: "2.4.1"
   fixnum:
     dependency: "direct main"
     description:
@@ -676,10 +676,12 @@ packages:
   flutter_webrtc:
     dependency: "direct main"
     description:
-      name: flutter_webrtc
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.8.5"
+      path: "."
+      ref: "31051218d1068b5f2566f1646ca2623d2ea89697"
+      resolved-ref: "31051218d1068b5f2566f1646ca2623d2ea89697"
+      url: "https://github.com/flutter-webrtc/flutter-webrtc"
+    source: git
+    version: "0.8.7"
   fluttertoast:
     dependency: "direct main"
     description:
@@ -728,7 +730,7 @@ packages:
       name: geolocator_apple
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.3"
+    version: "2.1.4"
   geolocator_platform_interface:
     dependency: transitive
     description:
@@ -1199,7 +1201,7 @@ packages:
       name: path_provider_linux
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.6"
+    version: "2.1.7"
   path_provider_macos:
     dependency: transitive
     description:
@@ -1220,7 +1222,7 @@ packages:
       name: path_provider_windows
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.6"
+    version: "2.0.7"
   percent_indicator:
     dependency: "direct main"
     description:
@@ -1360,7 +1362,7 @@ packages:
       name: provider
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "6.0.2"
+    version: "6.0.3"
   pub_semver:
     dependency: transitive
     description:
@@ -1785,7 +1787,7 @@ packages:
       name: url_launcher_ios
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "6.0.16"
+    version: "6.0.17"
   url_launcher_linux:
     dependency: transitive
     description:
@@ -1953,14 +1955,14 @@ packages:
       name: webkit_inspection_protocol
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.1"
+    version: "1.1.0"
   webrtc_interface:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: webrtc_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.3"
+    version: "1.0.4"
   win32:
     dependency: transitive
     description:
