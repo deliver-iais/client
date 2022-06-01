@@ -607,6 +607,11 @@ class AndroidNotifier implements Notifier {
   }
 
   Future<void> onCallAccepted(CallEvent callEvent) async {
+    unawaited(
+      ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
+        isVisible: false,
+      ),
+    );
     await Notifier.onCallAccept(callEvent.userInfo!["uid"]!);
     final callEventInfo =
         call_pro.CallEvent.fromJson(callEvent.userInfo!["callEventJson"]!);
