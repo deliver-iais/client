@@ -11,6 +11,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/methods/phone.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -23,8 +24,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:lottie/lottie.dart';
-import 'package:mobile_scanner/mobile_scanner.dart';
+import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class ScanQrCode extends StatefulWidget {
   @override
@@ -34,7 +34,7 @@ class ScanQrCode extends StatefulWidget {
 }
 
 class _ScanQrCode extends State<ScanQrCode> {
-  final _mobileScanController = MobileScannerController();
+  late QRViewController controller;
   final _logger = GetIt.I.get<Logger>();
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
   final _routingServices = GetIt.I.get<RoutingService>();
@@ -43,6 +43,16 @@ class _ScanQrCode extends State<ScanQrCode> {
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _i18n = GetIt.I.get<I18N>();
 
+  @override
+  void reassemble() {
+    try {
+      super.reassemble();
+      if (isAndroid) {
+        controller.pauseCamera();
+      }
+      controller.resumeCamera();
+    } catch (_) {}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,32 +72,41 @@ class _ScanQrCode extends State<ScanQrCode> {
   }
 
   Widget _buildQrView(BuildContext context) {
-    return Stack(
-      children: [
-        MobileScanner(
-          controller: _mobileScanController,
-          onDetect: (barcode, args) {
-            if (barcode.rawValue != null) {
-              _parseQrCode(barcode.rawValue!, context);
-            }
-          },
-        ),
-        Padding(
-          padding: const EdgeInsets.only(right: 40),
-          child: Center(
-            child: Lottie.asset(
-              "assets/animations/qr.zip",
-              height: MediaQuery.of(context).size.height / 2,
-            ),
-          ),
-        ),
-      ],
+    final theme = Theme.of(context);
+    final scanArea = (MediaQuery.of(context).size.width < 400 ||
+            MediaQuery.of(context).size.height < 400)
+        ? 250.0
+        : 350.0;
+
+    return QRView(
+      key: qrKey,
+      overlayMargin: const EdgeInsets.all(24.0).copyWith(bottom: 100),
+      onQRViewCreated: (controller) => _onQRViewCreated(controller, context),
+      overlay: QrScannerOverlayShape(
+        borderColor: theme.primaryColor,
+        borderRadius: 10,
+        borderLength: 30,
+        borderWidth: 10,
+        cutOutSize: scanArea,
+      ),
     );
+  }
+
+  void _onQRViewCreated(QRViewController controller, BuildContext context) {
+    setState(() {
+      this.controller = controller;
+    });
+    controller.scannedDataStream
+        .map((event) => event.code)
+        .distinct()
+        .listen((scanData) {
+      _parseQrCode(scanData!, context);
+    });
   }
 
   @override
   void dispose() {
-    _mobileScanController.dispose();
+    controller.dispose();
     super.dispose();
   }
 
@@ -135,6 +154,7 @@ class _ScanQrCode extends State<ScanQrCode> {
 
     if (verified) {
       Timer(const Duration(milliseconds: 500), () {
+        controller.pauseCamera();
         showFloatingModalBottomSheet(
           context: context,
           isDismissible: false,
@@ -152,6 +172,7 @@ class _ScanQrCode extends State<ScanQrCode> {
         );
       });
       Timer(const Duration(seconds: 5), () {
+        Navigator.of(context).pop();
         _routingServices.pop();
       });
     }
@@ -249,6 +270,7 @@ class _ScanQrCode extends State<ScanQrCode> {
     String text,
   ) async {
     final theme = Theme.of(context);
+    controller.pauseCamera().ignore();
 
     showFloatingModalBottomSheet(
       context: context,
@@ -279,6 +301,7 @@ class _ScanQrCode extends State<ScanQrCode> {
               children: [
                 TextButton(
                   onPressed: () {
+                    controller.resumeCamera();
                     Navigator.of(context).pop();
                   },
                   child: Text(_i18n.get("skip")),
@@ -316,6 +339,7 @@ class _ScanQrCode extends State<ScanQrCode> {
     String botId,
     String token,
   ) async {
+    controller.pauseCamera().ignore();
 
     PrivateDataType privateDataType;
     final type = pdType;
@@ -356,6 +380,7 @@ class _ScanQrCode extends State<ScanQrCode> {
               children: [
                 TextButton(
                   onPressed: () {
+                    controller.resumeCamera();
                     Navigator.of(context).pop();
                   },
                   child: Text(_i18n.get("skip")),
