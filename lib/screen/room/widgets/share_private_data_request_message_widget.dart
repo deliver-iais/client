@@ -54,7 +54,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
         label = _i18n.get("get_access_phone_number");
         break;
       case PrivateDataType.USERNAME:
-        _i18n.get("get_access_username");
+        label = _i18n.get("get_access_username");
         break;
     }
     return Column(
@@ -133,6 +133,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
               message,
               isSender: isSender,
               isSeen: isSeen,
+              needsPositioned: false,
               needsPadding: true,
             )
           ],
