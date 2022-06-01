@@ -38,14 +38,13 @@ import 'package:win_toast/win_toast.dart';
 
 abstract class Notifier {
   static Future<void> onCallAccept(String roomUid) async {
-    await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
-      isVisible: false,
-    );
-    if (await Permission.systemAlertWindow.request().isGranted) {
-      GetIt.I
-          .get<RoutingService>()
-          .openCallScreen(roomUid.asUid(), isCallAccepted: true);
-    }
+    try {
+      if (isDesktop || await Permission.systemAlertWindow.request().isGranted) {
+        GetIt.I
+            .get<RoutingService>()
+            .openCallScreen(roomUid.asUid(), isCallAccepted: true);
+      }
+    } catch (e) {}
   }
 
   static void onCallReject() {
@@ -607,11 +606,6 @@ class AndroidNotifier implements Notifier {
   }
 
   Future<void> onCallAccepted(CallEvent callEvent) async {
-    unawaited(
-      ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
-        isVisible: false,
-      ),
-    );
     await Notifier.onCallAccept(callEvent.userInfo!["uid"]!);
     final callEventInfo =
         call_pro.CallEvent.fromJson(callEvent.userInfo!["callEventJson"]!);
