@@ -578,10 +578,6 @@ class CallRepo {
     if (_startCallTime == 0) {
       _startCallTime = clock.now().millisecondsSinceEpoch;
     }
-    if (_isDCRecived) {
-      await _dataChannel!
-          .send(RTCDataChannelMessage(STATUS_CONNECTION_CONNECTED));
-    }
     _logger.i("Start Call " + _startCallTime.toString());
     callingStatus.add(CallStatus.CONNECTED);
     vibrate(duration: 50).ignore();
@@ -590,6 +586,10 @@ class CallRepo {
       timerConnectionFailed!.cancel();
     }
     _isConnected = true;
+    if (_isDCRecived) {
+      await _dataChannel!
+          .send(RTCDataChannelMessage(STATUS_CONNECTION_CONNECTED));
+    }
   }
 
   Future<RTCDataChannel> _createDataChannel() async {
@@ -966,21 +966,25 @@ class CallRepo {
   }
 
   Future<void> declineCall() async {
-    if (isWindows) {
-      _notificationServices.cancelRoomNotifications(roomUid!.node);
+    if(_callService.getUserCallState == UserCallState.INUSERCALL) {
+      if (isWindows) {
+        _notificationServices.cancelRoomNotifications(roomUid!.node);
+      }
+      _logger.i("declineCall");
+      callingStatus.add(CallStatus.DECLINED);
+      final endOfCallDuration = clock
+          .now()
+          .millisecondsSinceEpoch;
+      await _messageRepo.sendCallMessage(
+        CallEvent_CallStatus.DECLINED,
+        _roomUid!,
+        _callService.getCallId,
+        0,
+        endOfCallDuration,
+        _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
+      );
+      await _dispose();
     }
-    _logger.i("declineCall");
-    callingStatus.add(CallStatus.DECLINED);
-    final endOfCallDuration = clock.now().millisecondsSinceEpoch;
-    await _messageRepo.sendCallMessage(
-      CallEvent_CallStatus.DECLINED,
-      _roomUid!,
-      _callService.getCallId,
-      0,
-      endOfCallDuration,
-      _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
-    );
-    await _dispose();
   }
 
   Future<void> _receivedCallAnswer(CallAnswer callAnswer) async {
@@ -1246,6 +1250,7 @@ class CallRepo {
     } else {
       await _callService.removeCallFromDb();
     }
+
     _logger.i("end call in service");
     await _cleanLocalStream();
     //await _cleanRtpSender();
