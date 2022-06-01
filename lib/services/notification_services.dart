@@ -40,6 +40,9 @@ abstract class Notifier {
   static Future<void> onCallAccept(String roomUid) async {
     try {
       if (isDesktop || await Permission.systemAlertWindow.request().isGranted) {
+        //TODO check if call from backGround then i should
+        await GetIt.I
+            .get<CallService>().clearCallData();
         GetIt.I
             .get<RoutingService>()
             .openCallScreen(roomUid.asUid(), isCallAccepted: true);

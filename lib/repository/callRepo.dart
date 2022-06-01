@@ -578,6 +578,10 @@ class CallRepo {
     if (_startCallTime == 0) {
       _startCallTime = clock.now().millisecondsSinceEpoch;
     }
+    if (_isDCRecived) {
+      await _dataChannel!
+          .send(RTCDataChannelMessage(STATUS_CONNECTION_CONNECTED));
+    }
     _logger.i("Start Call " + _startCallTime.toString());
     callingStatus.add(CallStatus.CONNECTED);
     vibrate(duration: 50).ignore();
@@ -586,10 +590,6 @@ class CallRepo {
       timerConnectionFailed!.cancel();
     }
     _isConnected = true;
-    if (_isDCRecived) {
-      await _dataChannel!
-          .send(RTCDataChannelMessage(STATUS_CONNECTION_CONNECTED));
-    }
   }
 
   Future<RTCDataChannel> _createDataChannel() async {
@@ -1247,8 +1247,6 @@ class CallRepo {
         timerConnectionFailed!.cancel();
       }
       timerDeclined!.cancel();
-    } else {
-      await _callService.removeCallFromDb();
     }
 
     _logger.i("end call in service");
@@ -1274,7 +1272,6 @@ class CallRepo {
     switching.add(false);
     _offerSdp = "";
     _answerSdp = "";
-    _callService.setCallId = "";
     _isSharing = false;
     _isMicMuted = false;
     _isSpeaker = false;
@@ -1290,7 +1287,7 @@ class CallRepo {
       if (_isInitRenderer) {
         await disposeRenderer();
       }
-      _callService.setUserCallState = UserCallState.NOCALL;
+      await _callService.clearCallData();
       _isEnded = false;
     });
   }

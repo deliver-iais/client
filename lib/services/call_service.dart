@@ -174,4 +174,11 @@ class CallService {
           ..newStatus = event.callEvent!.newStatus)
         .writeToJson();
   }
+
+  Future<void> clearCallData() async{
+    _callId = "";
+    _callState = UserCallState.NOCALL;
+    _callOwner = Uid.getDefault();
+    await removeCallFromDb();
+  }
 }
