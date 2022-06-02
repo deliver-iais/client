@@ -77,6 +77,7 @@ class RoutingService {
   final _analyticsRepo = GetIt.I.get<AnalyticsRepo>();
   final _homeNavigatorState = GlobalKey<NavigatorState>();
   final mainNavigatorState = GlobalKey<NavigatorState>();
+  void Function()? onBackPressed;
 
   final _navigatorObserver = RoutingServiceNavigatorObserver();
 
