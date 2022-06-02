@@ -182,7 +182,7 @@ class CallRepo {
             case CallEvent_CallStatus.CREATED:
               if (_callService.getUserCallState == UserCallState.NOCALL
                   //&& (clock.now().millisecondsSinceEpoch - event.time < 50000)
-              ) {
+                  ) {
                 _callService.setUserCallState = UserCallState.INUSERCALL;
                 //get call Info and Save on DB
                 final currentCallEvent = call_event.CallEvent(
@@ -966,15 +966,13 @@ class CallRepo {
   }
 
   Future<void> declineCall() async {
-    if(_callService.getUserCallState == UserCallState.INUSERCALL) {
+    if (_callService.getUserCallState == UserCallState.INUSERCALL) {
       if (isWindows) {
         _notificationServices.cancelRoomNotifications(roomUid!.node);
       }
       _logger.i("declineCall");
       callingStatus.add(CallStatus.DECLINED);
-      final endOfCallDuration = clock
-          .now()
-          .millisecondsSinceEpoch;
+      final endOfCallDuration = clock.now().millisecondsSinceEpoch;
       await _messageRepo.sendCallMessage(
         CallEvent_CallStatus.DECLINED,
         _roomUid!,
@@ -1287,7 +1285,7 @@ class CallRepo {
       if (_isInitRenderer) {
         await disposeRenderer();
       }
-      await _callService.clearCallData();
+      await _callService.clearCallData(forceToClearData: true);
       _isEnded = false;
     });
   }

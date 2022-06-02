@@ -143,6 +143,7 @@ Future<void> _backgroundRemoteMessageHandler(
             msg,
             roomName: roomName,
             isOnlineMessage: true,
+            isFireBaseMessage: true,
           );
 
       return;
