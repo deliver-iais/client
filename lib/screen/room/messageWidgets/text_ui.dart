@@ -158,7 +158,10 @@ List<Block> extractBlocks(
   String Function(String)? spoilTransformer,
 }) {
   var blocks = <Block>[
-    Block(text: text, style: TextStyle(color: onPrimaryContainer))
+    Block(
+      text: synthesizeToOriginalWord(text),
+      style: TextStyle(color: onPrimaryContainer),
+    )
   ];
   final parsers = <Parser>[
     UnderlineTextParser(),
@@ -233,7 +236,7 @@ class IdParser implements Parser {
 }
 
 class BoldTextParser implements Parser {
-  final RegExp regex = RegExp(r"(\*((?!\*).)+)([^\\])(\*)", dotAll: true);
+  final RegExp regex = RegExp(r"([^\\])\*(.+)([^\\])(\*)", dotAll: true);
 
   static String transformer(String m) =>
       m.substring(m.indexOf("*") + 1, m.lastIndexOf("*"));
@@ -249,7 +252,7 @@ class BoldTextParser implements Parser {
 }
 
 class ItalicTextParser implements Parser {
-  final RegExp regex = RegExp(r"_((?!_).)+([^\\])_", dotAll: true);
+  final RegExp regex = RegExp(r"([^\\])_(.+)([^\\])_", dotAll: true);
 
   static String transformer(String m) =>
       m.substring(m.indexOf("_") + 1, m.lastIndexOf("_"));
@@ -267,7 +270,7 @@ class ItalicTextParser implements Parser {
 }
 
 class UnderlineTextParser implements Parser {
-  final RegExp regex = RegExp(r"__((?!__).)+([^\\])__", dotAll: true);
+  final RegExp regex = RegExp(r"([^\\])__(.+)([^\\])__", dotAll: true);
 
   static String transformer(String m) =>
       m.substring(m.indexOf("__") + 2, m.lastIndexOf("__"));
@@ -285,7 +288,7 @@ class UnderlineTextParser implements Parser {
 }
 
 class StrikethroughTextParser implements Parser {
-  final RegExp regex = RegExp(r"~((?!~).)+([^\\])~", dotAll: true);
+  final RegExp regex = RegExp(r"([^\\])~(.+)([^\\])~", dotAll: true);
 
   static String transformer(String m) =>
       m.substring(m.indexOf("~") + 1, m.lastIndexOf("~"));
@@ -305,7 +308,7 @@ class StrikethroughTextParser implements Parser {
 class SpoilerTextParser implements Parser {
   final void Function() onSpoilerClick;
   final String Function(String)? transformer;
-  final RegExp regex = RegExp(r"\|\|(((?!\|\|).)+)([^\\])\|\|", dotAll: true);
+  final RegExp regex = RegExp(r"([^\\])\|\|(.+)([^\\])\|\|", dotAll: true);
 
   static String transform(String m) =>
       m.substring(m.indexOf("||") + 2, m.lastIndexOf("||"));
@@ -504,9 +507,6 @@ List<Block> parseText(
   String type, {
   String Function(String) transformer = same,
 }) {
-  if (type == "inlineId") {
-    text = synthesizeToOriginalWord(text);
-  }
   var start = 0;
 
   final matches = regex.allMatches(text);
