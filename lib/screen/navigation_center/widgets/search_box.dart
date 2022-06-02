@@ -25,16 +25,19 @@ class SearchBox extends StatefulWidget {
 
 class _SearchBoxState extends State<SearchBox> {
   final BehaviorSubject<bool> _hasText = BehaviorSubject.seeded(false);
+  TextEditingController controller = TextEditingController();
   final _focusNode = FocusNode(canRequestFocus: false);
   static final _i18n = GetIt.I.get<I18N>();
 
   @override
   void initState() {
+    controller = widget.controller;
     super.initState();
   }
 
   @override
   void dispose() {
+    controller.dispose();
     super.dispose();
   }
 
@@ -45,7 +48,7 @@ class _SearchBoxState extends State<SearchBox> {
       child: TextField(
         style: const TextStyle(fontSize: 16, height: 1.2),
         focusNode: _focusNode,
-        controller: widget.controller,
+        controller: controller,
         onChanged: (str) {
           if (str.isNotEmpty) {
             _hasText.add(true);
