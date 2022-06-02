@@ -123,8 +123,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     final theme = Theme.of(context);
     return WillPopScope(
       onWillPop: () async {
-        if (!_routingService.canPop()) return true;
+        if (!_routingService.canPop() && _routingService.onBackPressed == null) {
+          return true;
+        }
         _routingService.maybePop();
+        _routingService.onBackPressed?.call();
         return false;
       },
       child: WithForegroundTask(
