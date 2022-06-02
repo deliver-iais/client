@@ -631,6 +631,7 @@ class _RoomPageState extends State<RoomPage> {
     if (message.type == MessageType.TEXT) {
       _editableMessage.add(message);
       _inputMessageTextController.text = message.json.toText().text;
+      FocusScope.of(context).requestFocus(_inputMessageFocusNode);
     } else if (message.type == MessageType.FILE) {
       showCaptionDialog(
         resetRoomPageDetails: _resetRoomPageDetails,
