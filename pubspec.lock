@@ -231,7 +231,7 @@ packages:
       path: "."
       ref: "94cc4e2a67ceeeeaf4225218efe68cdc7faef539"
       resolved-ref: "94cc4e2a67ceeeeaf4225218efe68cdc7faef539"
-      url: "https://github.com/EsmaeilDansi/connectycube.git"
+      url: "https://github.com/androidwoman/connectycube-flutter-call-kit.git"
     source: git
     version: "2.0.2"
   contacts_service:
