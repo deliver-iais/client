@@ -373,5 +373,7 @@
   "i_realized": "متوجه شدم.",
   "send_location": "فرستادن موقیعت مکانی",
   "write_a_message": "پیام خود را بنویسید...",
-  "get_location_not_support_in_your_device": "گرفتن موقعیت مکانی در دستگاه شما پشتیبانی نمی شود."
+  "get_location_not_support_in_your_device": "گرفتن موقعیت مکانی در دستگاه شما پشتیبانی نمی شود.",
+  "open": "باز کردن",
+  "open_link": "آیا میخواهید لینک زیر را باز کنید؟"
 }

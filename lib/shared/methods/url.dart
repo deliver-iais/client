@@ -25,6 +25,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 String buildShareUserUrl(
   String countryCode,
@@ -119,7 +120,10 @@ class UrlHandler {
   }
 
   Future<void> handleIdLink(
-      BuildContext context, String? node, Categories category,) async {
+    BuildContext context,
+    String? node,
+    Categories category,
+  ) async {
     if (node != null) {
       final roomUid = (Uid.create()
             ..node = node
@@ -492,5 +496,37 @@ class UrlHandler {
         ).ignore();
       });
     }
+  }
+
+  void handleNormalLink(String uri, BuildContext context) {
+    Future.delayed(Duration.zero, () {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (c) {
+          return AlertDialog(
+            content: Text(
+              "Do you want to open the\n$uri",
+            ),
+            actionsAlignment: MainAxisAlignment.spaceBetween,
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(c);
+                },
+                child: Text(_i18n.get("cancel")),
+              ),
+              TextButton(
+                onPressed: () async {
+                  Navigator.pop(c);
+                  await launch(uri);
+                },
+                child: Text(_i18n.get("open")),
+              ),
+            ],
+          );
+        },
+      );
+    });
   }
 }

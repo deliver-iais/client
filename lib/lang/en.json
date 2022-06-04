@@ -370,5 +370,7 @@
   "i_realized": "I realized",
   "send_location": "Send location",
   "write_a_message": "Write a message...",
-  "get_location_not_support_in_your_device": "Get location not  support in your device !"
+  "get_location_not_support_in_your_device": "Get location not  support in your device !",
+  "open": "Open",
+  "open_link": "Do you want to open the"
 }

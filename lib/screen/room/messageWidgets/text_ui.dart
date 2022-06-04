@@ -13,7 +13,6 @@ import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class TextUI extends StatelessWidget {
   final Message message;
@@ -195,7 +194,7 @@ Future<void> onUrlTap(String uri, BuildContext context) async {
     }
     UrlHandler().handleApplicationUri(uri, context);
   } else {
-    await launch(uri);
+    UrlHandler().handleNormalLink(uri, context);
   }
 }
 
