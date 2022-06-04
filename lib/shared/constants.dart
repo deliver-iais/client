@@ -10,6 +10,7 @@ const APPLICATION_NAME = "We";
 // const APPLICATION_DOMAIN = "deliver-co.ir";
 const APPLICATION_DOMAIN = "wemessenger.ir";
 const SPDA = "spda";
+const AC = "ac";
 const TEXT = "text";
 const JOIN = "join";
 const LOGIN = "login";

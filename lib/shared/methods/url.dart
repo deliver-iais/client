@@ -59,7 +59,7 @@ class UrlHandler {
     final segments =
         uri.pathSegments.where((e) => e != APPLICATION_DOMAIN).toList();
 
-    if (segments.first == "ac") {
+    if (segments.first == AC) {
       handleAddContact(
         context: context,
         countryCode: uri.queryParameters["cc"],
