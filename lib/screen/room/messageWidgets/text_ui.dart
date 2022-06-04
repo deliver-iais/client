@@ -4,7 +4,6 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/screen/room/messageWidgets/link_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/loaders/text_loader.dart';
@@ -112,8 +111,8 @@ class TextUI extends StatelessWidget {
             isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
         textDirection: isSender ? TextDirection.ltr : TextDirection.rtl,
         children: [
-          SelectableText.rich(
-            TextSpan(children: spans, style: theme.textTheme.bodyText2),
+          RichText(
+            text: TextSpan(children: spans, style: theme.textTheme.bodyText2),
             textDirection:
                 text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
           ),
@@ -187,10 +186,15 @@ List<Block> extractBlocks(
 }
 
 Future<void> onUrlTap(String uri, BuildContext context) async {
-  if (uri.contains("$APPLICATION_DOMAIN/$JOIN") ||
-      uri.contains("$APPLICATION_DOMAIN/$SPDA") ||
-      uri.contains("$APPLICATION_DOMAIN/$TEXT")) {
-    await handleJoinUri(context, uri);
+  //add prefix if needed
+  final applicationUrlRegex = RegExp(
+    r"(https:\/\/wemessenger.ir|we:\/|wemessenger.ir)\/(login|spda|text|join|user|channel|group|ac).+",
+  );
+  if (applicationUrlRegex.hasMatch(uri)) {
+    if (uri.startsWith("we://")) {
+      uri = "https://wemessenger.ir" + uri.substring(4);
+    }
+    UrlHandler().handleApplicationUri(uri, context);
   } else {
     await launch(uri);
   }
@@ -202,7 +206,7 @@ abstract class Parser {
 
 class UrlParser implements Parser {
   final RegExp regex = RegExp(
-    r"(https?:\/\/(www\.)?)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)",
+    r"(https?:\/\/(www\.)?)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)|(we://(.+))",
   );
 
   @override
@@ -253,7 +257,7 @@ class BoldTextParser implements Parser {
 }
 
 class ItalicTextParser implements Parser {
-  final RegExp regex = RegExp(r"(?<!\\)(__.+?(?<!\\)_)");
+  final RegExp regex = RegExp(r"(?<!\\)(_.+?(?<!\\)_)");
 
   static String transformer(String m) =>
       m.substring(m.indexOf("_") + 1, m.lastIndexOf("_"));
@@ -309,7 +313,7 @@ class StrikethroughTextParser implements Parser {
 class SpoilerTextParser implements Parser {
   final void Function() onSpoilerClick;
   final String Function(String)? transformer;
-  final RegExp regex = RegExp(r"([\\])\|\|(.+)([^\\])\|\|", dotAll: true);
+  final RegExp regex = RegExp(r"(?<!\\)(\|\|.+?(?<!\\)\|\|)", dotAll: true);
 
   static String transform(String m) =>
       m.substring(m.indexOf("||") + 2, m.lastIndexOf("||"));
