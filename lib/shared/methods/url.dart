@@ -83,7 +83,23 @@ class UrlHandler {
         controller,
       );
     } else if (segments.first == JOIN) {
-      handleJoin(context, segments[1], segments[2], segments[3]);
+      if (segments[1] == "GROUP") {
+        handleJoin(
+          context,
+          Uid.create()
+            ..node = segments[2]
+            ..category = Categories.GROUP,
+          segments[3],
+        );
+      } else if (segments[1] == "CHANNEL") {
+        handleJoin(
+          context,
+          Uid.create()
+            ..node = segments[2]
+            ..category = Categories.CHANNEL,
+          segments[3],
+        );
+      }
     } else if (segments.first == LOGIN) {
       handleLogin(context, uri.queryParameters["token"]!, controller);
     }
@@ -362,77 +378,85 @@ class UrlHandler {
 
   Future<void> handleJoin(
     BuildContext context,
-    String joinType,
-    String node,
-    String token,
-  ) async {
-    Uid? roomUid;
-    if (joinType == "GROUP") {
-      roomUid = Uid.create()
-        ..node = node
-        ..category = Categories.GROUP;
-    } else if (joinType == "CHANNEL") {
-      roomUid = Uid.create()
-        ..node = node
-        ..category = Categories.CHANNEL;
-    }
-
-    if (roomUid != null) {
-      final muc = await _mucDao.get(roomUid.asString());
-      if (muc != null) {
-        _routingService.openRoom(roomUid.asString());
-      } else {
-        Future.delayed(Duration.zero, () {
-          showFloatingModalBottomSheet(
-            context: context,
-            builder: (context) => Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  CircleAvatarWidget(roomUid!, 40, forceText: "un"),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      MaterialButton(
-                        color: Colors.blueAccent,
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: Text(_i18n.get("skip")),
-                      ),
-                      MaterialButton(
-                        color: Colors.blueAccent,
-                        onPressed: () async {
-                          final navigatorState = Navigator.of(context);
-                          if (roomUid!.category == Categories.GROUP) {
-                            final muc = await _mucRepo.joinGroup(
-                              roomUid,
-                              token,
-                            );
-                            if (muc != null) {
-                              navigatorState.pop();
-                              _routingService.openRoom(roomUid.asString());
+    Uid roomUid,
+    String token, {
+    String? name,
+  }) async {
+    final muc = await _mucDao.get(roomUid.asString());
+    if (muc != null) {
+      _routingService.openRoom(roomUid.asString());
+    } else {
+      Future.delayed(Duration.zero, () {
+        showFloatingModalBottomSheet(
+          context: context,
+          builder: (context) => Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                CircleAvatarWidget(
+                  roomUid,
+                  40,
+                  forceText: name ?? "",
+                ),
+                if (name != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8.0),
+                    child: Text(
+                      name,
+                      style: Theme.of(context).textTheme.headline6,
+                    ),
+                  ),
+                const SizedBox(height: 10),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    MaterialButton(
+                      onPressed: () => Navigator.of(context).pop(),
+                      child: Text(_i18n.get("skip")),
+                    ),
+                    MaterialButton(
+                      onPressed: () async {
+                        final navigatorState = Navigator.of(context);
+                        if ((roomUid.category == Categories.GROUP ||
+                            roomUid.category == Categories.CHANNEL)) {
+                          final muc = await _mucRepo.getMuc(roomUid.asString());
+                          if (muc == null) {
+                            if (roomUid.category == Categories.GROUP) {
+                              final res = await _mucRepo.joinGroup(
+                                roomUid,
+                                token,
+                              );
+                              if (res != null) {
+                                navigatorState.pop();
+                                _routingService.openRoom(roomUid.asString());
+                              }
+                            } else {
+                              final res = await _mucRepo.joinChannel(
+                                roomUid,
+                                token,
+                              );
+                              if (res != null) {
+                                navigatorState.pop();
+                                _routingService.openRoom(roomUid.asString());
+                              }
                             }
                           } else {
-                            final muc = await _mucRepo.joinChannel(
-                              roomUid,
-                              token,
-                            );
-                            if (muc != null) {
-                              navigatorState.pop();
-                              _routingService.openRoom(roomUid.asString());
-                            }
+                            _routingService.openRoom(roomUid.asString());
                           }
-                        },
-                        child: Text(_i18n.get("join")),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+                        } else {
+                          _routingService.openRoom(roomUid.asString());
+                        }
+                      },
+                      child: Text(_i18n.get("join")),
+                    )
+                  ],
+                ),
+              ],
             ),
-          );
-        });
-      }
+          ),
+        ).ignore();
+      });
     }
   }
 }
