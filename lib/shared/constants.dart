@@ -14,6 +14,9 @@ const AC = "ac";
 const TEXT = "text";
 const JOIN = "join";
 const LOGIN = "login";
+const USER = "user";
+const GROUP = "group";
+const CHANNEL = "channel";
 // if change the VERSION , is necessary to change version in pubspec.yaml file
 const VERSION = "1.8.7";
 const LOG_OUT = "log_out";

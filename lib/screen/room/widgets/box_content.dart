@@ -77,7 +77,7 @@ class _BoxContentState extends State<BoxContent> {
   static final _routingServices = GetIt.I.get<RoutingService>();
   bool hideArrowDopIcon = true;
 
-  bool spoilText = false;
+  bool shouldSpoilText = false;
 
   @override
   void initState() {
@@ -252,12 +252,12 @@ class _BoxContentState extends State<BoxContent> {
           onBotCommandClick: widget.onBotCommandClick,
           onSpoilerClick: () {
             setState(() {
-              if (!spoilText) {
-                spoilText = true;
+              if (!shouldSpoilText) {
+                shouldSpoilText = true;
               }
             });
           },
-          spoilText: spoilText,
+          shouldSpoilText: shouldSpoilText,
         );
       case MessageType.FILE:
         return FileMessageUi(

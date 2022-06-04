@@ -102,6 +102,40 @@ class UrlHandler {
       }
     } else if (segments.first == LOGIN) {
       handleLogin(context, uri.queryParameters["token"]!, controller);
+    } else if (segments.first == USER) {
+      if (uri.queryParameters["id"] != null) {
+        _routingService.openRoom(
+          (Uid.create()
+                ..node = uri.queryParameters["id"]!
+                ..category = Categories.USER)
+              .asString(),
+        );
+      }
+    } else if (segments.first == GROUP) {
+      handleIdLink(context, uri.queryParameters["id"], Categories.GROUP);
+    } else if (segments.first == CHANNEL) {
+      handleIdLink(context, uri.queryParameters["id"], Categories.CHANNEL);
+    }
+  }
+
+  Future<void> handleIdLink(
+      BuildContext context, String? node, Categories category,) async {
+    if (node != null) {
+      final roomUid = (Uid.create()
+            ..node = node
+            ..category = category)
+          .asString();
+      final muc = await _mucDao.get(roomUid);
+      if (muc != null) {
+        _routingService.openRoom(
+          roomUid,
+        );
+      } else {
+        ToastDisplay.showToast(
+          toastContext: context,
+          toastText: "permission denied",
+        );
+      }
     }
   }
 

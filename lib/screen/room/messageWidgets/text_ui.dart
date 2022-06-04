@@ -27,7 +27,7 @@ class TextUI extends StatelessWidget {
   final bool isBotMessage;
   final CustomColorScheme colorScheme;
   final void Function() onSpoilerClick;
-  final bool spoilText;
+  final bool shouldSpoilText;
 
   TextUI({
     Key? key,
@@ -41,7 +41,7 @@ class TextUI extends StatelessWidget {
     this.isSeen = false,
     this.searchTerm,
     required this.onSpoilerClick,
-    required this.spoilText,
+    required this.shouldSpoilText,
   })  : isBotMessage = message.roomUid.asUid().isBot(),
         super(key: key);
 
@@ -65,7 +65,7 @@ class TextUI extends StatelessWidget {
       if (b.type == "inlineURL" || b.type == "inlineId") {
         tap = b.matchText;
       }
-      if (b.type == "spoiler" && !spoilText) {
+      if (b.type == "spoiler" && !shouldSpoilText) {
         return WidgetSpan(
           child: GestureDetector(
             child: MouseRegion(
@@ -168,7 +168,6 @@ List<Block> extractBlocks(
     ItalicTextParser(),
     StrikethroughTextParser(),
     SpoilerTextParser(onSpoilerClick ?? () {}, transformer: spoilTransformer),
-    InlineIdParser(onUsernameClick: onUsernameClick),
     EmojiParser(),
     if (searchTerm != null && searchTerm.isNotEmpty)
       SearchTermParser(searchTerm),
@@ -337,7 +336,7 @@ class SpoilerTextParser implements Parser {
 
 class InlineUrlTextParser implements Parser {
   final RegExp regex = RegExp(
-    r"\[(((?!]).)+)\]\((https?:\/\/(www\.)?)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)\)",
+    r"\[(((?!]).)+)\]\(((https?:\/\/(www\.)?)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)|(we://(.+)))\)",
     dotAll: true,
   );
 
@@ -360,37 +359,6 @@ class InlineUrlTextParser implements Parser {
         style: TextStyle(
           color: context != null ? Theme.of(context).primaryColor : null,
         ),
-      );
-}
-
-class InlineIdParser implements Parser {
-  final void Function(String)? onUsernameClick;
-  final RegExp regex =
-      RegExp(r"\[((?!]).)+\]\(we:\/\/user\?id=[a-zA-Z]([a-zA-Z0-9_]){4,19}\)");
-
-  InlineIdParser({this.onUsernameClick});
-
-  static String transformer(String m) {
-    return m.substring(1, m.indexOf("]"));
-  }
-
-  @override
-  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
-        blocks,
-        regex,
-        "inlineId",
-        transformer: InlineIdParser.transformer,
-        onTap: (text) {
-          final id =
-              text.substring(text.indexOf("?id=") + 4, text.lastIndexOf(")"));
-          if (onUsernameClick != null) {
-            // ignore: prefer_null_aware_method_calls
-            onUsernameClick!("@" + id);
-          }
-        },
-        style: context != null
-            ? TextStyle(color: Theme.of(context).primaryColor)
-            : null,
       );
 }
 

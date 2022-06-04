@@ -47,7 +47,7 @@ class _FileMessageUiState extends State<FileMessageUi> {
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _autoDownloadDao = GetIt.I.get<AutoDownloadDao>();
 
-  bool spoilText = false;
+  bool shouldSpoilText = false;
 
   @override
   void initState() {
@@ -81,12 +81,12 @@ class _FileMessageUiState extends State<FileMessageUi> {
                 onBotCommandClick: (str) => {},
                 onSpoilerClick: () {
                   setState(() {
-                    if (!spoilText) {
-                      spoilText = true;
+                    if (!shouldSpoilText) {
+                      shouldSpoilText = true;
                     }
                   });
                 },
-                spoilText: spoilText,
+                shouldSpoilText: shouldSpoilText,
               ),
             ),
           )
