@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
+import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -123,11 +124,12 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     final theme = Theme.of(context);
     return WillPopScope(
       onWillPop: () async {
-        if (!_routingService.canPop() && _routingService.onBackPressed == null) {
+        if (!_routingService.canPop() &&
+            onNavigationCenterBackPressed == null) {
           return true;
         }
         _routingService.maybePop();
-        _routingService.onBackPressed?.call();
+        onNavigationCenterBackPressed?.call();
         return false;
       },
       child: WithForegroundTask(

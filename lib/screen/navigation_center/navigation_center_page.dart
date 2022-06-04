@@ -36,6 +36,8 @@ BehaviorSubject<String>
     modifyRoutingByNotificationAcceptCallInBackgroundInAndroid =
     BehaviorSubject.seeded("");
 
+void Function()? onNavigationCenterBackPressed;
+
 class NavigationCenter extends StatefulWidget {
   const NavigationCenter({Key? key}) : super(key: key);
 
@@ -55,7 +57,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   final ScrollController _scrollController = ScrollController();
   final BehaviorSubject<String> _searchMode = BehaviorSubject.seeded("");
-  final TextEditingController controller = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
   final BehaviorSubject<String> _queryTermDebouncedSubject =
       BehaviorSubject<String>.seeded("");
 
@@ -80,7 +82,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   @override
   void dispose() {
-    controller.dispose();
+    _controller.dispose();
     _scrollController.dispose();
     _searchMode.close();
     _queryTermDebouncedSubject.close();
@@ -197,7 +199,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   child: SearchBox(
                     onChange: _queryTermDebouncedSubject.add,
                     onCancel: () => _queryTermDebouncedSubject.add(""),
-                    controller: controller,
+                    controller: _controller,
                   ),
                 ),
                 if (!isLarge(context)) const AudioPlayerAppBar(),
@@ -205,13 +207,13 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   stream: _searchMode.stream,
                   builder: (c, s) {
                     if (s.hasData && s.data!.isNotEmpty) {
-                      _routingService.onBackPressed = () {
+                    onNavigationCenterBackPressed = () {
                         _queryTermDebouncedSubject.add("");
-                        controller.clear();
+                        _controller.clear();
                       };
                       return searchResult(s.data!);
                     } else {
-                      _routingService.onBackPressed= null;
+                    onNavigationCenterBackPressed= null;
                       return Expanded(
                         child: ChatsPage(scrollController: _scrollController),
                       );
