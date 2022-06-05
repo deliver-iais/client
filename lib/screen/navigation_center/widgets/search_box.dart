@@ -8,33 +8,34 @@ import 'package:rxdart/rxdart.dart';
 class SearchBox extends StatefulWidget {
   final void Function(String) onChange;
   final void Function()? onCancel;
-  late final TextEditingController controller;
+  final TextEditingController? controller;
 
-  SearchBox({
+  const SearchBox({
     Key? key,
     required this.onChange,
     this.onCancel,
-    TextEditingController? controller,
-  }) : super(key: key) {
-    this.controller = controller ?? TextEditingController();
-  }
+    this.controller,
+  }) : super(key: key);
 
   @override
   _SearchBoxState createState() => _SearchBoxState();
 }
 
 class _SearchBoxState extends State<SearchBox> {
+  final TextEditingController _localController = TextEditingController();
   final BehaviorSubject<bool> _hasText = BehaviorSubject.seeded(false);
   final _focusNode = FocusNode(canRequestFocus: false);
   static final _i18n = GetIt.I.get<I18N>();
 
-  @override
-  void initState() {
-    super.initState();
+
+  void _clearTextEditingController() {
+    widget.controller?.clear();
+    _localController.clear();
   }
 
   @override
   void dispose() {
+    _localController.dispose();
     super.dispose();
   }
 
@@ -45,7 +46,7 @@ class _SearchBoxState extends State<SearchBox> {
       child: TextField(
         style: const TextStyle(fontSize: 16, height: 1.2),
         focusNode: _focusNode,
-        controller: widget.controller,
+        controller: widget.controller ?? _localController,
         onChanged: (str) {
           if (str.isNotEmpty) {
             _hasText.add(true);
@@ -78,7 +79,7 @@ class _SearchBoxState extends State<SearchBox> {
                   icon: const Icon(CupertinoIcons.xmark),
                   onPressed: () {
                     _hasText.add(false);
-                    widget.controller.clear();
+                    _clearTextEditingController();
                     _focusNode.unfocus();
                     widget.onCancel?.call();
                   },
