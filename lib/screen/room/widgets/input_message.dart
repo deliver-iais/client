@@ -356,6 +356,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                   builder: (context, snapshot) {
                                     return RawKeyboardListener(
                                       focusNode: keyboardRawFocusNode,
+                                      onKey: handleKey,
                                       child:
                                           ValueListenableBuilder<TextDirection>(
                                         valueListenable: _textDir,
@@ -707,6 +708,20 @@ class _InputMessageWidget extends State<InputMessage> {
       TextPosition(offset: widget.textController.text.length),
     );
     _botCommandQuery.add("-");
+  }
+
+  void handleKey(RawKeyEvent event) {
+    if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+      if (widget.editableMessage == null) {
+        Future.delayed(const Duration(milliseconds: 100), () {}).then((_) {
+          if (widget.editableMessage != null) {
+            widget.textController.selection = TextSelection.collapsed(
+              offset: widget.textController.text.length,
+            );
+          }
+        });
+      }
+    }
   }
 
   KeyEventResult handleKeyPress(RawKeyEvent event) {

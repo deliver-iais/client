@@ -182,51 +182,12 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                       child: Hero(
                         tag: folder!.name,
                         child: FutureBuilder<List<AssetEntity>>(
-                          future: folder.getAssetListPaged(page: 0, size: 1),
+                          future: folder.getAssetListPaged(page: 0, size: 3),
                           builder: (context, snapshot) {
                             if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                              return FutureBuilder<File?>(
-                                future: snapshot.data!.first.file,
-                                builder: (context, fileSnapshot) {
-                                  if (fileSnapshot.hasData &&
-                                      fileSnapshot.data != null) {
-                                    return Container(
-                                      width: 100,
-                                      height: 100,
-                                      decoration: BoxDecoration(
-                                        borderRadius: secondaryBorder,
-                                        image: DecorationImage(
-                                          image: Image.file(
-                                            fileSnapshot.data!,
-                                            cacheWidth: 500,
-                                            cacheHeight: 500,
-                                          ).image,
-                                          fit: BoxFit.contain,
-                                        ),
-                                      ),
-                                      child: Align(
-                                        alignment: Alignment.bottomLeft,
-                                        widthFactor: 200,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .hoverColor
-                                                .withOpacity(0.5),
-                                            borderRadius: mainBorder,
-                                          ),
-                                          child: Text(
-                                            folder.name,
-                                            style: const TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                  return const SizedBox.shrink();
-                                },
+                              return Stack(
+                                children:
+                                    buildGallery(snapshot.data!, folder.name),
                               );
                             }
                             return const SizedBox.shrink();
@@ -243,6 +204,59 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
         },
       ),
     );
+  }
+
+  List<Widget> buildGallery(List<AssetEntity> assets, String folderName) {
+    final widgets = <Widget>[];
+    for (var i = 0; i < assets.length; i++) {
+      widgets.add(
+        Positioned(
+          right: (2 - i) * 5,
+          child: FutureBuilder<File?>(
+            future: assets[i].file,
+            builder: (context, fileSnapshot) {
+              if (fileSnapshot.hasData && fileSnapshot.data != null) {
+                return Container(
+                  width: 180,
+                  height: 180 - ((2 - i) * 6),
+                  decoration: BoxDecoration(
+                    borderRadius: secondaryBorder,
+                    image: DecorationImage(
+                      image: Image.file(
+                        fileSnapshot.data!,
+                        cacheWidth: 500,
+                        cacheHeight: 500,
+                      ).image,
+                    ),
+                  ),
+                  child: i == 0
+                      ? Padding(
+                          padding: const EdgeInsets.fromLTRB(7, 0, 7, 0),
+                          child: Align(
+                            alignment: Alignment.bottomLeft,
+                            child: Container(
+                              width: 180,
+                              decoration: BoxDecoration(
+                                color: Theme.of(context).backgroundColor,
+                                //  borderRadius: mainBorder,
+                              ),
+                              child: Text(
+                                folderName,
+                                style: Theme.of(context).textTheme.bodyText1,
+                              ),
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+      );
+    }
+    return widgets.reversed.toList();
   }
 
   void openCamera(void Function() pop) {

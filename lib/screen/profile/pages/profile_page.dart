@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:math';
 
 import 'package:badges/badges.dart';
@@ -12,6 +13,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
+import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -43,6 +45,7 @@ import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -64,6 +67,7 @@ class _ProfilePageState extends State<ProfilePage>
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
   final _showChannelIdError = BehaviorSubject.seeded(false);
 
   late TabController _tabController;
@@ -190,6 +194,26 @@ class _ProfilePageState extends State<ProfilePage>
                                           ),
                                         ),
                                       ),
+                                      if (isAndroid)
+                                        Tooltip(
+                                          message: _i18n.get("share"),
+                                          child: IconButton(
+                                            color: theme.primaryColor,
+                                            icon: const Icon(
+                                              Icons.share,
+                                              size: 25,
+                                            ),
+                                            onPressed: () async {
+                                              final paths =
+                                                  await _getPathOfMedia(
+                                                      _selectedMedia,);
+                                              if (paths.isNotEmpty) {
+                                                Share.shareFiles(paths)
+                                                    .ignore();
+                                              }
+                                            },
+                                          ),
+                                        ),
                                       Tooltip(
                                         message: _i18n.get("forward"),
                                         child: IconButton(
@@ -333,6 +357,19 @@ class _ProfilePageState extends State<ProfilePage>
         ),
       ),
     );
+  }
+
+  Future<List<String>> _getPathOfMedia(List<Media> medias) async {
+    final paths = <String>[];
+    for (final media in medias) {
+      final json =
+      jsonDecode(media.json) as Map;
+      final path = await (_fileRepo.getFileIfExist(json["uuid"], json["name"]));
+      if(path!= null ){
+        paths.add(path);
+      }
+    }
+    return paths;
   }
 
   void _addSelectedMedia(media) {
