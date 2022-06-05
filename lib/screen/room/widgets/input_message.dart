@@ -699,9 +699,11 @@ class _InputMessageWidget extends State<InputMessage> {
     if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
       if (widget.editableMessage == null) {
         Future.delayed(const Duration(milliseconds: 100), () {}).then((_) {
-          widget.textController.selection = TextSelection.collapsed(
-            offset: widget.textController.text.length,
-          );
+          if (widget.editableMessage != null) {
+            widget.textController.selection = TextSelection.collapsed(
+              offset: widget.textController.text.length,
+            );
+          }
         });
       }
     }
