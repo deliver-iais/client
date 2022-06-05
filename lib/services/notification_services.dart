@@ -32,19 +32,15 @@ import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:tuple/tuple.dart';
 import 'package:win_toast/win_toast.dart';
 
 abstract class Notifier {
-  static Future<void> onCallAccept(String roomUid) async {
-    try {
-      if (isDesktop || await Permission.systemAlertWindow.request().isGranted) {
+  static void onCallAccept(String roomUid)  {
         GetIt.I
             .get<RoutingService>()
             .openCallScreen(roomUid.asUid(), isCallAccepted: true);
-      }
-    } catch (e) {}
+
   }
 
   static void onCallReject() {
@@ -608,7 +604,7 @@ class AndroidNotifier implements Notifier {
   Future<void> onCallAccepted(CallEvent callEvent) async {
     await GetIt.I
         .get<CallService>().clearCallData();
-    await Notifier.onCallAccept(callEvent.userInfo!["uid"]!);
+     Notifier.onCallAccept(callEvent.userInfo!["uid"]!);
     final callEventInfo =
         call_pro.CallEvent.fromJson(callEvent.userInfo!["callEventJson"]!);
     //here status be JOINED means ACCEPT CALL and when app Start should go on accepting status

@@ -11,6 +11,7 @@ import 'package:deliver/screen/call/center_avatar_image-in-call.dart';
 import 'package:deliver/shared/widgets/dot_animation/dot_animation.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
 
@@ -56,108 +57,108 @@ class _AudioCallScreenState extends State<AudioCallScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        iconTheme: const IconThemeData(
-          color: Colors.white, //change your color here
-        ),
-        backgroundColor: Colors.transparent,
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        systemNavigationBarColor: Colors.black,
+        systemNavigationBarIconBrightness: Brightness.light,
       ),
-      body: Stack(
-        children: [
-          FutureBuilder<Avatar?>(
-            future: _avatarRepo.getLastAvatar(widget.roomUid),
-            builder: (context, snapshot) {
-              if (snapshot.hasData &&
-                  snapshot.data != null &&
-                  snapshot.data!.fileId != null) {
-                return FutureBuilder<String?>(
-                  future: _fileRepo.getFile(
-                    snapshot.data!.fileId!,
-                    snapshot.data!.fileName!,
-                  ),
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData && snapshot.data != null) {
-                      return FadeAudioCallBackground(
-                        image: FileImage(File(snapshot.data!)),
-                      );
-                    } else {
-                      return const FadeAudioCallBackground(
-                        image: AssetImage("assets/images/no-profile-pic.png"),
-                      );
-                    }
-                  },
-                );
-              } else {
-                return const FadeAudioCallBackground(
-                  image: AssetImage("assets/images/no-profile-pic.png"),
-                );
-              }
-            },
-          ),
-          Column(
-            children: [
-              CenterAvatarInCall(
-                roomUid: widget.roomUid,
-              ),
-              if (widget.callStatus == "Connected")
-                StreamBuilder<CallTimer>(
-                  stream: callRepo.callTimer,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData && snapshot.data != null) {
-                      return callTimerWidget(snapshot.data!);
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  },
-                )
-              else if (widget.callStatus == "Ended")
-                FadeTransition(
-                  opacity: _repeatEndCallAnimationController,
-                  child: callRepo.callTimer.value.seconds == 0 &&
-                          callRepo.callTimer.value.minutes == 0 &&
-                          callRepo.callTimer.value.hours == 0
-                      ? Text(
-                          widget.callStatus,
-                          style: const TextStyle(color: Colors.white70),
-                        )
-                      : callTimerWidget(callRepo.callTimer.value),
-                )
-              else
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      widget.callStatus,
-                      style: const TextStyle(color: Colors.white70),
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        body: Stack(
+          children: [
+            FutureBuilder<Avatar?>(
+              future: _avatarRepo.getLastAvatar(widget.roomUid),
+              builder: (context, snapshot) {
+                if (snapshot.hasData &&
+                    snapshot.data != null &&
+                    snapshot.data!.fileId != null) {
+                  return FutureBuilder<String?>(
+                    future: _fileRepo.getFile(
+                      snapshot.data!.fileId!,
+                      snapshot.data!.fileName!,
                     ),
-                    if (widget.callStatus == "Connecting" ||
-                        widget.callStatus == "Reconnecting" ||
-                        widget.callStatus == "Ringing" ||
-                        widget.callStatus == "Calling")
-                      const DotAnimation()
-                  ],
-                )
-            ],
-          ),
-          if (widget.callStatus == "Ended")
-            Padding(
-              padding: const EdgeInsets.only(bottom: 25, right: 25, left: 25),
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: Lottie.asset(
-                  'assets/animations/end_of_call.json',
-                  width: 150,
-                ),
-              ),
-            )
-          else
-            CallBottomRow(
-              hangUp: widget.hangUp,
-              isIncomingCall: widget.isIncomingCall,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data != null) {
+                        return FadeAudioCallBackground(
+                          image: FileImage(File(snapshot.data!)),
+                        );
+                      } else {
+                        return const FadeAudioCallBackground(
+                          image: AssetImage("assets/images/no-profile-pic.png"),
+                        );
+                      }
+                    },
+                  );
+                } else {
+                  return const FadeAudioCallBackground(
+                    image: AssetImage("assets/images/no-profile-pic.png"),
+                  );
+                }
+              },
             ),
-        ],
+            Column(
+              children: [
+                CenterAvatarInCall(
+                  roomUid: widget.roomUid,
+                ),
+                if (widget.callStatus == "Connected")
+                  StreamBuilder<CallTimer>(
+                    stream: callRepo.callTimer,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data != null) {
+                        return callTimerWidget(snapshot.data!);
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
+                  )
+                else if (widget.callStatus == "Ended")
+                  FadeTransition(
+                    opacity: _repeatEndCallAnimationController,
+                    child: callRepo.callTimer.value.seconds == 0 &&
+                            callRepo.callTimer.value.minutes == 0 &&
+                            callRepo.callTimer.value.hours == 0
+                        ? Text(
+                            widget.callStatus,
+                            style: const TextStyle(color: Colors.white70),
+                          )
+                        : callTimerWidget(callRepo.callTimer.value),
+                  )
+                else
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        widget.callStatus,
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                      if (widget.callStatus == "Connecting" ||
+                          widget.callStatus == "Reconnecting" ||
+                          widget.callStatus == "Ringing" ||
+                          widget.callStatus == "Calling")
+                        const DotAnimation()
+                    ],
+                  )
+              ],
+            ),
+            if (widget.callStatus == "Ended")
+              Padding(
+                padding: const EdgeInsets.only(bottom: 25, right: 25, left: 25),
+                child: Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Lottie.asset(
+                    'assets/animations/end_of_call.json',
+                    width: 150,
+                  ),
+                ),
+              )
+            else
+              CallBottomRow(
+                hangUp: widget.hangUp,
+                isIncomingCall: widget.isIncomingCall,
+              ),
+          ],
+        ),
       ),
     );
   }
