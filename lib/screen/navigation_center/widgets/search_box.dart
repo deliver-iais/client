@@ -22,11 +22,11 @@ class SearchBox extends StatefulWidget {
 }
 
 class _SearchBoxState extends State<SearchBox> {
+  final TextEditingController _localController = TextEditingController();
   final BehaviorSubject<bool> _hasText = BehaviorSubject.seeded(false);
   final _focusNode = FocusNode(canRequestFocus: false);
   static final _i18n = GetIt.I.get<I18N>();
 
-  final TextEditingController _localController = TextEditingController();
 
   void _clearTextEditingController() {
     widget.controller?.clear();
