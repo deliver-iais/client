@@ -61,7 +61,7 @@ class TextUI extends StatelessWidget {
     );
     final spans = blocks.map<InlineSpan>((b) {
       var tap = b.text;
-      if (b.type == "inlineURL" || b.type == "inlineId") {
+      if (b.type == "inlineURL") {
         tap = b.matchText;
       }
       if (b.type == "spoiler" && !shouldSpoilText) {
@@ -479,7 +479,7 @@ List<Block> parseText(
   String type, {
   String Function(String) transformer = same,
 }) {
-  if (type == "inlineId") {
+  if (type == "inlineURL") {
     text = synthesizeToOriginalWord(text);
   }
   var start = 0;
