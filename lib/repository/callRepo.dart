@@ -13,14 +13,11 @@ import 'package:deliver/box/dao/call_info_dao.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/repository/avatarRepo.dart';
-import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
-import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -736,17 +733,6 @@ class CallRepo {
   }
 
   Future<void> _initForegroundTask() async {
-    final _avatarRepo = GetIt.I.get<AvatarRepo>();
-    final _fileRepo = GetIt.I.get<FileRepo>();
-    final la = await _avatarRepo.getLastAvatar(roomUid!);
-    String? avatarPath;
-    if (la != null && la.fileId != null && la.fileName != null) {
-      avatarPath = await _fileRepo.getFileIfExist(
-        la.fileId!,
-        la.fileName!,
-        thumbnailSize: ThumbnailSize.medium,
-      );
-    }
     await FlutterForegroundTask.init(
       androidNotificationOptions: AndroidNotificationOptions(
         channelId: 'notification_channel_id',
@@ -754,7 +740,6 @@ class CallRepo {
         channelDescription:
             'This notification appears when the foreground service is running.',
         channelImportance: NotificationChannelImportance.LOW,
-        avatarPath: avatarPath,
         priority: NotificationPriority.LOW,
         isSticky: false,
         iconData: const NotificationIconData(
@@ -1067,9 +1052,6 @@ class CallRepo {
     if (isAndroid && !_isCaller) {
       final sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
       await ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
-      await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
-        isVisible: true,
-      );
     }
   }
 
@@ -1425,16 +1407,15 @@ class FirstTaskHandler extends TaskHandler {
   }
 
   @override
-  Future<void> onDestroy(DateTime timestamp) async {
-    // You can use the clearAllData function to clear all the stored data.
-    await FlutterForegroundTask.clearAllData();
-  }
-
-  @override
   void onButtonPressed(String id) {
     // Called when the notification button on the Android platform is pressed.
     if (id == "endCall") {
       sPort?.send("endCall");
     }
+  }
+
+  @override
+  Future<void> onDestroy(DateTime timestamp, SendPort? sendPort) async {
+    await FlutterForegroundTask.clearAllData();
   }
 }

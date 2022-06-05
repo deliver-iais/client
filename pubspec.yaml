@@ -73,10 +73,7 @@ dependencies:
   flutter_audio_waveforms: 1.2.1+5
   flutter_blurhash: 0.6.4
   flutter_dropzone: 3.0.3
-  flutter_foreground_task:
-    git:
-      url: https://github.com/androidwoman/flutter_foreground_task
-      ref: b24aeffc07dc047016b4da1f1320ec524d96b161
+  flutter_foreground_task: 3.7.3
   flutter_image_compress: 1.1.0
   flutter_keyboard_visibility: 5.1.1
   flutter_local_notifications: 10.0.0-dev.13
