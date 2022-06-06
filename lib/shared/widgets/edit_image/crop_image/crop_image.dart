@@ -46,24 +46,33 @@ class _CropImageState extends State<CropImage> {
       appBar: AppBar(
         title: const Text("crop"),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.done_rounded),
-            onPressed: () async {
-              _startCrop.add(true);
-              final image = await controller.onCropImage();
-              if (image != null) {
-                setState(() {
-                  memoryImage = image;
-                });
-                final outPutFile = await _fileServices.localFile(
-                  "_crop-${clock.now().millisecondsSinceEpoch}",
-                  widget.imagePath.split(".").last,
-                );
-                outPutFile.writeAsBytesSync(image.bytes);
-                widget.crop(outPutFile.path);
+          StreamBuilder<bool?>(
+            stream: _startCrop.stream,
+            builder: (c, s) {
+              if (s.hasData && s.data != null && s.data!) {
+                return const SizedBox.shrink();
+              } else {
+                return IconButton(
+                  icon: const Icon(Icons.done_rounded),
+                  onPressed: () async {
+                    _startCrop.add(true);
+                    final image = await controller.onCropImage();
+                    if (image != null) {
+                      setState(() {
+                        memoryImage = image;
+                      });
+                      final outPutFile = await _fileServices.localFile(
+                        "_crop-${clock.now().millisecondsSinceEpoch}",
+                        widget.imagePath.split(".").last,
+                      );
+                      outPutFile.writeAsBytesSync(image.bytes);
+                      widget.crop(outPutFile.path);
 
-                if (!mounted) return;
-                Navigator.pop(context);
+                      if (!mounted) return;
+                      Navigator.pop(context);
+                    }
+                  },
+                );
               }
             },
           )
@@ -128,7 +137,6 @@ class _CropImageState extends State<CropImage> {
                       onPressed: () => controller
                           .addTransition(CropImageData(angle: pi / 4)),
                     ),
-
                   ],
                 );
               } else {
