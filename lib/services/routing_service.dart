@@ -73,12 +73,23 @@ const _calls = CallListPage(key: ValueKey("/calls"));
 
 const _emptyRoute = "/";
 
+class PreMaybePopScope {
+  final Map<String, bool Function()> map = {};
+
+  void register(String name, bool Function() callback) => map[name] = callback;
+
+  void unregister(String name) => map.remove(name);
+
+  bool maybePop() =>
+      map.values.map((e) => e.call()).fold(true, (a, b) => a && b);
+}
+
 class RoutingService {
   final _analyticsRepo = GetIt.I.get<AnalyticsRepo>();
   final _homeNavigatorState = GlobalKey<NavigatorState>();
   final mainNavigatorState = GlobalKey<NavigatorState>();
-
   final _navigatorObserver = RoutingServiceNavigatorObserver();
+  final _preMaybePopScope = PreMaybePopScope();
 
   Stream<RouteEvent> get currentRouteStream =>
       _navigatorObserver.currentRoute.stream;
@@ -293,6 +304,12 @@ class RoutingService {
     }
   }
 
+  void registerPreMaybePopScope(String name, bool Function() callback) =>
+      _preMaybePopScope.register(name, callback);
+
+  void unregisterPreMaybePopScope(String name) =>
+      _preMaybePopScope.unregister(name);
+
   void pop() {
     if (canPop()) {
       _homeNavigatorState.currentState?.pop();
@@ -300,8 +317,10 @@ class RoutingService {
   }
 
   void maybePop() {
-    if (canPop()) {
-      _homeNavigatorState.currentState?.maybePop();
+    if (_preMaybePopScope.maybePop()) {
+      if (canPop()) {
+        _homeNavigatorState.currentState?.maybePop();
+      }
     }
   }
 

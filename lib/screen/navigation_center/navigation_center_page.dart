@@ -76,6 +76,11 @@ class _NavigationCenterState extends State<NavigationCenter> {
     _queryTermDebouncedSubject.stream
         .debounceTime(const Duration(milliseconds: 250))
         .listen((text) => _searchMode.add(text));
+
+    _routingService.registerPreMaybePopScope(
+      "navigation_center_page",
+      checkSearchBoxIsOpenOrNot,
+    );
     super.initState();
   }
 
@@ -93,150 +98,151 @@ class _NavigationCenterState extends State<NavigationCenter> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return WillPopScope(
-      onWillPop: () async {
-        if (_onNavigationCenterBackPressed != null) {
-          _onNavigationCenterBackPressed?.call();
-          return false;
-        }
-        return true;
-      },
-      child: NotificationListener<SizeChangedLayoutNotification>(
-        onNotification: onWindowSizeChange,
-        child: SizeChangedLayoutNotifier(
-          child: Scaffold(
-            backgroundColor: theme.colorScheme.background,
-            appBar: PreferredSize(
-              preferredSize: const Size.fromHeight(56),
-              child: GestureDetector(
-                onTap: () {
-                  if (_scrollController.hasClients) {
-                    _scrollController.animateTo(
-                      0.0,
-                      curve: Curves.easeOut,
-                      duration: ANIMATION_DURATION * 3,
-                    );
-                  }
-                },
-                child: AppBar(
-                  backgroundColor: Colors.transparent,
-                  leading: Row(
-                    children: [
-                      const SizedBox(
-                        width: 10,
+    return NotificationListener<SizeChangedLayoutNotification>(
+      onNotification: onWindowSizeChange,
+      child: SizeChangedLayoutNotifier(
+        child: Scaffold(
+          backgroundColor: theme.colorScheme.background,
+          appBar: PreferredSize(
+            preferredSize: const Size.fromHeight(56),
+            child: GestureDetector(
+              onTap: () {
+                if (_scrollController.hasClients) {
+                  _scrollController.animateTo(
+                    0.0,
+                    curve: Curves.easeOut,
+                    duration: ANIMATION_DURATION * 3,
+                  );
+                }
+              },
+              child: AppBar(
+                backgroundColor: Colors.transparent,
+                leading: Row(
+                  children: [
+                    const SizedBox(
+                      width: 10,
+                    ),
+                    DescribedFeatureOverlay(
+                      featureId: feature3,
+                      tapTarget:
+                          CircleAvatarWidget(_authRepo.currentUserUid, 20),
+                      backgroundColor: Colors.indigo,
+                      targetColor: Colors.indigoAccent,
+                      title: const Text('You can go to setting'),
+                      overflowMode: OverflowMode.extendBackground,
+                      description: _featureDiscoveryDescriptionWidget(
+                        isCircleAvatarWidget: true,
+                        // TODO(hasan): more use of i18n
+                        description:
+                            "1. You can chang your profile in the setting\n2. You can sync your contact and start chat with one of theme \n3. You can chang app theme\n4. You can chang app",
                       ),
-                      DescribedFeatureOverlay(
-                        featureId: feature3,
-                        tapTarget:
-                            CircleAvatarWidget(_authRepo.currentUserUid, 20),
-                        backgroundColor: Colors.indigo,
-                        targetColor: Colors.indigoAccent,
-                        title: const Text('You can go to setting'),
-                        overflowMode: OverflowMode.extendBackground,
-                        description: _featureDiscoveryDescriptionWidget(
-                          isCircleAvatarWidget: true,
-                          // TODO(hasan): more use of i18n
-                          description:
-                              "1. You can chang your profile in the setting\n2. You can sync your contact and start chat with one of theme \n3. You can chang app theme\n4. You can chang app",
-                        ),
-                        child: GestureDetector(
-                          child: Center(
-                            child: MouseRegion(
-                              cursor: SystemMouseCursors.click,
-                              child: CircleAvatarWidget(
-                                _authRepo.currentUserUid,
-                                20,
-                              ),
+                      child: GestureDetector(
+                        child: Center(
+                          child: MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: CircleAvatarWidget(
+                              _authRepo.currentUserUid,
+                              20,
                             ),
                           ),
-                          onTap: () {
-                            _routingServices.openSettings(
-                                popAllBeforePush: true);
-                          },
                         ),
+                        onTap: () {
+                          _routingServices.openSettings(popAllBeforePush: true);
+                        },
                       ),
-                    ],
-                  ),
-                  titleSpacing: 8.0,
-                  title: Text(
-                    _i18n.get("chats"),
-                    style: theme.textTheme.headline6,
-                    key: ValueKey(randomString(10)),
-                  ),
-                  actions: [
-                    if (!isDesktop)
-                      DescribedFeatureOverlay(
-                        featureId: feature2,
-                        tapTarget: const Icon(
-                          CupertinoIcons.qrcode_viewfinder,
-                        ),
-                        backgroundColor: Colors.deepPurple,
-                        targetColor: Colors.deepPurpleAccent,
-                        title: const Text('You can scan QR Code'),
-                        // TODO(hasan): more use of i18n
-                        description: _featureDiscoveryDescriptionWidget(
-                          description:
-                              'for desktop app you can scan QR Code and login to your account',
-                        ),
-                        child: IconButton(
-                          onPressed: () {
-                            _routingService.openScanQrCode();
-                          },
-                          icon: const Icon(
-                            CupertinoIcons.qrcode_viewfinder,
-                          ),
-                        ),
-                      ),
-                    const SizedBox(
-                      width: 8,
                     ),
-                    buildMenu(context),
-                    const SizedBox(
-                      width: 8,
-                    )
                   ],
                 ),
-              ),
-            ),
-            body: RepaintBoundary(
-              child: Column(
-                children: <Widget>[
-                  const HasCallRow(),
-                  const ConnectionStatus(),
-                  RepaintBoundary(
-                    child: SearchBox(
-                      onChange: _queryTermDebouncedSubject.add,
-                      onCancel: () => _queryTermDebouncedSubject.add(""),
-                      controller: _controller,
+                titleSpacing: 8.0,
+                title: Text(
+                  _i18n.get("chats"),
+                  style: theme.textTheme.headline6,
+                  key: ValueKey(randomString(10)),
+                ),
+                actions: [
+                  if (!isDesktop)
+                    DescribedFeatureOverlay(
+                      featureId: feature2,
+                      tapTarget: const Icon(
+                        CupertinoIcons.qrcode_viewfinder,
+                      ),
+                      backgroundColor: Colors.deepPurple,
+                      targetColor: Colors.deepPurpleAccent,
+                      title: const Text('You can scan QR Code'),
+                      // TODO(hasan): more use of i18n
+                      description: _featureDiscoveryDescriptionWidget(
+                        description:
+                            'for desktop app you can scan QR Code and login to your account',
+                      ),
+                      child: IconButton(
+                        onPressed: () {
+                          _routingService.openScanQrCode();
+                        },
+                        icon: const Icon(
+                          CupertinoIcons.qrcode_viewfinder,
+                        ),
+                      ),
                     ),
+                  const SizedBox(
+                    width: 8,
                   ),
-                  if (!isLarge(context)) const AudioPlayerAppBar(),
-                  StreamBuilder<String>(
-                    stream: _searchMode.stream,
-                    builder: (c, s) {
-                      if (s.hasData && s.data!.isNotEmpty) {
-                        _onNavigationCenterBackPressed = () {
-                          _queryTermDebouncedSubject.add("");
-                          _controller.clear();
-                        };
-                        return searchResult(s.data!);
-                      } else {
-                        _onNavigationCenterBackPressed = null;
-                        return Expanded(
-                          child: ChatsPage(scrollController: _scrollController),
-                        );
-                      }
-                    },
-                  ),
-                  _newVersionInfo(),
-                  _outOfDateWidget()
+                  buildMenu(context),
+                  const SizedBox(
+                    width: 8,
+                  )
                 ],
               ),
+            ),
+          ),
+          body: RepaintBoundary(
+            child: Column(
+              children: <Widget>[
+                const HasCallRow(),
+                const ConnectionStatus(),
+                RepaintBoundary(
+                  child: SearchBox(
+                    onChange: _queryTermDebouncedSubject.add,
+                    onCancel: () => _queryTermDebouncedSubject.add(""),
+                    controller: _controller,
+                  ),
+                ),
+                if (!isLarge(context)) const AudioPlayerAppBar(),
+                StreamBuilder<String>(
+                  stream: _searchMode.stream,
+                  builder: (c, s) {
+                    if (s.hasData && s.data!.isNotEmpty) {
+                      _onNavigationCenterBackPressed = () {
+                        _queryTermDebouncedSubject.add("");
+                        _controller.clear();
+                      };
+                      return searchResult(s.data!);
+                    } else {
+                      _onNavigationCenterBackPressed = null;
+                      return Expanded(
+                        child: ChatsPage(scrollController: _scrollController),
+                      );
+                    }
+                  },
+                ),
+                _newVersionInfo(),
+                _outOfDateWidget()
+              ],
             ),
           ),
         ),
       ),
     );
+  }
+
+  bool checkSearchBoxIsOpenOrNot() {
+    if (!(ModalRoute.of(context)?.isCurrent ?? false)) {
+      return true;
+    }
+    if (_onNavigationCenterBackPressed != null) {
+      _onNavigationCenterBackPressed?.call();
+      return false;
+    }
+    return true;
   }
 
   bool onWindowSizeChange(SizeChangedLayoutNotification notification) {
