@@ -25,6 +25,9 @@ import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/file_info.dart';
+import 'package:deliver/box/inline_keyboard_button.dart';
+import 'package:deliver/box/inline_keyboard_markup.dart';
+import 'package:deliver/box/inline_keyboard_row.dart';
 import 'package:deliver/box/last_activity.dart';
 import 'package:deliver/box/livelocation.dart';
 import 'package:deliver/box/media_meta_data.dart';
@@ -32,9 +35,13 @@ import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_brief.dart';
+import 'package:deliver/box/message_markup.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/pending_message.dart';
+import 'package:deliver/box/reply_keyboard_button.dart';
+import 'package:deliver/box/reply_keyboard_markup.dart';
+import 'package:deliver/box/reply_keyboard_row.dart';
 import 'package:deliver/box/role.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
@@ -157,7 +164,14 @@ Future<void> setupDI() async {
     ..registerAdapter(CallTypeAdapter())
     ..registerAdapter(AutoDownloadRoomCategoryAdapter())
     ..registerAdapter(CurrentCallInfoAdapter())
-    ..registerAdapter(AutoDownloadAdapter());
+    ..registerAdapter(AutoDownloadAdapter())
+    ..registerAdapter(MessageMarkupAdapter())
+    ..registerAdapter(InlineKeyboardButtonAdapter())
+    ..registerAdapter(InlineKeyboardMarkupAdapter())
+    ..registerAdapter(ReplyKeyboardButtonAdapter())
+    ..registerAdapter(ReplyKeyboardMarkupAdapter())
+    ..registerAdapter(ReplyKeyboardRowAdapter())
+    ..registerAdapter(InlineKeyboardRowAdapter());
 
   registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
   registerSingleton<AccountDao>(AccountDaoImpl());
