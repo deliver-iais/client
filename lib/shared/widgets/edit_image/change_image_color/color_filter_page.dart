@@ -34,19 +34,13 @@ class _ColorFilterPageState extends State<ColorFilterPage> {
       appBar: AppBar(
         title: const Text("image filter"),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.done_rounded),
-            onPressed: () async {
-              setState(() {
-                showLoading = true;
-              });
-
-              await _saveImage(context);
-              setState(() {
-                showLoading = false;
-              });
-            },
-          )
+          if (!showLoading)
+            IconButton(
+              icon: const Icon(Icons.done_rounded),
+              onPressed: () async {
+                await _saveImage(context);
+              },
+            )
         ],
       ),
       body: SizedBox(
@@ -55,23 +49,26 @@ class _ColorFilterPageState extends State<ColorFilterPage> {
         child: Column(
           children: [
             Expanded(
-              child: FittedBox(
-                alignment: FractionalOffset.center,
-                child: Screenshot(
-                  controller: screenshotController,
-                  child: imageFilterLatest(
-                    hue: hueValue,
-                    brightness: brightnessValue,
-                    saturation: saturationValue,
-                    child: ClipRect(child: Image.file(File(widget.imagePath))),
+              child: Stack(
+                children: [
+                  FittedBox(
+                    alignment: FractionalOffset.center,
+                    child: Screenshot(
+                      controller: screenshotController,
+                      child: imageFilterLatest(
+                        hue: hueValue,
+                        brightness: brightnessValue,
+                        saturation: saturationValue,
+                        child:
+                            ClipRect(child: Image.file(File(widget.imagePath))),
+                      ),
+                    ),
                   ),
-                ),
+                  if (showLoading) const Center(child: CircularProgressIndicator())
+                ],
               ),
             ),
-            if (showLoading)
-              const CircularProgressIndicator()
-            else
-              Column(children: bottomSlider())
+            if (!showLoading) Column(children: bottomSlider())
           ],
         ),
       ),
@@ -161,6 +158,10 @@ class _ColorFilterPageState extends State<ColorFilterPage> {
   }
 
   Future<void> _saveImage(BuildContext context) {
+    setState(() {
+      showLoading = true;
+    });
+
     final navigatorState = Navigator.of(context);
 
     return screenshotController
@@ -173,6 +174,9 @@ class _ColorFilterPageState extends State<ColorFilterPage> {
       await outPutFile.writeAsBytes(List<int>.from(binaryIntList!));
       widget.onDone(outPutFile.path);
       navigatorState.pop();
+      setState(() {
+        showLoading = false;
+      });
     });
   }
 

@@ -179,7 +179,6 @@ class _OpenImagePageState extends State<OpenImagePage> {
                       imagePath,
                     ),
                   ).image,
-                  fit: BoxFit.fitWidth,
                 ),
               ),
             ),
