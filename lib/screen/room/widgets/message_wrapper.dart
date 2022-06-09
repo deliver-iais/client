@@ -9,6 +9,7 @@ class MessageWrapper extends StatelessWidget {
   final String uid;
   final bool isSender;
   final bool isFirstMessageInGroupedMessages;
+  final bool isInlineMarkUpMessage;
 
   const MessageWrapper({
     Key? key,
@@ -16,11 +17,18 @@ class MessageWrapper extends StatelessWidget {
     required this.uid,
     required this.isSender,
     this.isFirstMessageInGroupedMessages = true,
+    this.isInlineMarkUpMessage = false,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final color = ExtraTheme.of(context).messageBackgroundColor(uid);
+    var color = ExtraTheme.of(context).messageBackgroundColor(uid);
+    if (isInlineMarkUpMessage) {
+      color = Color.alphaBlend(
+        Theme.of(context).primaryColor.withAlpha(80),
+        Colors.black12,
+      );
+    }
 
     var border = messageBorder;
 
@@ -36,10 +44,13 @@ class MessageWrapper extends StatelessWidget {
     const height = 30.0;
 
     return Stack(
+      fit: StackFit.passthrough,
       children: [
         Container(
           clipBehavior: Clip.hardEdge,
-          margin: const EdgeInsets.symmetric(horizontal: 10.0).copyWith(
+          margin:
+              EdgeInsets.symmetric(horizontal: isInlineMarkUpMessage ? 3 : 10.0)
+                  .copyWith(
             top: isFirstMessageInGroupedMessages && isSender ? 16 : 0,
             bottom: 6,
           ),
@@ -48,7 +59,8 @@ class MessageWrapper extends StatelessWidget {
             color: color,
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.1),
+                color:
+                    Colors.black.withOpacity(isInlineMarkUpMessage ? 0.2 : 0.1),
                 spreadRadius: 2,
                 blurRadius: 3,
                 offset: const Offset(0, 3), // changes position of shadow
