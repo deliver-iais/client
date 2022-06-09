@@ -170,7 +170,6 @@ class _RoomPageState extends State<RoomPage> {
         replyMessageId: _repliedMessage.value?.id ?? 0,
         resetRoomPageDetails: _resetRoomPageDetails,
         child: Scaffold(
-          extendBodyBehindAppBar: true,
           appBar: buildAppbar(),
           body: buildBody(),
         ),
