@@ -97,7 +97,7 @@ class _BoxContentState extends State<BoxContent> {
         setState(() {});
       },
       child: Stack(
-        alignment: widget.isSender ? Alignment.topLeft : Alignment.topRight,
+      alignment: Alignment.topRight,
         children: [
           RepaintBoundary(
             child: Column(
