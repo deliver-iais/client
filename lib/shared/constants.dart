@@ -190,7 +190,7 @@ const secondaryBorder = BorderRadius.all(Radius.circular(12));
 
 const tertiaryBorder = BorderRadius.all(Radius.circular(8));
 
-const messageBorder = BorderRadius.all(Radius.circular(14));
+const messageBorder = BorderRadius.all(Radius.circular(8));
 
 const buttonBorder = BorderRadius.all(Radius.circular(20));
 
