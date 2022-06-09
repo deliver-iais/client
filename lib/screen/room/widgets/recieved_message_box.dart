@@ -3,6 +3,7 @@ import 'package:deliver/box/message_brief.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/screen/room/messageWidgets/animation_widget.dart';
 import 'package:deliver/screen/room/widgets/box_content.dart';
+import 'package:deliver/screen/room/widgets/inline_markup_button_widget.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 
@@ -55,11 +56,23 @@ class ReceivedMessageBox extends StatelessWidget {
 
     return doNotNeedsWrapper()
         ? boxContent
-        : MessageWrapper(
-            uid: message.from,
-            child: boxContent,
-            isSender: false,
-            isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
+        : IntrinsicWidth(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                MessageWrapper(
+                  uid: message.from,
+                  child: boxContent,
+                  isSender: false,
+                  isFirstMessageInGroupedMessages:
+                      isFirstMessageInGroupedMessages,
+                ),
+                InlineMarkUpButtonWidget(
+                  message: message,
+                  isSender: false,
+                ),
+              ],
+            ),
           );
   }
 
