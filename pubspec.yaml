@@ -124,7 +124,7 @@ dependencies:
   permission_handler:
     git:
       path: permission_handler
-      ref: b70197d0ef91c8ced58d894573df96e1ba3080d2
+      ref: 5602a4c843237ae186d83fdaaf9ceb824c1f89f6
       url: https://github.com/AmirhosseinShk/flutter-permission-handler
   persian_datetime_picker: 2.4.0
   photo_manager: 2.1.1
