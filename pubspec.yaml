@@ -121,7 +121,11 @@ dependencies:
   path_provider: 2.0.7
   path_provider_android: 2.0.11
   percent_indicator: 3.4.0
-  permission_handler: 9.2.0
+  permission_handler:
+    git:
+      path: permission_handler
+      ref: b70197d0ef91c8ced58d894573df96e1ba3080d2
+      url: https://github.com/AmirhosseinShk/flutter-permission-handler
   persian_datetime_picker: 2.4.0
   photo_manager: 2.1.1
   platform_detect: 2.0.0

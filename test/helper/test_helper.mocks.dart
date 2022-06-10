@@ -1019,14 +1019,16 @@ class MockDataStreamServices extends _i1.Mock
   _i20.Future<_i23.Message?> handleIncomingMessage(_i44.Message? message,
           {String? roomName,
           bool? isOnlineMessage,
-          bool? saveInDatabase = true}) =>
+          bool? saveInDatabase = true,
+          bool? isFireBaseMessage = false}) =>
       (super.noSuchMethod(
               Invocation.method(#handleIncomingMessage, [
                 message
               ], {
                 #roomName: roomName,
                 #isOnlineMessage: isOnlineMessage,
-                #saveInDatabase: saveInDatabase
+                #saveInDatabase: saveInDatabase,
+                #isFireBaseMessage: isFireBaseMessage
               }),
               returnValue: Future<_i23.Message?>.value())
           as _i20.Future<_i23.Message?>);
@@ -2316,6 +2318,14 @@ class MockCallService extends _i1.Mock implements _i75.CallService {
               returnValue: _FakeBehaviorSubject_7<_i76.CallEvents>())
           as _i8.BehaviorSubject<_i76.CallEvents>);
   @override
+  bool get shouldRemoveData =>
+      (super.noSuchMethod(Invocation.getter(#shouldRemoveData),
+          returnValue: false) as bool);
+  @override
+  set shouldRemoveData(bool? _shouldRemoveData) => super.noSuchMethod(
+      Invocation.setter(#shouldRemoveData, _shouldRemoveData),
+      returnValueForMissingStub: null);
+  @override
   _i75.UserCallState get getUserCallState =>
       (super.noSuchMethod(Invocation.getter(#getUserCallState),
           returnValue: _i75.UserCallState.INGROUPCALL) as _i75.UserCallState);
@@ -2397,6 +2407,14 @@ class MockCallService extends _i1.Mock implements _i75.CallService {
   String writeCallEventsToJson(_i76.CallEvents? event) =>
       (super.noSuchMethod(Invocation.method(#writeCallEventsToJson, [event]),
           returnValue: '') as String);
+  @override
+  _i20.Future<void> clearCallData({bool? forceToClearData = false}) =>
+      (super.noSuchMethod(
+              Invocation.method(
+                  #clearCallData, [], {#forceToClearData: forceToClearData}),
+              returnValue: Future<void>.value(),
+              returnValueForMissingStub: Future<void>.value())
+          as _i20.Future<void>);
 }
 
 /// A class which mocks [NotificationServices].

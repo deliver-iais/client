@@ -947,7 +947,7 @@ class CallRepo {
         endCall();
       }
     });
-    await _foregroundTaskInitializing();
+    //await _foregroundTaskInitializing();
   }
 
   Future<void> declineCall() async {
@@ -1418,4 +1418,5 @@ class FirstTaskHandler extends TaskHandler {
   Future<void> onDestroy(DateTime timestamp, SendPort? sendPort) async {
     await FlutterForegroundTask.clearAllData();
   }
+
 }

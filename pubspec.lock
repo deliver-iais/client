@@ -1233,16 +1233,20 @@ packages:
   permission_handler:
     dependency: "direct main"
     description:
-      name: permission_handler
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: permission_handler
+      ref: b70197d0ef91c8ced58d894573df96e1ba3080d2
+      resolved-ref: b70197d0ef91c8ced58d894573df96e1ba3080d2
+      url: "https://github.com/AmirhosseinShk/flutter-permission-handler"
+    source: git
     version: "9.2.0"
   permission_handler_android:
     dependency: transitive
     description:
-      name: permission_handler_android
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: permission_handler_android
+      ref: be9a7d63571ce06e62b46dd362dd185977faf312
+      resolved-ref: be9a7d63571ce06e62b46dd362dd185977faf312
+      url: "https://github.com/AmirhosseinShk/flutter-permission-handler"
+    source: git
     version: "9.0.2+1"
   permission_handler_apple:
     dependency: transitive
