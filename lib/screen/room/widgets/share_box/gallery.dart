@@ -211,14 +211,16 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
     for (var i = 0; i < assets.length; i++) {
       widgets.add(
         Positioned(
-          right: (2 - i) * 5,
+          right: (2 - i) * 7,
+
+          top: (2-i)*3,
           child: FutureBuilder<File?>(
             future: assets[i].file,
             builder: (context, fileSnapshot) {
               if (fileSnapshot.hasData && fileSnapshot.data != null) {
                 return Container(
                   width: 180,
-                  height: 180 - ((2 - i) * 6),
+                  height: 180,
                   decoration: BoxDecoration(
                     borderRadius: secondaryBorder,
                     image: DecorationImage(
@@ -231,7 +233,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                   ),
                   child: i == 0
                       ? Padding(
-                          padding: const EdgeInsets.fromLTRB(7, 0, 7, 0),
+                          padding: const EdgeInsets.fromLTRB(8, 0, 2, 0),
                           child: Align(
                             alignment: Alignment.bottomLeft,
                             child: Container(
