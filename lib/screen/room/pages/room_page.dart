@@ -169,9 +169,12 @@ class _RoomPageState extends State<RoomPage> {
         height: MediaQuery.of(context).size.height,
         replyMessageId: _repliedMessage.value?.id ?? 0,
         resetRoomPageDetails: _resetRoomPageDetails,
-        child: Scaffold(
-          appBar: buildAppbar(),
-          body: buildBody(),
+        child:  SafeArea(
+          child: Scaffold(
+            extendBodyBehindAppBar: true,
+            appBar: buildAppbar(),
+            body: buildBody(),
+          ),
         ),
       ),
     );
@@ -188,6 +191,7 @@ class _RoomPageState extends State<RoomPage> {
         ),
         Column(
           children: <Widget>[
+            const SizedBox(height: APPBAR_HEIGHT,),
             buildAllMessagesBox(),
             StreamBuilder(
               stream: _repliedMessage.stream,
