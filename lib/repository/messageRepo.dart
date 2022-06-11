@@ -1067,7 +1067,7 @@ class MessageRepo {
               );
             }
 
-            return _roomDao.updateRoom(
+            await _roomDao.updateRoom(
               uid: msg.roomUid,
               lastMessage: lastNotHiddenMessage,
             );
