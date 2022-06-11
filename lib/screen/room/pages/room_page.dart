@@ -169,7 +169,7 @@ class _RoomPageState extends State<RoomPage> {
         height: MediaQuery.of(context).size.height,
         replyMessageId: _repliedMessage.value?.id ?? 0,
         resetRoomPageDetails: _resetRoomPageDetails,
-        child:  SafeArea(
+        child: SafeArea(
           child: Scaffold(
             extendBodyBehindAppBar: true,
             appBar: buildAppbar(),
@@ -191,7 +191,6 @@ class _RoomPageState extends State<RoomPage> {
         ),
         Column(
           children: <Widget>[
-            const SizedBox(height: APPBAR_HEIGHT,),
             buildAllMessagesBox(),
             StreamBuilder(
               stream: _repliedMessage.stream,
@@ -1066,8 +1065,15 @@ class _RoomPageState extends State<RoomPage> {
           minCacheExtent: 0,
           itemPositionsListener: _itemPositionsListener,
           itemScrollController: _itemScrollController,
-          itemBuilder: (context, index) =>
+          itemBuilder: (context, index) => Column(
+            children: [
+              if (index == 0)
+                const SizedBox(
+                  height: APPBAR_HEIGHT,
+                ),
               _buildMessage(index + room.firstMessageId),
+            ],
+          ),
           separatorBuilder: (context, index) {
             final firstIndex = index + room.firstMessageId;
 
