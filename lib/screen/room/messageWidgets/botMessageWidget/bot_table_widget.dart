@@ -15,10 +15,10 @@ class BotTableWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return createTable();
+    return createTable(context);
   }
 
-  Widget createTable() {
+  Widget createTable(BuildContext context) {
     final table = message.json.toTable();
     final rows = <TableRow>[];
     var columns = <Widget>[];
@@ -27,14 +27,21 @@ class BotTableWidget extends StatelessWidget {
     for (final row in table.rows) {
       columns = [];
       for (var i = 0; i < row.columns.length; ++i) {
-        columnWidths[i] = FixedColumnWidth(
-            table.columnWidths.isNotEmpty ? table.columnWidths[i] : 150,);
+        columnWidths[i] = table.columnWidths.isNotEmpty
+            ? FixedColumnWidth(
+                table.columnWidths[i],
+              )
+            : const IntrinsicColumnWidth();
         columns.add(
           Container(
             margin: const EdgeInsets.all(8),
-            child: Text(
-              row.columns[i],
-              style: TextStyle(fontWeight: row.bold ? FontWeight.bold : null),
+            child: Center(
+              child: Text(
+                row.columns[i],
+                style: TextStyle(
+                  fontWeight: row.bold ? FontWeight.bold : null,
+                ),
+              ),
             ),
           ),
         );
@@ -52,16 +59,24 @@ class BotTableWidget extends StatelessWidget {
         ),
       );
     }
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Table(
-        border: TableBorder.all(
-          color: colorScheme.onPrimary,
-          borderRadius: const BorderRadius.all(Radius.circular(8)),
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        maxWidth: MediaQuery.of(context).size.width - 20,
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Table(
+            border: TableBorder.all(
+              color: colorScheme.primary,
+              borderRadius: const BorderRadius.all(Radius.circular(8)),
+            ),
+            columnWidths: columnWidths,
+            defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+            children: rows,
+          ),
         ),
-        columnWidths: columnWidths,
-        defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-        children: rows,
       ),
     );
   }
