@@ -413,33 +413,39 @@ class _AllImagePageState extends State<AllImagePage>
         ),
         Align(
           alignment: Alignment.bottomCenter,
-          child: AnimatedOpacity(
-            duration: ANIMATION_DURATION * 2,
-            opacity: _isBarShowing.value ? 1 : 0,
-            child: StreamBuilder<int>(
-              stream: _currentIndex.stream,
-              builder: (context, index) {
-                if (index.hasData && index.data != null) {
-                  return FutureBuilder<Media?>(
-                    future: _getMedia(index.data!),
-                    builder: (c, mediaSnapshot) {
-                      if (mediaSnapshot.hasData && mediaSnapshot.data != null) {
-                        final json =
-                            jsonDecode(mediaSnapshot.data!.json) as Map;
-                        return buildCaptionSection(
-                          createdOn: mediaSnapshot.data!.createdOn,
-                          createdBy: mediaSnapshot.data!.createdBy,
-                          messageId: mediaSnapshot.data!.messageId,
-                          caption: (json["caption"].toString()),
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
+          child: StreamBuilder<bool>(
+            initialData: true,
+            stream:_isBarShowing.stream,
+            builder: (context, snapshot) {
+              return AnimatedOpacity(
+                duration: ANIMATION_DURATION * 2,
+                opacity: snapshot.data!?1:0,
+                child: StreamBuilder<int>(
+                  stream: _currentIndex.stream,
+                  builder: (context, index) {
+                    if (index.hasData && index.data != null) {
+                      return FutureBuilder<Media?>(
+                        future: _getMedia(index.data!),
+                        builder: (c, mediaSnapshot) {
+                          if (mediaSnapshot.hasData && mediaSnapshot.data != null) {
+                            final json =
+                                jsonDecode(mediaSnapshot.data!.json) as Map;
+                            return buildCaptionSection(
+                              createdOn: mediaSnapshot.data!.createdOn,
+                              createdBy: mediaSnapshot.data!.createdBy,
+                              messageId: mediaSnapshot.data!.messageId,
+                              caption: (json["caption"].toString()),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+              );
+            },
           ),
         )
       ],

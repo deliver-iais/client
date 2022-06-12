@@ -23,6 +23,16 @@ environment:
   sdk: ">=2.12.0 <3.0.0"
   flutter: ">=2.10.0-0"
 
+msix_config:
+    display_name: We
+    publisher_display_name: iais
+    identity_name: iais
+    msix_version: 1.0.0.0
+    certificate_path: C:\we\CERTIFICATE.pfx
+    certificate_password: 123456
+    logo_path: C:\we\ic_launcher.png
+
+
 dependencies:
   all_sensors2: 1.0.1
   android_intent: 2.0.2
