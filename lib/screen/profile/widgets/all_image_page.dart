@@ -470,9 +470,10 @@ class _AllImagePageState extends State<AllImagePage>
     required int createdOn,
   }) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const Spacer(),
-        buildCaption(caption),
+        if (caption.isNotEmpty) buildCaption(caption),
         buildFooter(
           createdBy: createdBy,
           createdOn: createdOn,
