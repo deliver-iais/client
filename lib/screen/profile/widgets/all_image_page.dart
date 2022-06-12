@@ -221,7 +221,12 @@ class _AllImagePageState extends State<AllImagePage>
         initialData: true,
         stream: _isBarShowing.stream,
         builder: (context, snapshot) {
-          return snapshot.data! ? buildAppBarWidget() : const SizedBox.shrink();
+          return AnimatedOpacity(
+            duration: ANIMATION_DURATION * 2,
+            opacity: snapshot.data! ? 1 : 0,
+            child:
+                snapshot.data! ? buildAppBarWidget() : const SizedBox.shrink(),
+          );
         },
       ),
     );
@@ -415,11 +420,11 @@ class _AllImagePageState extends State<AllImagePage>
           alignment: Alignment.bottomCenter,
           child: StreamBuilder<bool>(
             initialData: true,
-            stream:_isBarShowing.stream,
+            stream: _isBarShowing.stream,
             builder: (context, snapshot) {
               return AnimatedOpacity(
                 duration: ANIMATION_DURATION * 2,
-                opacity: snapshot.data!?1:0,
+                opacity: snapshot.data! ? 1 : 0,
                 child: StreamBuilder<int>(
                   stream: _currentIndex.stream,
                   builder: (context, index) {
@@ -427,7 +432,8 @@ class _AllImagePageState extends State<AllImagePage>
                       return FutureBuilder<Media?>(
                         future: _getMedia(index.data!),
                         builder: (c, mediaSnapshot) {
-                          if (mediaSnapshot.hasData && mediaSnapshot.data != null) {
+                          if (mediaSnapshot.hasData &&
+                              mediaSnapshot.data != null) {
                             final json =
                                 jsonDecode(mediaSnapshot.data!.json) as Map;
                             return buildCaptionSection(
