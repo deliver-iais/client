@@ -3,7 +3,6 @@ import 'dart:ui';
 
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
-import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -34,13 +33,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _coreServices = GetIt.I.get<CoreServices>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _uxService = GetIt.I.get<UxService>();
+  final _urlHandler = GetIt.I.get<UrlHandler>();
 
   Future<void> initUniLinks(BuildContext context) async {
     try {
       final initialLink = await getInitialLink();
       if (initialLink != null && initialLink.isNotEmpty) {
         // ignore: use_build_context_synchronously
-        UrlHandler().handleApplicationUri(initialLink, context);
+        _urlHandler.handleApplicationUri(initialLink, context);
       }
     } catch (e) {
       _logger.e(e);

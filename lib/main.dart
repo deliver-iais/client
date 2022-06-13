@@ -73,6 +73,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/methods/url.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
@@ -332,6 +333,7 @@ Future<void> setupDI() async {
   registerSingleton<RawKeyboardService>(RawKeyboardService());
 
   registerSingleton<CallRepo>(CallRepo());
+  registerSingleton<UrlHandler>(UrlHandler());
 }
 
 Future initializeFirebase() async {
