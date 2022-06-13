@@ -172,10 +172,12 @@ class _RoomPageState extends State<RoomPage> {
         height: MediaQuery.of(context).size.height,
         replyMessageId: _repliedMessage.value?.id ?? 0,
         resetRoomPageDetails: _resetRoomPageDetails,
-        child: Scaffold(
-          extendBodyBehindAppBar: true,
-          appBar: buildAppbar(),
-          body: buildBody(),
+        child: SafeArea(
+          child: Scaffold(
+            extendBodyBehindAppBar: true,
+            appBar: buildAppbar(),
+            body: buildBody(),
+          ),
         ),
       ),
     );
@@ -239,9 +241,7 @@ class _RoomPageState extends State<RoomPage> {
         ),
         Column(
           children: [
-            SizedBox(
-              height: isAndroid || isIOS ? APPBAR_HEIGHT + 24 : APPBAR_HEIGHT,
-            ),
+            const SizedBox(height: APPBAR_HEIGHT),
             if (isDebugEnabled())
               StreamBuilder<Seen>(
                 stream: _roomRepo.watchMySeen(widget.roomId),
@@ -1237,10 +1237,10 @@ class _RoomPageState extends State<RoomPage> {
       onDelete: onDelete,
     );
 
-    if (index == 0) {
+    if (index == room.firstMessageId) {
       return Column(
         children: [
-          const SizedBox(height: 50),
+          const SizedBox(height: APPBAR_HEIGHT),
           ChatTime(currentMessageTime: date(message.time)),
           msgBox
         ],
