@@ -39,7 +39,7 @@ class FireBaseServices {
     res['title'] = APPLICATION_NAME;
     res['body'] = "New message arrived";
 
-    return res;
+    return res
   }
 
   late FirebaseMessaging _firebaseMessaging;
