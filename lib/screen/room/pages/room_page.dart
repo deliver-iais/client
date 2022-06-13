@@ -1234,10 +1234,10 @@ class _RoomPageState extends State<RoomPage> {
       onDelete: onDelete,
     );
 
-    if (index == 0) {
+    if (index == room.firstMessageId) {
       return Column(
         children: [
-          const SizedBox(height: 50),
+          const SizedBox(height: APPBAR_HEIGHT),
           ChatTime(currentMessageTime: date(message.time)),
           msgBox
         ],
