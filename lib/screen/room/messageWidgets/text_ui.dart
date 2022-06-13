@@ -60,7 +60,12 @@ class TextUI extends StatelessWidget {
         tap = b.matchText;
       }
       if (b.type == "spoiler") {
-        return WidgetSpan(child: SpoilerLoader(b.text));
+        return WidgetSpan(
+          child: SpoilerLoader(
+            b.text,
+            foreground: colorScheme.onPrimaryContainer,
+          ),
+        );
       }
       return TextSpan(
         text: b.text,
