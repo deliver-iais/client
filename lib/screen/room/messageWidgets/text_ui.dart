@@ -6,7 +6,7 @@ import 'package:deliver/screen/room/messageWidgets/link_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver/shared/loaders/text_loader.dart';
+import 'package:deliver/shared/loaders/spoiler_loader.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/url.dart';
 import 'package:deliver/theme/color_scheme.dart';
@@ -25,8 +25,6 @@ class TextUI extends StatelessWidget {
   final void Function(String) onBotCommandClick;
   final bool isBotMessage;
   final CustomColorScheme colorScheme;
-  final void Function() onSpoilerClick;
-  final bool shouldSpoilText;
 
   TextUI({
     Key? key,
@@ -39,8 +37,6 @@ class TextUI extends StatelessWidget {
     this.isSender = false,
     this.isSeen = false,
     this.searchTerm,
-    required this.onSpoilerClick,
-    required this.shouldSpoilText,
   })  : isBotMessage = message.roomUid.asUid().isBot(),
         super(key: key);
 
@@ -56,7 +52,6 @@ class TextUI extends StatelessWidget {
       isBotMessage: isBotMessage,
       onBotCommandClick: onBotCommandClick,
       searchTerm: searchTerm,
-      onSpoilerClick: onSpoilerClick,
       onPrimaryContainer: colorScheme.onPrimaryContainer,
     );
     final spans = blocks.map<InlineSpan>((b) {
@@ -64,20 +59,8 @@ class TextUI extends StatelessWidget {
       if (b.type == "inlineURL") {
         tap = b.matchText;
       }
-      if (b.type == "spoiler" && !shouldSpoilText) {
-        return WidgetSpan(
-          child: GestureDetector(
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: TextLoader(
-                Text(b.text),
-                showJustTextLoader: true,
-                fitAsText: true,
-              ),
-            ),
-            onTap: () => b.onTap!(tap),
-          ),
-        );
+      if (b.type == "spoiler") {
+        return WidgetSpan(child: SpoilerLoader(b.text));
       }
       return TextSpan(
         text: b.text,
@@ -152,7 +135,6 @@ List<Block> extractBlocks(
   Function(String)? onUsernameClick,
   Function(String)? onBotCommandClick,
   bool isBotMessage = false,
-  Function()? onSpoilerClick,
   String Function(String)? spoilTransformer,
 }) {
   var blocks = <Block>[
@@ -166,7 +148,7 @@ List<Block> extractBlocks(
     BoldTextParser(),
     ItalicTextParser(),
     StrikethroughTextParser(),
-    SpoilerTextParser(onSpoilerClick ?? () {}, transformer: spoilTransformer),
+    SpoilerTextParser(transformer: spoilTransformer),
     EmojiParser(),
     if (searchTerm != null && searchTerm.isNotEmpty)
       SearchTermParser(searchTerm),
@@ -309,15 +291,13 @@ class StrikethroughTextParser implements Parser {
 }
 
 class SpoilerTextParser implements Parser {
-  final void Function() onSpoilerClick;
   final String Function(String)? transformer;
   final RegExp regex = RegExp(r"(?<!\\)(\|\|.+?(?<!\\)\|\|)", dotAll: true);
 
   static String transform(String m) =>
       m.substring(m.indexOf("||") + 2, m.lastIndexOf("||"));
 
-  SpoilerTextParser(
-    this.onSpoilerClick, {
+  SpoilerTextParser({
     this.transformer,
   });
 
@@ -327,9 +307,6 @@ class SpoilerTextParser implements Parser {
         regex,
         "spoiler",
         transformer: transformer ?? SpoilerTextParser.transform,
-        onTap: (text) {
-          onSpoilerClick();
-        },
       );
 }
 

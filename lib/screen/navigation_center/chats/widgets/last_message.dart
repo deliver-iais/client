@@ -4,7 +4,7 @@ import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_co
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver/shared/loaders/text_loader.dart';
+import 'package:deliver/shared/loaders/spoiler_loader.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/widgets/seen_status.dart';
 import 'package:flutter/cupertino.dart';
@@ -214,11 +214,7 @@ class LastMessage extends StatelessWidget {
             child: GestureDetector(
               child: MouseRegion(
                 cursor: SystemMouseCursors.click,
-                child: TextLoader(
-                  Text(e.text),
-                  showJustTextLoader: true,
-                  fitAsText: true,
-                ),
+                child: SpoilerLoader(e.text),
               ),
             ),
           );

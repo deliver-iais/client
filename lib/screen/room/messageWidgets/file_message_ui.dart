@@ -47,8 +47,6 @@ class _FileMessageUiState extends State<FileMessageUi> {
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _autoDownloadDao = GetIt.I.get<AutoDownloadDao>();
 
-  bool shouldSpoilText = false;
-
   @override
   void initState() {
     super.initState();
@@ -79,14 +77,6 @@ class _FileMessageUiState extends State<FileMessageUi> {
                 colorScheme: widget.colorScheme,
                 onUsernameClick: widget.onUsernameClick,
                 onBotCommandClick: (str) => {},
-                onSpoilerClick: () {
-                  setState(() {
-                    if (!shouldSpoilText) {
-                      shouldSpoilText = true;
-                    }
-                  });
-                },
-                shouldSpoilText: shouldSpoilText,
               ),
             ),
           )
