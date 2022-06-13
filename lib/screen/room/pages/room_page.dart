@@ -238,9 +238,7 @@ class _RoomPageState extends State<RoomPage> {
         ),
         Column(
           children: [
-            SizedBox(
-              height: isAndroid || isIOS ? APPBAR_HEIGHT + 24 : APPBAR_HEIGHT,
-            ),
+            const SizedBox(height: APPBAR_HEIGHT),
             if (isDebugEnabled())
               StreamBuilder<Seen>(
                 stream: _roomRepo.watchMySeen(widget.roomId),
@@ -1065,15 +1063,8 @@ class _RoomPageState extends State<RoomPage> {
           minCacheExtent: 0,
           itemPositionsListener: _itemPositionsListener,
           itemScrollController: _itemScrollController,
-          itemBuilder: (context, index) => Column(
-            children: [
-              if (index == 0)
-                const SizedBox(
-                  height: APPBAR_HEIGHT,
-                ),
+          itemBuilder: (context, index) =>
               _buildMessage(index + room.firstMessageId),
-            ],
-          ),
           separatorBuilder: (context, index) {
             final firstIndex = index + room.firstMessageId;
 
