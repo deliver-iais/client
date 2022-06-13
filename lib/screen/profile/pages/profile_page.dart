@@ -206,7 +206,8 @@ class _ProfilePageState extends State<ProfilePage>
                                             onPressed: () async {
                                               final paths =
                                                   await _getPathOfMedia(
-                                                      _selectedMedia,);
+                                                _selectedMedia,
+                                              );
                                               if (paths.isNotEmpty) {
                                                 Share.shareFiles(paths)
                                                     .ignore();
@@ -362,10 +363,9 @@ class _ProfilePageState extends State<ProfilePage>
   Future<List<String>> _getPathOfMedia(List<Media> medias) async {
     final paths = <String>[];
     for (final media in medias) {
-      final json =
-      jsonDecode(media.json) as Map;
+      final json = jsonDecode(media.json) as Map;
       final path = await (_fileRepo.getFileIfExist(json["uuid"], json["name"]));
-      if(path!= null ){
+      if (path != null) {
         paths.add(path);
       }
     }
@@ -616,7 +616,7 @@ class _ProfilePageState extends State<ProfilePage>
     return PopupMenuButton(
       icon: const Icon(Icons.more_vert),
       itemBuilder: (_) => <PopupMenuItem<String>>[
-        if (widget.roomUid.isMuc() && _isMucOwner)
+        if ((widget.roomUid.isMuc() && _isMucOwner) || widget.roomUid.isBot())
           PopupMenuItem<String>(
             child: Row(
               children: [
@@ -767,27 +767,34 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   Future<void> createInviteLink() async {
-    final muc = await _mucRepo.getMuc(widget.roomUid.asString());
-    if (muc != null) {
-      var token = muc.token;
-      if (token.isEmpty) {
-        if (widget.roomUid.category == Categories.GROUP) {
-          token = await _mucRepo.getGroupJointToken(groupUid: widget.roomUid);
-        } else {
-          token =
-              await _mucRepo.getChannelJointToken(channelUid: widget.roomUid);
+    if (widget.roomUid.isBot()) {
+      _showInviteLinkDialog(buildInviteLinkForBot());
+    } else {
+      final muc = await _mucRepo.getMuc(widget.roomUid.asString());
+      if (muc != null) {
+        var token = muc.token;
+        if (token.isEmpty) {
+          if (widget.roomUid.category == Categories.GROUP) {
+            token = await _mucRepo.getGroupJointToken(groupUid: widget.roomUid);
+          } else {
+            token =
+                await _mucRepo.getChannelJointToken(channelUid: widget.roomUid);
+          }
         }
-      }
-      if (token.isNotEmpty) {
-        _showInviteLinkDialog(token);
-      } else {
-        ToastDisplay.showToast(
-          toastText: _i18n.get("error_occurred"),
-          toastContext: context,
-        );
+        if (token.isNotEmpty) {
+          _showInviteLinkDialog(token);
+        } else {
+          ToastDisplay.showToast(
+            toastText: _i18n.get("error_occurred"),
+            toastContext: context,
+          );
+        }
       }
     }
   }
+
+  String buildInviteLinkForBot() =>
+      "https://$APPLICATION_DOMAIN/text?botId=${widget.roomUid.node}&text=/start";
 
   void _showInviteLinkDialog(String token) {
     showDialog(
@@ -808,7 +815,7 @@ class _ProfilePageState extends State<ProfilePage>
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  generateInviteLink(token),
+                  widget.roomUid.isBot() ? token : generateInviteLink(token),
                 ),
               ],
             ),
@@ -820,7 +827,11 @@ class _ProfilePageState extends State<ProfilePage>
                 TextButton(
                   onPressed: () {
                     Clipboard.setData(
-                      ClipboardData(text: generateInviteLink(token)),
+                      ClipboardData(
+                        text: widget.roomUid.isBot()
+                            ? token
+                            : generateInviteLink(token),
+                      ),
                     );
                     ToastDisplay.showToast(
                       toastText: _i18n.get("copied"),

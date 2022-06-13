@@ -3,7 +3,6 @@ import 'dart:ui';
 
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
-import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -18,7 +17,6 @@ import 'package:flutter_foreground_task/ui/with_foreground_task.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
-import 'package:uni_links/uni_links.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -35,17 +33,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _uxService = GetIt.I.get<UxService>();
 
-  Future<void> initUniLinks(BuildContext context) async {
-    try {
-      final initialLink = await getInitialLink();
-      if (initialLink != null && initialLink.isNotEmpty) {
-        // ignore: use_build_context_synchronously
-        await handleJoinUri(context, initialLink);
-      }
-    } catch (e) {
-      _logger.e(e);
-    }
-  }
 
   @override
   void initState() {
@@ -66,10 +53,7 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
       _notificationServices.cancelAllNotifications();
     }
     if (isAndroid) {
-      checkShareFile(context);
-    }
-    if (isAndroid || isIOS) {
-      initUniLinks(context);
+      checkHaveShareInput(context);
     }
     if (isWeb) {
       js.context.callMethod("getNotificationPermission", []);
@@ -107,14 +91,20 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     });
   }
 
-  void checkShareFile(BuildContext context) {
+  void checkHaveShareInput(BuildContext context) {
     ReceiveSharingIntent.getInitialMedia().then((value) {
       if (value.isNotEmpty) {
         final paths = <String>[];
         for (final path in value) {
           paths.add(path.path);
         }
-        _routingService.openShareFile(path: paths);
+        _routingService.openShareInput(paths: paths);
+      }
+    });
+
+    ReceiveSharingIntent.getInitialText().then((value) async {
+      if (value != null && value.isNotEmpty) {
+        await handleJoinUri(context, value,sendAsMessage: true);
       }
     });
   }

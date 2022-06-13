@@ -178,6 +178,17 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 }
               },
             ),
+          if (widget.message.type == MessageType.TEXT && isAndroid)
+            PopupMenuItem(
+              value: OperationOnMessage.SHARE,
+              child: Row(
+                children: [
+                  const Icon(Icons.share),
+                  const SizedBox(width: 8),
+                  Text(_i18n.get("share")),
+                ],
+              ),
+            ),
           if (widget.message.roomUid.isMuc())
             PopupMenuItem(
               value: OperationOnMessage.REPORT,

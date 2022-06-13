@@ -100,7 +100,7 @@ class LastMessage extends StatelessWidget {
     final theme = Theme.of(context);
 
     final mb = messageSR;
-    final isReceivedMessage = !_authRepo.isCurrentUser(mb.sender);
+    final isReceivedMessage = !_authRepo.isCurrentUser(mb.from.asString());
 
     return Column(
       mainAxisSize: MainAxisSize.min,
