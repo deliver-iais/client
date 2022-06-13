@@ -340,11 +340,11 @@ void showDeleteMsgDialog(
             primary: Theme.of(context).colorScheme.error,
           ),
           child: Text(_i18n.get("delete")),
-          onPressed: () {
-            _messageRepo.deleteMessage(messages);
-
-            onDelete();
+          onPressed: () async {
+            // ignore: use_build_context_synchronously
             Navigator.pop(c);
+            await _messageRepo.deleteMessage(messages);
+            onDelete();
           },
         ),
       ],
