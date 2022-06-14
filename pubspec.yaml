@@ -125,11 +125,7 @@ dependencies:
   path_provider: 2.0.7
   path_provider_android: 2.0.11
   percent_indicator: 3.4.0
-  permission_handler:
-    git:
-      path: permission_handler
-      ref: ad2e177e7c528ba71ca1cea408bb38e74bd8f483
-      url: https://github.com/AmirhosseinShk/flutter-permission-handler
+  permission_handler: ^9.2.0
   persian_datetime_picker: 2.4.0
   photo_manager: 2.1.1
   platform_detect: 2.0.0
@@ -148,7 +144,6 @@ dependencies:
   simple_animations: 4.0.2
   sms_autofill: 2.2.0
   synchronized: 3.0.0+2
-  system_alert_window: ^1.1.1
   tuple: 2.0.0
   uni_links: 0.5.1
   universal_html: 2.0.8

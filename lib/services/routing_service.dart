@@ -42,7 +42,6 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:system_alert_window/system_alert_window.dart';
 
 // Pages
 const _navigationCenter = NavigationCenter(key: ValueKey("navigator"));
