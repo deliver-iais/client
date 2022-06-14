@@ -16,6 +16,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
+import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
@@ -65,6 +66,7 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
+import 'package:share/share.dart';
 import 'package:tuple/tuple.dart';
 
 const APPBAR_HEIGHT = 54.0;
@@ -102,6 +104,7 @@ class _RoomPageState extends State<RoomPage> {
   static final _callService = GetIt.I.get<CallService>();
   static final _callRepo = GetIt.I.get<CallRepo>();
   static final _fireBaseServices = GetIt.I.get<FireBaseServices>();
+  static final _fileRepo = GetIt.I.get<FileRepo>();
 
   int _lastSeenMessageId = -1;
   int _lastShowedMessageId = -1;
@@ -1311,12 +1314,25 @@ class _RoomPageState extends State<RoomPage> {
   Widget _selectMultiMessageAppBar() {
     final theme = Theme.of(context);
     var _hasPermissionToDeleteMsg = true;
+    var shareType = MessageType.FILE;
+    var canShareMessage = true;
+
     for (final message in _selectedMessages.values.toList()) {
       if ((_authRepo.isCurrentUserSender(message) ||
               (message.roomUid.isChannel() && _hasPermissionInChannel.value) ||
               (message.roomUid.isGroup() && _hasPermissionInGroup.value)) ==
           false) {
         _hasPermissionToDeleteMsg = false;
+      }
+    }
+    for (final message in _selectedMessages.values.toList()) {
+      if (message.type != MessageType.FILE && shareType == MessageType.FILE) {
+        shareType = MessageType.TEXT;
+      }
+      if (message.type != MessageType.TEXT &&
+          message.type != MessageType.FILE) {
+        canShareMessage = false;
+        break;
       }
     }
     return Padding(
@@ -1345,6 +1361,85 @@ class _RoomPageState extends State<RoomPage> {
                 icon: const Icon(CupertinoIcons.delete),
                 onPressed: () {
                   _deleteSelectedMessage();
+                },
+              ),
+            ),
+          if (canShareMessage && isAndroid)
+            Tooltip(
+              message: _i18n.get("share"),
+              child: IconButton(
+                color: Theme.of(context).primaryColor,
+                icon: const Icon(Icons.share),
+                onPressed: () async {
+                  var copyText = "";
+                  final messages = _selectedMessages.values.toList()
+                    ..sort(
+                      (a, b) => a.id == null
+                          ? 1
+                          : b.id == null
+                              ? -1
+                              : a.id!.compareTo(b.id!),
+                    );
+                  if (shareType == MessageType.TEXT) {
+                    for (final message in messages) {
+                      if (message.type == MessageType.TEXT) {
+                        copyText = copyText +
+                            await _roomRepo.getName(message.from.asUid()) +
+                            ":\n" +
+                            message.json.toText().text;
+                      } else if (message.type == MessageType.FILE) {
+                        final type = message.json.toFile().type;
+                        var fileType = "🖼";
+                        if (type.contains("image")) {
+                          fileType = "🖼";
+                        } else if (type.contains("video")) {
+                          fileType = "🎥";
+                        } else if (type.contains("audio")) {
+                          fileType = "🎵";
+                        }
+
+                        copyText = copyText +
+                            await _roomRepo.getName(message.from.asUid()) +
+                            ":\n" +
+                            fileType +
+                            "\n" +
+                            message.json.toFile().caption;
+                      }
+                      copyText = copyText +
+                          "\n" +
+                          DateTime.fromMillisecondsSinceEpoch(
+                            message.time,
+                          ).toString().substring(0, 19) +
+                          "\n";
+                    }
+
+                    Share.share(
+                      copyText,
+                    ).ignore();
+                  } else if (shareType == MessageType.FILE) {
+                    final paths = <String>[];
+                    for (final message in messages) {
+                      final path = await _fileRepo.getFileIfExist(
+                        message.json.toFile().uuid,
+                        message.json.toFile().name,
+                      );
+                      if (path != null) {
+                        paths.add(path);
+                      } else {
+                        ToastDisplay.showToast(
+                          toastText: _i18n.get("download_file_to_share"),
+                          toastContext: context,
+                        );
+                      }
+                    }
+
+                    Share.shareFiles(
+                      paths,
+                    ).ignore();
+                  }
+
+                  Clipboard.setData(ClipboardData(text: copyText)).ignore();
+                  onDelete();
                 },
               ),
             ),

@@ -17,7 +17,6 @@ import 'package:flutter_foreground_task/ui/with_foreground_task.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
-import 'package:uni_links/uni_links.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -35,18 +34,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _uxService = GetIt.I.get<UxService>();
   final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
 
-  Future<void> initUniLinks(BuildContext context) async {
-    try {
-      final initialLink = await getInitialLink();
-      if (initialLink != null && initialLink.isNotEmpty) {
-        // ignore: use_build_context_synchronously
-        _urlHandlerService.handleApplicationUri(initialLink, context);
-      }
-    } catch (e) {
-      _logger.e(e);
-    }
-  }
-
   @override
   void initState() {
     //this means user login successfully
@@ -63,13 +50,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     };
     _coreServices.initStreamConnection();
     if (isAndroid || isIOS) {
+      checkHaveShareInput(context);
       _notificationServices.cancelAllNotifications();
-    }
-    if (isAndroid) {
-      checkShareFile(context);
-    }
-    if (isAndroid || isIOS) {
-      initUniLinks(context);
     }
     if (isWeb) {
       js.context.callMethod("getNotificationPermission", []);
@@ -107,14 +89,21 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     });
   }
 
-  void checkShareFile(BuildContext context) {
+  void checkHaveShareInput(BuildContext context) {
     ReceiveSharingIntent.getInitialMedia().then((value) {
       if (value.isNotEmpty) {
         final paths = <String>[];
         for (final path in value) {
           paths.add(path.path);
         }
-        _routingService.openShareFile(path: paths);
+        _routingService.openShareInput(paths: paths);
+      }
+    });
+
+    ReceiveSharingIntent.getInitialText().then((value) async {
+      if (value != null && value.isNotEmpty) {
+        _urlHandlerService.handleApplicationUri(value, context,
+            shareTextMessage: true);
       }
     });
   }

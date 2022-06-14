@@ -261,10 +261,12 @@ class RoutingService {
         ),
       );
 
-  void openShareFile({required List<String> path}) => _push(
+  void openShareInput({List<String> paths = const [], String text = ""}) =>
+      _push(
         ShareInputFile(
           key: const ValueKey("/share_file_page"),
-          inputSharedFilePath: path,
+          inputSharedFilePath: paths,
+          inputShareText: text,
         ),
       );
 

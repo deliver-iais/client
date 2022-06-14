@@ -412,6 +412,7 @@ class OperationOnMessageSelection {
   static final _logger = GetIt.I.get<Logger>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _routingServices = GetIt.I.get<RoutingService>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
 
   final void Function()? onReply;
   final void Function()? onEdit;
@@ -540,19 +541,33 @@ class OperationOnMessageSelection {
   }
 
   Future<void> onShare() async {
-    try {
-      final result = await _fileRepo.getFileIfExist(
-        message.json.toFile().uuid,
-        message.json.toFile().name,
+    if (message.type == MessageType.TEXT) {
+      final copyText = await _roomRepo.getName(message.from.asUid()) +
+          ":\n" +
+          message.json.toText().text +
+          "\n" +
+          DateTime.fromMillisecondsSinceEpoch(
+            message.time,
+          ).toString().substring(0, 19);
+
+      return Share.share(
+        copyText,
       );
-      if (result!.isNotEmpty) {
-        return Share.shareFiles(
-          [(result)],
-          text: message.json.toFile().caption,
+    } else {
+      try {
+        final result = await _fileRepo.getFileIfExist(
+          message.json.toFile().uuid,
+          message.json.toFile().name,
         );
+        if (result!.isNotEmpty) {
+          return Share.shareFiles(
+            [(result)],
+            text: message.json.toFile().caption,
+          );
+        }
+      } catch (e) {
+        _logger.e(e);
       }
-    } catch (e) {
-      _logger.e(e);
     }
   }
 

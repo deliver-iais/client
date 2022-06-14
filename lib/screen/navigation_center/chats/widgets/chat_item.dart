@@ -110,6 +110,7 @@ class _ChatItemState extends State<ChatItem> {
       message: message,
       lastMessageId: widget.room.lastMessageId,
       hasMentioned: widget.room.mentioned == true,
+      showSeenStatus: _authRepo.isCurrentUser(message.from),
       showSender:
           widget.room.uid.isMuc() || _authRepo.isCurrentUser(message.from),
       pinned: widget.room.pinned,
