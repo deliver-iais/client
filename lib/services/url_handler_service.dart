@@ -49,7 +49,7 @@ class UrlHandlerService {
   void handleApplicationUri(
     String url,
     BuildContext context, {
-    QRViewController? controller,
+    QRViewController? qrViewController,
   }) {
     final uri = Uri.parse(url);
 
@@ -60,7 +60,7 @@ class UrlHandlerService {
     final segments =
         uri.pathSegments.where((e) => e != APPLICATION_DOMAIN).toList();
 
-    if (segments.first == AC) {
+    if (segments.first == ADD_CONTACT_URL) {
       handleAddContact(
         context: context,
         countryCode: uri.queryParameters["cc"],
@@ -68,22 +68,22 @@ class UrlHandlerService {
         firstName: uri.queryParameters["fn"],
         lastName: uri.queryParameters["ln"],
       );
-    } else if (segments.first == SPDA) {
+    } else if (segments.first == SHARE_PRIVATE_DATA_ACCEPTANCE_URL) {
       handleSendPrivateDateAcceptance(
         context,
         uri.queryParameters["type"]!,
         uri.queryParameters["botId"]!,
         uri.queryParameters["token"]!,
-        controller,
+        qrViewController,
       );
-    } else if (segments.first == TEXT) {
+    } else if (segments.first == SEND_TEXT_URL) {
       handleSendMsgToBot(
         context,
         uri.queryParameters["botId"]!,
         uri.queryParameters["text"]!,
-        controller,
+        qrViewController,
       );
-    } else if (segments.first == JOIN) {
+    } else if (segments.first == JOIN_URL) {
       if (segments[1] == "GROUP") {
         handleJoin(
           context,
@@ -101,9 +101,9 @@ class UrlHandlerService {
           segments[3],
         );
       }
-    } else if (segments.first == LOGIN) {
-      handleLogin(context, uri.queryParameters["token"]!, controller);
-    } else if (segments.first == USER) {
+    } else if (segments.first == LOGIN_URL) {
+      handleLogin(context, uri.queryParameters["token"]!, qrViewController);
+    } else if (segments.first == USER_URL) {
       if (uri.queryParameters["id"] != null) {
         _routingService.openRoom(
           (Uid.create()
@@ -112,9 +112,9 @@ class UrlHandlerService {
               .asString(),
         );
       }
-    } else if (segments.first == GROUP) {
+    } else if (segments.first == GROUP_URL) {
       handleIdLink(context, uri.queryParameters["id"], Categories.GROUP);
-    } else if (segments.first == CHANNEL) {
+    } else if (segments.first == CHANNEL_URL) {
       handleIdLink(context, uri.queryParameters["id"], Categories.CHANNEL);
     }
   }

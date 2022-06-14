@@ -79,7 +79,7 @@ class _ScanQrCode extends State<ScanQrCode> {
       _urlHandlerService.handleApplicationUri(
         scanData!,
         context,
-        controller: controller,
+        qrViewController: controller,
       );
     });
   }
