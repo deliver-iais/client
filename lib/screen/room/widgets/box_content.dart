@@ -116,35 +116,36 @@ class _BoxContentState extends State<BoxContent> {
           ),
           if (isDesktop | isWeb)
             StreamBuilder<bool>(
-                initialData: false,
-                stream: showMenuBehavior.distinct(),
-                builder: (context, snapshot) {
-                  final showMenu = snapshot.data ?? false;
+              initialData: false,
+              stream: showMenuBehavior.distinct(),
+              builder: (context, snapshot) {
+                final showMenu = snapshot.data ?? false;
 
-                  return MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      onTapDown: (tapDownDetails) {
-                        widget.storePosition(tapDownDetails);
-                      },
-                      onTap: () => widget.onArrowIconClick(),
-                      child: AnimatedOpacity(
-                        opacity: showMenu ? 1.0 : 0.0,
-                        duration: const Duration(milliseconds: 200),
-                        child: Container(
-                          margin: const EdgeInsets.all(2),
-                          child: const BlurContainer(
-                            padding: EdgeInsets.all(3),
-                            child: Icon(
-                              CupertinoIcons.chevron_down,
-                              size: 16,
-                            ),
+                return MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    onTapDown: (tapDownDetails) {
+                      widget.storePosition(tapDownDetails);
+                    },
+                    onTap: () => widget.onArrowIconClick(),
+                    child: AnimatedOpacity(
+                      opacity: showMenu ? 1.0 : 0.0,
+                      duration: const Duration(milliseconds: 200),
+                      child: Container(
+                        margin: const EdgeInsets.all(2),
+                        child: const BlurContainer(
+                          padding: EdgeInsets.all(3),
+                          child: Icon(
+                            CupertinoIcons.chevron_down,
+                            size: 16,
                           ),
                         ),
                       ),
                     ),
-                  );
-                }),
+                  ),
+                );
+              },
+            ),
         ],
       ),
     );

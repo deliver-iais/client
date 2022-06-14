@@ -87,8 +87,11 @@ class ContainerPatternPainter extends CustomPainter {
       bgColor: Colors.transparent,
       fgColor: foreground,
       featuresCount: 200,
-    ).paintOnWidget(canvas, size,
-        patternScaleBehavior: PatternScaleBehavior.canvas);
+    ).paintOnWidget(
+      canvas,
+      size,
+      patternScaleBehavior: PatternScaleBehavior.canvas,
+    );
   }
 
   @override
