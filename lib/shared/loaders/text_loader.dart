@@ -16,6 +16,7 @@ class TextLoader extends StatelessWidget {
     return text;
   }
 
+
   Widget buildLoader(BuildContext context) {
     final theme = Theme.of(context);
 
