@@ -6,9 +6,9 @@ import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/methods/url.dart';
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -32,7 +32,19 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _coreServices = GetIt.I.get<CoreServices>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _uxService = GetIt.I.get<UxService>();
+  final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
 
+  Future<void> initUniLinks(BuildContext context) async {
+    try {
+      final initialLink = await getInitialLink();
+      if (initialLink != null && initialLink.isNotEmpty) {
+        // ignore: use_build_context_synchronously
+        _urlHandlerService.handleApplicationUri(initialLink, context);
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
 
   @override
   void initState() {

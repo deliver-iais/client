@@ -285,7 +285,9 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                                   spreadRadius: 2,
                                   blurRadius: 3,
                                   offset: const Offset(
-                                      0, 3,), // changes position of shadow
+                                    0,
+                                    3,
+                                  ), // changes position of shadow
                                 ),
                               ],
                               color: Theme.of(context).backgroundColor,

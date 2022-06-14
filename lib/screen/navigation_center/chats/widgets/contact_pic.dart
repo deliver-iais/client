@@ -4,6 +4,7 @@ import 'package:deliver/repository/lastActivityRepo.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -39,7 +40,7 @@ class ContactPic extends StatelessWidget {
                           width: 12.0,
                           height: 12.0,
                           decoration: BoxDecoration(
-                            color: Colors.greenAccent.shade700,
+                            color: EnableColor,
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: theme.scaffoldBackgroundColor,

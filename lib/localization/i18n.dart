@@ -47,7 +47,7 @@ class I18N {
 
   bool get isPersian => _language.value.countryCode.contains(farsi.countryCode);
 
-  Stream get localeStream => _language.stream.distinct().map((e) => e.locale);
+  Stream get localeStream => _language.distinct().map((e) => e.locale);
 
   Locale get locale => _language.value.locale;
 

@@ -30,7 +30,7 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final style = GoogleFonts.notoColorEmojiCompat(
+    final style = GoogleFonts.notoEmoji(
       fontSize: 22,
     );
 
@@ -266,7 +266,7 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                         child: Center(
                           child: Text(
                             emoji.toString(),
-                            style: GoogleFonts.notoColorEmojiCompat(
+                            style: GoogleFonts.notoEmoji(
                               fontSize: 25,
                             ),
                           ),
