@@ -50,72 +50,77 @@ class UrlHandlerService {
     String url,
     BuildContext context, {
     QRViewController? qrViewController,
+    bool shareTextMessage = false,
   }) {
-    final uri = Uri.parse(url);
+    if (shareTextMessage && !url.contains(APPLICATION_DOMAIN)) {
+      _routingService.openShareInput(text: url);
+    } else {
+      final uri = Uri.parse(url);
 
-    if (uri.host != APPLICATION_DOMAIN) {
-      return;
-    }
-
-    final segments =
-        uri.pathSegments.where((e) => e != APPLICATION_DOMAIN).toList();
-
-    if (segments.first == ADD_CONTACT_URL) {
-      handleAddContact(
-        context: context,
-        countryCode: uri.queryParameters["cc"],
-        nationalNumber: uri.queryParameters["nn"],
-        firstName: uri.queryParameters["fn"],
-        lastName: uri.queryParameters["ln"],
-      );
-    } else if (segments.first == SHARE_PRIVATE_DATA_ACCEPTANCE_URL) {
-      handleSendPrivateDateAcceptance(
-        context,
-        uri.queryParameters["type"]!,
-        uri.queryParameters["botId"]!,
-        uri.queryParameters["token"]!,
-        qrViewController,
-      );
-    } else if (segments.first == SEND_TEXT_URL) {
-      handleSendMsgToBot(
-        context,
-        uri.queryParameters["botId"]!,
-        uri.queryParameters["text"]!,
-        qrViewController,
-      );
-    } else if (segments.first == JOIN_URL) {
-      if (segments[1] == "GROUP") {
-        handleJoin(
-          context,
-          Uid.create()
-            ..node = segments[2]
-            ..category = Categories.GROUP,
-          segments[3],
-        );
-      } else if (segments[1] == "CHANNEL") {
-        handleJoin(
-          context,
-          Uid.create()
-            ..node = segments[2]
-            ..category = Categories.CHANNEL,
-          segments[3],
-        );
+      if (uri.host != APPLICATION_DOMAIN) {
+        return;
       }
-    } else if (segments.first == LOGIN_URL) {
-      handleLogin(context, uri.queryParameters["token"]!, qrViewController);
-    } else if (segments.first == USER_URL) {
-      if (uri.queryParameters["id"] != null) {
-        _routingService.openRoom(
-          (Uid.create()
-                ..node = uri.queryParameters["id"]!
-                ..category = Categories.USER)
-              .asString(),
+
+      final segments =
+          uri.pathSegments.where((e) => e != APPLICATION_DOMAIN).toList();
+
+      if (segments.first == ADD_CONTACT_URL) {
+        handleAddContact(
+          context: context,
+          countryCode: uri.queryParameters["cc"],
+          nationalNumber: uri.queryParameters["nn"],
+          firstName: uri.queryParameters["fn"],
+          lastName: uri.queryParameters["ln"],
         );
+      } else if (segments.first == SHARE_PRIVATE_DATA_ACCEPTANCE_URL) {
+        handleSendPrivateDateAcceptance(
+          context,
+          uri.queryParameters["type"]!,
+          uri.queryParameters["botId"]!,
+          uri.queryParameters["token"]!,
+          qrViewController,
+        );
+      } else if (segments.first == SEND_TEXT_URL) {
+        handleSendMsgToBot(
+          context,
+          uri.queryParameters["botId"]!,
+          uri.queryParameters["text"]!,
+          qrViewController,
+        );
+      } else if (segments.first == JOIN_URL) {
+        if (segments[1] == "GROUP") {
+          handleJoin(
+            context,
+            Uid.create()
+              ..node = segments[2]
+              ..category = Categories.GROUP,
+            segments[3],
+          );
+        } else if (segments[1] == "CHANNEL") {
+          handleJoin(
+            context,
+            Uid.create()
+              ..node = segments[2]
+              ..category = Categories.CHANNEL,
+            segments[3],
+          );
+        }
+      } else if (segments.first == LOGIN_URL) {
+        handleLogin(context, uri.queryParameters["token"]!, qrViewController);
+      } else if (segments.first == USER_URL) {
+        if (uri.queryParameters["id"] != null) {
+          _routingService.openRoom(
+            (Uid.create()
+                  ..node = uri.queryParameters["id"]!
+                  ..category = Categories.USER)
+                .asString(),
+          );
+        }
+      } else if (segments.first == GROUP_URL) {
+        handleIdLink(context, uri.queryParameters["id"], Categories.GROUP);
+      } else if (segments.first == CHANNEL_URL) {
+        handleIdLink(context, uri.queryParameters["id"], Categories.CHANNEL);
       }
-    } else if (segments.first == GROUP_URL) {
-      handleIdLink(context, uri.queryParameters["id"], Categories.GROUP);
-    } else if (segments.first == CHANNEL_URL) {
-      handleIdLink(context, uri.queryParameters["id"], Categories.CHANNEL);
     }
   }
 

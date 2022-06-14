@@ -34,18 +34,6 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _uxService = GetIt.I.get<UxService>();
   final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
 
-  Future<void> initUniLinks(BuildContext context) async {
-    try {
-      final initialLink = await getInitialLink();
-      if (initialLink != null && initialLink.isNotEmpty) {
-        // ignore: use_build_context_synchronously
-        _urlHandlerService.handleApplicationUri(initialLink, context);
-      }
-    } catch (e) {
-      _logger.e(e);
-    }
-  }
-
   @override
   void initState() {
     //this means user login successfully
@@ -62,10 +50,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     };
     _coreServices.initStreamConnection();
     if (isAndroid || isIOS) {
-      _notificationServices.cancelAllNotifications();
-    }
-    if (isAndroid) {
       checkHaveShareInput(context);
+      _notificationServices.cancelAllNotifications();
     }
     if (isWeb) {
       js.context.callMethod("getNotificationPermission", []);
@@ -116,7 +102,8 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     ReceiveSharingIntent.getInitialText().then((value) async {
       if (value != null && value.isNotEmpty) {
-        await handleJoinUri(context, value,sendAsMessage: true);
+        _urlHandlerService.handleApplicationUri(value, context,
+            shareTextMessage: true);
       }
     });
   }
