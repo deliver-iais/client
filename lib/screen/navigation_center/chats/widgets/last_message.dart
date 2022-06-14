@@ -209,7 +209,7 @@ class LastMessage extends StatelessWidget {
             .join(" "),
         context: context,
       ).where((b) => b.text.isNotEmpty).map((e) {
-        if (e.type == "spoiler") {
+        if (e.type == BlockTypes.SPOILER) {
           return WidgetSpan(
             baseline: TextBaseline.ideographic,
             alignment: PlaceholderAlignment.middle,
@@ -219,6 +219,9 @@ class LastMessage extends StatelessWidget {
               disableSpoilerReveal: true,
             ),
           );
+        }
+        if (e.type == BlockTypes.EMOJI) {
+          return TextSpan(text: e.text, style: e.style?.copyWith(fontSize: 14));
         }
         return TextSpan(text: e.text, style: e.style);
       }).toList();

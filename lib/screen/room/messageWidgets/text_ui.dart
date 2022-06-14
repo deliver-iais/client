@@ -57,10 +57,10 @@ class TextUI extends StatelessWidget {
     );
     final spans = blocks.map<InlineSpan>((b) {
       var tap = b.text;
-      if (b.type == "inlineURL") {
+      if (b.type == BlockTypes.INLINE_URL) {
         tap = b.matchText;
       }
-      if (b.type == "spoiler") {
+      if (b.type == BlockTypes.SPOILER) {
         return WidgetSpan(
           baseline: TextBaseline.ideographic,
           alignment: PlaceholderAlignment.middle,
@@ -80,7 +80,7 @@ class TextUI extends StatelessWidget {
     }).toList();
     String link;
     try {
-      link = blocks.firstWhere((b) => b.type == "url").text;
+      link = blocks.firstWhere((b) => b.type == BlockTypes.URL).text;
     } catch (e) {
       link = "";
     }
@@ -203,7 +203,7 @@ class UrlParser implements Parser {
   List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
-        "url",
+        BlockTypes.URL,
         onTap: context == null ? (uri) {} : (uri) => onUrlTap((uri), context),
         style: context != null
             ? TextStyle(color: Theme.of(context).primaryColor)
@@ -213,7 +213,7 @@ class UrlParser implements Parser {
 
 class IdParser implements Parser {
   final void Function(String) onUsernameClick;
-  final RegExp regex = RegExp(r"[@][a-zA-Z]([a-zA-Z0-9_]){4,19}");
+  final RegExp regex = RegExp(r"@[a-zA-Z](\w){4,19}");
 
   IdParser(this.onUsernameClick);
 
@@ -221,7 +221,7 @@ class IdParser implements Parser {
   List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
-        "id",
+        BlockTypes.ID,
         onTap: (id) => onUsernameClick(id),
         style: context != null
             ? TextStyle(color: Theme.of(context).primaryColor)
@@ -240,7 +240,7 @@ class BoldTextParser implements Parser {
   List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
-        "bold",
+        BlockTypes.BOLD,
         transformer: BoldTextParser.transformer,
         style: const TextStyle(fontWeight: FontWeight.w800),
       );
@@ -256,7 +256,7 @@ class ItalicTextParser implements Parser {
   List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
-        "italic",
+        BlockTypes.ITALIC,
         transformer: ItalicTextParser.transformer,
         style: const TextStyle(
           fontStyle: FontStyle.italic,
@@ -274,7 +274,7 @@ class UnderlineTextParser implements Parser {
   List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
-        "underline",
+        BlockTypes.UNDERLINE,
         transformer: UnderlineTextParser.transformer,
         style: const TextStyle(
           decoration: TextDecoration.underline,
@@ -292,7 +292,7 @@ class StrikethroughTextParser implements Parser {
   List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
-        "strikethrough",
+        BlockTypes.STRIKETHROUGH,
         transformer: StrikethroughTextParser.transformer,
         style: const TextStyle(
           decoration: TextDecoration.lineThrough,
@@ -315,7 +315,7 @@ class SpoilerTextParser implements Parser {
   List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
-        "spoiler",
+        BlockTypes.SPOILER,
         transformer: transformer ?? SpoilerTextParser.transform,
       );
 }
@@ -334,7 +334,7 @@ class InlineUrlTextParser implements Parser {
   List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
-        "inlineURL",
+        BlockTypes.INLINE_URL,
         onTap: context == null
             ? (text) {}
             : (text) => onUrlTap(
@@ -360,14 +360,14 @@ class EmojiParser implements Parser {
   List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
-        "emoji",
+        BlockTypes.EMOJI,
         style: GoogleFonts.notoEmoji(fontSize: fontSize),
       );
 }
 
 class BotCommandParser implements Parser {
   final void Function(String) onBotCommandClick;
-  final RegExp regex = RegExp(r"[/]([a-zA-Z0-9_-]){5,40}");
+  final RegExp regex = RegExp(r"/([a-zA-Z\d_-]){5,40}");
 
   BotCommandParser(this.onBotCommandClick);
 
@@ -375,7 +375,7 @@ class BotCommandParser implements Parser {
   List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
-        "bot",
+        BlockTypes.BOT_COMMAND,
         onTap: (id) => onBotCommandClick(id),
         style: context != null
             ? TextStyle(color: Theme.of(context).primaryColor)
@@ -392,7 +392,7 @@ class SearchTermParser implements Parser {
   List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         RegExp(searchTerm),
-        "search",
+        BlockTypes.SEARCH_TERM,
         style: context != null
             ? TextStyle(color: Theme.of(context).primaryColor)
             : null,
@@ -415,28 +415,43 @@ String synthesize(String text) {
       .replaceAll("~", "\\~");
 }
 
+enum BlockTypes {
+  DEFAULT,
+  ID,
+  BOLD,
+  ITALIC,
+  STRIKETHROUGH,
+  UNDERLINE,
+  EMOJI,
+  BOT_COMMAND,
+  SEARCH_TERM,
+  SPOILER,
+  INLINE_URL,
+  URL,
+}
+
 class Block {
+  final BlockTypes type;
   final String text;
   final bool locked;
   final String matchText;
   final void Function(String)? onTap;
   final TextStyle? style;
-  final String? type;
 
   Block({
     this.matchText = "",
+    this.type = BlockTypes.DEFAULT,
     required this.text,
     this.locked = false,
     this.onTap,
     this.style,
-    this.type,
   });
 }
 
 List<Block> parseBlocks(
   List<Block> blocks,
   RegExp regex,
-  String type, {
+  BlockTypes type, {
   void Function(String)? onTap,
   TextStyle? style,
   String Function(String) transformer = same,
@@ -463,10 +478,10 @@ List<Block> parseText(
   RegExp regex,
   void Function(String)? onTap,
   TextStyle style,
-  String type, {
+  BlockTypes type, {
   String Function(String) transformer = same,
 }) {
-  if (type == "inlineURL") {
+  if (type == BlockTypes.INLINE_URL) {
     text = synthesizeToOriginalWord(text);
   }
   var start = 0;
