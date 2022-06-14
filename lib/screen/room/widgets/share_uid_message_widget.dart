@@ -13,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class ShareUidMessageWidget extends StatelessWidget {
+  static final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
+
   final Message message;
   final bool isSender;
   final bool isSeen;
@@ -86,7 +88,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                   _routingServices.openRoom(_shareUid.uid.asString());
                 } else {
                   // ignore: use_build_context_synchronously
-                  await UrlHandler().handleJoin(
+                  await _urlHandlerService.handleJoin(
                     context,
                     _shareUid.uid,
                     _shareUid.joinToken,

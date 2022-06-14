@@ -333,7 +333,7 @@ Future<void> setupDI() async {
   registerSingleton<RawKeyboardService>(RawKeyboardService());
 
   registerSingleton<CallRepo>(CallRepo());
-  registerSingleton<UrlHandler>(UrlHandler());
+  registerSingleton<UrlHandlerService>(UrlHandlerService());
 }
 
 Future initializeFirebase() async {

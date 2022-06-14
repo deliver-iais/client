@@ -36,7 +36,7 @@ String buildShareUserUrl(
     "https://$APPLICATION_DOMAIN/ac?cc=$countryCode&nn=$nationalNumber&fn=$firstName&ln=$lastName";
 
 //https://deliver-co.ir/text?botId="bdff_bot" & text="/start"
-class UrlHandler {
+class UrlHandlerService {
   final _mucDao = GetIt.I.get<MucDao>();
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _i18n = GetIt.I.get<I18N>();

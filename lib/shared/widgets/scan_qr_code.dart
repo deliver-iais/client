@@ -15,7 +15,8 @@ class ScanQrCode extends StatefulWidget {
 
 class _ScanQrCode extends State<ScanQrCode> {
   late QRViewController controller;
-  final GlobalKey qrKey = GlobalKey(debugLabel: 'QR');
+  final GlobalKey _qrGlobalKey = GlobalKey();
+  final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
   final _routingServices = GetIt.I.get<RoutingService>();
 
   @override
@@ -54,7 +55,7 @@ class _ScanQrCode extends State<ScanQrCode> {
         : 350.0;
 
     return QRView(
-      key: qrKey,
+      key: _qrGlobalKey,
       overlayMargin: const EdgeInsets.all(24.0).copyWith(bottom: 100),
       onQRViewCreated: (controller) => _onQRViewCreated(controller, context),
       overlay: QrScannerOverlayShape(
@@ -75,8 +76,11 @@ class _ScanQrCode extends State<ScanQrCode> {
         .map((event) => event.code)
         .distinct()
         .listen((scanData) {
-      UrlHandler()
-          .handleApplicationUri(scanData!, context, controller: controller);
+      _urlHandlerService.handleApplicationUri(
+        scanData!,
+        context,
+        controller: controller,
+      );
     });
   }
 

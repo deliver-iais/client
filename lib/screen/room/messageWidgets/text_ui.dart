@@ -12,6 +12,7 @@ import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class TextUI extends StatelessWidget {
@@ -173,6 +174,8 @@ List<Block> extractBlocks(
 }
 
 Future<void> onUrlTap(String uri, BuildContext context) async {
+  final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
+
   //add prefix if needed
   final applicationUrlRegex = RegExp(
     r"(https://wemessenger.ir|we:/|wemessenger.ir)/(login|spda|text|join|user|channel|group|ac).+",
@@ -181,9 +184,9 @@ Future<void> onUrlTap(String uri, BuildContext context) async {
     if (uri.startsWith("we://")) {
       uri = "https://wemessenger.ir" + uri.substring(4);
     }
-    UrlHandler().handleApplicationUri(uri, context);
+    _urlHandlerService.handleApplicationUri(uri, context);
   } else {
-    UrlHandler().handleNormalLink(uri, context);
+    _urlHandlerService.handleNormalLink(uri, context);
   }
 }
 

@@ -33,14 +33,14 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _coreServices = GetIt.I.get<CoreServices>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _uxService = GetIt.I.get<UxService>();
-  final _urlHandler = GetIt.I.get<UrlHandler>();
+  final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
 
   Future<void> initUniLinks(BuildContext context) async {
     try {
       final initialLink = await getInitialLink();
       if (initialLink != null && initialLink.isNotEmpty) {
         // ignore: use_build_context_synchronously
-        _urlHandler.handleApplicationUri(initialLink, context);
+        _urlHandlerService.handleApplicationUri(initialLink, context);
       }
     } catch (e) {
       _logger.e(e);
