@@ -33,6 +33,7 @@ import 'package:deliver/shared/methods/keyboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/vibration.dart';
 import 'package:deliver/shared/widgets/attach_location.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_picker/file_picker.dart';
@@ -40,6 +41,7 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:pasteboard/pasteboard.dart';
@@ -266,7 +268,7 @@ class _InputMessageWidget extends State<InputMessage> {
         child: Column(
           children: <Widget>[
             StreamBuilder<String?>(
-              stream: _mentionQuery.stream.distinct(),
+              stream: _mentionQuery.distinct(),
               builder: (c, showMention) {
                 if (showMention.hasData && showMention.data != null) {
                   return ShowMentionList(
@@ -282,7 +284,7 @@ class _InputMessageWidget extends State<InputMessage> {
               },
             ),
             StreamBuilder<String>(
-              stream: _botCommandQuery.stream.distinct(),
+              stream: _botCommandQuery.distinct(),
               builder: (c, show) {
                 _botCommandData = show.data ?? "-";
                 return BotCommands(
@@ -303,7 +305,7 @@ class _InputMessageWidget extends State<InputMessage> {
                 // overflow: Overflow.visible,
                 children: <Widget>[
                   StreamBuilder<bool>(
-                    stream: _showSendIcon.stream,
+                    stream: _showSendIcon,
                     builder: (c, sh) {
                       if (sh.hasData &&
                           !sh.data! &&
@@ -352,7 +354,7 @@ class _InputMessageWidget extends State<InputMessage> {
                               ),
                               Flexible(
                                 child: StreamBuilder<Message?>(
-                                  stream: widget.replyMessageIdStream.stream,
+                                  stream: widget.replyMessageIdStream,
                                   builder: (context, snapshot) {
                                     return RawKeyboardListener(
                                       focusNode: keyboardRawFocusNode,
@@ -379,6 +381,21 @@ class _InputMessageWidget extends State<InputMessage> {
                                             ),
                                             border: InputBorder.none,
                                             counterText: "",
+                                            suffix: IconButton(
+                                              icon: FaIcon(
+                                                FontAwesomeIcons.markdown,
+                                                size: 18,
+                                                color: !_shouldSynthesize
+                                                    ? EnableColor
+                                                    : null,
+                                              ),
+                                              onPressed: () {
+                                                setState(() {
+                                                  _shouldSynthesize =
+                                                      !_shouldSynthesize;
+                                                });
+                                              },
+                                            ),
                                             hintText:
                                                 i18n.get("write_a_message"),
                                           ),
@@ -422,7 +439,7 @@ class _InputMessageWidget extends State<InputMessage> {
                               if (currentRoom.uid.asUid().category ==
                                   Categories.BOT)
                                 StreamBuilder<bool>(
-                                  stream: _showSendIcon.stream,
+                                  stream: _showSendIcon,
                                   builder: (context, snapshot) {
                                     if (snapshot.hasData && !snapshot.data!) {
                                       return IconButton(
@@ -443,7 +460,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                 ),
                               if (isWindows || isMacOS)
                                 StreamBuilder<bool>(
-                                  stream: _showSendIcon.stream,
+                                  stream: _showSendIcon,
                                   builder: (c, sh) {
                                     if (sh.hasData &&
                                         !sh.data! &&
@@ -462,21 +479,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                     }
                                   },
                                 ),
-                              IconButton(
-                                icon: Icon(
-                                  CupertinoIcons
-                                      .chevron_left_slash_chevron_right,
-                                  color:
-                                      !_shouldSynthesize ? Colors.blue : null,
-                                ),
-                                onPressed: () {
-                                  setState(() {
-                                    _shouldSynthesize = !_shouldSynthesize;
-                                  });
-                                },
-                              ),
                               StreamBuilder<bool>(
-                                stream: _showSendIcon.stream,
+                                stream: _showSendIcon,
                                 builder: (c, sh) {
                                   if (sh.hasData &&
                                       !sh.data! &&
@@ -497,7 +501,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                 },
                               ),
                               StreamBuilder<bool>(
-                                stream: _showSendIcon.stream,
+                                stream: _showSendIcon,
                                 builder: (c, sh) {
                                   if ((sh.hasData && sh.data!) ||
                                       widget.waitingForForward) {
@@ -530,7 +534,7 @@ class _InputMessageWidget extends State<InputMessage> {
                           streamTime: recordSubject,
                         ),
                       StreamBuilder<bool>(
-                        stream: _showSendIcon.stream,
+                        stream: _showSendIcon,
                         builder: (c, sm) {
                           if (sm.hasData &&
                               !sm.data! &&
@@ -628,7 +632,7 @@ class _InputMessageWidget extends State<InputMessage> {
               ),
             ),
             StreamBuilder<bool>(
-              stream: _backSubject.stream,
+              stream: _backSubject,
               builder: (context, back) {
                 if (back.hasData && back.data!) {
                   return SizedBox(

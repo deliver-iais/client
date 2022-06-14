@@ -92,7 +92,7 @@ class RoutingService {
   final _preMaybePopScope = PreMaybePopScope();
 
   Stream<RouteEvent> get currentRouteStream =>
-      _navigatorObserver.currentRoute.stream;
+      _navigatorObserver.currentRoute;
 
   BehaviorSubject<bool> shouldScrollToLastMessageInRoom =
       BehaviorSubject.seeded(false);

@@ -61,6 +61,8 @@ class TextUI extends StatelessWidget {
       }
       if (b.type == "spoiler") {
         return WidgetSpan(
+          baseline: TextBaseline.ideographic,
+          alignment: PlaceholderAlignment.middle,
           child: SpoilerLoader(
             b.text,
             foreground: colorScheme.onPrimaryContainer,
@@ -173,7 +175,7 @@ List<Block> extractBlocks(
 Future<void> onUrlTap(String uri, BuildContext context) async {
   //add prefix if needed
   final applicationUrlRegex = RegExp(
-    r"(https:\/\/wemessenger.ir|we:\/|wemessenger.ir)\/(login|spda|text|join|user|channel|group|ac).+",
+    r"(https://wemessenger.ir|we:/|wemessenger.ir)/(login|spda|text|join|user|channel|group|ac).+",
   );
   if (applicationUrlRegex.hasMatch(uri)) {
     if (uri.startsWith("we://")) {
@@ -191,7 +193,7 @@ abstract class Parser {
 
 class UrlParser implements Parser {
   final RegExp regex = RegExp(
-    r"(https?:\/\/(www\.)?)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)|(we://(.+))",
+    r"(https?://(www\.)?)?[-a-zA-Z\d@:%._+~#=]{1,256}\.[a-zA-Z\d()]{1,6}\b([-a-zA-Z\d()@:%_+.~#?&/=]*)|(we://(.+))",
   );
 
   @override
@@ -317,7 +319,7 @@ class SpoilerTextParser implements Parser {
 
 class InlineUrlTextParser implements Parser {
   final RegExp regex = RegExp(
-    r"\[(((?!]).)+)\]\(((https?:\/\/(www\.)?)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)|(we://(.+)))\)",
+    r"\[(((?!]).)+)\]\(((https?://(www\.)?)?[-a-zA-Z\d@:%._+~#=]{1,256}\.[a-zA-Z\d()]{1,6}\b([-a-zA-Z\d()@:%_+.~#?&/=]*)|(we://(.+)))\)",
     dotAll: true,
   );
 
@@ -356,7 +358,7 @@ class EmojiParser implements Parser {
         blocks,
         regex,
         "emoji",
-        style: GoogleFonts.notoColorEmojiCompat(fontSize: fontSize),
+        style: GoogleFonts.notoEmoji(fontSize: fontSize),
       );
 }
 

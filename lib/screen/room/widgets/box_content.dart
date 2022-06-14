@@ -117,7 +117,7 @@ class _BoxContentState extends State<BoxContent> {
           if (isDesktop | isWeb)
             StreamBuilder<bool>(
                 initialData: false,
-                stream: showMenuBehavior,
+                stream: showMenuBehavior.distinct(),
                 builder: (context, snapshot) {
                   final showMenu = snapshot.data ?? false;
 

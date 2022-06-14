@@ -211,11 +211,12 @@ class LastMessage extends StatelessWidget {
       ).where((b) => b.text.isNotEmpty).map((e) {
         if (e.type == "spoiler") {
           return WidgetSpan(
-            child: GestureDetector(
-              child: MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: SpoilerLoader(e.text),
-              ),
+            baseline: TextBaseline.ideographic,
+            alignment: PlaceholderAlignment.middle,
+            child: SpoilerLoader(
+              e.text,
+              style: e.style,
+              disableSpoilerReveal: true,
             ),
           );
         }
