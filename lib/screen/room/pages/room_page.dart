@@ -1388,19 +1388,21 @@ class _RoomPageState extends State<RoomPage> {
                             message.json.toText().text;
                       } else if (message.type == MessageType.FILE) {
                         final type = message.json.toFile().type;
-                        var fileType = "file";
+                        var fileType = "🖼";
                         if (type.contains("image")) {
-                          fileType = _i18n.get("image");
+                          fileType = "🖼";
                         } else if (type.contains("video")) {
-                          fileType = _i18n.get("video");
+                          fileType = "🎥";
                         } else if (type.contains("audio")) {
-                          fileType = _i18n.get("audio");
+                          fileType = "🎵";
                         }
 
                         copyText = copyText +
                             await _roomRepo.getName(message.from.asUid()) +
                             ":\n" +
-                            fileType;
+                            fileType +
+                            "\n" +
+                            message.json.toFile().caption;
                       }
                       copyText = copyText +
                           "\n" +

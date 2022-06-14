@@ -33,13 +33,13 @@ Future<void> handleJoinUri(
 
   Uid? roomUid;
   try {
-    final uri = Uri.parse(initialLink);
-
-    final List<String?> segments =
-        uri.pathSegments.where((e) => e != APPLICATION_DOMAIN).toList();
-    if (sendAsMessage && (segments.isEmpty)) {
+    if (sendAsMessage && !initialLink.contains(APPLICATION_DOMAIN)) {
       _routingService.openShareInput(text: initialLink);
     } else {
+      final uri = Uri.parse(initialLink);
+      final List<String?> segments =
+          uri.pathSegments.where((e) => e != APPLICATION_DOMAIN).toList();
+
       if (segments.first == "text") {
         final botId = uri.queryParameters["botId"];
         if (botId != null) {
