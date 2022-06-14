@@ -250,11 +250,15 @@ class _BotFormMessageState extends State<BotFormMessage> {
                           children: [
                             Text(
                               _i18n.get("form"),
-                              style: theme.textTheme.bodyText1,
+                              style: theme.textTheme.bodyText1?.copyWith(
+                                color: widget.colorScheme.onPrimaryContainer,
+                              ),
                             ),
                             Text(
                               form.title,
-                              style: theme.textTheme.bodyText2,
+                              style: theme.textTheme.bodyText2?.copyWith(
+                                color: widget.colorScheme.onPrimaryContainer,
+                              ),
                             ),
                           ],
                         ),

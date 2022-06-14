@@ -70,6 +70,7 @@ import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -332,6 +333,7 @@ Future<void> setupDI() async {
   registerSingleton<RawKeyboardService>(RawKeyboardService());
 
   registerSingleton<CallRepo>(CallRepo());
+  registerSingleton<UrlHandlerService>(UrlHandlerService());
 }
 
 Future initializeFirebase() async {

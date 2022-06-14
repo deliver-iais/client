@@ -13,6 +13,7 @@ import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/custom_text_selection_controller.dart';
 import 'package:deliver/screen/room/messageWidgets/max_lenght_text_input_formatter.dart';
+import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/widgets/bot_commands.dart';
 import 'package:deliver/screen/room/widgets/emoji_keybord.dart';
 import 'package:deliver/screen/room/widgets/record_audio_animation.dart';
@@ -32,6 +33,7 @@ import 'package:deliver/shared/methods/keyboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/vibration.dart';
 import 'package:deliver/shared/widgets/attach_location.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:file_picker/file_picker.dart';
@@ -39,6 +41,7 @@ import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:pasteboard/pasteboard.dart';
@@ -118,6 +121,7 @@ class _InputMessageWidget extends State<InputMessage> {
   late String _botCommandData;
   int mentionSelectedIndex = 0;
   int botCommandSelectedIndex = 0;
+  bool _shouldSynthesize = true;
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
   final record = Record();
@@ -264,7 +268,7 @@ class _InputMessageWidget extends State<InputMessage> {
         child: Column(
           children: <Widget>[
             StreamBuilder<String?>(
-              stream: _mentionQuery.stream.distinct(),
+              stream: _mentionQuery.distinct(),
               builder: (c, showMention) {
                 if (showMention.hasData && showMention.data != null) {
                   return ShowMentionList(
@@ -280,7 +284,7 @@ class _InputMessageWidget extends State<InputMessage> {
               },
             ),
             StreamBuilder<String>(
-              stream: _botCommandQuery.stream.distinct(),
+              stream: _botCommandQuery.distinct(),
               builder: (c, show) {
                 _botCommandData = show.data ?? "-";
                 return BotCommands(
@@ -301,7 +305,7 @@ class _InputMessageWidget extends State<InputMessage> {
                 // overflow: Overflow.visible,
                 children: <Widget>[
                   StreamBuilder<bool>(
-                    stream: _showSendIcon.stream,
+                    stream: _showSendIcon,
                     builder: (c, sh) {
                       if (sh.hasData &&
                           !sh.data! &&
@@ -350,10 +354,11 @@ class _InputMessageWidget extends State<InputMessage> {
                               ),
                               Flexible(
                                 child: StreamBuilder<Message?>(
-                                  stream: widget.replyMessageIdStream.stream,
+                                  stream: widget.replyMessageIdStream,
                                   builder: (context, snapshot) {
                                     return RawKeyboardListener(
                                       focusNode: keyboardRawFocusNode,
+                                      onKey: handleKey,
                                       child:
                                           ValueListenableBuilder<TextDirection>(
                                         valueListenable: _textDir,
@@ -376,7 +381,23 @@ class _InputMessageWidget extends State<InputMessage> {
                                             ),
                                             border: InputBorder.none,
                                             counterText: "",
-                                            hintText: i18n.get("write_a_message"),
+                                            suffix: IconButton(
+                                              icon: FaIcon(
+                                                FontAwesomeIcons.markdown,
+                                                size: 18,
+                                                color: !_shouldSynthesize
+                                                    ? EnableColor
+                                                    : null,
+                                              ),
+                                              onPressed: () {
+                                                setState(() {
+                                                  _shouldSynthesize =
+                                                      !_shouldSynthesize;
+                                                });
+                                              },
+                                            ),
+                                            hintText:
+                                                i18n.get("write_a_message"),
                                           ),
                                           textInputAction:
                                               TextInputAction.newline,
@@ -418,7 +439,7 @@ class _InputMessageWidget extends State<InputMessage> {
                               if (currentRoom.uid.asUid().category ==
                                   Categories.BOT)
                                 StreamBuilder<bool>(
-                                  stream: _showSendIcon.stream,
+                                  stream: _showSendIcon,
                                   builder: (context, snapshot) {
                                     if (snapshot.hasData && !snapshot.data!) {
                                       return IconButton(
@@ -439,7 +460,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                 ),
                               if (isWindows || isMacOS)
                                 StreamBuilder<bool>(
-                                  stream: _showSendIcon.stream,
+                                  stream: _showSendIcon,
                                   builder: (c, sh) {
                                     if (sh.hasData &&
                                         !sh.data! &&
@@ -459,7 +480,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                   },
                                 ),
                               StreamBuilder<bool>(
-                                stream: _showSendIcon.stream,
+                                stream: _showSendIcon,
                                 builder: (c, sh) {
                                   if (sh.hasData &&
                                       !sh.data! &&
@@ -480,7 +501,7 @@ class _InputMessageWidget extends State<InputMessage> {
                                 },
                               ),
                               StreamBuilder<bool>(
-                                stream: _showSendIcon.stream,
+                                stream: _showSendIcon,
                                 builder: (c, sh) {
                                   if ((sh.hasData && sh.data!) ||
                                       widget.waitingForForward) {
@@ -513,7 +534,7 @@ class _InputMessageWidget extends State<InputMessage> {
                           streamTime: recordSubject,
                         ),
                       StreamBuilder<bool>(
-                        stream: _showSendIcon.stream,
+                        stream: _showSendIcon,
                         builder: (c, sm) {
                           if (sm.hasData &&
                               !sm.data! &&
@@ -611,7 +632,7 @@ class _InputMessageWidget extends State<InputMessage> {
               ),
             ),
             StreamBuilder<bool>(
-              stream: _backSubject.stream,
+              stream: _backSubject,
               builder: (context, back) {
                 if (back.hasData && back.data!) {
                   return SizedBox(
@@ -691,6 +712,20 @@ class _InputMessageWidget extends State<InputMessage> {
       TextPosition(offset: widget.textController.text.length),
     );
     _botCommandQuery.add("-");
+  }
+
+  void handleKey(RawKeyEvent event) {
+    if (event.logicalKey == LogicalKeyboardKey.arrowUp) {
+      if (widget.editableMessage == null) {
+        Future.delayed(const Duration(milliseconds: 100), () {}).then((_) {
+          if (widget.editableMessage != null) {
+            widget.textController.selection = TextSelection.collapsed(
+              offset: widget.textController.text.length,
+            );
+          }
+        });
+      }
+    }
   }
 
   KeyEventResult handleKeyPress(RawKeyEvent event) {
@@ -877,7 +912,9 @@ class _InputMessageWidget extends State<InputMessage> {
       widget.sendForwardMessage?.call();
     }
 
-    final text = widget.textController.text.trim();
+    final text = _shouldSynthesize
+        ? synthesize(widget.textController.text.trim())
+        : widget.textController.text.trim();
 
     if (text.isNotEmpty) {
       if (_replyMessageId > 0) {

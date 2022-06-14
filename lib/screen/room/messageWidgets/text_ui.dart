@@ -4,16 +4,16 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/screen/room/messageWidgets/link_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/loaders/spoiler_loader.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
-import 'package:deliver/shared/methods/url.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class TextUI extends StatelessWidget {
   final Message message;
@@ -46,19 +46,41 @@ class TextUI extends StatelessWidget {
     final theme = Theme.of(context);
 
     final text = extractText(message);
-    final blocks = extractBlocks(text, context);
-    final spans = blocks.map<TextSpan>((b) {
+    final blocks = extractBlocks(
+      text,
+      onUsernameClick: onUsernameClick,
+      context: context,
+      isBotMessage: isBotMessage,
+      onBotCommandClick: onBotCommandClick,
+      searchTerm: searchTerm,
+      onPrimaryContainer: colorScheme.onPrimaryContainer,
+    );
+    final spans = blocks.map<InlineSpan>((b) {
+      var tap = b.text;
+      if (b.type == BlockTypes.INLINE_URL) {
+        tap = b.matchText;
+      }
+      if (b.type == BlockTypes.SPOILER) {
+        return WidgetSpan(
+          baseline: TextBaseline.ideographic,
+          alignment: PlaceholderAlignment.middle,
+          child: SpoilerLoader(
+            b.text,
+            foreground: colorScheme.onPrimaryContainer,
+          ),
+        );
+      }
       return TextSpan(
         text: b.text,
         style: b.style,
         recognizer: (b.onTap != null)
-            ? (TapGestureRecognizer()..onTap = () => b.onTap!(b.text))
+            ? (TapGestureRecognizer()..onTap = () => b.onTap!(tap))
             : null,
       );
     }).toList();
     String link;
     try {
-      link = blocks.firstWhere((b) => b.type == "url").text;
+      link = blocks.firstWhere((b) => b.type == BlockTypes.URL).text;
     } catch (e) {
       link = "";
     }
@@ -111,133 +133,264 @@ class TextUI extends StatelessWidget {
       return "";
     }
   }
+}
 
-  List<Block> extractBlocks(String text, BuildContext context) {
-    var blocks = <Block>[
-      Block(text: text, style: TextStyle(color: colorScheme.onPrimaryContainer))
-    ];
-    final parsers = <Parser>[
-      EmojiParser(),
-      if (searchTerm != null && searchTerm!.isNotEmpty)
-        SearchTermParser(searchTerm!),
-      UrlParser(),
-      IdParser(onUsernameClick),
-      if (isBotMessage) BotCommandParser(onBotCommandClick),
-      BoldTextParser(),
-      ItalicTextParser()
-    ];
+List<Block> extractBlocks(
+  String text, {
+  BuildContext? context,
+  Color? onPrimaryContainer,
+  String? searchTerm,
+  Function(String)? onUsernameClick,
+  Function(String)? onBotCommandClick,
+  bool isBotMessage = false,
+  String Function(String)? spoilTransformer,
+}) {
+  var blocks = <Block>[
+    Block(
+      text: text,
+      style: TextStyle(color: onPrimaryContainer),
+    )
+  ];
+  final parsers = <Parser>[
+    const UnderlineTextParser(),
+    const BoldTextParser(),
+    const ItalicTextParser(),
+    const StrikethroughTextParser(),
+    SpoilerTextParser(transformer: spoilTransformer),
+    const EmojiParser(),
+    if (searchTerm != null && searchTerm.isNotEmpty)
+      SearchTermParser(searchTerm),
+    const InlineUrlTextParser(),
+    const UrlParser(),
+    IdParser(onUsernameClick ?? (text) {}),
+    if (isBotMessage) BotCommandParser(onBotCommandClick ?? (text) {}),
+  ];
 
-    for (final p in parsers) {
-      blocks = p.parse(blocks, context);
+  for (final p in parsers) {
+    blocks = p.parse(blocks, context);
+  }
+
+  return blocks;
+}
+
+Future<void> onUrlTap(String uri, BuildContext context) async {
+  final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
+
+  //add prefix if needed
+  final applicationUrlRegex = RegExp(
+    r"(https://wemessenger.ir|we:/|wemessenger.ir)/(login|spda|text|join|user|channel|group|ac).+",
+  );
+  if (applicationUrlRegex.hasMatch(uri)) {
+    if (uri.startsWith("we://")) {
+      uri = "https://wemessenger.ir" + uri.substring(4);
     }
-
-    return blocks;
+    _urlHandlerService.handleApplicationUri(uri, context);
+  } else {
+    _urlHandlerService.handleNormalLink(uri, context);
   }
 }
 
 abstract class Parser {
-  List<Block> parse(List<Block> blocks, BuildContext context);
+  List<Block> parse(List<Block> blocks, BuildContext? context);
 }
 
 class UrlParser implements Parser {
-  final RegExp regex = RegExp(
-    r"(https?:\/\/(www\.)?)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)",
+  static final RegExp regex = RegExp(
+    r"(https?://(www\.)?)?[-a-zA-Z\d@:%._+~#=]{1,256}\.[a-zA-Z\d()]{1,6}\b([-a-zA-Z\d()@:%_+.~#?&/=]*)|(we://(.+))",
   );
 
+  const UrlParser();
+
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
-        "url",
-        onTap: (uri) async {
-          if (uri.contains("$APPLICATION_DOMAIN/$JOIN") ||
-              uri.contains("$APPLICATION_DOMAIN/$SPDA") ||
-              uri.contains("$APPLICATION_DOMAIN/$TEXT")) {
-            await handleJoinUri(context, uri);
-          } else {
-            await launch(uri);
-          }
-        },
-        style: TextStyle(color: Theme.of(context).primaryColor),
+        BlockTypes.URL,
+        onTap: context == null ? (uri) {} : (uri) => onUrlTap((uri), context),
+        style: context != null
+            ? TextStyle(color: Theme.of(context).primaryColor)
+            : null,
       );
 }
 
 class IdParser implements Parser {
   final void Function(String) onUsernameClick;
-  final RegExp regex = RegExp(r"[@][a-zA-Z]([a-zA-Z0-9_]){4,19}");
+  final RegExp regex = RegExp(r"@[a-zA-Z](\w){4,19}");
 
   IdParser(this.onUsernameClick);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
-        "id",
+        BlockTypes.ID,
         onTap: (id) => onUsernameClick(id),
-        style: TextStyle(color: Theme.of(context).primaryColor),
+        style: context != null
+            ? TextStyle(color: Theme.of(context).primaryColor)
+            : null,
       );
 }
 
 class BoldTextParser implements Parser {
-  final RegExp regex = RegExp(r"\*\*(.+)\*\*", dotAll: true);
+  static final RegExp regex = RegExp(r"(?<!\\)(\*.+?(?<!\\)\*)");
 
-  static String transformer(String m) => m.replaceAll("**", "");
+  const BoldTextParser();
+
+  static String transformer(String m) {
+    return m.substring(m.indexOf("*") + 1, m.lastIndexOf("*"));
+  }
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
-        "bold",
+        BlockTypes.BOLD,
         transformer: BoldTextParser.transformer,
-        style: const TextStyle(fontWeight: FontWeight.w800),
+        style: const TextStyle(fontWeight: FontWeight.bold),
       );
 }
 
 class ItalicTextParser implements Parser {
-  final RegExp regex = RegExp(r"__(.+)__", dotAll: true);
+  static final RegExp regex = RegExp(r"(?<!\\)(_.+?(?<!\\)_)");
 
-  static String transformer(String m) => m.replaceAll("__", "");
+  const ItalicTextParser();
+
+  static String transformer(String m) =>
+      m.substring(m.indexOf("_") + 1, m.lastIndexOf("_"));
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
-        "italic",
+        BlockTypes.ITALIC,
         transformer: ItalicTextParser.transformer,
-        style: const TextStyle(fontStyle: FontStyle.italic),
+        style: const TextStyle(
+          fontStyle: FontStyle.italic,
+        ),
+      );
+}
+
+class UnderlineTextParser implements Parser {
+  static final RegExp regex = RegExp(r"(?<!\\)(__.+?(?<!\\)__)");
+
+  const UnderlineTextParser();
+
+  static String transformer(String m) =>
+      m.substring(m.indexOf("__") + 2, m.lastIndexOf("__"));
+
+  @override
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
+        blocks,
+        regex,
+        BlockTypes.UNDERLINE,
+        transformer: UnderlineTextParser.transformer,
+        style: const TextStyle(
+          decoration: TextDecoration.underline,
+        ),
+      );
+}
+
+class StrikethroughTextParser implements Parser {
+  static final RegExp regex = RegExp(r"(?<!\\)(~.+?(?<!\\)~)");
+
+  const StrikethroughTextParser();
+
+  static String transformer(String m) =>
+      m.substring(m.indexOf("~") + 1, m.lastIndexOf("~"));
+
+  @override
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
+        blocks,
+        regex,
+        BlockTypes.STRIKETHROUGH,
+        transformer: StrikethroughTextParser.transformer,
+        style: const TextStyle(
+          decoration: TextDecoration.lineThrough,
+        ),
+      );
+}
+
+class SpoilerTextParser implements Parser {
+  final String Function(String)? transformer;
+  final RegExp regex = RegExp(r"(?<!\\)(\|\|.+?(?<!\\)\|\|)", dotAll: true);
+
+  static String transform(String m) =>
+      m.substring(m.indexOf("||") + 2, m.lastIndexOf("||"));
+
+  SpoilerTextParser({
+    this.transformer,
+  });
+
+  @override
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
+        blocks,
+        regex,
+        BlockTypes.SPOILER,
+        transformer: transformer ?? SpoilerTextParser.transform,
+      );
+}
+
+class InlineUrlTextParser implements Parser {
+  static final RegExp regex = RegExp(
+    r"\[(((?!]).)+)\]\(((https?://(www\.)?)?[-a-zA-Z\d@:%._+~#=]{1,256}\.[a-zA-Z\d()]{1,6}\b([-a-zA-Z\d()@:%_+.~#?&/=]*)|(we://(.+)))\)",
+    dotAll: true,
+  );
+
+  const InlineUrlTextParser();
+
+  static String transformer(String m) {
+    return m.substring(1, m.indexOf("]"));
+  }
+
+  @override
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
+        blocks,
+        regex,
+        BlockTypes.INLINE_URL,
+        onTap: context == null
+            ? (text) {}
+            : (text) => onUrlTap(
+                  (text.substring(text.indexOf("]") + 2, text.indexOf(")"))),
+                  context,
+                ),
+        transformer: InlineUrlTextParser.transformer,
+        style: TextStyle(
+          color: context != null ? Theme.of(context).primaryColor : null,
+        ),
       );
 }
 
 class EmojiParser implements Parser {
-  final double fontSize;
-  final RegExp regex = RegExp(
+  static final regex = RegExp(
     r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])+',
   );
 
-  EmojiParser({this.fontSize = 18});
+  const EmojiParser();
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
-        "emoji",
-        style: GoogleFonts.notoColorEmojiCompat(fontSize: fontSize),
+        BlockTypes.EMOJI,
+        style: GoogleFonts.notoEmoji(fontSize: 16),
       );
 }
 
 class BotCommandParser implements Parser {
   final void Function(String) onBotCommandClick;
-  final RegExp regex = RegExp(r"[/]([a-zA-Z0-9_-]){5,40}");
+  final RegExp regex = RegExp(r"/([a-zA-Z\d_-]){5,40}");
 
   BotCommandParser(this.onBotCommandClick);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
-        "bot",
+        BlockTypes.BOT_COMMAND,
         onTap: (id) => onBotCommandClick(id),
-        style: TextStyle(color: Theme.of(context).primaryColor),
+        style: context != null
+            ? TextStyle(color: Theme.of(context).primaryColor)
+            : null,
       );
 }
 
@@ -247,34 +400,69 @@ class SearchTermParser implements Parser {
   SearchTermParser(this.searchTerm);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
+  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         RegExp(searchTerm),
-        "search",
-        style: TextStyle(color: Theme.of(context).primaryColor),
+        BlockTypes.SEARCH_TERM,
+        style: context != null
+            ? TextStyle(color: Theme.of(context).primaryColor)
+            : null,
       );
 }
 
+String synthesizeToOriginalWord(String text) {
+  return text
+      .replaceAll("\\*", "*")
+      .replaceAll("\\_", "_")
+      .replaceAll("\\||", "||")
+      .replaceAll("\\~", "~");
+}
+
+String synthesize(String text) {
+  return text
+      .replaceAll("*", "\\*")
+      .replaceAll("_", "\\_")
+      .replaceAll("||", "\\||")
+      .replaceAll("~", "\\~");
+}
+
+enum BlockTypes {
+  DEFAULT,
+  ID,
+  BOLD,
+  ITALIC,
+  STRIKETHROUGH,
+  UNDERLINE,
+  EMOJI,
+  BOT_COMMAND,
+  SEARCH_TERM,
+  SPOILER,
+  INLINE_URL,
+  URL,
+}
+
 class Block {
+  final BlockTypes type;
   final String text;
   final bool locked;
+  final String matchText;
   final void Function(String)? onTap;
   final TextStyle? style;
-  final String? type;
 
   Block({
+    this.matchText = "",
+    this.type = BlockTypes.DEFAULT,
     required this.text,
     this.locked = false,
     this.onTap,
     this.style,
-    this.type,
   });
 }
 
 List<Block> parseBlocks(
   List<Block> blocks,
   RegExp regex,
-  String type, {
+  BlockTypes type, {
   void Function(String)? onTap,
   TextStyle? style,
   String Function(String) transformer = same,
@@ -288,7 +476,7 @@ List<Block> parseBlocks(
             b.text,
             regex,
             onTap,
-            style!,
+            style ?? const TextStyle(),
             type,
             transformer: transformer,
           );
@@ -301,9 +489,12 @@ List<Block> parseText(
   RegExp regex,
   void Function(String)? onTap,
   TextStyle style,
-  String type, {
+  BlockTypes type, {
   String Function(String) transformer = same,
 }) {
+  if (type == BlockTypes.INLINE_URL) {
+    text = synthesizeToOriginalWord(text);
+  }
   var start = 0;
 
   final matches = regex.allMatches(text);
@@ -312,9 +503,10 @@ List<Block> parseText(
 
   for (final match in matches) {
     result
-      ..add(Block(text: transformer(text.substring(start, match.start))))
+      ..add(Block(text: text.substring(start, match.start)))
       ..add(
         Block(
+          matchText: match[0]!,
           text: transformer(match[0]!),
           onTap: onTap,
           style: style,
@@ -325,7 +517,7 @@ List<Block> parseText(
     start = match.end;
   }
 
-  result.add(Block(text: transformer(text.substring(start))));
+  result.add(Block(text: text.substring(start)));
 
   return result;
 }

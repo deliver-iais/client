@@ -24,6 +24,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/edit_image/paint_on_image/_ported_interactive_viewer.dart'
     as por;
+import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -72,7 +73,7 @@ class _AllImagePageState extends State<AllImagePage>
       LruCache<int, String>(storage: InMemoryStorage(500));
   final BehaviorSubject<Widget> _widget =
       BehaviorSubject.seeded(const SizedBox.shrink());
-  bool _isBarShowing = true;
+  final BehaviorSubject<bool> _isBarShowing = BehaviorSubject.seeded(true);
   int? initialIndex;
   bool isSingleImage = false;
   final por.TransformationController _transformationController =
@@ -188,7 +189,7 @@ class _AllImagePageState extends State<AllImagePage>
       ),
       child: Scaffold(
         extendBodyBehindAppBar: true,
-        appBar: _isBarShowing ? buildAppBar() : null,
+        appBar: buildAppbar(),
         body: Container(
           color: Colors.black,
           child: StreamBuilder<MediaMetaData?>(
@@ -214,6 +215,23 @@ class _AllImagePageState extends State<AllImagePage>
     );
   }
 
+  PreferredSizeWidget buildAppbar() {
+    return UltimateAppBar(
+      child: StreamBuilder<bool>(
+        initialData: true,
+        stream: _isBarShowing.stream,
+        builder: (context, snapshot) {
+          return AnimatedOpacity(
+            duration: ANIMATION_DURATION * 2,
+            opacity: snapshot.data! ? 1 : 0,
+            child:
+                snapshot.data! ? buildAppBarWidget() : const SizedBox.shrink(),
+          );
+        },
+      ),
+    );
+  }
+
   Widget singleImage() {
     return Stack(
       children: [
@@ -222,7 +240,7 @@ class _AllImagePageState extends State<AllImagePage>
           alignment: Alignment.bottomCenter,
           child: AnimatedOpacity(
             duration: ANIMATION_DURATION * 2,
-            opacity: _isBarShowing ? 1 : 0,
+            opacity: _isBarShowing.value ? 1 : 0,
             child: buildCaptionSection(
               createdOn: widget.message!.time,
               createdBy: widget.roomUid,
@@ -243,12 +261,7 @@ class _AllImagePageState extends State<AllImagePage>
       child: GestureDetector(
         onDoubleTapDown: (d) => _handleDoubleTap(d),
         onDoubleTap: () {},
-        onTap: () {
-          setState(() {
-            initialIndex = index;
-            _isBarShowing = !_isBarShowing;
-          });
-        },
+        onTap: () => _isBarShowing.add(!_isBarShowing.value),
         child: Center(
           child: Padding(
             padding: const EdgeInsets.all(10),
@@ -405,33 +418,40 @@ class _AllImagePageState extends State<AllImagePage>
         ),
         Align(
           alignment: Alignment.bottomCenter,
-          child: AnimatedOpacity(
-            duration: ANIMATION_DURATION * 2,
-            opacity: _isBarShowing ? 1 : 0,
-            child: StreamBuilder<int>(
-              stream: _currentIndex.stream,
-              builder: (context, index) {
-                if (index.hasData && index.data != null) {
-                  return FutureBuilder<Media?>(
-                    future: _getMedia(index.data!),
-                    builder: (c, mediaSnapshot) {
-                      if (mediaSnapshot.hasData && mediaSnapshot.data != null) {
-                        final json =
-                            jsonDecode(mediaSnapshot.data!.json) as Map;
-                        return buildCaptionSection(
-                          createdOn: mediaSnapshot.data!.createdOn,
-                          createdBy: mediaSnapshot.data!.createdBy,
-                          messageId: mediaSnapshot.data!.messageId,
-                          caption: (json["caption"].toString()),
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
+          child: StreamBuilder<bool>(
+            initialData: true,
+            stream: _isBarShowing.stream,
+            builder: (context, snapshot) {
+              return AnimatedOpacity(
+                duration: ANIMATION_DURATION * 2,
+                opacity: snapshot.data! ? 1 : 0,
+                child: StreamBuilder<int>(
+                  stream: _currentIndex.stream,
+                  builder: (context, index) {
+                    if (index.hasData && index.data != null) {
+                      return FutureBuilder<Media?>(
+                        future: _getMedia(index.data!),
+                        builder: (c, mediaSnapshot) {
+                          if (mediaSnapshot.hasData &&
+                              mediaSnapshot.data != null) {
+                            final json =
+                                jsonDecode(mediaSnapshot.data!.json) as Map;
+                            return buildCaptionSection(
+                              createdOn: mediaSnapshot.data!.createdOn,
+                              createdBy: mediaSnapshot.data!.createdBy,
+                              messageId: mediaSnapshot.data!.messageId,
+                              caption: (json["caption"].toString()),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+              );
+            },
           ),
         )
       ],
@@ -456,9 +476,10 @@ class _AllImagePageState extends State<AllImagePage>
     required int createdOn,
   }) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         const Spacer(),
-        buildCaption(caption),
+        if (caption.isNotEmpty) buildCaption(caption),
         buildFooter(
           createdBy: createdBy,
           createdOn: createdOn,
@@ -616,7 +637,7 @@ class _AllImagePageState extends State<AllImagePage>
     );
   }
 
-  PreferredSizeWidget buildAppBar() {
+  PreferredSizeWidget buildAppBarWidget() {
     return AppBar(
       backgroundColor: Colors.black.withAlpha(120),
       actions: widget.isSingleImage

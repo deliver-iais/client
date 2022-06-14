@@ -93,7 +93,6 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
                               : null,
                           child: Text(
                             btn,
-                            style: Theme.of(context).textTheme.bodyText2,
                             textAlign: TextAlign.center,
                           ),
                         ),
