@@ -3,6 +3,7 @@
 import 'dart:async';
 
 import 'package:clock/clock.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/data_stream_services.dart';
@@ -54,6 +55,9 @@ class CoreServices {
       BehaviorSubject.seeded(ConnectionStatus.Connecting);
 
   Future<void> initStreamConnection() async {
+    Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
+      print("connection change" + result.index.toString() + "\t" + result.name);
+    });
     if (_connectionTimer != null && _connectionTimer!.isActive) {
       return;
     }
