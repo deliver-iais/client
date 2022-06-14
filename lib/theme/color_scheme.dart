@@ -1,6 +1,7 @@
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:material_color_utilities/blend/blend.dart';
 import 'package:material_color_utilities/palettes/core_palette.dart';
 import 'package:material_color_utilities/palettes/tonal_palette.dart';
@@ -233,21 +234,23 @@ ColorScheme getColorScheme(Material3ColorScheme colorScheme) {
 }
 
 ThemeData getThemeData(Material3ColorScheme colorScheme) {
-  final primaryTextTheme = Typography.blackCupertino.apply(
-    fontFamily: "Vazir",
-    displayColor: colorScheme.primary,
-    bodyColor: colorScheme.primary,
+  final primaryTextTheme = GoogleFonts.vazirmatnTextTheme(
+    Typography.blackCupertino.apply(
+      displayColor: colorScheme.primary,
+      bodyColor: colorScheme.primary,
+    ),
   );
 
-  final textTheme = Typography.blackCupertino.apply(
-    fontFamily: "Vazir",
-    displayColor: colorScheme.onBackground,
-    bodyColor: colorScheme.onBackground,
+  final textTheme = GoogleFonts.vazirmatnTextTheme(
+    Typography.blackCupertino.apply(
+      displayColor: colorScheme.onBackground,
+      bodyColor: colorScheme.onBackground,
+    ),
   );
 
   final theme = ThemeData(
     brightness: colorScheme.brightness,
-    fontFamily: "Vazir",
+    fontFamily: GoogleFonts.vazirmatn().fontFamily,
     primaryColor: colorScheme.primary,
     colorScheme: getColorScheme(colorScheme),
     scaffoldBackgroundColor:

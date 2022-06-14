@@ -3,6 +3,9 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:material_color_utilities/palettes/core_palette.dart';
 
+// ignore: non_constant_identifier_names
+final EnableColor = Colors.greenAccent.shade700;
+
 final palettes = [
   const Color(0xFF0060a7),
   const Color(0xff5c00a7),

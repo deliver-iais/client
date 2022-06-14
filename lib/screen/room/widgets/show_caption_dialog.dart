@@ -5,6 +5,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/file_service.dart';
@@ -87,11 +88,11 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
         }
       }
       if (widget.caption != null && widget.caption!.isNotEmpty) {
-        _editingController.text = widget.caption!;
+        _editingController.text = synthesizeToOriginalWord(widget.caption!);
       }
     } else {
       _editableFile = widget.editableMessage!.json.toFile();
-      _editingController.text = _editableFile.caption;
+      _editingController.text = synthesizeToOriginalWord(_editableFile.caption);
       _type = _editableFile.type;
     }
     super.initState();
@@ -410,14 +411,14 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
         ? _messageRepo.editFileMessage(
             widget.editableMessage!.roomUid.asUid(),
             widget.editableMessage!,
-            caption: _editingController.text,
+            caption: synthesize(_editingController.text),
             file: _editedFile,
           )
         : _messageRepo.sendMultipleFilesMessages(
             widget.currentRoom,
             widget.files!,
             replyToId: widget.replyMessageId,
-            caption: _editingController.text,
+            caption: synthesize(_editingController.text),
           );
     widget.resetRoomPageDetails?.call();
   }
