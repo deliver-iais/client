@@ -73,6 +73,10 @@ dependencies:
   flutter_audio_waveforms: 1.2.1+5
   flutter_blurhash: 0.6.4
   flutter_dropzone: 3.0.3
+#  flutter_easy_permission:
+#    git:
+#      ref: 790271a6ef3ac0617d3cf8a04149b1b4f9177c95
+#      url: https://github.com/AmirhosseinShk/flutter_easy_permission
   flutter_foreground_task: 3.7.3
   flutter_image_compress: 1.1.0
   flutter_keyboard_visibility: 5.1.1
@@ -124,7 +128,7 @@ dependencies:
   permission_handler:
     git:
       path: permission_handler
-      ref: 5602a4c843237ae186d83fdaaf9ceb824c1f89f6
+      ref: ad2e177e7c528ba71ca1cea408bb38e74bd8f483
       url: https://github.com/AmirhosseinShk/flutter-permission-handler
   persian_datetime_picker: 2.4.0
   photo_manager: 2.1.1
@@ -144,6 +148,7 @@ dependencies:
   simple_animations: 4.0.2
   sms_autofill: 2.2.0
   synchronized: 3.0.0+2
+  system_alert_window: ^1.1.1
   tuple: 2.0.0
   uni_links: 0.5.1
   universal_html: 2.0.8

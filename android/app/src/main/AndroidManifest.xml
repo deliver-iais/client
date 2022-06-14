@@ -183,6 +183,12 @@
                  android:enabled="true"
                  android:exported="false"/>
 
+        <service
+                android:name="de.julianassmann.flutter_background.IsolateHolderService"
+                android:enabled="true"
+        android:exported="false"
+        android:foregroundServiceType="mediaProjection" />
+
         <meta-data
                 android:name="flutterEmbedding"
                 android:value="2"/>

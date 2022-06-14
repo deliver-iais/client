@@ -1234,8 +1234,8 @@ packages:
     dependency: "direct main"
     description:
       path: permission_handler
-      ref: b70197d0ef91c8ced58d894573df96e1ba3080d2
-      resolved-ref: b70197d0ef91c8ced58d894573df96e1ba3080d2
+      ref: ad2e177e7c528ba71ca1cea408bb38e74bd8f483
+      resolved-ref: ad2e177e7c528ba71ca1cea408bb38e74bd8f483
       url: "https://github.com/AmirhosseinShk/flutter-permission-handler"
     source: git
     version: "9.2.0"
@@ -1243,8 +1243,8 @@ packages:
     dependency: transitive
     description:
       path: permission_handler_android
-      ref: be9a7d63571ce06e62b46dd362dd185977faf312
-      resolved-ref: be9a7d63571ce06e62b46dd362dd185977faf312
+      ref: cacc73b2600747683b40421f602551ec000a59f0
+      resolved-ref: cacc73b2600747683b40421f602551ec000a59f0
       url: "https://github.com/AmirhosseinShk/flutter-permission-handler"
     source: git
     version: "9.0.2+1"
@@ -1666,6 +1666,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.0.0+2"
+  system_alert_window:
+    dependency: "direct main"
+    description:
+      name: system_alert_window
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.1"
   term_glyph:
     dependency: transitive
     description:
