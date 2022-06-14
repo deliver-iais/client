@@ -152,16 +152,16 @@ List<Block> extractBlocks(
     )
   ];
   final parsers = <Parser>[
-    UnderlineTextParser(),
-    BoldTextParser(),
-    ItalicTextParser(),
-    StrikethroughTextParser(),
+    const UnderlineTextParser(),
+    const BoldTextParser(),
+    const ItalicTextParser(),
+    const StrikethroughTextParser(),
     SpoilerTextParser(transformer: spoilTransformer),
-    EmojiParser(),
+    const EmojiParser(),
     if (searchTerm != null && searchTerm.isNotEmpty)
       SearchTermParser(searchTerm),
-    InlineUrlTextParser(),
-    UrlParser(),
+    const InlineUrlTextParser(),
+    const UrlParser(),
     IdParser(onUsernameClick ?? (text) {}),
     if (isBotMessage) BotCommandParser(onBotCommandClick ?? (text) {}),
   ];
@@ -195,9 +195,11 @@ abstract class Parser {
 }
 
 class UrlParser implements Parser {
-  final RegExp regex = RegExp(
+  static final RegExp regex = RegExp(
     r"(https?://(www\.)?)?[-a-zA-Z\d@:%._+~#=]{1,256}\.[a-zA-Z\d()]{1,6}\b([-a-zA-Z\d()@:%_+.~#?&/=]*)|(we://(.+))",
   );
+
+  const UrlParser();
 
   @override
   List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
@@ -230,7 +232,9 @@ class IdParser implements Parser {
 }
 
 class BoldTextParser implements Parser {
-  final RegExp regex = RegExp(r"(?<!\\)(\*.+?(?<!\\)\*)");
+  static final RegExp regex = RegExp(r"(?<!\\)(\*.+?(?<!\\)\*)");
+
+  const BoldTextParser();
 
   static String transformer(String m) {
     return m.substring(m.indexOf("*") + 1, m.lastIndexOf("*"));
@@ -242,12 +246,14 @@ class BoldTextParser implements Parser {
         regex,
         BlockTypes.BOLD,
         transformer: BoldTextParser.transformer,
-        style: const TextStyle(fontWeight: FontWeight.w800),
+        style: const TextStyle(fontWeight: FontWeight.bold),
       );
 }
 
 class ItalicTextParser implements Parser {
-  final RegExp regex = RegExp(r"(?<!\\)(_.+?(?<!\\)_)");
+  static final RegExp regex = RegExp(r"(?<!\\)(_.+?(?<!\\)_)");
+
+  const ItalicTextParser();
 
   static String transformer(String m) =>
       m.substring(m.indexOf("_") + 1, m.lastIndexOf("_"));
@@ -265,7 +271,9 @@ class ItalicTextParser implements Parser {
 }
 
 class UnderlineTextParser implements Parser {
-  final RegExp regex = RegExp(r"(?<!\\)(__.+?(?<!\\)__)");
+  static final RegExp regex = RegExp(r"(?<!\\)(__.+?(?<!\\)__)");
+
+  const UnderlineTextParser();
 
   static String transformer(String m) =>
       m.substring(m.indexOf("__") + 2, m.lastIndexOf("__"));
@@ -283,7 +291,9 @@ class UnderlineTextParser implements Parser {
 }
 
 class StrikethroughTextParser implements Parser {
-  final RegExp regex = RegExp(r"(?<!\\)(~.+?(?<!\\)~)");
+  static final RegExp regex = RegExp(r"(?<!\\)(~.+?(?<!\\)~)");
+
+  const StrikethroughTextParser();
 
   static String transformer(String m) =>
       m.substring(m.indexOf("~") + 1, m.lastIndexOf("~"));
@@ -321,10 +331,12 @@ class SpoilerTextParser implements Parser {
 }
 
 class InlineUrlTextParser implements Parser {
-  final RegExp regex = RegExp(
+  static final RegExp regex = RegExp(
     r"\[(((?!]).)+)\]\(((https?://(www\.)?)?[-a-zA-Z\d@:%._+~#=]{1,256}\.[a-zA-Z\d()]{1,6}\b([-a-zA-Z\d()@:%_+.~#?&/=]*)|(we://(.+)))\)",
     dotAll: true,
   );
+
+  const InlineUrlTextParser();
 
   static String transformer(String m) {
     return m.substring(1, m.indexOf("]"));
@@ -349,19 +361,18 @@ class InlineUrlTextParser implements Parser {
 }
 
 class EmojiParser implements Parser {
-  final double fontSize;
-  final RegExp regex = RegExp(
+  static final regex = RegExp(
     r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])+',
   );
 
-  EmojiParser({this.fontSize = 18});
+  const EmojiParser();
 
   @override
   List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
         blocks,
         regex,
         BlockTypes.EMOJI,
-        style: GoogleFonts.notoEmoji(fontSize: fontSize),
+        style: GoogleFonts.notoEmoji(fontSize: 16),
       );
 }
 
