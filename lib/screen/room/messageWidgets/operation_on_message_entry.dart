@@ -157,7 +157,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 }
               },
             ),
-          if (widget.message.type == MessageType.FILE && !isDesktop)
+          if (widget.message.type == MessageType.FILE && isAndroid)
             StreamBuilder<bool>(
               stream: _fileIsExist.stream,
               builder: (c, s) {
