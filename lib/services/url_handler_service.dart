@@ -35,6 +35,9 @@ String buildShareUserUrl(
 ) =>
     "https://$APPLICATION_DOMAIN/ac?cc=$countryCode&nn=$nationalNumber&fn=$firstName&ln=$lastName";
 
+String buildInviteLinkForBot(String botId) =>
+    "https://$APPLICATION_DOMAIN/text?botId=$botId&text=/start";
+
 //https://wemessenger.ir/text?botId="bdff_bot" & text="/start"
 class UrlHandlerService {
   final _mucDao = GetIt.I.get<MucDao>();
