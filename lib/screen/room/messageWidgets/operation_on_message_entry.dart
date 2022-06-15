@@ -159,7 +159,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
             ),
           if (widget.message.type == MessageType.FILE && isAndroid)
             StreamBuilder<bool>(
-              stream: _fileIsExist.stream,
+              stream: _fileIsExist,
               builder: (c, s) {
                 if (s.hasData && s.data!) {
                   _fileIsExist.add(true);

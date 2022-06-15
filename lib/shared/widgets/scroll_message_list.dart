@@ -78,7 +78,7 @@ class ScrollMessageListState extends State<ScrollMessageList> {
                 child: widget.child,
               ),
               StreamBuilder<double>(
-                stream: _bottom.stream,
+                stream: _bottom,
                 builder: (context, snapshot) {
                   if (snapshot.hasData && snapshot.data != null) {
                     return Positioned(

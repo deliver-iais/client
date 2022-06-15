@@ -89,7 +89,7 @@ class ShareBoxState extends State<ShareBox> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return StreamBuilder<double>(
-      stream: initialChildSize.stream,
+      stream: initialChildSize,
       builder: (c, initialSize) {
         if (initialSize.hasData && initialSize.data != null) {
           return DraggableScrollableSheet(

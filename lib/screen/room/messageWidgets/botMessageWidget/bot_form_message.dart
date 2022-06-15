@@ -298,7 +298,7 @@ class BotFormMessageState extends State<BotFormMessage> {
                     ?.copyWith(color: widget.colorScheme.primary, fontSize: 18),
               ),
               StreamBuilder<String>(
-                stream: errorText.stream,
+                stream: errorText,
                 builder: (c, s) {
                   if (s.hasData && s.data!.isNotEmpty) {
                     return Text(
@@ -332,7 +332,7 @@ class BotFormMessageState extends State<BotFormMessage> {
   ) {
     return StreamBuilder<bool>(
       initialData: _locked.value,
-      stream: _locked.stream,
+      stream: _locked,
       builder: (context, snapshot) {
         return ElevatedButton(
           onPressed: !snapshot.data!

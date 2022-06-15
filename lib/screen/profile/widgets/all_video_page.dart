@@ -86,7 +86,7 @@ class _AllVideoPageState extends State<AllVideoPage> {
             children: [
               if (isDesktop)
                 StreamBuilder<int>(
-                  stream: _currentIndex.stream,
+                  stream: _currentIndex,
                   builder: (context, indexSnapShot) {
                     if (indexSnapShot.hasData && indexSnapShot.data! > 0) {
                       return IconButton(
@@ -129,7 +129,7 @@ class _AllVideoPageState extends State<AllVideoPage> {
                                 if (filePath.hasData && filePath.data != null) {
                                   _fileCache.set(index, filePath.data);
                                   if (isDesktop) {
-                                    OpenFile.open(filePath.data??"");
+                                    OpenFile.open(filePath.data ?? "");
                                     _routingServices.pop();
                                     return const SizedBox.shrink();
                                   } else {
@@ -162,7 +162,7 @@ class _AllVideoPageState extends State<AllVideoPage> {
               ),
               if (isDesktop)
                 StreamBuilder<int>(
-                  stream: _currentIndex.stream,
+                  stream: _currentIndex,
                   builder: (context, indexSnapShot) {
                     if (indexSnapShot.hasData &&
                         indexSnapShot.data! != widget.videoCount - 1) {
@@ -182,7 +182,7 @@ class _AllVideoPageState extends State<AllVideoPage> {
             ],
           ),
           StreamBuilder<int>(
-            stream: _currentIndex.stream,
+            stream: _currentIndex,
             builder: (context, index) {
               if (index.hasData && index.data != null) {
                 return FutureBuilder<Media?>(
@@ -228,7 +228,7 @@ class _AllVideoPageState extends State<AllVideoPage> {
             },
           ),
           StreamBuilder<int>(
-            stream: _currentIndex.stream,
+            stream: _currentIndex,
             builder: (c, index) {
               return Align(
                 alignment: Alignment.bottomLeft,
@@ -297,7 +297,7 @@ class _AllVideoPageState extends State<AllVideoPage> {
       title: Align(
         alignment: Alignment.topLeft,
         child: StreamBuilder<int>(
-          stream: _currentIndex.stream,
+          stream: _currentIndex,
           builder: (c, position) {
             if (position.hasData && position.data != null) {
               return Text("${position.data! + 1} of ${widget.videoCount}");

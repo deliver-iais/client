@@ -148,7 +148,7 @@ class LoadFileStatusState extends State<LoadFileStatus> {
                   );
                 } else {
                   return StreamBuilder<bool>(
-                    stream: _starDownload.stream,
+                    stream: _starDownload,
                     builder: (context, snapshot) {
                       if (snapshot.hasData &&
                           snapshot.data != null &&
@@ -187,7 +187,7 @@ class LoadFileStatusState extends State<LoadFileStatus> {
               color: widget.background,
             ),
             child: StreamBuilder<bool>(
-              stream: _starDownload.stream,
+              stream: _starDownload,
               builder: (context, snapshot) {
                 if (snapshot.hasData &&
                     snapshot.data != null &&

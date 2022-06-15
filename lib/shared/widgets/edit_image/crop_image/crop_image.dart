@@ -47,7 +47,7 @@ class _CropImageState extends State<CropImage> {
         title: const Text("crop"),
         actions: [
           StreamBuilder<bool?>(
-            stream: _startCrop.stream,
+            stream: _startCrop,
             builder: (c, s) {
               if (s.hasData && s.data != null && s.data!) {
                 return const SizedBox.shrink();
@@ -93,7 +93,7 @@ class _CropImageState extends State<CropImage> {
                   shape: CustomCropShape.Square,
                 ),
                 StreamBuilder<bool?>(
-                  stream: _startCrop.stream,
+                  stream: _startCrop,
                   builder: (c, s) {
                     if (s.hasData && s.data != null && s.data!) {
                       return const Center(
@@ -107,7 +107,7 @@ class _CropImageState extends State<CropImage> {
             ),
           ),
           StreamBuilder<bool?>(
-            stream: _startCrop.stream,
+            stream: _startCrop,
             builder: (c, s) {
               if (s.hasData && s.data != null && !s.data!) {
                 return Row(

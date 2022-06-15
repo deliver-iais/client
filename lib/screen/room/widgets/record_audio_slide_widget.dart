@@ -39,7 +39,7 @@ class RecordAudioSlideWidget extends StatelessWidget {
               Opacity(
                 opacity: opacity,
                 child: StreamBuilder<bool>(
-                  stream: _show.stream,
+                  stream: _show,
                   builder: (c, s) {
                     if (s.hasData && s.data!) {
                       return const Opacity(
@@ -65,7 +65,7 @@ class RecordAudioSlideWidget extends StatelessWidget {
           ),
         ),
         StreamBuilder<DateTime>(
-          stream: streamTime.stream,
+          stream: streamTime,
           builder: (c, t) {
             _show.add(!_show.value);
             if (t.hasData && t.data != null && t.data!.isAfter(time)) {

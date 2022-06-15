@@ -219,7 +219,7 @@ class LoginPageState extends State<LoginPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           StreamBuilder<String>(
-            stream: loginToken.stream,
+            stream: loginToken,
             builder: (context, snapshot) {
               if (snapshot.hasData &&
                   snapshot.data != null &&
@@ -279,7 +279,7 @@ class LoginPageState extends State<LoginPage> {
     final theme = Theme.of(context);
     return StreamBuilder<bool>(
       initialData: _isLoading.value,
-      stream: _isLoading.stream,
+      stream: _isLoading,
       builder: (c, loading) {
         if (loading.hasData && loading.data != null && loading.data!) {
           return const Center(child: CircularProgressIndicator());

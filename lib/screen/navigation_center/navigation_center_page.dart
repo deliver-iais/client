@@ -73,7 +73,7 @@ class NavigationCenterState extends State<NavigationCenter> {
       }
     });
 
-    _queryTermDebouncedSubject.stream
+    _queryTermDebouncedSubject
         .debounceTime(const Duration(milliseconds: 250))
         .listen((text) => _searchMode.add(text));
 
@@ -209,7 +209,7 @@ class NavigationCenterState extends State<NavigationCenter> {
                 ),
                 if (!isLarge(context)) const AudioPlayerAppBar(),
                 StreamBuilder<String>(
-                  stream: _searchMode.stream,
+                  stream: _searchMode,
                   builder: (c, s) {
                     if (s.hasData && s.data!.isNotEmpty) {
                       _onNavigationCenterBackPressed = () {
@@ -260,7 +260,7 @@ class NavigationCenterState extends State<NavigationCenter> {
 
   Widget _outOfDateWidget() {
     return StreamBuilder<bool>(
-      stream: outOfDateObject.stream,
+      stream: outOfDateObject,
       builder: (c, snapshot) {
         if (snapshot.hasData && snapshot.data != null && snapshot.data!) {
           showOutOfDateDialog(context);
@@ -273,7 +273,7 @@ class NavigationCenterState extends State<NavigationCenter> {
 
   Widget _newVersionInfo() {
     return StreamBuilder<NewerVersionInformation?>(
-      stream: newVersionInformation.stream,
+      stream: newVersionInformation,
       builder: (context, snapshot) {
         if (snapshot.hasData &&
             snapshot.data != null &&

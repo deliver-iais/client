@@ -105,7 +105,7 @@ class DownloadVideoWidgetState extends State<DownloadVideoWidget> {
                     );
                   } else {
                     return StreamBuilder<bool>(
-                      stream: _startDownload.stream,
+                      stream: _startDownload,
                       builder: (context, snapshot) {
                         if (snapshot.hasData &&
                             snapshot.data != null &&
@@ -143,7 +143,7 @@ class DownloadVideoWidgetState extends State<DownloadVideoWidget> {
             decoration:
                 BoxDecoration(color: widget.background, shape: BoxShape.circle),
             child: StreamBuilder<bool>(
-              stream: _startDownload.stream,
+              stream: _startDownload,
               builder: (context, start) {
                 if (start.hasData && start.data != null && start.data!) {
                   return const CircularProgressIndicator();

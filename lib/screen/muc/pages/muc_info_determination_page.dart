@@ -132,7 +132,7 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                       ],
                     ),
                   StreamBuilder<bool>(
-                    stream: showChannelIdError.stream,
+                    stream: showChannelIdError,
                     builder: (c, e) {
                       if (e.hasData && e.data!) {
                         return Text(

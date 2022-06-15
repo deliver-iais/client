@@ -145,7 +145,7 @@ class AccountSettingsState extends State<AccountSettings> {
   void initState() {
     try {
       _accountRepo.hasProfile();
-      subject.stream
+      subject
           .debounceTime(const Duration(milliseconds: 250))
           .listen((username) async {
         if (_usernameFormKey.currentState?.validate() ?? false) {
@@ -215,7 +215,7 @@ class AccountSettingsState extends State<AccountSettings> {
                       NormalSettingsTitle(
                         child: Center(
                           child: StreamBuilder<String>(
-                            stream: _newAvatarPath.stream,
+                            stream: _newAvatarPath,
                             builder: (context, snapshot) {
                               if (snapshot.hasData &&
                                   snapshot.data != null &&
@@ -330,7 +330,7 @@ class AccountSettingsState extends State<AccountSettings> {
                                     ],
                                   ),
                                   StreamBuilder<bool>(
-                                    stream: _usernameIsAvailable.stream,
+                                    stream: _usernameIsAvailable,
                                     builder: (context, snapshot) {
                                       if (snapshot.hasData &&
                                           snapshot.data != null &&

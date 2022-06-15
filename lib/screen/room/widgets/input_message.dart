@@ -327,7 +327,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                           child: Row(
                             children: <Widget>[
                               StreamBuilder<bool>(
-                                stream: _backSubject.stream,
+                                stream: _backSubject,
                                 builder: (context, snapshot) {
                                   return IconButton(
                                     iconSize: _backSubject.value ? 24 : 28,

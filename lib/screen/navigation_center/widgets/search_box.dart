@@ -67,7 +67,7 @@ class SearchBoxState extends State<SearchBox> {
           isDense: true,
           prefixIcon: const Icon(CupertinoIcons.search),
           suffixIcon: StreamBuilder<bool?>(
-            stream: _hasText.stream,
+            stream: _hasText,
             builder: (c, ht) {
               if (ht.hasData && ht.data!) {
                 return IconButton(

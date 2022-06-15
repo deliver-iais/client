@@ -81,7 +81,7 @@ class ContactsPageState extends State<ContactsPage> {
                   Expanded(
                     child: Scrollbar(
                       child: StreamBuilder<String>(
-                        stream: _queryTermDebouncedSubject.stream,
+                        stream: _queryTermDebouncedSubject,
                         builder: (context, sna) {
                           return ListView.separated(
                             separatorBuilder: (context, index) {

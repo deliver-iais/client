@@ -35,7 +35,7 @@ class SearchInMessageButtonState extends State<SearchInMessageButton> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<bool>(
-      stream: widget.searchMode.stream,
+      stream: widget.searchMode,
       builder: (c, s) {
         if (s.hasData && s.data! && widget.searchResult.isNotEmpty) {
           return Row(

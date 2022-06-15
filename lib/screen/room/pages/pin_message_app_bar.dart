@@ -30,7 +30,7 @@ class PinMessageAppBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return StreamBuilder<int>(
-      stream: lastPinedMessage.stream,
+      stream: lastPinedMessage,
       builder: (c, id) {
         if (id.hasData && id.data! > 0) {
           Message? mes;

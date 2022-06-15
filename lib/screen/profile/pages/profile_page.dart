@@ -159,7 +159,7 @@ class ProfilePageState extends State<ProfilePage>
                         child: Box(
                           borderRadius: BorderRadius.zero,
                           child: StreamBuilder<bool>(
-                            stream: _selectMediasForForward.stream,
+                            stream: _selectMediasForForward,
                             builder: (context, selectMediaToForward) {
                               if (selectMediaToForward.hasData &&
                                   selectMediaToForward.data != null &&
@@ -964,7 +964,7 @@ class ProfilePageState extends State<ProfilePage>
                               ),
                             ),
                             StreamBuilder<bool?>(
-                              stream: _showChannelIdError.stream,
+                              stream: _showChannelIdError,
                               builder: (c, e) {
                                 if (e.hasData && e.data != null && e.data!) {
                                   return Text(
@@ -1020,7 +1020,7 @@ class ProfilePageState extends State<ProfilePage>
           ),
           actions: <Widget>[
             StreamBuilder<bool>(
-              stream: newChange.stream,
+              stream: newChange,
               builder: (c, change) {
                 if (change.hasData && change.data != null) {
                   return TextButton(
@@ -1183,7 +1183,7 @@ class ProfilePageState extends State<ProfilePage>
                 }
                 groups.add(s);
                 return StreamBuilder<List<String>>(
-                  stream: groups.stream,
+                  stream: groups,
                   builder: (context, snapshot) {
                     if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                       final filteredGroupList = snapshot.data!;

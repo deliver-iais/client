@@ -179,7 +179,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () {
-            if (widget.selectMultiMessageSubject.stream.value) {
+            if (widget.selectMultiMessageSubject.value) {
               widget.addForwardMessage();
             } else if (!isDesktop) {
               FocusScope.of(context).unfocus();
@@ -189,13 +189,13 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           onSecondaryTap: !isDesktop
               ? null
               : () {
-                  if (!widget.selectMultiMessageSubject.stream.value) {
+                  if (!widget.selectMultiMessageSubject.value) {
                     _showCustomMenu(context, msg);
                   }
                 },
           onDoubleTap: !isDesktop ? null : widget.onReply,
           onLongPress: () {
-            if (!widget.selectMultiMessageSubject.stream.value) {
+            if (!widget.selectMultiMessageSubject.value) {
               widget.selectMultiMessageSubject.add(true);
             }
             widget.addForwardMessage();
@@ -254,7 +254,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
-        if (widget.selectMultiMessageSubject.stream.value) {
+        if (widget.selectMultiMessageSubject.value) {
           widget.addForwardMessage();
         } else if (!isDesktop) {
           FocusScope.of(context).unfocus();
@@ -264,13 +264,13 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onSecondaryTap: !isDesktop
           ? null
           : () {
-              if (!widget.selectMultiMessageSubject.stream.value) {
+              if (!widget.selectMultiMessageSubject.value) {
                 _showCustomMenu(context, message);
               }
             },
       onDoubleTap: !isDesktop ? null : widget.onReply,
       onLongPress: () {
-        if (!widget.selectMultiMessageSubject.stream.value) {
+        if (!widget.selectMultiMessageSubject.value) {
           widget.selectMultiMessageSubject.add(true);
         }
         widget.addForwardMessage();

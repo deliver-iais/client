@@ -86,13 +86,13 @@ class AudioService {
 
   String get audioPath => _audioPath;
 
-  Stream<String> get audioUuid => _audioUuid.stream;
+  Stream<String> get audioUuid => _audioUuid;
 
-  Stream<bool> get audioCenterIsOn => _audioCenterIsOn.stream;
+  Stream<bool> get audioCenterIsOn => _audioCenterIsOn;
 
-  Stream<AudioPlayerState> audioCurrentState() => _audioCurrentState.stream;
+  Stream<AudioPlayerState> audioCurrentState() => _audioCurrentState;
 
-  Stream<Duration> audioCurrentPosition() => _audioCurrentPosition.stream;
+  Stream<Duration> audioCurrentPosition() => _audioCurrentPosition;
 
   AudioService() {
     try {

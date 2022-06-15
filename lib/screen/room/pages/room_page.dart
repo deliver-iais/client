@@ -185,7 +185,7 @@ class RoomPageState extends State<RoomPage> {
     return Stack(
       children: [
         StreamBuilder<Room>(
-          stream: _room.stream,
+          stream: _room,
           builder: (context, snapshot) => Background(
             id: snapshot.data?.lastMessageId ?? 0,
           ),
@@ -194,7 +194,7 @@ class RoomPageState extends State<RoomPage> {
           children: <Widget>[
             buildAllMessagesBox(),
             StreamBuilder(
-              stream: _repliedMessage.stream,
+              stream: _repliedMessage,
               builder: (c, rm) {
                 if (rm.hasData && rm.data != null) {
                   return ReplyPreview(
@@ -206,7 +206,7 @@ class RoomPageState extends State<RoomPage> {
               },
             ),
             StreamBuilder(
-              stream: _editableMessage.stream,
+              stream: _editableMessage,
               builder: (c, em) {
                 if (em.hasData && em.data != null) {
                   return OnEditMessageWidget(
@@ -218,7 +218,7 @@ class RoomPageState extends State<RoomPage> {
               },
             ),
             StreamBuilder<bool>(
-              stream: _waitingForForwardedMessage.stream,
+              stream: _waitingForForwardedMessage,
               builder: (c, wm) {
                 if (wm.hasData && wm.data!) {
                   return ForwardPreview(
@@ -247,8 +247,8 @@ class RoomPageState extends State<RoomPage> {
                   return StreamBuilder<Object>(
                     stream: MergeStream(
                       [
-                        _pendingMessages.stream,
-                        _room.stream,
+                        _pendingMessages,
+                        _room,
                         _itemCountSubject,
                       ],
                     ),
@@ -260,11 +260,11 @@ class RoomPageState extends State<RoomPage> {
                           children: [
                             Debug(
                               seen.data?.messageId,
-                              label: "myseen.messageId",
+                              label: "mySeen.messageId",
                             ),
                             Debug(
                               seen.data?.hiddenMessageCount,
-                              label: "myseen.hiddenMessageCount",
+                              label: "mySeen.hiddenMessageCount",
                             ),
                             Debug(widget.roomId, label: "uid"),
                             Debug(
@@ -326,7 +326,7 @@ class RoomPageState extends State<RoomPage> {
       child: Stack(
         children: [
           StreamBuilder(
-            stream: MergeStream([_pendingMessages.stream, _room.stream])
+            stream: MergeStream([_pendingMessages, _room])
                 .debounceTime(const Duration(milliseconds: 50)),
             builder: (context, event) {
               // Set Item Count
@@ -340,7 +340,7 @@ class RoomPageState extends State<RoomPage> {
             },
           ),
           StreamBuilder<bool>(
-            stream: _isScrolling.stream,
+            stream: _isScrolling,
             builder: (context, snapshot) {
               return Positioned(
                 right: 16,
@@ -475,7 +475,7 @@ class RoomPageState extends State<RoomPage> {
     _roomRepo.watchRoom(widget.roomId).listen((event) {
       _room.add(event);
     });
-    messageEventSubject.stream
+    messageEventSubject
         .distinct()
         .where((event) => (event != null && event.roomUid == widget.roomId))
         .listen((value) async {
@@ -764,7 +764,7 @@ class RoomPageState extends State<RoomPage> {
   Widget buildNewMessageInput() {
     if (widget.roomId.asUid().category == Categories.BOT) {
       return StreamBuilder<Room?>(
-        stream: _room.stream,
+        stream: _room,
         builder: (c, s) {
           if (s.hasData &&
               s.data!.uid.asUid().category == Categories.BOT &&
@@ -781,7 +781,7 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Widget messageInput() => StreamBuilder(
-        stream: _editableMessage.stream,
+        stream: _editableMessage,
         builder: (c, data) {
           return NewMessageInput(
             currentRoomId: widget.roomId,
@@ -894,7 +894,7 @@ class RoomPageState extends State<RoomPage> {
       ],
       leading: GestureDetector(
         child: StreamBuilder<bool>(
-          stream: _searchMode.stream,
+          stream: _searchMode,
           builder: (c, s) {
             if (s.hasData && s.data!) {
               return IconButton(
@@ -905,7 +905,7 @@ class RoomPageState extends State<RoomPage> {
               );
             } else {
               return StreamBuilder<bool>(
-                stream: _selectMultiMessageSubject.stream,
+                stream: _selectMultiMessageSubject,
                 builder: (context, snapshot) {
                   if (snapshot.hasData &&
                       snapshot.data != null &&
@@ -949,7 +949,7 @@ class RoomPageState extends State<RoomPage> {
       ),
       titleSpacing: 0.0,
       title: StreamBuilder<bool>(
-        stream: _searchMode.stream,
+        stream: _searchMode,
         builder: (c, s) {
           if (s.hasData && s.data!) {
             return Row(
@@ -972,7 +972,7 @@ class RoomPageState extends State<RoomPage> {
                     decoration: InputDecoration(
                       hintText: _i18n.get("search"),
                       suffix: StreamBuilder<bool>(
-                        stream: checkSearchResult.stream,
+                        stream: checkSearchResult,
                         builder: (c, s) {
                           if (s.hasData && s.data!) {
                             return Text(_i18n.get("not_found"));
@@ -989,7 +989,7 @@ class RoomPageState extends State<RoomPage> {
             );
           } else {
             return StreamBuilder<bool>(
-              stream: _selectMultiMessageSubject.stream,
+              stream: _selectMultiMessageSubject,
               builder: (c, sm) {
                 if (sm.hasData && sm.data!) {
                   return SelectMultiMessageAppBar(
@@ -1185,7 +1185,7 @@ class RoomPageState extends State<RoomPage> {
 
     return StreamBuilder<int>(
       initialData: _highlightMessageId.value,
-      stream: _highlightMessageId.stream,
+      stream: _highlightMessageId,
       builder: (context, snapshot) {
         return AnimatedContainer(
           key: ValueKey(index),

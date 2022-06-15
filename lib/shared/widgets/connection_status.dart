@@ -16,7 +16,7 @@ class ConnectionStatus extends StatelessWidget {
     final theme = Theme.of(context);
     return StreamBuilder<TitleStatusConditions>(
       initialData: TitleStatusConditions.Normal,
-      stream: _messageRepo.updatingStatus.stream,
+      stream: _messageRepo.updatingStatus,
       builder: (context, snapshot) {
         return AnimatedContainer(
           width: double.infinity,

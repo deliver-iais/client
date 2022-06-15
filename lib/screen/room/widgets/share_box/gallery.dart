@@ -318,7 +318,7 @@ class ShareBoxGalleryState extends State<ShareBoxGallery> {
             body: Stack(
               children: [
                 StreamBuilder<CameraController>(
-                  stream: _cameraController.stream,
+                  stream: _cameraController,
                   builder: (context, snapshot) {
                     return SizedBox(
                       height: MediaQuery.of(context).size.height,
@@ -435,7 +435,7 @@ Stack buildInputCaption({
               border: InputBorder.none,
               hintStyle: const TextStyle(fontSize: 16),
               suffixIcon: StreamBuilder<bool>(
-                stream: insertCaption.stream,
+                stream: insertCaption,
                 builder: (c, s) {
                   if (s.hasData && s.data!) {
                     return IconButton(
@@ -474,7 +474,7 @@ Stack buildInputCaption({
                 shape: BoxShape.circle,
               ),
               child: StreamBuilder<bool>(
-                stream: insertCaption.stream,
+                stream: insertCaption,
                 builder: (context, snapshot) {
                   if (snapshot.hasData &&
                       snapshot.data != null &&

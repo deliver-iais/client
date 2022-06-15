@@ -29,7 +29,7 @@ class SearchBoxAndListWidget extends StatelessWidget {
           onCancel: () => queryTermDebouncedSubject.add(""),
         ),
         StreamBuilder<String>(
-          stream: queryTermDebouncedSubject.stream,
+          stream: queryTermDebouncedSubject,
           builder: (context, query) {
             return Expanded(
               child: FutureBuilder<List<Uid>>(

@@ -48,7 +48,7 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
     final buttons = widget.message.json.toButtons();
     return StreamBuilder<bool>(
       initialData: _locked.value,
-      stream: _locked.stream,
+      stream: _locked,
       builder: (context, lockData) {
         if (lockData.hasData && lockData.data != null) {
           final isLocked = lockData.data!;

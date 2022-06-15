@@ -59,7 +59,7 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                 children: [
                   if (isDesktop)
                     StreamBuilder<int>(
-                      stream: _swipePositionSubject.stream,
+                      stream: _swipePositionSubject,
                       builder: (context, indexSnapShot) {
                         if (indexSnapShot.hasData && indexSnapShot.data! > 0) {
                           return IconButton(
@@ -114,7 +114,7 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                   ),
                   if (isDesktop)
                     StreamBuilder<int>(
-                      stream: _swipePositionSubject.stream,
+                      stream: _swipePositionSubject,
                       builder: (context, indexSnapShot) {
                         if (indexSnapShot.hasData &&
                             indexSnapShot.data! != snapshot.data!.length - 1) {
@@ -150,7 +150,7 @@ class AllAvatarPageState extends State<AllAvatarPage> {
       title: Align(
         alignment: Alignment.topLeft,
         child: StreamBuilder<int>(
-          stream: _swipePositionSubject.stream,
+          stream: _swipePositionSubject,
           builder: (c, position) {
             if (position.hasData && position.data != null) {
               return Text("${position.data! + 1} of $totalLength");

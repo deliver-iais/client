@@ -157,7 +157,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
               child: Stack(
                 children: [
                   StreamBuilder<int>(
-                    stream: _idSubject.stream,
+                    stream: _idSubject,
                     builder: (context, snapshot) {
                       return Background(
                         id: snapshot.data ?? 0,

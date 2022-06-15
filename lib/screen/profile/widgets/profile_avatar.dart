@@ -45,7 +45,7 @@ class ProfileAvatarState extends State<ProfileAvatar> {
     return Padding(
       padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
       child: StreamBuilder<String>(
-        stream: _newAvatarPath.stream,
+        stream: _newAvatarPath,
         builder: (c, s) {
           if (s.hasData && s.data != null && s.data!.isNotEmpty) {
             return CircleAvatar(
