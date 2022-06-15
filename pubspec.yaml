@@ -73,10 +73,10 @@ dependencies:
   flutter_audio_waveforms: 1.2.1+5
   flutter_blurhash: 0.6.4
   flutter_dropzone: 3.0.3
-#  flutter_easy_permission:
-#    git:
-#      ref: 790271a6ef3ac0617d3cf8a04149b1b4f9177c95
-#      url: https://github.com/AmirhosseinShk/flutter_easy_permission
+  #  flutter_easy_permission:
+  #    git:
+  #      ref: 790271a6ef3ac0617d3cf8a04149b1b4f9177c95
+  #      url: https://github.com/AmirhosseinShk/flutter_easy_permission
   flutter_foreground_task: 3.7.3
   flutter_image_compress: 1.1.0
   flutter_keyboard_visibility: 5.1.1
@@ -210,6 +210,7 @@ flutter:
     - assets/audios/end_call.mp3
     - assets/animations/new_version.zip
     - assets/animations/out_of_date.zip
+    - assets/animations/call_permission.tgs
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

@@ -40,7 +40,6 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:rxdart/rxdart.dart';
 
 // Pages
@@ -147,11 +146,7 @@ class RoutingService {
     bool isCallAccepted = false,
     bool isVideoCall = false,
   }) async {
-    if(!(await Permission.systemAlertWindow.status.isGranted)) {
-      await openAppSettings();
-    }
-    if (isDesktop || await Permission.systemAlertWindow.request().isGranted) {
-      _push(
+    _push(
       CallScreen(
         key: const ValueKey("/call-screen"),
         roomUid: roomUid,
@@ -161,7 +156,6 @@ class RoutingService {
         isVideoCall: isVideoCall,
       ),
     );
-    }
   }
 
   void openProfile(String roomId) => _push(
