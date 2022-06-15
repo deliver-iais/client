@@ -273,7 +273,6 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
       shape: const RoundedRectangleBorder(borderRadius: secondaryBorder),
     ),
     popupMenuTheme: PopupMenuThemeData(
-      elevation: 10,
       textStyle: TextStyle(color: colorScheme.primary, fontSize: 14),
       shape: const RoundedRectangleBorder(borderRadius: secondaryBorder),
       color: colorScheme.surface,
