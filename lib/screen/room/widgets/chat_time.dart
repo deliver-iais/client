@@ -24,7 +24,13 @@ class ChatTime extends StatelessWidget {
     }
     return Padding(
       padding: const EdgeInsets.only(top: 20.0),
-      child: Chip(side: BorderSide.none, label: Text(outT)),
+      child: Chip(
+        label: Padding(
+          padding: const EdgeInsets.only(top: 4.0),
+          child: Text(outT),
+        ),
+        elevation: 2,
+      ),
     );
   }
 }
