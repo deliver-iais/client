@@ -73,7 +73,7 @@ class _BotTableWidgetState extends State<BotTableWidget> {
             controller: _controller,
             scrollDirection: Axis.horizontal,
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(12),
               child: Table(
                 border: TableBorder.all(
                   color: widget.colorScheme.primary,
