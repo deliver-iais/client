@@ -36,7 +36,7 @@ dependencies:
   collection: 1.16.0
   connectycube_flutter_call_kit:
     git:
-      ref: 94cc4e2a67ceeeeaf4225218efe68cdc7faef539
+      ref: e13124fee38dd11baf639660675ca4f722dfabd3
       url: https://github.com/androidwoman/connectycube-flutter-call-kit.git
   contacts_service: 0.6.3
   custom_image_crop: 0.0.4
@@ -72,7 +72,7 @@ dependencies:
   flutter_foreground_task:
     git:
       url: https://github.com/androidwoman/flutter_foreground_task
-      ref: b24aeffc07dc047016b4da1f1320ec524d96b161
+      ref: 27ca60817efb2d666c64bd2f28cf4dd9de62b937
   flutter_image_compress: 1.1.0
   flutter_keyboard_visibility: 5.1.1
   flutter_local_notifications: 10.0.0-dev.13
@@ -109,6 +109,7 @@ dependencies:
   material_color_utilities: 0.1.4
   meta: 1.7.0
   metadata_fetch: 0.4.1
+  mobile_scanner: 1.1.1
   mime_type: 1.0.0
   modal_bottom_sheet: 2.0.1
   open_file: 3.2.1
@@ -124,7 +125,6 @@ dependencies:
   photo_manager: 2.1.1
   platform_detect: 2.0.0
   process_run: 0.12.3+2
-  qr_code_scanner: 0.7.0
   qr_flutter: 4.0.0
   random_string: 2.3.1
   receive_sharing_intent: 1.4.5
@@ -201,6 +201,7 @@ flutter:
     - assets/audios/end_call.mp3
     - assets/animations/new_version.zip
     - assets/animations/out_of_date.zip
+    - assets/animations/qr.zip
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

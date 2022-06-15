@@ -1,10 +1,10 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:lottie/lottie.dart';
+import 'package:mobile_scanner/mobile_scanner.dart';
 
 class ScanQrCode extends StatefulWidget {
   @override
@@ -14,21 +14,11 @@ class ScanQrCode extends StatefulWidget {
 }
 
 class _ScanQrCode extends State<ScanQrCode> {
-  late QRViewController controller;
-  final GlobalKey _qrGlobalKey = GlobalKey();
   final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
+  final MobileScannerController _mobileScannerController =
+      MobileScannerController();
   final _routingServices = GetIt.I.get<RoutingService>();
 
-  @override
-  void reassemble() {
-    try {
-      super.reassemble();
-      if (isAndroid) {
-        controller.pauseCamera();
-      }
-      controller.resumeCamera();
-    } catch (_) {}
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,45 +38,35 @@ class _ScanQrCode extends State<ScanQrCode> {
   }
 
   Widget _buildQrView(BuildContext context) {
-    final theme = Theme.of(context);
-    final scanArea = (MediaQuery.of(context).size.width < 400 ||
-            MediaQuery.of(context).size.height < 400)
-        ? 250.0
-        : 350.0;
-
-    return QRView(
-      key: _qrGlobalKey,
-      overlayMargin: const EdgeInsets.all(24.0).copyWith(bottom: 100),
-      onQRViewCreated: (controller) => _onQRViewCreated(controller, context),
-      overlay: QrScannerOverlayShape(
-        borderColor: theme.primaryColor,
-        borderRadius: 10,
-        borderLength: 30,
-        borderWidth: 10,
-        cutOutSize: scanArea,
-      ),
+    return Stack(
+      children: [
+        MobileScanner(
+          controller: _mobileScannerController,
+          onDetect: (barcode, args) {
+            if (barcode.rawValue != null) {
+              _urlHandlerService.handleApplicationUri(
+                barcode.rawValue!,
+                context,
+              );
+            }
+          },
+        ),
+        Padding(
+          padding: const EdgeInsets.only(right: 40),
+          child: Center(
+            child: Lottie.asset(
+              "assets/animations/qr.zip",
+              height: MediaQuery.of(context).size.height / 2,
+            ),
+          ),
+        ),
+      ],
     );
-  }
-
-  void _onQRViewCreated(QRViewController controller, BuildContext context) {
-    setState(() {
-      this.controller = controller;
-    });
-    controller.scannedDataStream
-        .map((event) => event.code)
-        .distinct()
-        .listen((scanData) {
-      _urlHandlerService.handleApplicationUri(
-        scanData!,
-        context,
-        qrViewController: controller,
-      );
-    });
   }
 
   @override
   void dispose() {
-    controller.dispose();
+    _mobileScannerController.dispose();
     super.dispose();
   }
 }

@@ -229,8 +229,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "94cc4e2a67ceeeeaf4225218efe68cdc7faef539"
-      resolved-ref: "94cc4e2a67ceeeeaf4225218efe68cdc7faef539"
+      ref: e13124fee38dd11baf639660675ca4f722dfabd3
+      resolved-ref: e13124fee38dd11baf639660675ca4f722dfabd3
       url: "https://github.com/androidwoman/connectycube-flutter-call-kit.git"
     source: git
     version: "2.0.2"
@@ -590,8 +590,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: b24aeffc07dc047016b4da1f1320ec524d96b161
-      resolved-ref: b24aeffc07dc047016b4da1f1320ec524d96b161
+      ref: "27ca60817efb2d666c64bd2f28cf4dd9de62b937"
+      resolved-ref: "27ca60817efb2d666c64bd2f28cf4dd9de62b937"
       url: "https://github.com/androidwoman/flutter_foreground_task"
     source: git
     version: "3.5.5"
@@ -1076,6 +1076,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
+  mobile_scanner:
+    dependency: "direct main"
+    description:
+      name: mobile_scanner
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.1"
   mockito:
     dependency: "direct dev"
     description:
@@ -1398,13 +1405,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0"
-  qr_code_scanner:
-    dependency: "direct main"
-    description:
-      name: qr_code_scanner
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.7.0"
   qr_flutter:
     dependency: "direct main"
     description:
