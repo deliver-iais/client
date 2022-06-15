@@ -34,12 +34,12 @@ dependencies:
   circular_countdown_timer: 0.2.1
   clock: 1.1.0
   collection: 1.16.0
+  connectivity_plus: 2.3.4
   connectycube_flutter_call_kit:
     git:
       ref: e13124fee38dd11baf639660675ca4f722dfabd3
       url: https://github.com/androidwoman/connectycube-flutter-call-kit.git
   contacts_service: 0.6.3
-  connectivity_plus: 2.3.4
   custom_image_crop: 0.0.4
   date_time_format: 2.0.1
   dcache: 0.4.0
@@ -110,7 +110,7 @@ dependencies:
   material_color_utilities: 0.1.4
   meta: 1.7.0
   metadata_fetch: 0.4.1
-  mobile_scanner: 1.1.1
+  mobile_scanner: 2.0.0
   mime_type: 1.0.0
   modal_bottom_sheet: 2.0.1
   open_file: 3.2.1
@@ -122,7 +122,7 @@ dependencies:
   patterns_canvas: 0.3.5 # UPDATABLE in FLUTTER 3
   percent_indicator: 3.4.0
   permission_handler: 9.2.0
-  persian_datetime_picker: 2.4.0
+  persian_datetime_picker: 2.5.0
   photo_manager: 2.1.1
   platform_detect: 2.0.0
   process_run: 0.12.3+2

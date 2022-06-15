@@ -199,7 +199,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
             child: Column(
               children: <Widget>[
                 const HasCallRow(),
-                const ConnectionStatus(),
+                ConnectionStatus(),
                 RepaintBoundary(
                   child: SearchBox(
                     onChange: _queryTermDebouncedSubject.add,

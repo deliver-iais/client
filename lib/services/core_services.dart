@@ -23,8 +23,10 @@ import 'package:rxdart/rxdart.dart';
 
 enum ConnectionStatus { Connected, Disconnected, Connecting }
 
+BehaviorSubject<int> disconnectedTime = BehaviorSubject.seeded(0);
+
 const MIN_BACKOFF_TIME = isWeb ? 16 : 4;
-const MAX_BACKOFF_TIME = isWeb ? 16 : 8;
+const MAX_BACKOFF_TIME = 128;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 class CoreServices {
@@ -54,9 +56,24 @@ class CoreServices {
   final BehaviorSubject<ConnectionStatus> _connectionStatus =
       BehaviorSubject.seeded(ConnectionStatus.Connecting);
 
+  void retryConnection() {
+    disconnectedTime.add(0);
+    startStream();
+    disconnectedTime.add(backoffTime);
+  }
+
+  void retryFasterConnection() {
+    backoffTime = MIN_BACKOFF_TIME;
+    _connectionTimer!.cancel();
+    retryConnection();
+    startCheckerTimer();
+  }
+
   Future<void> initStreamConnection() async {
-    Connectivity().onConnectivityChanged.listen((ConnectivityResult result) {
-      print("connection change" + result.index.toString() + "\t" + result.name);
+    Connectivity().onConnectivityChanged.listen((result) {
+      if (result != ConnectivityResult.none) {
+        retryConnection();
+      }
     });
     if (_connectionTimer != null && _connectionTimer!.isActive) {
       return;
@@ -89,6 +106,7 @@ class CoreServices {
         } else {
           backoffTime = MIN_BACKOFF_TIME;
         }
+        disconnectedTime.add(backoffTime);
         startStream();
         _connectionStatus.add(ConnectionStatus.Disconnected);
       }
@@ -101,6 +119,7 @@ class CoreServices {
     _connectionStatus.add(ConnectionStatus.Connected);
     backoffTime = MIN_BACKOFF_TIME;
     responseChecked = true;
+    disconnectedTime.add(0);
   }
 
   @visibleForTesting
