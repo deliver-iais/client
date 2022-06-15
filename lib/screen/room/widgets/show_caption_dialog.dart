@@ -45,10 +45,10 @@ class ShowCaptionDialog extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _ShowCaptionDialogState createState() => _ShowCaptionDialogState();
+  ShowCaptionDialogState createState() => ShowCaptionDialogState();
 }
 
-class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
+class ShowCaptionDialogState extends State<ShowCaptionDialog> {
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _fileService = GetIt.I.get<FileService>();
   final _i18n = GetIt.I.get<I18N>();
@@ -558,7 +558,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
       if (isDesktop) {
         ToastDisplay.showToast(
           toastText: !_isFileFormatAccept
-              ? _i18n.get("cant_sent") + " " + _invalidFormatFileName
+              ? "${_i18n.get("cant_sent")} $_invalidFormatFileName"
               : _i18n.get("file_size_error"),
           toastContext: context,
         );
@@ -595,8 +595,8 @@ class FileErrorDialog extends StatelessWidget {
         width: 150,
         child: Text(
           !_isFileFormatAccept
-              ? _i18n.get("cant_sent") + " " + _invalidFormatFileName
-              : _invalidSizeFileName + " " + _i18n.get("file_size_error"),
+              ? "${_i18n.get("cant_sent")} $_invalidFormatFileName"
+              : "$_invalidSizeFileName ${_i18n.get("file_size_error")}",
         ),
       ),
       actions: [

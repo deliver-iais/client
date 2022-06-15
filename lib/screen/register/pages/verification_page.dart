@@ -18,10 +18,10 @@ class VerificationPage extends StatefulWidget {
   const VerificationPage({Key? key}) : super(key: key);
 
   @override
-  _VerificationPageState createState() => _VerificationPageState();
+  VerificationPageState createState() => VerificationPageState();
 }
 
-class _VerificationPageState extends State<VerificationPage> {
+class VerificationPageState extends State<VerificationPage> {
   final _logger = GetIt.I.get<Logger>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _fireBaseServices = GetIt.I.get<FireBaseServices>();

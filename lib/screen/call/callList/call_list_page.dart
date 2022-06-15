@@ -25,10 +25,10 @@ class CallListPage extends StatefulWidget {
   const CallListPage({Key? key}) : super(key: key);
 
   @override
-  _CallListPageState createState() => _CallListPageState();
+  CallListPageState createState() => CallListPageState();
 }
 
-class _CallListPageState extends State<CallListPage> {
+class CallListPageState extends State<CallListPage> {
   final _i18n = GetIt.I.get<I18N>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _callListDao = GetIt.I.get<CallInfoDao>();
@@ -60,7 +60,7 @@ class _CallListPageState extends State<CallListPage> {
             if (snapshot.hasData && snapshot.data != null) {
               final calls = snapshot.data!.reversed.toList();
               if (snapshot.data!.isEmpty) {
-                return const TGS.asset(
+                return const Tgs.asset(
                   'assets/animations/not-found.tgs',
                   width: 180,
                   height: 150,

@@ -63,9 +63,6 @@ class InputMessage extends StatefulWidget {
   final Function(int dir, bool, bool) handleScrollToMessage;
   final Function() deleteSelectedMessage;
 
-  @override
-  _InputMessageWidget createState() => _InputMessageWidget();
-
   const InputMessage({
     Key? key,
     required this.currentRoom,
@@ -81,9 +78,12 @@ class InputMessage extends StatefulWidget {
     this.editableMessage,
     this.showMentionList,
   }) : super(key: key);
+
+  @override
+  InputMessageWidgetState createState() => InputMessageWidgetState();
 }
 
-class _InputMessageWidget extends State<InputMessage> {
+class InputMessageWidgetState extends State<InputMessage> {
   MessageRepo messageRepo = GetIt.I.get<MessageRepo>();
   I18N i18n = GetIt.I.get<I18N>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
@@ -568,8 +568,8 @@ class _InputMessageWidget extends State<InputMessage> {
                                 if (recordAudioPermission) {
                                   final s =
                                       await getApplicationDocumentsDirectory();
-                                  final path = s.path +
-                                      "/Deliver/${clock.now().millisecondsSinceEpoch}.m4a";
+                                  final path =
+                                      "${s.path}/Deliver/${clock.now().millisecondsSinceEpoch}.m4a";
                                   _audioPlayerService.pause();
                                   recordSubject.add(clock.now());
                                   setTime();
@@ -693,7 +693,7 @@ class _InputMessageWidget extends State<InputMessage> {
     block_1 = block_1.substring(0, indexOf + 1);
     final block_2 = widget.textController.text
         .substring(start, widget.textController.text.length);
-    widget.textController.text = block_1 + (s ?? "") + " " + block_2;
+    widget.textController.text = "$block_1${s ?? ""} $block_2";
     widget.textController.selection = TextSelection.fromPosition(
       TextPosition(
         offset: widget.textController.text.length - block_2.length,
@@ -707,7 +707,7 @@ class _InputMessageWidget extends State<InputMessage> {
   }
 
   void onCommandClick(String command) {
-    widget.textController.text = "/" + command;
+    widget.textController.text = "/$command";
     widget.textController.selection = TextSelection.fromPosition(
       TextPosition(offset: widget.textController.text.length),
     );
@@ -1042,7 +1042,7 @@ class _InputMessageWidget extends State<InputMessage> {
       case MessageType.FILE:
         text = widget.editableMessage!.json.toFile().caption;
     }
-    return text + " ";
+    return "$text ";
   }
 }
 

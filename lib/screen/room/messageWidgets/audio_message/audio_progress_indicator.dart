@@ -21,10 +21,10 @@ class AudioProgressIndicator extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _AudioProgressIndicatorState createState() => _AudioProgressIndicatorState();
+  AudioProgressIndicatorState createState() => AudioProgressIndicatorState();
 }
 
-class _AudioProgressIndicatorState extends State<AudioProgressIndicator> {
+class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
   final audioPlayerService = GetIt.I.get<AudioService>();
 
   @override

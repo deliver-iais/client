@@ -23,10 +23,10 @@ class SelectionToForwardPage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _SelectionToForwardPageState createState() => _SelectionToForwardPageState();
+  SelectionToForwardPageState createState() => SelectionToForwardPageState();
 }
 
-class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
+class SelectionToForwardPageState extends State<SelectionToForwardPage> {
   final _routingService = GetIt.I.get<RoutingService>();
 
   @override

@@ -77,9 +77,9 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
     if (index < _imageFiles.values.length) {
       return _imageFiles.values.elementAt(index);
     } else {
-      final _images = await _fetchImage(index);
-      if (_images != null && _images.isNotEmpty) {
-        for (final element in _images) {
+      final images = await _fetchImage(index);
+      if (images != null && images.isNotEmpty) {
+        for (final element in images) {
           _imageFiles[element.id] = element;
         }
         return _imageFiles.values.elementAt(index);

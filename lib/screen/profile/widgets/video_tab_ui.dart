@@ -30,10 +30,10 @@ class VideoTabUi extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _VideoTabUiState createState() => _VideoTabUiState();
+  VideoTabUiState createState() => VideoTabUiState();
 }
 
-class _VideoTabUiState extends State<VideoTabUi> {
+class VideoTabUiState extends State<VideoTabUi> {
   final _fileServices = GetIt.I.get<FileService>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();

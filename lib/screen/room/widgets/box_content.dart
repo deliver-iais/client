@@ -66,14 +66,14 @@ class BoxContent extends StatefulWidget {
   }) : super(key: key);
 
   Type getState() {
-    return _BoxContentState;
+    return BoxContentState;
   }
 
   @override
-  _BoxContentState createState() => _BoxContentState();
+  BoxContentState createState() => BoxContentState();
 }
 
-class _BoxContentState extends State<BoxContent> {
+class BoxContentState extends State<BoxContent> {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _routingServices = GetIt.I.get<RoutingService>();
   final showMenuBehavior = BehaviorSubject.seeded(false);

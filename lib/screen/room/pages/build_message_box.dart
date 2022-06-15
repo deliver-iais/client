@@ -542,13 +542,10 @@ class OperationOnMessageSelection {
 
   Future<void> onShare() async {
     if (message.type == MessageType.TEXT) {
-      final copyText = await _roomRepo.getName(message.from.asUid()) +
-          ":\n" +
-          message.json.toText().text +
-          "\n" +
-          DateTime.fromMillisecondsSinceEpoch(
-            message.time,
-          ).toString().substring(0, 19);
+      final copyText =
+          "${await _roomRepo.getName(message.from.asUid())}:\n${message.json.toText().text}\n${DateTime.fromMillisecondsSinceEpoch(
+        message.time,
+      ).toString().substring(0, 19)}";
 
       return Share.share(
         copyText,

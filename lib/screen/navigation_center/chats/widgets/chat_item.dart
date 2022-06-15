@@ -40,10 +40,10 @@ class ChatItem extends StatefulWidget {
         super(key: key);
 
   @override
-  _ChatItemState createState() => _ChatItemState();
+  ChatItemState createState() => ChatItemState();
 }
 
-class _ChatItemState extends State<ChatItem> {
+class ChatItemState extends State<ChatItem> {
   static final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _roomRepo = GetIt.I.get<RoomRepo>();
@@ -214,7 +214,7 @@ class _ChatItemState extends State<ChatItem> {
     );
   }
 
-  Widget buildDraftMessageWidget(I18N _i18n, BuildContext context) {
+  Widget buildDraftMessageWidget(I18N i18n, BuildContext context) {
     final theme = Theme.of(context);
     return Row(
       children: [
@@ -227,7 +227,7 @@ class _ChatItemState extends State<ChatItem> {
             text: TextSpan(
               children: [
                 TextSpan(
-                  text: "${_i18n.get("draft")}: ",
+                  text: "${i18n.get("draft")}: ",
                   style: theme.primaryTextTheme.bodyText2,
                 ),
                 TextSpan(

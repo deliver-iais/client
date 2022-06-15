@@ -31,10 +31,10 @@ class AccountSettings extends StatefulWidget {
       : super(key: key);
 
   @override
-  _AccountSettingsState createState() => _AccountSettingsState();
+  AccountSettingsState createState() => AccountSettingsState();
 }
 
-class _AccountSettingsState extends State<AccountSettings> {
+class AccountSettingsState extends State<AccountSettings> {
   final _i18n = GetIt.I.get<I18N>();
   final subject = BehaviorSubject<String>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
@@ -408,8 +408,8 @@ class _AccountSettingsState extends State<AccountSettings> {
                             Align(
                               alignment: Alignment.centerRight,
                               child: ElevatedButton(
-                                child: Text(_i18n.get("save")),
                                 onPressed: checkAndSend,
+                                child: Text(_i18n.get("save")),
                               ),
                             )
                           ],

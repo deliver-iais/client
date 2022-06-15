@@ -57,7 +57,7 @@ Future<T> showFloatingModalBottomSheet<T>({
 }
 
 void showQrCode(BuildContext context, String url) {
-  final _i18n = GetIt.I.get<I18N>();
+  final i18n = GetIt.I.get<I18N>();
   showFloatingModalBottomSheet(
     context: context,
     builder: (context) => Container(
@@ -81,7 +81,7 @@ void showQrCode(BuildContext context, String url) {
               padding: const EdgeInsets.only(top: 10.0),
               child: TextButton(
                 onPressed: () => Navigator.of(context).pop(),
-                child: Text(_i18n.get("skip")),
+                child: Text(i18n.get("skip")),
               ),
             ),
           ],

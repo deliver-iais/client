@@ -19,10 +19,10 @@ class SecuritySettingsPage extends StatefulWidget {
   const SecuritySettingsPage({Key? key}) : super(key: key);
 
   @override
-  _SecuritySettingsPageState createState() => _SecuritySettingsPageState();
+  SecuritySettingsPageState createState() => SecuritySettingsPageState();
 }
 
-class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
+class SecuritySettingsPageState extends State<SecuritySettingsPage> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _i18n = GetIt.I.get<I18N>();
@@ -188,7 +188,6 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
     );
   }
 
-
   Widget disableLocalPassword() {
     return StatefulBuilder(
       builder: (context, setState2) => AlertDialog(
@@ -233,7 +232,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
   }
 
   Widget disableTwoStepVerification() {
-    final _textController = TextEditingController();
+    final textController = TextEditingController();
     return StatefulBuilder(
       builder: (context, setState2) => AlertDialog(
         titlePadding: EdgeInsets.zero,
@@ -255,7 +254,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
               ),
             ),
             TextField(
-              controller: _textController,
+              controller: textController,
               obscureText: true,
               decoration: InputDecoration(
                 border: const OutlineInputBorder(),
@@ -277,7 +276,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
             child: TextButton(
               onPressed: () async {
                 if (await _accountRepo
-                    .disableTwoStepVerification(_textController.text)) {
+                    .disableTwoStepVerification(textController.text)) {
                   setState(() {});
                   Navigator.of(context).pop();
                 } else {
@@ -295,12 +294,14 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
     );
   }
 
-  Widget enableOrUpdateTwoStepVerification(
-      {required String email, required bool updatePassword,}) {
-    final _pasController = TextEditingController();
-    final _currentPasController = TextEditingController();
-    final _repPasController = TextEditingController();
-    final _hintPasController = TextEditingController();
+  Widget enableOrUpdateTwoStepVerification({
+    required String email,
+    required bool updatePassword,
+  }) {
+    final pasController = TextEditingController();
+    final currentPasController = TextEditingController();
+    final repPasController = TextEditingController();
+    final hintPasController = TextEditingController();
     return StatefulBuilder(
       builder: (c, set) {
         return AlertDialog(
@@ -309,7 +310,9 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
               onPressed: () {
                 Navigator.pop(c);
               },
-              child: Text(_i18n.get("cancel"),),
+              child: Text(
+                _i18n.get("cancel"),
+              ),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -319,14 +322,16 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                     _newPasFormKey.currentState!.validate() &&
                     _repPasFormKey.currentState!.validate()) {
                   final isSet = await _accountRepo.updatePassword(
-                    currentPassword: _currentPasController.text,
-                    newPassword: _pasController.text,
-                    passwordHint: _hintPasController.text,
+                    currentPassword: currentPasController.text,
+                    newPassword: pasController.text,
+                    passwordHint: hintPasController.text,
                   );
                   if (isSet) {
                     ToastDisplay.showToast(
                       toastContext: c,
-                      toastText:updatePassword? _i18n.get("your_password_update"): _i18n.get("two_step_verification_active"),
+                      toastText: updatePassword
+                          ? _i18n.get("your_password_update")
+                          : _i18n.get("two_step_verification_active"),
                     );
 
                     setState(() {});
@@ -363,7 +368,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                 Form(
                   key: _currentPassFormKey,
                   child: TextFormField(
-                    controller: _currentPasController,
+                    controller: currentPasController,
                     obscureText: true,
                     validator: (s) {
                       if (s == null || s.isEmpty) {
@@ -384,7 +389,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
               Form(
                 key: _newPasFormKey,
                 child: TextFormField(
-                  controller: _pasController,
+                  controller: pasController,
                   obscureText: true,
                   validator: (s) {
                     const Pattern pattern =
@@ -394,8 +399,8 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                       return _i18n.get("pas_not_empty");
                     } else if (!regex.hasMatch(s)) {
                       return _i18n.get("password_not_valid");
-                    } else if (_repPasController.text.isNotEmpty &&
-                        s != _repPasController.text) {
+                    } else if (repPasController.text.isNotEmpty &&
+                        s != repPasController.text) {
                       return _i18n.get("password_not_match");
                     }
                     return null;
@@ -412,12 +417,12 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
               Form(
                 key: _repPasFormKey,
                 child: TextFormField(
-                  controller: _repPasController,
+                  controller: repPasController,
                   obscureText: true,
                   validator: (repPass) {
                     if (repPass == null || repPass.isEmpty) {
                       return _i18n.get("rep_pas_not_empty");
-                    } else if (repPass != _pasController.text) {
+                    } else if (repPass != pasController.text) {
                       return _i18n.get("password_not_match");
                     }
                     return null;
@@ -431,7 +436,7 @@ class _SecuritySettingsPageState extends State<SecuritySettingsPage> {
                 height: 5,
               ),
               TextFormField(
-                controller: _hintPasController,
+                controller: hintPasController,
                 decoration: InputDecoration(
                   hintText: _i18n.get("password_hint"),
                 ),

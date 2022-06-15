@@ -56,9 +56,9 @@ class SentMessageBox extends StatelessWidget {
         ? boxContent
         : MessageWrapper(
             uid: message.from,
-            child: boxContent,
             isSender: true,
             isFirstMessageInGroupedMessages: isFirstMessageInGroupedMessages,
+            child: boxContent,
           );
   }
 

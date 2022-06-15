@@ -25,10 +25,10 @@ class AudioAndDocumentFileUI extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _AudioAndDocumentFileUIState createState() => _AudioAndDocumentFileUIState();
+  AudioAndDocumentFileUIState createState() => AudioAndDocumentFileUIState();
 }
 
-class _AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
+class AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
   @override
   Widget build(BuildContext context) {
     final file = widget.message.json.toFile();

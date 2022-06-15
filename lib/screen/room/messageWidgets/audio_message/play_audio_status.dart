@@ -22,10 +22,10 @@ class PlayAudioStatus extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _PlayAudioStatusState createState() => _PlayAudioStatusState();
+  PlayAudioStatusState createState() => PlayAudioStatusState();
 }
 
-class _PlayAudioStatusState extends State<PlayAudioStatus> {
+class PlayAudioStatusState extends State<PlayAudioStatus> {
   AudioService audioPlayerService = GetIt.I.get<AudioService>();
 
   @override

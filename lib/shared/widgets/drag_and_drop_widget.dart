@@ -94,7 +94,6 @@ class DragDropWidget extends StatelessWidget {
             ],
           )
         : DropTarget(
-            child: child,
             enable: enabled,
             onDragDone: (d) async {
               final files = <model.File>[];
@@ -134,6 +133,7 @@ class DragDropWidget extends StatelessWidget {
                 }
               }
             },
+            child: child,
           );
   }
 

@@ -293,10 +293,10 @@ class AnimatedEmoji extends StatefulWidget {
   }
 
   @override
-  _AnimatedEmojiState createState() => _AnimatedEmojiState();
+  AnimatedEmojiState createState() => AnimatedEmojiState();
 }
 
-class _AnimatedEmojiState extends State<AnimatedEmoji>
+class AnimatedEmojiState extends State<AnimatedEmoji>
     with TickerProviderStateMixin {
   late AnimationController _controller;
   late Future<LottieComposition?> _composition;
@@ -349,6 +349,8 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
               return GestureDetector(
                 onTap: () => _controller.forward(from: 0),
                 child: SizedBox(
+                  width: 120,
+                  height: 120,
                   child: Lottie(
                     composition: composition,
                     controller: _controller,
@@ -356,8 +358,6 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
                     height: 120,
                     repeat: false,
                   ),
-                  width: 120,
-                  height: 120,
                 ),
               );
             } else {

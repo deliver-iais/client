@@ -23,10 +23,10 @@ class FormResultWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _FormResultWidgetState createState() => _FormResultWidgetState();
+  FormResultWidgetState createState() => FormResultWidgetState();
 }
 
-class _FormResultWidgetState extends State<FormResultWidget> {
+class FormResultWidgetState extends State<FormResultWidget> {
   final _i18n = GetIt.I.get<I18N>();
 
   @override

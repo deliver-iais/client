@@ -34,10 +34,10 @@ class VideoMessage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _VideoMessageState createState() => _VideoMessageState();
+  VideoMessageState createState() => VideoMessageState();
 }
 
-class _VideoMessageState extends State<VideoMessage> {
+class VideoMessageState extends State<VideoMessage> {
   final _fileRepo = GetIt.I.get<FileRepo>();
 
   final _fileServices = GetIt.I.get<FileService>();

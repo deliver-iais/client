@@ -29,11 +29,11 @@ class LiveLocationMessageWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _LiveLocationMessageWidgetState createState() =>
-      _LiveLocationMessageWidgetState();
+  LiveLocationMessageWidgetState createState() =>
+      LiveLocationMessageWidgetState();
 }
 
-class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
+class LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
   final _liveLocationRepo = GetIt.I.get<LiveLocationRepo>();
   final I18N _i18n = GetIt.I.get<I18N>();
 
@@ -69,7 +69,7 @@ class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
 
   Widget liveLocationMessageWidgetBuilder(
     Location location,
-    I18N _i18n,
+    I18N i18n,
     int duration,
   ) {
     return Stack(
@@ -105,8 +105,8 @@ class _LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
           children: [
             ListView(
               children: [
-                Text(_i18n.get("live_location")),
-                Text(_i18n.get("last_update"))
+                Text(i18n.get("live_location")),
+                Text(i18n.get("last_update"))
               ],
             ),
             CircularPercentIndicator(

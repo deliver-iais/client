@@ -35,10 +35,10 @@ class BotFormMessage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _BotFormMessageState createState() => _BotFormMessageState();
+  BotFormMessageState createState() => BotFormMessageState();
 }
 
-class _BotFormMessageState extends State<BotFormMessage> {
+class BotFormMessageState extends State<BotFormMessage> {
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   final proto_pb.FormResult _formResult = proto_pb.FormResult();
@@ -284,7 +284,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
     );
   }
 
-  Widget buildTitle(ThemeData theme, BehaviorSubject<String> _errorText) {
+  Widget buildTitle(ThemeData theme, BehaviorSubject<String> errorText) {
     return Stack(
       children: [
         if (!form.lockAfter.isZero) buildTimer(),
@@ -298,7 +298,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
                     ?.copyWith(color: widget.colorScheme.primary, fontSize: 18),
               ),
               StreamBuilder<String>(
-                stream: _errorText.stream,
+                stream: errorText.stream,
                 builder: (c, s) {
                   if (s.hasData && s.data!.isNotEmpty) {
                     return Text(
@@ -327,7 +327,7 @@ class _BotFormMessageState extends State<BotFormMessage> {
   }
 
   Widget buildSubmit(
-    BehaviorSubject<String> _errorText,
+    BehaviorSubject<String> errorText,
     BuildContext c,
   ) {
     return StreamBuilder<bool>(
@@ -341,14 +341,8 @@ class _BotFormMessageState extends State<BotFormMessage> {
                   for (final field in formFieldsKey.values) {
                     if (field.currentState == null ||
                         !field.currentState!.validate()) {
-                      _errorText.add(
-                        form
-                                .fields[formFieldsKey.values
-                                    .toList()
-                                    .indexOf(field)]
-                                .id +
-                            "  " +
-                            _i18n.get("not_empty"),
+                      errorText.add(
+                        "${form.fields[formFieldsKey.values.toList().indexOf(field)].id}  ${_i18n.get("not_empty")}",
                       );
                       validate = false;
                       break;

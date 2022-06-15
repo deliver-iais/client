@@ -14,10 +14,10 @@ class CallBottomRow extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _CallBottomRowState createState() => _CallBottomRowState();
+  CallBottomRowState createState() => CallBottomRowState();
 }
 
-class _CallBottomRowState extends State<CallBottomRow> {
+class CallBottomRowState extends State<CallBottomRow> {
   Color? _switchCameraIcon;
 
   Color? _offVideoCamIcon;
@@ -70,12 +70,12 @@ class _CallBottomRowState extends State<CallBottomRow> {
                 width: 70,
                 height: 70,
                 child: FloatingActionButton(
+                  onPressed: () => _declineCall(),
+                  backgroundColor: theme.buttonTheme.colorScheme!.primary,
                   child: const Icon(
                     Icons.call_end_rounded,
                     size: 40,
                   ),
-                  onPressed: () => _declineCall(),
-                  backgroundColor: theme.buttonTheme.colorScheme!.primary,
                 ),
               )
             ],
@@ -121,8 +121,8 @@ class _CallBottomRowState extends State<CallBottomRow> {
                       heroTag: 66,
                       onPressed: () => widget.hangUp(),
                       tooltip: 'Hangup',
-                      child: const Icon(Icons.call_end),
                       backgroundColor: theme.buttonTheme.colorScheme!.primary,
+                      child: const Icon(Icons.call_end),
                     ),
                   ],
                 ),

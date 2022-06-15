@@ -22,10 +22,10 @@ class SelectiveContactsList extends StatefulWidget {
       : super(key: key);
 
   @override
-  _SelectiveContactsListState createState() => _SelectiveContactsListState();
+  SelectiveContactsListState createState() => SelectiveContactsListState();
 }
 
-class _SelectiveContactsListState extends State<SelectiveContactsList> {
+class SelectiveContactsListState extends State<SelectiveContactsList> {
   late TextEditingController editingController;
 
   List<Contact> selectedList = [];

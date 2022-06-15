@@ -36,6 +36,8 @@ class ContactPic extends StatelessWidget {
               if (la.hasData && la.data != null) {
                 return isOnline(la.data!.time)
                     ? Positioned(
+                        top: 32.0,
+                        right: 0.0,
                         child: Container(
                           width: 12.0,
                           height: 12.0,
@@ -48,8 +50,6 @@ class ContactPic extends StatelessWidget {
                             ),
                           ),
                         ),
-                        top: 32.0,
-                        right: 0.0,
                       )
                     : const SizedBox.shrink();
               } else {

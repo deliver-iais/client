@@ -52,7 +52,7 @@ class BotAppbarTitle extends StatelessWidget {
 
   Column buildColumn(String name, BuildContext context) {
     final theme = Theme.of(context);
-    final _i18n = GetIt.I.get<I18N>();
+    final i18n = GetIt.I.get<I18N>();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -61,7 +61,7 @@ class BotAppbarTitle extends StatelessWidget {
           currentRoomUid: botUid,
           style: theme.textTheme.caption!,
           normalConditionWidget: Text(
-            _i18n.get("bot"),
+            i18n.get("bot"),
             maxLines: 1,
             overflow: TextOverflow.fade,
             softWrap: false,

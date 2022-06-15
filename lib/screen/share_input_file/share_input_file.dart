@@ -149,6 +149,9 @@ class _ShareInputFileState extends State<ShareInputFile> {
             ),
             if (_selectedRooms.isNotEmpty)
               Positioned(
+                top: 35.0,
+                right: 0.0,
+                left: 35,
                 child: Container(
                   width: 28,
                   height: 28,
@@ -175,9 +178,6 @@ class _ShareInputFileState extends State<ShareInputFile> {
                     ),
                   ),
                 ),
-                top: 35.0,
-                right: 0.0,
-                left: 35,
               ),
           ],
         ),

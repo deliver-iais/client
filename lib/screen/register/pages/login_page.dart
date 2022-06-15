@@ -37,10 +37,10 @@ class LoginPage extends StatefulWidget {
   const LoginPage({Key? key}) : super(key: key);
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  LoginPageState createState() => LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class LoginPageState extends State<LoginPage> {
   static final _logger = GetIt.I.get<Logger>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _fireBaseServices = GetIt.I.get<FireBaseServices>();
@@ -363,8 +363,10 @@ class _LoginPageState extends State<LoginPage> {
                                         fontSize: 13,
                                       ),
                                       recognizer: TapGestureRecognizer()
-                                        ..onTap = () => launch(
-                                              "https://deliver-co.ir/#/termofuse",
+                                        ..onTap = () => launchUrl(
+                                              Uri.parse(
+                                                "https://deliver-co.ir/#/termofuse",
+                                              ),
                                             ),
                                     ),
                                     const TextSpan(
@@ -389,6 +391,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: Align(
                       alignment: Alignment.bottomRight,
                       child: TextButton(
+                        onPressed: checkAndGoNext,
                         child: Text(
                           i18n.get("next"),
                           style: TextStyle(
@@ -397,7 +400,6 @@ class _LoginPageState extends State<LoginPage> {
                             fontSize: 14.5,
                           ),
                         ),
-                        onPressed: checkAndGoNext,
                       ),
                     ),
                   ),

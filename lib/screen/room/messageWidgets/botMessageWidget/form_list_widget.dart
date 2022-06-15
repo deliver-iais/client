@@ -49,20 +49,24 @@ class FormListWidget extends StatelessWidget {
                   label: Text(formField.id),
                 ),
                 items: res
-                    .map((e) => DropdownMenuItem<String?>(
-                          child: Text(
-                            e,
-                          ),
-                          value: e,
-                        ),)
+                    .map(
+                      (e) => DropdownMenuItem<String?>(
+                        value: e,
+                        child: Text(
+                          e,
+                        ),
+                      ),
+                    )
                     .toList(),
                 onChanged: (value) {
                   selected(value);
                 },
               ),
             ),
-            if(formField.hint.isNotEmpty)
-              Row(children: [Text(formField.hint)],)
+            if (formField.hint.isNotEmpty)
+              Row(
+                children: [Text(formField.hint)],
+              )
           ],
         ),
       ),

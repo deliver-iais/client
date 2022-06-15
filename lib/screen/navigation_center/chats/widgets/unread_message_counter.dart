@@ -33,10 +33,16 @@ class UnreadMessageCounterWidget extends StatelessWidget {
 
           return AnimatedScale(
             scale: unreadCount > 0 ? 1 : 0,
+            duration: ANIMATION_DURATION * 0.5,
             child: Container(
               constraints: const BoxConstraints(minWidth: 20),
               height: 20,
               padding: const EdgeInsets.all(2.0),
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary,
+                borderRadius: mainBorder,
+              ),
               child: Text(
                 "${unreadCount >= 100 ? "+99" : unreadCount}",
                 style: TextStyle(
@@ -44,13 +50,7 @@ class UnreadMessageCounterWidget extends StatelessWidget {
                   color: theme.colorScheme.onPrimary,
                 ),
               ),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primary,
-                borderRadius: mainBorder,
-              ),
             ),
-            duration: ANIMATION_DURATION * 0.5,
           );
         } else {
           return const SizedBox.shrink();

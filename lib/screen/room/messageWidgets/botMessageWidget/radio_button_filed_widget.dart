@@ -11,10 +11,10 @@ class RadioButtonFieldWidget extends StatefulWidget {
   const RadioButtonFieldWidget({Key? key, required this.formField, required this.selected, required this.formValidator}) : super(key: key);
 
   @override
-  _RadioButtonFieldWidgetState createState() => _RadioButtonFieldWidgetState();
+  RadioButtonFieldWidgetState createState() => RadioButtonFieldWidgetState();
 }
 
-class _RadioButtonFieldWidgetState extends State<RadioButtonFieldWidget> {
+class RadioButtonFieldWidgetState extends State<RadioButtonFieldWidget> {
  late  String selected;
 
  ///todo need check

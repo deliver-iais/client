@@ -6,7 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
 
 // TODO(hasan): add other options of Lottie in constructor, https://gitlab.iais.co/deliver/wiki/-/issues/413
-class TGS extends StatefulWidget {
+class Tgs extends StatefulWidget {
   final AnimationController? controller;
 
   final File? file;
@@ -17,7 +17,7 @@ class TGS extends StatefulWidget {
   final bool repeat;
   final bool autoPlay;
 
-  const TGS.asset(
+  const Tgs.asset(
     this.assetsPath, {
     Key? key,
     this.controller,
@@ -28,7 +28,7 @@ class TGS extends StatefulWidget {
   })  : file = null,
         super(key: key);
 
-  const TGS.file(
+  const Tgs.file(
     this.file, {
     Key? key,
     required this.controller,
@@ -40,11 +40,11 @@ class TGS extends StatefulWidget {
         super(key: key);
 
   @override
-  _TGSState createState() => _TGSState();
+  TgsState createState() => TgsState();
 }
 
 // todo edit solve animation bug  !!!!
-class _TGSState extends State<TGS> {
+class TgsState extends State<Tgs> {
   late Future<LottieComposition?> _composition;
 
   Future<LottieComposition> _loadAssetsComposition() async {

@@ -35,10 +35,10 @@ class ShareBoxGallery extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _ShareBoxGalleryState createState() => _ShareBoxGalleryState();
+  ShareBoxGalleryState createState() => ShareBoxGalleryState();
 }
 
-class _ShareBoxGalleryState extends State<ShareBoxGallery> {
+class ShareBoxGalleryState extends State<ShareBoxGallery> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _checkPermissionServices = GetIt.I.get<CheckPermissionsService>();
@@ -505,6 +505,9 @@ Stack buildInputCaption({
             ),
             if (count > 0)
               Positioned(
+                top: 35.0,
+                right: 0.0,
+                left: 35,
                 child: Container(
                   width: 28,
                   height: 28,
@@ -531,9 +534,6 @@ Stack buildInputCaption({
                     ),
                   ),
                 ),
-                top: 35.0,
-                right: 0.0,
-                left: 35,
               ),
           ],
         ),

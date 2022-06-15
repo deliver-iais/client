@@ -117,9 +117,9 @@ class _DebugCState extends State<DebugC> {
                   ),
                 Wrap(
                   crossAxisAlignment: WrapCrossAlignment.end,
-                  children: widget.children,
                   spacing: 4,
                   runSpacing: 4,
+                  children: widget.children,
                 ),
               ],
             ),

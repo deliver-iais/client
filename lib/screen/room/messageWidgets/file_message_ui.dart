@@ -40,10 +40,10 @@ class FileMessageUi extends StatefulWidget {
         super(key: key);
 
   @override
-  _FileMessageUiState createState() => _FileMessageUiState();
+  FileMessageUiState createState() => FileMessageUiState();
 }
 
-class _FileMessageUiState extends State<FileMessageUi> {
+class FileMessageUiState extends State<FileMessageUi> {
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _autoDownloadDao = GetIt.I.get<AutoDownloadDao>();
 

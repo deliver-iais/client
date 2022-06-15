@@ -10,10 +10,10 @@ class LanguageSettingsPage extends StatefulWidget {
   const LanguageSettingsPage({Key? key}) : super(key: key);
 
   @override
-  _LanguageSettingsPageState createState() => _LanguageSettingsPageState();
+  LanguageSettingsPageState createState() => LanguageSettingsPageState();
 }
 
-class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
+class LanguageSettingsPageState extends State<LanguageSettingsPage> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _i18n = GetIt.I.get<I18N>();
 

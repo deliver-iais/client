@@ -15,10 +15,11 @@ class AnimationWaveButton extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _AnimationWaveButtonState createState() => _AnimationWaveButtonState();
+  AnimationWaveButtonState createState() => AnimationWaveButtonState();
 }
 
-class _AnimationWaveButtonState extends State<AnimationWaveButton> with TickerProviderStateMixin {
+class AnimationWaveButtonState extends State<AnimationWaveButton>
+    with TickerProviderStateMixin {
   static const _kToggleDuration = Duration(milliseconds: 300);
   static const _kRotationDuration = Duration(seconds: 5);
 
@@ -93,10 +94,6 @@ class _AnimationWaveButtonState extends State<AnimationWaveButton> with TickerPr
           ],
           Container(
             constraints: const BoxConstraints.expand(),
-            child: AnimatedSwitcher(
-              child: _buildIcon(isPlaying),
-              duration: _kToggleDuration,
-            ),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(
@@ -107,6 +104,10 @@ class _AnimationWaveButtonState extends State<AnimationWaveButton> with TickerPr
                   theme.primaryColor,
                 ],
               ),
+            ),
+            child: AnimatedSwitcher(
+              duration: _kToggleDuration,
+              child: _buildIcon(isPlaying),
             ),
           ),
         ],

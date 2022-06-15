@@ -14,10 +14,10 @@ class CallTime extends StatelessWidget {
     return time.microsecondsSinceEpoch != 0
         ? Text(
             callHour.isNotEmpty
-                ? callHour + " hour and " + callMin + "minute"
+                ? "$callHour hour and ${callMin}minute"
                 : callMin.isNotEmpty
-                    ? callMin + " minute"
-                    : callSec + " second",
+                    ? "$callMin minute"
+                    : "$callSec second",
           )
         : const SizedBox.shrink();
   }

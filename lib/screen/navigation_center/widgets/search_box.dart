@@ -18,10 +18,10 @@ class SearchBox extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _SearchBoxState createState() => _SearchBoxState();
+  SearchBoxState createState() => SearchBoxState();
 }
 
-class _SearchBoxState extends State<SearchBox> {
+class SearchBoxState extends State<SearchBox> {
   final TextEditingController _localController = TextEditingController();
   final BehaviorSubject<bool> _hasText = BehaviorSubject.seeded(false);
   final _focusNode = FocusNode(canRequestFocus: false);

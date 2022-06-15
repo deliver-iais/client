@@ -20,11 +20,11 @@ class MucInfoDeterminationPage extends StatefulWidget {
       : super(key: key);
 
   @override
-  _MucInfoDeterminationPageState createState() =>
-      _MucInfoDeterminationPageState();
+  MucInfoDeterminationPageState createState() =>
+      MucInfoDeterminationPageState();
 }
 
-class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
+class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
   late TextEditingController controller;
   late TextEditingController idController;
   late TextEditingController infoController;

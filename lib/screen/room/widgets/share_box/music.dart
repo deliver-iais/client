@@ -23,10 +23,10 @@ class ShareBoxMusic extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _ShareBoxMusicState createState() => _ShareBoxMusicState();
+  ShareBoxMusicState createState() => ShareBoxMusicState();
 }
 
-class _ShareBoxMusicState extends State<ShareBoxMusic> {
+class ShareBoxMusicState extends State<ShareBoxMusic> {
   late Future<List<File>> _future;
 
   @override

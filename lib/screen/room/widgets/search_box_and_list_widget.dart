@@ -19,37 +19,37 @@ class SearchBoxAndListWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final _queryTermDebouncedSubject = BehaviorSubject<String>.seeded("");
-    final _roomRepo = GetIt.I.get<RoomRepo>();
-    final _authRepo = GetIt.I.get<AuthRepo>();
+    final queryTermDebouncedSubject = BehaviorSubject<String>.seeded("");
+    final roomRepo = GetIt.I.get<RoomRepo>();
+    final authRepo = GetIt.I.get<AuthRepo>();
     return Column(
       children: [
         SearchBox(
-          onChange: _queryTermDebouncedSubject.add,
-          onCancel: () => _queryTermDebouncedSubject.add(""),
+          onChange: queryTermDebouncedSubject.add,
+          onCancel: () => queryTermDebouncedSubject.add(""),
         ),
         StreamBuilder<String>(
-          stream: _queryTermDebouncedSubject.stream,
+          stream: queryTermDebouncedSubject.stream,
           builder: (context, query) {
             return Expanded(
               child: FutureBuilder<List<Uid>>(
                 future: query.data != null && query.data!.isNotEmpty
-                    ? _roomRepo.searchInRoomAndContacts(query.data!)
-                    : _roomRepo.getAllRooms(),
+                    ? roomRepo.searchInRoomAndContacts(query.data!)
+                    : roomRepo.getAllRooms(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData &&
                       snapshot.data != null &&
                       snapshot.data!.isNotEmpty) {
                     if (snapshot.data!
                         .map((e) => e.asString())
-                        .contains(_authRepo.currentUserUid.asString())) {
+                        .contains(authRepo.currentUserUid.asString())) {
                       final index = snapshot.data!
                           .map((e) => e.asString())
                           .toList()
-                          .indexOf(_authRepo.currentUserUid.asString());
+                          .indexOf(authRepo.currentUserUid.asString());
                       snapshot.data!.removeAt(index);
                     }
-                    snapshot.data!.insert(0, _authRepo.currentUserUid);
+                    snapshot.data!.insert(0, authRepo.currentUserUid);
                     return listWidget(snapshot.data!);
                   } else {
                     return emptyWidget;

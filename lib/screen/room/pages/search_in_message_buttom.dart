@@ -5,9 +5,6 @@ import 'package:get_it/get_it.dart';
 import 'package:rxdart/subjects.dart';
 
 class SearchInMessageButton extends StatefulWidget {
-  @override
-  _SearchInMessageButtonState createState() => _SearchInMessageButtonState();
-
   final String roomId;
   final void Function() scrollDown;
   final void Function() scrollUp;
@@ -27,11 +24,14 @@ class SearchInMessageButton extends StatefulWidget {
     required this.currentSearchResultMessage,
     required this.keyboardWidget,
   }) : super(key: key);
+
+  @override
+  SearchInMessageButtonState createState() => SearchInMessageButtonState();
 }
 
 var _i18n = GetIt.I.get<I18N>();
 
-class _SearchInMessageButtonState extends State<SearchInMessageButton> {
+class SearchInMessageButtonState extends State<SearchInMessageButton> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<bool>(

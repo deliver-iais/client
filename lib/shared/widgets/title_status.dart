@@ -25,10 +25,10 @@ class TitleStatus extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _TitleStatusState createState() => _TitleStatusState();
+  TitleStatusState createState() => TitleStatusState();
 }
 
-class _TitleStatusState extends State<TitleStatus> {
+class TitleStatusState extends State<TitleStatus> {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
   final _key = GlobalKey();

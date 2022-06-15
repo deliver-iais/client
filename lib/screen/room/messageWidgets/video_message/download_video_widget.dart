@@ -26,10 +26,10 @@ class DownloadVideoWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _DownloadVideoWidgetState createState() => _DownloadVideoWidgetState();
+  DownloadVideoWidgetState createState() => DownloadVideoWidgetState();
 }
 
-class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
+class DownloadVideoWidgetState extends State<DownloadVideoWidget> {
   final _fileServices = GetIt.I.get<FileService>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final BehaviorSubject<bool> _startDownload = BehaviorSubject.seeded(false);
@@ -42,7 +42,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
       key: _futureKey,
       future: _fileRepo.getFile(
         widget.uuid,
-        widget.name + ".png",
+        "${widget.name}.png",
         thumbnailSize: ThumbnailSize.small,
       ),
       builder: (c, thumbnail) {

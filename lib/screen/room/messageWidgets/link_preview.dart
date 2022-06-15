@@ -82,7 +82,7 @@ class LinkPreview extends StatelessWidget {
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
             onTap: () async {
-              await launch(link);
+              await launchUrl(Uri.parse(link));
             },
             child: linkPreviewContent(snapshot.data, context),
           ),

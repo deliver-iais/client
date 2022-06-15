@@ -29,10 +29,10 @@ class AudioCallScreen extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _AudioCallScreenState createState() => _AudioCallScreenState();
+  AudioCallScreenState createState() => AudioCallScreenState();
 }
 
-class _AudioCallScreenState extends State<AudioCallScreen>
+class AudioCallScreenState extends State<AudioCallScreen>
     with TickerProviderStateMixin {
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
@@ -166,11 +166,11 @@ class _AudioCallScreenState extends State<AudioCallScreen>
     var callHour = callTimer.hours.toString();
     var callMin = callTimer.minutes.toString();
     var callSecond = callTimer.seconds.toString();
-    callHour = callHour.length != 2 ? '0' + callHour : callHour;
-    callMin = callMin.length != 2 ? '0' + callMin : callMin;
-    callSecond = callSecond.length != 2 ? '0' + callSecond : callSecond;
+    callHour = callHour.length != 2 ? '0$callHour' : callHour;
+    callMin = callMin.length != 2 ? '0$callMin' : callMin;
+    callSecond = callSecond.length != 2 ? '0$callSecond' : callSecond;
     return Text(
-      callHour + ':' + callMin + ':' + callSecond,
+      '$callHour:$callMin:$callSecond',
       style: const TextStyle(
         color: Colors.white54,
         fontStyle: FontStyle.italic,

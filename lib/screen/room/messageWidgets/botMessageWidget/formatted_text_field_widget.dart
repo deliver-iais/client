@@ -26,6 +26,7 @@ class FormattedTextFieldWidget extends StatefulWidget {
 class _FormattedTextFieldWidgetState extends State<FormattedTextFieldWidget> {
   @override
   void initState() {
+    // ignore: no_leading_underscores_for_local_identifiers
     for (final _ in widget.formField.formattedTextField.partitionsSizes) {
       _textControllerList.add(TextEditingController());
     }

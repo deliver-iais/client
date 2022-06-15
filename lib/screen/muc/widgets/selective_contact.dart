@@ -15,10 +15,10 @@ class SelectiveContact extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _SelectiveContactState createState() => _SelectiveContactState();
+  SelectiveContactState createState() => SelectiveContactState();
 }
 
-class _SelectiveContactState extends State<SelectiveContact> {
+class SelectiveContactState extends State<SelectiveContact> {
   @override
   Widget build(BuildContext context) {
     return ContactWidget(

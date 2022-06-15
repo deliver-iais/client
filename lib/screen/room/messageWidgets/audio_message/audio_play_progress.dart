@@ -72,7 +72,7 @@ class AudioPlayProgress extends StatelessWidget {
       child: Align(
         alignment: Alignment.centerLeft,
         child: Text(
-          sizeFormatter(audio.size.toInt()) + " " + findFileType(audio.name),
+          "${sizeFormatter(audio.size.toInt())} ${findFileType(audio.name)}",
           style: const TextStyle(fontSize: 10),
         ),
       ),

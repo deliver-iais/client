@@ -19,11 +19,11 @@ class FormSimpleInputFieldWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _FormSimpleInputFieldWidgetState createState() =>
-      _FormSimpleInputFieldWidgetState();
+  FormSimpleInputFieldWidgetState createState() =>
+      FormSimpleInputFieldWidgetState();
 }
 
-class _FormSimpleInputFieldWidgetState
+class FormSimpleInputFieldWidgetState
     extends State<FormSimpleInputFieldWidget> {
   final _i18n = GetIt.I.get<I18N>();
   final ValueNotifier<TextDirection> _textDir =

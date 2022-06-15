@@ -17,10 +17,10 @@ class IntroPage extends StatefulWidget {
   const IntroPage({Key? key}) : super(key: key);
 
   @override
-  _IntroPageState createState() => _IntroPageState();
+  IntroPageState createState() => IntroPageState();
 }
 
-class _IntroPageState extends State<IntroPage> {
+class IntroPageState extends State<IntroPage> {
   IntroAnimationController introAnimationController =
       IntroAnimationController();
 

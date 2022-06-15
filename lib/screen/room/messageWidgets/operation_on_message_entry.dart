@@ -324,23 +324,23 @@ void showDeleteMsgDialog(
   BuildContext context,
   void Function() onDelete,
 ) {
-  final _i18n = GetIt.I.get<I18N>();
-  final _messageRepo = GetIt.I.get<MessageRepo>();
+  final i18n = GetIt.I.get<I18N>();
+  final messageRepo = GetIt.I.get<MessageRepo>();
   showDialog(
     context: context,
     builder: (c) => AlertDialog(
       title: Text(
-        "${_i18n.get("delete")} ${messages.length > 1 ? messages.length : ""} ${_i18n.get("message")}",
+        "${i18n.get("delete")} ${messages.length > 1 ? messages.length : ""} ${i18n.get("message")}",
         style: const TextStyle(fontSize: 20),
       ),
       content: Text(
         messages.length > 1
-            ? _i18n.get("sure_delete_messages")
-            : _i18n.get("sure_delete_message"),
+            ? i18n.get("sure_delete_messages")
+            : i18n.get("sure_delete_message"),
       ),
       actions: [
         TextButton(
-          child: Text(_i18n.get("cancel")),
+          child: Text(i18n.get("cancel")),
           onPressed: () {
             onDelete();
             Navigator.pop(c);
@@ -350,11 +350,11 @@ void showDeleteMsgDialog(
           style: TextButton.styleFrom(
             primary: Theme.of(context).colorScheme.error,
           ),
-          child: Text(_i18n.get("delete")),
+          child: Text(i18n.get("delete")),
           onPressed: () async {
             // ignore: use_build_context_synchronously
             Navigator.pop(c);
-            await _messageRepo.deleteMessage(messages);
+            await messageRepo.deleteMessage(messages);
             onDelete();
           },
         ),

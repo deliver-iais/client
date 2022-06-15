@@ -84,10 +84,10 @@ class RoomPage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _RoomPageState createState() => _RoomPageState();
+  RoomPageState createState() => RoomPageState();
 }
 
-class _RoomPageState extends State<RoomPage> {
+class RoomPageState extends State<RoomPage> {
   static final _logger = GetIt.I.get<Logger>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
@@ -346,13 +346,13 @@ class _RoomPageState extends State<RoomPage> {
                 right: 16,
                 bottom: 16,
                 child: AnimatedScale(
-                  child: scrollDownButtonWidget(),
                   scale: isDesktop && _messageReplyHistory.isNotEmpty
                       ? 1
                       : snapshot.data == true
                           ? 1
                           : 0,
                   duration: ANIMATION_DURATION * 1.3,
+                  child: scrollDownButtonWidget(),
                 ),
               );
             },
@@ -743,8 +743,8 @@ class _RoomPageState extends State<RoomPage> {
           },
           child: FloatingActionButton(
             mini: true,
-            child: const Icon(CupertinoIcons.chevron_down),
             onPressed: _scrollToLastMessage,
+            child: const Icon(CupertinoIcons.chevron_down),
           ),
         ),
         if (room.lastMessage != null &&
@@ -913,6 +913,14 @@ class _RoomPageState extends State<RoomPage> {
                     return Row(
                       children: [
                         Badge(
+                          badgeColor: theme.primaryColor,
+                          badgeContent: Text(
+                            _selectedMessages.length.toString(),
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: theme.colorScheme.onPrimary,
+                            ),
+                          ),
                           child: IconButton(
                             color: theme.primaryColor,
                             icon: const Icon(
@@ -922,14 +930,6 @@ class _RoomPageState extends State<RoomPage> {
                             onPressed: () {
                               onDelete();
                             },
-                          ),
-                          badgeColor: theme.primaryColor,
-                          badgeContent: Text(
-                            _selectedMessages.length.toString(),
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: theme.colorScheme.onPrimary,
-                            ),
                           ),
                         ),
                       ],
@@ -1016,8 +1016,8 @@ class _RoomPageState extends State<RoomPage> {
         },
       ),
       bottom: const PreferredSize(
-        child: Divider(),
         preferredSize: Size.fromHeight(1),
+        child: Divider(),
       ),
     );
   }

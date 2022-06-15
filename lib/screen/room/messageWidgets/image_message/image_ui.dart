@@ -45,10 +45,10 @@ class ImageUi extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _ImageUiState createState() => _ImageUiState();
+  ImageUiState createState() => ImageUiState();
 }
 
-class _ImageUiState extends State<ImageUi> {
+class ImageUiState extends State<ImageUi> {
   final globalKey = GlobalKey();
 
   static final _fileRepo = GetIt.I.get<FileRepo>();

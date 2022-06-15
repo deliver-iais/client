@@ -24,10 +24,10 @@ class AllAvatarPage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _AllAvatarPageState createState() => _AllAvatarPageState();
+  AllAvatarPageState createState() => AllAvatarPageState();
 }
 
-class _AllAvatarPageState extends State<AllAvatarPage> {
+class AllAvatarPageState extends State<AllAvatarPage> {
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _routingService = GetIt.I.get<RoutingService>();

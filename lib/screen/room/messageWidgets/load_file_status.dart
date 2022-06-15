@@ -30,10 +30,10 @@ class LoadFileStatus extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _LoadFileStatusState createState() => _LoadFileStatusState();
+  LoadFileStatusState createState() => LoadFileStatusState();
 }
 
-class _LoadFileStatusState extends State<LoadFileStatus> {
+class LoadFileStatusState extends State<LoadFileStatus> {
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _fileService = GetIt.I.get<FileService>();
   final BehaviorSubject<bool> _starDownload = BehaviorSubject.seeded(false);

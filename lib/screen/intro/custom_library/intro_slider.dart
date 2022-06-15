@@ -556,9 +556,9 @@ class IntroSliderState extends State<IntroSlider>
         child: Stack(
           children: <Widget>[
             TabBarView(
-              children: tabs!,
               controller: tabController,
               physics: const ScrollPhysics(),
+              children: tabs!,
             ),
             renderBottom(),
           ],
@@ -616,6 +616,9 @@ class IntroSliderState extends State<IntroSlider>
 
   Widget renderBottom() {
     return Positioned(
+      bottom: 10.0,
+      left: 10.0,
+      right: 10.0,
       child: Row(
         children: <Widget>[
           // Skip button
@@ -632,10 +635,10 @@ class IntroSliderState extends State<IntroSlider>
                 ? Stack(
                     children: <Widget>[
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: (tabController.index + 1 == slides.length)
                             ? [Container()]
                             : renderListDots(),
-                        mainAxisAlignment: MainAxisAlignment.center,
                       ),
                       Container()
                     ],
@@ -646,6 +649,7 @@ class IntroSliderState extends State<IntroSlider>
           // Next, Done button
           Container(
             alignment: Alignment.center,
+            height: 50,
             child: tabController.index + 1 == slides.length
                 ? isShowDoneBtn!
                     ? buildDoneButton()
@@ -653,13 +657,9 @@ class IntroSliderState extends State<IntroSlider>
                 : isShowNextBtn!
                     ? buildNextButton()
                     : Container(),
-            height: 50,
           ),
         ],
       ),
-      bottom: 10.0,
-      left: 10.0,
-      right: 10.0,
     );
   }
 
@@ -760,6 +760,14 @@ class IntroSliderState extends State<IntroSlider>
           : null,
       child: Container(
         // Title
+        margin: marginTitle ??
+            const EdgeInsets.only(
+              top: 20.0,
+              bottom: 60.0,
+              left: 20.0,
+              right: 20.0,
+            ),
+        // Title
         child: widgetTitle ??
             Text(
               title ?? "",
@@ -772,13 +780,6 @@ class IntroSliderState extends State<IntroSlider>
               maxLines: maxLineTitle ?? 1,
               textAlign: TextAlign.center,
               overflow: TextOverflow.ellipsis,
-            ),
-        margin: marginTitle ??
-            const EdgeInsets.only(
-              top: 20.0,
-              bottom: 60.0,
-              left: 20.0,
-              right: 20.0,
             ),
       ),
     );
@@ -794,6 +795,7 @@ class IntroSliderState extends State<IntroSlider>
 
   Widget renderDot(double radius, Color color, double opacity) {
     return Opacity(
+      opacity: opacity,
       child: Container(
         decoration: BoxDecoration(
           color: color,
@@ -803,7 +805,6 @@ class IntroSliderState extends State<IntroSlider>
         height: radius,
         margin: EdgeInsets.only(left: radius / 2, right: radius / 2),
       ),
-      opacity: opacity,
     );
   }
 }

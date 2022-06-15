@@ -25,10 +25,10 @@ class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
 
   @override
-  _SplashScreenState createState() => _SplashScreenState();
+  SplashScreenState createState() => SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
+class SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
@@ -146,7 +146,7 @@ class _SplashScreenState extends State<SplashScreen>
             children: [
               ShakeWidget(
                 controller: _shakeController,
-                child: TGS.asset(
+                child: Tgs.asset(
                   "assets/animations/unlock.tgs",
                   controller: _animationController,
                   autoPlay: false,

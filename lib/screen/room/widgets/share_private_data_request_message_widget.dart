@@ -235,7 +235,6 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
               onPressed: () => Navigator.pop(c),
             ),
             TextButton(
-              child: Text(_i18n.get("ok")),
               style: TextButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -249,6 +248,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                 );
                 Navigator.pop(c);
               },
+              child: Text(_i18n.get("ok")),
             ),
           ],
         );

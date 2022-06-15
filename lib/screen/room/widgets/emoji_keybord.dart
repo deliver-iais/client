@@ -14,10 +14,10 @@ class EmojiKeyboard extends StatefulWidget {
       : super(key: key);
 
   @override
-  _EmojiKeyboard createState() => _EmojiKeyboard();
+  EmojiKeyboardState createState() => EmojiKeyboardState();
 }
 
-class _EmojiKeyboard extends State<EmojiKeyboard> {
+class EmojiKeyboardState extends State<EmojiKeyboard> {
   Iterable<Emoji> emojis = [];
 
   String selectedGroupIndex = "😀";

@@ -20,10 +20,10 @@ class MucMemberWidget extends StatefulWidget {
   const MucMemberWidget({Key? key, required this.mucUid}) : super(key: key);
 
   @override
-  _MucMemberWidgetState createState() => _MucMemberWidgetState();
+  MucMemberWidgetState createState() => MucMemberWidgetState();
 }
 
-class _MucMemberWidgetState extends State<MucMemberWidget> {
+class MucMemberWidgetState extends State<MucMemberWidget> {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _routingServices = GetIt.I.get<RoutingService>();
   final _mucRepo = GetIt.I.get<MucRepo>();
@@ -101,6 +101,7 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                   itemBuilder: (_) => <PopupMenuItem<String>>[
                                     if (_myRoleInThisRoom == MucRole.OWNER)
                                       PopupMenuItem<String>(
+                                        value: CHANGE_ROLE,
                                         child: member.role == MucRole.MEMBER
                                             ? Text(
                                                 _i18n.get(
@@ -112,15 +113,14 @@ class _MucMemberWidgetState extends State<MucMemberWidget> {
                                                   "change_role_to_member",
                                                 ),
                                               ),
-                                        value: CHANGE_ROLE,
                                       ),
                                     PopupMenuItem<String>(
-                                      child: Text(_i18n.get("kick")),
                                       value: DELETE,
+                                      child: Text(_i18n.get("kick")),
                                     ),
                                     PopupMenuItem<String>(
-                                      child: Text(_i18n.get("ban")),
                                       value: BAN,
+                                      child: Text(_i18n.get("ban")),
                                     ),
                                   ],
                                   onSelected: (key) {

@@ -456,11 +456,11 @@ class ImagePainterTransformer extends StatefulWidget {
   }
 
   @override
-  _ImagePainterTransformerState createState() =>
-      _ImagePainterTransformerState();
+  ImagePainterTransformerState createState() =>
+      ImagePainterTransformerState();
 }
 
-class _ImagePainterTransformerState extends State<ImagePainterTransformer>
+class ImagePainterTransformerState extends State<ImagePainterTransformer>
     with TickerProviderStateMixin {
   TransformationController? _transformationController;
 

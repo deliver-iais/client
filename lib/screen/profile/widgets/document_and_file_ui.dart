@@ -30,10 +30,10 @@ class DocumentAndFileUi extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _DocumentAndFileUiState createState() => _DocumentAndFileUiState();
+  DocumentAndFileUiState createState() => DocumentAndFileUiState();
 }
 
-class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
+class DocumentAndFileUiState extends State<DocumentAndFileUi> {
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _mediaCache = <int, Media>{};

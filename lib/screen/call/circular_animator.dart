@@ -31,10 +31,10 @@ class WidgetCircularAnimator extends StatefulWidget {
   final bool reverse;
 
   @override
-  _WidgetAnimatorState createState() => _WidgetAnimatorState();
+  WidgetAnimatorState createState() => WidgetAnimatorState();
 }
 
-class _WidgetAnimatorState extends State<WidgetCircularAnimator>
+class WidgetAnimatorState extends State<WidgetCircularAnimator>
     with TickerProviderStateMixin {
   late Animation<double> animation1;
   late Animation<double> animation2;

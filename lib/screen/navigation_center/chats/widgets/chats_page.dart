@@ -21,7 +21,7 @@ class ChatsPage extends StatefulWidget {
   const ChatsPage({Key? key, required this.scrollController}) : super(key: key);
 
   @override
-  _ChatsPageState createState() => _ChatsPageState();
+  ChatsPageState createState() => ChatsPageState();
 }
 
 const Duration kDismissOrIncomingAnimationDuration =
@@ -36,7 +36,7 @@ const Duration kReorderAnimationDuration = Duration(milliseconds: 100);
 /// Default duration of a moving animation.
 const Duration kMovingAnimationDuration = Duration(milliseconds: 100);
 
-class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
+class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   final _routingService = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _roomDao = GetIt.I.get<RoomDao>();
@@ -160,10 +160,6 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                     itemBuilder: (ctx, rw, data) {
                       return GestureDetector(
                         behavior: HitTestBehavior.translucent,
-                        child: ChatItem(
-                          key: ValueKey("chatItem/${rw.room.uid}"),
-                          roomWrapper: rw,
-                        ),
                         onTap: () {
                           _routingService.openRoom(
                             rw.room.uid,
@@ -189,6 +185,10 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                                   canBePinned(rooms),
                                 );
                               },
+                        child: ChatItem(
+                          key: ValueKey("chatItem/${rw.room.uid}"),
+                          roomWrapper: rw,
+                        ),
                       );
                     },
                   ),

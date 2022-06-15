@@ -44,13 +44,13 @@ class ShowMentionList extends StatelessWidget {
                       itemCount: members.data!.length,
                       shrinkWrap: true,
                       itemBuilder: (c, i) {
-                        var _mucMemberMentionColor = Colors.transparent;
+                        var mucMemberMentionColor = Colors.transparent;
                         if (mentionSelectedIndex == i &&
                             mentionSelectedIndex != -1) {
-                          _mucMemberMentionColor = theme.focusColor;
+                          mucMemberMentionColor = theme.focusColor;
                         }
                         return Container(
-                          color: _mucMemberMentionColor,
+                          color: mucMemberMentionColor,
                           child: MucMemberMentionWidget(
                             members.data![i]!,
                             onSelected,

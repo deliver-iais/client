@@ -18,10 +18,10 @@ class LinkTabUi extends StatefulWidget {
   const LinkTabUi(this.linksCount, this.roomUid, {Key? key}) : super(key: key);
 
   @override
-  _LinkTabUiState createState() => _LinkTabUiState();
+  LinkTabUiState createState() => LinkTabUiState();
 }
 
-class _LinkTabUiState extends State<LinkTabUi> {
+class LinkTabUiState extends State<LinkTabUi> {
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _mediaCache = <int, Media>{};
 

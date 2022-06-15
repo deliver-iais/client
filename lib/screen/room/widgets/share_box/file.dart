@@ -26,10 +26,10 @@ class ShareBoxFile extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _ShareBoxFileState createState() => _ShareBoxFileState();
+  ShareBoxFileState createState() => ShareBoxFileState();
 }
 
-class _ShareBoxFileState extends State<ShareBoxFile> {
+class ShareBoxFileState extends State<ShareBoxFile> {
   // ignore: prefer_typing_uninitialized_variables
   late var _future;
 

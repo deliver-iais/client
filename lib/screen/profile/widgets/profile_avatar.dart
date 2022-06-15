@@ -30,10 +30,10 @@ class ProfileAvatar extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _ProfileAvatarState createState() => _ProfileAvatarState();
+  ProfileAvatarState createState() => ProfileAvatarState();
 }
 
-class _ProfileAvatarState extends State<ProfileAvatar> {
+class ProfileAvatarState extends State<ProfileAvatar> {
   static final _avatarRepo = GetIt.I.get<AvatarRepo>();
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _i18n = GetIt.I.get<I18N>();

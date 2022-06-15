@@ -17,10 +17,10 @@ class ShakeWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _ShakeWidgetState createState() => _ShakeWidgetState();
+  ShakeWidgetState createState() => ShakeWidgetState();
 }
 
-class _ShakeWidgetState extends State<ShakeWidget>
+class ShakeWidgetState extends State<ShakeWidget>
     with SingleTickerProviderStateMixin {
   late AnimationController animationController;
 
@@ -62,9 +62,9 @@ class _ShakeWidgetState extends State<ShakeWidget>
 }
 
 class ShakeWidgetController {
-  late _ShakeWidgetState _state;
+  late ShakeWidgetState _state;
 
-  void setState(_ShakeWidgetState state) {
+  void setState(ShakeWidgetState state) {
     _state = state;
   }
 

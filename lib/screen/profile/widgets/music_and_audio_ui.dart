@@ -32,10 +32,10 @@ class MusicAndAudioUi extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _MusicAndAudioUiState createState() => _MusicAndAudioUiState();
+  MusicAndAudioUiState createState() => MusicAndAudioUiState();
 }
 
-class _MusicAndAudioUiState extends State<MusicAndAudioUi> {
+class MusicAndAudioUiState extends State<MusicAndAudioUi> {
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _mediaCache = <int, Media>{};

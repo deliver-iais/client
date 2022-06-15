@@ -13,10 +13,10 @@ class TimeProgressIndicator extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _TimeProgressIndicatorState createState() => _TimeProgressIndicatorState();
+  TimeProgressIndicatorState createState() => TimeProgressIndicatorState();
 }
 
-class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
+class TimeProgressIndicatorState extends State<TimeProgressIndicator> {
   final audioPlayerService = GetIt.I.get<AudioService>();
 
   @override
@@ -38,11 +38,7 @@ class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
                   builder: (context, snapshot2) {
                     if (snapshot2.hasData && snapshot2.data != null) {
                       return Text(
-                        snapshot2.data.toString().substring(0, 7) +
-                            " / " +
-                            Duration(seconds: widget.duration.toInt())
-                                .toString()
-                                .substring(0, 7),
+                        "${snapshot2.data.toString().substring(0, 7)} / ${Duration(seconds: widget.duration.toInt()).toString().substring(0, 7)}",
                         style: const TextStyle(fontSize: 11),
                       );
                     } else {
@@ -64,8 +60,7 @@ class _TimeProgressIndicatorState extends State<TimeProgressIndicator> {
 
   Text buildText(BuildContext context) {
     return Text(
-      "00:00:00" " / " +
-          Duration(seconds: widget.duration.toInt()).toString().substring(0, 7),
+      "00:00:00 / ${Duration(seconds: widget.duration.toInt()).toString().substring(0, 7)}",
       style: const TextStyle(fontSize: 11),
     );
   }

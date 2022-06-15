@@ -380,8 +380,8 @@ void main() async {
 
 Future<void> _setWindowSize() async {
   setWindowMinSize(const Size(500, 600));
-  final _sharedDao = GetIt.I.get<SharedDao>();
-  final size = await _sharedDao.get(SHARED_DAO_WINDOWS_SIZE);
+  final sharedDao = GetIt.I.get<SharedDao>();
+  final size = await sharedDao.get(SHARED_DAO_WINDOWS_SIZE);
   final rect = size?.split('_');
 
   if (rect != null) {

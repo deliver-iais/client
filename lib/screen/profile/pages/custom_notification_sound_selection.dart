@@ -7,18 +7,18 @@ import 'package:get_it/get_it.dart';
 
 class CustomNotificationSoundSelection extends StatefulWidget {
   final String roomUid;
-  final AudioCache _player =
-      AudioCache(prefix: 'android/', fixedPlayer: AudioPlayer());
+
+  final AudioPlayer _player = AudioPlayer(playerId: "CustomNotification");
 
   CustomNotificationSoundSelection({Key? key, required this.roomUid})
       : super(key: key);
 
   @override
-  _CustomNotificationSoundSelectionState createState() =>
-      _CustomNotificationSoundSelectionState();
+  CustomNotificationSoundSelectionState createState() =>
+      CustomNotificationSoundSelectionState();
 }
 
-class _CustomNotificationSoundSelectionState
+class CustomNotificationSoundSelectionState
     extends State<CustomNotificationSoundSelection> {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   List<String> staticData = [
@@ -107,8 +107,9 @@ class _CustomNotificationSoundSelectionState
       selectedFlag.clear();
       selectedFlag[index] = !isSelected;
     });
-    widget._player.fixedPlayer!.stop();
-    widget._player.play("app/src/main/res/raw/${staticData[index]}.mp3");
+
+    widget._player
+        .play(AssetSource("app/src/main/res/raw/${staticData[index]}.mp3"));
   }
 
   void onLongPress(int index, {bool isSelected = false}) {
@@ -121,15 +122,15 @@ class _CustomNotificationSoundSelectionState
   Widget _buildSelectIcon(bool isSelected, String data) {
     final theme = Theme.of(context);
     return StreamBuilder<Object>(
-      stream: widget._player.fixedPlayer!.onPlayerStateChanged,
+      stream: widget._player.onPlayerStateChanged,
       builder: (context, snapshot) {
         return SizedBox(
           width: 80,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              if (isSelected && snapshot.data == PlayerState.PLAYING)
-                const TGS.asset(
+              if (isSelected && snapshot.data == PlayerState.playing)
+                const Tgs.asset(
                   'assets/animations/audio_wave.tgs',
                   width: 40,
                   height: 60,

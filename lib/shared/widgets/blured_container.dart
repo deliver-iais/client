@@ -32,9 +32,9 @@ class BlurContainer extends StatelessWidget {
       return Container(
         padding: padding,
         decoration: decoration,
-        child: child,
         height: height,
         width: width,
+        child: child,
       );
     }
     return ClipRRect(

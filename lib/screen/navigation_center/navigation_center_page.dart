@@ -40,10 +40,10 @@ class NavigationCenter extends StatefulWidget {
   const NavigationCenter({Key? key}) : super(key: key);
 
   @override
-  _NavigationCenterState createState() => _NavigationCenterState();
+  NavigationCenterState createState() => NavigationCenterState();
 }
 
-class _NavigationCenterState extends State<NavigationCenter> {
+class NavigationCenterState extends State<NavigationCenter> {
   static final _routingServices = GetIt.I.get<RoutingService>();
   static final _contactRepo = GetIt.I.get<ContactRepo>();
   static final _i18n = GetIt.I.get<I18N>();
@@ -93,7 +93,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
     super.dispose();
   }
 
-  _NavigationCenterState();
+  NavigationCenterState();
 
   @override
   Widget build(BuildContext context) {
@@ -328,9 +328,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                                 ),
                               ),
                               onPressed: () {
-                                launch(
-                                  downloadLink.url,
-                                );
+                                launchUrl(Uri.parse(downloadLink.url));
                               },
                               child: Text(
                                 downloadLink.label,
@@ -394,6 +392,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
           onSelected: selectChatMenu,
           itemBuilder: (context) => [
             PopupMenuItem<String>(
+              value: "newGroup",
               child: Row(
                 children: [
                   const Icon(CupertinoIcons.group),
@@ -401,9 +400,9 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   Text(_i18n.get("newGroup")),
                 ],
               ),
-              value: "newGroup",
             ),
             PopupMenuItem<String>(
+              value: "newChannel",
               child: Row(
                 children: [
                   const Icon(CupertinoIcons.news),
@@ -413,7 +412,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   )
                 ],
               ),
-              value: "newChannel",
             )
           ],
         ),
@@ -450,7 +448,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
             return Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const TGS.asset(
+                const Tgs.asset(
                   'assets/animations/not-found.tgs',
                   width: 180,
                   height: 150,

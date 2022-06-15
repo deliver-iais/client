@@ -162,7 +162,7 @@ class UrlHandlerService {
           builder: (ctx) {
             return Container(
               padding: const EdgeInsets.symmetric(vertical: 40),
-              child: const TGS.asset(
+              child: const Tgs.asset(
                 'assets/animations/done.tgs',
                 width: 150,
                 height: 150,
@@ -338,7 +338,6 @@ class UrlHandlerService {
     String botId,
     String token,
   ) async {
-
     PrivateDataType privateDataType;
     final type = pdType;
     type.contains("PHONE_NUMBER")
@@ -515,7 +514,7 @@ class UrlHandlerService {
               TextButton(
                 onPressed: () async {
                   Navigator.pop(c);
-                  await launch(uri);
+                  await launchUrl(Uri.parse(uri));
                 },
                 child: Text(_i18n.get("open")),
               ),

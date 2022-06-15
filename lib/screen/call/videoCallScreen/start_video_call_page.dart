@@ -26,10 +26,10 @@ class StartVideoCallPage extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  _StartVideoCallPageState createState() => _StartVideoCallPageState();
+  StartVideoCallPageState createState() => StartVideoCallPageState();
 }
 
-class _StartVideoCallPageState extends State<StartVideoCallPage> {
+class StartVideoCallPageState extends State<StartVideoCallPage> {
   final _logger = GetIt.I.get<Logger>();
 
   @override

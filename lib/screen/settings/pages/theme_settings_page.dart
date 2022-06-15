@@ -330,6 +330,8 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
           ),
           child: AnimatedContainer(
             duration: ANIMATION_DURATION * 2,
+            width: 80,
+            height: 100,
             child: Image(
               image: AssetImage("assets/backgrounds/$pattern-thumb.webp"),
               color: isSelected
@@ -338,8 +340,6 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
               fit: BoxFit.cover,
               repeat: ImageRepeat.repeat,
             ),
-            width: 80,
-            height: 100,
           ),
         ),
       ),

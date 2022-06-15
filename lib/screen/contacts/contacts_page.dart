@@ -19,10 +19,10 @@ class ContactsPage extends StatefulWidget {
   const ContactsPage({Key? key}) : super(key: key);
 
   @override
-  _ContactsPageState createState() => _ContactsPageState();
+  ContactsPageState createState() => ContactsPageState();
 }
 
-class _ContactsPageState extends State<ContactsPage> {
+class ContactsPageState extends State<ContactsPage> {
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _rootingServices = GetIt.I.get<RoutingService>();

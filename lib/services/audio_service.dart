@@ -188,27 +188,24 @@ class NormalAudioPlayer implements AudioPlayerModule {
   final AudioPlayer _audioPlayer = AudioPlayer();
   double playbackRate = 1.0;
 
-  final AudioCache _fastAudioPlayer =
-      AudioCache(prefix: 'assets/audios/', fixedPlayer: AudioPlayer());
+  final AudioPlayer _fastAudioPlayer = AudioPlayer();
 
-  final AudioCache _callFastAudioPlayer =
-      AudioCache(prefix: 'assets/audios/', fixedPlayer: AudioPlayer());
+  final AudioPlayer _callFastAudioPlayer = AudioPlayer();
 
   @override
-  Stream<Duration> get audioCurrentPosition =>
-      _audioPlayer.onAudioPositionChanged;
+  Stream<Duration> get audioCurrentPosition => _audioPlayer.onDurationChanged;
 
   @override
   Stream<AudioPlayerState> get audioCurrentState =>
       _audioPlayer.onPlayerStateChanged.map((event) {
         switch (event) {
-          case PlayerState.STOPPED:
+          case PlayerState.stopped:
             return AudioPlayerState.STOPPED;
-          case PlayerState.PLAYING:
+          case PlayerState.playing:
             return AudioPlayerState.PLAYING;
-          case PlayerState.PAUSED:
+          case PlayerState.paused:
             return AudioPlayerState.PAUSED;
-          case PlayerState.COMPLETED:
+          case PlayerState.completed:
             return AudioPlayerState.COMPLETED;
         }
       });
@@ -216,7 +213,7 @@ class NormalAudioPlayer implements AudioPlayerModule {
   @override
   void play(String path) {
     _audioPlayer
-      ..play(path, isLocal: false)
+      ..play(DeviceFileSource(path))
       ..setPlaybackRate(playbackRate);
   }
 
@@ -227,7 +224,7 @@ class NormalAudioPlayer implements AudioPlayerModule {
 
   @override
   void pause() {
-    if (_audioPlayer.state == PlayerState.PLAYING) {
+    if (_audioPlayer.state == PlayerState.playing) {
       _audioPlayer.pause();
     }
   }
@@ -239,12 +236,18 @@ class NormalAudioPlayer implements AudioPlayerModule {
 
   @override
   void playSoundOut() {
-    _fastAudioPlayer.play("sound_out.wav", mode: PlayerMode.LOW_LATENCY);
+    _fastAudioPlayer.play(
+      AssetSource("assets/audios/sound_out.wav"),
+      mode: PlayerMode.lowLatency,
+    );
   }
 
   @override
   void playSoundIn() {
-    _fastAudioPlayer.play("sound_in.wav", mode: PlayerMode.LOW_LATENCY);
+    _fastAudioPlayer.play(
+      AssetSource("assets/audios/sound_in.wav"),
+      mode: PlayerMode.lowLatency,
+    );
   }
 
   @override
@@ -255,46 +258,46 @@ class NormalAudioPlayer implements AudioPlayerModule {
   @override
   void playBeepSound() {
     _callFastAudioPlayer.play(
-      "beep_sound.mp3",
-      mode: PlayerMode.LOW_LATENCY,
+      AssetSource("assets/audios/beep_sound.mp3"),
+      mode: PlayerMode.lowLatency,
     );
   }
 
   @override
   void stopBeepSound() {
-    _callFastAudioPlayer.fixedPlayer?.stop();
+    _callFastAudioPlayer.stop();
   }
 
   @override
   void playBusySound() {
-    _callFastAudioPlayer.play("busy_sound.mp3");
+    _callFastAudioPlayer.play(AssetSource("assets/audios/busy_sound.mp3"));
   }
 
   @override
   void stopBusySound() {
-    _callFastAudioPlayer.play("busy_sound.mp3");
+    _callFastAudioPlayer.play(AssetSource("assets/audios/busy_sound.mp3"));
   }
 
   @override
   void playIncomingCallSound() {
     _callFastAudioPlayer.play(
-      "incoming_call.mp3",
-      mode: PlayerMode.LOW_LATENCY,
+      AssetSource("assets/audios/incoming_call.mp3"),
+      mode: PlayerMode.lowLatency,
     );
   }
 
   @override
   void playEndCallSound() {
     _callFastAudioPlayer.play(
-      "end_call.mp3",
+      AssetSource("assets/audios/end_call.mp3"),
       volume: 0.1,
-      mode: PlayerMode.LOW_LATENCY,
+      mode: PlayerMode.lowLatency,
     );
   }
 
   @override
   void stopIncomingCallSound() {
-    _callFastAudioPlayer.fixedPlayer?.stop();
+    _callFastAudioPlayer.stop();
   }
 
   @override

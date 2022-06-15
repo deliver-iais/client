@@ -33,9 +33,9 @@ class TimeAndSeenStatus extends StatelessWidget {
 
     if (needsPositioned) {
       return Positioned(
-        child: widget,
         right: 0,
         bottom: 0,
+        child: widget,
       );
     } else {
       return widget;
