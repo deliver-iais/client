@@ -221,7 +221,8 @@ class ContactRepo {
   Future<contact_pb.Contact?> getContact(Uid userUid) =>
       _contactDao.getByUid(userUid.asString());
 
-  Future<String?> getContactFromServer(Uid contactUid) async {
+  Future<String?> getContactFromServer(Uid contactUid,
+      {bool shouldUpdateContactDao = true,}) async {
     try {
       final contact = await _contactServices
           .getUserByUid(GetUserByUidReq()..uid = contactUid);
@@ -229,20 +230,22 @@ class ContactRepo {
 
       // Update uidIdName table
       unawaited(_uidIdNameDao.update(contactUid.asString(), name: name));
-
-      // Update contact table
-      unawaited(
-        _contactDao.save(
-          contact_pb.Contact(
-            uid: contactUid.asString(),
-            countryCode: contact.user.phoneNumber.countryCode.toString(),
-            nationalNumber: contact.user.phoneNumber.nationalNumber.toString(),
-            firstName: contact.user.firstName,
-            lastName: contact.user.lastName,
-            description: contact.user.description,
+      if (shouldUpdateContactDao) {
+        // Update contact table
+        unawaited(
+          _contactDao.save(
+            contact_pb.Contact(
+              uid: contactUid.asString(),
+              countryCode: contact.user.phoneNumber.countryCode.toString(),
+              nationalNumber:
+                  contact.user.phoneNumber.nationalNumber.toString(),
+              firstName: contact.user.firstName,
+              lastName: contact.user.lastName,
+              description: contact.user.description,
+            ),
           ),
-        ),
-      );
+        );
+      }
       return name;
     } catch (e) {
       _logger.e(e);

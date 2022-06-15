@@ -131,7 +131,10 @@ class RoomRepo {
         unawaited(_uidIdNameDao.update(uid.asString(), name: name));
         return name;
       } else {
-        final name = await _contactRepo.getContactFromServer(uid);
+        final name = await _contactRepo.getContactFromServer(
+          uid,
+          shouldUpdateContactDao: false,
+        );
         if (name != null) {
           roomNameCache.set(uid.asString(), name);
           return name;
