@@ -27,7 +27,6 @@ class _SearchBoxState extends State<SearchBox> {
   final _focusNode = FocusNode(canRequestFocus: false);
   static final _i18n = GetIt.I.get<I18N>();
 
-
   void _clearTextEditingController() {
     widget.controller?.clear();
     _localController.clear();
@@ -44,7 +43,7 @@ class _SearchBoxState extends State<SearchBox> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: TextField(
-        style: const TextStyle(fontSize: 16, height: 1.2),
+        style: const TextStyle(fontSize: 16),
         focusNode: _focusNode,
         controller: widget.controller ?? _localController,
         onChanged: (str) {
@@ -66,16 +65,13 @@ class _SearchBoxState extends State<SearchBox> {
           ),
           filled: true,
           isDense: true,
-          prefixIcon: const Icon(
-            CupertinoIcons.search,
-            // size: 20,
-          ),
+          prefixIcon: const Icon(CupertinoIcons.search),
           suffixIcon: StreamBuilder<bool?>(
             stream: _hasText.stream,
             builder: (c, ht) {
               if (ht.hasData && ht.data!) {
                 return IconButton(
-                  iconSize: 20,
+                  // iconSize: 20,
                   icon: const Icon(CupertinoIcons.xmark),
                   onPressed: () {
                     _hasText.add(false);
