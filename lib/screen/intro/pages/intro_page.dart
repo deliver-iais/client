@@ -34,7 +34,7 @@ class _IntroPageState extends State<IntroPage> {
         introAnimationController.play(pauseTime: d - 0.05);
       });
     });
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       FeatureDiscovery.discoverFeatures(
         context,
         isAndroid || isIOS

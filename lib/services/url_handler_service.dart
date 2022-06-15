@@ -24,7 +24,6 @@ import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 String buildShareUserUrl(
@@ -52,7 +51,6 @@ class UrlHandlerService {
   void handleApplicationUri(
     String url,
     BuildContext context, {
-    QRViewController? qrViewController,
     bool shareTextMessage = false,
   }) {
     if (shareTextMessage && !url.contains(APPLICATION_DOMAIN)) {
@@ -81,14 +79,12 @@ class UrlHandlerService {
           uri.queryParameters["type"]!,
           uri.queryParameters["botId"]!,
           uri.queryParameters["token"]!,
-          qrViewController,
         );
       } else if (segments.first == SEND_TEXT_URL) {
         handleSendMsgToBot(
           context,
           uri.queryParameters["botId"]!,
           uri.queryParameters["text"]!,
-          qrViewController,
         );
       } else if (segments.first == JOIN_URL) {
         if (segments[1] == "GROUP") {
@@ -109,7 +105,7 @@ class UrlHandlerService {
           );
         }
       } else if (segments.first == LOGIN_URL) {
-        handleLogin(context, uri.queryParameters["token"]!, qrViewController);
+        handleLogin(context, uri.queryParameters["token"]!);
       } else if (segments.first == USER_URL) {
         if (uri.queryParameters["id"] != null) {
           _routingService.openRoom(
@@ -154,14 +150,12 @@ class UrlHandlerService {
   Future<void> handleLogin(
     BuildContext context,
     String token,
-    QRViewController? controller,
   ) async {
     _logger.wtf(token);
     final verified = await _accountRepo.verifyQrCodeToken(token);
 
     if (verified) {
       Timer(const Duration(milliseconds: 500), () {
-        controller?.pauseCamera();
         showFloatingModalBottomSheet(
           context: context,
           isDismissible: false,
@@ -275,10 +269,8 @@ class UrlHandlerService {
     BuildContext context,
     String botId,
     String text,
-    QRViewController? controller,
   ) async {
     final theme = Theme.of(context);
-    controller?.pauseCamera().ignore();
 
     showFloatingModalBottomSheet(
       context: context,
@@ -309,7 +301,6 @@ class UrlHandlerService {
               children: [
                 TextButton(
                   onPressed: () {
-                    controller?.resumeCamera();
                     Navigator.of(context).pop();
                   },
                   child: Text(_i18n.get("skip")),
@@ -346,9 +337,7 @@ class UrlHandlerService {
     String pdType,
     String botId,
     String token,
-    QRViewController? controller,
   ) async {
-    controller?.pauseCamera().ignore();
 
     PrivateDataType privateDataType;
     final type = pdType;
@@ -389,7 +378,6 @@ class UrlHandlerService {
               children: [
                 TextButton(
                   onPressed: () {
-                    controller?.resumeCamera();
                     Navigator.of(context).pop();
                   },
                   child: Text(_i18n.get("skip")),

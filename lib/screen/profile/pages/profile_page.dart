@@ -783,7 +783,7 @@ class _ProfilePageState extends State<ProfilePage>
           }
         }
         if (token.isNotEmpty) {
-          _showInviteLinkDialog(token);
+          _showInviteLinkDialog(generateInviteLink(token));
         } else {
           ToastDisplay.showToast(
             toastText: _i18n.get("error_occurred"),
@@ -794,7 +794,7 @@ class _ProfilePageState extends State<ProfilePage>
     }
   }
 
-  void _showInviteLinkDialog(String token) {
+  void _showInviteLinkDialog(String inviteLink) {
     showDialog(
       context: context,
       builder: (context) {
@@ -813,7 +813,7 @@ class _ProfilePageState extends State<ProfilePage>
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  widget.roomUid.isBot() ? token : generateInviteLink(token),
+                  inviteLink,
                 ),
               ],
             ),
@@ -826,9 +826,7 @@ class _ProfilePageState extends State<ProfilePage>
                   onPressed: () {
                     Clipboard.setData(
                       ClipboardData(
-                        text: widget.roomUid.isBot()
-                            ? token
-                            : generateInviteLink(token),
+                        text:inviteLink,
                       ),
                     );
                     ToastDisplay.showToast(
@@ -847,7 +845,7 @@ class _ProfilePageState extends State<ProfilePage>
                     _routingService.openSelectForwardMessage(
                       sharedUid: proto.ShareUid()
                         ..name = _roomName
-                        ..joinToken = token
+                        ..joinToken = inviteLink
                         ..uid = widget.roomUid,
                     );
                   },

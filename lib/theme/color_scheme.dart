@@ -249,6 +249,7 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
   );
 
   final theme = ThemeData(
+    useMaterial3: true,
     brightness: colorScheme.brightness,
     fontFamily: GoogleFonts.vazirmatn().fontFamily,
     primaryColor: colorScheme.primary,
@@ -282,7 +283,8 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
     ),
     appBarTheme: AppBarTheme(
       color: colorScheme.surface.withOpacity(0.7),
-      elevation: 0,
+      elevation: 1,
+      scrolledUnderElevation: 4,
       titleTextStyle: textTheme.headline5,
       toolbarTextStyle: textTheme.headline6,
       iconTheme: IconThemeData(color: colorScheme.primary),
@@ -306,28 +308,6 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
         shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
         side: BorderSide(color: colorScheme.outline),
       ),
-    ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
-      ),
-    ),
-    floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      shape: RoundedRectangleBorder(borderRadius: buttonBorder),
-    ),
-    textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(
-        shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
-      ),
-    ),
-    dialogTheme: const DialogTheme(
-      shape: RoundedRectangleBorder(borderRadius: mainBorder),
-    ),
-    tabBarTheme: TabBarTheme(
-      indicator: UnderlineTabIndicator(
-        borderSide: BorderSide(width: 2.0, color: colorScheme.primary),
-      ),
-      labelColor: colorScheme.primary,
     ),
   );
 }
