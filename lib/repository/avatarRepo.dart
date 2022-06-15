@@ -176,7 +176,7 @@ class AvatarRepo {
     final cachedAvatar = _avatarCacheBehaviorSubjects.get(key);
 
     if (cachedAvatar != null) {
-      yield* cachedAvatar.stream;
+      yield* cachedAvatar;
     }
 
     late final BehaviorSubject<String> bs;
@@ -206,7 +206,7 @@ class AvatarRepo {
       subscription.cancel();
     };
 
-    yield* bs.stream.asBroadcastStream();
+    yield* bs.asBroadcastStream();
   }
 
   Future<void> uploadAvatar(String path, Uid uid) async {

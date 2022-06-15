@@ -13,6 +13,7 @@ import 'package:deliver/screen/room/messageWidgets/call_message/call_message_wid
 import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver/screen/room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
 import 'package:deliver/screen/room/messageWidgets/reply_widgets/swipe_to_reply.dart';
+import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/widgets/recieved_message_box.dart';
 import 'package:deliver/screen/room/widgets/sended_message_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
@@ -411,6 +412,7 @@ class OperationOnMessageSelection {
   static final _logger = GetIt.I.get<Logger>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _routingServices = GetIt.I.get<RoutingService>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
 
   final void Function()? onReply;
   final void Function()? onEdit;
@@ -489,13 +491,13 @@ class OperationOnMessageSelection {
     if (message.type == MessageType.TEXT) {
       Clipboard.setData(
         ClipboardData(
-          text: message.json.toText().text,
+          text: synthesizeToOriginalWord(message.json.toText().text),
         ),
       );
     } else {
       Clipboard.setData(
         ClipboardData(
-          text: message.json.toFile().caption,
+          text: synthesizeToOriginalWord(message.json.toFile().caption),
         ),
       );
     }
@@ -539,19 +541,33 @@ class OperationOnMessageSelection {
   }
 
   Future<void> onShare() async {
-    try {
-      final result = await _fileRepo.getFileIfExist(
-        message.json.toFile().uuid,
-        message.json.toFile().name,
+    if (message.type == MessageType.TEXT) {
+      final copyText = await _roomRepo.getName(message.from.asUid()) +
+          ":\n" +
+          message.json.toText().text +
+          "\n" +
+          DateTime.fromMillisecondsSinceEpoch(
+            message.time,
+          ).toString().substring(0, 19);
+
+      return Share.share(
+        copyText,
       );
-      if (result!.isNotEmpty) {
-        return Share.shareFiles(
-          [(result)],
-          text: message.json.toFile().caption,
+    } else {
+      try {
+        final result = await _fileRepo.getFileIfExist(
+          message.json.toFile().uuid,
+          message.json.toFile().name,
         );
+        if (result!.isNotEmpty) {
+          return Share.shareFiles(
+            [(result)],
+            text: message.json.toFile().caption,
+          );
+        }
+      } catch (e) {
+        _logger.e(e);
       }
-    } catch (e) {
-      _logger.e(e);
     }
   }
 

@@ -26,6 +26,7 @@ import 'package:deliver/screen/room/messageWidgets/input_message_text_controller
 import 'package:deliver/screen/room/messageWidgets/on_edit_message_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver/screen/room/messageWidgets/reply_widgets/reply_preview.dart';
+import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/pages/build_message_box.dart';
 import 'package:deliver/screen/room/pages/pin_message_app_bar.dart';
 import 'package:deliver/screen/room/widgets/bot_start_widget.dart';
@@ -50,6 +51,7 @@ import 'package:deliver/shared/widgets/bot_appbar_title.dart';
 import 'package:deliver/shared/widgets/drag_and_drop_widget.dart';
 import 'package:deliver/shared/widgets/muc_appbar_title.dart';
 import 'package:deliver/shared/widgets/scroll_message_list.dart';
+import 'package:deliver/shared/widgets/select_multi_message_appbar.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:deliver/shared/widgets/user_appbar_title.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -630,7 +632,7 @@ class _RoomPageState extends State<RoomPage> {
   void onEdit(Message message) {
     if (message.type == MessageType.TEXT) {
       _editableMessage.add(message);
-      _inputMessageTextController.text = message.json.toText().text;
+      _inputMessageTextController.text = synthesizeToOriginalWord(message.json.toText().text);
       FocusScope.of(context).requestFocus(_inputMessageFocusNode);
     } else if (message.type == MessageType.FILE) {
       showCaptionDialog(
@@ -740,7 +742,6 @@ class _RoomPageState extends State<RoomPage> {
             });
           },
           child: FloatingActionButton(
-            backgroundColor: Theme.of(context).primaryColor,
             mini: true,
             child: const Icon(CupertinoIcons.chevron_down),
             onPressed: _scrollToLastMessage,
@@ -991,7 +992,12 @@ class _RoomPageState extends State<RoomPage> {
               stream: _selectMultiMessageSubject.stream,
               builder: (c, sm) {
                 if (sm.hasData && sm.data!) {
-                  return _selectMultiMessageAppBar();
+                  return SelectMultiMessageAppBar(
+                      selectedMessages: _selectedMessages,
+                      hasPermissionInChannel: _hasPermissionInChannel.value,
+                      hasPermissionInGroup: _hasPermissionInGroup.value,
+                      onDelete: onDelete,
+                      deleteSelectedMessage: _deleteSelectedMessage,);
                 } else {
                   if (widget.roomId.isMuc()) {
                     return MucAppbarTitle(mucUid: widget.roomId);
@@ -1305,91 +1311,6 @@ class _RoomPageState extends State<RoomPage> {
         });
       }
     }
-  }
-
-  Widget _selectMultiMessageAppBar() {
-    final theme = Theme.of(context);
-    var _hasPermissionToDeleteMsg = true;
-    for (final message in _selectedMessages.values.toList()) {
-      if ((_authRepo.isCurrentUserSender(message) ||
-              (message.roomUid.isChannel() && _hasPermissionInChannel.value) ||
-              (message.roomUid.isGroup() && _hasPermissionInGroup.value)) ==
-          false) {
-        _hasPermissionToDeleteMsg = false;
-      }
-    }
-    return Padding(
-      padding: const EdgeInsets.only(right: 12, top: 5),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          Tooltip(
-            message: _i18n.get("forward"),
-            child: IconButton(
-              color: theme.primaryColor,
-              icon: const Icon(CupertinoIcons.arrowshape_turn_up_right),
-              onPressed: () {
-                _routingService.openSelectForwardMessage(
-                  forwardedMessages: _selectedMessages.values.toList(),
-                );
-                _selectedMessages.clear();
-              },
-            ),
-          ),
-          if (_hasPermissionToDeleteMsg)
-            Tooltip(
-              message: _i18n.get("delete"),
-              child: IconButton(
-                color: theme.primaryColor,
-                icon: const Icon(CupertinoIcons.delete),
-                onPressed: () {
-                  _deleteSelectedMessage();
-                },
-              ),
-            ),
-          Tooltip(
-            message: _i18n.get("copy"),
-            child: IconButton(
-              color: Theme.of(context).primaryColor,
-              icon: const Icon(CupertinoIcons.doc_on_clipboard),
-              onPressed: () async {
-                var copyText = "";
-                final messages = _selectedMessages.values.toList()
-                  ..sort(
-                    (a, b) => a.id == null
-                        ? 1
-                        : b.id == null
-                            ? -1
-                            : a.id!.compareTo(b.id!),
-                  );
-                for (final message in messages) {
-                  if (message.type == MessageType.TEXT) {
-                    copyText = copyText +
-                        await _roomRepo.getName(message.from.asUid()) +
-                        ":\n" +
-                        message.json.toText().text +
-                        "\n";
-                  } else if (message.type == MessageType.FILE &&
-                      message.json.toFile().caption.isNotEmpty) {
-                    copyText = copyText +
-                        await _roomRepo.getName(message.from.asUid()) +
-                        ":\n" +
-                        message.json.toFile().caption +
-                        "\n";
-                  }
-                }
-                Clipboard.setData(ClipboardData(text: copyText)).ignore();
-                onDelete();
-                ToastDisplay.showToast(
-                  toastText: _i18n.get("copied"),
-                  toastContext: context,
-                );
-              },
-            ),
-          )
-        ],
-      ),
-    );
   }
 
   void _deleteSelectedMessage() {

@@ -157,7 +157,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 }
               },
             ),
-          if (widget.message.type == MessageType.FILE && !isDesktop)
+          if (widget.message.type == MessageType.FILE && isAndroid)
             StreamBuilder<bool>(
               stream: _fileIsExist.stream,
               builder: (c, s) {
@@ -177,6 +177,17 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   return const SizedBox.shrink();
                 }
               },
+            ),
+          if (widget.message.type == MessageType.TEXT && isAndroid)
+            PopupMenuItem(
+              value: OperationOnMessage.SHARE,
+              child: Row(
+                children: [
+                  const Icon(Icons.share),
+                  const SizedBox(width: 8),
+                  Text(_i18n.get("share")),
+                ],
+              ),
             ),
           if (widget.message.roomUid.isMuc())
             PopupMenuItem(

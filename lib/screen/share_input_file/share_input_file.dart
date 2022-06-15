@@ -14,9 +14,13 @@ import 'package:rxdart/rxdart.dart';
 
 class ShareInputFile extends StatefulWidget {
   final List<String> inputSharedFilePath;
+  final String inputShareText;
 
-  const ShareInputFile({required this.inputSharedFilePath, Key? key})
-      : super(key: key);
+  const ShareInputFile({
+    required this.inputSharedFilePath,
+    required this.inputShareText,
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<ShareInputFile> createState() => _ShareInputFileState();
@@ -63,34 +67,120 @@ class _ShareInputFileState extends State<ShareInputFile> {
             emptyWidget: const SizedBox.shrink(),
           ),
           if (_selectedRooms.isNotEmpty)
-            buildInputCaption(
-              i18n: _i18n,
-              insertCaption: _insertCaption,
-              context: context,
-              captionEditingController: _textEditingController,
-              count: _selectedRooms.length,
-              send: () {
-                for (final path in widget.inputSharedFilePath) {
-                  _messageRepo.sendFileToChats(
-                    _selectedRooms,
-                    File(path, path.split(".").last),
-                    caption: widget.inputSharedFilePath.last == path
-                        ? _textEditingController.text
-                        : "",
-                  );
-                }
-
-                if (_selectedRooms.length == 1) {
-                  _routingServices.openRoom(
-                    _selectedRooms.first.asString(),
-                    popAllBeforePush: true,
-                  );
-                } else {
-                  _routingServices.pop();
-                }
-              },
-            )
+            if (widget.inputShareText.isNotEmpty)
+              buildSend()
+            else
+              buildInputCaption(
+                i18n: _i18n,
+                insertCaption: _insertCaption,
+                context: context,
+                captionEditingController: _textEditingController,
+                count: _selectedRooms.length,
+                send: () {
+                  for (final path in widget.inputSharedFilePath) {
+                    _messageRepo.sendFileToChats(
+                      _selectedRooms,
+                      File(
+                        path,
+                        path.split(".").last,
+                      ),
+                      caption: widget.inputSharedFilePath.last == path
+                          ? _textEditingController.text
+                          : "",
+                    );
+                  }
+                  pop();
+                },
+              )
         ],
+      ),
+    );
+  }
+
+  void pop() {
+    if (_selectedRooms.length == 1) {
+      _routingServices.openRoom(
+        _selectedRooms.first.asString(),
+        popAllBeforePush: true,
+      );
+    } else {
+      _routingServices.pop();
+    }
+  }
+
+  Widget buildSend() {
+    final theme = Theme.of(context);
+    return Align(
+      alignment: Alignment.bottomRight,
+      child: Padding(
+        padding: const EdgeInsets.only(right: 20),
+        child: Stack(
+          children: <Widget>[
+            Container(
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+              ),
+              child: ClipOval(
+                child: Material(
+                  color: Theme.of(context).primaryColor, // button color
+                  child: InkWell(
+                    splashColor: theme.primaryColor, // inkwell color
+                    child: const SizedBox(
+                      width: 60,
+                      height: 60,
+                      child: Icon(
+                        Icons.send,
+                        size: 30,
+                        color: Colors.white,
+                      ),
+                    ),
+                    onTap: () {
+                      for (final roomUid in _selectedRooms) {
+                        _messageRepo.sendTextMessage(
+                          roomUid,
+                          widget.inputShareText,
+                        );
+                      }
+                      pop();
+                    },
+                  ),
+                ),
+              ),
+            ),
+            if (_selectedRooms.isNotEmpty)
+              Positioned(
+                child: Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: theme.backgroundColor, // border color
+                    shape: BoxShape.circle,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(2), // border width
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: theme.primaryColor, // inner circle color
+                      ),
+                      child: Center(
+                        child: Text(
+                          _selectedRooms.length.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ), // inner content
+                    ),
+                  ),
+                ),
+                top: 35.0,
+                right: 0.0,
+                left: 35,
+              ),
+          ],
+        ),
       ),
     );
   }

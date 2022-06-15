@@ -224,55 +224,13 @@ packages:
       name: collection
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.15.0"
-  connectivity_plus:
-    dependency: "direct main"
-    description:
-      name: connectivity_plus
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "2.3.4"
-  connectivity_plus_linux:
-    dependency: transitive
-    description:
-      name: connectivity_plus_linux
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.3.1"
-  connectivity_plus_macos:
-    dependency: transitive
-    description:
-      name: connectivity_plus_macos
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.2.3"
-  connectivity_plus_platform_interface:
-    dependency: transitive
-    description:
-      name: connectivity_plus_platform_interface
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.2.1"
-  connectivity_plus_web:
-    dependency: transitive
-    description:
-      name: connectivity_plus_web
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.2.2"
-  connectivity_plus_windows:
-    dependency: transitive
-    description:
-      name: connectivity_plus_windows
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.2.2"
+    version: "1.16.0"
   connectycube_flutter_call_kit:
     dependency: "direct main"
     description:
       path: "."
-      ref: "94cc4e2a67ceeeeaf4225218efe68cdc7faef539"
-      resolved-ref: "94cc4e2a67ceeeeaf4225218efe68cdc7faef539"
+      ref: e13124fee38dd11baf639660675ca4f722dfabd3
+      resolved-ref: e13124fee38dd11baf639660675ca4f722dfabd3
       url: "https://github.com/androidwoman/connectycube-flutter-call-kit.git"
     source: git
     version: "2.0.2"
@@ -352,7 +310,7 @@ packages:
       name: dart_webrtc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.5"
+    version: "1.0.6"
   date_time_format:
     dependency: "direct main"
     description:
@@ -632,8 +590,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: b24aeffc07dc047016b4da1f1320ec524d96b161
-      resolved-ref: b24aeffc07dc047016b4da1f1320ec524d96b161
+      ref: "27ca60817efb2d666c64bd2f28cf4dd9de62b937"
+      resolved-ref: "27ca60817efb2d666c64bd2f28cf4dd9de62b937"
       url: "https://github.com/androidwoman/flutter_foreground_task"
     source: git
     version: "3.5.5"
@@ -723,7 +681,7 @@ packages:
       name: flutter_webrtc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.8.5"
+    version: "0.8.9"
   fluttertoast:
     dependency: "direct main"
     description:
@@ -731,6 +689,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "8.0.8"
+  font_awesome_flutter:
+    dependency: "direct main"
+    description:
+      name: font_awesome_flutter
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "10.1.0"
   freezed_annotation:
     dependency: transitive
     description:
@@ -821,7 +786,7 @@ packages:
       name: google_fonts
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.3.1"
+    version: "3.0.1"
   googleapis_auth:
     dependency: transitive
     description:
@@ -991,7 +956,7 @@ packages:
       name: js
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.6.3"
+    version: "0.6.4"
   json_annotation:
     dependency: transitive
     description:
@@ -1075,7 +1040,7 @@ packages:
       name: material_color_utilities
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.3"
+    version: "0.1.4"
   meta:
     dependency: "direct main"
     description:
@@ -1111,6 +1076,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
+  mobile_scanner:
+    dependency: "direct main"
+    description:
+      name: mobile_scanner
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.1"
   mockito:
     dependency: "direct dev"
     description:
@@ -1139,13 +1111,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
-  nm:
-    dependency: transitive
-    description:
-      name: nm
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.5.0"
   node_preamble:
     dependency: transitive
     description:
@@ -1222,7 +1187,7 @@ packages:
       name: path
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.8.0"
+    version: "1.8.1"
   path_provider:
     dependency: "direct main"
     description:
@@ -1272,6 +1237,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.0.6"
+  patterns_canvas:
+    dependency: "direct main"
+    description:
+      name: patterns_canvas
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.3.5"
   percent_indicator:
     dependency: "direct main"
     description:
@@ -1433,13 +1405,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.1.0"
-  qr_code_scanner:
-    dependency: "direct main"
-    description:
-      name: qr_code_scanner
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.7.0"
   qr_flutter:
     dependency: "direct main"
     description:
@@ -1774,27 +1739,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.3.0"
-  uni_links:
-    dependency: "direct main"
-    description:
-      name: uni_links
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.5.1"
-  uni_links_platform_interface:
-    dependency: transitive
-    description:
-      name: uni_links_platform_interface
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.0"
-  uni_links_web:
-    dependency: transitive
-    description:
-      name: uni_links_web
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.1.0"
   unicode:
     dependency: transitive
     description:
@@ -1885,7 +1829,7 @@ packages:
       name: vector_math
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.1"
+    version: "2.1.2"
   very_good_analysis:
     dependency: transitive
     description:
@@ -2006,12 +1950,12 @@ packages:
     source: hosted
     version: "1.0.1"
   webrtc_interface:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: webrtc_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.3"
+    version: "1.0.5"
   win32:
     dependency: transitive
     description:
@@ -2073,5 +2017,5 @@ packages:
     source: hosted
     version: "3.1.1"
 sdks:
-  dart: ">=2.16.1 <3.0.0"
+  dart: ">=2.17.0-0 <3.0.0"
   flutter: ">=2.10.0"
