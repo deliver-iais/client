@@ -229,8 +229,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: bdec48f4f29857be6f8d3f3cf181bc22adbed325
-      resolved-ref: bdec48f4f29857be6f8d3f3cf181bc22adbed325
+      ref: "9dc907fc33a516305fa08373da5c0bfa6a5b7864"
+      resolved-ref: "9dc907fc33a516305fa08373da5c0bfa6a5b7864"
       url: "https://github.com/androidwoman/connectycube_flutter_call_kit2.0.5.git"
     source: git
     version: "2.0.5"
