@@ -57,8 +57,6 @@ class _SettingsPageState extends State<SettingsPage> {
       extendBodyBehindAppBar: true,
       appBar: UltimateAppBar(
         child: AppBar(
-          elevation: 1,
-          scrolledUnderElevation: 4,
           titleSpacing: 8,
           title: Text(_i18n.get("settings")),
           leading: _routingService.backButtonLeading(),
