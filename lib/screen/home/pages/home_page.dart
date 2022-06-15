@@ -102,8 +102,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     ReceiveSharingIntent.getInitialText().then((value) async {
       if (value != null && value.isNotEmpty) {
-        _urlHandlerService.handleApplicationUri(value, context,
-            shareTextMessage: true);
+        _urlHandlerService.handleApplicationUri(
+          value,
+          context,
+          shareTextMessage: true,
+        );
       }
     });
   }

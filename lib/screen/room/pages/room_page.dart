@@ -61,7 +61,6 @@ import 'package:desktop_lifecycle/desktop_lifecycle.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
@@ -632,7 +631,8 @@ class _RoomPageState extends State<RoomPage> {
   void onEdit(Message message) {
     if (message.type == MessageType.TEXT) {
       _editableMessage.add(message);
-      _inputMessageTextController.text = synthesizeToOriginalWord(message.json.toText().text);
+      _inputMessageTextController.text =
+          synthesizeToOriginalWord(message.json.toText().text);
       FocusScope.of(context).requestFocus(_inputMessageFocusNode);
     } else if (message.type == MessageType.FILE) {
       showCaptionDialog(
@@ -993,11 +993,12 @@ class _RoomPageState extends State<RoomPage> {
               builder: (c, sm) {
                 if (sm.hasData && sm.data!) {
                   return SelectMultiMessageAppBar(
-                      selectedMessages: _selectedMessages,
-                      hasPermissionInChannel: _hasPermissionInChannel.value,
-                      hasPermissionInGroup: _hasPermissionInGroup.value,
-                      onDelete: onDelete,
-                      deleteSelectedMessage: _deleteSelectedMessage,);
+                    selectedMessages: _selectedMessages,
+                    hasPermissionInChannel: _hasPermissionInChannel.value,
+                    hasPermissionInGroup: _hasPermissionInGroup.value,
+                    onDelete: onDelete,
+                    deleteSelectedMessage: _deleteSelectedMessage,
+                  );
                 } else {
                   if (widget.roomId.isMuc()) {
                     return MucAppbarTitle(mucUid: widget.roomId);
