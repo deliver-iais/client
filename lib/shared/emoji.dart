@@ -117262,6 +117262,7 @@ final List<Emoji> _emojis = [
 ];
 
 /// All Skin Tones
+// ignore: camel_case_types
 enum fitzpatrick {
   light,
   mediumLight,

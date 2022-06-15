@@ -19,6 +19,7 @@ import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:sms_autofill/sms_autofill.dart';
@@ -195,7 +196,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 SettingsTile(
                   title: _i18n.get("language"),
                   subtitle: _i18n.locale.language().name,
-                  leading: const Icon(CupertinoIcons.textformat_abc),
+                  leading: const FaIcon(FontAwesomeIcons.globe),
                   onPressed: (context) {
                     _routingService.openLanguageSettings();
                   },
@@ -265,7 +266,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   subtitleTextStyle: TextStyle(
                     color: theme.primaryColor,
                   ),
-                  leading: const Icon(CupertinoIcons.arrow_down_circle),
+                  leading: const Icon(CupertinoIcons.cloud_download),
                   onPressed: (context) => _routingService.openAutoDownload(),
                 ),
               ],

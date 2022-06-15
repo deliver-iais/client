@@ -116,7 +116,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 }
               },
               child: AppBar(
-                backgroundColor: Colors.transparent,
+                elevation: 0,
+                scrolledUnderElevation: 0,
                 leading: Row(
                   children: [
                     const SizedBox(

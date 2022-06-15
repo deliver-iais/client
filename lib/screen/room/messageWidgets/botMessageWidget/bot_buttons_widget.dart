@@ -1,7 +1,6 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/count_down_timer.dart';
@@ -52,6 +51,8 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
       stream: _locked.stream,
       builder: (context, lockData) {
         if (lockData.hasData && lockData.data != null) {
+          final isLocked = lockData.data!;
+
           return Stack(
             children: [
               if (!buttons.lockAfter.isZero)
@@ -62,10 +63,9 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
                 ),
               Container(
                 padding: EdgeInsets.only(
-                  top: buttons.lockAfter.isZero ? 1 : 50,
+                  top: buttons.lockAfter.isZero ? 4 : 50,
                   left: 4,
                   right: 4,
-                  bottom: 1,
                 ),
                 // width: maxWidth,
                 child: Column(
@@ -78,18 +78,14 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
                         margin: const EdgeInsets.only(bottom: 6),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            primary: lockData.data!
-                                ? Colors.black26
-                                : widget.colorScheme.primary,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: tertiaryBorder,
-                            ),
+                            primary: widget.colorScheme.primary,
+                            onPrimary: widget.colorScheme.onPrimary,
                           ),
-                          onPressed: () => !_locked.value
-                              ? _messageRepo.sendTextMessage(
-                                  widget.message.from.asUid(),
-                                  btn,
-                                )
+                          onPressed: !isLocked
+                              ? () => _messageRepo.sendTextMessage(
+                                    widget.message.from.asUid(),
+                                    btn,
+                                  )
                               : null,
                           child: Text(
                             btn,
