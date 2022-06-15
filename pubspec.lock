@@ -310,7 +310,7 @@ packages:
       name: dart_webrtc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.5"
+    version: "1.0.6"
   date_time_format:
     dependency: "direct main"
     description:
@@ -681,7 +681,7 @@ packages:
       name: flutter_webrtc
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.8.5"
+    version: "0.8.9"
   fluttertoast:
     dependency: "direct main"
     description:
@@ -1950,12 +1950,12 @@ packages:
     source: hosted
     version: "1.0.1"
   webrtc_interface:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: webrtc_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.3"
+    version: "1.0.5"
   win32:
     dependency: transitive
     description:

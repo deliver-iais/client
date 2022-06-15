@@ -79,7 +79,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_map: 0.14.0
-  flutter_webrtc: 0.8.5
+  flutter_webrtc: 0.8.9
   fluttertoast: 8.0.8
   font_awesome_flutter: 10.1.0
   fuzzy: 0.4.0-nullsafety.0
@@ -144,8 +144,6 @@ dependencies:
   vibration: 1.7.4-nullsafety.0
   video_player: 2.3.0
   wakelock: 0.6.1+1
-  # if want increse flutter_webrtc version we should remove this line and let get it from parent
-  webrtc_interface: 1.0.3
   win_toast:
     git:
       path: packages/win_toast
