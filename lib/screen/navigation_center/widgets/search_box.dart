@@ -71,7 +71,6 @@ class _SearchBoxState extends State<SearchBox> {
             builder: (c, ht) {
               if (ht.hasData && ht.data!) {
                 return IconButton(
-                  // iconSize: 20,
                   icon: const Icon(CupertinoIcons.xmark),
                   onPressed: () {
                     _hasText.add(false);
