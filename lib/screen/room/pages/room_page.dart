@@ -634,7 +634,8 @@ class _RoomPageState extends State<RoomPage> {
   void onEdit(Message message) {
     if (message.type == MessageType.TEXT) {
       _editableMessage.add(message);
-      _inputMessageTextController.text = synthesizeToOriginalWord(message.json.toText().text);
+      _inputMessageTextController.text =
+          synthesizeToOriginalWord(message.json.toText().text);
       FocusScope.of(context).requestFocus(_inputMessageFocusNode);
     } else if (message.type == MessageType.FILE) {
       showCaptionDialog(
@@ -744,7 +745,6 @@ class _RoomPageState extends State<RoomPage> {
             });
           },
           child: FloatingActionButton(
-            backgroundColor: Theme.of(context).primaryColor,
             mini: true,
             child: const Icon(CupertinoIcons.chevron_down),
             onPressed: _scrollToLastMessage,
@@ -1470,7 +1470,8 @@ class _RoomPageState extends State<RoomPage> {
                     copyText = copyText +
                         await _roomRepo.getName(message.from.asUid()) +
                         ":\n" +
-                        synthesizeToOriginalWord(message.json.toFile().caption) +
+                        synthesizeToOriginalWord(
+                            message.json.toFile().caption) +
                         "\n";
                   }
                 }
