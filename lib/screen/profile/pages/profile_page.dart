@@ -826,9 +826,7 @@ class _ProfilePageState extends State<ProfilePage>
                   onPressed: () {
                     Clipboard.setData(
                       ClipboardData(
-                        text: widget.roomUid.isBot()
-                            ? inviteLink
-                            : generateInviteLink(inviteLink),
+                        text:inviteLink,
                       ),
                     );
                     ToastDisplay.showToast(
