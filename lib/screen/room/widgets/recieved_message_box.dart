@@ -65,6 +65,6 @@ class ReceivedMessageBox extends StatelessWidget {
 
   bool doNotNeedsWrapper() {
     return message.type == MessageType.STICKER ||
-        AnimatedEmoji.isAnimatedEmoji(message);
+        AnimatedEmoji.isAnimatedEmojiMessage(message);
   }
 }

@@ -76,7 +76,6 @@ class CallListWidget extends StatelessWidget {
                       style: TextStyle(
                         color: theme.colorScheme.primary.withAlpha(130),
                         fontSize: 12,
-                        height: 1.2,
                       ),
                     )
                   ],

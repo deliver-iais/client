@@ -229,7 +229,7 @@ class _BoxContentState extends State<BoxContent> {
   Widget messageBox() {
     final colorScheme =
         ExtraTheme.of(context).messageColorScheme(widget.message.from);
-    if (AnimatedEmoji.isAnimatedEmoji(widget.message)) {
+    if (AnimatedEmoji.isAnimatedEmojiMessage(widget.message)) {
       return AnimatedEmoji(
         message: widget.message,
         isSeen: widget.isSeen,
