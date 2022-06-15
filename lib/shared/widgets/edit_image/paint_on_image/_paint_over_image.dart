@@ -35,6 +35,7 @@ class ImagePainter extends StatefulWidget {
     this.colorIcon,
     this.undoIcon,
     this.isSignature = false,
+    // ignore: unused_element
     this.controlsAtTop = true,
     this.signatureBackgroundColor,
     this.colors,

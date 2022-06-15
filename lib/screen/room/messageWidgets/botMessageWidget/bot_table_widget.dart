@@ -27,7 +27,7 @@ class _BotTableWidgetState extends State<BotTableWidget> {
 
   @override
   void initState() {
-    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       if (_controller.position.maxScrollExtent > 0) {
         setState(() {});
       }
