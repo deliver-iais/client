@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:material_color_utilities/palettes/core_palette.dart';
 
 // ignore: non_constant_identifier_names
-final EnableColor = Colors.greenAccent.shade700;
+final ActiveColor = Colors.greenAccent.shade700;
 
 // ignore: non_constant_identifier_names
 final DefaultBoxShadows = [
