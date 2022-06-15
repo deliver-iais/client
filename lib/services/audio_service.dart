@@ -236,18 +236,12 @@ class NormalAudioPlayer implements AudioPlayerModule {
 
   @override
   void playSoundOut() {
-    _fastAudioPlayer.play(
-      AssetSource("assets/audios/sound_out.wav"),
-      mode: PlayerMode.lowLatency,
-    );
+    _fastAudioPlayer.play(AssetSource("audios/sound_out.wav"));
   }
 
   @override
   void playSoundIn() {
-    _fastAudioPlayer.play(
-      AssetSource("assets/audios/sound_in.wav"),
-      mode: PlayerMode.lowLatency,
-    );
+    _fastAudioPlayer.play(AssetSource("audios/sound_in.wav"));
   }
 
   @override
@@ -257,10 +251,7 @@ class NormalAudioPlayer implements AudioPlayerModule {
 
   @override
   void playBeepSound() {
-    _callFastAudioPlayer.play(
-      AssetSource("assets/audios/beep_sound.mp3"),
-      mode: PlayerMode.lowLatency,
-    );
+    _callFastAudioPlayer.play(AssetSource("audios/beep_sound.mp3"));
   }
 
   @override
@@ -270,28 +261,24 @@ class NormalAudioPlayer implements AudioPlayerModule {
 
   @override
   void playBusySound() {
-    _callFastAudioPlayer.play(AssetSource("assets/audios/busy_sound.mp3"));
+    _callFastAudioPlayer.play(AssetSource("audios/busy_sound.mp3"));
   }
 
   @override
   void stopBusySound() {
-    _callFastAudioPlayer.play(AssetSource("assets/audios/busy_sound.mp3"));
+    _callFastAudioPlayer.play(AssetSource("audios/busy_sound.mp3"));
   }
 
   @override
   void playIncomingCallSound() {
-    _callFastAudioPlayer.play(
-      AssetSource("assets/audios/incoming_call.mp3"),
-      mode: PlayerMode.lowLatency,
-    );
+    _callFastAudioPlayer.play(AssetSource("audios/incoming_call.mp3"));
   }
 
   @override
   void playEndCallSound() {
     _callFastAudioPlayer.play(
-      AssetSource("assets/audios/end_call.mp3"),
+      AssetSource("audios/end_call.mp3"),
       volume: 0.1,
-      mode: PlayerMode.lowLatency,
     );
   }
 
