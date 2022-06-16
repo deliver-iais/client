@@ -23,6 +23,7 @@ import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:synchronized/synchronized.dart';
 
 class ContactRepo {
@@ -37,9 +38,12 @@ class ContactRepo {
   final QueryServiceClient _queryServiceClient =
       GetIt.I.get<QueryServiceClient>();
   final Map<PhoneNumber, String> _contactsDisplayName = {};
+  final BehaviorSubject<bool> isSyncingContacts = BehaviorSubject.seeded(false);
 
   Future<void> syncContacts() async {
+    isSyncingContacts.add(true);
     if (_requestLock.locked) {
+      isSyncingContacts.add(false);
       return;
     }
     return _requestLock.synchronized(() async {
@@ -76,6 +80,7 @@ class ContactRepo {
           }
         }
         sendContacts(contacts);
+        isSyncingContacts.add(false);
       }
     });
   }
@@ -221,8 +226,10 @@ class ContactRepo {
   Future<contact_pb.Contact?> getContact(Uid userUid) =>
       _contactDao.getByUid(userUid.asString());
 
-  Future<String?> getContactFromServer(Uid contactUid,
-      {bool shouldUpdateContactDao = true,}) async {
+  Future<String?> getContactFromServer(
+    Uid contactUid, {
+    bool shouldUpdateContactDao = true,
+  }) async {
     try {
       final contact = await _contactServices
           .getUserByUid(GetUserByUidReq()..uid = contactUid);
