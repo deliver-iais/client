@@ -42,7 +42,6 @@ class UnreadMessageCounterWidget extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   color: theme.colorScheme.onPrimary,
-                  height: 1.2,
                 ),
               ),
               alignment: Alignment.center,

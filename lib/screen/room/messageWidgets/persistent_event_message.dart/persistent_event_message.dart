@@ -103,10 +103,10 @@ class PersistentEventMessage extends StatelessWidget {
                     border: Border.fromBorderSide(theme.chipTheme.side!),
                   ),
                   padding: const EdgeInsets.only(
-                    top: 5,
+                    top: 6.0,
                     left: 8.0,
                     right: 8.0,
-                    bottom: 4.0,
+                    bottom: 2.0,
                   ),
                   child: FutureBuilder<List<Widget>?>(
                     future: getPersistentMessage(
@@ -180,7 +180,6 @@ class PersistentEventMessage extends StatelessWidget {
               softWrap: false,
               style: const TextStyle(
                 fontSize: 14,
-                height: 1,
                 fontWeight: FontWeight.bold,
               ),
             ),

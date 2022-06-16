@@ -40,7 +40,7 @@ class ContactPic extends StatelessWidget {
                           width: 12.0,
                           height: 12.0,
                           decoration: BoxDecoration(
-                            color: EnableColor,
+                            color: ActiveColor,
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: theme.scaffoldBackgroundColor,
