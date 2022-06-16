@@ -73,6 +73,7 @@ class _ContactsPageState extends State<ContactsPage> {
             } else {
               return Column(
                 children: [
+                  SyncContact().syncingStatus(context),
                   Padding(
                     padding: const EdgeInsets.symmetric(vertical: 4.0),
                     child: SearchBox(
