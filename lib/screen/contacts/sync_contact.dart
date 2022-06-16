@@ -51,4 +51,50 @@ class SyncContact {
       unawaited(_contactRepo.syncContacts());
     }
   }
+
+  Widget syncingStatus(BuildContext context) {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: 8),
+      child: StreamBuilder<bool>(
+        initialData: false,
+        stream: _contactRepo.isSyncingContacts,
+        builder: (context, snapshot) {
+          final isSyncing = snapshot.data ?? false;
+          return AnimatedContainer(
+            width: double.infinity,
+            height: isSyncing ? 38 : 0,
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8,
+              vertical: 8,
+            ),
+            margin: const EdgeInsets.symmetric(horizontal: 8),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.secondaryContainer,
+              borderRadius: tertiaryBorder,
+            ),
+            curve: Curves.easeInOut,
+            duration: ANIMATION_DURATION * 2,
+            child: Row(
+              children: [
+                const SizedBox(width: 4),
+                SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: theme.colorScheme.onTertiaryContainer,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                const Text(
+                  "Syncing contacts",
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
 }
