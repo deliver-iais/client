@@ -377,5 +377,6 @@
   "you_create_channel": "کانال را ساختید.",
   "you_create_group": "گروه را ساختید.",
   "your_password_update": "رمز شما بروز شد.",
-  "syncing_contact": "همگام سازی مخاطبین"
+  "syncing_contact": "همگام سازی مخاطبین",
+  "no_contact": "مخاطبی پیدا نشد"
 }

@@ -202,6 +202,7 @@ flutter:
     - assets/animations/new_version.zip
     - assets/animations/out_of_date.zip
     - assets/animations/qr.zip
+    - assets/duck_animation/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

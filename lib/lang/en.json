@@ -374,5 +374,6 @@
   "you_create_channel": "Create Channel",
   "you_create_group": "Create Group",
   "your_password_update": "Your password updated",
-  "syncing_contact": "Syncing contacts"
+  "syncing_contact": "Syncing contacts",
+  "no_contact": "No contact found"
 }
