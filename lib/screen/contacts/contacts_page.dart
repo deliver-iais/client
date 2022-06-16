@@ -9,6 +9,7 @@ import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
+import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -82,55 +83,58 @@ class _ContactsPageState extends State<ContactsPage> {
                       onCancel: () => _queryTermDebouncedSubject.add(""),
                     ),
                   ),
-                  Expanded(
-                    child: Scrollbar(
-                      child: StreamBuilder<String>(
-                        stream: _queryTermDebouncedSubject.stream,
-                        builder: (context, sna) {
-                          return ListView.separated(
-                            separatorBuilder: (context, index) {
-                              if (_authRepo
-                                      .isCurrentUser(contacts[index].uid) ||
-                                  searchHasResult(contacts[index])) {
-                                return const SizedBox.shrink();
-                              } else {
-                                return const Divider();
-                              }
-                            },
-                            itemCount: contacts.length,
-                            itemBuilder: (ctx, index) {
-                              final c = contacts[index];
-                              if (searchHasResult(c)) {
-                                return const SizedBox.shrink();
-                              }
-                              if (_authRepo.isCurrentUser(c.uid)) {
-                                return const SizedBox.shrink();
-                              } else {
-                                return GestureDetector(
-                                  onTap: () {
-                                    _rootingServices.openRoom(c.uid);
-                                  },
-                                  child: ContactWidget(
-                                    contact: c,
-                                    circleIcon: CupertinoIcons.qrcode,
-                                    onCircleIcon: () => showQrCode(
-                                      context,
-                                      buildShareUserUrl(
-                                        c.countryCode,
-                                        c.nationalNumber,
-                                        c.firstName!,
-                                        c.lastName!,
+                  if (contacts.isNotEmpty)
+                    Expanded(
+                      child: Scrollbar(
+                        child: StreamBuilder<String>(
+                          stream: _queryTermDebouncedSubject.stream,
+                          builder: (context, sna) {
+                            return ListView.separated(
+                              separatorBuilder: (context, index) {
+                                if (_authRepo
+                                        .isCurrentUser(contacts[index].uid) ||
+                                    searchHasResult(contacts[index])) {
+                                  return const SizedBox.shrink();
+                                } else {
+                                  return const Divider();
+                                }
+                              },
+                              itemCount: contacts.length,
+                              itemBuilder: (ctx, index) {
+                                final c = contacts[index];
+                                if (searchHasResult(c)) {
+                                  return const SizedBox.shrink();
+                                }
+                                if (_authRepo.isCurrentUser(c.uid)) {
+                                  return const SizedBox.shrink();
+                                } else {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      _rootingServices.openRoom(c.uid);
+                                    },
+                                    child: ContactWidget(
+                                      contact: c,
+                                      circleIcon: CupertinoIcons.qrcode,
+                                      onCircleIcon: () => showQrCode(
+                                        context,
+                                        buildShareUserUrl(
+                                          c.countryCode,
+                                          c.nationalNumber,
+                                          c.firstName!,
+                                          c.lastName!,
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                );
-                              }
-                            },
-                          );
-                        },
+                                  );
+                                }
+                              },
+                            );
+                          },
+                        ),
                       ),
-                    ),
-                  ),
+                    )
+                  else
+                    emptyContactWidget(context),
                   const Divider(),
                   SizedBox(
                     height: 40,
@@ -160,4 +164,33 @@ class _ContactsPageState extends State<ContactsPage> {
         .toLowerCase()
         .contains(_queryTermDebouncedSubject.value.toLowerCase());
   }
+}
+
+Widget emptyContactWidget(BuildContext context) {
+  final i18n = GetIt.I.get<I18N>();
+  return Expanded(
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        const Center(
+          child: TGS.asset(
+            "assets/duck_animation/cry.tgs",
+            width: 180,
+            height: 180,
+          ),
+        ),
+        Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Center(
+            child: Text(
+              i18n.get("no_contact"),
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.headline6,
+            ),
+          ),
+        )
+      ],
+    ),
+  );
 }
