@@ -28,13 +28,13 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
   static final _i18n = GetIt.I.get<I18N>();
 
   const SharePrivateDataRequestMessageWidget({
-    Key? key,
+    super.key,
     required this.message,
     required this.isSender,
     required this.maxWidth,
     required this.colorScheme,
     required this.isSeen,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

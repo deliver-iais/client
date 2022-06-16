@@ -19,12 +19,12 @@ class PinMessageAppBar extends StatelessWidget {
   final i18n = GetIt.I.get<I18N>();
 
   PinMessageAppBar({
-    Key? key,
+    super.key,
     required this.lastPinedMessage,
     required this.pinMessages,
     required this.onTap,
     required this.onClose,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -48,7 +48,7 @@ class BoxContent extends StatefulWidget {
   final void Function() onEdit;
 
   const BoxContent({
-    Key? key,
+    super.key,
     required this.message,
     required this.maxWidth,
     required this.minWidth,
@@ -63,7 +63,7 @@ class BoxContent extends StatefulWidget {
     this.pattern,
     this.messageReplyBrief,
     required this.onEdit,
-  }) : super(key: key);
+  });
 
   Type getState() {
     return BoxContentState;

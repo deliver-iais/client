@@ -24,10 +24,10 @@ class ImageTabUi extends StatefulWidget {
   const ImageTabUi(
     this.imagesCount,
     this.roomUid, {
-    Key? key,
+    super.key,
     required this.addSelectedMedia,
     required this.selectedMedia,
-  }) : super(key: key);
+  });
 
   @override
   ImageTabUiState createState() => ImageTabUiState();

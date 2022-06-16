@@ -21,7 +21,7 @@ export '_image_painter.dart';
 @immutable
 class ImagePainter extends StatefulWidget {
   const ImagePainter._({
-    Key? key,
+    super.key,
     this.assetPath,
     this.networkUrl,
     this.byteArray,
@@ -46,7 +46,7 @@ class ImagePainter extends StatefulWidget {
     this.onStrokeWidthChanged,
     this.onPaintModeChanged,
     this.onDone,
-  }) : super(key: key);
+  });
 
   ///Constructor for loading image from network url.
   factory ImagePainter.network(

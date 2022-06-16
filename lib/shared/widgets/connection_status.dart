@@ -9,7 +9,7 @@ class ConnectionStatus extends StatelessWidget {
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _i18n = GetIt.I.get<I18N>();
 
-  const ConnectionStatus({Key? key}) : super(key: key);
+  const ConnectionStatus({super.key});
 
   @override
   Widget build(BuildContext context) {

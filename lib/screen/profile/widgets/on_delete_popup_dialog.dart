@@ -14,11 +14,11 @@ class OnDeletePopupDialog extends StatefulWidget {
   final String roomName;
 
   const OnDeletePopupDialog({
-    Key? key,
+    super.key,
     required this.selected,
     required this.roomUid,
     required this.roomName,
-  }) : super(key: key);
+  });
 
   @override
   OnDeletePopupDialogState createState() => OnDeletePopupDialogState();

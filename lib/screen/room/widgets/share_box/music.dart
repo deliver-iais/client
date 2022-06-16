@@ -14,13 +14,13 @@ class ShareBoxMusic extends StatefulWidget {
   final Map<int, IconData> icons;
 
   const ShareBoxMusic({
-    Key? key,
+    super.key,
     required this.scrollController,
     required this.onClick,
     required this.playMusic,
     required this.icons,
     required this.selectedAudio,
-  }) : super(key: key);
+  });
 
   @override
   ShareBoxMusicState createState() => ShareBoxMusicState();

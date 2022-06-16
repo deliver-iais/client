@@ -37,7 +37,7 @@ BehaviorSubject<String>
     BehaviorSubject.seeded("");
 
 class NavigationCenter extends StatefulWidget {
-  const NavigationCenter({Key? key}) : super(key: key);
+  const NavigationCenter({super.key});
 
   @override
   NavigationCenterState createState() => NavigationCenterState();

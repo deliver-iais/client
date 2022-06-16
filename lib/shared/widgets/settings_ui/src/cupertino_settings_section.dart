@@ -10,11 +10,11 @@ import 'defines.dart';
 class CupertinoSection extends StatelessWidget {
   const CupertinoSection(
     this.items, {
-    Key? key,
+    super.key,
     this.header,
     this.headerPadding = defaultTitlePadding,
     this.footer,
-  }) : super(key: key);
+  });
 
   final List<Widget> items;
 

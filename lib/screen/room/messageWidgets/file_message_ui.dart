@@ -27,7 +27,7 @@ class FileMessageUi extends StatefulWidget {
   final File file;
 
   FileMessageUi({
-    Key? key,
+    super.key,
     required this.message,
     required this.maxWidth,
     required this.minWidth,
@@ -36,16 +36,15 @@ class FileMessageUi extends StatefulWidget {
     required this.colorScheme,
     required this.isSeen,
     required this.onEdit,
-  })  : file = message.json.toFile(),
-        super(key: key);
+  }) : file = message.json.toFile();
 
   @override
   FileMessageUiState createState() => FileMessageUiState();
 }
 
 class FileMessageUiState extends State<FileMessageUi> {
-  final _fileRepo = GetIt.I.get<FileRepo>();
-  final _autoDownloadDao = GetIt.I.get<AutoDownloadDao>();
+  static final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _autoDownloadDao = GetIt.I.get<AutoDownloadDao>();
 
   @override
   void initState() {

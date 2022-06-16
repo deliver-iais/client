@@ -16,11 +16,11 @@ class SelectionToForwardPage extends StatefulWidget {
   final proto.ShareUid? shareUid;
 
   const SelectionToForwardPage({
-    Key? key,
+    super.key,
     this.forwardedMessages,
     this.medias,
     this.shareUid,
-  }) : super(key: key);
+  });
 
   @override
   SelectionToForwardPageState createState() => SelectionToForwardPageState();

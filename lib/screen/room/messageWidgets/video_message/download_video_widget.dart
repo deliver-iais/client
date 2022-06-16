@@ -17,21 +17,21 @@ class DownloadVideoWidget extends StatefulWidget {
   final Color foreground;
 
   const DownloadVideoWidget({
-    Key? key,
+    super.key,
     required this.uuid,
     required this.download,
     required this.name,
     required this.background,
     required this.foreground,
-  }) : super(key: key);
+  });
 
   @override
   DownloadVideoWidgetState createState() => DownloadVideoWidgetState();
 }
 
 class DownloadVideoWidgetState extends State<DownloadVideoWidget> {
-  final _fileServices = GetIt.I.get<FileService>();
-  final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _fileServices = GetIt.I.get<FileService>();
+  static final _fileRepo = GetIt.I.get<FileRepo>();
   final BehaviorSubject<bool> _startDownload = BehaviorSubject.seeded(false);
   final _futureKey = GlobalKey();
   final _streamKey = GlobalKey();

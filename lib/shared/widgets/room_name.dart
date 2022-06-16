@@ -17,12 +17,12 @@ class RoomName extends StatelessWidget {
   final bool shouldShowDotAnimation;
 
   const RoomName({
-    Key? key,
+    super.key,
     required this.uid,
     this.name,
     this.style,
     this.shouldShowDotAnimation = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

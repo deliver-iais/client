@@ -13,11 +13,11 @@ class FormListWidget extends StatelessWidget {
   final ShakeWidgetController shakeWidgetController = ShakeWidgetController();
 
   FormListWidget({
-    Key? key,
+    super.key,
     required this.formField,
     required this.selected,
     required this.setFormKey,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

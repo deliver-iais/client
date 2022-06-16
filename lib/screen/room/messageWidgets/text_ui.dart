@@ -28,7 +28,7 @@ class TextUI extends StatelessWidget {
   final CustomColorScheme colorScheme;
 
   TextUI({
-    Key? key,
+    super.key,
     required this.message,
     required this.maxWidth,
     required this.colorScheme,
@@ -38,8 +38,7 @@ class TextUI extends StatelessWidget {
     this.isSender = false,
     this.isSeen = false,
     this.searchTerm,
-  })  : isBotMessage = message.roomUid.asUid().isBot(),
-        super(key: key);
+  }) : isBotMessage = message.roomUid.asUid().isBot();
 
   @override
   Widget build(BuildContext context) {

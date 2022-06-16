@@ -8,11 +8,11 @@ class AnimationWaveButton extends StatefulWidget {
   final Icon pauseIcon;
 
   const AnimationWaveButton({
-    Key? key,
+    super.key,
     this.initialIsPlaying = false,
     this.playIcon = const Icon(Icons.mic),
     this.pauseIcon = const Icon(Icons.pause),
-  }) : super(key: key);
+  });
 
   @override
   AnimationWaveButtonState createState() => AnimationWaveButtonState();
@@ -128,8 +128,12 @@ class Blob extends StatelessWidget {
   final double scale;
   final Color color;
 
-  const Blob({Key? key, required this.color, this.rotation = 0, this.scale = 1})
-      : super(key: key);
+  const Blob({
+    super.key,
+    required this.color,
+    this.rotation = 0,
+    this.scale = 1,
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -24,11 +24,11 @@ class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
 
   const OperationOnMessageEntry(
     this.message, {
-    Key? key,
+    super.key,
     required this.hasPermissionInChannel,
     required this.hasPermissionInGroup,
     required this.isPinned,
-  }) : super(key: key);
+  });
 
   @override
   OperationOnMessageEntryState createState() => OperationOnMessageEntryState();

@@ -25,13 +25,13 @@ class SelectMultiMessageAppBar extends StatelessWidget {
   final Function() deleteSelectedMessage;
 
   SelectMultiMessageAppBar({
+    super.key,
     required this.selectedMessages,
     required this.hasPermissionInChannel,
     required this.hasPermissionInGroup,
     required this.onDelete,
     required this.deleteSelectedMessage,
-    Key? key,
-  }) : super(key: key);
+  });
 
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _routingService = GetIt.I.get<RoutingService>();

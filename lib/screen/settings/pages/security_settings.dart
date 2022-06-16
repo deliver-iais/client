@@ -16,7 +16,7 @@ import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
 
 class SecuritySettingsPage extends StatefulWidget {
-  const SecuritySettingsPage({Key? key}) : super(key: key);
+  const SecuritySettingsPage({super.key});
 
   @override
   SecuritySettingsPageState createState() => SecuritySettingsPageState();

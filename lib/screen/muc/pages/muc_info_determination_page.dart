@@ -16,8 +16,7 @@ import 'package:rxdart/rxdart.dart';
 class MucInfoDeterminationPage extends StatefulWidget {
   final bool isChannel;
 
-  const MucInfoDeterminationPage({Key? key, required this.isChannel})
-      : super(key: key);
+  const MucInfoDeterminationPage({super.key, required this.isChannel});
 
   @override
   MucInfoDeterminationPageState createState() =>

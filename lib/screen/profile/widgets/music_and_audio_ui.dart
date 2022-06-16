@@ -23,13 +23,13 @@ class MusicAndAudioUi extends StatefulWidget {
   final List<Media> selectedMedia;
 
   const MusicAndAudioUi({
-    Key? key,
+    super.key,
     required this.roomUid,
     required this.type,
     required this.mediaCount,
     required this.addSelectedMedia,
     required this.selectedMedia,
-  }) : super(key: key);
+  });
 
   @override
   MusicAndAudioUiState createState() => MusicAndAudioUiState();
@@ -96,7 +96,8 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                           ),
                                         ),
                                         Padding(
-                                          padding: const EdgeInsets.only(top: 20,bottom: 10,left: 8),
+                                          padding: const EdgeInsets.only(
+                                              top: 20, bottom: 10, left: 8),
                                           child: MusicPlayProgress(
                                             audioUuid: fileId,
                                             duration:

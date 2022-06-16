@@ -15,7 +15,7 @@ import 'package:logger/logger.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 
 class VerificationPage extends StatefulWidget {
-  const VerificationPage({Key? key}) : super(key: key);
+  const VerificationPage({super.key});
 
   @override
   VerificationPageState createState() => VerificationPageState();

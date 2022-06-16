@@ -25,23 +25,25 @@ class ShareBoxGallery extends StatefulWidget {
   final void Function()? resetRoomPageDetails;
 
   const ShareBoxGallery({
-    Key? key,
+    super.key,
     required this.scrollController,
     required this.pop,
     required this.roomUid,
     this.setAvatar,
     this.replyMessageId = 0,
     this.resetRoomPageDetails,
-  }) : super(key: key);
+  });
 
   @override
   ShareBoxGalleryState createState() => ShareBoxGalleryState();
 }
 
 class ShareBoxGalleryState extends State<ShareBoxGallery> {
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _checkPermissionServices =
+      GetIt.I.get<CheckPermissionsService>();
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _messageRepo = GetIt.I.get<MessageRepo>();
-  final _checkPermissionServices = GetIt.I.get<CheckPermissionsService>();
   final TextEditingController _captionEditingController =
       TextEditingController();
   final _keyboardVisibilityController = KeyboardVisibilityController();

@@ -25,12 +25,12 @@ class ShareBox extends StatefulWidget {
   final void Function() scrollToLastSentMessage;
 
   const ShareBox({
-    Key? key,
+    super.key,
     required this.currentRoomId,
     this.replyMessageId = 0,
     required this.resetRoomPageDetails,
     required this.scrollToLastSentMessage,
-  }) : super(key: key);
+  });
 
   @override
   ShareBoxState createState() => ShareBoxState();
@@ -39,7 +39,7 @@ class ShareBox extends StatefulWidget {
 enum Page { gallery, files, location, music }
 
 class ShareBoxState extends State<ShareBox> {
-  final messageRepo = GetIt.I.get<MessageRepo>();
+  static final messageRepo = GetIt.I.get<MessageRepo>();
 
   final selectedImages = <int, bool>{};
 

@@ -35,10 +35,10 @@ class ColorPicker extends StatefulWidget {
 
   const ColorPicker(
     this.width, {
-    Key? key,
+    super.key,
     required this.controller,
     required this.valueController,
-  }) : super(key: key);
+  });
 
   @override
   ColorPickerState createState() => ColorPickerState();

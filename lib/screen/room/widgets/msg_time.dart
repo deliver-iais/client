@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class MsgTime extends StatelessWidget {
   final DateTime time;
 
-  const MsgTime({Key? key, required this.time}) : super(key: key);
+  const MsgTime({super.key, required this.time});
 
   @override
   Widget build(BuildContext context) {

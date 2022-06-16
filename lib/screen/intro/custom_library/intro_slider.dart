@@ -126,7 +126,7 @@ class IntroSlider extends StatefulWidget {
 
   // Constructor
   const IntroSlider({
-    Key? key,
+    super.key,
     // Slides
     required this.slides,
     this.backgroundColorAllSlides,
@@ -178,7 +178,7 @@ class IntroSlider extends StatefulWidget {
 
     // Behavior
     this.onAnimationChange,
-  }) : super(key: key);
+  });
 
   @override
   IntroSliderState createState() {

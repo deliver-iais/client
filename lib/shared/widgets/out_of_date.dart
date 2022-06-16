@@ -8,6 +8,7 @@ import '../constants.dart';
 
 void showOutOfDateDialog(BuildContext context) {
   final i18n = GetIt.I.get<I18N>();
+
   Future.delayed(Duration.zero, () {
     showDialog(
       context: context,

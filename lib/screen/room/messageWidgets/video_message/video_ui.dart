@@ -14,13 +14,13 @@ class VideoUi extends StatefulWidget {
   final Color foreground;
 
   const VideoUi({
-    Key? key,
+    super.key,
     required this.videoFilePath,
     required this.duration,
     required this.videoMessage,
     required this.background,
     required this.foreground,
-  }) : super(key: key);
+  });
 
   @override
   VideoUiState createState() => VideoUiState();

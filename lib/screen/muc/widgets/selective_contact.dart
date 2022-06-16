@@ -8,11 +8,11 @@ class SelectiveContact extends StatefulWidget {
   final bool currentMember;
 
   const SelectiveContact({
-    Key? key,
+    super.key,
     required this.contact,
     required this.isSelected,
     this.currentMember = false,
-  }) : super(key: key);
+  });
 
   @override
   SelectiveContactState createState() => SelectiveContactState();

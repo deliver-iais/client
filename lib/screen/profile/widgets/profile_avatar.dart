@@ -24,10 +24,10 @@ class ProfileAvatar extends StatefulWidget {
   final bool canSetAvatar;
 
   const ProfileAvatar({
-    Key? key,
+    super.key,
     required this.roomUid,
     this.canSetAvatar = false,
-  }) : super(key: key);
+  });
 
   @override
   ProfileAvatarState createState() => ProfileAvatarState();
@@ -37,7 +37,7 @@ class ProfileAvatarState extends State<ProfileAvatar> {
   static final _avatarRepo = GetIt.I.get<AvatarRepo>();
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _i18n = GetIt.I.get<I18N>();
-  final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _fileRepo = GetIt.I.get<FileRepo>();
   final BehaviorSubject<String> _newAvatarPath = BehaviorSubject.seeded("");
 
   @override

@@ -13,7 +13,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class DeveloperPage extends StatefulWidget {
-  const DeveloperPage({Key? key}) : super(key: key);
+  const DeveloperPage({super.key});
 
   @override
   DeveloperPageState createState() => DeveloperPageState();

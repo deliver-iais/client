@@ -8,10 +8,10 @@ class CallBottomRow extends StatefulWidget {
   final bool isIncomingCall;
 
   const CallBottomRow({
-    Key? key,
+    super.key,
     required this.hangUp,
     this.isIncomingCall = false,
-  }) : super(key: key);
+  });
 
   @override
   CallBottomRowState createState() => CallBottomRowState();

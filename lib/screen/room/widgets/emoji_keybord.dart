@@ -10,8 +10,7 @@ class EmojiKeyboard extends StatefulWidget {
   final void Function(String) onTap;
   final Function? onStickerTap;
 
-  const EmojiKeyboard({Key? key, required this.onTap, this.onStickerTap})
-      : super(key: key);
+  const EmojiKeyboard({super.key, required this.onTap, this.onStickerTap});
 
   @override
   EmojiKeyboardState createState() => EmojiKeyboardState();

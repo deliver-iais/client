@@ -12,12 +12,12 @@ class MessageWrapper extends StatelessWidget {
   final bool isFirstMessageInGroupedMessages;
 
   const MessageWrapper({
-    Key? key,
+    super.key,
     required this.child,
     required this.uid,
     required this.isSender,
     this.isFirstMessageInGroupedMessages = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

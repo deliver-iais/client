@@ -20,11 +20,11 @@ class CallDetailPage extends StatefulWidget {
   final Uid caller;
 
   const CallDetailPage({
-    Key? key,
+    super.key,
     required this.isIncomingCall,
     required this.caller,
     required this.callEvent,
-  }) : super(key: key);
+  });
 
   @override
   CallDetailPageState createState() => CallDetailPageState();

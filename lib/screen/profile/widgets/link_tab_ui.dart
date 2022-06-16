@@ -15,7 +15,7 @@ class LinkTabUi extends StatefulWidget {
   final int linksCount;
   final Uid roomUid;
 
-  const LinkTabUi(this.linksCount, this.roomUid, {Key? key}) : super(key: key);
+  const LinkTabUi(this.linksCount, this.roomUid, {super.key});
 
   @override
   LinkTabUiState createState() => LinkTabUiState();

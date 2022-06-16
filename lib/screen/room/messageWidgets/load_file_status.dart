@@ -19,7 +19,7 @@ class LoadFileStatus extends StatefulWidget {
   final void Function() onPressed;
 
   const LoadFileStatus({
-    Key? key,
+    super.key,
     required this.fileId,
     required this.fileName,
     required this.onPressed,
@@ -27,15 +27,15 @@ class LoadFileStatus extends StatefulWidget {
     required this.isPendingMessage,
     required this.foreground,
     this.messagePacketId,
-  }) : super(key: key);
+  });
 
   @override
   LoadFileStatusState createState() => LoadFileStatusState();
 }
 
 class LoadFileStatusState extends State<LoadFileStatus> {
-  final _messageRepo = GetIt.I.get<MessageRepo>();
-  final _fileService = GetIt.I.get<FileService>();
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _fileService = GetIt.I.get<FileService>();
   final BehaviorSubject<bool> _starDownload = BehaviorSubject.seeded(false);
 
   @override

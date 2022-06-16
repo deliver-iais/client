@@ -18,7 +18,7 @@ final bucketGlobal = PageStorageBucket();
 class ChatsPage extends StatefulWidget {
   final ScrollController scrollController;
 
-  const ChatsPage({Key? key, required this.scrollController}) : super(key: key);
+  const ChatsPage({super.key, required this.scrollController});
 
   @override
   ChatsPageState createState() => ChatsPageState();

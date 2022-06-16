@@ -24,13 +24,13 @@ class CallScreen extends StatefulWidget {
   final bool isVideoCall;
 
   const CallScreen({
-    Key? key,
+    super.key,
     required this.roomUid,
     this.isCallAccepted = false,
     this.isCallInitialized = false,
     this.isIncomingCall = false,
     this.isVideoCall = false,
-  }) : super(key: key);
+  });
 
   @override
   CallScreenState createState() => CallScreenState();

@@ -11,19 +11,19 @@ class BotCommands extends StatefulWidget {
   final int botCommandSelectedIndex;
 
   const BotCommands({
-    Key? key,
+    super.key,
     required this.botUid,
     required this.onCommandClick,
     this.query,
     required this.botCommandSelectedIndex,
-  }) : super(key: key);
+  });
 
   @override
   BotCommandsState createState() => BotCommandsState();
 }
 
 class BotCommandsState extends State<BotCommands> {
-  final _botRepo = GetIt.I.get<BotRepo>();
+  static final _botRepo = GetIt.I.get<BotRepo>();
 
   @override
   Widget build(BuildContext context) {

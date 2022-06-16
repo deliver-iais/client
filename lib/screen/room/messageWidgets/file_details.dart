@@ -9,8 +9,7 @@ class FileDetails extends StatelessWidget {
   final File file;
   final CustomColorScheme colorScheme;
 
-  const FileDetails({Key? key, required this.file, required this.colorScheme})
-      : super(key: key);
+  const FileDetails({super.key, required this.file, required this.colorScheme});
 
   @override
   Widget build(BuildContext context) {

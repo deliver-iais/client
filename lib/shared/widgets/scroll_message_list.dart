@@ -13,12 +13,12 @@ class ScrollMessageList extends StatefulWidget {
   final ItemPositionsListener itemPositionsListener;
 
   const ScrollMessageList({
-    Key? key,
+    super.key,
     required this.child,
     required this.itemCount,
     required this.controller,
     required this.itemPositionsListener,
-  }) : super(key: key);
+  });
 
   @override
   ScrollMessageListState createState() => ScrollMessageListState();

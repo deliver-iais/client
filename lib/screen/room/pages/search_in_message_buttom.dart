@@ -15,7 +15,7 @@ class SearchInMessageButton extends StatefulWidget {
   final Message currentSearchResultMessage;
 
   const SearchInMessageButton({
-    Key? key,
+    super.key,
     required this.roomId,
     required this.scrollDown,
     required this.scrollUp,
@@ -23,15 +23,15 @@ class SearchInMessageButton extends StatefulWidget {
     required this.searchResult,
     required this.currentSearchResultMessage,
     required this.keyboardWidget,
-  }) : super(key: key);
+  });
 
   @override
   SearchInMessageButtonState createState() => SearchInMessageButtonState();
 }
 
-var _i18n = GetIt.I.get<I18N>();
-
 class SearchInMessageButtonState extends State<SearchInMessageButton> {
+  static final _i18n = GetIt.I.get<I18N>();
+
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<bool>(

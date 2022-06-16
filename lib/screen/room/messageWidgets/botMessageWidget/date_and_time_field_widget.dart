@@ -16,11 +16,11 @@ class DateAndTimeFieldWidget extends StatefulWidget {
   final void Function(GlobalKey<FormState>) setFormKey;
 
   const DateAndTimeFieldWidget({
-    Key? key,
+    super.key,
     required this.formField,
     required this.formResult,
     required this.setFormKey,
-  }) : super(key: key);
+  });
 
   @override
   State<DateAndTimeFieldWidget> createState() => _DateAndTimeFieldWidgetState();
@@ -401,16 +401,12 @@ class FormValidator extends FormField<String> {
   final Widget widget;
 
   FormValidator({
-    Key? key,
+    super.key,
+    super.validator,
     required this.widget,
     required this.label,
-    validator,
   }) : super(
-          key: key,
-          validator: validator,
-          builder: (
-            field,
-          ) {
+          builder: (field) {
             return InputDecorator(
               decoration: InputDecoration(
                 label: Text(

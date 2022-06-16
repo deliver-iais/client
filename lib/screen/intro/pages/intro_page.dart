@@ -14,7 +14,7 @@ import 'package:rxdart/rxdart.dart';
 import '../animation.dart';
 
 class IntroPage extends StatefulWidget {
-  const IntroPage({Key? key}) : super(key: key);
+  const IntroPage({super.key});
 
   @override
   IntroPageState createState() => IntroPageState();

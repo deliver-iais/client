@@ -17,11 +17,11 @@ class AllAvatarPage extends StatefulWidget {
   final bool hasPermissionToDeletePic;
 
   const AllAvatarPage({
-    Key? key,
+    super.key,
     required this.userUid,
     required this.hasPermissionToDeletePic,
     required this.heroTag,
-  }) : super(key: key);
+  });
 
   @override
   AllAvatarPageState createState() => AllAvatarPageState();

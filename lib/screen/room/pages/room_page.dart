@@ -76,12 +76,12 @@ class RoomPage extends StatefulWidget {
   final List<Media>? forwardedMedia;
 
   const RoomPage({
-    Key? key,
+    super.key,
     required this.roomId,
     this.forwardedMessages,
     this.forwardedMedia,
     this.shareUid,
-  }) : super(key: key);
+  });
 
   @override
   RoomPageState createState() => RoomPageState();

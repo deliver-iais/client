@@ -9,8 +9,11 @@ class MusicPlayProgress extends StatelessWidget {
   final double duration;
   final _audioPlayerService = GetIt.I.get<AudioService>();
 
-  MusicPlayProgress({Key? key, required this.audioUuid, required this.duration})
-      : super(key: key);
+  MusicPlayProgress({
+    super.key,
+    required this.audioUuid,
+    required this.duration,
+  });
 
   @override
   Widget build(BuildContext context) {

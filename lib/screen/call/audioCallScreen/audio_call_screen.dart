@@ -21,12 +21,12 @@ class AudioCallScreen extends StatefulWidget {
   final bool isIncomingCall;
 
   const AudioCallScreen({
-    Key? key,
+    super.key,
     required this.roomUid,
     required this.callStatus,
     required this.hangUp,
     this.isIncomingCall = false,
-  }) : super(key: key);
+  });
 
   @override
   AudioCallScreenState createState() => AudioCallScreenState();

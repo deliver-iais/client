@@ -12,11 +12,11 @@ class FormSimpleInputFieldWidget extends StatefulWidget {
   final void Function(GlobalKey<FormState>) setFormKey;
 
   const FormSimpleInputFieldWidget({
-    Key? key,
+    super.key,
     required this.formField,
     required this.setResult,
     required this.setFormKey,
-  }) : super(key: key);
+  });
 
   @override
   FormSimpleInputFieldWidgetState createState() =>

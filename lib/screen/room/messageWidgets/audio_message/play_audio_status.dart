@@ -13,20 +13,20 @@ class PlayAudioStatus extends StatefulWidget {
   final Color foregroundColor;
 
   const PlayAudioStatus({
-    Key? key,
+    super.key,
     required this.fileId,
     required this.fileName,
     required this.filePath,
     required this.backgroundColor,
     required this.foregroundColor,
-  }) : super(key: key);
+  });
 
   @override
   PlayAudioStatusState createState() => PlayAudioStatusState();
 }
 
 class PlayAudioStatusState extends State<PlayAudioStatus> {
-  AudioService audioPlayerService = GetIt.I.get<AudioService>();
+  static final audioPlayerService = GetIt.I.get<AudioService>();
 
   @override
   Widget build(BuildContext context) {

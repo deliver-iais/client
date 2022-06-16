@@ -6,10 +6,10 @@ class CheckBoxFormField extends StatefulWidget {
   final void Function(String) selected;
 
   const CheckBoxFormField({
-    Key? key,
+    super.key,
     required this.formField,
     required this.selected,
-  }) : super(key: key);
+  });
 
   @override
   CheckBoxFormFieldState createState() => CheckBoxFormFieldState();

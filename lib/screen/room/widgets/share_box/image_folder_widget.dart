@@ -26,11 +26,11 @@ class ImageFolderWidget extends StatefulWidget {
     this.folder,
     this.roomUid,
     this.pop, {
-    Key? key,
+    super.key,
     this.setAvatar,
     this.replyMessageId = 0,
     this.resetRoomPageDetails,
-  }) : super(key: key);
+  });
 
   @override
   State<ImageFolderWidget> createState() => _ImageFolderWidgetState();
@@ -39,12 +39,13 @@ class ImageFolderWidget extends StatefulWidget {
 const int FETCH_IMAGE_PAGE_SIZE = 40;
 
 class _ImageFolderWidgetState extends State<ImageFolderWidget> {
+  static final _i18n = GetIt.I.get<I18N>();
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
+
   final List<String> _selectedImage = [];
-  final _i18n = GetIt.I.get<I18N>();
   final TextEditingController _textEditingController = TextEditingController();
   final _keyboardVisibilityController = KeyboardVisibilityController();
   final BehaviorSubject<bool> _insertCaption = BehaviorSubject.seeded(false);
-  final _messageRepo = GetIt.I.get<MessageRepo>();
   final Map<String, AssetEntity> _imageFiles = {};
 
   @override

@@ -9,7 +9,7 @@ import 'package:get_it/get_it.dart';
 class NewFeatureDialog extends StatelessWidget {
   final _i18n = GetIt.I.get<I18N>();
 
-  NewFeatureDialog({Key? key}) : super(key: key);
+  NewFeatureDialog({super.key});
 
   @override
   Widget build(BuildContext context) {

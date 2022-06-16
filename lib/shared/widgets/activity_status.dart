@@ -9,16 +9,17 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class ActivityStatus extends StatelessWidget {
-  final Activity activity;
-  final Uid roomUid;
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _i18n = GetIt.I.get<I18N>();
 
+  final Activity activity;
+  final Uid roomUid;
+
   const ActivityStatus({
-    Key? key,
+    super.key,
     required this.activity,
     required this.roomUid,
-  }) : super(key: key);
+  });
 
   TextStyle textStyle(BuildContext context) {
     return TextStyle(fontSize: 14, color: Theme.of(context).primaryColor);

@@ -21,7 +21,7 @@ class ReceivedMessageBox extends StatelessWidget {
   final void Function() onEdit;
 
   const ReceivedMessageBox({
-    Key? key,
+    super.key,
     required this.message,
     required this.onBotCommandClick,
     required this.scrollToMessage,
@@ -32,7 +32,7 @@ class ReceivedMessageBox extends StatelessWidget {
     this.messageReplyBrief,
     this.pattern,
     required this.onEdit,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

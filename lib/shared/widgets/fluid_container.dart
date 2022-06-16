@@ -7,10 +7,10 @@ class FluidContainerWidget extends StatelessWidget {
   final bool showStandardContainer;
 
   const FluidContainerWidget({
-    Key? key,
+    super.key,
     required this.child,
     this.showStandardContainer = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

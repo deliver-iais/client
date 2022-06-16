@@ -4,7 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:marquee/marquee.dart';
 
 class AudioPlayerAppBar extends StatefulWidget {
-  const AudioPlayerAppBar({Key? key}) : super(key: key);
+  const AudioPlayerAppBar({super.key});
 
   @override
   State<AudioPlayerAppBar> createState() => _AudioPlayerAppBarState();

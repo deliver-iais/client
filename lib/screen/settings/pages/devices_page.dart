@@ -11,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class DevicesPage extends StatefulWidget {
-  const DevicesPage({Key? key}) : super(key: key);
+  const DevicesPage({super.key});
 
   @override
   DevicesPageState createState() => DevicesPageState();

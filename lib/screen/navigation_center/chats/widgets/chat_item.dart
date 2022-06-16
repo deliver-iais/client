@@ -34,10 +34,9 @@ class ChatItem extends StatefulWidget {
   final Room room;
   final bool isInRoom;
 
-  ChatItem({Key? key, required RoomWrapper roomWrapper})
+  ChatItem({super.key, required RoomWrapper roomWrapper})
       : room = roomWrapper.room,
-        isInRoom = roomWrapper.isInRoom,
-        super(key: key);
+        isInRoom = roomWrapper.isInRoom;
 
   @override
   ChatItemState createState() => ChatItemState();

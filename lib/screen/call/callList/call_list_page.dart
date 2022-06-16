@@ -22,7 +22,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class CallListPage extends StatefulWidget {
-  const CallListPage({Key? key}) : super(key: key);
+  const CallListPage({super.key});
 
   @override
   CallListPageState createState() => CallListPageState();

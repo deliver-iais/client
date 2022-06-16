@@ -12,11 +12,11 @@ class FormattedTextFieldWidget extends StatefulWidget {
   final void Function(GlobalKey<FormState>) setFormKey;
 
   const FormattedTextFieldWidget({
-    Key? key,
+    super.key,
     required this.formField,
     required this.formResult,
     required this.setFormKey,
-  }) : super(key: key);
+  });
 
   @override
   State<FormattedTextFieldWidget> createState() =>

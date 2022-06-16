@@ -279,11 +279,11 @@ class AnimatedEmoji extends StatefulWidget {
   static final _authRepo = GetIt.I.get<AuthRepo>();
 
   const AnimatedEmoji({
-    Key? key,
+    super.key,
     required this.message,
     required this.isSeen,
     required this.colorScheme,
-  }) : super(key: key);
+  });
 
   static bool isAnimatedEmojiMessage(Message message) {
     if (message.type != MessageType.TEXT) return false;
@@ -413,7 +413,7 @@ class AnimatedEmojiState extends State<AnimatedEmoji>
 class AnimationLocal extends StatelessWidget {
   final String path;
 
-  const AnimationLocal({Key? key, required this.path}) : super(key: key);
+  const AnimationLocal({super.key, required this.path});
 
   @override
   Widget build(BuildContext context) {

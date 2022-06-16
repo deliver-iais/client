@@ -20,7 +20,7 @@ import 'package:rxdart/rxdart.dart';
 import '../../../shared/widgets/settings_ui/box_ui.dart';
 
 class ThemeSettingsPage extends StatefulWidget {
-  const ThemeSettingsPage({Key? key}) : super(key: key);
+  const ThemeSettingsPage({super.key});
 
   @override
   State<ThemeSettingsPage> createState() => _ThemeSettingsPageState();

@@ -15,12 +15,12 @@ class InVideoCallPage extends StatefulWidget {
   final Uid roomUid;
 
   const InVideoCallPage({
-    Key? key,
+    super.key,
     required this.localRenderer,
     required this.remoteRenderer,
     required this.roomUid,
     required this.hangUp,
-  }) : super(key: key);
+  });
 
   @override
   InVideoCallPageState createState() => InVideoCallPageState();

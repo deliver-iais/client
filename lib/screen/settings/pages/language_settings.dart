@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class LanguageSettingsPage extends StatefulWidget {
-  const LanguageSettingsPage({Key? key}) : super(key: key);
+  const LanguageSettingsPage({super.key});
 
   @override
   LanguageSettingsPageState createState() => LanguageSettingsPageState();

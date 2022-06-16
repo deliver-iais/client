@@ -14,18 +14,18 @@ class AudioProgressIndicator extends StatefulWidget {
   final CustomColorScheme? colorScheme;
 
   const AudioProgressIndicator({
-    Key? key,
+    super.key,
     required this.audioUuid,
     required this.duration,
     this.colorScheme,
-  }) : super(key: key);
+  });
 
   @override
   AudioProgressIndicatorState createState() => AudioProgressIndicatorState();
 }
 
 class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
-  final audioPlayerService = GetIt.I.get<AudioService>();
+  static final audioPlayerService = GetIt.I.get<AudioService>();
 
   @override
   Widget build(BuildContext context) {
@@ -85,8 +85,10 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
                         overlayShape: SliderComponentShape.noOverlay,
                       ),
                       child: Slider(
-                        value: min(duration.data!.inMilliseconds / 1000,
-                            widget.duration,),
+                        value: min(
+                          duration.data!.inMilliseconds / 1000,
+                          widget.duration,
+                        ),
                         max: widget.duration + 1,
                         onChanged: (value) {
                           setState(() {

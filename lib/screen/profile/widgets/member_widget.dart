@@ -17,24 +17,23 @@ import 'package:get_it/get_it.dart';
 class MucMemberWidget extends StatefulWidget {
   final Uid mucUid;
 
-  const MucMemberWidget({Key? key, required this.mucUid}) : super(key: key);
+  const MucMemberWidget({super.key, required this.mucUid});
 
   @override
   MucMemberWidgetState createState() => MucMemberWidgetState();
 }
 
 class MucMemberWidgetState extends State<MucMemberWidget> {
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _routingServices = GetIt.I.get<RoutingService>();
-  final _mucRepo = GetIt.I.get<MucRepo>();
-
-  final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _routingServices = GetIt.I.get<RoutingService>();
+  static final _mucRepo = GetIt.I.get<MucRepo>();
+  static final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
 
   static const String CHANGE_ROLE = "changeRole";
   static const String DELETE = "delete";
   static const String BAN = "ban";
 
-  final I18N _i18n = GetIt.I.get<I18N>();
   MucRole _myRoleInThisRoom = MucRole.NONE;
 
   @override

@@ -16,13 +16,13 @@ class AudioAndDocumentFileUI extends StatefulWidget {
   final CustomColorScheme colorScheme;
 
   const AudioAndDocumentFileUI({
-    Key? key,
+    super.key,
     required this.message,
     required this.maxWidth,
     required this.isSender,
     required this.colorScheme,
     required this.isSeen,
-  }) : super(key: key);
+  });
 
   @override
   AudioAndDocumentFileUIState createState() => AudioAndDocumentFileUIState();
@@ -73,7 +73,10 @@ class AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
                         ),
                       ],
                     ),
-                    FileDetails(file: file,colorScheme: widget.colorScheme,)
+                    FileDetails(
+                      file: file,
+                      colorScheme: widget.colorScheme,
+                    )
                   ],
                 ),
               ),

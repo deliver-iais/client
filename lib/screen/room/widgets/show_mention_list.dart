@@ -8,20 +8,20 @@ import 'package:get_it/get_it.dart';
 const HEIGHT = 52.0;
 
 class ShowMentionList extends StatelessWidget {
+  static final _mucRepo = GetIt.I.get<MucRepo>();
+
   final void Function(String) onSelected;
   final String roomUid;
   final String query;
   final int mentionSelectedIndex;
 
-  ShowMentionList({
-    Key? key,
+  const ShowMentionList({
+    super.key,
     this.query = "-",
     required this.onSelected,
     required this.roomUid,
     required this.mentionSelectedIndex,
-  }) : super(key: key);
-
-  final _mucRepo = GetIt.I.get<MucRepo>();
+  });
 
   @override
   Widget build(BuildContext context) {

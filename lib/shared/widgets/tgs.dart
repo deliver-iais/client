@@ -19,25 +19,23 @@ class Tgs extends StatefulWidget {
 
   const Tgs.asset(
     this.assetsPath, {
-    Key? key,
+    super.key,
     this.controller,
     this.repeat = true,
     this.autoPlay = true,
     this.width = 120,
     this.height = 120,
-  })  : file = null,
-        super(key: key);
+  }) : file = null;
 
   const Tgs.file(
     this.file, {
-    Key? key,
+    super.key,
     required this.controller,
     this.repeat = true,
     this.autoPlay = true,
     this.width = 120,
     this.height = 120,
-  })  : assetsPath = null,
-        super(key: key);
+  }) : assetsPath = null;
 
   @override
   TgsState createState() => TgsState();

@@ -10,8 +10,7 @@ class CustomNotificationSoundSelection extends StatefulWidget {
 
   final AudioPlayer _player = AudioPlayer(playerId: "CustomNotification");
 
-  CustomNotificationSoundSelection({Key? key, required this.roomUid})
-      : super(key: key);
+  CustomNotificationSoundSelection({super.key, required this.roomUid});
 
   @override
   CustomNotificationSoundSelectionState createState() =>

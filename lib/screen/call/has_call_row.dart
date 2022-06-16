@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class HasCallRow extends StatefulWidget {
-  const HasCallRow({Key? key}) : super(key: key);
+  const HasCallRow({super.key});
 
   @override
   HasCallRowState createState() => HasCallRowState();

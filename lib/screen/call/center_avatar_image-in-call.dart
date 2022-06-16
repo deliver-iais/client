@@ -11,7 +11,7 @@ import 'package:get_it/get_it.dart';
 class CenterAvatarInCall extends StatefulWidget {
   final Uid roomUid;
 
-  const CenterAvatarInCall({Key? key, required this.roomUid}) : super(key: key);
+  const CenterAvatarInCall({super.key, required this.roomUid});
 
   @override
   CenterAvatarInCallState createState() => CenterAvatarInCallState();

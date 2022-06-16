@@ -64,7 +64,7 @@ class InputMessage extends StatefulWidget {
   final Function() deleteSelectedMessage;
 
   const InputMessage({
-    Key? key,
+    super.key,
     required this.currentRoom,
     required this.scrollToLastSentMessage,
     required this.focusNode,
@@ -77,21 +77,24 @@ class InputMessage extends StatefulWidget {
     this.sendForwardMessage,
     this.editableMessage,
     this.showMentionList,
-  }) : super(key: key);
+  });
 
   @override
   InputMessageWidgetState createState() => InputMessageWidgetState();
 }
 
 class InputMessageWidgetState extends State<InputMessage> {
-  MessageRepo messageRepo = GetIt.I.get<MessageRepo>();
-  I18N i18n = GetIt.I.get<I18N>();
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _uxService = GetIt.I.get<UxService>();
-  final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
-  final _logger = GetIt.I.get<Logger>();
-  final checkPermission = GetIt.I.get<CheckPermissionsService>();
-  final _audioPlayerService = GetIt.I.get<AudioService>();
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _uxService = GetIt.I.get<UxService>();
+  static final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
+  static final _logger = GetIt.I.get<Logger>();
+  static final checkPermission = GetIt.I.get<CheckPermissionsService>();
+  static final _audioPlayerService = GetIt.I.get<AudioService>();
+  static final _mucRepo = GetIt.I.get<MucRepo>();
+  static final _botRepo = GetIt.I.get<BotRepo>();
+
   late Room currentRoom;
   bool autofocus = false;
   double x = 0.0;
@@ -122,8 +125,6 @@ class InputMessageWidgetState extends State<InputMessage> {
   int mentionSelectedIndex = 0;
   int botCommandSelectedIndex = 0;
   bool _shouldSynthesize = true;
-  final _mucRepo = GetIt.I.get<MucRepo>();
-  final _botRepo = GetIt.I.get<BotRepo>();
   final record = Record();
 
   final ValueNotifier<TextDirection> _textDir =
@@ -168,10 +169,10 @@ class InputMessageWidgetState extends State<InputMessage> {
     isTypingActivitySubject
         .throttle((_) => TimerStream(true, const Duration(seconds: 10)))
         .listen((activityType) {
-      messageRepo.sendActivity(widget.currentRoom.uid.asUid(), activityType);
+      _messageRepo.sendActivity(widget.currentRoom.uid.asUid(), activityType);
     });
     noActivitySubject.listen((event) {
-      messageRepo.sendActivity(widget.currentRoom.uid.asUid(), event);
+      _messageRepo.sendActivity(widget.currentRoom.uid.asUid(), event);
     });
 
     _showSendIcon
@@ -397,7 +398,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                                               },
                                             ),
                                             hintText:
-                                                i18n.get("write_a_message"),
+                                                _i18n.get("write_a_message"),
                                           ),
                                           textInputAction:
                                               TextInputAction.newline,
@@ -602,7 +603,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                                 if (started) {
                                   try {
                                     unawaited(
-                                      messageRepo.sendFileMessage(
+                                      _messageRepo.sendFileMessage(
                                         widget.currentRoom.uid.asUid(),
                                         File(res!, res),
                                       ),
@@ -918,7 +919,7 @@ class InputMessageWidgetState extends State<InputMessage> {
 
     if (text.isNotEmpty) {
       if (_replyMessageId > 0) {
-        messageRepo.sendTextMessage(
+        _messageRepo.sendTextMessage(
           currentRoom.uid.asUid(),
           text,
           replyId: _replyMessageId,
@@ -926,14 +927,14 @@ class InputMessageWidgetState extends State<InputMessage> {
         widget.resetRoomPageDetails!();
       } else {
         if (widget.editableMessage != null) {
-          messageRepo.editTextMessage(
+          _messageRepo.editTextMessage(
             currentRoom.uid.asUid(),
             widget.editableMessage!,
             widget.textController.text,
           );
           widget.resetRoomPageDetails!();
         } else {
-          messageRepo.sendTextMessage(currentRoom.uid.asUid(), text);
+          _messageRepo.sendTextMessage(currentRoom.uid.asUid(), text);
         }
       }
 

@@ -9,10 +9,11 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class AutoDownloadSettingsPage extends StatefulWidget {
-  const AutoDownloadSettingsPage({Key? key}) : super(key: key);
+  const AutoDownloadSettingsPage({super.key});
 
   @override
-  State<AutoDownloadSettingsPage> createState() => _AutoDownloadSettingsPageState();
+  State<AutoDownloadSettingsPage> createState() =>
+      _AutoDownloadSettingsPageState();
 }
 
 class _AutoDownloadSettingsPageState extends State<AutoDownloadSettingsPage> {

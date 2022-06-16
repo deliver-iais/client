@@ -8,13 +8,13 @@ class ShakeWidget extends StatefulWidget {
   final Duration animationDuration;
 
   const ShakeWidget({
-    Key? key,
+    super.key,
     required this.child,
     this.horizontalPadding = 30,
     this.animationRange = 24,
     required this.controller,
     this.animationDuration = const Duration(milliseconds: 400),
-  }) : super(key: key);
+  });
 
   @override
   ShakeWidgetState createState() => ShakeWidgetState();

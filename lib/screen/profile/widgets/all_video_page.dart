@@ -22,12 +22,12 @@ class AllVideoPage extends StatefulWidget {
   final int initIndex;
   final int videoCount;
 
-  const AllVideoPage(
-    Key? key, {
+  const AllVideoPage({
+    super.key,
     required this.roomUid,
     required this.initIndex,
     required this.videoCount,
-  }) : super(key: key);
+  });
 
   @override
   State<AllVideoPage> createState() => _AllVideoPageState();

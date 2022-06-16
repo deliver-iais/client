@@ -52,7 +52,7 @@ import 'package:url_launcher/url_launcher.dart';
 class ProfilePage extends StatefulWidget {
   final Uid roomUid;
 
-  const ProfilePage(this.roomUid, {Key? key}) : super(key: key);
+  const ProfilePage(this.roomUid, {super.key});
 
   @override
   ProfilePageState createState() => ProfilePageState();

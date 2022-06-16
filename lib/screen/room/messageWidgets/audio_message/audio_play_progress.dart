@@ -12,14 +12,14 @@ class AudioPlayProgress extends StatelessWidget {
   final File audio;
   final String audioUuid;
   final CustomColorScheme colorScheme;
-  final _audioPlayerService = GetIt.I.get<AudioService>();
+  static final _audioPlayerService = GetIt.I.get<AudioService>();
 
-  AudioPlayProgress({
-    Key? key,
+  const AudioPlayProgress({
+    super.key,
     required this.audioUuid,
     required this.audio,
     required this.colorScheme,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

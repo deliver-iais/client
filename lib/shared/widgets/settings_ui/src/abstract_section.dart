@@ -4,5 +4,5 @@ abstract class AbstractSection extends StatelessWidget {
   final String? title;
   final EdgeInsetsGeometry? titlePadding;
 
-  const AbstractSection({Key? key, this.title, this.titlePadding}) : super(key: key);
+  const AbstractSection({super.key, this.title, this.titlePadding});
 }

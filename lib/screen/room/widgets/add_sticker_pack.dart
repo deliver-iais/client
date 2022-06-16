@@ -16,8 +16,8 @@
 //   var _routingService = GetIt.I.get<RoutingService>();
 //
 //   AddStickerPack({
-//     Key key,
-//   }) : super(key: key);
+//     super.key,
+//   });
 //
 //   AppLocalization _i18n;
 //

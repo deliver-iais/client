@@ -10,12 +10,12 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class BotAppbarTitle extends StatelessWidget {
-  final _routingService = GetIt.I.get<RoutingService>();
+  static final _routingService = GetIt.I.get<RoutingService>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+
   final Uid botUid;
 
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-
-  BotAppbarTitle({Key? key, required this.botUid}) : super(key: key);
+  const BotAppbarTitle({super.key, required this.botUid});
 
   @override
   Widget build(BuildContext context) {

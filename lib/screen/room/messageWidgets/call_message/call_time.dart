@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class CallTime extends StatelessWidget {
   final DateTime time;
 
-  const CallTime({Key? key, required this.time}) : super(key: key);
+  const CallTime({super.key, required this.time});
 
   @override
   Widget build(BuildContext context) {

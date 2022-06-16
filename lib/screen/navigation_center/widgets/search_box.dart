@@ -11,11 +11,11 @@ class SearchBox extends StatefulWidget {
   final TextEditingController? controller;
 
   const SearchBox({
-    Key? key,
+    super.key,
     required this.onChange,
     this.onCancel,
     this.controller,
-  }) : super(key: key);
+  });
 
   @override
   SearchBoxState createState() => SearchBoxState();

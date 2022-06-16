@@ -8,20 +8,21 @@ import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 class SearchBoxAndListWidget extends StatelessWidget {
+  static final roomRepo = GetIt.I.get<RoomRepo>();
+  static final authRepo = GetIt.I.get<AuthRepo>();
+  static final queryTermDebouncedSubject = BehaviorSubject<String>.seeded("");
+
   final Widget Function(List<Uid>) listWidget;
   final Widget emptyWidget;
 
   const SearchBoxAndListWidget({
-    Key? key,
+    super.key,
     required this.listWidget,
     required this.emptyWidget,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    final queryTermDebouncedSubject = BehaviorSubject<String>.seeded("");
-    final roomRepo = GetIt.I.get<RoomRepo>();
-    final authRepo = GetIt.I.get<AuthRepo>();
     return Column(
       children: [
         SearchBox(

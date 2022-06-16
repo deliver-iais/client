@@ -15,12 +15,12 @@ class FormResultWidget extends StatefulWidget {
   final CustomColorScheme colorScheme;
 
   const FormResultWidget({
-    Key? key,
+    super.key,
     required this.message,
     required this.isSeen,
     required this.colorScheme,
     required this.isSender,
-  }) : super(key: key);
+  });
 
   @override
   FormResultWidgetState createState() => FormResultWidgetState();

@@ -22,11 +22,11 @@ class LiveLocationMessageWidget extends StatefulWidget {
 
   const LiveLocationMessageWidget(
     this.message, {
-    Key? key,
+    super.key,
     required this.isSender,
     required this.isSeen,
     required this.colorScheme,
-  }) : super(key: key);
+  });
 
   @override
   LiveLocationMessageWidgetState createState() =>
@@ -34,8 +34,8 @@ class LiveLocationMessageWidget extends StatefulWidget {
 }
 
 class LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
-  final _liveLocationRepo = GetIt.I.get<LiveLocationRepo>();
-  final I18N _i18n = GetIt.I.get<I18N>();
+  static final _liveLocationRepo = GetIt.I.get<LiveLocationRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
 
   late LiveLocation liveLocation;
 

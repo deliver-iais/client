@@ -27,8 +27,7 @@ import 'package:rxdart/rxdart.dart';
 class AccountSettings extends StatefulWidget {
   final bool forceToSetUsernameAndName;
 
-  const AccountSettings({Key? key, this.forceToSetUsernameAndName = false})
-      : super(key: key);
+  const AccountSettings({super.key, this.forceToSetUsernameAndName = false});
 
   @override
   AccountSettingsState createState() => AccountSettingsState();

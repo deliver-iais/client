@@ -14,7 +14,7 @@ class CropImage extends StatefulWidget {
   final String imagePath;
   final void Function(String) crop;
 
-  const CropImage(this.imagePath, this.crop, {Key? key}) : super(key: key);
+  const CropImage(this.imagePath, this.crop, {super.key});
 
   @override
   State<CropImage> createState() => _CropImageState();

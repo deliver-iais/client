@@ -18,8 +18,11 @@ class SelectiveContactsList extends StatefulWidget {
 
   final bool isChannel;
 
-  const SelectiveContactsList({Key? key, required this.isChannel, this.mucUid})
-      : super(key: key);
+  const SelectiveContactsList({
+    super.key,
+    required this.isChannel,
+    this.mucUid,
+  });
 
   @override
   SelectiveContactsListState createState() => SelectiveContactsListState();

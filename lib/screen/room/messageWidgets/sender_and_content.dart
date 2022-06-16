@@ -20,28 +20,27 @@ class SenderAndContent extends StatelessWidget {
   final Color? highlightColor;
 
   const SenderAndContent({
-    Key? key,
+    super.key,
     required this.messageSRF,
     this.maxWidth,
     this.iconData,
     this.expandContent = true,
     this.showBackgroundColor = false,
     this.highlightColor,
-  }) : super(key: key);
+  });
 
   SenderAndContent.viaMessage({
-    Key? key,
+    super.key,
     required Message message,
     this.maxWidth,
     this.iconData,
     this.expandContent = true,
     this.showBackgroundColor = false,
     this.highlightColor,
-  })  : messageSRF =
+  }) : messageSRF =
             _messageExtractorServices.extractMessageSimpleRepresentative(
           _messageExtractorServices.extractProtocolBufferMessage(message),
-        ),
-        super(key: key);
+        );
 
   @override
   Widget build(BuildContext context) {

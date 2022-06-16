@@ -19,12 +19,12 @@ class TwoStepVerificationPage extends StatefulWidget {
   final AccessTokenRes accessTokenRes;
 
   const TwoStepVerificationPage({
-    Key? key,
+    super.key,
     required this.navigationToHomePage,
     required this.accessTokenRes,
     this.verificationCode,
     this.token,
-  }) : super(key: key);
+  });
 
   @override
   State<TwoStepVerificationPage> createState() =>

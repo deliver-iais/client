@@ -56,7 +56,7 @@ class BuildMessageBox extends StatefulWidget {
   final BehaviorSubject<bool> selectMultiMessageSubject;
 
   const BuildMessageBox({
-    Key? key,
+    super.key,
     required this.message,
     this.messageBefore,
     required this.roomId,
@@ -74,7 +74,7 @@ class BuildMessageBox extends StatefulWidget {
     required this.addForwardMessage,
     this.menuDisabled = false,
     this.messageReplyBrief,
-  }) : super(key: key);
+  });
 
   @override
   State<BuildMessageBox> createState() => _BuildMessageBoxState();

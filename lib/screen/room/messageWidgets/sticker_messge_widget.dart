@@ -11,11 +11,11 @@ class StickerMessageWidget extends StatefulWidget {
 
   const StickerMessageWidget(
     this.message, {
-    Key? key,
+    super.key,
     required this.colorScheme,
     required this.isSender,
     required this.isSeen,
-  }) : super(key: key);
+  });
 
   @override
   StickerMessageWidgetState createState() => StickerMessageWidgetState();

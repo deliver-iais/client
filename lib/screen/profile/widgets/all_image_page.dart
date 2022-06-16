@@ -40,8 +40,8 @@ class AllImagePage extends StatefulWidget {
   final bool isSingleImage;
   final void Function()? onEdit;
 
-  const AllImagePage(
-    Key? key, {
+  const AllImagePage({
+    super.key,
     required this.roomUid,
     required this.messageId,
     this.initIndex,
@@ -49,7 +49,7 @@ class AllImagePage extends StatefulWidget {
     this.message,
     this.isSingleImage = false,
     this.onEdit,
-  }) : super(key: key);
+  });
 
   @override
   State<AllImagePage> createState() => _AllImagePageState();

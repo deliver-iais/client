@@ -12,11 +12,11 @@ class RichFormattedTextFieldWidget extends StatefulWidget {
   final void Function(GlobalKey<FormState>) setFormKey;
 
   const RichFormattedTextFieldWidget({
-    Key? key,
+    super.key,
     required this.formField,
     required this.formResult,
     required this.setFormKey,
-  }) : super(key: key);
+  });
 
   @override
   State<RichFormattedTextFieldWidget> createState() =>
@@ -96,8 +96,9 @@ class _RichFormattedTextFieldWidgetState
                             : null,
                         controller: _textControllerList[i],
                         decoration: InputDecoration(
-                            hintText: _richFormattedTextField
-                                .partitions[i].placeholder,),
+                          hintText:
+                              _richFormattedTextField.partitions[i].placeholder,
+                        ),
                       ),
                     ),
                   ),

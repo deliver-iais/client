@@ -27,12 +27,12 @@ class BotFormMessage extends StatefulWidget {
   final CustomColorScheme colorScheme;
 
   const BotFormMessage({
-    Key? key,
+    super.key,
     required this.message,
     required this.isSeen,
     required this.colorScheme,
     required this.isSender,
-  }) : super(key: key);
+  });
 
   @override
   BotFormMessageState createState() => BotFormMessageState();

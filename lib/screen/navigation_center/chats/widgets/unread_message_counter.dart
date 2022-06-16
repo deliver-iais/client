@@ -5,12 +5,15 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class UnreadMessageCounterWidget extends StatelessWidget {
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
   final String roomUid;
   final int lastMessageId;
-  final _roomRepo = GetIt.I.get<RoomRepo>();
 
-  UnreadMessageCounterWidget(this.roomUid, this.lastMessageId, {Key? key})
-      : super(key: key);
+  const UnreadMessageCounterWidget(
+    this.roomUid,
+    this.lastMessageId, {
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {

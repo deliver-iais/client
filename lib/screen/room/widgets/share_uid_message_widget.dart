@@ -14,23 +14,22 @@ import 'package:get_it/get_it.dart';
 
 class ShareUidMessageWidget extends StatelessWidget {
   static final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
+  static final _mucRepo = GetIt.I.get<MucRepo>();
+  static final _routingServices = GetIt.I.get<RoutingService>();
+  static final _i18n = GetIt.I.get<I18N>();
 
   final Message message;
   final bool isSender;
   final bool isSeen;
   final CustomColorScheme colorScheme;
 
-  final _mucRepo = GetIt.I.get<MucRepo>();
-  final _routingServices = GetIt.I.get<RoutingService>();
-  final _i18n = GetIt.I.get<I18N>();
-
-  ShareUidMessageWidget({
-    Key? key,
+  const ShareUidMessageWidget({
+    super.key,
     required this.message,
     required this.isSender,
     required this.colorScheme,
     required this.isSeen,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

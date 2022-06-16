@@ -24,24 +24,23 @@ class VideoMessage extends StatefulWidget {
   final CustomColorScheme colorScheme;
 
   const VideoMessage({
-    Key? key,
+    super.key,
     required this.message,
     required this.maxWidth,
     required this.minWidth,
     required this.isSender,
     required this.colorScheme,
     required this.isSeen,
-  }) : super(key: key);
+  });
 
   @override
   VideoMessageState createState() => VideoMessageState();
 }
 
 class VideoMessageState extends State<VideoMessage> {
-  final _fileRepo = GetIt.I.get<FileRepo>();
-
-  final _fileServices = GetIt.I.get<FileService>();
-  final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _fileServices = GetIt.I.get<FileService>();
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
 
   @override
   void initState() {

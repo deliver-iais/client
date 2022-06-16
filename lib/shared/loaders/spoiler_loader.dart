@@ -13,12 +13,11 @@ class SpoilerLoader extends StatelessWidget {
 
   SpoilerLoader(
     this.text, {
-    Key? key,
+    super.key,
     this.disableSpoilerReveal = false,
     this.foreground,
     TextStyle? style,
-  })  : style = style ?? const TextStyle(),
-        super(key: key);
+  }) : style = style ?? const TextStyle();
 
   @override
   Widget build(BuildContext context) {
