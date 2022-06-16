@@ -87,8 +87,8 @@ class SyncContact {
                   ),
                 ),
                 const SizedBox(width: 8),
-                const Text(
-                  "Syncing contacts",
+                Text(
+                  _i18n.get("syncing_contact"),
                 ),
               ],
             ),

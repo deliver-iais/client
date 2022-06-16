@@ -376,5 +376,6 @@
   "you_already_in_call": "شما هم اکنون در حال تماس با یک فرد دیگر هستید",
   "you_create_channel": "کانال را ساختید.",
   "you_create_group": "گروه را ساختید.",
-  "your_password_update": "رمز شما بروز شد."
+  "your_password_update": "رمز شما بروز شد.",
+  "syncing_contact": "همگام سازی مخاطبین"
 }
