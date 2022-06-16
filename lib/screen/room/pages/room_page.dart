@@ -1138,8 +1138,8 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   bool _isPendingMessage(int index) {
-    return _itemCount > room.lastMessageId &&
-        _itemCount - index <= pendingMessages.length;
+    return _itemCount+room.firstMessageId > room.lastMessageId &&
+        _itemCount+room.firstMessageId - index <= pendingMessages.length;
   }
 
   Future<int?> _timeAt(int index) async {
