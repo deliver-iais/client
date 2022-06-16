@@ -119,7 +119,9 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                       snapshot.data != null &&
                       snapshot.data!.isNotEmpty) {
                     snapshot.data!.removeWhere(
-                      (element) => _authRepo.isCurrentUser(element.uid),
+                      (element) =>
+                          _authRepo.isCurrentUser(element.uid) ||
+                          element.nationalNumber == "0",
                     );
                     contacts = snapshot.data!;
                     items ??= contacts;

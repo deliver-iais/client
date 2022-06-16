@@ -49,6 +49,7 @@ class _ContactsPageState extends State<ContactsPage> {
 
   @override
   Widget build(BuildContext context) {
+    print("build");
     return Scaffold(
       appBar: UltimateAppBar(
         child: AppBar(
@@ -62,7 +63,10 @@ class _ContactsPageState extends State<ContactsPage> {
         child: StreamBuilder<List<Contact>>(
           stream: _contactRepo.watchAll(),
           builder: (context, snapshot) {
-            final contacts = snapshot.data ?? [];
+            var contacts = snapshot.data ?? [];
+            contacts = contacts
+                .where((element) => element.nationalNumber != "0")
+                .toList();
             if (!snapshot.hasData) {
               return const Center(
                 child: CircularProgressIndicator(),
@@ -93,7 +97,7 @@ class _ContactsPageState extends State<ContactsPage> {
                                 return const Divider();
                               }
                             },
-                            itemCount: snapshot.data!.length,
+                            itemCount: contacts.length,
                             itemBuilder: (ctx, index) {
                               final c = contacts[index];
                               if (searchHasResult(c)) {
