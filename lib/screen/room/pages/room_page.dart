@@ -1133,7 +1133,7 @@ class _RoomPageState extends State<RoomPage> {
 
   Future<Message?> _messageAtIndex(int index, {useCache = true}) async {
     return _isPendingMessage(index)
-        ? pendingMessages[_itemCount - index - 1].msg
+        ? pendingMessages[_itemCount+room.firstMessageId - index - 1].msg
         : await _getMessage(index + 1, useCache: useCache);
   }
 
