@@ -1,7 +1,9 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/file.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
+import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -10,6 +12,8 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/attach_location.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
+import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -54,7 +58,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
         label = _i18n.get("get_access_phone_number");
         break;
       case PrivateDataType.USERNAME:
-        _i18n.get("get_access_username");
+        label = _i18n.get("get_access_username");
         break;
     }
     return Column(
@@ -133,6 +137,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
               message,
               isSender: isSender,
               isSeen: isSeen,
+              needsPositioned: false,
               needsPadding: true,
             )
           ],
@@ -145,74 +150,58 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
     SharePrivateDataRequest sharePrivateDataRequest,
     BuildContext context,
   ) async {
-    // TODO(dansi): Update models of file type filter.
-    // final res = <File>[];
-    // final typeGroup = <XTypeGroup>[];
+    final res = <File>[];
+    final types = sharePrivateDataRequest.fileTypeFilter.memeTypeFilter;
+    if (isLinux) {
+      final typeGroup = <XTypeGroup>[];
+      for (final type in types) {
+        typeGroup
+            .add(XTypeGroup(label: type.superType, mimeTypes: [type.subType]));
+      }
 
-    // if (isLinux) {
-    //   if (sharePrivateDataRequest.fileTypeFilter.canPickAudios) {
-    //     typeGroup
-    //       ..add(XTypeGroup(label: 'music'))
-    //       ..add(XTypeGroup(label: 'audio'));
-    //   }
-    //   if (sharePrivateDataRequest.fileTypeFilter.canPickDocuments) {
-    //     typeGroup.add(XTypeGroup(extensions: ["pdf,docx,xlsx,xls,text,txt"]));
-    //   }
-    //   if (sharePrivateDataRequest.fileTypeFilter.canPickVideos) {
-    //     typeGroup.add(XTypeGroup(label: 'videos'));
-    //   }
-    //   if (sharePrivateDataRequest.fileTypeFilter.canPickImages) {
-    //     typeGroup.add(XTypeGroup(label: 'images'));
-    //   }
-    //
-    //   final result = await openFiles(acceptedTypeGroups: typeGroup);
-    //   for (final file in result) {
-    //     res.add(
-    //       File(
-    //         file.path,
-    //         file.name,
-    //         extension: file.mimeType,
-    //         size: await file.length(),
-    //       ),
-    //     );
-    //   }
-    // } else {
-    //   var type = FileType.any;
-    //   if (sharePrivateDataRequest.fileTypeFilter.canPickDocuments) {
-    //     type = FileType.custom;
-    //   } else if (sharePrivateDataRequest.fileTypeFilter.canPickImages) {
-    //     type = FileType.image;
-    //   } else if (sharePrivateDataRequest.fileTypeFilter.canPickAudios) {
-    //     type = FileType.audio;
-    //   } else if (sharePrivateDataRequest.fileTypeFilter.canPickVideos) {
-    //     type = FileType.video;
-    //   }
-    //   final result = await FilePicker.platform.pickFiles(
-    //     type: type,
-    //     allowedExtensions:
-    //         type == FileType.custom ? ["pdf,docx,xlsx,xls,text,txt"] : [],
-    //   );
-    //
-    //   if (result != null) {
-    //     for (final file in result.files) {
-    //       res.add(
-    //         File(
-    //           isWeb
-    //               ? Uri.dataFromBytes(file.bytes!.toList()).toString()
-    //               : file.path!,
-    //           file.name,
-    //           size: file.size,
-    //           extension: file.extension,
-    //         ),
-    //       );
-    //     }
-    //   }
-    // }
-    // showCaptionDialog(
-    //   roomUid: message.roomUid.asUid(),
-    //   context: context,
-    //   files: res,
-    // );
+      final result = await openFiles(acceptedTypeGroups: typeGroup);
+      for (final file in result) {
+        res.add(
+          File(
+            file.path,
+            file.name,
+            extension: file.mimeType,
+            size: await file.length(),
+          ),
+        );
+      }
+    } else {
+      final type = types.isEmpty ? FileType.any : FileType.custom;
+      final allowedExtensions = <String>[];
+      for (final type in types) {
+        allowedExtensions.add(type.subType);
+      }
+
+      final result = await FilePicker.platform.pickFiles(
+        type: type,
+        allowedExtensions: allowedExtensions,
+      );
+
+      if (result != null) {
+        for (final file in result.files) {
+          res.add(
+            File(
+              isWeb
+                  ? Uri.dataFromBytes(file.bytes!.toList()).toString()
+                  : file.path!,
+              file.name,
+              size: file.size,
+              extension: file.extension,
+            ),
+          );
+        }
+      }
+    }
+    showCaptionDialog(
+      roomUid: message.roomUid.asUid(),
+      context: context,
+      files: res,
+    );
   }
 
   void _showGetAccessPrivateData(

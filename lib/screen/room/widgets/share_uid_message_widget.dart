@@ -3,9 +3,9 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -13,6 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class ShareUidMessageWidget extends StatelessWidget {
+  static final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
+
   final Message message;
   final bool isSender;
   final bool isSeen;
@@ -85,81 +87,13 @@ class ShareUidMessageWidget extends StatelessWidget {
                 if (muc != null) {
                   _routingServices.openRoom(_shareUid.uid.asString());
                 } else {
-                  showFloatingModalBottomSheet(
-                    context: context,
-                    builder: (context) => Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          CircleAvatarWidget(
-                            _shareUid.uid,
-                            40,
-                            forceText: _shareUid.name,
-                          ),
-                          Text(
-                            _shareUid.name,
-                            style: Theme.of(context).textTheme.headline6,
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              MaterialButton(
-                                onPressed: () => Navigator.of(context).pop(),
-                                child: Text(_i18n.get("skip")),
-                              ),
-                              MaterialButton(
-                                onPressed: () async {
-                                  final navigatorState = Navigator.of(context);
-                                  if ((_shareUid.uid.category ==
-                                          Categories.GROUP ||
-                                      _shareUid.uid.category ==
-                                          Categories.CHANNEL)) {
-                                    final muc = await _mucRepo
-                                        .getMuc(_shareUid.uid.asString());
-                                    if (muc == null) {
-                                      if (_shareUid.uid.category ==
-                                          Categories.GROUP) {
-                                        final res = await _mucRepo.joinGroup(
-                                          _shareUid.uid,
-                                          _shareUid.joinToken,
-                                        );
-                                        if (res != null) {
-                                          navigatorState.pop();
-                                          _routingServices.openRoom(
-                                            _shareUid.uid.asString(),
-                                          );
-                                        }
-                                      } else {
-                                        final res = await _mucRepo.joinChannel(
-                                          _shareUid.uid,
-                                          _shareUid.joinToken,
-                                        );
-                                        if (res != null) {
-                                          navigatorState.pop();
-                                          _routingServices.openRoom(
-                                            _shareUid.uid.asString(),
-                                          );
-                                        }
-                                      }
-                                    } else {
-                                      _routingServices
-                                          .openRoom(_shareUid.uid.asString());
-                                    }
-                                  } else {
-                                    _routingServices
-                                        .openRoom(_shareUid.uid.asString());
-                                  }
-                                },
-                                child: Text(_i18n.get("join")),
-                              )
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ).ignore();
+                  // ignore: use_build_context_synchronously
+                  await _urlHandlerService.handleJoin(
+                    context,
+                    _shareUid.uid,
+                    _shareUid.joinToken,
+                    name: _shareUid.name,
+                  );
                 }
               } else {
                 _routingServices.openRoom(_shareUid.uid.asString());

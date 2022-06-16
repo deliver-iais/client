@@ -56,7 +56,11 @@ class SeenStatus extends StatelessWidget {
         future: messageRepo.getPendingMessage(messagePacketId),
         builder: ((c, pm) {
           if (pm.hasData && pm.data != null && pm.data!.failed) {
-            return const Icon(Icons.warning, color: Colors.red, size: 15);
+            return Icon(
+              Icons.warning,
+              color: theme.colorScheme.error,
+              size: 15,
+            );
           } else {
             return pendingMessage;
           }

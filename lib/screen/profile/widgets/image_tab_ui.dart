@@ -94,7 +94,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
-          width: widget.selectedMedia.isEmpty ? 2 : 6,
+          width: widget.selectedMedia.contains(media) ? 10 : 2,
         ),
       ),
       child: Stack(
@@ -138,8 +138,8 @@ class _ImageTabUiState extends State<ImageTabUi> {
               child: IconButton(
                 onPressed: () => widget.addSelectedMedia(media),
                 icon: Container(
-                  width: 25,
-                  height: 25,
+                  width: 28,
+                  height: 28,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(24),
                     color: Theme.of(context).hoverColor.withOpacity(0.5),
@@ -150,7 +150,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
                           ? Icons.check_circle_outline
                           : Icons.panorama_fish_eye,
                       color: Colors.white,
-                      size: 25,
+                      size: 28,
                     ),
                   ),
                 ),

@@ -4,6 +4,7 @@ import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_co
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/loaders/spoiler_loader.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/widgets/seen_status.dart';
 import 'package:flutter/cupertino.dart';
@@ -100,7 +101,7 @@ class LastMessage extends StatelessWidget {
     final theme = Theme.of(context);
 
     final mb = messageSR;
-    final isReceivedMessage = !_authRepo.isCurrentUser(mb.sender);
+    final isReceivedMessage = !_authRepo.isCurrentUser(mb.from.asString());
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -196,7 +197,7 @@ class LastMessage extends StatelessWidget {
     );
   }
 
-  List<TextSpan> buildText(
+  List<InlineSpan> buildText(
     MessageSimpleRepresentative mb,
     BuildContext context,
   ) =>
@@ -206,24 +207,22 @@ class LastMessage extends StatelessWidget {
             .map((e) => e.trim())
             .where((e) => e.trim().isNotEmpty)
             .join(" "),
-        context,
-      )
-          .where((b) => b.text.isNotEmpty)
-          .map((e) => TextSpan(text: e.text, style: e.style))
-          .toList();
-
-  List<Block> extractBlocks(String text, BuildContext context) {
-    var blocks = <Block>[Block(text: text)];
-    final parsers = <Parser>[
-      EmojiParser(fontSize: 16),
-      BoldTextParser(),
-      ItalicTextParser()
-    ];
-
-    for (final p in parsers) {
-      blocks = p.parse(blocks, context);
-    }
-
-    return blocks;
-  }
+        context: context,
+      ).where((b) => b.text.isNotEmpty).map((e) {
+        if (e.type == BlockTypes.SPOILER) {
+          return WidgetSpan(
+            baseline: TextBaseline.ideographic,
+            alignment: PlaceholderAlignment.middle,
+            child: SpoilerLoader(
+              e.text,
+              style: e.style,
+              disableSpoilerReveal: true,
+            ),
+          );
+        }
+        if (e.type == BlockTypes.EMOJI) {
+          return TextSpan(text: e.text, style: e.style?.copyWith(fontSize: 14));
+        }
+        return TextSpan(text: e.text, style: e.style);
+      }).toList();
 }

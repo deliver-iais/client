@@ -80,12 +80,14 @@ class _FormResultWidgetState extends State<FormResultWidget> {
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  _i18n.get("submitted_on"),
-                  style: TextStyle(
-                    fontSize: 11,
-                    height: 1.6,
-                    color: widget.colorScheme.onPrimaryContainerLowlight(),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 3.0),
+                  child: Text(
+                    _i18n.get("submitted_on"),
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: widget.colorScheme.onPrimaryContainerLowlight(),
+                    ),
                   ),
                 ),
                 TimeAndSeenStatus(

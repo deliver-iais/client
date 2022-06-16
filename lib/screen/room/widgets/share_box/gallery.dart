@@ -102,6 +102,8 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       key: _scaffoldKey,
       body: StreamBuilder<List<AssetPathEntity>?>(
@@ -127,30 +129,49 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                     : null;
                 if (index <= 0) {
                   return Container(
-                    margin: const EdgeInsets.all(15.0),
+                    clipBehavior: Clip.hardEdge,
+                    margin: const EdgeInsets.all(18.0),
                     decoration: BoxDecoration(
                       color: Theme.of(co).primaryColor,
                       borderRadius: secondaryBorder,
+                      border: Border.all(
+                        color: theme.colorScheme.outline.withOpacity(0.7),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.colorScheme.shadow.withOpacity(0.3),
+                          spreadRadius: 2,
+                          blurRadius: 3,
+                          offset:
+                              const Offset(0, 3), // changes position of shadow
+                        ),
+                      ],
                     ),
-                    child:
-                        _controller != null && _controller!.value.isInitialized
-                            ? GestureDetector(
-                                onTap: () {
-                                  openCamera(() {
-                                    widget.pop();
-                                    Navigator.pop(context);
-                                  });
-                                },
-                                child: CameraPreview(
-                                  _controller!,
-                                  child: const Icon(
-                                    Icons.photo_camera,
-                                    size: 50,
-                                    color: Colors.white,
-                                  ),
+                    child: Container(
+                      clipBehavior: Clip.hardEdge,
+                      decoration: const BoxDecoration(
+                        borderRadius: secondaryBorder,
+                      ),
+                      child: _controller != null &&
+                              _controller!.value.isInitialized
+                          ? GestureDetector(
+                              onTap: () {
+                                openCamera(() {
+                                  widget.pop();
+                                  Navigator.pop(context);
+                                });
+                              },
+                              child: CameraPreview(
+                                _controller!,
+                                child: const Icon(
+                                  Icons.photo_camera,
+                                  size: 50,
+                                  color: Colors.white,
                                 ),
-                              )
-                            : const SizedBox.shrink(),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
                   );
                 } else {
                   return GestureDetector(
@@ -179,59 +200,17 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                     child: AnimatedPadding(
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.all(10),
-                      child: Hero(
-                        tag: folder!.name,
-                        child: FutureBuilder<List<AssetEntity>>(
-                          future: folder.getAssetListPaged(page: 0, size: 1),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                              return FutureBuilder<File?>(
-                                future: snapshot.data!.first.file,
-                                builder: (context, fileSnapshot) {
-                                  if (fileSnapshot.hasData &&
-                                      fileSnapshot.data != null) {
-                                    return Container(
-                                      width: 100,
-                                      height: 100,
-                                      decoration: BoxDecoration(
-                                        borderRadius: secondaryBorder,
-                                        image: DecorationImage(
-                                          image: Image.file(
-                                            fileSnapshot.data!,
-                                            cacheWidth: 500,
-                                            cacheHeight: 500,
-                                          ).image,
-                                          fit: BoxFit.contain,
-                                        ),
-                                      ),
-                                      child: Align(
-                                        alignment: Alignment.bottomLeft,
-                                        widthFactor: 200,
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            color: Theme.of(context)
-                                                .hoverColor
-                                                .withOpacity(0.5),
-                                            borderRadius: mainBorder,
-                                          ),
-                                          child: Text(
-                                            folder.name,
-                                            style: const TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                  return const SizedBox.shrink();
-                                },
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
-                        ),
+                      child: FutureBuilder<List<AssetEntity>>(
+                        future: folder!.getAssetListPaged(page: 0, size: 3),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                            return Stack(
+                              children:
+                                  buildGallery(snapshot.data!, folder.name),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
                       ),
                     ),
                   );
@@ -243,6 +222,91 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
         },
       ),
     );
+  }
+
+  List<Widget> buildGallery(List<AssetEntity> assets, String folderName) {
+    final theme = Theme.of(context);
+
+    return <Widget>[
+      for (var i = 0; i < assets.length; i++)
+        Positioned(
+          right: (2 - i) * 8,
+          top: (2 - i) * 6,
+          child: FutureBuilder<File?>(
+            future: assets[i].file,
+            builder: (context, fileSnapshot) {
+              if (fileSnapshot.hasData && fileSnapshot.data != null) {
+                return Container(
+                  width: MediaQuery.of(context).size.width / 2 - 44 - (i * 3),
+                  height: MediaQuery.of(context).size.width / 2 - 44 - (i * 3),
+                  clipBehavior: Clip.antiAlias,
+                  decoration: BoxDecoration(
+                    borderRadius: secondaryBorder,
+                    border: Border.all(
+                      color: theme.colorScheme.outline.withOpacity(0.7),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: theme.colorScheme.shadow.withOpacity(0.3),
+                        spreadRadius: 2,
+                        blurRadius: 3,
+                        offset:
+                            const Offset(0, 3), // changes position of shadow
+                      ),
+                    ],
+                    image: DecorationImage(
+                      image: Image.file(
+                        fileSnapshot.data!,
+                        cacheWidth: 500,
+                        cacheHeight: 500,
+                      ).image,
+                    ),
+                  ),
+                  child: i == 0
+                      ? Align(
+                          alignment: Alignment.bottomLeft,
+                          child: Container(
+                            padding: const EdgeInsets.only(
+                              top: 4,
+                              bottom: 6,
+                              left: 6,
+                              right: 6,
+                            ),
+                            width: MediaQuery.of(context).size.width / 2 - 44,
+                            decoration: BoxDecoration(
+                              borderRadius: secondaryBorder.copyWith(
+                                topLeft: Radius.zero,
+                                topRight: Radius.zero,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color:
+                                      theme.colorScheme.shadow.withOpacity(0.5),
+                                  spreadRadius: 2,
+                                  blurRadius: 3,
+                                  offset: const Offset(
+                                    0,
+                                    3,
+                                  ), // changes position of shadow
+                                ),
+                              ],
+                              color: Theme.of(context).backgroundColor,
+                              // borderRadius: mainBorder,
+                            ),
+                            child: Text(
+                              folderName,
+                              style: Theme.of(context).textTheme.bodyText1,
+                            ),
+                          ),
+                        )
+                      : const SizedBox.shrink(),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+        ),
+    ].reversed.toList();
   }
 
   void openCamera(void Function() pop) {

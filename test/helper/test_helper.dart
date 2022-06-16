@@ -290,7 +290,7 @@ MockMessageDao getAndRegisterMessageDao({
           ? when(service.getMessage(testUid.asString(), getMessageId))
               .thenThrow((realInvocation) => "error")
           : when(service.getMessage(testUid.asString(), getMessageId))
-              .thenAnswer((realInvocation) => Future.value(null))
+              .thenAnswer((realInvocation) => Future.value())
       : when(service.getMessage(testUid.asString(), getMessageId))
           .thenAnswer((realInvocation) => Future.value(message));
   when(service.getMessagePage(testUid.asString(), 0)).thenAnswer(

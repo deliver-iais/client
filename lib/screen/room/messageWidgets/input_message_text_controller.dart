@@ -10,9 +10,7 @@ class InputMessageTextController extends TextEditingController {
   }) {
     var blocks = <Block>[Block(text: text)];
     final parsers = <Parser>[
-      EmojiParser(fontSize: 16),
-      // BoldTextParser(),
-      // ItalicTextParser()
+      const EmojiParser(),
     ];
     for (final p in parsers) {
       blocks = p.parse(blocks, context);
@@ -20,10 +18,12 @@ class InputMessageTextController extends TextEditingController {
 
     return TextSpan(
       style: style,
-      children: blocks
-          .where((b) => b.text.isNotEmpty)
-          .map((e) => TextSpan(text: e.text, style: e.style))
-          .toList(),
+      children: blocks.where((b) => b.text.isNotEmpty).map((e) {
+        if (e.type == BlockTypes.EMOJI) {
+          return TextSpan(text: e.text, style: e.style?.copyWith(fontSize: 16));
+        }
+        return TextSpan(text: e.text, style: e.style);
+      }).toList(),
     );
   }
 }
