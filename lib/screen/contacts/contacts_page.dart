@@ -49,7 +49,6 @@ class _ContactsPageState extends State<ContactsPage> {
 
   @override
   Widget build(BuildContext context) {
-    print("build");
     return Scaffold(
       appBar: UltimateAppBar(
         child: AppBar(
