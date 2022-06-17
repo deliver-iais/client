@@ -550,7 +550,9 @@ class DataStreamServices {
 
         if (msg != null) {
           if (msg.id! <= firstMessageId || (msg.isHidden && msg.id == 1)) {
-            await _roomDao.updateRoom(uid: roomUid.asString(), deleted: true);
+            _roomDao
+                .updateRoom(uid: roomUid.asString(), deleted: true)
+                .ignore();
             break;
           } else if (!msg.isHidden) {
             lastNotHiddenMessage = msg;
@@ -570,12 +572,14 @@ class DataStreamServices {
     }
 
     if (lastNotHiddenMessage != null) {
-      await _roomDao.updateRoom(
-        uid: roomUid.asString(),
-        firstMessageId: firstMessageId,
-        lastMessageId: lastMessageId,
-        lastMessage: lastNotHiddenMessage,
-      );
+      _roomDao
+          .updateRoom(
+            uid: roomUid.asString(),
+            firstMessageId: firstMessageId,
+            lastMessageId: lastMessageId,
+            lastMessage: lastNotHiddenMessage,
+          )
+          .ignore();
       return lastNotHiddenMessage;
     } else {
       return null;

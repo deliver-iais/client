@@ -2,16 +2,34 @@
 
 import 'dart:core';
 
+import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/web_classes/grpc_web.dart'
     if (dart.library.html) 'package:grpc/grpc_web.dart';
+import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
+
+bool badCertificateConnection = true;
+
+Future<void> initCertificate() async {
+  badCertificateConnection = (await (GetIt.I
+      .get<SharedDao>()
+      .getBoolean(SHARED_DAO_BAD_CERTIFICATE_CONNECTION, defaultValue: true)));
+}
+
+void setCertificate({required bool onBadCertificate}) {
+  (GetIt.I
+      .get<SharedDao>()
+      .putBoolean(SHARED_DAO_BAD_CERTIFICATE_CONNECTION, onBadCertificate));
+  badCertificateConnection = onBadCertificate;
+}
 
 // ignore: non_constant_identifier_names
 final QueryClientChannel = ClientChannel(
   "query.$APPLICATION_DOMAIN",
   options: ChannelOptions(
-    credentials: ChannelCredentials.secure(onBadCertificate: (c, d) => true),
+    credentials: ChannelCredentials.secure(
+        onBadCertificate: (c, d) => badCertificateConnection),
     connectionTimeout: const Duration(seconds: 2),
   ),
 );
@@ -24,7 +42,8 @@ final webQueryClientChannel = GrpcWebClientChannel.xhr(
 final BotClientChannel = ClientChannel(
   "ms-bot.$APPLICATION_DOMAIN",
   options: ChannelOptions(
-    credentials: ChannelCredentials.secure(onBadCertificate: (c, d) => true),
+    credentials: ChannelCredentials.secure(
+        onBadCertificate: (c, d) => badCertificateConnection),
     connectionTimeout: const Duration(seconds: 2),
   ),
 );
@@ -50,7 +69,8 @@ final webStickerClientChannel = GrpcWebClientChannel.xhr(
 final MucServicesClientChannel = ClientChannel(
   "query.$APPLICATION_DOMAIN",
   options: ChannelOptions(
-    credentials: ChannelCredentials.secure(onBadCertificate: (c, d) => true),
+    credentials: ChannelCredentials.secure(
+        onBadCertificate: (c, d) => badCertificateConnection),
     connectionTimeout: const Duration(seconds: 2),
   ),
 );
@@ -63,7 +83,7 @@ final webMucServicesClientChannel = GrpcWebClientChannel.xhr(
 final CoreServicesClientChannel = ClientChannel(
   "core.$APPLICATION_DOMAIN",
   options: ChannelOptions(
-    credentials: ChannelCredentials.secure(onBadCertificate: (c, d) => true),
+    credentials: ChannelCredentials.secure(onBadCertificate: (c, d) => badCertificateConnection),
     connectionTimeout: const Duration(seconds: 2),
   ),
 );
@@ -80,7 +100,8 @@ const FileServiceBaseUrl = "https://ms-file.$APPLICATION_DOMAIN";
 final ProfileServicesClientChannel = ClientChannel(
   "ms-profile.$APPLICATION_DOMAIN",
   options: ChannelOptions(
-    credentials: ChannelCredentials.secure(onBadCertificate: (c, d) => true),
+    credentials: ChannelCredentials.secure(
+        onBadCertificate: (c, d) => badCertificateConnection),
     connectionTimeout: const Duration(seconds: 2),
   ),
 );
@@ -93,7 +114,8 @@ final webProfileServicesClientChannel = GrpcWebClientChannel.xhr(
 final AvatarServicesClientChannel = ClientChannel(
   "ms-avatar.$APPLICATION_DOMAIN",
   options: ChannelOptions(
-    credentials: ChannelCredentials.secure(onBadCertificate: (c, d) => true),
+    credentials: ChannelCredentials.secure(
+        onBadCertificate: (c, d) => badCertificateConnection),
     connectionTimeout: const Duration(seconds: 2),
   ),
 );
@@ -106,7 +128,8 @@ final webAvatarServicesClientChannel = GrpcWebClientChannel.xhr(
 final FirebaseServicesClientChannel = ClientChannel(
   "ms-firebase.$APPLICATION_DOMAIN",
   options: ChannelOptions(
-    credentials: ChannelCredentials.secure(onBadCertificate: (c, d) => true),
+    credentials: ChannelCredentials.secure(
+        onBadCertificate: (c, d) => badCertificateConnection),
     connectionTimeout: const Duration(seconds: 2),
   ),
 );
@@ -123,7 +146,8 @@ final webLiveLocationClientChannel = GrpcWebClientChannel.xhr(
 final LiveLocationServiceClientChannel = ClientChannel(
   "ms-livelocation.$APPLICATION_DOMAIN",
   options: ChannelOptions(
-    credentials: ChannelCredentials.secure(onBadCertificate: (c, d) => true),
+    credentials: ChannelCredentials.secure(
+        onBadCertificate: (c, d) => badCertificateConnection),
     connectionTimeout: const Duration(seconds: 2),
   ),
 );

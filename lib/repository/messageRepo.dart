@@ -65,7 +65,13 @@ import 'package:rxdart/rxdart.dart';
 
 import '../shared/constants.dart';
 
-enum TitleStatusConditions { Disconnected, Updating, Normal, Connecting }
+enum TitleStatusConditions {
+  Disconnected,
+  Updating,
+  Normal,
+  Connecting,
+  Syncing
+}
 
 const EMPTY_MESSAGE = "{}";
 
@@ -103,12 +109,9 @@ class MessageRepo {
       switch (mode) {
         case ConnectionStatus.Connected:
           _logger.i('updating -----------------');
-
-          updatingStatus.add(TitleStatusConditions.Updating);
           await updatingMessages();
           await updatingLastSeen();
-          await _roomRepo.fetchBlockedRoom();
-
+          _roomRepo.fetchBlockedRoom().ignore();
           updatingStatus.add(TitleStatusConditions.Normal);
 
           unawaited(sendPendingMessages());
@@ -132,7 +135,6 @@ class MessageRepo {
     var pointer = 0;
     final allRoomFetched =
         await _sharedDao.getBoolean(SHARED_DAO_ALL_ROOMS_FETCHED);
-
     while (!finished && pointer < 10000) {
       try {
         final getAllUserRoomMetaRes =
@@ -152,9 +154,11 @@ class MessageRepo {
             if (room != null &&
                 room.lastMessageId < roomMetadata.lastMessageId.toInt() &&
                 hasFirebaseCapability) {
-              await _fireBaseServices.sendGlitchReportForFirebaseNotification(
-                roomMetadata.roomUid.asString(),
-              );
+              _fireBaseServices
+                  .sendGlitchReportForFirebaseNotification(
+                    roomMetadata.roomUid.asString(),
+                  )
+                  .ignore();
             }
             if (room != null &&
                 room.lastMessage != null &&
@@ -167,14 +171,21 @@ class MessageRepo {
               } // no more updating needed after this room
               break;
             }
+            if (room == null) {
+              updatingStatus.add(TitleStatusConditions.Syncing);
+            } else {
+              updatingStatus.add(TitleStatusConditions.Updating);
+            }
 
-            await _roomDao.updateRoom(
-              uid: roomMetadata.roomUid.asString(),
-              deleted: false,
-              lastMessageId: roomMetadata.lastMessageId.toInt(),
-              firstMessageId: roomMetadata.firstMessageId.toInt(),
-              lastUpdateTime: roomMetadata.lastUpdate.toInt(),
-            );
+            _roomDao
+                .updateRoom(
+                  uid: roomMetadata.roomUid.asString(),
+                  deleted: false,
+                  lastMessageId: roomMetadata.lastMessageId.toInt(),
+                  firstMessageId: roomMetadata.firstMessageId.toInt(),
+                  lastUpdateTime: roomMetadata.lastUpdate.toInt(),
+                )
+                .ignore();
 
             await _dataStreamServices.fetchLastNotHiddenMessage(
               roomMetadata.roomUid,
@@ -188,16 +199,18 @@ class MessageRepo {
             );
 
             if (room != null && room.uid.asUid().category == Categories.GROUP) {
-              await getMentions(room);
+              getMentions(room).ignore();
             }
           } else {
-            await _roomDao.updateRoom(
-              uid: roomMetadata.roomUid.asString(),
-              deleted: true,
-              lastMessageId: roomMetadata.lastMessageId.toInt(),
-              firstMessageId: roomMetadata.firstMessageId.toInt(),
-              lastUpdateTime: roomMetadata.lastUpdate.toInt(),
-            );
+            _roomDao
+                .updateRoom(
+                  uid: roomMetadata.roomUid.asString(),
+                  deleted: true,
+                  lastMessageId: roomMetadata.lastMessageId.toInt(),
+                  firstMessageId: roomMetadata.firstMessageId.toInt(),
+                  lastUpdateTime: roomMetadata.lastUpdate.toInt(),
+                )
+                .ignore();
           }
         }
       } catch (e) {

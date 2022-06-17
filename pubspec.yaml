@@ -110,8 +110,8 @@ dependencies:
   material_color_utilities: 0.1.4
   meta: 1.7.0
   metadata_fetch: 0.4.1
-  mobile_scanner: 2.0.0
   mime_type: 1.0.0
+  mobile_scanner: 2.0.0
   modal_bottom_sheet: 2.0.1
   open_file: 3.2.1
   package_info_plus: 1.4.0
@@ -203,6 +203,9 @@ flutter:
     - assets/animations/new_version.zip
     - assets/animations/out_of_date.zip
     - assets/animations/qr.zip
+    - assets/animations/connecting.zip
+    - assets/animations/disconnected.zip
+    - assets/animations/update.zip
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 
@@ -213,4 +216,4 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  fonts: []
+  fonts: [ ]

@@ -22,6 +22,7 @@ import 'package:deliver/screen/room/messageWidgets/forward_widgets/selection_to_
 import 'package:deliver/screen/room/pages/room_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/screen/settings/pages/auto_download_settings.dart';
+import 'package:deliver/screen/settings/pages/connection_setting_page.dart';
 import 'package:deliver/screen/settings/pages/developer_page.dart';
 import 'package:deliver/screen/settings/pages/devices_page.dart';
 import 'package:deliver/screen/settings/pages/language_settings.dart';
@@ -91,8 +92,7 @@ class RoutingService {
   final _navigatorObserver = RoutingServiceNavigatorObserver();
   final _preMaybePopScope = PreMaybePopScope();
 
-  Stream<RouteEvent> get currentRouteStream =>
-      _navigatorObserver.currentRoute;
+  Stream<RouteEvent> get currentRouteStream => _navigatorObserver.currentRoute;
 
   BehaviorSubject<bool> shouldScrollToLastMessageInRoom =
       BehaviorSubject.seeded(false);
@@ -260,6 +260,14 @@ class RoutingService {
           isChannel: isChannel,
         ),
       );
+
+  void openConnectionSettingPage() {
+    _push(
+      const ConnectionSettingPage(
+        key: ValueKey("/connection_setting_page"),
+      ),
+    );
+  }
 
   void openShareInput({List<String> paths = const [], String text = ""}) =>
       _push(

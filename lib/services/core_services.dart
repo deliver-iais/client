@@ -26,7 +26,7 @@ enum ConnectionStatus { Connected, Disconnected, Connecting }
 BehaviorSubject<int> disconnectedTime = BehaviorSubject.seeded(0);
 
 const MIN_BACKOFF_TIME = isWeb ? 16 : 4;
-const MAX_BACKOFF_TIME = 128;
+const MAX_BACKOFF_TIME = 64;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 class CoreServices {
@@ -57,16 +57,22 @@ class CoreServices {
       BehaviorSubject.seeded(ConnectionStatus.Connecting);
 
   void retryConnection() {
-    disconnectedTime.add(0);
+    _connectionTimer!.cancel();
+    disconnectedTime.add(-1);
     startStream();
-    disconnectedTime.add(backoffTime);
+    startCheckerTimer();
+    _updateDisconnectedTime();
+  }
+
+  void _updateDisconnectedTime() {
+    Timer(const Duration(seconds: 2), () {
+      disconnectedTime.add(backoffTime);
+    });
   }
 
   void retryFasterConnection() {
     backoffTime = MIN_BACKOFF_TIME;
-    _connectionTimer!.cancel();
     retryConnection();
-    startCheckerTimer();
   }
 
   Future<void> initStreamConnection() async {
@@ -75,9 +81,6 @@ class CoreServices {
         retryConnection();
       }
     });
-    if (_connectionTimer != null && _connectionTimer!.isActive) {
-      return;
-    }
     startStream();
     startCheckerTimer();
     _connectionStatus.distinct().listen((event) {
@@ -101,16 +104,16 @@ class CoreServices {
     responseChecked = false;
     _connectionTimer = Timer(Duration(seconds: backoffTime), () {
       if (!responseChecked) {
+        disconnectedTime.add(-1);
         if (backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO) {
           backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
         } else {
           backoffTime = MIN_BACKOFF_TIME;
         }
-        disconnectedTime.add(backoffTime);
         startStream();
         _connectionStatus.add(ConnectionStatus.Disconnected);
+        _updateDisconnectedTime();
       }
-
       startCheckerTimer();
     });
   }

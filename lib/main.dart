@@ -111,6 +111,10 @@ void registerSingleton<T extends Object>(T instance) {
   if (!GetIt.I.isRegistered<T>()) {
     GetIt.I.registerSingleton<T>(instance);
   }
+
+}
+void unregisterSingleton<T extends Object>(T instance) {
+    GetIt.I.unregister<T>();
 }
 
 Future<void> setupDI() async {
@@ -196,84 +200,7 @@ Future<void> setupDI() async {
   await GetIt.I.get<AuthRepo>().setCurrentUserUid();
   registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
 
-  final grpcClientInterceptors = [
-    GetIt.I.get<DeliverClientInterceptor>(),
-    GetIt.I.get<AnalyticsClientInterceptor>()
-  ];
-
-  registerSingleton<UserServiceClient>(
-    UserServiceClient(
-      isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<ContactServiceClient>(
-    ContactServiceClient(
-      isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<QueryServiceClient>(
-    QueryServiceClient(
-      isWeb ? webQueryClientChannel : QueryClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<CoreServiceClient>(
-    CoreServiceClient(
-      isWeb ? webCoreServicesClientChannel : CoreServicesClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<BotServiceClient>(
-    BotServiceClient(
-      isWeb ? webBotClientChannel : BotClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<StickerServiceClient>(
-    StickerServiceClient(
-      isWeb ? webStickerClientChannel : StickerClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<GroupServiceClient>(
-    GroupServiceClient(
-      isWeb ? webMucServicesClientChannel : MucServicesClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<ChannelServiceClient>(
-    ChannelServiceClient(
-      isWeb ? webMucServicesClientChannel : MucServicesClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<AvatarServiceClient>(
-    AvatarServiceClient(
-      isWeb ? webAvatarServicesClientChannel : AvatarServicesClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<FirebaseServiceClient>(
-    FirebaseServiceClient(
-      isWeb ? webFirebaseServicesClientChannel : FirebaseServicesClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-
-  registerSingleton<SessionServiceClient>(
-    SessionServiceClient(
-      isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<LiveLocationServiceClient>(
-    LiveLocationServiceClient(
-      isWeb ? webLiveLocationClientChannel : LiveLocationServiceClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
+  registerClientChannel();
 
   //call Service should be here
   registerSingleton<CallService>(CallService());
@@ -334,6 +261,88 @@ Future<void> setupDI() async {
 
   registerSingleton<CallRepo>(CallRepo());
   registerSingleton<UrlHandlerService>(UrlHandlerService());
+}
+
+void registerClientChannel() {
+  final grpcClientInterceptors = [
+    GetIt.I.get<DeliverClientInterceptor>(),
+    GetIt.I.get<AnalyticsClientInterceptor>()
+  ];
+  registerSingleton<UserServiceClient>(
+    UserServiceClient(
+      isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
+      interceptors: grpcClientInterceptors,
+    ),
+  );
+  registerSingleton<ContactServiceClient>(
+    ContactServiceClient(
+      isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
+      interceptors: grpcClientInterceptors,
+    ),
+  );
+
+  registerSingleton<QueryServiceClient>(
+    QueryServiceClient(
+      isWeb ? webQueryClientChannel : QueryClientChannel,
+      interceptors: grpcClientInterceptors,
+    ),
+  );
+  registerSingleton<CoreServiceClient>(
+    CoreServiceClient(
+      isWeb ? webCoreServicesClientChannel : CoreServicesClientChannel,
+      interceptors: grpcClientInterceptors,
+    ),
+  );
+
+  registerSingleton<BotServiceClient>(
+    BotServiceClient(
+      isWeb ? webBotClientChannel : BotClientChannel,
+      interceptors: grpcClientInterceptors,
+    ),
+  );
+  registerSingleton<StickerServiceClient>(
+    StickerServiceClient(
+      isWeb ? webStickerClientChannel : StickerClientChannel,
+      interceptors: grpcClientInterceptors,
+    ),
+  );
+  registerSingleton<GroupServiceClient>(
+    GroupServiceClient(
+      isWeb ? webMucServicesClientChannel : MucServicesClientChannel,
+      interceptors: grpcClientInterceptors,
+    ),
+  );
+  registerSingleton<ChannelServiceClient>(
+    ChannelServiceClient(
+      isWeb ? webMucServicesClientChannel : MucServicesClientChannel,
+      interceptors: grpcClientInterceptors,
+    ),
+  );
+  registerSingleton<AvatarServiceClient>(
+    AvatarServiceClient(
+      isWeb ? webAvatarServicesClientChannel : AvatarServicesClientChannel,
+      interceptors: grpcClientInterceptors,
+    ),
+  );
+  registerSingleton<FirebaseServiceClient>(
+    FirebaseServiceClient(
+      isWeb ? webFirebaseServicesClientChannel : FirebaseServicesClientChannel,
+      interceptors: grpcClientInterceptors,
+    ),
+  );
+
+  registerSingleton<SessionServiceClient>(
+    SessionServiceClient(
+      isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
+      interceptors: grpcClientInterceptors,
+    ),
+  );
+  registerSingleton<LiveLocationServiceClient>(
+    LiveLocationServiceClient(
+      isWeb ? webLiveLocationClientChannel : LiveLocationServiceClientChannel,
+      interceptors: grpcClientInterceptors,
+    ),
+  );
 }
 
 Future initializeFirebase() async {
