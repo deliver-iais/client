@@ -84,7 +84,7 @@ class ContactsPageState extends State<ContactsPage> {
           } else {
             return Stack(
               children: [
-                if (contacts.isNotEmpty)
+                if (!contacts.isNotEmpty)
                   Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 24.0),
