@@ -168,14 +168,14 @@ const SLOW_ANIMATION_DURATION = Duration(milliseconds: 200);
 const SUPER_SLOW_ANIMATION_DURATION = Duration(milliseconds: 500);
 
 // UI
-const double APPBAR_HEIGHT = 54.0;
-const double FLUID_MAX_WIDTH = 400;
-const double FLUID_MAX_HEIGHT = 540;
-const double FLUID_CONTAINER_MAX_WIDTH = 768;
-const double VERY_LARGE_BREAKDOWN_SIZE = 1000;
-const double LARGE_BREAKDOWN_SIZE = 768;
-const double NAVIGATION_PANEL_SIZE = 320;
-const double MIN_WIDTH = 200;
+const double APPBAR_HEIGHT = 56.0;
+const double FLUID_MAX_WIDTH = 400.0;
+const double FLUID_MAX_HEIGHT = 540.0;
+const double FLUID_CONTAINER_MAX_WIDTH = 768.0;
+const double VERY_LARGE_BREAKDOWN_SIZE = 1000.0;
+const double LARGE_BREAKDOWN_SIZE = 768.0;
+const double NAVIGATION_PANEL_SIZE = 320.0;
+const double MIN_WIDTH = 200.0;
 const mainBorder = BorderRadius.all(Radius.circular(28));
 const secondaryBorder = BorderRadius.all(Radius.circular(12));
 const tertiaryBorder = BorderRadius.all(Radius.circular(8));

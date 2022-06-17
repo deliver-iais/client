@@ -87,8 +87,7 @@ class ContactsPageState extends State<ContactsPage> {
                 if (contacts.isNotEmpty)
                   Expanded(
                     child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0)
-                          .copyWith(top: 6),
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
                       child: Scrollbar(
                         child: FlexibleFixedHeightGridView(
                           itemCount: contacts.length,
