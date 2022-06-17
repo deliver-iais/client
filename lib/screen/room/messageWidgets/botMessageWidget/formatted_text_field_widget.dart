@@ -65,6 +65,7 @@ class _FormattedTextFieldWidgetState extends State<FormattedTextFieldWidget> {
                       "this_filed_not_empty",
                     );
                   }
+                  return null;
                 },
                 widget: Row(
                   children: [

@@ -97,7 +97,10 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                         ),
                                         Padding(
                                           padding: const EdgeInsets.only(
-                                              top: 20, bottom: 10, left: 8),
+                                            top: 20,
+                                            bottom: 10,
+                                            left: 8,
+                                          ),
                                           child: MusicPlayProgress(
                                             audioUuid: fileId,
                                             duration:

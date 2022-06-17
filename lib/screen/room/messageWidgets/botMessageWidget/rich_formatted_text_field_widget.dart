@@ -80,6 +80,7 @@ class _RichFormattedTextFieldWidgetState
                   }
                 }
               }
+              return null;
             },
             widget: Row(
               children: [

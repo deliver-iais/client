@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -107,18 +106,13 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
     }
   }
 
-  final DeepCollectionEquality deepEquality =
-      const DeepCollectionEquality.unordered();
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Room>>(
       initialData: const [],
-      stream: _roomRepo.watchAllRooms().distinct(
-            (a, b) => deepEquality.equals(a, b),
-          ),
+      stream: _roomRepo.watchAllRooms().distinct(),
       builder: (context, snapshot) {
-        rooms = snapshot.data ?? const [];
+        rooms = rearrangeChatItem(snapshot.data ?? const []);
 
         return StreamBuilder<RouteEvent>(
           stream: _routingService.currentRouteStream,
@@ -126,8 +120,6 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
             if (s.hasData &&
                 s.data != null &&
                 s.connectionState == ConnectionState.active) {
-              rooms = rearrangeChatItem(rooms);
-
               final rw = rooms
                   .map(
                     (r) => RoomWrapper(

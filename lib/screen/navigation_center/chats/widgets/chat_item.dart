@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -28,6 +29,21 @@ class RoomWrapper {
   final bool isInRoom;
 
   const RoomWrapper({required this.room, required this.isInRoom});
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other.runtimeType == runtimeType &&
+          other is RoomWrapper &&
+          const DeepCollectionEquality().equals(other.room, room) &&
+          const DeepCollectionEquality().equals(other.isInRoom, isInRoom));
+
+  @override
+  int get hashCode => Object.hash(
+        runtimeType,
+        const DeepCollectionEquality().hash(room),
+        const DeepCollectionEquality().hash(isInRoom),
+      );
 }
 
 class ChatItem extends StatefulWidget {
