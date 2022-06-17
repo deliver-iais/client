@@ -6,14 +6,11 @@ import 'package:deliver/shared/widgets/edit_image/paint_on_image/_paint_over_ima
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-final _imageKey = GlobalKey<ImagePainterState>();
-
 class PaintOnImagePage extends StatefulWidget {
   final File file;
   final Function(String) onDone;
 
-  const PaintOnImagePage({Key? key, required this.file, required this.onDone})
-      : super(key: key);
+  const PaintOnImagePage({super.key, required this.file, required this.onDone});
 
   @override
   State<PaintOnImagePage> createState() => _PaintOnImagePageState();
@@ -21,6 +18,8 @@ class PaintOnImagePage extends StatefulWidget {
 
 class _PaintOnImagePageState extends State<PaintOnImagePage> {
   final _fileServices = GetIt.I.get<FileService>();
+  final _imageKey = GlobalKey<ImagePainterState>();
+
   bool _showLoading = false;
 
   @override

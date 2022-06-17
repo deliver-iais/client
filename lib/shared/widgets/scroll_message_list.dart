@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -13,18 +14,18 @@ class ScrollMessageList extends StatefulWidget {
   final ItemPositionsListener itemPositionsListener;
 
   const ScrollMessageList({
-    Key? key,
+    super.key,
     required this.child,
     required this.itemCount,
     required this.controller,
     required this.itemPositionsListener,
-  }) : super(key: key);
+  });
 
   @override
-  _ScrollMessageListState createState() => _ScrollMessageListState();
+  ScrollMessageListState createState() => ScrollMessageListState();
 }
 
-class _ScrollMessageListState extends State<ScrollMessageList> {
+class ScrollMessageListState extends State<ScrollMessageList> {
   double _barOffset = 0.0;
   bool _startScroll = false;
 
@@ -61,9 +62,9 @@ class _ScrollMessageListState extends State<ScrollMessageList> {
       if (details.delta.dy < 0) {
         k = k - height;
       }
-      final _index = max((((k) / h) * widget.itemCount).ceil(), 1);
+      final index = max(((k / h) * widget.itemCount).ceil(), 1);
       _bottom.add(_barOffset);
-      widget.controller.jumpTo(index: _index, alignment: 0.5);
+      widget.controller.jumpTo(index: index, alignment: 0.5);
     }
   }
 
@@ -78,7 +79,7 @@ class _ScrollMessageListState extends State<ScrollMessageList> {
                 child: widget.child,
               ),
               StreamBuilder<double>(
-                stream: _bottom.stream,
+                stream: _bottom,
                 builder: (context, snapshot) {
                   if (snapshot.hasData && snapshot.data != null) {
                     return Positioned(

@@ -2,13 +2,14 @@ import 'package:flutter/material.dart';
 
 class TextDialog extends StatelessWidget {
   const TextDialog({
-    Key? key,
+    super.key,
     required this.context,
     required this.controller,
     required this.fontSize,
     required this.onFinished,
     required this.color,
-  }) : super(key: key);
+  });
+
   final TextEditingController controller;
   final double fontSize;
   final VoidCallback onFinished;

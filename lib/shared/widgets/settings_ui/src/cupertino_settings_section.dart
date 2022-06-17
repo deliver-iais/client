@@ -2,6 +2,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/blured_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/theme/color_scheme.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:flutter/material.dart';
 
 import 'colors.dart';
@@ -10,11 +11,11 @@ import 'defines.dart';
 class CupertinoSection extends StatelessWidget {
   const CupertinoSection(
     this.items, {
-    Key? key,
+    super.key,
     this.header,
     this.headerPadding = defaultTitlePadding,
     this.footer,
-  }) : super(key: key);
+  });
 
   final List<Widget> items;
 
@@ -78,14 +79,7 @@ class CupertinoSection extends StatelessWidget {
               elevation(theme.colorScheme.surface, theme.colorScheme.primary, 2)
             ],
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              spreadRadius: 2,
-              blurRadius: 8,
-              offset: const Offset(0, 2), // changes position of shadow
-            ),
-          ],
+          boxShadow: LIGHT_BOX_SHADOWS,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,

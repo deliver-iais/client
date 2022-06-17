@@ -13,13 +13,13 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class DeveloperPage extends StatefulWidget {
-  const DeveloperPage({Key? key}) : super(key: key);
+  const DeveloperPage({super.key});
 
   @override
-  _DeveloperPageState createState() => _DeveloperPageState();
+  DeveloperPageState createState() => DeveloperPageState();
 }
 
-class _DeveloperPageState extends State<DeveloperPage> {
+class DeveloperPageState extends State<DeveloperPage> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _uxService = GetIt.I.get<UxService>();
   final _authRepo = GetIt.I.get<AuthRepo>();

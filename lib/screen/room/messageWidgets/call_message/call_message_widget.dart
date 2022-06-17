@@ -19,20 +19,19 @@ class CallMessageWidget extends StatelessWidget {
   final CustomColorScheme colorScheme;
   final CallEvent_CallStatus _callEvent;
   final int _callDuration;
-  final _authRepo = GetIt.I.get<AuthRepo>();
-  final _routingService = GetIt.I.get<RoutingService>();
+  static final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _routingService = GetIt.I.get<RoutingService>();
   static final _callService = GetIt.I.get<CallService>();
   final bool _isVideo;
 
   CallMessageWidget({
-    Key? key,
+    super.key,
     required this.message,
     required this.colorScheme,
   })  : _callEvent = message.json.toCallEvent().newStatus,
         _callDuration = message.json.toCallEvent().callDuration.toInt(),
         _isVideo =
-            message.json.toCallEvent().callType == CallEvent_CallType.VIDEO,
-        super(key: key);
+            message.json.toCallEvent().callType == CallEvent_CallType.VIDEO;
 
   @override
   Widget build(BuildContext context) {

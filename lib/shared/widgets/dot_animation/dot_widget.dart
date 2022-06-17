@@ -4,9 +4,9 @@ class DotWidget extends StatelessWidget {
   final Color color;
 
   const DotWidget({
-    Key? key,
+    super.key,
     this.color = Colors.white70,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -17,21 +17,21 @@ class DownloadVideoWidget extends StatefulWidget {
   final Color foreground;
 
   const DownloadVideoWidget({
-    Key? key,
+    super.key,
     required this.uuid,
     required this.download,
     required this.name,
     required this.background,
     required this.foreground,
-  }) : super(key: key);
+  });
 
   @override
-  _DownloadVideoWidgetState createState() => _DownloadVideoWidgetState();
+  DownloadVideoWidgetState createState() => DownloadVideoWidgetState();
 }
 
-class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
-  final _fileServices = GetIt.I.get<FileService>();
-  final _fileRepo = GetIt.I.get<FileRepo>();
+class DownloadVideoWidgetState extends State<DownloadVideoWidget> {
+  static final _fileServices = GetIt.I.get<FileService>();
+  static final _fileRepo = GetIt.I.get<FileRepo>();
   final BehaviorSubject<bool> _startDownload = BehaviorSubject.seeded(false);
   final _futureKey = GlobalKey();
   final _streamKey = GlobalKey();
@@ -42,7 +42,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
       key: _futureKey,
       future: _fileRepo.getFile(
         widget.uuid,
-        widget.name + ".png",
+        "${widget.name}.png",
         thumbnailSize: ThumbnailSize.small,
       ),
       builder: (c, thumbnail) {
@@ -105,7 +105,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
                     );
                   } else {
                     return StreamBuilder<bool>(
-                      stream: _startDownload.stream,
+                      stream: _startDownload,
                       builder: (context, snapshot) {
                         if (snapshot.hasData &&
                             snapshot.data != null &&
@@ -143,7 +143,7 @@ class _DownloadVideoWidgetState extends State<DownloadVideoWidget> {
             decoration:
                 BoxDecoration(color: widget.background, shape: BoxShape.circle),
             child: StreamBuilder<bool>(
-              stream: _startDownload.stream,
+              stream: _startDownload,
               builder: (context, start) {
                 if (start.hasData && start.data != null && start.data!) {
                   return const CircularProgressIndicator();

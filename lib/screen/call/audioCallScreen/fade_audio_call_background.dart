@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 class FadeAudioCallBackground extends StatefulWidget {
   final ImageProvider image;
 
-  const FadeAudioCallBackground({Key? key, required this.image})
-      : super(key: key);
+  const FadeAudioCallBackground({super.key, required this.image});
 
   @override
   State<FadeAudioCallBackground> createState() =>

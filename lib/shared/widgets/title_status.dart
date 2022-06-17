@@ -18,19 +18,19 @@ class TitleStatus extends StatefulWidget {
   final Uid? currentRoomUid;
 
   const TitleStatus({
-    Key? key,
+    super.key,
     required this.style,
     this.normalConditionWidget = const SizedBox.shrink(),
     this.currentRoomUid,
-  }) : super(key: key);
+  });
 
   @override
-  _TitleStatusState createState() => _TitleStatusState();
+  TitleStatusState createState() => TitleStatusState();
 }
 
-class _TitleStatusState extends State<TitleStatus> {
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
+class TitleStatusState extends State<TitleStatus> {
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
   final _key = GlobalKey();
 
   I18N i18n = GetIt.I.get<I18N>();

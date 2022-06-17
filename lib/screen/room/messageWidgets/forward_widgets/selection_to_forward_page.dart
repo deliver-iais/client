@@ -16,17 +16,17 @@ class SelectionToForwardPage extends StatefulWidget {
   final proto.ShareUid? shareUid;
 
   const SelectionToForwardPage({
-    Key? key,
+    super.key,
     this.forwardedMessages,
     this.medias,
     this.shareUid,
-  }) : super(key: key);
+  });
 
   @override
-  _SelectionToForwardPageState createState() => _SelectionToForwardPageState();
+  SelectionToForwardPageState createState() => SelectionToForwardPageState();
 }
 
-class _SelectionToForwardPageState extends State<SelectionToForwardPage> {
+class SelectionToForwardPageState extends State<SelectionToForwardPage> {
   final _routingService = GetIt.I.get<RoutingService>();
 
   @override

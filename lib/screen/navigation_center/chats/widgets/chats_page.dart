@@ -1,4 +1,3 @@
-import 'package:collection/collection.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -18,10 +17,10 @@ final bucketGlobal = PageStorageBucket();
 class ChatsPage extends StatefulWidget {
   final ScrollController scrollController;
 
-  const ChatsPage({Key? key, required this.scrollController}) : super(key: key);
+  const ChatsPage({super.key, required this.scrollController});
 
   @override
-  _ChatsPageState createState() => _ChatsPageState();
+  ChatsPageState createState() => ChatsPageState();
 }
 
 const Duration kDismissOrIncomingAnimationDuration =
@@ -36,7 +35,7 @@ const Duration kReorderAnimationDuration = Duration(milliseconds: 100);
 /// Default duration of a moving animation.
 const Duration kMovingAnimationDuration = Duration(milliseconds: 100);
 
-class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
+class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   final _routingService = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _roomDao = GetIt.I.get<RoomDao>();
@@ -107,18 +106,13 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
     }
   }
 
-  final DeepCollectionEquality deepEquality =
-      const DeepCollectionEquality.unordered();
-
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<List<Room>>(
       initialData: const [],
-      stream: _roomRepo.watchAllRooms().distinct(
-            (a, b) => deepEquality.equals(a, b),
-          ),
+      stream: _roomRepo.watchAllRooms().distinct(),
       builder: (context, snapshot) {
-        rooms = snapshot.data ?? const [];
+        rooms = rearrangeChatItem(snapshot.data ?? const []);
 
         return StreamBuilder<RouteEvent>(
           stream: _routingService.currentRouteStream,
@@ -126,8 +120,6 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
             if (s.hasData &&
                 s.data != null &&
                 s.connectionState == ConnectionState.active) {
-              rooms = rearrangeChatItem(rooms);
-
               final rw = rooms
                   .map(
                     (r) => RoomWrapper(
@@ -160,10 +152,6 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                     itemBuilder: (ctx, rw, data) {
                       return GestureDetector(
                         behavior: HitTestBehavior.translucent,
-                        child: ChatItem(
-                          key: ValueKey("chatItem/${rw.room.uid}"),
-                          roomWrapper: rw,
-                        ),
                         onTap: () {
                           _routingService.openRoom(
                             rw.room.uid,
@@ -189,6 +177,10 @@ class _ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
                                   canBePinned(rooms),
                                 );
                               },
+                        child: ChatItem(
+                          key: ValueKey("chatItem/${rw.room.uid}"),
+                          roomWrapper: rw,
+                        ),
                       );
                     },
                   ),

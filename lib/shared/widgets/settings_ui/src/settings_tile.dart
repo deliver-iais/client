@@ -46,7 +46,7 @@ class SettingsTile extends StatelessWidget {
         super(key: key);
 
   const SettingsTile.switchTile({
-    Key? key,
+    super.key,
     required this.title,
     this.titleMaxLines,
     this.subtitle,
@@ -64,8 +64,7 @@ class SettingsTile extends StatelessWidget {
         iosChevron = null,
         iosChevronPadding = null,
         assert(titleMaxLines == null || titleMaxLines > 0),
-        assert(subtitleMaxLines == null || subtitleMaxLines > 0),
-        super(key: key);
+        assert(subtitleMaxLines == null || subtitleMaxLines > 0);
 
   @override
   Widget build(BuildContext context) {

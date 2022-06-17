@@ -119,11 +119,10 @@ MockCoreServices getAndRegisterCoreServices({
   _removeRegistrationIfExists<CoreServices>();
   final service = MockCoreServices();
   GetIt.I.registerSingleton<CoreServices>(service);
-  final _connectionStatus =
+  final cs =
       BehaviorSubject<ConnectionStatus>.seeded(ConnectionStatus.Connecting)
         ..add(connectionStatus);
-  when(service.connectionStatus)
-      .thenAnswer((realInvocation) => _connectionStatus);
+  when(service.connectionStatus).thenAnswer((realInvocation) => cs);
   return service;
 }
 
@@ -535,7 +534,7 @@ MockQueryServiceClient getAndRegisterQueryServiceClient({
     lastCurrentUserSentMessageId: lastUpdate != null ? Int64(lastUpdate) : null,
     presenceType: presenceType,
   );
-  final Iterable<RoomMetadata>? roomsMeta = {roomMetadata};
+  final Iterable<RoomMetadata> roomsMeta = {roomMetadata};
   when(
     service.getAllUserRoomMeta(
       GetAllUserRoomMetaReq()

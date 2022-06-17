@@ -9,19 +9,21 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class CallListWidget extends StatelessWidget {
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+
   final CallInfo callEvent;
   final DateTime time;
   final bool isIncomingCall;
   final Uid caller;
 
-  CallListWidget({
-    Key? key,
+  const CallListWidget({
+    super.key,
     required this.time,
     required this.isIncomingCall,
     required this.caller,
     required this.callEvent,
-  }) : super(key: key);
-  final _roomRepo = GetIt.I.get<RoomRepo>();
+  });
+
 
   @override
   Widget build(BuildContext context) {
