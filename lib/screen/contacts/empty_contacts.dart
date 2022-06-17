@@ -27,7 +27,7 @@ class EmptyContacts extends StatelessWidget {
               height: 180,
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 24),
           Center(
             child: Column(
               children: [
@@ -36,23 +36,17 @@ class EmptyContacts extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
+                const SizedBox(height: 16),
+                Text(
+                  i18n.get("invite_your_friends"),
+                  textAlign: TextAlign.center,
+                  style: labelsStyle,
+                ),
                 const SizedBox(height: 8),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      i18n.get("invite_your_friends"),
-                      textAlign: TextAlign.center,
-                      style: labelsStyle,
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      i18n.get("search_by_username"),
-                      textAlign: TextAlign.center,
-                      style: labelsStyle,
-                    ),
-                  ],
+                Text(
+                  i18n.get("search_by_username"),
+                  textAlign: TextAlign.center,
+                  style: labelsStyle,
                 ),
               ],
             ),

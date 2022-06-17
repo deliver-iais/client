@@ -66,8 +66,6 @@ import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:tuple/tuple.dart';
 
-const APPBAR_HEIGHT = 54.0;
-
 class RoomPage extends StatefulWidget {
   final String roomId;
   final List<Message>? forwardedMessages;
@@ -840,8 +838,7 @@ class RoomPageState extends State<RoomPage> {
   }
 
   PreferredSizeWidget buildAppbar() {
-    return UltimateAppBar(
-      preferredSize: const Size.fromHeight(APPBAR_HEIGHT),
+    return BlurredPreferredSizedWidget(
       child: buildAppBar(),
     );
   }

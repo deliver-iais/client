@@ -2,13 +2,11 @@ import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/routing_service.dart';
-
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -28,7 +26,7 @@ class DeveloperPageState extends State<DeveloperPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: UltimateAppBar(
+      appBar: BlurredPreferredSizedWidget(
         child: AppBar(
           titleSpacing: 8,
           title: const Text("Developer Page"),

@@ -216,7 +216,7 @@ class _AllImagePageState extends State<AllImagePage>
   }
 
   PreferredSizeWidget buildAppbar() {
-    return UltimateAppBar(
+    return BlurredPreferredSizedWidget(
       child: StreamBuilder<bool>(
         initialData: true,
         stream: _isBarShowing,

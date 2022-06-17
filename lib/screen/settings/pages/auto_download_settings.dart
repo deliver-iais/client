@@ -23,7 +23,7 @@ class _AutoDownloadSettingsPageState extends State<AutoDownloadSettingsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: UltimateAppBar(
+      appBar: BlurredPreferredSizedWidget(
         child: AppBar(
           titleSpacing: 8,
           title: Text(_i18n.get("automatic_download")),

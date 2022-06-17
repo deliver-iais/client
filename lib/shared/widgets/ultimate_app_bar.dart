@@ -1,12 +1,14 @@
 import 'dart:ui';
 
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 
-class UltimateAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const UltimateAppBar({
+class BlurredPreferredSizedWidget extends StatelessWidget
+    implements PreferredSizeWidget {
+  const BlurredPreferredSizedWidget({
     super.key,
     required this.child,
-    this.preferredSize = const Size.fromHeight(50.0),
+    this.preferredSize = const Size.fromHeight(APPBAR_HEIGHT),
   });
 
   /// The widget below this widget in the tree.

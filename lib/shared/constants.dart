@@ -168,10 +168,12 @@ const SLOW_ANIMATION_DURATION = Duration(milliseconds: 200);
 const SUPER_SLOW_ANIMATION_DURATION = Duration(milliseconds: 500);
 
 // UI
+const double APPBAR_HEIGHT = 54.0;
 const double FLUID_MAX_WIDTH = 400;
 const double FLUID_MAX_HEIGHT = 540;
 const double FLUID_CONTAINER_MAX_WIDTH = 768;
-const double BREAKDOWN_SIZE = 768;
+const double VERY_LARGE_BREAKDOWN_SIZE = 1000;
+const double LARGE_BREAKDOWN_SIZE = 768;
 const double NAVIGATION_PANEL_SIZE = 320;
 const double MIN_WIDTH = 200;
 const mainBorder = BorderRadius.all(Radius.circular(28));
@@ -183,9 +185,14 @@ const buttonBorder = BorderRadius.all(Radius.circular(20));
 ////////////////////// Functions //////////////////////
 
 // Screen Breakdown
-bool isLargeWidth(double width) => width > BREAKDOWN_SIZE;
+bool isLargeWidth(double width) => width > LARGE_BREAKDOWN_SIZE;
 
 bool isLarge(BuildContext context) =>
+    isLargeWidth(MediaQuery.of(context).size.width);
+
+bool isVeryLargeWidth(double width) => width > VERY_LARGE_BREAKDOWN_SIZE;
+
+bool isVeryLarge(BuildContext context) =>
     isLargeWidth(MediaQuery.of(context).size.width);
 
 // Dynamics
