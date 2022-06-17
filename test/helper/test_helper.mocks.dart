@@ -1677,14 +1677,22 @@ class MockUidIdNameDao extends _i1.Mock implements _i54.UidIdNameDao {
 /// See the documentation for Mockito's code generation for more information.
 class MockContactRepo extends _i1.Mock implements _i56.ContactRepo {
   @override
+  _i8.BehaviorSubject<bool> get isSyncingContacts =>
+      (super.noSuchMethod(Invocation.getter(#isSyncingContacts),
+              returnValue: _FakeBehaviorSubject_7<bool>())
+          as _i8.BehaviorSubject<bool>);
+
+  @override
   _i20.Future<void> syncContacts() => (super.noSuchMethod(
       Invocation.method(#syncContacts, []),
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i20.Future<void>);
+
   @override
   void sendContacts(List<_i57.Contact>? contacts) =>
       super.noSuchMethod(Invocation.method(#sendContacts, [contacts]),
           returnValueForMissingStub: null);
+
   @override
   _i20.Future<bool> sendNewContact(_i57.Contact? contact) =>
       (super.noSuchMethod(Invocation.method(#sendNewContact, [contact]),
@@ -1719,15 +1727,21 @@ class MockContactRepo extends _i1.Mock implements _i56.ContactRepo {
       (super.noSuchMethod(Invocation.method(#searchUser, [query]),
               returnValue: Future<List<_i3.Uid>>.value(<_i3.Uid>[]))
           as _i20.Future<List<_i3.Uid>>);
+
   @override
   _i20.Future<_i58.Contact?> getContact(_i3.Uid? userUid) =>
       (super.noSuchMethod(Invocation.method(#getContact, [userUid]),
               returnValue: Future<_i58.Contact?>.value())
           as _i20.Future<_i58.Contact?>);
+
   @override
-  _i20.Future<String?> getContactFromServer(_i3.Uid? contactUid) => (super
-      .noSuchMethod(Invocation.method(#getContactFromServer, [contactUid]),
+  _i20.Future<String?> getContactFromServer(_i3.Uid? contactUid,
+          {bool? shouldUpdateContactDao = true}) =>
+      (super.noSuchMethod(
+          Invocation.method(#getContactFromServer, [contactUid],
+              {#shouldUpdateContactDao: shouldUpdateContactDao}),
           returnValue: Future<String?>.value()) as _i20.Future<String?>);
+
   @override
   _i20.Future<bool> contactIsExist(
           String? countryCode, String? nationalNumber) =>
