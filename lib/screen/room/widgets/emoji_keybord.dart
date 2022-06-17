@@ -133,7 +133,7 @@ class EmojiKeyboardState extends State<EmojiKeyboard> {
                         if (isAnimatedEmoji(emoji.toString()))
                           Center(
                             child: Container(
-                              color: ActiveColor,
+                              color: ACTIVE_COLOR,
                               height: 10,
                               width: 10,
                             ),

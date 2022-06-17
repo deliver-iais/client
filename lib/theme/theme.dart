@@ -3,29 +3,25 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:material_color_utilities/palettes/core_palette.dart';
 
-// ignore: non_constant_identifier_names
-final ActiveColor = Colors.greenAccent.shade700;
+final ACTIVE_COLOR = Colors.greenAccent.shade700;
 
-// ignore: non_constant_identifier_names
-final DefaultBoxShadows = [
+const LIGHT_BOX_SHADOWS = [
   BoxShadow(
-    color: Colors.black.withOpacity(0.1),
+    color: Color(0x11000000),
     spreadRadius: 2,
-    blurRadius: 3,
-    offset: const Offset(0, 3), // changes position of shadow
-  ),
+    blurRadius: 8,
+    offset: Offset(0, 2),
+  )
 ];
 
-List<BoxShadow> shadowElevation(double level) {
-  return [
-    BoxShadow(
-      color: Colors.black.withOpacity(0.1 * level),
-      spreadRadius: 2 * level,
-      blurRadius: 3 * level,
-      offset: const Offset(0, 3), // changes position of shadow
-    ),
-  ];
-}
+const DEFAULT_BOX_SHADOWS = [
+  BoxShadow(
+    color: Color(0x22000000),
+    spreadRadius: 2,
+    blurRadius: 3,
+    offset: Offset(0, 3),
+  ),
+];
 
 final palettes = [
   const Color(0xFF0060a7),

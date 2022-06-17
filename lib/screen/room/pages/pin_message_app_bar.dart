@@ -50,7 +50,7 @@ class PinMessageAppBar extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surface,
                     borderRadius: secondaryBorder,
-                    boxShadow: DefaultBoxShadows,
+                    boxShadow: DEFAULT_BOX_SHADOWS,
                   ),
                   height: 60,
                   padding: const EdgeInsets.symmetric(

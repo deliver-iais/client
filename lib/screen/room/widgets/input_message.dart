@@ -387,7 +387,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                                                 FontAwesomeIcons.markdown,
                                                 size: 18,
                                                 color: !_shouldSynthesize
-                                                    ? ActiveColor
+                                                    ? ACTIVE_COLOR
                                                     : null,
                                               ),
                                               onPressed: () {

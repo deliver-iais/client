@@ -27,6 +27,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -151,14 +152,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           decoration: BoxDecoration(
             color: colorsScheme.primaryContainer,
             borderRadius: secondaryBorder,
-            boxShadow: [
-              BoxShadow(
-                color: theme.colorScheme.shadow.withOpacity(0.1),
-                spreadRadius: 2,
-                blurRadius: 3,
-                offset: const Offset(0, 3), // changes position of shadow
-              ),
-            ],
+            boxShadow: DEFAULT_BOX_SHADOWS,
           ),
           child: CallMessageWidget(
             message: widget.message,

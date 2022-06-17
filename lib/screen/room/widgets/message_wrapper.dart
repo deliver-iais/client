@@ -47,7 +47,7 @@ class MessageWrapper extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: border,
             color: color,
-            boxShadow: DefaultBoxShadows,
+            boxShadow: DEFAULT_BOX_SHADOWS,
           ),
           child: child,
         ),

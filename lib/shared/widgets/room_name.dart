@@ -59,7 +59,7 @@ class RoomName extends StatelessWidget {
                       CupertinoIcons.checkmark_seal_fill,
                       size:
                           (style ?? theme.textTheme.subtitle2)!.fontSize ?? 15,
-                      color: ActiveColor,
+                      color: ACTIVE_COLOR,
                     ),
                   );
                 } else {

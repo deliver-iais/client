@@ -1,4 +1,5 @@
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:lottie/lottie.dart';
@@ -17,12 +18,7 @@ class ToastDisplay {
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        boxShadow: [
-          BoxShadow(
-            color: Theme.of(toastContext).dividerColor,
-            blurRadius: 16,
-          )
-        ],
+        boxShadow: DEFAULT_BOX_SHADOWS,
         borderRadius: mainBorder,
         color: toastColor,
       ),
