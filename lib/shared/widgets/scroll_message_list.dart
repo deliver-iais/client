@@ -62,9 +62,9 @@ class ScrollMessageListState extends State<ScrollMessageList> {
       if (details.delta.dy < 0) {
         k = k - height;
       }
-      final _index = max(((k / h) * widget.itemCount).ceil(), 1);
+      final index = max(((k / h) * widget.itemCount).ceil(), 1);
       _bottom.add(_barOffset);
-      widget.controller.jumpTo(index: _index, alignment: 0.5);
+      widget.controller.jumpTo(index: index, alignment: 0.5);
     }
   }
 
