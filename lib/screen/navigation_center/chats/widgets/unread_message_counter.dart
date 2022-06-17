@@ -36,7 +36,7 @@ class UnreadMessageCounterWidget extends StatelessWidget {
 
           return AnimatedScale(
             scale: unreadCount > 0 ? 1 : 0,
-            duration: ANIMATION_DURATION * 0.5,
+            duration: FAST_ANIMATION_DURATION,
             child: Container(
               constraints: const BoxConstraints(minWidth: 20),
               height: 20,

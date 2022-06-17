@@ -111,7 +111,7 @@ class NavigationCenterState extends State<NavigationCenter> {
                   _scrollController.animateTo(
                     0.0,
                     curve: Curves.easeOut,
-                    duration: ANIMATION_DURATION * 3,
+                    duration: SLOW_ANIMATION_DURATION,
                   );
                 }
               },
@@ -124,7 +124,7 @@ class NavigationCenterState extends State<NavigationCenter> {
                       width: 10,
                     ),
                     DescribedFeatureOverlay(
-                      featureId: feature3,
+                      featureId: FEATURE_3,
                       tapTarget:
                           CircleAvatarWidget(_authRepo.currentUserUid, 20),
                       backgroundColor: Colors.indigo,
@@ -163,7 +163,7 @@ class NavigationCenterState extends State<NavigationCenter> {
                 actions: [
                   if (!isDesktop)
                     DescribedFeatureOverlay(
-                      featureId: feature2,
+                      featureId: FEATURE_2,
                       tapTarget: const Icon(
                         CupertinoIcons.qrcode_viewfinder,
                       ),
@@ -370,7 +370,7 @@ class NavigationCenterState extends State<NavigationCenter> {
   Widget buildMenu(BuildContext context) {
     final theme = Theme.of(context);
     return DescribedFeatureOverlay(
-      featureId: feature1,
+      featureId: FEATURE_1,
       tapTarget: Icon(CupertinoIcons.plus, color: theme.colorScheme.onSurface),
       backgroundColor: Colors.blue,
       targetColor: Colors.lightBlueAccent,

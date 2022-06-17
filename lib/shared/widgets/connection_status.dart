@@ -28,7 +28,7 @@ class ConnectionStatus extends StatelessWidget {
             borderRadius: tertiaryBorder,
           ),
           curve: Curves.easeInOut,
-          duration: ANIMATION_DURATION * 2,
+          duration: SUPER_SLOW_ANIMATION_DURATION,
           child: Row(
             children: [
               const SizedBox(width: 4),

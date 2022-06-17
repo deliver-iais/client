@@ -215,6 +215,7 @@ class LastMessage extends StatelessWidget {
             child: SpoilerLoader(
               e.text,
               style: e.style,
+              foreground: e.style?.color,
               disableSpoilerReveal: true,
             ),
           );

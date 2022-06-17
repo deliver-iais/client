@@ -39,13 +39,13 @@ class IntroPageState extends State<IntroPage> {
         context,
         isAndroid || isIOS
             ? const <String>{
-                feature1,
-                feature2,
-                feature3,
+                FEATURE_1,
+                FEATURE_2,
+                FEATURE_3,
               }
             : const <String>{
-                feature1,
-                feature3,
+                FEATURE_1,
+                FEATURE_3,
               },
       );
     });

@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -61,9 +62,9 @@ class ScrollMessageListState extends State<ScrollMessageList> {
       if (details.delta.dy < 0) {
         k = k - height;
       }
-      final index = max((((k) / h) * widget.itemCount).ceil(), 1);
+      final _index = max(((k / h) * widget.itemCount).ceil(), 1);
       _bottom.add(_barOffset);
-      widget.controller.jumpTo(index: index, alignment: 0.5);
+      widget.controller.jumpTo(index: _index, alignment: 0.5);
     }
   }
 

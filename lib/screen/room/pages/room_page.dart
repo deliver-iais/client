@@ -59,7 +59,6 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:desktop_lifecycle/desktop_lifecycle.dart';
 import 'package:flutter/cupertino.dart';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -351,7 +350,7 @@ class RoomPageState extends State<RoomPage> {
                       : snapshot.data == true
                           ? 1
                           : 0,
-                  duration: ANIMATION_DURATION * 1.3,
+                  duration: SLOW_ANIMATION_DURATION,
                   child: scrollDownButtonWidget(),
                 ),
               );
@@ -1189,7 +1188,7 @@ class RoomPageState extends State<RoomPage> {
       builder: (context, snapshot) {
         return AnimatedContainer(
           key: ValueKey(index),
-          duration: ANIMATION_DURATION * 5,
+          duration: SUPER_SLOW_ANIMATION_DURATION,
           color: _selectedMessages.containsKey(index + 1) ||
                   (snapshot.data! == index + 1)
               ? Theme.of(context).focusColor.withAlpha(100)

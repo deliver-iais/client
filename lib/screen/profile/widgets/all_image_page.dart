@@ -117,7 +117,7 @@ class _AllImagePageState extends State<AllImagePage>
       initialIndex = widget.initIndex;
     }
     controller = AnimationController(
-      duration: ANIMATION_DURATION * 2,
+      duration: ANIMATION_DURATION,
       vsync: this,
     )..addStatusListener((status) async {
         if (status == AnimationStatus.completed) {
@@ -222,7 +222,7 @@ class _AllImagePageState extends State<AllImagePage>
         stream: _isBarShowing,
         builder: (context, snapshot) {
           return AnimatedOpacity(
-            duration: ANIMATION_DURATION * 2,
+            duration: ANIMATION_DURATION,
             opacity: snapshot.data! ? 1 : 0,
             child:
                 snapshot.data! ? buildAppBarWidget() : const SizedBox.shrink(),
@@ -239,7 +239,7 @@ class _AllImagePageState extends State<AllImagePage>
         Align(
           alignment: Alignment.bottomCenter,
           child: AnimatedOpacity(
-            duration: ANIMATION_DURATION * 2,
+            duration: ANIMATION_DURATION,
             opacity: _isBarShowing.value ? 1 : 0,
             child: buildCaptionSection(
               createdOn: widget.message!.time,
@@ -423,7 +423,7 @@ class _AllImagePageState extends State<AllImagePage>
             stream: _isBarShowing,
             builder: (context, snapshot) {
               return AnimatedOpacity(
-                duration: ANIMATION_DURATION * 2,
+                duration: ANIMATION_DURATION,
                 opacity: snapshot.data! ? 1 : 0,
                 child: StreamBuilder<int>(
                   stream: _currentIndex,
