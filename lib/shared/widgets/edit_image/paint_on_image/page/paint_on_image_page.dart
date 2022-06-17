@@ -21,6 +21,7 @@ class PaintOnImagePage extends StatefulWidget {
 
 class _PaintOnImagePageState extends State<PaintOnImagePage> {
   final _fileServices = GetIt.I.get<FileService>();
+  bool _showLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -28,28 +29,34 @@ class _PaintOnImagePageState extends State<PaintOnImagePage> {
       appBar: AppBar(
         title: const Text("Paint on Image"),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.done_rounded),
-            onPressed: () async {
-              await saveImage(context);
-            },
-          )
+          if (!_showLoading)
+            IconButton(
+              icon: const Icon(Icons.done_rounded),
+              onPressed: () async {
+                await saveImage(context);
+              },
+            )
         ],
       ),
-      body: ImagePainter.file(
-        widget.file,
-        key: _imageKey,
-        scalable: true,
-        onDone: () async {
-          await saveImage(context);
-        },
-        initialColor: Colors.red,
-        initialPaintMode: PaintMode.freeStyle,
-      ),
+      body: _showLoading
+          ? const Center(child: CircularProgressIndicator())
+          : ImagePainter.file(
+              widget.file,
+              key: _imageKey,
+              scalable: true,
+              onDone: () async {
+                await saveImage(context);
+              },
+              initialColor: Colors.red,
+              initialPaintMode: PaintMode.freeStyle,
+            ),
     );
   }
 
   Future<void> saveImage(BuildContext context) async {
+    setState(() {
+      _showLoading = true;
+    });
     final image = await _imageKey.currentState!.exportImage();
     final outPutFile = await _fileServices.localFile(
       "_draw-${clock.now().millisecondsSinceEpoch}",
@@ -59,5 +66,8 @@ class _PaintOnImagePageState extends State<PaintOnImagePage> {
     widget.onDone(outPutFile.path);
     // ignore: use_build_context_synchronously
     Navigator.pop(context);
+    setState(() {
+      _showLoading = false;
+    });
   }
 }

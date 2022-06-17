@@ -55,8 +55,10 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   final ScrollController _scrollController = ScrollController();
   final BehaviorSubject<String> _searchMode = BehaviorSubject.seeded("");
+  final TextEditingController _controller = TextEditingController();
   final BehaviorSubject<String> _queryTermDebouncedSubject =
       BehaviorSubject<String>.seeded("");
+  void Function()? _onNavigationCenterBackPressed;
 
   @override
   void initState() {
@@ -74,11 +76,17 @@ class _NavigationCenterState extends State<NavigationCenter> {
     _queryTermDebouncedSubject.stream
         .debounceTime(const Duration(milliseconds: 250))
         .listen((text) => _searchMode.add(text));
+
+    _routingService.registerPreMaybePopScope(
+      "navigation_center_page",
+      checkSearchBoxIsOpenOrNot,
+    );
     super.initState();
   }
 
   @override
   void dispose() {
+    _controller.dispose();
     _scrollController.dispose();
     _searchMode.close();
     _queryTermDebouncedSubject.close();
@@ -108,7 +116,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 }
               },
               child: AppBar(
-                backgroundColor: Colors.transparent,
+                elevation: 0,
+                scrolledUnderElevation: 0,
                 leading: Row(
                   children: [
                     const SizedBox(
@@ -195,6 +204,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   child: SearchBox(
                     onChange: _queryTermDebouncedSubject.add,
                     onCancel: () => _queryTermDebouncedSubject.add(""),
+                    controller: _controller,
                   ),
                 ),
                 if (!isLarge(context)) const AudioPlayerAppBar(),
@@ -202,8 +212,13 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   stream: _searchMode.stream,
                   builder: (c, s) {
                     if (s.hasData && s.data!.isNotEmpty) {
+                      _onNavigationCenterBackPressed = () {
+                        _queryTermDebouncedSubject.add("");
+                        _controller.clear();
+                      };
                       return searchResult(s.data!);
                     } else {
+                      _onNavigationCenterBackPressed = null;
                       return Expanded(
                         child: ChatsPage(scrollController: _scrollController),
                       );
@@ -218,6 +233,17 @@ class _NavigationCenterState extends State<NavigationCenter> {
         ),
       ),
     );
+  }
+
+  bool checkSearchBoxIsOpenOrNot() {
+    if (!(ModalRoute.of(context)?.isCurrent ?? false)) {
+      return true;
+    }
+    if (_onNavigationCenterBackPressed != null) {
+      _onNavigationCenterBackPressed?.call();
+      return false;
+    }
+    return true;
   }
 
   bool onWindowSizeChange(SizeChangedLayoutNotification notification) {

@@ -44,7 +44,7 @@ class _InVideoCallPageState extends State<InVideoCallPage> {
     return Stack(
       children: <Widget>[
         StreamBuilder<bool>(
-          stream: callRepo.mute_camera.stream,
+          stream: callRepo.mute_camera,
           builder: (c, s) {
             if (s.hasData && s.data!) {
               return Stack(
