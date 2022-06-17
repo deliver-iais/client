@@ -8,7 +8,8 @@ import 'package:get_it/get_it.dart';
 class CustomNotificationSoundSelection extends StatefulWidget {
   final String roomUid;
 
-  final AudioPlayer _player = AudioPlayer(playerId: "custom-notification-player");
+  final AudioPlayer _player =
+      AudioPlayer(playerId: "custom-notification-player");
 
   CustomNotificationSoundSelection({super.key, required this.roomUid});
 
@@ -107,8 +108,10 @@ class CustomNotificationSoundSelectionState
       selectedFlag[index] = !isSelected;
     });
 
-    widget._player
-        .play(AssetSource("app/src/main/res/raw/${staticData[index]}.mp3"));
+    widget._player.play(
+      AssetSource("app/src/main/res/raw/${staticData[index]}.mp3"),
+      position: Duration.zero,
+    );
   }
 
   void onLongPress(int index, {bool isSelected = false}) {

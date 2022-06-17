@@ -16,16 +16,16 @@ final DefaultBoxShadows = [
   ),
 ];
 
-// List<BoxShadow> shadowElevation(double level) {
-//   return [
-//     BoxShadow(
-//       color: Colors.black.withOpacity(0.1 * level),
-//       spreadRadius: 2 * level,
-//       blurRadius: 3 * level,
-//       offset: const Offset(0, 3), // changes position of shadow
-//     ),
-//   ];
-// }
+List<BoxShadow> shadowElevation(double level) {
+  return [
+    BoxShadow(
+      color: Colors.black.withOpacity(0.1 * level),
+      spreadRadius: 2 * level,
+      blurRadius: 3 * level,
+      offset: const Offset(0, 3), // changes position of shadow
+    ),
+  ];
+}
 
 final palettes = [
   const Color(0xFF0060a7),

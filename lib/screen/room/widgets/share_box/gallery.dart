@@ -472,7 +472,6 @@ Stack buildInputCaption({
           children: <Widget>[
             Container(
               decoration: const BoxDecoration(
-                //boxShadow: [BoxShadow(blurRadius: 20.0)],
                 shape: BoxShape.circle,
               ),
               child: StreamBuilder<bool>(

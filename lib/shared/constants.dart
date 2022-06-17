@@ -7,6 +7,8 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
 const APPLICATION_NAME = "We";
+
+// Links Constants
 const APPLICATION_DOMAIN = "wemessenger.ir";
 const SHARE_PRIVATE_DATA_ACCEPTANCE_URL = "spda";
 const ADD_CONTACT_URL = "ac";
@@ -17,8 +19,8 @@ const USER_URL = "user";
 const GROUP_URL = "group";
 const CHANNEL_URL = "channel";
 
-// if change the VERSION , is necessary to change version in pubspec.yaml file
-const VERSION = "1.8.7";
+// Version Constants
+const VERSION = "1.8.7"; // if change the VERSION , is necessary to change version in pubspec.yaml file
 const LOG_OUT = "log_out";
 const int MEDIA_PAGE_SIZE = 30;
 const double DOWNLOAD_COMPLETE = 200;
