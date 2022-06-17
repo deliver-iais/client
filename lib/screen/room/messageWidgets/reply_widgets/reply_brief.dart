@@ -10,6 +10,7 @@ import 'package:get_it/get_it.dart';
 class ReplyBrief extends StatelessWidget {
   static final _messageExtractorServices =
       GetIt.I.get<MessageExtractorServices>();
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
 
   final String roomId;
   final int replyToId;
@@ -17,17 +18,16 @@ class ReplyBrief extends StatelessWidget {
   final Color backgroundColor;
   final Color foregroundColor;
   final MessageBrief? messageReplyBrief;
-  final _messageRepo = GetIt.I.get<MessageRepo>();
 
-  ReplyBrief({
-    Key? key,
+  const ReplyBrief({
+    super.key,
     required this.roomId,
     required this.replyToId,
     required this.maxWidth,
     required this.backgroundColor,
     required this.foregroundColor,
     this.messageReplyBrief,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

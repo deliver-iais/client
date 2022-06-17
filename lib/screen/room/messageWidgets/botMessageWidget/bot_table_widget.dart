@@ -10,11 +10,11 @@ class BotTableWidget extends StatefulWidget {
   final CustomColorScheme colorScheme;
 
   const BotTableWidget({
-    Key? key,
+    super.key,
     required this.message,
     required this.colorScheme,
     required this.maxWidth,
-  }) : super(key: key);
+  });
 
   @override
   State<BotTableWidget> createState() => _BotTableWidgetState();

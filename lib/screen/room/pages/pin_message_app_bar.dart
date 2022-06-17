@@ -19,18 +19,18 @@ class PinMessageAppBar extends StatelessWidget {
   final i18n = GetIt.I.get<I18N>();
 
   PinMessageAppBar({
-    Key? key,
+    super.key,
     required this.lastPinedMessage,
     required this.pinMessages,
     required this.onTap,
     required this.onClose,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return StreamBuilder<int>(
-      stream: lastPinedMessage.stream,
+      stream: lastPinedMessage,
       builder: (c, id) {
         if (id.hasData && id.data! > 0) {
           Message? mes;
@@ -50,7 +50,7 @@ class PinMessageAppBar extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surface,
                     borderRadius: secondaryBorder,
-                    boxShadow: DefaultBoxShadows,
+                    boxShadow: DEFAULT_BOX_SHADOWS,
                   ),
                   height: 60,
                   padding: const EdgeInsets.symmetric(

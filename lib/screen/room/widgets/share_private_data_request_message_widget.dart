@@ -28,13 +28,13 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
   static final _i18n = GetIt.I.get<I18N>();
 
   const SharePrivateDataRequestMessageWidget({
-    Key? key,
+    super.key,
     required this.message,
     required this.isSender,
     required this.maxWidth,
     required this.colorScheme,
     required this.isSeen,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -235,7 +235,6 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
               onPressed: () => Navigator.pop(c),
             ),
             TextButton(
-              child: Text(_i18n.get("ok")),
               style: TextButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -249,6 +248,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                 );
                 Navigator.pop(c);
               },
+              child: Text(_i18n.get("ok")),
             ),
           ],
         );

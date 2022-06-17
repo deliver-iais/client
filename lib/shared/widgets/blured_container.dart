@@ -14,7 +14,7 @@ class BlurContainer extends StatelessWidget {
   final bool blurIsEnabled;
 
   const BlurContainer({
-    Key? key,
+    super.key,
     required this.child,
     this.width,
     this.height,
@@ -23,7 +23,7 @@ class BlurContainer extends StatelessWidget {
     this.decoration,
     this.skew = 1.0,
     this.blurIsEnabled = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +32,9 @@ class BlurContainer extends StatelessWidget {
       return Container(
         padding: padding,
         decoration: decoration,
-        child: child,
         height: height,
         width: width,
+        child: child,
       );
     }
     return ClipRRect(

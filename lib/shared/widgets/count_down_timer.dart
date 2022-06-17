@@ -10,11 +10,11 @@ class CountDownTimer extends StatelessWidget {
   final Function(bool) lock;
 
   const CountDownTimer({
-    Key? key,
+    super.key,
     required this.message,
     required this.lockAfter,
     required this.lock,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

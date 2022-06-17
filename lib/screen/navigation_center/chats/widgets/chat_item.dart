@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -28,22 +29,36 @@ class RoomWrapper {
   final bool isInRoom;
 
   const RoomWrapper({required this.room, required this.isInRoom});
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other.runtimeType == runtimeType &&
+          other is RoomWrapper &&
+          const DeepCollectionEquality().equals(other.room, room) &&
+          const DeepCollectionEquality().equals(other.isInRoom, isInRoom));
+
+  @override
+  int get hashCode => Object.hash(
+        runtimeType,
+        const DeepCollectionEquality().hash(room),
+        const DeepCollectionEquality().hash(isInRoom),
+      );
 }
 
 class ChatItem extends StatefulWidget {
   final Room room;
   final bool isInRoom;
 
-  ChatItem({Key? key, required RoomWrapper roomWrapper})
+  ChatItem({super.key, required RoomWrapper roomWrapper})
       : room = roomWrapper.room,
-        isInRoom = roomWrapper.isInRoom,
-        super(key: key);
+        isInRoom = roomWrapper.isInRoom;
 
   @override
-  _ChatItemState createState() => _ChatItemState();
+  ChatItemState createState() => ChatItemState();
 }
 
-class _ChatItemState extends State<ChatItem> {
+class ChatItemState extends State<ChatItem> {
   static final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _roomRepo = GetIt.I.get<RoomRepo>();
@@ -214,7 +229,7 @@ class _ChatItemState extends State<ChatItem> {
     );
   }
 
-  Widget buildDraftMessageWidget(I18N _i18n, BuildContext context) {
+  Widget buildDraftMessageWidget(I18N i18n, BuildContext context) {
     final theme = Theme.of(context);
     return Row(
       children: [
@@ -227,7 +242,7 @@ class _ChatItemState extends State<ChatItem> {
             text: TextSpan(
               children: [
                 TextSpan(
-                  text: "${_i18n.get("draft")}: ",
+                  text: "${i18n.get("draft")}: ",
                   style: theme.primaryTextTheme.bodyText2,
                 ),
                 TextSpan(

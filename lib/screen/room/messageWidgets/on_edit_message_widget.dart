@@ -7,10 +7,10 @@ class OnEditMessageWidget extends StatelessWidget {
   final void Function() resetRoomPageDetails;
 
   const OnEditMessageWidget({
-    Key? key,
+    super.key,
     required this.message,
     required this.resetRoomPageDetails,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

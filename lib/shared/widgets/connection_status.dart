@@ -9,14 +9,14 @@ class ConnectionStatus extends StatelessWidget {
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _i18n = GetIt.I.get<I18N>();
 
-  const ConnectionStatus({Key? key}) : super(key: key);
+  const ConnectionStatus({super.key});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return StreamBuilder<TitleStatusConditions>(
       initialData: TitleStatusConditions.Normal,
-      stream: _messageRepo.updatingStatus.stream,
+      stream: _messageRepo.updatingStatus,
       builder: (context, snapshot) {
         return AnimatedContainer(
           width: double.infinity,
@@ -28,7 +28,7 @@ class ConnectionStatus extends StatelessWidget {
             borderRadius: tertiaryBorder,
           ),
           curve: Curves.easeInOut,
-          duration: ANIMATION_DURATION * 2,
+          duration: SUPER_SLOW_ANIMATION_DURATION,
           child: Row(
             children: [
               const SizedBox(width: 4),

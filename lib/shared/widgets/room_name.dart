@@ -1,12 +1,11 @@
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/loaders/text_loader.dart';
 import 'package:deliver/shared/widgets/dot_animation/dot_animation.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-
-import '../constants.dart';
 
 class RoomName extends StatelessWidget {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
@@ -17,12 +16,12 @@ class RoomName extends StatelessWidget {
   final bool shouldShowDotAnimation;
 
   const RoomName({
-    Key? key,
+    super.key,
     required this.uid,
     this.name,
     this.style,
     this.shouldShowDotAnimation = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +59,7 @@ class RoomName extends StatelessWidget {
                       CupertinoIcons.checkmark_seal_fill,
                       size:
                           (style ?? theme.textTheme.subtitle2)!.fontSize ?? 15,
-                      color: DELIVER_COLOR,
+                      color: ACTIVE_COLOR,
                     ),
                   );
                 } else {

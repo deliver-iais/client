@@ -12,14 +12,14 @@ class AudioPlayProgress extends StatelessWidget {
   final File audio;
   final String audioUuid;
   final CustomColorScheme colorScheme;
-  final _audioPlayerService = GetIt.I.get<AudioService>();
+  static final _audioPlayerService = GetIt.I.get<AudioService>();
 
-  AudioPlayProgress({
-    Key? key,
+  const AudioPlayProgress({
+    super.key,
     required this.audioUuid,
     required this.audio,
     required this.colorScheme,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -33,8 +33,8 @@ class AudioPlayProgress extends StatelessWidget {
               stream: _audioPlayerService.audioCurrentState(),
               builder: (c, state) {
                 if (state.data != null &&
-                    (state.data == AudioPlayerState.PLAYING ||
-                        state.data == AudioPlayerState.PAUSED)) {
+                    (state.data == AudioPlayerState.playing ||
+                        state.data == AudioPlayerState.paused)) {
                   return StreamBuilder(
                     stream: _audioPlayerService.audioUuid,
                     builder: (c, uuid) {
@@ -72,7 +72,7 @@ class AudioPlayProgress extends StatelessWidget {
       child: Align(
         alignment: Alignment.centerLeft,
         child: Text(
-          sizeFormatter(audio.size.toInt()) + " " + findFileType(audio.name),
+          "${sizeFormatter(audio.size.toInt())} ${findFileType(audio.name)}",
           style: const TextStyle(fontSize: 10),
         ),
       ),

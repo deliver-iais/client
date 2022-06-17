@@ -5,15 +5,16 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class NotSupportedMessage extends StatelessWidget {
-  final double maxWidth;
-  final CustomColorScheme colorScheme;
   final _i18n = GetIt.I.get<I18N>();
 
+  final double maxWidth;
+  final CustomColorScheme colorScheme;
+
   NotSupportedMessage({
-    Key? key,
+    super.key,
     required this.maxWidth,
     required this.colorScheme,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

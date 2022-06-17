@@ -91,8 +91,7 @@ class RoutingService {
   final _navigatorObserver = RoutingServiceNavigatorObserver();
   final _preMaybePopScope = PreMaybePopScope();
 
-  Stream<RouteEvent> get currentRouteStream =>
-      _navigatorObserver.currentRoute;
+  Stream<RouteEvent> get currentRouteStream => _navigatorObserver.currentRoute;
 
   BehaviorSubject<bool> shouldScrollToLastMessageInRoom =
       BehaviorSubject.seeded(false);
@@ -197,7 +196,7 @@ class RoutingService {
   }) =>
       _push(
         AllVideoPage(
-          const ValueKey("/media-details"),
+          key: const ValueKey("/media-details"),
           roomUid: uid.asString(),
           initIndex: initIndex,
           videoCount: videosLength,
@@ -211,7 +210,7 @@ class RoutingService {
   }) =>
       _push(
         AllImagePage(
-          const ValueKey("/media-details"),
+          key: const ValueKey("/media-details"),
           messageId: messageId,
           initIndex: initIndex,
           roomUid: uid,
@@ -432,7 +431,7 @@ class RoutingServiceNavigatorObserver extends NavigatorObserver {
 class Empty extends StatelessWidget {
   static final _i18n = GetIt.I.get<I18N>();
 
-  const Empty({Key? key}) : super(key: key);
+  const Empty({super.key});
 
   @override
   Widget build(BuildContext context) {

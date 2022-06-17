@@ -135,16 +135,16 @@ class UxService {
   }
 
   Stream get themeIndexStream =>
-      _themeIndex.stream.distinct().map((event) => event);
+      _themeIndex.distinct().map((event) => event);
 
   Stream get patternIndexStream =>
-      _patternIndex.stream.distinct().map((event) => event);
+      _patternIndex.distinct().map((event) => event);
 
   Stream get themeIsDarkStream =>
-      _themeIsDark.stream.distinct().map((event) => event);
+      _themeIsDark.distinct().map((event) => event);
 
   Stream get showColorfulStream =>
-      _showColorful.stream.distinct().map((event) => event);
+      _showColorful.distinct().map((event) => event);
 
   ThemeData get theme =>
       getThemeScheme(_themeIndex.value).theme(isDark: _themeIsDark.value);

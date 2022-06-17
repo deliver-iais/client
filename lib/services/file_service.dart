@@ -36,12 +36,14 @@ class FileService {
   Map<String, BehaviorSubject<CancelToken?>> cancelTokens = {};
 
   Future<String> get _localPath async {
-    if (await _checkPermission.checkMediaLibraryPermission() || isDesktop || isIOS) {
+    if (await _checkPermission.checkMediaLibraryPermission() ||
+        isDesktop ||
+        isIOS) {
       final directory = await getApplicationDocumentsDirectory();
       if (!io.Directory('${directory.path}/Deliver').existsSync()) {
         await io.Directory('${directory.path}/Deliver').create(recursive: true);
       }
-      return directory.path + "/Deliver";
+      return "${directory.path}/Deliver";
     }
     throw Exception("There is no Storage Permission!");
   }

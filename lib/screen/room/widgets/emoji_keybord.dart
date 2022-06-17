@@ -10,14 +10,13 @@ class EmojiKeyboard extends StatefulWidget {
   final void Function(String) onTap;
   final Function? onStickerTap;
 
-  const EmojiKeyboard({Key? key, required this.onTap, this.onStickerTap})
-      : super(key: key);
+  const EmojiKeyboard({super.key, required this.onTap, this.onStickerTap});
 
   @override
-  _EmojiKeyboard createState() => _EmojiKeyboard();
+  EmojiKeyboardState createState() => EmojiKeyboardState();
 }
 
-class _EmojiKeyboard extends State<EmojiKeyboard> {
+class EmojiKeyboardState extends State<EmojiKeyboard> {
   Iterable<Emoji> emojis = [];
 
   String selectedGroupIndex = "😀";
@@ -134,7 +133,7 @@ class _EmojiKeyboard extends State<EmojiKeyboard> {
                         if (isAnimatedEmoji(emoji.toString()))
                           Center(
                             child: Container(
-                              color: ActiveColor,
+                              color: ACTIVE_COLOR,
                               height: 10,
                               width: 10,
                             ),

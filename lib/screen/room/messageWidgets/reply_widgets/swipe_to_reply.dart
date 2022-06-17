@@ -11,11 +11,11 @@ class Swipe extends StatefulWidget {
   final double threshold;
 
   const Swipe({
-    Key? key,
+    super.key,
     required this.child,
     this.onSwipeLeft,
     this.threshold = 64.0,
-  }) : super(key: key);
+  });
 
   @override
   State<StatefulWidget> createState() {

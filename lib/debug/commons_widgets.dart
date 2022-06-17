@@ -13,7 +13,7 @@ class Debug extends StatelessWidget {
   final dynamic data;
   late final text = data.toString();
 
-  Debug(this.data, {Key? key, this.label = "VAL"}) : super(key: key);
+  Debug(this.data, {super.key, this.label = "VAL"});
 
   @override
   Widget build(BuildContext context) {
@@ -50,11 +50,11 @@ class DebugC extends StatefulWidget {
   final bool isOpen;
 
   const DebugC({
-    Key? key,
+    super.key,
     required this.children,
     this.label,
     this.isOpen = false,
-  }) : super(key: key);
+  });
 
   @override
   State<DebugC> createState() => _DebugCState();
@@ -117,9 +117,9 @@ class _DebugCState extends State<DebugC> {
                   ),
                 Wrap(
                   crossAxisAlignment: WrapCrossAlignment.end,
-                  children: widget.children,
                   spacing: 4,
                   runSpacing: 4,
+                  children: widget.children,
                 ),
               ],
             ),

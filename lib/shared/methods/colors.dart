@@ -132,7 +132,7 @@ class RandomColor {
         const ColorBrightness.custom(Range(45, 55)).returnBrightness(_random);
 
     /// Middle color
-    final _baseColor = _getColor(hue, saturation, brightness);
+    final baseColor = _getColor(hue, saturation, brightness);
 
     Color _getLighterColor(int lighterShade) =>
         _getColor(hue, saturation, brightness + (lighterShade * 5));
@@ -140,20 +140,20 @@ class RandomColor {
     Color _getDarkerColor(int darkerShade) =>
         _getColor(hue, saturation, brightness - (darkerShade * 5));
 
-    final _finishedColor = MaterialColor(_baseColor.value, <int, Color>{
+    final finishedColor = MaterialColor(baseColor.value, <int, Color>{
       50: _getLighterColor(5),
       100: _getLighterColor(4),
       200: _getLighterColor(3),
       300: _getLighterColor(2),
       400: _getLighterColor(1),
-      500: _baseColor,
+      500: baseColor,
       600: _getDarkerColor(1),
       700: _getDarkerColor(2),
       800: _getDarkerColor(3),
       900: _getDarkerColor(4),
     });
 
-    return _finishedColor;
+    return finishedColor;
   }
 
   /// Get list of random colors
@@ -188,9 +188,9 @@ class RandomColor {
     final s = saturation / 100;
     final v = brightness / 100;
 
-    final _color = HSLColor.fromAHSL(1.0, hue.toDouble(), s, v).toColor();
+    final color = HSLColor.fromAHSL(1.0, hue.toDouble(), s, v).toColor();
 
-    return _color;
+    return color;
   }
 }
 
@@ -311,13 +311,13 @@ class ColorHue {
   const ColorHue._(this._hue, this.type);
 
   int returnHue(Random random) {
-    var _h = _hue.randomWithin(random);
+    var h = _hue.randomWithin(random);
 
-    if (_h < 0) {
-      _h = 360 + _h;
+    if (h < 0) {
+      h = 360 + h;
     }
 
-    return _h;
+    return h;
   }
 
   @override

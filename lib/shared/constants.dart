@@ -1,5 +1,3 @@
-// ignore_for_file: non_constant_identifier_names
-
 import 'dart:math';
 
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -7,6 +5,8 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
 const APPLICATION_NAME = "We";
+
+// Links Constants
 const APPLICATION_DOMAIN = "wemessenger.ir";
 const SHARE_PRIVATE_DATA_ACCEPTANCE_URL = "spda";
 const ADD_CONTACT_URL = "ac";
@@ -17,36 +17,49 @@ const USER_URL = "user";
 const GROUP_URL = "group";
 const CHANNEL_URL = "channel";
 
-// if change the VERSION , is necessary to change version in pubspec.yaml file
-const VERSION = "1.8.7";
-const LOG_OUT = "log_out";
-const int MEDIA_PAGE_SIZE = 30;
-const double DOWNLOAD_COMPLETE = 200;
-const int TEXT_MESSAGE_MAX_LENGTH = 50;
-const int TEXT_MESSAGE_MAX_LINE = 25;
-const int PAGE_SIZE = 50;
-const bool TWO_STEP_VERIFICATION_IS_AVAILABLE = false;
+// Version Constants
+const VERSION =
+    "1.9.0"; // if change the VERSION , is necessary to change version in pubspec.yaml file
 
-//TEXT FIELD
+// Time Constants
+const ONLINE_TIME = 60000;
+const AVATAR_CACHE_TIME = 60 * 60 * 24 * 1000;
+const NULL_AVATAR_CACHE_TIME = 60 * 60 * 1 * 1000;
+const USER_INFO_CACHE_TIME = 60 * 60 * 24 * 7 * 1000;
+
+// Paging Constants
+const MEDIA_PAGE_SIZE = 30;
+const PAGE_SIZE = 50;
+
+// File Constants
+const MAX_FILE_SIZE_BYTE = 104857600.0; //100MB
+const DOWNLOAD_COMPLETE = 200.0;
+
+// Text Message Limitation Constant
+const TEXT_MESSAGE_MAX_LENGTH = 50;
+const TEXT_MESSAGE_MAX_LINE = 25;
 const INPUT_MESSAGE_TEXT_FIELD_MAX_LINE = TEXT_MESSAGE_MAX_LINE * 4;
 const INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH =
     INPUT_MESSAGE_TEXT_FIELD_MAX_LINE * TEXT_MESSAGE_MAX_LENGTH;
 
+// Feature Flags
+const bool TWO_STEP_VERIFICATION_IS_AVAILABLE = false;
+
+// Store Testing Fake User Constants
+const TEST_USER_PHONE_NUMBER = "1234567890";
 const String TEST_USER_ACCESS_TOKEN =
     "eyJUT0tFTl9UWVBFIjoiYWNjZXNzX3Rva2VuIiwiQ0FURUdPUlkiOjAsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJERUxJVkVSLUFVVEgiLCJpYXQiOjE2MzY0Mzc3OTYsImV4cCI6MTc5MTk1Nzc5Niwic3ViIjoiMzA0OTk4N2ItZTE1ZC00Mjg4LTk3Y2QtNDJkYmM2ZDczYWJkIiwianRpIjoiZTI2MWI4ZjItZTE1Zi00NjQ0LWE5ZTMtYTBjZjFhMmNlODIwIn0.e2bx71LfQpLWQ0I1ElPMOJQkOw0Sud-PjlcMNbR92MA";
-
 final Uid TEST_USER_UID = Uid.create()
   ..category = Categories.USER
   ..node = "3049987b-e15d-4288-97cd-42dbc6d73abd";
 
+// Fake User Constants
 final FAKE_USER_UID = Uid()
   ..category = Categories.USER
   ..node = "fake_user";
-
 const FAKE_USER_NAME = "John Doe";
 
-const TEST_USER_PHONE_NUMBER = "1234567890";
-
+// Call Constants
 const STUN_SERVER_URL = 'stun:217.218.7.16:3478';
 const STUN_SERVER_URL_2 = 'stun:stun.l.google.com:19302';
 const TURN_SERVER_URL =
@@ -78,6 +91,7 @@ const WEBRTC_MIN_BITRATE =
 const WEBRTC_MAX_FRAME_RATE =
     30; // 256 kbps with 2 Mbps we can have about 20 concurrent at high rate
 
+// Shared Dao Settings Constants
 const SHARED_DAO_SHOW_CONTACT_DIALOG = "SHARED_DAO_SHOW_CONTACT_DIALOG";
 const SHARED_DAO_THEME_IS_DARK = "SHARED_DAO_THEME_IS_DARK";
 const SHARED_DAO_THEME_COLOR = "SHARED_DAO_THEME_COLOR";
@@ -102,35 +116,17 @@ const SHARED_DAO_TWO_STEP_VERIFICATION_ENABLED =
     "SHARED_DAO_TWO_STEP_VERIFICATION_ENABLED";
 const SHARED_DAO_WINDOWS_SIZE = "SHARED_DAO_WINDOWS_SIZE";
 
-const ONLINE_TIME = 60000;
+// Notification Constants
+const String OPEN_CHAT_ACTION_ID =
+    'open_chat'; // A notification action which triggers a App navigation event
+const String DARWIN_NOTIFICATION_CATEGORY_TEXT =
+    'textCategory'; // Defines a iOS/MacOS notification category for text input actions.
+const String CLOSE_ACTION_ID = 'close'; // action id for close
+const String REPLY_ACTION_ID = 'reply'; // action id for reply
+const String MARK_AS_READ_ACTION_ID =
+    'mark_as_read'; // action id for mark as read
 
-const AVATAR_CACHE_TIME = 60 * 60 * 24 * 1000;
-const NULL_AVATAR_CACHE_TIME = 60 * 60 * 1 * 1000;
-
-const USER_INFO_CACHE_TIME = 60 * 60 * 24 * 7 * 1000;
-
-const SUPPORTED_IMAGE_EXTENSIONS = ['png', 'jpg', 'jpeg', 'gif'];
-
-const DELIVER_COLOR = Color(0xff1a88f7);
-
-//Local Notification Id
-
-// A notification action which triggers a App navigation event
-const String OPEN_CHAT_ACTION_ID = 'open_chat';
-
-// Defines a iOS/MacOS notification category for text input actions.
-const String DARWIN_NOTIFICATION_CATEGORY_TEXT = 'textCategory';
-
-// action id for close
-const String CLOSE_ACTION_ID = 'close';
-
-// action id for reply
-const String REPLY_ACTION_ID = 'reply';
-
-// action id for mark as read
-const String MARK_AS_READ_ACTION_ID = 'mark_as_read';
-
-// Tables ID
+// Hive Tables ID Constants
 const AVATAR_TRACK_ID = 1;
 const LAST_ACTIVITY_TRACK_ID = 2;
 const CONTACT_TRACK_ID = 3;
@@ -159,36 +155,32 @@ const AUTO_DOWNLOAD_TRACK_ID = 25;
 const AUTO_DOWNLOAD_ROOM_CATEGORY_TRACK_ID = 26;
 const CURRENT_CALL_INFO_TRACK_ID = 27;
 const MESSAGE_BRIEF_TRACK_ID = 28;
+
+//FEATURE DISCOVERY ID
+const FEATURE_1 = 'feature1';
+const FEATURE_2 = 'feature2';
+const FEATURE_3 = 'feature3';
+
 // Animation
+const FAST_ANIMATION_DURATION = Duration(milliseconds: 50);
 const ANIMATION_DURATION = Duration(milliseconds: 100);
+const SLOW_ANIMATION_DURATION = Duration(milliseconds: 200);
+const SUPER_SLOW_ANIMATION_DURATION = Duration(milliseconds: 500);
 
 // UI
 const double FLUID_MAX_WIDTH = 400;
 const double FLUID_MAX_HEIGHT = 540;
-
 const double FLUID_CONTAINER_MAX_WIDTH = 768;
 const double BREAKDOWN_SIZE = 768;
-
 const double NAVIGATION_PANEL_SIZE = 320;
 const double MIN_WIDTH = 200;
-
-//File
-const double MAX_FILE_SIZE_BYTE = 104857600; //100MB
-
-//FEATURE DISCOVERY ID
-const feature1 = 'feature1';
-const feature2 = 'feature2';
-const feature3 = 'feature3';
-
 const mainBorder = BorderRadius.all(Radius.circular(28));
-
 const secondaryBorder = BorderRadius.all(Radius.circular(12));
-
 const tertiaryBorder = BorderRadius.all(Radius.circular(8));
-
 const messageBorder = BorderRadius.all(Radius.circular(14));
-
 const buttonBorder = BorderRadius.all(Radius.circular(20));
+
+////////////////////// Functions //////////////////////
 
 // Screen Breakdown
 bool isLargeWidth(double width) => width > BREAKDOWN_SIZE;

@@ -4,7 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:marquee/marquee.dart';
 
 class AudioPlayerAppBar extends StatefulWidget {
-  const AudioPlayerAppBar({Key? key}) : super(key: key);
+  const AudioPlayerAppBar({super.key});
 
   @override
   State<AudioPlayerAppBar> createState() => _AudioPlayerAppBarState();
@@ -41,7 +41,7 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
                 StreamBuilder<AudioPlayerState>(
                   stream: audioPlayerService.audioCurrentState(),
                   builder: (c, cs) {
-                    if (cs.hasData && cs.data == AudioPlayerState.PLAYING) {
+                    if (cs.hasData && cs.data == AudioPlayerState.playing) {
                       return IconButton(
                         onPressed: () {
                           audioPlayerService.pause();

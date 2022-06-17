@@ -6,7 +6,7 @@ class FluidWidget extends StatelessWidget {
   final BoxDecoration boxDecoration;
 
   const FluidWidget({
-    Key? key,
+    super.key,
     required this.child,
     this.boxDecoration = const BoxDecoration(
       gradient: LinearGradient(
@@ -18,7 +18,7 @@ class FluidWidget extends StatelessWidget {
         ],
       ),
     ),
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -14,17 +14,17 @@ class OnDeletePopupDialog extends StatefulWidget {
   final String roomName;
 
   const OnDeletePopupDialog({
-    Key? key,
+    super.key,
     required this.selected,
     required this.roomUid,
     required this.roomName,
-  }) : super(key: key);
+  });
 
   @override
-  _OnDeletePopupDialogState createState() => _OnDeletePopupDialogState();
+  OnDeletePopupDialogState createState() => OnDeletePopupDialogState();
 }
 
-class _OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
+class OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _routingService = GetIt.I.get<RoutingService>();

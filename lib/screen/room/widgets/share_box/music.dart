@@ -14,19 +14,19 @@ class ShareBoxMusic extends StatefulWidget {
   final Map<int, IconData> icons;
 
   const ShareBoxMusic({
-    Key? key,
+    super.key,
     required this.scrollController,
     required this.onClick,
     required this.playMusic,
     required this.icons,
     required this.selectedAudio,
-  }) : super(key: key);
+  });
 
   @override
-  _ShareBoxMusicState createState() => _ShareBoxMusicState();
+  ShareBoxMusicState createState() => ShareBoxMusicState();
 }
 
-class _ShareBoxMusicState extends State<ShareBoxMusic> {
+class ShareBoxMusicState extends State<ShareBoxMusic> {
   late Future<List<File>> _future;
 
   @override

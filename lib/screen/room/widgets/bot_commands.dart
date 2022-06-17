@@ -11,19 +11,19 @@ class BotCommands extends StatefulWidget {
   final int botCommandSelectedIndex;
 
   const BotCommands({
-    Key? key,
+    super.key,
     required this.botUid,
     required this.onCommandClick,
     this.query,
     required this.botCommandSelectedIndex,
-  }) : super(key: key);
+  });
 
   @override
-  _BotCommandsState createState() => _BotCommandsState();
+  BotCommandsState createState() => BotCommandsState();
 }
 
-class _BotCommandsState extends State<BotCommands> {
-  final _botRepo = GetIt.I.get<BotRepo>();
+class BotCommandsState extends State<BotCommands> {
+  static final _botRepo = GetIt.I.get<BotRepo>();
 
   @override
   Widget build(BuildContext context) {
@@ -47,13 +47,13 @@ class _BotCommandsState extends State<BotCommands> {
                 padding: EdgeInsets.zero,
                 itemCount: botCommands.length,
                 itemBuilder: (c, index) {
-                  var _botCommandItemColor = Colors.transparent;
+                  var botCommandItemColor = Colors.transparent;
                   if (widget.botCommandSelectedIndex == index &&
                       widget.botCommandSelectedIndex != -1) {
-                    _botCommandItemColor = theme.focusColor;
+                    botCommandItemColor = theme.focusColor;
                   }
                   return Container(
-                    color: _botCommandItemColor,
+                    color: botCommandItemColor,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -67,7 +67,7 @@ class _BotCommandsState extends State<BotCommands> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "/" + botCommands.keys.toList()[index],
+                                "/${botCommands.keys.toList()[index]}",
                                 style: theme.textTheme.subtitle1,
                               ),
                               const SizedBox(width: 10),

@@ -12,11 +12,11 @@ class FormattedTextFieldWidget extends StatefulWidget {
   final void Function(GlobalKey<FormState>) setFormKey;
 
   const FormattedTextFieldWidget({
-    Key? key,
+    super.key,
     required this.formField,
     required this.formResult,
     required this.setFormKey,
-  }) : super(key: key);
+  });
 
   @override
   State<FormattedTextFieldWidget> createState() =>
@@ -26,6 +26,7 @@ class FormattedTextFieldWidget extends StatefulWidget {
 class _FormattedTextFieldWidgetState extends State<FormattedTextFieldWidget> {
   @override
   void initState() {
+    // ignore: no_leading_underscores_for_local_identifiers
     for (final _ in widget.formField.formattedTextField.partitionsSizes) {
       _textControllerList.add(TextEditingController());
     }
@@ -64,6 +65,7 @@ class _FormattedTextFieldWidgetState extends State<FormattedTextFieldWidget> {
                       "this_filed_not_empty",
                     );
                   }
+                  return null;
                 },
                 widget: Row(
                   children: [
