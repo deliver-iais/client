@@ -3,7 +3,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
-import 'package:deliver/screen/contacts/contacts_page.dart';
+import 'package:deliver/screen/contacts/empty_contacts.dart';
 import 'package:deliver/screen/contacts/sync_contact.dart';
 import 'package:deliver/screen/muc/widgets/selective_contact.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
@@ -146,7 +146,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                         },
                       );
                     } else {
-                      return emptyContactWidget(context);
+                      return const EmptyContacts();
                     }
                   } else {
                     return const SizedBox.shrink();

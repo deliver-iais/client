@@ -2,6 +2,7 @@ import 'package:deliver/box/contact.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
+import 'package:deliver/screen/contacts/empty_contacts.dart';
 import 'package:deliver/screen/contacts/sync_contact.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -9,7 +10,6 @@ import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
-import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -83,7 +83,7 @@ class ContactsPageState extends State<ContactsPage> {
                       onCancel: () => _queryTermDebouncedSubject.add(""),
                     ),
                   ),
-                  if (contacts.isNotEmpty)
+                  if (!contacts.isNotEmpty)
                     Expanded(
                       child: Scrollbar(
                         child: StreamBuilder<String>(
@@ -134,7 +134,7 @@ class ContactsPageState extends State<ContactsPage> {
                       ),
                     )
                   else
-                    emptyContactWidget(context),
+                    const EmptyContacts(),
                   const Divider(),
                   SizedBox(
                     height: 40,
@@ -164,33 +164,4 @@ class ContactsPageState extends State<ContactsPage> {
         .toLowerCase()
         .contains(_queryTermDebouncedSubject.value.toLowerCase());
   }
-}
-
-Widget emptyContactWidget(BuildContext context) {
-  final i18n = GetIt.I.get<I18N>();
-  return Expanded(
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        const Center(
-          child: Tgs.asset(
-            "assets/duck_animation/cry.tgs",
-            width: 180,
-            height: 180,
-          ),
-        ),
-        Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Center(
-            child: Text(
-              i18n.get("no_contact"),
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.headline6,
-            ),
-          ),
-        )
-      ],
-    ),
-  );
 }

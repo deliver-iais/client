@@ -378,5 +378,7 @@
   "you_create_group": "گروه را ساختید.",
   "your_password_update": "رمز شما بروز شد.",
   "syncing_contact": "همگام سازی مخاطبین",
-  "no_contact": "مخاطبی پیدا نشد"
+  "you_have_not_contacts": "مخاطبی پیدا نشد",
+  "invite_your_friends": "از دوستان خودتون دعوت کنید که از پیام رسان استفاده کنند",
+  "search_by_username": "با جستجوی نام کاربری با افراد دیگر گفتگو را آغاز کنید"
 }
