@@ -72,6 +72,7 @@ linter:
     cascade_invocations: true
     cast_nullable_to_non_nullable: true
     constant_identifier_names: false
+    non_constant_identifier_names: false
     curly_braces_in_flow_control_structures: true
     depend_on_referenced_packages: true
     deprecated_consistency: true

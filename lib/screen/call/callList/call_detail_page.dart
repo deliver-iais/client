@@ -20,17 +20,17 @@ class CallDetailPage extends StatefulWidget {
   final Uid caller;
 
   const CallDetailPage({
-    Key? key,
+    super.key,
     required this.isIncomingCall,
     required this.caller,
     required this.callEvent,
-  }) : super(key: key);
+  });
 
   @override
-  _CallDetailPageState createState() => _CallDetailPageState();
+  CallDetailPageState createState() => CallDetailPageState();
 }
 
-class _CallDetailPageState extends State<CallDetailPage> {
+class CallDetailPageState extends State<CallDetailPage> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _callService = GetIt.I.get<CallService>();

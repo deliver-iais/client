@@ -9,13 +9,13 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class MucAppbarTitle extends StatelessWidget {
-  final _routingService = GetIt.I.get<RoutingService>();
-  final _mucRepo = GetIt.I.get<MucRepo>();
-  final i18n = GetIt.I.get<I18N>();
+  static final _routingService = GetIt.I.get<RoutingService>();
+  static final _mucRepo = GetIt.I.get<MucRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
 
   final String mucUid;
 
-  MucAppbarTitle({Key? key, required this.mucUid}) : super(key: key);
+  const MucAppbarTitle({super.key, required this.mucUid});
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +48,7 @@ class MucAppbarTitle extends StatelessWidget {
                         TitleStatus(
                           style: theme.textTheme.caption!,
                           normalConditionWidget: Text(
-                            "${snapshot.data!.population} ${i18n.get("members")}",
+                            "${snapshot.data!.population} ${_i18n.get("members")}",
                             maxLines: 1,
                             overflow: TextOverflow.fade,
                             softWrap: false,

@@ -52,13 +52,13 @@ import 'package:url_launcher/url_launcher.dart';
 class ProfilePage extends StatefulWidget {
   final Uid roomUid;
 
-  const ProfilePage(this.roomUid, {Key? key}) : super(key: key);
+  const ProfilePage(this.roomUid, {super.key});
 
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  ProfilePageState createState() => ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage>
+class ProfilePageState extends State<ProfilePage>
     with TickerProviderStateMixin {
   final _logger = GetIt.I.get<Logger>();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
@@ -159,7 +159,7 @@ class _ProfilePageState extends State<ProfilePage>
                         child: Box(
                           borderRadius: BorderRadius.zero,
                           child: StreamBuilder<bool>(
-                            stream: _selectMediasForForward.stream,
+                            stream: _selectMediasForForward,
                             builder: (context, selectMediaToForward) {
                               if (selectMediaToForward.hasData &&
                                   selectMediaToForward.data != null &&
@@ -174,6 +174,14 @@ class _ProfilePageState extends State<ProfilePage>
                                         MainAxisAlignment.spaceBetween,
                                     children: [
                                       Badge(
+                                        badgeColor: theme.primaryColor,
+                                        badgeContent: Text(
+                                          _selectedMedia.length.toString(),
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            color: theme.colorScheme.onPrimary,
+                                          ),
+                                        ),
                                         child: IconButton(
                                           color: theme.primaryColor,
                                           icon: const Icon(
@@ -185,14 +193,6 @@ class _ProfilePageState extends State<ProfilePage>
                                             _selectedMedia.clear();
                                             setState(() {});
                                           },
-                                        ),
-                                        badgeColor: theme.primaryColor,
-                                        badgeContent: Text(
-                                          _selectedMedia.length.toString(),
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: theme.colorScheme.onPrimary,
-                                          ),
                                         ),
                                       ),
                                       if (isAndroid)
@@ -289,6 +289,7 @@ class _ProfilePageState extends State<ProfilePage>
                   borderRadius: BorderRadius.zero,
                   child: TabBarView(
                     physics: const NeverScrollableScrollPhysics(),
+                    controller: _tabController,
                     children: [
                       if (widget.roomUid.isGroup() ||
                           (widget.roomUid.isChannel() && _isMucAdminOrOwner))
@@ -350,7 +351,6 @@ class _ProfilePageState extends State<ProfilePage>
                           mediaCount: snapshot.data!.audiosCount,
                         ),
                     ],
-                    controller: _tabController,
                   ),
                 ),
               ),
@@ -438,8 +438,10 @@ class _ProfilePageState extends State<ProfilePage>
                         subtitleTextStyle: TextStyle(color: theme.primaryColor),
                         leading: const Icon(Icons.phone),
                         trailing: const Icon(Icons.call),
-                        onPressed: (_) => launch(
-                          "tel:${snapshot.data!.countryCode}${snapshot.data!.nationalNumber}",
+                        onPressed: (_) => launchUrl(
+                          Uri.parse(
+                            "tel:${snapshot.data!.countryCode}${snapshot.data!.nationalNumber}",
+                          ),
                         ),
                       ),
                     );
@@ -619,6 +621,7 @@ class _ProfilePageState extends State<ProfilePage>
       itemBuilder: (_) => <PopupMenuItem<String>>[
         if ((widget.roomUid.isMuc() && _isMucOwner) || widget.roomUid.isBot())
           PopupMenuItem<String>(
+            value: "invite_link",
             child: Row(
               children: [
                 const Icon(Icons.add_link_outlined),
@@ -626,10 +629,10 @@ class _ProfilePageState extends State<ProfilePage>
                 Text(_i18n.get("create_invite_link"))
               ],
             ),
-            value: "invite_link",
           ),
         if (widget.roomUid.isMuc() && _isMucOwner)
           PopupMenuItem<String>(
+            value: "manage",
             child: Row(
               children: [
                 const Icon(Icons.settings),
@@ -641,10 +644,10 @@ class _ProfilePageState extends State<ProfilePage>
                 ),
               ],
             ),
-            value: "manage",
           ),
         if (!_isMucOwner)
           PopupMenuItem<String>(
+            value: "delete_room",
             child: Row(
               children: [
                 Icon(
@@ -662,10 +665,10 @@ class _ProfilePageState extends State<ProfilePage>
                 ),
               ],
             ),
-            value: "delete_room",
           ),
         if (widget.roomUid.isMuc() && _isMucOwner)
           PopupMenuItem<String>(
+            value: "deleteMuc",
             child: Row(
               children: [
                 const Icon(Icons.delete),
@@ -677,10 +680,10 @@ class _ProfilePageState extends State<ProfilePage>
                 )
               ],
             ),
-            value: "deleteMuc",
           ),
         if (widget.roomUid.category == Categories.BOT)
           PopupMenuItem<String>(
+            value: "addBotToGroup",
             child: Row(
               children: [
                 const Icon(Icons.person_add),
@@ -688,9 +691,9 @@ class _ProfilePageState extends State<ProfilePage>
                 Text(_i18n.get("add_to_group")),
               ],
             ),
-            value: "addBotToGroup",
           ),
         PopupMenuItem<String>(
+          value: "report",
           child: Row(
             children: [
               const Icon(Icons.report),
@@ -698,10 +701,10 @@ class _ProfilePageState extends State<ProfilePage>
               Text(_i18n.get("report")),
             ],
           ),
-          value: "report",
         ),
         if (!widget.roomUid.isMuc())
           PopupMenuItem<String>(
+            value: "blockRoom",
             child: StreamBuilder<bool?>(
               stream: _roomRepo.watchIsRoomBlocked(widget.roomUid.asString()),
               builder: (c, s) {
@@ -723,7 +726,6 @@ class _ProfilePageState extends State<ProfilePage>
                 }
               },
             ),
-            value: "blockRoom",
           )
       ],
       onSelected: onSelected,
@@ -826,7 +828,7 @@ class _ProfilePageState extends State<ProfilePage>
                   onPressed: () {
                     Clipboard.setData(
                       ClipboardData(
-                        text:inviteLink,
+                        text: inviteLink,
                       ),
                     );
                     ToastDisplay.showToast(
@@ -884,8 +886,8 @@ class _ProfilePageState extends State<ProfilePage>
   void showManageDialog() {
     final channelIdFormKey = GlobalKey<FormState>();
     final nameFormKey = GlobalKey<FormState>();
-    var _currentName = "";
-    var _currentId = "";
+    var currentName = "";
+    var currentId = "";
     String? mucName;
     var mucInfo = "";
     var channelId = "";
@@ -901,7 +903,7 @@ class _ProfilePageState extends State<ProfilePage>
                   future: _roomRepo.getName(widget.roomUid),
                   builder: (c, name) {
                     if (name.hasData && name.data != null) {
-                      _currentName = name.data!;
+                      currentName = name.data!;
                       return Form(
                         key: nameFormKey,
                         child: TextFormField(
@@ -938,7 +940,7 @@ class _ProfilePageState extends State<ProfilePage>
                     stream: _mucRepo.watchMuc(widget.roomUid.asString()),
                     builder: (c, muc) {
                       if (muc.hasData && muc.data != null) {
-                        _currentId = muc.data!.id;
+                        currentId = muc.data!.id;
                         return Column(
                           children: [
                             Form(
@@ -962,7 +964,7 @@ class _ProfilePageState extends State<ProfilePage>
                               ),
                             ),
                             StreamBuilder<bool?>(
-                              stream: _showChannelIdError.stream,
+                              stream: _showChannelIdError,
                               builder: (c, e) {
                                 if (e.hasData && e.data != null && e.data!) {
                                   return Text(
@@ -1018,7 +1020,7 @@ class _ProfilePageState extends State<ProfilePage>
           ),
           actions: <Widget>[
             StreamBuilder<bool>(
-              stream: newChange.stream,
+              stream: newChange,
               builder: (c, change) {
                 if (change.hasData && change.data != null) {
                   return TextButton(
@@ -1030,12 +1032,12 @@ class _ProfilePageState extends State<ProfilePage>
                               if (widget.roomUid.category == Categories.GROUP) {
                                 await _mucRepo.modifyGroup(
                                   widget.roomUid.asString(),
-                                  mucName ?? _currentName,
+                                  mucName ?? currentName,
                                   mucInfo,
                                 );
                                 _roomRepo.updateRoomName(
                                   widget.roomUid,
-                                  mucName ?? _currentName,
+                                  mucName ?? currentName,
                                 );
                                 setState(() {});
                                 navigatorState.pop();
@@ -1043,13 +1045,13 @@ class _ProfilePageState extends State<ProfilePage>
                                 if (channelId.isEmpty) {
                                   await _mucRepo.modifyChannel(
                                     widget.roomUid.asString(),
-                                    mucName ?? _currentName,
-                                    _currentId,
+                                    mucName ?? currentName,
+                                    currentId,
                                     mucInfo,
                                   );
                                   _roomRepo.updateRoomName(
                                     widget.roomUid,
-                                    mucName ?? _currentName,
+                                    mucName ?? currentName,
                                   );
                                   navigatorState.pop();
                                 } else if (channelIdFormKey.currentState !=
@@ -1058,13 +1060,13 @@ class _ProfilePageState extends State<ProfilePage>
                                   if (await checkChannelD(channelId)) {
                                     await _mucRepo.modifyChannel(
                                       widget.roomUid.asString(),
-                                      mucName ?? _currentName,
+                                      mucName ?? currentName,
                                       channelId,
                                       mucInfo,
                                     );
                                     _roomRepo.updateRoomName(
                                       widget.roomUid,
-                                      mucName ?? _currentName,
+                                      mucName ?? currentName,
                                     );
 
                                     navigatorState.pop();
@@ -1181,7 +1183,7 @@ class _ProfilePageState extends State<ProfilePage>
                 }
                 groups.add(s);
                 return StreamBuilder<List<String>>(
-                  stream: groups.stream,
+                  stream: groups,
                   builder: (context, snapshot) {
                     if (snapshot.hasData && snapshot.data!.isNotEmpty) {
                       final filteredGroupList = snapshot.data!;

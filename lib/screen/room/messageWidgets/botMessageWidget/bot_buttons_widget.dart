@@ -17,20 +17,20 @@ class BotButtonsWidget extends StatefulWidget {
   final CustomColorScheme colorScheme;
 
   const BotButtonsWidget({
-    Key? key,
+    super.key,
     required this.message,
     required this.maxWidth,
     required this.isSender,
     required this.colorScheme,
     required this.isSeen,
-  }) : super(key: key);
+  });
 
   @override
   State<BotButtonsWidget> createState() => _BotButtonsWidgetState();
 }
 
 class _BotButtonsWidgetState extends State<BotButtonsWidget> {
-  final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
   final BehaviorSubject<bool> _locked = BehaviorSubject.seeded(false);
 
   @override
@@ -48,7 +48,7 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
     final buttons = widget.message.json.toButtons();
     return StreamBuilder<bool>(
       initialData: _locked.value,
-      stream: _locked.stream,
+      stream: _locked,
       builder: (context, lockData) {
         if (lockData.hasData && lockData.data != null) {
           final isLocked = lockData.data!;

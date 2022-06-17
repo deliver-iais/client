@@ -14,12 +14,12 @@ class OpenFileStatus extends StatelessWidget {
   final Color foregroundColor;
 
   const OpenFileStatus({
-    Key? key,
+    super.key,
     required this.file,
     required this.filePath,
     required this.backgroundColor,
     required this.foregroundColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

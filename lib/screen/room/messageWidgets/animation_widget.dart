@@ -279,11 +279,11 @@ class AnimatedEmoji extends StatefulWidget {
   static final _authRepo = GetIt.I.get<AuthRepo>();
 
   const AnimatedEmoji({
-    Key? key,
+    super.key,
     required this.message,
     required this.isSeen,
     required this.colorScheme,
-  }) : super(key: key);
+  });
 
   static bool isAnimatedEmojiMessage(Message message) {
     if (message.type != MessageType.TEXT) return false;
@@ -293,10 +293,10 @@ class AnimatedEmoji extends StatefulWidget {
   }
 
   @override
-  _AnimatedEmojiState createState() => _AnimatedEmojiState();
+  AnimatedEmojiState createState() => AnimatedEmojiState();
 }
 
-class _AnimatedEmojiState extends State<AnimatedEmoji>
+class AnimatedEmojiState extends State<AnimatedEmoji>
     with TickerProviderStateMixin {
   late AnimationController _controller;
   late Future<LottieComposition?> _composition;
@@ -349,6 +349,8 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
               return GestureDetector(
                 onTap: () => _controller.forward(from: 0),
                 child: SizedBox(
+                  width: 120,
+                  height: 120,
                   child: Lottie(
                     composition: composition,
                     controller: _controller,
@@ -356,8 +358,6 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
                     height: 120,
                     repeat: false,
                   ),
-                  width: 120,
-                  height: 120,
                 ),
               );
             } else {
@@ -413,7 +413,7 @@ class _AnimatedEmojiState extends State<AnimatedEmoji>
 class AnimationLocal extends StatelessWidget {
   final String path;
 
-  const AnimationLocal({Key? key, required this.path}) : super(key: key);
+  const AnimationLocal({super.key, required this.path});
 
   @override
   Widget build(BuildContext context) {

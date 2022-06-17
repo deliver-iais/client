@@ -11,17 +11,17 @@ class SearchBox extends StatefulWidget {
   final TextEditingController? controller;
 
   const SearchBox({
-    Key? key,
+    super.key,
     required this.onChange,
     this.onCancel,
     this.controller,
-  }) : super(key: key);
+  });
 
   @override
-  _SearchBoxState createState() => _SearchBoxState();
+  SearchBoxState createState() => SearchBoxState();
 }
 
-class _SearchBoxState extends State<SearchBox> {
+class SearchBoxState extends State<SearchBox> {
   final TextEditingController _localController = TextEditingController();
   final BehaviorSubject<bool> _hasText = BehaviorSubject.seeded(false);
   final _focusNode = FocusNode(canRequestFocus: false);
@@ -67,7 +67,7 @@ class _SearchBoxState extends State<SearchBox> {
           isDense: true,
           prefixIcon: const Icon(CupertinoIcons.search),
           suffixIcon: StreamBuilder<bool?>(
-            stream: _hasText.stream,
+            stream: _hasText,
             builder: (c, ht) {
               if (ht.hasData && ht.data!) {
                 return IconButton(

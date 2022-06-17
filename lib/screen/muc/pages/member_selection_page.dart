@@ -18,8 +18,7 @@ class MemberSelectionPage extends StatelessWidget {
   final Uid? mucUid;
   final bool isChannel;
 
-  MemberSelectionPage({Key? key, required this.isChannel, this.mucUid})
-      : super(key: key);
+  MemberSelectionPage({super.key, required this.isChannel, this.mucUid});
 
   @override
   Widget build(BuildContext context) {

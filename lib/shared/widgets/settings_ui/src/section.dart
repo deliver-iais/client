@@ -12,16 +12,15 @@ class Section extends AbstractSection {
   final EdgeInsetsGeometry subtitlePadding;
 
   const Section({
-    Key? key,
-    String? title,
-    EdgeInsetsGeometry titlePadding = defaultTitlePadding,
+    super.key,
+    super.title,
+    super.titlePadding = defaultTitlePadding,
     this.maxLines,
     this.subtitle,
     this.subtitlePadding = defaultTitlePadding,
     this.children,
     this.titleTextStyle,
-  })  : assert(maxLines == null || maxLines > 0),
-        super(key: key, title: title, titlePadding: titlePadding);
+  }) : assert(maxLines == null || maxLines > 0);
 
   @override
   Widget build(BuildContext context) {

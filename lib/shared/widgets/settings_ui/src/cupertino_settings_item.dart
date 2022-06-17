@@ -12,7 +12,7 @@ typedef PressOperationCallback = void Function();
 
 class CupertinoSettingsItem extends StatefulWidget {
   const CupertinoSettingsItem({
-    Key? key,
+    super.key,
     required this.type,
     required this.label,
     this.labelMaxLines,
@@ -33,8 +33,7 @@ class CupertinoSettingsItem extends StatefulWidget {
     this.valueTextStyle,
     this.switchActiveColor,
   })  : assert(labelMaxLines == null || labelMaxLines > 0),
-        assert(subtitleMaxLines == null || subtitleMaxLines > 0),
-        super(key: key);
+        assert(subtitleMaxLines == null || subtitleMaxLines > 0);
 
   final String label;
   final int? labelMaxLines;

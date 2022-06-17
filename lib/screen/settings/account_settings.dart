@@ -27,14 +27,13 @@ import 'package:rxdart/rxdart.dart';
 class AccountSettings extends StatefulWidget {
   final bool forceToSetUsernameAndName;
 
-  const AccountSettings({Key? key, this.forceToSetUsernameAndName = false})
-      : super(key: key);
+  const AccountSettings({super.key, this.forceToSetUsernameAndName = false});
 
   @override
-  _AccountSettingsState createState() => _AccountSettingsState();
+  AccountSettingsState createState() => AccountSettingsState();
 }
 
-class _AccountSettingsState extends State<AccountSettings> {
+class AccountSettingsState extends State<AccountSettings> {
   final _i18n = GetIt.I.get<I18N>();
   final subject = BehaviorSubject<String>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
@@ -145,7 +144,7 @@ class _AccountSettingsState extends State<AccountSettings> {
   void initState() {
     try {
       _accountRepo.hasProfile();
-      subject.stream
+      subject
           .debounceTime(const Duration(milliseconds: 250))
           .listen((username) async {
         if (_usernameFormKey.currentState?.validate() ?? false) {
@@ -215,7 +214,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                       NormalSettingsTitle(
                         child: Center(
                           child: StreamBuilder<String>(
-                            stream: _newAvatarPath.stream,
+                            stream: _newAvatarPath,
                             builder: (context, snapshot) {
                               if (snapshot.hasData &&
                                   snapshot.data != null &&
@@ -330,7 +329,7 @@ class _AccountSettingsState extends State<AccountSettings> {
                                     ],
                                   ),
                                   StreamBuilder<bool>(
-                                    stream: _usernameIsAvailable.stream,
+                                    stream: _usernameIsAvailable,
                                     builder: (context, snapshot) {
                                       if (snapshot.hasData &&
                                           snapshot.data != null &&
@@ -408,8 +407,8 @@ class _AccountSettingsState extends State<AccountSettings> {
                             Align(
                               alignment: Alignment.centerRight,
                               child: ElevatedButton(
-                                child: Text(_i18n.get("save")),
                                 onPressed: checkAndSend,
+                                child: Text(_i18n.get("save")),
                               ),
                             )
                           ],

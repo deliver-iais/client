@@ -89,10 +89,10 @@ class ExtraTheme extends InheritedWidget {
   final ExtraThemeData extraThemeData;
 
   const ExtraTheme({
-    Key? key,
-    required Widget child,
+    super.key,
+    required super.child,
     required this.extraThemeData,
-  }) : super(key: key, child: child);
+  });
 
   static ExtraThemeData of(BuildContext context) {
     return context

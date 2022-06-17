@@ -14,12 +14,12 @@ class ForwardPreview extends StatelessWidget {
   final List<Media>? forwardedMedia;
 
   ForwardPreview({
-    Key? key,
+    super.key,
     this.forwardedMessages,
     this.shareUid,
     required this.onClick,
     this.forwardedMedia,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

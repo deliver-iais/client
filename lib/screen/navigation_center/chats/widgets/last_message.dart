@@ -26,7 +26,7 @@ class AsyncLastMessage extends StatelessWidget {
   final Color? highlightColor;
 
   AsyncLastMessage({
-    Key? key,
+    super.key,
     required Message message,
     required this.lastMessageId,
     this.hasMentioned = false,
@@ -36,11 +36,10 @@ class AsyncLastMessage extends StatelessWidget {
     this.showRoomDetails = true,
     this.pinned = false,
     this.highlightColor,
-  })  : messageSRF =
+  }) : messageSRF =
             _messageExtractorServices.extractMessageSimpleRepresentative(
           _messageExtractorServices.extractProtocolBufferMessage(message),
-        ),
-        super(key: key);
+        );
 
   @override
   Widget build(BuildContext context) {
@@ -84,7 +83,7 @@ class LastMessage extends StatelessWidget {
   final Color? highlightColor;
 
   const LastMessage({
-    Key? key,
+    super.key,
     required this.messageSR,
     required this.lastMessageId,
     this.hasMentioned = false,
@@ -94,7 +93,7 @@ class LastMessage extends StatelessWidget {
     this.showRoomDetails = true,
     this.pinned = false,
     this.highlightColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -216,6 +215,7 @@ class LastMessage extends StatelessWidget {
             child: SpoilerLoader(
               e.text,
               style: e.style,
+              foreground: e.style?.color,
               disableSpoilerReveal: true,
             ),
           );

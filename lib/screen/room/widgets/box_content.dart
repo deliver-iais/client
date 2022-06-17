@@ -48,7 +48,7 @@ class BoxContent extends StatefulWidget {
   final void Function() onEdit;
 
   const BoxContent({
-    Key? key,
+    super.key,
     required this.message,
     required this.maxWidth,
     required this.minWidth,
@@ -63,17 +63,17 @@ class BoxContent extends StatefulWidget {
     this.pattern,
     this.messageReplyBrief,
     required this.onEdit,
-  }) : super(key: key);
+  });
 
   Type getState() {
-    return _BoxContentState;
+    return BoxContentState;
   }
 
   @override
-  _BoxContentState createState() => _BoxContentState();
+  BoxContentState createState() => BoxContentState();
 }
 
-class _BoxContentState extends State<BoxContent> {
+class BoxContentState extends State<BoxContent> {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _routingServices = GetIt.I.get<RoutingService>();
   final showMenuBehavior = BehaviorSubject.seeded(false);
@@ -316,7 +316,7 @@ class _BoxContentState extends State<BoxContent> {
         return BotTableWidget(
           message: widget.message,
           colorScheme: colorScheme,
-          maxWidth: widget.maxWidth*1.1,
+          maxWidth: widget.maxWidth * 1.1,
         );
       case MessageType.SHARE_UID:
         return ShareUidMessageWidget(

@@ -24,20 +24,20 @@ class ProfileAvatar extends StatefulWidget {
   final bool canSetAvatar;
 
   const ProfileAvatar({
-    Key? key,
+    super.key,
     required this.roomUid,
     this.canSetAvatar = false,
-  }) : super(key: key);
+  });
 
   @override
-  _ProfileAvatarState createState() => _ProfileAvatarState();
+  ProfileAvatarState createState() => ProfileAvatarState();
 }
 
-class _ProfileAvatarState extends State<ProfileAvatar> {
+class ProfileAvatarState extends State<ProfileAvatar> {
   static final _avatarRepo = GetIt.I.get<AvatarRepo>();
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _i18n = GetIt.I.get<I18N>();
-  final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _fileRepo = GetIt.I.get<FileRepo>();
   final BehaviorSubject<String> _newAvatarPath = BehaviorSubject.seeded("");
 
   @override
@@ -45,7 +45,7 @@ class _ProfileAvatarState extends State<ProfileAvatar> {
     return Padding(
       padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
       child: StreamBuilder<String>(
-        stream: _newAvatarPath.stream,
+        stream: _newAvatarPath,
         builder: (c, s) {
           if (s.hasData && s.data != null && s.data!.isNotEmpty) {
             return CircleAvatar(

@@ -117447,9 +117447,9 @@ class Emoji {
       switch (skinTone) {
         case fitzpatrick.light:
           return Emoji(
-            name: name + ', tone1',
+            name: '$name, tone1',
             char: modify(char, skinTone),
-            shortName: shortName + '_tone1',
+            shortName: '${shortName}_tone1',
             emojiGroup: emojiGroup,
             emojiSubgroup: emojiSubgroup,
             keywords: keywords,
@@ -117457,9 +117457,9 @@ class Emoji {
           );
         case fitzpatrick.mediumLight:
           return Emoji(
-            name: name + ', tone2',
+            name: '$name, tone2',
             char: modify(char, skinTone),
-            shortName: shortName + '_tone2',
+            shortName: '${shortName}_tone2',
             emojiGroup: emojiGroup,
             emojiSubgroup: emojiSubgroup,
             keywords: keywords,
@@ -117467,9 +117467,9 @@ class Emoji {
           );
         case fitzpatrick.medium:
           return Emoji(
-            name: name + ', tone3',
+            name: '$name, tone3',
             char: modify(char, skinTone),
-            shortName: shortName + '_tone3',
+            shortName: '${shortName}_tone3',
             emojiGroup: emojiGroup,
             emojiSubgroup: emojiSubgroup,
             keywords: keywords,
@@ -117477,9 +117477,9 @@ class Emoji {
           );
         case fitzpatrick.mediumDark:
           return Emoji(
-            name: name + ', tone4',
+            name: '$name, tone4',
             char: modify(char, skinTone),
-            shortName: shortName + '_tone4',
+            shortName: '${shortName}_tone4',
             emojiGroup: emojiGroup,
             emojiSubgroup: emojiSubgroup,
             keywords: keywords,
@@ -117487,9 +117487,9 @@ class Emoji {
           );
         case fitzpatrick.dark:
           return Emoji(
-            name: name + ', tone5',
+            name: '$name, tone5',
             char: modify(char, skinTone),
-            shortName: shortName + '_tone5',
+            shortName: '${shortName}_tone5',
             emojiGroup: emojiGroup,
             emojiSubgroup: emojiSubgroup,
             keywords: keywords,

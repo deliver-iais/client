@@ -8,10 +8,10 @@ class ReplyPreview extends StatelessWidget {
   final void Function() resetRoomPageDetails;
 
   const ReplyPreview({
-    Key? key,
+    super.key,
     required this.message,
     required this.resetRoomPageDetails,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

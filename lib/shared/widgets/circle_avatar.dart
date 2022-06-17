@@ -18,9 +18,9 @@ class CircleAvatarWidget extends StatelessWidget {
   final bool showSavedMessageLogoIfNeeded;
   final bool hideName;
   final bool isHeroEnabled;
-  late final _globalKey = GlobalObjectKey(contactUid.asString());
   final _streamKey = GlobalKey();
   final _futureKey = GlobalKey();
+  late final _globalKey = GlobalObjectKey(contactUid.asString());
 
   static final _avatarRepo = GetIt.I.get<AvatarRepo>();
   static final _roomRepo = GetIt.I.get<RoomRepo>();
@@ -29,12 +29,12 @@ class CircleAvatarWidget extends StatelessWidget {
   CircleAvatarWidget(
     this.contactUid,
     this.radius, {
-    Key? key,
+    super.key,
     this.forceText = "",
     this.hideName = false,
     this.isHeroEnabled = true,
     this.showSavedMessageLogoIfNeeded = false,
-  }) : super(key: key);
+  });
 
   bool isSavedMessage() =>
       showSavedMessageLogoIfNeeded &&

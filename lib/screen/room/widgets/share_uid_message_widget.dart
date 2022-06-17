@@ -14,27 +14,26 @@ import 'package:get_it/get_it.dart';
 
 class ShareUidMessageWidget extends StatelessWidget {
   static final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
+  static final _mucRepo = GetIt.I.get<MucRepo>();
+  static final _routingServices = GetIt.I.get<RoutingService>();
+  static final _i18n = GetIt.I.get<I18N>();
 
   final Message message;
   final bool isSender;
   final bool isSeen;
   final CustomColorScheme colorScheme;
 
-  final _mucRepo = GetIt.I.get<MucRepo>();
-  final _routingServices = GetIt.I.get<RoutingService>();
-  final _i18n = GetIt.I.get<I18N>();
-
-  ShareUidMessageWidget({
-    Key? key,
+  const ShareUidMessageWidget({
+    super.key,
     required this.message,
     required this.isSender,
     required this.colorScheme,
     required this.isSeen,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    final _shareUid = message.json.toShareUid();
+    final shareUid = message.json.toShareUid();
     return Padding(
       padding: const EdgeInsets.only(top: 4.0, bottom: 2.0, left: 4, right: 4),
       child: Column(
@@ -45,14 +44,14 @@ class ShareUidMessageWidget extends StatelessWidget {
             icon: Padding(
               padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
               child: CircleAvatarWidget(
-                _shareUid.uid,
+                shareUid.uid,
                 14,
-                forceText: _shareUid.name,
+                forceText: shareUid.name,
               ),
             ),
             label: Row(
               children: [
-                if (_shareUid.uid.category == Categories.GROUP)
+                if (shareUid.uid.category == Categories.GROUP)
                   const Padding(
                     padding: EdgeInsets.only(left: 4.0),
                     child: Icon(
@@ -60,7 +59,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                       size: 18,
                     ),
                   ),
-                if (_shareUid.uid.category == Categories.CHANNEL)
+                if (shareUid.uid.category == Categories.CHANNEL)
                   const Padding(
                     padding: EdgeInsets.only(left: 4.0),
                     child: Icon(
@@ -71,8 +70,8 @@ class ShareUidMessageWidget extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 4.0),
                   child: Text(
-                    _shareUid.name +
-                        (_shareUid.uid.category != Categories.USER
+                    shareUid.name +
+                        (shareUid.uid.category != Categories.USER
                             ? " ${_i18n.get("invite_link")}"
                             : ""),
                   ),
@@ -81,22 +80,22 @@ class ShareUidMessageWidget extends StatelessWidget {
               ],
             ),
             onPressed: () async {
-              if ((_shareUid.uid.category == Categories.GROUP ||
-                  _shareUid.uid.category == Categories.CHANNEL)) {
-                final muc = await _mucRepo.getMuc(_shareUid.uid.asString());
+              if ((shareUid.uid.category == Categories.GROUP ||
+                  shareUid.uid.category == Categories.CHANNEL)) {
+                final muc = await _mucRepo.getMuc(shareUid.uid.asString());
                 if (muc != null) {
-                  _routingServices.openRoom(_shareUid.uid.asString());
+                  _routingServices.openRoom(shareUid.uid.asString());
                 } else {
                   // ignore: use_build_context_synchronously
                   await _urlHandlerService.handleJoin(
                     context,
-                    _shareUid.uid,
-                    _shareUid.joinToken,
-                    name: _shareUid.name,
+                    shareUid.uid,
+                    shareUid.joinToken,
+                    name: shareUid.name,
                   );
                 }
               } else {
-                _routingServices.openRoom(_shareUid.uid.asString());
+                _routingServices.openRoom(shareUid.uid.asString());
               }
             },
           ),

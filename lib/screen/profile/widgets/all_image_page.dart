@@ -40,8 +40,8 @@ class AllImagePage extends StatefulWidget {
   final bool isSingleImage;
   final void Function()? onEdit;
 
-  const AllImagePage(
-    Key? key, {
+  const AllImagePage({
+    super.key,
     required this.roomUid,
     required this.messageId,
     this.initIndex,
@@ -49,7 +49,7 @@ class AllImagePage extends StatefulWidget {
     this.message,
     this.isSingleImage = false,
     this.onEdit,
-  }) : super(key: key);
+  });
 
   @override
   State<AllImagePage> createState() => _AllImagePageState();
@@ -117,7 +117,7 @@ class _AllImagePageState extends State<AllImagePage>
       initialIndex = widget.initIndex;
     }
     controller = AnimationController(
-      duration: ANIMATION_DURATION * 2,
+      duration: ANIMATION_DURATION,
       vsync: this,
     )..addStatusListener((status) async {
         if (status == AnimationStatus.completed) {
@@ -168,7 +168,7 @@ class _AllImagePageState extends State<AllImagePage>
         return ScaleTransition(scale: animation, child: child);
       },
       child: StreamBuilder<Widget>(
-        stream: _widget.stream,
+        stream: _widget,
         initialData: const SizedBox.shrink(),
         builder: (c, w) {
           return w.data!;
@@ -219,10 +219,10 @@ class _AllImagePageState extends State<AllImagePage>
     return UltimateAppBar(
       child: StreamBuilder<bool>(
         initialData: true,
-        stream: _isBarShowing.stream,
+        stream: _isBarShowing,
         builder: (context, snapshot) {
           return AnimatedOpacity(
-            duration: ANIMATION_DURATION * 2,
+            duration: ANIMATION_DURATION,
             opacity: snapshot.data! ? 1 : 0,
             child:
                 snapshot.data! ? buildAppBarWidget() : const SizedBox.shrink(),
@@ -239,7 +239,7 @@ class _AllImagePageState extends State<AllImagePage>
         Align(
           alignment: Alignment.bottomCenter,
           child: AnimatedOpacity(
-            duration: ANIMATION_DURATION * 2,
+            duration: ANIMATION_DURATION,
             opacity: _isBarShowing.value ? 1 : 0,
             child: buildCaptionSection(
               createdOn: widget.message!.time,
@@ -289,7 +289,7 @@ class _AllImagePageState extends State<AllImagePage>
           children: [
             if (isDesktop)
               StreamBuilder<int>(
-                stream: _currentIndex.stream,
+                stream: _currentIndex,
                 builder: (context, indexSnapShot) {
                   if (indexSnapShot.hasData && indexSnapShot.data! > 0) {
                     return IconButton(
@@ -311,7 +311,7 @@ class _AllImagePageState extends State<AllImagePage>
                 width: 5,
               ),
             StreamBuilder<int>(
-              stream: _allImageCount.stream,
+              stream: _allImageCount,
               builder: (context, all) {
                 if (all.hasData && all.data != null && all.data != 0) {
                   return Expanded(
@@ -380,11 +380,11 @@ class _AllImagePageState extends State<AllImagePage>
             ),
             if (isDesktop)
               StreamBuilder<int?>(
-                stream: _allImageCount.stream,
+                stream: _allImageCount,
                 builder: (c, allImageCount) {
                   if (allImageCount.hasData && allImageCount.data != null) {
                     return StreamBuilder<int>(
-                      stream: _currentIndex.stream,
+                      stream: _currentIndex,
                       builder: (context, indexSnapShot) {
                         if (indexSnapShot.hasData &&
                             indexSnapShot.data != -1 &&
@@ -420,13 +420,13 @@ class _AllImagePageState extends State<AllImagePage>
           alignment: Alignment.bottomCenter,
           child: StreamBuilder<bool>(
             initialData: true,
-            stream: _isBarShowing.stream,
+            stream: _isBarShowing,
             builder: (context, snapshot) {
               return AnimatedOpacity(
-                duration: ANIMATION_DURATION * 2,
+                duration: ANIMATION_DURATION,
                 opacity: snapshot.data! ? 1 : 0,
                 child: StreamBuilder<int>(
-                  stream: _currentIndex.stream,
+                  stream: _currentIndex,
                   builder: (context, index) {
                     if (index.hasData && index.data != null) {
                       return FutureBuilder<Media?>(
@@ -677,7 +677,7 @@ class _AllImagePageState extends State<AllImagePage>
                 ),
             ],
       title: StreamBuilder<int?>(
-        stream: _allImageCount.stream,
+        stream: _allImageCount,
         builder: (context, snapshot) {
           if (snapshot.hasData &&
               snapshot.data != null &&
@@ -685,7 +685,7 @@ class _AllImagePageState extends State<AllImagePage>
             return Align(
               alignment: Alignment.topLeft,
               child: StreamBuilder<int>(
-                stream: _currentIndex.stream,
+                stream: _currentIndex,
                 builder: (c, position) {
                   if (position.hasData &&
                       position.data != null &&

@@ -7,7 +7,7 @@ class TextLoader extends StatelessWidget {
 
   final double width;
 
-  const TextLoader(this.text, {Key? key, this.width = 80}) : super(key: key);
+  const TextLoader(this.text, {super.key, this.width = 80});
 
   @override
   Widget build(BuildContext context) {

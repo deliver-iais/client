@@ -11,13 +11,13 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class NewContact extends StatefulWidget {
-  const NewContact({Key? key}) : super(key: key);
+  const NewContact({super.key});
 
   @override
-  _NewContactState createState() => _NewContactState();
+  NewContactState createState() => NewContactState();
 }
 
-class _NewContactState extends State<NewContact> {
+class NewContactState extends State<NewContact> {
   PhoneNumber? _phoneNumber;
 
   final _i18n = GetIt.I.get<I18N>();

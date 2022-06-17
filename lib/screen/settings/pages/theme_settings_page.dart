@@ -20,7 +20,7 @@ import 'package:rxdart/rxdart.dart';
 import '../../../shared/widgets/settings_ui/box_ui.dart';
 
 class ThemeSettingsPage extends StatefulWidget {
-  const ThemeSettingsPage({Key? key}) : super(key: key);
+  const ThemeSettingsPage({super.key});
 
   @override
   State<ThemeSettingsPage> createState() => _ThemeSettingsPageState();
@@ -157,7 +157,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
               child: Stack(
                 children: [
                   StreamBuilder<int>(
-                    stream: _idSubject.stream,
+                    stream: _idSubject,
                     builder: (context, snapshot) {
                       return Background(
                         id: snapshot.data ?? 0,
@@ -282,7 +282,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
           _uxService.selectTheme(index);
         },
         child: AnimatedContainer(
-          duration: ANIMATION_DURATION * 2,
+          duration: ANIMATION_DURATION,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: isSelected
@@ -291,13 +291,13 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
           ),
           padding: const EdgeInsets.all(4),
           child: AnimatedContainer(
-            duration: ANIMATION_DURATION * 2,
+            duration: ANIMATION_DURATION,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: color,
             ),
-            width: 24,
-            height: 24,
+            width: isSelected ? 20 : 24,
+            height: isSelected ? 20 : 24,
           ),
         ),
       ),
@@ -312,8 +312,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         onTap: () {
           _uxService.selectPattern(index);
         },
-        child: AnimatedContainer(
-          duration: ANIMATION_DURATION * 2,
+        child: Container(
           clipBehavior: Clip.hardEdge,
           margin: const EdgeInsets.symmetric(horizontal: 4.0),
           decoration: BoxDecoration(
@@ -328,8 +327,9 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                     width: 2,
                   ),
           ),
-          child: AnimatedContainer(
-            duration: ANIMATION_DURATION * 2,
+          child: SizedBox(
+            width: 80,
+            height: 100,
             child: Image(
               image: AssetImage("assets/backgrounds/$pattern-thumb.webp"),
               color: isSelected
@@ -338,8 +338,6 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
               fit: BoxFit.cover,
               repeat: ImageRepeat.repeat,
             ),
-            width: 80,
-            height: 100,
           ),
         ),
       ),

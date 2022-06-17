@@ -5,20 +5,21 @@ import 'package:get_it/get_it.dart';
 import 'package:rxdart/subjects.dart';
 
 class RecordAudioSlideWidget extends StatelessWidget {
+  static final _i18n = GetIt.I.get<I18N>();
+
   final double opacity;
   final DateTime time;
   final bool running;
   final BehaviorSubject<DateTime> streamTime;
   final BehaviorSubject<bool> _show = BehaviorSubject.seeded(true);
-  final _i18n = GetIt.I.get<I18N>();
 
   RecordAudioSlideWidget({
-    Key? key,
+    super.key,
     required this.opacity,
     required this.time,
     required this.running,
     required this.streamTime,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +40,7 @@ class RecordAudioSlideWidget extends StatelessWidget {
               Opacity(
                 opacity: opacity,
                 child: StreamBuilder<bool>(
-                  stream: _show.stream,
+                  stream: _show,
                   builder: (c, s) {
                     if (s.hasData && s.data!) {
                       return const Opacity(
@@ -65,7 +66,7 @@ class RecordAudioSlideWidget extends StatelessWidget {
           ),
         ),
         StreamBuilder<DateTime>(
-          stream: streamTime.stream,
+          stream: streamTime,
           builder: (c, t) {
             _show.add(!_show.value);
             if (t.hasData && t.data != null && t.data!.isAfter(time)) {

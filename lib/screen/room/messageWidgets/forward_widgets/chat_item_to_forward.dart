@@ -7,10 +7,9 @@ import 'package:get_it/get_it.dart';
 class ChatItemToForward extends StatelessWidget {
   final Uid uid;
   final void Function(Uid) send;
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
 
-  ChatItemToForward({Key? key, required this.uid, required this.send})
-      : super(key: key);
-  final _roomRepo = GetIt.I.get<RoomRepo>();
+  const ChatItemToForward({super.key, required this.uid, required this.send});
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +30,8 @@ class ChatItemToForward extends StatelessWidget {
               ),
               Flexible(
                 child: FutureBuilder<String>(
-                  future: _roomRepo.getName(uid, forceToReturnSavedMessage: true),
+                  future:
+                      _roomRepo.getName(uid, forceToReturnSavedMessage: true),
                   builder: (c, snaps) {
                     if (snaps.hasData && snaps.data != null) {
                       return Text(

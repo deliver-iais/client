@@ -10,10 +10,10 @@ class VideoPlayerWidget extends StatefulWidget {
   final bool showAppBar;
 
   const VideoPlayerWidget({
-    Key? key,
+    super.key,
     required this.videoFilePath,
     required this.showAppBar,
-  }) : super(key: key);
+  });
 
   @override
   State<VideoPlayerWidget> createState() => _VideoPlayerWidgetState();

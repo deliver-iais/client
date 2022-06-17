@@ -7,10 +7,10 @@ class RecordAudioAnimation extends StatelessWidget {
   final double size;
 
   const RecordAudioAnimation({
-    Key? key,
+    super.key,
     required this.rightPadding,
     required this.size,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -9,8 +9,7 @@ class FileDetails extends StatelessWidget {
   final File file;
   final CustomColorScheme colorScheme;
 
-  const FileDetails({Key? key, required this.file, required this.colorScheme})
-      : super(key: key);
+  const FileDetails({super.key, required this.file, required this.colorScheme});
 
   @override
   Widget build(BuildContext context) {
@@ -25,9 +24,7 @@ class FileDetails extends StatelessWidget {
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                sizeFormatter(file.size.toInt()) +
-                    " " +
-                    findFileType(file.name),
+                "${sizeFormatter(file.size.toInt())} ${findFileType(file.name)}",
                 style: const TextStyle(fontSize: 10),
               ),
             ),

@@ -5,18 +5,18 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class BotStartWidget extends StatelessWidget {
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
   final Uid botUid;
-  final _messageRepo = GetIt.I.get<MessageRepo>();
-  final _i18n = GetIt.I.get<I18N>();
 
-  BotStartWidget({Key? key, required this.botUid}) : super(key: key);
+  const BotStartWidget({super.key, required this.botUid});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Container(
       height: 45,
-      color:theme.primaryColor,
+      color: theme.primaryColor,
       child: Center(
         child: GestureDetector(
           child: Text(

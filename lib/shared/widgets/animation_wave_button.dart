@@ -8,17 +8,18 @@ class AnimationWaveButton extends StatefulWidget {
   final Icon pauseIcon;
 
   const AnimationWaveButton({
-    Key? key,
+    super.key,
     this.initialIsPlaying = false,
     this.playIcon = const Icon(Icons.mic),
     this.pauseIcon = const Icon(Icons.pause),
-  }) : super(key: key);
+  });
 
   @override
-  _AnimationWaveButtonState createState() => _AnimationWaveButtonState();
+  AnimationWaveButtonState createState() => AnimationWaveButtonState();
 }
 
-class _AnimationWaveButtonState extends State<AnimationWaveButton> with TickerProviderStateMixin {
+class AnimationWaveButtonState extends State<AnimationWaveButton>
+    with TickerProviderStateMixin {
   static const _kToggleDuration = Duration(milliseconds: 300);
   static const _kRotationDuration = Duration(seconds: 5);
 
@@ -93,10 +94,6 @@ class _AnimationWaveButtonState extends State<AnimationWaveButton> with TickerPr
           ],
           Container(
             constraints: const BoxConstraints.expand(),
-            child: AnimatedSwitcher(
-              child: _buildIcon(isPlaying),
-              duration: _kToggleDuration,
-            ),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               gradient: LinearGradient(
@@ -107,6 +104,10 @@ class _AnimationWaveButtonState extends State<AnimationWaveButton> with TickerPr
                   theme.primaryColor,
                 ],
               ),
+            ),
+            child: AnimatedSwitcher(
+              duration: _kToggleDuration,
+              child: _buildIcon(isPlaying),
             ),
           ),
         ],
@@ -127,8 +128,12 @@ class Blob extends StatelessWidget {
   final double scale;
   final Color color;
 
-  const Blob({Key? key, required this.color, this.rotation = 0, this.scale = 1})
-      : super(key: key);
+  const Blob({
+    super.key,
+    required this.color,
+    this.rotation = 0,
+    this.scale = 1,
+  });
 
   @override
   Widget build(BuildContext context) {

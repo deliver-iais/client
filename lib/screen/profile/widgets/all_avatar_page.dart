@@ -17,17 +17,17 @@ class AllAvatarPage extends StatefulWidget {
   final bool hasPermissionToDeletePic;
 
   const AllAvatarPage({
-    Key? key,
+    super.key,
     required this.userUid,
     required this.hasPermissionToDeletePic,
     required this.heroTag,
-  }) : super(key: key);
+  });
 
   @override
-  _AllAvatarPageState createState() => _AllAvatarPageState();
+  AllAvatarPageState createState() => AllAvatarPageState();
 }
 
-class _AllAvatarPageState extends State<AllAvatarPage> {
+class AllAvatarPageState extends State<AllAvatarPage> {
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
@@ -59,7 +59,7 @@ class _AllAvatarPageState extends State<AllAvatarPage> {
                 children: [
                   if (isDesktop)
                     StreamBuilder<int>(
-                      stream: _swipePositionSubject.stream,
+                      stream: _swipePositionSubject,
                       builder: (context, indexSnapShot) {
                         if (indexSnapShot.hasData && indexSnapShot.data! > 0) {
                           return IconButton(
@@ -114,7 +114,7 @@ class _AllAvatarPageState extends State<AllAvatarPage> {
                   ),
                   if (isDesktop)
                     StreamBuilder<int>(
-                      stream: _swipePositionSubject.stream,
+                      stream: _swipePositionSubject,
                       builder: (context, indexSnapShot) {
                         if (indexSnapShot.hasData &&
                             indexSnapShot.data! != snapshot.data!.length - 1) {
@@ -150,7 +150,7 @@ class _AllAvatarPageState extends State<AllAvatarPage> {
       title: Align(
         alignment: Alignment.topLeft,
         child: StreamBuilder<int>(
-          stream: _swipePositionSubject.stream,
+          stream: _swipePositionSubject,
           builder: (c, position) {
             if (position.hasData && position.data != null) {
               return Text("${position.data! + 1} of $totalLength");

@@ -12,13 +12,13 @@ class ContactWidget extends StatelessWidget {
   final bool currentMember;
 
   const ContactWidget({
-    Key? key,
+    super.key,
     required this.contact,
     this.circleIcon,
     this.isSelected = false,
     this.currentMember = false,
     this.onCircleIcon,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
