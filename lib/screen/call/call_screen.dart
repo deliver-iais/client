@@ -123,7 +123,7 @@ class CallScreenState extends State<CallScreen> {
     }
   }
 
-  void lockScreenOnBack() async{
+  Future<void> lockScreenOnBack() async{
     await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
       isVisible: false,
     );
