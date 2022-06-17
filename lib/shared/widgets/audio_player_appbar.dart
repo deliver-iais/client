@@ -41,7 +41,7 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
                 StreamBuilder<AudioPlayerState>(
                   stream: audioPlayerService.audioCurrentState(),
                   builder: (c, cs) {
-                    if (cs.hasData && cs.data == AudioPlayerState.PLAYING) {
+                    if (cs.hasData && cs.data == AudioPlayerState.playing) {
                       return IconButton(
                         onPressed: () {
                           audioPlayerService.pause();

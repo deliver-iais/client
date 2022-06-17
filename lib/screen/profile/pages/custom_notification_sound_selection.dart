@@ -8,7 +8,7 @@ import 'package:get_it/get_it.dart';
 class CustomNotificationSoundSelection extends StatefulWidget {
   final String roomUid;
 
-  final AudioPlayer _player = AudioPlayer(playerId: "CustomNotification");
+  final AudioPlayer _player = AudioPlayer(playerId: "custom-notification-player");
 
   CustomNotificationSoundSelection({super.key, required this.roomUid});
 

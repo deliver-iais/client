@@ -1,5 +1,3 @@
-// ignore_for_file: constant_identifier_names
-
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
@@ -10,19 +8,19 @@ import 'package:rxdart/rxdart.dart';
 enum AudioPlayerState {
   /// Player is stopped. No file is loaded to the player. Calling [resume] or
   /// [pause] will result in exception.
-  STOPPED,
+  stopped,
 
   /// Currently playing a file. The user can [pause], [resume] or [stop] the
   /// playback.
-  PLAYING,
+  playing,
 
   /// Paused. The user can [resume] the playback without providing the URL.
-  PAUSED,
+  paused,
 
-  /// The playback has been completed. This state is the same as [STOPPED],
+  /// The playback has been completed. This state is the same as [stopped],
   /// however we differentiate it because some clients might want to know when
   /// the playback is done versus when the user has stopped the playback.
-  COMPLETED,
+  completed,
 }
 
 abstract class AudioPlayerModule {
@@ -70,7 +68,7 @@ class AudioService {
   final _audioCenterIsOn = BehaviorSubject.seeded(false);
 
   // ignore: close_sinks
-  final _audioCurrentState = BehaviorSubject.seeded(AudioPlayerState.STOPPED);
+  final _audioCurrentState = BehaviorSubject.seeded(AudioPlayerState.stopped);
 
   // ignore: close_sinks
   final _audioUuid = BehaviorSubject.seeded("");
@@ -185,12 +183,18 @@ class AudioService {
 }
 
 class NormalAudioPlayer implements AudioPlayerModule {
-  final AudioPlayer _audioPlayer = AudioPlayer();
+  final soundOutSource = AssetSource("audios/sound_out.wav");
+  final soundInSource = AssetSource("audios/sound_in.wav");
+  final beepSoundSource = AssetSource("audios/beep_sound.mp3");
+  final busySoundSource = AssetSource("audios/busy_sound.mp3");
+  final incomingCallSource = AssetSource("audios/incoming_call.mp3");
+  final endCallSource = AssetSource("audios/end_call.mp3");
+
+  final AudioPlayer _audioPlayer = AudioPlayer(playerId: "default-audio");
+  final AudioPlayer _fastAudioPlayer = AudioPlayer(playerId: "fast-audio");
+  final AudioPlayer _callAudioPlayer = AudioPlayer(playerId: "call-audio");
+
   double playbackRate = 1.0;
-
-  final AudioPlayer _fastAudioPlayer = AudioPlayer();
-
-  final AudioPlayer _callFastAudioPlayer = AudioPlayer();
 
   @override
   Stream<Duration> get audioCurrentPosition => _audioPlayer.onDurationChanged;
@@ -200,13 +204,13 @@ class NormalAudioPlayer implements AudioPlayerModule {
       _audioPlayer.onPlayerStateChanged.map((event) {
         switch (event) {
           case PlayerState.stopped:
-            return AudioPlayerState.STOPPED;
+            return AudioPlayerState.stopped;
           case PlayerState.playing:
-            return AudioPlayerState.PLAYING;
+            return AudioPlayerState.playing;
           case PlayerState.paused:
-            return AudioPlayerState.PAUSED;
+            return AudioPlayerState.paused;
           case PlayerState.completed:
-            return AudioPlayerState.COMPLETED;
+            return AudioPlayerState.completed;
         }
       });
 
@@ -235,56 +239,8 @@ class NormalAudioPlayer implements AudioPlayerModule {
   }
 
   @override
-  void playSoundOut() {
-    _fastAudioPlayer.play(AssetSource("audios/sound_out.wav"));
-  }
-
-  @override
-  void playSoundIn() {
-    _fastAudioPlayer.play(AssetSource("audios/sound_in.wav"));
-  }
-
-  @override
   void resume() {
     _audioPlayer.resume();
-  }
-
-  @override
-  void playBeepSound() {
-    _callFastAudioPlayer.play(AssetSource("audios/beep_sound.mp3"));
-  }
-
-  @override
-  void stopBeepSound() {
-    _callFastAudioPlayer.stop();
-  }
-
-  @override
-  void playBusySound() {
-    _callFastAudioPlayer.play(AssetSource("audios/busy_sound.mp3"));
-  }
-
-  @override
-  void stopBusySound() {
-    _callFastAudioPlayer.play(AssetSource("audios/busy_sound.mp3"));
-  }
-
-  @override
-  void playIncomingCallSound() {
-    _callFastAudioPlayer.play(AssetSource("audios/incoming_call.mp3"));
-  }
-
-  @override
-  void playEndCallSound() {
-    _callFastAudioPlayer.play(
-      AssetSource("audios/end_call.mp3"),
-      volume: 0.1,
-    );
-  }
-
-  @override
-  void stopIncomingCallSound() {
-    _callFastAudioPlayer.stop();
   }
 
   @override
@@ -297,109 +253,49 @@ class NormalAudioPlayer implements AudioPlayerModule {
   double getPlaybackRate() {
     return playbackRate;
   }
-}
-
-class VlcAudioPlayer implements AudioPlayerModule {
-  // final Player _audioPlayer = Player(id: 0);
-  // final Player _fastAudioPlayerOut = Player(id: 1);
-  // final Player _fastAudioPlayerIn = Player(id: 1);
-  // final Player _fastAudioPlayerBeep = Player(id: 2);
-  // final Player _fastAudioPlayerBusy = Player(id: 3);
-
-  @override
-  Stream<Duration?>? get audioCurrentPosition => null;
-
-  // _audioPlayer.positionStream.map((event) => event.position!);
-
-  @override
-  Stream<AudioPlayerState>? get audioCurrentState => null;
-
-  // _audioPlayer.playbackStream.map((event) {
-  //   if (event.isCompleted) {
-  //     return AudioPlayerState.COMPLETED;
-  //   }
-  //   if (event.isPlaying) {
-  //     return AudioPlayerState.PLAYING;
-  //   }
-  //   return AudioPlayerState.PAUSED;
-  // });
-
-  VlcAudioPlayer() {
-    // _fastAudioPlayerOut.open(Media.asset("assets/audios/sound_out.wav"));
-    // _fastAudioPlayerIn.open(Media.asset("assets/audios/sound_in.wav"));
-  }
-
-  @override
-  void play(String path) {
-    // _audioPlayer.open(Media.file(File(path)));
-    // _audioPlayer.play();
-  }
-
-  @override
-  void seek(Duration duration) {
-    // _audioPlayer.seek(duration);
-  }
-
-  @override
-  void pause() {
-    // _audioPlayer.pause();
-  }
-
-  @override
-  void stop() {
-    //_audioPlayer.stop();
-  }
 
   @override
   void playSoundOut() {
-    // _fastAudioPlayerOut.play();
+    _fastAudioPlayer.play(soundOutSource, position: Duration.zero);
   }
 
   @override
   void playSoundIn() {
-    //_fastAudioPlayerIn.play();
-  }
-
-  @override
-  void resume() {
-    // _audioPlayer.play();
+    _fastAudioPlayer.play(soundInSource, position: Duration.zero);
   }
 
   @override
   void playBeepSound() {
-    // _fastAudioPlayerBeep
-    //     .open(Media.asset("assets/audios/beep_ringing_calling_sound.mp3"));
-    // _fastAudioPlayerBeep.play();
+    _callAudioPlayer.play(beepSoundSource, position: Duration.zero);
   }
 
   @override
   void stopBeepSound() {
-    // _fastAudioPlayerBeep.stop();
+    _callAudioPlayer.stop();
   }
 
   @override
   void playBusySound() {
-    // _fastAudioPlayerBusy.open(Media.asset("assets/audios/busy_sound.mp3"));
-    // _fastAudioPlayerBusy.play();
+    _callAudioPlayer.play(busySoundSource, position: Duration.zero);
   }
 
   @override
-  void playIncomingCallSound() {}
+  void stopBusySound() {
+    _callAudioPlayer.stop();
+  }
 
   @override
-  void stopBusySound() {}
+  void playIncomingCallSound() {
+    _callAudioPlayer.play(incomingCallSource, position: Duration.zero);
+  }
 
   @override
-  void stopIncomingCallSound() {}
+  void playEndCallSound() {
+    _callAudioPlayer.play(endCallSource, position: Duration.zero, volume: 0.1);
+  }
 
   @override
-  void playEndCallSound() {}
-
-  @override
-  void changePlaybackRate(double rate) {}
-
-  @override
-  double getPlaybackRate() {
-    return 0.0;
+  void stopIncomingCallSound() {
+    _callAudioPlayer.stop();
   }
 }

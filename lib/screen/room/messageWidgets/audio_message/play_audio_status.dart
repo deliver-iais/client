@@ -42,7 +42,7 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
         child: StreamBuilder<AudioPlayerState>(
           stream: audioPlayerService.audioCurrentState(),
           builder: (context, snapshot) {
-            if (snapshot.data == AudioPlayerState.PLAYING) {
+            if (snapshot.data == AudioPlayerState.playing) {
               return StreamBuilder(
                 stream: audioPlayerService.audioUuid,
                 builder: (context, uuid) {

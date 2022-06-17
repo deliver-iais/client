@@ -26,8 +26,8 @@ class TimeProgressIndicatorState extends State<TimeProgressIndicator> {
       builder: (c, state) {
         if (state.hasData &&
                 state.data != null &&
-                state.data == AudioPlayerState.PLAYING ||
-            state.data == AudioPlayerState.PAUSED) {
+                state.data == AudioPlayerState.playing ||
+            state.data == AudioPlayerState.paused) {
           return StreamBuilder(
             stream: audioPlayerService.audioUuid,
             builder: (c, uuid) {

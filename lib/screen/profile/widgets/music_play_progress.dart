@@ -25,7 +25,7 @@ class MusicPlayProgress extends StatelessWidget {
             stream: _audioPlayerService.audioCurrentState(),
             builder: (c, state) {
               if (state.data != null &&
-                  state.data == AudioPlayerState.PLAYING) {
+                  state.data == AudioPlayerState.playing) {
                 return StreamBuilder<String>(
                   stream: _audioPlayerService.audioUuid,
                   builder: (c, uuid) {

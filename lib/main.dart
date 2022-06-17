@@ -296,12 +296,7 @@ Future<void> setupDI() async {
   registerSingleton<LastActivityRepo>(LastActivityRepo());
   registerSingleton<LiveLocationRepo>(LiveLocationRepo());
 
-  if (isLinux || isWindows) {
-    // DartVLC.initialize();
-    registerSingleton<AudioPlayerModule>(VlcAudioPlayer());
-  } else {
-    registerSingleton<AudioPlayerModule>(NormalAudioPlayer());
-  }
+  registerSingleton<AudioPlayerModule>(NormalAudioPlayer());
   try {
     registerSingleton<AudioService>(AudioService());
   } catch (_) {}
