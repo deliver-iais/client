@@ -7,6 +7,9 @@ import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
 
 class SeenStatus extends StatelessWidget {
+  static final seenDao = GetIt.I.get<SeenDao>();
+  static final messageRepo = GetIt.I.get<MessageRepo>();
+
   final String roomUid;
   final String messagePacketId;
   final int? messageId;
@@ -16,17 +19,16 @@ class SeenStatus extends StatelessWidget {
   const SeenStatus(
     this.roomUid,
     this.messagePacketId, {
-    Key? key,
+    super.key,
     this.messageId,
     this.isSeen,
     this.iconColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final seenDao = GetIt.I.get<SeenDao>();
-    final messageRepo = GetIt.I.get<MessageRepo>();
+
     final color = iconColor ?? theme.primaryColor;
     const size = 16.0;
     final Widget pendingMessage = Container(

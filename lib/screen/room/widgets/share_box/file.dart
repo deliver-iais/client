@@ -16,20 +16,20 @@ class ShareBoxFile extends StatefulWidget {
   final int replyMessageId;
 
   const ShareBoxFile({
-    Key? key,
+    super.key,
     required this.scrollController,
     required this.onClick,
     required this.roomUid,
     required this.selectedFiles,
     required this.resetRoomPageDetails,
     required this.replyMessageId,
-  }) : super(key: key);
+  });
 
   @override
-  _ShareBoxFileState createState() => _ShareBoxFileState();
+  ShareBoxFileState createState() => ShareBoxFileState();
 }
 
-class _ShareBoxFileState extends State<ShareBoxFile> {
+class ShareBoxFileState extends State<ShareBoxFile> {
   // ignore: prefer_typing_uninitialized_variables
   late var _future;
 
@@ -39,7 +39,7 @@ class _ShareBoxFileState extends State<ShareBoxFile> {
     super.initState();
   }
 
-  final _i18n = GetIt.I.get<I18N>();
+  static final _i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {

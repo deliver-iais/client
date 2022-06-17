@@ -25,13 +25,13 @@ import 'package:logger/logger.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({Key? key}) : super(key: key);
+  const SettingsPage({super.key});
 
   @override
-  _SettingsPageState createState() => _SettingsPageState();
+  SettingsPageState createState() => SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class SettingsPageState extends State<SettingsPage> {
   static final _logger = GetIt.I.get<Logger>();
   static final _uxService = GetIt.I.get<UxService>();
   static final _accountRepo = GetIt.I.get<AccountRepo>();
@@ -277,10 +277,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   SettingsTile(
                     title: 'Developer Page',
-                    subtitle: "Log Level: " +
-                        LogLevelHelper.levelToString(
-                          GetIt.I.get<DeliverLogFilter>().level!,
-                        ),
+                    subtitle: "Log Level: ${LogLevelHelper.levelToString(
+                      GetIt.I.get<DeliverLogFilter>().level!,
+                    )}",
                     leading: const Icon(Icons.bug_report_rounded),
                     onPressed: (context) {
                       _routingService.openDeveloperPage();
@@ -343,8 +342,8 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             TextButton(
               onPressed: () => _routingService.logout(),
-              child: Text(i18n.get("logout")),
               style: TextButton.styleFrom(primary: Colors.red),
+              child: Text(i18n.get("logout")),
             ),
           ],
         );

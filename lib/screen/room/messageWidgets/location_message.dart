@@ -16,12 +16,12 @@ class LocationMessageWidget extends StatelessWidget {
   final CustomColorScheme colorScheme;
 
   const LocationMessageWidget({
-    Key? key,
+    super.key,
     required this.message,
     required this.isSeen,
     required this.isSender,
     required this.colorScheme,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

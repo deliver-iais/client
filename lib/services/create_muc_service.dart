@@ -24,7 +24,7 @@ class CreateMucService {
     _membersLength.add(contacts.length);
   }
 
-  Stream<int> selectedLengthStream() => _membersLength.stream;
+  Stream<int> selectedLengthStream() => _membersLength;
 
   bool isSelected(Contact contact) => contacts.any(
         (c) =>

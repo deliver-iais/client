@@ -6,16 +6,12 @@ class BotRadioGroup extends FormField<String> {
   final void Function(String?) onChange;
 
   BotRadioGroup({
-    Key? key,
+    super.key,
+    super.validator,
     required this.formField,
     required this.onChange,
-    validator,
   }) : super(
-          key: key,
-          validator: validator,
-          builder: (
-            field,
-          ) {
+          builder: (field) {
             return InputDecorator(
               decoration: InputDecoration(
                 label: Text(

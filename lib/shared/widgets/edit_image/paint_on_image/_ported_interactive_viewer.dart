@@ -14,7 +14,7 @@ class ImagePainterTransformer extends StatefulWidget {
   ///
   /// The [child] parameter must not be null.
   ImagePainterTransformer({
-    Key? key,
+    super.key,
     this.alignPanAxis = false,
     this.boundaryMargin = EdgeInsets.zero,
     this.constrained = true,
@@ -43,8 +43,7 @@ class ImagePainterTransformer extends StatefulWidget {
                   boundaryMargin.right.isFinite &&
                   boundaryMargin.bottom.isFinite &&
                   boundaryMargin.left.isFinite),
-        ),
-        super(key: key);
+        );
 
   /// If true, panning is only allowed in the direction of the horizontal axis
   /// or the vertical axis.
@@ -456,11 +455,10 @@ class ImagePainterTransformer extends StatefulWidget {
   }
 
   @override
-  _ImagePainterTransformerState createState() =>
-      _ImagePainterTransformerState();
+  ImagePainterTransformerState createState() => ImagePainterTransformerState();
 }
 
-class _ImagePainterTransformerState extends State<ImagePainterTransformer>
+class ImagePainterTransformerState extends State<ImagePainterTransformer>
     with TickerProviderStateMixin {
   TransformationController? _transformationController;
 

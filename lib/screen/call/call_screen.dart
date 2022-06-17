@@ -28,19 +28,19 @@ class CallScreen extends StatefulWidget {
   final bool isVideoCall;
 
   const CallScreen({
-    Key? key,
+    super.key,
     required this.roomUid,
     this.isCallAccepted = false,
     this.isCallInitialized = false,
     this.isIncomingCall = false,
     this.isVideoCall = false,
-  }) : super(key: key);
+  });
 
   @override
-  _CallScreenState createState() => _CallScreenState();
+  CallScreenState createState() => CallScreenState();
 }
 
-class _CallScreenState extends State<CallScreen> {
+class CallScreenState extends State<CallScreen> {
   late final RTCVideoRenderer _localRenderer;
 
   late final RTCVideoRenderer _remoteRenderer;
@@ -74,7 +74,7 @@ class _CallScreenState extends State<CallScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const TGS.asset(
+        title: const Tgs.asset(
           'assets/animations/call_permission.tgs',
           width: 150,
           height: 150,
@@ -112,7 +112,7 @@ class _CallScreenState extends State<CallScreen> {
   }
 
   @override
-  void dispose() async{
+  void dispose() {
     super.dispose();
     if (isAndroid) {
       for (final subscription in _accelerometerEvents) {
@@ -185,7 +185,7 @@ class _CallScreenState extends State<CallScreen> {
     return StreamBuilder(
       stream: callRepo.callingStatus,
       builder: (context, snapshot) {
-        _logger.i("callStatus-" + random + ": " + snapshot.data.toString());
+        _logger.i("callStatus-$random: ${snapshot.data}");
         switch (snapshot.data) {
           case CallStatus.CONNECTED:
             _audioService.stopBeepSound();

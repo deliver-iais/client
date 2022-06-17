@@ -22,14 +22,14 @@ class LinkPreview extends StatelessWidget {
   final Color? foregroundColor;
 
   const LinkPreview({
-    Key? key,
+    super.key,
     required this.link,
     required this.maxWidth,
     this.backgroundColor,
     this.foregroundColor,
     this.maxHeight = 120,
     this.isProfile = false,
-  }) : super(key: key);
+  });
 
   Future<Metadata> _fetchFromHTML(String url) async {
     // Makes a call
@@ -82,7 +82,7 @@ class LinkPreview extends StatelessWidget {
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
             onTap: () async {
-              await launch(link);
+              await launchUrl(Uri.parse(link));
             },
             child: linkPreviewContent(snapshot.data, context),
           ),

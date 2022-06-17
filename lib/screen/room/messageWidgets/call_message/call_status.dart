@@ -12,12 +12,12 @@ class CallState extends StatelessWidget {
   final TextStyle? textStyle;
 
   const CallState({
-    Key? key,
+    super.key,
     required this.callStatus,
     required this.time,
     required this.isCurrentUser,
     this.textStyle,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

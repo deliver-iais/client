@@ -34,13 +34,13 @@ import 'package:sms_autofill/sms_autofill.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  LoginPageState createState() => LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class LoginPageState extends State<LoginPage> {
   static final _logger = GetIt.I.get<Logger>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _fireBaseServices = GetIt.I.get<FireBaseServices>();
@@ -219,7 +219,7 @@ class _LoginPageState extends State<LoginPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           StreamBuilder<String>(
-            stream: loginToken.stream,
+            stream: loginToken,
             builder: (context, snapshot) {
               if (snapshot.hasData &&
                   snapshot.data != null &&
@@ -279,7 +279,7 @@ class _LoginPageState extends State<LoginPage> {
     final theme = Theme.of(context);
     return StreamBuilder<bool>(
       initialData: _isLoading.value,
-      stream: _isLoading.stream,
+      stream: _isLoading,
       builder: (c, loading) {
         if (loading.hasData && loading.data != null && loading.data!) {
           return const Center(child: CircularProgressIndicator());
@@ -363,8 +363,10 @@ class _LoginPageState extends State<LoginPage> {
                                         fontSize: 13,
                                       ),
                                       recognizer: TapGestureRecognizer()
-                                        ..onTap = () => launch(
-                                              "https://deliver-co.ir/#/termofuse",
+                                        ..onTap = () => launchUrl(
+                                              Uri.parse(
+                                                "https://deliver-co.ir/#/termofuse",
+                                              ),
                                             ),
                                     ),
                                     const TextSpan(
@@ -389,6 +391,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: Align(
                       alignment: Alignment.bottomRight,
                       child: TextButton(
+                        onPressed: checkAndGoNext,
                         child: Text(
                           i18n.get("next"),
                           style: TextStyle(
@@ -397,7 +400,6 @@ class _LoginPageState extends State<LoginPage> {
                             fontSize: 14.5,
                           ),
                         ),
-                        onPressed: checkAndGoNext,
                       ),
                     ),
                   ),

@@ -1,5 +1,4 @@
-import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart'
-    as form_pb;
+import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -8,16 +7,21 @@ class RadioButtonFieldWidget extends StatefulWidget {
   final Function selected;
   final GlobalKey<FormState> formValidator;
 
-  const RadioButtonFieldWidget({Key? key, required this.formField, required this.selected, required this.formValidator}) : super(key: key);
+  const RadioButtonFieldWidget({
+    super.key,
+    required this.formField,
+    required this.selected,
+    required this.formValidator,
+  });
 
   @override
-  _RadioButtonFieldWidgetState createState() => _RadioButtonFieldWidgetState();
+  RadioButtonFieldWidgetState createState() => RadioButtonFieldWidgetState();
 }
 
-class _RadioButtonFieldWidgetState extends State<RadioButtonFieldWidget> {
- late  String selected;
+class RadioButtonFieldWidgetState extends State<RadioButtonFieldWidget> {
+  late String selected;
 
- ///todo need check
+  ///todo need check
 
   @override
   Widget build(BuildContext context) {

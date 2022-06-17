@@ -10,7 +10,7 @@ class ScanQrCode extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => _ScanQrCode();
 
-  const ScanQrCode({Key? key}) : super(key: key);
+  const ScanQrCode({super.key});
 }
 
 class _ScanQrCode extends State<ScanQrCode> {
@@ -18,7 +18,6 @@ class _ScanQrCode extends State<ScanQrCode> {
   final MobileScannerController _mobileScannerController =
       MobileScannerController();
   final _routingServices = GetIt.I.get<RoutingService>();
-
 
   @override
   Widget build(BuildContext context) {

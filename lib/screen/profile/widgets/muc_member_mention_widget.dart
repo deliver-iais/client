@@ -8,8 +8,7 @@ class MucMemberMentionWidget extends StatelessWidget {
   final UidIdName member;
   final void Function(String) onSelected;
 
-  const MucMemberMentionWidget(this.member, this.onSelected, {Key? key})
-      : super(key: key);
+  const MucMemberMentionWidget(this.member, this.onSelected, {super.key});
 
   @override
   Widget build(BuildContext context) {

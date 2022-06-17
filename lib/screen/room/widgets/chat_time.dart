@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 class ChatTime extends StatelessWidget {
   final DateTime currentMessageTime;
 
-  const ChatTime({Key? key, required this.currentMessageTime})
-      : super(key: key);
+  const ChatTime({super.key, required this.currentMessageTime});
 
   @override
   Widget build(BuildContext context) {

@@ -249,10 +249,10 @@ class MessageExtractorServices {
   }) async {
     switch (pe.whichType()) {
       case PersistentEvent_Type.mucSpecificPersistentEvent:
-        final String? issuer =
+        final issuer =
             await _roomRepo.getSlangName(pe.mucSpecificPersistentEvent.issuer);
-        final String? assignee =
-            await _roomRepo.getSlangName(pe.mucSpecificPersistentEvent.assignee);
+        final assignee = await _roomRepo
+            .getSlangName(pe.mucSpecificPersistentEvent.assignee);
         switch (pe.mucSpecificPersistentEvent.issue) {
           case MucSpecificPersistentEvent_Issue.ADD_USER:
             return [

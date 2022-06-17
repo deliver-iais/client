@@ -16,20 +16,20 @@ class StartVideoCallPage extends StatefulWidget {
   final bool isIncomingCall;
 
   const StartVideoCallPage({
-    Key? key,
+    super.key,
     required this.text,
     required this.roomUid,
     required this.localRenderer,
     required this.remoteRenderer,
     required this.hangUp,
     this.isIncomingCall = false,
-  }) : super(key: key);
+  });
 
   @override
-  _StartVideoCallPageState createState() => _StartVideoCallPageState();
+  StartVideoCallPageState createState() => StartVideoCallPageState();
 }
 
-class _StartVideoCallPageState extends State<StartVideoCallPage> {
+class StartVideoCallPageState extends State<StartVideoCallPage> {
   final _logger = GetIt.I.get<Logger>();
 
   @override

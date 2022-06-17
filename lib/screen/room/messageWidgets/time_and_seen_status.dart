@@ -19,13 +19,13 @@ class TimeAndSeenStatus extends StatelessWidget {
 
   const TimeAndSeenStatus(
     this.message, {
-    Key? key,
+    super.key,
     required this.isSender,
     required this.isSeen,
     this.needsPositioned = true,
     this.needsPadding = false,
     this.showBackground = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -33,9 +33,9 @@ class TimeAndSeenStatus extends StatelessWidget {
 
     if (needsPositioned) {
       return Positioned(
-        child: widget,
         right: 0,
         bottom: 0,
+        child: widget,
       );
     } else {
       return widget;

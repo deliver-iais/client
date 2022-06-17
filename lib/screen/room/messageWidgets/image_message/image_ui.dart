@@ -34,7 +34,7 @@ class ImageUi extends StatefulWidget {
   late final file_pb.File image = message.json.toFile();
 
   ImageUi({
-    Key? key,
+    super.key,
     required this.message,
     required this.maxWidth,
     required this.minWidth,
@@ -42,13 +42,13 @@ class ImageUi extends StatefulWidget {
     required this.colorScheme,
     required this.isSeen,
     required this.onEdit,
-  }) : super(key: key);
+  });
 
   @override
-  _ImageUiState createState() => _ImageUiState();
+  ImageUiState createState() => ImageUiState();
 }
 
-class _ImageUiState extends State<ImageUi> {
+class ImageUiState extends State<ImageUi> {
   final globalKey = GlobalKey();
 
   static final _fileRepo = GetIt.I.get<FileRepo>();
@@ -116,7 +116,7 @@ class _ImageUiState extends State<ImageUi> {
                                             snapshot.data! <= 0;
                                     if (hasIndex || isSingleImage) {
                                       return AllImagePage(
-                                        const Key("/all_image_page"),
+                                        key: const Key("/all_image_page"),
                                         roomUid: widget.message.roomUid,
                                         filePath: s.data,
                                         message: widget.message,

@@ -22,18 +22,18 @@ class VideoTabUi extends StatefulWidget {
   final List<Media> selectedMedia;
 
   const VideoTabUi({
-    Key? key,
+    super.key,
     required this.roomUid,
     required this.videoCount,
     required this.addSelectedMedia,
     required this.selectedMedia,
-  }) : super(key: key);
+  });
 
   @override
-  _VideoTabUiState createState() => _VideoTabUiState();
+  VideoTabUiState createState() => VideoTabUiState();
 }
 
-class _VideoTabUiState extends State<VideoTabUi> {
+class VideoTabUiState extends State<VideoTabUi> {
   final _fileServices = GetIt.I.get<FileService>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();

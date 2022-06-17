@@ -24,16 +24,16 @@ class ImageTabUi extends StatefulWidget {
   const ImageTabUi(
     this.imagesCount,
     this.roomUid, {
-    Key? key,
+    super.key,
     required this.addSelectedMedia,
     required this.selectedMedia,
-  }) : super(key: key);
+  });
 
   @override
-  _ImageTabUiState createState() => _ImageTabUiState();
+  ImageTabUiState createState() => ImageTabUiState();
 }
 
-class _ImageTabUiState extends State<ImageTabUi> {
+class ImageTabUiState extends State<ImageTabUi> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
@@ -112,6 +112,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
                 if (filePath.hasData && filePath.data != null) {
                   return Hero(
                     tag: json["uuid"],
+                    transitionOnUserGestures: true,
                     child: Container(
                       decoration: BoxDecoration(
                         image: DecorationImage(
@@ -124,7 +125,6 @@ class _ImageTabUiState extends State<ImageTabUi> {
                         ),
                       ),
                     ),
-                    transitionOnUserGestures: true,
                   );
                 } else {
                   return SizedBox(child: BlurHash(hash: json["blurHash"]));
