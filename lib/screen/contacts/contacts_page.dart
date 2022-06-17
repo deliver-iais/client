@@ -174,7 +174,7 @@ Widget emptyContactWidget(BuildContext context) {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const Center(
-          child: TGS.asset(
+          child: Tgs.asset(
             "assets/duck_animation/cry.tgs",
             width: 180,
             height: 180,
