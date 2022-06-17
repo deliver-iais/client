@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:core';
 
 import 'package:all_sensors2/all_sensors2.dart';
+import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/audioCallScreen/audio_call_screen.dart';
 import 'package:deliver/screen/call/videoCallScreen/start_video_call_page.dart';
@@ -111,14 +112,21 @@ class _CallScreenState extends State<CallScreen> {
   }
 
   @override
-  void dispose() {
+  void dispose() async{
     super.dispose();
     if (isAndroid) {
       for (final subscription in _accelerometerEvents) {
         subscription?.cancel();
       }
+      lockScreenOnBack();
       closeProximitySensor();
     }
+  }
+
+  void lockScreenOnBack() async{
+    await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
+      isVisible: false,
+    );
   }
 
   void closeProximitySensor() {

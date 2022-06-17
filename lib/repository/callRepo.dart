@@ -964,7 +964,7 @@ class CallRepo {
         endCall();
       }
     });
-    //await _foregroundTaskInitializing();
+    await _foregroundTaskInitializing();
   }
 
   Future<void> declineCall() async {

@@ -229,8 +229,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "125e6819567d6f6540f1d1f06c247cc1570c5b9a"
-      resolved-ref: "125e6819567d6f6540f1d1f06c247cc1570c5b9a"
+      ref: f10624ee079d3212dfef1e412e8bbe24f9eb3b14
+      resolved-ref: f10624ee079d3212dfef1e412e8bbe24f9eb3b14
       url: "https://github.com/androidwoman/connectycube_flutter_call_kit2.0.5.git"
     source: git
     version: "2.0.5"
@@ -676,12 +676,10 @@ packages:
   flutter_webrtc:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "31051218d1068b5f2566f1646ca2623d2ea89697"
-      resolved-ref: "31051218d1068b5f2566f1646ca2623d2ea89697"
-      url: "https://github.com/flutter-webrtc/flutter-webrtc"
-    source: git
-    version: "0.8.7"
+      name: flutter_webrtc
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.8.9"
   fluttertoast:
     dependency: "direct main"
     description:
@@ -1962,7 +1960,7 @@ packages:
       name: webrtc_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.4"
+    version: "1.0.5"
   win32:
     dependency: transitive
     description:
