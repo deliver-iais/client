@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
@@ -7,7 +8,6 @@ import 'package:deliver/screen/room/widgets/share_box/image_folder_widget.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/constants.dart';
-
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -144,8 +144,7 @@ class ShareBoxGalleryState extends State<ShareBoxGallery> {
                           color: theme.colorScheme.shadow.withOpacity(0.3),
                           spreadRadius: 2,
                           blurRadius: 3,
-                          offset:
-                              const Offset(0, 3), // changes position of shadow
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),

@@ -19,7 +19,7 @@ class ToastDisplay {
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         boxShadow: DEFAULT_BOX_SHADOWS,
-        borderRadius: mainBorder,
+        borderRadius: tertiaryBorder,
         color: toastColor,
       ),
       child: Row(
