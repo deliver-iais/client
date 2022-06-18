@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 const APPLICATION_NAME = "We";
 
 // Links Constants
+const APPLICATION_FOLDER_NAME = "We";
 const APPLICATION_DOMAIN = "wemessenger.ir";
 const SHARE_PRIVATE_DATA_ACCEPTANCE_URL = "spda";
 const ADD_CONTACT_URL = "ac";

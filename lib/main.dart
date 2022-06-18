@@ -128,7 +128,7 @@ Future<void> setupDI() async {
     ),
   );
 
-  await Hive.initFlutter("db");
+  await Hive.initFlutter("$APPLICATION_FOLDER_NAME/db");
 
   Hive
     ..registerAdapter(AvatarAdapter())
