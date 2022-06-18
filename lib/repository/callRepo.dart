@@ -761,22 +761,6 @@ class CallRepo {
   }
 
   Future<bool> _startForegroundTask() async {
-    // "android.permission.SYSTEM_ALERT_WINDOW" permission must be granted for
-    // onNotificationPressed function to be called.
-    //
-    // When the notification is pressed while permission is denied,
-    // the onNotificationPressed function is not called and the app opens.
-    //
-    // If you do not use the onNotificationPressed or launchApp function,
-    // you do not need to write this code.
-    if (!await FlutterForegroundTask.canDrawOverlays) {
-      final isGranted =
-          await FlutterForegroundTask.openSystemAlertWindowSettings();
-      if (!isGranted) {
-        return false;
-      }
-    }
-
     ReceivePort? receivePort;
     if (await FlutterForegroundTask.isRunningService) {
       receivePort = await FlutterForegroundTask.restartService();
