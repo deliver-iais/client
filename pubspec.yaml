@@ -120,7 +120,7 @@ dependencies:
   path_provider_android: 2.0.14
   patterns_canvas: 0.4.0 # UPDATABLE in FLUTTER 3
   percent_indicator: 4.2.2
-  permission_handler: 10.0.0
+  permission_handler: 9.2.0
   persian_datetime_picker: 2.5.0
   photo_manager: 2.1.2
   platform_detect: 2.0.7
