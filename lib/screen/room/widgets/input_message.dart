@@ -310,8 +310,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                     builder: (c, sh) {
                       if (sh.hasData &&
                           !sh.data! &&
-                          !widget.waitingForForward &&
-                          !isDesktop) {
+                          !widget.waitingForForward) {
                         return RecordAudioAnimation(
                           rightPadding: x,
                           size: size,
@@ -539,8 +538,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                         builder: (c, sm) {
                           if (sm.hasData &&
                               !sm.data! &&
-                              !widget.waitingForForward &&
-                              !isDesktop) {
+                              !widget.waitingForForward) {
                             return GestureDetector(
                               onTapDown: (_) async {
                                 recordAudioPermission = await checkPermission
@@ -590,6 +588,10 @@ class InputMessageWidgetState extends State<InputMessage> {
                                 }
                               },
                               onLongPressEnd: (s) async {
+                                if (!recordAudioPermission) {
+                                  return;
+                                }
+
                                 _tickTimer.cancel();
                                 final res = await record.stop();
 

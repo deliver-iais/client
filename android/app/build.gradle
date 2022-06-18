@@ -32,8 +32,13 @@ if (keystorePropertiesFile.exists()) {
 }
 
 android {
+    defaultConfig {
+        multiDexEnabled true
+    }
+
     compileSdkVersion 31
     compileOptions {
+        coreLibraryDesugaringEnabled true
         sourceCompatibility 1.8
         targetCompatibility 1.8
     }
@@ -103,6 +108,8 @@ dependencies {
     // Declare the dependencies for the Analytics libraries
     // When using the BoM, you don't specify versions in Firebase library dependencies
     implementation 'com.google.firebase:firebase-analytics'
+
+    coreLibraryDesugaring 'com.android.tools:desugar_jdk_libs:1.1.5'
 }
 // parent level build.gradle (android/build.gradle)
 

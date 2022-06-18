@@ -36,5 +36,7 @@
     <string>In order to access your photo library</string>
     <key>NSLocationUsageDescription</key>
     <string>This app needs access to location.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>We need to access to the microphone to record audio file</string>
 </dict>
 </plist>

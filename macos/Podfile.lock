@@ -132,8 +132,6 @@ PODS:
     - nanopb/encode (= 2.30908.0)
   - nanopb/decode (2.30908.0)
   - nanopb/encode (2.30908.0)
-  - package_info_plus_macos (0.0.1):
-    - FlutterMacOS
   - pasteboard (0.0.1):
     - FlutterMacOS
   - path_provider_macos (0.0.1):
@@ -169,7 +167,6 @@ DEPENDENCIES:
   - geolocator_apple (from `Flutter/ephemeral/.symlinks/plugins/geolocator_apple/macos`)
   - image_compression_flutter (from `Flutter/ephemeral/.symlinks/plugins/image_compression_flutter/macos`)
   - mobile_scanner (from `Flutter/ephemeral/.symlinks/plugins/mobile_scanner/macos`)
-  - package_info_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus_macos/macos`)
   - pasteboard (from `Flutter/ephemeral/.symlinks/plugins/pasteboard/macos`)
   - path_provider_macos (from `Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos`)
   - photo_manager (from `Flutter/ephemeral/.symlinks/plugins/photo_manager/macos`)
@@ -223,8 +220,6 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/image_compression_flutter/macos
   mobile_scanner:
     :path: Flutter/ephemeral/.symlinks/plugins/mobile_scanner/macos
-  package_info_plus_macos:
-    :path: Flutter/ephemeral/.symlinks/plugins/package_info_plus_macos/macos
   pasteboard:
     :path: Flutter/ephemeral/.symlinks/plugins/pasteboard/macos
   path_provider_macos:
@@ -267,7 +262,6 @@ SPEC CHECKSUMS:
   image_compression_flutter: 8a67d9fb207a804ddc10d7fd6bc3f2359dbdc34a
   mobile_scanner: 35dc92ffdbd7934b0dbc411b1c731bc2ef23c2dc
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
-  package_info_plus_macos: f010621b07802a241d96d01876d6705f15e77c1c
   pasteboard: 9b69dba6fedbb04866be632205d532fe2f6b1d99
   path_provider_macos: 3c0c3b4b0d4a76d2bf989a913c2de869c5641a19
   photo_manager: 4f6810b7dfc4feb03b461ac1a70dacf91fba7604

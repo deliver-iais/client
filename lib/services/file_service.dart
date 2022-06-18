@@ -225,14 +225,13 @@ class FileService {
         rawBytes: bytes,
       ); // set the input image file
       const config = Configuration(
-        outputType: ImageOutputType.jpg,
         quality: 30,
       );
 
       final param = ImageFileConfiguration(input: input, config: config);
-      final output = await compressor.compressJpg(param);
+      final output = await compressor.compressWebpThenJpg(param);
       final name = clock.now().millisecondsSinceEpoch.toString();
-      final outPutFile = await localFile(name, "jpg");
+      final outPutFile = await localFile(name, output.extension);
       outPutFile.writeAsBytesSync(output.rawBytes);
       return outPutFile.path;
     } catch (_) {
@@ -245,11 +244,12 @@ class FileService {
   ) async {
     try {
       final name = clock.now().millisecondsSinceEpoch.toString();
-      final targetFilePath = await localFilePath(name, "jpeg");
+      final targetFilePath = await localFilePath(name, "webp");
       final result = await FlutterImageCompress.compressAndGetFile(
         file.path,
         targetFilePath,
         quality: 60,
+        format: CompressFormat.webp,
       );
       if (result != null) {
         return result.path;
