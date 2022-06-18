@@ -42,7 +42,7 @@ class ContactWidget extends StatelessWidget {
             children: [
               CircleAvatarWidget(
                 contact.uid.asUid(),
-                36,
+                37,
                 borderRadius: secondaryBorder,
                 showSavedMessageLogoIfNeeded: true,
               ),
