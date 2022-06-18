@@ -162,8 +162,8 @@ class ContactRepo {
       _contactDao.save(
         contact_model.Contact(
           uid: contact.uid.asString(),
-          countryCode: contact.phoneNumber.countryCode.toString(),
-          nationalNumber: contact.phoneNumber.nationalNumber.toString(),
+          countryCode: contact.phoneNumber.countryCode,
+          nationalNumber: contact.phoneNumber.nationalNumber.toInt(),
           firstName: contact.firstName,
           lastName: contact.lastName,
           description: contact.description,
@@ -243,9 +243,8 @@ class ContactRepo {
           _contactDao.save(
             contact_model.Contact(
               uid: contactUid.asString(),
-              countryCode: contact.user.phoneNumber.countryCode.toString(),
-              nationalNumber:
-                  contact.user.phoneNumber.nationalNumber.toString(),
+              countryCode: contact.user.phoneNumber.countryCode,
+              nationalNumber: contact.user.phoneNumber.nationalNumber.toInt(),
               firstName: contact.user.firstName,
               lastName: contact.user.lastName,
               description: contact.user.description,
@@ -260,7 +259,7 @@ class ContactRepo {
     }
   }
 
-  Future<bool> contactIsExist(String countryCode, String nationalNumber) async {
+  Future<bool> contactIsExist(int countryCode, int nationalNumber) async {
     final result = await _contactDao.get(countryCode, nationalNumber);
     return result != null;
   }

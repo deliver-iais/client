@@ -37,7 +37,9 @@ class ContactsPageState extends State<ContactsPage> {
     _contactRepo.watchAll().listen((contacts) {
       _contactsBehavior.add(
         contacts
-            .where((c) => !_authRepo.isCurrentUser(c.uid))
+            .where(
+              (c) => !_authRepo.isCurrentUser(c.uid) && !c.isUsersContact(),
+            )
             .sortedBy((element) => "${element.firstName}${element.lastName}")
             .toList(growable: false),
       );
@@ -176,8 +178,10 @@ class ContactSearchDelegate extends SearchDelegate<Contact?> {
         ..clear()
         ..addAll(
           contacts
-              .sortedBy((element) => "${element.firstName}${element.lastName}")
-              .where((c) => !_authRepo.isCurrentUser(c.uid)),
+              .where(
+                (c) => !_authRepo.isCurrentUser(c.uid) && !c.isUsersContact(),
+              )
+              .sortedBy((element) => "${element.firstName}${element.lastName}"),
         );
     });
   }

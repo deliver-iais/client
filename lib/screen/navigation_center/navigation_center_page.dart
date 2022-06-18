@@ -431,7 +431,6 @@ class NavigationCenterState extends State<NavigationCenter> {
   }
 
   Widget searchResult(String query) {
-    final theme = Theme.of(context);
     return Expanded(
       child: FutureBuilder<List<List<Uid>>>(
         future: searchUidList(query),
@@ -447,8 +446,6 @@ class NavigationCenterState extends State<NavigationCenter> {
           if (global.isEmpty && bots.isEmpty && roomAndContacts.isEmpty) {
             return const Tgs.asset(
               'assets/duck_animation/not_found.tgs',
-              width: 120,
-              height: 120,
             );
           }
 

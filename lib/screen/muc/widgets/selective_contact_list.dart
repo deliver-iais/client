@@ -122,12 +122,14 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                   if (snapshot.hasData &&
                       snapshot.data != null &&
                       snapshot.data!.isNotEmpty) {
-                    snapshot.data!.removeWhere(
-                      (element) =>
-                          _authRepo.isCurrentUser(element.uid) ||
-                          element.nationalNumber == "0",
-                    );
-                    contacts = snapshot.data!;
+                    contacts = snapshot.data!
+                        .where(
+                          (element) =>
+                              !_authRepo.isCurrentUser(element.uid) &&
+                              !element.isUsersContact(),
+                        )
+                        .toList(growable: false);
+
                     items ??= contacts;
 
                     if (items!.isNotEmpty) {
