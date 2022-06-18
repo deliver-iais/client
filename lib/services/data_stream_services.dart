@@ -577,6 +577,7 @@ class DataStreamServices {
             uid: roomUid.asString(),
             firstMessageId: firstMessageId,
             lastMessageId: lastMessageId,
+            synced: true,
             lastMessage: lastNotHiddenMessage,
           )
           .ignore();

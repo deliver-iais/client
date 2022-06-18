@@ -36,7 +36,9 @@ class FileService {
   Map<String, BehaviorSubject<CancelToken?>> cancelTokens = {};
 
   Future<String> get _localPath async {
-    if (await _checkPermission.checkMediaLibraryPermission() || isDesktop || isIOS) {
+    if (await _checkPermission.checkMediaLibraryPermission() ||
+        isDesktop ||
+        isIOS) {
       final directory = await getApplicationDocumentsDirectory();
       if (!io.Directory('${directory.path}/Deliver').existsSync()) {
         await io.Directory('${directory.path}/Deliver').create(recursive: true);
@@ -84,7 +86,8 @@ class FileService {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          options.baseUrl = FileServiceBaseUrl;
+          options.baseUrl =
+              GetIt.I.get<ServicesDiscoveryRepo>().fileServiceBaseUrl;
           options.headers["Authorization"] = await _authRepo.getAccessToken();
 
           return handler.next(options); //continue

@@ -9,6 +9,7 @@ import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/register/pages/two_step_verification_page.dart';
 import 'package:deliver/screen/register/pages/verification_page.dart';
 import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
+import 'package:deliver/screen/settings/pages/connection_setting_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
@@ -20,6 +21,7 @@ import 'package:deliver/shared/widgets/out_of_date.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 
@@ -204,6 +206,21 @@ class _LoginPageState extends State<LoginPage> {
           appBar: AppBar(
             title: Text(_i18n.get("login")),
             backgroundColor: theme.backgroundColor,
+            actions: [
+              IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (c) {
+                        return const ConnectionSettingPage();
+                      },
+                    ),
+                  );
+                },
+                icon: const Icon(CupertinoIcons.settings),
+              )
+            ],
           ),
           body: loginWithQrCode
               ? buildLoginWithQrCode(_i18n, context)

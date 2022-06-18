@@ -22,6 +22,7 @@ abstract class RoomDao {
     bool? pinned,
     int? pinId,
     int? hiddenMessageCount,
+    bool? synced,
   });
 
   Future<List<Room>> getAllRooms();
@@ -29,6 +30,8 @@ abstract class RoomDao {
   Stream<List<Room>> watchAllRooms();
 
   Future<Room?> getRoom(String roomUid);
+
+  Future<List<Room>> getNotSyncedRoom();
 
   Stream<Room> watchRoom(String roomUid);
 
@@ -55,10 +58,7 @@ class RoomDaoImpl implements RoomDao {
 
   @override
   Stream<List<Room>> watchAllRooms() async* {
-    var box = await _openRoom();
-    if (box.isEmpty) {
-      box = await _openRoom();
-    }
+    final box = await _openRoom();
     yield sorted(
       box.values
           .where(
@@ -103,6 +103,7 @@ class RoomDaoImpl implements RoomDao {
     bool? pinned,
     int? hiddenMessageCount,
     int? pinId,
+    bool? synced,
   }) async {
     final box = await _openRoom();
 
@@ -119,6 +120,7 @@ class RoomDaoImpl implements RoomDao {
       pinned: pinned,
       hiddenMessageCount: hiddenMessageCount,
       pinId: pinId,
+      synced: synced,
     );
 
     if (clone != r) return box.put(uid, clone);
@@ -156,6 +158,23 @@ class RoomDaoImpl implements RoomDao {
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyRoom());
       return gen(Hive.openBox<Room>(_keyRoom()));
+    }
+  }
+
+  @override
+  Future<List<Room>> getNotSyncedRoom() async {
+    try {
+      final box = await _openRoom();
+
+      return sorted(
+        box.values
+            .where(
+              (element) => !element.deleted && !element.synced,
+            )
+            .toList(),
+      );
+    } catch (e) {
+      return [];
     }
   }
 }

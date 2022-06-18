@@ -110,10 +110,10 @@ class MessageRepo {
         case ConnectionStatus.Connected:
           _logger.i('updating -----------------');
           await updatingMessages();
+
           await updatingLastSeen();
           _roomRepo.fetchBlockedRoom().ignore();
           updatingStatus.add(TitleStatusConditions.Normal);
-
           unawaited(sendPendingMessages());
           break;
         case ConnectionStatus.Disconnected:
@@ -145,7 +145,7 @@ class MessageRepo {
         );
         finished = getAllUserRoomMetaRes.finished;
         if (finished) {
-          await _sharedDao.putBoolean(SHARED_DAO_ALL_ROOMS_FETCHED, true);
+          _sharedDao.putBoolean(SHARED_DAO_ALL_ROOMS_FETCHED, true).ignore();
         }
         for (final roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
           _allRoomMetaData[roomMetadata.roomUid.asString()] = roomMetadata;
@@ -168,15 +168,16 @@ class MessageRepo {
                 room.lastUpdateTime >= roomMetadata.lastUpdate.toInt()) {
               if (allRoomFetched) {
                 finished = true;
-              } // no more updating needed after this room
+              }
               break;
-            }
-            if (room == null) {
-              updatingStatus.add(TitleStatusConditions.Syncing);
-            } else {
-              updatingStatus.add(TitleStatusConditions.Updating);
-            }
+              // no more updating needed after this room
 
+            }
+            if (allRoomFetched) {
+              updatingStatus.add(TitleStatusConditions.Updating);
+            } else {
+              updatingStatus.add(TitleStatusConditions.Syncing);
+            }
             _roomDao
                 .updateRoom(
                   uid: roomMetadata.roomUid.asString(),
@@ -217,6 +218,17 @@ class MessageRepo {
         _logger.e(e);
       }
       pointer += 10;
+    }
+  }
+
+  Future<void> updateNotSyncedRoom() async {
+    final rooms = await _roomDao.getNotSyncedRoom();
+    for (final room in rooms) {
+      await _dataStreamServices.fetchLastNotHiddenMessage(
+        room.uid.asUid(),
+        room.lastMessageId,
+        room.firstMessageId,
+      );
     }
   }
 
