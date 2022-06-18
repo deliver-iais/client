@@ -37,10 +37,6 @@ import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sdp_transform/sdp_transform.dart';
 
-import '../services/file_service.dart';
-import 'avatarRepo.dart';
-import 'fileRepo.dart';
-
 enum CallStatus {
   CREATED,
   IS_RINGING,
@@ -737,17 +733,6 @@ class CallRepo {
   }
 
   Future<void> _initForegroundTask() async {
-    final avatarRepo = GetIt.I.get<AvatarRepo>();
-    final fileRepo = GetIt.I.get<FileRepo>();
-    final la = await avatarRepo.getLastAvatar(roomUid!);
-    String? avatarPath;
-    if (la != null && la.fileId != null && la.fileName != null) {
-      avatarPath = await fileRepo.getFileIfExist(
-        la.fileId!,
-        la.fileName!,
-        thumbnailSize: ThumbnailSize.medium,
-      );
-    }
     await FlutterForegroundTask.init(
       androidNotificationOptions: AndroidNotificationOptions(
         channelId: 'notification_channel_id',
@@ -786,9 +771,8 @@ class CallRepo {
     // you do not need to write this code.
     if (!await FlutterForegroundTask.canDrawOverlays) {
       final isGranted =
-      await FlutterForegroundTask.openSystemAlertWindowSettings();
+          await FlutterForegroundTask.openSystemAlertWindowSettings();
       if (!isGranted) {
-        print('SYSTEM_ALERT_WINDOW permission denied!');
         return false;
       }
     }
@@ -1449,5 +1433,4 @@ class FirstTaskHandler extends TaskHandler {
   Future<void> onDestroy(DateTime timestamp, SendPort? sendPort) async {
     await FlutterForegroundTask.clearAllData();
   }
-
 }
