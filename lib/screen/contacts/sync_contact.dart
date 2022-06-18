@@ -59,6 +59,7 @@ class SyncContact {
       stream: _contactRepo.isSyncingContacts,
       builder: (context, snapshot) {
         final isSyncing = snapshot.data ?? false;
+        // final isSyncing = true;
 
         return AnimatedOpacity(
           duration: SLOW_ANIMATION_DURATION,
