@@ -289,44 +289,43 @@ class SettingsPageState extends State<SettingsPage> {
                   )
                 ],
               ),
-            if (_featureFlags.labIsAvailable())
-              Section(
-                children: [
+            Section(
+              children: [
+                if (_featureFlags.labIsAvailable())
                   SettingsTile(
                     title: _i18n.get("lab"),
                     subtitleTextStyle: TextStyle(color: theme.primaryColor),
                     leading: const FaIcon(FontAwesomeIcons.vial),
                     onPressed: (context) => _routingService.openLab(),
                   ),
-                  SettingsTile(
-                    title: _i18n.get("version"),
-                    leading:
-                        const Icon(CupertinoIcons.square_stack_3d_down_right),
-                    trailing: UxService.isDeveloperMode
-                        ? FutureBuilder<String?>(
-                            future: SmsAutoFill().getAppSignature,
-                            builder: (c, sms) => Text(sms.data ?? VERSION),
-                          )
-                        : const Text(VERSION),
-                    onPressed: (_) async {
-                      _logger.d(developerModeCounterCountDown);
-                      developerModeCounterCountDown--;
-                      if (developerModeCounterCountDown < 1) {
-                        setState(() {
-                          UxService.isDeveloperMode = true;
-                        });
-                      }
-                    },
-                  ),
-                  SettingsTile(
-                    title: _i18n.get("logout"),
-                    leading: const Icon(CupertinoIcons.square_arrow_left),
-                    onPressed: (context) =>
-                        openLogoutAlertDialog(context, _i18n),
-                    trailing: const SizedBox.shrink(),
-                  ),
-                ],
-              ),
+                SettingsTile(
+                  title: _i18n.get("version"),
+                  leading:
+                      const Icon(CupertinoIcons.square_stack_3d_down_right),
+                  trailing: UxService.isDeveloperMode
+                      ? FutureBuilder<String?>(
+                          future: SmsAutoFill().getAppSignature,
+                          builder: (c, sms) => Text(sms.data ?? VERSION),
+                        )
+                      : const Text(VERSION),
+                  onPressed: (_) async {
+                    _logger.d(developerModeCounterCountDown);
+                    developerModeCounterCountDown--;
+                    if (developerModeCounterCountDown < 1) {
+                      setState(() {
+                        UxService.isDeveloperMode = true;
+                      });
+                    }
+                  },
+                ),
+                SettingsTile(
+                  title: _i18n.get("logout"),
+                  leading: const Icon(CupertinoIcons.square_arrow_left),
+                  onPressed: (context) => openLogoutAlertDialog(context, _i18n),
+                  trailing: const SizedBox.shrink(),
+                ),
+              ],
+            ),
           ],
         ),
       ),
