@@ -117,6 +117,9 @@ const SHARED_DAO_TWO_STEP_VERIFICATION_ENABLED =
     "SHARED_DAO_TWO_STEP_VERIFICATION_ENABLED";
 const SHARED_DAO_WINDOWS_SIZE = "SHARED_DAO_WINDOWS_SIZE";
 
+// FEATURE FLAGS
+const SHARED_DAO_FEATURE_FLAGS_CALL = "SHARED_DAO_FEATURE_FLAGS_CALL";
+
 // Notification Constants
 const String OPEN_CHAT_ACTION_ID =
     'open_chat'; // A notification action which triggers a App navigation event
@@ -177,6 +180,7 @@ const double VERY_LARGE_BREAKDOWN_SIZE = 1150.0;
 const double LARGE_BREAKDOWN_SIZE = 768.0;
 const double NAVIGATION_PANEL_SIZE = 320.0;
 const double MIN_WIDTH = 200.0;
+const int SCROLL_DOWN_BUTTON_HIDING_TIME = 3000;
 const mainBorder = BorderRadius.all(Radius.circular(28));
 const secondaryBorder = BorderRadius.all(Radius.circular(12));
 const tertiaryBorder = BorderRadius.all(Radius.circular(8));

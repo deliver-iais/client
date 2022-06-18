@@ -24,6 +24,7 @@ import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/screen/settings/pages/auto_download_settings.dart';
 import 'package:deliver/screen/settings/pages/developer_page.dart';
 import 'package:deliver/screen/settings/pages/devices_page.dart';
+import 'package:deliver/screen/settings/pages/lab_settings.dart';
 import 'package:deliver/screen/settings/pages/language_settings.dart';
 import 'package:deliver/screen/settings/pages/security_settings.dart';
 import 'package:deliver/screen/settings/pages/theme_settings_page.dart';
@@ -62,6 +63,8 @@ const _developerPage = DeveloperPage(key: ValueKey("/developer-page"));
 const _devices = DevicesPage(key: ValueKey("/devices"));
 
 const _autoDownload = AutoDownloadSettingsPage(key: ValueKey("/auto_download"));
+
+const _lab = LabSettingsPage(key: ValueKey("/lab"));
 
 const _contacts = ContactsPage(key: ValueKey("/contacts"));
 
@@ -114,6 +117,8 @@ class RoutingService {
   void openDevices() => _push(_devices);
 
   void openAutoDownload() => _push(_autoDownload);
+
+  void openLab() => _push(_lab);
 
   void openContacts() => _push(_contacts);
 
@@ -384,14 +389,7 @@ class RoutingService {
     }
   }
 
-  Widget backButtonLeading({void Function()? back}) {
-    return BackButton(
-      onPressed: () {
-        back?.call();
-        pop();
-      },
-    );
-  }
+  Widget backButtonLeading() => BackButton(onPressed: pop);
 }
 
 class RouteEvent {

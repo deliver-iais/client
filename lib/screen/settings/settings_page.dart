@@ -290,6 +290,12 @@ class SettingsPageState extends State<SettingsPage> {
             Section(
               children: [
                 SettingsTile(
+                  title: _i18n.get("lab"),
+                  subtitleTextStyle: TextStyle(color: theme.primaryColor),
+                  leading: const FaIcon(FontAwesomeIcons.vial),
+                  onPressed: (context) => _routingService.openLab(),
+                ),
+                SettingsTile(
                   title: _i18n.get("version"),
                   leading:
                       const Icon(CupertinoIcons.square_stack_3d_down_right),

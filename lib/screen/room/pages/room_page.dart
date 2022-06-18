@@ -601,7 +601,7 @@ class RoomPageState extends State<RoomPage> {
     _repliedMessage.add(null);
   }
 
-  void onDelete() {
+  void unselectMessages() {
     _selectMultiMessageSubject.add(false);
     _selectedMessages.clear();
     setState(() {});
@@ -725,36 +725,44 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Widget scrollDownButtonWidget() {
-    return Stack(
-      children: [
-        MouseRegion(
-          onHover: (s) {
-            _isArrowIconFocused = true;
-          },
-          onExit: (s) {
-            _isArrowIconFocused = false;
-            scrollEndNotificationTimer =
-                Timer(const Duration(milliseconds: 500), () {
-              _isScrolling.add(false);
-            });
-          },
-          child: FloatingActionButton(
-            mini: true,
-            onPressed: _scrollToLastMessage,
-            child: const Icon(CupertinoIcons.chevron_down),
-          ),
-        ),
-        if (room.lastMessage != null &&
-            !_authRepo.isCurrentUser(room.lastMessage!.from))
-          Positioned(
-            top: 0,
-            left: 0,
-            child: UnreadMessageCounterWidget(
-              widget.roomId,
-              room.lastMessageId,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onHover: (s) {
+        _isArrowIconFocused = true;
+      },
+      onExit: (s) {
+        _isArrowIconFocused = false;
+        scrollEndNotificationTimer = Timer(
+            const Duration(milliseconds: SCROLL_DOWN_BUTTON_HIDING_TIME), () {
+          _isScrolling.add(false);
+        });
+      },
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => _scrollToLastMessage(),
+        child: Stack(
+          children: [
+            FloatingActionButton(
+              mini: true,
+              onPressed: _scrollToLastMessage,
+              child: const Icon(CupertinoIcons.arrow_down),
             ),
-          ),
-      ],
+            if (room.lastMessage != null &&
+                !_authRepo.isCurrentUser(room.lastMessage!.from))
+              Container(
+                transform: Matrix4.translationValues(-5, -5, 0),
+                child: Positioned(
+                  top: 0,
+                  left: 0,
+                  child: UnreadMessageCounterWidget(
+                    widget.roomId,
+                    room.lastMessageId,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -924,18 +932,14 @@ class RoomPageState extends State<RoomPage> {
                               size: 25,
                             ),
                             onPressed: () {
-                              onDelete();
+                              unselectMessages();
                             },
                           ),
                         ),
                       ],
                     );
                   } else {
-                    return _routingService.backButtonLeading(
-                      back: () {
-                        // _notificationServices.reset("\t");
-                      },
-                    );
+                    return _routingService.backButtonLeading();
                   }
                 },
               );
@@ -992,7 +996,7 @@ class RoomPageState extends State<RoomPage> {
                     selectedMessages: _selectedMessages,
                     hasPermissionInChannel: _hasPermissionInChannel.value,
                     hasPermissionInGroup: _hasPermissionInGroup.value,
-                    onDelete: onDelete,
+                    onDelete: unselectMessages,
                     deleteSelectedMessage: _deleteSelectedMessage,
                   );
                 } else {
@@ -1045,8 +1049,8 @@ class RoomPageState extends State<RoomPage> {
           scrollEndNotificationTimer?.cancel();
           if (!_isLastMessages) _isScrolling.add(true);
         } else if (scrollNotification is ScrollEndNotification) {
-          scrollEndNotificationTimer =
-              Timer(const Duration(milliseconds: 1500), () {
+          scrollEndNotificationTimer = Timer(
+              const Duration(milliseconds: SCROLL_DOWN_BUTTON_HIDING_TIME), () {
             if (!_isArrowIconFocused || !isDesktop) _isScrolling.add(false);
           });
         }
@@ -1234,7 +1238,7 @@ class RoomPageState extends State<RoomPage> {
       onReply: () => onReply(message),
       addForwardMessage: () => _addForwardMessage(message),
       scrollToMessage: _scrollToReplyMessage,
-      onDelete: onDelete,
+      onDelete: unselectMessages,
     );
 
     if (index == room.firstMessageId) {
@@ -1315,7 +1319,7 @@ class RoomPageState extends State<RoomPage> {
       showDeleteMsgDialog(
         _selectedMessages.values.toList(),
         context,
-        onDelete,
+        unselectMessages,
       );
       _selectedMessages.clear();
     }

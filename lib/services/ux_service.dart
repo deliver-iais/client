@@ -77,6 +77,9 @@ class UxService {
   final _isAutoNightModeEnable = BehaviorSubject.seeded(true);
   final _sendByEnter = BehaviorSubject.seeded(isDesktop);
 
+  // Feature Flags
+  final _isCallEnabledFeatureFlag = BehaviorSubject.seeded(false);
+
   UxService() {
     _sharedDao
         .getStream(
@@ -108,6 +111,7 @@ class UxService {
         .getBooleanStream(SHARED_DAO_SEND_BY_ENTER, defaultValue: isDesktop)
         .distinct()
         .listen((sbn) => _sendByEnter.add(sbn));
+
     _sharedDao
         .getBoolean(
           SHARED_DAO_THEME_IS_DARK,
@@ -115,6 +119,7 @@ class UxService {
               window.platformBrightness == Brightness.dark,
         )
         .then(_themeIsDark.add);
+
     _sharedDao.get(SHARED_DAO_THEME_COLOR).then((event) {
       if (event != null) {
         try {
@@ -132,19 +137,22 @@ class UxService {
         } catch (_) {}
       }
     });
+
+    _sharedDao
+        .getBooleanStream(SHARED_DAO_FEATURE_FLAGS_CALL)
+        .distinct()
+        .listen((isEnable) => _isCallEnabledFeatureFlag.add(isEnable));
   }
 
-  Stream get themeIndexStream =>
-      _themeIndex.distinct().map((event) => event);
+  Stream<int> get themeIndexStream => _themeIndex.distinct();
 
-  Stream get patternIndexStream =>
-      _patternIndex.distinct().map((event) => event);
+  Stream<int> get patternIndexStream => _patternIndex.distinct();
 
-  Stream get themeIsDarkStream =>
-      _themeIsDark.distinct().map((event) => event);
+  Stream<bool> get themeIsDarkStream => _themeIsDark.distinct();
 
-  Stream get showColorfulStream =>
-      _showColorful.distinct().map((event) => event);
+  Stream<bool> get showColorfulStream => _showColorful.distinct();
+
+  Stream<bool> get isCallEnabledFeatureFlagStream => _isCallEnabledFeatureFlag.distinct();
 
   ThemeData get theme =>
       getThemeScheme(_themeIndex.value).theme(isDark: _themeIsDark.value);
@@ -165,6 +173,15 @@ class UxService {
   bool get isAllNotificationDisabled => _isAllNotificationDisabled.value;
 
   bool get isAutoNightModeEnable => _isAutoNightModeEnable.value;
+
+  // Feature Flags
+  bool get isCallEnabledFeatureFlag => _isCallEnabledFeatureFlag.value;
+
+  void toggleIsCallEnabledFeatureFlag() {
+    final newValue = !isCallEnabledFeatureFlag;
+    _sharedDao.putBoolean(SHARED_DAO_FEATURE_FLAGS_CALL, newValue);
+    _isCallEnabledFeatureFlag.add(newValue);
+  }
 
   void toggleThemeLightingMode() {
     _sharedDao.putBoolean(SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE, false);
