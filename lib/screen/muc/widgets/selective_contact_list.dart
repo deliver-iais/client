@@ -4,7 +4,6 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/screen/contacts/empty_contacts.dart';
-import 'package:deliver/screen/contacts/sync_contact.dart';
 import 'package:deliver/screen/muc/widgets/selective_contact.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
@@ -108,7 +107,6 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
       children: [
         Column(
           children: [
-            SyncContact().syncingStatus(context),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: SearchBox(

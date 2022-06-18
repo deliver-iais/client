@@ -53,9 +53,13 @@ class ContactsPageState extends State<ContactsPage> {
         child: AppBar(
           centerTitle: false,
           titleSpacing: 8,
-          title: Text(_i18n.get("contacts")),
+          title: Row(
+            children: [
+              Text(_i18n.get("contacts")),
+              SyncContact().syncingStatus(context)
+            ],
+          ),
           leading: _routingService.backButtonLeading(),
-          flexibleSpace: SyncContact().syncingStatus(context),
           actions: [
             IconButton(
               icon: const Icon(Icons.search),
