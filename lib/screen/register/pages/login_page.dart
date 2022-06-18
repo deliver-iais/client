@@ -362,7 +362,7 @@ class LoginPageState extends State<LoginPage> {
                                       recognizer: TapGestureRecognizer()
                                         ..onTap = () => launchUrl(
                                               Uri.parse(
-                                                "https://deliver-co.ir/#/termofuse",
+                                                "https://wemessenger.ir/terms",
                                               ),
                                             ),
                                     ),
