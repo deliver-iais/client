@@ -45,7 +45,7 @@ class ContactsPageState extends State<ContactsPage> {
   }
 
   void _syncContacts() {
-    SyncContact().showSyncContactDialog(context);
+    SyncContact.showSyncContactDialog(context);
   }
 
   @override
@@ -60,7 +60,7 @@ class ContactsPageState extends State<ContactsPage> {
           title: Row(
             children: [
               Text(_i18n.get("contacts"), style: textTheme.titleMedium),
-              SyncContact().syncingStatus(context)
+              SyncContact.syncingStatusWidget(context)
             ],
           ),
           leading: _routingService.backButtonLeading(),
@@ -213,11 +213,11 @@ class ContactSearchDelegate extends SearchDelegate<Contact?> {
     final filteredContacts = _contacts
         .where(
           (c) =>
-      query.isEmpty ||
-          "${c.firstName}${c.lastName}"
-              .toLowerCase()
-              .contains(query.toLowerCase()),
-    )
+              query.isEmpty ||
+              "${c.firstName}${c.lastName}"
+                  .toLowerCase()
+                  .contains(query.toLowerCase()),
+        )
         .toList(growable: false);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),

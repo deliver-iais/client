@@ -22,7 +22,7 @@ class MemberSelectionPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    SyncContact().showSyncContactDialog(context);
+    SyncContact.showSyncContactDialog(context);
     final theme = Theme.of(context);
     return Scaffold(
       appBar: PreferredSize(
@@ -68,7 +68,7 @@ class MemberSelectionPage extends StatelessWidget {
                   )
                 ],
               ),
-              SyncContact().syncingStatus(context),
+              SyncContact.syncingStatusWidget(context),
             ],
           ),
         ),

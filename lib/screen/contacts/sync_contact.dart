@@ -9,11 +9,11 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class SyncContact {
-  final _sharedDao = GetIt.I.get<SharedDao>();
-  final _contactRepo = GetIt.I.get<ContactRepo>();
-  final _i18n = GetIt.I.get<I18N>();
+  static final _sharedDao = GetIt.I.get<SharedDao>();
+  static final _contactRepo = GetIt.I.get<ContactRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
 
-  Future<void> showSyncContactDialog(BuildContext context) async {
+  static Future<void> showSyncContactDialog(BuildContext context) async {
     final isAlreadyContactAccessTipShowed =
         await _sharedDao.getBoolean(SHARED_DAO_SHOW_CONTACT_DIALOG);
     if (!isAlreadyContactAccessTipShowed && !isDesktop && !isWeb) {
@@ -52,7 +52,7 @@ class SyncContact {
     }
   }
 
-  Widget syncingStatus(BuildContext context) {
+  static Widget syncingStatusWidget(BuildContext context) {
     final theme = Theme.of(context);
     return StreamBuilder<bool>(
       initialData: false,
