@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -37,6 +38,7 @@ class ContactsPageState extends State<ContactsPage> {
       _contactsBehavior.add(
         contacts
             .where((c) => !_authRepo.isCurrentUser(c.uid))
+            .sortedBy((element) => "${element.firstName}${element.lastName}")
             .toList(growable: false),
       );
     });
@@ -48,6 +50,8 @@ class ContactsPageState extends State<ContactsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
       appBar: BlurredPreferredSizedWidget(
         child: AppBar(
@@ -55,7 +59,7 @@ class ContactsPageState extends State<ContactsPage> {
           titleSpacing: 8,
           title: Row(
             children: [
-              Text(_i18n.get("contacts")),
+              Text(_i18n.get("contacts"), style: textTheme.titleMedium),
               SyncContact().syncingStatus(context)
             ],
           ),
@@ -91,10 +95,25 @@ class ContactsPageState extends State<ContactsPage> {
             return Stack(
               children: [
                 if (contacts.isNotEmpty)
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: Scrollbar(
+                  ListView(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 32,
+                          vertical: 8,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "${contacts.length} ${_i18n.get("contacts")}",
+                              style: textTheme.labelLarge,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
                         child: FlexibleFixedHeightGridView(
                           itemCount: contacts.length,
                           itemBuilder: (context, index) {
@@ -120,7 +139,7 @@ class ContactsPageState extends State<ContactsPage> {
                           },
                         ),
                       ),
-                    ),
+                    ],
                   )
                 else
                   const EmptyContacts(),
@@ -155,7 +174,11 @@ class ContactSearchDelegate extends SearchDelegate<Contact?> {
     _contactRepo.watchAll().listen((contacts) {
       _contacts
         ..clear()
-        ..addAll(contacts.where((c) => !_authRepo.isCurrentUser(c.uid)));
+        ..addAll(
+          contacts
+              .sortedBy((element) => "${element.firstName}${element.lastName}")
+              .where((c) => !_authRepo.isCurrentUser(c.uid)),
+        );
     });
   }
 
@@ -190,11 +213,11 @@ class ContactSearchDelegate extends SearchDelegate<Contact?> {
     final filteredContacts = _contacts
         .where(
           (c) =>
-              query.isEmpty ||
-              "${c.firstName}${c.lastName}"
-                  .toLowerCase()
-                  .contains(query.toLowerCase()),
-        )
+      query.isEmpty ||
+          "${c.firstName}${c.lastName}"
+              .toLowerCase()
+              .contains(query.toLowerCase()),
+    )
         .toList(growable: false);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24.0),

@@ -42,7 +42,7 @@ class ContactWidget extends StatelessWidget {
             children: [
               CircleAvatarWidget(
                 contact.uid.asUid(),
-                37,
+                36,
                 borderRadius: secondaryBorder,
                 showSavedMessageLogoIfNeeded: true,
               ),
@@ -82,13 +82,16 @@ class ContactWidget extends StatelessWidget {
             ),
           ),
           if (circleIcon != null)
-            IconButton(
-              splashRadius: 40,
-              iconSize: 24,
-              onPressed: () => onCircleIcon?.call(),
-              icon: Icon(
-                circleIcon,
-                color: theme.colorScheme.primary,
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: IconButton(
+                splashRadius: 40,
+                iconSize: 24,
+                onPressed: () => onCircleIcon?.call(),
+                icon: Icon(
+                  circleIcon,
+                  color: theme.colorScheme.primary,
+                ),
               ),
             ),
         ],

@@ -37,6 +37,7 @@ class FlexibleFixedHeightGridView extends StatelessWidget {
           gridDelegate: gridDelegate,
           itemBuilder: itemBuilder,
           itemCount: itemCount,
+          shrinkWrap: true,
         );
       },
     );
