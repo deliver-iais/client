@@ -469,9 +469,14 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Future<void> initRoomStream() async {
-    _roomRepo.watchRoom(widget.roomId).listen((event) {
+    _roomRepo.watchRoom(widget.roomId).distinct().listen((event) {
+      if (event.lastMessageId != room.lastMessageId) {
+        _fireScrollEvent();
+        _calmScrollEvent();
+      }
       _room.add(event);
     });
+
     messageEventSubject
         .distinct()
         .where((event) => (event != null && event.roomUid == widget.roomId))
@@ -1046,13 +1051,9 @@ class RoomPageState extends State<RoomPage> {
     return NotificationListener<ScrollNotification>(
       onNotification: (scrollNotification) {
         if (scrollNotification is ScrollStartNotification) {
-          scrollEndNotificationTimer?.cancel();
-          if (!_isLastMessages) _isScrolling.add(true);
+          _fireScrollEvent();
         } else if (scrollNotification is ScrollEndNotification) {
-          scrollEndNotificationTimer = Timer(
-              const Duration(milliseconds: SCROLL_DOWN_BUTTON_HIDING_TIME), () {
-            if (!_isArrowIconFocused || !isDesktop) _isScrolling.add(false);
-          });
+          _calmScrollEvent();
         }
         return true;
       },
@@ -1108,6 +1109,18 @@ class RoomPageState extends State<RoomPage> {
         ),
       ),
     );
+  }
+
+  void _fireScrollEvent() {
+    scrollEndNotificationTimer?.cancel();
+    if (!_isLastMessages) _isScrolling.add(true);
+  }
+
+  void _calmScrollEvent() {
+    scrollEndNotificationTimer =
+        Timer(const Duration(milliseconds: SCROLL_DOWN_BUTTON_HIDING_TIME), () {
+      if (!_isArrowIconFocused || !isDesktop) _isScrolling.add(false);
+    });
   }
 
   Tuple2<Message?, Message?>? _fastForwardFetchMessageAndMessageBefore(
