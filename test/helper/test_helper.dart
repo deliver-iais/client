@@ -219,8 +219,8 @@ MockContactRepo getAndRegisterContactRepo({
               uid: testUid.asString(),
               firstName: "test",
               lastName: "test",
-              countryCode: "098",
-              nationalNumber: "098",
+              countryCode: 98,
+              nationalNumber: 9123456789,
             )
           : null,
     ),

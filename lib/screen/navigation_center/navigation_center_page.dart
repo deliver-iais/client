@@ -431,7 +431,6 @@ class NavigationCenterState extends State<NavigationCenter> {
   }
 
   Widget searchResult(String query) {
-    final theme = Theme.of(context);
     return Expanded(
       child: FutureBuilder<List<List<Uid>>>(
         future: searchUidList(query),
@@ -445,20 +444,8 @@ class NavigationCenterState extends State<NavigationCenter> {
           final roomAndContacts = snaps.data![2];
 
           if (global.isEmpty && bots.isEmpty && roomAndContacts.isEmpty) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Tgs.asset(
-                  'assets/animations/not-found.tgs',
-                  width: 180,
-                  height: 150,
-                ),
-                Text(
-                  _i18n.get("not_found"),
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.headline6,
-                ),
-              ],
+            return const Tgs.asset(
+              'assets/duck_animation/not_found.tgs',
             );
           }
 

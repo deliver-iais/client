@@ -781,7 +781,7 @@ class CallRepo {
       receivePort = await FlutterForegroundTask.restartService();
     } else {
       receivePort = await FlutterForegroundTask.startService(
-        notificationTitle: 'Deliver Call on BackGround',
+        notificationTitle: '$APPLICATION_NAME Call on BackGround',
         notificationText: 'Tap to return to the app',
         callback: startCallback,
       );

@@ -55,7 +55,7 @@ class SettingsPageState extends State<SettingsPage> {
     final theme = Theme.of(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: UltimateAppBar(
+      appBar: BlurredPreferredSizedWidget(
         child: AppBar(
           titleSpacing: 8,
           title: Text(_i18n.get("settings")),

@@ -4,7 +4,6 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
-
 import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/register/pages/two_step_verification_page.dart';
 import 'package:deliver/screen/register/pages/verification_page.dart';
@@ -13,7 +12,6 @@ import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/phone.dart';
-
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver/shared/widgets/out_of_date.dart';
@@ -22,7 +20,6 @@ import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
@@ -244,7 +241,7 @@ class LoginPageState extends State<LoginPage> {
             },
           ),
           const SizedBox(height: 30),
-          const Text("1. Open Deliver on your phone"),
+          const Text("1. Open $APPLICATION_NAME on your phone"),
           const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -365,7 +362,7 @@ class LoginPageState extends State<LoginPage> {
                                       recognizer: TapGestureRecognizer()
                                         ..onTap = () => launchUrl(
                                               Uri.parse(
-                                                "https://deliver-co.ir/#/termofuse",
+                                                "https://wemessenger.ir/terms",
                                               ),
                                             ),
                                     ),

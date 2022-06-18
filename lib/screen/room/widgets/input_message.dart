@@ -570,7 +570,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                                   final s =
                                       await getApplicationDocumentsDirectory();
                                   final path =
-                                      "${s.path}/Deliver/${clock.now().millisecondsSinceEpoch}.m4a";
+                                      "${s.path}/$APPLICATION_FOLDER_NAME/${clock.now().millisecondsSinceEpoch}.m4a";
                                   _audioPlayerService.pause();
                                   recordSubject.add(clock.now());
                                   setTime();

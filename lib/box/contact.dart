@@ -7,10 +7,10 @@ part 'contact.g.dart';
 class Contact {
   // DbId
   @HiveField(0)
-  String countryCode;
+  int countryCode;
 
   @HiveField(1)
-  String nationalNumber;
+  int nationalNumber;
 
   @HiveField(2)
   String uid;
@@ -32,4 +32,6 @@ class Contact {
     this.lastName,
     this.description,
   });
+
+  bool isUsersContact() => countryCode == 0;
 }

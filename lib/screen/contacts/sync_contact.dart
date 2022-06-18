@@ -9,11 +9,11 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class SyncContact {
-  final _sharedDao = GetIt.I.get<SharedDao>();
-  final _contactRepo = GetIt.I.get<ContactRepo>();
-  final _i18n = GetIt.I.get<I18N>();
+  static final _sharedDao = GetIt.I.get<SharedDao>();
+  static final _contactRepo = GetIt.I.get<ContactRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
 
-  Future<void> showSyncContactDialog(BuildContext context) async {
+  static Future<void> showSyncContactDialog(BuildContext context) async {
     final isAlreadyContactAccessTipShowed =
         await _sharedDao.getBoolean(SHARED_DAO_SHOW_CONTACT_DIALOG);
     if (!isAlreadyContactAccessTipShowed && !isDesktop && !isWeb) {
@@ -50,5 +50,49 @@ class SyncContact {
     } else {
       unawaited(_contactRepo.syncContacts());
     }
+  }
+
+  static Widget syncingStatusWidget(BuildContext context) {
+    final theme = Theme.of(context);
+    return StreamBuilder<bool>(
+      initialData: false,
+      stream: _contactRepo.isSyncingContacts,
+      builder: (context, snapshot) {
+        final isSyncing = snapshot.data ?? false;
+        // final isSyncing = true;
+
+        return AnimatedOpacity(
+          duration: SLOW_ANIMATION_DURATION,
+          curve: Curves.easeInOut,
+          opacity: isSyncing ? 1 : 0,
+          child: Container(
+            decoration: BoxDecoration(
+              color: theme.colorScheme.secondaryContainer,
+              borderRadius: mainBorder,
+            ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 8,
+            ),
+            margin: const EdgeInsets.symmetric(horizontal: 12),
+            child: Row(
+              children: [
+                Text(_i18n.get("syncing_contact")),
+                const SizedBox(width: 8),
+                SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    color: theme.colorScheme.onTertiaryContainer,
+                  ),
+                ),
+                const SizedBox(width: 4),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 }

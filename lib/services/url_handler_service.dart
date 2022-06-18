@@ -27,8 +27,8 @@ import 'package:logger/logger.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 String buildShareUserUrl(
-  String countryCode,
-  String nationalNumber,
+  int countryCode,
+  int nationalNumber,
   String firstName,
   String lastName,
 ) =>
@@ -68,8 +68,8 @@ class UrlHandlerService {
       if (segments.first == ADD_CONTACT_URL) {
         handleAddContact(
           context: context,
-          countryCode: uri.queryParameters["cc"],
-          nationalNumber: uri.queryParameters["nn"],
+          countryCode: int.parse(uri.queryParameters["cc"]!),
+          nationalNumber: int.parse(uri.queryParameters["nn"]!),
           firstName: uri.queryParameters["fn"],
           lastName: uri.queryParameters["ln"],
         );
@@ -182,8 +182,8 @@ class UrlHandlerService {
   Future<void> handleAddContact({
     String? firstName,
     String? lastName,
-    String? countryCode,
-    String? nationalNumber,
+    int? countryCode,
+    int? nationalNumber,
     required BuildContext context,
   }) async {
     final theme = Theme.of(context);
@@ -240,8 +240,8 @@ class UrlHandlerService {
                             ..firstName = firstName!
                             ..lastName = lastName!
                             ..phoneNumber = PhoneNumber(
-                              countryCode: int.parse(countryCode),
-                              nationalNumber: Int64(int.parse(nationalNumber)),
+                              countryCode: countryCode,
+                              nationalNumber: Int64(nationalNumber),
                             ),
                         );
                         if (newContactAdded) {

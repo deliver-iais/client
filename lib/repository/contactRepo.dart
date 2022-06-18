@@ -3,7 +3,7 @@
 import 'dart:async';
 
 import 'package:contacts_service/contacts_service.dart' as contacts_service_pb;
-import 'package:deliver/box/contact.dart' as contact_pb;
+import 'package:deliver/box/contact.dart' as contact_model;
 import 'package:deliver/box/dao/contact_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
@@ -23,6 +23,7 @@ import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:synchronized/synchronized.dart';
 
 class ContactRepo {
@@ -37,9 +38,12 @@ class ContactRepo {
   final QueryServiceClient _queryServiceClient =
       GetIt.I.get<QueryServiceClient>();
   final Map<PhoneNumber, String> _contactsDisplayName = {};
+  final BehaviorSubject<bool> isSyncingContacts = BehaviorSubject.seeded(false);
 
   Future<void> syncContacts() async {
+    isSyncingContacts.add(true);
     if (_requestLock.locked) {
+      isSyncingContacts.add(false);
       return;
     }
     return _requestLock.synchronized(() async {
@@ -76,6 +80,7 @@ class ContactRepo {
           }
         }
         sendContacts(contacts);
+        isSyncingContacts.add(false);
       }
     });
   }
@@ -138,9 +143,9 @@ class ContactRepo {
     }
   }
 
-  Stream<List<contact_pb.Contact>> watchAll() => _contactDao.watchAll();
+  Stream<List<contact_model.Contact>> watchAll() => _contactDao.watchAll();
 
-  Future<List<contact_pb.Contact>> getAll() => _contactDao.getAll();
+  Future<List<contact_model.Contact>> getAll() => _contactDao.getAll();
 
   Future<void> getContacts() async {
     try {
@@ -155,10 +160,10 @@ class ContactRepo {
   void _saveContact(List<UserAsContact> users) {
     for (final contact in users) {
       _contactDao.save(
-        contact_pb.Contact(
+        contact_model.Contact(
           uid: contact.uid.asString(),
-          countryCode: contact.phoneNumber.countryCode.toString(),
-          nationalNumber: contact.phoneNumber.nationalNumber.toString(),
+          countryCode: contact.phoneNumber.countryCode,
+          nationalNumber: contact.phoneNumber.nationalNumber.toInt(),
           firstName: contact.firstName,
           lastName: contact.lastName,
           description: contact.description,
@@ -218,10 +223,13 @@ class ContactRepo {
   }
 
   // TODO(hasan): we should merge getContact and getContactFromServer functions together and refactor usages too, https://gitlab.iais.co/deliver/wiki/-/issues/421
-  Future<contact_pb.Contact?> getContact(Uid userUid) =>
+  Future<contact_model.Contact?> getContact(Uid userUid) =>
       _contactDao.getByUid(userUid.asString());
 
-  Future<String?> getContactFromServer(Uid contactUid) async {
+  Future<String?> getContactFromServer(
+    Uid contactUid, {
+    bool ignoreInsertingOrUpdatingContactDao = false,
+  }) async {
     try {
       final contact = await _contactServices
           .getUserByUid(GetUserByUidReq()..uid = contactUid);
@@ -229,20 +237,21 @@ class ContactRepo {
 
       // Update uidIdName table
       unawaited(_uidIdNameDao.update(contactUid.asString(), name: name));
-
-      // Update contact table
-      unawaited(
-        _contactDao.save(
-          contact_pb.Contact(
-            uid: contactUid.asString(),
-            countryCode: contact.user.phoneNumber.countryCode.toString(),
-            nationalNumber: contact.user.phoneNumber.nationalNumber.toString(),
-            firstName: contact.user.firstName,
-            lastName: contact.user.lastName,
-            description: contact.user.description,
+      if (!ignoreInsertingOrUpdatingContactDao) {
+        // Update contact table
+        unawaited(
+          _contactDao.save(
+            contact_model.Contact(
+              uid: contactUid.asString(),
+              countryCode: contact.user.phoneNumber.countryCode,
+              nationalNumber: contact.user.phoneNumber.nationalNumber.toInt(),
+              firstName: contact.user.firstName,
+              lastName: contact.user.lastName,
+              description: contact.user.description,
+            ),
           ),
-        ),
-      );
+        );
+      }
       return name;
     } catch (e) {
       _logger.e(e);
@@ -250,7 +259,7 @@ class ContactRepo {
     }
   }
 
-  Future<bool> contactIsExist(String countryCode, String nationalNumber) async {
+  Future<bool> contactIsExist(int countryCode, int nationalNumber) async {
     final result = await _contactDao.get(countryCode, nationalNumber);
     return result != null;
   }
