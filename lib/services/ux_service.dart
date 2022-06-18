@@ -1,7 +1,9 @@
 import 'dart:ui';
 
 import 'package:deliver/box/dao/shared_dao.dart';
+import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver/theme/theme.dart';
@@ -77,9 +79,6 @@ class UxService {
   final _isAutoNightModeEnable = BehaviorSubject.seeded(true);
   final _sendByEnter = BehaviorSubject.seeded(isDesktop);
 
-  // Feature Flags
-  final _isCallEnabledFeatureFlag = BehaviorSubject.seeded(false);
-
   UxService() {
     _sharedDao
         .getStream(
@@ -137,11 +136,6 @@ class UxService {
         } catch (_) {}
       }
     });
-
-    _sharedDao
-        .getBooleanStream(SHARED_DAO_FEATURE_FLAGS_CALL)
-        .distinct()
-        .listen((isEnable) => _isCallEnabledFeatureFlag.add(isEnable));
   }
 
   Stream<int> get themeIndexStream => _themeIndex.distinct();
@@ -151,8 +145,6 @@ class UxService {
   Stream<bool> get themeIsDarkStream => _themeIsDark.distinct();
 
   Stream<bool> get showColorfulStream => _showColorful.distinct();
-
-  Stream<bool> get isCallEnabledFeatureFlagStream => _isCallEnabledFeatureFlag.distinct();
 
   ThemeData get theme =>
       getThemeScheme(_themeIndex.value).theme(isDark: _themeIsDark.value);
@@ -173,15 +165,6 @@ class UxService {
   bool get isAllNotificationDisabled => _isAllNotificationDisabled.value;
 
   bool get isAutoNightModeEnable => _isAutoNightModeEnable.value;
-
-  // Feature Flags
-  bool get isCallEnabledFeatureFlag => _isCallEnabledFeatureFlag.value;
-
-  void toggleIsCallEnabledFeatureFlag() {
-    final newValue = !isCallEnabledFeatureFlag;
-    _sharedDao.putBoolean(SHARED_DAO_FEATURE_FLAGS_CALL, newValue);
-    _isCallEnabledFeatureFlag.add(newValue);
-  }
 
   void toggleThemeLightingMode() {
     _sharedDao.putBoolean(SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE, false);
@@ -247,5 +230,58 @@ class UxService {
 
   void changeLogLevel(String level) {
     _sharedDao.put(SHARED_DAO_LOG_LEVEL, level);
+  }
+}
+
+class FeatureFlags {
+  final _sharedDao = GetIt.I.get<SharedDao>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
+
+  // Flags
+  final _voiceCallFeatureFlag = BehaviorSubject.seeded(false);
+
+  FeatureFlags() {
+    _sharedDao
+        .getBooleanStream(
+          SHARED_DAO_FEATURE_FLAGS_VOICE_CALL,
+          defaultValue: _isVoiceCallBetaUser(),
+        )
+        .distinct()
+        .listen((isEnable) => _voiceCallFeatureFlag.add(isEnable));
+  }
+
+  bool labIsAvailable() =>
+      _voiceCallFeatureIsPossible() && !_isVoiceCallBetaUser();
+
+  bool _voiceCallFeatureIsPossible() => !isLinux;
+
+  bool _isVoiceCallBetaUser() => ACCESS_TO_CALL_UID_LIST.values
+      .contains(_authRepo.currentUserUid.asString());
+
+  Stream<bool> get voiceCallFeatureFlagStream =>
+      _voiceCallFeatureFlag.distinct();
+
+  void toggleVoiceCallFeatureFlag() {
+    final newValue = !_voiceCallFeatureFlag.value;
+    _sharedDao.putBoolean(SHARED_DAO_FEATURE_FLAGS_VOICE_CALL, newValue);
+    _voiceCallFeatureFlag.add(newValue);
+  }
+
+  void enableVoiceCallFeatureFlag() {
+    final newValue = !_voiceCallFeatureFlag.value;
+    _sharedDao.putBoolean(SHARED_DAO_FEATURE_FLAGS_VOICE_CALL, newValue);
+    _voiceCallFeatureFlag.add(newValue);
+  }
+
+  bool isVoiceCallAvailable() {
+    if (!_voiceCallFeatureIsPossible()) {
+      return false;
+    }
+
+    if (_isVoiceCallBetaUser()) {
+      return true;
+    }
+
+    return _voiceCallFeatureFlag.value;
   }
 }

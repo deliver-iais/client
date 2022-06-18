@@ -16,7 +16,7 @@ class LabSettingsPage extends StatefulWidget {
 }
 
 class _LabSettingsPageState extends State<LabSettingsPage> {
-  final _uxService = GetIt.I.get<UxService>();
+  final _featureFlags = GetIt.I.get<FeatureFlags>();
   final _i18n = GetIt.I.get<I18N>();
 
   @override
@@ -45,14 +45,14 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
               title: _i18n.get("calls"),
               children: [
                 StreamBuilder<bool>(
-                  stream: _uxService.isCallEnabledFeatureFlagStream,
+                  stream: _featureFlags.voiceCallFeatureFlagStream,
                   builder: (context, snapshot) {
                     return SettingsTile.switchTile(
                       title: _i18n.get("voice_call_feature"),
                       leading: const Icon(CupertinoIcons.phone),
                       switchValue: snapshot.data ?? false,
                       onToggle: (value) {
-                        _uxService.toggleIsCallEnabledFeatureFlag();
+                        _featureFlags.toggleVoiceCallFeatureFlag();
                       },
                     );
                   },
