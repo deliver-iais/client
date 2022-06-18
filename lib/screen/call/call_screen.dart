@@ -10,7 +10,6 @@ import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
@@ -103,9 +102,8 @@ class CallScreenState extends State<CallScreen> {
   }
 
   Future<void> checkForSystemAlertWindowPermission() async {
-    final deviceInfo = DeviceInfoPlugin();
-    final androidInfo = await deviceInfo.androidInfo;
-    if (androidInfo.version.sdkInt >= 23 &&
+    if (isAndroid &&
+        await getDeviceVersion() >= 31 &&
         !await Permission.systemAlertWindow.status.isGranted) {
       showPermissionDialog();
     }
@@ -118,12 +116,12 @@ class CallScreenState extends State<CallScreen> {
       for (final subscription in _accelerometerEvents) {
         subscription?.cancel();
       }
-      lockScreenOnBack();
+      setOnLockScreenVisibility();
       closeProximitySensor();
     }
   }
 
-  Future<void> lockScreenOnBack() async{
+  Future<void> setOnLockScreenVisibility() async {
     await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
       isVisible: false,
     );

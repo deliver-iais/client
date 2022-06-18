@@ -21,6 +21,7 @@ import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/call/access_to_call.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
+import 'package:deliver/screen/navigation_center/widgets/feature_discovery_description_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/forward_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/input_message_text_controller.dart';
 import 'package:deliver/screen/room/messageWidgets/on_edit_message_widget.dart';
@@ -58,10 +59,12 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:desktop_lifecycle/desktop_lifecycle.dart';
+import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:tuple/tuple.dart';
@@ -858,37 +861,98 @@ class RoomPageState extends State<RoomPage> {
             !_authRepo.isCurrentUser(room.uid) &&
             accessToCallUidList.values
                 .contains(_authRepo.currentUserUid.asString()))
-          IconButton(
-            onPressed: () {
-              if (_callService.getUserCallState == UserCallState.NOCALL) {
-                _routingService.openCallScreen(room.uid.asUid());
-              } else {
-                if (room.uid.asUid() == _callRepo.roomUid) {
-                  _routingService.openCallScreen(
-                    room.uid.asUid(),
-                    isCallInitialized: true,
-                  );
-                } else {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      content: Text(
-                        _i18n.get("you_already_in_call"),
+          StreamBuilder<bool>(
+            stream: _selectMultiMessageSubject,
+            builder: (context, snapshot) {
+              return snapshot.hasData && !snapshot.data!
+                  ? DescribedFeatureOverlay(
+                      featureId: FEATURE_4,
+                      tapTarget: IconButton(
+                        icon: const Icon(CupertinoIcons.phone),
+                        onPressed: () {},
                       ),
-                      actions: <Widget>[
-                        TextButton(
-                          child: Text(_i18n.get("ok")),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        )
-                      ],
-                    ),
-                  );
-                }
-              }
+                      backgroundColor: Colors.teal,
+                      targetColor: Colors.tealAccent,
+                      title: const Text('You can call any user you want'),
+                      overflowMode: OverflowMode.extendBackground,
+                      description: FeatureDiscoveryDescriptionWidget(
+                        // TODO(hasan): more use of i18n
+                        permissionWidget: !isDesktop
+                            ? FutureBuilder<int>(
+                                future: getDeviceVersion(),
+                                builder: (context, version) {
+                                  return version.data != null &&
+                                          version.data! >= 31
+                                      ? InkWell(
+                                          onTap: () async {
+                                            FeatureDiscovery.dismissAll(
+                                              context,
+                                            );
+                                            await Permission.systemAlertWindow
+                                                .request();
+                                          },
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.center,
+                                            children: [
+                                              Text(
+                                                'go to setting',
+                                                style: theme.textTheme.button!
+                                                    .copyWith(
+                                                  color:
+                                                      Colors.lightGreenAccent,
+                                                ),
+                                              ),
+                                              const Icon(
+                                                Icons.arrow_forward,
+                                                color: Colors.lightGreenAccent,
+                                              )
+                                            ],
+                                          ),
+                                        )
+                                      : const SizedBox.shrink();
+                                },
+                              )
+                            : null,
+                        description:
+                            "1.you can have voice call with any user \n2. You can mute your mic in call  \n3. You can put call on speaker",
+                      ),
+                      child: IconButton(
+                        onPressed: () {
+                          if (_callService.getUserCallState ==
+                              UserCallState.NOCALL) {
+                            _routingService.openCallScreen(room.uid.asUid());
+                          } else {
+                            if (room.uid.asUid() == _callRepo.roomUid) {
+                              _routingService.openCallScreen(
+                                room.uid.asUid(),
+                                isCallInitialized: true,
+                              );
+                            } else {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  content: Text(
+                                    _i18n.get("you_already_in_call"),
+                                  ),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      child: Text(_i18n.get("ok")),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    )
+                                  ],
+                                ),
+                              );
+                            }
+                          }
+                        },
+                        icon: const Icon(CupertinoIcons.phone),
+                      ),
+                    )
+                  : const SizedBox.shrink();
             },
-            icon: const Icon(CupertinoIcons.phone),
           ),
       ],
       leading: GestureDetector(
