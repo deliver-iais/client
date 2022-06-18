@@ -310,7 +310,8 @@ class InputMessageWidgetState extends State<InputMessage> {
                     builder: (c, sh) {
                       if (sh.hasData &&
                           !sh.data! &&
-                          !widget.waitingForForward) {
+                          !widget.waitingForForward &&
+                          !isDesktop) {
                         return RecordAudioAnimation(
                           rightPadding: x,
                           size: size,
@@ -538,7 +539,8 @@ class InputMessageWidgetState extends State<InputMessage> {
                         builder: (c, sm) {
                           if (sm.hasData &&
                               !sm.data! &&
-                              !widget.waitingForForward) {
+                              !widget.waitingForForward &&
+                              !isDesktop) {
                             return GestureDetector(
                               onTapDown: (_) async {
                                 recordAudioPermission = await checkPermission
