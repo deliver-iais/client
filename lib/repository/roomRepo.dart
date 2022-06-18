@@ -133,7 +133,7 @@ class RoomRepo {
       } else {
         final name = await _contactRepo.getContactFromServer(
           uid,
-          shouldUpdateContactDao: false,
+          ignoreInsertingOrUpdatingContactDao: true,
         );
         if (name != null) {
           roomNameCache.set(uid.asString(), name);

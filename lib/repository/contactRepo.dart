@@ -228,7 +228,7 @@ class ContactRepo {
 
   Future<String?> getContactFromServer(
     Uid contactUid, {
-    bool shouldUpdateContactDao = true,
+    bool ignoreInsertingOrUpdatingContactDao = false,
   }) async {
     try {
       final contact = await _contactServices
@@ -237,7 +237,7 @@ class ContactRepo {
 
       // Update uidIdName table
       unawaited(_uidIdNameDao.update(contactUid.asString(), name: name));
-      if (shouldUpdateContactDao) {
+      if (!ignoreInsertingOrUpdatingContactDao) {
         // Update contact table
         unawaited(
           _contactDao.save(

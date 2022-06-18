@@ -1770,10 +1770,10 @@ class MockContactRepo extends _i1.Mock implements _i57.ContactRepo {
 
   @override
   _i20.Future<String?> getContactFromServer(_i3.Uid? contactUid,
-          {bool? shouldUpdateContactDao = true}) =>
+          {bool? ignoreInsertingOrUpdatingContactDao = true}) =>
       (super.noSuchMethod(
           Invocation.method(#getContactFromServer, [contactUid],
-              {#shouldUpdateContactDao: shouldUpdateContactDao}),
+              {#shouldUpdateContactDao: ignoreInsertingOrUpdatingContactDao}),
           returnValue: Future<String?>.value()) as _i20.Future<String?>);
 
   @override
