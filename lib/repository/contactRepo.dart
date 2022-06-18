@@ -3,7 +3,7 @@
 import 'dart:async';
 
 import 'package:contacts_service/contacts_service.dart' as contacts_service_pb;
-import 'package:deliver/box/contact.dart' as contact_pb;
+import 'package:deliver/box/contact.dart' as contact_model;
 import 'package:deliver/box/dao/contact_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
@@ -143,9 +143,9 @@ class ContactRepo {
     }
   }
 
-  Stream<List<contact_pb.Contact>> watchAll() => _contactDao.watchAll();
+  Stream<List<contact_model.Contact>> watchAll() => _contactDao.watchAll();
 
-  Future<List<contact_pb.Contact>> getAll() => _contactDao.getAll();
+  Future<List<contact_model.Contact>> getAll() => _contactDao.getAll();
 
   Future<void> getContacts() async {
     try {
@@ -160,7 +160,7 @@ class ContactRepo {
   void _saveContact(List<UserAsContact> users) {
     for (final contact in users) {
       _contactDao.save(
-        contact_pb.Contact(
+        contact_model.Contact(
           uid: contact.uid.asString(),
           countryCode: contact.phoneNumber.countryCode.toString(),
           nationalNumber: contact.phoneNumber.nationalNumber.toString(),
@@ -223,7 +223,7 @@ class ContactRepo {
   }
 
   // TODO(hasan): we should merge getContact and getContactFromServer functions together and refactor usages too, https://gitlab.iais.co/deliver/wiki/-/issues/421
-  Future<contact_pb.Contact?> getContact(Uid userUid) =>
+  Future<contact_model.Contact?> getContact(Uid userUid) =>
       _contactDao.getByUid(userUid.asString());
 
   Future<String?> getContactFromServer(
@@ -241,7 +241,7 @@ class ContactRepo {
         // Update contact table
         unawaited(
           _contactDao.save(
-            contact_pb.Contact(
+            contact_model.Contact(
               uid: contactUid.asString(),
               countryCode: contact.user.phoneNumber.countryCode.toString(),
               nationalNumber:
