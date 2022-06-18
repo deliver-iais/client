@@ -54,47 +54,47 @@ class SyncContact {
 
   Widget syncingStatus(BuildContext context) {
     final theme = Theme.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(top: 8),
-      child: StreamBuilder<bool>(
-        initialData: false,
-        stream: _contactRepo.isSyncingContacts,
-        builder: (context, snapshot) {
-          final isSyncing = snapshot.data ?? false;
-          return AnimatedContainer(
-            width: double.infinity,
-            height: isSyncing ? 38 : 0,
-            padding: const EdgeInsets.symmetric(
-              horizontal: 8,
-              vertical: 8,
-            ),
-            margin: const EdgeInsets.symmetric(horizontal: 8),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.secondaryContainer,
-              borderRadius: tertiaryBorder,
-            ),
-            curve: Curves.easeInOut,
-            duration: ANIMATION_DURATION * 2,
-            child: Row(
-              children: [
-                const SizedBox(width: 4),
-                SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: theme.colorScheme.onTertiaryContainer,
-                  ),
+    return StreamBuilder<bool>(
+      initialData: false,
+      stream: _contactRepo.isSyncingContacts,
+      builder: (context, snapshot) {
+        // final isSyncing = snapshot.data ?? false;
+        final isSyncing = true;
+
+        return AnimatedContainer(
+          width: double.infinity,
+          height: isSyncing ? 38 : 0,
+          padding: const EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: 8,
+          ),
+          margin:
+              const EdgeInsets.only(left: 128, top: 8, bottom: 8, right: 40),
+          decoration: BoxDecoration(
+            color: theme.colorScheme.secondaryContainer,
+            borderRadius: tertiaryBorder,
+          ),
+          curve: Curves.easeInOut,
+          duration: ANIMATION_DURATION * 2,
+          child: Row(
+            children: [
+              const SizedBox(width: 4),
+              SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: theme.colorScheme.onTertiaryContainer,
                 ),
-                const SizedBox(width: 8),
-                Text(
-                  _i18n.get("syncing_contact"),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                _i18n.get("syncing_contact"),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

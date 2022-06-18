@@ -55,6 +55,7 @@ class ContactsPageState extends State<ContactsPage> {
           titleSpacing: 8,
           title: Text(_i18n.get("contacts")),
           leading: _routingService.backButtonLeading(),
+          flexibleSpace: SyncContact().syncingStatus(context),
           actions: [
             IconButton(
               icon: const Icon(Icons.search),
@@ -72,6 +73,7 @@ class ContactsPageState extends State<ContactsPage> {
           ],
         ),
       ),
+      extendBodyBehindAppBar: true,
       body: StreamBuilder<List<Contact>>(
         stream: _contactsBehavior,
         builder: (context, snapshot) {
@@ -118,7 +120,6 @@ class ContactsPageState extends State<ContactsPage> {
                   )
                 else
                   const EmptyContacts(),
-                SyncContact().syncingStatus(context),
                 Align(
                   alignment: Alignment.bottomRight,
                   child: Padding(
