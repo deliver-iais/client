@@ -883,39 +883,48 @@ class RoomPageState extends State<RoomPage> {
                                 builder: (context, version) {
                                   return version.data != null &&
                                           version.data! >= 31
-                                      ? InkWell(
-                                          onTap: () async {
-                                            FeatureDiscovery.dismissAll(
-                                              context,
-                                            );
-                                            await Permission.systemAlertWindow
-                                                .request();
-                                          },
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: [
-                                              Text(
-                                                'go to setting',
-                                                style: theme.textTheme.button!
-                                                    .copyWith(
-                                                  color:
-                                                      Colors.lightGreenAccent,
-                                                ),
+                                      ? Column(
+                                          children: [
+                                            const Text(
+                                                "Please allow permission alert window to open app over another apps \n\nIf you dont accept the permission we cant open the app from notification in android 12 or higher",),
+                                            InkWell(
+                                              onTap: () async {
+                                                FeatureDiscovery.dismissAll(
+                                                  context,
+                                                );
+                                                await Permission
+                                                    .systemAlertWindow
+                                                    .request();
+                                              },
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
+                                                children: [
+                                                  Text(
+                                                    'go to setting',
+                                                    style: theme
+                                                        .textTheme.button!
+                                                        .copyWith(
+                                                      color: Colors
+                                                          .lightGreenAccent,
+                                                    ),
+                                                  ),
+                                                  const Icon(
+                                                    Icons.arrow_forward,
+                                                    color:
+                                                        Colors.lightGreenAccent,
+                                                  )
+                                                ],
                                               ),
-                                              const Icon(
-                                                Icons.arrow_forward,
-                                                color: Colors.lightGreenAccent,
-                                              )
-                                            ],
-                                          ),
+                                            ),
+                                          ],
                                         )
                                       : const SizedBox.shrink();
                                 },
                               )
                             : null,
                         description:
-                            "1.you can have voice call with any user \n2. You can mute your mic in call  \n3. You can put call on speaker",
+                            "1. You can have voice call with any user \n2. You can mute your mic in call  \n3. You can put call on speaker",
                       ),
                       child: IconButton(
                         onPressed: () {

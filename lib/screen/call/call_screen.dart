@@ -39,7 +39,7 @@ class CallScreen extends StatefulWidget {
   CallScreenState createState() => CallScreenState();
 }
 
-class CallScreenState extends State<CallScreen> {
+class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
   late final RTCVideoRenderer _localRenderer;
 
   late final RTCVideoRenderer _remoteRenderer;
@@ -47,6 +47,7 @@ class CallScreenState extends State<CallScreen> {
   final _logger = GetIt.I.get<Logger>();
   final _audioService = GetIt.I.get<AudioService>();
   late final String random;
+  BuildContext? dialogContext;
 
   final List<StreamSubscription<dynamic>> _streamSubscriptions =
       <StreamSubscription<dynamic>>[];
@@ -54,8 +55,18 @@ class CallScreenState extends State<CallScreen> {
       <StreamSubscription<AccelerometerEvent>>[];
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      if (dialogContext != null) {
+        Navigator.of(dialogContext!).pop();
+      }
+      checkForSystemAlertWindowPermission();
+    }
+  }
+
+  @override
   void initState() {
-    checkForSystemAlertWindowPermission();
+    WidgetsBinding.instance.addObserver(this);
     random = randomAlphaNumeric(10);
     callRepo.initRenderer();
     _localRenderer = callRepo.getLocalRenderer;
@@ -72,32 +83,35 @@ class CallScreenState extends State<CallScreen> {
   void showPermissionDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Tgs.asset(
-          'assets/animations/call_permission.tgs',
-          width: 150,
-          height: 150,
-        ),
-        content: const Text(
-          'Please allow permission alert window to open app over another apps',
-        ),
-        alignment: Alignment.center,
-        actionsAlignment: MainAxisAlignment.spaceEvenly,
-        actions: <Widget>[
-          TextButton(
-            child: const Text('cancel'),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
+      builder: (context) {
+        dialogContext = context;
+        return AlertDialog(
+          title: const Tgs.asset(
+            'assets/animations/call_permission.tgs',
+            width: 150,
+            height: 150,
           ),
-          TextButton(
-            child: const Text('Go to settings'),
-            onPressed: () async {
-              await Permission.systemAlertWindow.request();
-            },
+          content: const Text(
+            'Please allow permission alert window to open app over another apps \n\nIf you dont accept the permission we cant open the app from notification in android 12 or higher',
           ),
-        ],
-      ),
+          alignment: Alignment.center,
+          actionsAlignment: MainAxisAlignment.spaceEvenly,
+          actions: <Widget>[
+            TextButton(
+              child: const Text('cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('Go to settings'),
+              onPressed: () async {
+                await Permission.systemAlertWindow.request();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -119,6 +133,7 @@ class CallScreenState extends State<CallScreen> {
       setOnLockScreenVisibility();
       closeProximitySensor();
     }
+    WidgetsBinding.instance.removeObserver(this);
   }
 
   Future<void> setOnLockScreenVisibility() async {
