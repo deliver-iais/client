@@ -373,5 +373,15 @@
   "you_already_in_call": "you are already in a call with another user",
   "you_create_channel": "Create Channel",
   "you_create_group": "Create Group",
-  "your_password_update": "Your password updated"
+  "your_password_update": "Your password updated",
+  "alert_window_permission": "Please allow permission alert window to open app over another apps \n\nIf you dont accept the permission we cant open the app from notification in android 12 or higher",
+  "call_feature_discovery_title": "You can call any user you want",
+  "call_feature_discovery_description": "1. You can have voice call with any user \n2. You can mute your mic in call \n3. You can put call on speaker",
+  "create_group_feature_discovery_title": "You can create new group and new channel",
+  "create_group_feature_description": "If you touch this icon you can create new channel or new group with your contact",
+  "go_to_setting": "Go to Setting",
+  "setting_icon_feature_discovery_title": "You can go to setting",
+  "setting_icon_feature_discovery_description": "1. You can change your profile in the setting\n2. You can sync your contact and start chat with one of your contacts \n3. You can change app theme",
+  "qr_code_feature_discovery_title" : "You can scan QR Code",
+  "qr_code_feature_discovery_description" : "For desktop app you can scan QR Code and login to your account"
 }

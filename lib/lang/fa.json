@@ -376,5 +376,15 @@
   "you_already_in_call": "شما هم اکنون در حال تماس با یک فرد دیگر هستید",
   "you_create_channel": "کانال را ساختید.",
   "you_create_group": "گروه را ساختید.",
-  "your_password_update": "رمز شما بروز شد."
+  "your_password_update": "رمز شما بروز شد.",
+  "alert_window_permission": "لطفا دسترسی alert window را برای باز کردن اپلیکیشن روی بقیه اپلیکیشن ها بدهید \n\n اگر این دسترسی را ندهید ما نمیتوانیم اپلیکیشن را از طریق نوتیفیکیشن در اندروید دوازده و بالاتر باز کنیم ",
+  "call_feature_discovery_title": "شما میتوانید به هر کسی بخواهید زنگ بزنید",
+  "call_feature_discovery_description": "1.شما میتوانید به هر کسی بخواهید زنگ بزنید.\n2.شما میتوانید هر کسی را در تماس میوت کنید.\n3.شما میتوانید تماس رو بر روی اسپیکر بگذارید.",
+  "create_group_feature_discovery_title": "شما میتوایند گروه یا کانال جدید بسازید",
+  "create_group_feature_description": "با زدن این دکمه شما میتوانید گروه یا کانال جدید با مخاطبین خود بسازید",
+  "go_to_setting": "رفتن به تنظیمات",
+  "setting_icon_feature_discovery_title": "شما میتوانید به تنظیمات بروید",
+  "setting_icon_feature_discovery_description": "۱.شما میتوانید پروفایل خود را در تنظیمات تغیر دهید\n۲.شما میتوانید مخاطبین خود را همگام سازی کرده و با مخاطبین خود صحبت داشته باشید\n۳.شما میتوایند در تنظیمات تم اپلیکیشن را عوض کنید",
+  "qr_code_feature_discovery_title": "شما میتوایند QR Code را اسکن کنید",
+  "qr_code_feature_discovery_description": "برای لاگین در دسکتاپ شما میتوایند کد Qr را از طریق این گزینه اسکن کنید"
 }
