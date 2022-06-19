@@ -3,6 +3,7 @@ import 'dart:core';
 
 import 'package:all_sensors2/all_sensors2.dart';
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/audioCallScreen/audio_call_screen.dart';
 import 'package:deliver/screen/call/videoCallScreen/start_video_call_page.dart';
@@ -46,6 +47,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
   final callRepo = GetIt.I.get<CallRepo>();
   final _logger = GetIt.I.get<Logger>();
   final _audioService = GetIt.I.get<AudioService>();
+  final _i18n = GetIt.I.get<I18N>();
   late final String random;
   BuildContext? dialogContext;
 
@@ -91,20 +93,29 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
             width: 150,
             height: 150,
           ),
-          content: const Text(
-            'Please allow permission alert window to open app over another apps \n\nIf you dont accept the permission we cant open the app from notification in android 12 or higher',
+          content: Text(
+            _i18n.get(
+              "alert_window_permission",
+            ),
+
           ),
           alignment: Alignment.center,
           actionsAlignment: MainAxisAlignment.spaceEvenly,
           actions: <Widget>[
             TextButton(
-              child: const Text('cancel'),
+              child: Text(
+                _i18n.get(
+                  "cancel",
+                ),
+              ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: const Text('Go to settings'),
+              child: Text(
+                _i18n.get("go_to_setting"),
+              ),
               onPressed: () async {
                 await Permission.systemAlertWindow.request();
               },
