@@ -220,10 +220,7 @@ class NavigationCenterState extends State<NavigationCenter> {
                     } else {
                       _onNavigationCenterBackPressed = null;
                       return Expanded(
-                        child: ChatsPage(
-                          scrollController: _scrollController,
-                          key: const ValueKey("alksnd"),
-                        ),
+                        child: ChatsPage(scrollController: _scrollController),
                       );
                     }
                   },
