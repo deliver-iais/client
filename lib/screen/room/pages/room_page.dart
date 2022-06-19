@@ -915,7 +915,7 @@ class RoomPageState extends State<RoomPage> {
                               )
                             : null,
                         description:
-                            "1.you can have voice call with any user \n2. You can mute your mic in call  \n3. You can put call on speaker",
+                            "1. You can have voice call with any user \n2. You can mute your mic in call  \n3. You can put call on speaker",
                       ),
                       child: IconButton(
                         onPressed: () {
