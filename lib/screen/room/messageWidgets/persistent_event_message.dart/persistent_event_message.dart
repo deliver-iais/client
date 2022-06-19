@@ -99,7 +99,6 @@ class PersistentEventMessage extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: theme.chipTheme.backgroundColor,
                     borderRadius: tertiaryBorder,
-                    border: Border.fromBorderSide(theme.chipTheme.side!),
                   ),
                   padding: const EdgeInsets.only(
                     top: 6.0,
