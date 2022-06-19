@@ -43,12 +43,9 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   final _roomDao = GetIt.I.get<RoomDao>();
   final _i18n = GetIt.I.get<I18N>();
   final _controller = AnimatedListController();
-  final _roomsStream = BehaviorSubject.seeded(<RoomWrapper>[]);
   late AnimatedListDiffListDispatcher<RoomWrapper> _dispatcher;
 
   List<Room> rooms = <Room>[];
-
-  var sdsdsd = 0;
 
   void _showCustomMenu(BuildContext context, Room room, bool canBePinned) {
     this.showMenu(
@@ -134,9 +131,12 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   }
 
   Widget itemBuilder(
-      BuildContext ctx, RoomWrapper rw, AnimatedWidgetBuilderData data) {
+    BuildContext ctx,
+    RoomWrapper rw,
+    AnimatedWidgetBuilderData data,
+  ) {
     if (data.measuring) {
-      return Container(height: 85, width: double.infinity);
+      return const SizedBox(height: 85, width: double.infinity);
     }
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
