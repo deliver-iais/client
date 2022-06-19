@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/live_location_dao.dart';
 import 'package:deliver/box/livelocation.dart';
+import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver_public_protocol/pub/v1/live_location.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart' as pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -14,7 +15,7 @@ import 'package:get_it/get_it.dart';
 
 class LiveLocationRepo {
   final _liveLocationDao = GetIt.I.get<LiveLocationDao>();
-  final _liveLocationClient = GetIt.I.get<LiveLocationServiceClient>();
+  final _services = GetIt.I.get<ServicesDiscoveryRepo>();
 
   void saveLiveLocation(LiveLocation liveLocation) {
     _liveLocationDao.saveLiveLocation(liveLocation);
@@ -32,7 +33,7 @@ class LiveLocationRepo {
       return;
     }
     timer = Timer.periodic(const Duration(minutes: 1), (t) async {
-      final res = await _liveLocationClient
+      final res = await _services.liveLocationServiceClient
           .shouldSendLiveLocation(ShouldSendLiveLocationReq());
       if (res.shouldSend) {
         return _getLatUpdateLocation(liveLocation.uuid);
@@ -44,7 +45,7 @@ class LiveLocationRepo {
 
   Future<void> _getLatUpdateLocation(String uuid) async {
     final locations = <pb.Location>[];
-    final res = await _liveLocationClient.getLastUpdatedLiveLocation(
+    final res = await _services.liveLocationServiceClient.getLastUpdatedLiveLocation(
       GetLastUpdatedLiveLocationReq()..uuid = uuid,
     );
     for (final liveLocation in res.liveLocations) {
@@ -63,7 +64,7 @@ class LiveLocationRepo {
     Uid roomUid,
     int duration,
   ) async =>
-      await _liveLocationClient.createLiveLocation(
+      await _services.liveLocationServiceClient.createLiveLocation(
         CreateLiveLocationReq()
           ..room = roomUid
           ..duration = Int64(duration),
@@ -83,12 +84,12 @@ class LiveLocationRepo {
       ),
     );
     Geolocator.getPositionStream(
-            locationSettings:
-                LocationSettings(timeLimit: Duration(seconds: duration)),)
-        .listen((p) {
+      locationSettings:
+          LocationSettings(timeLimit: Duration(seconds: duration)),
+    ).listen((p) {
       final location =
           pb.Location(latitude: p.latitude, longitude: p.longitude);
-      _liveLocationClient
+      _services.liveLocationServiceClient
           .updateLocation(UpdateLocationReq()..location = location);
       _updateLiveLocationInDb(uuid, duration, location);
     });

@@ -25,6 +25,7 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/liveLocationRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/firebase_services.dart';
@@ -91,8 +92,8 @@ class MessageRepo {
   final _seenDao = GetIt.I.get<SeenDao>();
   final _mucServices = GetIt.I.get<MucServices>();
   final _fireBaseServices = GetIt.I.get<FireBaseServices>();
+  final _services = GetIt.I.get<ServicesDiscoveryRepo>();
   final _coreServices = GetIt.I.get<CoreServices>();
-  final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
   final _sharedDao = GetIt.I.get<SharedDao>();
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _mediaRepo = GetIt.I.get<MediaRepo>();
@@ -138,7 +139,7 @@ class MessageRepo {
     while (!finished && pointer < 10000) {
       try {
         final getAllUserRoomMetaRes =
-            await _queryServiceClient.getAllUserRoomMeta(
+            await _services.queryServiceClient.getAllUserRoomMeta(
           GetAllUserRoomMetaReq()
             ..pointer = pointer
             ..limit = 10,
@@ -252,7 +253,7 @@ class MessageRepo {
   }
 
   Future<void> fetchHiddenMessageCount(Uid roomUid, int id) =>
-      _queryServiceClient
+      _services.queryServiceClient
           .countIsHiddenMessages(
             CountIsHiddenMessagesReq()
               ..roomUid = roomUid
@@ -269,7 +270,7 @@ class MessageRepo {
   Future<void> fetchOtherSeen(Uid roomUid) {
     if (roomUid.category == Categories.USER ||
         roomUid.category == Categories.GROUP) {
-      return _queryServiceClient
+      return _services.queryServiceClient
           .fetchLastOtherUserSeenData(
             FetchLastOtherUserSeenDataReq()..roomUid = roomUid,
           )
@@ -295,7 +296,7 @@ class MessageRepo {
   Future<void> fetchCurrentUserLastSeen(RoomMetadata room) async {
     try {
       final fetchCurrentUserSeenData =
-          await _queryServiceClient.fetchCurrentUserSeenData(
+          await _services.queryServiceClient.fetchCurrentUserSeenData(
         FetchCurrentUserSeenDataReq()..roomUid = room.roomUid,
       );
 
@@ -329,7 +330,7 @@ class MessageRepo {
   }
 
   Future<void> getMentions(Room room) {
-    return _queryServiceClient
+    return _services.queryServiceClient
         .fetchMentionList(
       FetchMentionListReq()
         ..group = room.uid.asUid()
@@ -885,7 +886,7 @@ class MessageRepo {
     int lastMessageId,
   ) async {
     try {
-      final fetchMessagesRes = await _queryServiceClient.fetchMessages(
+      final fetchMessagesRes = await _services.queryServiceClient.fetchMessages(
         FetchMessagesReq()
           ..roomUid = roomId.asUid()
           ..pointer = Int64(page * pageSize)
@@ -1045,7 +1046,7 @@ class MessageRepo {
 
   Future<bool> _deleteMessage(Message message) async {
     try {
-      await _queryServiceClient.deleteMessage(
+      await _services.queryServiceClient.deleteMessage(
         DeleteMessageReq()
           ..messageId = Int64(message.id!)
           ..roomUid = message.roomUid.asUid(),
@@ -1114,7 +1115,7 @@ class MessageRepo {
         ..to = editableMessage.to.asUid()
         ..replyToId = Int64(editableMessage.replyToId)
         ..text = message_pb.Text(text: text);
-      await _queryServiceClient.updateMessage(
+      await _services.queryServiceClient.updateMessage(
         UpdateMessageReq()
           ..message = updatedMessage
           ..messageId = Int64(editableMessage.id ?? 0),
@@ -1182,7 +1183,7 @@ class MessageRepo {
     final updatedMessage = message_pb.MessageByClient()
       ..to = editableMessage.to.asUid()
       ..file = updatedFile!;
-    await _queryServiceClient.updateMessage(
+    await _services.queryServiceClient.updateMessage(
       UpdateMessageReq()
         ..message = updatedMessage
         ..messageId = Int64(editableMessage.id ?? 0),

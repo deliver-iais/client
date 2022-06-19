@@ -3,7 +3,6 @@
 import 'dart:core';
 
 import 'package:deliver/box/dao/shared_dao.dart';
-import 'package:deliver/main.dart';
 import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/shared/constants.dart';
@@ -24,25 +23,19 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 
 class ServicesDiscoveryRepo {
-  late ClientChannel _botClientChannel;
-  late ClientChannel _queryClientChannel;
-  late ClientChannel stickerClientChannel;
-  late ClientChannel mucServicesClientChannel;
-  late ClientChannel coreServicesClientChannel;
-  late ClientChannel avatarServicesClientChannel;
-  late ClientChannel profileServicesClientChannel;
-  late ClientChannel firebaseServicesClientChannel;
-  late ClientChannel liveLocationServiceClientChannel;
-
-  late GrpcWebClientChannel webStickerClientChannel;
-  late GrpcWebClientChannel webProfileServicesClientChannel;
-  late GrpcWebClientChannel webBotClientChannel;
-  late GrpcWebClientChannel webCoreServicesClientChannel;
-  late GrpcWebClientChannel webMucServicesClientChannel;
-  late GrpcWebClientChannel webFirebaseServicesClientChannel;
-  late GrpcWebClientChannel webLiveLocationClientChannel;
-  late GrpcWebClientChannel webQueryClientChannel;
-  late GrpcWebClientChannel webAvatarServicesClientChannel;
+  late CoreServiceClient _coreServiceClient;
+  late BotServiceClient _botServiceClient;
+  late SessionServiceClient _sessionServiceClient;
+  late QueryServiceClient _queryServiceClient;
+  late ContactServiceClient _contactServiceClient;
+  late StickerServiceClient _stickerServiceClient;
+  late FirebaseServiceClient _firebaseServiceClient;
+  late AvatarServiceClient _avatarServiceClient;
+  late GroupServiceClient _groupServiceClient;
+  late ChannelServiceClient _channelServiceClient;
+  late LiveLocationServiceClient _liveLocationServiceClient;
+  late UserServiceClient _userServiceClient;
+  late AuthServiceClient _authServiceClient;
 
   final fileServiceBaseUrl = "https://ms-file.$APPLICATION_DOMAIN";
 
@@ -50,31 +43,32 @@ class ServicesDiscoveryRepo {
 
   final _shareDao = GetIt.I.get<SharedDao>();
 
-  void initAuthRepo() {
-    try{
-      registerSingleton<AuthServiceClient>(
-        AuthServiceClient(
-          isWeb ? webProfileServicesClientChannel : profileServicesClientChannel,
-        ),
-      );
-    }catch(e){
-      print(e.toString());
-    }
-    // Order is important, don't change it!
-
-  }
-
-  ServicesDiscoveryRepo() {
-    _initRepo();
-  }
-
-  Future<void> _initRepo() async {
+  Future<void> initRepo() async {
     final ip = (await _shareDao.get(SHARE_DAO_HOST_SET_BY_USER)) ?? "";
     initClientChannel(ip: ip);
   }
 
   void initClientChannel({String ip = ""}) {
-    _queryClientChannel = ClientChannel(
+    final grpcClientInterceptors = [
+      GetIt.I.get<DeliverClientInterceptor>(),
+      GetIt.I.get<AnalyticsClientInterceptor>()
+    ];
+    _initQueryClientChannelServices(ip, grpcClientInterceptors);
+    _initBotClientChannelServices(ip, grpcClientInterceptors);
+    _initStickerClientChannelServices(ip, grpcClientInterceptors);
+    _initMucClientChannelServices(ip, grpcClientInterceptors);
+    _initCoreClientChannelServices(ip, grpcClientInterceptors);
+    _initProfileClintChannelServices(ip, grpcClientInterceptors);
+    _initAvatarChannelClietServices(ip, grpcClientInterceptors);
+    _initFirebaseClientChannelServices(ip, grpcClientInterceptors);
+    _initLiverLocationClientServices(ip, grpcClientInterceptors);
+  }
+
+  void _initQueryClientChannelServices(
+    String ip,
+    List<ClientInterceptor> grpcClientInterceptors,
+  ) {
+    final _queryClientChannel = ClientChannel(
       ip.isNotEmpty ? ip : "query.$APPLICATION_DOMAIN",
       options: ChannelOptions(
         userAgent: "query",
@@ -85,12 +79,20 @@ class ServicesDiscoveryRepo {
       ),
     );
 
-    webQueryClientChannel = GrpcWebClientChannel.xhr(
+    final webQueryClientChannel = GrpcWebClientChannel.xhr(
       Uri.parse('https://gwp-query.$APPLICATION_DOMAIN'),
     );
+    _queryServiceClient = QueryServiceClient(
+      isWeb ? webQueryClientChannel : _queryClientChannel,
+      interceptors: grpcClientInterceptors,
+    );
+  }
 
-// ignore: non_constant_identifier_names
-    _botClientChannel = ClientChannel(
+  void _initBotClientChannelServices(
+    String ip,
+    List<ClientInterceptor> grpcClientInterceptors,
+  ) {
+    final _botClientChannel = ClientChannel(
       ip.isNotEmpty ? ip : "ms-bot.$APPLICATION_DOMAIN",
       options: ChannelOptions(
         userAgent: "ms-bot",
@@ -100,12 +102,21 @@ class ServicesDiscoveryRepo {
         connectionTimeout: const Duration(seconds: 2),
       ),
     );
-    webBotClientChannel = GrpcWebClientChannel.xhr(
+    final webBotClientChannel = GrpcWebClientChannel.xhr(
       Uri(scheme: "https", host: "gwp-ms-bot.$APPLICATION_DOMAIN"),
     );
 
-// ignore: non_constant_identifier_names
-    stickerClientChannel = ClientChannel(
+    _botServiceClient = BotServiceClient(
+      isWeb ? webBotClientChannel : _botClientChannel,
+      interceptors: grpcClientInterceptors,
+    );
+  }
+
+  void _initStickerClientChannelServices(
+    String ip,
+    List<ClientInterceptor> grpcClientInterceptors,
+  ) {
+    final stickerClientChannel = ClientChannel(
       ip.isNotEmpty ? ip : "ms-sticker.$APPLICATION_DOMAIN",
       options: const ChannelOptions(
         userAgent: "ms-sticker",
@@ -114,12 +125,21 @@ class ServicesDiscoveryRepo {
       ),
     );
 
-    webStickerClientChannel = GrpcWebClientChannel.xhr(
+    final webStickerClientChannel = GrpcWebClientChannel.xhr(
       Uri(scheme: "https", host: "gwp-ms-sticker-co.ir"),
     );
 
-// ignore: non_constant_identifier_names
-    mucServicesClientChannel = ClientChannel(
+    _stickerServiceClient = StickerServiceClient(
+      isWeb ? webStickerClientChannel : stickerClientChannel,
+      interceptors: grpcClientInterceptors,
+    );
+  }
+
+  void _initMucClientChannelServices(
+    String ip,
+    List<ClientInterceptor> grpcClientInterceptors,
+  ) {
+    final mucServicesClientChannel = ClientChannel(
       ip.isNotEmpty ? ip : "query.$APPLICATION_DOMAIN",
       options: ChannelOptions(
         userAgent: "query",
@@ -130,12 +150,26 @@ class ServicesDiscoveryRepo {
       ),
     );
 
-    webMucServicesClientChannel = GrpcWebClientChannel.xhr(
+    final webMucServicesClientChannel = GrpcWebClientChannel.xhr(
       Uri.parse('https://gwp-query.$APPLICATION_DOMAIN'),
     );
 
-// ignore: non_constant_identifier_names
-    coreServicesClientChannel = ClientChannel(
+    _groupServiceClient = GroupServiceClient(
+      isWeb ? webMucServicesClientChannel : mucServicesClientChannel,
+      interceptors: grpcClientInterceptors,
+    );
+
+    _channelServiceClient = ChannelServiceClient(
+      isWeb ? webMucServicesClientChannel : mucServicesClientChannel,
+      interceptors: grpcClientInterceptors,
+    );
+  }
+
+  void _initCoreClientChannelServices(
+    String ip,
+    List<ClientInterceptor> grpcClientInterceptors,
+  ) {
+    final coreServicesClientChannel = ClientChannel(
       ip.isNotEmpty ? ip : "core.$APPLICATION_DOMAIN",
       options: ChannelOptions(
         userAgent: "core",
@@ -146,12 +180,21 @@ class ServicesDiscoveryRepo {
       ),
     );
 
-    webCoreServicesClientChannel = GrpcWebClientChannel.xhr(
+    final webCoreServicesClientChannel = GrpcWebClientChannel.xhr(
       Uri.parse("https://gwp-core.$APPLICATION_DOMAIN"),
     );
 
-// ignore: non_constant_identifier_names
-    profileServicesClientChannel = ClientChannel(
+    _coreServiceClient = CoreServiceClient(
+      isWeb ? webCoreServicesClientChannel : coreServicesClientChannel,
+      interceptors: grpcClientInterceptors,
+    );
+  }
+
+  void _initProfileClintChannelServices(
+    String ip,
+    List<ClientInterceptor> grpcClientInterceptors,
+  ) {
+    final profileServicesClientChannel = ClientChannel(
       ip.isNotEmpty ? ip : "ms-profile.$APPLICATION_DOMAIN",
       options: ChannelOptions(
         userAgent: "ms-profile",
@@ -162,12 +205,34 @@ class ServicesDiscoveryRepo {
       ),
     );
 
-    webProfileServicesClientChannel = GrpcWebClientChannel.xhr(
+    final webProfileServicesClientChannel = GrpcWebClientChannel.xhr(
       Uri.parse('https://gwp-ms-profile.$APPLICATION_DOMAIN'),
     );
 
-// ignore: non_constant_identifier_names
-    avatarServicesClientChannel = ClientChannel(
+    _userServiceClient = UserServiceClient(
+      isWeb ? webProfileServicesClientChannel : profileServicesClientChannel,
+      interceptors: grpcClientInterceptors,
+    );
+    _contactServiceClient = ContactServiceClient(
+      isWeb ? webProfileServicesClientChannel : profileServicesClientChannel,
+      interceptors: grpcClientInterceptors,
+    );
+    _authServiceClient = AuthServiceClient(
+      isWeb ? webProfileServicesClientChannel : profileServicesClientChannel,
+    );
+
+    _sessionServiceClient = SessionServiceClient(
+      isWeb ? webProfileServicesClientChannel : profileServicesClientChannel,
+      interceptors: grpcClientInterceptors,
+    );
+  }
+
+  void _initAvatarChannelClietServices(
+    String ip,
+    List<ClientInterceptor> grpcClientInterceptors,
+  ) {
+    // ignore: non_constant_identifier_names
+    final avatarServicesClientChannel = ClientChannel(
       ip.isNotEmpty ? ip : "ms-avatar.$APPLICATION_DOMAIN",
       options: ChannelOptions(
         userAgent: "ms-avatar",
@@ -178,12 +243,21 @@ class ServicesDiscoveryRepo {
       ),
     );
 
-    webAvatarServicesClientChannel = GrpcWebClientChannel.xhr(
+    final webAvatarServicesClientChannel = GrpcWebClientChannel.xhr(
       Uri.parse("https://gwp-ms-avatar.$APPLICATION_DOMAIN"),
     );
 
-// ignore: non_constant_identifier_names
-    firebaseServicesClientChannel = ClientChannel(
+    _avatarServiceClient = AvatarServiceClient(
+      isWeb ? webAvatarServicesClientChannel : avatarServicesClientChannel,
+      interceptors: grpcClientInterceptors,
+    );
+  }
+
+  void _initFirebaseClientChannelServices(
+    String ip,
+    List<ClientInterceptor> grpcClientInterceptors,
+  ) {
+    final firebaseServicesClientChannel = ClientChannel(
       ip.isNotEmpty ? ip : "ms-firebase.$APPLICATION_DOMAIN",
       options: ChannelOptions(
         userAgent: "ms-firebase",
@@ -194,16 +268,21 @@ class ServicesDiscoveryRepo {
       ),
     );
 
-    webFirebaseServicesClientChannel = GrpcWebClientChannel.xhr(
+    final webFirebaseServicesClientChannel = GrpcWebClientChannel.xhr(
       Uri(scheme: "https", host: "gwp-ms-firebase.$APPLICATION_DOMAIN"),
     );
 
-    webLiveLocationClientChannel = GrpcWebClientChannel.xhr(
-      Uri(scheme: "https", host: "gwp-ms-livelocation.$APPLICATION_DOMAIN"),
+    _firebaseServiceClient = FirebaseServiceClient(
+      isWeb ? webFirebaseServicesClientChannel : firebaseServicesClientChannel,
+      interceptors: grpcClientInterceptors,
     );
+  }
 
-// ignore: non_constant_identifier_names
-    liveLocationServiceClientChannel = ClientChannel(
+  void _initLiverLocationClientServices(
+    String ip,
+    List<ClientInterceptor> grpcClientInterceptors,
+  ) {
+    final liveLocationServiceClientChannel = ClientChannel(
       ip.isNotEmpty ? ip : "ms-livelocation.$APPLICATION_DOMAIN",
       options: ChannelOptions(
         userAgent: "ms-livelocation",
@@ -212,6 +291,15 @@ class ServicesDiscoveryRepo {
         ),
         connectionTimeout: const Duration(seconds: 2),
       ),
+    );
+
+    final webLiveLocationClientChannel = GrpcWebClientChannel.xhr(
+      Uri(scheme: "https", host: "gwp-ms-livelocation.$APPLICATION_DOMAIN"),
+    );
+
+    _liveLocationServiceClient = LiveLocationServiceClient(
+      isWeb ? webLiveLocationClientChannel : liveLocationServiceClientChannel,
+      interceptors: grpcClientInterceptors,
     );
   }
 
@@ -229,90 +317,30 @@ class ServicesDiscoveryRepo {
     badCertificateConnection = onBadCertificate;
   }
 
-  void registerClientChannel() {
-    final grpcClientInterceptors = [
-      GetIt.I.get<DeliverClientInterceptor>(),
-      GetIt.I.get<AnalyticsClientInterceptor>()
-    ];
-    registerSingleton<UserServiceClient>(
-      UserServiceClient(
-        isWeb ? webProfileServicesClientChannel : profileServicesClientChannel,
-        interceptors: grpcClientInterceptors,
-      ),
-    );
-    registerSingleton<ContactServiceClient>(
-      ContactServiceClient(
-        isWeb ? webProfileServicesClientChannel : profileServicesClientChannel,
-        interceptors: grpcClientInterceptors,
-      ),
-    );
+  CoreServiceClient get coreServiceClient => _coreServiceClient;
 
-    registerSingleton<QueryServiceClient>(
-      QueryServiceClient(
-        isWeb ? webQueryClientChannel : _queryClientChannel,
-        interceptors: grpcClientInterceptors,
-      ),
-    );
-    registerSingleton<CoreServiceClient>(
-      CoreServiceClient(
-        isWeb ? webCoreServicesClientChannel : coreServicesClientChannel,
-        interceptors: grpcClientInterceptors,
-      ),
-    );
+  BotServiceClient get botServiceClient => _botServiceClient;
 
-    registerSingleton<BotServiceClient>(
-      BotServiceClient(
-        isWeb ? webBotClientChannel : _botClientChannel,
-        interceptors: grpcClientInterceptors,
-      ),
-    );
-    registerSingleton<StickerServiceClient>(
-      StickerServiceClient(
-        isWeb ? webStickerClientChannel : stickerClientChannel,
-        interceptors: grpcClientInterceptors,
-      ),
-    );
-    registerSingleton<GroupServiceClient>(
-      GroupServiceClient(
-        isWeb ? webMucServicesClientChannel : mucServicesClientChannel,
-        interceptors: grpcClientInterceptors,
-      ),
-    );
-    registerSingleton<ChannelServiceClient>(
-      ChannelServiceClient(
-        isWeb ? webMucServicesClientChannel : mucServicesClientChannel,
-        interceptors: grpcClientInterceptors,
-      ),
-    );
-    registerSingleton<AvatarServiceClient>(
-      AvatarServiceClient(
-        isWeb ? webAvatarServicesClientChannel : avatarServicesClientChannel,
-        interceptors: grpcClientInterceptors,
-      ),
-    );
-    registerSingleton<FirebaseServiceClient>(
-      FirebaseServiceClient(
-        isWeb
-            ? webFirebaseServicesClientChannel
-            : firebaseServicesClientChannel,
-        interceptors: grpcClientInterceptors,
-      ),
-    );
+  SessionServiceClient get sessionServiceClient => _sessionServiceClient;
 
-    registerSingleton<SessionServiceClient>(
-      SessionServiceClient(
-        isWeb ? webProfileServicesClientChannel : profileServicesClientChannel,
-        interceptors: grpcClientInterceptors,
-      ),
-    );
-    registerSingleton<LiveLocationServiceClient>(
-      LiveLocationServiceClient(
-        isWeb ? webLiveLocationClientChannel : liveLocationServiceClientChannel,
-        interceptors: grpcClientInterceptors,
-      ),
-    );
-  }
+  QueryServiceClient get queryServiceClient => _queryServiceClient;
 
-// ignore: non_constant_identifier_names
+  ContactServiceClient get contactServiceClient => _contactServiceClient;
 
+  StickerServiceClient get stickerServiceClient => _stickerServiceClient;
+
+  FirebaseServiceClient get firebaseServiceClient => _firebaseServiceClient;
+
+  AvatarServiceClient get avatarServiceClient => _avatarServiceClient;
+
+  GroupServiceClient get groupServiceClient => _groupServiceClient;
+
+  ChannelServiceClient get channelServiceClient => _channelServiceClient;
+
+  LiveLocationServiceClient get liveLocationServiceClient =>
+      _liveLocationServiceClient;
+
+  UserServiceClient get userServiceClient => _userServiceClient;
+
+  AuthServiceClient get authServiceClient => _authServiceClient;
 }

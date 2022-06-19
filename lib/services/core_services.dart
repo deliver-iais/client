@@ -6,6 +6,7 @@ import 'package:clock/clock.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -31,7 +32,7 @@ const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 class CoreServices {
   final _logger = GetIt.I.get<Logger>();
-  final _grpcCoreService = GetIt.I.get<CoreServiceClient>();
+  final _services = GetIt.I.get<ServicesDiscoveryRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _dataStreamServices = GetIt.I.get<DataStreamServices>();
   final _messageDao = GetIt.I.get<MessageDao>();
@@ -130,9 +131,10 @@ class CoreServices {
     try {
       _clientPacketStream = StreamController<ClientPacket>();
       _responseStream = isWeb
-          ? _grpcCoreService
+          ? _services.coreServiceClient
               .establishServerSideStream(EstablishServerSideStreamReq())
-          : _grpcCoreService.establishStream(_clientPacketStream!.stream);
+          : _services.coreServiceClient
+              .establishStream(_clientPacketStream!.stream);
       _responseStream!.listen((serverPacket) {
         _logger.d(serverPacket);
 
@@ -260,7 +262,7 @@ class CoreServices {
       if (isWeb ||
           _clientPacketStream == null ||
           _clientPacketStream!.isClosed) {
-        await _grpcCoreService.sendClientPacket(packet);
+        await _services.coreServiceClient.sendClientPacket(packet);
       } else if (forceToSendEvenNotConnected ||
           _connectionStatus.value == ConnectionStatus.Connected) {
         _clientPacketStream!.add(packet);

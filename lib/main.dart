@@ -178,12 +178,11 @@ Future<void> setupDI() async {
   registerSingleton<I18N>(I18N());
 
   // Order is important, don't change it!
-  GetIt.I.get<ServicesDiscoveryRepo>().initAuthRepo();
   registerSingleton<RoutingService>(RoutingService());
   registerSingleton<AuthRepo>(AuthRepo());
   await GetIt.I.get<AuthRepo>().setCurrentUserUid();
   registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
-  GetIt.I.get<ServicesDiscoveryRepo>().registerClientChannel();
+  GetIt.I.get<ServicesDiscoveryRepo>().initRepo().ignore();
 
   //call Service should be here
   registerSingleton<CallService>(CallService());

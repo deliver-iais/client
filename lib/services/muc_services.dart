@@ -1,4 +1,5 @@
 import 'package:deliver/box/message.dart' as db;
+import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart'
     as channel_pb;
@@ -15,12 +16,11 @@ import 'package:logger/logger.dart';
 class MucServices {
   final _logger = GetIt.I.get<Logger>();
 
-  final groupServices = GetIt.I.get<group_pb.GroupServiceClient>();
-  final channelServices = GetIt.I.get<channel_pb.ChannelServiceClient>();
+  final _serVices = GetIt.I.get<ServicesDiscoveryRepo>();
 
   Future<Uid?> createNewGroup(String groupName, String info) async {
     try {
-      final request = await groupServices.createGroup(
+      final request = await _serVices.groupServiceClient.createGroup(
         group_pb.CreateGroupReq()
           ..name = groupName
           ..info = info,
@@ -42,7 +42,7 @@ class MucServices {
     }
     addMemberRequest.group = groupUid;
     try {
-      await groupServices.addMembers(
+      await _serVices.groupServiceClient.addMembers(
         addMemberRequest,
         options: CallOptions(timeout: const Duration(seconds: 6)),
       );
@@ -60,7 +60,7 @@ class MucServices {
   Future<group_pb.GetGroupRes?> getGroup(Uid groupUid) async {
     try {
       final request =
-          await groupServices.getGroup(group_pb.GetGroupReq()..uid = groupUid);
+          await _serVices.groupServiceClient.getGroup(group_pb.GetGroupReq()..uid = groupUid);
       return request;
     } catch (e) {
       return null;
@@ -69,7 +69,7 @@ class MucServices {
 
   Future<bool> removeGroup(Uid groupUid) async {
     try {
-      await groupServices
+      await _serVices.groupServiceClient
           .removeGroup(group_pb.RemoveGroupReq()..uid = groupUid);
       return true;
     } catch (e) {
@@ -79,7 +79,7 @@ class MucServices {
 
   Future<bool> changeGroupRole(Member member, Uid group) async {
     try {
-      await groupServices.changeRole(
+      await _serVices.groupServiceClient.changeRole(
         group_pb.ChangeRoleReq()
           ..member = member
           ..group = group,
@@ -95,7 +95,7 @@ class MucServices {
     int limit,
     int pointer,
   ) async {
-    final request = await groupServices.getMembers(
+    final request = await _serVices.groupServiceClient.getMembers(
       group_pb.GetMembersReq()
         ..uid = groupUid
         ..pointer = pointer
@@ -106,7 +106,7 @@ class MucServices {
 
   Future<bool> leaveGroup(Uid groupUid) async {
     try {
-      await groupServices
+      await _serVices.groupServiceClient
           .leaveGroup(group_pb.LeaveGroupReq()..group = groupUid);
       return true;
     } catch (e) {
@@ -121,7 +121,7 @@ class MucServices {
     }
     kickMembersReq.group = groupUid;
     try {
-      await groupServices.kickMembers(kickMembersReq);
+      await _serVices.groupServiceClient.kickMembers(kickMembersReq);
       return true;
     } catch (e) {
       return false;
@@ -130,7 +130,7 @@ class MucServices {
 
   Future<bool> banGroupMember(Member member, Uid mucUid) async {
     try {
-      await groupServices.banMember(
+      await _serVices.groupServiceClient.banMember(
         group_pb.BanMemberReq()
           ..member = member.uid
           ..group = mucUid,
@@ -143,7 +143,7 @@ class MucServices {
 
   Future<bool> unbanGroupMember(Member member, Uid mucUid) async {
     try {
-      await groupServices.unbanMember(
+      await _serVices.groupServiceClient.unbanMember(
         group_pb.UnbanMemberReq()
           ..member = member.uid
           ..group = mucUid,
@@ -156,7 +156,7 @@ class MucServices {
 
   Future<bool> joinGroup(Uid groupUid, String token) async {
     try {
-      await groupServices.joinGroup(
+      await _serVices.groupServiceClient.joinGroup(
         group_pb.JoinGroupReq()
           ..group = groupUid
           ..token = token,
@@ -171,7 +171,7 @@ class MucServices {
 
   Future<bool> modifyGroup(group_pb.GroupInfo group, Uid mucUid) async {
     try {
-      await groupServices.modifyGroup(
+      await _serVices.groupServiceClient.modifyGroup(
         group_pb.ModifyGroupReq()
           ..info = group
           ..uid = mucUid,
@@ -190,7 +190,7 @@ class MucServices {
     bool retry = true,
   }) async {
     try {
-      final request = await channelServices.createChannel(
+      final request = await _serVices.channelServiceClient.createChannel(
         CreateChannelReq()
           ..name = channelName
           ..info = info
@@ -221,7 +221,7 @@ class MucServices {
         addMemberRequest.members.add(member);
       }
       addMemberRequest.channel = mucUid;
-      await channelServices.addMembers(addMemberRequest);
+      await _serVices.channelServiceClient.addMembers(addMemberRequest);
       return true;
     } catch (e) {
       _logger.e(e);
@@ -231,7 +231,7 @@ class MucServices {
 
   Future<channel_pb.GetChannelRes?> getChannel(Uid channelUid) async {
     try {
-      final request = await channelServices
+      final request = await _serVices.channelServiceClient
           .getChannel(channel_pb.GetChannelReq()..uid = channelUid);
       return request;
     } catch (e) {
@@ -241,7 +241,7 @@ class MucServices {
 
   Future<bool> removeChannel(Uid channelUid) async {
     try {
-      await channelServices
+      await _serVices.channelServiceClient
           .removeChannel(channel_pb.RemoveChannelReq()..uid = channelUid);
       return true;
     } catch (e) {
@@ -251,7 +251,7 @@ class MucServices {
 
   Future<bool> changeCahnnelRole(Member member, Uid channel) async {
     try {
-      await channelServices.changeRole(
+      await _serVices.channelServiceClient.changeRole(
         channel_pb.ChangeRoleReq()
           ..member = member
           ..channel = channel,
@@ -268,7 +268,7 @@ class MucServices {
     int pointer,
   ) async {
     try {
-      final request = await channelServices.getMembers(
+      final request = await _serVices.channelServiceClient.getMembers(
         channel_pb.GetMembersReq()
           ..uid = channelUid
           ..limit = limit
@@ -282,7 +282,7 @@ class MucServices {
 
   Future<bool> leaveChannel(Uid channelUid) async {
     try {
-      await channelServices
+      await _serVices.channelServiceClient
           .leaveChannel(channel_pb.LeaveChannelReq()..channel = channelUid);
       return true;
     } catch (e) {
@@ -298,7 +298,7 @@ class MucServices {
     }
     kickMembersReq.channel = channelUid;
     try {
-      await channelServices.kickMembers(kickMembersReq);
+      await _serVices.channelServiceClient.kickMembers(kickMembersReq);
       return true;
     } catch (e) {
       return false;
@@ -307,7 +307,7 @@ class MucServices {
 
   Future<bool> banChannelMember(Member member, Uid channelUid) async {
     try {
-      await channelServices.banMember(
+      await _serVices.channelServiceClient.banMember(
         channel_pb.BanMemberReq()
           ..member = member.uid
           ..channel = channelUid,
@@ -320,7 +320,7 @@ class MucServices {
 
   Future<bool> unbanChannelMember(Member member, Uid channelUid) async {
     try {
-      await channelServices.unbanMember(
+      await _serVices.channelServiceClient.unbanMember(
         channel_pb.UnbanMemberReq()
           ..member = member.uid
           ..channel = channelUid,
@@ -333,7 +333,7 @@ class MucServices {
 
   Future<bool> joinChannel(Uid channelUid, String token) async {
     try {
-      await channelServices.joinChannel(
+      await _serVices.channelServiceClient.joinChannel(
         channel_pb.JoinChannelReq()
           ..channel = channelUid
           ..token,
@@ -350,7 +350,7 @@ class MucServices {
     Uid mucUid,
   ) async {
     try {
-      await channelServices.modifyChannel(
+      await _serVices.channelServiceClient.modifyChannel(
         channel_pb.ModifyChannelReq()
           ..info = channelInfo
           ..uid = mucUid,
@@ -363,13 +363,13 @@ class MucServices {
 
   Future<void> pinMessage(db.Message message) {
     if (message.roomUid.asUid().category == Categories.GROUP) {
-      return groupServices.pinMessage(
+      return _serVices.groupServiceClient.pinMessage(
         group_pb.PinMessageReq()
           ..uid = message.roomUid.asUid()
           ..messageId = Int64(message.id!),
       );
     } else {
-      return channelServices.pinMessage(
+      return _serVices.channelServiceClient.pinMessage(
         channel_pb.PinMessageReq()
           ..uid = message.roomUid.asUid()
           ..messageId = Int64(message.id!),
@@ -379,7 +379,7 @@ class MucServices {
 
   Future<String> getGroupJointToken({required Uid groupUid}) async {
     try {
-      final res = await groupServices.createToken(
+      final res = await _serVices.groupServiceClient.createToken(
         group_pb.CreateTokenReq()
           ..uid = groupUid
           ..validUntil = Int64(-1)
@@ -393,7 +393,7 @@ class MucServices {
 
   Future<String> getChannelJointToken({required Uid channelUid}) async {
     try {
-      final res = await channelServices.createToken(
+      final res = await _serVices.channelServiceClient.createToken(
         channel_pb.CreateTokenReq()
           ..uid = channelUid
           ..validUntil = Int64(-1),
@@ -406,13 +406,13 @@ class MucServices {
 
   Future<void> unpinMessage(db.Message message) {
     if (message.roomUid.asUid().category == Categories.GROUP) {
-      return groupServices.unpinMessage(
+      return _serVices.groupServiceClient.unpinMessage(
         group_pb.UnpinMessageReq()
           ..uid = message.roomUid.asUid()
           ..messageId = Int64(message.id!),
       );
     } else {
-      return channelServices.unpinMessage(
+      return _serVices.channelServiceClient.unpinMessage(
         channel_pb.UnpinMessageReq()
           ..uid = message.roomUid.asUid()
           ..messageId = Int64(message.id!),

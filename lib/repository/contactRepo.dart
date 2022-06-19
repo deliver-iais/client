@@ -9,6 +9,7 @@ import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/name.dart';
@@ -30,12 +31,9 @@ class ContactRepo {
   final _contactDao = GetIt.I.get<ContactDao>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
-  final _contactServices = GetIt.I.get<ContactServiceClient>();
+  final _services = GetIt.I.get<ServicesDiscoveryRepo>();
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
   final _requestLock = Lock();
-
-  final QueryServiceClient _queryServiceClient =
-      GetIt.I.get<QueryServiceClient>();
   final Map<PhoneNumber, String> _contactsDisplayName = {};
 
   Future<void> syncContacts() async {
@@ -111,7 +109,7 @@ class ContactRepo {
 
   Future<bool> sendNewContact(Contact contact) async {
     try {
-      final res = await _contactServices.saveContacts(
+      final res = await _services.contactServiceClient.saveContacts(
         SaveContactsReq()
           ..contactList.add(contact)
           ..returnUserContactByPhoneNumberList.add(contact.phoneNumber),
@@ -130,7 +128,7 @@ class ContactRepo {
       for (final element in contacts) {
         sendContacts.contactList.add(element);
       }
-      await _contactServices.saveContacts(sendContacts);
+      await _services.contactServiceClient.saveContacts(sendContacts);
       return true;
     } catch (e) {
       _logger.e(e);
@@ -144,8 +142,8 @@ class ContactRepo {
 
   Future<void> getContacts() async {
     try {
-      final result =
-          await _contactServices.getContactListUsers(GetContactListUsersReq());
+      final result = await _services.contactServiceClient
+          .getContactListUsers(GetContactListUsersReq());
       _saveContact(result.userList);
     } catch (e) {
       _logger.e(e);
@@ -177,8 +175,8 @@ class ContactRepo {
   Future<void> getUserIdByUid(Uid uid) async {
     try {
       // For now, Group and Bot not supported in server side!!
-      final result =
-          await _queryServiceClient.getIdByUid(GetIdByUidReq()..uid = uid);
+      final result = await _services.queryServiceClient
+          .getIdByUid(GetIdByUidReq()..uid = uid);
       return _uidIdNameDao.update(uid.asString(), id: result.id);
     } catch (e) {
       _logger.e(e);
@@ -199,7 +197,7 @@ class ContactRepo {
     }
 
     try {
-      final result = await _queryServiceClient.searchUid(
+      final result = await _services.queryServiceClient.searchUid(
         SearchUidReq()
           ..text = query
           ..justSearchInId = true
@@ -223,7 +221,7 @@ class ContactRepo {
 
   Future<String?> getContactFromServer(Uid contactUid) async {
     try {
-      final contact = await _contactServices
+      final contact = await _services.contactServiceClient
           .getUserByUid(GetUserByUidReq()..uid = contactUid);
       final name = buildName(contact.user.firstName, contact.user.lastName);
 

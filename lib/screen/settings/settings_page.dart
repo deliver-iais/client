@@ -264,6 +264,16 @@ class _SettingsPageState extends State<SettingsPage> {
               title: _i18n.get("network"),
               children: [
                 SettingsTile(
+                  title: _i18n.get("network_setting"),
+                  subtitleTextStyle: TextStyle(
+                    color: theme.primaryColor,
+                  ),
+                  leading:
+                      const Icon(CupertinoIcons.antenna_radiowaves_left_right),
+                  onPressed: (context) =>
+                      _routingService.openConnectionSettingPage(),
+                ),
+                SettingsTile(
                   title: _i18n.get("automatic_download"),
                   subtitleTextStyle: TextStyle(
                     color: theme.primaryColor,

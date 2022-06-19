@@ -59,6 +59,8 @@ class _LoginPageState extends State<LoginPage> {
   PhoneNumber? phoneNumber;
   final TextEditingController controller = TextEditingController();
 
+  final BehaviorSubject<bool> _setCustomIp = BehaviorSubject.seeded(false);
+
   @override
   void initState() {
     if (phoneNumber != null) {
@@ -171,6 +173,7 @@ class _LoginPageState extends State<LoginPage> {
           _isLoading.add(false);
           _logger.e(e);
           if (e.code == StatusCode.unavailable) {
+            _setCustomIp.add(true);
             ToastDisplay.showToast(
               toastText: _i18n.get("notwork_is_unavailable"),
               toastContext: context,
@@ -207,18 +210,29 @@ class _LoginPageState extends State<LoginPage> {
             title: Text(_i18n.get("login")),
             backgroundColor: theme.backgroundColor,
             actions: [
-              IconButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (c) {
-                        return const ConnectionSettingPage();
+              StreamBuilder<bool>(
+                initialData: false,
+                stream: _setCustomIp.stream,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData && snapshot.data!) {
+                    return IconButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (c) {
+                              return const ConnectionSettingPage(
+                                rootFromLoginPage: true,
+                              );
+                            },
+                          ),
+                        );
                       },
-                    ),
-                  );
+                      icon: const Icon(CupertinoIcons.settings),
+                    );
+                  }
+                  return const SizedBox.shrink();
                 },
-                icon: const Icon(CupertinoIcons.settings),
               )
             ],
           ),

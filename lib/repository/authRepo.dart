@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -24,7 +25,7 @@ import 'package:synchronized/synchronized.dart';
 class AuthRepo {
   static final _logger = GetIt.I.get<Logger>();
   static final _sharedDao = GetIt.I.get<SharedDao>();
-  static final _authServiceClient = GetIt.I.get<AuthServiceClient>();
+  static final _services = GetIt.I.get<ServicesDiscoveryRepo>();
   static final requestLock = Lock();
 
   Uid currentUserUid = Uid.create()
@@ -69,7 +70,7 @@ class AuthRepo {
     final platform = await getPlatformPB();
 
     _tmpPhoneNumber = p;
-    await _authServiceClient.getVerificationCode(
+    await _services.authServiceClient.getVerificationCode(
       GetVerificationCodeReq()
         ..phoneNumber = p
         ..type = VerificationType.SMS
@@ -85,7 +86,7 @@ class AuthRepo {
 
     final device = await getDeviceName();
 
-    final res = await _authServiceClient.verifyAndGetToken(
+    final res = await _services.authServiceClient.verifyAndGetToken(
       VerifyCodeReq()
         ..phoneNumber = _tmpPhoneNumber
         ..code = code
@@ -109,7 +110,7 @@ class AuthRepo {
 
     final device = await getDeviceName();
 
-    final res = await _authServiceClient.checkQrCodeIsVerifiedAndLogin(
+    final res = await _services.authServiceClient.checkQrCodeIsVerifiedAndLogin(
       CheckQrCodeIsVerifiedAndLoginReq()
         ..token = token
         ..device = device
@@ -126,7 +127,7 @@ class AuthRepo {
 
   Future<RenewAccessTokenRes> _getAccessToken(String refreshToken) =>
       requestLock.synchronized(() async {
-        return await _authServiceClient.renewAccessToken(
+        return await _services.authServiceClient.renewAccessToken(
           RenewAccessTokenReq()
             ..refreshToken = refreshToken
             ..platform = await getPlatformPB(),
@@ -242,7 +243,7 @@ class AuthRepo {
   }
 
   Future<void> sendForgetPasswordEmail(PhoneNumber phoneNumber) async {
-    await _authServiceClient.sendErasePasswordEmail(
+    await _services.authServiceClient.sendErasePasswordEmail(
       SendErasePasswordEmailReq()
         ..platform = await getPlatformPB()
         ..phoneNumber = phoneNumber,

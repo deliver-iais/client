@@ -16,6 +16,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
@@ -61,7 +62,7 @@ class CallRepo {
   final _logger = GetIt.I.get<Logger>();
   final _coreServices = GetIt.I.get<CoreServices>();
   final _callService = GetIt.I.get<CallService>();
-  final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
+  final _services = GetIt.I.get<ServicesDiscoveryRepo>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _callListDao = GetIt.I.get<CallInfoDao>();
   final _authRepo = GetIt.I.get<AuthRepo>();
@@ -182,7 +183,7 @@ class CallRepo {
             case CallEvent_CallStatus.CREATED:
               if (_callService.getUserCallState == UserCallState.NOCALL
                   //&& (clock.now().millisecondsSinceEpoch - event.time < 50000)
-              ) {
+                  ) {
                 _callService.setUserCallState = UserCallState.INUSERCALL;
                 //get call Info and Save on DB
                 final currentCallEvent = call_event.CallEvent(
@@ -1369,7 +1370,7 @@ class CallRepo {
     try {
       var date = clock.now();
       for (var i = 0; i < 6; i++) {
-        final callLists = await _queryServiceClient.fetchUserCalls(
+        final callLists = await _services.queryServiceClient.fetchUserCalls(
           FetchUserCallsReq()
             ..roomUid = roomUid
             ..limit = 200

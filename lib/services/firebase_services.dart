@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/main.dart';
+import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -25,8 +26,9 @@ external set _decodeMessageForCallFromJs(Function f);
 class FireBaseServices {
   final _logger = GetIt.I.get<Logger>();
   final _sharedDao = GetIt.I.get<SharedDao>();
-  final _firebaseServices = GetIt.I.get<FirebaseServiceClient>();
-  final _queryServicesClient = GetIt.I.get<QueryServiceClient>();
+  final _services =
+      GetIt.I.get<ServicesDiscoveryRepo>();
+
   final List<String> _requestedRoom = [];
 
   Future<Map<String, String>> _decodeMessageForWebNotification(
@@ -61,7 +63,7 @@ class FireBaseServices {
     try {
       if (!await _sharedDao.getBoolean(SHARED_DAO_FIREBASE_SETTING_IS_SET)) {
         try {
-          await _firebaseServices
+          await _services.firebaseServiceClient
               .registration(RegistrationReq()..tokenId = fireBaseToken!);
           return _sharedDao.putBoolean(
             SHARED_DAO_FIREBASE_SETTING_IS_SET,
@@ -100,7 +102,7 @@ class FireBaseServices {
   Future<void> sendGlitchReportForFirebaseNotification(String roomUid) async {
     if (!_requestedRoom.contains(roomUid)) {
       try {
-        await _queryServicesClient.sendGlitch(
+        await _services.queryServiceClient.sendGlitch(
           SendGlitchReq()
             ..offlineNotification =
                 (GlitchOfOfflineNotification()..room = roomUid.asUid()),
