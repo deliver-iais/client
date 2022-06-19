@@ -1,5 +1,7 @@
+import 'package:deliver/localization/i18n.dart';
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class FeatureDiscoveryDescriptionWidget extends StatelessWidget {
   final String description;
@@ -14,9 +16,13 @@ class FeatureDiscoveryDescriptionWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final i18n = GetIt.I.get<I18N>();
     return Column(
       children: [
-        Text(description),
+        Text(
+          description,
+          textDirection: i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+        ),
         Column(
           children: [
             Row(
