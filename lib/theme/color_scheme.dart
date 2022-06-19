@@ -250,44 +250,33 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
 
   final theme = ThemeData(
     useMaterial3: true,
+    visualDensity: VisualDensity.adaptivePlatformDensity,
     brightness: colorScheme.brightness,
-    fontFamily: GoogleFonts.vazirmatn().fontFamily,
-    primaryColor: colorScheme.primary,
+    // fontFamily: GoogleFonts.vazirmatn().fontFamily,
     colorScheme: getColorScheme(colorScheme),
-    scaffoldBackgroundColor:
-        elevation(colorScheme.surface, colorScheme.primary, 2),
+    primaryColor: colorScheme.primary,
     primaryTextTheme: primaryTextTheme,
     textTheme: textTheme,
-    cardColor: colorScheme.surface,
-    backgroundColor: colorScheme.background,
-    highlightColor: colorScheme.primary,
-    focusColor: colorScheme.primary.withAlpha(50),
   );
 
   return theme.copyWith(
     useMaterial3: true,
-    visualDensity: VisualDensity.adaptivePlatformDensity,
     snackBarTheme: SnackBarThemeData(
       backgroundColor: colorScheme.inverseSurface,
       actionTextColor: colorScheme.inversePrimary,
       shape: const RoundedRectangleBorder(borderRadius: secondaryBorder),
     ),
     popupMenuTheme: PopupMenuThemeData(
-      textStyle: TextStyle(color: colorScheme.primary, fontSize: 14),
+      textStyle: TextStyle(color: colorScheme.primary, fontSize: 15),
       shape: const RoundedRectangleBorder(borderRadius: secondaryBorder),
-      color: colorScheme.surface,
     ),
     dividerTheme: const DividerThemeData(space: 1.0, thickness: 1.0),
     inputDecorationTheme: const InputDecorationTheme(
       border: OutlineInputBorder(borderRadius: secondaryBorder),
     ),
     appBarTheme: AppBarTheme(
-      color: colorScheme.surface.withOpacity(0.7),
-      elevation: 1,
-      scrolledUnderElevation: 4,
-      titleTextStyle: textTheme.headline5,
-      toolbarTextStyle: textTheme.headline6,
-      iconTheme: IconThemeData(color: colorScheme.primary),
+      color: colorScheme.background.withOpacity(0.7),
+      scrolledUnderElevation: 2,
     ),
     sliderTheme: SliderThemeData(
       thumbColor: colorScheme.primary,
@@ -298,16 +287,7 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
     ),
     chipTheme: theme.chipTheme.copyWith(
       backgroundColor: colorScheme.surface,
-      labelStyle:
-          theme.chipTheme.labelStyle?.copyWith(color: colorScheme.onSurface),
-      shape: const RoundedRectangleBorder(borderRadius: tertiaryBorder),
-      side: BorderSide(color: colorScheme.outline),
-    ),
-    outlinedButtonTheme: OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(
-        shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
-        side: BorderSide(color: colorScheme.outline),
-      ),
+      shape: const RoundedRectangleBorder(borderRadius: secondaryBorder),
     ),
   );
 }

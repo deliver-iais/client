@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/message.dart';
@@ -397,6 +398,21 @@ class RouteEvent {
   final String nextRoute;
 
   RouteEvent(this.prevRoute, this.nextRoute);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other.runtimeType == runtimeType &&
+          other is RouteEvent &&
+          const DeepCollectionEquality().equals(other.prevRoute, prevRoute) &&
+          const DeepCollectionEquality().equals(other.nextRoute, nextRoute));
+
+  @override
+  int get hashCode => Object.hash(
+        runtimeType,
+        const DeepCollectionEquality().hash(prevRoute),
+        const DeepCollectionEquality().hash(nextRoute),
+      );
 }
 
 class RoutingServiceNavigatorObserver extends NavigatorObserver {
@@ -438,15 +454,14 @@ class Empty extends StatelessWidget {
       body: Center(
         child: Container(
           decoration: BoxDecoration(
-            color: theme.colorScheme.primaryContainer,
+            color: theme.colorScheme.onPrimary,
             borderRadius: secondaryBorder,
           ),
           padding:
               const EdgeInsets.only(left: 10, right: 10, top: 6, bottom: 4),
           child: Text(
             _i18n.get("please_select_a_chat_to_start_messaging"),
-            style: theme.textTheme.bodyText2!
-                .copyWith(color: theme.colorScheme.onPrimaryContainer),
+            style: theme.primaryTextTheme.bodyMedium,
           ),
         ),
       ),

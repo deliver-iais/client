@@ -757,13 +757,9 @@ class RoomPageState extends State<RoomPage> {
                 !_authRepo.isCurrentUser(room.lastMessage!.from))
               Container(
                 transform: Matrix4.translationValues(-5, -5, 0),
-                child: Positioned(
-                  top: 0,
-                  left: 0,
-                  child: UnreadMessageCounterWidget(
-                    widget.roomId,
-                    room.lastMessageId,
-                  ),
+                child: UnreadMessageCounterWidget(
+                  widget.roomId,
+                  room.lastMessageId,
                 ),
               ),
           ],
