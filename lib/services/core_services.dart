@@ -76,6 +76,12 @@ class CoreServices {
     retryConnection();
   }
 
+  void resetConnection() {
+    _connectionTimer!.cancel();
+    startStream();
+    startCheckerTimer();
+  }
+
   Future<void> initStreamConnection() async {
     Connectivity().onConnectivityChanged.listen((result) {
       if (result != ConnectivityResult.none) {

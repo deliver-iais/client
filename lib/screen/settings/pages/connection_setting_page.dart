@@ -1,6 +1,7 @@
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
@@ -26,7 +27,7 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
   final _shareDao = GetIt.I.get<SharedDao>();
   final BehaviorSubject<bool> _useCustomIp = BehaviorSubject.seeded(false);
   final _routingServices = GetIt.I.get<RoutingService>();
-  String ip = "";
+  final _coreServices = GetIt.I.get<CoreServices>();
 
   @override
   void initState() {
@@ -35,7 +36,7 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
   }
 
   Future<void> _initConnectionData() async {
-    ip = (await _shareDao.get(SHARE_DAO_HOST_SET_BY_USER)) ?? "";
+    final ip = (await _shareDao.get(SHARE_DAO_HOST_SET_BY_USER)) ?? "";
     _useCustomIp.add((ip.isNotEmpty));
     _textEditingController.text = ip;
   }
@@ -74,6 +75,7 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
                     _servicesDiscoveryRepo.initClientChannel();
                   }
                   _useCustomIp.add(value);
+                  _coreServices.resetConnection();
                 },
               );
             },
@@ -111,6 +113,7 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
                               SHARE_DAO_HOST_SET_BY_USER,
                               _textEditingController.text,
                             );
+                            _coreServices.resetConnection();
                             if (widget.rootFromLoginPage) {
                               Navigator.pop(context);
                             } else {
