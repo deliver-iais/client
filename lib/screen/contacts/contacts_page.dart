@@ -61,7 +61,7 @@ class ContactsPageState extends State<ContactsPage> {
           titleSpacing: 8,
           title: Row(
             children: [
-              Text(_i18n.get("contacts"), style: textTheme.titleMedium),
+              Text(_i18n.get("contacts")),
               SyncContact.syncingStatusWidget(context)
             ],
           ),

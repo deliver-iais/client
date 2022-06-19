@@ -590,6 +590,10 @@ class InputMessageWidgetState extends State<InputMessage> {
                                 }
                               },
                               onLongPressEnd: (s) async {
+                                if (!recordAudioPermission) {
+                                  return;
+                                }
+
                                 _tickTimer.cancel();
                                 final res = await record.stop();
 

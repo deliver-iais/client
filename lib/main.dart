@@ -282,6 +282,7 @@ Future<void> setupDI() async {
 
   registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   registerSingleton<UxService>(UxService());
+  registerSingleton<FeatureFlags>(FeatureFlags());
   registerSingleton<FileService>(FileService());
   registerSingleton<MucServices>(MucServices());
   registerSingleton<CreateMucService>(CreateMucService());

@@ -19,7 +19,6 @@ import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/call/access_to_call.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/forward_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/input_message_text_controller.dart';
@@ -40,6 +39,7 @@ import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -95,6 +95,7 @@ class RoomPageState extends State<RoomPage> {
   static final _botRepo = GetIt.I.get<BotRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _sharedDao = GetIt.I.get<SharedDao>();
+  static final _featureFlags = GetIt.I.get<FeatureFlags>();
   static final _mucDao = GetIt.I.get<MucDao>();
   static final _callService = GetIt.I.get<CallService>();
   static final _callRepo = GetIt.I.get<CallRepo>();
@@ -469,9 +470,14 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Future<void> initRoomStream() async {
-    _roomRepo.watchRoom(widget.roomId).listen((event) {
+    _roomRepo.watchRoom(widget.roomId).distinct().listen((event) {
+      if (event.lastMessageId != room.lastMessageId) {
+        _fireScrollEvent();
+        _calmScrollEvent();
+      }
       _room.add(event);
     });
+
     messageEventSubject
         .distinct()
         .where((event) => (event != null && event.roomUid == widget.roomId))
@@ -601,7 +607,7 @@ class RoomPageState extends State<RoomPage> {
     _repliedMessage.add(null);
   }
 
-  void onDelete() {
+  void unselectMessages() {
     _selectMultiMessageSubject.add(false);
     _selectedMessages.clear();
     setState(() {});
@@ -725,36 +731,40 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Widget scrollDownButtonWidget() {
-    return Stack(
-      children: [
-        MouseRegion(
-          onHover: (s) {
-            _isArrowIconFocused = true;
-          },
-          onExit: (s) {
-            _isArrowIconFocused = false;
-            scrollEndNotificationTimer =
-                Timer(const Duration(milliseconds: 500), () {
-              _isScrolling.add(false);
-            });
-          },
-          child: FloatingActionButton(
-            mini: true,
-            onPressed: _scrollToLastMessage,
-            child: const Icon(CupertinoIcons.chevron_down),
-          ),
-        ),
-        if (room.lastMessage != null &&
-            !_authRepo.isCurrentUser(room.lastMessage!.from))
-          Positioned(
-            top: 0,
-            left: 0,
-            child: UnreadMessageCounterWidget(
-              widget.roomId,
-              room.lastMessageId,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onHover: (s) {
+        _isArrowIconFocused = true;
+      },
+      onExit: (s) {
+        _isArrowIconFocused = false;
+        scrollEndNotificationTimer = Timer(
+            const Duration(milliseconds: SCROLL_DOWN_BUTTON_HIDING_TIME), () {
+          _isScrolling.add(false);
+        });
+      },
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => _scrollToLastMessage(),
+        child: Stack(
+          children: [
+            FloatingActionButton(
+              mini: true,
+              onPressed: _scrollToLastMessage,
+              child: const Icon(CupertinoIcons.arrow_down),
             ),
-          ),
-      ],
+            if (room.lastMessage != null &&
+                !_authRepo.isCurrentUser(room.lastMessage!.from))
+              Container(
+                transform: Matrix4.translationValues(-5, -5, 0),
+                child: UnreadMessageCounterWidget(
+                  widget.roomId,
+                  room.lastMessageId,
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -851,10 +861,8 @@ class RoomPageState extends State<RoomPage> {
     return AppBar(
       actions: [
         if (room.uid.asUid().isUser() &&
-            !isLinux &&
             !_authRepo.isCurrentUser(room.uid) &&
-            accessToCallUidList.values
-                .contains(_authRepo.currentUserUid.asString()))
+            _featureFlags.isVoiceCallAvailable())
           IconButton(
             onPressed: () {
               if (_callService.getUserCallState == UserCallState.NOCALL) {
@@ -924,18 +932,14 @@ class RoomPageState extends State<RoomPage> {
                               size: 25,
                             ),
                             onPressed: () {
-                              onDelete();
+                              unselectMessages();
                             },
                           ),
                         ),
                       ],
                     );
                   } else {
-                    return _routingService.backButtonLeading(
-                      back: () {
-                        // _notificationServices.reset("\t");
-                      },
-                    );
+                    return _routingService.backButtonLeading();
                   }
                 },
               );
@@ -992,7 +996,7 @@ class RoomPageState extends State<RoomPage> {
                     selectedMessages: _selectedMessages,
                     hasPermissionInChannel: _hasPermissionInChannel.value,
                     hasPermissionInGroup: _hasPermissionInGroup.value,
-                    onDelete: onDelete,
+                    onDelete: unselectMessages,
                     deleteSelectedMessage: _deleteSelectedMessage,
                   );
                 } else {
@@ -1042,13 +1046,9 @@ class RoomPageState extends State<RoomPage> {
     return NotificationListener<ScrollNotification>(
       onNotification: (scrollNotification) {
         if (scrollNotification is ScrollStartNotification) {
-          scrollEndNotificationTimer?.cancel();
-          if (!_isLastMessages) _isScrolling.add(true);
+          _fireScrollEvent();
         } else if (scrollNotification is ScrollEndNotification) {
-          scrollEndNotificationTimer =
-              Timer(const Duration(milliseconds: 1500), () {
-            if (!_isArrowIconFocused || !isDesktop) _isScrolling.add(false);
-          });
+          _calmScrollEvent();
         }
         return true;
       },
@@ -1104,6 +1104,18 @@ class RoomPageState extends State<RoomPage> {
         ),
       ),
     );
+  }
+
+  void _fireScrollEvent() {
+    scrollEndNotificationTimer?.cancel();
+    if (!_isLastMessages) _isScrolling.add(true);
+  }
+
+  void _calmScrollEvent() {
+    scrollEndNotificationTimer =
+        Timer(const Duration(milliseconds: SCROLL_DOWN_BUTTON_HIDING_TIME), () {
+      if (!_isArrowIconFocused || !isDesktop) _isScrolling.add(false);
+    });
   }
 
   Tuple2<Message?, Message?>? _fastForwardFetchMessageAndMessageBefore(
@@ -1234,7 +1246,7 @@ class RoomPageState extends State<RoomPage> {
       onReply: () => onReply(message),
       addForwardMessage: () => _addForwardMessage(message),
       scrollToMessage: _scrollToReplyMessage,
-      onDelete: onDelete,
+      onDelete: unselectMessages,
     );
 
     if (index == room.firstMessageId) {
@@ -1315,7 +1327,7 @@ class RoomPageState extends State<RoomPage> {
       showDeleteMsgDialog(
         _selectedMessages.values.toList(),
         context,
-        onDelete,
+        unselectMessages,
       );
       _selectedMessages.clear();
     }

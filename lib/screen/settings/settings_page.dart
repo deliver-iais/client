@@ -34,6 +34,7 @@ class SettingsPage extends StatefulWidget {
 class SettingsPageState extends State<SettingsPage> {
   static final _logger = GetIt.I.get<Logger>();
   static final _uxService = GetIt.I.get<UxService>();
+  static final _featureFlags = GetIt.I.get<FeatureFlags>();
   static final _accountRepo = GetIt.I.get<AccountRepo>();
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
@@ -173,13 +174,14 @@ class SettingsPageState extends State<SettingsPage> {
                     _routingService.openContacts();
                   },
                 ),
-                SettingsTile(
-                  title: _i18n.get("calls"),
-                  leading: const Icon(CupertinoIcons.phone),
-                  onPressed: (context) {
-                    _routingService.openCallsList();
-                  },
-                )
+                if (_featureFlags.isVoiceCallAvailable())
+                  SettingsTile(
+                    title: _i18n.get("calls"),
+                    leading: const Icon(CupertinoIcons.phone),
+                    onPressed: (context) {
+                      _routingService.openCallsList();
+                    },
+                  )
               ],
             ),
             Section(
@@ -289,6 +291,13 @@ class SettingsPageState extends State<SettingsPage> {
               ),
             Section(
               children: [
+                if (_featureFlags.labIsAvailable())
+                  SettingsTile(
+                    title: _i18n.get("lab"),
+                    subtitleTextStyle: TextStyle(color: theme.primaryColor),
+                    leading: const FaIcon(FontAwesomeIcons.vial),
+                    onPressed: (context) => _routingService.openLab(),
+                  ),
                 SettingsTile(
                   title: _i18n.get("version"),
                   leading:

@@ -19,14 +19,14 @@ PODS:
   - Firebase/Messaging (8.15.0):
     - Firebase/CoreOnly
     - FirebaseMessaging (~> 8.15.0)
-  - firebase_analytics (9.1.9):
+  - firebase_analytics (9.1.10):
     - Firebase/Analytics (= 8.15.0)
     - firebase_core
     - FlutterMacOS
-  - firebase_core (1.17.1):
+  - firebase_core (1.18.0):
     - Firebase/CoreOnly (~> 8.15.0)
     - FlutterMacOS
-  - firebase_messaging (11.4.1):
+  - firebase_messaging (11.4.2):
     - Firebase/CoreOnly (~> 8.15.0)
     - Firebase/Messaging (~> 8.15.0)
     - firebase_core
@@ -132,8 +132,6 @@ PODS:
     - nanopb/encode (= 2.30908.0)
   - nanopb/decode (2.30908.0)
   - nanopb/encode (2.30908.0)
-  - package_info_plus_macos (0.0.1):
-    - FlutterMacOS
   - pasteboard (0.0.1):
     - FlutterMacOS
   - path_provider_macos (0.0.1):
@@ -169,7 +167,6 @@ DEPENDENCIES:
   - geolocator_apple (from `Flutter/ephemeral/.symlinks/plugins/geolocator_apple/macos`)
   - image_compression_flutter (from `Flutter/ephemeral/.symlinks/plugins/image_compression_flutter/macos`)
   - mobile_scanner (from `Flutter/ephemeral/.symlinks/plugins/mobile_scanner/macos`)
-  - package_info_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus_macos/macos`)
   - pasteboard (from `Flutter/ephemeral/.symlinks/plugins/pasteboard/macos`)
   - path_provider_macos (from `Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos`)
   - photo_manager (from `Flutter/ephemeral/.symlinks/plugins/photo_manager/macos`)
@@ -223,8 +220,6 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/image_compression_flutter/macos
   mobile_scanner:
     :path: Flutter/ephemeral/.symlinks/plugins/mobile_scanner/macos
-  package_info_plus_macos:
-    :path: Flutter/ephemeral/.symlinks/plugins/package_info_plus_macos/macos
   pasteboard:
     :path: Flutter/ephemeral/.symlinks/plugins/pasteboard/macos
   path_provider_macos:
@@ -249,9 +244,9 @@ SPEC CHECKSUMS:
   desktop_window: fb7c4f12c1129f947ac482296b6f14059d57a3c3
   file_selector_macos: f1b08a781e66103e3ba279fd5d4024a2478b3af6
   Firebase: 5f8193dff4b5b7c5d5ef72ae54bb76c08e2b841d
-  firebase_analytics: d448483150504ed84f25c5437a34af2591a7929e
-  firebase_core: 7b87364e2d1eae70018a60698e89e7d6f5320bad
-  firebase_messaging: e319ed0a19e37b556c6d9df89e275e36d32a3973
+  firebase_analytics: c696c58a67a371037424a3b81fc239ef1cffd102
+  firebase_core: 24364051f4ce5f24266ee4ff4b808d02abd4afb5
+  firebase_messaging: 0012630ee5a101897c27fe7328ab59820a943456
   FirebaseAnalytics: 7761cbadb00a717d8d0939363eb46041526474fa
   FirebaseCore: 5743c5785c074a794d35f2fff7ecc254a91e08b1
   FirebaseCoreDiagnostics: 92e07a649aeb66352b319d43bdd2ee3942af84cb
@@ -267,7 +262,6 @@ SPEC CHECKSUMS:
   image_compression_flutter: 8a67d9fb207a804ddc10d7fd6bc3f2359dbdc34a
   mobile_scanner: 35dc92ffdbd7934b0dbc411b1c731bc2ef23c2dc
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
-  package_info_plus_macos: f010621b07802a241d96d01876d6705f15e77c1c
   pasteboard: 9b69dba6fedbb04866be632205d532fe2f6b1d99
   path_provider_macos: 3c0c3b4b0d4a76d2bf989a913c2de869c5641a19
   photo_manager: 4f6810b7dfc4feb03b461ac1a70dacf91fba7604
