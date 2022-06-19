@@ -67,10 +67,10 @@ class ChatItemState extends State<ChatItem> {
 
   @override
   void initState() {
-    super.initState();
     if (widget.room.uid.asUid().category == Categories.USER) {
       _lastActivityRepo.updateLastActivity(widget.room.uid.asUid());
     }
+    super.initState();
   }
 
   @override
@@ -135,7 +135,7 @@ class ChatItemState extends State<ChatItem> {
   Widget buildChatItemWidget(String name, Message lastMessage) {
     return Row(
       children: <Widget>[
-        ContactPic(widget.room.uid.asUid(), key: ValueKey(widget.room.uid)),
+        ContactPic(widget.room.uid.asUid()),
         const SizedBox(width: 8),
         Expanded(
           child: Column(
