@@ -55,7 +55,10 @@ dependencies:
   device_info: 2.0.3
   dio: 4.0.6
   expandable: 5.0.1
-  feature_discovery: 0.14.1
+  feature_discovery:
+    git:
+      ref: cb6d76beaae3e57c6639f14a456d48d117dc14e7
+      url: https://github.com/androidwoman/feature_discovery.git
   file_picker: 4.6.1
   file_selector: 0.8.4+3
   file_selector_linux: 0.0.2+1
