@@ -377,7 +377,7 @@
   "alert_window_permission": "Please allow permission alert window to open app over another apps",
   "alert_window_permission_attention": "Attention:\nIf you dont accept the permission we cant open the app from notification in android 12 or higher",
   "call_feature_discovery_title": "You can call any user you want",
-  "call_feature_discovery_description": "1. You can have voice call with any user \n2. You can mute your mic in call \n3. You can put call on speaker",
+  "call_feature_discovery_description": "1.You can have voice call with any user \n2. You can mute your mic in call \n3. You can put call on speaker",
   "create_group_feature_discovery_title": "You can create new group and new channel",
   "create_group_feature_description": "If you touch this icon you can create new channel or new group with your contact",
   "go_to_setting": "Go to Setting",
