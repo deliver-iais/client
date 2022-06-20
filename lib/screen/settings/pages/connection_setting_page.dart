@@ -14,8 +14,7 @@ import 'package:rxdart/rxdart.dart';
 class ConnectionSettingPage extends StatefulWidget {
   final bool rootFromLoginPage;
 
-  const ConnectionSettingPage({Key? key, this.rootFromLoginPage = false})
-      : super(key: key);
+  const ConnectionSettingPage({super.key, this.rootFromLoginPage = false});
 
   @override
   State<ConnectionSettingPage> createState() => _ConnectionSettingPageState();

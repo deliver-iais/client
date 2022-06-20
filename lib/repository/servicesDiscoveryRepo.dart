@@ -39,7 +39,7 @@ class ServicesDiscoveryRepo {
 
   final fileServiceBaseUrl = "https://ms-file.$APPLICATION_DOMAIN";
 
-  bool badCertificateConnection = true;
+  bool _badCertificateConnection = true;
 
   final _shareDao = GetIt.I.get<SharedDao>();
 
@@ -68,7 +68,7 @@ class ServicesDiscoveryRepo {
     String ip,
     List<ClientInterceptor> grpcClientInterceptors,
   ) {
-    final _queryClientChannel = ClientChannel(
+    final queryClientChannel = ClientChannel(
       ip.isNotEmpty ? ip : "query.$APPLICATION_DOMAIN",
       options: ChannelOptions(
         userAgent: "query",
@@ -83,7 +83,7 @@ class ServicesDiscoveryRepo {
       Uri.parse('https://gwp-query.$APPLICATION_DOMAIN'),
     );
     _queryServiceClient = QueryServiceClient(
-      isWeb ? webQueryClientChannel : _queryClientChannel,
+      isWeb ? webQueryClientChannel : queryClientChannel,
       interceptors: grpcClientInterceptors,
     );
   }
@@ -92,7 +92,7 @@ class ServicesDiscoveryRepo {
     String ip,
     List<ClientInterceptor> grpcClientInterceptors,
   ) {
-    final _botClientChannel = ClientChannel(
+    final botClientChannel = ClientChannel(
       ip.isNotEmpty ? ip : "ms-bot.$APPLICATION_DOMAIN",
       options: ChannelOptions(
         userAgent: "ms-bot",
@@ -107,7 +107,7 @@ class ServicesDiscoveryRepo {
     );
 
     _botServiceClient = BotServiceClient(
-      isWeb ? webBotClientChannel : _botClientChannel,
+      isWeb ? webBotClientChannel : botClientChannel,
       interceptors: grpcClientInterceptors,
     );
   }
@@ -304,7 +304,7 @@ class ServicesDiscoveryRepo {
   }
 
   Future<void> initCertificate() async {
-    badCertificateConnection = (await (GetIt.I.get<SharedDao>().getBoolean(
+    _badCertificateConnection = (await (GetIt.I.get<SharedDao>().getBoolean(
           SHARED_DAO_BAD_CERTIFICATE_CONNECTION,
           defaultValue: true,
         )));
@@ -314,8 +314,11 @@ class ServicesDiscoveryRepo {
     (GetIt.I
         .get<SharedDao>()
         .putBoolean(SHARED_DAO_BAD_CERTIFICATE_CONNECTION, onBadCertificate));
-    badCertificateConnection = onBadCertificate;
+    _badCertificateConnection = onBadCertificate;
   }
+
+
+  bool get badCertificateConnection => _badCertificateConnection;
 
   CoreServiceClient get coreServiceClient => _coreServiceClient;
 

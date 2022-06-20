@@ -15,7 +15,6 @@ class ConnectionStatus extends StatelessWidget {
   static final _i18n = GetIt.I.get<I18N>();
   static final _coreServices = GetIt.I.get<CoreServices>();
   static final _routingServices = GetIt.I.get<RoutingService>();
-  final _countDownController = CountDownController();
 
   const ConnectionStatus({super.key});
 
@@ -83,7 +82,6 @@ class ConnectionStatus extends StatelessWidget {
                                         .toString(),
                                   ),
                                   duration: timeSnapShot.data!,
-                                  controller: _countDownController,
                                   width: 25,
                                   strokeWidth: 3,
                                   height: 25,
