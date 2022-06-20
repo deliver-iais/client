@@ -7,7 +7,8 @@ import 'package:url_launcher/url_launcher.dart';
 import '../constants.dart';
 
 void showOutOfDateDialog(BuildContext context) {
-  final _i18n = GetIt.I.get<I18N>();
+  final i18n = GetIt.I.get<I18N>();
+
   Future.delayed(Duration.zero, () {
     showDialog(
       context: context,
@@ -28,10 +29,10 @@ void showOutOfDateDialog(BuildContext context) {
                   height: 200,
                 ),
                 Text(
-                  _i18n.get("update_we"),
+                  i18n.get("update_we"),
                   style: const TextStyle(fontSize: 25),
                 ),
-                Text(_i18n.get("out_of_date_desc")),
+                Text(i18n.get("out_of_date_desc")),
                 const SizedBox(
                   height: 10,
                 ),
@@ -48,11 +49,11 @@ void showOutOfDateDialog(BuildContext context) {
                         ),
                       ),
                       onPressed: () {
-                        launch(
-                          "https://www.$APPLICATION_DOMAIN",
+                        launchUrl(
+                          Uri.parse("https://www.$APPLICATION_DOMAIN"),
                         );
                       },
-                      child: Text(_i18n.get("update_now")),
+                      child: Text(i18n.get("update_now")),
                     ),
                   ],
                 )

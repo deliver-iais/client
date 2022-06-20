@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
@@ -7,7 +8,6 @@ import 'package:deliver/screen/room/widgets/share_box/image_folder_widget.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/constants.dart';
-
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -25,23 +25,25 @@ class ShareBoxGallery extends StatefulWidget {
   final void Function()? resetRoomPageDetails;
 
   const ShareBoxGallery({
-    Key? key,
+    super.key,
     required this.scrollController,
     required this.pop,
     required this.roomUid,
     this.setAvatar,
     this.replyMessageId = 0,
     this.resetRoomPageDetails,
-  }) : super(key: key);
+  });
 
   @override
-  _ShareBoxGalleryState createState() => _ShareBoxGalleryState();
+  ShareBoxGalleryState createState() => ShareBoxGalleryState();
 }
 
-class _ShareBoxGalleryState extends State<ShareBoxGallery> {
+class ShareBoxGalleryState extends State<ShareBoxGallery> {
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _checkPermissionServices =
+      GetIt.I.get<CheckPermissionsService>();
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _messageRepo = GetIt.I.get<MessageRepo>();
-  final _checkPermissionServices = GetIt.I.get<CheckPermissionsService>();
   final TextEditingController _captionEditingController =
       TextEditingController();
   final _keyboardVisibilityController = KeyboardVisibilityController();
@@ -142,8 +144,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                           color: theme.colorScheme.shadow.withOpacity(0.3),
                           spreadRadius: 2,
                           blurRadius: 3,
-                          offset:
-                              const Offset(0, 3), // changes position of shadow
+                          offset: const Offset(0, 3),
                         ),
                       ],
                     ),
@@ -318,7 +319,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
             body: Stack(
               children: [
                 StreamBuilder<CameraController>(
-                  stream: _cameraController.stream,
+                  stream: _cameraController,
                   builder: (context, snapshot) {
                     return SizedBox(
                       height: MediaQuery.of(context).size.height,
@@ -435,7 +436,7 @@ Stack buildInputCaption({
               border: InputBorder.none,
               hintStyle: const TextStyle(fontSize: 16),
               suffixIcon: StreamBuilder<bool>(
-                stream: insertCaption.stream,
+                stream: insertCaption,
                 builder: (c, s) {
                   if (s.hasData && s.data!) {
                     return IconButton(
@@ -470,11 +471,10 @@ Stack buildInputCaption({
           children: <Widget>[
             Container(
               decoration: const BoxDecoration(
-                //boxShadow: [BoxShadow(blurRadius: 20.0)],
                 shape: BoxShape.circle,
               ),
               child: StreamBuilder<bool>(
-                stream: insertCaption.stream,
+                stream: insertCaption,
                 builder: (context, snapshot) {
                   if (snapshot.hasData &&
                       snapshot.data != null &&
@@ -505,6 +505,9 @@ Stack buildInputCaption({
             ),
             if (count > 0)
               Positioned(
+                top: 35.0,
+                right: 0.0,
+                left: 35,
                 child: Container(
                   width: 28,
                   height: 28,
@@ -531,9 +534,6 @@ Stack buildInputCaption({
                     ),
                   ),
                 ),
-                top: 35.0,
-                right: 0.0,
-                left: 35,
               ),
           ],
         ),

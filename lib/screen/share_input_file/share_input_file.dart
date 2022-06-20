@@ -17,19 +17,20 @@ class ShareInputFile extends StatefulWidget {
   final String inputShareText;
 
   const ShareInputFile({
+    super.key,
     required this.inputSharedFilePath,
     required this.inputShareText,
-    Key? key,
-  }) : super(key: key);
+  });
 
   @override
   State<ShareInputFile> createState() => _ShareInputFileState();
 }
 
 class _ShareInputFileState extends State<ShareInputFile> {
-  final _routingServices = GetIt.I.get<RoutingService>();
-  final _messageRepo = GetIt.I.get<MessageRepo>();
-  final _i18n = GetIt.I.get<I18N>();
+  static final _routingServices = GetIt.I.get<RoutingService>();
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
+
   final _keyboardVisibilityController = KeyboardVisibilityController();
   final BehaviorSubject<bool> _insertCaption = BehaviorSubject.seeded(false);
   final _selectedRooms = <Uid>[];
@@ -149,6 +150,9 @@ class _ShareInputFileState extends State<ShareInputFile> {
             ),
             if (_selectedRooms.isNotEmpty)
               Positioned(
+                top: 35.0,
+                right: 0.0,
+                left: 35,
                 child: Container(
                   width: 28,
                   height: 28,
@@ -175,9 +179,6 @@ class _ShareInputFileState extends State<ShareInputFile> {
                     ),
                   ),
                 ),
-                top: 35.0,
-                right: 0.0,
-                left: 35,
               ),
           ],
         ),

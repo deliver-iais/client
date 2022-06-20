@@ -11,10 +11,10 @@ class ColorFilterPage extends StatefulWidget {
   final Function(String) onDone;
 
   const ColorFilterPage({
-    Key? key,
+    super.key,
     required this.imagePath,
     required this.onDone,
-  }) : super(key: key);
+  });
 
   @override
   State<ColorFilterPage> createState() => _ColorFilterPageState();
@@ -64,7 +64,8 @@ class _ColorFilterPageState extends State<ColorFilterPage> {
                       ),
                     ),
                   ),
-                  if (showLoading) const Center(child: CircularProgressIndicator())
+                  if (showLoading)
+                    const Center(child: CircularProgressIndicator())
                 ],
               ),
             ),

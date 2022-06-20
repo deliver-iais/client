@@ -17,14 +17,14 @@ class ConnectionStatus extends StatelessWidget {
   static final _routingServices = GetIt.I.get<RoutingService>();
   final _countDownController = CountDownController();
 
-  ConnectionStatus({Key? key}) : super(key: key);
+  const ConnectionStatus({super.key});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return StreamBuilder<TitleStatusConditions>(
       initialData: TitleStatusConditions.Normal,
-      stream: _messageRepo.updatingStatus.stream,
+      stream: _messageRepo.updatingStatus,
       builder: (context, snapshot) {
         if (snapshot.data != TitleStatusConditions.Normal) {
           return AnimatedContainer(
@@ -37,7 +37,7 @@ class ConnectionStatus extends StatelessWidget {
               borderRadius: tertiaryBorder,
             ),
             curve: Curves.easeInOut,
-            duration: ANIMATION_DURATION * 2,
+            duration: SUPER_SLOW_ANIMATION_DURATION,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [

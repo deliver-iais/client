@@ -1,7 +1,7 @@
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:fixnum/fixnum.dart';
 
-String buildPhoneNumber(String countryCode, String nationalNumber) =>
+String buildPhoneNumber(int countryCode, int nationalNumber) =>
     "+$countryCode-$nationalNumber";
 
 PhoneNumber? getPhoneNumber(String pStr) {

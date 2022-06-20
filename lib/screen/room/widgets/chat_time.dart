@@ -5,8 +5,7 @@ import 'package:flutter/material.dart';
 class ChatTime extends StatelessWidget {
   final DateTime currentMessageTime;
 
-  const ChatTime({Key? key, required this.currentMessageTime})
-      : super(key: key);
+  const ChatTime({super.key, required this.currentMessageTime});
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +23,13 @@ class ChatTime extends StatelessWidget {
     }
     return Padding(
       padding: const EdgeInsets.only(top: 20.0),
-      child: Chip(side: BorderSide.none, label: Text(outT)),
+      child: Chip(
+        label: Padding(
+          padding: const EdgeInsets.only(top: 4.0),
+          child: Text(outT),
+        ),
+        elevation: 2,
+      ),
     );
   }
 }

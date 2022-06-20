@@ -14,9 +14,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
-
 import 'package:get_it/get_it.dart';
-
 import 'package:logger/logger.dart';
 
 class AccountRepo {
@@ -210,8 +208,8 @@ class AccountRepo {
 
   void _savePhoneNumber(int countryCode, int nationalNumber) {
     _accountDao.updateAccount(
-      countryCode: countryCode.toString(),
-      nationalNumber: nationalNumber.toString(),
+      countryCode: countryCode,
+      nationalNumber: nationalNumber,
     );
   }
 

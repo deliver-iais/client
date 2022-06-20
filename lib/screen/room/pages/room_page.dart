@@ -19,7 +19,6 @@ import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/call/access_to_call.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/forward_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/input_message_text_controller.dart';
@@ -40,6 +39,7 @@ import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -59,15 +59,12 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:desktop_lifecycle/desktop_lifecycle.dart';
 import 'package:flutter/cupertino.dart';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:tuple/tuple.dart';
-
-const APPBAR_HEIGHT = 54.0;
 
 class RoomPage extends StatefulWidget {
   final String roomId;
@@ -76,18 +73,18 @@ class RoomPage extends StatefulWidget {
   final List<Media>? forwardedMedia;
 
   const RoomPage({
-    Key? key,
+    super.key,
     required this.roomId,
     this.forwardedMessages,
     this.forwardedMedia,
     this.shareUid,
-  }) : super(key: key);
+  });
 
   @override
-  _RoomPageState createState() => _RoomPageState();
+  RoomPageState createState() => RoomPageState();
 }
 
-class _RoomPageState extends State<RoomPage> {
+class RoomPageState extends State<RoomPage> {
   static final _logger = GetIt.I.get<Logger>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
@@ -98,6 +95,7 @@ class _RoomPageState extends State<RoomPage> {
   static final _botRepo = GetIt.I.get<BotRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _sharedDao = GetIt.I.get<SharedDao>();
+  static final _featureFlags = GetIt.I.get<FeatureFlags>();
   static final _mucDao = GetIt.I.get<MucDao>();
   static final _callService = GetIt.I.get<CallService>();
   static final _callRepo = GetIt.I.get<CallRepo>();
@@ -185,7 +183,7 @@ class _RoomPageState extends State<RoomPage> {
     return Stack(
       children: [
         StreamBuilder<Room>(
-          stream: _room.stream,
+          stream: _room,
           builder: (context, snapshot) => Background(
             id: snapshot.data?.lastMessageId ?? 0,
           ),
@@ -194,7 +192,7 @@ class _RoomPageState extends State<RoomPage> {
           children: <Widget>[
             buildAllMessagesBox(),
             StreamBuilder(
-              stream: _repliedMessage.stream,
+              stream: _repliedMessage,
               builder: (c, rm) {
                 if (rm.hasData && rm.data != null) {
                   return ReplyPreview(
@@ -206,7 +204,7 @@ class _RoomPageState extends State<RoomPage> {
               },
             ),
             StreamBuilder(
-              stream: _editableMessage.stream,
+              stream: _editableMessage,
               builder: (c, em) {
                 if (em.hasData && em.data != null) {
                   return OnEditMessageWidget(
@@ -218,7 +216,7 @@ class _RoomPageState extends State<RoomPage> {
               },
             ),
             StreamBuilder<bool>(
-              stream: _waitingForForwardedMessage.stream,
+              stream: _waitingForForwardedMessage,
               builder: (c, wm) {
                 if (wm.hasData && wm.data!) {
                   return ForwardPreview(
@@ -247,8 +245,8 @@ class _RoomPageState extends State<RoomPage> {
                   return StreamBuilder<Object>(
                     stream: MergeStream(
                       [
-                        _pendingMessages.stream,
-                        _room.stream,
+                        _pendingMessages,
+                        _room,
                         _itemCountSubject,
                       ],
                     ),
@@ -260,11 +258,11 @@ class _RoomPageState extends State<RoomPage> {
                           children: [
                             Debug(
                               seen.data?.messageId,
-                              label: "myseen.messageId",
+                              label: "mySeen.messageId",
                             ),
                             Debug(
                               seen.data?.hiddenMessageCount,
-                              label: "myseen.hiddenMessageCount",
+                              label: "mySeen.hiddenMessageCount",
                             ),
                             Debug(widget.roomId, label: "uid"),
                             Debug(
@@ -326,7 +324,7 @@ class _RoomPageState extends State<RoomPage> {
       child: Stack(
         children: [
           StreamBuilder(
-            stream: MergeStream([_pendingMessages.stream, _room.stream])
+            stream: MergeStream([_pendingMessages, _room])
                 .debounceTime(const Duration(milliseconds: 50)),
             builder: (context, event) {
               // Set Item Count
@@ -340,19 +338,19 @@ class _RoomPageState extends State<RoomPage> {
             },
           ),
           StreamBuilder<bool>(
-            stream: _isScrolling.stream,
+            stream: _isScrolling,
             builder: (context, snapshot) {
               return Positioned(
                 right: 16,
                 bottom: 16,
                 child: AnimatedScale(
-                  child: scrollDownButtonWidget(),
                   scale: isDesktop && _messageReplyHistory.isNotEmpty
                       ? 1
                       : snapshot.data == true
                           ? 1
                           : 0,
-                  duration: ANIMATION_DURATION * 1.3,
+                  duration: SLOW_ANIMATION_DURATION,
+                  child: scrollDownButtonWidget(),
                 ),
               );
             },
@@ -472,10 +470,15 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Future<void> initRoomStream() async {
-    _roomRepo.watchRoom(widget.roomId).listen((event) {
+    _roomRepo.watchRoom(widget.roomId).distinct().listen((event) {
+      if (event.lastMessageId != room.lastMessageId) {
+        _fireScrollEvent();
+        _calmScrollEvent();
+      }
       _room.add(event);
     });
-    messageEventSubject.stream
+
+    messageEventSubject
         .distinct()
         .where((event) => (event != null && event.roomUid == widget.roomId))
         .listen((value) async {
@@ -604,7 +607,7 @@ class _RoomPageState extends State<RoomPage> {
     _repliedMessage.add(null);
   }
 
-  void onDelete() {
+  void unselectMessages() {
     _selectMultiMessageSubject.add(false);
     _selectedMessages.clear();
     setState(() {});
@@ -728,43 +731,47 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget scrollDownButtonWidget() {
-    return Stack(
-      children: [
-        MouseRegion(
-          onHover: (s) {
-            _isArrowIconFocused = true;
-          },
-          onExit: (s) {
-            _isArrowIconFocused = false;
-            scrollEndNotificationTimer =
-                Timer(const Duration(milliseconds: 500), () {
-              _isScrolling.add(false);
-            });
-          },
-          child: FloatingActionButton(
-            mini: true,
-            child: const Icon(CupertinoIcons.chevron_down),
-            onPressed: _scrollToLastMessage,
-          ),
-        ),
-        if (room.lastMessage != null &&
-            !_authRepo.isCurrentUser(room.lastMessage!.from))
-          Positioned(
-            top: 0,
-            left: 0,
-            child: UnreadMessageCounterWidget(
-              widget.roomId,
-              room.lastMessageId,
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onHover: (s) {
+        _isArrowIconFocused = true;
+      },
+      onExit: (s) {
+        _isArrowIconFocused = false;
+        scrollEndNotificationTimer = Timer(
+            const Duration(milliseconds: SCROLL_DOWN_BUTTON_HIDING_TIME), () {
+          _isScrolling.add(false);
+        });
+      },
+      child: GestureDetector(
+        behavior: HitTestBehavior.translucent,
+        onTap: () => _scrollToLastMessage(),
+        child: Stack(
+          children: [
+            FloatingActionButton(
+              mini: true,
+              onPressed: _scrollToLastMessage,
+              child: const Icon(CupertinoIcons.arrow_down),
             ),
-          ),
-      ],
+            if (room.lastMessage != null &&
+                !_authRepo.isCurrentUser(room.lastMessage!.from))
+              Container(
+                transform: Matrix4.translationValues(-5, -5, 0),
+                child: UnreadMessageCounterWidget(
+                  widget.roomId,
+                  room.lastMessageId,
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 
   Widget buildNewMessageInput() {
     if (widget.roomId.asUid().category == Categories.BOT) {
       return StreamBuilder<Room?>(
-        stream: _room.stream,
+        stream: _room,
         builder: (c, s) {
           if (s.hasData &&
               s.data!.uid.asUid().category == Categories.BOT &&
@@ -781,7 +788,7 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   Widget messageInput() => StreamBuilder(
-        stream: _editableMessage.stream,
+        stream: _editableMessage,
         builder: (c, data) {
           return NewMessageInput(
             currentRoomId: widget.roomId,
@@ -841,8 +848,7 @@ class _RoomPageState extends State<RoomPage> {
   }
 
   PreferredSizeWidget buildAppbar() {
-    return UltimateAppBar(
-      preferredSize: const Size.fromHeight(APPBAR_HEIGHT),
+    return BlurredPreferredSizedWidget(
       child: buildAppBar(),
     );
   }
@@ -855,10 +861,8 @@ class _RoomPageState extends State<RoomPage> {
     return AppBar(
       actions: [
         if (room.uid.asUid().isUser() &&
-            !isLinux &&
             !_authRepo.isCurrentUser(room.uid) &&
-            accessToCallUidList.values
-                .contains(_authRepo.currentUserUid.asString()))
+            _featureFlags.isVoiceCallAvailable())
           IconButton(
             onPressed: () {
               if (_callService.getUserCallState == UserCallState.NOCALL) {
@@ -894,7 +898,7 @@ class _RoomPageState extends State<RoomPage> {
       ],
       leading: GestureDetector(
         child: StreamBuilder<bool>(
-          stream: _searchMode.stream,
+          stream: _searchMode,
           builder: (c, s) {
             if (s.hasData && s.data!) {
               return IconButton(
@@ -905,7 +909,7 @@ class _RoomPageState extends State<RoomPage> {
               );
             } else {
               return StreamBuilder<bool>(
-                stream: _selectMultiMessageSubject.stream,
+                stream: _selectMultiMessageSubject,
                 builder: (context, snapshot) {
                   if (snapshot.hasData &&
                       snapshot.data != null &&
@@ -913,16 +917,6 @@ class _RoomPageState extends State<RoomPage> {
                     return Row(
                       children: [
                         Badge(
-                          child: IconButton(
-                            color: theme.primaryColor,
-                            icon: const Icon(
-                              CupertinoIcons.xmark,
-                              size: 25,
-                            ),
-                            onPressed: () {
-                              onDelete();
-                            },
-                          ),
                           badgeColor: theme.primaryColor,
                           badgeContent: Text(
                             _selectedMessages.length.toString(),
@@ -931,15 +925,21 @@ class _RoomPageState extends State<RoomPage> {
                               color: theme.colorScheme.onPrimary,
                             ),
                           ),
+                          child: IconButton(
+                            color: theme.primaryColor,
+                            icon: const Icon(
+                              CupertinoIcons.xmark,
+                              size: 25,
+                            ),
+                            onPressed: () {
+                              unselectMessages();
+                            },
+                          ),
                         ),
                       ],
                     );
                   } else {
-                    return _routingService.backButtonLeading(
-                      back: () {
-                        // _notificationServices.reset("\t");
-                      },
-                    );
+                    return _routingService.backButtonLeading();
                   }
                 },
               );
@@ -949,7 +949,7 @@ class _RoomPageState extends State<RoomPage> {
       ),
       titleSpacing: 0.0,
       title: StreamBuilder<bool>(
-        stream: _searchMode.stream,
+        stream: _searchMode,
         builder: (c, s) {
           if (s.hasData && s.data!) {
             return Row(
@@ -972,7 +972,7 @@ class _RoomPageState extends State<RoomPage> {
                     decoration: InputDecoration(
                       hintText: _i18n.get("search"),
                       suffix: StreamBuilder<bool>(
-                        stream: checkSearchResult.stream,
+                        stream: checkSearchResult,
                         builder: (c, s) {
                           if (s.hasData && s.data!) {
                             return Text(_i18n.get("not_found"));
@@ -989,14 +989,14 @@ class _RoomPageState extends State<RoomPage> {
             );
           } else {
             return StreamBuilder<bool>(
-              stream: _selectMultiMessageSubject.stream,
+              stream: _selectMultiMessageSubject,
               builder: (c, sm) {
                 if (sm.hasData && sm.data!) {
                   return SelectMultiMessageAppBar(
                     selectedMessages: _selectedMessages,
                     hasPermissionInChannel: _hasPermissionInChannel.value,
                     hasPermissionInGroup: _hasPermissionInGroup.value,
-                    onDelete: onDelete,
+                    onDelete: unselectMessages,
                     deleteSelectedMessage: _deleteSelectedMessage,
                   );
                 } else {
@@ -1016,8 +1016,8 @@ class _RoomPageState extends State<RoomPage> {
         },
       ),
       bottom: const PreferredSize(
-        child: Divider(),
         preferredSize: Size.fromHeight(1),
+        child: Divider(),
       ),
     );
   }
@@ -1046,13 +1046,9 @@ class _RoomPageState extends State<RoomPage> {
     return NotificationListener<ScrollNotification>(
       onNotification: (scrollNotification) {
         if (scrollNotification is ScrollStartNotification) {
-          scrollEndNotificationTimer?.cancel();
-          if (!_isLastMessages) _isScrolling.add(true);
+          _fireScrollEvent();
         } else if (scrollNotification is ScrollEndNotification) {
-          scrollEndNotificationTimer =
-              Timer(const Duration(milliseconds: 1500), () {
-            if (!_isArrowIconFocused || !isDesktop) _isScrolling.add(false);
-          });
+          _calmScrollEvent();
         }
         return true;
       },
@@ -1110,6 +1106,18 @@ class _RoomPageState extends State<RoomPage> {
     );
   }
 
+  void _fireScrollEvent() {
+    scrollEndNotificationTimer?.cancel();
+    if (!_isLastMessages) _isScrolling.add(true);
+  }
+
+  void _calmScrollEvent() {
+    scrollEndNotificationTimer =
+        Timer(const Duration(milliseconds: SCROLL_DOWN_BUTTON_HIDING_TIME), () {
+      if (!_isArrowIconFocused || !isDesktop) _isScrolling.add(false);
+    });
+  }
+
   Tuple2<Message?, Message?>? _fastForwardFetchMessageAndMessageBefore(
     int index,
   ) {
@@ -1133,13 +1141,13 @@ class _RoomPageState extends State<RoomPage> {
 
   Future<Message?> _messageAtIndex(int index, {useCache = true}) async {
     return _isPendingMessage(index)
-        ? pendingMessages[_itemCount - index - 1].msg
+        ? pendingMessages[_itemCount + room.firstMessageId - index - 1].msg
         : await _getMessage(index + 1, useCache: useCache);
   }
 
   bool _isPendingMessage(int index) {
-    return _itemCount > room.lastMessageId &&
-        _itemCount - index <= pendingMessages.length;
+    return _itemCount + room.firstMessageId > room.lastMessageId &&
+        _itemCount + room.firstMessageId - index <= pendingMessages.length;
   }
 
   Future<int?> _timeAt(int index) async {
@@ -1185,11 +1193,11 @@ class _RoomPageState extends State<RoomPage> {
 
     return StreamBuilder<int>(
       initialData: _highlightMessageId.value,
-      stream: _highlightMessageId.stream,
+      stream: _highlightMessageId,
       builder: (context, snapshot) {
         return AnimatedContainer(
           key: ValueKey(index),
-          duration: ANIMATION_DURATION * 5,
+          duration: SUPER_SLOW_ANIMATION_DURATION,
           color: _selectedMessages.containsKey(index + 1) ||
                   (snapshot.data! == index + 1)
               ? Theme.of(context).focusColor.withAlpha(100)
@@ -1238,7 +1246,7 @@ class _RoomPageState extends State<RoomPage> {
       onReply: () => onReply(message),
       addForwardMessage: () => _addForwardMessage(message),
       scrollToMessage: _scrollToReplyMessage,
-      onDelete: onDelete,
+      onDelete: unselectMessages,
     );
 
     if (index == room.firstMessageId) {
@@ -1319,7 +1327,7 @@ class _RoomPageState extends State<RoomPage> {
       showDeleteMsgDialog(
         _selectedMessages.values.toList(),
         context,
-        onDelete,
+        unselectMessages,
       );
       _selectedMessages.clear();
     }

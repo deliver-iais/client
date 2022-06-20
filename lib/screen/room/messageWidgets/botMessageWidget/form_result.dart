@@ -15,18 +15,18 @@ class FormResultWidget extends StatefulWidget {
   final CustomColorScheme colorScheme;
 
   const FormResultWidget({
-    Key? key,
+    super.key,
     required this.message,
     required this.isSeen,
     required this.colorScheme,
     required this.isSender,
-  }) : super(key: key);
+  });
 
   @override
-  _FormResultWidgetState createState() => _FormResultWidgetState();
+  FormResultWidgetState createState() => FormResultWidgetState();
 }
 
-class _FormResultWidgetState extends State<FormResultWidget> {
+class FormResultWidgetState extends State<FormResultWidget> {
   final _i18n = GetIt.I.get<I18N>();
 
   @override
@@ -80,12 +80,14 @@ class _FormResultWidgetState extends State<FormResultWidget> {
               mainAxisAlignment: MainAxisAlignment.end,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                Text(
-                  _i18n.get("submitted_on"),
-                  style: TextStyle(
-                    fontSize: 11,
-                    height: 1.6,
-                    color: widget.colorScheme.onPrimaryContainerLowlight(),
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 3.0),
+                  child: Text(
+                    _i18n.get("submitted_on"),
+                    style: TextStyle(
+                      fontSize: 11,
+                      color: widget.colorScheme.onPrimaryContainerLowlight(),
+                    ),
                   ),
                 ),
                 TimeAndSeenStatus(

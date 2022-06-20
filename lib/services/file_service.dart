@@ -5,6 +5,7 @@ import 'package:clock/clock.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/check_permissions_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/enum.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:dio/adapter.dart';
@@ -40,10 +41,12 @@ class FileService {
         isDesktop ||
         isIOS) {
       final directory = await getApplicationDocumentsDirectory();
-      if (!io.Directory('${directory.path}/Deliver').existsSync()) {
-        await io.Directory('${directory.path}/Deliver').create(recursive: true);
+      if (!io.Directory('${directory.path}/$APPLICATION_FOLDER_NAME')
+          .existsSync()) {
+        await io.Directory('${directory.path}/$APPLICATION_FOLDER_NAME')
+            .create(recursive: true);
       }
-      return directory.path + "/Deliver";
+      return "${directory.path}/$APPLICATION_FOLDER_NAME";
     }
     throw Exception("There is no Storage Permission!");
   }
@@ -148,14 +151,14 @@ class FileService {
       ..click();
   }
 
-  Future<io.File?> getDeliverIcon() async {
-    final file = await localFile("deliver-icon", "png");
+  Future<io.File?> getApplicationIcon() async {
+    final file = await localFile("we-icon", "png");
     if (file.existsSync()) {
       return file;
     } else {
       final res = await rootBundle
           .load('assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
-      final f = io.File("${await _localPath}/deliver-icon.png");
+      final f = io.File("${await _localPath}/we-icon.png");
       try {
         await f.writeAsBytes(res.buffer.asInt8List());
         return f;
@@ -223,14 +226,13 @@ class FileService {
         rawBytes: bytes,
       ); // set the input image file
       const config = Configuration(
-        outputType: ImageOutputType.jpg,
         quality: 30,
       );
 
       final param = ImageFileConfiguration(input: input, config: config);
-      final output = await compressor.compressJpg(param);
+      final output = await compressor.compressWebpThenJpg(param);
       final name = clock.now().millisecondsSinceEpoch.toString();
-      final outPutFile = await localFile(name, "jpg");
+      final outPutFile = await localFile(name, output.extension);
       outPutFile.writeAsBytesSync(output.rawBytes);
       return outPutFile.path;
     } catch (_) {
@@ -243,11 +245,12 @@ class FileService {
   ) async {
     try {
       final name = clock.now().millisecondsSinceEpoch.toString();
-      final targetFilePath = await localFilePath(name, "jpeg");
+      final targetFilePath = await localFilePath(name, "webp");
       final result = await FlutterImageCompress.compressAndGetFile(
         file.path,
         targetFilePath,
         quality: 60,
+        format: CompressFormat.webp,
       );
       if (result != null) {
         return result.path;

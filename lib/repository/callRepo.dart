@@ -296,7 +296,7 @@ class CallRepo {
   }
 
   Future<RTCPeerConnection> _createPeerConnection(bool isOffer) async {
-    final _iceServers = <String, dynamic>{
+    final iceServers = <String, dynamic>{
       'iceServers': [
         {'url': STUN_SERVER_URL},
         {'url': STUN_SERVER_URL_2},
@@ -313,7 +313,7 @@ class CallRepo {
       ]
     };
 
-    final _config = <String, dynamic>{
+    final config = <String, dynamic>{
       'mandatory': {},
       'optional': [
         {'DtlsSrtpKeyAgreement': true},
@@ -331,7 +331,7 @@ class CallRepo {
 
     _localStream = await _getUserMedia();
 
-    final pc = await createPeerConnection(_iceServers, _config);
+    final pc = await createPeerConnection(iceServers, config);
 
     final camAudioTrack = _localStream!.getAudioTracks()[0];
     if (!isWindows) {
@@ -487,7 +487,7 @@ class CallRepo {
         }
       }
       ..onAddStream = (stream) {
-        _logger.i('addStream: ' + stream.id);
+        _logger.i('addStream: ${stream.id}');
         onAddRemoteStream?.call(stream);
       }
       ..onRemoveStream = (stream) {
@@ -583,7 +583,7 @@ class CallRepo {
       await _dataChannel!
           .send(RTCDataChannelMessage(STATUS_CONNECTION_CONNECTED));
     }
-    _logger.i("Start Call " + _startCallTime.toString());
+    _logger.i("Start Call $_startCallTime");
     callingStatus.add(CallStatus.CONNECTED);
     vibrate(duration: 50).ignore();
     _audioService.stopBeepSound();
@@ -737,12 +737,12 @@ class CallRepo {
   }
 
   Future<void> _initForegroundTask() async {
-    final _avatarRepo = GetIt.I.get<AvatarRepo>();
-    final _fileRepo = GetIt.I.get<FileRepo>();
-    final la = await _avatarRepo.getLastAvatar(roomUid!);
+    final avatarRepo = GetIt.I.get<AvatarRepo>();
+    final fileRepo = GetIt.I.get<FileRepo>();
+    final la = await avatarRepo.getLastAvatar(roomUid!);
     String? avatarPath;
     if (la != null && la.fileId != null && la.fileName != null) {
-      avatarPath = await _fileRepo.getFileIfExist(
+      avatarPath = await fileRepo.getFileIfExist(
         la.fileId!,
         la.fileName!,
         thumbnailSize: ThumbnailSize.medium,
@@ -782,7 +782,7 @@ class CallRepo {
       receivePort = await FlutterForegroundTask.restartService();
     } else {
       receivePort = await FlutterForegroundTask.startService(
-        notificationTitle: 'Deliver Call on BackGround',
+        notificationTitle: '$APPLICATION_NAME Call on BackGround',
         notificationText: 'Tap to return to the app',
         callback: startCallback,
       );
@@ -879,7 +879,7 @@ class CallRepo {
       );
     }
     _roomUid = roomId;
-    _logger.i("incoming Call and Created!!! - " + isDuplicated.toString());
+    _logger.i("incoming Call and Created!!! - $isDuplicated");
     callingStatus.add(CallStatus.CREATED);
     final endOfCallDuration = clock.now().millisecondsSinceEpoch;
     await _messageRepo.sendCallMessage(
@@ -939,7 +939,7 @@ class CallRepo {
     final random = randomAlphaNumeric(10);
     final time = clock.now().millisecondsSinceEpoch;
     //call event id: (Epoch time milliseconds)-(Random String with alphabet and numerics with 10 characters length)
-    final callId = time.toString() + "-" + random;
+    final callId = "$time-$random";
     _callService.setCallId = callId;
   }
 
@@ -1035,14 +1035,14 @@ class CallRepo {
   Future<void> receivedEndCall(int callDuration) async {
     if (!_isEnded) {
       _isEnded = true;
-      _logger.i("Call Duration Received: " + callDuration.toString());
+      _logger.i("Call Duration Received: $callDuration");
       await cancelCallNotification();
       if (isWindows) {
         _notificationServices.cancelRoomNotifications(roomUid!.node);
       }
       if (_isCaller) {
         _callDuration = calculateCallEndTime();
-        _logger.i("Call Duration on Caller(1): " + _callDuration.toString());
+        _logger.i("Call Duration on Caller(1): $_callDuration");
         final endOfCallDuration = clock.now().millisecondsSinceEpoch;
         await _messageRepo.sendCallMessage(
           CallEvent_CallStatus.ENDED,
@@ -1126,7 +1126,7 @@ class CallRepo {
 
     final session = parse(description.sdp.toString());
     final answerSdp = json.encode(session);
-    _logger.i("Answer: \n" + answerSdp);
+    _logger.i("Answer: \n$answerSdp");
 
     unawaited(_peerConnection!.setLocalDescription(description));
 
@@ -1138,7 +1138,7 @@ class CallRepo {
     //get SDP as String
     final session = parse(description.sdp.toString());
     final offerSdp = json.encode(session);
-    _logger.i("Offer: \n" + offerSdp);
+    _logger.i("Offer: \n$offerSdp");
     unawaited(_peerConnection!.setLocalDescription(description));
     return offerSdp;
   }
@@ -1146,8 +1146,7 @@ class CallRepo {
   Future<void> _waitUntilCandidateConditionDone() async {
     final completer = Completer();
     _logger.i(
-      "Time for w8:" +
-          (clock.now().millisecondsSinceEpoch - _candidateStartTime).toString(),
+      "Time for w8:${clock.now().millisecondsSinceEpoch - _candidateStartTime}",
     );
     if ((_candidate.length >= _candidateNumber) ||
         (clock.now().millisecondsSinceEpoch - _candidateStartTime >
@@ -1164,7 +1163,7 @@ class CallRepo {
     _candidateStartTime = clock.now().millisecondsSinceEpoch;
     //w8 till candidate gathering conditions complete
     await _waitUntilCandidateConditionDone();
-    _logger.i("Candidate Number is :" + _candidate.length.toString());
+    _logger.i("Candidate Number is :${_candidate.length}");
     // Send Candidate to Receiver
     final jsonCandidates = jsonEncode(_candidate);
     //Send offer and Candidate as message to Receiver
@@ -1184,7 +1183,7 @@ class CallRepo {
     _candidateStartTime = clock.now().millisecondsSinceEpoch;
     //w8 till candidate gathering conditions complete
     await _waitUntilCandidateConditionDone();
-    _logger.i("Candidate Number is :" + _candidate.length.toString());
+    _logger.i("Candidate Number is :${_candidate.length}");
     // Send Candidate back to Sender
     final jsonCandidates = jsonEncode(_candidate);
     //Send Answer and Candidate as message to Sender

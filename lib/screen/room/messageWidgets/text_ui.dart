@@ -28,7 +28,7 @@ class TextUI extends StatelessWidget {
   final CustomColorScheme colorScheme;
 
   TextUI({
-    Key? key,
+    super.key,
     required this.message,
     required this.maxWidth,
     required this.colorScheme,
@@ -38,8 +38,7 @@ class TextUI extends StatelessWidget {
     this.isSender = false,
     this.isSeen = false,
     this.searchTerm,
-  })  : isBotMessage = message.roomUid.asUid().isBot(),
-        super(key: key);
+  }) : isBotMessage = message.roomUid.asUid().isBot();
 
   @override
   Widget build(BuildContext context) {
@@ -174,7 +173,7 @@ List<Block> extractBlocks(
 }
 
 Future<void> onUrlTap(String uri, BuildContext context) async {
-  final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
+  final urlHandlerService = GetIt.I.get<UrlHandlerService>();
 
   //add prefix if needed
   final applicationUrlRegex = RegExp(
@@ -182,11 +181,11 @@ Future<void> onUrlTap(String uri, BuildContext context) async {
   );
   if (applicationUrlRegex.hasMatch(uri)) {
     if (uri.startsWith("we://")) {
-      uri = "https://wemessenger.ir" + uri.substring(4);
+      uri = "https://wemessenger.ir${uri.substring(4)}";
     }
-    _urlHandlerService.handleApplicationUri(uri, context);
+    urlHandlerService.handleApplicationUri(uri, context);
   } else {
-    _urlHandlerService.handleNormalLink(uri, context);
+    urlHandlerService.handleNormalLink(uri, context);
   }
 }
 

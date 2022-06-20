@@ -3,10 +3,11 @@
 #
 
 list(APPEND FLUTTER_PLUGIN_LIST
-  connectivity_plus_windows
+  audioplayers_windows
   desktop_drop
   desktop_lifecycle
   desktop_window
+  file_selector_windows
   flutter_webrtc
   geolocator_windows
   image_compression_flutter

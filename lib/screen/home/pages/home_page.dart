@@ -18,13 +18,13 @@ import 'package:logger/logger.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
-  _HomePageState createState() => _HomePageState();
+  HomePageState createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
+class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _logger = GetIt.I.get<Logger>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
@@ -101,8 +101,11 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
 
     ReceiveSharingIntent.getInitialText().then((value) async {
       if (value != null && value.isNotEmpty) {
-        _urlHandlerService.handleApplicationUri(value, context,
-            shareTextMessage: true,);
+        _urlHandlerService.handleApplicationUri(
+          value,
+          context,
+          shareTextMessage: true,
+        );
       }
     });
   }

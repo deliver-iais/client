@@ -2,6 +2,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:patterns_canvas/patterns_canvas.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:simple_animations/simple_animations.dart';
 
 class SpoilerLoader extends StatelessWidget {
   final String text;
@@ -13,12 +14,11 @@ class SpoilerLoader extends StatelessWidget {
 
   SpoilerLoader(
     this.text, {
-    Key? key,
+    super.key,
     this.disableSpoilerReveal = false,
     this.foreground,
     TextStyle? style,
-  })  : style = style ?? const TextStyle(),
-        super(key: key);
+  }) : style = style ?? const TextStyle();
 
   @override
   Widget build(BuildContext context) {
@@ -29,6 +29,9 @@ class SpoilerLoader extends StatelessWidget {
       stream: showLoaderBehavior,
       builder: (context, snapshot) {
         final showLoader = snapshot.data ?? true;
+        final control = showLoader
+            ? CustomAnimationControl.stop
+            : CustomAnimationControl.play;
 
         Widget loader = MouseRegion(
           cursor: showLoader ? SystemMouseCursors.click : MouseCursor.defer,
@@ -44,16 +47,21 @@ class SpoilerLoader extends StatelessWidget {
 
         return Stack(
           children: [
-            Text(
-              text,
-              overflow: TextOverflow.ellipsis,
-              style: style.copyWith(
-                color: showLoader ? Colors.transparent : null,
-              ),
+            CustomAnimation<Color?>(
+              duration: SLOW_ANIMATION_DURATION,
+              control: control,
+              tween: ColorTween(begin: Colors.transparent, end: foreground),
+              builder: (context, child, color) {
+                return Text(
+                  text,
+                  overflow: TextOverflow.ellipsis,
+                  style: style.copyWith(color: color),
+                );
+              },
             ),
             AnimatedOpacity(
               opacity: showLoader ? 1 : 0,
-              duration: ANIMATION_DURATION * 2,
+              duration: SLOW_ANIMATION_DURATION,
               child: loader,
             )
           ],

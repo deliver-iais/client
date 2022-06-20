@@ -28,13 +28,13 @@ List<StorageFile> _storageFiles(String json) {
 class FileBasic {
   final String path;
 
-  FileBasic(this.path);
+  FileBasic({required this.path});
 }
 
 class AudioItem extends FileBasic {
   final String title;
 
-  AudioItem({required String path, required this.title}) : super(path);
+  AudioItem({required super.path, required this.title});
 
   static Future<List<File>> getAudios() async {
     final storageFiles = await StoragePath.audioPath;
@@ -53,7 +53,7 @@ class AudioItem extends FileBasic {
 }
 
 class ImageItem extends FileBasic {
-  ImageItem({required String path}) : super(path);
+  ImageItem({required super.path});
 
   static Future<List<StorageFile>> getImages() async {
     return _storageFiles(await StoragePath.imagesPath);
@@ -61,7 +61,7 @@ class ImageItem extends FileBasic {
 }
 
 class FileItem extends FileBasic {
-  FileItem({required String path}) : super(path);
+  FileItem({required super.path});
 
   static Future<List<String>> getFiles() async {
     try {

@@ -233,7 +233,7 @@ class AttachLocation {
       context: context,
       builder: (context) {
         return StreamBuilder<String>(
-          stream: time.stream,
+          stream: time,
           builder: (context, snapshot) {
             return Padding(
               padding: const EdgeInsets.only(top: 300, left: 30, right: 30),

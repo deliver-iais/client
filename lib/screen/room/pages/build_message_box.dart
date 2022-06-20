@@ -27,6 +27,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -56,7 +57,7 @@ class BuildMessageBox extends StatefulWidget {
   final BehaviorSubject<bool> selectMultiMessageSubject;
 
   const BuildMessageBox({
-    Key? key,
+    super.key,
     required this.message,
     this.messageBefore,
     required this.roomId,
@@ -74,7 +75,7 @@ class BuildMessageBox extends StatefulWidget {
     required this.addForwardMessage,
     this.menuDisabled = false,
     this.messageReplyBrief,
-  }) : super(key: key);
+  });
 
   @override
   State<BuildMessageBox> createState() => _BuildMessageBoxState();
@@ -141,7 +142,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   Widget _createCallMessageWidget(BuildContext context, Message msg) {
-    final theme = Theme.of(context);
     final colorsScheme = ExtraTheme.of(context).secondaryColorsScheme;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -151,14 +151,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           decoration: BoxDecoration(
             color: colorsScheme.primaryContainer,
             borderRadius: secondaryBorder,
-            boxShadow: [
-              BoxShadow(
-                color: theme.colorScheme.shadow.withOpacity(0.1),
-                spreadRadius: 2,
-                blurRadius: 3,
-                offset: const Offset(0, 3), // changes position of shadow
-              ),
-            ],
+            boxShadow: DEFAULT_BOX_SHADOWS,
           ),
           child: CallMessageWidget(
             message: widget.message,
@@ -179,7 +172,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () {
-            if (widget.selectMultiMessageSubject.stream.value) {
+            if (widget.selectMultiMessageSubject.value) {
               widget.addForwardMessage();
             } else if (!isDesktop) {
               FocusScope.of(context).unfocus();
@@ -189,13 +182,13 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           onSecondaryTap: !isDesktop
               ? null
               : () {
-                  if (!widget.selectMultiMessageSubject.stream.value) {
+                  if (!widget.selectMultiMessageSubject.value) {
                     _showCustomMenu(context, msg);
                   }
                 },
           onDoubleTap: !isDesktop ? null : widget.onReply,
           onLongPress: () {
-            if (!widget.selectMultiMessageSubject.stream.value) {
+            if (!widget.selectMultiMessageSubject.value) {
               widget.selectMultiMessageSubject.add(true);
             }
             widget.addForwardMessage();
@@ -254,7 +247,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
-        if (widget.selectMultiMessageSubject.stream.value) {
+        if (widget.selectMultiMessageSubject.value) {
           widget.addForwardMessage();
         } else if (!isDesktop) {
           FocusScope.of(context).unfocus();
@@ -264,13 +257,13 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onSecondaryTap: !isDesktop
           ? null
           : () {
-              if (!widget.selectMultiMessageSubject.stream.value) {
+              if (!widget.selectMultiMessageSubject.value) {
                 _showCustomMenu(context, message);
               }
             },
       onDoubleTap: !isDesktop ? null : widget.onReply,
       onLongPress: () {
-        if (!widget.selectMultiMessageSubject.stream.value) {
+        if (!widget.selectMultiMessageSubject.value) {
           widget.selectMultiMessageSubject.add(true);
         }
         widget.addForwardMessage();
@@ -542,13 +535,10 @@ class OperationOnMessageSelection {
 
   Future<void> onShare() async {
     if (message.type == MessageType.TEXT) {
-      final copyText = await _roomRepo.getName(message.from.asUid()) +
-          ":\n" +
-          message.json.toText().text +
-          "\n" +
-          DateTime.fromMillisecondsSinceEpoch(
-            message.time,
-          ).toString().substring(0, 19);
+      final copyText =
+          "${await _roomRepo.getName(message.from.asUid())}:\n${message.json.toText().text}\n${DateTime.fromMillisecondsSinceEpoch(
+        message.time,
+      ).toString().substring(0, 19)}";
 
       return Share.share(
         copyText,

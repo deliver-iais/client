@@ -6,7 +6,7 @@ import 'package:get_it/get_it.dart';
 class UnreadMessageBar extends StatelessWidget {
   static final _i18n = GetIt.I.get<I18N>();
 
-  const UnreadMessageBar({Key? key}) : super(key: key);
+  const UnreadMessageBar({super.key});
 
   @override
   Widget build(BuildContext context) {

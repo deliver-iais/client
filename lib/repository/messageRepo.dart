@@ -354,7 +354,7 @@ class MessageRepo {
     final textsBlocks = text.split("\n").toList();
     final result = <String>[];
     for (text in textsBlocks) {
-      if (textsBlocks.last != text) text = text + "\n";
+      if (textsBlocks.last != text) text = "$text\n";
       if (text.length > TEXT_MESSAGE_MAX_LENGTH) {
         var i = 0;
         while (i < (text.length / TEXT_MESSAGE_MAX_LENGTH).ceil()) {
@@ -590,7 +590,7 @@ class MessageRepo {
           tempType.contains("png")) {
         tempDimension = ImageSizeGetter.getSize(FileInput(f));
         if (tempDimension == Size.zero) {
-          tempDimension = Size(200, 200);
+          tempDimension = const Size(200, 200);
         }
       }
       tempFileSize = f.statSync().size;

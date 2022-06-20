@@ -11,11 +11,11 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class ContactPic extends StatelessWidget {
-  final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _lastActivityRepo = GetIt.I.get<LastActivityRepo>();
+  static final _authRepo = GetIt.I.get<AuthRepo>();
   final Uid userUid;
 
-  ContactPic(this.userUid, {Key? key}) : super(key: key);
+  const ContactPic(this.userUid, {super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -36,11 +36,13 @@ class ContactPic extends StatelessWidget {
               if (la.hasData && la.data != null) {
                 return isOnline(la.data!.time)
                     ? Positioned(
+                        top: 32.0,
+                        right: 0.0,
                         child: Container(
                           width: 12.0,
                           height: 12.0,
                           decoration: BoxDecoration(
-                            color: EnableColor,
+                            color: ACTIVE_COLOR,
                             shape: BoxShape.circle,
                             border: Border.all(
                               color: theme.scaffoldBackgroundColor,
@@ -48,8 +50,6 @@ class ContactPic extends StatelessWidget {
                             ),
                           ),
                         ),
-                        top: 32.0,
-                        right: 0.0,
                       )
                     : const SizedBox.shrink();
               } else {

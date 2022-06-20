@@ -17,8 +17,8 @@ class AccountAdapter extends TypeAdapter<Account> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Account(
-      countryCode: fields[0] as String?,
-      nationalNumber: fields[1] as String?,
+      countryCode: fields[0] as int?,
+      nationalNumber: fields[1] as int?,
       username: fields[2] as String?,
       firstname: fields[3] as String?,
       lastname: fields[4] as String?,

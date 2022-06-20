@@ -4,7 +4,7 @@ import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
 abstract class ContactDao {
-  Future<Contact?> get(String countryCode, String nationalNumber);
+  Future<Contact?> get(int countryCode, int nationalNumber);
 
   Future<Contact?> getByUid(String uid);
 
@@ -17,7 +17,7 @@ abstract class ContactDao {
 
 class ContactDaoImpl implements ContactDao {
   @override
-  Future<Contact?> get(String countryCode, String nationalNumber) async {
+  Future<Contact?> get(int countryCode, int nationalNumber) async {
     final box = await _open();
 
     try {

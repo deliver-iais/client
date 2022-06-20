@@ -4,7 +4,6 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
-
 import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/register/pages/two_step_verification_page.dart';
 import 'package:deliver/screen/register/pages/verification_page.dart';
@@ -14,7 +13,6 @@ import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/phone.dart';
-
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver/shared/widgets/out_of_date.dart';
@@ -24,7 +22,6 @@ import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
@@ -36,13 +33,13 @@ import 'package:sms_autofill/sms_autofill.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  LoginPageState createState() => LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class LoginPageState extends State<LoginPage> {
   static final _logger = GetIt.I.get<Logger>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _fireBaseServices = GetIt.I.get<FireBaseServices>();
@@ -250,7 +247,7 @@ class _LoginPageState extends State<LoginPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           StreamBuilder<String>(
-            stream: loginToken.stream,
+            stream: loginToken,
             builder: (context, snapshot) {
               if (snapshot.hasData &&
                   snapshot.data != null &&
@@ -275,7 +272,7 @@ class _LoginPageState extends State<LoginPage> {
             },
           ),
           const SizedBox(height: 30),
-          const Text("1. Open Deliver on your phone"),
+          const Text("1. Open $APPLICATION_NAME on your phone"),
           const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -310,7 +307,7 @@ class _LoginPageState extends State<LoginPage> {
     final theme = Theme.of(context);
     return StreamBuilder<bool>(
       initialData: _isLoading.value,
-      stream: _isLoading.stream,
+      stream: _isLoading,
       builder: (c, loading) {
         if (loading.hasData && loading.data != null && loading.data!) {
           return const Center(child: CircularProgressIndicator());
@@ -394,8 +391,10 @@ class _LoginPageState extends State<LoginPage> {
                                         fontSize: 13,
                                       ),
                                       recognizer: TapGestureRecognizer()
-                                        ..onTap = () => launch(
-                                              "https://deliver-co.ir/#/termofuse",
+                                        ..onTap = () => launchUrl(
+                                              Uri.parse(
+                                                "https://wemessenger.ir/terms",
+                                              ),
                                             ),
                                     ),
                                     const TextSpan(
@@ -420,6 +419,7 @@ class _LoginPageState extends State<LoginPage> {
                     child: Align(
                       alignment: Alignment.bottomRight,
                       child: TextButton(
+                        onPressed: checkAndGoNext,
                         child: Text(
                           i18n.get("next"),
                           style: TextStyle(
@@ -428,7 +428,6 @@ class _LoginPageState extends State<LoginPage> {
                             fontSize: 14.5,
                           ),
                         ),
-                        onPressed: checkAndGoNext,
                       ),
                     ),
                   ),

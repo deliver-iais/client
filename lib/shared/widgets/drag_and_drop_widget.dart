@@ -14,6 +14,11 @@ import 'package:mime_type/mime_type.dart';
 import 'package:universal_html/html.dart';
 
 class DragDropWidget extends StatelessWidget {
+  static final _routingServices = GetIt.I.get<RoutingService>();
+  static final _mucRepo = GetIt.I.get<MucRepo>();
+  static final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _logger = GetIt.I.get<Logger>();
+
   final Widget child;
   final String roomUid;
   final double height;
@@ -21,20 +26,15 @@ class DragDropWidget extends StatelessWidget {
   final int? replyMessageId;
   final bool enabled;
 
-  DragDropWidget({
-    Key? key,
+  const DragDropWidget({
+    super.key,
     required this.child,
     required this.roomUid,
     required this.height,
     this.enabled = true,
     this.resetRoomPageDetails,
     this.replyMessageId,
-  }) : super(key: key);
-
-  final _routingServices = GetIt.I.get<RoutingService>();
-  final _mucRepo = GetIt.I.get<MucRepo>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
-  final _logger = GetIt.I.get<Logger>();
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -94,7 +94,6 @@ class DragDropWidget extends StatelessWidget {
             ],
           )
         : DropTarget(
-            child: child,
             enable: enabled,
             onDragDone: (d) async {
               final files = <model.File>[];
@@ -134,6 +133,7 @@ class DragDropWidget extends StatelessWidget {
                 }
               }
             },
+            child: child,
           );
   }
 

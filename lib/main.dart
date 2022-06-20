@@ -118,7 +118,7 @@ Future<void> setupDI() async {
     ),
   );
 
-  await Hive.initFlutter("db");
+  await Hive.initFlutter("$APPLICATION_FOLDER_NAME/db");
 
   Hive
     ..registerAdapter(AvatarAdapter())
@@ -191,6 +191,7 @@ Future<void> setupDI() async {
 
   registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   registerSingleton<UxService>(UxService());
+  registerSingleton<FeatureFlags>(FeatureFlags());
   registerSingleton<FileService>(FileService());
   registerSingleton<MucServices>(MucServices());
   registerSingleton<CreateMucService>(CreateMucService());
@@ -205,12 +206,7 @@ Future<void> setupDI() async {
   registerSingleton<LastActivityRepo>(LastActivityRepo());
   registerSingleton<LiveLocationRepo>(LiveLocationRepo());
 
-  if (isLinux || isWindows) {
-    // DartVLC.initialize();
-    registerSingleton<AudioPlayerModule>(VlcAudioPlayer());
-  } else {
-    registerSingleton<AudioPlayerModule>(NormalAudioPlayer());
-  }
+  registerSingleton<AudioPlayerModule>(NormalAudioPlayer());
   try {
     registerSingleton<AudioService>(AudioService());
   } catch (_) {}
@@ -289,8 +285,8 @@ void main() async {
 
 Future<void> _setWindowSize() async {
   setWindowMinSize(const Size(500, 600));
-  final _sharedDao = GetIt.I.get<SharedDao>();
-  final size = await _sharedDao.get(SHARED_DAO_WINDOWS_SIZE);
+  final sharedDao = GetIt.I.get<SharedDao>();
+  final size = await sharedDao.get(SHARED_DAO_WINDOWS_SIZE);
   final rect = size?.split('_');
 
   if (rect != null) {
@@ -319,7 +315,7 @@ class MyApp extends StatelessWidget {
   final _i18n = GetIt.I.get<I18N>();
   final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
 
-  MyApp({Key? key}) : super(key: key);
+  MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {

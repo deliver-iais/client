@@ -1,5 +1,6 @@
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/theme/color_scheme.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:flutter/material.dart';
 
 class FluidContainerWidget extends StatelessWidget {
@@ -7,10 +8,10 @@ class FluidContainerWidget extends StatelessWidget {
   final bool showStandardContainer;
 
   const FluidContainerWidget({
-    Key? key,
+    super.key,
     required this.child,
     this.showStandardContainer = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -34,14 +35,7 @@ class FluidContainerWidget extends StatelessWidget {
               )
             ],
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withOpacity(0.05),
-              spreadRadius: 2,
-              blurRadius: 8,
-              offset: const Offset(0, 2), // changes position of shadow
-            ),
-          ],
+          boxShadow: LIGHT_BOX_SHADOWS,
         ),
         child: child,
       );

@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/message.dart';
@@ -25,6 +26,7 @@ import 'package:deliver/screen/settings/pages/auto_download_settings.dart';
 import 'package:deliver/screen/settings/pages/connection_setting_page.dart';
 import 'package:deliver/screen/settings/pages/developer_page.dart';
 import 'package:deliver/screen/settings/pages/devices_page.dart';
+import 'package:deliver/screen/settings/pages/lab_settings.dart';
 import 'package:deliver/screen/settings/pages/language_settings.dart';
 import 'package:deliver/screen/settings/pages/security_settings.dart';
 import 'package:deliver/screen/settings/pages/theme_settings_page.dart';
@@ -63,6 +65,8 @@ const _developerPage = DeveloperPage(key: ValueKey("/developer-page"));
 const _devices = DevicesPage(key: ValueKey("/devices"));
 
 const _autoDownload = AutoDownloadSettingsPage(key: ValueKey("/auto_download"));
+
+const _lab = LabSettingsPage(key: ValueKey("/lab"));
 
 const _contacts = ContactsPage(key: ValueKey("/contacts"));
 
@@ -115,6 +119,8 @@ class RoutingService {
   void openDevices() => _push(_devices);
 
   void openAutoDownload() => _push(_autoDownload);
+
+  void openLab() => _push(_lab);
 
   void openContacts() => _push(_contacts);
 
@@ -197,7 +203,7 @@ class RoutingService {
   }) =>
       _push(
         AllVideoPage(
-          const ValueKey("/media-details"),
+          key: const ValueKey("/media-details"),
           roomUid: uid.asString(),
           initIndex: initIndex,
           videoCount: videosLength,
@@ -211,7 +217,7 @@ class RoutingService {
   }) =>
       _push(
         AllImagePage(
-          const ValueKey("/media-details"),
+          key: const ValueKey("/media-details"),
           messageId: messageId,
           initIndex: initIndex,
           roomUid: uid,
@@ -393,14 +399,7 @@ class RoutingService {
     }
   }
 
-  Widget backButtonLeading({void Function()? back}) {
-    return BackButton(
-      onPressed: () {
-        back?.call();
-        pop();
-      },
-    );
-  }
+  Widget backButtonLeading() => BackButton(onPressed: pop);
 }
 
 class RouteEvent {
@@ -408,6 +407,21 @@ class RouteEvent {
   final String nextRoute;
 
   RouteEvent(this.prevRoute, this.nextRoute);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other.runtimeType == runtimeType &&
+          other is RouteEvent &&
+          const DeepCollectionEquality().equals(other.prevRoute, prevRoute) &&
+          const DeepCollectionEquality().equals(other.nextRoute, nextRoute));
+
+  @override
+  int get hashCode => Object.hash(
+        runtimeType,
+        const DeepCollectionEquality().hash(prevRoute),
+        const DeepCollectionEquality().hash(nextRoute),
+      );
 }
 
 class RoutingServiceNavigatorObserver extends NavigatorObserver {
@@ -440,7 +454,7 @@ class RoutingServiceNavigatorObserver extends NavigatorObserver {
 class Empty extends StatelessWidget {
   static final _i18n = GetIt.I.get<I18N>();
 
-  const Empty({Key? key}) : super(key: key);
+  const Empty({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -449,15 +463,14 @@ class Empty extends StatelessWidget {
       body: Center(
         child: Container(
           decoration: BoxDecoration(
-            color: theme.colorScheme.primaryContainer,
+            color: theme.colorScheme.onPrimary,
             borderRadius: secondaryBorder,
           ),
           padding:
               const EdgeInsets.only(left: 10, right: 10, top: 6, bottom: 4),
           child: Text(
             _i18n.get("please_select_a_chat_to_start_messaging"),
-            style: theme.textTheme.bodyText2!
-                .copyWith(color: theme.colorScheme.onPrimaryContainer),
+            style: theme.primaryTextTheme.bodyMedium,
           ),
         ),
       ),

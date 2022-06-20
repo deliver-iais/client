@@ -25,21 +25,21 @@ class ShareBox extends StatefulWidget {
   final void Function() scrollToLastSentMessage;
 
   const ShareBox({
-    Key? key,
+    super.key,
     required this.currentRoomId,
     this.replyMessageId = 0,
     required this.resetRoomPageDetails,
     required this.scrollToLastSentMessage,
-  }) : super(key: key);
+  });
 
   @override
-  _ShareBoxState createState() => _ShareBoxState();
+  ShareBoxState createState() => ShareBoxState();
 }
 
 enum Page { gallery, files, location, music }
 
-class _ShareBoxState extends State<ShareBox> {
-  final messageRepo = GetIt.I.get<MessageRepo>();
+class ShareBoxState extends State<ShareBox> {
+  static final messageRepo = GetIt.I.get<MessageRepo>();
 
   final selectedImages = <int, bool>{};
 
@@ -89,7 +89,7 @@ class _ShareBoxState extends State<ShareBox> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return StreamBuilder<double>(
-      stream: initialChildSize.stream,
+      stream: initialChildSize,
       builder: (c, initialSize) {
         if (initialSize.hasData && initialSize.data != null) {
           return DraggableScrollableSheet(
@@ -123,7 +123,7 @@ class _ShareBoxState extends State<ShareBox> {
                                     icons[index] = Icons.play_arrow;
                                     playAudioIndex = -1;
                                   } else {
-                                    _audioPlayer.play(path);
+                                    _audioPlayer.play(DeviceFileSource(path));
                                     icons.remove(playAudioIndex);
                                     icons[index] = Icons.pause;
                                     playAudioIndex = index;
@@ -349,7 +349,8 @@ Widget circleButton(
         child: Material(
           color: theme.primaryColor, // button color
           child: InkWell(
-            splashColor: Colors.red, // inkwell color
+            splashColor: Colors.red,
+            onTap: onTap, // inkwell color
             child: SizedBox(
               width: size,
               height: size,
@@ -358,7 +359,6 @@ Widget circleButton(
                 color: Colors.white,
               ),
             ),
-            onTap: onTap,
           ),
         ),
       ),

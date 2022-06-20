@@ -8,7 +8,7 @@ class Background extends StatelessWidget {
 
   final int id;
 
-  const Background({Key? key, this.id = 0}) : super(key: key);
+  const Background({super.key, this.id = 0});
 
   @override
   Widget build(BuildContext context) {

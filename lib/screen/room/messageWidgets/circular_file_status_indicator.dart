@@ -16,11 +16,11 @@ class CircularFileStatusIndicator extends StatefulWidget {
   final Color foregroundColor;
 
   const CircularFileStatusIndicator({
-    Key? key,
+    super.key,
     required this.message,
     required this.backgroundColor,
     required this.foregroundColor,
-  }) : super(key: key);
+  });
 
   @override
   State<CircularFileStatusIndicator> createState() =>
@@ -29,8 +29,8 @@ class CircularFileStatusIndicator extends StatefulWidget {
 
 class _CircularFileStatusIndicatorState
     extends State<CircularFileStatusIndicator> {
-  final _fileServices = GetIt.I.get<FileService>();
-  final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _fileServices = GetIt.I.get<FileService>();
+  static final _fileRepo = GetIt.I.get<FileRepo>();
 
   @override
   void initState() {

@@ -27,8 +27,8 @@ import 'package:logger/logger.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 String buildShareUserUrl(
-  String countryCode,
-  String nationalNumber,
+  int countryCode,
+  int nationalNumber,
   String firstName,
   String lastName,
 ) =>
@@ -68,8 +68,8 @@ class UrlHandlerService {
       if (segments.first == ADD_CONTACT_URL) {
         handleAddContact(
           context: context,
-          countryCode: uri.queryParameters["cc"],
-          nationalNumber: uri.queryParameters["nn"],
+          countryCode: int.parse(uri.queryParameters["cc"]!),
+          nationalNumber: int.parse(uri.queryParameters["nn"]!),
           firstName: uri.queryParameters["fn"],
           lastName: uri.queryParameters["ln"],
         );
@@ -162,7 +162,7 @@ class UrlHandlerService {
           builder: (ctx) {
             return Container(
               padding: const EdgeInsets.symmetric(vertical: 40),
-              child: const TGS.asset(
+              child: const Tgs.asset(
                 'assets/animations/done.tgs',
                 width: 150,
                 height: 150,
@@ -182,8 +182,8 @@ class UrlHandlerService {
   Future<void> handleAddContact({
     String? firstName,
     String? lastName,
-    String? countryCode,
-    String? nationalNumber,
+    int? countryCode,
+    int? nationalNumber,
     required BuildContext context,
   }) async {
     final theme = Theme.of(context);
@@ -240,8 +240,8 @@ class UrlHandlerService {
                             ..firstName = firstName!
                             ..lastName = lastName!
                             ..phoneNumber = PhoneNumber(
-                              countryCode: int.parse(countryCode),
-                              nationalNumber: Int64(int.parse(nationalNumber)),
+                              countryCode: countryCode,
+                              nationalNumber: Int64(nationalNumber),
                             ),
                         );
                         if (newContactAdded) {
@@ -338,7 +338,6 @@ class UrlHandlerService {
     String botId,
     String token,
   ) async {
-
     PrivateDataType privateDataType;
     final type = pdType;
     type.contains("PHONE_NUMBER")
@@ -515,7 +514,7 @@ class UrlHandlerService {
               TextButton(
                 onPressed: () async {
                   Navigator.pop(c);
-                  await launch(uri);
+                  await launchUrl(Uri.parse(uri));
                 },
                 child: Text(_i18n.get("open")),
               ),

@@ -37,13 +37,13 @@ BehaviorSubject<String>
     BehaviorSubject.seeded("");
 
 class NavigationCenter extends StatefulWidget {
-  const NavigationCenter({Key? key}) : super(key: key);
+  const NavigationCenter({super.key});
 
   @override
-  _NavigationCenterState createState() => _NavigationCenterState();
+  NavigationCenterState createState() => NavigationCenterState();
 }
 
-class _NavigationCenterState extends State<NavigationCenter> {
+class NavigationCenterState extends State<NavigationCenter> {
   static final _routingServices = GetIt.I.get<RoutingService>();
   static final _contactRepo = GetIt.I.get<ContactRepo>();
   static final _i18n = GetIt.I.get<I18N>();
@@ -73,7 +73,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
       }
     });
 
-    _queryTermDebouncedSubject.stream
+    _queryTermDebouncedSubject
         .debounceTime(const Duration(milliseconds: 250))
         .listen((text) => _searchMode.add(text));
 
@@ -93,7 +93,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
     super.dispose();
   }
 
-  _NavigationCenterState();
+  NavigationCenterState();
 
   @override
   Widget build(BuildContext context) {
@@ -111,7 +111,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   _scrollController.animateTo(
                     0.0,
                     curve: Curves.easeOut,
-                    duration: ANIMATION_DURATION * 3,
+                    duration: SLOW_ANIMATION_DURATION,
                   );
                 }
               },
@@ -124,7 +124,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                       width: 10,
                     ),
                     DescribedFeatureOverlay(
-                      featureId: feature3,
+                      featureId: FEATURE_3,
                       tapTarget:
                           CircleAvatarWidget(_authRepo.currentUserUid, 20),
                       backgroundColor: Colors.indigo,
@@ -163,7 +163,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 actions: [
                   if (!isDesktop)
                     DescribedFeatureOverlay(
-                      featureId: feature2,
+                      featureId: FEATURE_2,
                       tapTarget: const Icon(
                         CupertinoIcons.qrcode_viewfinder,
                       ),
@@ -209,7 +209,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                 ),
                 if (!isLarge(context)) const AudioPlayerAppBar(),
                 StreamBuilder<String>(
-                  stream: _searchMode.stream,
+                  stream: _searchMode,
                   builder: (c, s) {
                     if (s.hasData && s.data!.isNotEmpty) {
                       _onNavigationCenterBackPressed = () {
@@ -260,7 +260,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   Widget _outOfDateWidget() {
     return StreamBuilder<bool>(
-      stream: outOfDateObject.stream,
+      stream: outOfDateObject,
       builder: (c, snapshot) {
         if (snapshot.hasData && snapshot.data != null && snapshot.data!) {
           showOutOfDateDialog(context);
@@ -273,7 +273,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
 
   Widget _newVersionInfo() {
     return StreamBuilder<NewerVersionInformation?>(
-      stream: newVersionInformation.stream,
+      stream: newVersionInformation,
       builder: (context, snapshot) {
         if (snapshot.hasData &&
             snapshot.data != null &&
@@ -328,9 +328,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
                                 ),
                               ),
                               onPressed: () {
-                                launch(
-                                  downloadLink.url,
-                                );
+                                launchUrl(Uri.parse(downloadLink.url));
                               },
                               child: Text(
                                 downloadLink.label,
@@ -372,7 +370,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
   Widget buildMenu(BuildContext context) {
     final theme = Theme.of(context);
     return DescribedFeatureOverlay(
-      featureId: feature1,
+      featureId: FEATURE_1,
       tapTarget: Icon(CupertinoIcons.plus, color: theme.colorScheme.onSurface),
       backgroundColor: Colors.blue,
       targetColor: Colors.lightBlueAccent,
@@ -394,6 +392,7 @@ class _NavigationCenterState extends State<NavigationCenter> {
           onSelected: selectChatMenu,
           itemBuilder: (context) => [
             PopupMenuItem<String>(
+              value: "newGroup",
               child: Row(
                 children: [
                   const Icon(CupertinoIcons.group),
@@ -401,9 +400,9 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   Text(_i18n.get("newGroup")),
                 ],
               ),
-              value: "newGroup",
             ),
             PopupMenuItem<String>(
+              value: "newChannel",
               child: Row(
                 children: [
                   const Icon(CupertinoIcons.news),
@@ -413,7 +412,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
                   )
                 ],
               ),
-              value: "newChannel",
             )
           ],
         ),
@@ -433,7 +431,6 @@ class _NavigationCenterState extends State<NavigationCenter> {
   }
 
   Widget searchResult(String query) {
-    final theme = Theme.of(context);
     return Expanded(
       child: FutureBuilder<List<List<Uid>>>(
         future: searchUidList(query),
@@ -447,20 +444,8 @@ class _NavigationCenterState extends State<NavigationCenter> {
           final roomAndContacts = snaps.data![2];
 
           if (global.isEmpty && bots.isEmpty && roomAndContacts.isEmpty) {
-            return Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const TGS.asset(
-                  'assets/animations/not-found.tgs',
-                  width: 180,
-                  height: 150,
-                ),
-                Text(
-                  _i18n.get("not_found"),
-                  textAlign: TextAlign.center,
-                  style: theme.textTheme.headline6,
-                ),
-              ],
+            return const Tgs.asset(
+              'assets/duck_animation/not_found.tgs',
             );
           }
 

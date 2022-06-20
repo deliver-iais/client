@@ -25,15 +25,16 @@ import 'package:logger/logger.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 
 class SettingsPage extends StatefulWidget {
-  const SettingsPage({Key? key}) : super(key: key);
+  const SettingsPage({super.key});
 
   @override
-  _SettingsPageState createState() => _SettingsPageState();
+  SettingsPageState createState() => SettingsPageState();
 }
 
-class _SettingsPageState extends State<SettingsPage> {
+class SettingsPageState extends State<SettingsPage> {
   static final _logger = GetIt.I.get<Logger>();
   static final _uxService = GetIt.I.get<UxService>();
+  static final _featureFlags = GetIt.I.get<FeatureFlags>();
   static final _accountRepo = GetIt.I.get<AccountRepo>();
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
@@ -55,10 +56,8 @@ class _SettingsPageState extends State<SettingsPage> {
     final theme = Theme.of(context);
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: UltimateAppBar(
+      appBar: BlurredPreferredSizedWidget(
         child: AppBar(
-          elevation: 1,
-          scrolledUnderElevation: 4,
           titleSpacing: 8,
           title: Text(_i18n.get("settings")),
           leading: _routingService.backButtonLeading(),
@@ -175,13 +174,14 @@ class _SettingsPageState extends State<SettingsPage> {
                     _routingService.openContacts();
                   },
                 ),
-                SettingsTile(
-                  title: _i18n.get("calls"),
-                  leading: const Icon(CupertinoIcons.phone),
-                  onPressed: (context) {
-                    _routingService.openCallsList();
-                  },
-                )
+                if (_featureFlags.isVoiceCallAvailable())
+                  SettingsTile(
+                    title: _i18n.get("calls"),
+                    leading: const Icon(CupertinoIcons.phone),
+                    onPressed: (context) {
+                      _routingService.openCallsList();
+                    },
+                  )
               ],
             ),
             Section(
@@ -289,10 +289,9 @@ class _SettingsPageState extends State<SettingsPage> {
                 children: [
                   SettingsTile(
                     title: 'Developer Page',
-                    subtitle: "Log Level: " +
-                        LogLevelHelper.levelToString(
-                          GetIt.I.get<DeliverLogFilter>().level!,
-                        ),
+                    subtitle: "Log Level: ${LogLevelHelper.levelToString(
+                      GetIt.I.get<DeliverLogFilter>().level!,
+                    )}",
                     leading: const Icon(Icons.bug_report_rounded),
                     onPressed: (context) {
                       _routingService.openDeveloperPage();
@@ -302,6 +301,13 @@ class _SettingsPageState extends State<SettingsPage> {
               ),
             Section(
               children: [
+                if (_featureFlags.labIsAvailable())
+                  SettingsTile(
+                    title: _i18n.get("lab"),
+                    subtitleTextStyle: TextStyle(color: theme.primaryColor),
+                    leading: const FaIcon(FontAwesomeIcons.vial),
+                    onPressed: (context) => _routingService.openLab(),
+                  ),
                 SettingsTile(
                   title: _i18n.get("version"),
                   leading:
@@ -355,8 +361,8 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
             TextButton(
               onPressed: () => _routingService.logout(),
-              child: Text(i18n.get("logout")),
               style: TextButton.styleFrom(primary: Colors.red),
+              child: Text(i18n.get("logout")),
             ),
           ],
         );

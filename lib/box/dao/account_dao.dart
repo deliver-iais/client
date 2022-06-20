@@ -5,8 +5,8 @@ import 'package:hive_flutter/hive_flutter.dart';
 
 abstract class AccountDao {
   Future<void> updateAccount({
-    String? countryCode,
-    String? nationalNumber,
+    int? countryCode,
+    int? nationalNumber,
     String? username,
     String? firstname,
     String? lastname,
@@ -46,8 +46,8 @@ class AccountDaoImpl extends AccountDao {
 
   @override
   Future<void> updateAccount({
-    String? countryCode,
-    String? nationalNumber,
+    int? countryCode,
+    int? nationalNumber,
     String? username,
     String? firstname,
     String? lastname,
