@@ -9,7 +9,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
-import 'package:rxdart/rxdart.dart';
 
 class ConnectionStatus extends StatelessWidget {
   static final _messageRepo = GetIt.I.get<MessageRepo>();
@@ -17,8 +16,6 @@ class ConnectionStatus extends StatelessWidget {
   static final _coreServices = GetIt.I.get<CoreServices>();
   static final _routingServices = GetIt.I.get<RoutingService>();
   final _countDownController = CountDownController();
-  final BehaviorSubject<bool> _disableFastConnection =
-      BehaviorSubject.seeded(false);
 
   ConnectionStatus({Key? key}) : super(key: key);
 
@@ -71,14 +68,14 @@ class ConnectionStatus extends StatelessWidget {
                     stream: disconnectedTime.stream,
                     builder: (c, timeSnapShot) {
                       if (timeSnapShot.hasData && timeSnapShot.data != null) {
-                        _disableFastConnection.add(false);
                         if (timeSnapShot.data! > 0) {
                           return Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               GestureDetector(
-                                onTap: () => _routingServices
-                                    .openConnectionSettingPage(),
+                                onTap: () {
+                                  _coreServices.retryFasterConnection();
+                                },
                                 child: CircularCountDownTimer(
                                   key: Key(
                                     DateTime.now()
@@ -101,33 +98,22 @@ class ConnectionStatus extends StatelessWidget {
                                   isReverse: true,
                                   onComplete: () {
                                     _coreServices.retryConnection();
-                                    _disableFastConnection.add(true);
                                   },
                                 ),
                               ),
                               const SizedBox(
                                 width: 6,
                               ),
-                              StreamBuilder<bool>(
-                                initialData: false,
-                                stream: _disableFastConnection.stream,
-                                builder: (context, snapshot) {
-                                  if (snapshot.hasData && !snapshot.data!) {
-                                    return IconButton(
-                                      padding: EdgeInsets.zero,
-                                      onPressed: () {
-                                        _coreServices.retryFasterConnection();
-                                        _disableFastConnection.add(true);
-                                      },
-                                      icon: Icon(
-                                        CupertinoIcons.refresh,
-                                        color: theme.primaryColor,
-                                        //  size: 30,
-                                      ),
-                                    );
-                                  }
-                                  return const SizedBox.shrink();
+                              IconButton(
+                                padding: EdgeInsets.zero,
+                                onPressed: () {
+                                  _routingServices.openConnectionSettingPage();
                                 },
+                                icon: Icon(
+                                  CupertinoIcons.settings,
+                                  color: theme.primaryColor,
+                                  //  size: 30,
+                                ),
                               )
                             ],
                           );

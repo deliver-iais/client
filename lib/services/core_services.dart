@@ -25,6 +25,7 @@ import 'package:rxdart/rxdart.dart';
 enum ConnectionStatus { Connected, Disconnected, Connecting }
 
 BehaviorSubject<int> disconnectedTime = BehaviorSubject.seeded(0);
+BehaviorSubject<String> connectionError = BehaviorSubject.seeded("");
 
 const MIN_BACKOFF_TIME = isWeb ? 16 : 4;
 const MAX_BACKOFF_TIME = 64;
@@ -77,7 +78,8 @@ class CoreServices {
   }
 
   void resetConnection() {
-    _connectionTimer!.cancel();
+    if (_connectionTimer != null) _connectionTimer!.cancel();
+    if (_responseStream != null) _responseStream!.cancel();
     startStream();
     startCheckerTimer();
   }
@@ -130,6 +132,7 @@ class CoreServices {
     backoffTime = MIN_BACKOFF_TIME;
     responseChecked = true;
     disconnectedTime.add(0);
+    connectionError.add("");
   }
 
   @visibleForTesting
@@ -141,51 +144,58 @@ class CoreServices {
               .establishServerSideStream(EstablishServerSideStreamReq())
           : _services.coreServiceClient
               .establishStream(_clientPacketStream!.stream);
-      _responseStream!.listen((serverPacket) {
-        _logger.d(serverPacket);
 
-        gotResponse();
-        switch (serverPacket.whichType()) {
-          case ServerPacket_Type.message:
-            _dataStreamServices.handleIncomingMessage(
-              serverPacket.message,
-              isOnlineMessage: true,
-            );
-            break;
-          case ServerPacket_Type.messageDeliveryAck:
-            _dataStreamServices
-                .handleAckMessage(serverPacket.messageDeliveryAck);
-            break;
-          case ServerPacket_Type.seen:
-            _dataStreamServices.handleSeen(serverPacket.seen);
-            break;
-          case ServerPacket_Type.activity:
-            _dataStreamServices.handleActivity(serverPacket.activity);
-            break;
-          case ServerPacket_Type.roomPresenceTypeChanged:
-            _dataStreamServices.handleRoomPresenceTypeChange(
-              serverPacket.roomPresenceTypeChanged,
-            );
-            break;
-          case ServerPacket_Type.callOffer:
-            _dataStreamServices.handleCallOffer(serverPacket.callOffer);
-            break;
-          case ServerPacket_Type.callAnswer:
-            _dataStreamServices.handleCallAnswer(serverPacket.callAnswer);
-            break;
-          case ServerPacket_Type.pong:
-            _lastPongTime = serverPacket.pong.serverTime.toInt();
-            break;
-          case ServerPacket_Type.liveLocationStatusChanged:
-          case ServerPacket_Type.error:
-            // TODO(hasan): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/411
-            break;
-          case ServerPacket_Type.notSet:
-          case ServerPacket_Type.expletivePacket:
-            break;
-        }
-      });
+      _responseStream!.listen(
+        (serverPacket) {
+          _logger.d(serverPacket);
+
+          gotResponse();
+          switch (serverPacket.whichType()) {
+            case ServerPacket_Type.message:
+              _dataStreamServices.handleIncomingMessage(
+                serverPacket.message,
+                isOnlineMessage: true,
+              );
+              break;
+            case ServerPacket_Type.messageDeliveryAck:
+              _dataStreamServices
+                  .handleAckMessage(serverPacket.messageDeliveryAck);
+              break;
+            case ServerPacket_Type.seen:
+              _dataStreamServices.handleSeen(serverPacket.seen);
+              break;
+            case ServerPacket_Type.activity:
+              _dataStreamServices.handleActivity(serverPacket.activity);
+              break;
+            case ServerPacket_Type.roomPresenceTypeChanged:
+              _dataStreamServices.handleRoomPresenceTypeChange(
+                serverPacket.roomPresenceTypeChanged,
+              );
+              break;
+            case ServerPacket_Type.callOffer:
+              _dataStreamServices.handleCallOffer(serverPacket.callOffer);
+              break;
+            case ServerPacket_Type.callAnswer:
+              _dataStreamServices.handleCallAnswer(serverPacket.callAnswer);
+              break;
+            case ServerPacket_Type.pong:
+              _lastPongTime = serverPacket.pong.serverTime.toInt();
+              break;
+            case ServerPacket_Type.liveLocationStatusChanged:
+            case ServerPacket_Type.error:
+              // TODO(hasan): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/411
+              break;
+            case ServerPacket_Type.notSet:
+            case ServerPacket_Type.expletivePacket:
+              break;
+          }
+        },
+        onError: (d) {
+          connectionError.add(d.toString());
+        },
+      );
     } catch (e) {
+      connectionError.add(e.toString());
       _logger.e(e);
       return startStream();
     }
