@@ -61,6 +61,7 @@ class CoreServices {
   void retryConnection() {
     _connectionTimer!.cancel();
     disconnectedTime.add(-1);
+    _connectionStatus.add(ConnectionStatus.Connecting);
     startStream();
     startCheckerTimer();
     _updateDisconnectedTime();
@@ -68,6 +69,7 @@ class CoreServices {
 
   void _updateDisconnectedTime() {
     Timer(const Duration(seconds: 2), () {
+      _connectionStatus.add(ConnectionStatus.Disconnected);
       disconnectedTime.add(backoffTime);
     });
   }
@@ -120,7 +122,6 @@ class CoreServices {
           backoffTime = MIN_BACKOFF_TIME;
         }
         startStream();
-        _connectionStatus.add(ConnectionStatus.Disconnected);
         _updateDisconnectedTime();
       }
       startCheckerTimer();

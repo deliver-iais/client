@@ -69,9 +69,10 @@ import '../shared/constants.dart';
 enum TitleStatusConditions {
   Disconnected,
   Updating,
-  Normal,
   Connecting,
-  Syncing
+  Syncing,
+  Connected,
+  Normal
 }
 
 const EMPTY_MESSAGE = "{}";
@@ -114,7 +115,12 @@ class MessageRepo {
           await updatingLastSeen();
           _updateNotSyncedRoom().ignore();
           _roomRepo.fetchBlockedRoom().ignore();
-          updatingStatus.add(TitleStatusConditions.Normal);
+          updatingStatus.add(TitleStatusConditions.Connected);
+          Timer(const Duration(seconds: 1), () {
+            if (updatingStatus.value == TitleStatusConditions.Connected) {
+              updatingStatus.add(TitleStatusConditions.Normal);
+            }
+          });
           unawaited(sendPendingMessages());
           break;
         case ConnectionStatus.Disconnected:

@@ -10,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
+import 'package:rxdart/rxdart.dart';
 
 class ConnectionStatus extends StatelessWidget {
   static final _messageRepo = GetIt.I.get<MessageRepo>();
@@ -23,113 +24,119 @@ class ConnectionStatus extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return StreamBuilder<TitleStatusConditions>(
-      initialData: TitleStatusConditions.Normal,
+      initialData: TitleStatusConditions.Connected,
       stream: _messageRepo.updatingStatus,
       builder: (context, snapshot) {
-        return AnimatedContainer(
-          width: double.infinity,
-          height: snapshot.data == TitleStatusConditions.Normal ? 44 : 0,
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-          margin: const EdgeInsets.symmetric(horizontal: 8),
-          decoration: BoxDecoration(
-            color: snapshot.data == TitleStatusConditions.Normal
-                ? theme.colorScheme.tertiaryContainer
-                : theme.colorScheme.secondaryContainer,
-            borderRadius: tertiaryBorder,
-          ),
-          curve: Curves.easeInOut,
+        return AnimatedOpacity(
           duration: SUPER_SLOW_ANIMATION_DURATION,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  if (snapshot.data! == TitleStatusConditions.Disconnected)
-                    IconButton(
-                      padding: EdgeInsets.zero,
-                      iconSize: 23,
-                      onPressed: _routingServices.openConnectionSettingPage,
-                      icon: Icon(
-                        CupertinoIcons.settings,
-                        color: theme.colorScheme.tertiary,
+          opacity: snapshot.data != TitleStatusConditions.Normal ? 1 : 0,
+          child: AnimatedContainer(
+            width: double.infinity,
+            clipBehavior: Clip.hardEdge,
+            height: snapshot.data != TitleStatusConditions.Normal ? 44 : 0,
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            margin: const EdgeInsets.symmetric(horizontal: 8),
+            decoration: BoxDecoration(
+              color: snapshot.data == TitleStatusConditions.Connected ||
+                      snapshot.data == TitleStatusConditions.Normal
+                  ? theme.colorScheme.secondaryContainer
+                  : theme.colorScheme.tertiaryContainer,
+              borderRadius: tertiaryBorder,
+            ),
+            curve: Curves.easeInOut,
+            duration: SUPER_SLOW_ANIMATION_DURATION,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Row(
+                  children: [
+                    if (snapshot.data! == TitleStatusConditions.Disconnected)
+                      IconButton(
+                        padding: EdgeInsets.zero,
+                        iconSize: 23,
+                        onPressed: _routingServices.openConnectionSettingPage,
+                        icon: Icon(
+                          CupertinoIcons.settings,
+                          color: theme.colorScheme.tertiary,
+                        ),
+                      ),
+                    const SizedBox(width: 8),
+                    Text(
+                      title(snapshot.data ?? TitleStatusConditions.Connected),
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        color: theme.colorScheme.onSecondaryContainer,
                       ),
                     ),
-                  const SizedBox(width: 8),
-                  Text(
-                    title(snapshot.data ?? TitleStatusConditions.Normal),
-                    style: theme.textTheme.bodyLarge?.copyWith(
-                      color: theme.colorScheme.onSecondaryContainer,
-                    ),
-                  ),
-                  const SizedBox(width: 5),
-                  AnimatedContainer(
-                    duration: ANIMATION_DURATION,
-                    width: snapshot.data! == TitleStatusConditions.Connecting
-                        ? 11
-                        : 0,
-                    child: SizedBox(
-                      width: 11,
-                      height: 11,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: theme.colorScheme.onTertiaryContainer,
+                    const SizedBox(width: 5),
+                    AnimatedContainer(
+                      duration: ANIMATION_DURATION,
+                      width: snapshot.data! == TitleStatusConditions.Connecting
+                          ? 11
+                          : 0,
+                      child: SizedBox(
+                        width: 11,
+                        height: 11,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: theme.colorScheme.onTertiaryContainer,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-              if (snapshot.data! == TitleStatusConditions.Disconnected)
-                StreamBuilder<int>(
-                  initialData: 0,
-                  stream: disconnectedTime.stream,
-                  builder: (c, timeSnapShot) {
-                    if (timeSnapShot.hasData && timeSnapShot.data != null) {
-                      if (timeSnapShot.data! == 0) {
-                        return Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            TextButton(
-                              onPressed: _coreServices.retryFasterConnection,
-                              child: Row(
-                                children: [
-                                  const Text(
-                                    "Reconnecting in",
-                                    style: TextStyle(fontSize: 12),
-                                  ),
-                                  CircularCountDownTimer(
-                                    key: Key(
-                                      DateTime.now()
-                                          .millisecondsSinceEpoch
-                                          .toString(),
+                  ],
+                ),
+                if (snapshot.data! == TitleStatusConditions.Disconnected)
+                  StreamBuilder<int>(
+                    initialData: 0,
+                    stream: disconnectedTime.stream,
+                    builder: (c, timeSnapShot) {
+                      if (timeSnapShot.hasData && timeSnapShot.data != null) {
+                        if (timeSnapShot.data! > 0) {
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              TextButton(
+                                onPressed: _coreServices.retryFasterConnection,
+                                child: Row(
+                                  children: [
+                                    const Text(
+                                      "Reconnecting in",
+                                      style: TextStyle(fontSize: 12),
                                     ),
-                                    duration: timeSnapShot.data! + 6,
-                                    width: 16,
-                                    strokeWidth: 0,
-                                    height: 16,
-                                    isReverseAnimation: true,
-                                    ringColor: Colors.transparent,
-                                    fillColor: Colors.transparent,
-                                    backgroundColor: Colors.transparent,
-                                    textStyle: Theme.of(context)
-                                        .primaryTextTheme
-                                        .bodyText2
-                                        ?.copyWith(fontSize: 12),
-                                    textFormat: CountdownTextFormat.S,
-                                    isReverse: true,
-                                    onComplete: _coreServices.retryConnection,
-                                  ),
-                                ],
+                                    CircularCountDownTimer(
+                                      key: Key(
+                                        DateTime.now()
+                                            .millisecondsSinceEpoch
+                                            .toString(),
+                                      ),
+                                      duration: timeSnapShot.data!,
+                                      width: 16,
+                                      strokeWidth: 0,
+                                      height: 16,
+                                      isReverseAnimation: true,
+                                      ringColor: Colors.transparent,
+                                      fillColor: Colors.transparent,
+                                      backgroundColor: Colors.transparent,
+                                      textStyle: Theme.of(context)
+                                          .primaryTextTheme
+                                          .bodyText2
+                                          ?.copyWith(fontSize: 12),
+                                      textFormat: CountdownTextFormat.S,
+                                      isReverse: true,
+                                      onComplete: _coreServices.retryConnection,
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            // const SizedBox(width: 6),
-                          ],
-                        );
+                              // const SizedBox(width: 6),
+                            ],
+                          );
+                        }
                       }
-                    }
-                    return const SizedBox.shrink();
-                  },
-                )
-            ],
+                      return const SizedBox.shrink();
+                    },
+                  )
+              ],
+            ),
           ),
         );
       },
@@ -144,6 +151,8 @@ class ConnectionStatus extends StatelessWidget {
         return _i18n.get("connecting").capitalCase;
       case TitleStatusConditions.Updating:
         return _i18n.get("updating").capitalCase;
+      case TitleStatusConditions.Connected:
+        return _i18n.get("connected");
       case TitleStatusConditions.Normal:
         return _i18n.get("connected");
       case TitleStatusConditions.Syncing:
