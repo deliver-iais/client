@@ -895,6 +895,18 @@ class RoomPageState extends State<RoomPage> {
                                               ),
                                               textDirection: TextDirection.rtl,
                                             ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(top:10.0),
+                                              child: Text(
+                                                _i18n.get(
+                                                  "alert_window_permission_attention",
+                                                ),
+                                                textDirection: TextDirection.rtl,
+                                                style: const TextStyle(
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                            ),
                                             InkWell(
                                               onTap: () async {
                                                 FeatureDiscovery.dismissAll(
@@ -911,7 +923,8 @@ class RoomPageState extends State<RoomPage> {
                                                   Padding(
                                                     padding:
                                                         const EdgeInsets.all(
-                                                            8.0),
+                                                      8.0,
+                                                    ),
                                                     child: Text(
                                                       _i18n
                                                           .get("go_to_setting"),

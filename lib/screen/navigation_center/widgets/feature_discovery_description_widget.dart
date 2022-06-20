@@ -32,7 +32,7 @@ class FeatureDiscoveryDescriptionWidget extends StatelessWidget {
                   onPressed: () async =>
                       FeatureDiscovery.completeCurrentStep(context),
                   child: Text(
-                    'Understood',
+                    i18n.get("understood"),
                     style:
                         theme.textTheme.button!.copyWith(color: Colors.white),
                   ),
@@ -40,7 +40,7 @@ class FeatureDiscoveryDescriptionWidget extends StatelessWidget {
                 TextButton(
                   onPressed: () => FeatureDiscovery.dismissAll(context),
                   child: Text(
-                    'Dismiss',
+                    i18n.get("dismiss"),
                     style:
                         theme.textTheme.button!.copyWith(color: Colors.white),
                   ),

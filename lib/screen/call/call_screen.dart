@@ -93,11 +93,27 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
             width: 150,
             height: 150,
           ),
-          content: Text(
-            _i18n.get(
-              "alert_window_permission",
-            ),
-
+          content: Column(
+            children: [
+              Text(
+                _i18n.get(
+                  "alert_window_permission",
+                ),
+                textDirection: TextDirection.rtl,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: Text(
+                  _i18n.get(
+                    "alert_window_permission_attention",
+                  ),
+                  textDirection: TextDirection.rtl,
+                  style: const TextStyle(
+                    color: Colors.red,
+                  ),
+                ),
+              )
+            ],
           ),
           alignment: Alignment.center,
           actionsAlignment: MainAxisAlignment.spaceEvenly,
