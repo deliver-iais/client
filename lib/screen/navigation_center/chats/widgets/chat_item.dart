@@ -1,6 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/room.dart';
+import 'package:deliver/box/seen.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/lastActivityRepo.dart';
@@ -212,13 +213,29 @@ class ChatItemState extends State<ChatItem> {
                       ],
                     );
                   } else {
-                    return widget.room.draft != null &&
-                            widget.room.draft!.isNotEmpty
-                        ? buildDraftMessageWidget(
-                            _i18n,
-                            context,
-                          )
-                        : buildLastMessage(lastMessage);
+                    return FutureBuilder<Seen>(
+                      future: _roomRepo.getMySeen(widget.room.uid),
+                      builder: (context, snapshot) {
+                        var unreadCount = 0;
+                        if (snapshot.hasData &&
+                            snapshot.data != null &&
+                            snapshot.data!.messageId > -1) {
+                          unreadCount = widget.room.lastMessageId - snapshot.data!.messageId;
+                          if (snapshot.data?.hiddenMessageCount != null) {
+                            unreadCount =
+                                unreadCount - snapshot.data!.hiddenMessageCount;
+                          }
+                        }
+                        return widget.room.draft != null &&
+                                widget.room.draft!.isNotEmpty &&
+                                unreadCount == 0
+                            ? buildDraftMessageWidget(
+                                _i18n,
+                                context,
+                              )
+                            : buildLastMessage(lastMessage);
+                      },
+                    );
                   }
                 },
               ),
