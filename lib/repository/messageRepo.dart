@@ -111,8 +111,8 @@ class MessageRepo {
         case ConnectionStatus.Connected:
           _logger.i('updating -----------------');
           await updatingMessages();
-
           await updatingLastSeen();
+          _updateNotSyncedRoom().ignore();
           _roomRepo.fetchBlockedRoom().ignore();
           updatingStatus.add(TitleStatusConditions.Normal);
           unawaited(sendPendingMessages());
@@ -222,7 +222,7 @@ class MessageRepo {
     }
   }
 
-  Future<void> updateNotSyncedRoom() async {
+  Future<void> _updateNotSyncedRoom() async {
     final rooms = await _roomDao.getNotSyncedRoom();
     for (final room in rooms) {
       await _dataStreamServices.fetchLastNotHiddenMessage(
