@@ -75,6 +75,9 @@ const _newContact = NewContact(key: ValueKey("/new-contact"));
 const _scanQrCode = ScanQrCode(key: ValueKey("/scan-qr-code"));
 
 const _calls = CallListPage(key: ValueKey("/calls"));
+const _connectionSettingsPage = ConnectionSettingPage(
+  key: ValueKey("/connection_setting_page"),
+);
 
 const _emptyRoute = "/";
 
@@ -129,6 +132,8 @@ class RoutingService {
   void openScanQrCode() => _push(_scanQrCode);
 
   void openCallsList() => _push(_calls);
+
+  void openConnectionSettingPage() => _push(_connectionSettingsPage);
 
   void openRoom(
     String roomId, {
@@ -266,14 +271,6 @@ class RoutingService {
           isChannel: isChannel,
         ),
       );
-
-  void openConnectionSettingPage() {
-    _push(
-      const ConnectionSettingPage(
-        key: ValueKey("/connection_setting_page"),
-      ),
-    );
-  }
 
   void openShareInput({List<String> paths = const [], String text = ""}) =>
       _push(

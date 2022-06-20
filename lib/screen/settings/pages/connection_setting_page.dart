@@ -9,6 +9,7 @@ import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -47,22 +48,47 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
     final theme = Theme.of(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text(_i18n.get("connection_setting")),
+        title: Text(_i18n.get("connection_settings")),
       ),
       body: FluidContainerWidget(
         child: ListView(
           children: [
             Section(
               children: [
-                SettingsTile.switchTile(
-                  title: _i18n.get("connect_on_bad_certificate"),
-                  leading: const Icon(CupertinoIcons.settings),
-                  switchValue: _servicesDiscoveryRepo.badCertificateConnection,
-                  onToggle: (value) => setState(() {
-                    _servicesDiscoveryRepo.setCertificate(
-                      onBadCertificate: value,
-                    );
-                  }),
+                Column(
+                  children: [
+                    SettingsTile.switchTile(
+                      title: _i18n.get("connect_on_bad_certificate"),
+                      leading: const Icon(CupertinoIcons.shield_slash),
+                      switchValue:
+                          _servicesDiscoveryRepo.badCertificateConnection,
+                      onToggle: (value) => setState(() {
+                        _servicesDiscoveryRepo.setCertificate(
+                          onBadCertificate: value,
+                        );
+                      }),
+                    ),
+                    if (_servicesDiscoveryRepo.badCertificateConnection)
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          right: 18.0,
+                          top: 4,
+                          bottom: 10,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Text(
+                              "Not Recommended",
+                              style: TextStyle(
+                                height: 0.8,
+                                color: theme.colorScheme.error,
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                  ],
                 ),
               ],
             ),
@@ -72,25 +98,26 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
               builder: (c, ipSnapshot) {
                 return Section(
                   children: [
-                    SettingsTile.switchTile(
-                      title: _i18n.get("use_custom_ip"),
-                      leading: const Icon(
-                        CupertinoIcons.rectangle_expand_vertical,
-                      ),
-                      switchValue: ipSnapshot.data,
-                      onToggle: (value) {
-                        if (!value) {
-                          _shareDao.put(SHARE_DAO_HOST_SET_BY_USER, "");
-                          _textEditingController.text = "";
-                          _servicesDiscoveryRepo.initClientChannel();
-                        }
-                        _useCustomIp.add(value);
-                        _coreServices.resetConnection();
-                      },
-                    ),
-                    if (ipSnapshot.hasData && ipSnapshot.data!)
-                      Column(
-                        children: [
+                    Column(
+                      children: [
+                        SettingsTile.switchTile(
+                          title: _i18n.get("use_custom_ip"),
+                          leading: const FaIcon(
+                            FontAwesomeIcons.networkWired,
+                            size: 20,
+                          ),
+                          switchValue: ipSnapshot.data,
+                          onToggle: (value) {
+                            if (!value) {
+                              _shareDao.put(SHARE_DAO_HOST_SET_BY_USER, "");
+                              _textEditingController.text = "";
+                              _servicesDiscoveryRepo.initClientChannel();
+                            }
+                            _useCustomIp.add(value);
+                            _coreServices.resetConnection();
+                          },
+                        ),
+                        if (ipSnapshot.hasData && ipSnapshot.data!)
                           Padding(
                             padding: const EdgeInsets.symmetric(
                               vertical: 5,
@@ -102,17 +129,19 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
                               maxLength: 15,
                               decoration: InputDecoration(
                                 hintText: "127.0.0.1",
-                                helperText: _i18n.get("set_ip_helper"),
+                                helperText:
+                                    "${_i18n.get("set_ip_helper")} - 127.0.0.1",
                                 labelText: _i18n.get("host"),
                               ),
                             ),
                           ),
+                        if (ipSnapshot.hasData && ipSnapshot.data!)
                           Padding(
-                            padding: const EdgeInsets.all(15),
+                            padding: const EdgeInsets.all(8),
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 padding: const EdgeInsets.symmetric(
-                                  horizontal: 60,
+                                  horizontal: 45,
                                   vertical: 15,
                                 ),
                                 primary: theme.colorScheme.primary,
@@ -133,20 +162,18 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
                                   _routingServices.pop();
                                 }
                               },
-                              child: Text(
-                                _i18n.get("save"),
-                              ),
+                              child: Text(_i18n.get("save")),
                             ),
                           )
-                        ],
-                      )
+                      ],
+                    ),
                   ],
                 );
               },
             ),
             StreamBuilder<String>(
-              stream: connectionError
-                  .debounceTime(const Duration(seconds: 1))
+              stream: connectionError.stream
+                  .debounceTime(ANIMATION_DURATION)
                   .asBroadcastStream(),
               builder: (c, errorMsg) {
                 if (errorMsg.hasData &&

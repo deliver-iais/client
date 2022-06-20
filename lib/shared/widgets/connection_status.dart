@@ -5,6 +5,7 @@ import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -25,119 +26,112 @@ class ConnectionStatus extends StatelessWidget {
       initialData: TitleStatusConditions.Normal,
       stream: _messageRepo.updatingStatus,
       builder: (context, snapshot) {
-        if (snapshot.data != TitleStatusConditions.Normal) {
-          return AnimatedContainer(
-            width: double.infinity,
-            height: 38,
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-            margin: const EdgeInsets.symmetric(horizontal: 8),
-            decoration: BoxDecoration(
-              color: theme.colorScheme.secondaryContainer,
-              borderRadius: tertiaryBorder,
-            ),
-            curve: Curves.easeInOut,
-            duration: SUPER_SLOW_ANIMATION_DURATION,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    const SizedBox(width: 4),
-                    Lottie.asset(
-                      snapshot.data! == TitleStatusConditions.Connecting
-                          ? "assets/animations/connecting.zip"
-                          : snapshot.data! == TitleStatusConditions.Disconnected
-                              ? "assets/animations/disconnected.zip"
-                              : "assets/animations/update.zip",
-                      height: 35,
-                      width: 35,
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      title(snapshot.data ?? TitleStatusConditions.Normal),
-                      style: theme.textTheme.subtitle1?.copyWith(
-                        color: theme.colorScheme.onSecondaryContainer,
+        return AnimatedContainer(
+          width: double.infinity,
+          height: snapshot.data == TitleStatusConditions.Normal ? 44 : 0,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          margin: const EdgeInsets.symmetric(horizontal: 8),
+          decoration: BoxDecoration(
+            color: snapshot.data == TitleStatusConditions.Normal
+                ? theme.colorScheme.tertiaryContainer
+                : theme.colorScheme.secondaryContainer,
+            borderRadius: tertiaryBorder,
+          ),
+          curve: Curves.easeInOut,
+          duration: SUPER_SLOW_ANIMATION_DURATION,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                children: [
+                  if (snapshot.data! == TitleStatusConditions.Disconnected)
+                    IconButton(
+                      padding: EdgeInsets.zero,
+                      iconSize: 23,
+                      onPressed: _routingServices.openConnectionSettingPage,
+                      icon: Icon(
+                        CupertinoIcons.settings,
+                        color: theme.colorScheme.tertiary,
                       ),
-                    )
-                  ],
-                ),
-                if (snapshot.data! == TitleStatusConditions.Disconnected)
-                  StreamBuilder<int>(
-                    initialData: 0,
-                    stream: disconnectedTime.stream,
-                    builder: (c, timeSnapShot) {
-                      if (timeSnapShot.hasData && timeSnapShot.data != null) {
-                        if (timeSnapShot.data! > 0) {
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  _coreServices.retryFasterConnection();
-                                },
-                                child: CircularCountDownTimer(
-                                  key: Key(
-                                    DateTime.now()
-                                        .millisecondsSinceEpoch
-                                        .toString(),
+                    ),
+                  const SizedBox(width: 8),
+                  Text(
+                    title(snapshot.data ?? TitleStatusConditions.Normal),
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      color: theme.colorScheme.onSecondaryContainer,
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                  AnimatedContainer(
+                    duration: ANIMATION_DURATION,
+                    width: snapshot.data! == TitleStatusConditions.Connecting
+                        ? 11
+                        : 0,
+                    child: SizedBox(
+                      width: 11,
+                      height: 11,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: theme.colorScheme.onTertiaryContainer,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              if (snapshot.data! == TitleStatusConditions.Disconnected)
+                StreamBuilder<int>(
+                  initialData: 0,
+                  stream: disconnectedTime.stream,
+                  builder: (c, timeSnapShot) {
+                    if (timeSnapShot.hasData && timeSnapShot.data != null) {
+                      if (timeSnapShot.data! == 0) {
+                        return Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            TextButton(
+                              onPressed: _coreServices.retryFasterConnection,
+                              child: Row(
+                                children: [
+                                  const Text(
+                                    "Reconnecting in",
+                                    style: TextStyle(fontSize: 12),
                                   ),
-                                  duration: timeSnapShot.data!,
-                                  width: 25,
-                                  strokeWidth: 3,
-                                  height: 25,
-                                  isReverseAnimation: true,
-                                  ringColor: theme.disabledColor,
-                                  fillColor: theme.backgroundColor,
-                                  textStyle: Theme.of(context)
-                                      .textTheme
-                                      .bodyText2!
-                                      .copyWith(fontSize: 13),
-                                  textFormat: CountdownTextFormat.S,
-                                  isReverse: true,
-                                  onComplete: () {
-                                    _coreServices.retryConnection();
-                                  },
-                                ),
-                              ),
-                              const SizedBox(
-                                width: 6,
-                              ),
-                              IconButton(
-                                padding: EdgeInsets.zero,
-                                onPressed: () {
-                                  _routingServices.openConnectionSettingPage();
-                                },
-                                icon: Icon(
-                                  CupertinoIcons.settings,
-                                  color: theme.primaryColor,
-                                  //  size: 30,
-                                ),
-                              )
-                            ],
-                          );
-                        } else if (timeSnapShot.data == -1) {
-                          return Padding(
-                            padding: const EdgeInsets.only(right: 30),
-                            child: SizedBox(
-                              width: 25,
-                              height: 25,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: theme.colorScheme.onTertiaryContainer,
+                                  CircularCountDownTimer(
+                                    key: Key(
+                                      DateTime.now()
+                                          .millisecondsSinceEpoch
+                                          .toString(),
+                                    ),
+                                    duration: timeSnapShot.data! + 6,
+                                    width: 16,
+                                    strokeWidth: 0,
+                                    height: 16,
+                                    isReverseAnimation: true,
+                                    ringColor: Colors.transparent,
+                                    fillColor: Colors.transparent,
+                                    backgroundColor: Colors.transparent,
+                                    textStyle: Theme.of(context)
+                                        .primaryTextTheme
+                                        .bodyText2
+                                        ?.copyWith(fontSize: 12),
+                                    textFormat: CountdownTextFormat.S,
+                                    isReverse: true,
+                                    onComplete: _coreServices.retryConnection,
+                                  ),
+                                ],
                               ),
                             ),
-                          );
-                        }
+                            // const SizedBox(width: 6),
+                          ],
+                        );
                       }
-
-                      return const SizedBox.shrink();
-                    },
-                  )
-              ],
-            ),
-          );
-        }
-        return const SizedBox.shrink();
+                    }
+                    return const SizedBox.shrink();
+                  },
+                )
+            ],
+          ),
+        );
       },
     );
   }
