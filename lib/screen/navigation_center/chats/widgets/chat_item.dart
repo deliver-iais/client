@@ -213,8 +213,8 @@ class ChatItemState extends State<ChatItem> {
                       ],
                     );
                   } else {
-                    return StreamBuilder<Seen>(
-                      stream: _roomRepo.watchMySeen(widget.room.uid),
+                    return FutureBuilder<Seen>(
+                      future: _roomRepo.getMySeen(widget.room.uid),
                       builder: (context, snapshot) {
                         var unreadCount = 0;
                         if (snapshot.hasData &&
