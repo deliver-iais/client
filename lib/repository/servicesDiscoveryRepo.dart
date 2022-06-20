@@ -59,7 +59,7 @@ class ServicesDiscoveryRepo {
     _initMucClientChannelServices(ip, grpcClientInterceptors);
     _initCoreClientChannelServices(ip, grpcClientInterceptors);
     _initProfileClintChannelServices(ip, grpcClientInterceptors);
-    _initAvatarChannelClietServices(ip, grpcClientInterceptors);
+    _initAvatarChannelClientServices(ip, grpcClientInterceptors);
     _initFirebaseClientChannelServices(ip, grpcClientInterceptors);
     _initLiverLocationClientServices(ip, grpcClientInterceptors);
   }
@@ -71,7 +71,6 @@ class ServicesDiscoveryRepo {
     final queryClientChannel = ClientChannel(
       ip.isNotEmpty ? ip : "query.$APPLICATION_DOMAIN",
       options: ChannelOptions(
-        userAgent: "query",
         credentials: ChannelCredentials.secure(
           onBadCertificate: (c, d) => badCertificateConnection,
         ),
@@ -85,6 +84,7 @@ class ServicesDiscoveryRepo {
     _queryServiceClient = QueryServiceClient(
       isWeb ? webQueryClientChannel : queryClientChannel,
       interceptors: grpcClientInterceptors,
+      options: _getCallOption("query"),
     );
   }
 
@@ -95,7 +95,6 @@ class ServicesDiscoveryRepo {
     final botClientChannel = ClientChannel(
       ip.isNotEmpty ? ip : "ms-bot.$APPLICATION_DOMAIN",
       options: ChannelOptions(
-        userAgent: "ms-bot",
         credentials: ChannelCredentials.secure(
           onBadCertificate: (c, d) => badCertificateConnection,
         ),
@@ -109,6 +108,7 @@ class ServicesDiscoveryRepo {
     _botServiceClient = BotServiceClient(
       isWeb ? webBotClientChannel : botClientChannel,
       interceptors: grpcClientInterceptors,
+      options: _getCallOption("ms-bot"),
     );
   }
 
@@ -132,6 +132,7 @@ class ServicesDiscoveryRepo {
     _stickerServiceClient = StickerServiceClient(
       isWeb ? webStickerClientChannel : stickerClientChannel,
       interceptors: grpcClientInterceptors,
+      options: _getCallOption("ms-sticker"),
     );
   }
 
@@ -142,7 +143,6 @@ class ServicesDiscoveryRepo {
     final mucServicesClientChannel = ClientChannel(
       ip.isNotEmpty ? ip : "query.$APPLICATION_DOMAIN",
       options: ChannelOptions(
-        userAgent: "query",
         credentials: ChannelCredentials.secure(
           onBadCertificate: (c, d) => badCertificateConnection,
         ),
@@ -157,11 +157,13 @@ class ServicesDiscoveryRepo {
     _groupServiceClient = GroupServiceClient(
       isWeb ? webMucServicesClientChannel : mucServicesClientChannel,
       interceptors: grpcClientInterceptors,
+      options: _getCallOption("query"),
     );
 
     _channelServiceClient = ChannelServiceClient(
       isWeb ? webMucServicesClientChannel : mucServicesClientChannel,
       interceptors: grpcClientInterceptors,
+      options: _getCallOption("query"),
     );
   }
 
@@ -172,7 +174,6 @@ class ServicesDiscoveryRepo {
     final coreServicesClientChannel = ClientChannel(
       ip.isNotEmpty ? ip : "core.$APPLICATION_DOMAIN",
       options: ChannelOptions(
-        userAgent: "core",
         credentials: ChannelCredentials.secure(
           onBadCertificate: (c, d) => badCertificateConnection,
         ),
@@ -187,6 +188,7 @@ class ServicesDiscoveryRepo {
     _coreServiceClient = CoreServiceClient(
       isWeb ? webCoreServicesClientChannel : coreServicesClientChannel,
       interceptors: grpcClientInterceptors,
+      options: _getCallOption("core"),
     );
   }
 
@@ -197,7 +199,6 @@ class ServicesDiscoveryRepo {
     final profileServicesClientChannel = ClientChannel(
       ip.isNotEmpty ? ip : "ms-profile.$APPLICATION_DOMAIN",
       options: ChannelOptions(
-        userAgent: "ms-profile",
         credentials: ChannelCredentials.secure(
           onBadCertificate: (c, d) => badCertificateConnection,
         ),
@@ -212,10 +213,12 @@ class ServicesDiscoveryRepo {
     _userServiceClient = UserServiceClient(
       isWeb ? webProfileServicesClientChannel : profileServicesClientChannel,
       interceptors: grpcClientInterceptors,
+      options: _getCallOption("ms-profile"),
     );
     _contactServiceClient = ContactServiceClient(
       isWeb ? webProfileServicesClientChannel : profileServicesClientChannel,
       interceptors: grpcClientInterceptors,
+      options: _getCallOption("ms-profile"),
     );
     _authServiceClient = AuthServiceClient(
       isWeb ? webProfileServicesClientChannel : profileServicesClientChannel,
@@ -224,10 +227,11 @@ class ServicesDiscoveryRepo {
     _sessionServiceClient = SessionServiceClient(
       isWeb ? webProfileServicesClientChannel : profileServicesClientChannel,
       interceptors: grpcClientInterceptors,
+      options: _getCallOption("ms-profile"),
     );
   }
 
-  void _initAvatarChannelClietServices(
+  void _initAvatarChannelClientServices(
     String ip,
     List<ClientInterceptor> grpcClientInterceptors,
   ) {
@@ -235,7 +239,6 @@ class ServicesDiscoveryRepo {
     final avatarServicesClientChannel = ClientChannel(
       ip.isNotEmpty ? ip : "ms-avatar.$APPLICATION_DOMAIN",
       options: ChannelOptions(
-        userAgent: "ms-avatar",
         credentials: ChannelCredentials.secure(
           onBadCertificate: (c, d) => badCertificateConnection,
         ),
@@ -250,6 +253,7 @@ class ServicesDiscoveryRepo {
     _avatarServiceClient = AvatarServiceClient(
       isWeb ? webAvatarServicesClientChannel : avatarServicesClientChannel,
       interceptors: grpcClientInterceptors,
+      options: _getCallOption("ms-avatar"),
     );
   }
 
@@ -260,7 +264,6 @@ class ServicesDiscoveryRepo {
     final firebaseServicesClientChannel = ClientChannel(
       ip.isNotEmpty ? ip : "ms-firebase.$APPLICATION_DOMAIN",
       options: ChannelOptions(
-        userAgent: "ms-firebase",
         credentials: ChannelCredentials.secure(
           onBadCertificate: (c, d) => badCertificateConnection,
         ),
@@ -275,6 +278,7 @@ class ServicesDiscoveryRepo {
     _firebaseServiceClient = FirebaseServiceClient(
       isWeb ? webFirebaseServicesClientChannel : firebaseServicesClientChannel,
       interceptors: grpcClientInterceptors,
+      options: _getCallOption("ms-firebase"),
     );
   }
 
@@ -285,7 +289,6 @@ class ServicesDiscoveryRepo {
     final liveLocationServiceClientChannel = ClientChannel(
       ip.isNotEmpty ? ip : "ms-livelocation.$APPLICATION_DOMAIN",
       options: ChannelOptions(
-        userAgent: "ms-livelocation",
         credentials: ChannelCredentials.secure(
           onBadCertificate: (c, d) => badCertificateConnection,
         ),
@@ -300,6 +303,7 @@ class ServicesDiscoveryRepo {
     _liveLocationServiceClient = LiveLocationServiceClient(
       isWeb ? webLiveLocationClientChannel : liveLocationServiceClientChannel,
       interceptors: grpcClientInterceptors,
+      options: _getCallOption("ms-livelocation"),
     );
   }
 
@@ -317,6 +321,8 @@ class ServicesDiscoveryRepo {
     _badCertificateConnection = onBadCertificate;
   }
 
+  CallOptions _getCallOption(String address) =>
+      CallOptions(metadata: {"service": address});
 
   bool get badCertificateConnection => _badCertificateConnection;
 

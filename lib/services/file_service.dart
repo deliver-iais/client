@@ -359,6 +359,7 @@ class FileService {
         format == "apk" ||
         format == "mkv" ||
         format == "jfif" ||
-        format == "webm";
+        format == "webm" ||
+        format == "webp";
   }
 }

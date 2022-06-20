@@ -19,7 +19,7 @@ import 'package:deliver/shared/widgets/out_of_date.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -56,7 +56,7 @@ class LoginPageState extends State<LoginPage> {
   PhoneNumber? phoneNumber;
   final TextEditingController controller = TextEditingController();
 
-  final BehaviorSubject<bool> _setCustomIp = BehaviorSubject.seeded(false);
+  final BehaviorSubject<bool> _setCustomIp = BehaviorSubject.seeded(true);
 
   @override
   void initState() {
@@ -206,32 +206,6 @@ class LoginPageState extends State<LoginPage> {
           appBar: AppBar(
             title: Text(_i18n.get("login")),
             backgroundColor: theme.backgroundColor,
-            actions: [
-              StreamBuilder<bool>(
-                initialData: false,
-                stream: _setCustomIp.stream,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData && snapshot.data!) {
-                    return IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (c) {
-                              return const ConnectionSettingPage(
-                                rootFromLoginPage: true,
-                              );
-                            },
-                          ),
-                        );
-                      },
-                      icon: const Icon(CupertinoIcons.settings),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
-              )
-            ],
           ),
           body: loginWithQrCode
               ? buildLoginWithQrCode(_i18n, context)
@@ -411,6 +385,45 @@ class LoginPageState extends State<LoginPage> {
                           ],
                         )
                     ],
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: StreamBuilder<bool>(
+                    initialData: true,
+                    stream: _setCustomIp.stream,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data!) {
+                        return Container(
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.secondaryContainer,
+                            borderRadius: tertiaryBorder,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Text(_i18n.get("go_connection_setting_page")),
+                              TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (c) {
+                                          return const ConnectionSettingPage(
+                                            rootFromLoginPage: true,
+                                          );
+                                        },
+                                      ),
+                                    );
+                                  },
+                                  child: Text(_i18n.get("go_setting")),)
+                            ],
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
                   ),
                 ),
                 if (_acceptPrivacy)

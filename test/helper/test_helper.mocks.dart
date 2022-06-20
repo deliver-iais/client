@@ -857,11 +857,9 @@ class MockSeenDao extends _i1.Mock implements _i41.SeenDao {
 ///
 /// See the documentation for Mockito's code generation for more information.
 class MockMucServices extends _i1.Mock implements _i42.MucServices {
-  @override
   _i6.GroupServiceClient get groupServices =>
       (super.noSuchMethod(Invocation.getter(#groupServices),
           returnValue: _FakeGroupServiceClient_4()) as _i6.GroupServiceClient);
-  @override
   _i7.ChannelServiceClient get channelServices => (super.noSuchMethod(
       Invocation.getter(#channelServices),
       returnValue: _FakeChannelServiceClient_5()) as _i7.ChannelServiceClient);

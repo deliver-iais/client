@@ -5,6 +5,7 @@ import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -48,76 +49,76 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
       appBar: AppBar(
         title: Text(_i18n.get("connection_setting")),
       ),
-      body: ListView(
-        children: [
-          Section(
-            children: [
-              SettingsTile.switchTile(
-                title: _i18n.get("connect_on_bad_certificate"),
-                leading: const Icon(CupertinoIcons.settings),
-                switchValue: _servicesDiscoveryRepo.badCertificateConnection,
-                onToggle: (value) => setState(() {
-                  _servicesDiscoveryRepo.setCertificate(
-                    onBadCertificate: value,
-                  );
-                }),
-              ),
-            ],
-          ),
-          StreamBuilder<bool>(
-            initialData: false,
-            stream: _useCustomIp.stream,
-            builder: (c, ipSnapshot) {
-              return Section(
-                children: [
-                  SettingsTile.switchTile(
-                    title: _i18n.get("use_custom_ip"),
-                    leading: const Icon(
-                      CupertinoIcons.rectangle_expand_vertical,
+      body: FluidContainerWidget(
+        child: ListView(
+          children: [
+            Section(
+              children: [
+                SettingsTile.switchTile(
+                  title: _i18n.get("connect_on_bad_certificate"),
+                  leading: const Icon(CupertinoIcons.settings),
+                  switchValue: _servicesDiscoveryRepo.badCertificateConnection,
+                  onToggle: (value) => setState(() {
+                    _servicesDiscoveryRepo.setCertificate(
+                      onBadCertificate: value,
+                    );
+                  }),
+                ),
+              ],
+            ),
+            StreamBuilder<bool>(
+              initialData: false,
+              stream: _useCustomIp.stream,
+              builder: (c, ipSnapshot) {
+                return Section(
+                  children: [
+                    SettingsTile.switchTile(
+                      title: _i18n.get("use_custom_ip"),
+                      leading: const Icon(
+                        CupertinoIcons.rectangle_expand_vertical,
+                      ),
+                      switchValue: ipSnapshot.data,
+                      onToggle: (value) {
+                        if (!value) {
+                          _shareDao.put(SHARE_DAO_HOST_SET_BY_USER, "");
+                          _textEditingController.text = "";
+                          _servicesDiscoveryRepo.initClientChannel();
+                        }
+                        _useCustomIp.add(value);
+                        _coreServices.resetConnection();
+                      },
                     ),
-                    switchValue: ipSnapshot.data,
-                    onToggle: (value) {
-                      if (!value) {
-                        _shareDao.put(SHARE_DAO_HOST_SET_BY_USER, "");
-                        _textEditingController.text = "";
-                        _servicesDiscoveryRepo.initClientChannel();
-                      }
-                      _useCustomIp.add(value);
-                      _coreServices.resetConnection();
-                    },
-                  ),
-                  if (ipSnapshot.hasData && ipSnapshot.data!)
-                    Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 5,
-                            horizontal: 10,
-                          ),
-                          child: TextField(
-                            controller: _textEditingController,
-                            keyboardType: TextInputType.phone,
-                            maxLength: 15,
-                            decoration: InputDecoration(
-                              hintText: "127.0.0.1",
-                              helperText: _i18n.get("set_ip_helper"),
-                              labelText: _i18n.get("host"),
+                    if (ipSnapshot.hasData && ipSnapshot.data!)
+                      Column(
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 5,
+                              horizontal: 10,
                             ),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.all(15),
-                          child: ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 60,
-                                vertical: 15,
+                            child: TextField(
+                              controller: _textEditingController,
+                              keyboardType: TextInputType.phone,
+                              maxLength: 15,
+                              decoration: InputDecoration(
+                                hintText: "127.0.0.1",
+                                helperText: _i18n.get("set_ip_helper"),
+                                labelText: _i18n.get("host"),
                               ),
-                              primary: theme.colorScheme.primary,
-                              onPrimary: theme.colorScheme.onPrimary,
                             ),
-                            onPressed: () {
-                              if (_textEditingController.text.isNotEmpty) {
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(15),
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 60,
+                                  vertical: 15,
+                                ),
+                                primary: theme.colorScheme.primary,
+                                onPrimary: theme.colorScheme.onPrimary,
+                              ),
+                              onPressed: () {
                                 _servicesDiscoveryRepo.initClientChannel(
                                   ip: _textEditingController.text,
                                 );
@@ -131,47 +132,49 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
                                 } else {
                                   _routingServices.pop();
                                 }
-                              }
-                            },
-                            child: Text(
-                              _i18n.get("save"),
+                              },
+                              child: Text(
+                                _i18n.get("save"),
+                              ),
                             ),
-                          ),
-                        )
-                      ],
-                    )
-                ],
-              );
-            },
-          ),
-          StreamBuilder<String>(
-            stream: connectionError.stream,
-            builder: (c, errorMsg) {
-              if (errorMsg.hasData &&
-                  errorMsg.data != null &&
-                  errorMsg.data!.isNotEmpty) {
-                return Section(
-                  title: _i18n.get("connection_error"),
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Wrap(
-                        runSpacing: 8,
-                        children: [
-                          Debug(
-                            errorMsg.data,
-                            label: _i18n.get("connection_error"),
-                          ),
+                          )
                         ],
-                      ),
-                    )
+                      )
                   ],
                 );
-              }
-              return const SizedBox.shrink();
-            },
-          )
-        ],
+              },
+            ),
+            StreamBuilder<String>(
+              stream: connectionError
+                  .debounceTime(const Duration(seconds: 1))
+                  .asBroadcastStream(),
+              builder: (c, errorMsg) {
+                if (errorMsg.hasData &&
+                    errorMsg.data != null &&
+                    errorMsg.data!.isNotEmpty) {
+                  return Section(
+                    title: _i18n.get("connection_error"),
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Wrap(
+                          runSpacing: 8,
+                          children: [
+                            Debug(
+                              errorMsg.data,
+                              label: _i18n.get("connection_error"),
+                            ),
+                          ],
+                        ),
+                      )
+                    ],
+                  );
+                }
+                return const SizedBox.shrink();
+              },
+            )
+          ],
+        ),
       ),
     );
   }
