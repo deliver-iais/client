@@ -79,7 +79,7 @@ class DownloadVideoWidgetState extends State<DownloadVideoWidget> {
             decoration:
                 BoxDecoration(color: widget.background, shape: BoxShape.circle),
             child: CircularPercentIndicator(
-              radius: 50.0,
+              radius: 25.0,
               lineWidth: 4.0,
               backgroundColor: widget.background,
               progressColor: widget.foreground,

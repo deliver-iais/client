@@ -110,7 +110,7 @@ class LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
               ],
             ),
             CircularPercentIndicator(
-              radius: 40.0,
+              radius: 20.0,
               percent: 1.0,
               center: Text(Duration(milliseconds: duration).toString()),
               progressColor: Colors.blueAccent,
