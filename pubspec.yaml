@@ -109,8 +109,8 @@ dependencies:
   material_color_utilities: 0.1.4
   meta: 1.7.0
   metadata_fetch: 0.4.1
-  mobile_scanner: 1.1.1
   mime_type: 1.0.0
+  mobile_scanner: 1.1.1
   modal_bottom_sheet: 2.0.1
   open_file: 3.2.1
   pasteboard: 0.1.0
