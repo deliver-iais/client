@@ -148,11 +148,11 @@ class ConnectionStatus extends StatelessWidget {
       case TitleStatusConditions.Updating:
         return _i18n.get("updating").capitalCase;
       case TitleStatusConditions.Connected:
-        return _i18n.get("connected");
+        return _i18n.get("connected").capitalCase;
       case TitleStatusConditions.Normal:
-        return _i18n.get("connected");
+        return _i18n.get("connected").capitalCase;
       case TitleStatusConditions.Syncing:
-        return _i18n.get("syncing");
+        return _i18n.get("syncing").capitalCase;
     }
   }
 }
