@@ -651,9 +651,7 @@ class _AllImagePageState extends State<AllImagePage>
         color: Colors.white, //change your color here
       ),
       backgroundColor: Colors.black.withAlpha(120),
-      actions: widget.isSingleImage
-          ? null
-          : [
+      actions: [
               IconButton(
                 icon: Icon(
                   CupertinoIcons.arrowshape_turn_up_right,
