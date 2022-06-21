@@ -228,7 +228,7 @@ class BotFormMessageState extends State<BotFormMessage> {
                   ),
                   child: Container(
                     decoration: BoxDecoration(
-                      color: theme.backgroundColor,
+                      color: widget.colorScheme.primaryContainer,
                       borderRadius: secondaryBorder,
                     ),
                     child: Row(
@@ -241,7 +241,7 @@ class BotFormMessageState extends State<BotFormMessage> {
                             values: [
                               ValueDelegate.color(
                                 const ['**'],
-                                value: widget.colorScheme.primary,
+                                value: widget.colorScheme.onPrimaryContainer,
                               ),
                             ],
                           ),
