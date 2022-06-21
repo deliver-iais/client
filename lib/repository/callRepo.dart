@@ -594,7 +594,7 @@ class CallRepo {
 
     final dataChannel = await _peerConnection!
         .createDataChannel("stateTransfer", dataChannelDict);
-
+    _isDCRecived = true;
     dataChannel.onMessage = (data) {
       final status = data.text;
       _logger.i(status);
@@ -1065,7 +1065,9 @@ class CallRepo {
         if (_isCaller) {
           receivedEndCall(0);
         } else {
-          _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
+          if(_isDCRecived) {
+            _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
+          }
           timerEndCallDispose = Timer(const Duration(seconds: 8), () {
             // if don't received EndCall from callee we force to end call
             _dispose();

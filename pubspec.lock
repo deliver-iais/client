@@ -479,9 +479,11 @@ packages:
   feature_discovery:
     dependency: "direct main"
     description:
-      name: feature_discovery
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: cb6d76beaae3e57c6639f14a456d48d117dc14e7
+      resolved-ref: cb6d76beaae3e57c6639f14a456d48d117dc14e7
+      url: "https://github.com/androidwoman/feature_discovery.git"
+    source: git
     version: "0.14.1"
   ffi:
     dependency: transitive
