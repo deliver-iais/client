@@ -173,6 +173,8 @@ Future<void> setupDI() async {
   registerSingleton<AutoDownloadDao>(AutoDownloadDaoImpl());
   registerSingleton<CurrentCallInfoDao>(CurrentCallInfoDaoImpl());
 
+  Logger().wtf("1");
+
   registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
 
   registerSingleton<I18N>(I18N());
@@ -180,18 +182,17 @@ Future<void> setupDI() async {
   // Order is important, don't change it!
   registerSingleton<RoutingService>(RoutingService());
   registerSingleton<AuthRepo>(AuthRepo());
+  registerSingleton<FeatureFlags>(FeatureFlags());
   await GetIt.I.get<AuthRepo>().setCurrentUserUid();
   registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
   GetIt.I.get<ServicesDiscoveryRepo>().initRepo().ignore();
 
   //call Service should be here
   registerSingleton<CallService>(CallService());
-
   registerSingleton<AccountRepo>(AccountRepo());
 
   registerSingleton<CheckPermissionsService>(CheckPermissionsService());
   registerSingleton<UxService>(UxService());
-  registerSingleton<FeatureFlags>(FeatureFlags());
   registerSingleton<FileService>(FileService());
   registerSingleton<MucServices>(MucServices());
   registerSingleton<CreateMucService>(CreateMucService());
