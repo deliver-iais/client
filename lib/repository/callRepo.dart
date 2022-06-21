@@ -179,8 +179,7 @@ class CallRepo {
               }
               break;
             case CallEvent_CallStatus.CREATED:
-              if (_callService.getUserCallState == UserCallState.NOCALL
-                  ) {
+              if (_callService.getUserCallState == UserCallState.NOCALL) {
                 _callService.setUserCallState = UserCallState.INUSERCALL;
                 //get call Info and Save on DB
                 final currentCallEvent = call_event.CallEvent(
@@ -290,7 +289,7 @@ class CallRepo {
     await _createPeerConnection(isOffer).then((pc) {
       _peerConnection = pc;
     });
-    if(isOffer){
+    if (isOffer) {
       _dataChannel = await _createDataChannel();
       _offerSdp = await _createOffer();
     }
@@ -937,8 +936,9 @@ class CallRepo {
       _notificationServices.cancelRoomNotifications(roomUid!.node);
     }
     _roomUid = roomId;
-    callingStatus.add(CallStatus.ACCEPTED);
-    callingStatus.add(CallStatus.CONNECTING);
+    callingStatus
+      ..add(CallStatus.ACCEPTED)
+      ..add(CallStatus.CONNECTING);
     _audioService.stopBeepSound();
 
     //after accept Call w8 for 30 sec if don't connecting force end Call
@@ -950,7 +950,7 @@ class CallRepo {
         endCall();
       }
     });
-    _sendOffer();
+    unawaited(_sendOffer());
     await _foregroundTaskInitializing();
   }
 
@@ -1069,7 +1069,7 @@ class CallRepo {
         if (_isCaller) {
           receivedEndCall(0);
         } else {
-          if(_isDCRecived) {
+          if (_isDCRecived) {
             _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
           }
           timerEndCallDispose = Timer(const Duration(seconds: 8), () {
@@ -1167,7 +1167,7 @@ class CallRepo {
     _logger.i("Candidate Number is :${_candidate.length}");
   }
 
-  void _sendOffer() async {
+  Future<void> _sendOffer() async {
     //w8 till offer is Ready
     await _waitUntilOfferReady();
     // Send Candidate to Receiver
