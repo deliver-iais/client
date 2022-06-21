@@ -56,7 +56,7 @@ class LoginPageState extends State<LoginPage> {
   PhoneNumber? phoneNumber;
   final TextEditingController controller = TextEditingController();
 
-  final BehaviorSubject<bool> _setCustomIp = BehaviorSubject.seeded(true);
+  final BehaviorSubject<bool> _setCustomIp = BehaviorSubject.seeded(false);
 
   @override
   void initState() {
@@ -390,7 +390,7 @@ class LoginPageState extends State<LoginPage> {
                 Align(
                   alignment: Alignment.bottomRight,
                   child: StreamBuilder<bool>(
-                    initialData: true,
+                    initialData: false,
                     stream: _setCustomIp.stream,
                     builder: (context, snapshot) {
                       if (snapshot.hasData && snapshot.data!) {
