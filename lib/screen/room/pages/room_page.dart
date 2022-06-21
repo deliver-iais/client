@@ -525,20 +525,29 @@ class RoomPageState extends State<RoomPage> {
   }
 
   void _sendSeenMessage(List<Message> messages) {
-    for (final msg in messages) {
-      final id = msg.id == room.lastMessage!.id ? room.lastMessageId : msg.id!;
-      final hiddenMessagesCount = msg.id == room.lastMessage!.id ? 0 : null;
+    final lastSeenMessages = messages.reduce(
+      (value, element) => (value.id ?? 0) > (element.id ?? 0) ? value : element,
+    );
 
-      if (!_authRepo.isCurrentUser(msg.from)) {
-        _messageRepo.sendSeen(id, widget.roomId.asUid());
-      }
+    final lastId = (lastSeenMessages.id ?? 0);
 
-      _roomRepo.updateMySeen(
-        uid: widget.roomId,
-        messageId: id,
-        hiddenMessageCount: hiddenMessagesCount,
-      );
+    var id = lastId;
+    int? hiddenMessagesCount;
+
+    if (lastId >= (room.lastMessage?.id ?? 0)) {
+      id = room.lastMessageId;
+      hiddenMessagesCount = 0;
     }
+
+    if (!_authRepo.isCurrentUser(lastSeenMessages.from)) {
+      _messageRepo.sendSeen(id, widget.roomId.asUid());
+    }
+
+    _roomRepo.updateMySeen(
+      uid: widget.roomId,
+      messageId: id,
+      hiddenMessageCount: hiddenMessagesCount,
+    );
   }
 
   Future<void> _readAllMessages() async {
@@ -1049,6 +1058,12 @@ class RoomPageState extends State<RoomPage> {
           _fireScrollEvent();
         } else if (scrollNotification is ScrollEndNotification) {
           _calmScrollEvent();
+        }
+        if ((scrollNotification.metrics.pixels -
+                    scrollNotification.metrics.maxScrollExtent)
+                .abs() <
+            100) {
+          _isScrolling.add(false);
         }
         return true;
       },

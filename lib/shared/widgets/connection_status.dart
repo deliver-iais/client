@@ -5,6 +5,7 @@ import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -38,8 +39,12 @@ class ConnectionStatus extends StatelessWidget {
             decoration: BoxDecoration(
               color: status == TitleStatusConditions.Connected ||
                       status == TitleStatusConditions.Normal
-                  ? theme.colorScheme.secondaryContainer
-                  : theme.colorScheme.tertiaryContainer,
+                  ? elevation(
+                      theme.colorScheme.primaryContainer,
+                      theme.colorScheme.primary,
+                      5,
+                    )
+                  : theme.colorScheme.surfaceVariant.withOpacity(0.5),
               borderRadius: tertiaryBorder,
             ),
             curve: Curves.easeInOut,
@@ -56,7 +61,7 @@ class ConnectionStatus extends StatelessWidget {
                         onPressed: _routingServices.openConnectionSettingPage,
                         icon: Icon(
                           CupertinoIcons.settings,
-                          color: theme.colorScheme.tertiary,
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
                     const SizedBox(width: 8),
@@ -76,7 +81,7 @@ class ConnectionStatus extends StatelessWidget {
                         height: 11,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: theme.colorScheme.onTertiaryContainer,
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
                     ),

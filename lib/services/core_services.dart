@@ -30,9 +30,6 @@ BehaviorSubject<String> connectionError = BehaviorSubject.seeded("");
 const MIN_BACKOFF_TIME = isWeb ? 16 : 4;
 const MAX_BACKOFF_TIME = 64;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
-final CONNECTION_TIMEOUT_DURATION = CallOptions(
-  timeout: const Duration(seconds: 2),
-);
 
 class CoreServices {
   final _logger = GetIt.I.get<Logger>();
@@ -56,12 +53,15 @@ class CoreServices {
   var _lastPongTime = 0;
 
   BehaviorSubject<ConnectionStatus> connectionStatus =
-      BehaviorSubject.seeded(ConnectionStatus.Connecting);
+      BehaviorSubject.seeded(ConnectionStatus.Disconnected);
 
   final BehaviorSubject<ConnectionStatus> _connectionStatus =
-      BehaviorSubject.seeded(ConnectionStatus.Connecting);
+      BehaviorSubject.seeded(ConnectionStatus.Disconnected);
 
-  void retryConnection() {
+  void retryConnection({bool forced = false}) {
+    if (!forced && _connectionStatus.value != ConnectionStatus.Disconnected) {
+      return;
+    }
     _connectionTimer?.cancel();
     // _responseStream?.cancel();
     _connectionStatus.add(ConnectionStatus.Connecting);
@@ -110,7 +110,7 @@ class CoreServices {
         } else {
           backoffTime = MIN_BACKOFF_TIME;
         }
-        retryConnection();
+        retryConnection(forced: true);
       }
       startCheckerTimer();
     });
@@ -131,11 +131,9 @@ class CoreServices {
       _responseStream = isWeb
           ? _services.coreServiceClient.establishServerSideStream(
               EstablishServerSideStreamReq(),
-              options: CONNECTION_TIMEOUT_DURATION,
             )
           : _services.coreServiceClient.establishStream(
               _clientPacketStream!.stream,
-              options: CONNECTION_TIMEOUT_DURATION,
             );
 
       _responseStream?.listen(
@@ -193,13 +191,14 @@ class CoreServices {
       _onConnectionError();
       connectionError.add(e.toString());
       _logger.e("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%$e");
-      return startStream();
     }
   }
 
   void _onConnectionError() {
-    _connectionStatus.add(ConnectionStatus.Disconnected);
-    disconnectedTime.add(backoffTime);
+    Timer(const Duration(seconds: 2), () {
+      _connectionStatus.add(ConnectionStatus.Disconnected);
+      disconnectedTime.add(backoffTime - 1);
+    });
   }
 
   Future<void> sendMessage(MessageByClient message) async {
