@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:card_swiper/card_swiper.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/dao/media_meta_data_dao.dart';
@@ -22,13 +21,13 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/widgets/edit_image/paint_on_image/_ported_interactive_viewer.dart'
-    as por;
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:photo_view/photo_view.dart';
+import 'package:photo_view/photo_view_gallery.dart';
 import 'package:rxdart/rxdart.dart';
 
 class AllImagePage extends StatefulWidget {
@@ -57,7 +56,9 @@ class AllImagePage extends StatefulWidget {
 
 class _AllImagePageState extends State<AllImagePage>
     with SingleTickerProviderStateMixin {
-  final SwiperController _swiperController = SwiperController();
+  late final _pageController = PageController(initialPage: initialIndex ?? 0);
+  final PhotoViewScaleStateController _scaleStateController =
+      PhotoViewScaleStateController();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
@@ -76,8 +77,6 @@ class _AllImagePageState extends State<AllImagePage>
   final BehaviorSubject<bool> _isBarShowing = BehaviorSubject.seeded(true);
   int? initialIndex;
   bool isSingleImage = false;
-  final por.TransformationController _transformationController =
-      por.TransformationController();
 
   late List<Animation<double>> animationList;
 
@@ -104,6 +103,13 @@ class _AllImagePageState extends State<AllImagePage>
       }
       return _mediaCache.values.toList()[index];
     }
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    _scaleStateController.dispose();
+    super.dispose();
   }
 
   @override
@@ -254,27 +260,12 @@ class _AllImagePageState extends State<AllImagePage>
   }
 
   Widget buildImage(String filePath, int index) {
-    return por.ImagePainterTransformer(
-      maxScale: 2.4,
-      minScale: 1,
-      transformationController: _transformationController,
-      child: GestureDetector(
-        onDoubleTapDown: (d) => _handleDoubleTap(d),
-        onDoubleTap: () {},
-        onTap: () => _isBarShowing.add(!_isBarShowing.value),
-        child: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(10),
-            child: AnimatedBuilder(
-              animation: animationList[animationIndex],
-              child:
-                  isWeb ? Image.network(filePath) : Image.file(File(filePath)),
-              builder: (context, child) => Transform.rotate(
-                angle: animationList[animationIndex].value,
-                child: child,
-              ),
-            ),
-          ),
+    return GestureDetector(
+      onDoubleTapDown: (d) => _handleDoubleTap(d),
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: isWeb ? Image.network(filePath) : Image.file(File(filePath)),
         ),
       ),
     );
@@ -294,7 +285,10 @@ class _AllImagePageState extends State<AllImagePage>
                   if (indexSnapShot.hasData && indexSnapShot.data! > 0) {
                     return IconButton(
                       onPressed: () {
-                        _swiperController.previous();
+                        _pageController.previousPage(
+                          duration: SLOW_ANIMATION_DURATION,
+                          curve: Curves.easeInOut,
+                        );
                       },
                       icon: const Icon(Icons.arrow_back_ios_new_outlined),
                       color: theme.primaryColorLight,
@@ -317,57 +311,67 @@ class _AllImagePageState extends State<AllImagePage>
                   return Expanded(
                     child: Padding(
                       padding: const EdgeInsets.only(bottom: 10, top: 10),
-                      child: Swiper(
-                        itemCount: all.data!,
-                        controller: _swiperController,
-                        index: initIndex,
-                        scale: 0.9,
-                        loop: false,
-                        onIndexChanged: (index) => _currentIndex.add(index),
-                        itemBuilder: (c, index) {
-                          return FutureBuilder<Media?>(
-                            future: _getMedia(index),
-                            builder: (c, mediaSnapShot) {
-                              if (mediaSnapShot.hasData) {
-                                final json =
-                                    jsonDecode(mediaSnapShot.data!.json) as Map;
-                                return Hero(
-                                  tag: json['uuid'],
-                                  child: FutureBuilder<String?>(
-                                    initialData: _fileCache.get(index),
-                                    future: _fileRepo.getFile(
-                                      json['uuid'],
-                                      json['name'],
+                      child: PhotoViewGallery.builder(
+                        scrollPhysics: const BouncingScrollPhysics(),
+                        itemCount: all.data,
+                        backgroundDecoration: const BoxDecoration(
+                          color: Colors.black,
+                        ),
+                        pageController: _pageController,
+                        onPageChanged: (index) => _currentIndex.add(index),
+                        builder: (c, index) {
+                          return PhotoViewGalleryPageOptions.customChild(
+                            onTapDown: (c, t, p) =>
+                                _isBarShowing.add(!_isBarShowing.value),
+                            child: FutureBuilder<Media?>(
+                              future: _getMedia(index),
+                              builder: (c, mediaSnapShot) {
+                                if (mediaSnapShot.hasData) {
+                                  final json =
+                                      jsonDecode(mediaSnapShot.data!.json)
+                                          as Map;
+                                  return Hero(
+                                    tag: json['uuid'],
+                                    child: FutureBuilder<String?>(
+                                      initialData: _fileCache.get(index),
+                                      future: _fileRepo.getFile(
+                                        json['uuid'],
+                                        json['name'],
+                                      ),
+                                      builder: (c, filePath) {
+                                        if (filePath.hasData &&
+                                            filePath.data != null) {
+                                          _fileCache.set(
+                                            index,
+                                            filePath.data,
+                                          );
+                                          return buildImage(
+                                            filePath.data!,
+                                            index,
+                                          );
+                                        } else {
+                                          return const Center(
+                                            child: CircularProgressIndicator(
+                                              color: Colors.blue,
+                                            ),
+                                          );
+                                        }
+                                      },
                                     ),
-                                    builder: (c, filePath) {
-                                      if (filePath.hasData &&
-                                          filePath.data != null) {
-                                        _fileCache.set(
-                                          index,
-                                          filePath.data,
-                                        );
-                                        return buildImage(
-                                          filePath.data!,
-                                          index,
-                                        );
-                                      } else {
-                                        return const Center(
-                                          child: CircularProgressIndicator(
-                                            color: Colors.blue,
-                                          ),
-                                        );
-                                      }
-                                    },
-                                  ),
-                                );
-                              } else {
-                                return const Center(
-                                  child: CircularProgressIndicator(
-                                    color: Colors.blue,
-                                  ),
-                                );
-                              }
-                            },
+                                  );
+                                } else {
+                                  return const Center(
+                                    child: CircularProgressIndicator(
+                                      color: Colors.blue,
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                            initialScale: PhotoViewComputedScale.contained,
+                            minScale: PhotoViewComputedScale.contained,
+                            maxScale: PhotoViewComputedScale.covered * 4.1,
+                            scaleStateController: _scaleStateController,
                           );
                         },
                       ),
@@ -391,7 +395,10 @@ class _AllImagePageState extends State<AllImagePage>
                             indexSnapShot.data != allImageCount.data! - 1) {
                           return IconButton(
                             onPressed: () {
-                              _swiperController.next();
+                              _pageController.nextPage(
+                                duration: SLOW_ANIMATION_DURATION,
+                                curve: Curves.easeInOut,
+                              );
                             },
                             icon: Icon(
                               Icons.arrow_forward_ios_outlined,
@@ -459,14 +466,7 @@ class _AllImagePageState extends State<AllImagePage>
   }
 
   void _handleDoubleTap(TapDownDetails details) {
-    if (_transformationController.value != Matrix4.identity()) {
-      _transformationController.value = Matrix4.identity();
-    } else {
-      final position = details.localPosition;
-      _transformationController.value = Matrix4.identity()
-        ..translate(-position.dx * 2, -position.dy * 2)
-        ..scale(3.0);
-    }
+    _scaleStateController.scaleState = PhotoViewScaleState.covering;
   }
 
   Widget buildCaptionSection({
@@ -533,8 +533,9 @@ class _AllImagePageState extends State<AllImagePage>
 
   Widget buildCaption(String caption) {
     return Container(
-      constraints:
-          BoxConstraints(maxHeight: MediaQuery.of(context).size.height / 3),
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height / 3,
+      ),
       color: Colors.black.withAlpha(120),
       child: SingleChildScrollView(
         child: Padding(
