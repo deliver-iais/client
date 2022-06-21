@@ -93,7 +93,7 @@ class UidIdNameDaoImpl implements UidIdNameDao {
 
     yield* box.watch().map(
           (event) => box.get(uid)?.id,
-    );
+        );
   }
 
   static String _key() => "uid-id-name";

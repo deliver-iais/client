@@ -46,7 +46,7 @@ class RoomRepo {
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
-  final _services = GetIt.I.get<ServicesDiscoveryRepo>();
+  final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _botRepo = GetIt.I.get<BotRepo>();
   final _customNotificationDao = GetIt.I.get<CustomNotificationDao>();
@@ -106,7 +106,7 @@ class RoomRepo {
 
     // Is in cache
     final name = roomNameCache.get(uid.asString());
-    if (name != null && name.isNotEmpty && !name.contains("null")) {
+    if (name != null && name.isNotEmpty) {
       return name;
     }
 
@@ -115,8 +115,12 @@ class RoomRepo {
     if (uidIdName != null &&
         ((uidIdName.id != null && uidIdName.id!.isNotEmpty) ||
             uidIdName.name != null && uidIdName.name!.isNotEmpty)) {
+      var name = uidIdName.name ?? "";
+      if (name.isEmpty) {
+        name = uidIdName.id ?? "";
+      }
       // Set in cache
-      roomNameCache.set(uid.asString(), uidIdName.name ?? uidIdName.id!);
+      roomNameCache.set(uid.asString(), name);
 
       return roomNameCache.get(uid.asString())!;
     }
@@ -136,7 +140,7 @@ class RoomRepo {
           uid,
           ignoreInsertingOrUpdatingContactDao: true,
         );
-        if (name != null) {
+        if (name != null && name.isNotEmpty) {
           roomNameCache.set(uid.asString(), name);
           return name;
         }
@@ -181,7 +185,7 @@ class RoomRepo {
 
   Future<bool> deleteRoom(Uid roomUid) async {
     try {
-      await _services.queryServiceClient
+      await _sdr.queryServiceClient
           .removePrivateRoom(RemovePrivateRoomReq()..roomUid = roomUid);
       final room = await _roomDao.getRoom(roomUid.asString());
       await _mediaDao.clear(roomUid.asString());
@@ -200,8 +204,8 @@ class RoomRepo {
 
   Future<String?> getIdByUid(Uid uid) async {
     try {
-      final result = await _services.queryServiceClient
-          .getIdByUid(GetIdByUidReq()..uid = uid);
+      final result =
+          await _sdr.queryServiceClient.getIdByUid(GetIdByUidReq()..uid = uid);
       _uidIdNameDao.update(uid.asString(), id: result.id).ignore();
       return result.id;
     } catch (e) {
@@ -335,16 +339,15 @@ class RoomRepo {
 
   Future<void> block(String uid, {bool? block}) async {
     if (block!) {
-      await _services.queryServiceClient.block(BlockReq()..uid = uid.asUid());
+      await _sdr.queryServiceClient.block(BlockReq()..uid = uid.asUid());
       return _blockDao.block(uid);
     } else {
-      await _services.queryServiceClient
-          .unblock(UnblockReq()..uid = uid.asUid());
+      await _sdr.queryServiceClient.unblock(UnblockReq()..uid = uid.asUid());
       return _blockDao.unblock(uid);
     }
   }
 
-  Future<void> fetchBlockedRoom() => _services.queryServiceClient
+  Future<void> fetchBlockedRoom() => _sdr.queryServiceClient
           .getBlockedList(GetBlockedListReq())
           .then((result) {
         for (final uid in result.uidList) {
@@ -406,14 +409,14 @@ class RoomRepo {
   }
 
   Future<Uid> fetchUidById(String username) async {
-    final result = await _services.queryServiceClient
+    final result = await _sdr.queryServiceClient
         .getUidById(GetUidByIdReq()..id = username);
 
     return result.uid;
   }
 
   Future<void> reportRoom(Uid roomUid) =>
-      _services.queryServiceClient.report(ReportReq()..uid = roomUid);
+      _sdr.queryServiceClient.report(ReportReq()..uid = roomUid);
 
   Future<List<Room>> getAllGroups() async => _roomDao.getAllGroups();
 

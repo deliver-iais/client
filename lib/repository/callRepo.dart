@@ -62,7 +62,7 @@ class CallRepo {
   final _logger = GetIt.I.get<Logger>();
   final _coreServices = GetIt.I.get<CoreServices>();
   final _callService = GetIt.I.get<CallService>();
-  final _services = GetIt.I.get<ServicesDiscoveryRepo>();
+  final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _callListDao = GetIt.I.get<CallInfoDao>();
   final _authRepo = GetIt.I.get<AuthRepo>();
@@ -1369,7 +1369,7 @@ class CallRepo {
     try {
       var date = clock.now();
       for (var i = 0; i < 6; i++) {
-        final callLists = await _services.queryServiceClient.fetchUserCalls(
+        final callLists = await _sdr.queryServiceClient.fetchUserCalls(
           FetchUserCallsReq()
             ..roomUid = roomUid
             ..limit = 200

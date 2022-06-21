@@ -14,7 +14,7 @@ class LastActivityRepo {
   final _lastActivityDao = GetIt.I.get<LastActivityDao>();
   final _logger = GetIt.I.get<Logger>();
 
-  final _services = GetIt.I.get<ServicesDiscoveryRepo>();
+  final _sdp = GetIt.I.get<ServicesDiscoveryRepo>();
 
   Future<void> updateLastActivity(Uid userUId) async {
     final la = await _lastActivityDao.get(userUId.asString());
@@ -31,7 +31,7 @@ class LastActivityRepo {
   Stream<LastActivity?> watch(String uid) => _lastActivityDao.watch(uid);
 
   Future<void> _getLastActivityTime(Uid currentUserUid) async {
-    final lastActivityTime = await _services.queryServiceClient
+    final lastActivityTime = await _sdp.queryServiceClient
         .getLastActivity(GetLastActivityReq()..uid = currentUserUid);
 
     _logger.v(lastActivityTime.toString());
