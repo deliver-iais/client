@@ -104,7 +104,6 @@ class CoreServices {
     responseChecked = false;
     _connectionTimer = Timer(Duration(seconds: backoffTime), () {
       if (!responseChecked) {
-        disconnectedTime.add(-1);
         if (backoffTime <= MAX_BACKOFF_TIME / BACKOFF_TIME_INCREASE_RATIO) {
           backoffTime *= BACKOFF_TIME_INCREASE_RATIO;
         } else {
@@ -182,7 +181,7 @@ class CoreServices {
           }
         },
         onError: (e) {
-          _logger.e("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%$e");
+          _logger.e(e);
           _onConnectionError();
           connectionError.add(e.toString());
         },
@@ -190,7 +189,7 @@ class CoreServices {
     } catch (e) {
       _onConnectionError();
       connectionError.add(e.toString());
-      _logger.e("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%$e");
+      _logger.e(e);
     }
   }
 
