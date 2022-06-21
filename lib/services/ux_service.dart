@@ -255,8 +255,8 @@ class FeatureFlags {
 
   bool _voiceCallFeatureIsPossible() => !isLinux;
 
-  bool _isVoiceCallBetaUser() => ACCESS_TO_CALL_UID_LIST.values
-      .contains(_authRepo.currentUserUid.asString());
+  bool _isVoiceCallBetaUser() =>
+      ACCESS_TO_CALL_UID_LIST.contains(_authRepo.currentUserUid.asString());
 
   Stream<bool> get voiceCallFeatureFlagStream =>
       _voiceCallFeatureFlag.distinct();
@@ -268,9 +268,11 @@ class FeatureFlags {
   }
 
   void enableVoiceCallFeatureFlag() {
-    final newValue = !_voiceCallFeatureFlag.value;
-    _sharedDao.putBoolean(SHARED_DAO_FEATURE_FLAGS_VOICE_CALL, newValue);
-    _voiceCallFeatureFlag.add(newValue);
+    if (_voiceCallFeatureFlag.value == true) {
+      return;
+    }
+    _sharedDao.putBoolean(SHARED_DAO_FEATURE_FLAGS_VOICE_CALL, true);
+    _voiceCallFeatureFlag.add(true);
   }
 
   bool isVoiceCallAvailable() {
