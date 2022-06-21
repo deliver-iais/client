@@ -110,16 +110,17 @@ class MessageRepo {
           _logger.i('updating -----------------');
           await updatingMessages();
           await updatingLastSeen();
-          unawaited(_updateNotSyncedRoom());
-          unawaited(_updateNotSeenSyncedRoom());
-          unawaited(_roomRepo.fetchBlockedRoom());
+          _updateNotSyncedRoom().ignore();
+          _updateNotSeenSyncedRoom().ignore();
+          _roomRepo.fetchBlockedRoom().ignore();
           updatingStatus.add(TitleStatusConditions.Connected);
           Timer(const Duration(seconds: 1), () {
             if (updatingStatus.value == TitleStatusConditions.Connected) {
               updatingStatus.add(TitleStatusConditions.Normal);
             }
           });
-          unawaited(sendPendingMessages());
+          sendPendingMessages().ignore();
+          _logger.i('updating done -----------------');
           break;
         case ConnectionStatus.Disconnected:
           updatingStatus.add(TitleStatusConditions.Disconnected);
