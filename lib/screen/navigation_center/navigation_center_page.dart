@@ -505,9 +505,7 @@ class NavigationCenterState extends State<NavigationCenter> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Text(
-                                _i18n.get("sync_contact"),
-                              ),
+                              Text(_i18n.get("sync_contact")),
                               const Icon(
                                 Icons.arrow_forward,
                               )
