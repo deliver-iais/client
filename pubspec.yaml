@@ -109,8 +109,8 @@ dependencies:
   material_color_utilities: 0.1.4
   meta: 1.7.0
   metadata_fetch: 0.4.1
-  mobile_scanner: 1.1.1
   mime_type: 1.0.0
+  mobile_scanner: 1.1.1
   modal_bottom_sheet: 2.0.1
   open_file: 3.2.1
   pasteboard: 0.1.0
@@ -134,6 +134,7 @@ dependencies:
   sdp_transform: 0.3.2
   service_worker: 0.2.4
   share: 2.0.4
+  shimmer: ^2.0.0
   simple_animations: 4.1.0
   sms_autofill: 2.2.0
   synchronized: 3.0.0+2
@@ -201,9 +202,6 @@ flutter:
     - assets/animations/out_of_date.zip
     - assets/animations/qr.zip
     - assets/duck_animation/
-    - assets/animations/connecting.zip
-    - assets/animations/disconnected.zip
-    - assets/animations/update.zip
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 

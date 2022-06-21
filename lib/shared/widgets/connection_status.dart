@@ -5,12 +5,9 @@ import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/cap_extension.dart';
-import 'package:deliver/theme/theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:lottie/lottie.dart';
-import 'package:rxdart/rxdart.dart';
 
 class ConnectionStatus extends StatelessWidget {
   static final _messageRepo = GetIt.I.get<MessageRepo>();
@@ -27,18 +24,20 @@ class ConnectionStatus extends StatelessWidget {
       initialData: TitleStatusConditions.Connected,
       stream: _messageRepo.updatingStatus,
       builder: (context, snapshot) {
+        final status = snapshot.data ?? TitleStatusConditions.Normal;
+
         return AnimatedOpacity(
           duration: SUPER_SLOW_ANIMATION_DURATION,
-          opacity: snapshot.data != TitleStatusConditions.Normal ? 1 : 0,
+          opacity: status != TitleStatusConditions.Normal ? 1 : 0,
           child: AnimatedContainer(
             width: double.infinity,
             clipBehavior: Clip.hardEdge,
-            height: snapshot.data != TitleStatusConditions.Normal ? 44 : 0,
+            height: status != TitleStatusConditions.Normal ? 44 : 0,
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
             margin: const EdgeInsets.symmetric(horizontal: 8),
             decoration: BoxDecoration(
-              color: snapshot.data == TitleStatusConditions.Connected ||
-                      snapshot.data == TitleStatusConditions.Normal
+              color: status == TitleStatusConditions.Connected ||
+                      status == TitleStatusConditions.Normal
                   ? theme.colorScheme.secondaryContainer
                   : theme.colorScheme.tertiaryContainer,
               borderRadius: tertiaryBorder,
@@ -50,7 +49,7 @@ class ConnectionStatus extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    if (snapshot.data! == TitleStatusConditions.Disconnected)
+                    if (status == TitleStatusConditions.Disconnected)
                       IconButton(
                         padding: EdgeInsets.zero,
                         iconSize: 23,
@@ -62,7 +61,7 @@ class ConnectionStatus extends StatelessWidget {
                       ),
                     const SizedBox(width: 8),
                     Text(
-                      title(snapshot.data ?? TitleStatusConditions.Connected),
+                      title(status),
                       style: theme.textTheme.bodyLarge?.copyWith(
                         color: theme.colorScheme.onSecondaryContainer,
                       ),
@@ -70,7 +69,7 @@ class ConnectionStatus extends StatelessWidget {
                     const SizedBox(width: 5),
                     AnimatedContainer(
                       duration: ANIMATION_DURATION,
-                      width: snapshot.data! == TitleStatusConditions.Connecting
+                      width: status == TitleStatusConditions.Connecting
                           ? 11
                           : 0,
                       child: SizedBox(
@@ -84,7 +83,7 @@ class ConnectionStatus extends StatelessWidget {
                     ),
                   ],
                 ),
-                if (snapshot.data! == TitleStatusConditions.Disconnected)
+                if (status == TitleStatusConditions.Disconnected)
                   StreamBuilder<int>(
                     initialData: 0,
                     stream: disconnectedTime.stream,

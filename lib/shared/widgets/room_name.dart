@@ -32,6 +32,8 @@ class RoomName extends StatelessWidget {
       builder: (context, snapshot) {
         final name = (snapshot.data ?? "");
         return Row(
+          crossAxisAlignment: CrossAxisAlignment.baseline,
+          textBaseline: TextBaseline.alphabetic,
           children: [
             Flexible(
               child: TextLoader(
@@ -56,9 +58,9 @@ class RoomName extends StatelessWidget {
                   return Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4.0),
                     child: Icon(
-                      CupertinoIcons.checkmark_seal_fill,
+                      CupertinoIcons.checkmark_seal,
                       size:
-                          (style ?? theme.textTheme.subtitle2)!.fontSize ?? 15,
+                          ((style ?? theme.textTheme.subtitle2)?.fontSize ?? 14) + 2,
                       color: ACTIVE_COLOR,
                     ),
                   );
