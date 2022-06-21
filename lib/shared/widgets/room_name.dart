@@ -45,7 +45,7 @@ class RoomName extends StatelessWidget {
                   softWrap: false,
                   overflow: TextOverflow.ellipsis,
                 ),
-                width: 120,
+                width: 170,
               ),
             ),
             if (shouldShowDotAnimation)
