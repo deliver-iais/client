@@ -65,8 +65,8 @@ class CallRepo {
   final _audioService = GetIt.I.get<AudioService>();
   final _routingService = GetIt.I.get<RoutingService>();
 
-  final _candidateNumber = 10;
-  final _candidateTimeLimit = 1000; // 1 sec
+  final _candidateNumber = 5;
+  final _candidateTimeLimit = 250; // 0.25 sec
 
   late RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   late RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
@@ -104,6 +104,7 @@ class CallRepo {
   bool _isDCRecived = false;
   bool _reconnectTry = false;
   bool _isEnded = false;
+  bool _isOfferReady = false;
 
   bool get isCaller => _isCaller;
   Uid? _roomUid;
@@ -178,7 +179,6 @@ class CallRepo {
               break;
             case CallEvent_CallStatus.CREATED:
               if (_callService.getUserCallState == UserCallState.NOCALL
-                  //&& (clock.now().millisecondsSinceEpoch - event.time < 50000)
                   ) {
                 _callService.setUserCallState = UserCallState.INUSERCALL;
                 //get call Info and Save on DB
@@ -289,6 +289,10 @@ class CallRepo {
     await _createPeerConnection(isOffer).then((pc) {
       _peerConnection = pc;
     });
+    if(isOffer){
+      _dataChannel = await _createDataChannel();
+      _offerSdp = await _createOffer();
+    }
   }
 
   Future<RTCPeerConnection> _createPeerConnection(bool isOffer) async {
@@ -468,7 +472,7 @@ class CallRepo {
           //when we go on this stage after about 2 sec all candidate revived and we can sending them all
           _logger.i("RTCIceGatheringStateGathering");
           if (isOffer) {
-            _calculateCandidateAndSendOffer();
+            _calculateCandidate();
           } else {
             _calculateCandidateAndSendAnswer();
           }
@@ -812,7 +816,7 @@ class CallRepo {
   }
 
   bool enableSpeakerVoice() {
-    if (_localStream != null) {
+    if (_localStream != null && !isWindows) {
       final camAudioTrack = _localStream!.getAudioTracks()[0];
       if (_isSpeaker) {
         camAudioTrack.enableSpeakerphone(false);
@@ -933,8 +937,6 @@ class CallRepo {
     }
     _roomUid = roomId;
     callingStatus.add(CallStatus.ACCEPTED);
-    _dataChannel = await _createDataChannel();
-    _offerSdp = await _createOffer();
     callingStatus.add(CallStatus.CONNECTING);
     _audioService.stopBeepSound();
 
@@ -947,6 +949,7 @@ class CallRepo {
         endCall();
       }
     });
+    _sendOffer();
     await _foregroundTaskInitializing();
   }
 
@@ -1137,6 +1140,7 @@ class CallRepo {
         (clock.now().millisecondsSinceEpoch - _candidateStartTime >
             _candidateTimeLimit)) {
       completer.complete();
+      _isOfferReady = true;
     } else {
       await Future.delayed(const Duration(milliseconds: 100));
       return _waitUntilCandidateConditionDone();
@@ -1144,11 +1148,27 @@ class CallRepo {
     return completer.future;
   }
 
-  Future<void> _calculateCandidateAndSendOffer() async {
+  Future<void> _waitUntilOfferReady() async {
+    final completer = Completer();
+    if (_isOfferReady) {
+      completer.complete();
+    } else {
+      await Future.delayed(const Duration(milliseconds: 50));
+      return _waitUntilOfferReady();
+    }
+    return completer.future;
+  }
+
+  Future<void> _calculateCandidate() async {
     _candidateStartTime = clock.now().millisecondsSinceEpoch;
     //w8 till candidate gathering conditions complete
     await _waitUntilCandidateConditionDone();
     _logger.i("Candidate Number is :${_candidate.length}");
+  }
+
+  void _sendOffer() async {
+    //w8 till offer is Ready
+    await _waitUntilOfferReady();
     // Send Candidate to Receiver
     final jsonCandidates = jsonEncode(_candidate);
     //Send offer and Candidate as message to Receiver
@@ -1166,7 +1186,6 @@ class CallRepo {
 
   Future<void> _calculateCandidateAndSendAnswer() async {
     _candidateStartTime = clock.now().millisecondsSinceEpoch;
-    //w8 till candidate gathering conditions complete
     await _waitUntilCandidateConditionDone();
     _logger.i("Candidate Number is :${_candidate.length}");
     // Send Candidate back to Sender
@@ -1260,6 +1279,7 @@ class CallRepo {
     _isVideo = false;
     _isConnected = false;
     _reconnectTry = false;
+    _isOfferReady = false;
     _callDuration = 0;
     _startCallTime = 0;
     _callDuration = 0;

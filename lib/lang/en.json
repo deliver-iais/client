@@ -374,7 +374,7 @@
   "you_create_channel": "Create Channel",
   "you_create_group": "Create Group",
   "your_password_update": "Your password updated",
-  "alert_window_permission": "Please allow permission alert window to open app over another apps",
+  "alert_window_permission": "Please allow permission \"alert window\" to open app over another apps",
   "alert_window_permission_attention": "Attention:\nIf you dont accept the permission we cant open the app from notification in android 12 or higher",
   "call_feature_discovery_title": "You can call any user you want",
   "call_feature_discovery_description": "1.You can have voice call with any user \n2. You can mute your mic in call \n3. You can put call on speaker",
@@ -386,5 +386,6 @@
   "qr_code_feature_discovery_title": "You can scan QR Code",
   "qr_code_feature_discovery_description": "For desktop app you can scan QR Code and login to your account",
   "understood": "Understood",
-  "dismiss": "Dismiss"
+  "dismiss": "Dismiss",
+  "sync_contact" : "sync contacts"
 }

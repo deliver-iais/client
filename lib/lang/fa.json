@@ -377,7 +377,7 @@
   "you_create_channel": "کانال را ساختید.",
   "you_create_group": "گروه را ساختید.",
   "your_password_update": "رمز شما بروز شد.",
-  "alert_window_permission": "لطفا دسترسی alert window را برای باز کردن اپلیکیشن روی بقیه اپلیکیشن ها بدهید",
+  "alert_window_permission": "لطفا دسترسی \"alert window\" را برای باز کردن اپلیکیشن روی بقیه اپلیکیشن ها بدهید",
   "alert_window_permission_attention": "توجه:\nاگر این دسترسی را ندهید ما نمیتوانیم اپلیکیشن را از طریق نوتیفیکیشن در اندروید دوازده و بالاتر باز کنیم",
   "call_feature_discovery_title": "شما میتوانید به هر کسی بخواهید زنگ بزنید",
   "call_feature_discovery_description": "1.شما میتوانید به هر کسی بخواهید زنگ بزنید.\n2.شما میتوانید هر کسی را در تماس میوت کنید.\n3.شما میتوانید تماس رو بر روی اسپیکر بگذارید.",
@@ -389,5 +389,6 @@
   "qr_code_feature_discovery_title": "شما میتوایند QR Code را اسکن کنید",
   "qr_code_feature_discovery_description": "برای لاگین در دسکتاپ شما میتوایند کد Qr را از طریق این گزینه اسکن کنید",
   "understood" : "فهمیدم",
-  "dismiss" : "رد کردن"
+  "dismiss" : "رد کردن",
+  "sync_contact" : "همگام سازی مخاطبین"
 }

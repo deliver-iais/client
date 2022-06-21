@@ -871,80 +871,104 @@ class RoomPageState extends State<RoomPage> {
                         icon: const Icon(CupertinoIcons.phone),
                         onPressed: () {},
                       ),
-                      backgroundColor: Colors.teal,
-                      targetColor: Colors.tealAccent,
+                      backgroundColor: theme.colorScheme.tertiaryContainer,
+                      targetColor: theme.colorScheme.tertiary,
                       title: Text(
                         _i18n.get("call_feature_discovery_title"),
                         textDirection: _i18n.isPersian
                             ? TextDirection.rtl
                             : TextDirection.ltr,
+                        style: TextStyle(
+                          color: theme.colorScheme.onTertiaryContainer,
+                        ),
                       ),
                       overflowMode: OverflowMode.extendBackground,
                       description: FeatureDiscoveryDescriptionWidget(
-                        permissionWidget: !isDesktop
+                        permissionWidget: !isDesktop && isAndroid
                             ? FutureBuilder<int>(
                                 future: getDeviceVersion(),
                                 builder: (context, version) {
                                   return version.data != null &&
                                           version.data! >= 31
-                                      ? Column(
-                                          children: [
-                                            Text(
-                                              _i18n.get(
-                                                "alert_window_permission",
-                                              ),
-                                              textDirection: TextDirection.rtl,
+                                      ? Container(
+                                          constraints: const BoxConstraints(
+                                            maxWidth: 350,
+                                          ),
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            borderRadius: secondaryBorder / 1.2,
+                                            border: Border.all(
+                                              color: theme
+                                                  .colorScheme.onErrorContainer,
                                             ),
-                                            Padding(
-                                              padding: const EdgeInsets.only(top:10.0),
-                                              child: Text(
+                                            color: theme
+                                                .colorScheme.errorContainer,
+                                          ),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Text(
                                                 _i18n.get(
-                                                  "alert_window_permission_attention",
+                                                  "alert_window_permission",
                                                 ),
-                                                textDirection: TextDirection.rtl,
-                                                style: const TextStyle(
-                                                  color: Colors.red,
+                                                textDirection: _i18n.isPersian
+                                                    ? TextDirection.rtl
+                                                    : TextDirection.ltr,
+                                                style: TextStyle(
+                                                  color: theme.colorScheme
+                                                      .onErrorContainer,
                                                 ),
                                               ),
-                                            ),
-                                            InkWell(
-                                              onTap: () async {
-                                                FeatureDiscovery.dismissAll(
-                                                  context,
-                                                );
-                                                await Permission
-                                                    .systemAlertWindow
-                                                    .request();
-                                              },
-                                              child: Row(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.center,
-                                                children: [
-                                                  Padding(
-                                                    padding:
-                                                        const EdgeInsets.all(
-                                                      8.0,
-                                                    ),
-                                                    child: Text(
-                                                      _i18n
-                                                          .get("go_to_setting"),
-                                                      style: theme
-                                                          .textTheme.button!
-                                                          .copyWith(
-                                                        color: Colors
-                                                            .lightGreenAccent,
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                  top: 10.0,
+                                                ),
+                                                child: Text(
+                                                  _i18n.get(
+                                                    "alert_window_permission_attention",
+                                                  ),
+                                                  textDirection: _i18n.isPersian
+                                                      ? TextDirection.rtl
+                                                      : TextDirection.ltr,
+                                                  style: TextStyle(
+                                                    color:
+                                                        theme.colorScheme.error,
+                                                  ),
+                                                ),
+                                              ),
+                                              TextButton(
+                                                onPressed: () async {
+                                                  FeatureDiscovery.dismissAll(
+                                                    context,
+                                                  );
+                                                  await Permission
+                                                      .systemAlertWindow
+                                                      .request();
+                                                },
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                        8.0,
+                                                      ),
+                                                      child: Text(
+                                                        _i18n.get(
+                                                          "go_to_setting",
+                                                        ),
                                                       ),
                                                     ),
-                                                  ),
-                                                  const Icon(
-                                                    Icons.arrow_forward,
-                                                    color:
-                                                        Colors.lightGreenAccent,
-                                                  )
-                                                ],
+                                                    const Icon(
+                                                      Icons.arrow_forward,
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         )
                                       : const SizedBox.shrink();
                                 },
@@ -952,6 +976,9 @@ class RoomPageState extends State<RoomPage> {
                             : null,
                         description:
                             _i18n.get("call_feature_discovery_description"),
+                        descriptionStyle: TextStyle(
+                          color: theme.colorScheme.onTertiaryContainer,
+                        ),
                       ),
                       child: IconButton(
                         onPressed: () {

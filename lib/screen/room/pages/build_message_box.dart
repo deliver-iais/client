@@ -142,7 +142,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   Widget _createCallMessageWidget(BuildContext context, Message msg) {
-    final theme = Theme.of(context);
     final colorsScheme = ExtraTheme.of(context).secondaryColorsScheme;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,

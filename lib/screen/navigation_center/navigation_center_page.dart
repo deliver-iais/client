@@ -282,14 +282,20 @@ class NavigationCenterState extends State<NavigationCenter> {
     return DescribedFeatureOverlay(
       featureId: FEATURE_1,
       tapTarget: Icon(CupertinoIcons.plus, color: theme.colorScheme.onSurface),
-      backgroundColor: Colors.blue,
-      targetColor: Colors.lightBlueAccent,
+      backgroundColor: theme.colorScheme.tertiaryContainer,
+      targetColor: theme.colorScheme.tertiary,
       title: Text(
         _i18n.get("create_group_feature_discovery_title"),
         textDirection: _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+        style: TextStyle(
+          color: theme.colorScheme.onTertiaryContainer,
+        ),
       ),
       description: FeatureDiscoveryDescriptionWidget(
         description: _i18n.get("create_group_feature_description"),
+        descriptionStyle: TextStyle(
+          color: theme.colorScheme.onTertiaryContainer,
+        ),
       ),
       child: IconTheme(
         data: IconThemeData(
@@ -491,18 +497,21 @@ class NavigationCenterState extends State<NavigationCenter> {
               DescribedFeatureOverlay(
                 featureId: FEATURE_3,
                 tapTarget: CircleAvatarWidget(_authRepo.currentUserUid, 20),
-                backgroundColor: Colors.indigo,
-                targetColor: Colors.indigoAccent,
+                backgroundColor: theme.colorScheme.tertiaryContainer,
+                targetColor: theme.colorScheme.tertiary,
                 title: Text(
                   _i18n.get("setting_icon_feature_discovery_title"),
                   textDirection:
                       _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                  style: TextStyle(
+                    color: theme.colorScheme.onTertiaryContainer,
+                  ),
                 ),
                 overflowMode: OverflowMode.extendBackground,
                 description: FeatureDiscoveryDescriptionWidget(
                   permissionWidget: (!isDesktop)
-                      ? InkWell(
-                          onTap: () {
+                      ? TextButton(
+                          onPressed: () {
                             FeatureDiscovery.dismissAll(context);
                             _routingService.openContacts();
                           },
@@ -510,13 +519,12 @@ class NavigationCenterState extends State<NavigationCenter> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                'sync contacts',
-                                style: theme.textTheme.button!
-                                    .copyWith(color: Colors.lightGreenAccent),
+                                _i18n.get(
+                                  "sync_contact"
+                                ),
                               ),
                               const Icon(
                                 Icons.arrow_forward,
-                                color: Colors.lightGreenAccent,
                               )
                             ],
                           ),
@@ -524,6 +532,9 @@ class NavigationCenterState extends State<NavigationCenter> {
                       : null,
                   description:
                       _i18n.get("setting_icon_feature_discovery_description"),
+                  descriptionStyle: TextStyle(
+                    color: theme.colorScheme.onTertiaryContainer,
+                  ),
                 ),
                 child: GestureDetector(
                   child: Center(
@@ -555,16 +566,22 @@ class NavigationCenterState extends State<NavigationCenter> {
                 tapTarget: const Icon(
                   CupertinoIcons.qrcode_viewfinder,
                 ),
-                backgroundColor: Colors.deepPurple,
-                targetColor: Colors.deepPurpleAccent,
+                backgroundColor: theme.colorScheme.tertiaryContainer,
+                targetColor: theme.colorScheme.tertiary,
                 title: Text(
                   _i18n.get("qr_code_feature_discovery_title"),
                   textDirection:
                       _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                  style: TextStyle(
+                    color: theme.colorScheme.onTertiaryContainer,
+                  ),
                 ),
                 description: FeatureDiscoveryDescriptionWidget(
                   description:
                       _i18n.get("qr_code_feature_discovery_description"),
+                  descriptionStyle: TextStyle(
+                    color: theme.colorScheme.onTertiaryContainer,
+                  ),
                 ),
                 child: IconButton(
                   onPressed: () {

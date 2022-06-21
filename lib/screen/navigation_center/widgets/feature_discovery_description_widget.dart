@@ -6,43 +6,49 @@ import 'package:get_it/get_it.dart';
 class FeatureDiscoveryDescriptionWidget extends StatelessWidget {
   final String description;
   final Widget? permissionWidget;
+  final TextStyle? descriptionStyle;
 
   const FeatureDiscoveryDescriptionWidget({
     super.key,
     required this.description,
+    this.descriptionStyle,
     this.permissionWidget,
   });
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     final i18n = GetIt.I.get<I18N>();
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           description,
           textDirection: i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+          style: descriptionStyle,
+        ),
+        const SizedBox(
+          height: 20,
         ),
         Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.end,
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 TextButton(
                   onPressed: () async =>
                       FeatureDiscovery.completeCurrentStep(context),
                   child: Text(
                     i18n.get("understood"),
-                    style:
-                        theme.textTheme.button!.copyWith(color: Colors.white),
                   ),
+                ),
+                const SizedBox(
+                  width: 30,
                 ),
                 TextButton(
                   onPressed: () => FeatureDiscovery.dismissAll(context),
                   child: Text(
                     i18n.get("dismiss"),
-                    style:
-                        theme.textTheme.button!.copyWith(color: Colors.white),
                   ),
                 ),
               ],
