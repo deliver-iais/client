@@ -56,7 +56,7 @@ class LoginPageState extends State<LoginPage> {
   PhoneNumber? phoneNumber;
   final TextEditingController controller = TextEditingController();
 
-  final BehaviorSubject<bool> _setCustomIp = BehaviorSubject.seeded(false);
+  final BehaviorSubject<bool> _networkError = BehaviorSubject.seeded(false);
 
   @override
   void initState() {
@@ -170,7 +170,7 @@ class LoginPageState extends State<LoginPage> {
           _isLoading.add(false);
           _logger.e(e);
           if (e.code == StatusCode.unavailable) {
-            _setCustomIp.add(true);
+            _networkError.add(true);
             ToastDisplay.showToast(
               toastText: _i18n.get("notwork_is_unavailable"),
               toastContext: context,
@@ -391,7 +391,7 @@ class LoginPageState extends State<LoginPage> {
                   alignment: Alignment.bottomRight,
                   child: StreamBuilder<bool>(
                     initialData: false,
-                    stream: _setCustomIp.stream,
+                    stream: _networkError.stream,
                     builder: (context, snapshot) {
                       if (snapshot.hasData && snapshot.data!) {
                         return Container(

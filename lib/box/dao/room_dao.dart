@@ -23,6 +23,8 @@ abstract class RoomDao {
     int? pinId,
     int? hiddenMessageCount,
     bool? synced,
+    int? lastCurrentUserSentMessageId,
+    bool? seenSynced,
   });
 
   Future<List<Room>> getAllRooms();
@@ -32,6 +34,8 @@ abstract class RoomDao {
   Future<Room?> getRoom(String roomUid);
 
   Future<List<Room>> getNotSyncedRoom();
+
+  Future<List<Room>> getNotSeenSyncedRoom();
 
   Stream<Room> watchRoom(String roomUid);
 
@@ -104,6 +108,8 @@ class RoomDaoImpl implements RoomDao {
     int? hiddenMessageCount,
     int? pinId,
     bool? synced,
+    int? lastCurrentUserSentMessageId,
+    bool? seenSynced,
   }) async {
     final box = await _openRoom();
 
@@ -121,6 +127,8 @@ class RoomDaoImpl implements RoomDao {
       hiddenMessageCount: hiddenMessageCount,
       pinId: pinId,
       synced: synced,
+      lastCurrentUserSentMessageId: lastCurrentUserSentMessageId,
+      seenSynced: seenSynced,
     );
 
     if (clone != r) return box.put(uid, clone);
@@ -170,6 +178,23 @@ class RoomDaoImpl implements RoomDao {
         box.values
             .where(
               (element) => !element.deleted && !element.synced,
+            )
+            .toList(),
+      );
+    } catch (e) {
+      return [];
+    }
+  }
+
+  @override
+  Future<List<Room>> getNotSeenSyncedRoom() async {
+    try {
+      final box = await _openRoom();
+
+      return sorted(
+        box.values
+            .where(
+              (element) => !element.deleted && !element.seenSynced,
             )
             .toList(),
       );

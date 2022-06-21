@@ -32,7 +32,7 @@ class ContactRepo {
   final _contactDao = GetIt.I.get<ContactDao>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
-  final _services = GetIt.I.get<ServicesDiscoveryRepo>();
+  final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
   final _requestLock = Lock();
   final Map<PhoneNumber, String> _contactsDisplayName = {};
@@ -114,7 +114,7 @@ class ContactRepo {
 
   Future<bool> sendNewContact(Contact contact) async {
     try {
-      final res = await _services.contactServiceClient.saveContacts(
+      final res = await _sdr.contactServiceClient.saveContacts(
         SaveContactsReq()
           ..contactList.add(contact)
           ..returnUserContactByPhoneNumberList.add(contact.phoneNumber),
@@ -133,7 +133,7 @@ class ContactRepo {
       for (final element in contacts) {
         sendContacts.contactList.add(element);
       }
-      await _services.contactServiceClient.saveContacts(sendContacts);
+      await _sdr.contactServiceClient.saveContacts(sendContacts);
       return true;
     } catch (e) {
       _logger.e(e);
@@ -147,7 +147,7 @@ class ContactRepo {
 
   Future<void> getContacts() async {
     try {
-      final result = await _services.contactServiceClient
+      final result = await _sdr.contactServiceClient
           .getContactListUsers(GetContactListUsersReq());
       _saveContact(result.userList);
     } catch (e) {
@@ -180,8 +180,8 @@ class ContactRepo {
   Future<void> getUserIdByUid(Uid uid) async {
     try {
       // For now, Group and Bot not supported in server side!!
-      final result = await _services.queryServiceClient
-          .getIdByUid(GetIdByUidReq()..uid = uid);
+      final result =
+          await _sdr.queryServiceClient.getIdByUid(GetIdByUidReq()..uid = uid);
       return _uidIdNameDao.update(uid.asString(), id: result.id);
     } catch (e) {
       _logger.e(e);
@@ -202,7 +202,7 @@ class ContactRepo {
     }
 
     try {
-      final result = await _services.queryServiceClient.searchUid(
+      final result = await _sdr.queryServiceClient.searchUid(
         SearchUidReq()
           ..text = query
           ..justSearchInId = true
@@ -229,7 +229,7 @@ class ContactRepo {
     bool ignoreInsertingOrUpdatingContactDao = false,
   }) async {
     try {
-      final contact = await _services.contactServiceClient
+      final contact = await _sdr.contactServiceClient
           .getUserByUid(GetUserByUidReq()..uid = contactUid);
       final name = buildName(contact.user.firstName, contact.user.lastName);
 

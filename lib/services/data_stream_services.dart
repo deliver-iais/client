@@ -55,7 +55,7 @@ class DataStreamServices {
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _lastActivityDao = GetIt.I.get<LastActivityDao>();
-  final _mucDao = GetIt.I.get<MucDao>();
+  final _sdr = GetIt.I.get<MucDao>();
   final _services = GetIt.I.get<ServicesDiscoveryRepo>();
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _messageExtractorServices = GetIt.I.get<MessageExtractorServices>();
@@ -113,7 +113,7 @@ class DataStreamServices {
                 );
                 return null;
               }
-              await _mucDao.deleteMember(
+              await _sdr.deleteMember(
                 Member(
                   memberUid: message
                       .persistEvent.mucSpecificPersistentEvent.issuer

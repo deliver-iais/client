@@ -29,11 +29,11 @@ class MediaRepo {
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _services = GetIt.I.get<ServicesDiscoveryRepo>();
+  final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
 
   Future<void> fetchMediaMetaData(Uid uid, {bool updateAllMedia = true}) async {
     try {
-      final mediaResponse = await _services.queryServiceClient
+      final mediaResponse = await _sdr.queryServiceClient
           .getMediaMetadata(GetMediaMetadataReq()..with_1 = uid);
       return updateMediaMetaData(uid, mediaResponse);
     } catch (e) {
@@ -203,7 +203,7 @@ class MediaRepo {
     int limit,
   ) async {
     try {
-      final getMediasReq = await _services.queryServiceClient.fetchMedias(
+      final getMediasReq = await _sdr.queryServiceClient.fetchMedias(
         FetchMediasReq()
           ..roomUid = roomUid
           ..pointer = Int64(time)
@@ -239,7 +239,7 @@ class MediaRepo {
       ..limit = 30;
     try {
       final getMediasRes =
-          await _services.queryServiceClient.fetchMedias(getMediaReq);
+          await _sdr.queryServiceClient.fetchMedias(getMediaReq);
       final medias =
           await _saveFetchedMedias(getMediasRes.medias, roomId, mediaType);
       return medias;
@@ -371,7 +371,7 @@ class MediaRepo {
           pointer = clock.now().millisecondsSinceEpoch;
         }
       }
-      final result = await _services.queryServiceClient.fetchMedias(
+      final result = await _sdr.queryServiceClient.fetchMedias(
         FetchMediasReq()
           ..pointer = Int64(pointer)
           ..mediaType = mediaType

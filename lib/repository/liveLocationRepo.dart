@@ -15,7 +15,7 @@ import 'package:get_it/get_it.dart';
 
 class LiveLocationRepo {
   final _liveLocationDao = GetIt.I.get<LiveLocationDao>();
-  final _services = GetIt.I.get<ServicesDiscoveryRepo>();
+  final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
 
   void saveLiveLocation(LiveLocation liveLocation) {
     _liveLocationDao.saveLiveLocation(liveLocation);
@@ -33,7 +33,7 @@ class LiveLocationRepo {
       return;
     }
     timer = Timer.periodic(const Duration(minutes: 1), (t) async {
-      final res = await _services.liveLocationServiceClient
+      final res = await _sdr.liveLocationServiceClient
           .shouldSendLiveLocation(ShouldSendLiveLocationReq());
       if (res.shouldSend) {
         return _getLatUpdateLocation(liveLocation.uuid);
@@ -45,7 +45,7 @@ class LiveLocationRepo {
 
   Future<void> _getLatUpdateLocation(String uuid) async {
     final locations = <pb.Location>[];
-    final res = await _services.liveLocationServiceClient.getLastUpdatedLiveLocation(
+    final res = await _sdr.liveLocationServiceClient.getLastUpdatedLiveLocation(
       GetLastUpdatedLiveLocationReq()..uuid = uuid,
     );
     for (final liveLocation in res.liveLocations) {
@@ -64,7 +64,7 @@ class LiveLocationRepo {
     Uid roomUid,
     int duration,
   ) async =>
-      await _services.liveLocationServiceClient.createLiveLocation(
+      await _sdr.liveLocationServiceClient.createLiveLocation(
         CreateLiveLocationReq()
           ..room = roomUid
           ..duration = Int64(duration),
@@ -89,7 +89,7 @@ class LiveLocationRepo {
     ).listen((p) {
       final location =
           pb.Location(latitude: p.latitude, longitude: p.longitude);
-      _services.liveLocationServiceClient
+      _sdr.liveLocationServiceClient
           .updateLocation(UpdateLocationReq()..location = location);
       _updateLiveLocationInDb(uuid, duration, location);
     });

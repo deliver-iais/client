@@ -25,7 +25,7 @@ import 'package:synchronized/synchronized.dart';
 class AuthRepo {
   static final _logger = GetIt.I.get<Logger>();
   static final _sharedDao = GetIt.I.get<SharedDao>();
-  static final _services = GetIt.I.get<ServicesDiscoveryRepo>();
+  static final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   static final requestLock = Lock();
 
   Uid currentUserUid = Uid.create()
@@ -70,7 +70,7 @@ class AuthRepo {
     final platform = await getPlatformPB();
 
     _tmpPhoneNumber = p;
-    await _services.authServiceClient.getVerificationCode(
+    await _sdr.authServiceClient.getVerificationCode(
       GetVerificationCodeReq()
         ..phoneNumber = p
         ..type = VerificationType.SMS
@@ -87,7 +87,7 @@ class AuthRepo {
 
     final device = await getDeviceName();
 
-    final res = await _services.authServiceClient.verifyAndGetToken(
+    final res = await _sdr.authServiceClient.verifyAndGetToken(
       VerifyCodeReq()
         ..phoneNumber = _tmpPhoneNumber
         ..code = code
@@ -111,7 +111,7 @@ class AuthRepo {
 
     final device = await getDeviceName();
 
-    final res = await _services.authServiceClient.checkQrCodeIsVerifiedAndLogin(
+    final res = await _sdr.authServiceClient.checkQrCodeIsVerifiedAndLogin(
       CheckQrCodeIsVerifiedAndLoginReq()
         ..token = token
         ..device = device
@@ -128,7 +128,7 @@ class AuthRepo {
 
   Future<RenewAccessTokenRes> _getAccessToken(String refreshToken) =>
       requestLock.synchronized(() async {
-        return await _services.authServiceClient.renewAccessToken(
+        return await _sdr.authServiceClient.renewAccessToken(
           RenewAccessTokenReq()
             ..refreshToken = refreshToken
             ..platform = await getPlatformPB(),
@@ -244,7 +244,7 @@ class AuthRepo {
   }
 
   Future<void> sendForgetPasswordEmail(PhoneNumber phoneNumber) async {
-    await _services.authServiceClient.sendErasePasswordEmail(
+    await _sdr.authServiceClient.sendErasePasswordEmail(
       SendErasePasswordEmailReq()
         ..platform = await getPlatformPB()
         ..phoneNumber = phoneNumber,

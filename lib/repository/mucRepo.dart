@@ -33,7 +33,7 @@ class MucRepo {
   final _mucDao = GetIt.I.get<MucDao>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _mucServices = GetIt.I.get<MucServices>();
-  final _services = GetIt.I.get<ServicesDiscoveryRepo>();
+  final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
@@ -96,7 +96,7 @@ class MucRepo {
 
   Future<bool> channelIdIsAvailable(String id) async {
     try {
-      final result = await _services.queryServiceClient
+      final result = await _sdr.queryServiceClient
           .idIsAvailable(IdIsAvailableReq()..id = id);
       return result.isAvailable;
     } catch (e) {

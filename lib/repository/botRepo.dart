@@ -16,12 +16,12 @@ import 'package:logger/logger.dart';
 
 class BotRepo {
   final _logger = GetIt.I.get<Logger>();
-  final _services = GetIt.I.get<ServicesDiscoveryRepo>();
+  final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   final _botDao = GetIt.I.get<BotDao>();
   final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
 
   Future<BotInfo> fetchBotInfo(Uid botUid) async {
-    final result = await _services.botServiceClient.getInfo(GetInfoReq()..bot = botUid);
+    final result = await _sdr.botServiceClient.getInfo(GetInfoReq()..bot = botUid);
     final botInfo = BotInfo(
       description: result.description,
       uid: botUid.asString(),
