@@ -75,16 +75,6 @@ import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
-import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/group.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/live_location.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/sticker.pbgrpc.dart';
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -183,97 +173,16 @@ Future<void> setupDI() async {
   registerSingleton<AutoDownloadDao>(AutoDownloadDaoImpl());
   registerSingleton<CurrentCallInfoDao>(CurrentCallInfoDaoImpl());
 
+  registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
+
   registerSingleton<I18N>(I18N());
 
   // Order is important, don't change it!
-  registerSingleton<AuthServiceClient>(
-    AuthServiceClient(
-      isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
-    ),
-  );
   registerSingleton<RoutingService>(RoutingService());
   registerSingleton<AuthRepo>(AuthRepo());
   await GetIt.I.get<AuthRepo>().setCurrentUserUid();
   registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
-
-  final grpcClientInterceptors = [
-    GetIt.I.get<DeliverClientInterceptor>(),
-    GetIt.I.get<AnalyticsClientInterceptor>()
-  ];
-
-  registerSingleton<UserServiceClient>(
-    UserServiceClient(
-      isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<ContactServiceClient>(
-    ContactServiceClient(
-      isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<QueryServiceClient>(
-    QueryServiceClient(
-      isWeb ? webQueryClientChannel : QueryClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<CoreServiceClient>(
-    CoreServiceClient(
-      isWeb ? webCoreServicesClientChannel : CoreServicesClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<BotServiceClient>(
-    BotServiceClient(
-      isWeb ? webBotClientChannel : BotClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<StickerServiceClient>(
-    StickerServiceClient(
-      isWeb ? webStickerClientChannel : StickerClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<GroupServiceClient>(
-    GroupServiceClient(
-      isWeb ? webMucServicesClientChannel : MucServicesClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<ChannelServiceClient>(
-    ChannelServiceClient(
-      isWeb ? webMucServicesClientChannel : MucServicesClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<AvatarServiceClient>(
-    AvatarServiceClient(
-      isWeb ? webAvatarServicesClientChannel : AvatarServicesClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<FirebaseServiceClient>(
-    FirebaseServiceClient(
-      isWeb ? webFirebaseServicesClientChannel : FirebaseServicesClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-
-  registerSingleton<SessionServiceClient>(
-    SessionServiceClient(
-      isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<LiveLocationServiceClient>(
-    LiveLocationServiceClient(
-      isWeb ? webLiveLocationClientChannel : LiveLocationServiceClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
+  GetIt.I.get<ServicesDiscoveryRepo>().initRepo().ignore();
 
   //call Service should be here
   registerSingleton<CallService>(CallService());

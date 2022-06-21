@@ -55,7 +55,7 @@ public class StoragePathPlugin {
     }
 
     private void getAllImage(Result result) {
-        try{
+        try {
             filesModelArrayList = new ArrayList<>();
             boolean hasFolder = false;
             int position = 0;
@@ -117,7 +117,7 @@ public class StoragePathPlugin {
                 cursor.close();
             }
             result.success(json);
-        }catch (Exception e){
+        } catch (Exception e) {
             result.success(e.toString());
         }
 
@@ -212,7 +212,7 @@ public class StoragePathPlugin {
         String rar = MimeTypeMap.getSingleton().getMimeTypeFromExtension("rar");
         String mkv = MimeTypeMap.getSingleton().getMimeTypeFromExtension("mkv");
         String webm = MimeTypeMap.getSingleton().getMimeTypeFromExtension("webm");
-
+        String webp = MimeTypeMap.getSingleton().getMimeTypeFromExtension("webp");
 
 
         String where = MediaStore.Files.FileColumns.MIME_TYPE + "=?"
@@ -231,8 +231,9 @@ public class StoragePathPlugin {
                 + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
                 + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
                 + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
+                + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?"
                 + " OR " + MediaStore.Files.FileColumns.MIME_TYPE + "=?";
-        final String[] selectionArgs = new String[]{rtx, pdf, doc, docx, xls, xlsx, pptx, txt, rtf, html, ppt, apk, mp4, zip, rar,mkv,webm};
+        final String[] selectionArgs = new String[]{rtx, pdf, doc, docx, xls, xlsx, pptx, txt, rtf, html, ppt, apk, mp4, zip, rar, mkv, webm, webp};
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             collection = MediaStore.Downloads.EXTERNAL_CONTENT_URI;

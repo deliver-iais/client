@@ -34,6 +34,7 @@ dependencies:
   circular_countdown_timer: 0.2.1
   clock: 1.1.0
   collection: 1.16.0
+  connectivity_plus: 2.3.4
   connectycube_flutter_call_kit:
     git:
       ref: e13124fee38dd11baf639660675ca4f722dfabd3
@@ -133,6 +134,7 @@ dependencies:
   sdp_transform: 0.3.2
   service_worker: 0.2.4
   share: 2.0.4
+  shimmer: 2.0.0
   simple_animations: 4.1.0
   sms_autofill: 2.2.0
   synchronized: 3.0.0+2

@@ -271,6 +271,16 @@ class SettingsPageState extends State<SettingsPage> {
                   leading: const Icon(CupertinoIcons.cloud_download),
                   onPressed: (context) => _routingService.openAutoDownload(),
                 ),
+                SettingsTile(
+                  title: _i18n.get("connection_settings"),
+                  subtitleTextStyle: TextStyle(
+                    color: theme.primaryColor,
+                  ),
+                  leading:
+                      const Icon(CupertinoIcons.settings),
+                  onPressed: (context) =>
+                      _routingService.openConnectionSettingPage(),
+                ),
               ],
             ),
             if (UxService.isDeveloperMode)
