@@ -173,8 +173,6 @@ Future<void> setupDI() async {
   registerSingleton<AutoDownloadDao>(AutoDownloadDaoImpl());
   registerSingleton<CurrentCallInfoDao>(CurrentCallInfoDaoImpl());
 
-  Logger().wtf("1");
-
   registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
 
   registerSingleton<I18N>(I18N());
