@@ -265,7 +265,14 @@ class _AllImagePageState extends State<AllImagePage>
       child: Center(
         child: Padding(
           padding: const EdgeInsets.all(10),
-          child: isWeb ? Image.network(filePath) : Image.file(File(filePath)),
+          child: AnimatedBuilder(
+            animation: animationList[animationIndex],
+            child: isWeb ? Image.network(filePath) : Image.file(File(filePath)),
+            builder: (context, child) => Transform.rotate(
+              angle: animationList[animationIndex].value,
+              child: child,
+            ),
+          ),
         ),
       ),
     );
@@ -640,6 +647,9 @@ class _AllImagePageState extends State<AllImagePage>
 
   PreferredSizeWidget buildAppBarWidget() {
     return AppBar(
+      iconTheme: const IconThemeData(
+        color: Colors.white, //change your color here
+      ),
       backgroundColor: Colors.black.withAlpha(120),
       actions: widget.isSingleImage
           ? null
