@@ -30,6 +30,9 @@ BehaviorSubject<String> connectionError = BehaviorSubject.seeded("");
 const MIN_BACKOFF_TIME = isWeb ? 16 : 4;
 const MAX_BACKOFF_TIME = 64;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
+final CONNECTION_TIMEOUT_DURATION = CallOptions(
+  timeout: const Duration(seconds: 2),
+);
 
 class CoreServices {
   final _logger = GetIt.I.get<Logger>();
@@ -59,19 +62,11 @@ class CoreServices {
       BehaviorSubject.seeded(ConnectionStatus.Connecting);
 
   void retryConnection() {
-    _connectionTimer!.cancel();
-    disconnectedTime.add(-1);
+    _connectionTimer?.cancel();
+    // _responseStream?.cancel();
     _connectionStatus.add(ConnectionStatus.Connecting);
     startStream();
     startCheckerTimer();
-    _updateDisconnectedTime();
-  }
-
-  void _updateDisconnectedTime() {
-    Timer(const Duration(seconds: 2), () {
-      _connectionStatus.add(ConnectionStatus.Disconnected);
-      disconnectedTime.add(backoffTime);
-    });
   }
 
   void retryFasterConnection() {
@@ -79,23 +74,17 @@ class CoreServices {
     retryConnection();
   }
 
-  void resetConnection() {
-    if (_connectionTimer != null) _connectionTimer!.cancel();
-    if (_responseStream != null) _responseStream!.cancel();
-    startStream();
-    startCheckerTimer();
-  }
-
   Future<void> initStreamConnection() async {
+    retryConnection();
+
+    _connectionStatus.distinct().listen((event) {
+      connectionStatus.add(event);
+    });
+
     Connectivity().onConnectivityChanged.listen((result) {
       if (result != ConnectivityResult.none) {
         retryConnection();
       }
-    });
-    startStream();
-    startCheckerTimer();
-    _connectionStatus.distinct().listen((event) {
-      connectionStatus.add(event);
     });
   }
 
@@ -121,8 +110,7 @@ class CoreServices {
         } else {
           backoffTime = MIN_BACKOFF_TIME;
         }
-        startStream();
-        _updateDisconnectedTime();
+        retryConnection();
       }
       startCheckerTimer();
     });
@@ -141,12 +129,16 @@ class CoreServices {
     try {
       _clientPacketStream = StreamController<ClientPacket>();
       _responseStream = isWeb
-          ? _services.coreServiceClient
-              .establishServerSideStream(EstablishServerSideStreamReq())
-          : _services.coreServiceClient
-              .establishStream(_clientPacketStream!.stream);
+          ? _services.coreServiceClient.establishServerSideStream(
+              EstablishServerSideStreamReq(),
+              options: CONNECTION_TIMEOUT_DURATION,
+            )
+          : _services.coreServiceClient.establishStream(
+              _clientPacketStream!.stream,
+              options: CONNECTION_TIMEOUT_DURATION,
+            );
 
-      _responseStream!.listen(
+      _responseStream?.listen(
         (serverPacket) {
           _logger.d(serverPacket);
 
@@ -191,15 +183,23 @@ class CoreServices {
               break;
           }
         },
-        onError: (d) {
-          connectionError.add(d.toString());
+        onError: (e) {
+          _logger.e("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%$e");
+          _onConnectionError();
+          connectionError.add(e.toString());
         },
       );
     } catch (e) {
+      _onConnectionError();
       connectionError.add(e.toString());
-      _logger.e(e);
+      _logger.e("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%$e");
       return startStream();
     }
+  }
+
+  void _onConnectionError() {
+    _connectionStatus.add(ConnectionStatus.Disconnected);
+    disconnectedTime.add(backoffTime);
   }
 
   Future<void> sendMessage(MessageByClient message) async {

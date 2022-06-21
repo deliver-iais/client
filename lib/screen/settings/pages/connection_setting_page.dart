@@ -114,7 +114,7 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
                               _servicesDiscoveryRepo.initClientChannel();
                             }
                             _useCustomIp.add(value);
-                            _coreServices.resetConnection();
+                            _coreServices.retryConnection();
                           },
                         ),
                         if (ipSnapshot.hasData && ipSnapshot.data!)
@@ -155,7 +155,7 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
                                   SHARE_DAO_HOST_SET_BY_USER,
                                   _textEditingController.text,
                                 );
-                                _coreServices.resetConnection();
+                                _coreServices.retryConnection();
                                 if (widget.rootFromLoginPage) {
                                   Navigator.pop(context);
                                 } else {

@@ -69,9 +69,8 @@ class ConnectionStatus extends StatelessWidget {
                     const SizedBox(width: 5),
                     AnimatedContainer(
                       duration: ANIMATION_DURATION,
-                      width: status == TitleStatusConditions.Connecting
-                          ? 11
-                          : 0,
+                      width:
+                          status == TitleStatusConditions.Connecting ? 11 : 0,
                       child: SizedBox(
                         width: 11,
                         height: 11,
@@ -102,11 +101,7 @@ class ConnectionStatus extends StatelessWidget {
                                       style: TextStyle(fontSize: 12),
                                     ),
                                     CircularCountDownTimer(
-                                      key: Key(
-                                        DateTime.now()
-                                            .millisecondsSinceEpoch
-                                            .toString(),
-                                      ),
+                                      key: UniqueKey(),
                                       duration: timeSnapShot.data!,
                                       width: 16,
                                       strokeWidth: 0,
@@ -121,7 +116,6 @@ class ConnectionStatus extends StatelessWidget {
                                           ?.copyWith(fontSize: 12),
                                       textFormat: CountdownTextFormat.S,
                                       isReverse: true,
-                                      onComplete: _coreServices.retryConnection,
                                     ),
                                   ],
                                 ),
