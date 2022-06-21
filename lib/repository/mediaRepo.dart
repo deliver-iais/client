@@ -11,6 +11,7 @@ import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
@@ -28,12 +29,11 @@ class MediaRepo {
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
-  final QueryServiceClient _queryServiceClient =
-      GetIt.I.get<QueryServiceClient>();
+  final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
 
   Future<void> fetchMediaMetaData(Uid uid, {bool updateAllMedia = true}) async {
     try {
-      final mediaResponse = await _queryServiceClient
+      final mediaResponse = await _sdr.queryServiceClient
           .getMediaMetadata(GetMediaMetadataReq()..with_1 = uid);
       return updateMediaMetaData(uid, mediaResponse);
     } catch (e) {
@@ -203,7 +203,7 @@ class MediaRepo {
     int limit,
   ) async {
     try {
-      final getMediasReq = await _queryServiceClient.fetchMedias(
+      final getMediasReq = await _sdr.queryServiceClient.fetchMedias(
         FetchMediasReq()
           ..roomUid = roomUid
           ..pointer = Int64(time)
@@ -238,7 +238,8 @@ class MediaRepo {
       ..fetchingDirectionType = directionType
       ..limit = 30;
     try {
-      final getMediasRes = await _queryServiceClient.fetchMedias(getMediaReq);
+      final getMediasRes =
+          await _sdr.queryServiceClient.fetchMedias(getMediaReq);
       final medias =
           await _saveFetchedMedias(getMediasRes.medias, roomId, mediaType);
       return medias;
@@ -370,7 +371,7 @@ class MediaRepo {
           pointer = clock.now().millisecondsSinceEpoch;
         }
       }
-      final result = await _queryServiceClient.fetchMedias(
+      final result = await _sdr.queryServiceClient.fetchMedias(
         FetchMediasReq()
           ..pointer = Int64(pointer)
           ..mediaType = mediaType

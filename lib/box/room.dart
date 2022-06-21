@@ -39,6 +39,15 @@ class Room {
   @HiveField(9)
   int pinId;
 
+  @HiveField(10)
+  bool synced;
+
+  @HiveField(11)
+  int lastCurrentUserSentMessageId;
+
+  @HiveField(12)
+  bool seenSynced;
+
   Room({
     required this.uid,
     this.lastMessage,
@@ -50,6 +59,9 @@ class Room {
     this.deleted = false,
     this.pinned = false,
     this.pinId = 0,
+    this.synced = false,
+    this.lastCurrentUserSentMessageId = 0,
+    this.seenSynced = true,
   });
 
   Room copyWith({
@@ -64,6 +76,9 @@ class Room {
     bool? pinned,
     int? hiddenMessageCount,
     int? pinId,
+    bool? synced,
+    int? lastCurrentUserSentMessageId,
+    bool? seenSynced,
   }) =>
       Room(
         uid: uid ?? this.uid,
@@ -76,6 +91,10 @@ class Room {
         lastMessageId: lastMessageId ?? this.lastMessageId,
         pinned: pinned ?? this.pinned,
         pinId: pinId ?? this.pinId,
+        synced: synced ?? this.synced,
+        lastCurrentUserSentMessageId:
+            lastCurrentUserSentMessageId ?? this.lastCurrentUserSentMessageId,
+        seenSynced: seenSynced ?? this.seenSynced,
       );
 
   @override
@@ -96,7 +115,13 @@ class Room {
           const DeepCollectionEquality()
               .equals(other.lastMessageId, lastMessageId) &&
           const DeepCollectionEquality().equals(other.pinned, pinned) &&
-          const DeepCollectionEquality().equals(other.pinId, pinId));
+          const DeepCollectionEquality().equals(other.pinId, pinId) &&
+          const DeepCollectionEquality().equals(
+            other.lastCurrentUserSentMessageId,
+            lastCurrentUserSentMessageId,
+          ) &&
+          const DeepCollectionEquality().equals(other.synced, synced) &&
+          const DeepCollectionEquality().equals(other.seenSynced, seenSynced));
 
   @override
   int get hashCode => Object.hash(
@@ -111,10 +136,13 @@ class Room {
         const DeepCollectionEquality().hash(lastMessageId),
         const DeepCollectionEquality().hash(pinned),
         const DeepCollectionEquality().hash(pinId),
+        const DeepCollectionEquality().hash(synced),
+        const DeepCollectionEquality().hash(lastCurrentUserSentMessageId),
+        const DeepCollectionEquality().hash(seenSynced),
       );
 
   @override
   String toString() {
-    return "Room [uid:$uid] [deleted:$deleted] [draft:$draft] [lastUpdateTime:$lastUpdateTime] [mentioned:$mentioned] [firstMessageId:$firstMessageId] [lastMessageId:$lastMessageId] [pinned:$pinned] [lastMessage:$lastMessage] [pinId:$pinId]";
+    return "Room [uid:$uid] [deleted:$deleted] [draft:$draft] [lastUpdateTime:$lastUpdateTime] [mentioned:$mentioned] [firstMessageId:$firstMessageId] [lastMessageId:$lastMessageId] [pinned:$pinned] [lastMessage:$lastMessage] [pinId:$pinId] [synced:$synced] [lastCurrentUserSentMessageId:$lastCurrentUserSentMessageId] [seenSynced:$seenSynced]";
   }
 }

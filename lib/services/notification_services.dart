@@ -36,13 +36,11 @@ import 'package:tuple/tuple.dart';
 import 'package:win_toast/win_toast.dart';
 
 abstract class Notifier {
-  static void onCallAccept(String roomUid) {
-    ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
-      isVisible: false,
-    );
-    GetIt.I
-        .get<RoutingService>()
-        .openCallScreen(roomUid.asUid(), isCallAccepted: true);
+  static void onCallAccept(String roomUid)  {
+        GetIt.I
+            .get<RoutingService>()
+            .openCallScreen(roomUid.asUid(), isCallAccepted: true);
+
   }
 
   static void onCallReject() {
@@ -603,7 +601,9 @@ class AndroidNotifier implements Notifier {
   }
 
   Future<void> onCallAccepted(CallEvent callEvent) async {
-    Notifier.onCallAccept(callEvent.userInfo!["uid"]!);
+    await GetIt.I
+        .get<CallService>().clearCallData();
+     Notifier.onCallAccept(callEvent.userInfo!["uid"]!);
     final callEventInfo =
         call_pro.CallEvent.fromJson(callEvent.userInfo!["callEventJson"]!);
     //here status be JOINED means ACCEPT CALL and when app Start should go on accepting status
@@ -737,9 +737,9 @@ class AndroidNotifier implements Notifier {
         sessionId: clock.now().millisecondsSinceEpoch.toString(),
         callerId: 123456789,
         callType: 0,
-        avatarPath: path,
         callerName: roomName,
         userInfo: {"uid": roomUid, "callEventJson": ceJson},
+        avatarPath: path,
         opponentsIds: const {1},
       ),
     );

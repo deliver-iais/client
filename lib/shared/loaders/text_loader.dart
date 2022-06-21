@@ -1,6 +1,5 @@
-import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:simple_animations/simple_animations.dart';
+import 'package:shimmer/shimmer.dart';
 
 class TextLoader extends StatelessWidget {
   final Text text;
@@ -17,33 +16,14 @@ class TextLoader extends StatelessWidget {
   }
 
   Widget buildLoader(BuildContext context) {
-    final theme = Theme.of(context);
-
-    return MirrorAnimation<Color?>(
-      tween: ColorTween(
-        begin: Color.lerp(
-          theme.colorScheme.onSurface,
-          theme.colorScheme.surface,
-          0.4,
-        ),
-        end: Color.lerp(
-          theme.colorScheme.onSurface,
-          theme.colorScheme.surface,
-          0.8,
-        ),
+    return Shimmer.fromColors(
+      baseColor: Colors.black12,
+      highlightColor: Colors.black45,
+      child: Container(
+        width: width,
+        height: (text.style?.fontSize ?? 10) + 2,
+        color: Colors.white,
       ),
-      curve: Curves.easeInOut,
-      duration: ANIMATION_DURATION * 15,
-      builder: (context, child, value) {
-        return Container(
-          width: width,
-          height: text.style?.fontSize ?? 10,
-          decoration: BoxDecoration(
-            color: value,
-            borderRadius: const BorderRadius.all(Radius.circular(4)),
-          ),
-        );
-      },
     );
   }
 }

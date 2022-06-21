@@ -535,12 +535,12 @@ void main() {
       });
     });
     group('fetchCurrentUserLastSeen -', () {
-      final roomMetadata =
-          RoomMetadata(roomUid: testUid, presenceType: PresenceType.ACTIVE);
+      final room =
+          Room(uid:testUid.asString() );
 
       test('When called should fetch CurrentUser SeenData', () async {
         final queryServiceClient = getAndRegisterQueryServiceClient();
-        MessageRepo().fetchCurrentUserLastSeen(roomMetadata);
+        MessageRepo().fetchCurrentUserLastSeen(room);
         verify(
           queryServiceClient.fetchCurrentUserSeenData(
             FetchCurrentUserSeenDataReq()..roomUid = testUid,
@@ -551,7 +551,7 @@ void main() {
           'When called should get My Seen if lastSeen messageId be null should save it',
           () async {
         final seenDo = getAndRegisterSeenDao();
-        await MessageRepo().fetchCurrentUserLastSeen(roomMetadata);
+        await MessageRepo().fetchCurrentUserLastSeen(room);
         verify(
           seenDo.updateMySeen(
             uid: testUid.asString(),
@@ -563,7 +563,7 @@ void main() {
           'When called should get My Seen if lastSeen messageId not be null and last seen messageId be greater than lastCurrentUserSentMessageId should return',
           () async {
         final seenDo = getAndRegisterSeenDao(messageId: 1);
-        await MessageRepo().fetchCurrentUserLastSeen(roomMetadata);
+        await MessageRepo().fetchCurrentUserLastSeen(room);
         verify(
           seenDo.updateMySeen(
             uid: testUid.asString(),

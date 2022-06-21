@@ -22,13 +22,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.4.1"
-  android_intent:
+  android_intent_plus:
     dependency: "direct main"
     description:
-      name: android_intent
+      name: android_intent_plus
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.2"
+    version: "3.1.1"
   archive:
     dependency: transitive
     description:
@@ -56,21 +56,21 @@ packages:
       name: audioplayers
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.0"
+    version: "1.0.1"
   audioplayers_android:
     dependency: transitive
     description:
       name: audioplayers_android
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.0"
+    version: "1.0.1"
   audioplayers_darwin:
     dependency: transitive
     description:
       name: audioplayers_darwin
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.0"
+    version: "1.0.1"
   audioplayers_linux:
     dependency: transitive
     description:
@@ -281,15 +281,57 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.16.0"
+  connectivity_plus:
+    dependency: "direct main"
+    description:
+      name: connectivity_plus
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.3.5"
+  connectivity_plus_linux:
+    dependency: transitive
+    description:
+      name: connectivity_plus_linux
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.3.1"
+  connectivity_plus_macos:
+    dependency: transitive
+    description:
+      name: connectivity_plus_macos
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.2.4"
+  connectivity_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: connectivity_plus_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.2.1"
+  connectivity_plus_web:
+    dependency: transitive
+    description:
+      name: connectivity_plus_web
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.2.2"
+  connectivity_plus_windows:
+    dependency: transitive
+    description:
+      name: connectivity_plus_windows
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.2.2"
   connectycube_flutter_call_kit:
     dependency: "direct main"
     description:
       path: "."
-      ref: e13124fee38dd11baf639660675ca4f722dfabd3
-      resolved-ref: e13124fee38dd11baf639660675ca4f722dfabd3
-      url: "https://github.com/androidwoman/connectycube-flutter-call-kit.git"
+      ref: f10624ee079d3212dfef1e412e8bbe24f9eb3b14
+      resolved-ref: f10624ee079d3212dfef1e412e8bbe24f9eb3b14
+      url: "https://github.com/androidwoman/connectycube_flutter_call_kit2.0.5.git"
     source: git
-    version: "2.0.2"
+    version: "2.0.5"
   contacts_service:
     dependency: "direct main"
     description:
@@ -479,9 +521,11 @@ packages:
   feature_discovery:
     dependency: "direct main"
     description:
-      name: feature_discovery
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: f775bf10512cf8c00a6d7c5c35bd4f85e2f058b0
+      resolved-ref: f775bf10512cf8c00a6d7c5c35bd4f85e2f058b0
+      url: "https://github.com/androidwoman/feature_discovery.git"
+    source: git
     version: "0.14.1"
   ffi:
     dependency: transitive
@@ -666,12 +710,10 @@ packages:
   flutter_foreground_task:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "27ca60817efb2d666c64bd2f28cf4dd9de62b937"
-      resolved-ref: "27ca60817efb2d666c64bd2f28cf4dd9de62b937"
-      url: "https://github.com/androidwoman/flutter_foreground_task"
-    source: git
-    version: "3.5.5"
+      name: flutter_foreground_task
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.7.3"
   flutter_image_compress:
     dependency: "direct main"
     description:
@@ -1172,6 +1214,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.0"
+  nm:
+    dependency: transitive
+    description:
+      name: nm
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.5.0"
   node_preamble:
     dependency: transitive
     description:
@@ -1325,7 +1374,7 @@ packages:
       name: photo_manager
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.2"
+    version: "2.1.3"
   pin_input_text_field:
     dependency: transitive
     description:
@@ -1627,6 +1676,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.1"
+  shimmer:
+    dependency: "direct main"
+    description:
+      name: shimmer
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.0.0"
   simple_animations:
     dependency: "direct main"
     description:

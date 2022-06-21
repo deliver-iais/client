@@ -70,3 +70,9 @@ Future<String> getDeviceName() async {
 
   return "${pb.platformType}:${pb.osVersion}";
 }
+
+Future<int> getDeviceVersion() async {
+  final deviceInfo = DeviceInfoPlugin();
+  final androidInfo = await deviceInfo.androidInfo;
+  return androidInfo.version.sdkInt;
+}

@@ -23,6 +23,7 @@ import 'package:deliver/screen/room/messageWidgets/forward_widgets/selection_to_
 import 'package:deliver/screen/room/pages/room_page.dart';
 import 'package:deliver/screen/settings/account_settings.dart';
 import 'package:deliver/screen/settings/pages/auto_download_settings.dart';
+import 'package:deliver/screen/settings/pages/connection_setting_page.dart';
 import 'package:deliver/screen/settings/pages/developer_page.dart';
 import 'package:deliver/screen/settings/pages/devices_page.dart';
 import 'package:deliver/screen/settings/pages/lab_settings.dart';
@@ -74,6 +75,9 @@ const _newContact = NewContact(key: ValueKey("/new-contact"));
 const _scanQrCode = ScanQrCode(key: ValueKey("/scan-qr-code"));
 
 const _calls = CallListPage(key: ValueKey("/calls"));
+const _connectionSettingsPage = ConnectionSettingPage(
+  key: ValueKey("/connection_setting_page"),
+);
 
 const _emptyRoute = "/";
 
@@ -128,6 +132,8 @@ class RoutingService {
   void openScanQrCode() => _push(_scanQrCode);
 
   void openCallsList() => _push(_calls);
+
+  void openConnectionSettingPage() => _push(_connectionSettingsPage);
 
   void openRoom(
     String roomId, {

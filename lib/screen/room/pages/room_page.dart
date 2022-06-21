@@ -20,6 +20,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
+import 'package:deliver/screen/navigation_center/widgets/feature_discovery_description_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/forward_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/input_message_text_controller.dart';
 import 'package:deliver/screen/room/messageWidgets/on_edit_message_widget.dart';
@@ -58,10 +59,12 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:desktop_lifecycle/desktop_lifecycle.dart';
+import 'package:feature_discovery/feature_discovery.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 import 'package:tuple/tuple.dart';
@@ -525,20 +528,29 @@ class RoomPageState extends State<RoomPage> {
   }
 
   void _sendSeenMessage(List<Message> messages) {
-    for (final msg in messages) {
-      final id = msg.id == room.lastMessage!.id ? room.lastMessageId : msg.id!;
-      final hiddenMessagesCount = msg.id == room.lastMessage!.id ? 0 : null;
+    final lastSeenMessages = messages.reduce(
+      (value, element) => (value.id ?? 0) > (element.id ?? 0) ? value : element,
+    );
 
-      if (!_authRepo.isCurrentUser(msg.from)) {
-        _messageRepo.sendSeen(id, widget.roomId.asUid());
-      }
+    final lastId = (lastSeenMessages.id ?? 0);
 
-      _roomRepo.updateMySeen(
-        uid: widget.roomId,
-        messageId: id,
-        hiddenMessageCount: hiddenMessagesCount,
-      );
+    var id = lastId;
+    int? hiddenMessagesCount;
+
+    if (lastId >= (room.lastMessage?.id ?? 0)) {
+      id = room.lastMessageId;
+      hiddenMessagesCount = 0;
     }
+
+    if (!_authRepo.isCurrentUser(lastSeenMessages.from)) {
+      _messageRepo.sendSeen(id, widget.roomId.asUid());
+    }
+
+    _roomRepo.updateMySeen(
+      uid: widget.roomId,
+      messageId: id,
+      hiddenMessageCount: hiddenMessagesCount,
+    );
   }
 
   Future<void> _readAllMessages() async {
@@ -863,37 +875,161 @@ class RoomPageState extends State<RoomPage> {
         if (room.uid.asUid().isUser() &&
             !_authRepo.isCurrentUser(room.uid) &&
             _featureFlags.isVoiceCallAvailable())
-          IconButton(
-            onPressed: () {
-              if (_callService.getUserCallState == UserCallState.NOCALL) {
-                _routingService.openCallScreen(room.uid.asUid());
-              } else {
-                if (room.uid.asUid() == _callRepo.roomUid) {
-                  _routingService.openCallScreen(
-                    room.uid.asUid(),
-                    isCallInitialized: true,
-                  );
-                } else {
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      content: Text(
-                        _i18n.get("you_already_in_call"),
+          StreamBuilder<bool>(
+            stream: _selectMultiMessageSubject,
+            builder: (context, snapshot) {
+              return snapshot.hasData && !snapshot.data!
+                  ? DescribedFeatureOverlay(
+                      featureId: FEATURE_4,
+                      tapTarget: IconButton(
+                        icon: const Icon(CupertinoIcons.phone),
+                        onPressed: () {},
                       ),
-                      actions: <Widget>[
-                        TextButton(
-                          child: Text(_i18n.get("ok")),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        )
-                      ],
-                    ),
-                  );
-                }
-              }
+                      backgroundColor: theme.colorScheme.tertiaryContainer,
+                      targetColor: theme.colorScheme.tertiary,
+                      title: Text(
+                        _i18n.get("call_feature_discovery_title"),
+                        textDirection: _i18n.isPersian
+                            ? TextDirection.rtl
+                            : TextDirection.ltr,
+                        style: TextStyle(
+                          color: theme.colorScheme.onTertiaryContainer,
+                        ),
+                      ),
+                      overflowMode: OverflowMode.extendBackground,
+                      description: FeatureDiscoveryDescriptionWidget(
+                        permissionWidget: !isDesktop && isAndroid
+                            ? FutureBuilder<int>(
+                                future: getDeviceVersion(),
+                                builder: (context, version) {
+                                  return version.data != null &&
+                                          version.data! >= 31
+                                      ? Container(
+                                          constraints: const BoxConstraints(
+                                            maxWidth: 350,
+                                          ),
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            borderRadius: secondaryBorder / 1.2,
+                                            border: Border.all(
+                                              color: theme
+                                                  .colorScheme.onErrorContainer,
+                                            ),
+                                            color: theme
+                                                .colorScheme.errorContainer,
+                                          ),
+                                          child: Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Text(
+                                                _i18n.get(
+                                                  "alert_window_permission",
+                                                ),
+                                                textDirection: _i18n.isPersian
+                                                    ? TextDirection.rtl
+                                                    : TextDirection.ltr,
+                                                style: TextStyle(
+                                                  color: theme.colorScheme
+                                                      .onErrorContainer,
+                                                ),
+                                              ),
+                                              Padding(
+                                                padding: const EdgeInsets.only(
+                                                  top: 10.0,
+                                                ),
+                                                child: Text(
+                                                  _i18n.get(
+                                                    "alert_window_permission_attention",
+                                                  ),
+                                                  textDirection: _i18n.isPersian
+                                                      ? TextDirection.rtl
+                                                      : TextDirection.ltr,
+                                                  style: TextStyle(
+                                                    color:
+                                                        theme.colorScheme.error,
+                                                  ),
+                                                ),
+                                              ),
+                                              TextButton(
+                                                onPressed: () async {
+                                                  FeatureDiscovery.dismissAll(
+                                                    context,
+                                                  );
+                                                  await Permission
+                                                      .systemAlertWindow
+                                                      .request();
+                                                },
+                                                child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Padding(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                        8.0,
+                                                      ),
+                                                      child: Text(
+                                                        _i18n.get(
+                                                          "go_to_setting",
+                                                        ),
+                                                      ),
+                                                    ),
+                                                    const Icon(
+                                                      Icons.arrow_forward,
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      : const SizedBox.shrink();
+                                },
+                              )
+                            : null,
+                        description:
+                            _i18n.get("call_feature_discovery_description"),
+                        descriptionStyle: TextStyle(
+                          color: theme.colorScheme.onTertiaryContainer,
+                        ),
+                      ),
+                      child: IconButton(
+                        onPressed: () {
+                          if (_callService.getUserCallState ==
+                              UserCallState.NOCALL) {
+                            _routingService.openCallScreen(room.uid.asUid());
+                          } else {
+                            if (room.uid.asUid() == _callRepo.roomUid) {
+                              _routingService.openCallScreen(
+                                room.uid.asUid(),
+                                isCallInitialized: true,
+                              );
+                            } else {
+                              showDialog(
+                                context: context,
+                                builder: (context) => AlertDialog(
+                                  content: Text(
+                                    _i18n.get("you_already_in_call"),
+                                  ),
+                                  actions: <Widget>[
+                                    TextButton(
+                                      child: Text(_i18n.get("ok")),
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                    )
+                                  ],
+                                ),
+                              );
+                            }
+                          }
+                        },
+                        icon: const Icon(CupertinoIcons.phone),
+                      ),
+                    )
+                  : const SizedBox.shrink();
             },
-            icon: const Icon(CupertinoIcons.phone),
           ),
       ],
       leading: GestureDetector(
@@ -1049,6 +1185,12 @@ class RoomPageState extends State<RoomPage> {
           _fireScrollEvent();
         } else if (scrollNotification is ScrollEndNotification) {
           _calmScrollEvent();
+        }
+        if ((scrollNotification.metrics.pixels -
+                    scrollNotification.metrics.maxScrollExtent)
+                .abs() <
+            100) {
+          _isScrolling.add(false);
         }
         return true;
       },

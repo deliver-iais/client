@@ -127,8 +127,7 @@ class InputMessageWidgetState extends State<InputMessage> {
   bool _shouldSynthesize = true;
   final record = Record();
 
-  final ValueNotifier<TextDirection> _textDir =
-      ValueNotifier(TextDirection.ltr);
+  late final ValueNotifier<TextDirection> _textDir;
 
   final botCommandRegexp = RegExp(r"([a-zA-Z0-9_])*");
   final idRegexp = RegExp(r"([a-zA-Z0-9_])*");
@@ -165,7 +164,7 @@ class InputMessageWidgetState extends State<InputMessage> {
 
     currentRoom = widget.currentRoom;
     widget.textController.text = (currentRoom.draft ?? "");
-
+    _textDir = ValueNotifier(getDirection(widget.textController.text));
     isTypingActivitySubject
         .throttle((_) => TimerStream(true, const Duration(seconds: 10)))
         .listen((activityType) {

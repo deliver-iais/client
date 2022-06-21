@@ -89,7 +89,8 @@ class FileService {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          options.baseUrl = FileServiceBaseUrl;
+          options.baseUrl =
+              GetIt.I.get<ServicesDiscoveryRepo>().fileServiceBaseUrl;
           options.headers["Authorization"] = await _authRepo.getAccessToken();
 
           return handler.next(options); //continue
@@ -358,6 +359,7 @@ class FileService {
         format == "apk" ||
         format == "mkv" ||
         format == "jfif" ||
-        format == "webm";
+        format == "webm" ||
+        format == "webp";
   }
 }

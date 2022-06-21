@@ -426,7 +426,8 @@ class ProfilePageState extends State<ProfilePage>
               FutureBuilder<Contact?>(
                 future: _contactRepo.getContact(widget.roomUid),
                 builder: (context, snapshot) {
-                  if (snapshot.data != null) {
+                  if (snapshot.data != null &&
+                      snapshot.data!.countryCode != 0) {
                     return Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: SettingsTile(

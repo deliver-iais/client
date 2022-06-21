@@ -1,4 +1,4 @@
-import 'package:android_intent/android_intent.dart';
+import 'package:android_intent_plus/android_intent.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
