@@ -34,6 +34,7 @@ dependencies:
   circular_countdown_timer: 0.2.1
   clock: 1.1.0
   collection: 1.16.0
+  connectivity_plus: 2.3.4
   connectycube_flutter_call_kit:
     git:
       ref: f10624ee079d3212dfef1e412e8bbe24f9eb3b14
@@ -62,9 +63,9 @@ dependencies:
   file_picker: 4.6.1
   file_selector: 0.8.4+3
   file_selector_linux: 0.0.2+1
-  firebase_analytics: 9.1.9
-  firebase_core: 1.17.1
-  firebase_messaging: 11.4.1
+  firebase_analytics: 9.1.10
+  firebase_core: 1.18.0
+  firebase_messaging: 11.4.2
   fixnum: 1.0.1
   flare_flutter: 3.0.2
   flutter:
@@ -78,10 +79,10 @@ dependencies:
 #      ref: 27ca60817efb2d666c64bd2f28cf4dd9de62b937
   flutter_image_compress: 1.1.0
   flutter_keyboard_visibility: 5.3.0
-  flutter_local_notifications: 10.0.0-dev.14
+  flutter_local_notifications: 10.0.0-dev.16
   flutter_localizations:
     sdk: flutter
-  flutter_map: 1.0.0
+  flutter_map: 1.1.0
   flutter_webrtc: 0.8.9
   fluttertoast: 8.0.9
   font_awesome_flutter: 10.1.0
@@ -100,7 +101,6 @@ dependencies:
   http: 0.13.4
   http_parser: 4.0.1
   image_compression_flutter: 1.0.2
-  image_picker: 0.8.5+3
   image_size_getter: 2.1.1
   intl: 0.17.0
   js: 0.6.4
@@ -116,11 +116,10 @@ dependencies:
   mobile_scanner: 2.0.0
   modal_bottom_sheet: 2.0.1
   open_file: 3.2.1
-  package_info_plus: 1.4.2
   pasteboard: 0.1.0
   path: 1.8.1
   path_provider: 2.0.11
-  path_provider_android: 2.0.14
+  path_provider_android: 2.0.15
   patterns_canvas: 0.4.0 # UPDATABLE in FLUTTER 3
   percent_indicator: 4.2.2
   permission_handler: 9.2.0
@@ -138,6 +137,7 @@ dependencies:
   sdp_transform: 0.3.2
   service_worker: 0.2.4
   share: 2.0.4
+  shimmer: 2.0.0
   simple_animations: 4.1.0
   sms_autofill: 2.2.0
   synchronized: 3.0.0+2
@@ -145,8 +145,7 @@ dependencies:
   universal_html: 2.0.8
   url_launcher: 6.1.3
   vibration: 1.7.4-nullsafety.0
-  video_player: 2.4.4
-  wakelock: 0.6.1+2
+  video_player: 2.4.5
   win_toast:
     git:
       path: packages/win_toast
@@ -206,6 +205,7 @@ flutter:
     - assets/animations/out_of_date.zip
     - assets/animations/call_permission.tgs
     - assets/animations/qr.zip
+    - assets/duck_animation/
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
 
@@ -216,4 +216,4 @@ flutter:
   # "family" key with the font family name, and a "fonts" key with a
   # list giving the asset and other descriptors for the font. For
   # example:
-  fonts: []
+  fonts: [ ]

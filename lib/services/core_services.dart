@@ -3,8 +3,10 @@
 import 'dart:async';
 
 import 'package:clock/clock.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:deliver/box/dao/message_dao.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -22,13 +24,16 @@ import 'package:rxdart/rxdart.dart';
 
 enum ConnectionStatus { Connected, Disconnected, Connecting }
 
+BehaviorSubject<int> disconnectedTime = BehaviorSubject.seeded(0);
+BehaviorSubject<String> connectionError = BehaviorSubject.seeded("");
+
 const MIN_BACKOFF_TIME = isWeb ? 16 : 4;
-const MAX_BACKOFF_TIME = isWeb ? 16 : 8;
+final MAX_BACKOFF_TIME = (isAndroid || isIOS) ? 16 : 64;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 class CoreServices {
   final _logger = GetIt.I.get<Logger>();
-  final _grpcCoreService = GetIt.I.get<CoreServiceClient>();
+  final _services = GetIt.I.get<ServicesDiscoveryRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _dataStreamServices = GetIt.I.get<DataStreamServices>();
   final _messageDao = GetIt.I.get<MessageDao>();
@@ -48,19 +53,38 @@ class CoreServices {
   var _lastPongTime = 0;
 
   BehaviorSubject<ConnectionStatus> connectionStatus =
-      BehaviorSubject.seeded(ConnectionStatus.Connecting);
+      BehaviorSubject.seeded(ConnectionStatus.Disconnected);
 
   final BehaviorSubject<ConnectionStatus> _connectionStatus =
-      BehaviorSubject.seeded(ConnectionStatus.Connecting);
+      BehaviorSubject.seeded(ConnectionStatus.Disconnected);
 
-  Future<void> initStreamConnection() async {
-    if (_connectionTimer != null && _connectionTimer!.isActive) {
+  void retryConnection({bool forced = false}) {
+    if (!forced && _connectionStatus.value != ConnectionStatus.Disconnected) {
       return;
     }
+    _connectionTimer?.cancel();
+    // _responseStream?.cancel();
+    _connectionStatus.add(ConnectionStatus.Connecting);
     startStream();
     startCheckerTimer();
+  }
+
+  void retryFasterConnection() {
+    backoffTime = MIN_BACKOFF_TIME;
+    retryConnection();
+  }
+
+  Future<void> initStreamConnection() async {
+    retryConnection();
+
     _connectionStatus.distinct().listen((event) {
       connectionStatus.add(event);
+    });
+
+    Connectivity().onConnectivityChanged.listen((result) {
+      if (result != ConnectivityResult.none) {
+        retryConnection();
+      }
     });
   }
 
@@ -85,10 +109,8 @@ class CoreServices {
         } else {
           backoffTime = MIN_BACKOFF_TIME;
         }
-        startStream();
-        _connectionStatus.add(ConnectionStatus.Disconnected);
+        retryConnection(forced: true);
       }
-
       startCheckerTimer();
     });
   }
@@ -97,6 +119,8 @@ class CoreServices {
     _connectionStatus.add(ConnectionStatus.Connected);
     backoffTime = MIN_BACKOFF_TIME;
     responseChecked = true;
+    disconnectedTime.add(0);
+    connectionError.add("");
   }
 
   @visibleForTesting
@@ -104,57 +128,76 @@ class CoreServices {
     try {
       _clientPacketStream = StreamController<ClientPacket>();
       _responseStream = isWeb
-          ? _grpcCoreService
-              .establishServerSideStream(EstablishServerSideStreamReq())
-          : _grpcCoreService.establishStream(_clientPacketStream!.stream);
-      _responseStream!.listen((serverPacket) {
-        _logger.d(serverPacket);
+          ? _services.coreServiceClient.establishServerSideStream(
+              EstablishServerSideStreamReq(),
+            )
+          : _services.coreServiceClient.establishStream(
+              _clientPacketStream!.stream,
+            );
 
-        gotResponse();
-        switch (serverPacket.whichType()) {
-          case ServerPacket_Type.message:
-            _dataStreamServices.handleIncomingMessage(
-              serverPacket.message,
-              isOnlineMessage: true,
-            );
-            break;
-          case ServerPacket_Type.messageDeliveryAck:
-            _dataStreamServices
-                .handleAckMessage(serverPacket.messageDeliveryAck);
-            break;
-          case ServerPacket_Type.seen:
-            _dataStreamServices.handleSeen(serverPacket.seen);
-            break;
-          case ServerPacket_Type.activity:
-            _dataStreamServices.handleActivity(serverPacket.activity);
-            break;
-          case ServerPacket_Type.roomPresenceTypeChanged:
-            _dataStreamServices.handleRoomPresenceTypeChange(
-              serverPacket.roomPresenceTypeChanged,
-            );
-            break;
-          case ServerPacket_Type.callOffer:
-            _dataStreamServices.handleCallOffer(serverPacket.callOffer);
-            break;
-          case ServerPacket_Type.callAnswer:
-            _dataStreamServices.handleCallAnswer(serverPacket.callAnswer);
-            break;
-          case ServerPacket_Type.pong:
-            _lastPongTime = serverPacket.pong.serverTime.toInt();
-            break;
-          case ServerPacket_Type.liveLocationStatusChanged:
-          case ServerPacket_Type.error:
-            // TODO(hasan): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/411
-            break;
-          case ServerPacket_Type.notSet:
-          case ServerPacket_Type.expletivePacket:
-            break;
-        }
-      });
+      _responseStream?.listen(
+        (serverPacket) {
+          _logger.d(serverPacket);
+
+          gotResponse();
+          switch (serverPacket.whichType()) {
+            case ServerPacket_Type.message:
+              _dataStreamServices.handleIncomingMessage(
+                serverPacket.message,
+                isOnlineMessage: true,
+              );
+              break;
+            case ServerPacket_Type.messageDeliveryAck:
+              _dataStreamServices
+                  .handleAckMessage(serverPacket.messageDeliveryAck);
+              break;
+            case ServerPacket_Type.seen:
+              _dataStreamServices.handleSeen(serverPacket.seen);
+              break;
+            case ServerPacket_Type.activity:
+              _dataStreamServices.handleActivity(serverPacket.activity);
+              break;
+            case ServerPacket_Type.roomPresenceTypeChanged:
+              _dataStreamServices.handleRoomPresenceTypeChange(
+                serverPacket.roomPresenceTypeChanged,
+              );
+              break;
+            case ServerPacket_Type.callOffer:
+              _dataStreamServices.handleCallOffer(serverPacket.callOffer);
+              break;
+            case ServerPacket_Type.callAnswer:
+              _dataStreamServices.handleCallAnswer(serverPacket.callAnswer);
+              break;
+            case ServerPacket_Type.pong:
+              _lastPongTime = serverPacket.pong.serverTime.toInt();
+              break;
+            case ServerPacket_Type.liveLocationStatusChanged:
+            case ServerPacket_Type.error:
+              // TODO(hasan): Handle these cases, https://gitlab.iais.co/deliver/wiki/-/issues/411
+              break;
+            case ServerPacket_Type.notSet:
+            case ServerPacket_Type.expletivePacket:
+              break;
+          }
+        },
+        onError: (e) {
+          _logger.e(e);
+          _onConnectionError();
+          connectionError.add(e.toString());
+        },
+      );
     } catch (e) {
+      _onConnectionError();
+      connectionError.add(e.toString());
       _logger.e(e);
-      return startStream();
     }
+  }
+
+  void _onConnectionError() {
+    Timer(const Duration(seconds: 2), () {
+      _connectionStatus.add(ConnectionStatus.Disconnected);
+      disconnectedTime.add(backoffTime - 1);
+    });
   }
 
   Future<void> sendMessage(MessageByClient message) async {
@@ -234,7 +277,7 @@ class CoreServices {
       if (isWeb ||
           _clientPacketStream == null ||
           _clientPacketStream!.isClosed) {
-        await _grpcCoreService.sendClientPacket(packet);
+        await _services.coreServiceClient.sendClientPacket(packet);
       } else if (forceToSendEvenNotConnected ||
           _connectionStatus.value == ConnectionStatus.Connected) {
         _clientPacketStream!.add(packet);

@@ -14,6 +14,7 @@ import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
@@ -58,7 +59,7 @@ class CallRepo {
   final _logger = GetIt.I.get<Logger>();
   final _coreServices = GetIt.I.get<CoreServices>();
   final _callService = GetIt.I.get<CallService>();
-  final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
+  final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _callListDao = GetIt.I.get<CallInfoDao>();
   final _authRepo = GetIt.I.get<AuthRepo>();
@@ -770,7 +771,7 @@ class CallRepo {
       receivePort = await FlutterForegroundTask.restartService();
     } else {
       receivePort = await FlutterForegroundTask.startService(
-        notificationTitle: 'Deliver Call on BackGround',
+        notificationTitle: '$APPLICATION_NAME Call on BackGround',
         notificationText: 'Tap to return to the app',
         callback: startCallback,
       );
@@ -1372,7 +1373,7 @@ class CallRepo {
     try {
       var date = clock.now();
       for (var i = 0; i < 6; i++) {
-        final callLists = await _queryServiceClient.fetchUserCalls(
+        final callLists = await _sdr.queryServiceClient.fetchUserCalls(
           FetchUserCallsReq()
             ..roomUid = roomUid
             ..limit = 200

@@ -163,7 +163,7 @@ class ImageUiState extends State<ImageUi> {
                                     shape: BoxShape.circle,
                                   ),
                                   child: CircularPercentIndicator(
-                                    radius: 50.0,
+                                    radius: 25.0,
                                     lineWidth: 4.0,
                                     backgroundColor: lowlight,
                                     percent: snap.data!,

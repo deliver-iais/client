@@ -7,9 +7,9 @@ final ACTIVE_COLOR = Colors.greenAccent.shade700;
 
 const LIGHT_BOX_SHADOWS = [
   BoxShadow(
-    color: Color(0x11000000),
+    color: Color(0x10000000),
     spreadRadius: 2,
-    blurRadius: 8,
+    blurRadius: 6,
     offset: Offset(0, 2),
   )
 ];

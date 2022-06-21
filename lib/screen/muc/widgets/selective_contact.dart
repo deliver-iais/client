@@ -23,7 +23,6 @@ class SelectiveContactState extends State<SelectiveContact> {
   Widget build(BuildContext context) {
     return ContactWidget(
       contact: widget.contact,
-      circleIcon: widget.isSelected ? CupertinoIcons.checkmark_circle : null,
       isSelected: widget.isSelected,
       currentMember: widget.currentMember,
     );

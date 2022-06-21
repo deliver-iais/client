@@ -6,10 +6,10 @@ part 'account.g.dart';
 @HiveType(typeId: ACCOUNT_TRACK_ID)
 class Account {
   @HiveField(0)
-  String? countryCode;
+  int? countryCode;
 
   @HiveField(1)
-  String? nationalNumber;
+  int? nationalNumber;
 
   @HiveField(2)
   String? username;
@@ -45,8 +45,8 @@ class Account {
   });
 
   Account copyWith({
-    String? countryCode,
-    String? nationalNumber,
+    int? countryCode,
+    int? nationalNumber,
     String? username,
     String? firstname,
     String? lastname,

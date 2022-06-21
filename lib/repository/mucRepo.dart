@@ -12,6 +12,7 @@ import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
+import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -32,7 +33,7 @@ class MucRepo {
   final _mucDao = GetIt.I.get<MucDao>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _mucServices = GetIt.I.get<MucServices>();
-  final _queryServices = GetIt.I.get<QueryServiceClient>();
+  final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
@@ -95,8 +96,8 @@ class MucRepo {
 
   Future<bool> channelIdIsAvailable(String id) async {
     try {
-      final result =
-          await _queryServices.idIsAvailable(IdIsAvailableReq()..id = id);
+      final result = await _sdr.queryServiceClient
+          .idIsAvailable(IdIsAvailableReq()..id = id);
       return result.isAvailable;
     } catch (e) {
       return false;

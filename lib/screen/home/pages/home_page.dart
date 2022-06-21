@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:ui';
-
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
 import 'package:deliver/services/core_services.dart';

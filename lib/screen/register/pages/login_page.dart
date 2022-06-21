@@ -4,25 +4,24 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
-
 import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/register/pages/two_step_verification_page.dart';
 import 'package:deliver/screen/register/pages/verification_page.dart';
 import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
+import 'package:deliver/screen/settings/pages/connection_setting_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/phone.dart';
-
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver/shared/widgets/out_of_date.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
@@ -56,6 +55,8 @@ class LoginPageState extends State<LoginPage> {
   Timer? tokenGeneratorTimer;
   PhoneNumber? phoneNumber;
   final TextEditingController controller = TextEditingController();
+
+  final BehaviorSubject<bool> _networkError = BehaviorSubject.seeded(false);
 
   @override
   void initState() {
@@ -169,6 +170,7 @@ class LoginPageState extends State<LoginPage> {
           _isLoading.add(false);
           _logger.e(e);
           if (e.code == StatusCode.unavailable) {
+            _networkError.add(true);
             ToastDisplay.showToast(
               toastText: _i18n.get("notwork_is_unavailable"),
               toastContext: context,
@@ -244,7 +246,7 @@ class LoginPageState extends State<LoginPage> {
             },
           ),
           const SizedBox(height: 30),
-          const Text("1. Open Deliver on your phone"),
+          const Text("1. Open $APPLICATION_NAME on your phone"),
           const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -365,7 +367,7 @@ class LoginPageState extends State<LoginPage> {
                                       recognizer: TapGestureRecognizer()
                                         ..onTap = () => launchUrl(
                                               Uri.parse(
-                                                "https://deliver-co.ir/#/termofuse",
+                                                "https://wemessenger.ir/terms",
                                               ),
                                             ),
                                     ),
@@ -383,6 +385,46 @@ class LoginPageState extends State<LoginPage> {
                           ],
                         )
                     ],
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: StreamBuilder<bool>(
+                    initialData: false,
+                    stream: _networkError.stream,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data!) {
+                        return Container(
+                          height: 40,
+                          decoration: BoxDecoration(
+                            color: theme.colorScheme.secondaryContainer,
+                            borderRadius: tertiaryBorder,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(_i18n.get("go_connection_setting_page")),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (c) {
+                                        return const ConnectionSettingPage(
+                                          rootFromLoginPage: true,
+                                        );
+                                      },
+                                    ),
+                                  );
+                                },
+                                child: Text(_i18n.get("settings")),
+                              )
+                            ],
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
                   ),
                 ),
                 if (_acceptPrivacy)

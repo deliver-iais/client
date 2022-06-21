@@ -3,6 +3,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
+import 'package:deliver/screen/contacts/empty_contacts.dart';
 import 'package:deliver/screen/muc/widgets/selective_contact.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
@@ -121,10 +122,14 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                   if (snapshot.hasData &&
                       snapshot.data != null &&
                       snapshot.data!.isNotEmpty) {
-                    snapshot.data!.removeWhere(
-                      (element) => _authRepo.isCurrentUser(element.uid),
-                    );
-                    contacts = snapshot.data!;
+                    contacts = snapshot.data!
+                        .where(
+                          (element) =>
+                              !_authRepo.isCurrentUser(element.uid) &&
+                              !element.isUsersContact(),
+                        )
+                        .toList(growable: false);
+
                     items ??= contacts;
 
                     if (items!.isNotEmpty) {
@@ -141,13 +146,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                         },
                       );
                     } else {
-                      return Center(
-                        child: Text(
-                          i18n.get("no_results"),
-                          style: theme.textTheme.subtitle1!
-                              .copyWith(color: Colors.red),
-                        ),
-                      );
+                      return const EmptyContacts();
                     }
                   } else {
                     return const SizedBox.shrink();

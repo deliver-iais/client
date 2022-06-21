@@ -84,7 +84,7 @@ class VideoMessageState extends State<VideoMessage> {
                             1 >= snapshot.data! &&
                             snapshot.data! > 0) {
                           return CircularPercentIndicator(
-                            radius: 50.0,
+                            radius: 25.0,
                             lineWidth: 4.0,
                             percent: snapshot.data!,
                             center: StreamBuilder<CancelToken?>(

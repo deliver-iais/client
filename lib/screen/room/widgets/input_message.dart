@@ -127,8 +127,7 @@ class InputMessageWidgetState extends State<InputMessage> {
   bool _shouldSynthesize = true;
   final record = Record();
 
-  final ValueNotifier<TextDirection> _textDir =
-      ValueNotifier(TextDirection.ltr);
+  late final ValueNotifier<TextDirection> _textDir;
 
   final botCommandRegexp = RegExp(r"([a-zA-Z0-9_])*");
   final idRegexp = RegExp(r"([a-zA-Z0-9_])*");
@@ -165,7 +164,7 @@ class InputMessageWidgetState extends State<InputMessage> {
 
     currentRoom = widget.currentRoom;
     widget.textController.text = (currentRoom.draft ?? "");
-
+    _textDir = ValueNotifier(getDirection(widget.textController.text));
     isTypingActivitySubject
         .throttle((_) => TimerStream(true, const Duration(seconds: 10)))
         .listen((activityType) {
@@ -570,7 +569,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                                   final s =
                                       await getApplicationDocumentsDirectory();
                                   final path =
-                                      "${s.path}/Deliver/${clock.now().millisecondsSinceEpoch}.m4a";
+                                      "${s.path}/$APPLICATION_FOLDER_NAME/${clock.now().millisecondsSinceEpoch}.m4a";
                                   _audioPlayerService.pause();
                                   recordSubject.add(clock.now());
                                   setTime();
@@ -590,6 +589,10 @@ class InputMessageWidgetState extends State<InputMessage> {
                                 }
                               },
                               onLongPressEnd: (s) async {
+                                if (!recordAudioPermission) {
+                                  return;
+                                }
+
                                 _tickTimer.cancel();
                                 final res = await record.stop();
 

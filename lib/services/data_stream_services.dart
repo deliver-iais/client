@@ -19,6 +19,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/notification_services.dart';
@@ -54,8 +55,8 @@ class DataStreamServices {
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _lastActivityDao = GetIt.I.get<LastActivityDao>();
-  final _mucDao = GetIt.I.get<MucDao>();
-  final _queryServicesClient = GetIt.I.get<QueryServiceClient>();
+  final _sdr = GetIt.I.get<MucDao>();
+  final _services = GetIt.I.get<ServicesDiscoveryRepo>();
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _messageExtractorServices = GetIt.I.get<MessageExtractorServices>();
 
@@ -113,7 +114,7 @@ class DataStreamServices {
                 );
                 return null;
               }
-              await _mucDao.deleteMember(
+              await _sdr.deleteMember(
                 Member(
                   memberUid: message
                       .persistEvent.mucSpecificPersistentEvent.issuer
@@ -325,7 +326,7 @@ class DataStreamServices {
     // there is no message in db for editing, so if we fetch it eventually, it will be edited anyway
     if (savedMsg == null) return;
 
-    final res = await _queryServicesClient.fetchMessages(
+    final res = await _services.queryServiceClient.fetchMessages(
       FetchMessagesReq()
         ..roomUid = roomUid
         ..limit = 1
@@ -553,7 +554,9 @@ class DataStreamServices {
 
         if (msg != null) {
           if (msg.id! <= firstMessageId || (msg.isHidden && msg.id == 1)) {
-            await _roomDao.updateRoom(uid: roomUid.asString(), deleted: true);
+            _roomDao
+                .updateRoom(uid: roomUid.asString(), deleted: true)
+                .ignore();
             break;
           } else if (!msg.isHidden) {
             lastNotHiddenMessage = msg;
@@ -573,12 +576,15 @@ class DataStreamServices {
     }
 
     if (lastNotHiddenMessage != null) {
-      await _roomDao.updateRoom(
-        uid: roomUid.asString(),
-        firstMessageId: firstMessageId,
-        lastMessageId: lastMessageId,
-        lastMessage: lastNotHiddenMessage,
-      );
+      _roomDao
+          .updateRoom(
+            uid: roomUid.asString(),
+            firstMessageId: firstMessageId,
+            lastMessageId: lastMessageId,
+            synced: true,
+            lastMessage: lastNotHiddenMessage,
+          )
+          .ignore();
       return lastNotHiddenMessage;
     } else {
       return null;
@@ -590,7 +596,7 @@ class DataStreamServices {
     int pointer,
     int firstMessageId,
   ) async {
-    final fetchMessagesRes = await _queryServicesClient.fetchMessages(
+    final fetchMessagesRes = await _services.queryServiceClient.fetchMessages(
       FetchMessagesReq()
         ..roomUid = roomUid
         ..pointer = Int64(pointer)
@@ -625,7 +631,7 @@ class DataStreamServices {
     final pointer = lastMessageId;
     try {
       // TODO(hasan): Add just hidden message flag in protocol for better query to server just for hidden message of calls.
-      final fetchMessagesRes = await _queryServicesClient.fetchMessages(
+      final fetchMessagesRes = await _services.queryServiceClient.fetchMessages(
         FetchMessagesReq()
           ..roomUid = roomUid
           ..pointer = Int64(pointer)

@@ -3,6 +3,7 @@
 import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/last_activity_dao.dart';
 import 'package:deliver/box/last_activity.dart';
+import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
@@ -13,8 +14,7 @@ class LastActivityRepo {
   final _lastActivityDao = GetIt.I.get<LastActivityDao>();
   final _logger = GetIt.I.get<Logger>();
 
-  final QueryServiceClient _queryServiceClient =
-      GetIt.I.get<QueryServiceClient>();
+  final _sdp = GetIt.I.get<ServicesDiscoveryRepo>();
 
   Future<void> updateLastActivity(Uid userUId) async {
     final la = await _lastActivityDao.get(userUId.asString());
@@ -31,7 +31,7 @@ class LastActivityRepo {
   Stream<LastActivity?> watch(String uid) => _lastActivityDao.watch(uid);
 
   Future<void> _getLastActivityTime(Uid currentUserUid) async {
-    final lastActivityTime = await _queryServiceClient
+    final lastActivityTime = await _sdp.queryServiceClient
         .getLastActivity(GetLastActivityReq()..uid = currentUserUid);
 
     _logger.v(lastActivityTime.toString());

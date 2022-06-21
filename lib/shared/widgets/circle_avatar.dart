@@ -18,6 +18,7 @@ class CircleAvatarWidget extends StatelessWidget {
   final bool showSavedMessageLogoIfNeeded;
   final bool hideName;
   final bool isHeroEnabled;
+  final BorderRadius? borderRadius;
   final _streamKey = GlobalKey();
   final _futureKey = GlobalKey();
   late final _globalKey = GlobalObjectKey(contactUid.asString());
@@ -30,6 +31,7 @@ class CircleAvatarWidget extends StatelessWidget {
     this.contactUid,
     this.radius, {
     super.key,
+    this.borderRadius,
     this.forceText = "",
     this.hideName = false,
     this.isHeroEnabled = true,
@@ -47,6 +49,18 @@ class CircleAvatarWidget extends StatelessWidget {
     final scheme =
         ExtraTheme.of(context).messageColorScheme(contactUid.asString());
 
+    var boxDecoration = BoxDecoration(
+      shape: BoxShape.circle,
+      color: scheme.primary,
+    );
+
+    if (borderRadius != null) {
+      boxDecoration = BoxDecoration(
+        borderRadius: borderRadius,
+        color: scheme.primary,
+      );
+    }
+
     return HeroMode(
       enabled: isHeroEnabled,
       child: Hero(
@@ -56,8 +70,7 @@ class CircleAvatarWidget extends StatelessWidget {
           width: radius * 2,
           height: radius * 2,
           clipBehavior: Clip.hardEdge,
-          decoration:
-              BoxDecoration(shape: BoxShape.circle, color: scheme.primary),
+          decoration: boxDecoration,
           child: getImageWidget(contactUid, scheme.onPrimary),
         ),
       ),

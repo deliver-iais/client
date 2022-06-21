@@ -276,7 +276,7 @@ class WindowsNotifier implements Notifier {
           imagePath: file!,
         );
       } else {
-        final deliverIcon = await _fileServices.getDeliverIcon();
+        final deliverIcon = await _fileServices.getApplicationIcon();
         if (deliverIcon != null && deliverIcon.existsSync()) {
           toast = await WinToast.instance().showToast(
             type: ToastType.imageAndText02,
@@ -330,7 +330,7 @@ class WindowsNotifier implements Notifier {
           imagePath: file!,
         );
       } else {
-        final deliverIcon = await _fileServices.getDeliverIcon();
+        final deliverIcon = await _fileServices.getApplicationIcon();
         if (deliverIcon != null && deliverIcon.existsSync()) {
           toast = await WinToast.instance().showToast(
             type: ToastType.imageAndText02,

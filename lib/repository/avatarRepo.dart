@@ -7,6 +7,7 @@ import 'package:dcache/dcache.dart';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/dao/avatar_dao.dart';
 import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -30,9 +31,7 @@ class AvatarRepo {
   final _avatarDao = GetIt.I.get<AvatarDao>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
-  final _avatarServices = GetIt.I.get<AvatarServiceClient>();
-  final _queryServices = GetIt.I.get<query_pb.QueryServiceClient>();
-  final _botServiceClient = GetIt.I.get<bot_pb.BotServiceClient>();
+  final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
 
   final Cache<String, Avatar> _avatarCache =
       LruCache<String, Avatar>(storage: InMemoryStorage(50));
@@ -55,7 +54,8 @@ class AvatarRepo {
   Future<void> _getAvatarRequest(Uid userUid) async {
     try {
       final getAvatarReq = GetAvatarReq()..uidList.add(userUid);
-      final getAvatars = await _avatarServices.getAvatar(getAvatarReq);
+      final getAvatars =
+          await _sdr.avatarServiceClient.getAvatar(getAvatarReq);
       final avatars = getAvatars.avatar
           .map(
             (e) => Avatar(
@@ -252,10 +252,10 @@ class AvatarRepo {
   Future<bool> _addAvatarRequest(avatar_pb.Avatar avatar) async {
     try {
       if (avatar.category == Categories.BOT) {
-        await _botServiceClient
+        await _sdr.botServiceClient
             .addAvatar(bot_pb.AddAvatarReq()..avatar = avatar);
       } else {
-        await _queryServices
+        await _sdr.queryServiceClient
             .addAvatar(query_pb.AddAvatarReq()..avatar = avatar);
       }
       return true;
@@ -277,10 +277,10 @@ class AvatarRepo {
           ? avatar.uid.asUid().category
           : _authRepo.currentUserUid.category;
     if (avatar.uid.isBot()) {
-      await _botServiceClient
+      await _sdr.botServiceClient
           .removeAvatar(bot_pb.RemoveAvatarReq()..avatar = deleteAvatar);
     } else {
-      await _queryServices
+      await _sdr.queryServiceClient
           .removeAvatar(query_pb.RemoveAvatarReq()..avatar = deleteAvatar);
     }
     await _avatarDao.removeAvatar(avatar);

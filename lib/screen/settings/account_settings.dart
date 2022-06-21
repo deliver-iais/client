@@ -171,7 +171,7 @@ class AccountSettingsState extends State<AccountSettings> {
       },
       child: Scaffold(
         extendBodyBehindAppBar: true,
-        appBar: UltimateAppBar(
+        appBar: BlurredPreferredSizedWidget(
           child: AppBar(
             titleSpacing: 8,
             title: Column(

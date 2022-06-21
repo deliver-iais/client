@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 const APPLICATION_NAME = "We";
 
 // Links Constants
+const APPLICATION_FOLDER_NAME = "We";
 const APPLICATION_DOMAIN = "wemessenger.ir";
 const SHARE_PRIVATE_DATA_ACCEPTANCE_URL = "spda";
 const ADD_CONTACT_URL = "ac";
@@ -115,6 +116,59 @@ const SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE =
 const SHARED_DAO_TWO_STEP_VERIFICATION_ENABLED =
     "SHARED_DAO_TWO_STEP_VERIFICATION_ENABLED";
 const SHARED_DAO_WINDOWS_SIZE = "SHARED_DAO_WINDOWS_SIZE";
+const SHARED_DAO_BAD_CERTIFICATE_CONNECTION =
+    "SHARED_DAO_USE_CERTIFICATE_CONNECTION";
+const SHARE_DAO_HOST_SET_BY_USER = "SHARE_DAO_HOST_SET_BY_USER";
+
+// FEATURE FLAGS
+const SHARED_DAO_FEATURE_FLAGS_VOICE_CALL =
+    "SHARED_DAO_FEATURE_FLAGS_VOICE_CALL";
+
+const ACCESS_TO_CALL_UID_LIST = [
+  "0:0fe14dcc-52e9-41c2-be8b-b995c28d8310", // "Esmael Dansi"
+  "0:3e85b94e-1a0b-4b11-b7e2-3b5e96bcabfd", // "dansi"
+  "0:db8ab0da-d0cb-4aaf-b642-2419ef59f05d", // "Esmael Dansi2"
+  "0:1cde64f0-d68b-4767-9123-5a90b4b06c1c", // "Beheshti"
+  "0:e9cdce3d-5528-4ea2-9698-c379617d0329", // "Chitsaz"
+  "0:b89fa74c-a583-4d64-aa7d-56ab8e37edcd", // "Chitsaz 2"
+  "0:1a40fc30-27a5-4497-ba08-3c9fab086ef7", // "Shariatikia"
+  "0:bfe1a3aa-ed7f-46c4-a4c0-ea7267eebdea", // "Shariatikia 2"
+  "0:e2014d58-1979-4cb0-9d37-0101beb4f61d", // "Arash"
+  "0:a707279e-cdaf-4a98-a418-1df9517bc189", // "Habibollah Rad"
+  "0:2c821e6e-7c33-4b1e-9467-4b0e25556d71", // "Hossein Zaree"
+  "0:63dac049-5bb7-4a8e-ab5f-a9f415e7620d", // "Ali Nasiri"
+  "0:120ce7cd-0a02-4999-b54a-e0d13dc8247b", // "Meysam Mirzaee"
+
+  "0:13a47dd4-1867-431d-b340-16fc9ad2f444", // "Ahmad Mohammad Zadeh"
+  "0:d62989a3-2ef3-4ec8-a025-9906059492a8", // "Amirhossein Mazraee"
+  "0:63dac049-5bb7-4a8e-ab5f-a9f415e7620d", // "Ali Nasiri"
+  "0:8160fae8-3da2-42dd-943b-7a1aa98ae30e", // "Hadi Pakatchi"
+  "0:d93554de-4538-4071-ae74-845fdf193c3b", // "Hadi Zamani"
+  "0:51af5102-317d-4e40-a7f2-c64d973f4a50", // "Hamed Aghababayi"
+  "0:d15788f8-3954-418f-8bd4-41af4eed4ac8", // "Hamed Hasani"
+  "0:e4e9fe2a-3c18-48bf-b3b6-d5acd9f93d63", // "HamedReza Ghasemi"
+  "0:81e3b5b8-25eb-45fd-802f-bfa84a137b43", // "Mahdi Karami"
+  "0:089a8c7a-b551-4d71-87d7-4247ea96b7a0", // "Mohammad Ghadiri"
+  "0:5b53c2be-2d51-418d-a774-447f821aa3e5", // "Jafar Aghayari"
+  "0:ee53216c-28ed-4e04-b71a-c2644aee3f1b", // "Mohammad Reza Rafeie"
+  "0:86cc19a0-72d7-4019-8d14-6ec2b77e508b", // "Morteza Abrari"
+  "0:38529d38-590b-4428-ad99-61d2c11d47fc", // "Morteza Abrari"
+  "0:8bbb27a4-9ba0-4008-9769-b681e598f054", // "Vahid Ghasemi"
+  "0:267b35f2-d457-4725-b8e9-ecb5b8a6d9fd", // "Alireza Salimi"
+  "0:09ffbc77-78ff-4656-bfd0-0fce97d76e31", // "Alireza Ahadi"
+  "0:1d0e274f-e310-4028-a101-3fd4fedf0292", // "Khanom Esbati"
+  "0:cd1f4e71-d9ee-4e9e-ba00-05939f8beb81", // "Arian Reyhane"
+  "0:e2063c67-696b-49ea-8d9d-be13a01e4cc3", // "Hamid Afzal"
+  "0:e5b4dfa2-2f71-4d22-a0e1-0303b6c3c9a4", // "Banif"
+  "0:0c2a619f-5979-49de-ab6c-1f904d4ecbc2", // "Alireza Kazemi"
+  "0:34735204-6f3b-407e-adce-3a9fb14bb879", // "Masoud Ramfar"
+  "0:670cb757-ba25-4069-b180-6729d1b0bd53", // "Moghimi"
+  "0:d27c0149-46e6-48ee-ac7d-9b9a9484aae3", // "Arshia Badi"
+  "0:6362efca-ceed-443a-be71-2989d3968fa8", // "Ali Hosseini"
+  "0:387d60f3-7222-4f4f-b8c3-4fd5d14b5a8e", // "Talebi"
+  "0:4321e7b3-c5c3-4ee4-9682-11096199cda5", // "Hadi Aghayi"
+  "0:eb3b7553-ec68-479b-ba38-06b1ced65bec", // "Ramazani"
+];
 
 // Notification Constants
 const String OPEN_CHAT_ACTION_ID =
@@ -169,12 +223,15 @@ const SLOW_ANIMATION_DURATION = Duration(milliseconds: 200);
 const SUPER_SLOW_ANIMATION_DURATION = Duration(milliseconds: 500);
 
 // UI
-const double FLUID_MAX_WIDTH = 400;
-const double FLUID_MAX_HEIGHT = 540;
-const double FLUID_CONTAINER_MAX_WIDTH = 768;
-const double BREAKDOWN_SIZE = 768;
-const double NAVIGATION_PANEL_SIZE = 320;
-const double MIN_WIDTH = 200;
+const double APPBAR_HEIGHT = 56.0;
+const double FLUID_MAX_WIDTH = 400.0;
+const double FLUID_MAX_HEIGHT = 540.0;
+const double FLUID_CONTAINER_MAX_WIDTH = 768.0;
+const double VERY_LARGE_BREAKDOWN_SIZE = 1150.0;
+const double LARGE_BREAKDOWN_SIZE = 768.0;
+const double NAVIGATION_PANEL_SIZE = 320.0;
+const double MIN_WIDTH = 200.0;
+const int SCROLL_DOWN_BUTTON_HIDING_TIME = 2500;
 const mainBorder = BorderRadius.all(Radius.circular(28));
 const secondaryBorder = BorderRadius.all(Radius.circular(12));
 const tertiaryBorder = BorderRadius.all(Radius.circular(8));
@@ -184,9 +241,14 @@ const buttonBorder = BorderRadius.all(Radius.circular(20));
 ////////////////////// Functions //////////////////////
 
 // Screen Breakdown
-bool isLargeWidth(double width) => width > BREAKDOWN_SIZE;
+bool isLargeWidth(double width) => width > LARGE_BREAKDOWN_SIZE;
 
 bool isLarge(BuildContext context) =>
+    isLargeWidth(MediaQuery.of(context).size.width);
+
+bool isVeryLargeWidth(double width) => width > VERY_LARGE_BREAKDOWN_SIZE;
+
+bool isVeryLarge(BuildContext context) =>
     isLargeWidth(MediaQuery.of(context).size.width);
 
 // Dynamics

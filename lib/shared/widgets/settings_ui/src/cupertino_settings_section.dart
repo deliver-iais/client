@@ -71,7 +71,7 @@ class CupertinoSection extends StatelessWidget {
       Container(
         decoration: BoxDecoration(
           borderRadius: mainBorder,
-          border: Border.all(color: theme.dividerColor),
+          border: Border.all(color: theme.colorScheme.outline),
           color: theme.colorScheme.surface,
           gradient: LinearGradient(
             colors: [
