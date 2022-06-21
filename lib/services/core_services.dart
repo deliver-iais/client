@@ -28,7 +28,7 @@ BehaviorSubject<int> disconnectedTime = BehaviorSubject.seeded(0);
 BehaviorSubject<String> connectionError = BehaviorSubject.seeded("");
 
 const MIN_BACKOFF_TIME = isWeb ? 16 : 4;
-int MAX_BACKOFF_TIME = (isAndroid || isIOS) ? 16 : 64;
+final MAX_BACKOFF_TIME = (isAndroid || isIOS) ? 16 : 64;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
 class CoreServices {
