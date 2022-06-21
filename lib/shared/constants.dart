@@ -214,6 +214,7 @@ const MESSAGE_BRIEF_TRACK_ID = 28;
 const FEATURE_1 = 'feature1';
 const FEATURE_2 = 'feature2';
 const FEATURE_3 = 'feature3';
+const FEATURE_4 = 'feature4';
 
 // Animation
 const FAST_ANIMATION_DURATION = Duration(milliseconds: 50);

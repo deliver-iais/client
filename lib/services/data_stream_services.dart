@@ -65,6 +65,7 @@ class DataStreamServices {
     String? roomName,
     required bool isOnlineMessage,
     bool saveInDatabase = true,
+    bool isFirebaseMessage = false,
   }) async {
     final roomUid = getRoomUid(_authRepo, message);
     if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
@@ -167,7 +168,9 @@ class DataStreamServices {
           message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
         _callService.addGroupCallEvent(callEvents);
       } else {
-        _callService.addCallEvent(callEvents);
+        _callService
+          ..addCallEvent(callEvents)
+          ..shouldRemoveData = isFirebaseMessage;
       }
     }
 

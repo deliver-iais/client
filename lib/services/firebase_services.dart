@@ -145,6 +145,7 @@ Future<void> _backgroundRemoteMessageHandler(
             msg,
             roomName: roomName,
             isOnlineMessage: true,
+            isFirebaseMessage: true,
           );
 
       return;

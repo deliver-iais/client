@@ -25,7 +25,7 @@ environment:
 
 dependencies:
   all_sensors2: 1.0.1
-  android_intent: 2.0.2
+  android_intent_plus: 3.1.1
   audioplayers: 1.0.0
   badges: 2.0.3
   camera: 0.9.8+1
@@ -37,8 +37,8 @@ dependencies:
   connectivity_plus: 2.3.4
   connectycube_flutter_call_kit:
     git:
-      ref: e13124fee38dd11baf639660675ca4f722dfabd3
-      url: https://github.com/androidwoman/connectycube-flutter-call-kit.git
+      ref: f10624ee079d3212dfef1e412e8bbe24f9eb3b14
+      url: https://github.com/androidwoman/connectycube_flutter_call_kit2.0.5.git
   contacts_service: 0.6.3
   custom_image_crop: 0.0.4
   date_time_format: 2.0.1
@@ -56,7 +56,10 @@ dependencies:
   device_info: 2.0.3
   dio: 4.0.6
   expandable: 5.0.1
-  feature_discovery: 0.14.1
+  feature_discovery:
+    git:
+      ref: f775bf10512cf8c00a6d7c5c35bd4f85e2f058b0
+      url: https://github.com/androidwoman/feature_discovery.git
   file_picker: 4.6.1
   file_selector: 0.8.4+3
   file_selector_linux: 0.0.2+1
@@ -70,10 +73,10 @@ dependencies:
   flutter_audio_waveforms: 1.2.1+6
   flutter_blurhash: 0.7.0
   flutter_dropzone: 3.0.5
-  flutter_foreground_task:
-    git:
-      url: https://github.com/androidwoman/flutter_foreground_task
-      ref: 27ca60817efb2d666c64bd2f28cf4dd9de62b937
+  flutter_foreground_task: 3.7.3
+#    git:
+#      url: https://github.com/androidwoman/flutter_foreground_task
+#      ref: 27ca60817efb2d666c64bd2f28cf4dd9de62b937
   flutter_image_compress: 1.1.0
   flutter_keyboard_visibility: 5.3.0
   flutter_local_notifications: 10.0.0-dev.16
@@ -200,6 +203,7 @@ flutter:
     - assets/audios/end_call.mp3
     - assets/animations/new_version.zip
     - assets/animations/out_of_date.zip
+    - assets/animations/call_permission.tgs
     - assets/animations/qr.zip
     - assets/duck_animation/
   # An image asset can refer to one or more resolution-specific "variants", see

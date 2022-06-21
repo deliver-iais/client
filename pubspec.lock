@@ -22,13 +22,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "3.4.1"
-  android_intent:
+  android_intent_plus:
     dependency: "direct main"
     description:
-      name: android_intent
+      name: android_intent_plus
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.2"
+    version: "3.1.1"
   archive:
     dependency: transitive
     description:
@@ -327,11 +327,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: e13124fee38dd11baf639660675ca4f722dfabd3
-      resolved-ref: e13124fee38dd11baf639660675ca4f722dfabd3
-      url: "https://github.com/androidwoman/connectycube-flutter-call-kit.git"
+      ref: f10624ee079d3212dfef1e412e8bbe24f9eb3b14
+      resolved-ref: f10624ee079d3212dfef1e412e8bbe24f9eb3b14
+      url: "https://github.com/androidwoman/connectycube_flutter_call_kit2.0.5.git"
     source: git
-    version: "2.0.2"
+    version: "2.0.5"
   contacts_service:
     dependency: "direct main"
     description:
@@ -521,9 +521,11 @@ packages:
   feature_discovery:
     dependency: "direct main"
     description:
-      name: feature_discovery
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: f775bf10512cf8c00a6d7c5c35bd4f85e2f058b0
+      resolved-ref: f775bf10512cf8c00a6d7c5c35bd4f85e2f058b0
+      url: "https://github.com/androidwoman/feature_discovery.git"
+    source: git
     version: "0.14.1"
   ffi:
     dependency: transitive
@@ -708,12 +710,10 @@ packages:
   flutter_foreground_task:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "27ca60817efb2d666c64bd2f28cf4dd9de62b937"
-      resolved-ref: "27ca60817efb2d666c64bd2f28cf4dd9de62b937"
-      url: "https://github.com/androidwoman/flutter_foreground_task"
-    source: git
-    version: "3.5.5"
+      name: flutter_foreground_task
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.7.3"
   flutter_image_compress:
     dependency: "direct main"
     description:

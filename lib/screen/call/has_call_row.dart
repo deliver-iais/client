@@ -88,8 +88,14 @@ class HasCallRowState extends State<HasCallRow> {
                                   builder: (context, snapshot) {
                                     if (snapshot.hasData &&
                                         snapshot.data != null) {
+                                      var callHour = snapshot.data!.hours.toString();
+                                      var callMin = snapshot.data!.minutes.toString();
+                                      var callSecond = snapshot.data!.seconds.toString();
+                                      callHour = callHour.length != 2 ? '0$callHour' : callHour;
+                                      callMin = callMin.length != 2 ? '0$callMin' : callMin;
+                                      callSecond = callSecond.length != 2 ? '0$callSecond' : callSecond;
                                       return Text(
-                                        "${snapshot.data!.hours}:${snapshot.data!.minutes}:${snapshot.data!.seconds}",
+                                        '$callHour:$callMin:$callSecond',
                                         style: const TextStyle(
                                           color: Colors.white54,
                                         ),

@@ -2,16 +2,20 @@ import 'dart:async';
 import 'dart:core';
 
 import 'package:all_sensors2/all_sensors2.dart';
+import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/audioCallScreen/audio_call_screen.dart';
 import 'package:deliver/screen/call/videoCallScreen/start_video_call_page.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:random_string/random_string.dart';
 
 import 'videoCallScreen/in_video_call_page.dart';
@@ -36,14 +40,16 @@ class CallScreen extends StatefulWidget {
   CallScreenState createState() => CallScreenState();
 }
 
-class CallScreenState extends State<CallScreen> {
+class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
   late final RTCVideoRenderer _localRenderer;
 
   late final RTCVideoRenderer _remoteRenderer;
   final callRepo = GetIt.I.get<CallRepo>();
   final _logger = GetIt.I.get<Logger>();
   final _audioService = GetIt.I.get<AudioService>();
+  final _i18n = GetIt.I.get<I18N>();
   late final String random;
+  BuildContext? dialogContext;
 
   final List<StreamSubscription<dynamic>> _streamSubscriptions =
       <StreamSubscription<dynamic>>[];
@@ -51,7 +57,18 @@ class CallScreenState extends State<CallScreen> {
       <StreamSubscription<AccelerometerEvent>>[];
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      if (dialogContext != null) {
+        Navigator.of(dialogContext!).pop();
+      }
+      checkForSystemAlertWindowPermission();
+    }
+  }
+
+  @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     random = randomAlphaNumeric(10);
     callRepo.initRenderer();
     _localRenderer = callRepo.getLocalRenderer;
@@ -65,6 +82,74 @@ class CallScreenState extends State<CallScreen> {
     super.initState();
   }
 
+  void showPermissionDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        dialogContext = context;
+        return AlertDialog(
+          title: const Tgs.asset(
+            'assets/animations/call_permission.tgs',
+            width: 150,
+            height: 150,
+          ),
+          content: Column(
+            children: [
+              Text(
+                _i18n.get(
+                  "alert_window_permission",
+                ),
+                textDirection: TextDirection.rtl,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: Text(
+                  _i18n.get(
+                    "alert_window_permission_attention",
+                  ),
+                  textDirection: TextDirection.rtl,
+                  style: const TextStyle(
+                    color: Colors.red,
+                  ),
+                ),
+              )
+            ],
+          ),
+          alignment: Alignment.center,
+          actionsAlignment: MainAxisAlignment.spaceEvenly,
+          actions: <Widget>[
+            TextButton(
+              child: Text(
+                _i18n.get(
+                  "cancel",
+                ),
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text(
+                _i18n.get("go_to_setting"),
+              ),
+              onPressed: () async {
+                await Permission.systemAlertWindow.request();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> checkForSystemAlertWindowPermission() async {
+    if (isAndroid &&
+        await getDeviceVersion() >= 31 &&
+        !await Permission.systemAlertWindow.status.isGranted) {
+      showPermissionDialog();
+    }
+  }
+
   @override
   void dispose() {
     super.dispose();
@@ -72,8 +157,16 @@ class CallScreenState extends State<CallScreen> {
       for (final subscription in _accelerometerEvents) {
         subscription?.cancel();
       }
+      setOnLockScreenVisibility();
       closeProximitySensor();
     }
+    WidgetsBinding.instance.removeObserver(this);
+  }
+
+  Future<void> setOnLockScreenVisibility() async {
+    await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
+      isVisible: false,
+    );
   }
 
   void closeProximitySensor() {
