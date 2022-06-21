@@ -401,23 +401,24 @@ class LoginPageState extends State<LoginPage> {
                             borderRadius: tertiaryBorder,
                           ),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(_i18n.get("go_connection_setting_page")),
                               TextButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (c) {
-                                          return const ConnectionSettingPage(
-                                            rootFromLoginPage: true,
-                                          );
-                                        },
-                                      ),
-                                    );
-                                  },
-                                  child: Text(_i18n.get("go_setting")),)
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (c) {
+                                        return const ConnectionSettingPage(
+                                          rootFromLoginPage: true,
+                                        );
+                                      },
+                                    ),
+                                  );
+                                },
+                                child: Text(_i18n.get("settings")),
+                              )
                             ],
                           ),
                         );

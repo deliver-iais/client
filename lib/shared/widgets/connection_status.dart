@@ -72,11 +72,10 @@ class ConnectionStatus extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 5),
-                    AnimatedContainer(
-                      duration: ANIMATION_DURATION,
-                      width:
-                          status == TitleStatusConditions.Connecting ? 11 : 0,
-                      child: SizedBox(
+                    if (status == TitleStatusConditions.Connecting ||
+                        status == TitleStatusConditions.Syncing ||
+                        status == TitleStatusConditions.Updating)
+                      SizedBox(
                         width: 11,
                         height: 11,
                         child: CircularProgressIndicator(
@@ -84,7 +83,6 @@ class ConnectionStatus extends StatelessWidget {
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
-                    ),
                   ],
                 ),
                 if (status == TitleStatusConditions.Disconnected)
@@ -101,9 +99,9 @@ class ConnectionStatus extends StatelessWidget {
                                 onPressed: _coreServices.retryFasterConnection,
                                 child: Row(
                                   children: [
-                                    const Text(
-                                      "Reconnecting in",
-                                      style: TextStyle(fontSize: 12),
+                                    Text(
+                                      _i18n.get("reconnecting"),
+                                      style: const TextStyle(fontSize: 12),
                                     ),
                                     CircularCountDownTimer(
                                       key: UniqueKey(),
