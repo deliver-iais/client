@@ -352,10 +352,17 @@ class _AllImagePageState extends State<AllImagePage>
                                             index,
                                             filePath.data,
                                           );
-                                          return buildImage(
-                                            filePath.data!,
-                                            index,
-                                          );
+                                          return isDesktop
+                                              ? InteractiveViewer(
+                                                  child: buildImage(
+                                                    filePath.data!,
+                                                    index,
+                                                  ),
+                                                )
+                                              : buildImage(
+                                                  filePath.data!,
+                                                  index,
+                                                );
                                         } else {
                                           return const Center(
                                             child: CircularProgressIndicator(
