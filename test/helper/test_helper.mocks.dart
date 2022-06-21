@@ -1021,7 +1021,7 @@ class MockDataStreamServices extends _i1.Mock
           {String? roomName,
           bool? isOnlineMessage,
           bool? saveInDatabase = true,
-          bool? isFireBaseMessage = false}) =>
+          bool? isFirebaseMessage = false}) =>
       (super.noSuchMethod(
               Invocation.method(#handleIncomingMessage, [
                 message
@@ -1029,7 +1029,7 @@ class MockDataStreamServices extends _i1.Mock
                 #roomName: roomName,
                 #isOnlineMessage: isOnlineMessage,
                 #saveInDatabase: saveInDatabase,
-                #isFireBaseMessage: isFireBaseMessage
+                #isFirebaseMessage: isFirebaseMessage
               }),
               returnValue: Future<_i22.Message?>.value())
           as _i19.Future<_i22.Message?>);

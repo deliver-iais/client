@@ -65,7 +65,7 @@ class DataStreamServices {
     String? roomName,
     required bool isOnlineMessage,
     bool saveInDatabase = true,
-    bool isFireBaseMessage = false,
+    bool isFirebaseMessage = false,
   }) async {
     final roomUid = getRoomUid(_authRepo, message);
     if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
@@ -170,7 +170,7 @@ class DataStreamServices {
       } else {
         _callService
           ..addCallEvent(callEvents)
-          ..shouldRemoveData = isFireBaseMessage;
+          ..shouldRemoveData = isFirebaseMessage;
       }
     }
 
