@@ -35,7 +35,7 @@ abstract class RoomDao {
 
   Future<List<Room>> getNotSyncedRoom();
 
-  Future<List<Room>> getNotSeenSyncedRoom();
+  Future<List<Room>> getNotSyncedSeenRoom();
 
   Stream<Room> watchRoom(String roomUid);
 
@@ -187,7 +187,7 @@ class RoomDaoImpl implements RoomDao {
   }
 
   @override
-  Future<List<Room>> getNotSeenSyncedRoom() async {
+  Future<List<Room>> getNotSyncedSeenRoom() async {
     try {
       final box = await _openRoom();
 

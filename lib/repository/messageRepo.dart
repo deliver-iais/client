@@ -239,7 +239,7 @@ class MessageRepo {
   }
 
   Future<void> _updateNotSeenSyncedRoom() async {
-    final rooms = await _roomDao.getNotSeenSyncedRoom();
+    final rooms = await _roomDao.getNotSyncedSeenRoom();
     for (final room in rooms) {
       await fetchCurrentUserLastSeen(room);
     }
