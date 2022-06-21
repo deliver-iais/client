@@ -36,7 +36,7 @@ class EmojiKeyboardState extends State<EmojiKeyboard> {
       children: <Widget>[
         const Divider(),
         Container(
-          color: theme.scaffoldBackgroundColor,
+          color: theme.colorScheme.surfaceVariant,
           child: DefaultTextStyle(
             style: const TextStyle(fontSize: 20),
             child: SizedBox(
@@ -104,7 +104,7 @@ class EmojiKeyboardState extends State<EmojiKeyboard> {
         ),
         Expanded(
           child: Container(
-            color: theme.backgroundColor,
+            color: theme.colorScheme.surface,
             child: GridView.builder(
               padding: EdgeInsets.zero,
               itemCount: emojis.length,
@@ -161,7 +161,7 @@ class EmojiKeyboardState extends State<EmojiKeyboard> {
     if (isSelectedEmojiGroup(emoji)) {
       return theme.colorScheme.primary;
     } else {
-      return theme.colorScheme.outline.withOpacity(0.9);
+      return theme.colorScheme.onSurfaceVariant.withOpacity(0.7);
     }
   }
 

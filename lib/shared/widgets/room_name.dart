@@ -59,8 +59,8 @@ class RoomName extends StatelessWidget {
                     padding: const EdgeInsets.symmetric(horizontal: 4.0),
                     child: Icon(
                       CupertinoIcons.checkmark_seal,
-                      size:
-                          ((style ?? theme.textTheme.subtitle2)?.fontSize ?? 14) + 2,
+                      size: ((style ?? theme.textTheme.subtitle2)?.fontSize ??
+                          14),
                       color: ACTIVE_COLOR,
                     ),
                   );

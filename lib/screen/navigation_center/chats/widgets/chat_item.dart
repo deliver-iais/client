@@ -164,7 +164,7 @@ class ChatItemState extends State<ChatItem> {
                     const SizedBox(
                       width: 16,
                       child: Icon(
-                        CupertinoIcons.bolt_horizontal_circle,
+                        Icons.smart_toy,
                         size: 16,
                       ),
                     ),
@@ -220,7 +220,8 @@ class ChatItemState extends State<ChatItem> {
                         if (snapshot.hasData &&
                             snapshot.data != null &&
                             snapshot.data!.messageId > -1) {
-                          unreadCount = widget.room.lastMessageId - snapshot.data!.messageId;
+                          unreadCount = widget.room.lastMessageId -
+                              snapshot.data!.messageId;
                           if (snapshot.data?.hiddenMessageCount != null) {
                             unreadCount =
                                 unreadCount - snapshot.data!.hiddenMessageCount;
