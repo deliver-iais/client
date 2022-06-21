@@ -480,8 +480,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: cb6d76beaae3e57c6639f14a456d48d117dc14e7
-      resolved-ref: cb6d76beaae3e57c6639f14a456d48d117dc14e7
+      ref: f775bf10512cf8c00a6d7c5c35bd4f85e2f058b0
+      resolved-ref: f775bf10512cf8c00a6d7c5c35bd4f85e2f058b0
       url: "https://github.com/androidwoman/feature_discovery.git"
     source: git
     version: "0.14.1"
