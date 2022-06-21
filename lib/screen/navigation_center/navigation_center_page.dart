@@ -284,11 +284,12 @@ class NavigationCenterState extends State<NavigationCenter> {
       tapTarget: Icon(CupertinoIcons.plus, color: theme.colorScheme.onSurface),
       backgroundColor: Colors.blue,
       targetColor: Colors.lightBlueAccent,
-      title: const Text('You can create new group and new channel'),
-      // TODO(hasan): more use of i18n
-      description: const FeatureDiscoveryDescriptionWidget(
-        description:
-            'If you touch this icon you can create new channel or new group with the your contact',
+      title: Text(
+        _i18n.get("create_group_feature_discovery_title"),
+        textDirection: _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+      ),
+      description: FeatureDiscoveryDescriptionWidget(
+        description: _i18n.get("create_group_feature_description"),
       ),
       child: IconTheme(
         data: IconThemeData(
@@ -492,7 +493,11 @@ class NavigationCenterState extends State<NavigationCenter> {
                 tapTarget: CircleAvatarWidget(_authRepo.currentUserUid, 20),
                 backgroundColor: Colors.indigo,
                 targetColor: Colors.indigoAccent,
-                title: const Text('You can go to setting'),
+                title: Text(
+                  _i18n.get("setting_icon_feature_discovery_title"),
+                  textDirection:
+                      _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                ),
                 overflowMode: OverflowMode.extendBackground,
                 description: FeatureDiscoveryDescriptionWidget(
                   permissionWidget: (!isDesktop)
@@ -517,9 +522,8 @@ class NavigationCenterState extends State<NavigationCenter> {
                           ),
                         )
                       : null,
-                  // TODO(hasan): more use of i18n
                   description:
-                      "1. You can chang your profile in the setting\n2. You can sync your contact and start chat with one of theme \n3. You can chang app theme\n4. You can chang app",
+                      _i18n.get("setting_icon_feature_discovery_description"),
                 ),
                 child: GestureDetector(
                   child: Center(
@@ -553,11 +557,14 @@ class NavigationCenterState extends State<NavigationCenter> {
                 ),
                 backgroundColor: Colors.deepPurple,
                 targetColor: Colors.deepPurpleAccent,
-                title: const Text('You can scan QR Code'),
-                // TODO(hasan): more use of i18n
-                description: const FeatureDiscoveryDescriptionWidget(
+                title: Text(
+                  _i18n.get("qr_code_feature_discovery_title"),
+                  textDirection:
+                      _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                ),
+                description: FeatureDiscoveryDescriptionWidget(
                   description:
-                      'for desktop app you can scan QR Code and login to your account',
+                      _i18n.get("qr_code_feature_discovery_description"),
                 ),
                 child: IconButton(
                   onPressed: () {

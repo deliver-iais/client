@@ -873,10 +873,14 @@ class RoomPageState extends State<RoomPage> {
                       ),
                       backgroundColor: Colors.teal,
                       targetColor: Colors.tealAccent,
-                      title: const Text('You can call any user you want'),
+                      title: Text(
+                        _i18n.get("call_feature_discovery_title"),
+                        textDirection: _i18n.isPersian
+                            ? TextDirection.rtl
+                            : TextDirection.ltr,
+                      ),
                       overflowMode: OverflowMode.extendBackground,
                       description: FeatureDiscoveryDescriptionWidget(
-                        // TODO(hasan): more use of i18n
                         permissionWidget: !isDesktop
                             ? FutureBuilder<int>(
                                 future: getDeviceVersion(),
@@ -885,8 +889,24 @@ class RoomPageState extends State<RoomPage> {
                                           version.data! >= 31
                                       ? Column(
                                           children: [
-                                            const Text(
-                                                "Please allow permission alert window to open app over another apps \n\nIf you dont accept the permission we cant open the app from notification in android 12 or higher",),
+                                            Text(
+                                              _i18n.get(
+                                                "alert_window_permission",
+                                              ),
+                                              textDirection: TextDirection.rtl,
+                                            ),
+                                            Padding(
+                                              padding: const EdgeInsets.only(top:10.0),
+                                              child: Text(
+                                                _i18n.get(
+                                                  "alert_window_permission_attention",
+                                                ),
+                                                textDirection: TextDirection.rtl,
+                                                style: const TextStyle(
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                            ),
                                             InkWell(
                                               onTap: () async {
                                                 FeatureDiscovery.dismissAll(
@@ -900,13 +920,20 @@ class RoomPageState extends State<RoomPage> {
                                                 mainAxisAlignment:
                                                     MainAxisAlignment.center,
                                                 children: [
-                                                  Text(
-                                                    'go to setting',
-                                                    style: theme
-                                                        .textTheme.button!
-                                                        .copyWith(
-                                                      color: Colors
-                                                          .lightGreenAccent,
+                                                  Padding(
+                                                    padding:
+                                                        const EdgeInsets.all(
+                                                      8.0,
+                                                    ),
+                                                    child: Text(
+                                                      _i18n
+                                                          .get("go_to_setting"),
+                                                      style: theme
+                                                          .textTheme.button!
+                                                          .copyWith(
+                                                        color: Colors
+                                                            .lightGreenAccent,
+                                                      ),
                                                     ),
                                                   ),
                                                   const Icon(
@@ -924,7 +951,7 @@ class RoomPageState extends State<RoomPage> {
                               )
                             : null,
                         description:
-                            "1. You can have voice call with any user \n2. You can mute your mic in call  \n3. You can put call on speaker",
+                            _i18n.get("call_feature_discovery_description"),
                       ),
                       child: IconButton(
                         onPressed: () {
