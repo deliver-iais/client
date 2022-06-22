@@ -41,8 +41,8 @@ class AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
             children: <Widget>[
               CircularFileStatusIndicator(
                 message: widget.message,
-                backgroundColor: widget.colorScheme.onPrimary,
-                foregroundColor: widget.colorScheme.primary,
+                backgroundColor: widget.colorScheme.primary,
+                foregroundColor: widget.colorScheme.onPrimary,
               ),
               Container(
                 width: widget.maxWidth * 0.55,
