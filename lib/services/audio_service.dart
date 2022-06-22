@@ -28,6 +28,8 @@ abstract class AudioPlayerModule {
 
   Stream<Duration?>? get audioCurrentPosition;
 
+  void InitPlayerCompleteSubscription();
+
   void play(String path);
 
   void seek(Duration duration) {}
@@ -98,6 +100,7 @@ class AudioService {
           .listen((event) => _audioCurrentState.add(event));
       _playerModule.audioCurrentPosition!
           .listen((event) => _audioCurrentPosition.add(event!));
+      _playerModule.InitPlayerCompleteSubscription();
     } catch (_) {}
   }
 
@@ -297,5 +300,12 @@ class NormalAudioPlayer implements AudioPlayerModule {
   @override
   void stopIncomingCallSound() {
     _callAudioPlayer.stop();
+  }
+
+  @override
+  void InitPlayerCompleteSubscription() {
+    _audioPlayer.onPlayerComplete.listen((event) {
+      _audioPlayer.stop();
+    });
   }
 }

@@ -95,7 +95,7 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
                   ),
                 ),
                 TextButton(
-                  style: theme.textButtonTheme.style!.copyWith(
+                  style: theme.textButtonTheme.style?.copyWith(
                     padding: MaterialStateProperty.all(
                       EdgeInsets.zero,
                     ),
