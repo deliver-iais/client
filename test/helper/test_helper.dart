@@ -111,6 +111,7 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
     MockSpec<LastActivityDao>(returnNullOnMissingStub: true),
     MockSpec<MucDao>(returnNullOnMissingStub: true),
     MockSpec<UxService>(returnNullOnMissingStub: true),
+    MockSpec<>(returnNullOnMissingStub: true),
   ],
 )
 MockCoreServices getAndRegisterCoreServices({
