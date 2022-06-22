@@ -4,7 +4,6 @@ import 'package:deliver/screen/room/messageWidgets/file_details.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/methods/find_file_type.dart';
-import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -38,9 +37,7 @@ class AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
       child: Stack(
         children: [
           Row(
-            crossAxisAlignment: file.name.isPersian()
-                ? CrossAxisAlignment.end
-                : CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               CircularFileStatusIndicator(
                 message: widget.message,
