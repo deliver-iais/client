@@ -8,6 +8,7 @@ import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/audioCallScreen/audio_call_screen.dart';
 import 'package:deliver/screen/call/videoCallScreen/start_video_call_page.dart';
 import 'package:deliver/services/audio_service.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -48,6 +49,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
   final _logger = GetIt.I.get<Logger>();
   final _audioService = GetIt.I.get<AudioService>();
   final _i18n = GetIt.I.get<I18N>();
+  final _routingService = GetIt.I.get<RoutingService>();
   late final String random;
   BuildContext? dialogContext;
 
@@ -367,6 +369,11 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
           case CallStatus.ENDED:
             _logger.i("END!");
             _audioService.playEndCallSound();
+            Timer(const Duration(milliseconds: 1500), () async {
+              if (_routingService.canPop()) {
+                _routingService.pop();
+              }
+            });
             callRepo.disposeRenderer();
             return AudioCallScreen(
               roomUid: widget.roomUid,

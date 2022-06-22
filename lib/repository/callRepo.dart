@@ -20,7 +20,6 @@ import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
-import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -64,7 +63,6 @@ class CallRepo {
   final _callListDao = GetIt.I.get<CallInfoDao>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _audioService = GetIt.I.get<AudioService>();
-  final _routingService = GetIt.I.get<RoutingService>();
 
   final _candidateNumber = 5;
   final _candidateTimeLimit = 250; // 0.25 sec
@@ -1266,9 +1264,6 @@ class CallRepo {
       _candidate = [];
       callingStatus.add(CallStatus.ENDED);
       Timer(const Duration(milliseconds: 1500), () async {
-        if (_routingService.canPop()) {
-          _routingService.pop();
-        }
         _roomUid = null;
         callingStatus.add(CallStatus.NO_CALL);
       });
