@@ -136,7 +136,7 @@ class CallRepo {
 
   CallRepo() {
     _callService.watchCurrentCall().listen((call) {
-      if (call != null && !isWindows) {
+      if (call != null && !isDesktop) {
         _logger.i("read call from DB");
         if (call.expireTime > clock.now().millisecondsSinceEpoch &&
             _callService.getUserCallState == UserCallState.NOCALL) {
