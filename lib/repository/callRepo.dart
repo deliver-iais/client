@@ -880,6 +880,7 @@ class CallRepo {
       endOfCallDuration,
       _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
     );
+    await initCall(isOffer: true);
   }
 
   Future<void> startCall(Uid roomId, {bool isVideo = false}) async {

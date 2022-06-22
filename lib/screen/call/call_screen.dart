@@ -211,7 +211,6 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
     //True means its VideoCall and false means AudioCall
 
     if (widget.isCallAccepted || widget.isIncomingCall) {
-      await callRepo.initCall(isOffer: true);
       if (widget.isCallAccepted) {
         await callRepo.acceptCall(widget.roomUid);
       }
