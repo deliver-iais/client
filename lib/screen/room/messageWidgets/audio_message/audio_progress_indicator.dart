@@ -11,14 +11,12 @@ import 'package:get_it/get_it.dart';
 
 class AudioProgressIndicator extends StatefulWidget {
   final String audioUuid;
-  final double duration;
   final double maxWidth;
   final CustomColorScheme? colorScheme;
 
   const AudioProgressIndicator({
     super.key,
     required this.audioUuid,
-    required this.duration,
     this.colorScheme,
     required this.maxWidth,
   });
@@ -35,86 +33,104 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
     final theme = Theme.of(context);
     return StreamBuilder<Duration>(
       stream: audioPlayerService.audioCurrentPosition(),
-      builder: (context, duration) {
-        if (duration.hasData && duration.data != null) {
-          return Column(
-            children: [
-              const SizedBox(
-                height: 10,
-              ),
-              Stack(
-                children: [
-                  if (isVoiceFile(audioPlayerService.audioPath))
-                    FutureBuilder<Uint8List>(
-                      future: File(audioPlayerService.audioPath).readAsBytes(),
-                      builder: (context, snapshot) {
-                        if (snapshot.data != null) {
-                          final samplesData =
-                              loadParseJson(snapshot.data!.toList(), 80);
-                          return RectangleWaveform(
-                            isRoundedRectangle: true,
-                            isCentered: true,
-                            borderWidth: 0,
-                            inactiveBorderColor: Color.alphaBlend(
-                              widget.colorScheme?.primary.withAlpha(70) ??
-                                  theme.primaryColor.withAlpha(70),
-                              Colors.white10,
-                            ),
-                            activeBorderColor: widget.colorScheme?.primary ??
-                                theme.primaryColor,
-                            maxDuration:
-                                Duration(seconds: widget.duration.ceil()),
-                            inactiveColor: Color.alphaBlend(
-                              widget.colorScheme?.primary.withAlpha(70) ??
-                                  theme.primaryColor.withAlpha(70),
-                              Colors.white10,
-                            ),
-                            activeColor: widget.colorScheme?.primary ??
-                                theme.primaryColor,
-                            elapsedDuration: duration.data,
-                            samples: samplesData["samples"],
-                            height: 20,
-                            width: widget.maxWidth,
-                          );
-                        }
-                        return const SizedBox(
-                          height: 20,
-                        );
-                      },
+      builder: (context, position) {
+        if (position.hasData && position.data != null) {
+          return StreamBuilder<Duration>(
+            stream: audioPlayerService.audioCurrentDuration(),
+            builder: (context, duration) {
+              if (duration.hasData && duration.data != null) {
+                return Column(
+                  children: [
+                    const SizedBox(
+                      height: 10,
                     ),
-                  Opacity(
-                    opacity: isVoiceFile(audioPlayerService.audioPath) ? 0 : 1,
-                    child: SliderTheme(
-                      data: SliderThemeData(
-                        overlayShape: SliderComponentShape.noOverlay,
-                        thumbShape:
-                            const RoundSliderThumbShape(enabledThumbRadius: 8),
-                      ),
-                      child: Slider(
-                        value: min(
-                          duration.data!.inMilliseconds / 1000,
-                          widget.duration,
-                        ),
-                        max: widget.duration + 1,
-                        onChanged: (value) {
-                          setState(() {
-                            audioPlayerService.seek(
-                              Duration(
-                                seconds: value.floor(),
+                    Stack(
+                      children: [
+                        if (isVoiceFile(audioPlayerService.audioPath))
+                          FutureBuilder<Uint8List>(
+                            future: File(audioPlayerService.audioPath)
+                                .readAsBytes(),
+                            builder: (context, snapshot) {
+                              if (snapshot.data != null) {
+                                final samplesData = loadParseJson(
+                                  snapshot.data!.toList(),
+                                  80,
+                                );
+                                return RectangleWaveform(
+                                  isRoundedRectangle: true,
+                                  isCentered: true,
+                                  borderWidth: 0,
+                                  inactiveBorderColor: Color.alphaBlend(
+                                    widget.colorScheme?.primary.withAlpha(70) ??
+                                        theme.primaryColor.withAlpha(70),
+                                    Colors.white10,
+                                  ),
+                                  activeBorderColor:
+                                      widget.colorScheme?.primary ??
+                                          theme.primaryColor,
+                                  maxDuration: Duration(
+                                    milliseconds:
+                                        duration.data!.inMilliseconds + 100,
+                                  ),
+                                  inactiveColor: Color.alphaBlend(
+                                    widget.colorScheme?.primary.withAlpha(70) ??
+                                        theme.primaryColor.withAlpha(70),
+                                    Colors.white10,
+                                  ),
+                                  activeColor: widget.colorScheme?.primary ??
+                                      theme.primaryColor,
+                                  elapsedDuration: position.data,
+                                  samples: samplesData["samples"],
+                                  height: 20,
+                                  width: widget.maxWidth,
+                                );
+                              }
+                              return const SizedBox(
+                                height: 20,
+                              );
+                            },
+                          ),
+                        Opacity(
+                          opacity:
+                              isVoiceFile(audioPlayerService.audioPath) ? 0 : 1,
+                          child: SliderTheme(
+                            data: SliderThemeData(
+                              overlayShape: SliderComponentShape.noOverlay,
+                              thumbShape: const RoundSliderThumbShape(
+                                enabledThumbRadius: 8,
                               ),
-                            );
-                            value = value;
-                          });
-                        },
-                      ),
+                            ),
+                            child: Slider(
+                              value: position.data!.inMilliseconds /
+                                  duration.data!.inMilliseconds,
+                              onChanged: (value) {
+                                setState(() {
+                                  audioPlayerService.seek(
+                                    Duration(
+                                      milliseconds: (value *
+                                              duration.data!.inMilliseconds)
+                                          .round(),
+                                    ),
+                                  );
+                                  value = value;
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(
-                height: 10,
-              ),
-            ],
+                    const SizedBox(
+                      height: 10,
+                    ),
+                  ],
+                );
+              } else {
+                return const SizedBox(
+                  height: 40,
+                );
+              }
+            },
           );
         } else {
           return const SizedBox(

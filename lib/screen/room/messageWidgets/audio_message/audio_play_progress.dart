@@ -46,7 +46,6 @@ class AudioPlayProgress extends StatelessWidget {
                         return AudioProgressIndicator(
                           maxWidth: maxWidth,
                           colorScheme: colorScheme,
-                          duration: audio.duration,
                           audioUuid: audioUuid,
                         );
                       } else {

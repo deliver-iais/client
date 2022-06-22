@@ -28,6 +28,8 @@ abstract class AudioPlayerModule {
 
   Stream<Duration?>? get audioCurrentPosition;
 
+  Stream<Duration?>? get audioDuration;
+
   Stream get playerCompleteSubscription;
 
   void play(String path);
@@ -78,6 +80,8 @@ class AudioService {
   // ignore: close_sinks
   final _audioCurrentPosition = BehaviorSubject.seeded(Duration.zero);
 
+  final _audioCurrentDuration = BehaviorSubject.seeded(Duration.zero);
+
   String _audioName = "";
 
   String _audioPath = "";
@@ -92,14 +96,20 @@ class AudioService {
 
   Stream<AudioPlayerState> audioCurrentState() => _audioCurrentState;
 
+  Stream<Duration> audioCurrentDuration() => _audioCurrentDuration;
+
   Stream<Duration> audioCurrentPosition() => _audioCurrentPosition;
 
   AudioService() {
     try {
       _playerModule.audioCurrentState!
           .listen((event) => _audioCurrentState.add(event));
-      _playerModule.audioCurrentPosition!
-          .listen((event) => _audioCurrentPosition.add(event!));
+      _playerModule.audioCurrentPosition!.listen((position) {
+        _audioCurrentPosition.add(position!);
+      });
+      _playerModule.audioDuration!.listen((duration) {
+        _audioCurrentDuration.add(duration!);
+      });
       _playerModule.playerCompleteSubscription.listen((event) {
         _audioCurrentState.add(AudioPlayerState.completed);
         _audioCenterIsOn.add(false);
@@ -206,6 +216,12 @@ class NormalAudioPlayer implements AudioPlayerModule {
   Stream<Duration> get audioCurrentPosition => _audioPlayer.onPositionChanged;
 
   @override
+  Stream get playerCompleteSubscription => _audioPlayer.onPlayerComplete;
+
+  @override
+  Stream<Duration?>? get audioDuration => _audioPlayer.onDurationChanged;
+
+  @override
   Stream<AudioPlayerState> get audioCurrentState =>
       _audioPlayer.onPlayerStateChanged.map((event) {
         switch (event) {
@@ -304,7 +320,4 @@ class NormalAudioPlayer implements AudioPlayerModule {
   void stopIncomingCallSound() {
     _callAudioPlayer.stop();
   }
-
-  @override
-  Stream get playerCompleteSubscription => _audioPlayer.onPlayerComplete;
 }
