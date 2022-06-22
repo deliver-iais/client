@@ -769,7 +769,7 @@ class MessageRepo {
             break;
           case SendingStatus.UPLIOD_FILE_FAIL:
             final pm = await _sendFileToServerOfPendingMessage(pendingMessage);
-            if (pm != null) {
+            if (pm != null && pm.status == SendingStatus.UPLOAD_FILE_COMPELED) {
               _sendMessageToServer(pm);
             }
             break;
