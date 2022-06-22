@@ -181,13 +181,14 @@ class CallRepo {
             case CallEvent_CallStatus.CREATED:
               if (_callService.getUserCallState == UserCallState.NOCALL) {
                 _callService.setUserCallState = UserCallState.INUSERCALL;
-                if(!isWindows) {
+                if (!isWindows) {
                   //get call Info and Save on DB
                   final currentCallEvent = call_event.CallEvent(
                     callDuration: callEvent.callDuration.toInt(),
                     endOfCallTime: callEvent.endOfCallTime.toInt(),
                     callType: _callService.findCallEventType(
-                        callEvent.callType),
+                      callEvent.callType,
+                    ),
                     newStatus: _callService
                         .findCallEventStatusProto(callEvent.newStatus),
                     id: callEvent.id,
@@ -1295,7 +1296,7 @@ class CallRepo {
           await disposeRenderer();
         }
       });
-    } catch (e){
+    } catch (e) {
       _logger.e(e);
     } finally {
       await _callService.clearCallData(forceToClearData: true);
