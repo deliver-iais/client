@@ -200,7 +200,7 @@ class NormalAudioPlayer implements AudioPlayerModule {
   double playbackRate = 1.0;
 
   @override
-  Stream<Duration> get audioCurrentPosition => _audioPlayer.onDurationChanged;
+  Stream<Duration> get audioCurrentPosition => _audioPlayer.onPositionChanged;
 
   @override
   Stream<AudioPlayerState> get audioCurrentState =>
