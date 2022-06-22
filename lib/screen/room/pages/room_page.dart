@@ -898,7 +898,7 @@ class RoomPageState extends State<RoomPage> {
                       ),
                       overflowMode: OverflowMode.extendBackground,
                       description: FeatureDiscoveryDescriptionWidget(
-                        permissionWidget: !isDesktop && isAndroid
+                        permissionWidget: isAndroid
                             ? FutureBuilder<int>(
                                 future: getDeviceVersion(),
                                 builder: (context, version) {
