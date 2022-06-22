@@ -54,7 +54,7 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
                               if (snapshot.data != null) {
                                 final samplesData = loadParseJson(
                                   snapshot.data!.toList(),
-                                  80,
+                                  100,
                                 );
                                 return RectangleWaveform(
                                   isRoundedRectangle: true,
@@ -68,10 +68,7 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
                                   activeBorderColor:
                                       widget.colorScheme?.primary ??
                                           theme.primaryColor,
-                                  maxDuration: Duration(
-                                    milliseconds:
-                                        duration.data!.inMilliseconds + 100,
-                                  ),
+                                  maxDuration: duration.data,
                                   inactiveColor: Color.alphaBlend(
                                     widget.colorScheme?.primary.withAlpha(70) ??
                                         theme.primaryColor.withAlpha(70),
