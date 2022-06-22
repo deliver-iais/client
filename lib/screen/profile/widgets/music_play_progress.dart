@@ -33,6 +33,7 @@ class MusicPlayProgress extends StatelessWidget {
                       return AudioProgressIndicator(
                         audioUuid: audioUuid,
                         duration: duration,
+                        maxWidth: 200,
                       );
                     } else {
                       return const SizedBox.shrink();

@@ -48,7 +48,7 @@ class AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
                 foregroundColor: widget.colorScheme.primary,
               ),
               Container(
-                width: 200,
+                width: widget.maxWidth * 0.55,
                 height: isVoiceFile(file.name) ? 70 : 100,
                 margin:
                     const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
@@ -61,7 +61,7 @@ class AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           SizedBox(
-                            width: 180,
+                            width: widget.maxWidth * 0.5,
                             child: Text(
                               file.name,
                               style: const TextStyle(
@@ -76,6 +76,7 @@ class AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
                         ],
                       ),
                     FileDetails(
+                      maxWidth: widget.maxWidth*0.55,
                       file: file,
                       colorScheme: widget.colorScheme,
                     )
@@ -94,9 +95,5 @@ class AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
         ],
       ),
     );
-  }
-
-  bool isVoiceFile(String fileName) {
-    return findFileType(fileName) == "M4A";
   }
 }

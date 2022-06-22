@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:deliver/services/audio_service.dart';
+import 'package:deliver/shared/methods/find_file_type.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_audio_waveforms/flutter_audio_waveforms.dart';
@@ -11,6 +12,7 @@ import 'package:get_it/get_it.dart';
 class AudioProgressIndicator extends StatefulWidget {
   final String audioUuid;
   final double duration;
+  final double maxWidth;
   final CustomColorScheme? colorScheme;
 
   const AudioProgressIndicator({
@@ -18,6 +20,7 @@ class AudioProgressIndicator extends StatefulWidget {
     required this.audioUuid,
     required this.duration,
     this.colorScheme,
+    required this.maxWidth,
   });
 
   @override
@@ -41,48 +44,51 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
               ),
               Stack(
                 children: [
-                  FutureBuilder<Uint8List>(
-                    future: File(audioPlayerService.audioPath).readAsBytes(),
-                    builder: (context, snapshot) {
-                      if (snapshot.data != null) {
-                        final samplesData =
-                            loadParseJson(snapshot.data!.toList(), 100);
-                        return RectangleWaveform(
-                          isRoundedRectangle: true,
-                          isCentered: true,
-                          borderWidth: 0,
-                          inactiveBorderColor: Color.alphaBlend(
-                            widget.colorScheme?.primary.withAlpha(70) ??
-                                theme.primaryColor.withAlpha(70),
-                            Colors.white10,
-                          ),
-                          activeBorderColor:
-                              widget.colorScheme?.primary ?? theme.primaryColor,
-                          maxDuration:
-                              Duration(seconds: widget.duration.ceil()),
-                          inactiveColor: Color.alphaBlend(
-                            widget.colorScheme?.primary.withAlpha(70) ??
-                                theme.primaryColor.withAlpha(70),
-                            Colors.white10,
-                          ),
-                          activeColor:
-                              widget.colorScheme?.primary ?? theme.primaryColor,
-                          elapsedDuration: duration.data,
-                          samples: samplesData["samples"],
+                  if (isVoiceFile(audioPlayerService.audioPath))
+                    FutureBuilder<Uint8List>(
+                      future: File(audioPlayerService.audioPath).readAsBytes(),
+                      builder: (context, snapshot) {
+                        if (snapshot.data != null) {
+                          final samplesData =
+                              loadParseJson(snapshot.data!.toList(), 80);
+                          return RectangleWaveform(
+                            isRoundedRectangle: true,
+                            isCentered: true,
+                            borderWidth: 0,
+                            inactiveBorderColor: Color.alphaBlend(
+                              widget.colorScheme?.primary.withAlpha(70) ??
+                                  theme.primaryColor.withAlpha(70),
+                              Colors.white10,
+                            ),
+                            activeBorderColor: widget.colorScheme?.primary ??
+                                theme.primaryColor,
+                            maxDuration:
+                                Duration(seconds: widget.duration.ceil()),
+                            inactiveColor: Color.alphaBlend(
+                              widget.colorScheme?.primary.withAlpha(70) ??
+                                  theme.primaryColor.withAlpha(70),
+                              Colors.white10,
+                            ),
+                            activeColor: widget.colorScheme?.primary ??
+                                theme.primaryColor,
+                            elapsedDuration: duration.data,
+                            samples: samplesData["samples"],
+                            height: 20,
+                            width: widget.maxWidth,
+                          );
+                        }
+                        return const SizedBox(
                           height: 20,
-                          width: 200,
                         );
-                      }
-                      return const SizedBox(
-                        height: 20,
-                      );
-                    },
-                  ),
+                      },
+                    ),
                   Opacity(
-                    opacity: 0.0,
+                    opacity: isVoiceFile(audioPlayerService.audioPath) ? 0 : 1,
                     child: SliderTheme(
                       data: SliderThemeData(
                         overlayShape: SliderComponentShape.noOverlay,
+                        thumbShape:
+                            const RoundSliderThumbShape(enabledThumbRadius: 8),
                       ),
                       child: Slider(
                         value: min(
