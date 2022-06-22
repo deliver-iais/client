@@ -309,8 +309,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                     builder: (c, sh) {
                       if (sh.hasData &&
                           !sh.data! &&
-                          !widget.waitingForForward &&
-                          !isDesktop) {
+                          !widget.waitingForForward ) {
                         return RecordAudioAnimation(
                           rightPadding: x,
                           size: size,
@@ -614,16 +613,27 @@ class InputMessageWidgetState extends State<InputMessage> {
                                   } catch (_) {}
                                 }
                               },
-                              child: const Opacity(
-                                opacity: 0,
-                                child: Material(
-                                  // button color
-                                  child: SizedBox(
-                                    width: 50,
-                                    height: 50,
-                                  ),
-                                ),
-                              ),
+                              child: startAudioRecorder
+                                  ? const Opacity(
+                                      opacity: 0,
+                                      child: Material(
+                                        // button color
+                                        child: SizedBox(
+                                          width: 50,
+                                          height: 50,
+                                        ),
+                                      ),
+                                    )
+                                  : Container(
+                                      child: const Material(
+                                        // button color
+                                        child: SizedBox(
+                                          child: Icon(Icons.mic),
+                                          width: 50,
+                                          height: 50,
+                                        ),
+                                      ),
+                                    ),
                             );
                           } else {
                             return const SizedBox(height: 50);
