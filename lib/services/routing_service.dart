@@ -161,13 +161,13 @@ class RoutingService {
     }
   }
 
-  Future<void> openCallScreen(
+  void openCallScreen(
     Uid roomUid, {
     bool isIncomingCall = false,
     bool isCallInitialized = false,
     bool isCallAccepted = false,
     bool isVideoCall = false,
-  }) async {
+  }) {
     _push(
       CallScreen(
         key: const ValueKey("/call-screen"),

@@ -528,6 +528,10 @@ class RoomPageState extends State<RoomPage> {
   }
 
   void _sendSeenMessage(List<Message> messages) {
+    if (messages.isEmpty) {
+      return;
+    }
+
     final lastSeenMessages = messages.reduce(
       (value, element) => (value.id ?? 0) > (element.id ?? 0) ? value : element,
     );

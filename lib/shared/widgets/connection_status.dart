@@ -22,7 +22,7 @@ class ConnectionStatus extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return StreamBuilder<TitleStatusConditions>(
-      initialData: TitleStatusConditions.Connected,
+      initialData: TitleStatusConditions.Disconnected,
       stream: _messageRepo.updatingStatus,
       builder: (context, snapshot) {
         final status = snapshot.data ?? TitleStatusConditions.Normal;
@@ -38,7 +38,9 @@ class ConnectionStatus extends StatelessWidget {
             margin: const EdgeInsets.symmetric(horizontal: 8),
             decoration: BoxDecoration(
               color: status == TitleStatusConditions.Connected ||
-                      status == TitleStatusConditions.Normal
+                      status == TitleStatusConditions.Normal ||
+                      status == TitleStatusConditions.Updating ||
+                      status == TitleStatusConditions.Syncing
                   ? elevation(
                       theme.colorScheme.primaryContainer,
                       theme.colorScheme.primary,
