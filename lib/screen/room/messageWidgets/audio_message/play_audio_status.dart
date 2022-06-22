@@ -37,7 +37,7 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
         height: 50,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          color: widget.backgroundColor,
+          color: widget.foregroundColor,
         ),
         child: StreamBuilder<AudioPlayerState>(
           stream: audioPlayerService.audioCurrentState(),
@@ -52,8 +52,8 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
                     return IconButton(
                       padding: EdgeInsets.zero,
                       icon: Icon(
-                        Icons.pause,
-                        color: widget.foregroundColor,
+                        Icons.pause_rounded,
+                        color: widget.backgroundColor,
                         size: 40,
                       ),
                       onPressed: () {
@@ -78,8 +78,8 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
     return IconButton(
       padding: EdgeInsets.zero,
       icon: Icon(
-        Icons.play_arrow,
-        color: widget.foregroundColor,
+        Icons.play_arrow_rounded,
+        color: widget.backgroundColor,
         size: 42,
       ),
       onPressed: () {
