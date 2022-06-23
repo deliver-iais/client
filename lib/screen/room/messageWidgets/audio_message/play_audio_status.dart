@@ -85,7 +85,7 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
         size: 42,
       ),
       onPressed: () {
-        if (isAndroid || isIOS || isMacOS) {
+        if (isAndroid || isIOS || isMacOS || isLinux) {
           audioPlayerService.play(
               audioPath, widget.uuid, widget.name, widget.duration);
         } else {
