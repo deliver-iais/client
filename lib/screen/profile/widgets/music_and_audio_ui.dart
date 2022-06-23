@@ -53,7 +53,6 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
               final json = jsonDecode(snapShot.data!.json) as Map;
               final fileUuid = json["uuid"];
               final fileName = json["name"];
-              print("${json["duration"]}");
               final fileDuration = json["duration"];
               return GestureDetector(
                 onLongPress: () => widget.addSelectedMedia(snapShot.data!),
