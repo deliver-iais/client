@@ -124,9 +124,7 @@ class EmojiKeyboardState extends State<EmojiKeyboard> {
                       Center(
                         child: Text(
                           emoji.toString(),
-                          style: GoogleFonts.notoEmoji(
-                            fontSize: 25,
-                          ),
+                          style: GoogleFonts.notoEmoji(fontSize: 25),
                         ),
                       ),
                       if (isDebugEnabled())

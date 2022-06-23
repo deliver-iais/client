@@ -1174,45 +1174,47 @@ class ProfilePageState extends State<ProfilePage>
       builder: (c1) {
         return AlertDialog(
           title: Text(_i18n.get("add_bot_to_group")),
-          content: FutureBuilder<List<Room>>(
-            future: _roomRepo.getAllGroups(),
-            builder: (c, mucs) {
-              if (mucs.hasData && mucs.data != null && mucs.data!.isNotEmpty) {
-                final s = <String>[];
-                for (final room in mucs.data!) {
-                  s.add(room.uid);
-                }
-                groups.add(s);
-                return StreamBuilder<List<String>>(
-                  stream: groups,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                      final filteredGroupList = snapshot.data!;
-                      return SizedBox(
-                        height: min(
-                          MediaQuery.of(context).size.height / 2,
-                          filteredGroupList.length * 100.toDouble(),
-                        ),
-                        width: MediaQuery.of(context).size.width / 2,
-                        child: Column(
-                          children: [
-                            TextField(
-                              onChanged: (str) {
-                                final searchRes = <String>[];
-                                for (final uid in nameOfGroup.keys) {
-                                  if (nameOfGroup[uid]!.contains(str) ||
-                                      nameOfGroup[uid] == str) {
-                                    searchRes.add(uid);
-                                  }
-                                }
-                                groups.add(searchRes);
-                              },
-                              decoration: InputDecoration(
-                                hintText: _i18n.get("search"),
-                                prefixIcon: const Icon(Icons.search),
-                              ),
+          content: Column(
+            children: [
+              TextField(
+                onChanged: (str) {
+                  final searchRes = <String>[];
+                  for (final uid in nameOfGroup.keys) {
+                    if (nameOfGroup[uid]!.contains(str) ||
+                        nameOfGroup[uid] == str) {
+                      searchRes.add(uid);
+                    }
+                  }
+                  groups.add(searchRes);
+                },
+                decoration: InputDecoration(
+                  hintText: _i18n.get("search"),
+                  prefixIcon: const Icon(Icons.search),
+                ),
+              ),
+              FutureBuilder<List<Room>>(
+                future: _roomRepo.getAllGroups(),
+                builder: (c, mucs) {
+                  if (mucs.hasData &&
+                      mucs.data != null &&
+                      mucs.data!.isNotEmpty) {
+                    final s = <String>[];
+                    for (final room in mucs.data!) {
+                      s.add(room.uid);
+                    }
+                    groups.add(s);
+                    return StreamBuilder<List<String>>(
+                      stream: groups,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                          final filteredGroupList = snapshot.data!;
+                          return SizedBox(
+                            height: min(
+                              MediaQuery.of(context).size.height / 2,
+                              filteredGroupList.length * 50.toDouble(),
                             ),
-                            Expanded(
+                            width: MediaQuery.of(context).size.width / 2,
+                            child: Expanded(
                               child: ListView.separated(
                                 itemBuilder: (c, i) {
                                   return GestureDetector(
@@ -1262,19 +1264,17 @@ class ProfilePageState extends State<ProfilePage>
                                 itemCount: snapshot.data!.length,
                               ),
                             ),
-                          ],
-                        ),
-                      );
-                    } else {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                  },
-                );
-              }
-              return const Center(child: CircularProgressIndicator());
-            },
+                          );
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      },
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+            ],
           ),
         );
       },
@@ -1285,7 +1285,7 @@ class ProfilePageState extends State<ProfilePage>
     BuildContext context,
     BuildContext c1,
     String uid,
-    String? name,
+    String? mucName,
   ) {
     showDialog(
       context: context,
@@ -1297,7 +1297,7 @@ class ProfilePageState extends State<ProfilePage>
             builder: (c, name) {
               if (name.hasData && name.data != null && name.data!.isNotEmpty) {
                 return Text(
-                  "${_i18n.get("add")} ${name.data} ${_i18n.get("to")} $name",
+                  "${_i18n.get("add")} ${name.data} ${_i18n.get("to")} $mucName",
                 );
               } else {
                 return const SizedBox.shrink();
