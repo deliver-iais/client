@@ -11,6 +11,7 @@ import 'package:get_it/get_it.dart';
 class AudioPlayProgress extends StatelessWidget {
   final File audio;
   final String audioUuid;
+  final double maxWidth;
   final CustomColorScheme colorScheme;
   static final _audioPlayerService = GetIt.I.get<AudioService>();
 
@@ -19,6 +20,7 @@ class AudioPlayProgress extends StatelessWidget {
     required this.audioUuid,
     required this.audio,
     required this.colorScheme,
+    required this.maxWidth,
   });
 
   @override
@@ -42,8 +44,8 @@ class AudioPlayProgress extends StatelessWidget {
                           uuid.data.toString().isNotEmpty &&
                           uuid.data.toString().contains(audioUuid)) {
                         return AudioProgressIndicator(
+                          maxWidth: maxWidth,
                           colorScheme: colorScheme,
-                          duration: audio.duration,
                           audioUuid: audioUuid,
                         );
                       } else {

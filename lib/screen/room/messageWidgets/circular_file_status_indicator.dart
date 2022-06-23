@@ -100,9 +100,10 @@ class _CircularFileStatusIndicatorState
   Widget showExitFile(File file, String filePath) {
     return file.type.contains("audio")
         ? PlayAudioStatus(
-            fileId: file.uuid,
+            uuid: file.uuid,
             filePath: filePath,
-            fileName: file.name,
+            name: file.name,
+            duration: file.duration,
             backgroundColor: widget.backgroundColor,
             foregroundColor: widget.foregroundColor,
           )
