@@ -20,7 +20,6 @@ import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
-import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -64,7 +63,6 @@ class CallRepo {
   final _callListDao = GetIt.I.get<CallInfoDao>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _audioService = GetIt.I.get<AudioService>();
-  final _routingService = GetIt.I.get<RoutingService>();
 
   final _candidateNumber = 5;
   final _candidateTimeLimit = 250; // 0.25 sec
@@ -136,7 +134,7 @@ class CallRepo {
 
   CallRepo() {
     _callService.watchCurrentCall().listen((call) {
-      if (call != null) {
+      if (call != null && !isDesktop) {
         _logger.i("read call from DB");
         if (call.expireTime > clock.now().millisecondsSinceEpoch &&
             _callService.getUserCallState == UserCallState.NOCALL) {
@@ -181,24 +179,28 @@ class CallRepo {
             case CallEvent_CallStatus.CREATED:
               if (_callService.getUserCallState == UserCallState.NOCALL) {
                 _callService.setUserCallState = UserCallState.INUSERCALL;
-                //get call Info and Save on DB
-                final currentCallEvent = call_event.CallEvent(
-                  callDuration: callEvent.callDuration.toInt(),
-                  endOfCallTime: callEvent.endOfCallTime.toInt(),
-                  callType: _callService.findCallEventType(callEvent.callType),
-                  newStatus: _callService
-                      .findCallEventStatusProto(callEvent.newStatus),
-                  id: callEvent.id,
-                );
-                final callInfo = current_call_info.CurrentCallInfo(
-                  callEvent: currentCallEvent,
-                  from: event.roomUid!.asString(),
-                  to: _authRepo.currentUserUid.asString(),
-                  expireTime: event.time + 60000,
-                );
+                if (!isWindows) {
+                  //get call Info and Save on DB
+                  final currentCallEvent = call_event.CallEvent(
+                    callDuration: callEvent.callDuration.toInt(),
+                    endOfCallTime: callEvent.endOfCallTime.toInt(),
+                    callType: _callService.findCallEventType(
+                      callEvent.callType,
+                    ),
+                    newStatus: _callService
+                        .findCallEventStatusProto(callEvent.newStatus),
+                    id: callEvent.id,
+                  );
+                  final callInfo = current_call_info.CurrentCallInfo(
+                    callEvent: currentCallEvent,
+                    from: event.roomUid!.asString(),
+                    to: _authRepo.currentUserUid.asString(),
+                    expireTime: event.time + 60000,
+                  );
 
-                _callService.saveCallOnDb(callInfo);
-                _logger.i("save call on db!");
+                  _callService.saveCallOnDb(callInfo);
+                  _logger.i("save call on db!");
+                }
 
                 _callService
                   ..setCallOwner = callEvent.memberOrCallOwnerPvp
@@ -878,6 +880,7 @@ class CallRepo {
       endOfCallDuration,
       _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
     );
+    await initCall(isOffer: true);
   }
 
   Future<void> startCall(Uid roomId, {bool isVideo = false}) async {
@@ -1228,70 +1231,73 @@ class CallRepo {
 
   //Windows memory leak Warning!! https://github.com/flutter-webrtc/flutter-webrtc/issues/752
   Future<void> _dispose() async {
-    if (isAndroid) {
-      _receivePort?.close();
-      await _stopForegroundTask();
-      if (!_isCaller) {
-        await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
-          isVisible: false,
-        );
+    try {
+      if (isAndroid) {
+        _receivePort?.close();
+        await _stopForegroundTask();
+        if (!_isCaller) {
+          await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
+            isVisible: false,
+          );
+        }
       }
-    }
-    if (timer != null) {
-      _logger.i("timer canceled");
-      timer!.cancel();
-    }
+      if (timer != null) {
+        _logger.i("timer canceled");
+        timer!.cancel();
+      }
 
-    if (_isCaller) {
-      if (_isConnected) {
-        await _dataChannel?.close();
-        timerConnectionFailed!.cancel();
+      if (_isCaller) {
+        if (_isConnected) {
+          await _dataChannel?.close();
+          timerConnectionFailed!.cancel();
+        }
+        timerDeclined!.cancel();
       }
-      timerDeclined!.cancel();
-    }
 
-    _logger.i("end call in service");
-    await _cleanLocalStream();
-    //await _cleanRtpSender();
-    if (_peerConnection != null) {
-      await _peerConnection?.close();
-      await _peerConnection?.dispose();
-    }
-    _candidate = [];
-    callingStatus.add(CallStatus.ENDED);
-    Timer(const Duration(milliseconds: 1500), () async {
-      if (_routingService.canPop()) {
-        _routingService.pop();
+      _logger.i("end call in service");
+      await _cleanLocalStream();
+      //await _cleanRtpSender();
+      if (_peerConnection != null) {
+        await _peerConnection?.close();
+        await _peerConnection?.dispose();
+        _peerConnection = null;
       }
-      _roomUid = null;
-      callingStatus.add(CallStatus.NO_CALL);
-    });
-    _audioService.stopBeepSound();
-    // Timer(const Duration(seconds: 2), () async {
-    //  callingStatus.add(CallStatus.NO_CALL);
-    // });
-    switching.add(false);
-    _offerSdp = "";
-    _answerSdp = "";
-    _isSharing = false;
-    _isMicMuted = false;
-    _isSpeaker = false;
-    _isCaller = false;
-    _isVideo = false;
-    _isConnected = false;
-    _reconnectTry = false;
-    _isOfferReady = false;
-    _callDuration = 0;
-    _startCallTime = 0;
-    _callDuration = 0;
-    callTimer.add(CallTimer(0, 0, 0));
-    Timer(const Duration(seconds: 2), () async {
-      if (_isInitRenderer) {
-        await disposeRenderer();
-      }
+      _candidate = [];
+      callingStatus.add(CallStatus.ENDED);
+      Timer(const Duration(milliseconds: 1500), () async {
+        _roomUid = null;
+        callingStatus.add(CallStatus.NO_CALL);
+      });
+      _audioService.stopBeepSound();
+      // Timer(const Duration(seconds: 2), () async {
+      //  callingStatus.add(CallStatus.NO_CALL);
+      // });
+      switching.add(false);
+      _offerSdp = "";
+      _answerSdp = "";
+      _isSharing = false;
+      _isMicMuted = false;
+      _isSpeaker = false;
+      _isCaller = false;
+      _isVideo = false;
+      _isConnected = false;
+      _reconnectTry = false;
+      _isOfferReady = false;
+      _callDuration = 0;
+      _startCallTime = 0;
+      _callDuration = 0;
+      callTimer.add(CallTimer(0, 0, 0));
+      Timer(const Duration(seconds: 2), () async {
+        if (_isInitRenderer) {
+          await disposeRenderer();
+        }
+      });
+    } catch (e) {
+      _logger.e(e);
+    } finally {
       await _callService.clearCallData(forceToClearData: true);
       _isEnded = false;
-    });
+    }
   }
 
   Future<void> initRenderer() async {

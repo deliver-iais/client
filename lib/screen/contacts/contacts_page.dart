@@ -52,19 +52,12 @@ class ContactsPageState extends State<ContactsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
     return Scaffold(
       appBar: BlurredPreferredSizedWidget(
         child: AppBar(
           centerTitle: false,
           titleSpacing: 8,
-          title: Row(
-            children: [
-              Text(_i18n.get("contacts")),
-              SyncContact.syncingStatusWidget(context)
-            ],
-          ),
+          title: Text(_i18n.get("contacts")),
           leading: _routingService.backButtonLeading(),
           actions: [
             IconButton(
@@ -96,55 +89,49 @@ class ContactsPageState extends State<ContactsPage> {
           } else {
             return Stack(
               children: [
-                if (contacts.isNotEmpty)
-                  ListView(
+                SafeArea(
+                  child: ListView(
                     children: [
-                      Padding(
+                      SyncContact.syncingStatusWidget(
+                        context,
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 32,
+                          horizontal: 24.0,
                           vertical: 8,
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "${contacts.length} ${_i18n.get("contacts")}",
-                              style: textTheme.labelLarge,
-                            ),
-                          ],
-                        ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                        child: FlexibleFixedHeightGridView(
-                          itemCount: contacts.length,
-                          itemBuilder: (context, index) {
-                            final c = contacts[index];
+                      if (contacts.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: FlexibleFixedHeightGridView(
+                            itemCount: contacts.length,
+                            itemBuilder: (context, index) {
+                              final c = contacts[index];
 
-                            return GestureDetector(
-                              onTap: () => _routingService.openRoom(c.uid),
-                              child: ContactWidget(
-                                contact: c,
-                                // isSelected: true,
-                                circleIcon: CupertinoIcons.qrcode,
-                                onCircleIcon: () => showQrCode(
-                                  context,
-                                  buildShareUserUrl(
-                                    c.countryCode,
-                                    c.nationalNumber,
-                                    c.firstName!,
-                                    c.lastName!,
+                              return GestureDetector(
+                                onTap: () => _routingService.openRoom(c.uid),
+                                child: ContactWidget(
+                                  contact: c,
+                                  // isSelected: true,
+                                  circleIcon: CupertinoIcons.qrcode,
+                                  onCircleIcon: () => showQrCode(
+                                    context,
+                                    buildShareUserUrl(
+                                      c.countryCode,
+                                      c.nationalNumber,
+                                      c.firstName!,
+                                      c.lastName!,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
+                              );
+                            },
+                          ),
+                        )
+                      else
+                        const EmptyContacts(),
                     ],
-                  )
-                else
-                  const EmptyContacts(),
+                  ),
+                ),
                 Align(
                   alignment: Alignment.bottomRight,
                   child: Padding(
