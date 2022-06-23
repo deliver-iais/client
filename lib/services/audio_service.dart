@@ -267,7 +267,9 @@ class NormalAudioPlayer implements AudioPlayerModule {
   @override
   void changePlaybackRate(double playbackRate) {
     this.playbackRate = playbackRate;
-    _audioPlayer.setPlaybackRate(playbackRate);
+    _audioPlayer
+      ..resume()
+      ..setPlaybackRate(playbackRate);
   }
 
   @override
