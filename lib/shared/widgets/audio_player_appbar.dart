@@ -46,14 +46,14 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
                         onPressed: () {
                           audioPlayerService.pause();
                         },
-                        icon: const Icon(Icons.pause),
+                        icon: const Icon(Icons.pause_rounded),
                       );
                     } else {
                       return IconButton(
                         onPressed: () async {
                           audioPlayerService.resume();
                         },
-                        icon: const Icon(Icons.play_arrow),
+                        icon: const Icon(Icons.play_arrow_rounded),
                       );
                     }
                   },
@@ -84,9 +84,6 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
                                     audioPlayerService.audioName,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                    ),
                                   ),
                                 ),
                         ),
@@ -95,7 +92,7 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
                   ),
                 ),
                 TextButton(
-                  style: theme.textButtonTheme.style!.copyWith(
+                  style: theme.textButtonTheme.style?.copyWith(
                     padding: MaterialStateProperty.all(
                       EdgeInsets.zero,
                     ),
@@ -136,7 +133,7 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
                   onPressed: () {
                     audioPlayerService.close();
                   },
-                  icon: const Icon(Icons.close),
+                  icon: const Icon(Icons.close_rounded),
                 )
               ],
             ),

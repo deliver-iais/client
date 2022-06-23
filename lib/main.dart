@@ -283,7 +283,7 @@ void main() async {
 }
 
 Future<void> _setWindowSize() async {
-  setWindowMinSize(const Size(500, 600));
+  setWindowMinSize(const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
   final sharedDao = GetIt.I.get<SharedDao>();
   final size = await sharedDao.get(SHARED_DAO_WINDOWS_SIZE);
   final rect = size?.split('_');
