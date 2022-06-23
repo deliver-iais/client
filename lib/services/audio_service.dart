@@ -80,11 +80,11 @@ class AudioService {
   // ignore: close_sinks
   final _audioCurrentPosition = BehaviorSubject.seeded(Duration.zero);
 
-  final _audioCurrentDuration = BehaviorSubject.seeded(Duration.zero);
-
   String _audioName = "";
 
   String _audioPath = "";
+
+  Duration _audioDuration = Duration.zero;
 
   String get audioName => _audioName;
 
@@ -96,7 +96,7 @@ class AudioService {
 
   Stream<AudioPlayerState> audioCurrentState() => _audioCurrentState;
 
-  Stream<Duration> audioCurrentDuration() => _audioCurrentDuration;
+  Duration get audioDuration => _audioDuration;
 
   Stream<Duration> audioCurrentPosition() => _audioCurrentPosition;
 
@@ -107,9 +107,6 @@ class AudioService {
       _playerModule.audioCurrentPosition!.listen((position) {
         _audioCurrentPosition.add(position!);
       });
-      _playerModule.audioDuration!.listen((duration) {
-        _audioCurrentDuration.add(duration!);
-      });
       _playerModule.playerCompleteSubscription.listen((event) {
         _audioCurrentState.add(AudioPlayerState.completed);
         _audioCenterIsOn.add(false);
@@ -117,7 +114,8 @@ class AudioService {
     } catch (_) {}
   }
 
-  Future<void> play(String path, String uuid, String name) async {
+  Future<void> play(
+      String path, String uuid, String name, double duration) async {
     // check if this the current audio which is playing or paused recently
     // and if played recently, just resume it
     if (_audioUuid.value == uuid) {
@@ -128,6 +126,7 @@ class AudioService {
     _audioUuid.add(uuid);
     _audioPath = path;
     _audioName = name;
+    _audioDuration = Duration(milliseconds: (duration * 1000).toInt());
     _audioCenterIsOn.add(true);
     _playerModule.play(path);
   }

@@ -51,9 +51,9 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
           builder: (c, snapShot) {
             if (snapShot.hasData && snapShot.data != null) {
               final json = jsonDecode(snapShot.data!.json) as Map;
-              final fileId = json["uuid"];
+              final fileUuid = json["uuid"];
               final fileName = json["name"];
-              final dur = json["duration"];
+              final fileDuration = double.parse(json["fileDuration"]);
               return GestureDetector(
                 onLongPress: () => widget.addSelectedMedia(snapShot.data!),
                 onTap: () => widget.addSelectedMedia(snapShot.data!),
@@ -62,7 +62,7 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                       ? theme.hoverColor.withOpacity(0.4)
                       : theme.backgroundColor,
                   child: FutureBuilder<String?>(
-                    future: _fileRepo.getFileIfExist(fileId, fileName),
+                    future: _fileRepo.getFileIfExist(fileUuid, fileName),
                     builder: (context, filePath) {
                       if (filePath.hasData && filePath.data != null) {
                         return Column(
@@ -71,9 +71,10 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                               title: Row(
                                 children: <Widget>[
                                   PlayAudioStatus(
-                                    fileId: fileId,
+                                    uuid: fileUuid,
                                     filePath: filePath.data!,
-                                    fileName: fileName,
+                                    name: fileName,
+                                    duration: fileDuration,
                                     backgroundColor:
                                         theme.colorScheme.onPrimary,
                                     foregroundColor: theme.colorScheme.primary,
@@ -102,9 +103,8 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                             left: 8,
                                           ),
                                           child: MusicPlayProgress(
-                                            audioUuid: fileId,
-                                            duration:
-                                                double.parse(dur.toString()),
+                                            audioUuid: fileUuid,
+                                            duration: fileDuration,
                                           ),
                                         ),
                                       ],
@@ -125,12 +125,12 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                               title: Row(
                                 children: [
                                   LoadFileStatus(
-                                    fileId: fileId,
+                                    fileId: fileUuid,
                                     fileName: fileName,
                                     isPendingMessage: false,
                                     onPressed: () async {
                                       await _fileRepo.getFile(
-                                        fileId,
+                                        fileUuid,
                                         fileName,
                                       );
                                       setState(() {});
@@ -155,10 +155,8 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                           ),
                                         ),
                                         MusicPlayProgress(
-                                          audioUuid: fileId,
-                                          duration: double.parse(
-                                            dur.toString(),
-                                          ),
+                                          audioUuid: fileUuid,
+                                          duration: fileDuration,
                                         ),
                                       ],
                                     ),

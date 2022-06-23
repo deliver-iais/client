@@ -35,99 +35,90 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
       stream: audioPlayerService.audioCurrentPosition(),
       builder: (context, position) {
         if (position.hasData && position.data != null) {
-          return StreamBuilder<Duration>(
-            stream: audioPlayerService.audioCurrentDuration(),
-            builder: (context, duration) {
-              if (duration.hasData && duration.data != null) {
-                return Column(
-                  children: [
-                    const SizedBox(
-                      height: 10,
+          return Column(
+            children: [
+              const SizedBox(
+                height: 10,
+              ),
+              Stack(
+                children: [
+                  if (isVoiceFile(audioPlayerService.audioPath))
+                    FutureBuilder<Uint8List>(
+                      future: File(audioPlayerService.audioPath).readAsBytes(),
+                      builder: (context, snapshot) {
+                        if (snapshot.data != null) {
+                          final samplesData = loadParseJson(
+                            snapshot.data!.toList(),
+                            100,
+                          );
+                          return RectangleWaveform(
+                            isRoundedRectangle: true,
+                            isCentered: true,
+                            borderWidth: 0,
+                            inactiveBorderColor: Color.alphaBlend(
+                              widget.colorScheme?.primary.withAlpha(70) ??
+                                  theme.primaryColor.withAlpha(70),
+                              Colors.white10,
+                            ),
+                            activeBorderColor: widget.colorScheme?.primary ??
+                                theme.primaryColor,
+                            maxDuration: audioPlayerService.audioDuration,
+                            inactiveColor: Color.alphaBlend(
+                              widget.colorScheme?.primary.withAlpha(70) ??
+                                  theme.primaryColor.withAlpha(70),
+                              Colors.white10,
+                            ),
+                            activeColor: widget.colorScheme?.primary ??
+                                theme.primaryColor,
+                            elapsedDuration: position.data,
+                            samples: samplesData["samples"],
+                            height: 20,
+                            width: widget.maxWidth,
+                          );
+                        }
+                        return const SizedBox(
+                          height: 20,
+                        );
+                      },
                     ),
-                    Stack(
-                      children: [
-                        if (isVoiceFile(audioPlayerService.audioPath))
-                          FutureBuilder<Uint8List>(
-                            future: File(audioPlayerService.audioPath)
-                                .readAsBytes(),
-                            builder: (context, snapshot) {
-                              if (snapshot.data != null) {
-                                final samplesData = loadParseJson(
-                                  snapshot.data!.toList(),
-                                  100,
-                                );
-                                return RectangleWaveform(
-                                  isRoundedRectangle: true,
-                                  isCentered: true,
-                                  borderWidth: 0,
-                                  inactiveBorderColor: Color.alphaBlend(
-                                    widget.colorScheme?.primary.withAlpha(70) ??
-                                        theme.primaryColor.withAlpha(70),
-                                    Colors.white10,
-                                  ),
-                                  activeBorderColor:
-                                      widget.colorScheme?.primary ??
-                                          theme.primaryColor,
-                                  maxDuration: duration.data,
-                                  inactiveColor: Color.alphaBlend(
-                                    widget.colorScheme?.primary.withAlpha(70) ??
-                                        theme.primaryColor.withAlpha(70),
-                                    Colors.white10,
-                                  ),
-                                  activeColor: widget.colorScheme?.primary ??
-                                      theme.primaryColor,
-                                  elapsedDuration: position.data,
-                                  samples: samplesData["samples"],
-                                  height: 20,
-                                  width: widget.maxWidth,
-                                );
-                              }
-                              return const SizedBox(
-                                height: 20,
-                              );
-                            },
-                          ),
-                        Opacity(
-                          opacity:
-                              isVoiceFile(audioPlayerService.audioPath) ? 0 : 1,
-                          child: SliderTheme(
-                            data: SliderThemeData(
-                              overlayShape: SliderComponentShape.noOverlay,
-                              thumbShape: const RoundSliderThumbShape(
-                                enabledThumbRadius: 8,
-                              ),
-                            ),
-                            child: Slider(
-                              value: position.data!.inMilliseconds /
-                                  duration.data!.inMilliseconds,
-                              onChanged: (value) {
-                                setState(() {
-                                  audioPlayerService.seek(
-                                    Duration(
-                                      milliseconds: (value *
-                                              duration.data!.inMilliseconds)
-                                          .round(),
-                                    ),
-                                  );
-                                  value = value;
-                                });
-                              },
-                            ),
+                  if ((position.data!.inMilliseconds /
+                          audioPlayerService.audioDuration.inMilliseconds) <=
+                      1)
+                    Opacity(
+                      opacity:
+                          isVoiceFile(audioPlayerService.audioPath) ? 0 : 1,
+                      child: SliderTheme(
+                        data: SliderThemeData(
+                          overlayShape: SliderComponentShape.noOverlay,
+                          thumbShape: const RoundSliderThumbShape(
+                            enabledThumbRadius: 8,
                           ),
                         ),
-                      ],
+                        child: Slider(
+                          value: position.data!.inMilliseconds /
+                              audioPlayerService.audioDuration.inMilliseconds,
+                          onChanged: (value) {
+                            setState(() {
+                              audioPlayerService.seek(
+                                Duration(
+                                  milliseconds: (value *
+                                          audioPlayerService
+                                              .audioDuration.inMilliseconds)
+                                      .round(),
+                                ),
+                              );
+                              value = value;
+                            });
+                          },
+                        ),
+                      ),
                     ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                  ],
-                );
-              } else {
-                return const SizedBox(
-                  height: 40,
-                );
-              }
-            },
+                ],
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+            ],
           );
         } else {
           return const SizedBox(

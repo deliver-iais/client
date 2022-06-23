@@ -6,17 +6,19 @@ import 'package:get_it/get_it.dart';
 import 'package:open_file/open_file.dart';
 
 class PlayAudioStatus extends StatefulWidget {
-  final String fileId;
-  final String fileName;
+  final String uuid;
+  final String name;
   final String filePath;
+  final double duration;
   final Color backgroundColor;
   final Color foregroundColor;
 
   const PlayAudioStatus({
     super.key,
-    required this.fileId,
-    required this.fileName,
+    required this.uuid,
+    required this.name,
     required this.filePath,
+    required this.duration,
     required this.backgroundColor,
     required this.foregroundColor,
   });
@@ -48,7 +50,7 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
                 builder: (context, uuid) {
                   if (uuid.hasData &&
                       uuid.data.toString().isNotEmpty &&
-                      uuid.data.toString().contains(widget.fileId)) {
+                      uuid.data.toString().contains(widget.uuid)) {
                     return IconButton(
                       padding: EdgeInsets.zero,
                       icon: Icon(
@@ -83,12 +85,9 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
         size: 42,
       ),
       onPressed: () {
-        if (isAndroid || isIOS) {
+        if (isAndroid || isIOS || isMacOS) {
           audioPlayerService.play(
-            audioPath,
-            widget.fileId,
-            widget.fileName,
-          );
+              audioPath, widget.uuid, widget.name, widget.duration);
         } else {
           OpenFile.open(audioPath);
         }
