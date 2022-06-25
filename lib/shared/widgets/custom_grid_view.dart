@@ -38,6 +38,7 @@ class FlexibleFixedHeightGridView extends StatelessWidget {
           itemBuilder: itemBuilder,
           itemCount: itemCount,
           shrinkWrap: true,
+          physics: const ScrollPhysics(),
         );
       },
     );

@@ -232,7 +232,8 @@ class FileService {
       final param = ImageFileConfiguration(input: input, config: config);
       final output = await compressor.compressWebpThenJpg(param);
       final name = clock.now().millisecondsSinceEpoch.toString();
-      final outPutFile = await localFile(name, output.extension);
+      final extension = getExtensionFromContentType(output.contentType)!;
+      final outPutFile = await localFile(name, extension);
       outPutFile.writeAsBytesSync(output.rawBytes);
       return outPutFile.path;
     } catch (_) {
@@ -259,6 +260,18 @@ class FileService {
     } catch (_) {
       return file.path;
     }
+  }
+
+  String? getExtensionFromContentType(String? contentType) {
+    if (contentType == null) {
+      return null;
+    }
+    final parts = contentType.split('/');
+    if (parts.length == 2) {
+      return parts[1].toLowerCase();
+    }
+
+    return null;
   }
 
   // TODO(hasan): refactoring needed,

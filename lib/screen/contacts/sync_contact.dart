@@ -52,7 +52,13 @@ class SyncContact {
     }
   }
 
-  static Widget syncingStatusWidget(BuildContext context) {
+  static Widget syncingStatusWidget(
+    BuildContext context, {
+    EdgeInsets padding = const EdgeInsets.symmetric(
+      horizontal: 8.0,
+      vertical: 8,
+    ),
+  }) {
     final theme = Theme.of(context);
     return StreamBuilder<bool>(
       initialData: false,
@@ -61,34 +67,49 @@ class SyncContact {
         final isSyncing = snapshot.data ?? false;
         // final isSyncing = true;
 
-        return AnimatedOpacity(
+        return AnimatedContainer(
           duration: SLOW_ANIMATION_DURATION,
-          curve: Curves.easeInOut,
-          opacity: isSyncing ? 1 : 0,
-          child: Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.secondaryContainer,
-              borderRadius: mainBorder,
-            ),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
-            ),
-            margin: const EdgeInsets.symmetric(horizontal: 12),
-            child: Row(
-              children: [
-                Text(_i18n.get("syncing_contact")),
-                const SizedBox(width: 8),
-                SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: theme.colorScheme.onTertiaryContainer,
+          height: isSyncing ? 54 : 0,
+          padding: isSyncing ? padding : EdgeInsets.zero,
+          child: AnimatedOpacity(
+            duration: SLOW_ANIMATION_DURATION,
+            curve: Curves.easeInOut,
+            opacity: isSyncing ? 1 : 0,
+            child: Container(
+              decoration: BoxDecoration(
+                color: theme.colorScheme.secondaryContainer,
+                borderRadius: mainBorder,
+              ),
+              padding: const EdgeInsets.only(
+                left: 8,
+                right: 8,
+                top: 8,
+                bottom: 6,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _i18n.get("syncing_contact"),
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(fontSize: 14),
+                    ),
                   ),
-                ),
-                const SizedBox(width: 4),
-              ],
+                  const SizedBox(width: 8),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 2.0),
+                    child: SizedBox(
+                      width: 14,
+                      height: 14,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: theme.colorScheme.onTertiaryContainer,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                ],
+              ),
             ),
           ),
         );

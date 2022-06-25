@@ -22,7 +22,7 @@ class TimeProgressIndicatorState extends State<TimeProgressIndicator> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<AudioPlayerState>(
-      stream: audioPlayerService.audioCurrentState(),
+      stream: audioPlayerService.audioCurrentState,
       builder: (c, state) {
         if (state.hasData &&
                 state.data != null &&

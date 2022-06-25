@@ -69,6 +69,7 @@ import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
+import 'package:deliver/services/recorder_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/services/ux_service.dart';
@@ -208,6 +209,7 @@ Future<void> setupDI() async {
   registerSingleton<AudioPlayerModule>(NormalAudioPlayer());
   try {
     registerSingleton<AudioService>(AudioService());
+    registerSingleton<RecorderService>(RecorderService());
   } catch (_) {}
 
   if (isWeb) {
@@ -283,7 +285,7 @@ void main() async {
 }
 
 Future<void> _setWindowSize() async {
-  setWindowMinSize(const Size(500, 600));
+  setWindowMinSize(const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
   final sharedDao = GetIt.I.get<SharedDao>();
   final size = await sharedDao.get(SHARED_DAO_WINDOWS_SIZE);
   final rect = size?.split('_');

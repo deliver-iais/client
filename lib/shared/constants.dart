@@ -220,6 +220,7 @@ const FEATURE_4 = 'feature4';
 const FAST_ANIMATION_DURATION = Duration(milliseconds: 50);
 const ANIMATION_DURATION = Duration(milliseconds: 100);
 const SLOW_ANIMATION_DURATION = Duration(milliseconds: 200);
+const VERY_SLOW_ANIMATION_DURATION = Duration(milliseconds: 350);
 const SUPER_SLOW_ANIMATION_DURATION = Duration(milliseconds: 500);
 
 // UI
@@ -227,8 +228,8 @@ const double APPBAR_HEIGHT = 56.0;
 const double FLUID_MAX_WIDTH = 400.0;
 const double FLUID_MAX_HEIGHT = 540.0;
 const double FLUID_CONTAINER_MAX_WIDTH = 768.0;
-const double VERY_LARGE_BREAKDOWN_SIZE = 1150.0;
 const double LARGE_BREAKDOWN_SIZE = 768.0;
+const double VERY_LARGE_BREAKDOWN_SIZE = 1150.0;
 const double NAVIGATION_PANEL_SIZE = 320.0;
 const double MIN_WIDTH = 200.0;
 const int SCROLL_DOWN_BUTTON_HIDING_TIME = 2500;
@@ -249,7 +250,7 @@ bool isLarge(BuildContext context) =>
 bool isVeryLargeWidth(double width) => width > VERY_LARGE_BREAKDOWN_SIZE;
 
 bool isVeryLarge(BuildContext context) =>
-    isLargeWidth(MediaQuery.of(context).size.width);
+    isVeryLargeWidth(MediaQuery.of(context).size.width);
 
 // Dynamics
 double animationSquareSize(BuildContext context) => isLarge(context)

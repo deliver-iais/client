@@ -3,7 +3,7 @@ import 'package:deliver/screen/room/messageWidgets/circular_file_status_indicato
 import 'package:deliver/screen/room/messageWidgets/file_details.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
-import 'package:deliver/shared/methods/is_persian.dart';
+import 'package:deliver/shared/methods/find_file_type.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -37,43 +37,43 @@ class AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
       child: Stack(
         children: [
           Row(
-            crossAxisAlignment: file.name.isPersian()
-                ? CrossAxisAlignment.end
-                : CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               CircularFileStatusIndicator(
                 message: widget.message,
-                backgroundColor: widget.colorScheme.onPrimary,
-                foregroundColor: widget.colorScheme.primary,
+                backgroundColor: widget.colorScheme.primary,
+                foregroundColor: widget.colorScheme.onPrimary,
               ),
               Container(
-                width: 200,
-                height: 100,
+                width: widget.maxWidth * 0.55,
+                height: isVoiceFile(file.name) ? 70 : 100,
                 margin:
                     const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: 180,
-                          child: Text(
-                            file.name,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
+                    if (!isVoiceFile(file.name))
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(
+                            width: widget.maxWidth * 0.5,
+                            child: Text(
+                              file.name,
+                              style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              softWrap: false,
+                              maxLines: 1,
                             ),
-                            overflow: TextOverflow.ellipsis,
-                            softWrap: false,
-                            maxLines: 1,
                           ),
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
                     FileDetails(
+                      maxWidth: widget.maxWidth*0.55,
                       file: file,
                       colorScheme: widget.colorScheme,
                     )

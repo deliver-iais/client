@@ -4,6 +4,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/screen/contacts/empty_contacts.dart';
+import 'package:deliver/screen/contacts/sync_contact.dart';
 import 'package:deliver/screen/muc/widgets/selective_contact.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
@@ -45,6 +46,8 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
   final _createMucService = GetIt.I.get<CreateMucService>();
 
   final _authRepo = GetIt.I.get<AuthRepo>();
+
+  final _i18n = GetIt.I.get<I18N>();
 
   List<Contact> contacts = [];
 
@@ -107,6 +110,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
       children: [
         Column(
           children: [
+            SyncContact.syncingStatusWidget(context),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: SearchBox(
@@ -146,7 +150,24 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                         },
                       );
                     } else {
-                      return const EmptyContacts();
+                      return ListView(
+                        children: [
+                          const EmptyContacts(),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 32),
+                            child: TextButton(
+                              onPressed: _routingService.openContacts,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(_i18n.get("contacts")),
+                                  const Icon(Icons.chevron_right_rounded),
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
+                      );
                     }
                   } else {
                     return const SizedBox.shrink();

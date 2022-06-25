@@ -28,6 +28,10 @@ abstract class AudioPlayerModule {
 
   Stream<Duration?>? get audioCurrentPosition;
 
+  Stream<Duration?>? get audioDuration;
+
+  Stream get playerCompleteSubscription;
+
   void play(String path);
 
   void seek(Duration duration) {}
@@ -80,28 +84,42 @@ class AudioService {
 
   String _audioPath = "";
 
+  Duration _audioDuration = Duration.zero;
+
   String get audioName => _audioName;
 
   String get audioPath => _audioPath;
 
-  Stream<String> get audioUuid => _audioUuid;
+  BehaviorSubject<String> get audioUuid => _audioUuid;
 
-  Stream<bool> get audioCenterIsOn => _audioCenterIsOn;
+  BehaviorSubject<bool> get audioCenterIsOn => _audioCenterIsOn;
 
-  Stream<AudioPlayerState> audioCurrentState() => _audioCurrentState;
+  BehaviorSubject<AudioPlayerState> get audioCurrentState => _audioCurrentState;
 
-  Stream<Duration> audioCurrentPosition() => _audioCurrentPosition;
+  Duration get audioDuration => _audioDuration;
+
+  BehaviorSubject<Duration> audioCurrentPosition() => _audioCurrentPosition;
 
   AudioService() {
     try {
       _playerModule.audioCurrentState!
           .listen((event) => _audioCurrentState.add(event));
-      _playerModule.audioCurrentPosition!
-          .listen((event) => _audioCurrentPosition.add(event!));
+      _playerModule.audioCurrentPosition!.listen((position) {
+        _audioCurrentPosition.add(position!);
+      });
+      _playerModule.playerCompleteSubscription.listen((event) {
+        _audioCurrentState.add(AudioPlayerState.completed);
+        _audioCenterIsOn.add(false);
+      });
     } catch (_) {}
   }
 
-  Future<void> play(String path, String uuid, String name) async {
+  Future<void> play(
+    String path,
+    String uuid,
+    String name,
+    double duration,
+  ) async {
     // check if this the current audio which is playing or paused recently
     // and if played recently, just resume it
     if (_audioUuid.value == uuid) {
@@ -112,6 +130,7 @@ class AudioService {
     _audioUuid.add(uuid);
     _audioPath = path;
     _audioName = name;
+    _audioDuration = Duration(milliseconds: (duration * 1000).toInt());
     _audioCenterIsOn.add(true);
     _playerModule.play(path);
   }
@@ -197,7 +216,13 @@ class NormalAudioPlayer implements AudioPlayerModule {
   double playbackRate = 1.0;
 
   @override
-  Stream<Duration> get audioCurrentPosition => _audioPlayer.onDurationChanged;
+  Stream<Duration> get audioCurrentPosition => _audioPlayer.onPositionChanged;
+
+  @override
+  Stream get playerCompleteSubscription => _audioPlayer.onPlayerComplete;
+
+  @override
+  Stream<Duration?>? get audioDuration => _audioPlayer.onDurationChanged;
 
   @override
   Stream<AudioPlayerState> get audioCurrentState =>
@@ -246,7 +271,9 @@ class NormalAudioPlayer implements AudioPlayerModule {
   @override
   void changePlaybackRate(double playbackRate) {
     this.playbackRate = playbackRate;
-    _audioPlayer.setPlaybackRate(playbackRate);
+    _audioPlayer
+      ..resume()
+      ..setPlaybackRate(playbackRate);
   }
 
   @override

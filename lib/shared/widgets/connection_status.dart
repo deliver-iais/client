@@ -22,7 +22,7 @@ class ConnectionStatus extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return StreamBuilder<TitleStatusConditions>(
-      initialData: TitleStatusConditions.Disconnected,
+      initialData: TitleStatusConditions.Normal,
       stream: _messageRepo.updatingStatus,
       builder: (context, snapshot) {
         final status = snapshot.data ?? TitleStatusConditions.Normal;

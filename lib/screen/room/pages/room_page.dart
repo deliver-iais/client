@@ -875,6 +875,7 @@ class RoomPageState extends State<RoomPage> {
     final checkSearchResult = BehaviorSubject<bool>.seeded(false);
 
     return AppBar(
+      scrolledUnderElevation: 0,
       actions: [
         if (room.uid.asUid().isUser() &&
             !_authRepo.isCurrentUser(room.uid) &&
@@ -902,7 +903,7 @@ class RoomPageState extends State<RoomPage> {
                       ),
                       overflowMode: OverflowMode.extendBackground,
                       description: FeatureDiscoveryDescriptionWidget(
-                        permissionWidget: !isDesktop && isAndroid
+                        permissionWidget: isAndroid
                             ? FutureBuilder<int>(
                                 future: getDeviceVersion(),
                                 builder: (context, version) {
