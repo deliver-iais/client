@@ -41,75 +41,75 @@ class RecordAudioSlideWidget extends StatelessWidget {
           ),
           const Spacer(),
           StreamBuilder<bool>(
-              stream: _recorderService.isLockedSteam,
-              builder: (context, snapshot) {
-                final isLocked = snapshot.data ?? false;
+            stream: _recorderService.isLockedSteam,
+            builder: (context, snapshot) {
+              final isLocked = snapshot.data ?? false;
 
-                if (!isLocked) {
-                  return Row(
-                    children: <Widget>[
-                      const Icon(Icons.chevron_left),
-                      Text(
-                        _i18n.get("slideToCancel"),
-                        style: const TextStyle(
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  );
-                }
-
+              if (!isLocked) {
                 return Row(
-                  children: [
-                    Container(
-                      width: 52,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        borderRadius: mainBorder,
-                        color: theme.colorScheme.primary,
-                      ),
-                      child: StreamBuilder<bool>(
-                          stream: _recorderService.isPaused,
-                          builder: (context, snapshot) {
-                            final isPaused = snapshot.data ?? false;
-                            return IconButton(
-                              color: theme.colorScheme.onPrimary,
-                              onPressed: () {
-                                _recorderService.togglePause();
-                              },
-                              padding: EdgeInsets.zero,
-                              icon: Icon(
-                                isPaused
-                                    ? Icons.fiber_manual_record
-                                    : Icons.pause,
-                              ),
-                            );
-                          }),
-                    ),
-                    const SizedBox(width: 8),
-                    Container(
-                      width: 52,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        borderRadius: mainBorder,
-                        color: theme.colorScheme.primary,
-                      ),
-                      child: MouseRegion(
-                        cursor: SystemMouseCursors.click,
-                        child: GestureDetector(
-                          onTap: () {
-                            _recorderService.cancel();
-                          },
-                          child: Icon(
-                            Icons.close,
-                            color: theme.colorScheme.onPrimary,
-                          ),
-                        ),
+                  children: <Widget>[
+                    const Icon(Icons.chevron_left),
+                    Text(
+                      _i18n.get("slideToCancel"),
+                      style: const TextStyle(
+                        fontSize: 12,
                       ),
                     ),
                   ],
                 );
-              }),
+              }
+
+              return Row(
+                children: [
+                  Container(
+                    width: 52,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      borderRadius: mainBorder,
+                      color: theme.colorScheme.primary,
+                    ),
+                    child: StreamBuilder<bool>(
+                      stream: _recorderService.isPaused,
+                      builder: (context, snapshot) {
+                        final isPaused = snapshot.data ?? false;
+                        return IconButton(
+                          color: theme.colorScheme.onPrimary,
+                          onPressed: () {
+                            _recorderService.togglePause();
+                          },
+                          padding: EdgeInsets.zero,
+                          icon: Icon(
+                            isPaused ? Icons.fiber_manual_record : Icons.pause,
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    width: 52,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      borderRadius: mainBorder,
+                      color: theme.colorScheme.primary,
+                    ),
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: GestureDetector(
+                        onTap: () {
+                          _recorderService.cancel();
+                        },
+                        child: Icon(
+                          Icons.close,
+                          color: theme.colorScheme.onPrimary,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         ],
       ),
     );

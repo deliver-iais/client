@@ -70,49 +70,50 @@ class RecordAudioAnimation extends StatelessWidget {
                   final lockFactor = snapshot.data ?? false ? 0.0 : 1.0;
 
                   return StreamBuilder<Offset>(
-                      stream: _buttonOffset,
-                      builder: (context, snapshot) {
-                        final offset = snapshot.data ?? Offset.zero;
+                    stream: _buttonOffset,
+                    builder: (context, snapshot) {
+                      final offset = snapshot.data ?? Offset.zero;
 
-                        final opacity =
-                            1 - ((min(offset.distance, 100) / 100) / 2);
+                      final opacity =
+                          1 - ((min(offset.distance, 100) / 100) / 2);
 
-                        return AnimatedOpacity(
+                      return AnimatedOpacity(
+                        duration: ANIMATION_DURATION,
+                        opacity: (isRecording ? opacity : 0) * lockFactor,
+                        child: AnimatedScale(
                           duration: ANIMATION_DURATION,
-                          opacity: (isRecording ? opacity : 0) * lockFactor,
-                          child: AnimatedScale(
+                          scale: (isRecording ? 1 : 0) * lockFactor,
+                          child: AnimatedContainer(
                             duration: ANIMATION_DURATION,
-                            scale: (isRecording ? 1 : 0) * lockFactor,
-                            child: AnimatedContainer(
-                              duration: ANIMATION_DURATION,
-                              width: (isRecording ? 30 : 0) * lockFactor,
-                              height: (isRecording ? 50 : 0) * lockFactor,
-                              transform: isRecording
-                                  ? Matrix4.translationValues(
-                                      45,
-                                      -100 + (offset.dy / 3),
-                                      0,
-                                    )
-                                  : Matrix4.identity(),
-                              decoration: BoxDecoration(
-                                borderRadius: mainBorder,
-                                color: isRecording
-                                    ? theme.colorScheme.primary
-                                    : Colors.transparent,
-                              ),
-                              margin: isRecording
-                                  ? const EdgeInsets.only(right: 50)
-                                  : EdgeInsets.zero,
-                              child: IconButton(
-                                color: theme.colorScheme.onPrimary,
-                                onPressed: () => {},
-                                padding: EdgeInsets.zero,
-                                icon: const Icon(Icons.lock),
-                              ),
+                            width: (isRecording ? 30 : 0) * lockFactor,
+                            height: (isRecording ? 50 : 0) * lockFactor,
+                            transform: isRecording
+                                ? Matrix4.translationValues(
+                                    45,
+                                    -100 + (offset.dy / 3),
+                                    0,
+                                  )
+                                : Matrix4.identity(),
+                            decoration: BoxDecoration(
+                              borderRadius: mainBorder,
+                              color: isRecording
+                                  ? theme.colorScheme.primary
+                                  : Colors.transparent,
+                            ),
+                            margin: isRecording
+                                ? const EdgeInsets.only(right: 50)
+                                : EdgeInsets.zero,
+                            child: IconButton(
+                              color: theme.colorScheme.onPrimary,
+                              onPressed: () => {},
+                              padding: EdgeInsets.zero,
+                              icon: const Icon(Icons.lock),
                             ),
                           ),
-                        );
-                      });
+                        ),
+                      );
+                    },
+                  );
                 },
               ),
               StreamBuilder<Offset>(
@@ -125,8 +126,9 @@ class RecordAudioAnimation extends StatelessWidget {
                     child: GestureDetector(
                       onTapDown: (_) => _recorderService.checkPermission(),
                       onTapUp: (_) {
-                        if (isRecording && (_recorderService.isLockedSteam.valueOrNull ??
-                            false)) {
+                        if (isRecording &&
+                            (_recorderService.isLockedSteam.valueOrNull ??
+                                false)) {
                           _recorderService.end();
                         }
                       },
@@ -186,20 +188,20 @@ class RecordAudioAnimation extends StatelessWidget {
                                 height: 55,
                                 margin: const EdgeInsets.only(right: 10),
                                 child: StreamBuilder<bool>(
-                                    stream: _recorderService.isLockedSteam,
-                                    builder: (context, snapshot) {
-                                      final showSendButtonInsteadOfMicrophone =
-                                          isRecording &&
-                                              (snapshot.data ?? false);
-                                      return Icon(
-                                        showSendButtonInsteadOfMicrophone
-                                            ? Icons.arrow_upward_rounded
-                                            : Icons.mic,
-                                        color: isRecording
-                                            ? theme.colorScheme.onError
-                                            : null,
-                                      );
-                                    }),
+                                  stream: _recorderService.isLockedSteam,
+                                  builder: (context, snapshot) {
+                                    final showSendButtonInsteadOfMicrophone =
+                                        isRecording && (snapshot.data ?? false);
+                                    return Icon(
+                                      showSendButtonInsteadOfMicrophone
+                                          ? Icons.arrow_upward_rounded
+                                          : Icons.mic,
+                                      color: isRecording
+                                          ? theme.colorScheme.onError
+                                          : null,
+                                    );
+                                  },
+                                ),
                               );
                             },
                           ),

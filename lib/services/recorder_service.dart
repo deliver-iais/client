@@ -65,7 +65,7 @@ class RecorderService {
       (tickTime) async {
         final amplitude = await _recorder.getAmplitude();
         recordingAmplitudeStream
-            .add((amplitude.current + 40) / (amplitude.max + 50));
+            .add(min(max(amplitude.current + 40, 0) / 20, 1));
       },
     );
   }
@@ -116,6 +116,8 @@ class RecorderService {
     var fileType = "m4a";
     var fileEncoder = AudioEncoder.aacLc;
 
+    // Remove these comment if opus is stable
+    // ignore: invariant_booleans, dead_code
     if (isOpusSupported && false) {
       _logger.wtf("opus is available for recording");
 
