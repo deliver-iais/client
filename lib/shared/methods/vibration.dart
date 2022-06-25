@@ -14,5 +14,5 @@ Future<void> vibrate({
 }
 
 void quickVibrate() {
-  vibrate(duration: 200).ignore();
+  vibrate(duration: 100).ignore();
 }
