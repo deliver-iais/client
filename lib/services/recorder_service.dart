@@ -130,7 +130,7 @@ class RecorderService {
     if (_audioPlayerService.audioCurrentState.value ==
         AudioPlayerState.playing) {
       _audioPlayerService.pause();
-      _recordingFinallyCallbackStream.add(() => _audioPlayerService.resume());
+      _recordingFinallyCallbackStream.add(_audioPlayerService.resume);
     }
 
     await _recorder.start(
@@ -140,8 +140,6 @@ class RecorderService {
 
     _onCompleteCallbackStream.add(onComplete);
     _onCancelCallbackStream.add(onCancel);
-
-    _recordingFinallyCallbackStream.valueOrNull?.call();
 
     quickVibrate();
 
