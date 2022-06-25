@@ -875,6 +875,7 @@ class RoomPageState extends State<RoomPage> {
     final checkSearchResult = BehaviorSubject<bool>.seeded(false);
 
     return AppBar(
+      scrolledUnderElevation: 0,
       actions: [
         if (room.uid.asUid().isUser() &&
             !_authRepo.isCurrentUser(room.uid) &&

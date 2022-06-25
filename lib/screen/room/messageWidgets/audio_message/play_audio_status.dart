@@ -42,7 +42,7 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
           color: widget.backgroundColor,
         ),
         child: StreamBuilder<AudioPlayerState>(
-          stream: audioPlayerService.audioCurrentState(),
+          stream: audioPlayerService.audioCurrentState,
           builder: (context, snapshot) {
             if (snapshot.data == AudioPlayerState.playing) {
               return StreamBuilder(
@@ -87,7 +87,11 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
       onPressed: () {
         if (isAndroid || isIOS || isMacOS || isLinux || isWindows) {
           audioPlayerService.play(
-              audioPath, widget.uuid, widget.name, widget.duration);
+            audioPath,
+            widget.uuid,
+            widget.name,
+            widget.duration,
+          );
         } else {
           OpenFile.open(audioPath);
         }

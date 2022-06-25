@@ -161,7 +161,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(_i18n.get("contacts")),
-                                  Icon(Icons.chevron_right_rounded),
+                                  const Icon(Icons.chevron_right_rounded),
                                 ],
                               ),
                             ),
