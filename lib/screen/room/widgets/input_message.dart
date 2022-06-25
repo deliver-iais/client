@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:math';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
@@ -43,7 +42,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:pasteboard/pasteboard.dart';
-import 'package:record/record.dart';
 import 'package:rxdart/rxdart.dart';
 
 class InputMessage extends StatefulWidget {
@@ -93,12 +91,6 @@ class InputMessageWidgetState extends State<InputMessage> {
   static final _recorderService = GetIt.I.get<RecorderService>();
 
   late Room currentRoom;
-  bool autofocus = false;
-  double x = 0.0;
-
-  double dx = 150.0;
-  bool recordAudioPermission = false;
-  late Timer recordAudioTimer;
   final BehaviorSubject<bool> _showEmojiKeyboard =
       BehaviorSubject.seeded(false);
   final BehaviorSubject<bool> _showSendIcon = BehaviorSubject.seeded(false);
@@ -107,23 +99,18 @@ class InputMessageWidgetState extends State<InputMessage> {
   TextEditingController captionTextController = TextEditingController();
   late TextSelectionControls selectionControls;
   bool isMentionSelected = false;
-
-  bool startAudioRecorder = false;
-
   late FocusNode keyboardRawFocusNode;
-
   Subject<ActivityType> isTypingActivitySubject = BehaviorSubject();
   Subject<ActivityType> noActivitySubject = BehaviorSubject();
   late String _botCommandData;
   int mentionSelectedIndex = 0;
   int botCommandSelectedIndex = 0;
   bool _shouldSynthesize = true;
-  final record = Record();
 
   late final ValueNotifier<TextDirection> _textDir;
 
-  final botCommandRegexp = RegExp(r"([a-zA-Z0-9_])*");
-  final idRegexp = RegExp(r"([a-zA-Z0-9_])*");
+  final botCommandRegexp = RegExp(r"(\w)*");
+  final idRegexp = RegExp(r"(\w)*");
 
   void showButtonSheet() {
     if (isWeb || isDesktop) {
@@ -165,6 +152,11 @@ class InputMessageWidgetState extends State<InputMessage> {
     });
     noActivitySubject.listen((event) {
       _messageRepo.sendActivity(widget.currentRoom.uid.asUid(), event);
+    });
+    _recorderService.recordingDurationStream.listen((value) {
+      if (value.compareTo(Duration.zero) > 0) {
+        isTypingActivitySubject.add(ActivityType.RECORDING_VOICE);
+      }
     });
 
     _showSendIcon
@@ -246,7 +238,6 @@ class InputMessageWidgetState extends State<InputMessage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    dx = min(MediaQuery.of(context).size.width / 2, 150.0);
     return WillPopScope(
       onWillPop: () async {
         if (_showEmojiKeyboard.value) {
@@ -325,7 +316,6 @@ class InputMessageWidgetState extends State<InputMessage> {
 
                       return RecordAudioAnimation(
                         onComplete: (res) {
-
                           if (res != null) {
                             unawaited(
                               _messageRepo.sendFileMessage(
@@ -831,13 +821,6 @@ class InputMessageWidgetState extends State<InputMessage> {
       _mentionQuery.add(null);
     }
     widget.scrollToLastSentMessage();
-  }
-
-  void sendRecordActivity() {
-    recordAudioTimer = Timer(const Duration(seconds: 2), () {
-      isTypingActivitySubject.add(ActivityType.RECORDING_VOICE);
-      sendRecordActivity();
-    });
   }
 
   Future<void> _attachFileInWindowsMode() async {
