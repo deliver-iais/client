@@ -480,7 +480,13 @@ class _AllImagePageState extends State<AllImagePage>
   }
 
   void _handleDoubleTap(TapDownDetails details) {
-    _scaleStateController.scaleState = PhotoViewScaleState.covering;
+    if (_scaleStateController.isZooming) {
+      print("############################");
+      _scaleStateController.scaleState = PhotoViewScaleState.covering;
+    } else {
+      print("@@@@@@@@@@@@@@@@@@@@@@@@@@@");
+      _scaleStateController.scaleState = PhotoViewScaleState.zoomedIn;
+    }
   }
 
   Widget buildCaptionSection({
@@ -659,39 +665,39 @@ class _AllImagePageState extends State<AllImagePage>
       ),
       backgroundColor: Colors.black.withAlpha(120),
       actions: [
-              IconButton(
-                icon: Icon(
-                  CupertinoIcons.arrowshape_turn_up_right,
-                  color: theme.primaryColorLight,
-                ),
-                tooltip: _i18n.get("forward"),
-                onPressed: () async {
-                  final message = await getMessage();
-                  return OperationOnMessageSelection(
-                    message: message!,
-                    context: context,
-                  ).selectOperation(OperationOnMessage.FORWARD);
-                },
-              ),
-              const SizedBox(
-                width: 10,
-              ),
-              if (!isDesktop)
-                IconButton(
-                  icon: Icon(
-                    CupertinoIcons.down_arrow,
-                    color: theme.primaryColorLight,
-                  ),
-                  onPressed: () async {
-                    final message = await getMessage();
-                    await OperationOnMessageSelection(
-                      message: message!,
-                      context: context,
-                    ).selectOperation(OperationOnMessage.SAVE_TO_GALLERY);
-                  },
-                  tooltip: _i18n.get("save_to_gallery"),
-                ),
-            ],
+        IconButton(
+          icon: Icon(
+            CupertinoIcons.arrowshape_turn_up_right,
+            color: theme.primaryColorLight,
+          ),
+          tooltip: _i18n.get("forward"),
+          onPressed: () async {
+            final message = await getMessage();
+            return OperationOnMessageSelection(
+              message: message!,
+              context: context,
+            ).selectOperation(OperationOnMessage.FORWARD);
+          },
+        ),
+        const SizedBox(
+          width: 10,
+        ),
+        if (!isDesktop)
+          IconButton(
+            icon: Icon(
+              CupertinoIcons.down_arrow,
+              color: theme.primaryColorLight,
+            ),
+            onPressed: () async {
+              final message = await getMessage();
+              await OperationOnMessageSelection(
+                message: message!,
+                context: context,
+              ).selectOperation(OperationOnMessage.SAVE_TO_GALLERY);
+            },
+            tooltip: _i18n.get("save_to_gallery"),
+          ),
+      ],
       title: StreamBuilder<int?>(
         stream: _allImageCount,
         builder: (context, snapshot) {
