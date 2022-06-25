@@ -33,7 +33,7 @@ class Tgs extends StatefulWidget {
     this.file, {
     super.key,
     required this.controller,
-        this.delegates,
+    this.delegates,
     this.repeat = true,
     this.autoPlay = true,
     this.width = 120,
