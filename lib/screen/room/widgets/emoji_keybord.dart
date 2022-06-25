@@ -31,119 +31,123 @@ class EmojiKeyboardState extends State<EmojiKeyboard> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        const Divider(),
-        Container(
-          color: theme.colorScheme.surfaceVariant,
-          child: DefaultTextStyle(
-            style: const TextStyle(fontSize: 20),
-            child: SizedBox(
-              height: 52,
-              width: MediaQuery.of(context).size.width,
-              child: Center(
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  shrinkWrap: true,
-                  children: <Widget>[
-                    buildSelectedContainer(theme, "😀", () {
-                      emojis = Emoji.byGroup(EmojiGroup.smileysEmotion).where(
-                        (e) => !e.shortName.contains("transgender"),
-                      );
-                    }),
-                    buildSelectedContainer(theme, "🖐", () {
-                      emojis = Emoji.byGroup(EmojiGroup.peopleBody)
-                          .where(
-                            (e) => !e.shortName.contains("transgender"),
-                          )
-                          .where(
-                            (element) => !element.shortName.contains("_tone"),
-                          );
-                    }),
-                    buildSelectedContainer(theme, "🐶", () {
-                      emojis = Emoji.byGroup(EmojiGroup.animalsNature).where(
-                        (e) => !e.shortName.contains("transgender"),
-                      );
-                    }),
-                    buildSelectedContainer(theme, "🏳", () {
-                      emojis = Emoji.byGroup(EmojiGroup.flags)
-                          .where(
-                            (e) => !e.shortName.contains("transgender"),
-                          )
-                          .where(
-                            (e) => !e.shortName.contains("rainbow_flag"),
-                          )
-                          .where(
-                            (e) => !e.shortName.contains("flag_il"),
-                          );
-                    }),
-                    buildSelectedContainer(theme, "💡", () {
-                      emojis = Emoji.byGroup(EmojiGroup.objects).where(
-                        (e) => !e.shortName.contains("transgender"),
-                      );
-                    }),
-                    buildSelectedContainer(theme, "🏠", () {
-                      emojis = Emoji.byGroup(EmojiGroup.travelPlaces);
-                    }),
-                    buildSelectedContainer(theme, "🕉️", () {
-                      emojis = Emoji.byGroup(EmojiGroup.symbols).where(
-                        (e) => !e.shortName.contains("transgender"),
-                      );
-                    }),
-                    buildSelectedContainer(theme, "🍔", () {
-                      emojis = Emoji.byGroup(EmojiGroup.foodDrink).where(
-                        (e) => !e.shortName.contains("transgender"),
-                      );
-                    }),
-                  ],
+    return Container(
+      color: theme.colorScheme.surface,
+      child: CustomScrollView(
+        shrinkWrap: true,
+        slivers: <Widget>[
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: PersistentHeader(
+              widget: Container(
+                color: theme.colorScheme.surfaceVariant,
+                child: DefaultTextStyle(
+                  style: const TextStyle(fontSize: 20),
+                  child: SizedBox(
+                    height: 52,
+                    width: MediaQuery.of(context).size.width,
+                    child: Center(
+                      child: ListView(
+                        scrollDirection: Axis.horizontal,
+                        shrinkWrap: true,
+                        children: <Widget>[
+                          buildSelectedContainer(theme, "😀", () {
+                            emojis =
+                                Emoji.byGroup(EmojiGroup.smileysEmotion).where(
+                              (e) => !e.shortName.contains("transgender"),
+                            );
+                          }),
+                          buildSelectedContainer(theme, "🖐", () {
+                            emojis = Emoji.byGroup(EmojiGroup.peopleBody)
+                                .where(
+                                  (e) => !e.shortName.contains("transgender"),
+                                )
+                                .where(
+                                  (element) =>
+                                      !element.shortName.contains("_tone"),
+                                );
+                          }),
+                          buildSelectedContainer(theme, "🐶", () {
+                            emojis =
+                                Emoji.byGroup(EmojiGroup.animalsNature).where(
+                              (e) => !e.shortName.contains("transgender"),
+                            );
+                          }),
+                          buildSelectedContainer(theme, "🏳", () {
+                            emojis = Emoji.byGroup(EmojiGroup.flags)
+                                .where(
+                                  (e) => !e.shortName.contains("transgender"),
+                                )
+                                .where(
+                                  (e) => !e.shortName.contains("rainbow_flag"),
+                                )
+                                .where(
+                                  (e) => !e.shortName.contains("flag_il"),
+                                );
+                          }),
+                          buildSelectedContainer(theme, "💡", () {
+                            emojis = Emoji.byGroup(EmojiGroup.objects).where(
+                              (e) => !e.shortName.contains("transgender"),
+                            );
+                          }),
+                          buildSelectedContainer(theme, "🏠", () {
+                            emojis = Emoji.byGroup(EmojiGroup.travelPlaces);
+                          }),
+                          buildSelectedContainer(theme, "🕉️", () {
+                            emojis = Emoji.byGroup(EmojiGroup.symbols).where(
+                              (e) => !e.shortName.contains("transgender"),
+                            );
+                          }),
+                          buildSelectedContainer(theme, "🍔", () {
+                            emojis = Emoji.byGroup(EmojiGroup.foodDrink).where(
+                              (e) => !e.shortName.contains("transgender"),
+                            );
+                          }),
+                        ],
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-        Expanded(
-          child: Container(
-            color: theme.colorScheme.surface,
-            child: GridView.builder(
-              padding: EdgeInsets.zero,
-              itemCount: emojis.length,
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: (MediaQuery.of(context).size.width -
-                        (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) ~/
-                    50,
-              ),
-              itemBuilder: (context, index) {
-                final emoji = emojis.elementAt(index);
+          SliverGrid(
+            delegate: SliverChildBuilderDelegate(childCount: emojis.length,
+                (context, index) {
+              final emoji = emojis.elementAt(index);
 
-                return GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTap: () => widget.onTap(emoji.toString()),
-                  child: Stack(
-                    children: [
-                      Center(
-                        child: Text(
-                          emoji.toString(),
-                          style: GoogleFonts.notoEmoji(fontSize: 25),
-                        ),
+              return GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onTap: () => widget.onTap(emoji.toString()),
+                child: Stack(
+                  children: [
+                    Center(
+                      child: Text(
+                        emoji.toString(),
+                        style: GoogleFonts.notoEmoji(fontSize: 25),
                       ),
-                      if (isDebugEnabled())
-                        if (isAnimatedEmoji(emoji.toString()))
-                          Center(
-                            child: Container(
-                              color: ACTIVE_COLOR,
-                              height: 10,
-                              width: 10,
-                            ),
-                          )
-                    ],
-                  ),
-                );
-              },
+                    ),
+                    if (isDebugEnabled())
+                      if (isAnimatedEmoji(emoji.toString()))
+                        Center(
+                          child: Container(
+                            color: ACTIVE_COLOR,
+                            height: 10,
+                            width: 10,
+                          ),
+                        )
+                  ],
+                ),
+              );
+            }),
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: (MediaQuery.of(context).size.width -
+                      (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) ~/
+                  50,
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -203,5 +207,35 @@ class EmojiKeyboardState extends State<EmojiKeyboard> {
         },
       ),
     );
+  }
+}
+
+class PersistentHeader extends SliverPersistentHeaderDelegate {
+  final Widget widget;
+
+  PersistentHeader({required this.widget});
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    return SizedBox(
+      width: double.infinity,
+      height: 52.0,
+      child: Center(child: widget),
+    );
+  }
+
+  @override
+  double get maxExtent => 52.0;
+
+  @override
+  double get minExtent => 52.0;
+
+  @override
+  bool shouldRebuild(SliverPersistentHeaderDelegate oldDelegate) {
+    return true;
   }
 }

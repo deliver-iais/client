@@ -32,7 +32,7 @@ class AudioPlayProgress extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             StreamBuilder<AudioPlayerState>(
-              stream: _audioPlayerService.audioCurrentState(),
+              stream: _audioPlayerService.audioCurrentState,
               builder: (c, state) {
                 if (state.data != null &&
                     (state.data == AudioPlayerState.playing ||

@@ -30,7 +30,6 @@ class MemberSelectionPage extends StatelessWidget {
         child: AppBar(
           leading: _routingService.backButtonLeading(),
           title: Row(
-            mainAxisAlignment: MainAxisAlignment.start,
             children: [
               Expanded(
                 child: Column(

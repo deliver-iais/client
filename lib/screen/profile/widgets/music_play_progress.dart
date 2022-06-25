@@ -22,7 +22,7 @@ class MusicPlayProgress extends StatelessWidget {
         Padding(
           padding: const EdgeInsets.only(top: 8.0),
           child: StreamBuilder<AudioPlayerState>(
-            stream: _audioPlayerService.audioCurrentState(),
+            stream: _audioPlayerService.audioCurrentState,
             builder: (c, state) {
               if (state.data != null &&
                   state.data == AudioPlayerState.playing) {

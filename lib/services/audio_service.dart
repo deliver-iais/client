@@ -90,15 +90,15 @@ class AudioService {
 
   String get audioPath => _audioPath;
 
-  Stream<String> get audioUuid => _audioUuid;
+  BehaviorSubject<String> get audioUuid => _audioUuid;
 
-  Stream<bool> get audioCenterIsOn => _audioCenterIsOn;
+  BehaviorSubject<bool> get audioCenterIsOn => _audioCenterIsOn;
 
-  Stream<AudioPlayerState> audioCurrentState() => _audioCurrentState;
+  BehaviorSubject<AudioPlayerState> get audioCurrentState => _audioCurrentState;
 
   Duration get audioDuration => _audioDuration;
 
-  Stream<Duration> audioCurrentPosition() => _audioCurrentPosition;
+  BehaviorSubject<Duration> audioCurrentPosition() => _audioCurrentPosition;
 
   AudioService() {
     try {
@@ -115,7 +115,11 @@ class AudioService {
   }
 
   Future<void> play(
-      String path, String uuid, String name, double duration) async {
+    String path,
+    String uuid,
+    String name,
+    double duration,
+  ) async {
     // check if this the current audio which is playing or paused recently
     // and if played recently, just resume it
     if (_audioUuid.value == uuid) {

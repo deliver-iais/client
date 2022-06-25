@@ -39,7 +39,7 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 StreamBuilder<AudioPlayerState>(
-                  stream: audioPlayerService.audioCurrentState(),
+                  stream: audioPlayerService.audioCurrentState,
                   builder: (c, cs) {
                     if (cs.hasData && cs.data == AudioPlayerState.playing) {
                       return IconButton(

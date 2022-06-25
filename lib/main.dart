@@ -69,6 +69,7 @@ import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
+import 'package:deliver/services/recorder_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/services/ux_service.dart';
@@ -208,6 +209,7 @@ Future<void> setupDI() async {
   registerSingleton<AudioPlayerModule>(NormalAudioPlayer());
   try {
     registerSingleton<AudioService>(AudioService());
+    registerSingleton<RecorderService>(RecorderService());
   } catch (_) {}
 
   if (isWeb) {
