@@ -23,7 +23,7 @@ import 'package:hovering/hovering.dart';
 import 'contact_pic.dart';
 import 'last_message.dart';
 
-const chatItemHeight = 85.0;
+const chatItemHeight = 78.0;
 
 class RoomWrapper {
   final Room room;
@@ -85,38 +85,64 @@ class ChatItemState extends State<ChatItem> {
 
   Widget buildLastMessageWidget(Message lastMessage) {
     final theme = Theme.of(context);
+
+    final isPinnedRoom = widget.room.pinned;
+
     final activeHoverColor =
-        Color.lerp(theme.focusColor, theme.dividerColor, 0.1);
+        Color.lerp(theme.colorScheme.primaryContainer, theme.dividerColor, 0.1);
+
+    final pinnedHoverColor = Color.lerp(
+      theme.colorScheme.onSurfaceVariant.withOpacity(0.08),
+      theme.dividerColor,
+      0.5,
+    );
+
     final hoverColor = theme.hoverColor;
 
     return DragDropWidget(
       roomUid: widget.room.uid,
       enabled: isLarge(context) || (_routingService.notInRoom()),
       height: chatItemHeight,
-      child: HoverContainer(
-        cursor: SystemMouseCursors.click,
-        margin: const EdgeInsets.only(right: 6, left: 6),
-        padding: const EdgeInsets.all(8),
-        hoverDecoration: BoxDecoration(
-          color: widget.isInRoom ? activeHoverColor : hoverColor,
-          borderRadius: secondaryBorder,
-        ),
-        decoration: BoxDecoration(
-          color: widget.isInRoom ? theme.focusColor : Colors.transparent,
-          borderRadius: secondaryBorder,
-        ),
-        height: chatItemHeight,
-        child: FutureBuilder<String>(
-          initialData: _roomRepo.fastForwardName(widget.room.uid.asUid()),
-          future: _roomRepo.getName(widget.room.uid.asUid()),
-          builder: (c, nameSnapshot) {
-            final name = _authRepo.isCurrentUser(widget.room.uid)
-                ? _i18n.get("saved_message")
-                : nameSnapshot.data ?? "";
+      child: Column(
+        children: [
+          HoverContainer(
+            cursor: SystemMouseCursors.click,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            hoverDecoration: BoxDecoration(
+              color: widget.isInRoom
+                  ? activeHoverColor
+                  : isPinnedRoom
+                      ? pinnedHoverColor
+                      : hoverColor,
+            ),
+            decoration: BoxDecoration(
+              color: widget.isInRoom
+                  ? theme.colorScheme.primaryContainer
+                  : isPinnedRoom
+                      ? theme.colorScheme.onSurfaceVariant.withOpacity(0.08)
+                      : Colors.transparent,
+            ),
+            height: chatItemHeight,
+            child: FutureBuilder<String>(
+              initialData: _roomRepo.fastForwardName(widget.room.uid.asUid()),
+              future: _roomRepo.getName(widget.room.uid.asUid()),
+              builder: (c, nameSnapshot) {
+                final name = _authRepo.isCurrentUser(widget.room.uid)
+                    ? _i18n.get("saved_message")
+                    : nameSnapshot.data ?? "";
 
-            return buildChatItemWidget(name, lastMessage);
-          },
-        ),
+                return buildChatItemWidget(name, lastMessage);
+              },
+            ),
+          ),
+          if (!isPinnedRoom)
+            Padding(
+              padding: const EdgeInsets.only(left: 72.0),
+              child: widget.isInRoom
+                  ? const SizedBox(height: 0.5)
+                  : const Divider(height: 0.5, thickness: 0.5),
+            ),
+        ],
       ),
     );
   }
