@@ -480,13 +480,7 @@ class _AllImagePageState extends State<AllImagePage>
   }
 
   void _handleDoubleTap(TapDownDetails details) {
-    if (_scaleStateController.isZooming) {
-      print("############################");
-      _scaleStateController.scaleState = PhotoViewScaleState.covering;
-    } else {
-      print("@@@@@@@@@@@@@@@@@@@@@@@@@@@");
-      _scaleStateController.scaleState = PhotoViewScaleState.zoomedIn;
-    }
+    _scaleStateController.scaleState = PhotoViewScaleState.covering;
   }
 
   Widget buildCaptionSection({
@@ -529,8 +523,9 @@ class _AllImagePageState extends State<AllImagePage>
             if (name.hasData && name.data != null) {
               return Text(
                 name.data!,
+                overflow: TextOverflow.fade,
                 style: theme.textTheme.bodyText2!
-                    .copyWith(height: 1, color: Colors.white),
+                    .copyWith(color: Colors.white),
               );
             } else {
               return const SizedBox.shrink();
@@ -579,81 +574,75 @@ class _AllImagePageState extends State<AllImagePage>
   }) {
     return Container(
       color: Colors.black.withAlpha(120),
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(
-              vertical: 10.0,
-              horizontal: 20,
-            ),
-            child: buildBottomAppBar(createdBy, createdOn),
-          ),
-          const Spacer(),
-          if (widget.onEdit != null)
-            FutureBuilder<Message?>(
-              future: _messageDao.getMessage(
-                widget.roomUid,
-                messageId,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
+        child: Row(
+          children: [
+            Expanded(child: buildBottomAppBar(createdBy, createdOn)),
+            // const Spacer(),
+            if (widget.onEdit != null)
+              FutureBuilder<Message?>(
+                future: _messageDao.getMessage(
+                  widget.roomUid,
+                  messageId,
+                ),
+                builder: (context, message) {
+                  if (message.hasData && message.data != null) {
+                    return IconButton(
+                      onPressed: () async {
+                        final message = await getMessage();
+                        await OperationOnMessageSelection(
+                          message: message!,
+                          context: context,
+                          onEdit: widget.onEdit,
+                        ).selectOperation(OperationOnMessage.EDIT);
+                        _routingService.pop();
+                      },
+                      tooltip: _i18n.get("edit"),
+                      icon: Icon(
+                        CupertinoIcons.paintbrush,
+                        color: theme.primaryColorLight,
+                      ),
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
               ),
-              builder: (context, message) {
-                if (message.hasData && message.data != null) {
-                  return IconButton(
-                    onPressed: () async {
-                      final message = await getMessage();
-                      await OperationOnMessageSelection(
-                        message: message!,
-                        context: context,
-                        onEdit: widget.onEdit,
-                      ).selectOperation(OperationOnMessage.EDIT);
-                      _routingService.pop();
-                    },
-                    tooltip: _i18n.get("edit"),
-                    icon: Icon(
-                      CupertinoIcons.paintbrush,
-                      color: theme.primaryColorLight,
-                    ),
-                  );
-                } else {
-                  return const SizedBox.shrink();
+            IconButton(
+              onPressed: () {
+                if (!disableRotate) {
+                  disableRotate = true;
+                  controller.forward(from: 0);
                 }
               },
+              tooltip: _i18n.get("rotate"),
+              icon: Icon(
+                Icons.rotate_right,
+                color: theme.primaryColorLight,
+              ),
             ),
-          IconButton(
-            onPressed: () {
-              if (!disableRotate) {
-                disableRotate = true;
-                controller.forward(from: 0);
-              }
-            },
-            tooltip: _i18n.get("rotate"),
-            icon: Icon(
-              Icons.rotate_right,
-              color: theme.primaryColorLight,
+            IconButton(
+              tooltip:
+                  isDesktop ? _i18n.get("show_in_folder") : _i18n.get("share"),
+              onPressed: () async {
+                final message = await getMessage();
+                return OperationOnMessageSelection(
+                  message: message!,
+                  context: context,
+                ).selectOperation(
+                  isDesktop
+                      ? OperationOnMessage.SHOW_IN_FOLDER
+                      : OperationOnMessage.SHARE,
+                );
+              },
+              icon: Icon(
+                isDesktop ? CupertinoIcons.folder_open : Icons.share,
+                color: theme.primaryColorLight,
+              ),
             ),
-          ),
-          IconButton(
-            tooltip:
-                isDesktop ? _i18n.get("show_in_folder") : _i18n.get("share"),
-            onPressed: () async {
-              final message = await getMessage();
-              return OperationOnMessageSelection(
-                message: message!,
-                context: context,
-              ).selectOperation(
-                isDesktop
-                    ? OperationOnMessage.SHOW_IN_FOLDER
-                    : OperationOnMessage.SHARE,
-              );
-            },
-            icon: Icon(
-              isDesktop ? CupertinoIcons.folder_open : Icons.share,
-              color: theme.primaryColorLight,
-            ),
-          ),
-          const SizedBox(
-            width: 10,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
