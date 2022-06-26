@@ -91,8 +91,10 @@ class ChatItemState extends State<ChatItem> {
     final activeHoverColor =
         Color.lerp(theme.colorScheme.primaryContainer, theme.dividerColor, 0.1);
 
+    final pinnedColor = theme.colorScheme.onSurfaceVariant.withOpacity(0.08);
+
     final pinnedHoverColor = Color.lerp(
-      theme.colorScheme.onSurfaceVariant.withOpacity(0.08),
+      pinnedColor,
       theme.dividerColor,
       0.5,
     );
@@ -119,7 +121,7 @@ class ChatItemState extends State<ChatItem> {
               color: widget.isInRoom
                   ? theme.colorScheme.primaryContainer
                   : isPinnedRoom
-                      ? theme.colorScheme.onSurfaceVariant.withOpacity(0.08)
+                      ? pinnedColor
                       : Colors.transparent,
             ),
             height: chatItemHeight,
@@ -137,11 +139,23 @@ class ChatItemState extends State<ChatItem> {
           ),
           if (!isPinnedRoom)
             Padding(
-              padding: const EdgeInsets.only(left: 72.0),
+              padding: const EdgeInsets.only(left: 76.0),
               child: widget.isInRoom
                   ? const SizedBox(height: 0.5)
                   : const Divider(height: 0.5, thickness: 0.5),
-            ),
+            )
+          else
+            Container(
+              height: 1,
+              width: double.infinity,
+              color: pinnedColor,
+              child: Padding(
+                padding: const EdgeInsets.only(left: 76.0),
+                child: widget.isInRoom
+                    ? const SizedBox(height: 0.5)
+                    : const Divider(height: 0.5, thickness: 0.5),
+              ),
+            )
         ],
       ),
     );

@@ -24,7 +24,7 @@ class ContactPic extends StatelessWidget {
       children: <Widget>[
         CircleAvatarWidget(
           userUid,
-          24,
+          26,
           isHeroEnabled: false,
           showSavedMessageLogoIfNeeded: true,
         ),
