@@ -33,7 +33,7 @@ class FluidWidget extends StatelessWidget {
                   ? mainBorder
                   : BorderRadius.zero,
               child: Container(
-                color: theme.backgroundColor,
+                color: theme.colorScheme.background,
                 constraints: BoxConstraints(
                   maxWidth: isLargeWidth(constraints.maxWidth)
                       ? FLUID_MAX_WIDTH

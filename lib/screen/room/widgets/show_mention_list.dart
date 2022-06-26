@@ -38,7 +38,7 @@ class ShowMentionList extends StatelessWidget {
                       ? HEIGHT * 4
                       : (members.data!.length * HEIGHT),
                   child: Container(
-                    color: theme.backgroundColor,
+                    color: theme.colorScheme.background,
                     child: ListView.separated(
                       padding: EdgeInsets.zero,
                       itemCount: members.data!.length,

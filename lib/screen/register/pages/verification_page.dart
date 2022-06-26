@@ -110,7 +110,7 @@ class VerificationPageState extends State<VerificationPage> {
     final theme = Theme.of(context);
     return FluidWidget(
       child: Scaffold(
-        backgroundColor: theme.backgroundColor,
+        backgroundColor: theme.colorScheme.background,
         floatingActionButton: FloatingActionButton(
           backgroundColor: theme.primaryColor,
           foregroundColor: theme.buttonTheme.colorScheme!.onPrimary,
@@ -120,7 +120,7 @@ class VerificationPageState extends State<VerificationPage> {
           },
         ),
         appBar: AppBar(
-          backgroundColor: theme.backgroundColor,
+          backgroundColor: theme.colorScheme.background,
           title: Text(
             _i18n.get("verification"),
             style: TextStyle(

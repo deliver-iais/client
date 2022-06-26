@@ -291,7 +291,7 @@ class ShareBoxGalleryState extends State<ShareBoxGallery> {
                                   ), // changes position of shadow
                                 ),
                               ],
-                              color: Theme.of(context).backgroundColor,
+                              color: Theme.of(context).colorScheme.background,
                               // borderRadius: mainBorder,
                             ),
                             child: Text(
@@ -429,7 +429,7 @@ Stack buildInputCaption({
       Align(
         alignment: Alignment.bottomLeft,
         child: Container(
-          color: theme.backgroundColor,
+          color: theme.colorScheme.background,
           child: TextField(
             decoration: InputDecoration(
               hintText: i18n.get("caption"),
@@ -512,7 +512,7 @@ Stack buildInputCaption({
                   width: 28,
                   height: 28,
                   decoration: BoxDecoration(
-                    color: theme.backgroundColor, // border color
+                    color: theme.colorScheme.background, // border color
                     shape: BoxShape.circle,
                   ),
                   child: Padding(

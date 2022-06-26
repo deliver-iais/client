@@ -202,10 +202,10 @@ class LoginPageState extends State<LoginPage> {
       child: Form(
         key: _formKey,
         child: Scaffold(
-          backgroundColor: theme.backgroundColor,
+          backgroundColor: theme.colorScheme.background,
           appBar: AppBar(
             title: Text(_i18n.get("login")),
-            backgroundColor: theme.backgroundColor,
+            backgroundColor: theme.colorScheme.background,
           ),
           body: loginWithQrCode
               ? buildLoginWithQrCode(_i18n, context)

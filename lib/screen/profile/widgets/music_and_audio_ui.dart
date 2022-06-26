@@ -60,7 +60,7 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                 child: Container(
                   color: widget.selectedMedia.contains(snapShot.data)
                       ? theme.hoverColor.withOpacity(0.4)
-                      : theme.backgroundColor,
+                      : theme.colorScheme.background,
                   child: FutureBuilder<String?>(
                     future: _fileRepo.getFileIfExist(fileUuid, fileName),
                     builder: (context, filePath) {

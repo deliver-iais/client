@@ -51,7 +51,7 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
     final theme = Theme.of(context);
     return FluidWidget(
       child: Scaffold(
-        backgroundColor: theme.backgroundColor,
+        backgroundColor: theme.colorScheme.background,
         floatingActionButton: FloatingActionButton(
           backgroundColor: theme.primaryColor,
           foregroundColor: theme.buttonTheme.colorScheme!.onPrimary,
@@ -106,7 +106,7 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
           },
         ),
         appBar: AppBar(
-          backgroundColor: theme.backgroundColor,
+          backgroundColor: theme.colorScheme.background,
           title: Text(
             _i18n.get("two_step_verification"),
             style: TextStyle(

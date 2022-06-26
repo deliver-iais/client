@@ -40,7 +40,7 @@ class BotCommandsState extends State<BotCommands> {
           });
           return AnimatedContainer(
             duration: const Duration(milliseconds: 100),
-            color: theme.backgroundColor,
+            color: theme.colorScheme.background,
             height: botCommands.keys.length * (24.0 + 16),
             child: Scrollbar(
               child: ListView.separated(
