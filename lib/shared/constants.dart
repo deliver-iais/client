@@ -5,6 +5,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
 const APPLICATION_NAME = "We";
+const APPLICATION_TERMS_OF_USE_URL = "https://wemessenger.ir/terms";
 
 // Links Constants
 const APPLICATION_FOLDER_NAME = "We";

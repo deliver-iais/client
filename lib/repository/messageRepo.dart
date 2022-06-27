@@ -580,7 +580,9 @@ class MessageRepo {
     await _savePendingMessage(pm);
 
     final m = await _sendFileToServerOfPendingMessage(pm);
-    if (m != null && m.status == SendingStatus.UPLOAD_FILE_COMPELED) {
+    if (m != null &&
+        m.status == SendingStatus.UPLOAD_FILE_COMPELED &&
+        _fileOfMessageIsValid(m.msg.json.toFile())) {
       _sendMessageToServer(m);
     } else if (m != null) {
       return _messageDao.savePendingMessage(m);
@@ -769,7 +771,9 @@ class MessageRepo {
             break;
           case SendingStatus.UPLIOD_FILE_FAIL:
             final pm = await _sendFileToServerOfPendingMessage(pendingMessage);
-            if (pm != null && pm.status == SendingStatus.UPLOAD_FILE_COMPELED) {
+            if (pm != null &&
+                pm.status == SendingStatus.UPLOAD_FILE_COMPELED &&
+                _fileOfMessageIsValid(pm.msg.json.toFile())) {
               _sendMessageToServer(pm);
             }
             break;
@@ -777,6 +781,9 @@ class MessageRepo {
       }
     }
   }
+
+  bool _fileOfMessageIsValid(file_pb.File file) =>
+      (file.sign.isNotEmpty && file.hash.isNotEmpty);
 
   PendingMessage _createPendingMessage(Message msg, SendingStatus status) =>
       PendingMessage(

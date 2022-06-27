@@ -16,6 +16,7 @@ import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/group.pb.dart' as group_pb;
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -651,7 +652,7 @@ class MucRepo {
                 return UidIdName(
                   uid: member.memberUid,
                   id: a.username,
-                  name: a.firstname,
+                  name: buildName(a.firstname, a.lastname),
                 );
               } else {
                 final uidIdName =

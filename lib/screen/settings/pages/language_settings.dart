@@ -7,7 +7,9 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class LanguageSettingsPage extends StatefulWidget {
-  const LanguageSettingsPage({super.key});
+  final bool rootFromLoginPage;
+
+  const LanguageSettingsPage({super.key, this.rootFromLoginPage = false});
 
   @override
   LanguageSettingsPageState createState() => LanguageSettingsPageState();
@@ -25,7 +27,9 @@ class LanguageSettingsPageState extends State<LanguageSettingsPage> {
         child: AppBar(
           titleSpacing: 8,
           title: Text(_i18n.get("language")),
-          leading: _routingService.backButtonLeading(),
+          leading: widget.rootFromLoginPage
+              ? null
+              : _routingService.backButtonLeading(),
         ),
       ),
       body: FluidContainerWidget(
