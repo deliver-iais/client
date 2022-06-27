@@ -1,7 +1,6 @@
 // ignore_for_file: file_names
 
 import 'dart:convert';
-import 'dart:ffi';
 import 'dart:io' as io;
 
 import 'package:deliver/box/dao/file_dao.dart';
