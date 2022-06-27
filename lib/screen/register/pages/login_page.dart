@@ -298,7 +298,7 @@ class LoginPageState extends State<LoginPage> {
                 Row(
                   children: [
                     SizedBox(
-                      width: MediaQuery.of(context).size.width / 2,
+                      width: 250,
                       child: SettingsTile(
                         title: _i18n.get("language"),
                         subtitle: _i18n.locale.language().name,
