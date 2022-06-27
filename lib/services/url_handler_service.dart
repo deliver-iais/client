@@ -191,7 +191,8 @@ class UrlHandlerService {
         await _contactRepo.contactIsExist(countryCode!, nationalNumber!);
     if (res) {
       ToastDisplay.showToast(
-        toastText: "$firstName $lastName ${_i18n.get("contact_exist")}",
+        toastText:
+            "${buildName(firstName, lastName)} ${_i18n.get("contact_exist")}",
         toastContext: context,
       );
     } else {

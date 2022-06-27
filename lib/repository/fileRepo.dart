@@ -70,7 +70,9 @@ class FileRepo {
           ..height = json["height"] ?? 0
           ..duration = json["duration"] ?? 0
           ..blurHash = json["blurHash"] ?? ""
-          ..hash = json["hash"] ?? "";
+          ..hash = json["hash"] ?? ""
+          ..sign = json["sign"] ?? "";
+
         _logger.v(uploadedFile);
 
         await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
