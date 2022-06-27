@@ -60,7 +60,6 @@ class FileRepo {
       uploadFileStatusCode[uploadKey]!.add(value.statusCode);
       try {
         var uploadedFile = file_pb.File();
-
         uploadedFile = file_pb.File()
           ..uuid = json["uuid"]
           ..size = Int64.parseInt(json["size"])
@@ -72,7 +71,18 @@ class FileRepo {
           ..blurHash = json["blurHash"] ?? ""
           ..hash = json["hash"] ?? ""
           ..sign = json["sign"] ?? "";
-
+        if (json["audioWaveform"] != null) {
+          final audioWaveform = json["audioWaveform"] as Map;
+          uploadedFile.audioWaveform = file_pb.AudioWaveform(
+            bits: audioWaveform["bits"],
+            channels: audioWaveform["channels"],
+            data: (audioWaveform["data"] as List<int>),
+            length: audioWaveform["length"],
+            sampleRate: audioWaveform["sampleRate"],
+            samplesPerPixel: audioWaveform["samplesPerPixel"],
+            version: audioWaveform["version"],
+          );
+        }
         _logger.v(uploadedFile);
 
         await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
