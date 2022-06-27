@@ -295,31 +295,6 @@ class LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
-                Row(
-                  children: [
-                    SizedBox(
-                      width: 250,
-                      child: SettingsTile(
-                        title: _i18n.get("language"),
-                        subtitle: _i18n.locale.language().name,
-                        leading: const FaIcon(FontAwesomeIcons.globe),
-                        onPressed: (context) {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (c) {
-                                return const LanguageSettingsPage(
-                                  rootFromLoginPage: true,
-                                );
-                              },
-                            ),
-                          );
-                          // _routingService.openLanguageSettings();
-                        },
-                      ),
-                    ),
-                  ],
-                ),
                 Expanded(
                   child: Column(
                     children: <Widget>[
@@ -341,33 +316,14 @@ class LoginPageState extends State<LoginPage> {
                           checkAndGoNext();
                         },
                       ),
-                      const SizedBox(height: 15),
+                      const SizedBox(height: 8),
                       Text(
                         i18n.get("insert_phone_and_code"),
-                        style: TextStyle(
-                          fontWeight: FontWeight.normal,
-                          color: theme.primaryColor,
-                          fontSize: 15,
-                        ),
+                        style: theme.textTheme.labelSmall,
                       ),
-                      if (isDesktop) const SizedBox(height: 40),
-                      if (isDesktop)
-                        TextButton(
-                          child: Text(
-                            _i18n.get("login_with_qr_code"),
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: theme.primaryColor,
-                              fontSize: 13,
-                            ),
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              loginWithQrCode = true;
-                            });
-                          },
-                        ),
+                      const SizedBox(height: 24),
                       Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Checkbox(
                             value: _acceptPrivacy,
@@ -386,7 +342,7 @@ class LoginPageState extends State<LoginPage> {
                             child: RichText(
                               text: TextSpan(
                                 children: buildText(
-                                  "${!_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}](https://wemessenger.ir/terms) ${_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}",
+                                  "${!_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}]($APPLICATION_TERMS_OF_USE_URL) ${_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}",
                                   context,
                                 ),
                                 style: theme.textTheme.bodyText2,
@@ -399,64 +355,111 @@ class LoginPageState extends State<LoginPage> {
                     ],
                   ),
                 ),
-                Align(
-                  alignment: Alignment.bottomRight,
-                  child: StreamBuilder<bool>(
-                    initialData: false,
-                    stream: _networkError.stream,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData && snapshot.data!) {
-                        return Container(
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.secondaryContainer,
-                            borderRadius: tertiaryBorder,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(_i18n.get("go_connection_setting_page")),
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (c) {
-                                        return const ConnectionSettingPage(
-                                          rootFromLoginPage: true,
-                                        );
-                                      },
-                                    ),
-                                  );
-                                },
-                                child: Text(_i18n.get("settings")),
-                              )
-                            ],
-                          ),
-                        );
-                      }
-                      return const SizedBox.shrink();
+                Container(
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceVariant,
+                    borderRadius: secondaryBorder,
+                  ),
+                  margin: const EdgeInsets.only(top: 8, bottom: 8),
+                  child: SettingsTile(
+                    title: _i18n.get("language"),
+                    subtitle: _i18n.locale.language().name,
+                    leading: const FaIcon(FontAwesomeIcons.globe),
+                    onPressed: (context) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (c) {
+                            return const LanguageSettingsPage(
+                              rootFromLoginPage: true,
+                            );
+                          },
+                        ),
+                      );
+                      // _routingService.openLanguageSettings();
                     },
                   ),
                 ),
-                if (_acceptPrivacy)
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Align(
-                      alignment: Alignment.bottomRight,
-                      child: TextButton(
-                        onPressed: checkAndGoNext,
-                        child: Text(
-                          i18n.get("next"),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: theme.primaryColor,
-                            fontSize: 14.5,
+                StreamBuilder<bool>(
+                  initialData: false,
+                  stream: _networkError.stream,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData && snapshot.data!) {
+                      return Container(
+                        height: 40,
+                        margin: const EdgeInsets.only(top: 8, bottom: 8),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceVariant,
+                          borderRadius: secondaryBorder,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(_i18n.get("go_connection_setting_page")),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (c) {
+                                      return const ConnectionSettingPage(
+                                        rootFromLoginPage: true,
+                                      );
+                                    },
+                                  ),
+                                );
+                              },
+                              child: Text(_i18n.get("settings")),
+                            )
+                          ],
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+                Row(
+                  children: [
+                    if (isDesktop)
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Align(
+                          alignment: Alignment.bottomLeft,
+                          child: TextButton(
+                            child: Text(
+                              _i18n.get("login_with_qr_code"),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: theme.primaryColor,
+                                fontSize: 13,
+                              ),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                loginWithQrCode = true;
+                              });
+                            },
                           ),
                         ),
                       ),
-                    ),
-                  ),
+                    const Spacer(),
+                    if (_acceptPrivacy)
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextButton(
+                          onPressed: checkAndGoNext,
+                          child: Text(
+                            i18n.get("next"),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: theme.primaryColor,
+                              fontSize: 14.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ],
             ),
           );
