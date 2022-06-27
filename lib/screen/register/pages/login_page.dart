@@ -386,7 +386,7 @@ class LoginPageState extends State<LoginPage> {
                             child: RichText(
                               text: TextSpan(
                                 children: buildText(
-                                  "${!_i18n.rtl() ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}](https://wemessenger.ir/terms) ${_i18n.rtl() ? _i18n.get("i_read_and_accept") : ""}",
+                                  "${!_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}](https://wemessenger.ir/terms) ${_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}",
                                   context,
                                 ),
                                 style: theme.textTheme.bodyText2,

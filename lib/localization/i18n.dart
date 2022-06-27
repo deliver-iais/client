@@ -36,7 +36,7 @@ class I18N {
         });
   }
 
-  bool rtlDirection() => _language.value.countryCode.contains(farsi.countryCode);
+  bool isRtl() => _language.value.countryCode.contains(farsi.countryCode);
 
   Future<void> _loadLanguageResource(Language language) async {
     final jsonValues =
