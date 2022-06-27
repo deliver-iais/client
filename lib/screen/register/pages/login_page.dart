@@ -313,7 +313,7 @@ class LoginPageState extends State<LoginPage> {
                         },
                         onSubmitted: (p) {
                           phoneNumber = p;
-                          checkAndGoNext();
+                          if (_acceptPrivacy) checkAndGoNext();
                         },
                       ),
                       const SizedBox(height: 8),
