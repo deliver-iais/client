@@ -73,15 +73,19 @@ class FileRepo {
           ..sign = json["sign"] ?? "";
         if (json["audioWaveform"] != null) {
           final audioWaveform = json["audioWaveform"] as Map;
-          uploadedFile.audioWaveform = file_pb.AudioWaveform(
-            bits: audioWaveform["bits"],
-            channels: audioWaveform["channels"],
-            data: (audioWaveform["data"] as List<int>),
-            length: audioWaveform["length"],
-            sampleRate: audioWaveform["sampleRate"],
-            samplesPerPixel: audioWaveform["samplesPerPixel"],
-            version: audioWaveform["version"],
-          );
+          if (audioWaveform.isNotEmpty) {
+            uploadedFile.audioWaveform = file_pb.AudioWaveform(
+              bits: audioWaveform["bits"] ?? 0,
+              channels: audioWaveform["channels"] ?? 0,
+              data: audioWaveform["data"] != null
+                  ? (audioWaveform["data"] as List<int>)
+                  : [],
+              length: audioWaveform["length"] ?? 0,
+              sampleRate: audioWaveform["sampleRate"] ?? 0,
+              samplesPerPixel: audioWaveform["samplesPerPixel"] ?? 0,
+              version: audioWaveform["version"] ?? 0,
+            );
+          }
         }
         _logger.v(uploadedFile);
 
