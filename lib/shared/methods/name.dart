@@ -1,3 +1,3 @@
 String buildName(String? firstName, String? lastName) {
-  return "${firstName != null ? firstName.trim() : ""} ${lastName != null ? lastName.trim() : ""}";
+  return "${(firstName?? "").trim()} ${(lastName ?? "").trim()}".trim();
 }

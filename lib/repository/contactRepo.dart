@@ -169,10 +169,12 @@ class ContactRepo {
       );
 
       roomNameCache.set(
-          contact.uid.asString(), "${contact.firstName} ${contact.lastName}",);
+        contact.uid.asString(),
+        buildName(contact.firstName, contact.lastName),
+      );
       _uidIdNameDao.update(
         contact.uid.asString(),
-        name: "${contact.firstName} ${contact.lastName}",
+        name: buildName(contact.firstName, contact.lastName),
       );
       _roomDao.updateRoom(uid: contact.uid.asString());
     }

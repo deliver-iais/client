@@ -10,6 +10,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver/shared/language.dart';
+import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -101,8 +102,10 @@ class SettingsPageState extends State<SettingsPage> {
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Text(
-                                    "${snapshot.data!.firstname ?? ""} ${snapshot.data!.lastname ?? ""}"
-                                        .trim(),
+                                    buildName(
+                                      snapshot.data!.firstname,
+                                      snapshot.data!.lastname,
+                                    ),
                                     overflow: TextOverflow.fade,
                                     // maxLines: 1,
                                     textDirection: TextDirection.rtl,
@@ -276,8 +279,7 @@ class SettingsPageState extends State<SettingsPage> {
                   subtitleTextStyle: TextStyle(
                     color: theme.primaryColor,
                   ),
-                  leading:
-                      const Icon(CupertinoIcons.settings),
+                  leading: const Icon(CupertinoIcons.settings),
                   onPressed: (context) =>
                       _routingService.openConnectionSettingPage(),
                 ),
