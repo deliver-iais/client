@@ -552,7 +552,7 @@ class ProfilePageState extends State<ProfilePage>
                   }
                 },
               ),
-            if (widget.roomUid.isGroup() || _isMucAdminOrOwner)
+            if (_isMucAdminOrOwner)
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: SettingsTile(

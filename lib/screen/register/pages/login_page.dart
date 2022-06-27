@@ -8,14 +8,18 @@ import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/register/pages/two_step_verification_page.dart';
 import 'package:deliver/screen/register/pages/verification_page.dart';
 import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
+import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/settings/pages/connection_setting_page.dart';
+import 'package:deliver/screen/settings/pages/language_settings.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/language.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver/shared/widgets/out_of_date.dart';
+import 'package:deliver/shared/widgets/settings_ui/src/settings_tile.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
@@ -23,6 +27,7 @@ import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
@@ -30,7 +35,6 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sms_autofill/sms_autofill.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -49,7 +53,7 @@ class LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final BehaviorSubject<bool> _isLoading = BehaviorSubject.seeded(false);
   bool loginWithQrCode = isDesktop;
-  bool _acceptPrivacy = !isAndroid;
+  bool _acceptPrivacy = kDebugMode;
   final loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
   Timer? checkTimer;
   Timer? tokenGeneratorTimer;
@@ -291,10 +295,35 @@ class LoginPageState extends State<LoginPage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: <Widget>[
+                Row(
+                  children: [
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width / 2,
+                      child: SettingsTile(
+                        title: _i18n.get("language"),
+                        subtitle: _i18n.locale.language().name,
+                        leading: const FaIcon(FontAwesomeIcons.globe),
+                        onPressed: (context) {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (c) {
+                                return const LanguageSettingsPage(
+                                  rootFromLoginPage: true,
+                                );
+                              },
+                            ),
+                          );
+                          // _routingService.openLanguageSettings();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
                 Expanded(
                   child: Column(
                     children: <Widget>[
-                      const SizedBox(height: 5),
+                      const SizedBox(height: 20),
                       IntlPhoneField(
                         initialCountryCode: phoneNumber != null
                             ? phoneNumber!.countryCode.toString()
@@ -338,52 +367,35 @@ class LoginPageState extends State<LoginPage> {
                             });
                           },
                         ),
-                      if (isAndroid)
-                        Row(
-                          children: [
-                            Checkbox(
-                              value: _acceptPrivacy,
-                              onChanged: (c) {
-                                setState(() {
-                                  _acceptPrivacy = c!;
-                                });
-                              },
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _acceptPrivacy = true;
-                                });
-                              },
-                              child: RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: "شرایط حریم خصوصی",
-                                      style: const TextStyle(
-                                        color: Colors.blue,
-                                        fontSize: 13,
-                                      ),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () => launchUrl(
-                                              Uri.parse(
-                                                "https://wemessenger.ir/terms",
-                                              ),
-                                            ),
-                                    ),
-                                    const TextSpan(
-                                      text:
-                                          " را مطالعه نموده ام و آن را قبول می کنم",
-                                      style: TextStyle(fontSize: 13),
-                                    ),
-                                  ],
-                                  style: theme.textTheme.bodyText2,
+                      Row(
+                        children: [
+                          Checkbox(
+                            value: _acceptPrivacy,
+                            onChanged: (c) {
+                              setState(() {
+                                _acceptPrivacy = c!;
+                              });
+                            },
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _acceptPrivacy = true;
+                              });
+                            },
+                            child: RichText(
+                              text: TextSpan(
+                                children: buildText(
+                                  "${_i18n.get("i_read_and_accept_en")}[${_i18n.get("privacy_policy")}](https://wemessenger.ir/terms) ${_i18n.get("i_read_and_accept_fa")}",
+                                  context,
                                 ),
-                                textDirection: TextDirection.rtl,
+                                style: theme.textTheme.bodyText2,
                               ),
+                              textDirection: TextDirection.ltr,
                             ),
-                          ],
-                        )
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -452,4 +464,29 @@ class LoginPageState extends State<LoginPage> {
       },
     );
   }
+
+  List<InlineSpan> buildText(
+    String text,
+    BuildContext context,
+  ) =>
+      extractBlocks(
+        text
+            .split("\n")
+            .map((e) => e.trim())
+            .where((e) => e.trim().isNotEmpty)
+            .join(" "),
+        context: context,
+      ).where((b) => b.text.isNotEmpty).map((e) {
+        var tap = e.text;
+        if (e.type == BlockTypes.INLINE_URL) {
+          tap = e.matchText;
+        }
+        return TextSpan(
+          text: e.text,
+          style: e.style,
+          recognizer: (e.onTap != null)
+              ? (TapGestureRecognizer()..onTap = () => e.onTap!(tap))
+              : null,
+        );
+      }).toList();
 }
