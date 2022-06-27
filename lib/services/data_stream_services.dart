@@ -439,7 +439,9 @@ class DataStreamServices {
       if (messageDeliveryAck.id > seen.messageId) {
         _roomRepo
             .updateMySeen(
-            uid: msg.roomUid, messageId: messageDeliveryAck.id.toInt())
+              uid: msg.roomUid,
+              messageId: messageDeliveryAck.id.toInt(),
+            )
             .ignore();
       }
     }
