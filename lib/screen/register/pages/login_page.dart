@@ -267,8 +267,8 @@ class LoginPageState extends State<LoginPage> {
           const Text("3. Point your phone at this screen to confirm login"),
           const SizedBox(height: 30),
           TextButton(
-            child: const Text(
-              "Don't you have access to an authenticated phone?",
+            child: Text(
+              _i18n.get("access_to_authenticated_phone"),
             ),
             onPressed: () {
               setState(() {
@@ -354,7 +354,7 @@ class LoginPageState extends State<LoginPage> {
                       if (isDesktop)
                         TextButton(
                           child: Text(
-                            "Login with QR Code",
+                            _i18n.get("login_with_qr_code"),
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: theme.primaryColor,
@@ -386,7 +386,7 @@ class LoginPageState extends State<LoginPage> {
                             child: RichText(
                               text: TextSpan(
                                 children: buildText(
-                                  "${_i18n.get("i_read_and_accept_en")}[${_i18n.get("privacy_policy")}](https://wemessenger.ir/terms) ${_i18n.get("i_read_and_accept_fa")}",
+                                  "${!_i18n.rtl() ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}](https://wemessenger.ir/terms) ${_i18n.rtl() ? _i18n.get("i_read_and_accept") : ""}",
                                   context,
                                 ),
                                 style: theme.textTheme.bodyText2,
