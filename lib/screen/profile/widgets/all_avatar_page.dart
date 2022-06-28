@@ -1,8 +1,11 @@
 import 'dart:io';
 import 'package:dcache/dcache.dart';
 import 'package:deliver/box/avatar.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
+import 'package:deliver/services/ext_storage_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -37,6 +40,7 @@ class AllAvatarPageState extends State<AllAvatarPage> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _streamKey = GlobalKey();
   List<Avatar?> _avatars = [];
+  final _i18n = GetIt.I.get<I18N>();
   final _fileCache = LruCache<String, String>(storage: InMemoryStorage(50));
   final BehaviorSubject<int> _swipePositionSubject = BehaviorSubject.seeded(0);
   final BehaviorSubject<bool> _isBarShowing = BehaviorSubject.seeded(true);
@@ -58,7 +62,8 @@ class AllAvatarPageState extends State<AllAvatarPage> {
         builder: (cont, snapshot) {
           if (snapshot.hasData && snapshot.data != null) {
             _avatars = snapshot.data!;
-            if (_swipePositionSubject.value + 1 > _avatars.length && _avatars.isNotEmpty) {
+            if (_swipePositionSubject.value + 1 > _avatars.length &&
+                _avatars.isNotEmpty) {
               _swipePositionSubject.value = _swipePositionSubject.value - 1;
             }
             return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -216,15 +221,54 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                       ),
                     ),
                     actions: [
-                      if (widget.hasPermissionToDeletePic)
-                        PopupMenuButton(
-                          icon: const Icon(
-                            Icons.more_vert,
-                            size: 20,
+                      PopupMenuButton(
+                        color: Color.alphaBlend(
+                          Theme.of(context).primaryColor.withAlpha(120),
+                          Colors.black,
+                        ),
+                        icon: const Icon(
+                          Icons.more_vert,
+                          size: 20,
+                        ),
+                        itemBuilder: (cc) => [
+                          PopupMenuItem(
+                            textStyle: const TextStyle(color: Colors.white),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.save_alt_rounded),
+                                const SizedBox(
+                                  width: 8,
+                                ),
+                                Text(_i18n.get("save_to_gallery")),
+                              ],
+                            ),
+                            onTap: () {
+                              _fileRepo.saveFileInDownloadDir(
+                                _avatars[_swipePositionSubject.value]!.fileId!,
+                                _avatars[_swipePositionSubject.value]!
+                                    .fileName!,
+                                ExtStorage.pictures,
+                              );
+                              ToastDisplay.showToast(
+                                toastContext: context,
+                                toastText: _i18n.get("file_saved"),
+                                isSaveToast: true,
+                              );
+                            },
                           ),
-                          itemBuilder: (cc) => [
+                          if (widget.hasPermissionToDeletePic)
                             PopupMenuItem(
-                              child: const Text("delete"),
+                              textStyle: const TextStyle(color: Colors.white),
+                              child: Row(
+                                children: [
+                                  const Icon(Icons.delete_outline_rounded),
+                                  const SizedBox(
+                                    width: 8,
+                                  ),
+                                  Text(_i18n.get("delete")),
+                                ],
+                              ),
                               onTap: () async {
                                 await _avatarRepo.deleteAvatar(
                                   _avatars[_swipePositionSubject.value]!,
@@ -240,8 +284,8 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                                 }
                               },
                             ),
-                          ],
-                        )
+                        ],
+                      ),
                     ],
                   )
                 : const SizedBox.shrink(),
