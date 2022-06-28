@@ -179,25 +179,30 @@ class AvatarRepo {
       yield* cachedAvatar;
     }
 
-    late final BehaviorSubject<String> bs;
-
-    bs = BehaviorSubject();
+    final bs = BehaviorSubject<String>();
 
     _avatarCacheBehaviorSubjects.set(key, bs);
 
     final subscription =
         _avatarDao.watchLastAvatar(userUid.asString()).listen((event) async {
-      if (event != null && event.fileId != null && event.fileName != null) {
-        _avatarCache.set(key, event);
-        final path = await _fileRepo.getFile(
-          event.fileId!,
-          event.fileName!,
-          thumbnailSize:
-              event.fileName!.endsWith(".gif") ? null : ThumbnailSize.medium,
-        );
-        if (path != null) {
-          _avatarFilePathCache.set(key, path);
-          bs.sink.add(path);
+      if (event != null) {
+        if (event.fileId != null && event.fileName != null) {
+          _avatarCache.set(key, event);
+          final path = await _fileRepo.getFile(
+            event.fileId!,
+            event.fileName!,
+            thumbnailSize:
+                event.fileName!.endsWith(".gif") ? null : ThumbnailSize.medium,
+          );
+          if (path != null) {
+            _avatarFilePathCache.set(key, path);
+            bs.sink.add(path);
+          }
+        } else if (event.createdOn == 0) {
+          _avatarFilePathCache.clear();
+          _avatarCache.clear();
+          _avatarCacheBehaviorSubjects.clear();
+          bs.value = "";
         }
       }
     });
