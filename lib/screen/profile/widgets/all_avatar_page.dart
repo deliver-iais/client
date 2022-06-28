@@ -58,6 +58,9 @@ class AllAvatarPageState extends State<AllAvatarPage> {
         builder: (cont, snapshot) {
           if (snapshot.hasData && snapshot.data != null) {
             _avatars = snapshot.data!;
+            if (_swipePositionSubject.value + 1 > _avatars.length && _avatars.isNotEmpty) {
+              _swipePositionSubject.value = _swipePositionSubject.value - 1;
+            }
             return AnnotatedRegion<SystemUiOverlayStyle>(
               value: const SystemUiOverlayStyle(
                 systemNavigationBarColor: Colors.black,
@@ -226,8 +229,15 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                                 await _avatarRepo.deleteAvatar(
                                   _avatars[_swipePositionSubject.value]!,
                                 );
-                                _avatars.clear();
-                                setState(() {});
+                                if (_swipePositionSubject.value == 0 &&
+                                    totalLength == 1) {
+                                  _routingService.openSettings(
+                                    popAllBeforePush: true,
+                                  );
+                                } else {
+                                  _avatars.clear();
+                                  setState(() {});
+                                }
                               },
                             ),
                           ],
