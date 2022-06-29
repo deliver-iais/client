@@ -1135,6 +1135,9 @@ class MessageRepo {
     String text,
   ) async {
     try {
+      if (text == editableMessage.json.toText().text) {
+        return;
+      }
       final updatedMessage = message_pb.MessageByClient()
         ..to = editableMessage.to.asUid()
         ..replyToId = Int64(editableMessage.replyToId)
@@ -1190,6 +1193,9 @@ class MessageRepo {
       }
     } else {
       final preFile = editableMessage.json.toFile();
+      if (caption == preFile.caption) {
+        return;
+      }
       updatedFile = file_pb.File.create()
         ..caption = caption ?? ""
         ..name = preFile.name
