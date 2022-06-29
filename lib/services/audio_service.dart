@@ -326,3 +326,67 @@ class NormalAudioPlayer implements AudioPlayerModule {
     _callAudioPlayer.stop();
   }
 }
+
+class FakeAudioPlayer implements AudioPlayerModule {
+  @override
+  Stream<Duration?>? get audioCurrentPosition => throw UnimplementedError();
+
+  @override
+  Stream<AudioPlayerState>? get audioCurrentState => throw UnimplementedError();
+
+  @override
+  Stream<Duration?>? get audioDuration => throw UnimplementedError();
+
+  @override
+  void changePlaybackRate(double rate) {}
+
+  @override
+  double getPlaybackRate() {
+    throw UnimplementedError();
+  }
+
+  @override
+  void pause() {}
+
+  @override
+  void play(String path) {}
+
+  @override
+  void playBeepSound() {}
+
+  @override
+  void playBusySound() {}
+
+  @override
+  void playEndCallSound() {}
+
+  @override
+  void playIncomingCallSound() {}
+
+  @override
+  void playSoundIn() {}
+
+  @override
+  void playSoundOut() {}
+
+  @override
+  Stream get playerCompleteSubscription => throw UnimplementedError();
+
+  @override
+  void resume() {}
+
+  @override
+  void seek(Duration duration) {}
+
+  @override
+  void stop() {}
+
+  @override
+  void stopBeepSound() {}
+
+  @override
+  void stopBusySound() {}
+
+  @override
+  void stopIncomingCallSound() {}
+}

@@ -87,7 +87,8 @@ class DragDropWidget extends StatelessWidget {
                   ),
                 );
               }
-              _sendInputFiles(files,context).ignore();
+              // ignore: use_build_context_synchronously
+              _sendInputFiles(files, context).ignore();
             },
             child: child,
           );
