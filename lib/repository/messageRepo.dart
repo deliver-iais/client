@@ -692,8 +692,14 @@ class MessageRepo {
       await _updateRoomLastMessage(newPm);
       return newPm;
     } else {
-      final newPm = pm.copyWith(status: SendingStatus.UPLIOD_FILE_FAIL);
-      return newPm;
+      final p = await _messageDao.getPendingMessage(
+        pm.packetId,
+      ); //check pending message  delete when  file  uploading
+      if (p != null) {
+        final newPm = pm.copyWith(status: SendingStatus.UPLIOD_FILE_FAIL);
+        return newPm;
+      }
+      return null;
     }
   }
 

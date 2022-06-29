@@ -36,10 +36,10 @@ import 'package:tuple/tuple.dart';
 import 'package:win_toast/win_toast.dart';
 
 abstract class Notifier {
-  static void onCallAccept(String roomUid)  {
-        GetIt.I
-            .get<RoutingService>()
-            .openCallScreen(roomUid.asUid(), isCallAccepted: true);
+  static void onCallAccept(String roomUid) {
+    GetIt.I
+        .get<RoutingService>()
+        .openCallScreen(roomUid.asUid(), isCallAccepted: true);
 
   }
 
@@ -601,9 +601,8 @@ class AndroidNotifier implements Notifier {
   }
 
   Future<void> onCallAccepted(CallEvent callEvent) async {
-    await GetIt.I
-        .get<CallService>().clearCallData();
-     Notifier.onCallAccept(callEvent.userInfo!["uid"]!);
+    await GetIt.I.get<CallService>().clearCallData();
+    Notifier.onCallAccept(callEvent.userInfo!["uid"]!);
     final callEventInfo =
         call_pro.CallEvent.fromJson(callEvent.userInfo!["callEventJson"]!);
     //here status be JOINED means ACCEPT CALL and when app Start should go on accepting status
@@ -684,6 +683,7 @@ class AndroidNotifier implements Notifier {
       channelDescription: channel.description,
       groupKey: message.roomUid.asString(),
       largeIcon: largeIcon,
+      playSound: !message.shouldBeQuiet,
       fullScreenIntent: true,
       styleInformation: inboxStyleInformation,
       actions: <AndroidNotificationAction>[
