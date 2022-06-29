@@ -31,7 +31,6 @@ dependencies:
       ref: 3c51f4fa7f4507f95ced09e99aa10afad7c493f3
       url: https://github.com/EsmaeilDansi/audioplayers.git
       path: packages/audioplayers
-
   badges: 2.0.3
   camera: 0.9.8+1
   card_swiper: 2.0.4
