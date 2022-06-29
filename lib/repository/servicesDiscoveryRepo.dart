@@ -222,6 +222,7 @@ class ServicesDiscoveryRepo {
     );
     _authServiceClient = AuthServiceClient(
       isWeb ? webProfileServicesClientChannel : profileServicesClientChannel,
+      options: _getCallOption("ms-profile"),
     );
 
     _sessionServiceClient = SessionServiceClient(
