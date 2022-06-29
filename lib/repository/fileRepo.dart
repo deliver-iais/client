@@ -242,4 +242,14 @@ class FileRepo {
       (path) => _fileService.saveFileInDownloadFolder(path!, name, dir),
     );
   }
+
+  void saveFileInSpecialFolder(
+    String uuid,
+    String name,
+    String folder,
+  ) {
+    getFileIfExist(uuid, name).then(
+      (path) => _fileService.saveFileInSpecialFolder(path!, name, folder),
+    );
+  }
 }

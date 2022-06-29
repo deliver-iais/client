@@ -185,6 +185,17 @@ class FileService {
     } catch (_) {}
   }
 
+  Future<void> saveFileInSpecialFolder(
+    String path,
+    String name,
+    String folder,
+  ) async {
+    try {
+      final f = io.File(folder);
+      await f.writeAsBytes(io.File(path).readAsBytesSync());
+    } catch (_) {}
+  }
+
   Future<String> _getFileThumbnail(
     String uuid,
     String filename,

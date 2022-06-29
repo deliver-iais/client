@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:dcache/dcache.dart';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -11,6 +12,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -230,33 +232,62 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                           Icons.more_vert,
                           size: 20,
                         ),
-                        itemBuilder: (cc) => [
-                          PopupMenuItem(
-                            textStyle: const TextStyle(color: Colors.white),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(Icons.save_alt_rounded),
-                                const SizedBox(
-                                  width: 8,
-                                ),
-                                Text(_i18n.get("save_to_gallery")),
-                              ],
+                        itemBuilder: (cc) =>
+                        [
+                          if (isDesktop || isAndroid)
+                            PopupMenuItem(
+                              textStyle: const TextStyle(color: Colors.white),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.save_alt_rounded),
+                                  const SizedBox(
+                                    width: 8,
+                                  ),
+                                  Text(
+                                    isDesktop
+                                        ? _i18n.get("save_as")
+                                        : _i18n.get("save_to_gallery"),
+                                  ),
+                                ],
+                              ),
+                              onTap: () async {
+                                if (isDesktop) {
+                                  final outputFile =
+                                      await FilePicker.platform.saveFile(
+                                    lockParentWindow: true,
+                                    dialogTitle: 'Save image',
+                                    fileName:
+                                        _avatars[_swipePositionSubject.value]!
+                                            .fileName,
+                                    type: FileType.image,
+                                  );
+
+                                  if (outputFile != null) {
+                                    _fileRepo.saveFileInSpecialFolder(
+                                      _avatars[_swipePositionSubject.value]!
+                                          .fileId!,
+                                      _avatars[_swipePositionSubject.value]!
+                                          .fileName!,
+                                      outputFile,
+                                    );
+                                  }
+                                } else if (isAndroid) {
+                                  _fileRepo.saveFileInDownloadDir(
+                                    _avatars[_swipePositionSubject.value]!
+                                        .fileId!,
+                                    _avatars[_swipePositionSubject.value]!
+                                        .fileName!,
+                                    ExtStorage.pictures,
+                                  );
+                                  ToastDisplay.showToast(
+                                    toastContext: context,
+                                    toastText: _i18n.get("photo_saved"),
+                                    isSaveToast: true,
+                                  );
+                                }
+                              },
                             ),
-                            onTap: () {
-                              _fileRepo.saveFileInDownloadDir(
-                                _avatars[_swipePositionSubject.value]!.fileId!,
-                                _avatars[_swipePositionSubject.value]!
-                                    .fileName!,
-                                ExtStorage.pictures,
-                              );
-                              ToastDisplay.showToast(
-                                toastContext: context,
-                                toastText: _i18n.get("file_saved"),
-                                isSaveToast: true,
-                              );
-                            },
-                          ),
                           if (widget.hasPermissionToDeletePic)
                             PopupMenuItem(
                               textStyle: const TextStyle(color: Colors.white),
