@@ -345,6 +345,8 @@ class SettingsPageState extends State<SettingsPage> {
   }
 
   void openLogoutAlertDialog(BuildContext context, I18N i18n) {
+    final theme = Theme.of(context);
+
     showDialog(
       context: context,
       builder: (context) {
@@ -363,7 +365,7 @@ class SettingsPageState extends State<SettingsPage> {
             ),
             TextButton(
               onPressed: () => _routingService.logout(),
-              style: TextButton.styleFrom(primary: Colors.red),
+              style: TextButton.styleFrom(primary: theme.colorScheme.error),
               child: Text(i18n.get("logout")),
             ),
           ],
