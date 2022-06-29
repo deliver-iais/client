@@ -40,7 +40,6 @@ abstract class Notifier {
     GetIt.I
         .get<RoutingService>()
         .openCallScreen(roomUid.asUid(), isCallAccepted: true);
-
   }
 
   static void onCallReject() {
@@ -634,7 +633,8 @@ class AndroidNotifier implements Notifier {
   Future<void> notifyText(MessageSimpleRepresentative message) async {
     if (message.ignoreNotification) return;
     AndroidBitmap<Object>? largeIcon;
-    var selectedNotificationSound = "that_was_quick";
+    var selectedNotificationSound =
+        message.shouldBeQuiet ? "silence" : "that_was_quick";
     final selectedSound =
         await _roomRepo.getRoomCustomNotification(message.roomUid.asString());
     final la = await _avatarRepo.getLastAvatar(message.roomUid);
@@ -649,7 +649,7 @@ class AndroidNotifier implements Notifier {
         largeIcon = FilePathAndroidBitmap(path);
       }
     }
-    if (selectedSound != null) {
+    if (selectedSound != null && !message.shouldBeQuiet) {
       if (selectedSound != "-") {
         selectedNotificationSound = selectedSound;
       }
@@ -683,7 +683,6 @@ class AndroidNotifier implements Notifier {
       channelDescription: channel.description,
       groupKey: message.roomUid.asString(),
       largeIcon: largeIcon,
-      playSound: !message.shouldBeQuiet,
       fullScreenIntent: true,
       styleInformation: inboxStyleInformation,
       actions: <AndroidNotificationAction>[
