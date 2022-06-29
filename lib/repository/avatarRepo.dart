@@ -54,8 +54,7 @@ class AvatarRepo {
   Future<void> _getAvatarRequest(Uid userUid) async {
     try {
       final getAvatarReq = GetAvatarReq()..uidList.add(userUid);
-      final getAvatars =
-          await _sdr.avatarServiceClient.getAvatar(getAvatarReq);
+      final getAvatars = await _sdr.avatarServiceClient.getAvatar(getAvatarReq);
       final avatars = getAvatars.avatar
           .map(
             (e) => Avatar(
@@ -76,7 +75,7 @@ class AvatarRepo {
     } catch (e) {
       _logger.e("no avatar exist in $userUid", e);
 
-      return _avatarDao.saveLastAvatarAsNull(userUid.asString());
+      //return _avatarDao.saveLastAvatarAsNull(userUid.asString());
     }
   }
 
@@ -199,10 +198,11 @@ class AvatarRepo {
             bs.sink.add(path);
           }
         } else if (event.createdOn == 0) {
-          _avatarFilePathCache.clear();
-          _avatarCache.clear();
-          _avatarCacheBehaviorSubjects.clear();
+          final key = _getAvatarCacheKey(userUid);
+          _avatarFilePathCache.set(key, "");
+          _avatarCache.set(key, event);
           bs.value = "";
+          _avatarCacheBehaviorSubjects.set(key, bs);
         }
       }
     });
