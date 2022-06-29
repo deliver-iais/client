@@ -21,6 +21,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart' as query_pb;
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
+import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -72,10 +73,11 @@ class AvatarRepo {
       } else {
         return _avatarDao.saveLastAvatarAsNull(userUid.asString());
       }
-    } catch (e) {
-      _logger.e("no avatar exist in $userUid", e);
-
-      //return _avatarDao.saveLastAvatarAsNull(userUid.asString());
+    } on GrpcError catch (e) {
+      _logger.e("grpc error for $userUid", e);
+      if (e.code == StatusCode.notFound) {
+        return _avatarDao.saveLastAvatarAsNull(userUid.asString());
+      }
     }
   }
 
