@@ -5,8 +5,6 @@ import 'package:audioplayers/audioplayers.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
-import '../shared/methods/platform.dart';
-
 enum AudioPlayerState {
   /// Player is stopped. No file is loaded to the player. Calling [resume] or
   /// [pause] will result in exception.
@@ -328,7 +326,8 @@ class NormalAudioPlayer implements AudioPlayerModule {
     _callAudioPlayer.stop();
   }
 }
-class FakeAudioPlayer implements AudioPlayerModule{
+
+class FakeAudioPlayer implements AudioPlayerModule {
   @override
   Stream<Duration?>? get audioCurrentPosition => throw UnimplementedError();
 
@@ -339,8 +338,7 @@ class FakeAudioPlayer implements AudioPlayerModule{
   Stream<Duration?>? get audioDuration => throw UnimplementedError();
 
   @override
-  void changePlaybackRate(double rate) {
-  }
+  void changePlaybackRate(double rate) {}
 
   @override
   double getPlaybackRate() {
@@ -348,62 +346,47 @@ class FakeAudioPlayer implements AudioPlayerModule{
   }
 
   @override
-  void pause() {
-  }
+  void pause() {}
 
   @override
-  void play(String path) {
-  }
+  void play(String path) {}
 
   @override
-  void playBeepSound() {
-  }
+  void playBeepSound() {}
 
   @override
-  void playBusySound() {
-  }
+  void playBusySound() {}
 
   @override
-  void playEndCallSound() {
-  }
+  void playEndCallSound() {}
 
   @override
-  void playIncomingCallSound() {
-  }
+  void playIncomingCallSound() {}
 
   @override
-  void playSoundIn() {
-  }
+  void playSoundIn() {}
 
   @override
-  void playSoundOut() {
-  }
+  void playSoundOut() {}
 
   @override
   Stream get playerCompleteSubscription => throw UnimplementedError();
 
   @override
-  void resume() {
-  }
+  void resume() {}
 
   @override
-  void seek(Duration duration) {
-  }
+  void seek(Duration duration) {}
 
   @override
-  void stop() {
-  }
+  void stop() {}
 
   @override
-  void stopBeepSound() {
-  }
+  void stopBeepSound() {}
 
   @override
-  void stopBusySound() {
-  }
+  void stopBusySound() {}
 
   @override
-  void stopIncomingCallSound() {
-  }
-
+  void stopIncomingCallSound() {}
 }
