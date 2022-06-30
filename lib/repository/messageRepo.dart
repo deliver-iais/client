@@ -692,8 +692,14 @@ class MessageRepo {
       await _updateRoomLastMessage(newPm);
       return newPm;
     } else {
-      final newPm = pm.copyWith(status: SendingStatus.UPLIOD_FILE_FAIL);
-      return newPm;
+      final p = await _messageDao.getPendingMessage(
+        pm.packetId,
+      ); //check pending message  delete when  file  uploading
+      if (p != null) {
+        final newPm = pm.copyWith(status: SendingStatus.UPLIOD_FILE_FAIL);
+        return newPm;
+      }
+      return null;
     }
   }
 
@@ -1135,6 +1141,9 @@ class MessageRepo {
     String text,
   ) async {
     try {
+      if (text == editableMessage.json.toText().text) {
+        return;
+      }
       final updatedMessage = message_pb.MessageByClient()
         ..to = editableMessage.to.asUid()
         ..replyToId = Int64(editableMessage.replyToId)
@@ -1190,6 +1199,9 @@ class MessageRepo {
       }
     } else {
       final preFile = editableMessage.json.toFile();
+      if (caption == preFile.caption) {
+        return;
+      }
       updatedFile = file_pb.File.create()
         ..caption = caption ?? ""
         ..name = preFile.name

@@ -411,7 +411,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
         ? _messageRepo.editFileMessage(
             widget.editableMessage!.roomUid.asUid(),
             widget.editableMessage!,
-            caption: synthesize(_editingController.text),
+            caption: synthesize(_editingController.text.trim()),
             file: _editedFile,
           )
         : _messageRepo.sendMultipleFilesMessages(
