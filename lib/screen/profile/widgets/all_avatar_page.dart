@@ -95,6 +95,7 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                                 },
                                 icon: const Icon(
                                   Icons.arrow_back_ios_new_outlined,
+                                  color: Colors.white,
                                 ),
                               );
                             } else {
@@ -165,6 +166,7 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                                 },
                                 icon: const Icon(
                                   Icons.arrow_forward_ios_outlined,
+                                  color: Colors.white,
                                 ),
                               );
                             } else {
