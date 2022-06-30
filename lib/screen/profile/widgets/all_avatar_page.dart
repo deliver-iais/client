@@ -232,8 +232,7 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                           Icons.more_vert,
                           size: 20,
                         ),
-                        itemBuilder: (cc) =>
-                        [
+                        itemBuilder: (cc) => [
                           if (isDesktop || isAndroid)
                             PopupMenuItem(
                               textStyle: const TextStyle(color: Colors.white),
@@ -264,7 +263,7 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                                   );
 
                                   if (outputFile != null) {
-                                    _fileRepo.saveFileInSpecialFolder(
+                                    _fileRepo.saveFileToSpecifiedAddress(
                                       _avatars[_swipePositionSubject.value]!
                                           .fileId!,
                                       _avatars[_swipePositionSubject.value]!
@@ -286,6 +285,34 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                                     isSaveToast: true,
                                   );
                                 }
+                              },
+                            ),
+                          if (isDesktop)
+                            PopupMenuItem(
+                              textStyle: const TextStyle(color: Colors.white),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(Icons.copy_all_rounded),
+                                  const SizedBox(
+                                    width: 8,
+                                  ),
+                                  Text(
+                                    _i18n.get("copy_image"),
+                                  ),
+                                ],
+                              ),
+                              onTap: () async {
+                                _fileRepo.copyFileToPasteboard(
+                                  _avatars[_swipePositionSubject.value]!
+                                      .fileId!,
+                                  _avatars[_swipePositionSubject.value]!
+                                      .fileName!,
+                                );
+                                ToastDisplay.showToast(
+                                  toastContext: context,
+                                  toastText: _i18n.get("copied"),
+                                );
                               },
                             ),
                           if (widget.hasPermissionToDeletePic)

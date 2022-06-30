@@ -185,13 +185,13 @@ class FileService {
     } catch (_) {}
   }
 
-  Future<void> saveFileInSpecialFolder(
+  Future<void> saveFileToSpecifiedAddress(
     String path,
     String name,
-    String folder,
+    String address,
   ) async {
     try {
-      final f = io.File(folder);
+      final f = io.File(address);
       await f.writeAsBytes(io.File(path).readAsBytesSync());
     } catch (_) {}
   }
