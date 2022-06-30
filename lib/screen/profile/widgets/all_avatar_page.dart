@@ -223,127 +223,128 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                       ),
                     ),
                     actions: [
-                      PopupMenuButton(
-                        color: Color.alphaBlend(
-                          Theme.of(context).primaryColor.withAlpha(120),
-                          Colors.black,
-                        ),
-                        icon: const Icon(
-                          Icons.more_vert,
-                          size: 20,
-                        ),
-                        itemBuilder: (cc) => [
-                          if (isDesktop || isAndroid)
-                            PopupMenuItem(
-                              textStyle: const TextStyle(color: Colors.white),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.save_alt_rounded),
-                                  const SizedBox(
-                                    width: 8,
-                                  ),
-                                  Text(
-                                    isDesktop
-                                        ? _i18n.get("save_as")
-                                        : _i18n.get("save_to_gallery"),
-                                  ),
-                                ],
-                              ),
-                              onTap: () async {
-                                if (isDesktop) {
-                                  final outputFile =
-                                      await FilePicker.platform.saveFile(
-                                    lockParentWindow: true,
-                                    dialogTitle: 'Save image',
-                                    fileName:
-                                        _avatars[_swipePositionSubject.value]!
-                                            .fileName,
-                                    type: FileType.image,
-                                  );
+                      if (widget.hasPermissionToDeletePic || (!isWeb && !isIOS))
+                        PopupMenuButton(
+                          color: Color.alphaBlend(
+                            Theme.of(context).primaryColor.withAlpha(120),
+                            Colors.black,
+                          ),
+                          icon: const Icon(
+                            Icons.more_vert,
+                            size: 20,
+                          ),
+                          itemBuilder: (cc) => [
+                            if (isDesktop || isAndroid)
+                              PopupMenuItem(
+                                textStyle: const TextStyle(color: Colors.white),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.save_alt_rounded),
+                                    const SizedBox(
+                                      width: 8,
+                                    ),
+                                    Text(
+                                      isDesktop
+                                          ? _i18n.get("save_as")
+                                          : _i18n.get("save_to_gallery"),
+                                    ),
+                                  ],
+                                ),
+                                onTap: () async {
+                                  if (isDesktop) {
+                                    final outputFile =
+                                    await FilePicker.platform.saveFile(
+                                      lockParentWindow: true,
+                                      dialogTitle: 'Save image',
+                                      fileName:
+                                      _avatars[_swipePositionSubject.value]!
+                                          .fileName,
+                                      type: FileType.image,
+                                    );
 
-                                  if (outputFile != null) {
-                                    _fileRepo.saveFileToSpecifiedAddress(
+                                    if (outputFile != null) {
+                                      _fileRepo.saveFileToSpecifiedAddress(
+                                        _avatars[_swipePositionSubject.value]!
+                                            .fileId!,
+                                        _avatars[_swipePositionSubject.value]!
+                                            .fileName!,
+                                        outputFile,
+                                      );
+                                    }
+                                  } else if (isAndroid) {
+                                    _fileRepo.saveFileInDownloadDir(
                                       _avatars[_swipePositionSubject.value]!
                                           .fileId!,
                                       _avatars[_swipePositionSubject.value]!
                                           .fileName!,
-                                      outputFile,
+                                      ExtStorage.pictures,
+                                    );
+                                    ToastDisplay.showToast(
+                                      toastContext: context,
+                                      toastText: _i18n.get("photo_saved"),
+                                      isSaveToast: true,
                                     );
                                   }
-                                } else if (isAndroid) {
-                                  _fileRepo.saveFileInDownloadDir(
+                                },
+                              ),
+                            if (isDesktop)
+                              PopupMenuItem(
+                                textStyle: const TextStyle(color: Colors.white),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.copy_all_rounded),
+                                    const SizedBox(
+                                      width: 8,
+                                    ),
+                                    Text(
+                                      _i18n.get("copy_image"),
+                                    ),
+                                  ],
+                                ),
+                                onTap: () async {
+                                  _fileRepo.copyFileToPasteboard(
                                     _avatars[_swipePositionSubject.value]!
                                         .fileId!,
                                     _avatars[_swipePositionSubject.value]!
                                         .fileName!,
-                                    ExtStorage.pictures,
                                   );
                                   ToastDisplay.showToast(
                                     toastContext: context,
-                                    toastText: _i18n.get("photo_saved"),
-                                    isSaveToast: true,
+                                    toastText: _i18n.get("copied"),
                                   );
-                                }
-                              },
-                            ),
-                          if (isDesktop)
-                            PopupMenuItem(
-                              textStyle: const TextStyle(color: Colors.white),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(Icons.copy_all_rounded),
-                                  const SizedBox(
-                                    width: 8,
-                                  ),
-                                  Text(
-                                    _i18n.get("copy_image"),
-                                  ),
-                                ],
+                                },
                               ),
-                              onTap: () async {
-                                _fileRepo.copyFileToPasteboard(
-                                  _avatars[_swipePositionSubject.value]!
-                                      .fileId!,
-                                  _avatars[_swipePositionSubject.value]!
-                                      .fileName!,
-                                );
-                                ToastDisplay.showToast(
-                                  toastContext: context,
-                                  toastText: _i18n.get("copied"),
-                                );
-                              },
-                            ),
-                          if (widget.hasPermissionToDeletePic)
-                            PopupMenuItem(
-                              textStyle: const TextStyle(color: Colors.white),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.delete_outline_rounded),
-                                  const SizedBox(
-                                    width: 8,
-                                  ),
-                                  Text(_i18n.get("delete")),
-                                ],
-                              ),
-                              onTap: () async {
-                                await _avatarRepo.deleteAvatar(
-                                  _avatars[_swipePositionSubject.value]!,
-                                );
-                                if (_swipePositionSubject.value == 0 &&
-                                    totalLength == 1) {
-                                  _routingService.openSettings(
-                                    popAllBeforePush: true,
+                            if (widget.hasPermissionToDeletePic)
+                              PopupMenuItem(
+                                textStyle: const TextStyle(color: Colors.white),
+                                child: Row(
+                                  children: [
+                                    const Icon(Icons.delete_outline_rounded),
+                                    const SizedBox(
+                                      width: 8,
+                                    ),
+                                    Text(_i18n.get("delete")),
+                                  ],
+                                ),
+                                onTap: () async {
+                                  await _avatarRepo.deleteAvatar(
+                                    _avatars[_swipePositionSubject.value]!,
                                   );
-                                } else {
-                                  _avatars.clear();
-                                  setState(() {});
-                                }
-                              },
-                            ),
-                        ],
-                      ),
+                                  if (_swipePositionSubject.value == 0 &&
+                                      totalLength == 1) {
+                                    _routingService.openSettings(
+                                      popAllBeforePush: true,
+                                    );
+                                  } else {
+                                    _avatars.clear();
+                                    setState(() {});
+                                  }
+                                },
+                              ),
+                          ],
+                        ),
                     ],
                   )
                 : const SizedBox.shrink(),
