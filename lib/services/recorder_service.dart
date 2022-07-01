@@ -1,16 +1,21 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:clock/clock.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/file_service.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/vibration.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:record/record.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:uuid/uuid.dart';
+import 'dart:io';
+import 'routing_service.dart';
 
 typedef RecordOnCompleteCallback = void Function(String?);
 typedef RecordOnCancelCallback = void Function();
@@ -21,6 +26,7 @@ class RecorderService {
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
   final _fileService = GetIt.I.get<FileService>();
   final _logger = GetIt.I.get<Logger>();
+  final _routingService = GetIt.I.get<RoutingService>();
   final _recorder = Record();
   final _uuid = const Uuid();
   final _hasPermission = BehaviorSubject.seeded(false);
@@ -30,6 +36,7 @@ class RecorderService {
   final recordingAmplitudeStream = BehaviorSubject.seeded(0.0);
   final isLockedSteam = BehaviorSubject.seeded(false);
   final isPaused = BehaviorSubject.seeded(false);
+  final recordingRoomStream = BehaviorSubject<Uid?>();
 
   final _recordingFinallyCallbackStream =
       BehaviorSubject<RecordFinallyCallback?>();
@@ -50,7 +57,7 @@ class RecorderService {
     final tickerStream = isRecordingStream.switchMap((isRecording) {
       if (isRecording) {
         return timedCounter(
-          const Duration(milliseconds: 10),
+          const Duration(milliseconds: 100),
         );
       } else {
         return Stream.value(0);
@@ -58,14 +65,24 @@ class RecorderService {
     });
 
     tickerStream
-        .map((counter) => Duration(milliseconds: counter * 10))
+        .map((counter) => Duration(milliseconds: counter * 100))
         .listen(recordingDurationStream.add);
 
-    tickerStream.listen(
+    tickerStream.throttleTime(const Duration(microseconds: 500)).listen(
       (tickTime) async {
-        final amplitude = await _recorder.getAmplitude();
-        recordingAmplitudeStream
-            .add(min(max(amplitude.current + 40, 0) / 20, 1));
+        if (!isWindows) {
+          final amplitude = await _recorder.getAmplitude();
+          recordingAmplitudeStream.add(
+            min(
+              max(amplitude.current + 40, 0) / max(amplitude.max + 40, 40),
+              1,
+            ),
+          );
+        } else {
+          recordingAmplitudeStream.add(
+            (Random().nextDouble() * 0.2),
+          );
+        }
       },
     );
   }
@@ -96,10 +113,14 @@ class RecorderService {
   Future<void> start({
     RecordOnCompleteCallback? onComplete,
     RecordOnCancelCallback? onCancel,
+    required Uid roomUid,
   }) async {
     if (isRecordingStream.valueOrNull ?? false) {
-      await cancel();
-      isRecordingStream.add(false);
+      await togglePause();
+      _routingService.openRoom(recordingRoomStream.value!.asString());
+      return;
+    } else {
+      recordingRoomStream.add(roomUid);
     }
 
     if (!_hasPermission.value) {
@@ -114,12 +135,17 @@ class RecorderService {
     );
 
     var fileType = "m4a";
+    //use wav for windows and convert to m4a on file servers :/
     var fileEncoder = AudioEncoder.aacLc;
+
+    if(isWindows){
+      fileType = "ogg";
+    }
 
     // Remove these comment if opus is stable
     // ignore: invariant_booleans, dead_code
     if (isOpusSupported && false) {
-      _logger.wtf("opus is available for recording");
+      _logger.wtf("ogg is available for recording");
 
       fileType = "opus";
       fileEncoder = AudioEncoder.opus;
@@ -135,10 +161,14 @@ class RecorderService {
       _recordingFinallyCallbackStream.add(_audioPlayerService.resume);
     }
 
+    _logger.i("recorder starting await $clock.now().millisecondsSinceEpoch");
+
     await _recorder.start(
       path: path,
       encoder: fileEncoder,
     );
+
+    _logger.i("recorder start $clock.now().millisecondsSinceEpoch");
 
     _onCompleteCallbackStream.add(onComplete);
     _onCancelCallbackStream.add(onCancel);
@@ -161,6 +191,7 @@ class RecorderService {
   Future<void> togglePause() async {
     if (!await _recorder.isPaused()) {
       isPaused.add(true);
+      recordingAmplitudeStream.add(0);
       return _recorder.pause();
     } else {
       isPaused.add(false);
@@ -172,26 +203,43 @@ class RecorderService {
     _logger.wtf("recording ended");
 
     isRecordingStream.add(false);
+    recordingRoomStream.add(null);
 
     quickVibrate();
 
-    final path = await _recorder.stop();
+    final String? path;
+    if(await _recorder.isPaused()) {
+      await _recorder.resume();
+      path = await _recorder.stop();
+    }else{
+      path = await _recorder.stop();
+    }
+
+    var fileLength = await File(path!).length();
+    while(fileLength % 1048576 == 0){
+      fileLength = File(path).lengthSync();
+      await Future.delayed(const Duration(milliseconds: 50));
+      print(fileLength);
+    }
 
     _onCompleteCallbackStream.valueOrNull?.call(path);
     _recordingFinallyCallbackStream.valueOrNull?.call();
+
+    _recordingFinallyCallbackStream.add(null);
 
     return;
   }
 
   Future<void> cancel() {
-    _logger.wtf("recording canceled");
-
+    _logger.wtf("1.recording canceled");
     isRecordingStream.add(false);
-
+    recordingRoomStream.add(null);
     quickVibrate();
 
     _onCancelCallbackStream.valueOrNull?.call();
     _recordingFinallyCallbackStream.valueOrNull?.call();
+
+    _recordingFinallyCallbackStream.add(null);
 
     return _recorder.stop();
   }

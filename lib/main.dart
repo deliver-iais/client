@@ -333,7 +333,8 @@ class MyApp extends StatelessWidget {
           extraThemeData: _uxService.extraTheme,
           child: AnnotatedRegion<SystemUiOverlayStyle>(
             value: SystemUiOverlayStyle(
-              systemNavigationBarColor: _uxService.theme.colorScheme.background,
+              statusBarIconBrightness: _uxService.themeIsDark ? Brightness.light : Brightness.dark,
+              systemNavigationBarColor: _uxService.theme.colorScheme.surfaceVariant,
               systemNavigationBarIconBrightness:
                   _uxService.themeIsDark ? Brightness.light : Brightness.dark,
             ),

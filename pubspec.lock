@@ -7,7 +7,7 @@ packages:
       name: _fe_analyzer_shared
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "38.0.0"
+    version: "41.0.0"
   all_sensors2:
     dependency: "direct main"
     description:
@@ -21,7 +21,7 @@ packages:
       name: analyzer
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.4.1"
+    version: "4.2.0"
   android_intent_plus:
     dependency: "direct main"
     description:
@@ -50,6 +50,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.8.2"
+  audio_session:
+    dependency: "direct main"
+    description:
+      name: audio_session
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.8"
   audioplayers:
     dependency: "direct main"
     description:
@@ -119,7 +126,7 @@ packages:
       name: build
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.2.2"
+    version: "2.3.0"
   build_config:
     dependency: transitive
     description:
@@ -168,7 +175,7 @@ packages:
       name: built_value
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "8.3.2"
+    version: "8.3.3"
   camera:
     dependency: "direct main"
     description:
@@ -182,14 +189,14 @@ packages:
       name: camera_android
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.9.7+1"
+    version: "0.9.8+3"
   camera_avfoundation:
     dependency: transitive
     description:
       name: camera_avfoundation
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.9.7+1"
+    version: "0.9.8+2"
   camera_platform_interface:
     dependency: transitive
     description:
@@ -603,14 +610,14 @@ packages:
       name: firebase_analytics_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.1.8"
+    version: "3.1.9"
   firebase_analytics_web:
     dependency: transitive
     description:
       name: firebase_analytics_web
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.0+15"
+    version: "0.4.0+16"
   firebase_core:
     dependency: "direct main"
     description:
@@ -645,14 +652,14 @@ packages:
       name: firebase_messaging_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.5.2"
+    version: "3.5.3"
   firebase_messaging_web:
     dependency: transitive
     description:
       name: firebase_messaging_web
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.4.2"
+    version: "2.4.3"
   fixnum:
     dependency: "direct main"
     description:
@@ -854,7 +861,7 @@ packages:
       name: geolocator_android
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.2.0"
+    version: "3.2.1"
   geolocator_apple:
     dependency: transitive
     description:
@@ -903,7 +910,7 @@ packages:
       name: glob
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.2"
+    version: "2.1.0"
   google_fonts:
     dependency: "direct main"
     description:
@@ -1003,7 +1010,7 @@ packages:
       name: http_multi_server
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.2.0"
+    version: "3.2.1"
   http_parser:
     dependency: "direct main"
     description:
@@ -1067,6 +1074,34 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.5.0"
+  just_audio:
+    dependency: "direct main"
+    description:
+      name: just_audio
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.9.27"
+  just_audio_platform_interface:
+    dependency: transitive
+    description:
+      name: just_audio_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.2.0"
+  just_audio_web:
+    dependency: transitive
+    description:
+      name: just_audio_web
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.7"
+  just_audio_windows:
+    dependency: "direct main"
+    description:
+      name: just_audio_windows
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.0"
   jwt_decoder:
     dependency: "direct main"
     description:
@@ -1423,7 +1458,7 @@ packages:
       name: pool
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.5.0"
+    version: "1.5.1"
   positioned_tap_detector_2:
     dependency: transitive
     description:
@@ -1518,9 +1553,11 @@ packages:
   record:
     dependency: "direct main"
     description:
-      name: record
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: record
+      ref: "9a7d1baf1606fd24489000f5dd7ecff5ed13b430"
+      resolved-ref: "9a7d1baf1606fd24489000f5dd7ecff5ed13b430"
+      url: "https://github.com/AmirhosseinShk/record"
+    source: git
     version: "4.1.1"
   record_linux:
     dependency: transitive
@@ -1553,9 +1590,11 @@ packages:
   record_windows:
     dependency: transitive
     description:
-      name: record_windows
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: record_windows
+      ref: "749f5de6ec5c9667fcb9b17e014ea8ba8761e4db"
+      resolved-ref: "749f5de6ec5c9667fcb9b17e014ea8ba8761e4db"
+      url: "https://github.com/AmirhosseinShk/record"
+    source: git
     version: "0.4.3"
   rxdart:
     dependency: "direct main"
@@ -1661,28 +1700,28 @@ packages:
       name: shelf
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.3.0"
+    version: "1.3.1"
   shelf_packages_handler:
     dependency: transitive
     description:
       name: shelf_packages_handler
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.0.0"
+    version: "3.0.1"
   shelf_static:
     dependency: transitive
     description:
       name: shelf_static
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.1.0"
+    version: "1.1.1"
   shelf_web_socket:
     dependency: transitive
     description:
       name: shelf_web_socket
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.1"
+    version: "1.0.2"
   shimmer:
     dependency: "direct main"
     description:
@@ -1904,7 +1943,7 @@ packages:
       name: url_launcher_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.5"
+    version: "2.1.0"
   url_launcher_web:
     dependency: transitive
     description:
@@ -2090,7 +2129,7 @@ packages:
       name: worker_manager
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.2.6"
+    version: "4.3.5"
   xdg_directories:
     dependency: transitive
     description:

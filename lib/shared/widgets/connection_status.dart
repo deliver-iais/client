@@ -97,32 +97,39 @@ class ConnectionStatus extends StatelessWidget {
                           return Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              TextButton(
-                                onPressed: _coreServices.retryFasterConnection,
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      _i18n.get("reconnecting"),
-                                      style: const TextStyle(fontSize: 12),
-                                    ),
-                                    CircularCountDownTimer(
-                                      key: UniqueKey(),
-                                      duration: timeSnapShot.data!,
-                                      width: 16,
-                                      strokeWidth: 0,
-                                      height: 16,
-                                      isReverseAnimation: true,
-                                      ringColor: Colors.transparent,
-                                      fillColor: Colors.transparent,
-                                      backgroundColor: Colors.transparent,
-                                      textStyle: Theme.of(context)
-                                          .primaryTextTheme
-                                          .bodyText2
-                                          ?.copyWith(fontSize: 12),
-                                      textFormat: CountdownTextFormat.S,
-                                      isReverse: true,
-                                    ),
-                                  ],
+                              Padding(
+                                padding: const EdgeInsets.only(right: 16.0),
+                                child: TextButton(
+                                  style: TextButton.styleFrom(
+                                      padding: EdgeInsets.zero,
+                                      minimumSize: Size(25, 15),
+                                      alignment: Alignment.center),
+                                  onPressed: _coreServices.retryFasterConnection,
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        _i18n.get("reconnecting"),
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                      CircularCountDownTimer(
+                                        key: UniqueKey(),
+                                        duration: timeSnapShot.data!,
+                                        width: 16,
+                                        strokeWidth: 0,
+                                        height: 16,
+                                        isReverseAnimation: true,
+                                        ringColor: Colors.transparent,
+                                        fillColor: Colors.transparent,
+                                        backgroundColor: Colors.transparent,
+                                        textStyle: Theme.of(context)
+                                            .primaryTextTheme
+                                            .bodyText2
+                                            ?.copyWith(fontSize: 12),
+                                        textFormat: CountdownTextFormat.S,
+                                        isReverse: true,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                               // const SizedBox(width: 6),

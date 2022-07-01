@@ -1,8 +1,9 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
-
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:get_it/get_it.dart';
+import 'package:just_audio/just_audio.dart' as JustAudio;
 import 'package:rxdart/rxdart.dart';
 
 enum AudioPlayerState {
@@ -210,6 +211,7 @@ class NormalAudioPlayer implements AudioPlayerModule {
   final endCallSource = AssetSource("audios/end_call.mp3");
 
   final AudioPlayer _audioPlayer = AudioPlayer(playerId: "default-audio");
+  final _windowsAudioPlayer = JustAudio.AudioPlayer();
   final AudioPlayer _fastAudioPlayer = AudioPlayer(playerId: "fast-audio");
   final AudioPlayer _callAudioPlayer = AudioPlayer(playerId: "call-audio");
 
@@ -240,10 +242,30 @@ class NormalAudioPlayer implements AudioPlayerModule {
       });
 
   @override
-  void play(String path) {
-    _audioPlayer
-      ..play(DeviceFileSource(path))
-      ..setPlaybackRate(playbackRate);
+  Future<void> play(String path) async {
+    //TODO hasan: ask for it?!
+    if(isWindows){
+      // Inform the operating system of our app's audio attributes etc.
+      _windowsAudioPlayer.playbackEventStream.listen((event) {},
+          onError: (Object e, StackTrace stackTrace) {
+            print('A stream error occurred: $e');
+          });
+      // Try to load audio from a source and catch any errors.
+      try {
+        // AAC example: https://dl.espressif.com/dl/audio/ff-16b-2c-44100hz.aac
+        //"C:/Users/AmirShk/OneDrive/Documents/We/612d8185-1d3f-4d54-b5e8-61de140de698.ogg"
+        await _windowsAudioPlayer.setAudioSource(JustAudio.AudioSource.uri(Uri.parse(path.replaceAll("\\", "/"))));
+        _windowsAudioPlayer.play();
+      } catch (e) {
+        print("Error loading audio source: $e");
+      }
+      // await _windowsAudioPlayer
+      // .setAudioSource(JustAudio.AudioSource.uri(Uri.parse(path)));
+    }else {
+      _audioPlayer
+        ..play(DeviceFileSource(path))
+        ..setPlaybackRate(playbackRate);
+    }
   }
 
   @override
