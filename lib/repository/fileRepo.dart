@@ -257,21 +257,16 @@ class FileRepo {
   }
 
   void saveFileToSpecifiedAddress(
-    String uuid,
+    String path,
     String name,
     String address,
   ) {
-    getFileIfExist(uuid, name).then(
-      (path) => _fileService.saveFileToSpecifiedAddress(path!, name, address),
-    );
+    _fileService.saveFileToSpecifiedAddress(path, name, address);
   }
 
   void copyFileToPasteboard(
-    String uuid,
-    String name,
+    String path,
   ) {
-    getFileIfExist(uuid, name).then(
-      (path) => Pasteboard.writeFiles([path!]),
-    );
+    Pasteboard.writeFiles([path]);
   }
 }

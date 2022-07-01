@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:dcache/dcache.dart';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/avatarRepo.dart';
@@ -43,15 +42,14 @@ class AllAvatarPageState extends State<AllAvatarPage> {
   final _streamKey = GlobalKey();
   List<Avatar?> _avatars = [];
   final _i18n = GetIt.I.get<I18N>();
-  final _fileCache = LruCache<String, String>(storage: InMemoryStorage(50));
   final BehaviorSubject<int> _swipePositionSubject = BehaviorSubject.seeded(0);
   final BehaviorSubject<bool> _isBarShowing = BehaviorSubject.seeded(true);
   final _pageController = PageController();
+  String? _filePath;
 
   @override
   void dispose() {
     super.dispose();
-    _fileCache.clear();
   }
 
   @override
@@ -127,6 +125,12 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                                 builder: (c, filePath) {
                                   if (filePath.hasData &&
                                       filePath.data != null) {
+                                    Future.delayed(Duration.zero).then(
+                                      (value) => setState(() {
+                                        _filePath = filePath.data;
+                                      }),
+                                    );
+
                                     return InteractiveViewer(
                                       child: Center(
                                         child: isWeb
@@ -225,7 +229,8 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                       ),
                     ),
                     actions: [
-                      if (widget.hasPermissionToDeletePic || (!isWeb && !isIOS))
+                      if (widget.hasPermissionToDeletePic ||
+                          (!isWeb && !isIOS && _filePath != null))
                         PopupMenuButton(
                           color: Color.alphaBlend(
                             Theme.of(context).primaryColor.withAlpha(120),
@@ -236,7 +241,7 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                             size: 20,
                           ),
                           itemBuilder: (cc) => [
-                            if (isDesktop || isAndroid)
+                            if ((isDesktop || isAndroid) && _filePath != null)
                               PopupMenuItem(
                                 textStyle: const TextStyle(color: Colors.white),
                                 child: Row(
@@ -256,19 +261,18 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                                 onTap: () async {
                                   if (isDesktop) {
                                     final outputFile =
-                                    await FilePicker.platform.saveFile(
+                                        await FilePicker.platform.saveFile(
                                       lockParentWindow: true,
                                       dialogTitle: 'Save image',
                                       fileName:
-                                      _avatars[_swipePositionSubject.value]!
-                                          .fileName,
+                                          _avatars[_swipePositionSubject.value]!
+                                              .fileName,
                                       type: FileType.image,
                                     );
 
                                     if (outputFile != null) {
                                       _fileRepo.saveFileToSpecifiedAddress(
-                                        _avatars[_swipePositionSubject.value]!
-                                            .fileId!,
+                                        _filePath!,
                                         _avatars[_swipePositionSubject.value]!
                                             .fileName!,
                                         outputFile,
@@ -290,7 +294,7 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                                   }
                                 },
                               ),
-                            if (isDesktop)
+                            if (isDesktop && _filePath != null)
                               PopupMenuItem(
                                 textStyle: const TextStyle(color: Colors.white),
                                 child: Row(
@@ -306,12 +310,7 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                                   ],
                                 ),
                                 onTap: () async {
-                                  _fileRepo.copyFileToPasteboard(
-                                    _avatars[_swipePositionSubject.value]!
-                                        .fileId!,
-                                    _avatars[_swipePositionSubject.value]!
-                                        .fileName!,
-                                  );
+                                  _fileRepo.copyFileToPasteboard(_filePath!);
                                   ToastDisplay.showToast(
                                     toastContext: context,
                                     toastText: _i18n.get("copied"),
