@@ -256,12 +256,12 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                                 onTap: () async {
                                   if (isDesktop) {
                                     final outputFile =
-                                    await FilePicker.platform.saveFile(
+                                        await FilePicker.platform.saveFile(
                                       lockParentWindow: true,
                                       dialogTitle: 'Save image',
                                       fileName:
-                                      _avatars[_swipePositionSubject.value]!
-                                          .fileName,
+                                          _avatars[_swipePositionSubject.value]!
+                                              .fileName,
                                       type: FileType.image,
                                     );
 
@@ -336,9 +336,9 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                                   );
                                   if (_swipePositionSubject.value == 0 &&
                                       totalLength == 1) {
-                                    _routingService.openSettings(
-                                      popAllBeforePush: true,
-                                    );
+                                    setState(() {
+                                      _routingService.pop();
+                                    });
                                   } else {
                                     _avatars.clear();
                                     setState(() {});
