@@ -12,6 +12,7 @@ import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/ui/with_foreground_task.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -33,8 +34,21 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _uxService = GetIt.I.get<UxService>();
   final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
 
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print("eeeeeeeeeeeeeeeeee");
+    print("$state");
+  }
+
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
+    SystemChannels.lifecycle.setMessageHandler((message) async {
+      print("change");
+      print((message??"")+"starttttttt");
+
+    });
     //this means user login successfully
     if (hasFirebaseCapability) {
       //its work property without VPN
