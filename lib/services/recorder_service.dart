@@ -216,10 +216,11 @@ class RecorderService {
     }
 
     var fileLength = await File(path!).length();
-    while(fileLength % 1048576 == 0){
+    var pathLengthRetry = 4;
+    while(fileLength % 1048576 == 0 && pathLengthRetry > 0){
       fileLength = File(path).lengthSync();
       await Future.delayed(const Duration(milliseconds: 50));
-      print(fileLength);
+      pathLengthRetry--;
     }
 
     _onCompleteCallbackStream.valueOrNull?.call(path);

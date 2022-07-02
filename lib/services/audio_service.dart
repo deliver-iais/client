@@ -255,10 +255,10 @@ class NormalAudioPlayer implements AudioPlayerModule {
         // AAC example: https://dl.espressif.com/dl/audio/ff-16b-2c-44100hz.aac
         //"C:/Users/AmirShk/OneDrive/Documents/We/612d8185-1d3f-4d54-b5e8-61de140de698.ogg"
         await _windowsAudioPlayer.setAudioSource(JustAudio.AudioSource.uri(Uri.parse(path.replaceAll("\\", "/"))));
-        _windowsAudioPlayer.play();
       } catch (e) {
         print("Error loading audio source: $e");
       }
+      await _windowsAudioPlayer.play();
       // await _windowsAudioPlayer
       // .setAudioSource(JustAudio.AudioSource.uri(Uri.parse(path)));
     }else {
