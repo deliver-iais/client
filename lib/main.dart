@@ -205,8 +205,10 @@ Future<void> setupDI() async {
   registerSingleton<MediaRepo>(MediaRepo());
   registerSingleton<LastActivityRepo>(LastActivityRepo());
   registerSingleton<LiveLocationRepo>(LiveLocationRepo());
-  if (!isLinux) {
+  if (isAndroid || isIOS) {
     registerSingleton<AudioPlayerModule>(NormalAudioPlayer());
+  } else if (isWindows || isMacOS) {
+    registerSingleton<AudioPlayerModule>(JustAudioAudioPlayer());
   } else {
     registerSingleton<AudioPlayerModule>(FakeAudioPlayer());
   }
@@ -336,8 +338,10 @@ class MyApp extends StatelessWidget {
           extraThemeData: _uxService.extraTheme,
           child: AnnotatedRegion<SystemUiOverlayStyle>(
             value: SystemUiOverlayStyle(
-              statusBarIconBrightness: _uxService.themeIsDark ? Brightness.light : Brightness.dark,
-              systemNavigationBarColor: _uxService.theme.colorScheme.surfaceVariant,
+              statusBarIconBrightness:
+                  _uxService.themeIsDark ? Brightness.light : Brightness.dark,
+              systemNavigationBarColor:
+                  _uxService.theme.colorScheme.surfaceVariant,
               systemNavigationBarIconBrightness:
                   _uxService.themeIsDark ? Brightness.light : Brightness.dark,
             ),
