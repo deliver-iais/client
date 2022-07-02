@@ -54,8 +54,7 @@ class AvatarRepo {
   Future<void> _getAvatarRequest(Uid userUid) async {
     try {
       final getAvatarReq = GetAvatarReq()..uidList.add(userUid);
-      final getAvatars =
-          await _sdr.avatarServiceClient.getAvatar(getAvatarReq);
+      final getAvatars = await _sdr.avatarServiceClient.getAvatar(getAvatarReq);
       final avatars = getAvatars.avatar
           .map(
             (e) => Avatar(
@@ -269,13 +268,9 @@ class AvatarRepo {
     final deleteAvatar = avatar_pb.Avatar()
       ..fileUuid = avatar.fileId!
       ..fileName = avatar.fileName!
-      ..node = avatar.uid.isBot()
-          ? avatar.uid.asUid().node
-          : _authRepo.currentUserUid.node
+      ..node = avatar.uid.asUid().node
       ..createdOn = Int64.parseInt(avatar.createdOn.toRadixString(10))
-      ..category = avatar.uid.isBot()
-          ? avatar.uid.asUid().category
-          : _authRepo.currentUserUid.category;
+      ..category = avatar.uid.asUid().category;
     if (avatar.uid.isBot()) {
       await _sdr.botServiceClient
           .removeAvatar(bot_pb.RemoveAvatarReq()..avatar = deleteAvatar);
