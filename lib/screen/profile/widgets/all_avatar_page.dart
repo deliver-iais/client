@@ -231,127 +231,168 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                     actions: [
                       if (widget.hasPermissionToDeletePic ||
                           (!isWeb && !isIOS && _filePath != null))
-                        PopupMenuButton(
-                          color: Color.alphaBlend(
-                            Theme.of(context).primaryColor.withAlpha(120),
-                            Colors.black,
-                          ),
-                          icon: const Icon(
-                            Icons.more_vert,
-                            size: 20,
-                          ),
-                          itemBuilder: (cc) => [
-                            if ((isDesktop || isAndroid) && _filePath != null)
-                              PopupMenuItem(
-                                textStyle: const TextStyle(color: Colors.white),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(Icons.save_alt_rounded),
-                                    const SizedBox(
-                                      width: 8,
-                                    ),
-                                    Text(
-                                      isDesktop
-                                          ? _i18n.get("save_as")
-                                          : _i18n.get("save_to_gallery"),
-                                    ),
-                                  ],
-                                ),
-                                onTap: () async {
-                                  if (isDesktop) {
-                                    final outputFile =
-                                        await FilePicker.platform.saveFile(
-                                      lockParentWindow: true,
-                                      dialogTitle: 'Save image',
-                                      fileName:
-                                          _avatars[_swipePositionSubject.value]!
-                                              .fileName,
-                                      type: FileType.image,
-                                    );
-
-                                    if (outputFile != null) {
-                                      _fileRepo.saveFileToSpecifiedAddress(
-                                        _filePath!,
-                                        _avatars[_swipePositionSubject.value]!
-                                            .fileName!,
-                                        outputFile,
-                                      );
-                                    }
-                                  } else if (isAndroid) {
-                                    _fileRepo.saveFileInDownloadDir(
-                                      _avatars[_swipePositionSubject.value]!
-                                          .fileId!,
-                                      _avatars[_swipePositionSubject.value]!
-                                          .fileName!,
-                                      ExtStorage.pictures,
-                                    );
-                                    ToastDisplay.showToast(
-                                      toastContext: context,
-                                      toastText: _i18n.get("photo_saved"),
-                                      isSaveToast: true,
-                                    );
-                                  }
-                                },
-                              ),
-                            if (isDesktop && _filePath != null)
-                              PopupMenuItem(
-                                textStyle: const TextStyle(color: Colors.white),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(Icons.copy_all_rounded),
-                                    const SizedBox(
-                                      width: 8,
-                                    ),
-                                    Text(
-                                      _i18n.get("copy_image"),
-                                    ),
-                                  ],
-                                ),
-                                onTap: () async {
-                                  _fileRepo.copyFileToPasteboard(_filePath!);
-                                  ToastDisplay.showToast(
-                                    toastContext: context,
-                                    toastText: _i18n.get("copied"),
-                                  );
-                                },
-                              ),
-                            if (widget.hasPermissionToDeletePic)
-                              PopupMenuItem(
-                                textStyle: const TextStyle(color: Colors.white),
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.delete_outline_rounded),
-                                    const SizedBox(
-                                      width: 8,
-                                    ),
-                                    Text(_i18n.get("delete")),
-                                  ],
-                                ),
-                                onTap: () async {
-                                  await _avatarRepo.deleteAvatar(
-                                    _avatars[_swipePositionSubject.value]!,
-                                  );
-                                  if (_swipePositionSubject.value == 0 &&
-                                      totalLength == 1) {
-                                    setState(() {
-                                      _routingService.pop();
-                                    });
-                                  } else {
-                                    _avatars.clear();
-                                    setState(() {});
-                                  }
-                                },
-                              ),
-                          ],
-                        ),
+                        _buildPopupMenuButton(totalLength),
                     ],
                   )
                 : const SizedBox.shrink(),
           );
         },
       ),
+    );
+  }
+
+  PopupMenuButton _buildPopupMenuButton(int totalLength) {
+    return PopupMenuButton(
+      color: Color.alphaBlend(
+        Theme.of(context).primaryColor.withAlpha(120),
+        Colors.black,
+      ),
+      icon: const Icon(
+        Icons.more_vert,
+        size: 20,
+      ),
+      itemBuilder: (cc) => [
+        if ((isDesktop || isAndroid) && _filePath != null)
+          PopupMenuItem(
+            textStyle: const TextStyle(color: Colors.white),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.save_alt_rounded),
+                const SizedBox(
+                  width: 8,
+                ),
+                Text(
+                  isDesktop
+                      ? _i18n.get("save_as")
+                      : _i18n.get("save_to_gallery"),
+                ),
+              ],
+            ),
+            onTap: () async {
+              if (isDesktop) {
+                final outputFile = await FilePicker.platform.saveFile(
+                  lockParentWindow: true,
+                  dialogTitle: 'Save image',
+                  fileName: _avatars[_swipePositionSubject.value]!.fileName,
+                  type: FileType.image,
+                );
+
+                if (outputFile != null) {
+                  _fileRepo.saveFileToSpecifiedAddress(
+                    _filePath!,
+                    _avatars[_swipePositionSubject.value]!.fileName!,
+                    outputFile,
+                  );
+                }
+              } else if (isAndroid) {
+                _fileRepo.saveFileInDownloadDir(
+                  _avatars[_swipePositionSubject.value]!.fileId!,
+                  _avatars[_swipePositionSubject.value]!.fileName!,
+                  ExtStorage.pictures,
+                );
+                ToastDisplay.showToast(
+                  toastContext: context,
+                  toastText: _i18n.get("photo_saved"),
+                  isSaveToast: true,
+                );
+              }
+            },
+          ),
+        if (isDesktop && _filePath != null)
+          PopupMenuItem(
+            textStyle: const TextStyle(color: Colors.white),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.copy_all_rounded),
+                const SizedBox(
+                  width: 8,
+                ),
+                Text(
+                  _i18n.get("copy_image"),
+                ),
+              ],
+            ),
+            onTap: () async {
+              _fileRepo.copyFileToPasteboard(_filePath!);
+              ToastDisplay.showToast(
+                toastContext: context,
+                toastText: _i18n.get("copied"),
+              );
+            },
+          ),
+        if (widget.hasPermissionToDeletePic)
+          PopupMenuItem(
+            textStyle: const TextStyle(color: Colors.white),
+            child: Row(
+              children: [
+                const Icon(Icons.delete_outline_rounded),
+                const SizedBox(
+                  width: 8,
+                ),
+                Text(_i18n.get("delete")),
+              ],
+            ),
+            onTap: () async {
+              await showDialog(
+                context: context,
+                builder: (context) {
+                  return AlertDialog(
+                    content: Text(
+                      _i18n.get("sure_delete_avatar"),
+                    ),
+                    actions: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          GestureDetector(
+                            child: Text(
+                              _i18n.get("cancel"),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.blue,
+                              ),
+                            ),
+                            onTap: () => Navigator.pop(context),
+                          ),
+                          const SizedBox(
+                            width: 20,
+                          ),
+                          GestureDetector(
+                            child: Text(
+                              _i18n.get("ok"),
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.red,
+                              ),
+                            ),
+                            onTap: () async {
+                              Navigator.pop(context);
+                              await _avatarRepo.deleteAvatar(
+                                _avatars[_swipePositionSubject.value]!,
+                              );
+                              if (_swipePositionSubject.value == 0 &&
+                                  totalLength == 1) {
+                                setState(() {
+                                  _routingService.pop();
+                                });
+                              } else {
+                                _avatars.clear();
+                                setState(() {});
+                              }
+                            },
+                          ),
+                          const SizedBox(width: 10)
+                        ],
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+      ],
     );
   }
 }
