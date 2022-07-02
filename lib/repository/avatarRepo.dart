@@ -276,13 +276,9 @@ class AvatarRepo {
     final deleteAvatar = avatar_pb.Avatar()
       ..fileUuid = avatar.fileId!
       ..fileName = avatar.fileName!
-      ..node = avatar.uid.isBot()
-          ? avatar.uid.asUid().node
-          : _authRepo.currentUserUid.node
+      ..node = avatar.uid.asUid().node
       ..createdOn = Int64.parseInt(avatar.createdOn.toRadixString(10))
-      ..category = avatar.uid.isBot()
-          ? avatar.uid.asUid().category
-          : _authRepo.currentUserUid.category;
+      ..category = avatar.uid.asUid().category;
     if (avatar.uid.isBot()) {
       await _sdr.botServiceClient
           .removeAvatar(bot_pb.RemoveAvatarReq()..avatar = deleteAvatar);
