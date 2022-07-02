@@ -205,8 +205,11 @@ Future<void> setupDI() async {
   registerSingleton<MediaRepo>(MediaRepo());
   registerSingleton<LastActivityRepo>(LastActivityRepo());
   registerSingleton<LiveLocationRepo>(LiveLocationRepo());
-
-  registerSingleton<AudioPlayerModule>(NormalAudioPlayer());
+  if (!isLinux) {
+    registerSingleton<AudioPlayerModule>(NormalAudioPlayer());
+  } else {
+    registerSingleton<AudioPlayerModule>(FakeAudioPlayer());
+  }
   try {
     registerSingleton<AudioService>(AudioService());
     registerSingleton<RecorderService>(RecorderService());

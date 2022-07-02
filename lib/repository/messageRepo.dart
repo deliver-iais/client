@@ -580,7 +580,9 @@ class MessageRepo {
     await _savePendingMessage(pm);
 
     final m = await _sendFileToServerOfPendingMessage(pm);
-    if (m != null && m.status == SendingStatus.UPLOAD_FILE_COMPELED) {
+    if (m != null &&
+        m.status == SendingStatus.UPLOAD_FILE_COMPELED &&
+        _fileOfMessageIsValid(m.msg.json.toFile())) {
       _sendMessageToServer(m);
     } else if (m != null) {
       return _messageDao.savePendingMessage(m);
@@ -690,8 +692,14 @@ class MessageRepo {
       await _updateRoomLastMessage(newPm);
       return newPm;
     } else {
-      final newPm = pm.copyWith(status: SendingStatus.UPLIOD_FILE_FAIL);
-      return newPm;
+      final p = await _messageDao.getPendingMessage(
+        pm.packetId,
+      ); //check pending message  delete when  file  uploading
+      if (p != null) {
+        final newPm = pm.copyWith(status: SendingStatus.UPLIOD_FILE_FAIL);
+        return newPm;
+      }
+      return null;
     }
   }
 
@@ -769,7 +777,9 @@ class MessageRepo {
             break;
           case SendingStatus.UPLIOD_FILE_FAIL:
             final pm = await _sendFileToServerOfPendingMessage(pendingMessage);
-            if (pm != null && pm.status == SendingStatus.UPLOAD_FILE_COMPELED) {
+            if (pm != null &&
+                pm.status == SendingStatus.UPLOAD_FILE_COMPELED &&
+                _fileOfMessageIsValid(pm.msg.json.toFile())) {
               _sendMessageToServer(pm);
             }
             break;
@@ -777,6 +787,9 @@ class MessageRepo {
       }
     }
   }
+
+  bool _fileOfMessageIsValid(file_pb.File file) =>
+      (file.sign.isNotEmpty && file.hash.isNotEmpty);
 
   PendingMessage _createPendingMessage(Message msg, SendingStatus status) =>
       PendingMessage(
@@ -1128,6 +1141,9 @@ class MessageRepo {
     String text,
   ) async {
     try {
+      if (text == editableMessage.json.toText().text) {
+        return;
+      }
       final updatedMessage = message_pb.MessageByClient()
         ..to = editableMessage.to.asUid()
         ..replyToId = Int64(editableMessage.replyToId)
@@ -1183,6 +1199,9 @@ class MessageRepo {
       }
     } else {
       final preFile = editableMessage.json.toFile();
+      if (caption == preFile.caption) {
+        return;
+      }
       updatedFile = file_pb.File.create()
         ..caption = caption ?? ""
         ..name = preFile.name

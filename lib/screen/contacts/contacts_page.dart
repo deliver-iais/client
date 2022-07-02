@@ -8,6 +8,7 @@ import 'package:deliver/screen/contacts/sync_contact.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
+import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:deliver/shared/widgets/custom_grid_view.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
@@ -40,7 +41,9 @@ class ContactsPageState extends State<ContactsPage> {
             .where(
               (c) => !_authRepo.isCurrentUser(c.uid) && !c.isUsersContact(),
             )
-            .sortedBy((element) => "${element.firstName}${element.lastName}")
+            .sortedBy(
+              (element) => buildName(element.firstName, element.lastName),
+            )
             .toList(growable: false),
       );
     });

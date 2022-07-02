@@ -433,9 +433,17 @@ class DataStreamServices {
         lastMessage: msg,
         lastMessageId: msg.id,
       );
-
       _notificationServices
           .notifyOutgoingMessage(messageDeliveryAck.to.asString());
+      final seen = await _roomRepo.getMySeen(msg.roomUid);
+      if (messageDeliveryAck.id > seen.messageId) {
+        _roomRepo
+            .updateMySeen(
+              uid: msg.roomUid,
+              messageId: messageDeliveryAck.id.toInt(),
+            )
+            .ignore();
+      }
     }
   }
 

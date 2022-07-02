@@ -82,6 +82,7 @@ class MessageExtractorServices {
     const typeDetails = "";
     final text = mrb.text;
     const ignoreNotification = false;
+    const shouldBeQuiet = false;
 
     return MessageSimpleRepresentative(
       roomUid: roomUid,
@@ -95,6 +96,7 @@ class MessageExtractorServices {
       typeDetails: typeDetails,
       text: text,
       ignoreNotification: ignoreNotification,
+      shouldBeQuiet: shouldBeQuiet,
     );
   }
 
@@ -203,18 +205,18 @@ class MessageExtractorServices {
     }
 
     return MessageSimpleRepresentative(
-      roomUid: roomUid,
-      from: from,
-      roomName: roomName,
-      sender: sender,
-      senderIsAUserOrBot: msg.from.isUser() || msg.from.isBot(),
-      type: type,
-      id: msg.id.toInt(),
-      packetId: msg.packetId,
-      typeDetails: typeDetails,
-      text: text,
-      ignoreNotification: ignoreNotification,
-    );
+        roomUid: roomUid,
+        from: from,
+        roomName: roomName,
+        sender: sender,
+        senderIsAUserOrBot: msg.from.isUser() || msg.from.isBot(),
+        type: type,
+        id: msg.id.toInt(),
+        packetId: msg.packetId,
+        typeDetails: typeDetails,
+        text: text,
+        ignoreNotification: ignoreNotification,
+        shouldBeQuiet: msg.shouldBeQuiet,);
   }
 
   String? getCallText(

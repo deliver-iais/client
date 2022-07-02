@@ -809,7 +809,7 @@ class InputMessageWidgetState extends State<InputMessage> {
           _messageRepo.editTextMessage(
             currentRoom.uid.asUid(),
             widget.editableMessage!,
-            widget.textController.text,
+            text,
           );
           widget.resetRoomPageDetails!();
         } else {

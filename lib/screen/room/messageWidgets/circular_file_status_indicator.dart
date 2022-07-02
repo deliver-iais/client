@@ -84,7 +84,7 @@ class _CircularFileStatusIndicatorState
                   messagePacketId: widget.message.packetId,
                   onPressed: () async {
                     final audioPath = await _fileRepo.getFile(file.uuid, file.name);
-                    if (audioPath != null && file.type == "audio/mp4") {
+                    if (audioPath != null && (file.type == "audio/mp4" || file.type == "audio/ogg")) {
                       await PlayAudioStatusState.audioPlayerService
                           .play(
                         audioPath,

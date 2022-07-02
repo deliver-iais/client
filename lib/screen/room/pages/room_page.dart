@@ -559,7 +559,7 @@ class RoomPageState extends State<RoomPage> {
 
   Future<void> _readAllMessages() async {
     final seen = await _roomRepo.getMySeen(widget.roomId);
-    if (room.lastMessageId > seen.messageId) {
+    if (room.lastMessageId > seen.messageId && _appIsActive) {
       unawaited(
         _messageRepo.sendSeen(room.lastMessageId, widget.roomId.asUid()),
       );

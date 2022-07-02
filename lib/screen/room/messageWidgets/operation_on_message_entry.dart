@@ -2,6 +2,7 @@ import 'package:clock/clock.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/pending_message.dart';
+import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -243,7 +244,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     builder: (context, snapshot) {
                       if (snapshot.hasData &&
                           snapshot.data != null &&
-                          snapshot.data!.failed) {
+                          _isDeletablePendingMessage(snapshot.data!)) {
                         return deleteMenuWidget();
                       } else {
                         return const SizedBox.shrink();
@@ -295,6 +296,11 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
       ),
     );
   }
+
+  bool _isDeletablePendingMessage(PendingMessage pendingMessage) =>
+      pendingMessage.msg.type == MessageType.FILE
+          ? pendingMessage.status != SendingStatus.UPLOAD_FILE_COMPELED
+          : pendingMessage.failed;
 
   Widget deleteMenuWidget() {
     return PopupMenuItem(

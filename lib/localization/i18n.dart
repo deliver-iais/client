@@ -36,6 +36,8 @@ class I18N {
         });
   }
 
+  bool isRtl() => _language.value.countryCode.contains(farsi.countryCode);
+
   Future<void> _loadLanguageResource(Language language) async {
     final jsonValues =
         await rootBundle.loadString('lib/lang/${language.languageCode}.json');

@@ -185,10 +185,13 @@ class LastMessage extends StatelessWidget {
                 ),
               ),
             if (showRoomDetails && pinned)
-              Icon(
-                CupertinoIcons.pin,
-                size: 16,
-                color: theme.colorScheme.onSurface.withAlpha(120),
+              Padding(
+                padding: const EdgeInsets.only(left: 4.0),
+                child: Icon(
+                  CupertinoIcons.pin,
+                  size: 16,
+                  color: theme.colorScheme.onSurface.withAlpha(120),
+                ),
               ),
           ],
         ),

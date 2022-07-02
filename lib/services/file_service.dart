@@ -98,6 +98,7 @@ class FileService {
           options.baseUrl =
               GetIt.I.get<ServicesDiscoveryRepo>().fileServiceBaseUrl;
           options.headers["Authorization"] = await _authRepo.getAccessToken();
+          options.headers["service"] = "ms-file";
 
           return handler.next(options); //continue
         },
