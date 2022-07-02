@@ -10,6 +10,7 @@ import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
+import 'package:desktop_lifecycle/desktop_lifecycle.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -25,7 +26,7 @@ class HomePage extends StatefulWidget {
   HomePageState createState() => HomePageState();
 }
 
-class HomePageState extends State<HomePage> with WidgetsBindingObserver {
+class HomePageState extends State<HomePage> {
   final _logger = GetIt.I.get<Logger>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
@@ -34,21 +35,26 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _uxService = GetIt.I.get<UxService>();
   final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
 
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    print("eeeeeeeeeeeeeeeeee");
-    print("$state");
+  void _addLifeCycleListener() {
+    if (isDesktop) {
+      DesktopLifecycle.instance.isActive.addListener(() {
+        if (DesktopLifecycle.instance.isActive.value) {
+          _coreServices.checkConnectionTimer();
+        }
+      });
+    } else {
+      SystemChannels.lifecycle.setMessageHandler((message) async {
+        if (message != null &&
+            message == AppLifecycleState.resumed.toString()) {
+          _coreServices.checkConnectionTimer();
+        }
+        return message;
+      });
+    }
   }
 
   @override
   void initState() {
-    WidgetsBinding.instance.addObserver(this);
-    SystemChannels.lifecycle.setMessageHandler((message) async {
-      print("change");
-      print((message??"")+"starttttttt");
-
-    });
     //this means user login successfully
     if (hasFirebaseCapability) {
       //its work property without VPN
@@ -71,6 +77,8 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
     checkIfVersionChange();
     checkAddToHomeInWeb(context);
+
+    _addLifeCycleListener();
 
     super.initState();
   }

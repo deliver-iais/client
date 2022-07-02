@@ -5,6 +5,7 @@ import 'package:deliver/box/seen.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/lastActivityRepo.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -65,25 +66,39 @@ class ChatItemState extends State<ChatItem> {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _routingService = GetIt.I.get<RoutingService>();
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
 
   @override
   void initState() {
+    if (widget.room.lastMessage == null || !widget.room.synced) {
+      _fetchRoomLastMessageAndLastSeen();
+    }
+    if (widget.room.lastMessage != null && !widget.room.seenSynced) {
+      _messageRepo.fetchRoomLastSeen(widget.room.uid);
+    }
     if (widget.room.uid.asUid().category == Categories.USER) {
       _lastActivityRepo.updateLastActivity(widget.room.uid.asUid());
     }
+
     super.initState();
+  }
+
+  Future<void> _fetchRoomLastMessageAndLastSeen() async {
+    await _messageRepo.fetchRoomLastMessage(
+      widget.room.uid,
+      widget.room.lastMessageId,
+      widget.room.firstMessageId,
+    );
+    _messageRepo.fetchRoomLastSeen(widget.room.uid).ignore();
   }
 
   @override
   Widget build(BuildContext context) {
     _roomRepo.initActivity(widget.room.uid.asUid().node);
-
-    if (widget.room.lastMessage == null) return const SizedBox.shrink();
-
-    return buildLastMessageWidget(widget.room.lastMessage!);
+    return buildLastMessageWidget();
   }
 
-  Widget buildLastMessageWidget(Message lastMessage) {
+  Widget buildLastMessageWidget() {
     final theme = Theme.of(context);
 
     final isPinnedRoom = widget.room.pinned;
@@ -133,7 +148,7 @@ class ChatItemState extends State<ChatItem> {
                     ? _i18n.get("saved_message")
                     : nameSnapshot.data ?? "";
 
-                return buildChatItemWidget(name, lastMessage);
+                return buildChatItemWidget(name);
               },
             ),
           ),
@@ -173,7 +188,7 @@ class ChatItemState extends State<ChatItem> {
     );
   }
 
-  Widget buildChatItemWidget(String name, Message lastMessage) {
+  Widget buildChatItemWidget(String name) {
     return Row(
       children: <Widget>[
         ContactPic(widget.room.uid.asUid()),
@@ -274,7 +289,12 @@ class ChatItemState extends State<ChatItem> {
                                 _i18n,
                                 context,
                               )
-                            : buildLastMessage(lastMessage);
+                            : widget.room.lastMessage != null
+                                ? buildLastMessage(widget.room.lastMessage!)
+                                : const SizedBox(
+                                    height: 3,
+                                    width: 5,
+                                  );
                       },
                     );
                   }

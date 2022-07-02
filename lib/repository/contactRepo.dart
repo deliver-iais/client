@@ -78,7 +78,6 @@ class ContactRepo {
           }
         }
         sendContacts(contacts);
-        isSyncingContacts.add(false);
       }
     });
   }
@@ -153,6 +152,7 @@ class ContactRepo {
     } catch (e) {
       _logger.e(e);
     }
+    isSyncingContacts.add(false);
   }
 
   void _saveContact(List<UserAsContact> users) {
