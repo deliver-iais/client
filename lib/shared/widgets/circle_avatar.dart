@@ -103,7 +103,7 @@ class CircleAvatarWidget extends StatelessWidget {
     AsyncSnapshot<String?> snapshot,
     Color textColor,
   ) {
-    if (snapshot.hasData) {
+    if (snapshot.hasData && snapshot.data!.isNotEmpty) {
       return isWeb
           ? Image.network(snapshot.data!, fit: BoxFit.fill)
           : Image.file(
