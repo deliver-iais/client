@@ -376,12 +376,23 @@ class JustAudioAudioPlayer implements AudioPlayerModule {
   Future<void> play(String path) async {
     // Try to load audio from a source and catch any errors.
     try {
-      await _audioPlayer
-          .setAudioSource(JustAudio.AudioSource.uri(Uri.parse("file://$path")));
+      // Listen to errors during playback.
+      _audioPlayer.playbackEventStream.listen((event) {},
+          onError: (Object e, StackTrace stackTrace) {
+            print('A stream error occurred: $e');
+          });
+      var dur = await _audioPlayer
+          .setUrl(path);
+      print(dur);
     } catch (e) {
       print("$e, $path");
     }
 
+    if(_audioCurrentState.value == AudioPlayerState.playing){
+      await _audioPlayer.stop();
+    }
+
+    await _audioPlayer.play();
     await _audioPlayer.play();
 
     _audioDuration.add((await _audioPlayer.durationFuture) ?? Duration.zero);
