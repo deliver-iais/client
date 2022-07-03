@@ -15,6 +15,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
+import 'package:pasteboard/pasteboard.dart';
 import 'package:rxdart/rxdart.dart';
 
 class FileRepo {
@@ -253,5 +254,19 @@ class FileRepo {
     } catch (e) {
       _logger.e(e);
     }
+  }
+
+  void saveFileToSpecifiedAddress(
+    String path,
+    String name,
+    String address,
+  ) {
+    _fileService.saveFileToSpecifiedAddress(path, name, address);
+  }
+
+  void copyFileToPasteboard(
+    String path,
+  ) {
+    Pasteboard.writeFiles([path]);
   }
 }

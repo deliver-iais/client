@@ -21,6 +21,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart' as query_pb;
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
+import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -72,10 +73,11 @@ class AvatarRepo {
       } else {
         return _avatarDao.saveLastAvatarAsNull(userUid.asString());
       }
-    } catch (e) {
-      _logger.e("no avatar exist in $userUid", e);
-
-      return _avatarDao.saveLastAvatarAsNull(userUid.asString());
+    } on GrpcError catch (e) {
+      _logger.e("grpc error for $userUid", e);
+      if (e.code == StatusCode.notFound) {
+        return _avatarDao.saveLastAvatarAsNull(userUid.asString());
+      }
     }
   }
 
@@ -178,25 +180,31 @@ class AvatarRepo {
       yield* cachedAvatar;
     }
 
-    late final BehaviorSubject<String> bs;
-
-    bs = BehaviorSubject();
+    final bs = BehaviorSubject<String>();
 
     _avatarCacheBehaviorSubjects.set(key, bs);
 
     final subscription =
         _avatarDao.watchLastAvatar(userUid.asString()).listen((event) async {
-      if (event != null && event.fileId != null && event.fileName != null) {
-        _avatarCache.set(key, event);
-        final path = await _fileRepo.getFile(
-          event.fileId!,
-          event.fileName!,
-          thumbnailSize:
-              event.fileName!.endsWith(".gif") ? null : ThumbnailSize.medium,
-        );
-        if (path != null) {
-          _avatarFilePathCache.set(key, path);
-          bs.sink.add(path);
+      if (event != null) {
+        if (event.fileId != null && event.fileName != null) {
+          _avatarCache.set(key, event);
+          final path = await _fileRepo.getFile(
+            event.fileId!,
+            event.fileName!,
+            thumbnailSize:
+                event.fileName!.endsWith(".gif") ? null : ThumbnailSize.medium,
+          );
+          if (path != null) {
+            _avatarFilePathCache.set(key, path);
+            bs.sink.add(path);
+          }
+        } else if (event.createdOn == 0) {
+          final key = _getAvatarCacheKey(userUid);
+          _avatarFilePathCache.set(key, "");
+          _avatarCache.set(key, event);
+          bs.value = "";
+          _avatarCacheBehaviorSubjects.set(key, bs);
         }
       }
     });
