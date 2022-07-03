@@ -2,25 +2,24 @@ import 'dart:math';
 
 import 'package:deliver/services/recorder_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 
 class RecordAudioAnimation extends StatelessWidget {
   static final _recorderService = GetIt.I.get<RecorderService>();
   final RecordOnCompleteCallback? onComplete;
   final RecordOnCancelCallback? onCancel;
   final Uid roomUid;
+  bool _isCanceled = false;
 
   late final BehaviorSubject<Offset> _pointerOffset =
       BehaviorSubject.seeded(Offset.zero);
   late final BehaviorSubject<Offset> _buttonOffset =
       BehaviorSubject.seeded(Offset.zero);
-
-  bool _isCanceled = false;
 
   RecordAudioAnimation({
     super.key,
@@ -68,9 +67,14 @@ class RecordAudioAnimation extends StatelessWidget {
         _recorderService.recordingRoomStream,
       ]),
       builder: (ctx, snapshot) {
-        final isCurrentRoomUid = (_recorderService.recordingRoomStream.valueOrNull?.isEqual(roomUid) ?? true);
-        final isRecording = _recorderService.isRecordingStream.value && isCurrentRoomUid;
-        final isRecordingInOtherRoom = _recorderService.isRecordingStream.value && !isCurrentRoomUid;
+        final isCurrentRoomUid = (_recorderService
+                .recordingRoomStream.valueOrNull
+                ?.isEqual(roomUid) ??
+            true);
+        final isRecording =
+            _recorderService.isRecordingStream.value && isCurrentRoomUid;
+        final isRecordingInOtherRoom =
+            _recorderService.isRecordingStream.value && !isCurrentRoomUid;
         return AnimatedContainer(
           duration: ANIMATION_DURATION,
           width: isRecording ? 100 : 48,
@@ -146,31 +150,34 @@ class RecordAudioAnimation extends StatelessWidget {
                       stream: _recorderService.recordingAmplitudeStream,
                       builder: (context, snapshot) {
                         final amplitude = (snapshot.data ?? 0) * 64.0;
-                        final scale = (amplitude == 0) ? 0.0 : isRecording
-                            ? 1 + ((2.8 * amplitude / 64.0) + 1.0)
-                            : 1.0;
+                        final scale = (amplitude == 0)
+                            ? 0.0
+                            : isRecording
+                                ? 1 + ((2.8 * amplitude / 64.0) + 1.0)
+                                : 1.0;
                         return AnimatedScale(
                           duration: ANIMATION_DURATION * 0.5,
                           scale: scale,
                           child: AnimatedContainer(
                             duration: ANIMATION_DURATION * 0.5,
                             decoration: BoxDecoration(
-                                color: isRecording
-                                    ? theme.colorScheme.error.withOpacity(0.3)
-                                    : Colors.transparent,
-                                borderRadius: BorderRadius.only(
-                                  topLeft: Radius.circular(
-                                      10.0 * Random().nextDouble() +
-                                          25 * scale / 2),
-                                  topRight: Radius.circular(
-                                      15.0 * Random().nextDouble() +
-                                          20 * scale / 2),
-                                  bottomLeft: Radius.circular(
-                                      15.0 * Random().nextDouble() +
-                                          20 * scale / 2),
-                                  bottomRight:
-                                      Radius.circular(25.0 + 10 * scale / 2),
-                                )),
+                              color: isRecording
+                                  ? theme.colorScheme.error.withOpacity(0.3)
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(
+                                  10.0 * Random().nextDouble() + 25 * scale / 2,
+                                ),
+                                topRight: Radius.circular(
+                                  15.0 * Random().nextDouble() + 20 * scale / 2,
+                                ),
+                                bottomLeft: Radius.circular(
+                                  15.0 * Random().nextDouble() + 20 * scale / 2,
+                                ),
+                                bottomRight:
+                                    Radius.circular(25.0 + 10 * scale / 2),
+                              ),
+                            ),
                             // width: 40,
                             // height: 40,
                             child: StreamBuilder<bool>(
@@ -188,7 +195,7 @@ class RecordAudioAnimation extends StatelessWidget {
                                         : Colors.transparent,
                                   ),
                                   onPressed: () {
-                                    if(showSendButtonInsteadOfMicrophone){
+                                    if (showSendButtonInsteadOfMicrophone) {
                                       _recorderService.end();
                                     }
                                   },
@@ -246,7 +253,9 @@ class RecordAudioAnimation extends StatelessWidget {
                       onLongPressMoveUpdate: (tg) =>
                           _pointerOffset.add(tg.offsetFromOrigin),
                       child: Padding(
-                        padding: isRecording ? const EdgeInsets.only(left: 43) : const EdgeInsets.only(left: 0) ,
+                        padding: isRecording
+                            ? const EdgeInsets.only(left: 43)
+                            : const EdgeInsets.only(),
                         child: AnimatedContainer(
                           duration: ANIMATION_DURATION,
                           transform: isRecording
@@ -270,7 +279,8 @@ class RecordAudioAnimation extends StatelessWidget {
                                   duration: ANIMATION_DURATION * 0.5,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: (isRecording || isRecordingInOtherRoom)
+                                    color: (isRecording ||
+                                            isRecordingInOtherRoom)
                                         ? Color.lerp(
                                             theme.colorScheme.error,
                                             theme.colorScheme.errorContainer,
@@ -284,7 +294,8 @@ class RecordAudioAnimation extends StatelessWidget {
                                     stream: _recorderService.isLockedSteam,
                                     builder: (context, snapshot) {
                                       final showSendButtonInsteadOfMicrophone =
-                                          isRecording && (snapshot.data ?? false);
+                                          isRecording &&
+                                              (snapshot.data ?? false);
                                       return IconButton(
                                         icon: Icon(
                                           showSendButtonInsteadOfMicrophone
@@ -295,7 +306,7 @@ class RecordAudioAnimation extends StatelessWidget {
                                               : null,
                                         ),
                                         onPressed: () {
-                                          if(showSendButtonInsteadOfMicrophone){
+                                          if (showSendButtonInsteadOfMicrophone) {
                                             _recorderService.end();
                                           }
                                         },

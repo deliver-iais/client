@@ -50,7 +50,7 @@ class RecordAudioSlideWidget extends StatelessWidget {
                 if (!isLocked) {
                   return Row(
                     children: <Widget>[
-                      Icon(Icons.chevron_left),
+                      const Icon(Icons.chevron_left),
                       TextButton(
                         child: Text(
                           _i18n.get("slideToCancel"),

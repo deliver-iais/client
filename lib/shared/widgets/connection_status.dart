@@ -101,10 +101,12 @@ class ConnectionStatus extends StatelessWidget {
                                 padding: const EdgeInsets.only(right: 16.0),
                                 child: TextButton(
                                   style: TextButton.styleFrom(
-                                      padding: EdgeInsets.zero,
-                                      minimumSize: Size(25, 15),
-                                      alignment: Alignment.center),
-                                  onPressed: _coreServices.retryFasterConnection,
+                                    padding: EdgeInsets.zero,
+                                    minimumSize: const Size(25, 15),
+                                    alignment: Alignment.center,
+                                  ),
+                                  onPressed:
+                                      _coreServices.retryFasterConnection,
                                   child: Row(
                                     children: [
                                       Text(

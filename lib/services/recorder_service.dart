@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:clock/clock.dart';
@@ -14,7 +15,7 @@ import 'package:logger/logger.dart';
 import 'package:record/record.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:uuid/uuid.dart';
-import 'dart:io';
+
 import 'routing_service.dart';
 
 typedef RecordOnCompleteCallback = void Function(String?);
@@ -138,7 +139,7 @@ class RecorderService {
     //use wav for windows and convert to m4a on file servers :/
     var fileEncoder = AudioEncoder.aacLc;
 
-    if(isWindows){
+    if (isWindows) {
       fileType = "ogg";
     }
 
@@ -208,16 +209,16 @@ class RecorderService {
     quickVibrate();
 
     final String? path;
-    if(await _recorder.isPaused()) {
+    if (await _recorder.isPaused()) {
       await _recorder.resume();
       path = await _recorder.stop();
-    }else{
+    } else {
       path = await _recorder.stop();
     }
 
     var fileLength = await File(path!).length();
     var pathLengthRetry = 4;
-    while(fileLength % 1048576 == 0 && pathLengthRetry > 0){
+    while (fileLength % 1048576 == 0 && pathLengthRetry > 0) {
       fileLength = File(path).lengthSync();
       await Future.delayed(const Duration(milliseconds: 50));
       pathLengthRetry--;

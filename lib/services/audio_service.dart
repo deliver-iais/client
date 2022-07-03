@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:get_it/get_it.dart';
-import 'package:just_audio/just_audio.dart' as JustAudio;
+import 'package:just_audio/just_audio.dart' as just_audio;
 import 'package:rxdart/rxdart.dart';
 
 enum AudioPlayerState {
@@ -337,7 +337,7 @@ class JustAudioAudioPlayer implements AudioPlayerModule {
   final incomingCallSource = AssetSource("audios/incoming_call.mp3");
   final endCallSource = AssetSource("audios/end_call.mp3");
 
-  final _audioPlayer = JustAudio.AudioPlayer();
+  final _audioPlayer = just_audio.AudioPlayer();
   final AudioPlayer _fastAudioPlayer = AudioPlayer(playerId: "fast-audio");
   final AudioPlayer _callAudioPlayer = AudioPlayer(playerId: "call-audio");
 
@@ -366,7 +366,7 @@ class JustAudioAudioPlayer implements AudioPlayerModule {
     _audioPlayer.playerStateStream.listen((event) {
       if (event.playing) {
         _audioCurrentState.add(AudioPlayerState.playing);
-      } else if (event.processingState == JustAudio.ProcessingState.completed) {
+      } else if (event.processingState == just_audio.ProcessingState.completed) {
         _audioCurrentState.add(AudioPlayerState.completed);
       }
     });
@@ -376,14 +376,9 @@ class JustAudioAudioPlayer implements AudioPlayerModule {
   Future<void> play(String path) async {
     // Try to load audio from a source and catch any errors.
     try {
-      // Listen to errors during playback.
-      _audioPlayer.playbackEventStream.listen((event) {},
-          onError: (e, stackTrace) {
-        print('A stream error occurred: $e');
-      });
       await _audioPlayer.setFilePath(path);
-    } catch (e) {
-      print("$e, $path");
+    } catch (_) {
+      // TODO(bitbeter): add more loggers
     }
 
     try {
@@ -397,8 +392,8 @@ class JustAudioAudioPlayer implements AudioPlayerModule {
         await _audioPlayer.play();
       }
       _audioDuration.add((await _audioPlayer.durationFuture) ?? Duration.zero);
-    } catch (e) {
-      print("$e, $path");
+    } catch (_) {
+      // TODO(bitbeter): add more loggers
     }
   }
 
