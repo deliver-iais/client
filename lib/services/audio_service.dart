@@ -120,7 +120,7 @@ class AudioService {
     String name,
     double duration,
   ) async {
-    path = "file://${path.replaceAll("\\", "/")}";
+    path = path.replaceAll("\\", "/");
 
     // check if this the current audio which is playing or paused recently
     // and if played recently, just resume it
@@ -381,7 +381,7 @@ class JustAudioAudioPlayer implements AudioPlayerModule {
           onError: (e, stackTrace) {
         print('A stream error occurred: $e');
       });
-      await _audioPlayer.setUrl(path);
+      await _audioPlayer.setFilePath(path);
     } catch (e) {
       print("$e, $path");
     }
