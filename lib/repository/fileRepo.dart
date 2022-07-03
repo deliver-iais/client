@@ -79,7 +79,7 @@ class FileRepo {
               bits: audioWaveform["bits"] ?? 0,
               channels: audioWaveform["channels"] ?? 0,
               data: audioWaveform["data"] != null
-                  ? (audioWaveform["data"] as List<int>)
+                  ? List<int>.from(audioWaveform["data"])
                   : [],
               length: audioWaveform["length"] ?? 0,
               sampleRate: audioWaveform["sampleRate"] ?? 0,

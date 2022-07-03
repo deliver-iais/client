@@ -1,4 +1,6 @@
 PODS:
+  - audio_session (0.0.1):
+    - FlutterMacOS
   - audioplayers_darwin (0.0.1):
     - FlutterMacOS
   - connectivity_plus_macos (0.0.1):
@@ -128,6 +130,8 @@ PODS:
     - GoogleUtilities/Logger
   - image_compression_flutter (1.0.0):
     - FlutterMacOS
+  - just_audio (0.0.1):
+    - FlutterMacOS
   - mobile_scanner (0.0.1):
     - FlutterMacOS
   - nanopb (2.30908.0):
@@ -157,6 +161,7 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
+  - audio_session (from `Flutter/ephemeral/.symlinks/plugins/audio_session/macos`)
   - audioplayers_darwin (from `Flutter/ephemeral/.symlinks/plugins/audioplayers_darwin/macos`)
   - connectivity_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/connectivity_plus_macos/macos`)
   - desktop_drop (from `Flutter/ephemeral/.symlinks/plugins/desktop_drop/macos`)
@@ -171,6 +176,7 @@ DEPENDENCIES:
   - FlutterMacOS (from `Flutter/ephemeral`)
   - geolocator_apple (from `Flutter/ephemeral/.symlinks/plugins/geolocator_apple/macos`)
   - image_compression_flutter (from `Flutter/ephemeral/.symlinks/plugins/image_compression_flutter/macos`)
+  - just_audio (from `Flutter/ephemeral/.symlinks/plugins/just_audio/macos`)
   - mobile_scanner (from `Flutter/ephemeral/.symlinks/plugins/mobile_scanner/macos`)
   - pasteboard (from `Flutter/ephemeral/.symlinks/plugins/pasteboard/macos`)
   - path_provider_macos (from `Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos`)
@@ -198,6 +204,8 @@ SPEC REPOS:
     - WebRTC-SDK
 
 EXTERNAL SOURCES:
+  audio_session:
+    :path: Flutter/ephemeral/.symlinks/plugins/audio_session/macos
   audioplayers_darwin:
     :path: Flutter/ephemeral/.symlinks/plugins/audioplayers_darwin/macos
   connectivity_plus_macos:
@@ -226,6 +234,8 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/geolocator_apple/macos
   image_compression_flutter:
     :path: Flutter/ephemeral/.symlinks/plugins/image_compression_flutter/macos
+  just_audio:
+    :path: Flutter/ephemeral/.symlinks/plugins/just_audio/macos
   mobile_scanner:
     :path: Flutter/ephemeral/.symlinks/plugins/mobile_scanner/macos
   pasteboard:
@@ -246,6 +256,7 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/window_size/macos
 
 SPEC CHECKSUMS:
+  audio_session: dea1f41890dbf1718f04a56f1d6150fd50039b72
   audioplayers_darwin: dcad41de4fbd0099cb3749f7ab3b0cb8f70b810c
   connectivity_plus_macos: f6e86fd000e971d361e54b5afcadc8c8fa773308
   desktop_drop: 69eeff437544aa619c8db7f4481b3a65f7696898
@@ -269,6 +280,7 @@ SPEC CHECKSUMS:
   GoogleDataTransport: 5fffe35792f8b96ec8d6775f5eccd83c998d5a3b
   GoogleUtilities: e0913149f6b0625b553d70dae12b49fc62914fd1
   image_compression_flutter: 8a67d9fb207a804ddc10d7fd6bc3f2359dbdc34a
+  just_audio: 9b67ca7b97c61cfc9784ea23cd8cc55eb226d489
   mobile_scanner: 35dc92ffdbd7934b0dbc411b1c731bc2ef23c2dc
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
   pasteboard: 9b69dba6fedbb04866be632205d532fe2f6b1d99

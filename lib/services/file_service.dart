@@ -46,6 +46,9 @@ class FileService {
         await io.Directory('${directory.path}/$APPLICATION_FOLDER_NAME')
             .create(recursive: true);
       }
+      if(isWindows){
+        return "${directory.path}\\$APPLICATION_FOLDER_NAME";
+      }
       return "${directory.path}/$APPLICATION_FOLDER_NAME";
     }
     throw Exception("There is no Storage Permission!");
@@ -53,6 +56,9 @@ class FileService {
 
   Future<String> localFilePath(String fileUuid, String fileType) async {
     final path = await _localPath;
+    if(isWindows){
+      return '$path\\$fileUuid.$fileType';
+    }
     return '$path/$fileUuid.$fileType';
   }
 
@@ -296,6 +302,9 @@ class FileService {
     try {
       if (!isWeb) {
         try {
+          if(isWindows){
+            filePath = filePath.replaceAll("\\", "/");
+          }
           final mediaType =
               MediaType.parse(mime(filePath) ?? filePath).toString();
           if (mediaType.contains("image") && !mediaType.endsWith("/gif")) {
@@ -329,6 +338,9 @@ class FileService {
             filePath,
             contentType:
                 MediaType.parse(mime(filePath) ?? "application/octet-stream"),
+            headers: {
+              Headers.contentLengthHeader: [(File(filePath).lengthSync()).toString()], // set content-length
+            },
           )
         });
       }
@@ -337,12 +349,14 @@ class FileService {
         InterceptorsWrapper(
           onRequest: (options, handler) async {
             options.onSendProgress = (i, j) {
-              sendActivity?.call(i);
-              if (filesProgressBarStatus[uploadKey] == null) {
-                final d = BehaviorSubject<double>();
-                filesProgressBarStatus[uploadKey] = d;
+              if (i / j < 1) {
+                sendActivity?.call(i);
+                if (filesProgressBarStatus[uploadKey] == null) {
+                  final d = BehaviorSubject<double>();
+                  filesProgressBarStatus[uploadKey] = d;
+                }
+                filesProgressBarStatus[uploadKey]!.add((i / j));
               }
-              filesProgressBarStatus[uploadKey]!.add((i / j));
             };
             handler.next(options);
           },

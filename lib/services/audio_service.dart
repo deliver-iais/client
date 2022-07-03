@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
-
 import 'package:get_it/get_it.dart';
+import 'package:just_audio/just_audio.dart' as just_audio;
 import 'package:rxdart/rxdart.dart';
 
 enum AudioPlayerState {
@@ -30,7 +30,7 @@ abstract class AudioPlayerModule {
 
   Stream<Duration?>? get audioDuration;
 
-  Stream get playerCompleteSubscription;
+  Stream get playerCompleted;
 
   void play(String path);
 
@@ -107,7 +107,7 @@ class AudioService {
       _playerModule.audioCurrentPosition!.listen((position) {
         _audioCurrentPosition.add(position!);
       });
-      _playerModule.playerCompleteSubscription.listen((event) {
+      _playerModule.playerCompleted.listen((event) {
         _audioCurrentState.add(AudioPlayerState.completed);
         _audioCenterIsOn.add(false);
       });
@@ -120,6 +120,8 @@ class AudioService {
     String name,
     double duration,
   ) async {
+    // path = path.replaceAll("\\", "/");
+
     // check if this the current audio which is playing or paused recently
     // and if played recently, just resume it
     if (_audioUuid.value == uuid) {
@@ -219,7 +221,7 @@ class NormalAudioPlayer implements AudioPlayerModule {
   Stream<Duration> get audioCurrentPosition => _audioPlayer.onPositionChanged;
 
   @override
-  Stream get playerCompleteSubscription => _audioPlayer.onPlayerComplete;
+  Stream get playerCompleted => _audioPlayer.onPlayerComplete;
 
   @override
   Stream<Duration?>? get audioDuration => _audioPlayer.onDurationChanged;
@@ -327,6 +329,156 @@ class NormalAudioPlayer implements AudioPlayerModule {
   }
 }
 
+class JustAudioAudioPlayer implements AudioPlayerModule {
+  final soundOutSource = AssetSource("audios/sound_out.wav");
+  final soundInSource = AssetSource("audios/sound_in.wav");
+  final beepSoundSource = AssetSource("audios/beep_sound.mp3");
+  final busySoundSource = AssetSource("audios/busy_sound.mp3");
+  final incomingCallSource = AssetSource("audios/incoming_call.mp3");
+  final endCallSource = AssetSource("audios/end_call.mp3");
+
+  final _audioPlayer = just_audio.AudioPlayer();
+  final AudioPlayer _fastAudioPlayer = AudioPlayer(playerId: "fast-audio");
+  final AudioPlayer _callAudioPlayer = AudioPlayer(playerId: "call-audio");
+
+  double playbackRate = 1.0;
+
+  @override
+  Stream<Duration> get audioCurrentPosition =>
+      _audioPlayer.positionStream.mapNotNull((e) => e);
+
+  final _playerCompleted = BehaviorSubject<void>();
+
+  @override
+  Stream get playerCompleted => _playerCompleted;
+
+  final _audioDuration = BehaviorSubject<Duration>();
+
+  @override
+  Stream<Duration?>? get audioDuration => _audioDuration;
+
+  final _audioCurrentState = BehaviorSubject.seeded(AudioPlayerState.stopped);
+
+  @override
+  Stream<AudioPlayerState> get audioCurrentState => _audioCurrentState;
+
+  JustAudioAudioPlayer() {
+    _audioPlayer.playerStateStream.listen((event) {
+      if (event.playing) {
+        _audioCurrentState.add(AudioPlayerState.playing);
+      } else if (event.processingState == just_audio.ProcessingState.completed) {
+        _audioCurrentState.add(AudioPlayerState.completed);
+      }
+    });
+  }
+
+  @override
+  Future<void> play(String path) async {
+    // Try to load audio from a source and catch any errors.
+    try {
+      await _audioPlayer.setFilePath(path);
+    } catch (_) {
+      // TODO(bitbeter): add more loggers
+    }
+
+    try {
+      if (_audioCurrentState.value == AudioPlayerState.playing) {
+        await _audioPlayer.stop();
+      }
+
+      await _audioPlayer.play();
+      await Future.delayed(const Duration(milliseconds: 200));
+      if (!_audioPlayer.playing) {
+        await _audioPlayer.play();
+      }
+      _audioDuration.add((await _audioPlayer.durationFuture) ?? Duration.zero);
+    } catch (_) {
+      // TODO(bitbeter): add more loggers
+    }
+  }
+
+  @override
+  void seek(Duration duration) {
+    _audioPlayer.seek(duration);
+  }
+
+  @override
+  void pause() {
+    if (_audioPlayer.playing) {
+      _audioCurrentState.add(AudioPlayerState.paused);
+      _audioPlayer.pause();
+    }
+  }
+
+  @override
+  void stop() {
+    _audioCurrentState.add(AudioPlayerState.stopped);
+    _audioPlayer.stop();
+  }
+
+  @override
+  void resume() {
+    _audioCurrentState.add(AudioPlayerState.playing);
+    _audioPlayer.play();
+  }
+
+  @override
+  void changePlaybackRate(double playbackRate) {
+    this.playbackRate = playbackRate;
+    _audioPlayer.setSpeed(playbackRate);
+  }
+
+  @override
+  double getPlaybackRate() {
+    return playbackRate;
+  }
+
+  @override
+  void playSoundOut() {
+    _fastAudioPlayer.play(soundOutSource, position: Duration.zero);
+  }
+
+  @override
+  void playSoundIn() {
+    _fastAudioPlayer.play(soundInSource, position: Duration.zero);
+  }
+
+  @override
+  void playBeepSound() {
+    _callAudioPlayer.play(beepSoundSource, position: Duration.zero);
+  }
+
+  @override
+  void stopBeepSound() {
+    _callAudioPlayer.stop();
+  }
+
+  @override
+  void playBusySound() {
+    _callAudioPlayer.play(busySoundSource, position: Duration.zero);
+  }
+
+  @override
+  void stopBusySound() {
+    _callAudioPlayer.stop();
+  }
+
+  @override
+  void playIncomingCallSound() {
+    _callAudioPlayer.play(incomingCallSource, position: Duration.zero);
+  }
+
+  @override
+  void playEndCallSound() {
+    _callAudioPlayer.play(endCallSource, position: Duration.zero, volume: 0.1);
+  }
+
+  @override
+  void stopIncomingCallSound() {
+    _callAudioPlayer.stop();
+  }
+}
+
 class FakeAudioPlayer implements AudioPlayerModule {
   @override
   Stream<Duration?>? get audioCurrentPosition => throw UnimplementedError();
@@ -370,7 +522,7 @@ class FakeAudioPlayer implements AudioPlayerModule {
   void playSoundOut() {}
 
   @override
-  Stream get playerCompleteSubscription => throw UnimplementedError();
+  Stream get playerCompleted => throw UnimplementedError();
 
   @override
   void resume() {}
