@@ -120,7 +120,7 @@ class AudioService {
     String name,
     double duration,
   ) async {
-    path = path.replaceAll("\\", "/");
+    path = "file://${path.replaceAll("\\", "/")}";
 
     // check if this the current audio which is playing or paused recently
     // and if played recently, just resume it
