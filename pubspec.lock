@@ -61,9 +61,9 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/audioplayers"
-      ref: "3c51f4fa7f4507f95ced09e99aa10afad7c493f3"
-      resolved-ref: "3c51f4fa7f4507f95ced09e99aa10afad7c493f3"
-      url: "https://github.com/EsmaeilDansi/audioplayers.git"
+      ref: "1bcfc56a055b8be70cbec294e95d6facdf25ae7b"
+      resolved-ref: "1bcfc56a055b8be70cbec294e95d6facdf25ae7b"
+      url: "https://github.com/deliver-iais/audioplayers.git"
     source: git
     version: "1.0.1"
   audioplayers_android:
@@ -85,8 +85,8 @@ packages:
     description:
       path: "packages/audioplayers_linux"
       ref: HEAD
-      resolved-ref: "3c51f4fa7f4507f95ced09e99aa10afad7c493f3"
-      url: "https://github.com/EsmaeilDansi/audioplayers.git"
+      resolved-ref: "1bcfc56a055b8be70cbec294e95d6facdf25ae7b"
+      url: "https://github.com/deliver-iais/audioplayers.git"
     source: git
     version: "1.0.0"
   audioplayers_platform_interface:
@@ -535,7 +535,7 @@ packages:
       path: "."
       ref: f775bf10512cf8c00a6d7c5c35bd4f85e2f058b0
       resolved-ref: f775bf10512cf8c00a6d7c5c35bd4f85e2f058b0
-      url: "https://github.com/androidwoman/feature_discovery.git"
+      url: "https://github.com/deliver-iais/feature_discovery.git"
     source: git
     version: "0.14.1"
   ffi:
@@ -1558,9 +1558,9 @@ packages:
     dependency: "direct main"
     description:
       path: record
-      ref: "9a7d1baf1606fd24489000f5dd7ecff5ed13b430"
-      resolved-ref: "9a7d1baf1606fd24489000f5dd7ecff5ed13b430"
-      url: "https://github.com/AmirhosseinShk/record"
+      ref: "045f44efa4eb71627efeeeafe59ea85e35397eb4"
+      resolved-ref: "045f44efa4eb71627efeeeafe59ea85e35397eb4"
+      url: "https://github.com/deliver-iais/record"
     source: git
     version: "4.1.1"
   record_linux:
@@ -1597,7 +1597,7 @@ packages:
       path: record_windows
       ref: "749f5de6ec5c9667fcb9b17e014ea8ba8761e4db"
       resolved-ref: "749f5de6ec5c9667fcb9b17e014ea8ba8761e4db"
-      url: "https://github.com/AmirhosseinShk/record"
+      url: "https://github.com/deliver-iais/record"
     source: git
     version: "0.4.3"
   rxdart:
@@ -2108,15 +2108,15 @@ packages:
       path: "packages/win_toast"
       ref: "5357c2a594a20534bf759eb28c86f8669d3914f3"
       resolved-ref: "5357c2a594a20534bf759eb28c86f8669d3914f3"
-      url: "https://github.com/AmirhosseinShk/flutter-plugins"
+      url: "https://github.com/deliver-iais/flutter-plugins"
     source: git
     version: "0.0.2"
   window_size:
     dependency: "direct main"
     description:
       path: "plugins/window_size"
-      ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
-      resolved-ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
+      ref: "5c51870ced62a00e809ba4b81a846a052d241c9f"
+      resolved-ref: "5c51870ced62a00e809ba4b81a846a052d241c9f"
       url: "https://github.com/google/flutter-desktop-embedding"
     source: git
     version: "0.1.0"
