@@ -61,9 +61,9 @@ packages:
     dependency: "direct main"
     description:
       path: "packages/audioplayers"
-      ref: "1bcfc56a055b8be70cbec294e95d6facdf25ae7b"
-      resolved-ref: "1bcfc56a055b8be70cbec294e95d6facdf25ae7b"
-      url: "https://github.com/deliver-iais/audioplayers.git"
+      ref: b661c7d4c6f28b08773eba5cdfcc9ecabd61c151
+      resolved-ref: b661c7d4c6f28b08773eba5cdfcc9ecabd61c151
+      url: "https://github.com/deliveriais/audioplayers"
     source: git
     version: "1.0.1"
   audioplayers_android:
@@ -85,8 +85,8 @@ packages:
     description:
       path: "packages/audioplayers_linux"
       ref: HEAD
-      resolved-ref: "1bcfc56a055b8be70cbec294e95d6facdf25ae7b"
-      url: "https://github.com/deliver-iais/audioplayers.git"
+      resolved-ref: b661c7d4c6f28b08773eba5cdfcc9ecabd61c151
+      url: "https://github.com/deliveriais/audioplayers.git"
     source: git
     version: "1.0.0"
   audioplayers_platform_interface:
@@ -340,7 +340,7 @@ packages:
       path: "."
       ref: f10624ee079d3212dfef1e412e8bbe24f9eb3b14
       resolved-ref: f10624ee079d3212dfef1e412e8bbe24f9eb3b14
-      url: "https://github.com/androidwoman/connectycube_flutter_call_kit2.0.5.git"
+      url: "https://github.com/deliveriais/connectycube_flutter_call_kit"
     source: git
     version: "2.0.5"
   contacts_service:
@@ -445,11 +445,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.12.13-rc.11"
-      resolved-ref: b76d8a019799a2b827d6367a2ffa706e12a8cae5
+      ref: "tags/v1.12.13-rc.20"
+      resolved-ref: "1f0efdb97320394081f2ecb91388259b3d37d07d"
       url: "https://github.com/deliver-iais/pub-dart-artifactory"
     source: git
-    version: "1.12.13-rc.11"
+    version: "1.12.13-rc.20"
   dependency_validator:
     dependency: "direct dev"
     description:
@@ -477,7 +477,7 @@ packages:
       path: "."
       ref: main
       resolved-ref: "2d219279a379c8c23ce31a4b9039e50a527ad300"
-      url: "https://github.com/deliver-iais/desktop_window"
+      url: "https://github.com/deliveriais/desktop_window"
     source: git
     version: "0.4.0"
   device_info:
@@ -535,7 +535,7 @@ packages:
       path: "."
       ref: f775bf10512cf8c00a6d7c5c35bd4f85e2f058b0
       resolved-ref: f775bf10512cf8c00a6d7c5c35bd4f85e2f058b0
-      url: "https://github.com/deliver-iais/feature_discovery.git"
+      url: "https://github.com/deliveriais/feature_discovery"
     source: git
     version: "0.14.1"
   ffi:
@@ -831,13 +831,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "10.1.0"
-  freezed_annotation:
-    dependency: transitive
-    description:
-      name: freezed_annotation
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.1.0"
   frontend_server_client:
     dependency: transitive
     description:
@@ -946,11 +939,9 @@ packages:
   grpc:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "29af7df647c0999a41c6b4186de8709574d81de5"
-      resolved-ref: "29af7df647c0999a41c6b4186de8709574d81de5"
-      url: "https://github.com/deliver-iais/grpc-dart"
-    source: git
+      name: grpc
+      url: "https://pub.dartlang.org"
+    source: hosted
     version: "3.0.2"
   hashcodes:
     dependency: transitive
@@ -1105,7 +1096,7 @@ packages:
       path: just_audio_windows
       ref: "2a032ce712646fcc8a68c8490afe008ea907890b"
       resolved-ref: "2a032ce712646fcc8a68c8490afe008ea907890b"
-      url: "https://github.com/AmirhosseinShk/just_audio_windows"
+      url: "https://github.com/deliveriais/just_audio_windows"
     source: git
     version: "0.1.0"
   jwt_decoder:
@@ -1560,9 +1551,9 @@ packages:
     dependency: "direct main"
     description:
       path: record
-      ref: "045f44efa4eb71627efeeeafe59ea85e35397eb4"
-      resolved-ref: "045f44efa4eb71627efeeeafe59ea85e35397eb4"
-      url: "https://github.com/deliver-iais/record"
+      ref: d0d1ce44ed67ba92b313405ce4f8b50bc4980bda
+      resolved-ref: d0d1ce44ed67ba92b313405ce4f8b50bc4980bda
+      url: "https://github.com/deliveriais/record"
     source: git
     version: "4.1.1"
   record_linux:
@@ -1599,7 +1590,7 @@ packages:
       path: record_windows
       ref: "749f5de6ec5c9667fcb9b17e014ea8ba8761e4db"
       resolved-ref: "749f5de6ec5c9667fcb9b17e014ea8ba8761e4db"
-      url: "https://github.com/deliver-iais/record"
+      url: "https://github.com/deliveriais/record"
     source: git
     version: "0.4.3"
   rxdart:
@@ -2110,7 +2101,7 @@ packages:
       path: "packages/win_toast"
       ref: "5357c2a594a20534bf759eb28c86f8669d3914f3"
       resolved-ref: "5357c2a594a20534bf759eb28c86f8669d3914f3"
-      url: "https://github.com/deliver-iais/flutter-plugins"
+      url: "https://github.com/deliveriais/flutter-plugins"
     source: git
     version: "0.0.2"
   window_size:
