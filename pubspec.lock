@@ -7,7 +7,7 @@ packages:
       name: _fe_analyzer_shared
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "40.0.0"
+    version: "41.0.0"
   all_sensors2:
     dependency: "direct main"
     description:
@@ -21,7 +21,7 @@ packages:
       name: analyzer
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.1.0"
+    version: "4.2.0"
   android_intent_plus:
     dependency: "direct main"
     description:
@@ -50,13 +50,20 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "2.8.2"
+  audio_session:
+    dependency: transitive
+    description:
+      name: audio_session
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.1.8"
   audioplayers:
     dependency: "direct main"
     description:
       path: "packages/audioplayers"
-      ref: "3c51f4fa7f4507f95ced09e99aa10afad7c493f3"
-      resolved-ref: "3c51f4fa7f4507f95ced09e99aa10afad7c493f3"
-      url: "https://github.com/EsmaeilDansi/audioplayers.git"
+      ref: b661c7d4c6f28b08773eba5cdfcc9ecabd61c151
+      resolved-ref: b661c7d4c6f28b08773eba5cdfcc9ecabd61c151
+      url: "https://github.com/deliveriais/audioplayers"
     source: git
     version: "1.0.1"
   audioplayers_android:
@@ -78,8 +85,8 @@ packages:
     description:
       path: "packages/audioplayers_linux"
       ref: HEAD
-      resolved-ref: "3c51f4fa7f4507f95ced09e99aa10afad7c493f3"
-      url: "https://github.com/EsmaeilDansi/audioplayers.git"
+      resolved-ref: b661c7d4c6f28b08773eba5cdfcc9ecabd61c151
+      url: "https://github.com/deliveriais/audioplayers.git"
     source: git
     version: "1.0.0"
   audioplayers_platform_interface:
@@ -333,7 +340,7 @@ packages:
       path: "."
       ref: f10624ee079d3212dfef1e412e8bbe24f9eb3b14
       resolved-ref: f10624ee079d3212dfef1e412e8bbe24f9eb3b14
-      url: "https://github.com/androidwoman/connectycube_flutter_call_kit2.0.5.git"
+      url: "https://github.com/deliveriais/connectycube_flutter_call_kit"
     source: git
     version: "2.0.5"
   contacts_service:
@@ -438,11 +445,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.12.13-rc.11"
-      resolved-ref: b76d8a019799a2b827d6367a2ffa706e12a8cae5
+      ref: "tags/v1.12.13-rc.20"
+      resolved-ref: "1f0efdb97320394081f2ecb91388259b3d37d07d"
       url: "https://github.com/deliver-iais/pub-dart-artifactory"
     source: git
-    version: "1.12.13-rc.11"
+    version: "1.12.13-rc.20"
   dependency_validator:
     dependency: "direct dev"
     description:
@@ -470,7 +477,7 @@ packages:
       path: "."
       ref: main
       resolved-ref: "2d219279a379c8c23ce31a4b9039e50a527ad300"
-      url: "https://github.com/deliver-iais/desktop_window"
+      url: "https://github.com/deliveriais/desktop_window"
     source: git
     version: "0.4.0"
   device_info:
@@ -528,7 +535,7 @@ packages:
       path: "."
       ref: f775bf10512cf8c00a6d7c5c35bd4f85e2f058b0
       resolved-ref: f775bf10512cf8c00a6d7c5c35bd4f85e2f058b0
-      url: "https://github.com/androidwoman/feature_discovery.git"
+      url: "https://github.com/deliveriais/feature_discovery"
     source: git
     version: "0.14.1"
   ffi:
@@ -607,14 +614,14 @@ packages:
       name: firebase_analytics_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.1.8"
+    version: "3.1.9"
   firebase_analytics_web:
     dependency: transitive
     description:
       name: firebase_analytics_web
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.4.0+15"
+    version: "0.4.0+16"
   firebase_core:
     dependency: "direct main"
     description:
@@ -649,14 +656,14 @@ packages:
       name: firebase_messaging_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.5.2"
+    version: "3.5.3"
   firebase_messaging_web:
     dependency: transitive
     description:
       name: firebase_messaging_web
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.4.2"
+    version: "2.4.3"
   fixnum:
     dependency: "direct main"
     description:
@@ -824,13 +831,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "10.1.0"
-  freezed_annotation:
-    dependency: transitive
-    description:
-      name: freezed_annotation
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.1.0"
   frontend_server_client:
     dependency: transitive
     description:
@@ -939,11 +939,9 @@ packages:
   grpc:
     dependency: "direct main"
     description:
-      path: "."
-      ref: "29af7df647c0999a41c6b4186de8709574d81de5"
-      resolved-ref: "29af7df647c0999a41c6b4186de8709574d81de5"
-      url: "https://github.com/deliver-iais/grpc-dart"
-    source: git
+      name: grpc
+      url: "https://pub.dartlang.org"
+    source: hosted
     version: "3.0.2"
   hashcodes:
     dependency: transitive
@@ -1071,6 +1069,36 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "4.5.0"
+  just_audio:
+    dependency: "direct main"
+    description:
+      name: just_audio
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.9.27"
+  just_audio_platform_interface:
+    dependency: transitive
+    description:
+      name: just_audio_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "4.2.0"
+  just_audio_web:
+    dependency: transitive
+    description:
+      name: just_audio_web
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.4.7"
+  just_audio_windows:
+    dependency: "direct main"
+    description:
+      path: just_audio_windows
+      ref: "2a032ce712646fcc8a68c8490afe008ea907890b"
+      resolved-ref: "2a032ce712646fcc8a68c8490afe008ea907890b"
+      url: "https://github.com/deliveriais/just_audio_windows"
+    source: git
+    version: "0.1.0"
   jwt_decoder:
     dependency: "direct main"
     description:
@@ -1522,9 +1550,11 @@ packages:
   record:
     dependency: "direct main"
     description:
-      name: record
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: record
+      ref: d0d1ce44ed67ba92b313405ce4f8b50bc4980bda
+      resolved-ref: d0d1ce44ed67ba92b313405ce4f8b50bc4980bda
+      url: "https://github.com/deliveriais/record"
+    source: git
     version: "4.1.1"
   record_linux:
     dependency: transitive
@@ -1557,9 +1587,11 @@ packages:
   record_windows:
     dependency: transitive
     description:
-      name: record_windows
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: record_windows
+      ref: "749f5de6ec5c9667fcb9b17e014ea8ba8761e4db"
+      resolved-ref: "749f5de6ec5c9667fcb9b17e014ea8ba8761e4db"
+      url: "https://github.com/deliveriais/record"
+    source: git
     version: "0.4.3"
   rxdart:
     dependency: "direct main"
@@ -2069,15 +2101,15 @@ packages:
       path: "packages/win_toast"
       ref: "5357c2a594a20534bf759eb28c86f8669d3914f3"
       resolved-ref: "5357c2a594a20534bf759eb28c86f8669d3914f3"
-      url: "https://github.com/AmirhosseinShk/flutter-plugins"
+      url: "https://github.com/deliveriais/flutter-plugins"
     source: git
     version: "0.0.2"
   window_size:
     dependency: "direct main"
     description:
       path: "plugins/window_size"
-      ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
-      resolved-ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
+      ref: "5c51870ced62a00e809ba4b81a846a052d241c9f"
+      resolved-ref: "5c51870ced62a00e809ba4b81a846a052d241c9f"
       url: "https://github.com/google/flutter-desktop-embedding"
     source: git
     version: "0.1.0"
@@ -2094,7 +2126,7 @@ packages:
       name: worker_manager
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "4.2.6"
+    version: "4.3.5"
   xdg_directories:
     dependency: transitive
     description:

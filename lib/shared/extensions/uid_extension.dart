@@ -24,6 +24,8 @@ extension UidExtension on Uid {
   bool isSystem() => category == Categories.SYSTEM;
 
   bool isMuc() => isGroup() || isChannel();
+
+  bool isEqual(Uid uid) => asString() == uid.asString();
 }
 
 // ignore: constant_identifier_names

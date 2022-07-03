@@ -129,10 +129,19 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                     fileName: fileName,
                                     isPendingMessage: false,
                                     onPressed: () async {
-                                      await _fileRepo.getFile(
+                                      final audioPath = await _fileRepo.getFile(
                                         fileUuid,
                                         fileName,
                                       );
+                                      if (audioPath != null) {
+                                        await PlayAudioStatusState.audioPlayerService
+                                            .play(
+                                          audioPath,
+                                          fileUuid,
+                                          fileName,
+                                          fileDuration,
+                                        );
+                                      }
                                       setState(() {});
                                     },
                                     background: theme.colorScheme.primary,

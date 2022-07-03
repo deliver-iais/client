@@ -15,6 +15,7 @@
 #include <flutter_webrtc/flutter_web_r_t_c_plugin.h>
 #include <geolocator_windows/geolocator_windows.h>
 #include <image_compression_flutter/image_compression_flutter_plugin.h>
+#include <just_audio_windows/just_audio_windows_plugin.h>
 #include <pasteboard/pasteboard_plugin.h>
 #include <permission_handler_windows/permission_handler_windows_plugin.h>
 #include <url_launcher_windows/url_launcher_windows.h>
@@ -40,6 +41,8 @@ void RegisterPlugins(flutter::PluginRegistry* registry) {
       registry->GetRegistrarForPlugin("GeolocatorWindows"));
   ImageCompressionFlutterPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("ImageCompressionFlutterPlugin"));
+  JustAudioWindowsPluginRegisterWithRegistrar(
+      registry->GetRegistrarForPlugin("JustAudioWindowsPlugin"));
   PasteboardPluginRegisterWithRegistrar(
       registry->GetRegistrarForPlugin("PasteboardPlugin"));
   PermissionHandlerWindowsPluginRegisterWithRegistrar(

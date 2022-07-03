@@ -102,12 +102,12 @@ class InputMessageWidgetState extends State<InputMessage> {
   late FocusNode keyboardRawFocusNode;
   Subject<ActivityType> isTypingActivitySubject = BehaviorSubject();
   Subject<ActivityType> noActivitySubject = BehaviorSubject();
+  BehaviorSubject<TextDirection> textDirection =
+      BehaviorSubject.seeded(TextDirection.ltr);
   late String _botCommandData;
   int mentionSelectedIndex = 0;
   int botCommandSelectedIndex = 0;
   bool _shouldSynthesize = true;
-
-  late final ValueNotifier<TextDirection> _textDir;
 
   final botCommandRegexp = RegExp(r"(\w)*");
   final idRegexp = RegExp(r"(\w)*");
@@ -144,7 +144,6 @@ class InputMessageWidgetState extends State<InputMessage> {
 
     currentRoom = widget.currentRoom;
     widget.textController.text = (currentRoom.draft ?? "");
-    _textDir = ValueNotifier(getDirection(widget.textController.text));
     isTypingActivitySubject
         .throttle((_) => TimerStream(true, const Duration(seconds: 10)))
         .listen((activityType) {
@@ -163,6 +162,10 @@ class InputMessageWidgetState extends State<InputMessage> {
         .add(currentRoom.draft != null && currentRoom.draft!.isNotEmpty);
     widget.textController.addListener(() {
       _showSendIcon.add(widget.textController.text.isNotEmpty);
+      if (widget.textController.text.isNotEmpty) {
+        textDirection.add(getDirection(widget.textController.text));
+      }
+
       if (currentRoom.uid.asUid().category == Categories.BOT &&
           widget.textController.text.isNotEmpty &&
           widget.textController.text[0] == "/" &&
@@ -286,14 +289,19 @@ class InputMessageWidgetState extends State<InputMessage> {
                 color: theme.colorScheme.surface,
               ),
               child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
-                  StreamBuilder<bool?>(
-                    stream: _recorderService.isRecordingStream,
+                  StreamBuilder(
+                    stream: MergeStream([
+                      _recorderService.isRecordingStream,
+                      _recorderService.recordingRoomStream,
+                    ]),
                     builder: (ctx, snapshot) {
-                      final isRecording = snapshot.data ?? false;
-
+                      final isCurrentRoomUid = (_recorderService.recordingRoomStream.valueOrNull?.isEqual(widget.currentRoom.uid.asUid()) ?? true);
+                      final isRecording = _recorderService.isRecordingStream.value && isCurrentRoomUid;
                       return Expanded(
                         child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
                           children: <Widget>[
                             if (!isRecording) buildEmojiKeyboardActions(),
                             if (!isRecording) buildTextInput(theme),
@@ -325,6 +333,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                             );
                           }
                         },
+                        roomUid: widget.currentRoom.uid.asUid(),
                       );
                     },
                   )
@@ -390,7 +399,6 @@ class InputMessageWidgetState extends State<InputMessage> {
       builder: (context, snapshot) {
         final showEmojiKeyboard = snapshot.data ?? false;
         return IconButton(
-          iconSize: showEmojiKeyboard ? 24 : 28,
           icon: Icon(
             showEmojiKeyboard
                 ? CupertinoIcons.keyboard_chevron_compact_down
@@ -430,10 +438,10 @@ class InputMessageWidgetState extends State<InputMessage> {
             currentRoom.uid.asUid().category == Categories.BOT;
 
         return Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             if (showCommandsButton)
               IconButton(
-                iconSize: 28,
                 icon: const Icon(
                   CupertinoIcons.slash_circle,
                 ),
@@ -446,7 +454,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                 !widget.waitingForForward)
               IconButton(
                 icon: const Icon(
-                  CupertinoIcons.location_solid,
+                  CupertinoIcons.location,
                 ),
                 onPressed: () => AttachLocation(
                   context,
@@ -462,6 +470,19 @@ class InputMessageWidgetState extends State<InputMessage> {
                   _showEmojiKeyboard.add(false);
 
                   showButtonSheet();
+                },
+              ),
+            if (showSendButton && !widget.waitingForForward)
+              IconButton(
+                icon: FaIcon(
+                  FontAwesomeIcons.markdown,
+                  size: 18,
+                  color: !_shouldSynthesize ? ACTIVE_COLOR : null,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _shouldSynthesize = !_shouldSynthesize;
+                  });
                 },
               ),
             if (showSendButton || widget.waitingForForward)
@@ -491,72 +512,52 @@ class InputMessageWidgetState extends State<InputMessage> {
           return RawKeyboardListener(
             focusNode: keyboardRawFocusNode,
             onKey: handleKey,
-            child: ValueListenableBuilder<TextDirection>(
-              valueListenable: _textDir,
-              builder: (
-                context,
-                textDirection,
-                child,
-              ) =>
-                  TextField(
-                selectionControls: isDesktop ? selectionControls : null,
-                focusNode: widget.focusNode,
-                autofocus: (snapshot.data?.id ?? 0) > 0 || isDesktop,
-                controller: widget.textController,
-                decoration: InputDecoration(
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 14,
-                    vertical: 12,
+            child: StreamBuilder<TextDirection>(
+              stream: textDirection.distinct(),
+              builder: (c, sn) {
+                final textDir = sn.data ?? TextDirection.ltr;
+                return TextField(
+                  selectionControls: isDesktop ? selectionControls : null,
+                  focusNode: widget.focusNode,
+                  autofocus: (snapshot.data?.id ?? 0) > 0 || isDesktop,
+                  controller: widget.textController,
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.only(top: 12, bottom: 12),
+                    border: InputBorder.none,
+                    counterText: "",
+                    hintText: _i18n.get("write_a_message"),
+                    hintTextDirection:
+                        _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                    hintStyle: theme.textTheme.bodyMedium,
                   ),
-                  border: InputBorder.none,
-                  counterText: "",
-                  suffix: IconButton(
-                    icon: FaIcon(
-                      FontAwesomeIcons.markdown,
-                      size: 18,
-                      color: !_shouldSynthesize ? ACTIVE_COLOR : null,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _shouldSynthesize = !_shouldSynthesize;
-                      });
-                    },
-                  ),
-                  hintText: _i18n.get("write_a_message"),
-                ),
-                textInputAction: TextInputAction.newline,
-                minLines: 1,
-                maxLines: 15,
-                maxLength: INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH,
-                inputFormatters: [
-                  MaxLinesTextInputFormatter(
-                    INPUT_MESSAGE_TEXT_FIELD_MAX_LINE,
-                  )
-                  //max line of text field
-                ],
-                textDirection: textDirection,
-                style: theme.textTheme.subtitle1,
-                onTap: () {
-                  if (!isDesktop) _showEmojiKeyboard.add(false);
-                },
-                onChanged: (str) {
-                  if (str.isNotEmpty) {
-                    final dir = getDirection(str);
-                    if (dir != textDirection) {
-                      _textDir.value = dir;
+                  textInputAction: TextInputAction.newline,
+                  minLines: 1,
+                  maxLines: isAndroid ? 10 : 15,
+                  maxLength: INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH,
+                  inputFormatters: [
+                    MaxLinesTextInputFormatter(
+                      INPUT_MESSAGE_TEXT_FIELD_MAX_LINE,
+                    )
+                    //max line of text field
+                  ],
+                  textDirection: textDir,
+                  style: theme.textTheme.bodyMedium,
+                  onTap: () {
+                    if (!isDesktop) _showEmojiKeyboard.add(false);
+                  },
+                  onChanged: (str) {
+                    if (str.isNotEmpty) {
+                      isTypingActivitySubject.add(
+                        ActivityType.TYPING,
+                      );
+                    } else {
+                      noActivitySubject.add(
+                        ActivityType.NO_ACTIVITY,
+                      );
                     }
-                  }
-                  if (str.isNotEmpty) {
-                    isTypingActivitySubject.add(
-                      ActivityType.TYPING,
-                    );
-                  } else {
-                    noActivitySubject.add(
-                      ActivityType.NO_ACTIVITY,
-                    );
-                  }
-                },
-              ),
+                  },
+                );
+              },
             ),
           );
         },
