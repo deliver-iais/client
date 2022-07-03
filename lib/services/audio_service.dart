@@ -345,7 +345,7 @@ class JustAudioAudioPlayer implements AudioPlayerModule {
 
   @override
   Stream<Duration> get audioCurrentPosition =>
-      _audioPlayer.durationStream.mapNotNull((e) => e);
+      _audioPlayer.positionStream.mapNotNull((e) => e);
 
   final _playerCompleted = BehaviorSubject<void>();
 
@@ -378,24 +378,28 @@ class JustAudioAudioPlayer implements AudioPlayerModule {
     try {
       // Listen to errors during playback.
       _audioPlayer.playbackEventStream.listen((event) {},
-          onError: (Object e, StackTrace stackTrace) {
-            print('A stream error occurred: $e');
-          });
-      var dur = await _audioPlayer
-          .setUrl(path);
-      print(dur);
+          onError: (e, stackTrace) {
+        print('A stream error occurred: $e');
+      });
+      await _audioPlayer.setUrl(path);
     } catch (e) {
       print("$e, $path");
     }
 
-    if(_audioCurrentState.value == AudioPlayerState.playing){
-      await _audioPlayer.stop();
+    try {
+      if (_audioCurrentState.value == AudioPlayerState.playing) {
+        await _audioPlayer.stop();
+      }
+
+      await _audioPlayer.play();
+      await Future.delayed(const Duration(milliseconds: 200));
+      if (!_audioPlayer.playing) {
+        await _audioPlayer.play();
+      }
+      _audioDuration.add((await _audioPlayer.durationFuture) ?? Duration.zero);
+    } catch (e) {
+      print("$e, $path");
     }
-
-    await _audioPlayer.play();
-    await _audioPlayer.play();
-
-    _audioDuration.add((await _audioPlayer.durationFuture) ?? Duration.zero);
   }
 
   @override
@@ -405,7 +409,7 @@ class JustAudioAudioPlayer implements AudioPlayerModule {
 
   @override
   void pause() {
-    if (_audioCurrentState.value == PlayerState.playing) {
+    if (_audioPlayer.playing) {
       _audioCurrentState.add(AudioPlayerState.paused);
       _audioPlayer.pause();
     }

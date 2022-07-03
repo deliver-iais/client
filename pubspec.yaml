@@ -106,7 +106,11 @@ dependencies:
   image_size_getter: 2.1.1
   js: 0.6.4
   just_audio: ^0.9.27
-  just_audio_windows: ^0.1.0
+  just_audio_windows:
+    git:
+      path: just_audio_windows
+      ref: 2a032ce712646fcc8a68c8490afe008ea907890b
+      url: https://github.com/AmirhosseinShk/just_audio_windows
   jwt_decoder: 2.0.1
   latlong2: 0.8.1
   logger: 1.1.0
