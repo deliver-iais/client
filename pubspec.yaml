@@ -28,8 +28,8 @@ dependencies:
   android_intent_plus: 3.1.1
   audioplayers:
     git:
-      ref: 3c51f4fa7f4507f95ced09e99aa10afad7c493f3
-      url: https://github.com/EsmaeilDansi/audioplayers.git
+      ref: 1bcfc56a055b8be70cbec294e95d6facdf25ae7b
+      url: https://github.com/deliver-iais/audioplayers.git
       path: packages/audioplayers
   badges: 2.0.3
   camera: 0.9.8+1
@@ -63,7 +63,7 @@ dependencies:
   feature_discovery:
     git:
       ref: f775bf10512cf8c00a6d7c5c35bd4f85e2f058b0
-      url: https://github.com/androidwoman/feature_discovery.git
+      url: https://github.com/deliver-iais/feature_discovery.git
   file_picker: 4.6.1
   file_selector: 0.8.4+3
   file_selector_linux: 0.0.2+1
@@ -141,8 +141,8 @@ dependencies:
   record:
     git:
       path: record
-      ref: 9a7d1baf1606fd24489000f5dd7ecff5ed13b430
-      url: https://github.com/AmirhosseinShk/record
+      ref: 045f44efa4eb71627efeeeafe59ea85e35397eb4
+      url: https://github.com/deliver-iais/record
   rxdart: 0.27.4
   screenshot: 1.2.3
   scrollable_positioned_list: 0.3.2
@@ -163,11 +163,11 @@ dependencies:
     git:
       path: packages/win_toast
       ref: 5357c2a594a20534bf759eb28c86f8669d3914f3
-      url: https://github.com/AmirhosseinShk/flutter-plugins
+      url: https://github.com/deliver-iais/flutter-plugins
   window_size:
     git:
       path: plugins/window_size
-      ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
+      ref: 5c51870ced62a00e809ba4b81a846a052d241c9f
       url: https://github.com/google/flutter-desktop-embedding
 
 
