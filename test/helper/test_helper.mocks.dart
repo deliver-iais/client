@@ -346,19 +346,14 @@ class MockRoomDao extends _i1.Mock implements _i24.RoomDao {
       (super.noSuchMethod(Invocation.method(#getRoom, [roomUid]),
           returnValue: Future<_i25.Room?>.value()) as _i19.Future<_i25.Room?>);
   @override
+  _i19.Stream<_i25.Room> watchRoom(String? roomUid) =>
+      (super.noSuchMethod(Invocation.method(#watchRoom, [roomUid]),
+          returnValue: Stream<_i25.Room>.empty()) as _i19.Stream<_i25.Room>);
+  @override
   _i19.Future<List<_i25.Room>> getNotSyncedRoom() =>
       (super.noSuchMethod(Invocation.method(#getNotSyncedRoom, []),
               returnValue: Future<List<_i25.Room>>.value(<_i25.Room>[]))
           as _i19.Future<List<_i25.Room>>);
-  @override
-  _i19.Future<List<_i25.Room>> getNotSyncedSeenRoom() =>
-      (super.noSuchMethod(Invocation.method(#getNotSyncedSeenRoom, []),
-              returnValue: Future<List<_i25.Room>>.value(<_i25.Room>[]))
-          as _i19.Future<List<_i25.Room>>);
-  @override
-  _i19.Stream<_i25.Room> watchRoom(String? roomUid) =>
-      (super.noSuchMethod(Invocation.method(#watchRoom, [roomUid]),
-          returnValue: Stream<_i25.Room>.empty()) as _i19.Stream<_i25.Room>);
   @override
   _i19.Future<List<_i25.Room>> getAllGroups() =>
       (super.noSuchMethod(Invocation.method(#getAllGroups, []),
@@ -775,6 +770,10 @@ class MockFileRepo extends _i1.Mock implements _i33.FileRepo {
       super.noSuchMethod(
           Invocation.method(#saveFileInDownloadDir, [uuid, name, dir]),
           returnValueForMissingStub: null);
+  @override
+  void cancelUploadFile(String? uuid) =>
+      super.noSuchMethod(Invocation.method(#cancelUploadFile, [uuid]),
+          returnValueForMissingStub: null);
 }
 
 /// A class which mocks [LiveLocationRepo].
@@ -1160,6 +1159,10 @@ class MockCoreServices extends _i1.Mock implements _i47.CoreServices {
   @override
   void startCheckerTimer() =>
       super.noSuchMethod(Invocation.method(#startCheckerTimer, []),
+          returnValueForMissingStub: null);
+  @override
+  void checkConnectionTimer() =>
+      super.noSuchMethod(Invocation.method(#checkConnectionTimer, []),
           returnValueForMissingStub: null);
   @override
   void gotResponse() => super.noSuchMethod(Invocation.method(#gotResponse, []),
@@ -1615,6 +1618,10 @@ class MockI18N extends _i1.Mock implements _i51.I18N {
   _i10.Locale get locale => (super.noSuchMethod(Invocation.getter(#locale),
       returnValue: _FakeLocale_9()) as _i10.Locale);
   @override
+  bool isRtl() =>
+      (super.noSuchMethod(Invocation.method(#isRtl, []), returnValue: false)
+          as bool);
+  @override
   String get(String? key) =>
       (super.noSuchMethod(Invocation.method(#get, [key]), returnValue: '')
           as String);
@@ -1694,8 +1701,18 @@ class MockContactRepo extends _i1.Mock implements _i56.ContactRepo {
               returnValue: _FakeBehaviorSubject_5<bool>())
           as _i7.BehaviorSubject<bool>);
   @override
+  _i7.BehaviorSubject<double> get sendContactProgress =>
+      (super.noSuchMethod(Invocation.getter(#sendContactProgress),
+              returnValue: _FakeBehaviorSubject_5<double>())
+          as _i7.BehaviorSubject<double>);
+  @override
   _i19.Future<void> syncContacts() => (super.noSuchMethod(
       Invocation.method(#syncContacts, []),
+      returnValue: Future<void>.value(),
+      returnValueForMissingStub: Future<void>.value()) as _i19.Future<void>);
+  @override
+  _i19.Future<void> sendNotSyncedContactInStartTime() => (super.noSuchMethod(
+      Invocation.method(#sendNotSyncedContactInStartTime, []),
       returnValue: Future<void>.value(),
       returnValueForMissingStub: Future<void>.value()) as _i19.Future<void>);
   @override
@@ -1712,10 +1729,15 @@ class MockContactRepo extends _i1.Mock implements _i56.ContactRepo {
               returnValue: Stream<List<_i58.Contact>>.empty())
           as _i19.Stream<List<_i58.Contact>>);
   @override
-  _i19.Future<List<_i58.Contact>> getAll() =>
-      (super.noSuchMethod(Invocation.method(#getAll, []),
-              returnValue: Future<List<_i58.Contact>>.value(<_i58.Contact>[]))
-          as _i19.Future<List<_i58.Contact>>);
+  _i19.Future<List<_i58.Contact>?> getAllUserAsContact() =>
+      (super.noSuchMethod(Invocation.method(#getAllUserAsContact, []),
+              returnValue: Future<List<_i58.Contact>?>.value())
+          as _i19.Future<List<_i58.Contact>?>);
+  @override
+  _i19.Stream<List<_i58.Contact>?> getNotMessengerContactAsStream() => (super
+          .noSuchMethod(Invocation.method(#getNotMessengerContactAsStream, []),
+              returnValue: Stream<List<_i58.Contact>?>.empty())
+      as _i19.Stream<List<_i58.Contact>?>);
   @override
   _i19.Future<void> getContacts() => (super.noSuchMethod(
       Invocation.method(#getContacts, []),

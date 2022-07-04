@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 
 const APPLICATION_NAME = "We";
 const APPLICATION_TERMS_OF_USE_URL = "https://wemessenger.ir/terms";
+const APPLICATION_LANDING_URL = "https://wemessenger.ir";
 
 // Links Constants
 const APPLICATION_FOLDER_NAME = "We";
@@ -32,6 +33,13 @@ const USER_INFO_CACHE_TIME = 60 * 60 * 24 * 7 * 1000;
 // Paging Constants
 const MEDIA_PAGE_SIZE = 30;
 const PAGE_SIZE = 50;
+
+//Contacts Constants
+const MAX_CONTACT_SIZE_TO_SEND = 50;
+const MAX_SEND_CONTACT_TIME_EXPIRE = 4 * 60 * 60 * 1000;
+const MAX_SEND_CONTACT_START_TIME_EXPIRE = 2 * 60 * 60 * 1000;
+const INVITE_MESSAGE =
+    "$APPLICATION_NAME invite link: $APPLICATION_LANDING_URL";
 
 //FetchRooms Constants
 const MAX_ROOM_METADATA_SIZE = 10000;

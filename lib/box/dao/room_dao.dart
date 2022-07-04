@@ -35,6 +35,8 @@ abstract class RoomDao {
 
   Stream<Room> watchRoom(String roomUid);
 
+  Future<List<Room>> getNotSyncedRoom();
+
   Future<List<Room>> getAllGroups();
 }
 
@@ -79,7 +81,11 @@ class RoomDaoImpl implements RoomDao {
   }
 
   List<Room> sorted(List<Room> list) => list
-    ..sort((a, b) => (b.lastMessage?.time ?? b.lastUpdateTime) - (a.lastMessage?.time ?? a.lastUpdateTime));
+    ..sort(
+      (a, b) =>
+          (b.lastMessage?.time ?? b.lastUpdateTime) -
+          (a.lastMessage?.time ?? a.lastUpdateTime),
+    );
 
   @override
   Future<Room?> getRoom(String roomUid) async {
@@ -160,6 +166,18 @@ class RoomDaoImpl implements RoomDao {
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyRoom());
       return gen(Hive.openBox<Room>(_keyRoom()));
+    }
+  }
+
+  @override
+  Future<List<Room>> getNotSyncedRoom() async {
+    try {
+      final box = await _openRoom();
+      return box.values
+          .where((element) => element.lastMessage == null)
+          .toList();
+    } catch (e) {
+      return [];
     }
   }
 }

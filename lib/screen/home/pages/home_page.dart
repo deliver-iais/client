@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:deliver/repository/accountRepo.dart';
+import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
@@ -34,6 +35,7 @@ class HomePageState extends State<HomePage> {
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _uxService = GetIt.I.get<UxService>();
   final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
+  final _contactRepo = GetIt.I.get<ContactRepo>();
 
   void _addLifeCycleListener() {
     if (isDesktop) {
@@ -80,6 +82,8 @@ class HomePageState extends State<HomePage> {
 
     _addLifeCycleListener();
 
+   _contactRepo.sendNotSyncedContactInStartTime();
+
     super.initState();
   }
 
@@ -110,15 +114,19 @@ class HomePageState extends State<HomePage> {
     });
   }
 
+  void _shareInputFile(List<SharedMediaFile> files) {
+    if (files.isNotEmpty) {
+      _routingService.openShareInput(paths: files.map((e) => e.path).toList());
+    }
+  }
+
   void checkHaveShareInput(BuildContext context) {
+    ReceiveSharingIntent.getMediaStream().listen((event) {
+      _shareInputFile(event);
+    });
+
     ReceiveSharingIntent.getInitialMedia().then((value) {
-      if (value.isNotEmpty) {
-        final paths = <String>[];
-        for (final path in value) {
-          paths.add(path.path);
-        }
-        _routingService.openShareInput(paths: paths);
-      }
+      _shareInputFile(value);
     });
 
     ReceiveSharingIntent.getInitialText().then((value) async {

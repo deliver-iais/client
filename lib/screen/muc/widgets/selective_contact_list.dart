@@ -120,8 +120,8 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
               ),
             ),
             Expanded(
-              child: FutureBuilder<List<Contact>>(
-                future: _contactRepo.getAll(),
+              child: FutureBuilder<List<Contact>?>(
+                future: _contactRepo.getAllUserAsContact(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData &&
                       snapshot.data != null &&
@@ -129,7 +129,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                     contacts = snapshot.data!
                         .where(
                           (element) =>
-                              !_authRepo.isCurrentUser(element.uid) &&
+                              !_authRepo.isCurrentUser(element.uid!) &&
                               !element.isUsersContact(),
                         )
                         .toList(growable: false);
@@ -201,7 +201,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                           onPressed: () async {
                             final users = <Uid>[];
                             for (final contact in _createMucService.contacts) {
-                              users.add(contact.uid.asUid());
+                              users.add(contact.uid!.asUid());
                             }
                             final usersAdd = await _mucRepo.sendMembers(
                               widget.mucUid!,

@@ -118,6 +118,8 @@ class MessageRepo {
             }
           });
           sendPendingMessages().ignore();
+          unawaited(_fetchNotSyncedRoom());
+
           _logger.i('updating done -----------------');
           break;
         case ConnectionStatus.Disconnected:
@@ -128,6 +130,20 @@ class MessageRepo {
           break;
       }
     });
+  }
+
+  Future<void> _fetchNotSyncedRoom() async {
+    final rooms = await _roomDao.getNotSyncedRoom();
+    if (rooms.isNotEmpty) {
+      for (final room in rooms) {
+        await fetchRoomLastMessage(
+          room.uid,
+          room.lastMessageId,
+          room.firstMessageId,
+        );
+        _updateLastSeen(room).ignore();
+      }
+    }
   }
 
   final _completerMap = <String, Completer<List<Message?>>>{};
@@ -243,18 +259,18 @@ class MessageRepo {
   Future<void> updatingLastSeen() async {
     final rooms = await _roomDao.getAllRooms();
     for (final r in rooms) {
-      await _updatingLastSeen(r);
+      await _updateLastSeen(r);
     }
   }
 
   Future<void> fetchRoomLastSeen(String roomUid) async {
     final room = await _roomDao.getRoom(roomUid);
     if (room != null) {
-      _updatingLastSeen(room).ignore();
+      _updateLastSeen(room).ignore();
     }
   }
 
-  Future<void> _updatingLastSeen(Room room) async {
+  Future<void> _updateLastSeen(Room room) async {
     if (room.lastMessage == null || room.lastMessage!.id == null) return;
     final category = room.lastMessage!.to.asUid().category;
     if (!_authRepo.isCurrentUser(room.lastMessage!.from) &&

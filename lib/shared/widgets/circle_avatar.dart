@@ -144,8 +144,8 @@ class CircleAvatarWidget extends StatelessWidget {
     return Center(
       child: Text(
         name.length > 1
-            ? name.substring(0, 1).toUpperCase()
-            : name.toUpperCase(),
+            ? name.substring(0, 1)
+            : name,
         maxLines: 1,
         style: TextStyle(color: textColor, fontSize: radius, height: 1),
       ),
