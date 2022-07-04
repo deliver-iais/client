@@ -28,7 +28,7 @@ class PlayAudioStatus extends StatefulWidget {
 }
 
 class PlayAudioStatusState extends State<PlayAudioStatus> {
-  static final audioPlayerService = GetIt.I.get<AudioService>();
+  static final _audioPlayerService = GetIt.I.get<AudioService>();
 
   @override
   Widget build(BuildContext context) {
@@ -42,15 +42,16 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
           color: widget.backgroundColor,
         ),
         child: StreamBuilder<AudioPlayerState>(
-          stream: audioPlayerService.audioCurrentState,
+          stream: _audioPlayerService.stateStream,
           builder: (context, snapshot) {
             if (snapshot.data == AudioPlayerState.playing) {
-              return StreamBuilder(
-                stream: audioPlayerService.audioUuid,
-                builder: (context, uuid) {
-                  if (uuid.hasData &&
-                      uuid.data.toString().isNotEmpty &&
-                      uuid.data.toString().contains(widget.uuid)) {
+              return StreamBuilder<AudioTrack?>(
+                stream: _audioPlayerService.trackStream,
+                builder: (context, trackSnapshot) {
+                  final track =
+                      trackSnapshot.data ?? AudioTrack.emptyAudioTrack();
+
+                  if (track.uuid.contains(widget.uuid)) {
                     return IconButton(
                       padding: EdgeInsets.zero,
                       icon: Icon(
@@ -59,7 +60,7 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
                         size: 40,
                       ),
                       onPressed: () {
-                        audioPlayerService.pause();
+                        _audioPlayerService.pause();
                       },
                     );
                   } else {
@@ -85,8 +86,8 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
         size: 42,
       ),
       onPressed: () {
-        if (isAndroid || isIOS || isMacOS|| isWindows) {
-          audioPlayerService.play(
+        if (isAndroid || isIOS || isMacOS || isWindows) {
+          _audioPlayerService.play(
             audioPath,
             widget.uuid,
             widget.name,

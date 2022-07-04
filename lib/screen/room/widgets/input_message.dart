@@ -19,9 +19,9 @@ import 'package:deliver/screen/room/widgets/record_audio_slide_widget.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/screen/room/widgets/show_mention_list.dart';
+import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
-import 'package:deliver/services/recorder_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
@@ -88,7 +88,7 @@ class InputMessageWidgetState extends State<InputMessage> {
   static final checkPermission = GetIt.I.get<CheckPermissionsService>();
   static final _mucRepo = GetIt.I.get<MucRepo>();
   static final _botRepo = GetIt.I.get<BotRepo>();
-  static final _recorderService = GetIt.I.get<RecorderService>();
+  static final _audioService = GetIt.I.get<AudioService>();
 
   late Room currentRoom;
   final BehaviorSubject<bool> _showEmojiKeyboard =
@@ -152,7 +152,7 @@ class InputMessageWidgetState extends State<InputMessage> {
     noActivitySubject.listen((event) {
       _messageRepo.sendActivity(widget.currentRoom.uid.asUid(), event);
     });
-    _recorderService.recordingDurationStream.listen((value) {
+    _audioService.recordingDurationStream.listen((value) {
       if (value.compareTo(Duration.zero) > 0) {
         isTypingActivitySubject.add(ActivityType.RECORDING_VOICE);
       }
@@ -291,14 +291,10 @@ class InputMessageWidgetState extends State<InputMessage> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
-                  StreamBuilder(
-                    stream: MergeStream([
-                      _recorderService.isRecordingStream,
-                      _recorderService.recordingRoomStream,
-                    ]),
+                  StreamBuilder<bool>(
+                    stream: _audioService.recorderIsRecordingStream,
                     builder: (ctx, snapshot) {
-                      final isCurrentRoomUid = (_recorderService.recordingRoomStream.valueOrNull?.isEqual(widget.currentRoom.uid.asUid()) ?? true);
-                      final isRecording = _recorderService.isRecordingStream.value && isCurrentRoomUid;
+                      final isRecording = snapshot.data ?? false;
                       return Expanded(
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.end,
@@ -318,7 +314,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                       if (!sm.hasData ||
                           sm.data! ||
                           widget.waitingForForward ||
-                          !_recorderService.recorderIsAvailable()) {
+                          !_audioService.recorderIsAvailable()) {
                         return const SizedBox();
                       }
 

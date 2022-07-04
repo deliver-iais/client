@@ -57,6 +57,7 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/repository/stickerRepo.dart';
 import 'package:deliver/screen/splash/splash_screen.dart';
+import 'package:deliver/services/audio_modules/recorder_module.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
@@ -69,7 +70,6 @@ import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
-import 'package:deliver/services/recorder_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/services/ux_service.dart';
@@ -205,16 +205,24 @@ Future<void> setupDI() async {
   registerSingleton<MediaRepo>(MediaRepo());
   registerSingleton<LastActivityRepo>(LastActivityRepo());
   registerSingleton<LiveLocationRepo>(LiveLocationRepo());
+
   if (isAndroid || isIOS) {
-    registerSingleton<AudioPlayerModule>(NormalAudioPlayer());
+    registerSingleton<AudioPlayerModule>(AudioPlayersAudioPlayer());
+    registerSingleton<IntermediatePlayerModule>(
+      AudioPlayersIntermediatePlayer(),
+    );
   } else if (isWindows || isMacOS) {
     registerSingleton<AudioPlayerModule>(JustAudioAudioPlayer());
+    registerSingleton<IntermediatePlayerModule>(
+      AudioPlayersIntermediatePlayer(),
+    );
   } else {
     registerSingleton<AudioPlayerModule>(FakeAudioPlayer());
+    registerSingleton<IntermediatePlayerModule>(FakeIntermediatePlayer());
   }
   try {
+    registerSingleton<RecorderModule>(RecorderModule());
     registerSingleton<AudioService>(AudioService());
-    registerSingleton<RecorderService>(RecorderService());
   } catch (_) {}
 
   if (isWeb) {

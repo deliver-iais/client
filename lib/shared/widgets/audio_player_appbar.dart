@@ -16,10 +16,12 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return StreamBuilder<bool>(
-      stream: audioPlayerService.audioCenterIsOn,
+    return StreamBuilder<AudioTrack?>(
+      stream: audioPlayerService.trackStream,
       builder: (c, s) {
-        if (s.hasData && s.data!) {
+        final track = s.data;
+
+        if (track != null) {
           return Container(
             height: 45,
             decoration: BoxDecoration(
@@ -39,7 +41,7 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 StreamBuilder<AudioPlayerState>(
-                  stream: audioPlayerService.audioCurrentState,
+                  stream: audioPlayerService.stateStream,
                   builder: (c, cs) {
                     if (cs.hasData && cs.data == AudioPlayerState.playing) {
                       return IconButton(
@@ -64,10 +66,9 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
                       height: 25,
                       child: LayoutBuilder(
                         builder: (context, constraints) => RepaintBoundary(
-                          child: audioPlayerService.audioName.length >
-                                  (constraints.maxWidth / 10)
+                          child: track.name.length > (constraints.maxWidth / 10)
                               ? Marquee(
-                                  text: audioPlayerService.audioName,
+                                  text: track.name,
                                   style: const TextStyle(fontSize: 16),
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   blankSpace: constraints.maxWidth / 2,
@@ -81,7 +82,7 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
                               : SizedBox(
                                   width: double.infinity,
                                   child: Text(
-                                    audioPlayerService.audioName,
+                                    track.name,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                   ),
@@ -131,7 +132,7 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
                   padding: const EdgeInsets.only(right: 5),
                   constraints: const BoxConstraints(),
                   onPressed: () {
-                    audioPlayerService.close();
+                    audioPlayerService.stop();
                   },
                   icon: const Icon(Icons.close_rounded),
                 )

@@ -1,6 +1,7 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -8,10 +9,7 @@ import 'package:get_it/get_it.dart';
 class CustomNotificationSoundSelection extends StatefulWidget {
   final String roomUid;
 
-  final AudioPlayer _player =
-      AudioPlayer(playerId: "custom-notification-player");
-
-  CustomNotificationSoundSelection({super.key, required this.roomUid});
+  const CustomNotificationSoundSelection({super.key, required this.roomUid});
 
   @override
   CustomNotificationSoundSelectionState createState() =>
@@ -34,7 +32,8 @@ class CustomNotificationSoundSelectionState
     "that_was_quick"
   ];
   Map<int, bool> selectedFlag = {};
-  I18N i18n = GetIt.I.get<I18N>();
+  final _i18n = GetIt.I.get<I18N>();
+  final _audioService = GetIt.I.get<AudioService>();
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +41,7 @@ class CustomNotificationSoundSelectionState
       appBar: AppBar(
         title: Center(
           child: Text(
-            i18n.get("choose_a_song"),
+            _i18n.get("choose_a_song"),
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
         ),
@@ -70,7 +69,7 @@ class CustomNotificationSoundSelectionState
                 Navigator.pop(context);
               },
               child: Text(
-                i18n.get("ok"),
+                _i18n.get("ok"),
               ),
             ),
           )
@@ -108,9 +107,8 @@ class CustomNotificationSoundSelectionState
       selectedFlag[index] = !isSelected;
     });
 
-    widget._player.play(
-      AssetSource("app/src/main/res/raw/${staticData[index]}.mp3"),
-      position: Duration.zero,
+    _audioService.playTemporary(
+      AudioSourcePath.asset("app/src/main/res/raw/${staticData[index]}.mp3"),
     );
   }
 
@@ -124,7 +122,7 @@ class CustomNotificationSoundSelectionState
   Widget _buildSelectIcon(bool isSelected, String data) {
     final theme = Theme.of(context);
     return StreamBuilder<Object>(
-      stream: widget._player.onPlayerStateChanged,
+      stream: _audioService.temporaryStateStream,
       builder: (context, snapshot) {
         return SizedBox(
           width: 80,

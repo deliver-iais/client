@@ -3,6 +3,7 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/audio_message/play_audio_status.dart';
 import 'package:deliver/screen/room/messageWidgets/file_message.dart/open_file_status.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
+import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
@@ -31,6 +32,7 @@ class _CircularFileStatusIndicatorState
     extends State<CircularFileStatusIndicator> {
   static final _fileServices = GetIt.I.get<FileService>();
   static final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _audioPlayerService = GetIt.I.get<AudioService>();
 
   @override
   void initState() {
@@ -83,10 +85,12 @@ class _CircularFileStatusIndicatorState
                   fileName: file.name,
                   messagePacketId: widget.message.packetId,
                   onPressed: () async {
-                    final audioPath = await _fileRepo.getFile(file.uuid, file.name);
-                    if (audioPath != null && (file.type == "audio/mp4" || file.type == "audio/ogg")) {
-                      await PlayAudioStatusState.audioPlayerService
-                          .play(
+                    final audioPath =
+                        await _fileRepo.getFile(file.uuid, file.name);
+                    if (audioPath != null &&
+                        (file.type == "audio/mp4" ||
+                            file.type == "audio/ogg")) {
+                      _audioPlayerService.play(
                         audioPath,
                         file.uuid,
                         file.name,

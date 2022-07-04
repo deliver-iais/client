@@ -11,14 +11,18 @@ import 'package:get_it/get_it.dart';
 
 class AudioProgressIndicator extends StatefulWidget {
   final String audioUuid;
+  final String audioPath;
+  final Duration audioDuration;
   final double maxWidth;
   final CustomColorScheme? colorScheme;
 
   const AudioProgressIndicator({
     super.key,
     required this.audioUuid,
-    this.colorScheme,
+    required this.audioPath,
+    required this.audioDuration,
     required this.maxWidth,
+    this.colorScheme,
   });
 
   @override
@@ -32,7 +36,7 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return StreamBuilder<Duration>(
-      stream: audioPlayerService.audioCurrentPosition(),
+      stream: audioPlayerService.positionStream,
       builder: (context, position) {
         if (position.hasData && position.data != null) {
           return Column(
@@ -42,9 +46,9 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
               ),
               Stack(
                 children: [
-                  if (isVoiceFile(audioPlayerService.audioPath))
+                  if (isVoiceFile(widget.audioPath))
                     FutureBuilder<Uint8List>(
-                      future: File(audioPlayerService.audioPath).readAsBytes(),
+                      future: File(widget.audioPath).readAsBytes(),
                       builder: (context, snapshot) {
                         if (snapshot.data != null) {
                           final samplesData = loadParseJson(
@@ -62,7 +66,7 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
                             ),
                             activeBorderColor: widget.colorScheme?.primary ??
                                 theme.primaryColor,
-                            maxDuration: audioPlayerService.audioDuration,
+                            maxDuration: widget.audioDuration,
                             inactiveColor: Color.alphaBlend(
                               widget.colorScheme?.primary.withAlpha(70) ??
                                   theme.primaryColor.withAlpha(70),
@@ -82,11 +86,10 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
                       },
                     ),
                   if ((position.data!.inMilliseconds /
-                          audioPlayerService.audioDuration.inMilliseconds) <=
+                          widget.audioDuration.inMilliseconds) <=
                       1)
                     Opacity(
-                      opacity:
-                          isVoiceFile(audioPlayerService.audioPath) ? 0 : 1,
+                      opacity: isVoiceFile(widget.audioPath) ? 0 : 1,
                       child: SliderTheme(
                         data: SliderThemeData(
                           overlayShape: SliderComponentShape.noOverlay,
@@ -96,14 +99,13 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
                         ),
                         child: Slider(
                           value: position.data!.inMilliseconds /
-                              audioPlayerService.audioDuration.inMilliseconds,
+                              widget.audioDuration.inMilliseconds,
                           onChanged: (value) {
                             setState(() {
                               audioPlayerService.seek(
                                 Duration(
                                   milliseconds: (value *
-                                          audioPlayerService
-                                              .audioDuration.inMilliseconds)
+                                          widget.audioDuration.inMilliseconds)
                                       .round(),
                                 ),
                               );

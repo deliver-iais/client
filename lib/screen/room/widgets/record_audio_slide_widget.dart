@@ -1,5 +1,5 @@
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/services/recorder_service.dart';
+import 'package:deliver/services/audio_modules/recorder_module.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class RecordAudioSlideWidget extends StatelessWidget {
-  static final _recorderService = GetIt.I.get<RecorderService>();
+  static final _recorderService = GetIt.I.get<RecorderModule>();
   static final _i18n = GetIt.I.get<I18N>();
 
   const RecordAudioSlideWidget({super.key});

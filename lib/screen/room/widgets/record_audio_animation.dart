@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:deliver/services/recorder_service.dart';
+import 'package:deliver/services/audio_modules/recorder_module.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -10,7 +10,7 @@ import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 class RecordAudioAnimation extends StatelessWidget {
-  static final _recorderService = GetIt.I.get<RecorderService>();
+  static final _recorderService = GetIt.I.get<RecorderModule>();
   final RecordOnCompleteCallback? onComplete;
   final RecordOnCancelCallback? onCancel;
   final Uid roomUid;

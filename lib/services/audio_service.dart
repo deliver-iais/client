@@ -1,14 +1,66 @@
 import 'dart:async';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:deliver/shared/methods/find_file_type.dart';
+import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart' as just_audio;
+import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
+import 'audio_modules/recorder_module.dart';
+
+class AudioSourcePath {
+  final String path;
+  final bool isAssets;
+  final bool isDeviceFile;
+  final bool isUrl;
+
+  AudioSourcePath.file(this.path)
+      : isAssets = false,
+        isDeviceFile = true,
+        isUrl = false;
+
+  AudioSourcePath.url(this.path)
+      : isAssets = false,
+        isDeviceFile = false,
+        isUrl = true;
+
+  AudioSourcePath.asset(this.path)
+      : isAssets = true,
+        isDeviceFile = false,
+        isUrl = false;
+}
+
+class AudioTrack {
+  final String uuid;
+  final String name;
+  final String path;
+  final Duration duration;
+
+  AudioTrack({
+    required this.uuid,
+    required this.name,
+    required this.path,
+    required this.duration,
+  });
+
+  AudioTrack.emptyAudioTrack()
+      : uuid = "",
+        name = "",
+        path = "",
+        duration = Duration.zero;
+
+  bool isVoice() => isVoiceFile(path);
+}
+
 enum AudioPlayerState {
-  /// Player is stopped. No file is loaded to the player. Calling [resume] or
-  /// [pause] will result in exception.
+  /// Player is stopped. No file is loaded to the player.
   stopped,
+
+  /// Currently loading a file for [playing].
+  loading,
 
   /// Currently playing a file. The user can [pause], [resume] or [stop] the
   /// playback.
@@ -16,32 +68,11 @@ enum AudioPlayerState {
 
   /// Paused. The user can [resume] the playback without providing the URL.
   paused,
-
-  /// The playback has been completed. This state is the same as [stopped],
-  /// however we differentiate it because some clients might want to know when
-  /// the playback is done versus when the user has stopped the playback.
-  completed,
 }
 
-abstract class AudioPlayerModule {
-  Stream<AudioPlayerState>? get audioCurrentState;
+typedef OnDoneCallback = void Function();
 
-  Stream<Duration?>? get audioCurrentPosition;
-
-  Stream<Duration?>? get audioDuration;
-
-  Stream get playerCompleted;
-
-  void play(String path);
-
-  void seek(Duration duration) {}
-
-  void pause() {}
-
-  void stop() {}
-
-  void resume();
-
+abstract class IntermediatePlayerModule {
   void playSoundOut();
 
   void playSoundIn();
@@ -59,151 +90,238 @@ abstract class AudioPlayerModule {
   void stopIncomingCallSound();
 
   void playEndCallSound();
+}
 
-  void changePlaybackRate(double rate);
+abstract class AudioPlayerModule {
+  Stream<AudioPlayerState> get stateStream;
+
+  Stream<Duration> get positionStream;
+
+  Stream<void> get completedStream;
+
+  void play(String path);
+
+  void pause();
+
+  void resume();
+
+  void seek(Duration duration);
+
+  void stop();
+
+  void setPlaybackRate(double rate);
 
   double getPlaybackRate();
 }
 
-class AudioService {
-  final _playerModule = GetIt.I.get<AudioPlayerModule>();
+abstract class TemporaryAudioPlayerModule {
+  Stream<AudioPlayerState> get stateStream;
 
-  // ignore: close_sinks
-  final _audioCenterIsOn = BehaviorSubject.seeded(false);
+  Stream<Duration> get positionStream;
 
-  // ignore: close_sinks
-  final _audioCurrentState = BehaviorSubject.seeded(AudioPlayerState.stopped);
+  void play(AudioSourcePath path);
 
-  // ignore: close_sinks
-  final _audioUuid = BehaviorSubject.seeded("");
+  void stop();
+}
 
-  // ignore: close_sinks
-  final _audioCurrentPosition = BehaviorSubject.seeded(Duration.zero);
-
-  String _audioName = "";
-
-  String _audioPath = "";
-
-  Duration _audioDuration = Duration.zero;
-
-  String get audioName => _audioName;
-
-  String get audioPath => _audioPath;
-
-  BehaviorSubject<String> get audioUuid => _audioUuid;
-
-  BehaviorSubject<bool> get audioCenterIsOn => _audioCenterIsOn;
-
-  BehaviorSubject<AudioPlayerState> get audioCurrentState => _audioCurrentState;
-
-  Duration get audioDuration => _audioDuration;
-
-  BehaviorSubject<Duration> audioCurrentPosition() => _audioCurrentPosition;
-
-  AudioService() {
-    try {
-      _playerModule.audioCurrentState!
-          .listen((event) => _audioCurrentState.add(event));
-      _playerModule.audioCurrentPosition!.listen((position) {
-        _audioCurrentPosition.add(position!);
-      });
-      _playerModule.playerCompleted.listen((event) {
-        _audioCurrentState.add(AudioPlayerState.completed);
-        _audioCenterIsOn.add(false);
-      });
-    } catch (_) {}
-  }
-
-  Future<void> play(
-    String path,
-    String uuid,
-    String name,
-    double duration,
-  ) async {
-    // path = path.replaceAll("\\", "/");
-
-    // check if this the current audio which is playing or paused recently
-    // and if played recently, just resume it
-    if (_audioUuid.value == uuid) {
-      _audioCenterIsOn.add(true);
-      _playerModule.resume();
-      return;
-    }
-    _audioUuid.add(uuid);
-    _audioPath = path;
-    _audioName = name;
-    _audioDuration = Duration(milliseconds: (duration * 1000).toInt());
-    _audioCenterIsOn.add(true);
-    _playerModule.play(path);
-  }
-
-  void seek(Duration duration) {
-    _playerModule.seek(duration);
-  }
-
-  void pause() {
-    _playerModule.pause();
-  }
-
-  void stop() {
-    _playerModule.stop();
-  }
-
-  void close() {
-    _playerModule.pause();
-    _audioCenterIsOn.add(false);
-  }
-
-  void resume() {
-    _playerModule.resume();
-  }
-
-  void playSoundOut() {
-    _playerModule.playSoundOut();
-  }
-
-  void playSoundIn() {
-    _playerModule.playSoundIn();
-  }
-
-  void playBeepSound() {
-    _playerModule.playBeepSound();
-  }
-
-  void stopBeepSound() {
-    _playerModule.stopBeepSound();
-  }
-
-  void playBusySound() {
-    _playerModule.playBusySound();
-  }
-
-  void stopBusySound() {
-    _playerModule.stopBusySound();
-  }
-
-  void playIncomingCallSound() {
-    _playerModule.playIncomingCallSound();
-  }
-
-  void stopIncomingCallSound() {
-    _playerModule.stopIncomingCallSound();
-  }
-
-  void playEndCallSound() {
-    _playerModule.playEndCallSound();
-  }
-
-  void changePlayBackRate(double rate) {
-    _playerModule.changePlaybackRate(rate);
-  }
-
-  double getPlayBackRate() {
-    return _playerModule.getPlaybackRate();
+AudioPlayerModule getAudioPlayerModule() {
+  if (isAndroid || isIOS) {
+    return AudioPlayersAudioPlayer();
+  } else if (isWindows || isMacOS) {
+    return JustAudioAudioPlayer();
+  } else {
+    return FakeAudioPlayer();
   }
 }
 
-class NormalAudioPlayer implements AudioPlayerModule {
+IntermediatePlayerModule getIntermediatePlayerModule() {
+  if (isAndroid || isIOS || isWindows || isMacOS) {
+    return AudioPlayersIntermediatePlayer();
+  } else {
+    return FakeIntermediatePlayer();
+  }
+}
+
+class AudioService {
+  final _mainPlayer = getAudioPlayerModule();
+  final _intermediatePlayer = getIntermediatePlayerModule();
+  final _temporaryPlayer = TemporaryAudioPlayer();
+  final _recorder = RecorderModule();
+
+  final _trackStream = BehaviorSubject<AudioTrack?>();
+
+  final _onDoneCallbackStream = BehaviorSubject<OnDoneCallback?>();
+
+  final _stateStream = BehaviorSubject.seeded(AudioPlayerState.stopped);
+
+  Stream<AudioPlayerState> get stateStream => _mainPlayer.stateStream;
+
+  Stream<AudioPlayerState> get temporaryStateStream =>
+      _temporaryPlayer.stateStream;
+
+  Stream<Duration> get positionStream => _mainPlayer.positionStream;
+
+  Stream<Duration> get temporaryPositionStream =>
+      _temporaryPlayer.positionStream;
+
+  Stream<AudioTrack?> get trackStream => _trackStream;
+
+  Stream<bool> get recorderIsRecordingStream => _recorder.isRecordingStream;
+
+  Stream<bool> get recorderIsLockedSteam => _recorder.isLockedSteam;
+
+  Stream<bool> get recorderIsIsPaused => _recorder.isPaused;
+
+  Stream<Uid?> get recordingRoomStream => _recorder.recordingRoomStream;
+
+  Stream<Duration> get recordingDurationStream =>
+      _recorder.recordingDurationStream;
+
+  Stream<double> get recordingAmplitudeStream =>
+      _recorder.recordingAmplitudeStream;
+
+  AudioService() {
+    _mainPlayer.stateStream.listen(_stateStream.add);
+  }
+
+  void play(String path, String uuid, String name, double duration) {
+    stopTemporary();
+
+    if (_trackStream.valueOrNull?.uuid == uuid) {
+      _mainPlayer.resume();
+    } else {
+      final track = AudioTrack(
+        uuid: uuid,
+        name: name,
+        path: path,
+        duration: Duration(milliseconds: (duration * 1000).toInt()),
+      );
+
+      _trackStream.add(track);
+
+      _mainPlayer.play(path);
+    }
+  }
+
+  void seek(Duration duration) => _mainPlayer.seek(duration);
+
+  void pause() => _mainPlayer.pause();
+
+  void resume() {
+    stopTemporary();
+
+    _mainPlayer.resume();
+  }
+
+  void stop() {
+    _trackStream.add(null);
+    _mainPlayer.stop();
+  }
+
+  void changePlayBackRate(double rate) => _mainPlayer.setPlaybackRate(rate);
+
+  double getPlayBackRate() => _mainPlayer.getPlaybackRate();
+
+  void playTemporary(AudioSourcePath path) {
+    _temporaryReversiblePause();
+    _temporaryPlayer.play(path);
+  }
+
+  void stopTemporary() {
+    try {
+      _temporaryPlayer.stop();
+      _temporaryReversiblePlay();
+    } catch (_) {}
+  }
+
+  void playSoundOut() => _intermediatePlayer.playSoundOut();
+
+  void playSoundIn() => _intermediatePlayer.playSoundIn();
+
+  void playBeepSound() {
+    _temporaryReversiblePause();
+    _intermediatePlayer.playBeepSound();
+  }
+
+  void stopBeepSound() {
+    _intermediatePlayer.stopBeepSound();
+    _temporaryReversiblePlay();
+  }
+
+  void playBusySound() {
+    _temporaryReversiblePause();
+    _intermediatePlayer.playBusySound();
+  }
+
+  void stopBusySound() {
+    _intermediatePlayer.stopBusySound();
+    _temporaryReversiblePlay();
+  }
+
+  void playIncomingCallSound() {
+    _temporaryReversiblePause();
+    _intermediatePlayer.playIncomingCallSound();
+  }
+
+  void stopIncomingCallSound() {
+    _intermediatePlayer.stopIncomingCallSound();
+    _temporaryReversiblePlay();
+  }
+
+  void playEndCallSound() {
+    _intermediatePlayer.playEndCallSound();
+  }
+
+  void _temporaryReversiblePause() {
+    if (_stateStream.value == AudioPlayerState.playing) {
+      pause();
+      _onDoneCallbackStream.add(() {
+        if (_stateStream.value == AudioPlayerState.paused) {
+          resume();
+        }
+      });
+    }
+  }
+
+  void _temporaryReversiblePlay() {
+    _onDoneCallbackStream.value?.call();
+    _onDoneCallbackStream.add(null);
+  }
+
+  Future<void> startRecording({
+    RecordOnCompleteCallback? onComplete,
+    RecordOnCancelCallback? onCancel,
+    required Uid roomUid,
+  }) {
+    _temporaryReversiblePause();
+
+    return _recorder.start(
+      roomUid: roomUid,
+      onComplete: (path) {
+        onComplete?.call(path);
+        _temporaryReversiblePlay();
+      },
+      onCancel: () {
+        onCancel?.call();
+        _temporaryReversiblePlay();
+      },
+    );
+  }
+
+  void togglePauseRecorder() => _recorder.togglePause();
+
+  void endRecording() => _recorder.end();
+
+  void cancelRecording() => _recorder.cancel();
+
+  void checkRecorderPermission() => _recorder.checkPermission();
+
+  bool recorderIsAvailable() => _recorder.recorderIsAvailable();
+
+  void lockRecorder() => _recorder.lock();
+}
+
+class AudioPlayersIntermediatePlayer implements IntermediatePlayerModule {
   final soundOutSource = AssetSource("audios/sound_out.wav");
   final soundInSource = AssetSource("audios/sound_in.wav");
   final beepSoundSource = AssetSource("audios/beep_sound.mp3");
@@ -211,23 +329,70 @@ class NormalAudioPlayer implements AudioPlayerModule {
   final incomingCallSource = AssetSource("audios/incoming_call.mp3");
   final endCallSource = AssetSource("audios/end_call.mp3");
 
-  final AudioPlayer _audioPlayer = AudioPlayer(playerId: "default-audio");
   final AudioPlayer _fastAudioPlayer = AudioPlayer(playerId: "fast-audio");
   final AudioPlayer _callAudioPlayer = AudioPlayer(playerId: "call-audio");
+
+  @override
+  void playSoundOut() {
+    _fastAudioPlayer.play(soundOutSource, position: Duration.zero);
+  }
+
+  @override
+  void playSoundIn() {
+    _fastAudioPlayer.play(soundInSource, position: Duration.zero);
+  }
+
+  @override
+  void playBeepSound() {
+    _callAudioPlayer.play(beepSoundSource, position: Duration.zero);
+  }
+
+  @override
+  void stopBeepSound() {
+    _callAudioPlayer.stop();
+  }
+
+  @override
+  void playBusySound() {
+    _callAudioPlayer.play(busySoundSource, position: Duration.zero);
+  }
+
+  @override
+  void stopBusySound() {
+    _callAudioPlayer.stop();
+  }
+
+  @override
+  void playIncomingCallSound() {
+    _callAudioPlayer.play(incomingCallSource, position: Duration.zero);
+  }
+
+  @override
+  void playEndCallSound() {
+    _callAudioPlayer.play(endCallSource, position: Duration.zero, volume: 0.1);
+  }
+
+  @override
+  void stopIncomingCallSound() {
+    _callAudioPlayer.stop();
+  }
+}
+
+class AudioPlayersAudioPlayer implements AudioPlayerModule {
+  final AudioPlayer _audioPlayer = AudioPlayer(playerId: "default-audio");
+
+  final _completedStream = BehaviorSubject();
 
   double playbackRate = 1.0;
 
   @override
-  Stream<Duration> get audioCurrentPosition => _audioPlayer.onPositionChanged;
+  Stream<Duration> get positionStream => _audioPlayer.onPositionChanged;
 
   @override
-  Stream get playerCompleted => _audioPlayer.onPlayerComplete;
+  Stream<void> get completedStream => _completedStream;
 
   @override
-  Stream<Duration?>? get audioDuration => _audioPlayer.onDurationChanged;
-
-  @override
-  Stream<AudioPlayerState> get audioCurrentState =>
+  Stream<AudioPlayerState> get stateStream =>
       _audioPlayer.onPlayerStateChanged.map((event) {
         switch (event) {
           case PlayerState.stopped:
@@ -237,7 +402,7 @@ class NormalAudioPlayer implements AudioPlayerModule {
           case PlayerState.paused:
             return AudioPlayerState.paused;
           case PlayerState.completed:
-            return AudioPlayerState.completed;
+            return AudioPlayerState.stopped;
         }
       });
 
@@ -267,11 +432,13 @@ class NormalAudioPlayer implements AudioPlayerModule {
 
   @override
   void resume() {
-    _audioPlayer.resume();
+    _audioPlayer
+      ..resume()
+      ..setPlaybackRate(playbackRate);
   }
 
   @override
-  void changePlaybackRate(double playbackRate) {
+  void setPlaybackRate(double playbackRate) {
     this.playbackRate = playbackRate;
     _audioPlayer
       ..resume()
@@ -282,125 +449,52 @@ class NormalAudioPlayer implements AudioPlayerModule {
   double getPlaybackRate() {
     return playbackRate;
   }
-
-  @override
-  void playSoundOut() {
-    _fastAudioPlayer.play(soundOutSource, position: Duration.zero);
-  }
-
-  @override
-  void playSoundIn() {
-    _fastAudioPlayer.play(soundInSource, position: Duration.zero);
-  }
-
-  @override
-  void playBeepSound() {
-    _callAudioPlayer.play(beepSoundSource, position: Duration.zero);
-  }
-
-  @override
-  void stopBeepSound() {
-    _callAudioPlayer.stop();
-  }
-
-  @override
-  void playBusySound() {
-    _callAudioPlayer.play(busySoundSource, position: Duration.zero);
-  }
-
-  @override
-  void stopBusySound() {
-    _callAudioPlayer.stop();
-  }
-
-  @override
-  void playIncomingCallSound() {
-    _callAudioPlayer.play(incomingCallSource, position: Duration.zero);
-  }
-
-  @override
-  void playEndCallSound() {
-    _callAudioPlayer.play(endCallSource, position: Duration.zero, volume: 0.1);
-  }
-
-  @override
-  void stopIncomingCallSound() {
-    _callAudioPlayer.stop();
-  }
 }
 
 class JustAudioAudioPlayer implements AudioPlayerModule {
-  final soundOutSource = AssetSource("audios/sound_out.wav");
-  final soundInSource = AssetSource("audios/sound_in.wav");
-  final beepSoundSource = AssetSource("audios/beep_sound.mp3");
-  final busySoundSource = AssetSource("audios/busy_sound.mp3");
-  final incomingCallSource = AssetSource("audios/incoming_call.mp3");
-  final endCallSource = AssetSource("audios/end_call.mp3");
+  final _logger = GetIt.I.get<Logger>();
 
   final _audioPlayer = just_audio.AudioPlayer();
-  final AudioPlayer _fastAudioPlayer = AudioPlayer(playerId: "fast-audio");
-  final AudioPlayer _callAudioPlayer = AudioPlayer(playerId: "call-audio");
 
   double playbackRate = 1.0;
 
   @override
-  Stream<Duration> get audioCurrentPosition =>
+  Stream<Duration> get positionStream =>
       _audioPlayer.positionStream.mapNotNull((e) => e);
 
   final _playerCompleted = BehaviorSubject<void>();
 
   @override
-  Stream get playerCompleted => _playerCompleted;
-
-  final _audioDuration = BehaviorSubject<Duration>();
-
-  @override
-  Stream<Duration?>? get audioDuration => _audioDuration;
+  Stream get completedStream => _playerCompleted;
 
   final _audioCurrentState = BehaviorSubject.seeded(AudioPlayerState.stopped);
 
   @override
-  Stream<AudioPlayerState> get audioCurrentState => _audioCurrentState;
+  Stream<AudioPlayerState> get stateStream => _audioCurrentState;
 
   JustAudioAudioPlayer() {
-    _audioPlayer.playerStateStream.listen((event) {
-      if (event.playing) {
+    _audioPlayer.playerStateStream.listen((event) async {
+      if (event.processingState == just_audio.ProcessingState.completed) {
+        _playerCompleted.add(null);
+        await _audioPlayer.stop();
+      } else if (event.playing) {
         _audioCurrentState.add(AudioPlayerState.playing);
-      } else if (event.processingState == just_audio.ProcessingState.completed) {
-        _audioCurrentState.add(AudioPlayerState.completed);
       }
     });
   }
 
   @override
   Future<void> play(String path) async {
-    // Try to load audio from a source and catch any errors.
     try {
-      await _audioPlayer.setFilePath(path);
-    } catch (_) {
-      // TODO(bitbeter): add more loggers
-    }
-
-    try {
-      if (_audioCurrentState.value == AudioPlayerState.playing) {
-        await _audioPlayer.stop();
-      }
-
+      await _audioPlayer.setFilePath(path, initialPosition: Duration.zero);
       await _audioPlayer.play();
-      await Future.delayed(const Duration(milliseconds: 200));
-      if (!_audioPlayer.playing) {
-        await _audioPlayer.play();
-      }
-      _audioDuration.add((await _audioPlayer.durationFuture) ?? Duration.zero);
-    } catch (_) {
-      // TODO(bitbeter): add more loggers
+    } catch (e) {
+      _logger.e(e);
     }
   }
 
   @override
-  void seek(Duration duration) {
-    _audioPlayer.seek(duration);
-  }
+  void seek(Duration duration) => _audioPlayer.seek(duration);
 
   @override
   void pause() {
@@ -423,79 +517,30 @@ class JustAudioAudioPlayer implements AudioPlayerModule {
   }
 
   @override
-  void changePlaybackRate(double playbackRate) {
+  void setPlaybackRate(double playbackRate) {
     this.playbackRate = playbackRate;
     _audioPlayer.setSpeed(playbackRate);
   }
 
   @override
-  double getPlaybackRate() {
-    return playbackRate;
-  }
-
-  @override
-  void playSoundOut() {
-    _fastAudioPlayer.play(soundOutSource, position: Duration.zero);
-  }
-
-  @override
-  void playSoundIn() {
-    _fastAudioPlayer.play(soundInSource, position: Duration.zero);
-  }
-
-  @override
-  void playBeepSound() {
-    _callAudioPlayer.play(beepSoundSource, position: Duration.zero);
-  }
-
-  @override
-  void stopBeepSound() {
-    _callAudioPlayer.stop();
-  }
-
-  @override
-  void playBusySound() {
-    _callAudioPlayer.play(busySoundSource, position: Duration.zero);
-  }
-
-  @override
-  void stopBusySound() {
-    _callAudioPlayer.stop();
-  }
-
-  @override
-  void playIncomingCallSound() {
-    _callAudioPlayer.play(incomingCallSource, position: Duration.zero);
-  }
-
-  @override
-  void playEndCallSound() {
-    _callAudioPlayer.play(endCallSource, position: Duration.zero, volume: 0.1);
-  }
-
-  @override
-  void stopIncomingCallSound() {
-    _callAudioPlayer.stop();
-  }
+  double getPlaybackRate() => playbackRate;
 }
 
 class FakeAudioPlayer implements AudioPlayerModule {
   @override
-  Stream<Duration?>? get audioCurrentPosition => throw UnimplementedError();
+  Stream<void> get completedStream => BehaviorSubject();
 
   @override
-  Stream<AudioPlayerState>? get audioCurrentState => throw UnimplementedError();
+  BehaviorSubject<Duration> get positionStream => BehaviorSubject();
 
   @override
-  Stream<Duration?>? get audioDuration => throw UnimplementedError();
+  BehaviorSubject<AudioPlayerState> get stateStream => BehaviorSubject();
 
   @override
-  void changePlaybackRate(double rate) {}
+  void setPlaybackRate(double rate) {}
 
   @override
-  double getPlaybackRate() {
-    throw UnimplementedError();
-  }
+  double getPlaybackRate() => 1.0;
 
   @override
   void pause() {}
@@ -503,6 +548,17 @@ class FakeAudioPlayer implements AudioPlayerModule {
   @override
   void play(String path) {}
 
+  @override
+  void resume() {}
+
+  @override
+  void seek(Duration duration) {}
+
+  @override
+  void stop() {}
+}
+
+class FakeIntermediatePlayer implements IntermediatePlayerModule {
   @override
   void playBeepSound() {}
 
@@ -522,18 +578,6 @@ class FakeAudioPlayer implements AudioPlayerModule {
   void playSoundOut() {}
 
   @override
-  Stream get playerCompleted => throw UnimplementedError();
-
-  @override
-  void resume() {}
-
-  @override
-  void seek(Duration duration) {}
-
-  @override
-  void stop() {}
-
-  @override
   void stopBeepSound() {}
 
   @override
@@ -541,4 +585,48 @@ class FakeAudioPlayer implements AudioPlayerModule {
 
   @override
   void stopIncomingCallSound() {}
+}
+
+class TemporaryAudioPlayer implements TemporaryAudioPlayerModule {
+  final AudioPlayer _audioPlayer = AudioPlayer(playerId: "looped-audio");
+
+  @override
+  void play(AudioSourcePath path) {
+    late final Source source;
+
+    if (path.isDeviceFile) {
+      source = DeviceFileSource(path.path);
+    } else if (path.isAssets) {
+      source = AssetSource(path.path);
+    } else {
+      source = UrlSource(path.path);
+    }
+
+    _audioPlayer
+      ..setReleaseMode(ReleaseMode.loop)
+      ..play(source, position: Duration.zero);
+  }
+
+  @override
+  void stop() {
+    _audioPlayer.stop();
+  }
+
+  @override
+  Stream<Duration> get positionStream => _audioPlayer.onPositionChanged;
+
+  @override
+  Stream<AudioPlayerState> get stateStream =>
+      _audioPlayer.onPlayerStateChanged.map((event) {
+        switch (event) {
+          case PlayerState.stopped:
+            return AudioPlayerState.stopped;
+          case PlayerState.playing:
+            return AudioPlayerState.playing;
+          case PlayerState.paused:
+            return AudioPlayerState.paused;
+          case PlayerState.completed:
+            return AudioPlayerState.stopped;
+        }
+      });
 }
