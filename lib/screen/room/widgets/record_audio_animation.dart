@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:deliver/services/audio_modules/recorder_module.dart';
+import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -10,7 +11,7 @@ import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 class RecordAudioAnimation extends StatelessWidget {
-  static final _recorderService = GetIt.I.get<RecorderModule>();
+  static final _audioService = GetIt.I.get<AudioService>();
   final RecordOnCompleteCallback? onComplete;
   final RecordOnCancelCallback? onCancel;
   final Uid roomUid;
@@ -27,22 +28,22 @@ class RecordAudioAnimation extends StatelessWidget {
     this.onCancel,
     required this.roomUid,
   }) {
-    _recorderService.isRecordingStream.listen((value) {
+    _audioService.recorderIsRecordingStream.listen((value) {
       if (!value) {
         _buttonOffset.add(Offset.zero);
       }
     });
     _pointerOffset.listen((value) {
-      if (_recorderService.isLockedSteam.value) {
+      if (_audioService.recorderIsLockedSteam.value) {
         _buttonOffset.add(Offset.zero);
       } else {
         if (value.dy < -110) {
-          _recorderService.lock();
+          _audioService.lockRecorder();
           _buttonOffset.add(Offset.zero);
         } else {
           if (value.dy.abs() < 30) {
             if (value.dx < -100 && !_isCanceled) {
-              _recorderService.cancel();
+              _audioService.cancelRecording();
               _isCanceled = true;
             } else {
               _buttonOffset.add(Offset(value.dx, 0));
@@ -61,20 +62,14 @@ class RecordAudioAnimation extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    return StreamBuilder(
-      stream: MergeStream([
-        _recorderService.isRecordingStream,
-        _recorderService.recordingRoomStream,
-      ]),
+    return StreamBuilder<bool>(
+      stream: _audioService.recorderIsRecordingStream,
       builder: (ctx, snapshot) {
-        final isCurrentRoomUid = (_recorderService
-                .recordingRoomStream.valueOrNull
-                ?.isEqual(roomUid) ??
-            true);
-        final isRecording =
-            _recorderService.isRecordingStream.value && isCurrentRoomUid;
-        final isRecordingInOtherRoom =
-            _recorderService.isRecordingStream.value && !isCurrentRoomUid;
+        final isRecording = snapshot.data ?? false;
+
+        final isRecordingInCurrentRoom =
+            _audioService.recordingRoom == roomUid.asString();
+
         return AnimatedContainer(
           duration: ANIMATION_DURATION,
           width: isRecording ? 100 : 48,
@@ -82,7 +77,7 @@ class RecordAudioAnimation extends StatelessWidget {
             clipBehavior: Clip.none,
             children: [
               StreamBuilder<bool>(
-                stream: _recorderService.isLockedSteam,
+                stream: _audioService.recorderIsLockedSteam,
                 builder: (context, snapshot) {
                   final lockFactor = snapshot.data ?? false ? 0.0 : 1.0;
 
@@ -147,7 +142,7 @@ class RecordAudioAnimation extends StatelessWidget {
                           )
                         : Matrix4.identity(),
                     child: StreamBuilder<double>(
-                      stream: _recorderService.recordingAmplitudeStream,
+                      stream: _audioService.recordingAmplitudeStream,
                       builder: (context, snapshot) {
                         final amplitude = (snapshot.data ?? 0) * 64.0;
                         final scale = (amplitude == 0)
@@ -181,7 +176,7 @@ class RecordAudioAnimation extends StatelessWidget {
                             // width: 40,
                             // height: 40,
                             child: StreamBuilder<bool>(
-                              stream: _recorderService.isLockedSteam,
+                              stream: _audioService.recorderIsLockedSteam,
                               builder: (context, snapshot) {
                                 final showSendButtonInsteadOfMicrophone =
                                     isRecording && (snapshot.data ?? false);
@@ -196,7 +191,7 @@ class RecordAudioAnimation extends StatelessWidget {
                                   ),
                                   onPressed: () {
                                     if (showSendButtonInsteadOfMicrophone) {
-                                      _recorderService.end();
+                                      _audioService.endRecording();
                                     }
                                   },
                                 );
@@ -217,35 +212,38 @@ class RecordAudioAnimation extends StatelessWidget {
                   return MouseRegion(
                     cursor: SystemMouseCursors.click,
                     child: GestureDetector(
-                      onTapDown: (_) => _recorderService.checkPermission(),
+                      onTapDown: (_) =>
+                          _audioService.checkRecorderPermission(),
                       onTapUp: (_) {
                         if (isRecording &&
-                            (_recorderService.isLockedSteam.valueOrNull ??
+                            (_audioService
+                                    .recorderIsLockedSteam.valueOrNull ??
                                 false)) {
-                          _recorderService.end();
+                          _audioService.endRecording();
                         }
                       },
                       onLongPressStart: (_) {
                         if (isRecording) {
                           return;
                         }
-                        _recorderService.start(
+                        _audioService.startRecording(
                           onComplete: onComplete,
                           onCancel: onCancel,
-                          roomUid: roomUid,
+                          roomUid: roomUid.asString(),
                         );
                         _pointerOffset.add(Offset.zero);
                       },
                       onLongPressEnd: (_) {
-                        if (!(_recorderService.isLockedSteam.valueOrNull ??
+                        if (!(_audioService
+                                .recorderIsLockedSteam.valueOrNull ??
                             false)) {
                           if (_pointerOffset.value.dy.abs() < 30 &&
                               _pointerOffset.value.dx < -100) {
                             if (!_isCanceled) {
-                              _recorderService.cancel();
+                              _audioService.cancelRecording();
                             }
                           } else {
-                            _recorderService.end();
+                            _audioService.endRecording();
                           }
                           _isCanceled = false;
                         }
@@ -266,7 +264,7 @@ class RecordAudioAnimation extends StatelessWidget {
                                 )
                               : Matrix4.identity(),
                           child: StreamBuilder<double>(
-                            stream: _recorderService.recordingAmplitudeStream,
+                            stream: _audioService.recordingAmplitudeStream,
                             builder: (context, snapshot) {
                               final amplitude = (snapshot.data ?? 0) * 64.0;
                               final scale = isRecording
@@ -279,8 +277,7 @@ class RecordAudioAnimation extends StatelessWidget {
                                   duration: ANIMATION_DURATION * 0.5,
                                   decoration: BoxDecoration(
                                     shape: BoxShape.circle,
-                                    color: (isRecording ||
-                                            isRecordingInOtherRoom)
+                                    color: (isRecording)
                                         ? Color.lerp(
                                             theme.colorScheme.error,
                                             theme.colorScheme.errorContainer,
@@ -291,7 +288,8 @@ class RecordAudioAnimation extends StatelessWidget {
                                   // width: 40,
                                   // height: 40,
                                   child: StreamBuilder<bool>(
-                                    stream: _recorderService.isLockedSteam,
+                                    stream:
+                                        _audioService.recorderIsLockedSteam,
                                     builder: (context, snapshot) {
                                       final showSendButtonInsteadOfMicrophone =
                                           isRecording &&
@@ -307,7 +305,7 @@ class RecordAudioAnimation extends StatelessWidget {
                                         ),
                                         onPressed: () {
                                           if (showSendButtonInsteadOfMicrophone) {
-                                            _recorderService.end();
+                                            _audioService.endRecording();
                                           }
                                         },
                                       );

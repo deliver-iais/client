@@ -5,10 +5,8 @@ import 'dart:math';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/vibration.dart';
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:record/record.dart';
@@ -33,7 +31,7 @@ class RecorderModule {
   final recordingAmplitudeStream = BehaviorSubject.seeded(0.0);
   final isLockedSteam = BehaviorSubject.seeded(false);
   final isPaused = BehaviorSubject.seeded(false);
-  final recordingRoomStream = BehaviorSubject<Uid?>();
+  String? recordingRoom;
 
   final _onCompleteCallbackStream =
       BehaviorSubject<RecordOnCompleteCallback?>();
@@ -108,14 +106,16 @@ class RecorderModule {
   Future<void> start({
     RecordOnCompleteCallback? onComplete,
     RecordOnCancelCallback? onCancel,
-    required Uid roomUid,
+    required String roomUid,
   }) async {
     if (isRecordingStream.valueOrNull ?? false) {
       await togglePause();
-      _routingService.openRoom(recordingRoomStream.value!.asString());
+      if (recordingRoom != null) {
+        _routingService.openRoom(recordingRoom!);
+      }
       return;
     } else {
-      recordingRoomStream.add(roomUid);
+      recordingRoom = roomUid;
     }
 
     if (!_hasPermission.value) {
@@ -188,7 +188,7 @@ class RecorderModule {
     _logger.wtf("recording ended");
 
     isRecordingStream.add(false);
-    recordingRoomStream.add(null);
+    recordingRoom = null;
 
     quickVibrate();
 
@@ -216,7 +216,7 @@ class RecorderModule {
   Future<void> cancel() {
     _logger.wtf("1.recording canceled");
     isRecordingStream.add(false);
-    recordingRoomStream.add(null);
+    recordingRoom = null;
     quickVibrate();
 
     _onCancelCallbackStream.valueOrNull?.call();

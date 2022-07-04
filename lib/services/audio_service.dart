@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver/shared/methods/find_file_type.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:get_it/get_it.dart';
 import 'package:just_audio/just_audio.dart' as just_audio;
 import 'package:logger/logger.dart';
@@ -93,11 +92,11 @@ abstract class IntermediatePlayerModule {
 }
 
 abstract class AudioPlayerModule {
-  Stream<AudioPlayerState> get stateStream;
+  ValueStream<AudioPlayerState> get stateStream;
 
-  Stream<Duration> get positionStream;
+  ValueStream<Duration> get positionStream;
 
-  Stream<void> get completedStream;
+  ValueStream<void> get completedStream;
 
   void play(String path);
 
@@ -152,37 +151,32 @@ class AudioService {
 
   final _onDoneCallbackStream = BehaviorSubject<OnDoneCallback?>();
 
-  final _stateStream = BehaviorSubject.seeded(AudioPlayerState.stopped);
-
-  Stream<AudioPlayerState> get stateStream => _mainPlayer.stateStream;
+  ValueStream<AudioPlayerState> get stateStream => _mainPlayer.stateStream;
 
   Stream<AudioPlayerState> get temporaryStateStream =>
       _temporaryPlayer.stateStream;
 
-  Stream<Duration> get positionStream => _mainPlayer.positionStream;
+  ValueStream<Duration> get positionStream => _mainPlayer.positionStream;
 
-  Stream<Duration> get temporaryPositionStream =>
+  ValueStream<Duration> get temporaryPositionStream =>
       _temporaryPlayer.positionStream;
 
-  Stream<AudioTrack?> get trackStream => _trackStream;
+  ValueStream<AudioTrack?> get trackStream => _trackStream;
 
-  Stream<bool> get recorderIsRecordingStream => _recorder.isRecordingStream;
+  ValueStream<bool> get recorderIsRecordingStream =>
+      _recorder.isRecordingStream;
 
-  Stream<bool> get recorderIsLockedSteam => _recorder.isLockedSteam;
+  ValueStream<bool> get recorderIsLockedSteam => _recorder.isLockedSteam;
 
-  Stream<bool> get recorderIsIsPaused => _recorder.isPaused;
+  ValueStream<bool> get recorderIsPaused => _recorder.isPaused;
 
-  Stream<Uid?> get recordingRoomStream => _recorder.recordingRoomStream;
+  String? get recordingRoom => _recorder.recordingRoom;
 
-  Stream<Duration> get recordingDurationStream =>
+  ValueStream<Duration> get recordingDurationStream =>
       _recorder.recordingDurationStream;
 
-  Stream<double> get recordingAmplitudeStream =>
+  ValueStream<double> get recordingAmplitudeStream =>
       _recorder.recordingAmplitudeStream;
-
-  AudioService() {
-    _mainPlayer.stateStream.listen(_stateStream.add);
-  }
 
   void play(String path, String uuid, String name, double duration) {
     stopTemporary();
@@ -273,10 +267,10 @@ class AudioService {
   }
 
   void _temporaryReversiblePause() {
-    if (_stateStream.value == AudioPlayerState.playing) {
+    if (_mainPlayer.stateStream.valueOrNull == AudioPlayerState.playing) {
       pause();
       _onDoneCallbackStream.add(() {
-        if (_stateStream.value == AudioPlayerState.paused) {
+        if (_mainPlayer.stateStream.valueOrNull == AudioPlayerState.paused) {
           resume();
         }
       });
@@ -284,14 +278,14 @@ class AudioService {
   }
 
   void _temporaryReversiblePlay() {
-    _onDoneCallbackStream.value?.call();
+    _onDoneCallbackStream.valueOrNull?.call();
     _onDoneCallbackStream.add(null);
   }
 
   Future<void> startRecording({
     RecordOnCompleteCallback? onComplete,
     RecordOnCancelCallback? onCancel,
-    required Uid roomUid,
+    required String roomUid,
   }) {
     _temporaryReversiblePause();
 
@@ -308,7 +302,7 @@ class AudioService {
     );
   }
 
-  void togglePauseRecorder() => _recorder.togglePause();
+  void toggleRecorderPause() => _recorder.togglePause();
 
   void endRecording() => _recorder.end();
 
@@ -386,13 +380,14 @@ class AudioPlayersAudioPlayer implements AudioPlayerModule {
   double playbackRate = 1.0;
 
   @override
-  Stream<Duration> get positionStream => _audioPlayer.onPositionChanged;
+  ValueStream<Duration> get positionStream =>
+      _audioPlayer.onPositionChanged.shareValueSeeded(Duration.zero);
 
   @override
-  Stream<void> get completedStream => _completedStream;
+  ValueStream<void> get completedStream => _completedStream;
 
   @override
-  Stream<AudioPlayerState> get stateStream =>
+  ValueStream<AudioPlayerState> get stateStream =>
       _audioPlayer.onPlayerStateChanged.map((event) {
         switch (event) {
           case PlayerState.stopped:
@@ -404,7 +399,7 @@ class AudioPlayersAudioPlayer implements AudioPlayerModule {
           case PlayerState.completed:
             return AudioPlayerState.stopped;
         }
-      });
+      }).shareValueSeeded(AudioPlayerState.stopped);
 
   @override
   void play(String path) {
@@ -459,18 +454,19 @@ class JustAudioAudioPlayer implements AudioPlayerModule {
   double playbackRate = 1.0;
 
   @override
-  Stream<Duration> get positionStream =>
-      _audioPlayer.positionStream.mapNotNull((e) => e);
+  ValueStream<Duration> get positionStream => _audioPlayer.positionStream
+      .mapNotNull((e) => e)
+      .shareValueSeeded(Duration.zero);
 
   final _playerCompleted = BehaviorSubject<void>();
 
   @override
-  Stream get completedStream => _playerCompleted;
+  ValueStream get completedStream => _playerCompleted;
 
   final _audioCurrentState = BehaviorSubject.seeded(AudioPlayerState.stopped);
 
   @override
-  Stream<AudioPlayerState> get stateStream => _audioCurrentState;
+  ValueStream<AudioPlayerState> get stateStream => _audioCurrentState;
 
   JustAudioAudioPlayer() {
     _audioPlayer.playerStateStream.listen((event) async {
@@ -487,6 +483,7 @@ class JustAudioAudioPlayer implements AudioPlayerModule {
   Future<void> play(String path) async {
     try {
       await _audioPlayer.setFilePath(path, initialPosition: Duration.zero);
+      await _audioPlayer.seek(Duration.zero);
       await _audioPlayer.play();
     } catch (e) {
       _logger.e(e);
@@ -528,7 +525,7 @@ class JustAudioAudioPlayer implements AudioPlayerModule {
 
 class FakeAudioPlayer implements AudioPlayerModule {
   @override
-  Stream<void> get completedStream => BehaviorSubject();
+  ValueStream<void> get completedStream => BehaviorSubject();
 
   @override
   BehaviorSubject<Duration> get positionStream => BehaviorSubject();
@@ -613,10 +610,11 @@ class TemporaryAudioPlayer implements TemporaryAudioPlayerModule {
   }
 
   @override
-  Stream<Duration> get positionStream => _audioPlayer.onPositionChanged;
+  ValueStream<Duration> get positionStream =>
+      _audioPlayer.onPositionChanged.shareValueSeeded(Duration.zero);
 
   @override
-  Stream<AudioPlayerState> get stateStream =>
+  ValueStream<AudioPlayerState> get stateStream =>
       _audioPlayer.onPlayerStateChanged.map((event) {
         switch (event) {
           case PlayerState.stopped:
@@ -628,5 +626,5 @@ class TemporaryAudioPlayer implements TemporaryAudioPlayerModule {
           case PlayerState.completed:
             return AudioPlayerState.stopped;
         }
-      });
+      }).shareValueSeeded(AudioPlayerState.stopped);
 }

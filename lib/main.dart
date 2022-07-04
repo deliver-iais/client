@@ -57,7 +57,6 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/repository/stickerRepo.dart';
 import 'package:deliver/screen/splash/splash_screen.dart';
-import 'package:deliver/services/audio_modules/recorder_module.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
@@ -206,22 +205,7 @@ Future<void> setupDI() async {
   registerSingleton<LastActivityRepo>(LastActivityRepo());
   registerSingleton<LiveLocationRepo>(LiveLocationRepo());
 
-  if (isAndroid || isIOS) {
-    registerSingleton<AudioPlayerModule>(AudioPlayersAudioPlayer());
-    registerSingleton<IntermediatePlayerModule>(
-      AudioPlayersIntermediatePlayer(),
-    );
-  } else if (isWindows || isMacOS) {
-    registerSingleton<AudioPlayerModule>(JustAudioAudioPlayer());
-    registerSingleton<IntermediatePlayerModule>(
-      AudioPlayersIntermediatePlayer(),
-    );
-  } else {
-    registerSingleton<AudioPlayerModule>(FakeAudioPlayer());
-    registerSingleton<IntermediatePlayerModule>(FakeIntermediatePlayer());
-  }
   try {
-    registerSingleton<RecorderModule>(RecorderModule());
     registerSingleton<AudioService>(AudioService());
   } catch (_) {}
 

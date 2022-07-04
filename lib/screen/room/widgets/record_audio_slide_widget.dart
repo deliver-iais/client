@@ -1,5 +1,6 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/services/audio_modules/recorder_module.dart';
+import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class RecordAudioSlideWidget extends StatelessWidget {
-  static final _recorderService = GetIt.I.get<RecorderModule>();
+  static final _audioService = GetIt.I.get<AudioService>();
   static final _i18n = GetIt.I.get<I18N>();
 
   const RecordAudioSlideWidget({super.key});
@@ -30,7 +31,7 @@ class RecordAudioSlideWidget extends StatelessWidget {
             ),
             StreamBuilder<Duration>(
               initialData: Duration.zero,
-              stream: _recorderService.recordingDurationStream,
+              stream: _audioService.recordingDurationStream,
               builder: (c, t) {
                 final duration = t.data ?? Duration.zero;
                 if (duration.compareTo(Duration.zero) > 0) {
@@ -44,7 +45,7 @@ class RecordAudioSlideWidget extends StatelessWidget {
             ),
             const Spacer(),
             StreamBuilder<bool>(
-              stream: _recorderService.isLockedSteam,
+              stream: _audioService.recorderIsLockedSteam,
               builder: (context, snapshot) {
                 final isLocked = snapshot.data ?? false;
                 if (!isLocked) {
@@ -59,7 +60,7 @@ class RecordAudioSlideWidget extends StatelessWidget {
                           ),
                         ),
                         onPressed: () {
-                          _recorderService.cancel();
+                          _audioService.cancelRecording();
                         },
                       ),
                     ],
@@ -75,13 +76,13 @@ class RecordAudioSlideWidget extends StatelessWidget {
                         color: theme.colorScheme.primary,
                       ),
                       child: StreamBuilder<bool>(
-                        stream: _recorderService.isPaused,
+                        stream: _audioService.recorderIsPaused,
                         builder: (context, snapshot) {
                           final isPaused = snapshot.data ?? false;
                           return IconButton(
                             color: theme.colorScheme.onPrimary,
                             onPressed: () {
-                              _recorderService.togglePause();
+                              _audioService.toggleRecorderPause();
                             },
                             padding: EdgeInsets.zero,
                             icon: Icon(
@@ -108,7 +109,7 @@ class RecordAudioSlideWidget extends StatelessWidget {
                         ),
                         padding: EdgeInsets.zero,
                         onPressed: () {
-                          _recorderService.cancel();
+                          _audioService.cancelRecording();
                         },
                       ),
                     ),
