@@ -151,7 +151,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
     BuildContext context,
   ) async {
     final res = <File>[];
-    final types = sharePrivateDataRequest.fileTypeFilter.memeTypeFilter;
+    final types = sharePrivateDataRequest.fileMemeTypeFilters;
     if (isLinux) {
       final typeGroup = <XTypeGroup>[];
       for (final type in types) {

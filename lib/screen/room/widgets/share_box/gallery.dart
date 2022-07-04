@@ -158,7 +158,6 @@ class ShareBoxGalleryState extends State<ShareBoxGallery> {
                           ? GestureDetector(
                               onTap: () {
                                 openCamera(() {
-                                  widget.pop();
                                   Navigator.pop(context);
                                 });
                               },
