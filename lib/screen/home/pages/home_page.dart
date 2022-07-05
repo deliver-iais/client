@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui';
 import 'package:deliver/repository/accountRepo.dart';
+import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
@@ -10,8 +11,10 @@ import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
+import 'package:desktop_lifecycle/desktop_lifecycle.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/ui/with_foreground_task.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -24,7 +27,7 @@ class HomePage extends StatefulWidget {
   HomePageState createState() => HomePageState();
 }
 
-class HomePageState extends State<HomePage> with WidgetsBindingObserver {
+class HomePageState extends State<HomePage> {
   final _logger = GetIt.I.get<Logger>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
@@ -32,6 +35,25 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _uxService = GetIt.I.get<UxService>();
   final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
+  final _contactRepo = GetIt.I.get<ContactRepo>();
+
+  void _addLifeCycleListener() {
+    if (isDesktop) {
+      DesktopLifecycle.instance.isActive.addListener(() {
+        if (DesktopLifecycle.instance.isActive.value) {
+          _coreServices.checkConnectionTimer();
+        }
+      });
+    } else {
+      SystemChannels.lifecycle.setMessageHandler((message) async {
+        if (message != null &&
+            message == AppLifecycleState.resumed.toString()) {
+          _coreServices.checkConnectionTimer();
+        }
+        return message;
+      });
+    }
+  }
 
   @override
   void initState() {
@@ -57,6 +79,10 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     }
     checkIfVersionChange();
     checkAddToHomeInWeb(context);
+
+    _addLifeCycleListener();
+
+   _contactRepo.sendNotSyncedContactInStartTime();
 
     super.initState();
   }
@@ -88,15 +114,19 @@ class HomePageState extends State<HomePage> with WidgetsBindingObserver {
     });
   }
 
+  void _shareInputFile(List<SharedMediaFile> files) {
+    if (files.isNotEmpty) {
+      _routingService.openShareInput(paths: files.map((e) => e.path).toList());
+    }
+  }
+
   void checkHaveShareInput(BuildContext context) {
+    ReceiveSharingIntent.getMediaStream().listen((event) {
+      _shareInputFile(event);
+    });
+
     ReceiveSharingIntent.getInitialMedia().then((value) {
-      if (value.isNotEmpty) {
-        final paths = <String>[];
-        for (final path in value) {
-          paths.add(path.path);
-        }
-        _routingService.openShareInput(paths: paths);
-      }
+      _shareInputFile(value);
     });
 
     ReceiveSharingIntent.getInitialText().then((value) async {

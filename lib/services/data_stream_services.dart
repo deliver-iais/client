@@ -578,6 +578,16 @@ class DataStreamServices {
           );
           break;
         }
+      } on GrpcError catch (e) {
+        if (e.code == StatusCode.notFound) {
+          _roomDao
+              .updateRoom(
+                uid: roomUid.asString(),
+                deleted: true,
+              )
+              .ignore();
+          break;
+        }
       } catch (_) {
         break;
       }
