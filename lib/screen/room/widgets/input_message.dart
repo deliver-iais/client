@@ -319,7 +319,9 @@ class InputMessageWidgetState extends State<InputMessage> {
                                         _audioService.recordingRoom,
                                       ),
                                       // color: theme.colorScheme.primary,
-                                      child: const Text("Open Recording Room"),
+                                      child: Text(
+                                        _i18n.get("go_to_recording_room"),
+                                      ),
                                     ),
                                   ),
                                   onPressed: () {},
