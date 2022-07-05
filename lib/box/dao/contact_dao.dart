@@ -10,7 +10,7 @@ abstract class ContactDao {
 
   Future<List<Contact>> getAll();
 
-  Future<List<Contact>?> getAllUserASContact();
+  Future<List<Contact>?> getAllUserAsContact();
 
   Stream<List<Contact>> watchAll();
 
@@ -68,7 +68,7 @@ class ContactDaoImpl implements ContactDao {
   }
 
   @override
-  Future<List<Contact>> getAllUserASContact() async {
+  Future<List<Contact>> getAllUserAsContact() async {
     final box = await _open();
     return box.values.where((element) => element.uid != null).toList();
   }

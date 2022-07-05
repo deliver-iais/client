@@ -249,7 +249,7 @@ class ContactRepo {
   Stream<List<contact_model.Contact>> watchAll() => _contactDao.watchAll();
 
   Future<List<contact_model.Contact>?> getAllUserAsContact() =>
-      _contactDao.getAllUserASContact();
+      _contactDao.getAllUserAsContact();
 
   Stream<List<contact_model.Contact>?> getNotMessengerContactAsStream() =>
       _contactDao.getNotMessengerContactAsStream();
