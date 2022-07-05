@@ -50,9 +50,8 @@ class ContactRepo {
       if (await _checkPermission.checkContactPermission() ||
           isDesktop ||
           isIOS) {
-        var contacts = <Contact>[];
         if (!isDesktop) {
-          final Iterable<contacts_service_pb.Contact> phoneContacts =
+          final phoneContacts =
               await contacts_service_pb.ContactsService.getContacts(
             withThumbnails: false,
             photoHighResolution: false,
@@ -60,32 +59,29 @@ class ContactRepo {
             iOSLocalizedLabels: false,
           );
 
-          for (final phoneContact in phoneContacts) {
-            if (phoneContact.phones != null) {
-              for (final p in phoneContact.phones!.toSet().toList()) {
-                try {
-                  final contactPhoneNumber = p.value.toString();
-                  final phoneNumber = _getPhoneNumber(
-                    contactPhoneNumber,
-                    phoneContact.displayName ?? "",
-                  );
-                  final contact = Contact()
-                    ..firstName = phoneContact.displayName ?? ""
-                    ..phoneNumber = phoneNumber;
-                  contacts.add(contact);
-                } catch (e) {
-                  _logger.e(e);
-                }
-              }
-            }
-          }
-          final contactsMap = <int, Contact>{};
-          for (final contact in contacts) {
-            contactsMap[contact.phoneNumber.nationalNumber.toInt()] = contact;
-          }
-          contacts = await _filterPhoneContactsToSend(
-            contactsMap.values.toSet().toList(),
+          final contacts = await _filterPhoneContactsToSend(
+            phoneContacts
+                .map(
+                  (p) => (p.phones ?? [])
+                      .toSet()
+                      .map((phone) => phone.value.toString())
+                      .map((e) => _getPhoneNumber(e, p.displayName ?? ""))
+                      .map(
+                        (e) => Contact()
+                          ..firstName = p.displayName ?? ""
+                          ..phoneNumber = e,
+                      ),
+                )
+                .expand((e) => e)
+                .groupFoldBy<int, Contact>(
+                  (element) => element.phoneNumber.nationalNumber.toInt(),
+                  (previous, element) => element,
+                )
+                .values
+                .toSet()
+                .toList(),
           );
+
           if (contacts.isNotEmpty) {
             _savePhoneContacts(contacts);
             sendContacts(contacts);
