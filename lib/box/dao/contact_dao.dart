@@ -122,7 +122,7 @@ class ContactDaoImpl implements ContactDao {
   }
 
   @override
-  Future<List<Contact>?> getNotMessengerContacts() async {
+  Future<List<Contact>> getNotMessengerContacts() async {
     try {
       final box = await _open();
       return box.values.where((element) => element.uid == null).toList();
@@ -132,7 +132,7 @@ class ContactDaoImpl implements ContactDao {
   }
 
   @override
-  Stream<List<Contact>?> watchNotMessengerContacts() async* {
+  Stream<List<Contact>> watchNotMessengerContacts() async* {
     final box = await _open();
 
     yield box.values.where((element) => element.uid == null).toList();

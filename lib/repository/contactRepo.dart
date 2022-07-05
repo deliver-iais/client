@@ -144,7 +144,7 @@ class ContactRepo {
 
   Future<void> sendNotSyncedContactInStartTime() async {
     final contacts = await _contactDao.getNotMessengerContacts();
-    if (contacts != null && contacts.isNotEmpty) {
+    if (contacts.isNotEmpty) {
       unawaited(
         _sendContacts(
           contacts
@@ -246,12 +246,13 @@ class ContactRepo {
     }
   }
 
-  Stream<List<contact_model.Contact>> watchAll() => _contactDao.watchAllMessengerContacts();
+  Stream<List<contact_model.Contact>> watchAll() =>
+      _contactDao.watchAllMessengerContacts();
 
-  Future<List<contact_model.Contact>?> getAllUserAsContact() =>
+  Future<List<contact_model.Contact>> getAllUserAsContact() =>
       _contactDao.getAllMessengerContacts();
 
-  Stream<List<contact_model.Contact>?> getNotMessengerContactAsStream() =>
+  Stream<List<contact_model.Contact>> getNotMessengerContactAsStream() =>
       _contactDao.watchNotMessengerContacts();
 
   Future<void> getContacts() async {

@@ -53,7 +53,7 @@ class ContactsPageState extends State<ContactsPage> {
     _contactRepo
         .getNotMessengerContactAsStream()
         .listen((notMessengerContacts) {
-      if (notMessengerContacts != null && notMessengerContacts.isNotEmpty) {
+      if (notMessengerContacts.isNotEmpty) {
         _not_messenger_contactsBehavior.add(
           notMessengerContacts
               .sortedBy(

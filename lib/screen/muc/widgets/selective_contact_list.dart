@@ -120,7 +120,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
               ),
             ),
             Expanded(
-              child: FutureBuilder<List<Contact>?>(
+              child: FutureBuilder<List<Contact>>(
                 future: _contactRepo.getAllUserAsContact(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData &&
