@@ -92,6 +92,8 @@ class ContactRepo {
           } else {
             unawaited(getContacts());
           }
+        } else {
+          await getContacts();
         }
       }
     });
