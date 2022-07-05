@@ -42,11 +42,11 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
           color: widget.backgroundColor,
         ),
         child: StreamBuilder<AudioPlayerState>(
-          stream: _audioPlayerService.stateStream,
+          stream: _audioPlayerService.playerState,
           builder: (context, snapshot) {
             if (snapshot.data == AudioPlayerState.playing) {
               return StreamBuilder<AudioTrack?>(
-                stream: _audioPlayerService.trackStream,
+                stream: _audioPlayerService.track,
                 builder: (context, trackSnapshot) {
                   final track =
                       trackSnapshot.data ?? AudioTrack.emptyAudioTrack();
@@ -60,7 +60,7 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
                         size: 40,
                       ),
                       onPressed: () {
-                        _audioPlayerService.pause();
+                        _audioPlayerService.pauseAudio();
                       },
                     );
                   } else {
@@ -87,7 +87,7 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
       ),
       onPressed: () {
         if (isAndroid || isIOS || isMacOS || isWindows) {
-          _audioPlayerService.play(
+          _audioPlayerService.playAudioMessage(
             audioPath,
             widget.uuid,
             widget.name,

@@ -30,7 +30,7 @@ class RecordAudioSlideWidget extends StatelessWidget {
             ),
             StreamBuilder<Duration>(
               initialData: Duration.zero,
-              stream: _audioService.recordingDurationStream,
+              stream: _audioService.recordingDuration,
               builder: (c, t) {
                 final duration = t.data ?? Duration.zero;
                 if (duration.compareTo(Duration.zero) > 0) {
@@ -44,7 +44,7 @@ class RecordAudioSlideWidget extends StatelessWidget {
             ),
             const Spacer(),
             StreamBuilder<bool>(
-              stream: _audioService.recorderIsLockedSteam,
+              stream: _audioService.recorderIsLocked,
               builder: (context, snapshot) {
                 final isLocked = snapshot.data ?? false;
                 if (!isLocked) {

@@ -30,13 +30,13 @@ class RecordAudioAnimation extends StatelessWidget {
     this.onCancel,
     required this.roomUid,
   }) {
-    _audioService.recorderIsRecordingStream.listen((value) {
+    _audioService.recorderIsRecording.listen((value) {
       if (!value) {
         _buttonOffset.add(Offset.zero);
       }
     });
     _pointerOffset.listen((value) {
-      if (_audioService.recorderIsLockedSteam.value) {
+      if (_audioService.recorderIsLocked.value) {
         _buttonOffset.add(Offset.zero);
       } else {
         if (value.dy < -110) {
@@ -65,7 +65,7 @@ class RecordAudioAnimation extends StatelessWidget {
     final theme = Theme.of(context);
 
     return StreamBuilder<bool>(
-      stream: _audioService.recorderIsRecordingStream,
+      stream: _audioService.recorderIsRecording,
       builder: (ctx, snapshot) {
         final isRecording = snapshot.data ?? false;
 
@@ -79,7 +79,7 @@ class RecordAudioAnimation extends StatelessWidget {
             clipBehavior: Clip.none,
             children: [
               StreamBuilder<bool>(
-                stream: _audioService.recorderIsLockedSteam,
+                stream: _audioService.recorderIsLocked,
                 builder: (context, snapshot) {
                   final lockFactor = snapshot.data ?? false ? 0.0 : 1.0;
 
@@ -144,7 +144,7 @@ class RecordAudioAnimation extends StatelessWidget {
                           )
                         : Matrix4.identity(),
                     child: StreamBuilder<double>(
-                      stream: _audioService.recordingAmplitudeStream,
+                      stream: _audioService.recordingAmplitude,
                       builder: (context, snapshot) {
                         final amplitude = (snapshot.data ?? 0) * 64.0;
                         final scale = (amplitude == 0)
@@ -178,7 +178,7 @@ class RecordAudioAnimation extends StatelessWidget {
                             // width: 40,
                             // height: 40,
                             child: StreamBuilder<bool>(
-                              stream: _audioService.recorderIsLockedSteam,
+                              stream: _audioService.recorderIsLocked,
                               builder: (context, snapshot) {
                                 final showSendButtonInsteadOfMicrophone =
                                     isRecording && (snapshot.data ?? false);
@@ -212,7 +212,7 @@ class RecordAudioAnimation extends StatelessWidget {
                       onTapUp: (_) {
                         if (isRecording &&
                             isRecordingInCurrentRoom &&
-                            (_audioService.recorderIsLockedSteam.valueOrNull ??
+                            (_audioService.recorderIsLocked.valueOrNull ??
                                 false)) {
                           _audioService.endRecording();
                         }
@@ -229,7 +229,7 @@ class RecordAudioAnimation extends StatelessWidget {
                         _pointerOffset.add(Offset.zero);
                       },
                       onLongPressEnd: (_) {
-                        if (!(_audioService.recorderIsLockedSteam.valueOrNull ??
+                        if (!(_audioService.recorderIsLocked.valueOrNull ??
                             false)) {
                           if (_pointerOffset.value.dy.abs() < 30 &&
                               _pointerOffset.value.dx < -100) {
@@ -258,7 +258,7 @@ class RecordAudioAnimation extends StatelessWidget {
                                 )
                               : Matrix4.identity(),
                           child: StreamBuilder<double>(
-                            stream: _audioService.recordingAmplitudeStream,
+                            stream: _audioService.recordingAmplitude,
                             builder: (context, snapshot) {
                               final amplitude = (snapshot.data ?? 0) * 64.0;
                               final scale = isRecording
@@ -282,7 +282,7 @@ class RecordAudioAnimation extends StatelessWidget {
                                   // width: 40,
                                   // height: 40,
                                   child: StreamBuilder<bool>(
-                                    stream: _audioService.recorderIsLockedSteam,
+                                    stream: _audioService.recorderIsLocked,
                                     builder: (context, snapshot) {
                                       final showSendButtonInsteadOfMicrophone =
                                           isRecording &&

@@ -136,7 +136,7 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                         fileName,
                                       );
                                       if (audioPath != null) {
-                                        _audioPlayerService.play(
+                                        _audioPlayerService.playAudioMessage(
                                           audioPath,
                                           fileUuid,
                                           fileName,

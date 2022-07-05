@@ -107,7 +107,7 @@ class CustomNotificationSoundSelectionState
       selectedFlag[index] = !isSelected;
     });
 
-    _audioService.playTemporary(
+    _audioService.playTemporaryAudio(
       AudioSourcePath.asset("app/src/main/res/raw/${staticData[index]}.mp3"),
     );
   }
@@ -122,7 +122,7 @@ class CustomNotificationSoundSelectionState
   Widget _buildSelectIcon(bool isSelected, String data) {
     final theme = Theme.of(context);
     return StreamBuilder<Object>(
-      stream: _audioService.temporaryStateStream,
+      stream: _audioService.temporaryPlayerState,
       builder: (context, snapshot) {
         return SizedBox(
           width: 80,

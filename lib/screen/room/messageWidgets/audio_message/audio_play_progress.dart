@@ -26,13 +26,13 @@ class AudioPlayProgress extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<AudioPlayerState>(
-      stream: _audioPlayerService.stateStream,
+      stream: _audioPlayerService.playerState,
       builder: (context, stateSnapshot) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             StreamBuilder<AudioTrack?>(
-              stream: _audioPlayerService.trackStream,
+              stream: _audioPlayerService.track,
               builder: (c, trackSnapshot) {
                 final state = stateSnapshot.data ?? AudioPlayerState.stopped;
                 final track =

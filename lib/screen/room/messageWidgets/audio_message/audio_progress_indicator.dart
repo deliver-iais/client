@@ -36,7 +36,7 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return StreamBuilder<Duration>(
-      stream: audioPlayerService.positionStream,
+      stream: audioPlayerService.playerPosition,
       builder: (context, position) {
         if (position.hasData && position.data != null) {
           return Column(
@@ -102,7 +102,7 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
                               widget.audioDuration.inMilliseconds,
                           onChanged: (value) {
                             setState(() {
-                              audioPlayerService.seek(
+                              audioPlayerService.seekTime(
                                 Duration(
                                   milliseconds: (value *
                                           widget.audioDuration.inMilliseconds)

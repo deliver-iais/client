@@ -61,11 +61,11 @@ enum AudioPlayerState {
   /// Currently loading a file for [playing].
   loading,
 
-  /// Currently playing a file. The user can [pause], [resume] or [stop] the
+  /// Currently playing a file. The user can [pauseAudio], [resumeAudio] or [stopAudio] the
   /// playback.
   playing,
 
-  /// Paused. The user can [resume] the playback without providing the URL.
+  /// Paused. The user can [resumeAudio] the playback without providing the URL.
   paused,
 }
 
@@ -152,38 +152,38 @@ class AudioService {
   final _onDoneCallbackStream = BehaviorSubject<OnDoneCallback?>();
 
   AudioService() {
-    _mainPlayer.completedStream.listen((_) => stop());
+    _mainPlayer.completedStream.listen((_) => stopAudio());
   }
 
-  ValueStream<AudioPlayerState> get stateStream => _mainPlayer.stateStream;
+  ValueStream<AudioPlayerState> get playerState => _mainPlayer.stateStream;
 
-  Stream<AudioPlayerState> get temporaryStateStream =>
+  Stream<AudioPlayerState> get temporaryPlayerState =>
       _temporaryPlayer.stateStream;
 
-  ValueStream<Duration> get positionStream => _mainPlayer.positionStream;
+  ValueStream<Duration> get playerPosition => _mainPlayer.positionStream;
 
-  ValueStream<Duration> get temporaryPositionStream =>
+  ValueStream<Duration> get temporaryPlayerPosition =>
       _temporaryPlayer.positionStream;
 
-  ValueStream<AudioTrack?> get trackStream => _trackStream;
+  ValueStream<AudioTrack?> get track => _trackStream;
 
-  ValueStream<bool> get recorderIsRecordingStream =>
+  ValueStream<bool> get recorderIsRecording =>
       _recorder.isRecordingStream;
 
-  ValueStream<bool> get recorderIsLockedSteam => _recorder.isLockedSteam;
+  ValueStream<bool> get recorderIsLocked => _recorder.isLockedSteam;
 
   ValueStream<bool> get recorderIsPaused => _recorder.isPaused;
 
   String get recordingRoom => _recorder.recordingRoom;
 
-  ValueStream<Duration> get recordingDurationStream =>
+  ValueStream<Duration> get recordingDuration =>
       _recorder.recordingDurationStream;
 
-  ValueStream<double> get recordingAmplitudeStream =>
+  ValueStream<double> get recordingAmplitude =>
       _recorder.recordingAmplitudeStream;
 
-  void play(String path, String uuid, String name, double duration) {
-    stopTemporary();
+  void playAudioMessage(String path, String uuid, String name, double duration) {
+    stopTemporaryAudio();
 
     if (_trackStream.valueOrNull?.uuid == uuid) {
       _mainPlayer.resume();
@@ -201,31 +201,31 @@ class AudioService {
     }
   }
 
-  void seek(Duration duration) => _mainPlayer.seek(duration);
+  void seekTime(Duration duration) => _mainPlayer.seek(duration);
 
-  void pause() => _mainPlayer.pause();
+  void pauseAudio() => _mainPlayer.pause();
 
-  void resume() {
-    stopTemporary();
+  void resumeAudio() {
+    stopTemporaryAudio();
 
     _mainPlayer.resume();
   }
 
-  void stop() {
+  void stopAudio() {
     _trackStream.add(null);
     _mainPlayer.stop();
   }
 
-  void changePlayBackRate(double rate) => _mainPlayer.setPlaybackRate(rate);
+  void changeAudioPlaybackRate(double rate) => _mainPlayer.setPlaybackRate(rate);
 
-  double getPlayBackRate() => _mainPlayer.getPlaybackRate();
+  double getAudioPlaybackRate() => _mainPlayer.getPlaybackRate();
 
-  void playTemporary(AudioSourcePath path) {
+  void playTemporaryAudio(AudioSourcePath path) {
     _temporaryReversiblePause();
     _temporaryPlayer.play(path);
   }
 
-  void stopTemporary() {
+  void stopTemporaryAudio() {
     try {
       _temporaryPlayer.stop();
       _temporaryReversiblePlay();
@@ -272,10 +272,10 @@ class AudioService {
 
   void _temporaryReversiblePause() {
     if (_mainPlayer.stateStream.valueOrNull == AudioPlayerState.playing) {
-      pause();
+      pauseAudio();
       _onDoneCallbackStream.add(() {
         if (_mainPlayer.stateStream.valueOrNull == AudioPlayerState.paused) {
-          resume();
+          resumeAudio();
         }
       });
     }

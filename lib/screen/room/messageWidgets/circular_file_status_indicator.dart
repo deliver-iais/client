@@ -90,7 +90,7 @@ class _CircularFileStatusIndicatorState
                     if (audioPath != null &&
                         (file.type == "audio/mp4" ||
                             file.type == "audio/ogg")) {
-                      _audioPlayerService.play(
+                      _audioPlayerService.playAudioMessage(
                         audioPath,
                         file.uuid,
                         file.name,

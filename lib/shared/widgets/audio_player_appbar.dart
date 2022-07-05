@@ -17,7 +17,7 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return StreamBuilder<AudioTrack?>(
-      stream: audioPlayerService.trackStream,
+      stream: audioPlayerService.track,
       builder: (c, s) {
         final track = s.data;
 
@@ -41,19 +41,19 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 StreamBuilder<AudioPlayerState>(
-                  stream: audioPlayerService.stateStream,
+                  stream: audioPlayerService.playerState,
                   builder: (c, cs) {
                     if (cs.hasData && cs.data == AudioPlayerState.playing) {
                       return IconButton(
                         onPressed: () {
-                          audioPlayerService.pause();
+                          audioPlayerService.pauseAudio();
                         },
                         icon: const Icon(Icons.pause_rounded),
                       );
                     } else {
                       return IconButton(
                         onPressed: () async {
-                          audioPlayerService.resume();
+                          audioPlayerService.resumeAudio();
                         },
                         icon: const Icon(Icons.play_arrow_rounded),
                       );
@@ -100,10 +100,10 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
                   ),
                   onPressed: () {
                     setState(() {
-                      audioPlayerService.changePlayBackRate(
-                        audioPlayerService.getPlayBackRate() == 1
+                      audioPlayerService.changeAudioPlaybackRate(
+                        audioPlayerService.getAudioPlaybackRate() == 1
                             ? 1.5
-                            : audioPlayerService.getPlayBackRate() == 1.5
+                            : audioPlayerService.getAudioPlaybackRate() == 1.5
                                 ? 2
                                 : 1,
                       );
@@ -118,9 +118,9 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
                     ),
                     child: Center(
                       child: Text(
-                        audioPlayerService.getPlayBackRate() == 1
+                        audioPlayerService.getAudioPlaybackRate() == 1
                             ? "1x"
-                            : audioPlayerService.getPlayBackRate() == 1.5
+                            : audioPlayerService.getAudioPlaybackRate() == 1.5
                                 ? "1.5x"
                                 : "2x",
                         style: const TextStyle(fontSize: 12),
@@ -132,7 +132,7 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
                   padding: const EdgeInsets.only(right: 5),
                   constraints: const BoxConstraints(),
                   onPressed: () {
-                    audioPlayerService.stop();
+                    audioPlayerService.stopAudio();
                   },
                   icon: const Icon(Icons.close_rounded),
                 )

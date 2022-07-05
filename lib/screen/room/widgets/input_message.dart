@@ -154,7 +154,7 @@ class InputMessageWidgetState extends State<InputMessage> {
     noActivitySubject.listen((event) {
       _messageRepo.sendActivity(widget.currentRoom.uid.asUid(), event);
     });
-    _audioService.recordingDurationStream.listen((value) {
+    _audioService.recordingDuration.listen((value) {
       if (value.compareTo(Duration.zero) > 0) {
         isTypingActivitySubject.add(ActivityType.RECORDING_VOICE);
       }
@@ -294,10 +294,10 @@ class InputMessageWidgetState extends State<InputMessage> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
                   StreamBuilder<bool>(
-                    stream: _audioService.recorderIsRecordingStream,
+                    stream: _audioService.recorderIsRecording,
                     builder: (ctx, snapshot) {
                       final isRecording = snapshot.data ?? false;
-                      final isInRecordingInCurrentRoom =
+                      final isRecordingInCurrentRoom =
                           _audioService.recordingRoom == widget.currentRoom.uid;
 
                       return Expanded(
@@ -307,9 +307,9 @@ class InputMessageWidgetState extends State<InputMessage> {
                             if (!isRecording) buildEmojiKeyboardActions(),
                             if (!isRecording) buildTextInput(theme),
                             if (!isRecording) buildDefaultActions(),
-                            if (isRecording && isInRecordingInCurrentRoom)
+                            if (isRecording && isRecordingInCurrentRoom)
                               const RecordAudioSlideWidget(),
-                            if (isRecording && !isInRecordingInCurrentRoom)
+                            if (isRecording && !isRecordingInCurrentRoom)
                               Expanded(
                                 child: IconButton(
                                   icon: SizedBox(
