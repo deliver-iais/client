@@ -1,5 +1,4 @@
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/services/audio_modules/recorder_module.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/time.dart';
@@ -73,14 +72,14 @@ class RecordAudioSlideWidget extends StatelessWidget {
                       height: 32,
                       decoration: BoxDecoration(
                         borderRadius: mainBorder,
-                        color: theme.colorScheme.primary,
+                        color: theme.colorScheme.primaryContainer,
                       ),
                       child: StreamBuilder<bool>(
                         stream: _audioService.recorderIsPaused,
                         builder: (context, snapshot) {
                           final isPaused = snapshot.data ?? false;
                           return IconButton(
-                            color: theme.colorScheme.onPrimary,
+                            color: theme.colorScheme.onPrimaryContainer,
                             onPressed: () {
                               _audioService.toggleRecorderPause();
                             },
@@ -100,12 +99,12 @@ class RecordAudioSlideWidget extends StatelessWidget {
                       height: 32,
                       decoration: BoxDecoration(
                         borderRadius: mainBorder,
-                        color: theme.colorScheme.primary,
+                        color: theme.colorScheme.primaryContainer,
                       ),
                       child: IconButton(
                         icon: Icon(
                           CupertinoIcons.clear_thick,
-                          color: theme.colorScheme.onPrimary,
+                          color: theme.colorScheme.onPrimaryContainer,
                         ),
                         padding: EdgeInsets.zero,
                         onPressed: () {

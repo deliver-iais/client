@@ -4,7 +4,6 @@ import 'dart:math';
 
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/file_service.dart';
-import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/vibration.dart';
 import 'package:get_it/get_it.dart';
@@ -21,7 +20,6 @@ class RecorderModule {
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
   final _fileService = GetIt.I.get<FileService>();
   final _logger = GetIt.I.get<Logger>();
-  final _routingService = GetIt.I.get<RoutingService>();
   final _recorder = Record();
   final _uuid = const Uuid();
   final _hasPermission = BehaviorSubject.seeded(false);
@@ -31,7 +29,7 @@ class RecorderModule {
   final recordingAmplitudeStream = BehaviorSubject.seeded(0.0);
   final isLockedSteam = BehaviorSubject.seeded(false);
   final isPaused = BehaviorSubject.seeded(false);
-  String? recordingRoom;
+  String recordingRoom = "";
 
   final _onCompleteCallbackStream =
       BehaviorSubject<RecordOnCompleteCallback?>();
@@ -110,9 +108,6 @@ class RecorderModule {
   }) async {
     if (isRecordingStream.valueOrNull ?? false) {
       await togglePause();
-      if (recordingRoom != null) {
-        _routingService.openRoom(recordingRoom!);
-      }
       return;
     } else {
       recordingRoom = roomUid;
@@ -188,7 +183,7 @@ class RecorderModule {
     _logger.wtf("recording ended");
 
     isRecordingStream.add(false);
-    recordingRoom = null;
+    recordingRoom = "";
 
     quickVibrate();
 
@@ -216,7 +211,7 @@ class RecorderModule {
   Future<void> cancel() {
     _logger.wtf("1.recording canceled");
     isRecordingStream.add(false);
-    recordingRoom = null;
+    recordingRoom = "";
     quickVibrate();
 
     _onCancelCallbackStream.valueOrNull?.call();

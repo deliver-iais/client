@@ -22,6 +22,7 @@ import 'package:deliver/screen/room/widgets/show_mention_list.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
@@ -89,6 +90,7 @@ class InputMessageWidgetState extends State<InputMessage> {
   static final _mucRepo = GetIt.I.get<MucRepo>();
   static final _botRepo = GetIt.I.get<BotRepo>();
   static final _audioService = GetIt.I.get<AudioService>();
+  static final _routingService = GetIt.I.get<RoutingService>();
 
   late Room currentRoom;
   final BehaviorSubject<bool> _showEmojiKeyboard =
@@ -295,6 +297,9 @@ class InputMessageWidgetState extends State<InputMessage> {
                     stream: _audioService.recorderIsRecordingStream,
                     builder: (ctx, snapshot) {
                       final isRecording = snapshot.data ?? false;
+                      final isInRecordingInCurrentRoom =
+                          _audioService.recordingRoom == widget.currentRoom.uid;
+
                       return Expanded(
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.end,
@@ -302,7 +307,24 @@ class InputMessageWidgetState extends State<InputMessage> {
                             if (!isRecording) buildEmojiKeyboardActions(),
                             if (!isRecording) buildTextInput(theme),
                             if (!isRecording) buildDefaultActions(),
-                            if (isRecording) const RecordAudioSlideWidget()
+                            if (isRecording && isInRecordingInCurrentRoom)
+                              const RecordAudioSlideWidget(),
+                            if (isRecording && !isInRecordingInCurrentRoom)
+                              Expanded(
+                                child: IconButton(
+                                  icon: SizedBox(
+                                    width: double.infinity,
+                                    child: TextButton(
+                                      onPressed: () => _routingService.openRoom(
+                                        _audioService.recordingRoom,
+                                      ),
+                                      // color: theme.colorScheme.primary,
+                                      child: const Text("Open Recording Room"),
+                                    ),
+                                  ),
+                                  onPressed: () {},
+                                ),
+                              )
                           ],
                         ),
                       );

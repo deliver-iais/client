@@ -170,7 +170,7 @@ class AudioService {
 
   ValueStream<bool> get recorderIsPaused => _recorder.isPaused;
 
-  String? get recordingRoom => _recorder.recordingRoom;
+  String get recordingRoom => _recorder.recordingRoom;
 
   ValueStream<Duration> get recordingDurationStream =>
       _recorder.recordingDurationStream;

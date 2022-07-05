@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:deliver/services/audio_modules/recorder_module.dart';
 import 'package:deliver/services/audio_service.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -12,6 +13,7 @@ import 'package:rxdart/rxdart.dart';
 
 class RecordAudioAnimation extends StatelessWidget {
   static final _audioService = GetIt.I.get<AudioService>();
+  static final _routingService = GetIt.I.get<RoutingService>();
   final RecordOnCompleteCallback? onComplete;
   final RecordOnCancelCallback? onCancel;
   final Uid roomUid;
@@ -161,13 +163,13 @@ class RecordAudioAnimation extends StatelessWidget {
                                   : Colors.transparent,
                               borderRadius: BorderRadius.only(
                                 topLeft: Radius.circular(
-                                  10.0 * Random().nextDouble() + 25 * scale / 2,
+                                  5.0 * Random().nextDouble() + 25 * scale / 2,
                                 ),
                                 topRight: Radius.circular(
-                                  15.0 * Random().nextDouble() + 20 * scale / 2,
+                                  10.0 * Random().nextDouble() + 25 * scale / 2,
                                 ),
                                 bottomLeft: Radius.circular(
-                                  15.0 * Random().nextDouble() + 20 * scale / 2,
+                                  10.0 * Random().nextDouble() + 25 * scale / 2,
                                 ),
                                 bottomRight:
                                     Radius.circular(25.0 + 10 * scale / 2),
@@ -185,15 +187,9 @@ class RecordAudioAnimation extends StatelessWidget {
                                     showSendButtonInsteadOfMicrophone
                                         ? CupertinoIcons.arrow_up
                                         : CupertinoIcons.mic,
-                                    color: isRecording
-                                        ? theme.colorScheme.onError
-                                        : Colors.transparent,
+                                    color: Colors.transparent,
                                   ),
-                                  onPressed: () {
-                                    if (showSendButtonInsteadOfMicrophone) {
-                                      _audioService.endRecording();
-                                    }
-                                  },
+                                  onPressed: () {},
                                 );
                               },
                             ),
@@ -212,12 +208,11 @@ class RecordAudioAnimation extends StatelessWidget {
                   return MouseRegion(
                     cursor: SystemMouseCursors.click,
                     child: GestureDetector(
-                      onTapDown: (_) =>
-                          _audioService.checkRecorderPermission(),
+                      onTapDown: (_) => _audioService.checkRecorderPermission(),
                       onTapUp: (_) {
                         if (isRecording &&
-                            (_audioService
-                                    .recorderIsLockedSteam.valueOrNull ??
+                            isRecordingInCurrentRoom &&
+                            (_audioService.recorderIsLockedSteam.valueOrNull ??
                                 false)) {
                           _audioService.endRecording();
                         }
@@ -234,15 +229,14 @@ class RecordAudioAnimation extends StatelessWidget {
                         _pointerOffset.add(Offset.zero);
                       },
                       onLongPressEnd: (_) {
-                        if (!(_audioService
-                                .recorderIsLockedSteam.valueOrNull ??
+                        if (!(_audioService.recorderIsLockedSteam.valueOrNull ??
                             false)) {
                           if (_pointerOffset.value.dy.abs() < 30 &&
                               _pointerOffset.value.dx < -100) {
                             if (!_isCanceled) {
                               _audioService.cancelRecording();
                             }
-                          } else {
+                          } else if (isRecordingInCurrentRoom) {
                             _audioService.endRecording();
                           }
                           _isCanceled = false;
@@ -288,15 +282,15 @@ class RecordAudioAnimation extends StatelessWidget {
                                   // width: 40,
                                   // height: 40,
                                   child: StreamBuilder<bool>(
-                                    stream:
-                                        _audioService.recorderIsLockedSteam,
+                                    stream: _audioService.recorderIsLockedSteam,
                                     builder: (context, snapshot) {
                                       final showSendButtonInsteadOfMicrophone =
                                           isRecording &&
                                               (snapshot.data ?? false);
                                       return IconButton(
                                         icon: Icon(
-                                          showSendButtonInsteadOfMicrophone
+                                          isRecordingInCurrentRoom &&
+                                                  showSendButtonInsteadOfMicrophone
                                               ? CupertinoIcons.arrow_up
                                               : CupertinoIcons.mic,
                                           color: isRecording
@@ -304,7 +298,11 @@ class RecordAudioAnimation extends StatelessWidget {
                                               : null,
                                         ),
                                         onPressed: () {
-                                          if (showSendButtonInsteadOfMicrophone) {
+                                          if (isRecording && !isRecordingInCurrentRoom) {
+                                            _routingService.openRoom(
+                                              _audioService.recordingRoom,
+                                            );
+                                          } else if (showSendButtonInsteadOfMicrophone) {
                                             _audioService.endRecording();
                                           }
                                         },
