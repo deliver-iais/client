@@ -242,7 +242,7 @@ class ContactRepo {
     }
   }
 
-  Stream<List<contact_model.Contact>> watchAll() =>
+  Stream<List<contact_model.Contact>> watchAllMessengerContacts() =>
       _contactDao.watchAllMessengerContacts();
 
   Future<List<contact_model.Contact>> getAllUserAsContact() =>

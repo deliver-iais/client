@@ -234,9 +234,11 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                             for (var i = 0;
                                 i < _createMucService.contacts.length;
                                 i++) {
-                              memberUidList.add(
-                                _createMucService.contacts[i].uid!.asUid(),
-                              );
+                              if (_createMucService.contacts[i].uid != null) {
+                                memberUidList.add(
+                                  _createMucService.contacts[i].uid!.asUid(),
+                                );
+                              }
                             }
                             if (widget.isChannel) {
                               if ((_channelIdKey.currentState?.validate() ??

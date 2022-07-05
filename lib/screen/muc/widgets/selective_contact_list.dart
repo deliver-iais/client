@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -127,6 +128,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                       snapshot.data != null &&
                       snapshot.data!.isNotEmpty) {
                     contacts = snapshot.data!
+                        .whereNot((element) => element.uid == null)
                         .where(
                           (element) =>
                               !_authRepo.isCurrentUser(element.uid!) &&
@@ -201,7 +203,9 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                           onPressed: () async {
                             final users = <Uid>[];
                             for (final contact in _createMucService.contacts) {
-                              users.add(contact.uid!.asUid());
+                              if (contact.uid != null) {
+                                users.add(contact.uid!.asUid());
+                              }
                             }
                             final usersAdd = await _mucRepo.sendMembers(
                               widget.mucUid!,

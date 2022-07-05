@@ -1724,7 +1724,7 @@ class MockContactRepo extends _i1.Mock implements _i56.ContactRepo {
       (super.noSuchMethod(Invocation.method(#sendNewContact, [contact]),
           returnValue: Future<bool>.value(false)) as _i19.Future<bool>);
   @override
-  _i19.Stream<List<_i58.Contact>> watchAll() =>
+  _i19.Stream<List<_i58.Contact>> watchAllMessengerContacts() =>
       (super.noSuchMethod(Invocation.method(#watchAll, []),
               returnValue: Stream<List<_i58.Contact>>.empty())
           as _i19.Stream<List<_i58.Contact>>);
