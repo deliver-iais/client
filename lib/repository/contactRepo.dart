@@ -120,7 +120,7 @@ class ContactRepo {
   Future<List<Contact>> _filterPhoneContactsToSend(
     List<Contact> phoneContacts,
   ) async {
-    final contacts = await _contactDao.getAll();
+    final contacts = await _contactDao.getAllContacts();
     for (final element in contacts) {
       phoneContacts.removeWhere(
         (pc) => (element.nationalNumber ==
@@ -143,7 +143,7 @@ class ContactRepo {
       const DeepCollectionEquality().hash("$name$nationalNumber");
 
   Future<void> sendNotSyncedContactInStartTime() async {
-    final contacts = await _contactDao.getNotMessengerContact();
+    final contacts = await _contactDao.getNotMessengerContacts();
     if (contacts != null && contacts.isNotEmpty) {
       unawaited(
         _sendContacts(
@@ -246,13 +246,13 @@ class ContactRepo {
     }
   }
 
-  Stream<List<contact_model.Contact>> watchAll() => _contactDao.watchAll();
+  Stream<List<contact_model.Contact>> watchAll() => _contactDao.watchAllMessengerContacts();
 
   Future<List<contact_model.Contact>?> getAllUserAsContact() =>
-      _contactDao.getAllUserAsContact();
+      _contactDao.getAllMessengerContacts();
 
   Stream<List<contact_model.Contact>?> getNotMessengerContactAsStream() =>
-      _contactDao.getNotMessengerContactAsStream();
+      _contactDao.watchNotMessengerContacts();
 
   Future<void> getContacts() async {
     try {

@@ -8,12 +8,6 @@ abstract class ContactDao {
 
   Future<Contact?> getByUid(String uid);
 
-  Future<List<Contact>> getAll();
-
-  Future<List<Contact>?> getAllUserAsContact();
-
-  Stream<List<Contact>> watchAll();
-
   Future<void> save({
     required int countryCode,
     required int nationalNumber,
@@ -25,9 +19,15 @@ abstract class ContactDao {
     int? updateTime,
   });
 
-  Future<List<Contact>?> getNotMessengerContact();
+  Future<List<Contact>> getAllContacts();
 
-  Stream<List<Contact>?> getNotMessengerContactAsStream();
+  Future<List<Contact>> getAllMessengerContacts();
+
+  Stream<List<Contact>> watchAllMessengerContacts();
+
+  Future<List<Contact>> getNotMessengerContacts();
+
+  Stream<List<Contact>> watchNotMessengerContacts();
 }
 
 class ContactDaoImpl implements ContactDao {
@@ -61,20 +61,20 @@ class ContactDaoImpl implements ContactDao {
   }
 
   @override
-  Future<List<Contact>> getAll() async {
+  Future<List<Contact>> getAllContacts() async {
     final box = await _open();
 
     return box.values.toList();
   }
 
   @override
-  Future<List<Contact>> getAllUserAsContact() async {
+  Future<List<Contact>> getAllMessengerContacts() async {
     final box = await _open();
     return box.values.where((element) => element.uid != null).toList();
   }
 
   @override
-  Stream<List<Contact>> watchAll() async* {
+  Stream<List<Contact>> watchAllMessengerContacts() async* {
     final box = await _open();
 
     yield box.values.where((element) => element.uid != null).toList();
@@ -122,7 +122,7 @@ class ContactDaoImpl implements ContactDao {
   }
 
   @override
-  Future<List<Contact>?> getNotMessengerContact() async {
+  Future<List<Contact>?> getNotMessengerContacts() async {
     try {
       final box = await _open();
       return box.values.where((element) => element.uid == null).toList();
@@ -132,7 +132,7 @@ class ContactDaoImpl implements ContactDao {
   }
 
   @override
-  Stream<List<Contact>?> getNotMessengerContactAsStream() async* {
+  Stream<List<Contact>?> watchNotMessengerContacts() async* {
     final box = await _open();
 
     yield box.values.where((element) => element.uid == null).toList();
