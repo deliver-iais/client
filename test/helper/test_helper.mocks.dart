@@ -774,6 +774,16 @@ class MockFileRepo extends _i1.Mock implements _i33.FileRepo {
   void cancelUploadFile(String? uuid) =>
       super.noSuchMethod(Invocation.method(#cancelUploadFile, [uuid]),
           returnValueForMissingStub: null);
+  @override
+  void saveFileToSpecifiedAddress(
+          String? path, String? name, String? address) =>
+      super.noSuchMethod(
+          Invocation.method(#saveFileToSpecifiedAddress, [path, name, address]),
+          returnValueForMissingStub: null);
+  @override
+  void copyFileToPasteboard(String? path) =>
+      super.noSuchMethod(Invocation.method(#copyFileToPasteboard, [path]),
+          returnValueForMissingStub: null);
 }
 
 /// A class which mocks [LiveLocationRepo].
@@ -1202,6 +1212,13 @@ class MockCoreServices extends _i1.Mock implements _i47.CoreServices {
 /// See the documentation for Mockito's code generation for more information.
 class MockQueryServiceClient extends _i1.Mock
     implements _i13.QueryServiceClient {
+  @override
+  _i8.ResponseFuture<_i13.GetTimeRes> getTime(_i13.GetTimeReq? request,
+          {_i8.CallOptions? options}) =>
+      (super.noSuchMethod(
+              Invocation.method(#getTime, [request], {#options: options}),
+              returnValue: _FakeResponseFuture_6<_i13.GetTimeRes>())
+          as _i8.ResponseFuture<_i13.GetTimeRes>);
   @override
   _i8.ResponseFuture<_i13.IdIsAvailableRes> idIsAvailable(
           _i13.IdIsAvailableReq? request,
@@ -1725,19 +1742,19 @@ class MockContactRepo extends _i1.Mock implements _i56.ContactRepo {
           returnValue: Future<bool>.value(false)) as _i19.Future<bool>);
   @override
   _i19.Stream<List<_i58.Contact>> watchAllMessengerContacts() =>
-      (super.noSuchMethod(Invocation.method(#watchAll, []),
+      (super.noSuchMethod(Invocation.method(#watchAllMessengerContacts, []),
               returnValue: Stream<List<_i58.Contact>>.empty())
           as _i19.Stream<List<_i58.Contact>>);
   @override
-  _i19.Future<List<_i58.Contact>?> getAllUserAsContact() =>
+  _i19.Future<List<_i58.Contact>> getAllUserAsContact() =>
       (super.noSuchMethod(Invocation.method(#getAllUserAsContact, []),
-              returnValue: Future<List<_i58.Contact>?>.value())
-          as _i19.Future<List<_i58.Contact>?>);
+              returnValue: Future<List<_i58.Contact>>.value(<_i58.Contact>[]))
+          as _i19.Future<List<_i58.Contact>>);
   @override
-  _i19.Stream<List<_i58.Contact>?> getNotMessengerContactAsStream() => (super
+  _i19.Stream<List<_i58.Contact>> getNotMessengerContactAsStream() => (super
           .noSuchMethod(Invocation.method(#getNotMessengerContactAsStream, []),
-              returnValue: Stream<List<_i58.Contact>?>.empty())
-      as _i19.Stream<List<_i58.Contact>?>);
+              returnValue: Stream<List<_i58.Contact>>.empty())
+      as _i19.Stream<List<_i58.Contact>>);
   @override
   _i19.Future<void> getContacts() => (super.noSuchMethod(
       Invocation.method(#getContacts, []),
