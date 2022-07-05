@@ -151,6 +151,10 @@ class AudioService {
 
   final _onDoneCallbackStream = BehaviorSubject<OnDoneCallback?>();
 
+  AudioService() {
+    _mainPlayer.completedStream.listen((_) => stop());
+  }
+
   ValueStream<AudioPlayerState> get stateStream => _mainPlayer.stateStream;
 
   Stream<AudioPlayerState> get temporaryStateStream =>
@@ -472,7 +476,6 @@ class JustAudioAudioPlayer implements AudioPlayerModule {
     _audioPlayer.playerStateStream.listen((event) async {
       if (event.processingState == just_audio.ProcessingState.completed) {
         _playerCompleted.add(null);
-        await _audioPlayer.stop();
       } else if (event.playing) {
         _audioCurrentState.add(AudioPlayerState.playing);
       }
@@ -503,8 +506,10 @@ class JustAudioAudioPlayer implements AudioPlayerModule {
 
   @override
   void stop() {
-    _audioCurrentState.add(AudioPlayerState.stopped);
-    _audioPlayer.stop();
+    try {
+      _audioCurrentState.add(AudioPlayerState.stopped);
+      _audioPlayer.stop();
+    } catch (_) {}
   }
 
   @override
