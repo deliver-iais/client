@@ -96,7 +96,7 @@ abstract class AudioPlayerModule {
 
   ValueStream<Duration> get positionStream;
 
-  ValueStream<void> get completedStream;
+  Stream<void> get completedStream;
 
   void play(String path);
 
@@ -379,8 +379,6 @@ class AudioPlayersIntermediatePlayer implements IntermediatePlayerModule {
 class AudioPlayersAudioPlayer implements AudioPlayerModule {
   final AudioPlayer _audioPlayer = AudioPlayer(playerId: "default-audio");
 
-  final _completedStream = BehaviorSubject();
-
   double playbackRate = 1.0;
 
   @override
@@ -388,25 +386,16 @@ class AudioPlayersAudioPlayer implements AudioPlayerModule {
       _audioPlayer.onPositionChanged.shareValueSeeded(Duration.zero);
 
   @override
-  ValueStream<void> get completedStream => _completedStream;
+  Stream<void> get completedStream => _audioPlayer.onPlayerComplete;
+
+  final _audioCurrentState = BehaviorSubject.seeded(AudioPlayerState.stopped);
 
   @override
-  ValueStream<AudioPlayerState> get stateStream =>
-      _audioPlayer.onPlayerStateChanged.map((event) {
-        switch (event) {
-          case PlayerState.stopped:
-            return AudioPlayerState.stopped;
-          case PlayerState.playing:
-            return AudioPlayerState.playing;
-          case PlayerState.paused:
-            return AudioPlayerState.paused;
-          case PlayerState.completed:
-            return AudioPlayerState.stopped;
-        }
-      }).shareValueSeeded(AudioPlayerState.stopped);
+  ValueStream<AudioPlayerState> get stateStream => _audioCurrentState;
 
   @override
   void play(String path) {
+    _audioCurrentState.add(AudioPlayerState.playing);
     _audioPlayer
       ..play(DeviceFileSource(path))
       ..setPlaybackRate(playbackRate);
@@ -420,17 +409,20 @@ class AudioPlayersAudioPlayer implements AudioPlayerModule {
   @override
   void pause() {
     if (_audioPlayer.state == PlayerState.playing) {
+      _audioCurrentState.add(AudioPlayerState.paused);
       _audioPlayer.pause();
     }
   }
 
   @override
   void stop() {
+    _audioCurrentState.add(AudioPlayerState.stopped);
     _audioPlayer.stop();
   }
 
   @override
   void resume() {
+    _audioCurrentState.add(AudioPlayerState.playing);
     _audioPlayer
       ..resume()
       ..setPlaybackRate(playbackRate);
@@ -465,7 +457,7 @@ class JustAudioAudioPlayer implements AudioPlayerModule {
   final _playerCompleted = BehaviorSubject<void>();
 
   @override
-  ValueStream get completedStream => _playerCompleted;
+  Stream get completedStream => _playerCompleted;
 
   final _audioCurrentState = BehaviorSubject.seeded(AudioPlayerState.stopped);
 
@@ -476,8 +468,6 @@ class JustAudioAudioPlayer implements AudioPlayerModule {
     _audioPlayer.playerStateStream.listen((event) async {
       if (event.processingState == just_audio.ProcessingState.completed) {
         _playerCompleted.add(null);
-      } else if (event.playing) {
-        _audioCurrentState.add(AudioPlayerState.playing);
       }
     });
   }
@@ -487,6 +477,7 @@ class JustAudioAudioPlayer implements AudioPlayerModule {
     try {
       await _audioPlayer.setFilePath(path, initialPosition: Duration.zero);
       await _audioPlayer.seek(Duration.zero);
+      _audioCurrentState.add(AudioPlayerState.playing);
       await _audioPlayer.play();
     } catch (e) {
       _logger.e(e);
