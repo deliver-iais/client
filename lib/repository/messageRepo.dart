@@ -136,12 +136,16 @@ class MessageRepo {
     final rooms = await _roomDao.getNotSyncedRoom();
     if (rooms.isNotEmpty) {
       for (final room in rooms) {
-        await fetchRoomLastMessage(
-          room.uid,
-          room.lastMessageId,
-          room.firstMessageId,
-        );
-        _updateLastSeen(room).ignore();
+        if (!room.synced) {
+          await fetchRoomLastMessage(
+            room.uid,
+            room.lastMessageId,
+            room.firstMessageId,
+          );
+        }
+        if (!room.seenSynced) {
+          _updateLastSeen(room).ignore();
+        }
       }
     }
   }

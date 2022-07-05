@@ -174,7 +174,10 @@ class RoomDaoImpl implements RoomDao {
     try {
       final box = await _openRoom();
       return box.values
-          .where((element) => element.lastMessage == null)
+          .where(
+            (element) =>
+                !element.deleted && (!element.synced || !element.seenSynced),
+          )
           .toList();
     } catch (e) {
       return [];
