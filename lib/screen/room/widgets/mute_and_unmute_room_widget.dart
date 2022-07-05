@@ -68,7 +68,7 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
   Widget buildStreamBuilder() {
     return SizedBox(
       width: double.infinity,
-      height: 45,
+      height: 42,
       child: StreamBuilder<bool>(
         stream: _roomRepo.watchIsRoomMuted(widget.roomId),
         builder: (context, isMuted) {

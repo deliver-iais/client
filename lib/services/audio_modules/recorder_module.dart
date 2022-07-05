@@ -2,32 +2,24 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:math';
 
-import 'package:clock/clock.dart';
-import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/file_service.dart';
-import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/vibration.dart';
-import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:record/record.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:uuid/uuid.dart';
 
-import 'routing_service.dart';
-
 typedef RecordOnCompleteCallback = void Function(String?);
 typedef RecordOnCancelCallback = void Function();
 typedef RecordFinallyCallback = void Function();
 
-class RecorderService {
-  final _audioPlayerService = GetIt.I.get<AudioService>();
+class RecorderModule {
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
   final _fileService = GetIt.I.get<FileService>();
   final _logger = GetIt.I.get<Logger>();
-  final _routingService = GetIt.I.get<RoutingService>();
   final _recorder = Record();
   final _uuid = const Uuid();
   final _hasPermission = BehaviorSubject.seeded(false);
@@ -37,15 +29,13 @@ class RecorderService {
   final recordingAmplitudeStream = BehaviorSubject.seeded(0.0);
   final isLockedSteam = BehaviorSubject.seeded(false);
   final isPaused = BehaviorSubject.seeded(false);
-  final recordingRoomStream = BehaviorSubject<Uid?>();
+  String recordingRoom = "";
 
-  final _recordingFinallyCallbackStream =
-      BehaviorSubject<RecordFinallyCallback?>();
   final _onCompleteCallbackStream =
       BehaviorSubject<RecordOnCompleteCallback?>();
   final _onCancelCallbackStream = BehaviorSubject<RecordOnCancelCallback?>();
 
-  RecorderService() {
+  RecorderModule() {
     isRecordingStream.listen((isRecording) {
       if (!isRecording) {
         isLockedSteam.add(false);
@@ -57,7 +47,7 @@ class RecorderService {
 
     final tickerStream = isRecordingStream.switchMap((isRecording) {
       if (isRecording) {
-        return timedCounter(
+        return _timedCounter(
           const Duration(milliseconds: 100),
         );
       } else {
@@ -88,7 +78,7 @@ class RecorderService {
     );
   }
 
-  Stream<int> timedCounter(Duration interval, [int? maxCount]) async* {
+  Stream<int> _timedCounter(Duration interval, [int? maxCount]) async* {
     var i = 0;
     while (true) {
       await Future.delayed(interval);
@@ -114,14 +104,13 @@ class RecorderService {
   Future<void> start({
     RecordOnCompleteCallback? onComplete,
     RecordOnCancelCallback? onCancel,
-    required Uid roomUid,
+    required String roomUid,
   }) async {
     if (isRecordingStream.valueOrNull ?? false) {
       await togglePause();
-      _routingService.openRoom(recordingRoomStream.value!.asString());
       return;
     } else {
-      recordingRoomStream.add(roomUid);
+      recordingRoom = roomUid;
     }
 
     if (!_hasPermission.value) {
@@ -156,20 +145,10 @@ class RecorderService {
 
     _logger.wtf("recording path: [$path]");
 
-    if (_audioPlayerService.audioCurrentState.value ==
-        AudioPlayerState.playing) {
-      _audioPlayerService.pause();
-      _recordingFinallyCallbackStream.add(_audioPlayerService.resume);
-    }
-
-    _logger.i("recorder starting await $clock.now().millisecondsSinceEpoch");
-
     await _recorder.start(
       path: path,
       encoder: fileEncoder,
     );
-
-    _logger.i("recorder start $clock.now().millisecondsSinceEpoch");
 
     _onCompleteCallbackStream.add(onComplete);
     _onCancelCallbackStream.add(onCancel);
@@ -204,7 +183,7 @@ class RecorderService {
     _logger.wtf("recording ended");
 
     isRecordingStream.add(false);
-    recordingRoomStream.add(null);
+    recordingRoom = "";
 
     quickVibrate();
 
@@ -225,9 +204,6 @@ class RecorderService {
     }
 
     _onCompleteCallbackStream.valueOrNull?.call(path);
-    _recordingFinallyCallbackStream.valueOrNull?.call();
-
-    _recordingFinallyCallbackStream.add(null);
 
     return;
   }
@@ -235,13 +211,10 @@ class RecorderService {
   Future<void> cancel() {
     _logger.wtf("1.recording canceled");
     isRecordingStream.add(false);
-    recordingRoomStream.add(null);
+    recordingRoom = "";
     quickVibrate();
 
     _onCancelCallbackStream.valueOrNull?.call();
-    _recordingFinallyCallbackStream.valueOrNull?.call();
-
-    _recordingFinallyCallbackStream.add(null);
 
     return _recorder.stop();
   }

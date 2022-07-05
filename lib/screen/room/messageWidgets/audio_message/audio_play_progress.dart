@@ -25,33 +25,27 @@ class AudioPlayProgress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<bool>(
-      stream: _audioPlayerService.audioCenterIsOn,
-      builder: (context, snapshot) {
+    return StreamBuilder<AudioPlayerState>(
+      stream: _audioPlayerService.playerState,
+      builder: (context, stateSnapshot) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            StreamBuilder<AudioPlayerState>(
-              stream: _audioPlayerService.audioCurrentState,
-              builder: (c, state) {
-                if (state.data != null &&
-                    (state.data == AudioPlayerState.playing ||
-                        state.data == AudioPlayerState.paused)) {
-                  return StreamBuilder(
-                    stream: _audioPlayerService.audioUuid,
-                    builder: (c, uuid) {
-                      if (uuid.hasData &&
-                          uuid.data.toString().isNotEmpty &&
-                          uuid.data.toString().contains(audioUuid)) {
-                        return AudioProgressIndicator(
-                          maxWidth: maxWidth,
-                          colorScheme: colorScheme,
-                          audioUuid: audioUuid,
-                        );
-                      } else {
-                        return buildPadding(context);
-                      }
-                    },
+            StreamBuilder<AudioTrack?>(
+              stream: _audioPlayerService.track,
+              builder: (c, trackSnapshot) {
+                final state = stateSnapshot.data ?? AudioPlayerState.stopped;
+                final track =
+                    trackSnapshot.data ?? AudioTrack.emptyAudioTrack();
+
+                if (audioUuid.contains(track.uuid) &&
+                    state != AudioPlayerState.stopped) {
+                  return AudioProgressIndicator(
+                    maxWidth: maxWidth,
+                    colorScheme: colorScheme,
+                    audioUuid: track.uuid,
+                    audioPath: track.path,
+                    audioDuration: track.duration,
                   );
                 } else {
                   return buildPadding(context);
