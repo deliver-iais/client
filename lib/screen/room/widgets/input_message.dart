@@ -277,6 +277,9 @@ class InputMessageWidgetState extends State<InputMessage> {
               stream: _botCommandQuery.distinct(),
               builder: (c, show) {
                 _botCommandData = show.data ?? "-";
+                if (_botCommandData == "-") {
+                  botCommandSelectedIndex = 0;
+                }
                 return BotCommands(
                   botUid: widget.currentRoom.uid.asUid(),
                   query: _botCommandData,
@@ -466,9 +469,12 @@ class InputMessageWidgetState extends State<InputMessage> {
                 icon: const Icon(
                   CupertinoIcons.slash_circle,
                 ),
-                onPressed: () => _botCommandQuery.add(
-                  _botCommandQuery.value == "-" ? "" : "-",
-                ),
+                onPressed: () => {
+                  widget.focusNode.requestFocus(),
+                  _botCommandQuery.add(
+                    _botCommandQuery.value == "-" ? "" : "-",
+                  ),
+                },
               ),
             if ((isWindows || isMacOS) &&
                 !showSendButton &&
