@@ -269,6 +269,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                     mentionSelectedIndex: mentionSelectedIndex,
                   );
                 }
+                mentionSelectedIndex = 1;
                 return const SizedBox.shrink();
               },
             ),
@@ -619,9 +620,7 @@ class InputMessageWidgetState extends State<InputMessage> {
       if (widget.editableMessage == null) {
         Future.delayed(const Duration(milliseconds: 100), () {}).then((_) {
           if (widget.editableMessage != null) {
-            widget.textController.selection = TextSelection.collapsed(
-              offset: widget.textController.text.length,
-            );
+            moveCursorToEnd();
           }
         });
       }
@@ -632,7 +631,9 @@ class InputMessageWidgetState extends State<InputMessage> {
     if (event is RawKeyDownEvent &&
         {PhysicalKeyboardKey.arrowUp, PhysicalKeyboardKey.arrowDown}
             .contains(event.physicalKey)) {
-      _handleArrow(event);
+      if (_mentionQuery.value == null && _botCommandQuery.value == "-") {
+        _handleArrow(event);
+      }
     }
     if (event is RawKeyUpEvent &&
         event.physicalKey == PhysicalKeyboardKey.delete) {
@@ -733,6 +734,9 @@ class InputMessageWidgetState extends State<InputMessage> {
   }
 
   void scrollUpInBotCommand() {
+    Future.delayed(const Duration(), () {}).then((_) {
+      moveCursorToEnd();
+    });
     var length = 0;
     if (botCommandSelectedIndex <= 0) {
       _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then(
@@ -794,12 +798,15 @@ class InputMessageWidgetState extends State<InputMessage> {
           .getFilteredMember(currentRoom.uid, query: _mentionQuery.value)
           .then(
             (value) => {
-              mentionSelectedIndex = value.length - 1,
+              mentionSelectedIndex = value.length,
             },
           );
     } else {
       mentionSelectedIndex--;
     }
+    Future.delayed(const Duration(), () {
+      moveCursorToEnd();
+    });
   }
 
   void sendMessage() {
@@ -927,6 +934,12 @@ class InputMessageWidgetState extends State<InputMessage> {
         text = widget.editableMessage!.json.toFile().caption;
     }
     return "$text ";
+  }
+
+  void moveCursorToEnd() {
+    widget.textController.selection = TextSelection.collapsed(
+      offset: widget.textController.text.length,
+    );
   }
 }
 
