@@ -182,7 +182,7 @@ class InputMessageWidgetState extends State<InputMessage> {
           widget.textController.text
               .substring(0 + 1, widget.textController.selection.start),
         );
-      } else if (widget.textController.text.isEmpty) {
+      } else  {
         _botCommandQuery.add("-");
       }
 
