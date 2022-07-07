@@ -639,24 +639,17 @@ class InputMessageWidgetState extends State<InputMessage> {
         event.physicalKey == PhysicalKeyboardKey.delete) {
       widget.deleteSelectedMessage();
     }
-    if (!_uxService.sendByEnter &&
-        event.isShiftPressed &&
+    if (((!_uxService.sendByEnter && event.isShiftPressed) ||
+            (_uxService.sendByEnter)) &&
         isEnterClicked(event)) {
       if (widget.currentRoom.uid.isGroup() &&
           mentionSelectedIndex >= 0 &&
           _mentionQuery.value != null) {
         addMentionByEnter();
-      } else {
-        sendMessage();
-      }
-      return KeyEventResult.handled;
-    } else if (_uxService.sendByEnter &&
-        !event.isShiftPressed &&
-        isEnterClicked(event)) {
-      if (widget.currentRoom.uid.isGroup() &&
-          mentionSelectedIndex >= 0 &&
-          _mentionQuery.value != null) {
-        addMentionByEnter();
+      } else if (widget.currentRoom.uid.isBot() &&
+          botCommandSelectedIndex >= 0 &&
+          _botCommandQuery.value != "-") {
+        sendBotCommandByEnter();
       } else {
         sendMessage();
       }
@@ -690,7 +683,6 @@ class InputMessageWidgetState extends State<InputMessage> {
           event,
           scrollDownInBotCommand,
           scrollUpInBotCommand,
-          sendBotCommandByEnter,
           _botCommandData,
         );
       });
