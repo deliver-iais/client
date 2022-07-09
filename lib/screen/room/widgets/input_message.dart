@@ -815,6 +815,7 @@ class InputMessageWidgetState extends State<InputMessage> {
     }
     if (widget.waitingForForward == true) {
       widget.sendForwardMessage?.call();
+      widget.resetRoomPageDetails!();
     }
 
     final text = _shouldSynthesize
