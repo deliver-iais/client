@@ -75,7 +75,7 @@ class AuthRepo {
         ..phoneNumber = p
         ..type = VerificationType.SMS
         ..platform = platform,
-      options: CallOptions(timeout: const Duration(seconds: 10)),
+      options: CallOptions(timeout: const Duration(seconds: 30)),
     );
   }
 

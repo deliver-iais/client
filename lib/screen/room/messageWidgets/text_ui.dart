@@ -9,6 +9,9 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/loaders/spoiler_loader.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
+import 'package:deliver/shared/parsers/detectors.dart';
+import 'package:deliver/shared/parsers/parsers.dart';
+import 'package:deliver/shared/parsers/transformers.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -45,52 +48,65 @@ class TextUI extends StatelessWidget {
     final theme = Theme.of(context);
 
     final text = extractText(message);
-    final blocks = extractBlocks(
-      text,
-      onUsernameClick: onUsernameClick,
-      context: context,
-      isBotMessage: isBotMessage,
-      onBotCommandClick: onBotCommandClick,
-      searchTerm: searchTerm,
-      onPrimaryContainer: colorScheme.onPrimaryContainer,
-    );
-    final spans = blocks.map<InlineSpan>((b) {
-      var tap = b.text;
-      if (b.type == BlockTypes.INLINE_URL) {
-        tap = b.matchText;
-      }
-      if (b.type == BlockTypes.SPOILER) {
-        return WidgetSpan(
-          baseline: TextBaseline.ideographic,
-          alignment: PlaceholderAlignment.middle,
-          child: SpoilerLoader(
-            b.text,
-            foreground: colorScheme.onPrimaryContainer,
-          ),
-        );
-      }
-      return TextSpan(
-        text: b.text,
-        style: b.style,
-        recognizer: (b.onTap != null)
-            ? (TapGestureRecognizer()..onTap = () => b.onTap!(tap))
-            : null,
-      );
-    }).toList();
-    String link;
-    try {
-      link = blocks.firstWhere((b) => b.type == BlockTypes.URL).text;
-    } catch (e) {
-      link = "";
-    }
 
-    final double linkPreviewMaxWidth = min(
-      blocks
-              .map((b) => b.text.length)
-              .reduce((value, element) => value < element ? element : value) *
-          6.85,
-      maxWidth,
+    final spans = onePath(
+      [Block(text: text, features: {})],
+      detectorsWithSearchTermDetector("asd"),
+      inlineSpanTransformer(
+        defaultColor: colorScheme.onPrimaryContainer,
+        linkColor: theme.colorScheme.primary,
+        onIdClick: onUsernameClick,
+        onBotCommandClick: onBotCommandClick,
+        onUrlClick: (text) => onUrlTap(text, context),
+      ),
     );
+
+    // final blocks = extractBlocks(
+    //   text,
+    //   onUsernameClick: onUsernameClick,
+    //   context: context,
+    //   isBotMessage: isBotMessage,
+    //   onBotCommandClick: onBotCommandClick,
+    //   searchTerm: searchTerm,
+    //   onPrimaryContainer: colorScheme.onPrimaryContainer,
+    // );
+    // final spans = blocks.map<InlineSpan>((b) {
+    //   var tap = b.text;
+    //   if (b.type == BlockTypes.INLINE_URL) {
+    //     tap = b.matchText;
+    //   }
+    //   if (b.type == BlockTypes.SPOILER) {
+    //     return WidgetSpan(
+    //       baseline: TextBaseline.ideographic,
+    //       alignment: PlaceholderAlignment.middle,
+    //       child: SpoilerLoader(
+    //         b.text,
+    //         foreground: colorScheme.onPrimaryContainer,
+    //       ),
+    //     );
+    //   }
+    //   return TextSpan(
+    //     text: b.text,
+    //     style: b.style,
+    //     recognizer: (b.onTap != null)
+    //         ? (TapGestureRecognizer()..onTap = () => b.onTap!(tap))
+    //         : null,
+    //   );
+    // }).toList();
+    String link;
+    // try {
+    //   link = blocks.firstWhere((b) => b.type == BlockTypes.URL).text;
+    // } catch (e) {
+    //   link = "";
+    // }
+    //
+    // final double linkPreviewMaxWidth = min(
+    //   blocks
+    //           .map((b) => b.text.length)
+    //           .reduce((value, element) => value < element ? element : value) *
+    //       6.85,
+    //   maxWidth,
+    // );
 
     return Container(
       constraints: BoxConstraints(maxWidth: maxWidth, minWidth: minWidth),
@@ -105,13 +121,13 @@ class TextUI extends StatelessWidget {
             textDirection:
                 text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
           ),
-          LinkPreview(
-            link: link,
-            maxWidth: linkPreviewMaxWidth,
-            backgroundColor:
-                Theme.of(context).colorScheme.shadow.withOpacity(0.1),
-            foregroundColor: colorScheme.primary,
-          ),
+          // LinkPreview(
+          //   link: link,
+          //   maxWidth: linkPreviewMaxWidth,
+          //   backgroundColor:
+          //       Theme.of(context).colorScheme.shadow.withOpacity(0.1),
+          //   foregroundColor: colorScheme.primary,
+          // ),
           TimeAndSeenStatus(
             message,
             isSender: isSender,
@@ -134,7 +150,7 @@ class TextUI extends StatelessWidget {
   }
 }
 
-List<Block> extractBlocks(
+List<BlockOld> extractBlocks(
   String text, {
   BuildContext? context,
   Color? onPrimaryContainer,
@@ -144,8 +160,8 @@ List<Block> extractBlocks(
   bool isBotMessage = false,
   String Function(String)? spoilTransformer,
 }) {
-  var blocks = <Block>[
-    Block(
+  var blocks = <BlockOld>[
+    BlockOld(
       text: text,
       style: TextStyle(color: onPrimaryContainer),
     )
@@ -190,7 +206,7 @@ Future<void> onUrlTap(String uri, BuildContext context) async {
 }
 
 abstract class Parser {
-  List<Block> parse(List<Block> blocks, BuildContext? context);
+  List<BlockOld> parse(List<BlockOld> blocks, BuildContext? context);
 }
 
 class UrlParser implements Parser {
@@ -201,7 +217,8 @@ class UrlParser implements Parser {
   const UrlParser();
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
+  List<BlockOld> parse(List<BlockOld> blocks, BuildContext? context) =>
+      parseBlocks(
         blocks,
         regex,
         BlockTypes.URL,
@@ -219,7 +236,8 @@ class IdParser implements Parser {
   IdParser(this.onUsernameClick);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
+  List<BlockOld> parse(List<BlockOld> blocks, BuildContext? context) =>
+      parseBlocks(
         blocks,
         regex,
         BlockTypes.ID,
@@ -240,7 +258,8 @@ class BoldTextParser implements Parser {
   }
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
+  List<BlockOld> parse(List<BlockOld> blocks, BuildContext? context) =>
+      parseBlocks(
         blocks,
         regex,
         BlockTypes.BOLD,
@@ -258,7 +277,8 @@ class ItalicTextParser implements Parser {
       m.substring(m.indexOf("_") + 1, m.lastIndexOf("_"));
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
+  List<BlockOld> parse(List<BlockOld> blocks, BuildContext? context) =>
+      parseBlocks(
         blocks,
         regex,
         BlockTypes.ITALIC,
@@ -278,7 +298,8 @@ class UnderlineTextParser implements Parser {
       m.substring(m.indexOf("__") + 2, m.lastIndexOf("__"));
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
+  List<BlockOld> parse(List<BlockOld> blocks, BuildContext? context) =>
+      parseBlocks(
         blocks,
         regex,
         BlockTypes.UNDERLINE,
@@ -298,7 +319,8 @@ class StrikethroughTextParser implements Parser {
       m.substring(m.indexOf("~") + 1, m.lastIndexOf("~"));
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
+  List<BlockOld> parse(List<BlockOld> blocks, BuildContext? context) =>
+      parseBlocks(
         blocks,
         regex,
         BlockTypes.STRIKETHROUGH,
@@ -321,7 +343,8 @@ class SpoilerTextParser implements Parser {
   });
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
+  List<BlockOld> parse(List<BlockOld> blocks, BuildContext? context) =>
+      parseBlocks(
         blocks,
         regex,
         BlockTypes.SPOILER,
@@ -342,7 +365,8 @@ class InlineUrlTextParser implements Parser {
   }
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
+  List<BlockOld> parse(List<BlockOld> blocks, BuildContext? context) =>
+      parseBlocks(
         blocks,
         regex,
         BlockTypes.INLINE_URL,
@@ -367,7 +391,8 @@ class EmojiParser implements Parser {
   const EmojiParser();
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
+  List<BlockOld> parse(List<BlockOld> blocks, BuildContext? context) =>
+      parseBlocks(
         blocks,
         regex,
         BlockTypes.EMOJI,
@@ -382,7 +407,8 @@ class BotCommandParser implements Parser {
   BotCommandParser(this.onBotCommandClick);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
+  List<BlockOld> parse(List<BlockOld> blocks, BuildContext? context) =>
+      parseBlocks(
         blocks,
         regex,
         BlockTypes.BOT_COMMAND,
@@ -399,7 +425,8 @@ class SearchTermParser implements Parser {
   SearchTermParser(this.searchTerm);
 
   @override
-  List<Block> parse(List<Block> blocks, BuildContext? context) => parseBlocks(
+  List<BlockOld> parse(List<BlockOld> blocks, BuildContext? context) =>
+      parseBlocks(
         blocks,
         RegExp(searchTerm),
         BlockTypes.SEARCH_TERM,
@@ -440,7 +467,7 @@ enum BlockTypes {
   URL,
 }
 
-class Block {
+class BlockOld {
   final BlockTypes type;
   final String text;
   final bool locked;
@@ -448,7 +475,7 @@ class Block {
   final void Function(String)? onTap;
   final TextStyle? style;
 
-  Block({
+  BlockOld({
     this.matchText = "",
     this.type = BlockTypes.DEFAULT,
     required this.text,
@@ -458,8 +485,8 @@ class Block {
   });
 }
 
-List<Block> parseBlocks(
-  List<Block> blocks,
+List<BlockOld> parseBlocks(
+  List<BlockOld> blocks,
   RegExp regex,
   BlockTypes type, {
   void Function(String)? onTap,
@@ -467,7 +494,7 @@ List<Block> parseBlocks(
   String Function(String) transformer = same,
 }) =>
     flatten(
-      blocks.map<Iterable<Block>>((b) {
+      blocks.map<Iterable<BlockOld>>((b) {
         if (b.locked) {
           return [b];
         } else {
@@ -483,7 +510,7 @@ List<Block> parseBlocks(
       }),
     ).toList();
 
-List<Block> parseText(
+List<BlockOld> parseText(
   String text,
   RegExp regex,
   void Function(String)? onTap,
@@ -498,13 +525,13 @@ List<Block> parseText(
 
   final matches = regex.allMatches(text);
 
-  final result = <Block>[];
+  final result = <BlockOld>[];
 
   for (final match in matches) {
     result
-      ..add(Block(text: text.substring(start, match.start)))
+      ..add(BlockOld(text: text.substring(start, match.start)))
       ..add(
-        Block(
+        BlockOld(
           matchText: match[0]!,
           text: transformer(match[0]!),
           onTap: onTap,
@@ -516,7 +543,7 @@ List<Block> parseText(
     start = match.end;
   }
 
-  result.add(Block(text: text.substring(start)));
+  result.add(BlockOld(text: text.substring(start)));
 
   return result;
 }

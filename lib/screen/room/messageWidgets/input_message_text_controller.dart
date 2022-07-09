@@ -8,7 +8,7 @@ class InputMessageTextController extends TextEditingController {
     TextStyle? style,
     required bool withComposing,
   }) {
-    var blocks = <Block>[Block(text: text)];
+    var blocks = <BlockOld>[BlockOld(text: text)];
     final parsers = <Parser>[
       const EmojiParser(),
     ];
