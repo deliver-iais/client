@@ -188,7 +188,8 @@ class ChatItemState extends State<ChatItem> {
   }
 
   Widget buildChatItemWidget(String name) {
-    final isReceivedMessage = !_authRepo.isCurrentUser(widget.room.lastMessage!.from);
+    final isReceivedMessage =
+        !_authRepo.isCurrentUser(widget.room.lastMessage!.from);
     final theme = Theme.of(context);
     return Row(
       children: <Widget>[
@@ -294,11 +295,12 @@ class ChatItemState extends State<ChatItem> {
                                         context,
                                       )
                                     : widget.room.lastMessage != null
-                                    ? buildLastMessage(widget.room.lastMessage!)
-                                    : const SizedBox(
-                                  height: 3,
-                                  width: 5,
-                                );
+                                        ? buildLastMessage(
+                                            widget.room.lastMessage!)
+                                        : const SizedBox(
+                                            height: 3,
+                                            width: 5,
+                                          );
                               },
                             ),
                           ),
