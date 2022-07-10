@@ -129,7 +129,6 @@ class RoomPageState extends State<RoomPage> {
   final _isScrolling = BehaviorSubject.seeded(false);
   final _itemPositionsListener = ItemPositionsListener.create();
   final _itemScrollController = ItemScrollController();
-  final _scrollPhysics = const ClampingScrollPhysics();
   final _editableMessage = BehaviorSubject<Message?>.seeded(null);
   final _searchMode = BehaviorSubject.seeded(false);
   final _lastPinedMessage = BehaviorSubject.seeded(0);
@@ -1208,7 +1207,7 @@ class RoomPageState extends State<RoomPage> {
           initialScrollIndex: initialScrollIndex + 1,
           key: _scrollablePositionedListKey,
           initialAlignment: initialAlignment,
-          physics: _scrollPhysics,
+          physics: const ClampingScrollPhysics(),
           addSemanticIndexes: false,
           minCacheExtent: 0,
           itemPositionsListener: _itemPositionsListener,
