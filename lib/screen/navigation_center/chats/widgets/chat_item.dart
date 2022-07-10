@@ -296,7 +296,8 @@ class ChatItemState extends State<ChatItem> {
                                       )
                                     : widget.room.lastMessage != null
                                         ? buildLastMessage(
-                                            widget.room.lastMessage!)
+                                            widget.room.lastMessage!,
+                                          )
                                         : const SizedBox(
                                             height: 3,
                                             width: 5,
