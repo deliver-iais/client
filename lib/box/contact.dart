@@ -13,7 +13,7 @@ class Contact {
   int nationalNumber;
 
   @HiveField(2)
-  String uid;
+  String? uid;
 
   @HiveField(3)
   String? firstName;
@@ -24,14 +24,42 @@ class Contact {
   @HiveField(5)
   String? description;
 
+  @HiveField(6)
+  int? updateTime;
+
+  @HiveField(7)
+  int? syncHash;
+
   Contact({
     required this.countryCode,
     required this.nationalNumber,
-    required this.uid,
+    this.uid,
     this.firstName,
     this.lastName,
     this.description,
+    this.updateTime,
+    this.syncHash,
   });
+
+  Contact copyWith({
+    required int nationalNumber,
+    String? uid,
+    String? lastName,
+    String? firstName,
+    required int countryCode,
+    String? description,
+    int? updateTime,
+    int? syncHash,
+  }) =>
+      Contact(
+          countryCode: countryCode,
+          nationalNumber: nationalNumber,
+          lastName: lastName ?? this.lastName,
+          firstName: firstName ?? this.firstName,
+          uid: uid ?? this.uid,
+          description: description ?? this.description,
+          updateTime: updateTime ?? this.updateTime,
+          syncHash: syncHash ?? this.syncHash,);
 
   bool isUsersContact() => countryCode == 0;
 }

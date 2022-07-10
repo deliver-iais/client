@@ -54,10 +54,6 @@ class _ShareInputFileState extends State<ShareInputFile> {
           _selectedRooms.isEmpty
               ? _i18n.get("send_To")
               : "${_i18n.get("selected_chats")} : ${_selectedRooms.length}",
-          style: Theme.of(context)
-              .appBarTheme
-              .titleTextStyle!
-              .copyWith(fontSize: 20),
         ),
         leading: _routingServices.backButtonLeading(),
       ),

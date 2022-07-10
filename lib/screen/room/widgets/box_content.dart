@@ -316,7 +316,7 @@ class BoxContentState extends State<BoxContent> {
         return BotTableWidget(
           message: widget.message,
           colorScheme: colorScheme,
-          maxWidth: widget.maxWidth * 1.1,
+          maxWidth: widget.maxWidth,
         );
       case MessageType.SHARE_UID:
         return ShareUidMessageWidget(

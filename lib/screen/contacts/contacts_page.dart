@@ -11,6 +11,7 @@ import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:deliver/shared/widgets/custom_grid_view.dart';
+import 'package:deliver/shared/widgets/not_messenger_contact_widget.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -30,22 +31,38 @@ class ContactsPageState extends State<ContactsPage> {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _i18n = GetIt.I.get<I18N>();
   final _contactsBehavior = BehaviorSubject.seeded(<Contact>[]);
+  final _notMessengerContactsBehavior = BehaviorSubject.seeded(<Contact>[]);
 
   @override
   void initState() {
     super.initState();
     _syncContacts();
-    _contactRepo.watchAll().listen((contacts) {
+    _contactRepo.watchAllMessengerContacts().listen((contacts) {
       _contactsBehavior.add(
         contacts
+            .whereNot((element) => element.uid == null)
             .where(
-              (c) => !_authRepo.isCurrentUser(c.uid) && !c.isUsersContact(),
+              (c) => !_authRepo.isCurrentUser(c.uid!) && !c.isUsersContact(),
             )
             .sortedBy(
               (element) => buildName(element.firstName, element.lastName),
             )
             .toList(growable: false),
       );
+    });
+
+    _contactRepo
+        .getNotMessengerContactAsStream()
+        .listen((notMessengerContacts) {
+      if (notMessengerContacts.isNotEmpty) {
+        _notMessengerContactsBehavior.add(
+          notMessengerContacts
+              .sortedBy(
+                (element) => buildName(element.firstName, element.lastName),
+              )
+              .toList(growable: false),
+        );
+      }
     });
   }
 
@@ -71,7 +88,7 @@ class ContactsPageState extends State<ContactsPage> {
                   delegate: ContactSearchDelegate(),
                 ).then((c) {
                   if (c != null) {
-                    _routingService.openRoom(c.uid);
+                    _routingService.openRoom(c.uid!);
                   }
                 });
               },
@@ -111,7 +128,9 @@ class ContactsPageState extends State<ContactsPage> {
                               final c = contacts[index];
 
                               return GestureDetector(
-                                onTap: () => _routingService.openRoom(c.uid),
+                                onTap: () => c.uid != null
+                                    ? _routingService.openRoom(c.uid!)
+                                    : null,
                                 child: ContactWidget(
                                   contact: c,
                                   // isSelected: true,
@@ -132,6 +151,38 @@ class ContactsPageState extends State<ContactsPage> {
                         )
                       else
                         const EmptyContacts(),
+                      StreamBuilder<List<Contact>>(
+                        stream: _notMessengerContactsBehavior.stream,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData &&
+                              snapshot.data != null &&
+                              snapshot.data!.isNotEmpty) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0,
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(_i18n.get("invite_contact")),
+                                    ],
+                                  ),
+                                  FlexibleFixedHeightGridView(
+                                    itemCount: snapshot.data!.length,
+                                    itemBuilder: (context, index) {
+                                      return NotMessengerContactWidget(
+                                        contact: snapshot.data![index],
+                                      );
+                                    },
+                                  ),
+                                ],
+                              ),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -163,13 +214,14 @@ class ContactSearchDelegate extends SearchDelegate<Contact?> {
   final _contacts = <Contact>[];
 
   ContactSearchDelegate() {
-    _contactRepo.watchAll().listen((contacts) {
+    _contactRepo.watchAllMessengerContacts().listen((contacts) {
       _contacts
         ..clear()
         ..addAll(
           contacts
+              .whereNot((element) => element.uid == null)
               .where(
-                (c) => !_authRepo.isCurrentUser(c.uid) && !c.isUsersContact(),
+                (c) => !_authRepo.isCurrentUser(c.uid!) && !c.isUsersContact(),
               )
               .sortedBy((element) => "${element.firstName}${element.lastName}"),
         );

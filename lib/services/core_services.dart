@@ -115,6 +115,12 @@ class CoreServices {
     });
   }
 
+  void checkConnectionTimer() {
+    if (_connectionTimer != null && !_connectionTimer!.isActive) {
+      retryConnection(forced: true);
+    }
+  }
+
   void gotResponse() {
     _connectionStatus.add(ConnectionStatus.Connected);
     backoffTime = MIN_BACKOFF_TIME;
