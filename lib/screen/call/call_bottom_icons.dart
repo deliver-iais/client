@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
 
+import '../../shared/methods/platform.dart';
+
 class CallBottomRow extends StatefulWidget {
   final void Function() hangUp;
   final bool isIncomingCall;
@@ -24,7 +26,7 @@ class CallBottomRowState extends State<CallBottomRow> {
 
   Color? _speakerIcon;
 
-  // Color _screenShareIcon = Colors.black45;
+  Color? _screenShareIcon;
   Color? _muteMicIcon;
   final callRepo = GetIt.I.get<CallRepo>();
   int indexSwitchCamera = 0;
@@ -109,14 +111,15 @@ class CallBottomRowState extends State<CallBottomRow> {
                       child: const Icon(Icons.mic_off_rounded),
                       onPressed: () => _muteMic(theme),
                     ),
-                    // TODO(AmirHossein): enable it after fixing 3 issues in flutter-webRtc project itself, https://gitlab.iais.co/deliver/wiki/-/issues/425  // FloatingActionButton(
-                    //   heroTag: 55,
-                    //   backgroundColor: _screenShareIcon,
-                    //   child: (isAndroid())
-                    //       ? const Icon(Icons.mobile_screen_share)
-                    //       : const Icon(Icons.screen_share_outlined),
-                    //   onPressed: () => _shareScreen(),
-                    // ),
+                    // TODO(AmirHossein): enable it after fixing 3 issues in flutter-webRtc project itself, https://gitlab.iais.co/deliver/wiki/-/issues/425
+                    FloatingActionButton(
+                      heroTag: 55,
+                      backgroundColor: _screenShareIcon,
+                      child: (isAndroid)
+                          ? const Icon(Icons.mobile_screen_share)
+                          : const Icon(Icons.screen_share_outlined),
+                      onPressed: () => _shareScreen(theme),
+                    ),
                     FloatingActionButton(
                       heroTag: 66,
                       onPressed: () => widget.hangUp(),
@@ -206,12 +209,12 @@ class CallBottomRowState extends State<CallBottomRow> {
     setState(() {});
   }
 
-  // _shareScreen() {
-  //   callRepo.shareScreen();
-  //   screenShareIndex++;
-  //   _screenShareIcon = screenShareIndex.isOdd ? Colors.grey : Colors.black45;
-  //   setState(() {});
-  // }
+  _shareScreen(ThemeData theme) {
+    callRepo.shareScreen();
+    screenShareIndex++;
+    _screenShareIcon = screenShareIndex.isOdd ? theme.buttonTheme.colorScheme!.primary : null;
+    setState(() {});
+  }
 
   void _enableSpeaker(ThemeData theme) {
     _speakerIcon = callRepo.enableSpeakerVoice()
