@@ -307,15 +307,16 @@ class ChatItemState extends State<ChatItem> {
                           ),
                         if (widget.room.mentioned)
                           Container(
-                            width: 24,
-                            height: 24,
+                            width: 20,
+                            height: 20,
                             decoration: BoxDecoration(
                               color: theme.colorScheme.primary,
                               shape: BoxShape.circle,
                             ),
-                            child: const Icon(
+                            child: Icon(
                               CupertinoIcons.at,
-                              size: 15,
+                              size: 12,
+                              color: theme.colorScheme.onPrimary,
                             ),
                           ),
                         if (isReceivedMessage)
