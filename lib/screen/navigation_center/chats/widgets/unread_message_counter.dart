@@ -36,21 +36,25 @@ class UnreadMessageCounterWidget extends StatelessWidget {
 
           return AnimatedScale(
             scale: unreadCount > 0 ? 1 : 0,
-            duration: FAST_ANIMATION_DURATION,
-            child: Container(
-              constraints: const BoxConstraints(minWidth: 20),
-              height: 20,
-              padding: const EdgeInsets.all(2.0),
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.primary,
-                borderRadius: mainBorder,
-              ),
-              child: Text(
-                "${unreadCount >= 100 ? "+99" : unreadCount}",
-                style: TextStyle(
-                  fontSize: 12,
-                  color: theme.colorScheme.onPrimary,
+            duration: ANIMATION_DURATION,
+            child: AnimatedOpacity(
+              opacity: unreadCount > 0 ? 1 : 0,
+              duration: ANIMATION_DURATION,
+              child: Container(
+                constraints: const BoxConstraints(minWidth: 20),
+                height: 20,
+                padding: const EdgeInsets.all(2.0),
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: theme.colorScheme.primary,
+                  borderRadius: mainBorder,
+                ),
+                child: Text(
+                  "${unreadCount >= 100 ? "+99" : (unreadCount <= 0 ? '' : unreadCount)}",
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: theme.colorScheme.onPrimary,
+                  ),
                 ),
               ),
             ),

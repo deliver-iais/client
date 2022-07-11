@@ -563,21 +563,20 @@ class AndroidNotifier implements Notifier {
   ) async {
     try {
       await setupDI();
-
-      if (notificationResponse == null) {
-        return;
-      }
-
-      if (notificationResponse.input?.isNotEmpty ?? false) {
-        if (notificationResponse.actionId == REPLY_ACTION_ID) {
-          Notifier.replyToMessage(notificationResponse);
-          Notifier.markAsRead(notificationResponse);
-        }
-      } else if (notificationResponse.actionId == MARK_AS_READ_ACTION_ID) {
-        Notifier.markAsRead(notificationResponse);
-      }
     } catch (e) {
       Logger().e(e);
+    }
+    if (notificationResponse == null) {
+      return;
+    }
+
+    if (notificationResponse.input?.isNotEmpty ?? false) {
+      if (notificationResponse.actionId == REPLY_ACTION_ID) {
+        Notifier.replyToMessage(notificationResponse);
+        Notifier.markAsRead(notificationResponse);
+      }
+    } else if (notificationResponse.actionId == MARK_AS_READ_ACTION_ID) {
+      Notifier.markAsRead(notificationResponse);
     }
   }
 
