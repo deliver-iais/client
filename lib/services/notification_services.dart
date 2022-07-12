@@ -198,7 +198,7 @@ class NotificationServices {
     if (mb.text.isNotEmpty) {
       final blocks = onePath(
         [Block(text: mb.text, features: {})],
-        simpleTextDetectors,
+        justSpoilerDetectors,
         textTransformer(),
       );
       final result = blocks.join();

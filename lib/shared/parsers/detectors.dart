@@ -27,7 +27,7 @@ final List<Detector> detectors = [
   spoilerDetector(),
 ];
 
-final simpleTextDetectors = [
+final justSpoilerDetectors = [
   spoilerDetector(),
 ];
 

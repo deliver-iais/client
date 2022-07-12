@@ -170,6 +170,12 @@ List<Block> partitioner(Block block, Detector detector) {
 List<Block> onePathDetection(List<Block> blocks, Detector detector) =>
     blocks.map((b) => partitioner(b, detector)).expand((e) => e).toList();
 
+List<Block> onePathMultiDetection(
+  List<Block> blocks,
+  List<Detector> detectors,
+) =>
+    detectors.fold<List<Block>>(blocks, onePathDetection);
+
 List<T> onePathTransform<T>(
   List<Block> blocks,
   Transformer<T> transformer,
@@ -182,6 +188,6 @@ List<T> onePath<T>(
   Transformer<T> transformer,
 ) =>
     onePathTransform(
-      detectors.fold<List<Block>>(initialBlocks, onePathDetection),
+      onePathMultiDetection(initialBlocks, detectors),
       transformer,
     );

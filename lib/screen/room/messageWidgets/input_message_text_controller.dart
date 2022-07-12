@@ -1,4 +1,6 @@
-import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
+import 'package:deliver/shared/parsers/detectors.dart';
+import 'package:deliver/shared/parsers/parsers.dart';
+import 'package:deliver/shared/parsers/transformers.dart';
 import 'package:flutter/widgets.dart';
 
 class InputMessageTextController extends TextEditingController {
@@ -8,22 +10,15 @@ class InputMessageTextController extends TextEditingController {
     TextStyle? style,
     required bool withComposing,
   }) {
-    var blocks = <BlockOld>[BlockOld(text: text)];
-    final parsers = <Parser>[
-      const EmojiParser(),
-    ];
-    for (final p in parsers) {
-      blocks = p.parse(blocks, context);
-    }
+    final spans = onePath(
+      [Block(text: text, features: {})],
+      [emojiDetector()],
+      emojiTransformer(),
+    );
 
     return TextSpan(
       style: style,
-      children: blocks.where((b) => b.text.isNotEmpty).map((e) {
-        if (e.type == BlockTypes.EMOJI) {
-          return TextSpan(text: e.text, style: e.style?.copyWith(fontSize: 16));
-        }
-        return TextSpan(text: e.text, style: e.style);
-      }).toList(),
+      children: spans,
     );
   }
 }

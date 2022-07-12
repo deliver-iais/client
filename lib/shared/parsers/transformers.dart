@@ -182,3 +182,21 @@ Transformer<String> textTransformer() {
     }
   };
 }
+
+Transformer<TextSpan> emojiTransformer() {
+  return (b) {
+    final emoji = b.features.whereType<EmojiFeature>().firstOrNull;
+
+    final text = b.text;
+    var textStyle = const TextStyle();
+
+    if (emoji != null) {
+      textStyle = GoogleFonts.notoEmoji(textStyle: textStyle);
+    }
+
+    return TextSpan(
+      text: text,
+      style: textStyle,
+    );
+  };
+}
