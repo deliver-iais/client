@@ -101,34 +101,34 @@ class SyncContact {
                     bottom: 6,
                   ),
                   child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Padding(
-                        padding: const EdgeInsets.only(bottom: 2.0, left: 10),
-                        child: SizedBox(
-                          width: 14,
-                          height: 14,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: theme.colorScheme.onTertiaryContainer,
+                      Row(children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 2.0, left: 10),
+                          child: SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: theme.colorScheme.onTertiaryContainer,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Text(
+                        const SizedBox(width: 8),
+                        Text(
                           _i18n.get("syncing_contact"),
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(fontSize: 14),
                         ),
-                      ),
+                      ],),
+
                       Padding(
                         padding: const EdgeInsets.only(right: 20),
-                        child: Expanded(
-                          child: Text(
-                            "${((percent) * 100).toInt()} %",
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(fontSize: 14),
-                          ),
+                        child: Text(
+                          "${((percent) * 100).toInt()} %",
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 14),
                         ),
                       ),
                     ],

@@ -692,11 +692,11 @@ class MucRepo {
       list,
       options: FuzzyOptions(
         tokenize: true,
-        threshold: 0.3,
+        threshold: 0.2,
       ),
     )
         .search(query)
-        .where((element) => element.score < 0.4)
+        .where((element) => element.score < 0.2)
         .map((e) => e.item)
         .toList();
     return fuzzy;

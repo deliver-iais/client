@@ -66,10 +66,11 @@ class ContactRepo {
                       .toSet()
                       .map((phone) => phone.value.toString())
                       .map((e) => _getPhoneNumber(e, p.displayName ?? ""))
+                      .where((element) => element != null)
                       .map(
                         (e) => Contact()
                           ..firstName = p.displayName ?? ""
-                          ..phoneNumber = e,
+                          ..phoneNumber = e!,
                       ),
                 )
                 .expand((e) => e)
@@ -86,6 +87,7 @@ class ContactRepo {
             _savePhoneContacts(contacts);
             sendContacts(contacts);
           } else {
+            sendContactProgress.add(1);
             unawaited(getContacts());
           }
         } else {
@@ -172,11 +174,12 @@ class ContactRepo {
       DateTime.now().millisecondsSinceEpoch - updateTime <
       MAX_SEND_CONTACT_START_TIME_EXPIRE;
 
-  PhoneNumber _getPhoneNumber(String phone, String name) {
+  PhoneNumber? _getPhoneNumber(String phone, String name) {
     final p = getPhoneNumber(phone);
 
     if (p == null) {
-      throw Exception("Not Valid Number  $name ***** $phone");
+      _logger.e("Not Valid Number  $name ***** $phone");
+      return null;
     } else {
       return p;
     }

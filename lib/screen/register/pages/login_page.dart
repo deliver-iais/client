@@ -139,11 +139,6 @@ class LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _loginASTestUser() {
-    _authRepo.saveTestUserInfo();
-    _navigationToHome();
-  }
-
   @override
   void dispose() {
     loginToken.close();
@@ -154,47 +149,42 @@ class LoginPageState extends State<LoginPage> {
 
   Future<void> checkAndGoNext({bool doNotCheckValidator = false}) async {
     final navigatorState = Navigator.of(context);
-    if (phoneNumber != null &&
-        phoneNumber!.nationalNumber.toString() == TEST_USER_PHONE_NUMBER) {
-      _logger.e("login as test user ");
-      _loginASTestUser();
-    } else {
-      final isValidated = _formKey.currentState?.validate() ?? false;
-      if ((doNotCheckValidator || isValidated) && phoneNumber != null) {
-        _isLoading.add(true);
-        try {
-          await _authRepo.getVerificationCode(phoneNumber!);
-          navigatorState
-              .push(
-                MaterialPageRoute(builder: (c) => const VerificationPage()),
-              )
-              .ignore();
-          _isLoading.add(false);
-        } on GrpcError catch (e) {
-          _isLoading.add(false);
-          _logger.e(e);
-          if (e.code == StatusCode.unavailable) {
-            _networkError.add(true);
-            ToastDisplay.showToast(
-              toastText: _i18n.get("notwork_is_unavailable"),
-              toastContext: context,
-            );
-          } else if (e.code == StatusCode.aborted) {
-            showOutOfDateDialog(context);
-          } else {
-            ToastDisplay.showToast(
-              toastText: _i18n.get("error_occurred"),
-              toastContext: context,
-            );
-          }
-        } catch (e) {
-          _isLoading.add(false);
-          _logger.e(e);
+
+    final isValidated = _formKey.currentState?.validate() ?? false;
+    if ((doNotCheckValidator || isValidated) && phoneNumber != null) {
+      _isLoading.add(true);
+      try {
+        await _authRepo.getVerificationCode(phoneNumber!);
+        navigatorState
+            .push(
+              MaterialPageRoute(builder: (c) => const VerificationPage()),
+            )
+            .ignore();
+        _isLoading.add(false);
+      } on GrpcError catch (e) {
+        _isLoading.add(false);
+        _logger.e(e);
+        if (e.code == StatusCode.unavailable) {
+          _networkError.add(true);
+          ToastDisplay.showToast(
+            toastText: _i18n.get("notwork_is_unavailable"),
+            toastContext: context,
+          );
+        } else if (e.code == StatusCode.aborted) {
+          showOutOfDateDialog(context);
+        } else {
           ToastDisplay.showToast(
             toastText: _i18n.get("error_occurred"),
             toastContext: context,
           );
         }
+      } catch (e) {
+        _isLoading.add(false);
+        _logger.e(e);
+        ToastDisplay.showToast(
+          toastText: _i18n.get("error_occurred"),
+          toastContext: context,
+        );
       }
     }
   }

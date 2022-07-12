@@ -112,7 +112,7 @@ class InputMessageWidgetState extends State<InputMessage> {
   bool _shouldSynthesize = true;
 
   final botCommandRegexp = RegExp(r"(\w)*");
-  final idRegexp = RegExp(r"(\w)*");
+  final idRegexp = RegExp(r"^[a-zA-Z]([a-zA-Z0-9_]){0,19}$");
 
   void showButtonSheet() {
     if (isWeb || isDesktop) {
@@ -182,7 +182,7 @@ class InputMessageWidgetState extends State<InputMessage> {
           widget.textController.text
               .substring(0 + 1, widget.textController.selection.start),
         );
-      } else if (widget.textController.text.isEmpty) {
+      } else {
         _botCommandQuery.add("-");
       }
 
@@ -202,12 +202,18 @@ class InputMessageWidgetState extends State<InputMessage> {
               (start == 0 || widget.textController.text[start - 1] == " ") &&
               widget.textController.selection.start ==
                   widget.textController.selection.end &&
-              idRegexp.hasMatch(
-                widget.textController.text.substring(
-                  start + 1,
-                  widget.textController.selection.start,
-                ),
-              )) {
+              (idRegexp.hasMatch(
+                    widget.textController.text.substring(
+                      start + 1,
+                      widget.textController.selection.start,
+                    ),
+                  ) ||
+                  widget.textController.text
+                      .substring(
+                        start + 1,
+                        widget.textController.selection.start,
+                      )
+                      .isEmpty)) {
             _mentionQuery.add(
               widget.textController.text
                   .substring(start + 1, widget.textController.selection.start),
@@ -269,6 +275,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                     mentionSelectedIndex: mentionSelectedIndex,
                   );
                 }
+                mentionSelectedIndex = 0;
                 return const SizedBox.shrink();
               },
             ),
@@ -276,11 +283,14 @@ class InputMessageWidgetState extends State<InputMessage> {
               stream: _botCommandQuery.distinct(),
               builder: (c, show) {
                 _botCommandData = show.data ?? "-";
+                if (_botCommandData == "-") {
+                  botCommandSelectedIndex = 0;
+                }
                 return BotCommands(
                   botUid: widget.currentRoom.uid.asUid(),
                   query: _botCommandData,
                   onCommandClick: (command) {
-                    onCommandClick(command);
+                    onCommandSelected(command);
                   },
                   botCommandSelectedIndex: botCommandSelectedIndex,
                 );
@@ -465,9 +475,12 @@ class InputMessageWidgetState extends State<InputMessage> {
                 icon: const Icon(
                   CupertinoIcons.slash_circle,
                 ),
-                onPressed: () => _botCommandQuery.add(
-                  _botCommandQuery.value == "-" ? "" : "-",
-                ),
+                onPressed: () => {
+                  widget.focusNode.requestFocus(),
+                  _botCommandQuery.add(
+                    _botCommandQuery.value == "-" ? "" : "-",
+                  ),
+                },
               ),
             if ((isWindows || isMacOS) &&
                 !showSendButton &&
@@ -606,7 +619,7 @@ class InputMessageWidgetState extends State<InputMessage> {
     }
   }
 
-  void onCommandClick(String command) {
+  void onCommandSelected(String command) {
     widget.textController.text = "/$command";
     widget.textController.selection = TextSelection.fromPosition(
       TextPosition(offset: widget.textController.text.length),
@@ -619,9 +632,7 @@ class InputMessageWidgetState extends State<InputMessage> {
       if (widget.editableMessage == null) {
         Future.delayed(const Duration(milliseconds: 100), () {}).then((_) {
           if (widget.editableMessage != null) {
-            widget.textController.selection = TextSelection.collapsed(
-              offset: widget.textController.text.length,
-            );
+            moveCursorToEnd();
           }
         });
       }
@@ -632,30 +643,25 @@ class InputMessageWidgetState extends State<InputMessage> {
     if (event is RawKeyDownEvent &&
         {PhysicalKeyboardKey.arrowUp, PhysicalKeyboardKey.arrowDown}
             .contains(event.physicalKey)) {
-      _handleArrow(event);
+      if (_mentionQuery.value == null && _botCommandQuery.value == "-") {
+        _handleArrow(event);
+      }
     }
     if (event is RawKeyUpEvent &&
         event.physicalKey == PhysicalKeyboardKey.delete) {
       widget.deleteSelectedMessage();
     }
-    if (!_uxService.sendByEnter &&
-        event.isShiftPressed &&
+    if (((!_uxService.sendByEnter && event.isShiftPressed) ||
+            (_uxService.sendByEnter && !event.isShiftPressed)) &&
         isEnterClicked(event)) {
       if (widget.currentRoom.uid.isGroup() &&
           mentionSelectedIndex >= 0 &&
           _mentionQuery.value != null) {
         addMentionByEnter();
-      } else {
-        sendMessage();
-      }
-      return KeyEventResult.handled;
-    } else if (_uxService.sendByEnter &&
-        !event.isShiftPressed &&
-        isEnterClicked(event)) {
-      if (widget.currentRoom.uid.isGroup() &&
-          mentionSelectedIndex >= 0 &&
-          _mentionQuery.value != null) {
-        addMentionByEnter();
+      } else if (widget.currentRoom.uid.isBot() &&
+          botCommandSelectedIndex >= 0 &&
+          _botCommandQuery.value != "-") {
+        addBotCommandByEnter();
       } else {
         sendMessage();
       }
@@ -689,7 +695,6 @@ class InputMessageWidgetState extends State<InputMessage> {
           event,
           scrollDownInBotCommand,
           scrollUpInBotCommand,
-          sendBotCommandByEnter,
           _botCommandData,
         );
       });
@@ -733,6 +738,9 @@ class InputMessageWidgetState extends State<InputMessage> {
   }
 
   void scrollUpInBotCommand() {
+    Future.delayed(const Duration(), () {}).then((_) {
+      moveCursorToEnd();
+    });
     var length = 0;
     if (botCommandSelectedIndex <= 0) {
       _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then(
@@ -749,15 +757,17 @@ class InputMessageWidgetState extends State<InputMessage> {
     }
   }
 
-  void sendBotCommandByEnter() {
-    _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then(
-          (value) => {
-            if (value != null)
-              onCommandClick(
-                value.commands!.keys.toList()[botCommandSelectedIndex],
-              )
-          },
-        );
+  Future<void> addBotCommandByEnter() async {
+    final value = await _botRepo.getBotInfo(widget.currentRoom.uid.asUid());
+    if (value != null && value.commands!.isNotEmpty) {
+      onCommandSelected(
+        value.commands!.keys
+            .where((element) => element.contains(_botCommandData))
+            .toList()[botCommandSelectedIndex],
+      );
+    } else {
+      sendMessage();
+    }
   }
 
   Future<void> addMentionByEnter() async {
@@ -794,12 +804,15 @@ class InputMessageWidgetState extends State<InputMessage> {
           .getFilteredMember(currentRoom.uid, query: _mentionQuery.value)
           .then(
             (value) => {
-              mentionSelectedIndex = value.length - 1,
+              mentionSelectedIndex = value.length,
             },
           );
     } else {
       mentionSelectedIndex--;
     }
+    Future.delayed(const Duration(), () {
+      moveCursorToEnd();
+    });
   }
 
   void sendMessage() {
@@ -810,6 +823,7 @@ class InputMessageWidgetState extends State<InputMessage> {
     }
     if (widget.waitingForForward == true) {
       widget.sendForwardMessage?.call();
+      widget.resetRoomPageDetails!();
     }
 
     final text = _shouldSynthesize
@@ -927,6 +941,12 @@ class InputMessageWidgetState extends State<InputMessage> {
         text = widget.editableMessage!.json.toFile().caption;
     }
     return "$text ";
+  }
+
+  void moveCursorToEnd() {
+    widget.textController.selection = TextSelection.collapsed(
+      offset: widget.textController.text.length,
+    );
   }
 }
 

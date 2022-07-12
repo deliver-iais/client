@@ -1,5 +1,6 @@
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/repository/botRepo.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -49,7 +50,8 @@ class BotCommandsState extends State<BotCommands> {
                 itemBuilder: (c, index) {
                   var botCommandItemColor = Colors.transparent;
                   if (widget.botCommandSelectedIndex == index &&
-                      widget.botCommandSelectedIndex != -1) {
+                      widget.botCommandSelectedIndex != -1 &&
+                      isDesktop) {
                     botCommandItemColor = theme.focusColor;
                   }
                   return Container(
