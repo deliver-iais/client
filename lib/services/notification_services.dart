@@ -13,7 +13,6 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
-import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/file_service.dart';
@@ -23,6 +22,9 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/parsers/detectors.dart';
+import 'package:deliver/shared/parsers/parsers.dart';
+import 'package:deliver/shared/parsers/transformers.dart';
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pro;
@@ -194,9 +196,12 @@ class NotificationServices {
 
   MessageSimpleRepresentative _synthesize(MessageSimpleRepresentative mb) {
     if (mb.text.isNotEmpty) {
-      final blocks =
-          extractBlocks(mb.text, spoilTransformer: (s) => "<hide text>");
-      final result = blocks.map<String>((b) => b.text).toList().join();
+      final blocks = onePath(
+        [Block(text: mb.text, features: {})],
+        simpleTextDetectors,
+        textTransformer(),
+      );
+      final result = blocks.join();
       return mb.copyWith(text: result);
     }
 
