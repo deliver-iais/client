@@ -652,7 +652,7 @@ class InputMessageWidgetState extends State<InputMessage> {
       widget.deleteSelectedMessage();
     }
     if (((!_uxService.sendByEnter && event.isShiftPressed) ||
-            (_uxService.sendByEnter)) &&
+            (_uxService.sendByEnter && !event.isShiftPressed)) &&
         isEnterClicked(event)) {
       if (widget.currentRoom.uid.isGroup() &&
           mentionSelectedIndex >= 0 &&
