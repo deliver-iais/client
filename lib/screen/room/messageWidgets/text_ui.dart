@@ -1,5 +1,6 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
+import 'package:deliver/screen/room/messageWidgets/link_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
@@ -44,9 +45,20 @@ class TextUI extends StatelessWidget {
 
     final text = extractText(message);
 
-    final spans = onePath(
+    final blocks = onePathMultiDetection(
       [Block(text: text, features: {})],
       detectorsWithSearchTermDetector(),
+    );
+
+    final link = blocks
+        .firstWhere(
+          (b) => b.features.whereType<UrlFeature>().isNotEmpty,
+          orElse: () => const Block(text: "", features: {}),
+        )
+        .text;
+
+    final spans = onePathTransform(
+      blocks,
       inlineSpanTransformer(
         defaultColor: colorScheme.onPrimaryContainer,
         linkColor: theme.colorScheme.primary,
@@ -55,53 +67,6 @@ class TextUI extends StatelessWidget {
         onUrlClick: (text) => _urlHandlerService.onUrlTap(text, context),
       ),
     );
-
-    // final blocks = extractBlocks(
-    //   text,
-    //   onUsernameClick: onUsernameClick,
-    //   context: context,
-    //   isBotMessage: isBotMessage,
-    //   onBotCommandClick: onBotCommandClick,
-    //   searchTerm: searchTerm,
-    //   onPrimaryContainer: colorScheme.onPrimaryContainer,
-    // );
-    // final spans = blocks.map<InlineSpan>((b) {
-    //   var tap = b.text;
-    //   if (b.type == BlockTypes.INLINE_URL) {
-    //     tap = b.matchText;
-    //   }
-    //   if (b.type == BlockTypes.SPOILER) {
-    //     return WidgetSpan(
-    //       baseline: TextBaseline.ideographic,
-    //       alignment: PlaceholderAlignment.middle,
-    //       child: SpoilerLoader(
-    //         b.text,
-    //         foreground: colorScheme.onPrimaryContainer,
-    //       ),
-    //     );
-    //   }
-    //   return TextSpan(
-    //     text: b.text,
-    //     style: b.style,
-    //     recognizer: (b.onTap != null)
-    //         ? (TapGestureRecognizer()..onTap = () => b.onTap!(tap))
-    //         : null,
-    //   );
-    // }).toList();
-    String link;
-    // try {
-    //   link = blocks.firstWhere((b) => b.type == BlockTypes.URL).text;
-    // } catch (e) {
-    //   link = "";
-    // }
-    //
-    // final double linkPreviewMaxWidth = min(
-    //   blocks
-    //           .map((b) => b.text.length)
-    //           .reduce((value, element) => value < element ? element : value) *
-    //       6.85,
-    //   maxWidth,
-    // );
 
     return Container(
       constraints: BoxConstraints(maxWidth: maxWidth, minWidth: minWidth),
@@ -116,13 +81,13 @@ class TextUI extends StatelessWidget {
             textDirection:
                 text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
           ),
-          // LinkPreview(
-          //   link: link,
-          //   maxWidth: linkPreviewMaxWidth,
-          //   backgroundColor:
-          //       Theme.of(context).colorScheme.shadow.withOpacity(0.1),
-          //   foregroundColor: colorScheme.primary,
-          // ),
+          LinkPreview(
+            link: link,
+            maxWidth: maxWidth,
+            backgroundColor:
+                Theme.of(context).colorScheme.shadow.withOpacity(0.1),
+            foregroundColor: colorScheme.primary,
+          ),
           TimeAndSeenStatus(
             message,
             isSender: isSender,
