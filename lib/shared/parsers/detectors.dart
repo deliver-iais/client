@@ -1,6 +1,6 @@
 import 'package:deliver/shared/parsers/parsers.dart';
 
-List<Detector> detectorsWithSearchTermDetector(String term) => [
+List<Detector> detectorsWithSearchTermDetector({String searchTerm = ""}) => [
       urlDetector(),
       inlineUrlDetector(),
       idDetector(),
@@ -11,7 +11,7 @@ List<Detector> detectorsWithSearchTermDetector(String term) => [
       underlineDetector(),
       strikethroughDetector(),
       spoilerDetector(),
-      searchTermDetector(term),
+      if (searchTerm.isNotEmpty) searchTermDetector(searchTerm),
     ];
 
 final List<Detector> detectors = [
@@ -63,7 +63,7 @@ Detector boldDetector() => simpleStyleDetector(
 
 Detector italicDetector() => simpleStyleDetectorTwoCharacter(
       "_",
-      {SpoilerFeature()},
+      {ItalicFeature()},
       replacer: (match) => match.substring(2, match.length - 2),
     );
 
@@ -199,10 +199,10 @@ Detector simpleStyleDetectorTwoCharacter(
               partitions.add(
                 Partition(
                   start,
-                  idx + 1,
+                  idx + 2,
                   features,
                   replacedText: replacer?.call(
-                    block.text.substring(start, idx + 1),
+                    block.text.substring(start, idx + 2),
                   ),
                 ),
               );

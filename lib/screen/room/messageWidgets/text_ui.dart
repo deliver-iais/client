@@ -51,7 +51,7 @@ class TextUI extends StatelessWidget {
 
     final spans = onePath(
       [Block(text: text, features: {})],
-      detectorsWithSearchTermDetector("asd"),
+      detectorsWithSearchTermDetector(),
       inlineSpanTransformer(
         defaultColor: colorScheme.onPrimaryContainer,
         linkColor: theme.colorScheme.primary,
