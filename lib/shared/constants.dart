@@ -60,14 +60,6 @@ const INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH =
 // Feature Flags
 const bool TWO_STEP_VERIFICATION_IS_AVAILABLE = false;
 
-// Store Testing Fake User Constants
-const TEST_USER_PHONE_NUMBER = "1234567890";
-const String TEST_USER_ACCESS_TOKEN =
-    "eyJUT0tFTl9UWVBFIjoiYWNjZXNzX3Rva2VuIiwiQ0FURUdPUlkiOjAsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJERUxJVkVSLUFVVEgiLCJpYXQiOjE2MzY0Mzc3OTYsImV4cCI6MTc5MTk1Nzc5Niwic3ViIjoiMzA0OTk4N2ItZTE1ZC00Mjg4LTk3Y2QtNDJkYmM2ZDczYWJkIiwianRpIjoiZTI2MWI4ZjItZTE1Zi00NjQ0LWE5ZTMtYTBjZjFhMmNlODIwIn0.e2bx71LfQpLWQ0I1ElPMOJQkOw0Sud-PjlcMNbR92MA";
-final Uid TEST_USER_UID = Uid.create()
-  ..category = Categories.USER
-  ..node = "3049987b-e15d-4288-97cd-42dbc6d73abd";
-
 // Fake User Constants
 final FAKE_USER_UID = Uid()
   ..category = Categories.USER

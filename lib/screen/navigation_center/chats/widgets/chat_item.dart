@@ -7,6 +7,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/lastActivityRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -180,15 +181,16 @@ class ChatItemState extends State<ChatItem> {
     return AsyncLastMessage(
       message: message,
       lastMessageId: widget.room.lastMessageId,
-      hasMentioned: widget.room.mentioned == true,
       showSeenStatus: _authRepo.isCurrentUser(message.from),
       showSender:
           widget.room.uid.isMuc() || _authRepo.isCurrentUser(message.from),
-      pinned: widget.room.pinned,
     );
   }
 
   Widget buildChatItemWidget(String name) {
+    final isReceivedMessage =
+        !_authRepo.isCurrentUser(widget.room.lastMessage!.from);
+    final theme = Theme.of(context);
     return Row(
       children: <Widget>[
         ContactPic(widget.room.uid.asUid()),
@@ -256,46 +258,85 @@ class ChatItemState extends State<ChatItem> {
               StreamBuilder<Activity>(
                 stream: _roomRepo.activityObject[widget.room.uid.asUid().node],
                 builder: (c, s) {
-                  if (s.hasData &&
-                      s.data != null &&
-                      s.data!.typeOfActivity != ActivityType.NO_ACTIVITY) {
+                  {
                     return Row(
                       children: [
-                        ActivityStatus(
-                          activity: s.data!,
-                          roomUid: widget.room.uid.asUid(),
-                        ),
+                        if (s.hasData &&
+                            s.data != null &&
+                            s.data!.typeOfActivity != ActivityType.NO_ACTIVITY)
+                          Expanded(
+                            child: ActivityStatus(
+                              activity: s.data!,
+                              roomUid: widget.room.uid.asUid(),
+                            ),
+                          )
+                        else
+                          Expanded(
+                            child: FutureBuilder<Seen>(
+                              future: _roomRepo.getMySeen(widget.room.uid),
+                              builder: (context, snapshot) {
+                                var unreadCount = 0;
+                                if (snapshot.hasData &&
+                                    snapshot.data != null &&
+                                    snapshot.data!.messageId > -1) {
+                                  unreadCount = widget.room.lastMessageId -
+                                      snapshot.data!.messageId;
+                                  if (snapshot.data?.hiddenMessageCount !=
+                                      null) {
+                                    unreadCount = unreadCount -
+                                        snapshot.data!.hiddenMessageCount;
+                                  }
+                                }
+                                return widget.room.draft != null &&
+                                        widget.room.draft!.isNotEmpty &&
+                                        unreadCount == 0
+                                    ? buildDraftMessageWidget(
+                                        _i18n,
+                                        context,
+                                      )
+                                    : widget.room.lastMessage != null
+                                        ? buildLastMessage(
+                                            widget.room.lastMessage!,
+                                          )
+                                        : const SizedBox(
+                                            height: 3,
+                                            width: 5,
+                                          );
+                              },
+                            ),
+                          ),
+                        if (widget.room.mentioned)
+                          Container(
+                            width: 20,
+                            height: 20,
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.primary,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(
+                              CupertinoIcons.at,
+                              size: 12,
+                              color: theme.colorScheme.onPrimary,
+                            ),
+                          ),
+                        if (isReceivedMessage)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 4.0),
+                            child: UnreadMessageCounterWidget(
+                              widget.room.lastMessage!.roomUid,
+                              widget.room.lastMessage!.id!,
+                            ),
+                          ),
+                        if (widget.room.pinned)
+                          Padding(
+                            padding: const EdgeInsets.only(left: 4.0),
+                            child: Icon(
+                              CupertinoIcons.pin,
+                              size: 16,
+                              color: theme.colorScheme.onSurface.withAlpha(120),
+                            ),
+                          ),
                       ],
-                    );
-                  } else {
-                    return FutureBuilder<Seen>(
-                      future: _roomRepo.getMySeen(widget.room.uid),
-                      builder: (context, snapshot) {
-                        var unreadCount = 0;
-                        if (snapshot.hasData &&
-                            snapshot.data != null &&
-                            snapshot.data!.messageId > -1) {
-                          unreadCount = widget.room.lastMessageId -
-                              snapshot.data!.messageId;
-                          if (snapshot.data?.hiddenMessageCount != null) {
-                            unreadCount =
-                                unreadCount - snapshot.data!.hiddenMessageCount;
-                          }
-                        }
-                        return widget.room.draft != null &&
-                                widget.room.draft!.isNotEmpty &&
-                                unreadCount == 0
-                            ? buildDraftMessageWidget(
-                                _i18n,
-                                context,
-                              )
-                            : widget.room.lastMessage != null
-                                ? buildLastMessage(widget.room.lastMessage!)
-                                : const SizedBox(
-                                    height: 3,
-                                    width: 5,
-                                  );
-                      },
                     );
                   }
                 },
