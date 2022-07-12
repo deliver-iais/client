@@ -20,6 +20,7 @@ import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -321,11 +322,13 @@ class WindowsNotifier implements Notifier {
           lastAvatar.fileName!,
           thumbnailSize: ThumbnailSize.medium,
         );
+
         toast = await WinToast.instance().showToast(
           type: ToastType.imageAndText02,
           title: roomName,
           actions: actions,
-          subtitle: "Incoming Call",
+          subtitle:
+              "Incoming ${callEventJson?.toCallEvent().callType.name} Call",
           imagePath: file!,
         );
       } else {
@@ -729,13 +732,14 @@ class AndroidNotifier implements Notifier {
         thumbnailSize: ThumbnailSize.medium,
       );
     }
+    final callType = callEventJson?.toCallEvent().callType;
     //callType: 0 ==>Audio call 1 ==>Video call
     final ceJson = callEventJson ?? "";
     await ConnectycubeFlutterCallKit.showCallNotification(
       CallEvent(
         sessionId: clock.now().millisecondsSinceEpoch.toString(),
         callerId: 123456789,
-        callType: 0,
+        callType: callType == CallEvent_CallType.AUDIO ? 0 : 1,
         callerName: roomName,
         userInfo: {"uid": roomUid, "callEventJson": ceJson},
         avatarPath: path,
