@@ -14,7 +14,7 @@ class ReplyBrief extends StatelessWidget {
 
   final String roomId;
   final int replyToId;
-  final double maxWidth;
+  final double? maxWidth;
   final Color backgroundColor;
   final Color foregroundColor;
   final MessageBrief? messageReplyBrief;

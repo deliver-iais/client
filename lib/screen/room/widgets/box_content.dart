@@ -77,9 +77,18 @@ class BoxContentState extends State<BoxContent> {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _routingServices = GetIt.I.get<RoutingService>();
   final showMenuBehavior = BehaviorSubject.seeded(false);
+  final GlobalKey _messageBoxKey = GlobalKey();
+  double? replyBriefWidth;
 
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if(mounted) {
+        setState(() {
+        replyBriefWidth = _messageBoxKey.currentContext?.size?.width;
+      });
+      }
+    });
     super.initState();
   }
 
@@ -110,7 +119,7 @@ class BoxContentState extends State<BoxContent> {
                 if (shouldShowSenderName()) senderNameBox(colorScheme),
                 if (hasReply()) replyToIdBox(),
                 if (isForwarded()) forwardedFromBox(),
-                messageBox()
+                Container(key:_messageBoxKey ,child: messageBox())
               ],
             ),
           ),
@@ -168,7 +177,7 @@ class BoxContentState extends State<BoxContent> {
           roomId: widget.message.roomUid,
           replyToId: widget.message.replyToId,
           messageReplyBrief: widget.messageReplyBrief,
-          maxWidth: widget.minWidth,
+          maxWidth: replyBriefWidth,
           backgroundColor: colorScheme.onPrimary,
           foregroundColor: colorScheme.primary,
         ),
