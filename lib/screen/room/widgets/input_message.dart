@@ -112,7 +112,7 @@ class InputMessageWidgetState extends State<InputMessage> {
   bool _shouldSynthesize = true;
 
   final botCommandRegexp = RegExp(r"(\w)*");
-  final idRegexp = RegExp(r"(\w)*");
+  final idRegexp = RegExp(r"^[a-zA-Z]([a-zA-Z0-9_]){0,19}$");
 
   void showButtonSheet() {
     if (isWeb || isDesktop) {
@@ -182,7 +182,7 @@ class InputMessageWidgetState extends State<InputMessage> {
           widget.textController.text
               .substring(0 + 1, widget.textController.selection.start),
         );
-      } else  {
+      } else {
         _botCommandQuery.add("-");
       }
 
@@ -202,12 +202,18 @@ class InputMessageWidgetState extends State<InputMessage> {
               (start == 0 || widget.textController.text[start - 1] == " ") &&
               widget.textController.selection.start ==
                   widget.textController.selection.end &&
-              idRegexp.hasMatch(
-                widget.textController.text.substring(
-                  start + 1,
-                  widget.textController.selection.start,
-                ),
-              )) {
+              (idRegexp.hasMatch(
+                    widget.textController.text.substring(
+                      start + 1,
+                      widget.textController.selection.start,
+                    ),
+                  ) ||
+                  widget.textController.text
+                      .substring(
+                        start + 1,
+                        widget.textController.selection.start,
+                      )
+                      .isEmpty)) {
             _mentionQuery.add(
               widget.textController.text
                   .substring(start + 1, widget.textController.selection.start),
@@ -269,7 +275,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                     mentionSelectedIndex: mentionSelectedIndex,
                   );
                 }
-                mentionSelectedIndex = 1;
+                mentionSelectedIndex = 0;
                 return const SizedBox.shrink();
               },
             ),
@@ -284,7 +290,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                   botUid: widget.currentRoom.uid.asUid(),
                   query: _botCommandData,
                   onCommandClick: (command) {
-                    onCommandClick(command);
+                    onCommandSelected(command);
                   },
                   botCommandSelectedIndex: botCommandSelectedIndex,
                 );
@@ -613,7 +619,7 @@ class InputMessageWidgetState extends State<InputMessage> {
     }
   }
 
-  void onCommandClick(String command) {
+  void onCommandSelected(String command) {
     widget.textController.text = "/$command";
     widget.textController.selection = TextSelection.fromPosition(
       TextPosition(offset: widget.textController.text.length),
@@ -655,7 +661,7 @@ class InputMessageWidgetState extends State<InputMessage> {
       } else if (widget.currentRoom.uid.isBot() &&
           botCommandSelectedIndex >= 0 &&
           _botCommandQuery.value != "-") {
-        sendBotCommandByEnter();
+        addBotCommandByEnter();
       } else {
         sendMessage();
       }
@@ -751,15 +757,17 @@ class InputMessageWidgetState extends State<InputMessage> {
     }
   }
 
-  void sendBotCommandByEnter() {
-    _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then(
-          (value) => {
-            if (value != null)
-              onCommandClick(
-                value.commands!.keys.toList()[botCommandSelectedIndex],
-              )
-          },
-        );
+  Future<void> addBotCommandByEnter() async {
+    final value = await _botRepo.getBotInfo(widget.currentRoom.uid.asUid());
+    if (value != null && value.commands!.isNotEmpty) {
+      onCommandSelected(
+        value.commands!.keys
+            .where((element) => element.contains(_botCommandData))
+            .toList()[botCommandSelectedIndex],
+      );
+    } else {
+      sendMessage();
+    }
   }
 
   Future<void> addMentionByEnter() async {
