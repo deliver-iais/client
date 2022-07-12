@@ -29,8 +29,6 @@ class CallBottomRowState extends State<CallBottomRow> {
   Color? _screenShareIcon;
   Color? _muteMicIcon;
   final callRepo = GetIt.I.get<CallRepo>();
-  int indexSwitchCamera = 0;
-  int screenShareIndex = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -42,9 +40,10 @@ class CallBottomRowState extends State<CallBottomRow> {
     _offVideoCamIcon = callRepo.mute_camera.value
         ? theme.buttonTheme.colorScheme!.primary
         : null;
-    _switchCameraIcon = callRepo.switching.value
-        ? theme.buttonTheme.colorScheme!.primary
-        : null;
+
+    // _switchCameraIcon = callRepo.switching.value
+    //     ? theme.buttonTheme.colorScheme!.primary
+    //     : null;
 
     if (widget.isIncomingCall) {
       return Padding(
@@ -188,11 +187,10 @@ class CallBottomRowState extends State<CallBottomRow> {
     }
   }
 
-  void _switchCamera(ThemeData theme) {
-    callRepo.switchCamera();
-    indexSwitchCamera++;
-    _switchCameraIcon =
-        indexSwitchCamera.isOdd ? theme.buttonTheme.colorScheme!.primary : null;
+  Future<void> _switchCamera(ThemeData theme) async {
+    _switchCameraIcon = !await callRepo.switchCamera()
+        ? theme.buttonTheme.colorScheme!.primary
+        : null;
     setState(() {});
   }
 
@@ -209,10 +207,10 @@ class CallBottomRowState extends State<CallBottomRow> {
     setState(() {});
   }
 
-  _shareScreen(ThemeData theme) {
+  void _shareScreen(ThemeData theme) {
     callRepo.shareScreen();
-    screenShareIndex++;
-    _screenShareIcon = screenShareIndex.isOdd ? theme.buttonTheme.colorScheme!.primary : null;
+    _screenShareIcon =
+        callRepo.isSharing ? theme.buttonTheme.colorScheme!.primary : null;
     setState(() {});
   }
 

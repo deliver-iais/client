@@ -100,7 +100,7 @@ class CallRepo {
   bool _isSpeaker = false;
   bool _isMicMuted = false;
   bool _isInitRenderer = false;
-  bool _isDCRecived = false;
+  bool _isDCReceived = false;
   bool _reconnectTry = false;
   bool _isEnded = false;
   bool _isOfferReady = false;
@@ -109,6 +109,8 @@ class CallRepo {
   Uid? _roomUid;
 
   Uid? get roomUid => _roomUid;
+
+  bool get isSharing => _isSharing;
 
   bool get isVideo => _isVideo;
   Function(MediaStream stream)? onLocalStream;
@@ -498,7 +500,7 @@ class CallRepo {
       ..onDataChannel = (channel) {
         _logger.i("data Channel Received!!");
         _dataChannel = channel;
-        _isDCRecived = true;
+        _isDCReceived = true;
         //it means Connection is Connected
         _startCallTimerAndChangeStatus();
         _dataChannel!.onMessage = (data) {
@@ -581,7 +583,7 @@ class CallRepo {
     if (_startCallTime == 0) {
       _startCallTime = clock.now().millisecondsSinceEpoch;
     }
-    if (_isDCRecived) {
+    if (_isDCReceived) {
       await _dataChannel!
           .send(RTCDataChannelMessage(STATUS_CONNECTION_CONNECTED));
     }
@@ -600,7 +602,7 @@ class CallRepo {
 
     final dataChannel = await _peerConnection!
         .createDataChannel("stateTransfer", dataChannelDict);
-    _isDCRecived = true;
+    _isDCReceived = true;
     dataChannel.onMessage = (data) {
       final status = data.text;
       _logger.i(status);
@@ -830,10 +832,13 @@ class CallRepo {
     return false;
   }
 
-  void switchCamera() {
+  Future<bool> switchCamera() async {
     if (_localStream != null) {
-      Helper.switchCamera(_localStream!.getVideoTracks()[0]);
+      final switching =
+          await Helper.switchCamera(_localStream!.getVideoTracks()[0]);
+      return switching;
     }
+    return false;
   }
 
   /*
@@ -1072,7 +1077,7 @@ class CallRepo {
         if (_isCaller) {
           receivedEndCall(0);
         } else {
-          if (_isDCRecived) {
+          if (_isDCReceived) {
             _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
           }
           timerEndCallDispose = Timer(const Duration(seconds: 8), () {

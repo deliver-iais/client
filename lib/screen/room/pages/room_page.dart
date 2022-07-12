@@ -885,10 +885,7 @@ class RoomPageState extends State<RoomPage> {
               return snapshot.hasData && !snapshot.data!
                   ? DescribedFeatureOverlay(
                       featureId: FEATURE_4,
-                      tapTarget: IconButton(
-                        icon: const Icon(CupertinoIcons.phone),
-                        onPressed: () {},
-                      ),
+                      tapTarget: const Icon(Icons.local_phone_rounded),
                       backgroundColor: theme.colorScheme.tertiaryContainer,
                       targetColor: theme.colorScheme.tertiary,
                       title: Text(
@@ -998,38 +995,17 @@ class RoomPageState extends State<RoomPage> {
                           color: theme.colorScheme.onTertiaryContainer,
                         ),
                       ),
-                      child: IconButton(
-                        onPressed: () {
-                          if (_callService.getUserCallState ==
-                              UserCallState.NOCALL) {
-                            _routingService.openCallScreen(room.uid.asUid());
-                          } else {
-                            if (room.uid.asUid() == _callRepo.roomUid) {
-                              _routingService.openCallScreen(
-                                room.uid.asUid(),
-                                isCallInitialized: true,
-                              );
-                            } else {
-                              showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  content: Text(
-                                    _i18n.get("you_already_in_call"),
-                                  ),
-                                  actions: <Widget>[
-                                    TextButton(
-                                      child: Text(_i18n.get("ok")),
-                                      onPressed: () {
-                                        Navigator.of(context).pop();
-                                      },
-                                    )
-                                  ],
-                                ),
-                              );
-                            }
-                          }
-                        },
-                        icon: const Icon(CupertinoIcons.phone),
+                      child: Row(
+                        children: [
+                          IconButton(
+                            onPressed: () => openCallScreen(isVideoCall: true),
+                            icon: const Icon(Icons.videocam_rounded),
+                          ),
+                          IconButton(
+                            onPressed: () => openCallScreen(),
+                            icon: const Icon(Icons.local_phone_rounded),
+                          ),
+                        ],
                       ),
                     )
                   : const SizedBox.shrink();
@@ -1520,5 +1496,39 @@ class RoomPageState extends State<RoomPage> {
 
   void openRoomSearchBox() {
     _searchMode.add(true);
+  }
+
+  void openCallScreen({bool isVideoCall = false}) {
+    if (_callService.getUserCallState == UserCallState.NOCALL) {
+      _routingService.openCallScreen(
+        room.uid.asUid(),
+        isVideoCall: isVideoCall,
+      );
+    } else {
+      if (room.uid.asUid() == _callRepo.roomUid) {
+        _routingService.openCallScreen(
+          room.uid.asUid(),
+          isCallInitialized: true,
+          isVideoCall: isVideoCall,
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            content: Text(
+              _i18n.get("you_already_in_call"),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: Text(_i18n.get("ok")),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              )
+            ],
+          ),
+        );
+      }
+    }
   }
 }

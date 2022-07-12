@@ -332,8 +332,8 @@ class MyApp extends StatelessWidget {
             value: SystemUiOverlayStyle(
               statusBarIconBrightness:
                   _uxService.themeIsDark ? Brightness.light : Brightness.dark,
-              systemNavigationBarColor:
-                  _uxService.theme.colorScheme.surfaceVariant,
+              // systemNavigationBarColor:
+              //     _uxService.theme.colorScheme.surfaceVariant,
               systemNavigationBarIconBrightness:
                   _uxService.themeIsDark ? Brightness.light : Brightness.dark,
             ),
