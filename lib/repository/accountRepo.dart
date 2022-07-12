@@ -141,7 +141,9 @@ class AccountRepo {
         return false;
       }
 
-      if (account?.username != null && account?.username != username) {
+      if (account == null ||
+          account.username == null ||
+          account.username != username) {
         await _sdr.queryServiceClient.setId(SetIdReq()..id = username);
         _saveProfilePrivateData(username: username);
       }
@@ -152,8 +154,8 @@ class AccountRepo {
           ..description = description ?? ""
           ..lastName = lastname ?? "";
 
-        final res = await _sdr.userServiceClient
-            .saveUserProfile(saveUserProfileReq);
+        final res =
+            await _sdr.userServiceClient.saveUserProfile(saveUserProfileReq);
         _saveProfilePrivateData(
           firstName: res.profile.firstName,
           lastName: res.profile.lastName,

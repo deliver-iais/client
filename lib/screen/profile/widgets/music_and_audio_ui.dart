@@ -7,6 +7,7 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/audio_message/play_audio_status.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
+import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -36,6 +37,7 @@ class MusicAndAudioUi extends StatefulWidget {
 }
 
 class MusicAndAudioUiState extends State<MusicAndAudioUi> {
+  static final _audioPlayerService = GetIt.I.get<AudioService>();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _mediaCache = <int, Media>{};
@@ -134,8 +136,7 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                         fileName,
                                       );
                                       if (audioPath != null) {
-                                        await PlayAudioStatusState.audioPlayerService
-                                            .play(
+                                        _audioPlayerService.playAudioMessage(
                                           audioPath,
                                           fileUuid,
                                           fileName,

@@ -33,6 +33,7 @@ class RoomName extends StatelessWidget {
         final name = (snapshot.data ?? "");
         return Row(
           crossAxisAlignment: CrossAxisAlignment.baseline,
+          mainAxisSize:MainAxisSize.min ,
           textBaseline: TextBaseline.alphabetic,
           children: [
             Flexible(

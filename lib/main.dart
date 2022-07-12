@@ -69,7 +69,6 @@ import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
-import 'package:deliver/services/recorder_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/services/ux_service.dart';
@@ -205,16 +204,9 @@ Future<void> setupDI() async {
   registerSingleton<MediaRepo>(MediaRepo());
   registerSingleton<LastActivityRepo>(LastActivityRepo());
   registerSingleton<LiveLocationRepo>(LiveLocationRepo());
-  if (isAndroid || isIOS) {
-    registerSingleton<AudioPlayerModule>(NormalAudioPlayer());
-  } else if (isWindows || isMacOS) {
-    registerSingleton<AudioPlayerModule>(JustAudioAudioPlayer());
-  } else {
-    registerSingleton<AudioPlayerModule>(FakeAudioPlayer());
-  }
+
   try {
     registerSingleton<AudioService>(AudioService());
-    registerSingleton<RecorderService>(RecorderService());
   } catch (_) {}
 
   if (isWeb) {
