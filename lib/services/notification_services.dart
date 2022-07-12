@@ -316,6 +316,8 @@ class WindowsNotifier implements Notifier {
     }
     try {
       final lastAvatar = await _avatarRepo.getLastAvatar(roomUid.asUid());
+      final subtitle =
+          "Incoming ${callEventJson?.toCallEvent().callType.name} Call";
       if (lastAvatar != null && lastAvatar.fileId != null) {
         final file = await _fileRepo.getFile(
           lastAvatar.fileId!,
@@ -327,8 +329,7 @@ class WindowsNotifier implements Notifier {
           type: ToastType.imageAndText02,
           title: roomName,
           actions: actions,
-          subtitle:
-              "Incoming ${callEventJson?.toCallEvent().callType.name} Call",
+          subtitle: subtitle,
           imagePath: file!,
         );
       } else {
@@ -339,7 +340,7 @@ class WindowsNotifier implements Notifier {
             title: roomName,
             imagePath: deliverIcon.path,
             actions: actions,
-            subtitle: "Incoming Call",
+            subtitle: subtitle,
           );
         }
       }
