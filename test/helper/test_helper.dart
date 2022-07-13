@@ -547,9 +547,10 @@ MockServicesDiscoveryRepo getAndRegisterQueryServiceClient({
       GetAllUserRoomMetaRes(roomsMeta: roomsMeta, finished: finished),
     ),
   );
-  when(mocSdr.queryServiceClient
-          .getUserRoomMeta(GetUserRoomMetaReq()..roomUid = testUid))
-      .thenAnswer(
+  when(
+    mocSdr.queryServiceClient
+        .getUserRoomMeta(GetUserRoomMetaReq()..roomUid = testUid),
+  ).thenAnswer(
     (realInvocation) => MockResponseFuture<GetUserRoomMetaRes>(
       GetUserRoomMetaRes(roomMeta: roomMetadata),
     ),
@@ -694,29 +695,29 @@ MockServicesDiscoveryRepo getAndRegisterQueryServiceClient({
               MockResponseFuture<RemovePrivateRoomRes>(RemovePrivateRoomRes()),
         );
   getIdByUidGetError
-      ? when(mocSdr.queryServiceClient
-              .getIdByUid(GetIdByUidReq()..uid = testUid))
-          .thenThrow(
+      ? when(
+          mocSdr.queryServiceClient.getIdByUid(GetIdByUidReq()..uid = testUid),
+        ).thenThrow(
           (realInvocation) =>
               MockResponseFuture<GetIdByUidRes>(GetIdByUidRes()),
         )
-      : when(mocSdr.queryServiceClient
-              .getIdByUid(GetIdByUidReq()..uid = testUid))
-          .thenAnswer(
+      : when(
+          mocSdr.queryServiceClient.getIdByUid(GetIdByUidReq()..uid = testUid),
+        ).thenAnswer(
           (realInvocation) => MockResponseFuture<GetIdByUidRes>(
             GetIdByUidRes(id: getIdByUidData),
           ),
         );
   getIdByUidGetError
-      ? when(mocSdr.queryServiceClient
-              .getIdByUid(GetIdByUidReq()..uid = groupUid))
-          .thenThrow(
+      ? when(
+          mocSdr.queryServiceClient.getIdByUid(GetIdByUidReq()..uid = groupUid),
+        ).thenThrow(
           (realInvocation) =>
               MockResponseFuture<GetIdByUidRes>(GetIdByUidRes()),
         )
-      : when(mocSdr.queryServiceClient
-              .getIdByUid(GetIdByUidReq()..uid = groupUid))
-          .thenAnswer(
+      : when(
+          mocSdr.queryServiceClient.getIdByUid(GetIdByUidReq()..uid = groupUid),
+        ).thenAnswer(
           (realInvocation) => MockResponseFuture<GetIdByUidRes>(
             GetIdByUidRes(id: getIdByUidData),
           ),
