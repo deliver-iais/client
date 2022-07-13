@@ -8,7 +8,6 @@ import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chats_page.dart';
 import 'package:deliver/screen/navigation_center/widgets/feature_discovery_description_widget.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
-import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -170,7 +169,7 @@ class NavigationCenterState extends State<NavigationCenter> {
 
   Widget _outOfDateWidget() {
     return StreamBuilder<bool>(
-      stream: outOfDateObject,
+      stream:_authRepo.outOfDateObject,
       builder: (c, snapshot) {
         if (snapshot.hasData && snapshot.data != null && snapshot.data!) {
           showOutOfDateDialog(context);
@@ -183,7 +182,7 @@ class NavigationCenterState extends State<NavigationCenter> {
 
   Widget _newVersionInfo() {
     return StreamBuilder<NewerVersionInformation?>(
-      stream: newVersionInformation,
+      stream: _authRepo.newVersionInformation,
       builder: (context, snapshot) {
         if (snapshot.hasData &&
             snapshot.data != null &&
