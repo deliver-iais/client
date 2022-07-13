@@ -143,9 +143,9 @@ class AuthRepo {
       try {
         final renewAccessTokenRes = await _getAccessToken(_refreshToken!);
         _saveTokens(renewAccessTokenRes);
-        if (renewAccessTokenRes.newerVersionInformation.version.isNotEmpty &&
-            renewAccessTokenRes.newerVersionInformation.version != VERSION &&
-            !newVersionInformation.hasValue) {
+        if (!newVersionInformation.hasValue &&
+            renewAccessTokenRes.newerVersionInformation.version.isNotEmpty &&
+            renewAccessTokenRes.newerVersionInformation.version != VERSION) {
           newVersionInformation
               .add(renewAccessTokenRes.newerVersionInformation);
         }

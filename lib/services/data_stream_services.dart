@@ -89,6 +89,7 @@ class DataStreamServices {
                   uid: message.from.asString(),
                   deleted: true,
                 );
+                _roomRepo.d
                 return null;
               }
               break;

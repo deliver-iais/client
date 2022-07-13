@@ -19,7 +19,7 @@ import 'package:rxdart/rxdart.dart';
 BehaviorSubject<bool> outOfDateObject = BehaviorSubject.seeded(false);
 
 BehaviorSubject<NewerVersionInformation?> newVersionInformation =
-    BehaviorSubject.seeded(null);
+    BehaviorSubject();
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

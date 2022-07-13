@@ -1,6 +1,7 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/mucRepo.dart';
+import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
@@ -14,7 +15,7 @@ import 'package:get_it/get_it.dart';
 
 class ShareUidMessageWidget extends StatelessWidget {
   static final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
-  static final _mucRepo = GetIt.I.get<MucRepo>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _routingServices = GetIt.I.get<RoutingService>();
   static final _i18n = GetIt.I.get<I18N>();
 
@@ -82,8 +83,8 @@ class ShareUidMessageWidget extends StatelessWidget {
             onPressed: () async {
               if ((shareUid.uid.category == Categories.GROUP ||
                   shareUid.uid.category == Categories.CHANNEL)) {
-                final muc = await _mucRepo.getMuc(shareUid.uid.asString());
-                if (muc != null) {
+                final room = await _roomRepo.getRoom(shareUid.uid.asString());
+                if (room != null && !room.deleted) {
                   _routingServices.openRoom(shareUid.uid.asString());
                 } else {
                   // ignore: use_build_context_synchronously
