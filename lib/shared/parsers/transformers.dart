@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/shared/loaders/spoiler_loader.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
 import 'package:flutter/gestures.dart';
@@ -32,7 +33,7 @@ Transformer<InlineSpan> inlineSpanTransformer({
     final strikethrough =
         b.features.whereType<StrikethroughFeature>().firstOrNull;
 
-    final text = b.text;
+    final text = synthesizeToOriginalWord(b.text);
     var textStyle = const TextStyle();
     final textDecorations = <TextDecoration>[];
 
@@ -115,7 +116,7 @@ Transformer<InlineSpan> simpleInlineSpanTransformer({
     final strikethrough =
         b.features.whereType<StrikethroughFeature>().firstOrNull;
 
-    final text = b.text;
+    final text = synthesizeToOriginalWord(b.text);
     var textStyle = const TextStyle();
     final textDecorations = <TextDecoration>[];
 
@@ -178,7 +179,7 @@ Transformer<String> textTransformer() {
     if (spoiler != null) {
       return "▩" * b.text.length;
     } else {
-      return b.text;
+      return synthesizeToOriginalWord(b.text);
     }
   };
 }
@@ -187,7 +188,7 @@ Transformer<TextSpan> emojiTransformer() {
   return (b) {
     final emoji = b.features.whereType<EmojiFeature>().firstOrNull;
 
-    final text = b.text;
+    final text = synthesizeToOriginalWord(b.text);
     var textStyle = const TextStyle();
 
     if (emoji != null) {
