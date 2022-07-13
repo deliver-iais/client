@@ -1,3 +1,4 @@
+import 'package:collection/collection.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/screen/room/messageWidgets/link_preview.dart';
@@ -51,11 +52,15 @@ class TextUI extends StatelessWidget {
     );
 
     final link = blocks
-        .firstWhere(
-          (b) => b.features.whereType<UrlFeature>().isNotEmpty,
-          orElse: () => const Block(text: "", features: {}),
-        )
-        .text;
+            .firstWhere(
+              (b) => b.features.whereType<UrlFeature>().isNotEmpty,
+              orElse: () => const Block(text: "", features: {}),
+            )
+            .features
+            .whereType<UrlFeature>()
+            .firstOrNull
+            ?.url ??
+        "";
 
     final spans = onePathTransform(
       blocks,
