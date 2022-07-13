@@ -1,10 +1,11 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/authRepo.dart';
-import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver/shared/loaders/spoiler_loader.dart';
 import 'package:deliver/shared/methods/message.dart';
+import 'package:deliver/shared/parsers/detectors.dart';
+import 'package:deliver/shared/parsers/parsers.dart';
+import 'package:deliver/shared/parsers/transformers.dart';
 import 'package:deliver/shared/widgets/seen_status.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -155,30 +156,25 @@ class LastMessage extends StatelessWidget {
   List<InlineSpan> buildText(
     MessageSimpleRepresentative mb,
     BuildContext context,
-  ) =>
-      extractBlocks(
-        mb.text
-            .split("\n")
-            .map((e) => e.trim())
-            .where((e) => e.trim().isNotEmpty)
-            .join(" "),
-        context: context,
-      ).where((b) => b.text.isNotEmpty).map((e) {
-        if (e.type == BlockTypes.SPOILER) {
-          return WidgetSpan(
-            baseline: TextBaseline.ideographic,
-            alignment: PlaceholderAlignment.middle,
-            child: SpoilerLoader(
-              e.text,
-              style: e.style,
-              foreground: e.style?.color,
-              disableSpoilerReveal: true,
-            ),
-          );
-        }
-        if (e.type == BlockTypes.EMOJI) {
-          return TextSpan(text: e.text, style: e.style?.copyWith(fontSize: 14));
-        }
-        return TextSpan(text: e.text, style: e.style);
-      }).toList();
+  ) {
+    final theme = Theme.of(context);
+
+    return onePath(
+      [
+        Block(
+          text: mb.text
+              .split("\n")
+              .map((e) => e.trim())
+              .where((e) => e.isNotEmpty)
+              .join(" "),
+          features: {},
+        )
+      ],
+      detectorsWithSearchTermDetector(),
+      simpleInlineSpanTransformer(
+        defaultColor: theme.colorScheme.primary,
+        linkColor: theme.colorScheme.primary,
+      ),
+    );
+  }
 }
