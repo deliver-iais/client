@@ -33,7 +33,7 @@ class ReplyBrief extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       height: 58,
-      margin: const EdgeInsets.only(top: 4.0, left: 4.0, right: 4.0),
+      padding: const EdgeInsets.only(top: 4.0, left: 4.0, right: 4.0),
       child: FutureBuilder<Message?>(
         future: _messageRepo.getMessage(roomId, replyToId),
         builder: (context, snapshot) {

@@ -78,15 +78,13 @@ class BoxContentState extends State<BoxContent> {
   static final _routingServices = GetIt.I.get<RoutingService>();
   final showMenuBehavior = BehaviorSubject.seeded(false);
   final GlobalKey _messageBoxKey = GlobalKey();
-  double? replyBriefWidth;
+  final replyBriefWidth = BehaviorSubject.seeded(0.0);
 
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if(mounted) {
-        setState(() {
-        replyBriefWidth = _messageBoxKey.currentContext?.size?.width;
-      });
+      if (mounted) {
+        replyBriefWidth.add(_messageBoxKey.currentContext?.size?.width ?? 0);
       }
     });
     super.initState();
@@ -119,7 +117,7 @@ class BoxContentState extends State<BoxContent> {
                 if (shouldShowSenderName()) senderNameBox(colorScheme),
                 if (hasReply()) replyToIdBox(),
                 if (isForwarded()) forwardedFromBox(),
-                Container(key:_messageBoxKey ,child: messageBox())
+                Container(key: _messageBoxKey, child: messageBox())
               ],
             ),
           ),
@@ -173,13 +171,18 @@ class BoxContentState extends State<BoxContent> {
             widget.message.id ?? 0,
           );
         },
-        child: ReplyBrief(
-          roomId: widget.message.roomUid,
-          replyToId: widget.message.replyToId,
-          messageReplyBrief: widget.messageReplyBrief,
-          maxWidth: replyBriefWidth,
-          backgroundColor: colorScheme.onPrimary,
-          foregroundColor: colorScheme.primary,
+        child: StreamBuilder<double>(
+          stream: replyBriefWidth,
+          builder: (context, snapshot) {
+            return ReplyBrief(
+              roomId: widget.message.roomUid,
+              replyToId: widget.message.replyToId,
+              messageReplyBrief: widget.messageReplyBrief,
+              maxWidth: snapshot.data ?? 0,
+              backgroundColor: colorScheme.onPrimary,
+              foregroundColor: colorScheme.primary,
+            );
+          },
         ),
       ),
     );
