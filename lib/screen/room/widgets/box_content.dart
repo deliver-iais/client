@@ -77,9 +77,16 @@ class BoxContentState extends State<BoxContent> {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _routingServices = GetIt.I.get<RoutingService>();
   final showMenuBehavior = BehaviorSubject.seeded(false);
+  final GlobalKey _messageBoxKey = GlobalKey();
+  final messageBoxWidth = BehaviorSubject.seeded(0.0);
 
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        messageBoxWidth.add(_messageBoxKey.currentContext?.size?.width ?? 0);
+      }
+    });
     super.initState();
   }
 
@@ -110,7 +117,7 @@ class BoxContentState extends State<BoxContent> {
                 if (shouldShowSenderName()) senderNameBox(colorScheme),
                 if (hasReply()) replyToIdBox(),
                 if (isForwarded()) forwardedFromBox(),
-                messageBox()
+                Container(key: _messageBoxKey, child: messageBox())
               ],
             ),
           ),
@@ -164,13 +171,18 @@ class BoxContentState extends State<BoxContent> {
             widget.message.id ?? 0,
           );
         },
-        child: ReplyBrief(
-          roomId: widget.message.roomUid,
-          replyToId: widget.message.replyToId,
-          messageReplyBrief: widget.messageReplyBrief,
-          maxWidth: widget.minWidth,
-          backgroundColor: colorScheme.onPrimary,
-          foregroundColor: colorScheme.primary,
+        child: StreamBuilder<double>(
+          stream: messageBoxWidth,
+          builder: (context, snapshot) {
+            return ReplyBrief(
+              roomId: widget.message.roomUid,
+              replyToId: widget.message.replyToId,
+              messageReplyBrief: widget.messageReplyBrief,
+              maxWidth: snapshot.data ?? 0,
+              backgroundColor: colorScheme.onPrimary,
+              foregroundColor: colorScheme.primary,
+            );
+          },
         ),
       ),
     );
