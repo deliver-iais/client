@@ -27,6 +27,9 @@ class TextUI extends StatefulWidget {
   final bool isBotMessage;
   final CustomColorScheme colorScheme;
 
+  final List<Block> blocks;
+  final String text;
+
   TextUI({
     super.key,
     required this.message,
@@ -38,7 +41,22 @@ class TextUI extends StatefulWidget {
     this.isSender = false,
     this.isSeen = false,
     this.searchTerm,
-  }) : isBotMessage = message.roomUid.asUid().isBot();
+  })  : isBotMessage = message.roomUid.asUid().isBot(),
+        text = _extractText(message),
+        blocks = onePathMultiDetection(
+          [Block(text: _extractText(message), features: {})],
+          detectorsWithSearchTermDetector(),
+        );
+
+  static String _extractText(Message msg) {
+    if (msg.type == MessageType.TEXT) {
+      return msg.json.toText().text.trim();
+    } else if (msg.type == MessageType.FILE) {
+      return msg.json.toFile().caption.trim();
+    } else {
+      return "";
+    }
+  }
 
   @override
   State<TextUI> createState() => _TextUIState();
@@ -48,31 +66,14 @@ class _TextUIState extends State<TextUI> {
   final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
   final _textBoxKey = GlobalKey();
 
-  late final _textBoxWidth = BehaviorSubject.seeded(0.0);
+  final _textBoxWidth = BehaviorSubject.seeded(0.0);
+  String _link = "";
 
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        print(_textBoxKey.currentContext?.size?.width);
-        _textBoxWidth.add(_textBoxKey.currentContext?.size?.width ?? 0);
-      }
-    });
-  }
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    final text = extractText(widget.message);
-
-    final blocks = onePathMultiDetection(
-      [Block(text: text, features: {})],
-      detectorsWithSearchTermDetector(),
-    );
-
-    final link = blocks
+    _link = widget.blocks
             .firstWhere(
               (b) => b.features.whereType<UrlFeature>().isNotEmpty,
               orElse: () => const Block(text: "", features: {}),
@@ -83,8 +84,19 @@ class _TextUIState extends State<TextUI> {
             ?.url ??
         "";
 
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _textBoxWidth.add(_textBoxKey.currentContext?.size?.width ?? 0);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     final spans = onePathTransform(
-      blocks,
+      widget.blocks,
       inlineSpanTransformer(
         defaultColor: widget.colorScheme.onPrimaryContainer,
         linkColor: theme.colorScheme.primary,
@@ -107,21 +119,23 @@ class _TextUIState extends State<TextUI> {
             key: _textBoxKey,
             child: RichText(
               text: TextSpan(children: spans, style: theme.textTheme.bodyText2),
-              textDirection:
-                  text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
+              textDirection: widget.text.isPersian()
+                  ? TextDirection.rtl
+                  : TextDirection.ltr,
             ),
           ),
           StreamBuilder<double>(
-              stream: _textBoxWidth,
-              builder: (context, snapshot) {
-                return LinkPreview(
-                  link: link,
-                  maxWidth: snapshot.data ?? 0,
-                  backgroundColor:
-                      Theme.of(context).colorScheme.shadow.withOpacity(0.1),
-                  foregroundColor: widget.colorScheme.primary,
-                );
-              }),
+            stream: _textBoxWidth,
+            builder: (context, snapshot) {
+              return LinkPreview(
+                link: _link,
+                maxWidth: snapshot.data ?? 0,
+                backgroundColor:
+                    Theme.of(context).colorScheme.shadow.withOpacity(0.1),
+                foregroundColor: widget.colorScheme.primary,
+              );
+            },
+          ),
           TimeAndSeenStatus(
             widget.message,
             isSender: widget.isSender,
@@ -131,16 +145,6 @@ class _TextUIState extends State<TextUI> {
         ],
       ),
     );
-  }
-
-  String extractText(Message msg) {
-    if (msg.type == MessageType.TEXT) {
-      return msg.json.toText().text.trim();
-    } else if (msg.type == MessageType.FILE) {
-      return msg.json.toFile().caption.trim();
-    } else {
-      return "";
-    }
   }
 }
 

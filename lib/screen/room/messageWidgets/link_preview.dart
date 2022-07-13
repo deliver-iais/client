@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:dcache/dcache.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
