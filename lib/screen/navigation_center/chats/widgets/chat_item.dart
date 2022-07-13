@@ -8,12 +8,9 @@ import 'package:deliver/repository/lastActivityRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
-import 'package:deliver/services/routing_service.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/activity_status.dart';
-import 'package:deliver/shared/widgets/drag_and_drop_widget.dart';
 import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -66,7 +63,6 @@ class ChatItemState extends State<ChatItem> {
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _i18n = GetIt.I.get<I18N>();
-  static final _routingService = GetIt.I.get<RoutingService>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
 
   @override
@@ -117,63 +113,58 @@ class ChatItemState extends State<ChatItem> {
 
     final hoverColor = theme.hoverColor;
 
-    return DragDropWidget(
-      roomUid: widget.room.uid,
-      enabled: isLarge(context) || (_routingService.notInRoom()),
-      height: chatItemHeight,
-      child: Column(
-        children: [
-          HoverContainer(
-            cursor: SystemMouseCursors.click,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            hoverDecoration: BoxDecoration(
-              color: widget.isInRoom
-                  ? activeHoverColor
-                  : isPinnedRoom
-                      ? pinnedHoverColor
-                      : hoverColor,
-            ),
-            decoration: BoxDecoration(
-              color: widget.isInRoom
-                  ? theme.colorScheme.primaryContainer
-                  : isPinnedRoom
-                      ? pinnedColor
-                      : Colors.transparent,
-            ),
-            height: chatItemHeight,
-            child: FutureBuilder<String>(
-              initialData: _roomRepo.fastForwardName(widget.room.uid.asUid()),
-              future: _roomRepo.getName(widget.room.uid.asUid()),
-              builder: (c, nameSnapshot) {
-                final name = _authRepo.isCurrentUser(widget.room.uid)
-                    ? _i18n.get("saved_message")
-                    : nameSnapshot.data ?? "";
-
-                return buildChatItemWidget(name);
-              },
-            ),
+    return Column(
+      children: [
+        HoverContainer(
+          cursor: SystemMouseCursors.click,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          hoverDecoration: BoxDecoration(
+            color: widget.isInRoom
+                ? activeHoverColor
+                : isPinnedRoom
+                    ? pinnedHoverColor
+                    : hoverColor,
           ),
-          if (!isPinnedRoom)
-            Padding(
+          decoration: BoxDecoration(
+            color: widget.isInRoom
+                ? theme.colorScheme.primaryContainer
+                : isPinnedRoom
+                    ? pinnedColor
+                    : Colors.transparent,
+          ),
+          height: chatItemHeight,
+          child: FutureBuilder<String>(
+            initialData: _roomRepo.fastForwardName(widget.room.uid.asUid()),
+            future: _roomRepo.getName(widget.room.uid.asUid()),
+            builder: (c, nameSnapshot) {
+              final name = _authRepo.isCurrentUser(widget.room.uid)
+                  ? _i18n.get("saved_message")
+                  : nameSnapshot.data ?? "";
+
+              return buildChatItemWidget(name);
+            },
+          ),
+        ),
+        if (!isPinnedRoom)
+          Padding(
+            padding: const EdgeInsets.only(left: 76.0),
+            child: widget.isInRoom
+                ? const SizedBox(height: 0.5)
+                : const Divider(height: 0.5, thickness: 0.5),
+          )
+        else
+          Container(
+            height: 1,
+            width: double.infinity,
+            color: pinnedColor,
+            child: Padding(
               padding: const EdgeInsets.only(left: 76.0),
               child: widget.isInRoom
                   ? const SizedBox(height: 0.5)
                   : const Divider(height: 0.5, thickness: 0.5),
-            )
-          else
-            Container(
-              height: 1,
-              width: double.infinity,
-              color: pinnedColor,
-              child: Padding(
-                padding: const EdgeInsets.only(left: 76.0),
-                child: widget.isInRoom
-                    ? const SizedBox(height: 0.5)
-                    : const Divider(height: 0.5, thickness: 0.5),
-              ),
-            )
-        ],
-      ),
+            ),
+          )
+      ],
     );
   }
 
