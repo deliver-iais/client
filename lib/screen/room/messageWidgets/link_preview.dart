@@ -121,7 +121,7 @@ class LinkPreview extends StatelessWidget {
             ),
           ),
           if (data.description != null)
-            Expanded(
+            Flexible(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 8.0,
