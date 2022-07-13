@@ -201,7 +201,7 @@ void main() {
         final queryServiceClient = getAndRegisterQueryServiceClient();
         await RoomRepo().deleteRoom(testUid);
         verify(
-          queryServiceClient
+          queryServiceClient.queryServiceClient
               .removePrivateRoom(RemovePrivateRoomReq()..roomUid = testUid),
         );
       });
@@ -245,7 +245,7 @@ void main() {
       test('When called should getIdByUid', () async {
         final queryServiceClient = getAndRegisterQueryServiceClient();
         await RoomRepo().getIdByUid(testUid);
-        verify(queryServiceClient.getIdByUid(GetIdByUidReq()..uid = testUid));
+        verify(queryServiceClient.queryServiceClient.getIdByUid(GetIdByUidReq()..uid = testUid));
       });
       test(
           'When called should getIdByUid and update uidIdNameDao with new value',
@@ -451,14 +451,14 @@ void main() {
         final blockDao = getAndRegisterBlockDao();
         final queryServiceClient = getAndRegisterQueryServiceClient();
         await RoomRepo().block(testUid.asString(), block: true);
-        verify(queryServiceClient.block(BlockReq()..uid = testUid));
+        verify(queryServiceClient.queryServiceClient.block(BlockReq()..uid = testUid));
         verify(blockDao.block(testUid.asString()));
       });
       test('When called if block is false should unblock room', () async {
         final blockDao = getAndRegisterBlockDao();
         final queryServiceClient = getAndRegisterQueryServiceClient();
         await RoomRepo().block(testUid.asString(), block: false);
-        verify(queryServiceClient.unblock(UnblockReq()..uid = testUid));
+        verify(queryServiceClient.queryServiceClient.unblock(UnblockReq()..uid = testUid));
         verify(blockDao.unblock(testUid.asString()));
       });
     });
@@ -466,7 +466,7 @@ void main() {
       test('When called should getBlockedList', () async {
         final queryServiceClient = getAndRegisterQueryServiceClient();
         await RoomRepo().fetchBlockedRoom();
-        verify(queryServiceClient.getBlockedList(GetBlockedListReq()));
+        verify(queryServiceClient.queryServiceClient.getBlockedList(GetBlockedListReq()));
       });
       test('When called should getBlockedList and block them', () async {
         final blockDao = getAndRegisterBlockDao();
@@ -519,14 +519,14 @@ void main() {
           () async {
         final queryServiceClient = getAndRegisterQueryServiceClient();
         expect(await RoomRepo().fetchUidById("test"), testUid);
-        verify(queryServiceClient.getUidById(GetUidByIdReq()..id = "test"));
+        verify(queryServiceClient.queryServiceClient.getUidById(GetUidByIdReq()..id = "test"));
       });
     });
     group('reportRoom -', () {
       test('When called should report the room', () async {
         final queryServiceClient = getAndRegisterQueryServiceClient();
         RoomRepo().reportRoom(testUid);
-        verify(queryServiceClient.report(ReportReq()..uid = testUid));
+        verify(queryServiceClient.queryServiceClient.report(ReportReq()..uid = testUid));
       });
     });
 

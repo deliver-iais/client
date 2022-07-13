@@ -33,7 +33,7 @@ import '../helper/test_helper.dart';
 void main() {
   group('MessageRepoTest -', () {
     setUp(() => registerServices());
-    tearDown(() => unregisterServices());
+    tearDown(() =>  unregisterServices());
     group('MessageRepo -', () {
       test('When called should check coreServices.connectionStatus', () async {
         final coreServices = getAndRegisterCoreServices();
@@ -47,6 +47,7 @@ void main() {
         getAndRegisterCoreServices(
           connectionStatus: ConnectionStatus.Connected,
         );
+
         // ignore: await_only_futures
         await MessageRepo();
         verify(logger.i('updating -----------------'));
@@ -119,7 +120,7 @@ void main() {
         final queryServiceClient = getAndRegisterQueryServiceClient();
         await MessageRepo().updatingMessages();
         verify(
-          queryServiceClient.getAllUserRoomMeta(
+          queryServiceClient.queryServiceClient.getAllUserRoomMeta(
             GetAllUserRoomMetaReq()
               ..pointer = 0
               ..limit = 10,
@@ -133,7 +134,7 @@ void main() {
         final sharedDao = getAndRegisterSharedDao();
         await MessageRepo().updatingMessages();
         final getAllUserRoomMetaRes =
-            await queryServiceClient.getAllUserRoomMeta(
+            await queryServiceClient.queryServiceClient.getAllUserRoomMeta(
           GetAllUserRoomMetaReq()
             ..pointer = 0
             ..limit = 10,
@@ -149,7 +150,7 @@ void main() {
         final sharedDao = getAndRegisterSharedDao();
         await MessageRepo().updatingMessages();
         final getAllUserRoomMetaRes =
-            await queryServiceClient.getAllUserRoomMeta(
+            await queryServiceClient.queryServiceClient.getAllUserRoomMeta(
           GetAllUserRoomMetaReq()
             ..pointer = 0
             ..limit = 10,
@@ -267,7 +268,7 @@ void main() {
         await MessageRepo().updatingLastSeen();
         verify(authRepo.isCurrentUser(testUid.asString()));
         verifyNever(
-          queryServiceClient
+          queryServiceClient.queryServiceClient
               .getUserRoomMeta(GetUserRoomMetaReq()..roomUid = testUid),
         );
       });
@@ -308,7 +309,7 @@ void main() {
         final queryServiceClient = getAndRegisterQueryServiceClient();
         await MessageRepo().fetchHiddenMessageCount(testUid, 0);
         verify(
-          queryServiceClient.countIsHiddenMessages(
+          queryServiceClient.queryServiceClient.countIsHiddenMessages(
             CountIsHiddenMessagesReq()
               ..roomUid = testUid
               ..messageId = Int64(0 + 1),
@@ -527,7 +528,7 @@ void main() {
         final seenDo = getAndRegisterSeenDao();
         await MessageRepo().fetchOtherSeen(testUid);
         verify(
-          queryServiceClient.fetchLastOtherUserSeenData(
+          queryServiceClient.queryServiceClient.fetchLastOtherUserSeenData(
             FetchLastOtherUserSeenDataReq()..roomUid = testUid,
           ),
         );
@@ -542,7 +543,7 @@ void main() {
         final queryServiceClient = getAndRegisterQueryServiceClient();
         MessageRepo().fetchCurrentUserLastSeen(room);
         verify(
-          queryServiceClient.fetchCurrentUserSeenData(
+          queryServiceClient.queryServiceClient.fetchCurrentUserSeenData(
             FetchCurrentUserSeenDataReq()..roomUid = testUid,
           ),
         );
@@ -583,7 +584,7 @@ void main() {
         //   ),
         // );
         verify(
-          queryServiceClient.fetchMentionList(
+          queryServiceClient.queryServiceClient.fetchMentionList(
             FetchMentionListReq()
               ..group = testUid
               ..afterId = Int64.parseInt("0"),
@@ -1656,7 +1657,7 @@ void main() {
         await MessageRepo()
             .deleteMessage([testMessage.copyWith(packetId: "", id: 0)]);
         verify(
-          queryServiceClient.deleteMessage(
+          queryServiceClient.queryServiceClient.deleteMessage(
             DeleteMessageReq()
               ..messageId = Int64()
               ..roomUid = testUid,
@@ -1762,7 +1763,7 @@ void main() {
           ..replyToId = Int64(testMessage.replyToId)
           ..text = message_pb.Text(text: "test");
         verify(
-          queryServiceClient.updateMessage(
+          queryServiceClient.queryServiceClient.updateMessage(
             UpdateMessageReq()
               ..message = updatedMessage
               ..messageId = Int64(),
@@ -1914,7 +1915,7 @@ void main() {
             file: model.File("test", "test"),
           );
           verify(
-            queryServiceClient.updateMessage(
+            queryServiceClient.queryServiceClient.updateMessage(
               UpdateMessageReq()
                 ..message = updatedMessage
                 ..messageId = Int64(),

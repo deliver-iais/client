@@ -198,6 +198,7 @@ class MucRepo {
         if (createNewRoom) {
           await _roomDao.updateRoom(
             uid: mucUid.asString(),
+            deleted: false,
             lastMessageId: group.lastMessageId.toInt(),
           );
         }
