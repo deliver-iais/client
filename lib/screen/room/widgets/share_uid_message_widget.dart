@@ -1,6 +1,5 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -53,11 +52,12 @@ class ShareUidMessageWidget extends StatelessWidget {
             label: Row(
               children: [
                 if (shareUid.uid.category == Categories.GROUP)
-                  const Padding(
-                    padding: EdgeInsets.only(left: 4.0),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4.0),
                     child: Icon(
                       Icons.group_rounded,
                       size: 18,
+                      color: colorScheme.onPrimary,
                     ),
                   ),
                 if (shareUid.uid.category == Categories.CHANNEL)
@@ -75,6 +75,7 @@ class ShareUidMessageWidget extends StatelessWidget {
                         (shareUid.uid.category != Categories.USER
                             ? " ${_i18n.get("invite_link")}"
                             : ""),
+                    style: TextStyle(color: colorScheme.onPrimary),
                   ),
                 ),
                 const Icon(Icons.chevron_right, size: 18)

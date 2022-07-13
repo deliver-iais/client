@@ -6,6 +6,7 @@ import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
+import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -41,6 +42,7 @@ String buildInviteLinkForBot(String botId) =>
 class UrlHandlerService {
   final _mucDao = GetIt.I.get<MucDao>();
   final _mucRepo = GetIt.I.get<MucRepo>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
   final _i18n = GetIt.I.get<I18N>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
@@ -431,81 +433,76 @@ class UrlHandlerService {
     String token, {
     String? name,
   }) async {
-    final muc = await _mucDao.get(roomUid.asString());
-    if (muc != null) {
-      _routingService.openRoom(roomUid.asString());
-    } else {
-      Future.delayed(Duration.zero, () {
-        showFloatingModalBottomSheet(
-          context: context,
-          builder: (context) => Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                CircleAvatarWidget(
-                  roomUid,
-                  40,
-                  forceText: name ?? "",
-                ),
-                if (name != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8.0),
-                    child: Text(
-                      name,
-                      style: Theme.of(context).textTheme.headline6,
-                    ),
+    if ((roomUid.category == Categories.GROUP ||
+        roomUid.category == Categories.CHANNEL)) {
+      final room = await _roomRepo.getRoom(roomUid.asString());
+      if (room != null && !room.deleted) {
+        _routingService.openRoom(roomUid.asString());
+      } else {
+        Future.delayed(Duration.zero, () {
+          showFloatingModalBottomSheet(
+            context: context,
+            builder: (context) => Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  CircleAvatarWidget(
+                    roomUid,
+                    40,
+                    forceText: name ?? "",
                   ),
-                const SizedBox(height: 10),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    MaterialButton(
-                      onPressed: () => Navigator.of(context).pop(),
-                      child: Text(_i18n.get("skip")),
+                  if (name != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Text(
+                        name,
+                        style: Theme.of(context).textTheme.headline6,
+                      ),
                     ),
-                    MaterialButton(
-                      onPressed: () async {
-                        final navigatorState = Navigator.of(context);
-                        if ((roomUid.category == Categories.GROUP ||
-                            roomUid.category == Categories.CHANNEL)) {
-                          final muc = await _mucRepo.getMuc(roomUid.asString());
-                          if (muc == null) {
-                            if (roomUid.category == Categories.GROUP) {
-                              final res = await _mucRepo.joinGroup(
-                                roomUid,
-                                token,
-                              );
-                              if (res != null) {
-                                navigatorState.pop();
-                                _routingService.openRoom(roomUid.asString());
-                              }
-                            } else {
-                              final res = await _mucRepo.joinChannel(
-                                roomUid,
-                                token,
-                              );
-                              if (res != null) {
-                                navigatorState.pop();
-                                _routingService.openRoom(roomUid.asString());
-                              }
+                  const SizedBox(height: 10),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      MaterialButton(
+                        onPressed: () => Navigator.of(context).pop(),
+                        child: Text(_i18n.get("skip")),
+                      ),
+                      MaterialButton(
+                        onPressed: () async {
+                          final navigatorState = Navigator.of(context);
+                          if (roomUid.category == Categories.GROUP) {
+                            final res = await _mucRepo.joinGroup(
+                              roomUid,
+                              token,
+                            );
+                            if (res != null) {
+                              navigatorState.pop();
+                              _routingService.openRoom(roomUid.asString());
                             }
                           } else {
-                            _routingService.openRoom(roomUid.asString());
+                            final res = await _mucRepo.joinChannel(
+                              roomUid,
+                              token,
+                            );
+                            if (res != null) {
+                              navigatorState.pop();
+                              _routingService.openRoom(roomUid.asString());
+                            }
                           }
-                        } else {
-                          _routingService.openRoom(roomUid.asString());
-                        }
-                      },
-                      child: Text(_i18n.get("join")),
-                    )
-                  ],
-                ),
-              ],
+                        },
+                        child: Text(_i18n.get("join")),
+                      )
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ).ignore();
-      });
+          ).ignore();
+        });
+      }
+    } else {
+      _routingService.openRoom(roomUid.asString());
     }
   }
 
