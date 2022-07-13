@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:clock/clock.dart';
 import 'package:custom_image_crop/custom_image_crop.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -36,6 +37,7 @@ class _CropImageState extends State<CropImage> {
   }
 
   final _fileServices = GetIt.I.get<FileService>();
+  final _i18n = GetIt.I.get<I18N>();
 
   MemoryImage? memoryImage;
   final BehaviorSubject<bool> _startCrop = BehaviorSubject.seeded(false);
@@ -44,7 +46,7 @@ class _CropImageState extends State<CropImage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("crop"),
+        title: Text(_i18n.get("cropper")),
         actions: [
           StreamBuilder<bool?>(
             stream: _startCrop,
