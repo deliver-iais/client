@@ -169,7 +169,7 @@ class NavigationCenterState extends State<NavigationCenter> {
 
   Widget _outOfDateWidget() {
     return StreamBuilder<bool>(
-      stream:_authRepo.outOfDateObject,
+      stream: _authRepo.outOfDateObject,
       builder: (c, snapshot) {
         if (snapshot.hasData && snapshot.data != null && snapshot.data!) {
           showOutOfDateDialog(context);
