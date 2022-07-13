@@ -10,16 +10,9 @@ import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver/shared/widgets/shake_widget.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
-import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get_it/get_it.dart';
-import 'package:rxdart/rxdart.dart';
-
-BehaviorSubject<bool> outOfDateObject = BehaviorSubject.seeded(false);
-
-BehaviorSubject<NewerVersionInformation?> newVersionInformation =
-    BehaviorSubject();
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
