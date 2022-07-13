@@ -147,16 +147,12 @@ class RawKeyboardService {
     RawKeyEvent event,
     void Function() scrollDownInBotCommands,
     void Function() scrollUpInBotCommands,
-    void Function() sendBotCommandByEnter,
     String botCommandData,
   ) {
     if (isKeyPressed(event, PhysicalKeyboardKey.arrowDown)) {
       scrollDownInBotCommand(scrollDownInBotCommands);
     } else if (isKeyPressed(event, PhysicalKeyboardKey.arrowUp)) {
       scrollUpInBotCommand(scrollUpInBotCommands);
-    } else if (isKeyPressed(event, PhysicalKeyboardKey.enter) &&
-        botCommandData != "-") {
-      sendBotCommandsByEnter(sendBotCommandByEnter);
     }
   }
 
