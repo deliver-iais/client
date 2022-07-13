@@ -250,7 +250,7 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
 
   final theme = ThemeData(
     useMaterial3: true,
-    visualDensity: VisualDensity.adaptivePlatformDensity,
+    visualDensity: VisualDensity.standard,
     brightness: colorScheme.brightness,
     // fontFamily: GoogleFonts.vazirmatn().fontFamily,
     colorScheme: getColorScheme(colorScheme),

@@ -21,6 +21,7 @@ class MessageSimpleRepresentative {
   final String packetId;
   final bool senderIsAUserOrBot;
   final int? id;
+  final bool shouldBeQuiet;
 
   // Should not notify user
   final bool ignoreNotification;
@@ -36,6 +37,7 @@ class MessageSimpleRepresentative {
     required this.text,
     required this.ignoreNotification,
     required this.packetId,
+    required this.shouldBeQuiet,
     this.id,
   });
 
@@ -51,6 +53,7 @@ class MessageSimpleRepresentative {
     bool? ignoreNotification,
     String? packetId,
     int? id,
+    bool? shouldBeQuiet,
   }) =>
       MessageSimpleRepresentative(
         roomUid: roomUid ?? this.roomUid,
@@ -64,6 +67,7 @@ class MessageSimpleRepresentative {
         id: id ?? this.id,
         ignoreNotification: ignoreNotification ?? this.ignoreNotification,
         packetId: packetId ?? this.packetId,
+        shouldBeQuiet: shouldBeQuiet ?? this.shouldBeQuiet,
       );
 }
 

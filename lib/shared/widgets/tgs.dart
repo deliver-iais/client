@@ -11,6 +11,7 @@ class Tgs extends StatefulWidget {
 
   final File? file;
   final String? assetsPath;
+  final LottieDelegates? delegates;
 
   final double width;
   final double height;
@@ -21,6 +22,7 @@ class Tgs extends StatefulWidget {
     this.assetsPath, {
     super.key,
     this.controller,
+    this.delegates,
     this.repeat = true,
     this.autoPlay = true,
     this.width = 120,
@@ -31,6 +33,7 @@ class Tgs extends StatefulWidget {
     this.file, {
     super.key,
     required this.controller,
+    this.delegates,
     this.repeat = true,
     this.autoPlay = true,
     this.width = 120,
@@ -96,6 +99,7 @@ class TgsState extends State<Tgs> {
           return Lottie(
             composition: composition,
             controller: widget.controller,
+            delegates: widget.delegates,
             width: widget.width,
             height: widget.height,
             repeat: widget.repeat,

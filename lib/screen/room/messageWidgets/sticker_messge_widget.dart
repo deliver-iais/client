@@ -31,7 +31,7 @@ class StickerMessageWidgetState extends State<StickerMessageWidget> {
     // FileProto.File stickerMessage = widget.message.json.toFile();
     // i18n = AppLocalization.of(context);
     // return Container(
-    //     color:theme.backgroundColor,
+    //     color:theme.colorScheme.background,
     //     child: Stack(
     //       children: [
     //         FutureBuilder<File>(

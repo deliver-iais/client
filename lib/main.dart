@@ -205,7 +205,6 @@ Future<void> setupDI() async {
   registerSingleton<LastActivityRepo>(LastActivityRepo());
   registerSingleton<LiveLocationRepo>(LiveLocationRepo());
 
-  registerSingleton<AudioPlayerModule>(NormalAudioPlayer());
   try {
     registerSingleton<AudioService>(AudioService());
   } catch (_) {}
@@ -283,7 +282,7 @@ void main() async {
 }
 
 Future<void> _setWindowSize() async {
-  setWindowMinSize(const Size(500, 600));
+  setWindowMinSize(const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
   final sharedDao = GetIt.I.get<SharedDao>();
   final size = await sharedDao.get(SHARED_DAO_WINDOWS_SIZE);
   final rect = size?.split('_');
@@ -331,7 +330,10 @@ class MyApp extends StatelessWidget {
           extraThemeData: _uxService.extraTheme,
           child: AnnotatedRegion<SystemUiOverlayStyle>(
             value: SystemUiOverlayStyle(
-              systemNavigationBarColor: _uxService.theme.colorScheme.background,
+              statusBarIconBrightness:
+                  _uxService.themeIsDark ? Brightness.light : Brightness.dark,
+              systemNavigationBarColor:
+                  _uxService.theme.colorScheme.surfaceVariant,
               systemNavigationBarIconBrightness:
                   _uxService.themeIsDark ? Brightness.light : Brightness.dark,
             ),

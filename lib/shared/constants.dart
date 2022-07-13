@@ -5,6 +5,8 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 
 const APPLICATION_NAME = "We";
+const APPLICATION_TERMS_OF_USE_URL = "https://wemessenger.ir/terms";
+const APPLICATION_LANDING_URL = "https://wemessenger.ir";
 
 // Links Constants
 const APPLICATION_FOLDER_NAME = "We";
@@ -32,6 +34,18 @@ const USER_INFO_CACHE_TIME = 60 * 60 * 24 * 7 * 1000;
 const MEDIA_PAGE_SIZE = 30;
 const PAGE_SIZE = 50;
 
+//Contacts Constants
+const MAX_CONTACT_SIZE_TO_SEND = 50;
+const MAX_SEND_CONTACT_TIME_EXPIRE = 4 * 60 * 60 * 1000;
+const MAX_SEND_CONTACT_START_TIME_EXPIRE = 24 * 60 * 60 * 1000;
+const INVITE_MESSAGE =
+    "$APPLICATION_NAME invite link: $APPLICATION_LANDING_URL";
+
+//FetchRooms Constants
+const MAX_ROOM_METADATA_SIZE = 10000;
+const FETCH_ROOM_METADATA_LIMIT = 10;
+const FETCH_ROOM_METADATA_IN_SYNCING_SIZE = 20;
+
 // File Constants
 const MAX_FILE_SIZE_BYTE = 104857600.0; //100MB
 const DOWNLOAD_COMPLETE = 200.0;
@@ -45,14 +59,6 @@ const INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH =
 
 // Feature Flags
 const bool TWO_STEP_VERIFICATION_IS_AVAILABLE = false;
-
-// Store Testing Fake User Constants
-const TEST_USER_PHONE_NUMBER = "1234567890";
-const String TEST_USER_ACCESS_TOKEN =
-    "eyJUT0tFTl9UWVBFIjoiYWNjZXNzX3Rva2VuIiwiQ0FURUdPUlkiOjAsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJERUxJVkVSLUFVVEgiLCJpYXQiOjE2MzY0Mzc3OTYsImV4cCI6MTc5MTk1Nzc5Niwic3ViIjoiMzA0OTk4N2ItZTE1ZC00Mjg4LTk3Y2QtNDJkYmM2ZDczYWJkIiwianRpIjoiZTI2MWI4ZjItZTE1Zi00NjQ0LWE5ZTMtYTBjZjFhMmNlODIwIn0.e2bx71LfQpLWQ0I1ElPMOJQkOw0Sud-PjlcMNbR92MA";
-final Uid TEST_USER_UID = Uid.create()
-  ..category = Categories.USER
-  ..node = "3049987b-e15d-4288-97cd-42dbc6d73abd";
 
 // Fake User Constants
 final FAKE_USER_UID = Uid()
@@ -220,6 +226,7 @@ const FEATURE_4 = 'feature4';
 const FAST_ANIMATION_DURATION = Duration(milliseconds: 50);
 const ANIMATION_DURATION = Duration(milliseconds: 100);
 const SLOW_ANIMATION_DURATION = Duration(milliseconds: 200);
+const VERY_SLOW_ANIMATION_DURATION = Duration(milliseconds: 350);
 const SUPER_SLOW_ANIMATION_DURATION = Duration(milliseconds: 500);
 
 // UI
@@ -227,8 +234,8 @@ const double APPBAR_HEIGHT = 56.0;
 const double FLUID_MAX_WIDTH = 400.0;
 const double FLUID_MAX_HEIGHT = 540.0;
 const double FLUID_CONTAINER_MAX_WIDTH = 768.0;
-const double VERY_LARGE_BREAKDOWN_SIZE = 1150.0;
 const double LARGE_BREAKDOWN_SIZE = 768.0;
+const double VERY_LARGE_BREAKDOWN_SIZE = 1150.0;
 const double NAVIGATION_PANEL_SIZE = 320.0;
 const double MIN_WIDTH = 200.0;
 const int SCROLL_DOWN_BUTTON_HIDING_TIME = 2500;
@@ -249,7 +256,7 @@ bool isLarge(BuildContext context) =>
 bool isVeryLargeWidth(double width) => width > VERY_LARGE_BREAKDOWN_SIZE;
 
 bool isVeryLarge(BuildContext context) =>
-    isLargeWidth(MediaQuery.of(context).size.width);
+    isVeryLargeWidth(MediaQuery.of(context).size.width);
 
 // Dynamics
 double animationSquareSize(BuildContext context) => isLarge(context)

@@ -48,6 +48,21 @@ class UrlHandlerService {
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _logger = GetIt.I.get<Logger>();
 
+  Future<void> onUrlTap(String uri, BuildContext context) async {
+    //add prefix if needed
+    final applicationUrlRegex = RegExp(
+      r"(https://wemessenger.ir|we:/|wemessenger.ir)/(login|spda|text|join|user|channel|group|ac).+",
+    );
+    if (applicationUrlRegex.hasMatch(uri)) {
+      if (uri.startsWith("we://")) {
+        uri = "https://wemessenger.ir${uri.substring(4)}";
+      }
+      handleApplicationUri(uri, context);
+    } else {
+      handleNormalLink(uri, context);
+    }
+  }
+
   void handleApplicationUri(
     String url,
     BuildContext context, {
@@ -191,7 +206,8 @@ class UrlHandlerService {
         await _contactRepo.contactIsExist(countryCode!, nationalNumber!);
     if (res) {
       ToastDisplay.showToast(
-        toastText: "$firstName $lastName ${_i18n.get("contact_exist")}",
+        toastText:
+            "${buildName(firstName, lastName)} ${_i18n.get("contact_exist")}",
         toastContext: context,
       );
     } else {

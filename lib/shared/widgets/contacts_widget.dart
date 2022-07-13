@@ -40,12 +40,13 @@ class ContactWidget extends StatelessWidget {
         children: <Widget>[
           Stack(
             children: [
-              CircleAvatarWidget(
-                contact.uid.asUid(),
-                37,
-                borderRadius: secondaryBorder,
-                showSavedMessageLogoIfNeeded: true,
-              ),
+              if (contact.uid != null)
+                CircleAvatarWidget(
+                  contact.uid!.asUid(),
+                  37,
+                  borderRadius: secondaryBorder,
+                  showSavedMessageLogoIfNeeded: true,
+                ),
               AnimatedOpacity(
                 duration: ANIMATION_DURATION,
                 opacity: isSelected ? 1 : 0,

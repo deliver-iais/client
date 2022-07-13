@@ -577,12 +577,12 @@ void main() {
       test('When called should fetchMentionList from  queryServiceClient',
           () async {
         final queryServiceClient = getAndRegisterQueryServiceClient();
-        await MessageRepo().getMentions(
-          Room(
-            uid: testUid.asString(),
-            lastMessage: testMessage.copyWith(id: 0),
-          ),
-        );
+        // await MessageRepo().getMentions(
+        //   Room(
+        //     uid: testUid.asString(),
+        //     lastMessage: testMessage.copyWith(id: 0),
+        //   ),
+        // );
         verify(
           queryServiceClient.queryServiceClient.fetchMentionList(
             FetchMentionListReq()
@@ -596,12 +596,9 @@ void main() {
           () async {
         final roomDao = getAndRegisterRoomDao();
         getAndRegisterQueryServiceClient(mentionIdList: 0);
-        await MessageRepo().getMentions(
-          Room(
-            uid: testUid.asString(),
-            lastMessage: testMessage.copyWith(id: 0),
-          ),
-        );
+        // await MessageRepo().getMentions(testUid
+        //
+        // );
         verify(
           roomDao.updateRoom(uid: testUid.asString(), mentioned: true),
         );

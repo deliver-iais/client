@@ -1,4 +1,4 @@
-const cacheName = "deliver";
+const cacheName = "we";
 const assetsToCache = [
   "/",
   "/index.html",

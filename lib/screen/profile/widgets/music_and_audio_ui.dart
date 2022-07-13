@@ -7,6 +7,7 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/audio_message/play_audio_status.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
+import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -36,6 +37,7 @@ class MusicAndAudioUi extends StatefulWidget {
 }
 
 class MusicAndAudioUiState extends State<MusicAndAudioUi> {
+  static final _audioPlayerService = GetIt.I.get<AudioService>();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _mediaCache = <int, Media>{};
@@ -51,18 +53,18 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
           builder: (c, snapShot) {
             if (snapShot.hasData && snapShot.data != null) {
               final json = jsonDecode(snapShot.data!.json) as Map;
-              final fileId = json["uuid"];
+              final fileUuid = json["uuid"];
               final fileName = json["name"];
-              final dur = json["duration"];
+              final fileDuration = json["duration"];
               return GestureDetector(
                 onLongPress: () => widget.addSelectedMedia(snapShot.data!),
                 onTap: () => widget.addSelectedMedia(snapShot.data!),
                 child: Container(
                   color: widget.selectedMedia.contains(snapShot.data)
                       ? theme.hoverColor.withOpacity(0.4)
-                      : theme.backgroundColor,
+                      : theme.colorScheme.background,
                   child: FutureBuilder<String?>(
-                    future: _fileRepo.getFileIfExist(fileId, fileName),
+                    future: _fileRepo.getFileIfExist(fileUuid, fileName),
                     builder: (context, filePath) {
                       if (filePath.hasData && filePath.data != null) {
                         return Column(
@@ -71,9 +73,10 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                               title: Row(
                                 children: <Widget>[
                                   PlayAudioStatus(
-                                    fileId: fileId,
+                                    uuid: fileUuid,
                                     filePath: filePath.data!,
-                                    fileName: fileName,
+                                    name: fileName,
+                                    duration: fileDuration,
                                     backgroundColor:
                                         theme.colorScheme.onPrimary,
                                     foregroundColor: theme.colorScheme.primary,
@@ -102,9 +105,8 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                             left: 8,
                                           ),
                                           child: MusicPlayProgress(
-                                            audioUuid: fileId,
-                                            duration:
-                                                double.parse(dur.toString()),
+                                            audioUuid: fileUuid,
+                                            duration: fileDuration,
                                           ),
                                         ),
                                       ],
@@ -125,14 +127,22 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                               title: Row(
                                 children: [
                                   LoadFileStatus(
-                                    fileId: fileId,
+                                    fileId: fileUuid,
                                     fileName: fileName,
                                     isPendingMessage: false,
                                     onPressed: () async {
-                                      await _fileRepo.getFile(
-                                        fileId,
+                                      final audioPath = await _fileRepo.getFile(
+                                        fileUuid,
                                         fileName,
                                       );
+                                      if (audioPath != null) {
+                                        _audioPlayerService.playAudioMessage(
+                                          audioPath,
+                                          fileUuid,
+                                          fileName,
+                                          fileDuration,
+                                        );
+                                      }
                                       setState(() {});
                                     },
                                     background: theme.colorScheme.primary,
@@ -155,10 +165,8 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                           ),
                                         ),
                                         MusicPlayProgress(
-                                          audioUuid: fileId,
-                                          duration: double.parse(
-                                            dur.toString(),
-                                          ),
+                                          audioUuid: fileUuid,
+                                          duration: fileDuration,
                                         ),
                                       ],
                                     ),

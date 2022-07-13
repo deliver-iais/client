@@ -1,6 +1,7 @@
 import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/screen/profile/widgets/muc_member_mention_widget.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -38,7 +39,7 @@ class ShowMentionList extends StatelessWidget {
                       ? HEIGHT * 4
                       : (members.data!.length * HEIGHT),
                   child: Container(
-                    color: theme.backgroundColor,
+                    color: theme.colorScheme.background,
                     child: ListView.separated(
                       padding: EdgeInsets.zero,
                       itemCount: members.data!.length,
@@ -46,7 +47,8 @@ class ShowMentionList extends StatelessWidget {
                       itemBuilder: (c, i) {
                         var mucMemberMentionColor = Colors.transparent;
                         if (mentionSelectedIndex == i &&
-                            mentionSelectedIndex != -1) {
+                            mentionSelectedIndex != -1 &&
+                            isDesktop) {
                           mucMemberMentionColor = theme.focusColor;
                         }
                         return Container(

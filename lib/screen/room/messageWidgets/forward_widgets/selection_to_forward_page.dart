@@ -33,7 +33,7 @@ class SelectionToForwardPageState extends State<SelectionToForwardPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: theme.backgroundColor,
+      backgroundColor: theme.colorScheme.background,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(60),
         child: ForwardAppbar(),

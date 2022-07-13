@@ -434,9 +434,17 @@ class DataStreamServices {
         lastMessage: msg,
         lastMessageId: msg.id,
       );
-
       _notificationServices
           .notifyOutgoingMessage(messageDeliveryAck.to.asString());
+      final seen = await _roomRepo.getMySeen(msg.roomUid);
+      if (messageDeliveryAck.id > seen.messageId) {
+        _roomRepo
+            .updateMySeen(
+              uid: msg.roomUid,
+              messageId: messageDeliveryAck.id.toInt(),
+            )
+            .ignore();
+      }
     }
   }
 
@@ -569,6 +577,16 @@ class DataStreamServices {
             lastMessageId,
             firstMessageId,
           );
+          break;
+        }
+      } on GrpcError catch (e) {
+        if (e.code == StatusCode.notFound) {
+          _roomDao
+              .updateRoom(
+                uid: roomUid.asString(),
+                deleted: true,
+              )
+              .ignore();
           break;
         }
       } catch (_) {

@@ -82,7 +82,9 @@ class DevicesPageState extends State<DevicesPage> {
                     ),
                     width: double.infinity,
                     child: TextButton(
-                      style: TextButton.styleFrom(primary: Colors.red),
+                      style: TextButton.styleFrom(
+                        primary: theme.colorScheme.error,
+                      ),
                       onPressed: () {
                         _showTerminateSession(otherSessions, context);
                       },
@@ -190,6 +192,8 @@ class DevicesPageState extends State<DevicesPage> {
   }
 
   void _showTerminateSession(List<Session> sessions, BuildContext context) {
+    final theme = Theme.of(context);
+
     showDialog(
       context: context,
       builder: (context) {
@@ -217,7 +221,9 @@ class DevicesPageState extends State<DevicesPage> {
                 ),
                 const SizedBox(width: 20),
                 TextButton(
-                  style: TextButton.styleFrom(primary: Colors.red),
+                  style: TextButton.styleFrom(
+                    primary: theme.colorScheme.error,
+                  ),
                   onPressed: () async {
                     final navigatorState = Navigator.of(context);
                     if (sessions.length > 1) {
