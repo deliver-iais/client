@@ -78,13 +78,13 @@ class BoxContentState extends State<BoxContent> {
   static final _routingServices = GetIt.I.get<RoutingService>();
   final showMenuBehavior = BehaviorSubject.seeded(false);
   final GlobalKey _messageBoxKey = GlobalKey();
-  final replyBriefWidth = BehaviorSubject.seeded(0.0);
+  final messageBoxWidth = BehaviorSubject.seeded(0.0);
 
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        replyBriefWidth.add(_messageBoxKey.currentContext?.size?.width ?? 0);
+        messageBoxWidth.add(_messageBoxKey.currentContext?.size?.width ?? 0);
       }
     });
     super.initState();
@@ -172,7 +172,7 @@ class BoxContentState extends State<BoxContent> {
           );
         },
         child: StreamBuilder<double>(
-          stream: replyBriefWidth,
+          stream: messageBoxWidth,
           builder: (context, snapshot) {
             return ReplyBrief(
               roomId: widget.message.roomUid,
