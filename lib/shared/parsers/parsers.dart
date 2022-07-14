@@ -40,6 +40,16 @@ class BotCommandFeature extends Feature {
   int get hashCode => Object.hash(runtimeType, "");
 }
 
+class SpecialCharacterFeature extends Feature {
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other.runtimeType == runtimeType && other is BotCommandFeature);
+
+  @override
+  int get hashCode => Object.hash(runtimeType, "");
+}
+
 class EmojiFeature extends Feature {
   @override
   bool operator ==(Object other) =>
@@ -61,6 +71,8 @@ class SearchTermFeature extends Feature {
 }
 
 class BoldFeature extends Feature {
+  static const specialChar = "*";
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -71,6 +83,8 @@ class BoldFeature extends Feature {
 }
 
 class ItalicFeature extends Feature {
+  static const specialChar = "__";
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -81,6 +95,8 @@ class ItalicFeature extends Feature {
 }
 
 class UnderlineFeature extends Feature {
+  static const specialChar = "_";
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -91,6 +107,8 @@ class UnderlineFeature extends Feature {
 }
 
 class StrikethroughFeature extends Feature {
+  static const specialChar = "~";
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -101,6 +119,8 @@ class StrikethroughFeature extends Feature {
 }
 
 class SpoilerFeature extends Feature {
+  static const specialChar = "|";
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -132,7 +152,11 @@ typedef Transformer<T> = T Function(Block);
 
 typedef ThemeBasedTransformer<T> = Transformer<T> Function(ThemeData);
 
-List<Block> partitioner(Block block, Detector detector) {
+List<Block> partitioner(
+  Block block,
+  Detector detector, {
+  bool forceToDeleteReplaceFunctions = false,
+}) {
   final partitions = detector(block);
 
   final text = block.text;
@@ -149,12 +173,16 @@ List<Block> partitioner(Block block, Detector detector) {
     }
 
     if (text.substring(p.start, p.end).isNotEmpty) {
-      blocks.add(
-        Block(
-          text: p.replacedText ?? text.substring(p.start, p.end),
-          features: {...block.features, ...p.features},
-        ),
-      );
+      if (p.replacedText != null && forceToDeleteReplaceFunctions) {
+        _setSpecialCharacterFeature(p, text, blocks, block);
+      } else {
+        blocks.add(
+          Block(
+            text: p.replacedText ?? text.substring(p.start, p.end),
+            features: {...block.features, ...p.features},
+          ),
+        );
+      }
     }
 
     start = p.end;
@@ -167,14 +195,68 @@ List<Block> partitioner(Block block, Detector detector) {
   return blocks;
 }
 
-List<Block> onePathDetection(List<Block> blocks, Detector detector) =>
-    blocks.map((b) => partitioner(b, detector)).expand((e) => e).toList();
+void _setSpecialCharacterFeature(
+  Partition p,
+  String text,
+  List<Block> blocks,
+  Block block,
+) {
+  final match = p.replacedText!.allMatches(text).first;
+  if (text.substring(p.start, match.start).isNotEmpty) {
+    blocks.add(
+      Block(
+        text: text.substring(p.start, match.start),
+        features: {SpecialCharacterFeature()},
+      ),
+    );
+  }
+  if (text.substring(match.start, match.end).isNotEmpty) {
+    blocks.add(
+      Block(
+        text: text.substring(match.start, match.end),
+        features: {...block.features, ...p.features},
+      ),
+    );
+  }
+  if (text.substring(match.start, match.end).isNotEmpty) {
+    blocks.add(
+      Block(
+        text: text.substring(match.end, p.end),
+        features: {SpecialCharacterFeature()},
+      ),
+    );
+  }
+}
+
+List<Block> onePathDetection(
+  List<Block> blocks,
+  Detector detector, {
+  bool forceToDeleteReplaceFunctions = false,
+}) =>
+    blocks
+        .map(
+          (b) => partitioner(
+            b,
+            detector,
+            forceToDeleteReplaceFunctions: forceToDeleteReplaceFunctions,
+          ),
+        )
+        .expand((e) => e)
+        .toList();
 
 List<Block> onePathMultiDetection(
   List<Block> blocks,
-  List<Detector> detectors,
-) =>
-    detectors.fold<List<Block>>(blocks, onePathDetection);
+  List<Detector> detectors, {
+  bool forceToDeleteReplaceFunctions = false,
+}) =>
+    detectors.fold<List<Block>>(
+      blocks,
+      (previousValue, element) => onePathDetection(
+        previousValue,
+        element,
+        forceToDeleteReplaceFunctions: forceToDeleteReplaceFunctions,
+      ),
+    );
 
 List<T> onePathTransform<T>(
   List<Block> blocks,
