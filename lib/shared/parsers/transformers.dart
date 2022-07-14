@@ -32,6 +32,8 @@ Transformer<InlineSpan> inlineSpanTransformer({
     final italic = b.features.whereType<ItalicFeature>().firstOrNull;
     final strikethrough =
         b.features.whereType<StrikethroughFeature>().firstOrNull;
+    final specialChar =
+        b.features.whereType<SpecialCharacterFeature>().firstOrNull;
 
     final text = synthesizeToOriginalWord(b.text);
     var textStyle = const TextStyle();
@@ -70,6 +72,9 @@ Transformer<InlineSpan> inlineSpanTransformer({
 
     if (searchTerm != null) {
       textStyle = textStyle.copyWith(backgroundColor: Colors.yellow.shade500);
+    }
+    if (specialChar != null) {
+      textStyle = textStyle.copyWith(color: Colors.grey);
     }
 
     if (bold != null) {
