@@ -1,8 +1,9 @@
 import 'package:deliver/shared/parsers/parsers.dart';
+import 'package:flutter/material.dart';
 
 List<Detector> detectorsWithSearchTermDetector({String searchTerm = ""}) => [
-      urlDetector(),
       inlineUrlDetector(),
+      urlDetector(),
       idDetector(),
       emojiDetector(),
       botCommandDetector(),
@@ -60,7 +61,7 @@ Detector searchTermDetector(String searchTerm) =>
     simpleRegexDetector(searchTerm, {SearchTermFeature()});
 
 Detector boldDetector() => simpleStyleDetector(
-      "*",
+      BoldFeature.specialChar,
       {BoldFeature()},
       replacer: (match) => match.substring(1, match.length - 1),
     );
@@ -72,19 +73,19 @@ Detector italicDetector() => simpleStyleDetectorTwoCharacter(
     );
 
 Detector underlineDetector() => simpleStyleDetector(
-      "_",
+      UnderlineFeature.specialChar,
       {UnderlineFeature()},
       replacer: (match) => match.substring(1, match.length - 1),
     );
 
 Detector strikethroughDetector() => simpleStyleDetector(
-      "~",
+      StrikethroughFeature.specialChar,
       {StrikethroughFeature()},
       replacer: (match) => match.substring(1, match.length - 1),
     );
 
 Detector spoilerDetector() => simpleStyleDetectorTwoCharacter(
-      "|",
+      SpoilerFeature.specialChar,
       {SpoilerFeature()},
       replacer: (match) => match.substring(2, match.length - 2),
     );
@@ -174,6 +175,19 @@ Detector simpleStyleDetector(
 
       return partitions;
     };
+
+String createFormattedText(
+  String specialChar,
+  TextEditingController textController,
+) {
+  return "${textController.text.substring(0, textController.selection.start)}"
+      "$specialChar${textController.text.substring(textController.selection.start, textController.selection.end)}"
+      "$specialChar${textController.text.substring(textController.selection.end, textController.text.length)}";
+}
+
+String createLink(String text, String link) {
+  return "[$text}]($link)";
+}
 
 Detector simpleStyleDetectorTwoCharacter(
   String specialChar,
