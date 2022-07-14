@@ -1,6 +1,11 @@
 import 'package:deliver/services/raw_keyboard_service.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/parsers/detectors.dart';
+import 'package:deliver/shared/parsers/parsers.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get_it/get_it.dart';
 
@@ -48,10 +53,39 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
               );
             }
           : null,
+      handleBold: () =>
+          handleFormatting(textController, delegate, BoldFeature.specialChar),
+      handleItalic: () =>
+          handleFormatting(textController, delegate, ItalicFeature.specialChar),
+      handleStrikethrough: () => handleFormatting(
+        textController,
+        delegate,
+        StrikethroughFeature.specialChar,
+      ),
       handleSelectAll:
           canSelectAll(delegate) ? () => handleSelectAll(delegate) : null,
       selectionMidpoint: selectionMidpoint,
       textLineHeight: textLineHeight,
+    );
+  }
+
+  void moveCursor(TextSelectionDelegate delegate, int offset) {
+    delegate.hideToolbar();
+    textController.selection = TextSelection.collapsed(
+      offset: offset,
+    );
+  }
+
+  void handleFormatting(
+    TextEditingController textController,
+    TextSelectionDelegate delegate,
+    String specialChar,
+  ) {
+    final end = textController.selection.end;
+    textController.text = createFormattedText(specialChar, textController);
+    moveCursor(
+      delegate,
+      end + specialChar.length * 2,
     );
   }
 }
@@ -70,6 +104,9 @@ class _CupertinoTextSelectionControlsToolbar extends StatefulWidget {
     required this.handleSelectAll,
     required this.selectionMidpoint,
     required this.textLineHeight,
+    required this.handleBold,
+    required this.handleItalic,
+    required this.handleStrikethrough,
   });
 
   final ClipboardStatusNotifier? clipboardStatus;
@@ -79,6 +116,9 @@ class _CupertinoTextSelectionControlsToolbar extends StatefulWidget {
   final VoidCallback? handleCut;
   final VoidCallback? handlePaste;
   final VoidCallback? handleSelectAll;
+  final VoidCallback handleBold;
+  final VoidCallback handleItalic;
+  final VoidCallback handleStrikethrough;
   final Offset selectionMidpoint;
   final double textLineHeight;
 
@@ -185,9 +225,9 @@ class _CupertinoTextSelectionControlsToolbarState
       }
 
       items.add(
-        CupertinoTextSelectionToolbarButton.text(
+        TextButton(
           onPressed: onPressed,
-          text: text,
+          child: Text(text),
         ),
       );
     }
@@ -201,6 +241,10 @@ class _CupertinoTextSelectionControlsToolbarState
     if (widget.handlePaste != null) {
       addToolbarButton(localizations.pasteButtonLabel, widget.handlePaste!);
     }
+    addToolbarButton("Bold", widget.handleBold);
+    addToolbarButton("Italic", widget.handleItalic);
+    addToolbarButton("Strike through", widget.handleStrikethrough);
+
     if (widget.handleSelectAll != null) {
       addToolbarButton(
         localizations.selectAllButtonLabel,
@@ -212,10 +256,22 @@ class _CupertinoTextSelectionControlsToolbarState
     if (items.isEmpty) {
       return const SizedBox.shrink();
     }
-    return CupertinoTextSelectionToolbar(
-      anchorAbove: anchorAbove,
-      anchorBelow: anchorBelow,
-      children: items,
+    return CustomSingleChildLayout(
+      delegate: TextSelectionToolbarLayoutDelegate(
+        anchorAbove: anchorAbove,
+        anchorBelow: anchorBelow,
+      ),
+      child: Container(
+        decoration: BoxDecoration(
+          boxShadow: DEFAULT_BOX_SHADOWS,
+          borderRadius: tertiaryBorder,
+          color: Theme.of(context).dialogBackgroundColor,
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: items,
+        ),
+      ),
     );
   }
 }
