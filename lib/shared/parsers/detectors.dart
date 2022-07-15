@@ -85,7 +85,7 @@ Detector strikethroughDetector() => simpleStyleDetector(
     );
 
 Detector spoilerDetector() => simpleStyleDetectorTwoCharacter(
-      SpoilerFeature.specialChar,
+     "|",
       {SpoilerFeature()},
       replacer: (match) => match.substring(2, match.length - 2),
     );
