@@ -1,7 +1,9 @@
 import 'package:deliver/services/raw_keyboard_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/parsers/detectors.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -240,6 +242,7 @@ class _CupertinoTextSelectionControlsToolbarState
     void addToolbarButton(
       String text,
       VoidCallback onPressed,
+      IconData iconData,
     ) {
       if (items.isNotEmpty) {
         items.add(onePhysicalPixelVerticalDivider);
@@ -248,42 +251,113 @@ class _CupertinoTextSelectionControlsToolbarState
       items.add(
         TextButton(
           onPressed: onPressed,
-          child: Text(text),
+          child: isDesktop
+              ? Row(
+                  children: [
+                    Icon(
+                      iconData,
+                      size: 15,
+                    ),
+                    const SizedBox(
+                      width: 5,
+                    ),
+                    Text(text),
+                  ],
+                )
+              : Text(text),
         ),
       );
     }
 
-    if (widget.handleCut != null) {
-      addToolbarButton(localizations.cutButtonLabel, widget.handleCut!);
-    }
-    if (widget.handleCopy != null) {
-      addToolbarButton(localizations.copyButtonLabel, widget.handleCopy!);
-    }
-    if (widget.handlePaste != null) {
-      addToolbarButton(localizations.pasteButtonLabel, widget.handlePaste!);
-    }
-    //todo more user of  final _i18n = GetIt.I.get<I18N>();
-    addToolbarButton("Bold", widget.handleBold);
-    addToolbarButton("Italic", widget.handleItalic);
-    addToolbarButton("Strike through", widget.handleStrikethrough);
-    addToolbarButton("Spoiler", widget.handleSpoiler);
-    addToolbarButton("Underline", widget.handleUnderline);
-    if (widget.handleSelectAll != null) {
-      addToolbarButton(
-        localizations.selectAllButtonLabel,
-        widget.handleSelectAll!,
-      );
-    }
+    addItemToToolBar(addToolbarButton, localizations, items);
 
     // If there is no option available, build an empty widget.
     if (items.isEmpty) {
       return const SizedBox.shrink();
     }
-    //todo new style for desktop
-    return CupertinoTextSelectionToolbar(
-      anchorAbove: anchorAbove,
-      anchorBelow: anchorBelow,
-      children: items,
+
+    return isDesktop
+        ? CustomSingleChildLayout(
+            delegate: TextSelectionToolbarLayoutDelegate(
+              anchorAbove: anchorAbove,
+              anchorBelow: anchorBelow,
+            ),
+            child: Container(
+              width: 150,
+              decoration: BoxDecoration(
+                boxShadow: DEFAULT_BOX_SHADOWS,
+                borderRadius: tertiaryBorder,
+                color: Theme.of(context).dialogBackgroundColor,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: items,
+              ),
+            ),
+          )
+        : CupertinoTextSelectionToolbar(
+            anchorAbove: anchorAbove,
+            anchorBelow: anchorBelow,
+            children: items,
+          );
+  }
+
+  void addItemToToolBar(
+    void Function(String text, VoidCallback onPressed, IconData iconData)
+        addToolbarButton,
+    CupertinoLocalizations localizations,
+    List<Widget> items,
+  ) {
+    if (widget.handleCut != null) {
+      addToolbarButton(
+        localizations.cutButtonLabel,
+        widget.handleCut!,
+        Icons.cut_rounded,
+      );
+    }
+    if (widget.handleCopy != null) {
+      addToolbarButton(
+        localizations.copyButtonLabel,
+        widget.handleCopy!,
+        Icons.copy_all_rounded,
+      );
+    }
+    if (widget.handlePaste != null) {
+      addToolbarButton(
+        localizations.pasteButtonLabel,
+        widget.handlePaste!,
+        Icons.paste_outlined,
+      );
+    }
+    items.add(const Divider());
+    //todo more user of  final _i18n = GetIt.I.get<I18N>();
+    addToolbarButton("Bold", widget.handleBold, Icons.format_bold_rounded);
+    addToolbarButton(
+      "Italic",
+      widget.handleItalic,
+      Icons.format_italic_rounded,
     );
+    addToolbarButton(
+      "Strike through",
+      widget.handleStrikethrough,
+      Icons.strikethrough_s_rounded,
+    );
+    addToolbarButton(
+      "Spoiler",
+      widget.handleSpoiler,
+      Icons.hide_source_rounded,
+    );
+    addToolbarButton(
+      "Underline",
+      widget.handleUnderline,
+      Icons.format_underline_rounded,
+    );
+    if (widget.handleSelectAll != null) {
+      addToolbarButton(
+        localizations.selectAllButtonLabel,
+        widget.handleSelectAll!,
+        Icons.select_all_rounded,
+      );
+    }
   }
 }
