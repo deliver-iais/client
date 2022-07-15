@@ -61,7 +61,7 @@ void main() {
         final messageRepo = await getAndRegisterMessageRepo();
         expect(
           messageRepo.updatingStatus.value,
-          TitleStatusConditions.Updating,
+          TitleStatusConditions.Connected,
         );
       });
 
@@ -1883,7 +1883,8 @@ void main() {
 
       test('When called if file not be null should uploadClonedFile', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
-          getAndRegisterServicesDiscoveryRepo(updatedMessageFile: updatedMessage);
+          getAndRegisterServicesDiscoveryRepo(
+              updatedMessageFile: updatedMessage);
           final fileRepo = getAndRegisterFileRepo(
             fileInfo: file_pb.File(
               uuid: testUid.asString(),
@@ -1935,7 +1936,8 @@ void main() {
               )
             ],
           );
-          getAndRegisterServicesDiscoveryRepo(updatedMessageFile: updatedMessage);
+          getAndRegisterServicesDiscoveryRepo(
+              updatedMessageFile: updatedMessage);
           getAndRegisterFileRepo(
             fileInfo: file_pb.File(
               uuid: testUid.asString(),

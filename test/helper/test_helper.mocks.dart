@@ -2746,7 +2746,7 @@ class MockServicesDiscoveryRepo extends _i1.Mock
   @override
   _i13.QueryServiceClient get queryServiceClient => (super.noSuchMethod(
       Invocation.getter(#queryServiceClient),
-      returnValue: _FakeQueryServiceClient_20()) as _i13.QueryServiceClient);
+      returnValue: MockQueryServiceClient()) as _i13.QueryServiceClient);
   @override
   _i4.ContactServiceClient get contactServiceClient => (super.noSuchMethod(
       Invocation.getter(#contactServiceClient),
