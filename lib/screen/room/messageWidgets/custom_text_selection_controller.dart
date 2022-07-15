@@ -83,6 +83,13 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
           canSelectAll(delegate) ? () => handleSelectAll(delegate) : null,
       selectionMidpoint: selectionMidpoint,
       textLineHeight: textLineHeight,
+      isAnyThingSelected: () {
+        if (textController.selection.start != textController.selection.end) {
+          return true;
+        } else {
+          return false;
+        }
+      },
     );
   }
 
@@ -127,6 +134,7 @@ class _CupertinoTextSelectionControlsToolbar extends StatefulWidget {
     required this.handleStrikethrough,
     required this.handleSpoiler,
     required this.handleUnderline,
+    required this.isAnyThingSelected,
   });
 
   final ClipboardStatusNotifier? clipboardStatus;
@@ -143,6 +151,7 @@ class _CupertinoTextSelectionControlsToolbar extends StatefulWidget {
   final VoidCallback handleUnderline;
   final Offset selectionMidpoint;
   final double textLineHeight;
+  final bool Function() isAnyThingSelected;
 
   @override
   _CupertinoTextSelectionControlsToolbarState createState() =>
@@ -242,8 +251,9 @@ class _CupertinoTextSelectionControlsToolbarState
     void addToolbarButton(
       String text,
       VoidCallback onPressed,
-      IconData iconData,
-    ) {
+      IconData iconData, {
+      Color? textColor,
+    }) {
       if (items.isNotEmpty) {
         items.add(onePhysicalPixelVerticalDivider);
       }
@@ -261,7 +271,7 @@ class _CupertinoTextSelectionControlsToolbarState
                     const SizedBox(
                       width: 5,
                     ),
-                    Text(text),
+                    Text(text, style: TextStyle(color: textColor)),
                   ],
                 )
               : Text(text),
@@ -295,27 +305,35 @@ class _CupertinoTextSelectionControlsToolbarState
     }
 
     //todo more user of  final _i18n = GetIt.I.get<I18N>();
-    addToolbarButton("Bold", widget.handleBold, Icons.format_bold_rounded);
-    addToolbarButton(
-      "Italic",
-      widget.handleItalic,
-      Icons.format_italic_rounded,
-    );
-    addToolbarButton(
-      "Strike through",
-      widget.handleStrikethrough,
-      Icons.strikethrough_s_rounded,
-    );
-    addToolbarButton(
-      "Spoiler",
-      widget.handleSpoiler,
-      Icons.hide_source_rounded,
-    );
-    addToolbarButton(
-      "Underline",
-      widget.handleUnderline,
-      Icons.format_underline_rounded,
-    );
+    if (widget.isAnyThingSelected() || isDesktop) {
+      Color? color;
+      if (widget.isAnyThingSelected()) color = Colors.grey;
+      addToolbarButton("Bold", widget.handleBold, Icons.format_bold_rounded);
+      addToolbarButton(
+        "Italic",
+        widget.handleItalic,
+        Icons.format_italic_rounded,
+        textColor: color,
+      );
+      addToolbarButton(
+        "Strike through",
+        widget.handleStrikethrough,
+        Icons.strikethrough_s_rounded,
+        textColor: color,
+      );
+      addToolbarButton(
+        "Spoiler",
+        widget.handleSpoiler,
+        Icons.hide_source_rounded,
+        textColor: color,
+      );
+      addToolbarButton(
+        "Underline",
+        widget.handleUnderline,
+        Icons.format_underline_rounded,
+        textColor: color,
+      );
+    }
     if (widget.handleSelectAll != null) {
       addToolbarButton(
         localizations.selectAllButtonLabel,
@@ -328,7 +346,6 @@ class _CupertinoTextSelectionControlsToolbarState
     if (items.isEmpty) {
       return const SizedBox.shrink();
     }
-    //todo new style for desktop
     return isDesktop
         ? CustomSingleChildLayout(
             delegate: TextSelectionToolbarLayoutDelegate(
