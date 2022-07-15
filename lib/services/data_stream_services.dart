@@ -74,6 +74,9 @@ class DataStreamServices {
     if (message.whichType() == Message_Type.persistEvent) {
       switch (message.persistEvent.whichType()) {
         case PersistentEvent_Type.mucSpecificPersistentEvent:
+          if (!isOnlineMessage) {
+            break;
+          }
           switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
             case MucSpecificPersistentEvent_Issue.DELETED:
               await _roomDao.updateRoom(uid: roomUid.asString(), deleted: true);
@@ -89,7 +92,6 @@ class DataStreamServices {
                   uid: message.from.asString(),
                   deleted: true,
                 );
-                return null;
               }
               break;
             case MucSpecificPersistentEvent_Issue.JOINED_USER:
@@ -112,7 +114,6 @@ class DataStreamServices {
                   uid: message.from.asString(),
                   deleted: true,
                 );
-                return null;
               }
               await _sdr.deleteMember(
                 Member(
@@ -433,9 +434,17 @@ class DataStreamServices {
         lastMessage: msg,
         lastMessageId: msg.id,
       );
-
       _notificationServices
           .notifyOutgoingMessage(messageDeliveryAck.to.asString());
+      final seen = await _roomRepo.getMySeen(msg.roomUid);
+      if (messageDeliveryAck.id > seen.messageId) {
+        _roomRepo
+            .updateMySeen(
+              uid: msg.roomUid,
+              messageId: messageDeliveryAck.id.toInt(),
+            )
+            .ignore();
+      }
     }
   }
 
@@ -568,6 +577,16 @@ class DataStreamServices {
             lastMessageId,
             firstMessageId,
           );
+          break;
+        }
+      } on GrpcError catch (e) {
+        if (e.code == StatusCode.notFound) {
+          _roomDao
+              .updateRoom(
+                uid: roomUid.asString(),
+                deleted: true,
+              )
+              .ignore();
           break;
         }
       } catch (_) {

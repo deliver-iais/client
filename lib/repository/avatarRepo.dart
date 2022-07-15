@@ -21,6 +21,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart' as query_pb;
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
+import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -54,8 +55,7 @@ class AvatarRepo {
   Future<void> _getAvatarRequest(Uid userUid) async {
     try {
       final getAvatarReq = GetAvatarReq()..uidList.add(userUid);
-      final getAvatars =
-          await _sdr.avatarServiceClient.getAvatar(getAvatarReq);
+      final getAvatars = await _sdr.avatarServiceClient.getAvatar(getAvatarReq);
       final avatars = getAvatars.avatar
           .map(
             (e) => Avatar(
@@ -73,10 +73,11 @@ class AvatarRepo {
       } else {
         return _avatarDao.saveLastAvatarAsNull(userUid.asString());
       }
-    } catch (e) {
-      _logger.e("no avatar exist in $userUid", e);
-
-      return _avatarDao.saveLastAvatarAsNull(userUid.asString());
+    } on GrpcError catch (e) {
+      _logger.e("grpc error for $userUid", e);
+      if (e.code == StatusCode.notFound) {
+        return _avatarDao.saveLastAvatarAsNull(userUid.asString());
+      }
     }
   }
 
@@ -179,25 +180,31 @@ class AvatarRepo {
       yield* cachedAvatar;
     }
 
-    late final BehaviorSubject<String> bs;
-
-    bs = BehaviorSubject();
+    final bs = BehaviorSubject<String>();
 
     _avatarCacheBehaviorSubjects.set(key, bs);
 
     final subscription =
         _avatarDao.watchLastAvatar(userUid.asString()).listen((event) async {
-      if (event != null && event.fileId != null && event.fileName != null) {
-        _avatarCache.set(key, event);
-        final path = await _fileRepo.getFile(
-          event.fileId!,
-          event.fileName!,
-          thumbnailSize:
-              event.fileName!.endsWith(".gif") ? null : ThumbnailSize.medium,
-        );
-        if (path != null) {
-          _avatarFilePathCache.set(key, path);
-          bs.sink.add(path);
+      if (event != null) {
+        if (event.fileId != null && event.fileName != null) {
+          _avatarCache.set(key, event);
+          final path = await _fileRepo.getFile(
+            event.fileId!,
+            event.fileName!,
+            thumbnailSize:
+                event.fileName!.endsWith(".gif") ? null : ThumbnailSize.medium,
+          );
+          if (path != null) {
+            _avatarFilePathCache.set(key, path);
+            bs.sink.add(path);
+          }
+        } else if (event.createdOn == 0) {
+          final key = _getAvatarCacheKey(userUid);
+          _avatarFilePathCache.set(key, "");
+          _avatarCache.set(key, event);
+          bs.value = "";
+          _avatarCacheBehaviorSubjects.set(key, bs);
         }
       }
     });
@@ -269,13 +276,9 @@ class AvatarRepo {
     final deleteAvatar = avatar_pb.Avatar()
       ..fileUuid = avatar.fileId!
       ..fileName = avatar.fileName!
-      ..node = avatar.uid.isBot()
-          ? avatar.uid.asUid().node
-          : _authRepo.currentUserUid.node
+      ..node = avatar.uid.asUid().node
       ..createdOn = Int64.parseInt(avatar.createdOn.toRadixString(10))
-      ..category = avatar.uid.isBot()
-          ? avatar.uid.asUid().category
-          : _authRepo.currentUserUid.category;
+      ..category = avatar.uid.asUid().category;
     if (avatar.uid.isBot()) {
       await _sdr.botServiceClient
           .removeAvatar(bot_pb.RemoveAvatarReq()..avatar = deleteAvatar);

@@ -26,7 +26,11 @@ environment:
 dependencies:
   all_sensors2: 1.0.1
   android_intent_plus: 3.1.1
-  audioplayers: 1.0.1
+  audioplayers:
+    git:
+      ref: b661c7d4c6f28b08773eba5cdfcc9ecabd61c151
+      url: https://github.com/deliveriais/audioplayers
+      path: packages/audioplayers
   badges: 2.0.3
   camera: 0.9.8+1
   card_swiper: 2.0.4
@@ -38,28 +42,28 @@ dependencies:
   connectycube_flutter_call_kit:
     git:
       ref: f10624ee079d3212dfef1e412e8bbe24f9eb3b14
-      url: https://github.com/androidwoman/connectycube_flutter_call_kit2.0.5.git
+      url: https://github.com/deliveriais/connectycube_flutter_call_kit
   contacts_service: 0.6.3
   custom_image_crop: 0.0.4
   date_time_format: 2.0.1
   dcache: 0.4.0
   deliver_public_protocol:
     git:
-      ref: tags/v1.12.13-rc.11
+      ref: tags/v1.12.13-rc.20
       url: https://github.com/deliver-iais/pub-dart-artifactory
   desktop_drop: 0.3.3
   desktop_lifecycle: 0.1.0
   desktop_window:
     git:
       ref: main
-      url: https://github.com/deliver-iais/desktop_window
+      url: https://github.com/deliveriais/desktop_window
   device_info: 2.0.3
   dio: 4.0.6
   expandable: 5.0.1
   feature_discovery:
     git:
       ref: f775bf10512cf8c00a6d7c5c35bd4f85e2f058b0
-      url: https://github.com/androidwoman/feature_discovery.git
+      url: https://github.com/deliveriais/feature_discovery
   file_picker: 4.6.1
   file_selector: 0.8.4+3
   file_selector_linux: 0.0.2+1
@@ -88,19 +92,23 @@ dependencies:
   get_it: 7.2.0
   google_fonts: 3.0.1
   great_list_view: 0.1.4
-  grpc:
-    git:
-      ref: 29af7df647c0999a41c6b4186de8709574d81de5
-      url: https://github.com/deliver-iais/grpc-dart
+  grpc: 3.0.2
   hive: 2.2.2
   hive_flutter: 1.1.0
   hovering: 1.0.4
   http: 0.13.4
   http_parser: 4.0.1
   image_compression_flutter: 1.0.2
+  image_cropper: 2.0.3
   image_size_getter: 2.1.1
   intl: 0.17.0
   js: 0.6.4
+  just_audio: 0.9.27
+  just_audio_windows:
+    git:
+      path: just_audio_windows
+      ref: 2a032ce712646fcc8a68c8490afe008ea907890b
+      url: https://github.com/deliveriais/just_audio_windows
   jwt_decoder: 2.0.1
   latlong2: 0.8.1
   logger: 1.1.0
@@ -122,12 +130,17 @@ dependencies:
   permission_handler: 9.2.0
   persian_datetime_picker: 2.5.0
   photo_manager: 2.1.3
+  photo_view: 0.14.0
   platform_detect: 2.0.7
   process_run: 0.12.3+2
   qr_flutter: 4.0.0
   random_string: 2.3.1
   receive_sharing_intent: 1.4.5
-  record: 4.1.1
+  record:
+    git:
+      path: record
+      ref: d0d1ce44ed67ba92b313405ce4f8b50bc4980bda
+      url: https://github.com/deliveriais/record
   rxdart: 0.27.4
   screenshot: 1.2.3
   scrollable_positioned_list: 0.3.2
@@ -141,18 +154,20 @@ dependencies:
   tuple: 2.0.0
   universal_html: 2.0.8
   url_launcher: 6.1.3
+  uuid: 3.0.6
   vibration: 1.7.4-nullsafety.0
   video_player: 2.4.5
   win_toast:
     git:
       path: packages/win_toast
       ref: 5357c2a594a20534bf759eb28c86f8669d3914f3
-      url: https://github.com/AmirhosseinShk/flutter-plugins
+      url: https://github.com/deliveriais/flutter-plugins
   window_size:
     git:
       path: plugins/window_size
-      ref: e48abe7c3e9ebfe0b81622167c5201d4e783bb81
+      ref: 5c51870ced62a00e809ba4b81a846a052d241c9f
       url: https://github.com/google/flutter-desktop-embedding
+
 
 
 dev_dependencies:

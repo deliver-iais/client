@@ -89,7 +89,7 @@ class IntroPageState extends State<IntroPage> {
                       child: SizedBox(
                         width: animationSize,
                         child: Text(
-                          'The world`s fastest messaging app. It is free and secure.',
+                          'Super fast messaging app. It is free and secure.',
                           style: theme.primaryTextTheme.subtitle1,
                           textAlign: TextAlign.center,
                         ),
@@ -176,6 +176,7 @@ class IntroPageState extends State<IntroPage> {
             nameSkipBtn: _i18n.get("skip"),
             nameNextBtn: _i18n.get("next"),
             onDonePress: navigateToLoginPage,
+            backgroundColorAllSlides: theme.colorScheme.background,
             styleNameSkipBtn: theme.primaryTextTheme.button,
             styleNameDoneBtn: theme.primaryTextTheme.button,
             styleNamePrevBtn: theme.primaryTextTheme.button,

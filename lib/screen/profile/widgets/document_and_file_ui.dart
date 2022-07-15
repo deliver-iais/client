@@ -76,7 +76,7 @@ class DocumentAndFileUiState extends State<DocumentAndFileUi> {
                 child: Container(
                   color: widget.selectedMedia.contains(mediaSnapshot.data)
                       ? theme.hoverColor.withOpacity(0.4)
-                      : theme.backgroundColor,
+                      : theme.colorScheme.background,
                   child: FutureBuilder<String?>(
                     future: _fileRepo.getFileIfExist(
                       json["uuid"],

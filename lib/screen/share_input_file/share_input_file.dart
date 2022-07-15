@@ -48,16 +48,12 @@ class _ShareInputFileState extends State<ShareInputFile> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: theme.backgroundColor,
+      backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
         title: Text(
           _selectedRooms.isEmpty
               ? _i18n.get("send_To")
               : "${_i18n.get("selected_chats")} : ${_selectedRooms.length}",
-          style: Theme.of(context)
-              .appBarTheme
-              .titleTextStyle!
-              .copyWith(fontSize: 20),
         ),
         leading: _routingServices.backButtonLeading(),
       ),
@@ -157,7 +153,7 @@ class _ShareInputFileState extends State<ShareInputFile> {
                   width: 28,
                   height: 28,
                   decoration: BoxDecoration(
-                    color: theme.backgroundColor, // border color
+                    color: theme.colorScheme.background, // border color
                     shape: BoxShape.circle,
                   ),
                   child: Padding(
@@ -210,7 +206,7 @@ class _ShareInputFileState extends State<ShareInputFile> {
               uidList[index],
             )
                 ? theme.hoverColor
-                : theme.backgroundColor,
+                : theme.colorScheme.background,
             child: ShareChatItem(
               uid: uidList[index],
               selected: _selectedRooms.contains(

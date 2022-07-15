@@ -33,11 +33,9 @@ abstract class RoomDao {
 
   Future<Room?> getRoom(String roomUid);
 
-  Future<List<Room>> getNotSyncedRoom();
-
-  Future<List<Room>> getNotSyncedSeenRoom();
-
   Stream<Room> watchRoom(String roomUid);
+
+  Future<List<Room>> getNotSyncedRoom();
 
   Future<List<Room>> getAllGroups();
 }
@@ -66,8 +64,7 @@ class RoomDaoImpl implements RoomDao {
     yield sorted(
       box.values
           .where(
-            (element) =>
-                (element.lastMessage?.time ?? 0) > 0 && !element.deleted,
+            (element) => element.lastMessageId > 0 && !element.deleted,
           )
           .toList(),
     );
@@ -76,8 +73,7 @@ class RoomDaoImpl implements RoomDao {
           (event) => sorted(
             box.values
                 .where(
-                  (element) => ((element.lastMessage?.time ?? 0) > 0 &&
-                      !element.deleted),
+                  (element) => (element.lastMessageId > 0 && !element.deleted),
                 )
                 .toList(),
           ),
@@ -85,7 +81,11 @@ class RoomDaoImpl implements RoomDao {
   }
 
   List<Room> sorted(List<Room> list) => list
-    ..sort((a, b) => (b.lastMessage?.time ?? 0) - (a.lastMessage?.time ?? 0));
+    ..sort(
+      (a, b) =>
+          (b.lastMessage?.time ?? b.lastUpdateTime) -
+          (a.lastMessage?.time ?? a.lastUpdateTime),
+    );
 
   @override
   Future<Room?> getRoom(String roomUid) async {
@@ -173,31 +173,12 @@ class RoomDaoImpl implements RoomDao {
   Future<List<Room>> getNotSyncedRoom() async {
     try {
       final box = await _openRoom();
-
-      return sorted(
-        box.values
-            .where(
-              (element) => !element.deleted && !element.synced,
-            )
-            .toList(),
-      );
-    } catch (e) {
-      return [];
-    }
-  }
-
-  @override
-  Future<List<Room>> getNotSyncedSeenRoom() async {
-    try {
-      final box = await _openRoom();
-
-      return sorted(
-        box.values
-            .where(
-              (element) => !element.deleted && !element.seenSynced,
-            )
-            .toList(),
-      );
+      return box.values
+          .where(
+            (element) =>
+                !element.deleted && (!element.synced || !element.seenSynced),
+          )
+          .toList();
     } catch (e) {
       return [];
     }

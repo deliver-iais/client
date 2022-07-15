@@ -8,8 +8,10 @@ import 'package:deliver/screen/contacts/sync_contact.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
+import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:deliver/shared/widgets/custom_grid_view.dart';
+import 'package:deliver/shared/widgets/not_messenger_contact_widget.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -29,20 +31,38 @@ class ContactsPageState extends State<ContactsPage> {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _i18n = GetIt.I.get<I18N>();
   final _contactsBehavior = BehaviorSubject.seeded(<Contact>[]);
+  final _notMessengerContactsBehavior = BehaviorSubject.seeded(<Contact>[]);
 
   @override
   void initState() {
     super.initState();
     _syncContacts();
-    _contactRepo.watchAll().listen((contacts) {
+    _contactRepo.watchAllMessengerContacts().listen((contacts) {
       _contactsBehavior.add(
         contacts
+            .whereNot((element) => element.uid == null)
             .where(
-              (c) => !_authRepo.isCurrentUser(c.uid) && !c.isUsersContact(),
+              (c) => !_authRepo.isCurrentUser(c.uid!) && !c.isUsersContact(),
             )
-            .sortedBy((element) => "${element.firstName}${element.lastName}")
+            .sortedBy(
+              (element) => buildName(element.firstName, element.lastName),
+            )
             .toList(growable: false),
       );
+    });
+
+    _contactRepo
+        .getNotMessengerContactAsStream()
+        .listen((notMessengerContacts) {
+      if (notMessengerContacts.isNotEmpty) {
+        _notMessengerContactsBehavior.add(
+          notMessengerContacts
+              .sortedBy(
+                (element) => buildName(element.firstName, element.lastName),
+              )
+              .toList(growable: false),
+        );
+      }
     });
   }
 
@@ -52,19 +72,12 @@ class ContactsPageState extends State<ContactsPage> {
 
   @override
   Widget build(BuildContext context) {
-    final textTheme = Theme.of(context).textTheme;
-
     return Scaffold(
       appBar: BlurredPreferredSizedWidget(
         child: AppBar(
           centerTitle: false,
           titleSpacing: 8,
-          title: Row(
-            children: [
-              Text(_i18n.get("contacts")),
-              SyncContact.syncingStatusWidget(context)
-            ],
-          ),
+          title: Text(_i18n.get("contacts")),
           leading: _routingService.backButtonLeading(),
           actions: [
             IconButton(
@@ -75,7 +88,7 @@ class ContactsPageState extends State<ContactsPage> {
                   delegate: ContactSearchDelegate(),
                 ).then((c) {
                   if (c != null) {
-                    _routingService.openRoom(c.uid);
+                    _routingService.openRoom(c.uid!);
                   }
                 });
               },
@@ -96,55 +109,83 @@ class ContactsPageState extends State<ContactsPage> {
           } else {
             return Stack(
               children: [
-                if (contacts.isNotEmpty)
-                  ListView(
+                SafeArea(
+                  child: ListView(
                     children: [
-                      Padding(
+                      SyncContact.syncingStatusWidget(
+                        context,
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 32,
+                          horizontal: 24.0,
                           vertical: 8,
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "${contacts.length} ${_i18n.get("contacts")}",
-                              style: textTheme.labelLarge,
-                            ),
-                          ],
-                        ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                        child: FlexibleFixedHeightGridView(
-                          itemCount: contacts.length,
-                          itemBuilder: (context, index) {
-                            final c = contacts[index];
+                      if (contacts.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: FlexibleFixedHeightGridView(
+                            itemCount: contacts.length,
+                            itemBuilder: (context, index) {
+                              final c = contacts[index];
 
-                            return GestureDetector(
-                              onTap: () => _routingService.openRoom(c.uid),
-                              child: ContactWidget(
-                                contact: c,
-                                // isSelected: true,
-                                circleIcon: CupertinoIcons.qrcode,
-                                onCircleIcon: () => showQrCode(
-                                  context,
-                                  buildShareUserUrl(
-                                    c.countryCode,
-                                    c.nationalNumber,
-                                    c.firstName!,
-                                    c.lastName!,
+                              return GestureDetector(
+                                onTap: () => c.uid != null
+                                    ? _routingService.openRoom(c.uid!)
+                                    : null,
+                                child: ContactWidget(
+                                  contact: c,
+                                  // isSelected: true,
+                                  circleIcon: CupertinoIcons.qrcode,
+                                  onCircleIcon: () => showQrCode(
+                                    context,
+                                    buildShareUserUrl(
+                                      c.countryCode,
+                                      c.nationalNumber,
+                                      c.firstName!,
+                                      c.lastName!,
+                                    ),
                                   ),
                                 ),
+                              );
+                            },
+                          ),
+                        )
+                      else
+                        const EmptyContacts(),
+                      StreamBuilder<List<Contact>>(
+                        stream: _notMessengerContactsBehavior.stream,
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData &&
+                              snapshot.data != null &&
+                              snapshot.data!.isNotEmpty) {
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0,
+                              ),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text(_i18n.get("invite_contact")),
+                                    ],
+                                  ),
+                                  FlexibleFixedHeightGridView(
+                                    itemCount: snapshot.data!.length,
+                                    itemBuilder: (context, index) {
+                                      return NotMessengerContactWidget(
+                                        contact: snapshot.data![index],
+                                      );
+                                    },
+                                  ),
+                                ],
                               ),
                             );
-                          },
-                        ),
+                          }
+                          return const SizedBox.shrink();
+                        },
                       ),
                     ],
-                  )
-                else
-                  const EmptyContacts(),
+                  ),
+                ),
                 Align(
                   alignment: Alignment.bottomRight,
                   child: Padding(
@@ -173,13 +214,14 @@ class ContactSearchDelegate extends SearchDelegate<Contact?> {
   final _contacts = <Contact>[];
 
   ContactSearchDelegate() {
-    _contactRepo.watchAll().listen((contacts) {
+    _contactRepo.watchAllMessengerContacts().listen((contacts) {
       _contacts
         ..clear()
         ..addAll(
           contacts
+              .whereNot((element) => element.uid == null)
               .where(
-                (c) => !_authRepo.isCurrentUser(c.uid) && !c.isUsersContact(),
+                (c) => !_authRepo.isCurrentUser(c.uid!) && !c.isUsersContact(),
               )
               .sortedBy((element) => "${element.firstName}${element.lastName}"),
         );

@@ -13,7 +13,6 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
-import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/file_service.dart';
@@ -23,6 +22,9 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/parsers/detectors.dart';
+import 'package:deliver/shared/parsers/parsers.dart';
+import 'package:deliver/shared/parsers/transformers.dart';
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pro;
@@ -36,11 +38,10 @@ import 'package:tuple/tuple.dart';
 import 'package:win_toast/win_toast.dart';
 
 abstract class Notifier {
-  static void onCallAccept(String roomUid)  {
-        GetIt.I
-            .get<RoutingService>()
-            .openCallScreen(roomUid.asUid(), isCallAccepted: true);
-
+  static void onCallAccept(String roomUid) {
+    GetIt.I
+        .get<RoutingService>()
+        .openCallScreen(roomUid.asUid(), isCallAccepted: true);
   }
 
   static void onCallReject() {
@@ -195,9 +196,12 @@ class NotificationServices {
 
   MessageSimpleRepresentative _synthesize(MessageSimpleRepresentative mb) {
     if (mb.text.isNotEmpty) {
-      final blocks =
-          extractBlocks(mb.text, spoilTransformer: (s) => "<hide text>");
-      final result = blocks.map<String>((b) => b.text).toList().join();
+      final blocks = onePath(
+        [Block(text: mb.text, features: {})],
+        justSpoilerDetectors,
+        textTransformer(),
+      );
+      final result = blocks.join();
       return mb.copyWith(text: result);
     }
 
@@ -564,21 +568,20 @@ class AndroidNotifier implements Notifier {
   ) async {
     try {
       await setupDI();
-
-      if (notificationResponse == null) {
-        return;
-      }
-
-      if (notificationResponse.input?.isNotEmpty ?? false) {
-        if (notificationResponse.actionId == REPLY_ACTION_ID) {
-          Notifier.replyToMessage(notificationResponse);
-          Notifier.markAsRead(notificationResponse);
-        }
-      } else if (notificationResponse.actionId == MARK_AS_READ_ACTION_ID) {
-        Notifier.markAsRead(notificationResponse);
-      }
     } catch (e) {
       Logger().e(e);
+    }
+    if (notificationResponse == null) {
+      return;
+    }
+
+    if (notificationResponse.input?.isNotEmpty ?? false) {
+      if (notificationResponse.actionId == REPLY_ACTION_ID) {
+        Notifier.replyToMessage(notificationResponse);
+        Notifier.markAsRead(notificationResponse);
+      }
+    } else if (notificationResponse.actionId == MARK_AS_READ_ACTION_ID) {
+      Notifier.markAsRead(notificationResponse);
     }
   }
 
@@ -601,9 +604,8 @@ class AndroidNotifier implements Notifier {
   }
 
   Future<void> onCallAccepted(CallEvent callEvent) async {
-    await GetIt.I
-        .get<CallService>().clearCallData();
-     Notifier.onCallAccept(callEvent.userInfo!["uid"]!);
+    await GetIt.I.get<CallService>().clearCallData();
+    Notifier.onCallAccept(callEvent.userInfo!["uid"]!);
     final callEventInfo =
         call_pro.CallEvent.fromJson(callEvent.userInfo!["callEventJson"]!);
     //here status be JOINED means ACCEPT CALL and when app Start should go on accepting status
@@ -635,7 +637,8 @@ class AndroidNotifier implements Notifier {
   Future<void> notifyText(MessageSimpleRepresentative message) async {
     if (message.ignoreNotification) return;
     AndroidBitmap<Object>? largeIcon;
-    var selectedNotificationSound = "that_was_quick";
+    var selectedNotificationSound =
+        message.shouldBeQuiet ? "silence" : "that_was_quick";
     final selectedSound =
         await _roomRepo.getRoomCustomNotification(message.roomUid.asString());
     final la = await _avatarRepo.getLastAvatar(message.roomUid);
@@ -650,7 +653,7 @@ class AndroidNotifier implements Notifier {
         largeIcon = FilePathAndroidBitmap(path);
       }
     }
-    if (selectedSound != null) {
+    if (selectedSound != null && !message.shouldBeQuiet) {
       if (selectedSound != "-") {
         selectedNotificationSound = selectedSound;
       }

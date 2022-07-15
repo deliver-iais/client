@@ -22,7 +22,7 @@ class ConnectionStatus extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return StreamBuilder<TitleStatusConditions>(
-      initialData: TitleStatusConditions.Connected,
+      initialData: TitleStatusConditions.Normal,
       stream: _messageRepo.updatingStatus,
       builder: (context, snapshot) {
         final status = snapshot.data ?? TitleStatusConditions.Normal;
@@ -38,7 +38,9 @@ class ConnectionStatus extends StatelessWidget {
             margin: const EdgeInsets.symmetric(horizontal: 8),
             decoration: BoxDecoration(
               color: status == TitleStatusConditions.Connected ||
-                      status == TitleStatusConditions.Normal
+                      status == TitleStatusConditions.Normal ||
+                      status == TitleStatusConditions.Updating ||
+                      status == TitleStatusConditions.Syncing
                   ? elevation(
                       theme.colorScheme.primaryContainer,
                       theme.colorScheme.primary,
@@ -95,32 +97,41 @@ class ConnectionStatus extends StatelessWidget {
                           return Row(
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
-                              TextButton(
-                                onPressed: _coreServices.retryFasterConnection,
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      _i18n.get("reconnecting"),
-                                      style: const TextStyle(fontSize: 12),
-                                    ),
-                                    CircularCountDownTimer(
-                                      key: UniqueKey(),
-                                      duration: timeSnapShot.data!,
-                                      width: 16,
-                                      strokeWidth: 0,
-                                      height: 16,
-                                      isReverseAnimation: true,
-                                      ringColor: Colors.transparent,
-                                      fillColor: Colors.transparent,
-                                      backgroundColor: Colors.transparent,
-                                      textStyle: Theme.of(context)
-                                          .primaryTextTheme
-                                          .bodyText2
-                                          ?.copyWith(fontSize: 12),
-                                      textFormat: CountdownTextFormat.S,
-                                      isReverse: true,
-                                    ),
-                                  ],
+                              Padding(
+                                padding: const EdgeInsets.only(right: 16.0),
+                                child: TextButton(
+                                  style: TextButton.styleFrom(
+                                    padding: EdgeInsets.zero,
+                                    minimumSize: const Size(25, 15),
+                                    alignment: Alignment.center,
+                                  ),
+                                  onPressed:
+                                      _coreServices.retryFasterConnection,
+                                  child: Row(
+                                    children: [
+                                      Text(
+                                        _i18n.get("reconnecting"),
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                      CircularCountDownTimer(
+                                        key: UniqueKey(),
+                                        duration: timeSnapShot.data!,
+                                        width: 16,
+                                        strokeWidth: 0,
+                                        height: 16,
+                                        isReverseAnimation: true,
+                                        ringColor: Colors.transparent,
+                                        fillColor: Colors.transparent,
+                                        backgroundColor: Colors.transparent,
+                                        textStyle: Theme.of(context)
+                                            .primaryTextTheme
+                                            .bodyText2
+                                            ?.copyWith(fontSize: 12),
+                                        textFormat: CountdownTextFormat.S,
+                                        isReverse: true,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                               // const SizedBox(width: 6),

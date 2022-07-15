@@ -129,7 +129,6 @@ class RoomPageState extends State<RoomPage> {
   final _isScrolling = BehaviorSubject.seeded(false);
   final _itemPositionsListener = ItemPositionsListener.create();
   final _itemScrollController = ItemScrollController();
-  final _scrollPhysics = const ClampingScrollPhysics();
   final _editableMessage = BehaviorSubject<Message?>.seeded(null);
   final _searchMode = BehaviorSubject.seeded(false);
   final _lastPinedMessage = BehaviorSubject.seeded(0);
@@ -528,6 +527,10 @@ class RoomPageState extends State<RoomPage> {
   }
 
   void _sendSeenMessage(List<Message> messages) {
+    if (messages.isEmpty) {
+      return;
+    }
+
     final lastSeenMessages = messages.reduce(
       (value, element) => (value.id ?? 0) > (element.id ?? 0) ? value : element,
     );
@@ -555,7 +558,7 @@ class RoomPageState extends State<RoomPage> {
 
   Future<void> _readAllMessages() async {
     final seen = await _roomRepo.getMySeen(widget.roomId);
-    if (room.lastMessageId > seen.messageId) {
+    if (room.lastMessageId > seen.messageId && _appIsActive) {
       unawaited(
         _messageRepo.sendSeen(room.lastMessageId, widget.roomId.asUid()),
       );
@@ -871,6 +874,7 @@ class RoomPageState extends State<RoomPage> {
     final checkSearchResult = BehaviorSubject<bool>.seeded(false);
 
     return AppBar(
+      scrolledUnderElevation: 0,
       actions: [
         if (room.uid.asUid().isUser() &&
             !_authRepo.isCurrentUser(room.uid) &&
@@ -898,7 +902,7 @@ class RoomPageState extends State<RoomPage> {
                       ),
                       overflowMode: OverflowMode.extendBackground,
                       description: FeatureDiscoveryDescriptionWidget(
-                        permissionWidget: !isDesktop && isAndroid
+                        permissionWidget: isAndroid
                             ? FutureBuilder<int>(
                                 future: getDeviceVersion(),
                                 builder: (context, version) {
@@ -1203,7 +1207,7 @@ class RoomPageState extends State<RoomPage> {
           initialScrollIndex: initialScrollIndex + 1,
           key: _scrollablePositionedListKey,
           initialAlignment: initialAlignment,
-          physics: _scrollPhysics,
+          physics: const ClampingScrollPhysics(),
           addSemanticIndexes: false,
           minCacheExtent: 0,
           itemPositionsListener: _itemPositionsListener,

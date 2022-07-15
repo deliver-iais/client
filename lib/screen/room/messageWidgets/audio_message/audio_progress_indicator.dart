@@ -3,6 +3,7 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:deliver/services/audio_service.dart';
+import 'package:deliver/shared/methods/find_file_type.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_audio_waveforms/flutter_audio_waveforms.dart';
@@ -10,13 +11,17 @@ import 'package:get_it/get_it.dart';
 
 class AudioProgressIndicator extends StatefulWidget {
   final String audioUuid;
-  final double duration;
+  final String audioPath;
+  final Duration audioDuration;
+  final double maxWidth;
   final CustomColorScheme? colorScheme;
 
   const AudioProgressIndicator({
     super.key,
     required this.audioUuid,
-    required this.duration,
+    required this.audioPath,
+    required this.audioDuration,
+    required this.maxWidth,
     this.colorScheme,
   });
 
@@ -31,9 +36,9 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return StreamBuilder<Duration>(
-      stream: audioPlayerService.audioCurrentPosition(),
-      builder: (context, duration) {
-        if (duration.hasData && duration.data != null) {
+      stream: audioPlayerService.playerPosition,
+      builder: (context, position) {
+        if (position.hasData && position.data != null) {
           return Column(
             children: [
               const SizedBox(
@@ -41,68 +46,75 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
               ),
               Stack(
                 children: [
-                  FutureBuilder<Uint8List>(
-                    future: File(audioPlayerService.audioPath).readAsBytes(),
-                    builder: (context, snapshot) {
-                      if (snapshot.data != null) {
-                        final samplesData =
-                            loadParseJson(snapshot.data!.toList(), 100);
-                        return RectangleWaveform(
-                          isRoundedRectangle: true,
-                          isCentered: true,
-                          borderWidth: 0,
-                          inactiveBorderColor: Color.alphaBlend(
-                            widget.colorScheme?.primary.withAlpha(70) ??
-                                theme.primaryColor.withAlpha(70),
-                            Colors.white10,
-                          ),
-                          activeBorderColor:
-                              widget.colorScheme?.primary ?? theme.primaryColor,
-                          maxDuration:
-                              Duration(seconds: widget.duration.ceil()),
-                          inactiveColor: Color.alphaBlend(
-                            widget.colorScheme?.primary.withAlpha(70) ??
-                                theme.primaryColor.withAlpha(70),
-                            Colors.white10,
-                          ),
-                          activeColor:
-                              widget.colorScheme?.primary ?? theme.primaryColor,
-                          elapsedDuration: duration.data,
-                          samples: samplesData["samples"],
+                  if (isVoiceFile(widget.audioPath))
+                    FutureBuilder<Uint8List>(
+                      future: File(widget.audioPath).readAsBytes(),
+                      builder: (context, snapshot) {
+                        if (snapshot.data != null) {
+                          final samplesData = loadParseJson(
+                            snapshot.data!.toList(),
+                            100,
+                          );
+                          return RectangleWaveform(
+                            isRoundedRectangle: true,
+                            isCentered: true,
+                            borderWidth: 0,
+                            inactiveBorderColor: Color.alphaBlend(
+                              widget.colorScheme?.primary.withAlpha(70) ??
+                                  theme.primaryColor.withAlpha(70),
+                              Colors.white10,
+                            ),
+                            activeBorderColor: widget.colorScheme?.primary ??
+                                theme.primaryColor,
+                            maxDuration: widget.audioDuration,
+                            inactiveColor: Color.alphaBlend(
+                              widget.colorScheme?.primary.withAlpha(70) ??
+                                  theme.primaryColor.withAlpha(70),
+                              Colors.white10,
+                            ),
+                            activeColor: widget.colorScheme?.primary ??
+                                theme.primaryColor,
+                            elapsedDuration: position.data,
+                            samples: samplesData["samples"],
+                            height: 20,
+                            width: widget.maxWidth,
+                          );
+                        }
+                        return const SizedBox(
                           height: 20,
-                          width: 200,
                         );
-                      }
-                      return const SizedBox(
-                        height: 20,
-                      );
-                    },
-                  ),
-                  Opacity(
-                    opacity: 0.0,
-                    child: SliderTheme(
-                      data: SliderThemeData(
-                        overlayShape: SliderComponentShape.noOverlay,
-                      ),
-                      child: Slider(
-                        value: min(
-                          duration.data!.inMilliseconds / 1000,
-                          widget.duration,
+                      },
+                    ),
+                  if ((position.data!.inMilliseconds /
+                          widget.audioDuration.inMilliseconds) <=
+                      1)
+                    Opacity(
+                      opacity: isVoiceFile(widget.audioPath) ? 0 : 1,
+                      child: SliderTheme(
+                        data: SliderThemeData(
+                          overlayShape: SliderComponentShape.noOverlay,
+                          thumbShape: const RoundSliderThumbShape(
+                            enabledThumbRadius: 8,
+                          ),
                         ),
-                        max: widget.duration + 1,
-                        onChanged: (value) {
-                          setState(() {
-                            audioPlayerService.seek(
-                              Duration(
-                                seconds: value.floor(),
-                              ),
-                            );
-                            value = value;
-                          });
-                        },
+                        child: Slider(
+                          value: position.data!.inMilliseconds /
+                              widget.audioDuration.inMilliseconds,
+                          onChanged: (value) {
+                            setState(() {
+                              audioPlayerService.seekTime(
+                                Duration(
+                                  milliseconds: (value *
+                                          widget.audioDuration.inMilliseconds)
+                                      .round(),
+                                ),
+                              );
+                              value = value;
+                            });
+                          },
+                        ),
                       ),
                     ),
-                  ),
                 ],
               ),
               const SizedBox(

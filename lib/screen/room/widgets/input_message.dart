@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'dart:math';
 
-import 'package:clock/clock.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/room.dart';
@@ -24,6 +22,7 @@ import 'package:deliver/screen/room/widgets/show_mention_list.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
@@ -31,7 +30,6 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/keyboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/methods/vibration.dart';
 import 'package:deliver/shared/widgets/attach_location.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
@@ -45,8 +43,6 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:pasteboard/pasteboard.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:record/record.dart';
 import 'package:rxdart/rxdart.dart';
 
 class InputMessage extends StatefulWidget {
@@ -91,46 +87,32 @@ class InputMessageWidgetState extends State<InputMessage> {
   static final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
   static final _logger = GetIt.I.get<Logger>();
   static final checkPermission = GetIt.I.get<CheckPermissionsService>();
-  static final _audioPlayerService = GetIt.I.get<AudioService>();
   static final _mucRepo = GetIt.I.get<MucRepo>();
   static final _botRepo = GetIt.I.get<BotRepo>();
+  static final _audioService = GetIt.I.get<AudioService>();
+  static final _routingService = GetIt.I.get<RoutingService>();
 
   late Room currentRoom;
-  bool autofocus = false;
-  double x = 0.0;
-  double size = 1;
-  bool started = false;
-  DateTime _time = clock.now();
-  BehaviorSubject<DateTime> recordSubject = BehaviorSubject.seeded(clock.now());
-
-  double dx = 150.0;
-  bool recordAudioPermission = false;
-  late Timer recordAudioTimer;
-  final BehaviorSubject<bool> _backSubject = BehaviorSubject.seeded(false);
+  final BehaviorSubject<bool> _showEmojiKeyboard =
+      BehaviorSubject.seeded(false);
   final BehaviorSubject<bool> _showSendIcon = BehaviorSubject.seeded(false);
   final BehaviorSubject<String?> _mentionQuery = BehaviorSubject.seeded(null);
   final BehaviorSubject<String> _botCommandQuery = BehaviorSubject.seeded("-");
-  late Timer _tickTimer;
   TextEditingController captionTextController = TextEditingController();
   late TextSelectionControls selectionControls;
   bool isMentionSelected = false;
-
-  bool startAudioRecorder = false;
-
   late FocusNode keyboardRawFocusNode;
-
   Subject<ActivityType> isTypingActivitySubject = BehaviorSubject();
   Subject<ActivityType> noActivitySubject = BehaviorSubject();
+  BehaviorSubject<TextDirection> textDirection =
+      BehaviorSubject.seeded(TextDirection.ltr);
   late String _botCommandData;
   int mentionSelectedIndex = 0;
   int botCommandSelectedIndex = 0;
   bool _shouldSynthesize = true;
-  final record = Record();
 
-  late final ValueNotifier<TextDirection> _textDir;
-
-  final botCommandRegexp = RegExp(r"([a-zA-Z0-9_])*");
-  final idRegexp = RegExp(r"([a-zA-Z0-9_])*");
+  final botCommandRegexp = RegExp(r"(\w)*");
+  final idRegexp = RegExp(r"^[a-zA-Z]([a-zA-Z0-9_]){0,19}$");
 
   void showButtonSheet() {
     if (isWeb || isDesktop) {
@@ -164,7 +146,6 @@ class InputMessageWidgetState extends State<InputMessage> {
 
     currentRoom = widget.currentRoom;
     widget.textController.text = (currentRoom.draft ?? "");
-    _textDir = ValueNotifier(getDirection(widget.textController.text));
     isTypingActivitySubject
         .throttle((_) => TimerStream(true, const Duration(seconds: 10)))
         .listen((activityType) {
@@ -173,11 +154,20 @@ class InputMessageWidgetState extends State<InputMessage> {
     noActivitySubject.listen((event) {
       _messageRepo.sendActivity(widget.currentRoom.uid.asUid(), event);
     });
+    _audioService.recordingDuration.listen((value) {
+      if (value.compareTo(Duration.zero) > 0) {
+        isTypingActivitySubject.add(ActivityType.RECORDING_VOICE);
+      }
+    });
 
     _showSendIcon
         .add(currentRoom.draft != null && currentRoom.draft!.isNotEmpty);
     widget.textController.addListener(() {
       _showSendIcon.add(widget.textController.text.isNotEmpty);
+      if (widget.textController.text.isNotEmpty) {
+        textDirection.add(getDirection(widget.textController.text));
+      }
+
       if (currentRoom.uid.asUid().category == Categories.BOT &&
           widget.textController.text.isNotEmpty &&
           widget.textController.text[0] == "/" &&
@@ -192,7 +182,7 @@ class InputMessageWidgetState extends State<InputMessage> {
           widget.textController.text
               .substring(0 + 1, widget.textController.selection.start),
         );
-      } else if (widget.textController.text.isEmpty) {
+      } else {
         _botCommandQuery.add("-");
       }
 
@@ -212,12 +202,18 @@ class InputMessageWidgetState extends State<InputMessage> {
               (start == 0 || widget.textController.text[start - 1] == " ") &&
               widget.textController.selection.start ==
                   widget.textController.selection.end &&
-              idRegexp.hasMatch(
-                widget.textController.text.substring(
-                  start + 1,
-                  widget.textController.selection.start,
-                ),
-              )) {
+              (idRegexp.hasMatch(
+                    widget.textController.text.substring(
+                      start + 1,
+                      widget.textController.selection.start,
+                    ),
+                  ) ||
+                  widget.textController.text
+                      .substring(
+                        start + 1,
+                        widget.textController.selection.start,
+                      )
+                      .isEmpty)) {
             _mentionQuery.add(
               widget.textController.text
                   .substring(start + 1, widget.textController.selection.start),
@@ -253,11 +249,10 @@ class InputMessageWidgetState extends State<InputMessage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    dx = min(MediaQuery.of(context).size.width / 2, 150.0);
     return WillPopScope(
       onWillPop: () async {
-        if (_backSubject.value) {
-          _backSubject.add(false);
+        if (_showEmojiKeyboard.value) {
+          _showEmojiKeyboard.add(false);
           return false;
         } else {
           return true;
@@ -280,6 +275,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                     mentionSelectedIndex: mentionSelectedIndex,
                   );
                 }
+                mentionSelectedIndex = 0;
                 return const SizedBox.shrink();
               },
             ),
@@ -287,11 +283,14 @@ class InputMessageWidgetState extends State<InputMessage> {
               stream: _botCommandQuery.distinct(),
               builder: (c, show) {
                 _botCommandData = show.data ?? "-";
+                if (_botCommandData == "-") {
+                  botCommandSelectedIndex = 0;
+                }
                 return BotCommands(
                   botUid: widget.currentRoom.uid.asUid(),
                   query: _botCommandData,
                   onCommandClick: (command) {
-                    onCommandClick(command);
+                    onCommandSelected(command);
                   },
                   botCommandSelectedIndex: botCommandSelectedIndex,
                 );
@@ -301,390 +300,300 @@ class InputMessageWidgetState extends State<InputMessage> {
               decoration: BoxDecoration(
                 color: theme.colorScheme.surface,
               ),
-              child: Stack(
-                // overflow: Overflow.visible,
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: <Widget>[
                   StreamBuilder<bool>(
-                    stream: _showSendIcon,
-                    builder: (c, sh) {
-                      if (sh.hasData &&
-                          !sh.data! &&
-                          !widget.waitingForForward &&
-                          !isDesktop) {
-                        return RecordAudioAnimation(
-                          rightPadding: x,
-                          size: size,
-                        );
-                      } else {
-                        return const SizedBox.shrink();
-                      }
+                    stream: _audioService.recorderIsRecording,
+                    builder: (ctx, snapshot) {
+                      final isRecording = snapshot.data ?? false;
+                      final isRecordingInCurrentRoom =
+                          _audioService.recordingRoom == widget.currentRoom.uid;
+
+                      return Expanded(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: <Widget>[
+                            if (!isRecording) buildEmojiKeyboardActions(),
+                            if (!isRecording) buildTextInput(theme),
+                            if (!isRecording) buildDefaultActions(),
+                            if (isRecording && isRecordingInCurrentRoom)
+                              const RecordAudioSlideWidget(),
+                            if (isRecording && !isRecordingInCurrentRoom)
+                              Expanded(
+                                child: IconButton(
+                                  icon: SizedBox(
+                                    width: double.infinity,
+                                    child: TextButton(
+                                      onPressed: () => _routingService.openRoom(
+                                        _audioService.recordingRoom,
+                                      ),
+                                      // color: theme.colorScheme.primary,
+                                      child: Text(
+                                        _i18n.get("go_to_recording_room"),
+                                      ),
+                                    ),
+                                  ),
+                                  onPressed: () {},
+                                ),
+                              )
+                          ],
+                        ),
+                      );
                     },
                   ),
-                  Row(
-                    children: <Widget>[
-                      if (!startAudioRecorder)
-                        Expanded(
-                          child: Row(
-                            children: <Widget>[
-                              StreamBuilder<bool>(
-                                stream: _backSubject,
-                                builder: (context, snapshot) {
-                                  return IconButton(
-                                    iconSize: _backSubject.value ? 24 : 28,
-                                    icon: Icon(
-                                      _backSubject.value
-                                          ? CupertinoIcons
-                                              .keyboard_chevron_compact_down
-                                          : CupertinoIcons.smiley,
-                                    ),
-                                    onPressed: () {
-                                      if (_backSubject.value) {
-                                        _backSubject.add(false);
-                                        widget.focusNode.requestFocus();
-                                      } else if (!_backSubject.value) {
-                                        FocusScope.of(context).unfocus();
-                                        Timer(const Duration(milliseconds: 200),
-                                            () {
-                                          _backSubject.add(true);
-                                        });
-                                      }
-                                    },
-                                  );
-                                },
-                              ),
-                              Flexible(
-                                child: StreamBuilder<Message?>(
-                                  stream: widget.replyMessageIdStream,
-                                  builder: (context, snapshot) {
-                                    return RawKeyboardListener(
-                                      focusNode: keyboardRawFocusNode,
-                                      onKey: handleKey,
-                                      child:
-                                          ValueListenableBuilder<TextDirection>(
-                                        valueListenable: _textDir,
-                                        builder:
-                                            (context, textDirection, child) =>
-                                                TextField(
-                                          selectionControls: isDesktop
-                                              ? selectionControls
-                                              : null,
-                                          focusNode: widget.focusNode,
-                                          autofocus:
-                                              (snapshot.data?.id ?? 0) > 0 ||
-                                                  isDesktop,
-                                          controller: widget.textController,
-                                          decoration: InputDecoration(
-                                            contentPadding:
-                                                const EdgeInsets.symmetric(
-                                              horizontal: 14,
-                                              vertical: 12,
-                                            ),
-                                            border: InputBorder.none,
-                                            counterText: "",
-                                            suffix: IconButton(
-                                              icon: FaIcon(
-                                                FontAwesomeIcons.markdown,
-                                                size: 18,
-                                                color: !_shouldSynthesize
-                                                    ? ACTIVE_COLOR
-                                                    : null,
-                                              ),
-                                              onPressed: () {
-                                                setState(() {
-                                                  _shouldSynthesize =
-                                                      !_shouldSynthesize;
-                                                });
-                                              },
-                                            ),
-                                            hintText:
-                                                _i18n.get("write_a_message"),
-                                          ),
-                                          textInputAction:
-                                              TextInputAction.newline,
-                                          minLines: 1,
-                                          maxLines: 15,
-                                          maxLength:
-                                              INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH,
-                                          inputFormatters: [
-                                            MaxLinesTextInputFormatter(
-                                              INPUT_MESSAGE_TEXT_FIELD_MAX_LINE,
-                                            )
-                                            //max line of text field
-                                          ],
-                                          textDirection: textDirection,
-                                          style: theme.textTheme.subtitle1,
-                                          onTap: () => _backSubject.add(false),
-                                          onChanged: (str) {
-                                            if (str.isNotEmpty) {
-                                              final dir = getDirection(str);
-                                              if (dir != textDirection) {
-                                                _textDir.value = dir;
-                                              }
-                                            }
-                                            if (str.isNotEmpty) {
-                                              isTypingActivitySubject
-                                                  .add(ActivityType.TYPING);
-                                            } else {
-                                              noActivitySubject.add(
-                                                ActivityType.NO_ACTIVITY,
-                                              );
-                                            }
-                                          },
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                              if (currentRoom.uid.asUid().category ==
-                                  Categories.BOT)
-                                StreamBuilder<bool>(
-                                  stream: _showSendIcon,
-                                  builder: (context, snapshot) {
-                                    if (snapshot.hasData && !snapshot.data!) {
-                                      return IconButton(
-                                        iconSize: 28,
-                                        icon: const Icon(
-                                          CupertinoIcons.slash_circle,
-                                        ),
-                                        onPressed: () => _botCommandQuery.add(
-                                          _botCommandQuery.value == "-"
-                                              ? ""
-                                              : "-",
-                                        ),
-                                      );
-                                    } else {
-                                      return const SizedBox.shrink();
-                                    }
-                                  },
-                                ),
-                              if (isWindows || isMacOS)
-                                StreamBuilder<bool>(
-                                  stream: _showSendIcon,
-                                  builder: (c, sh) {
-                                    if (sh.hasData &&
-                                        !sh.data! &&
-                                        !widget.waitingForForward) {
-                                      return IconButton(
-                                        icon: const Icon(
-                                          CupertinoIcons.location,
-                                        ),
-                                        onPressed: () => AttachLocation(
-                                          context,
-                                          currentRoom.uid.asUid(),
-                                        ).attachLocationInWindows(),
-                                      );
-                                    } else {
-                                      return const SizedBox.shrink();
-                                    }
-                                  },
-                                ),
-                              StreamBuilder<bool>(
-                                stream: _showSendIcon,
-                                builder: (c, sh) {
-                                  if (sh.hasData &&
-                                      !sh.data! &&
-                                      !widget.waitingForForward) {
-                                    return IconButton(
-                                      icon: const Icon(
-                                        CupertinoIcons.paperclip,
-                                      ),
-                                      onPressed: () {
-                                        _backSubject.add(false);
+                  StreamBuilder<bool>(
+                    stream: _showSendIcon,
+                    builder: (c, sm) {
+                      if (!sm.hasData ||
+                          sm.data! ||
+                          widget.waitingForForward ||
+                          !_audioService.recorderIsAvailable()) {
+                        return const SizedBox();
+                      }
 
-                                        showButtonSheet();
-                                      },
-                                    );
-                                  } else {
-                                    return const SizedBox.shrink();
-                                  }
-                                },
-                              ),
-                              StreamBuilder<bool>(
-                                stream: _showSendIcon,
-                                builder: (c, sh) {
-                                  if ((sh.hasData && sh.data!) ||
-                                      widget.waitingForForward) {
-                                    return IconButton(
-                                      icon: const Icon(
-                                        CupertinoIcons.paperplane_fill,
-                                        color: Colors.blue,
-                                      ),
-                                      onPressed:
-                                          widget.textController.text.isEmpty &&
-                                                  !widget.waitingForForward
-                                              ? () async {}
-                                              : () {
-                                                  sendMessage();
-                                                },
-                                    );
-                                  } else {
-                                    return const SizedBox.shrink();
-                                  }
-                                },
-                              )
-                            ],
-                          ),
-                        )
-                      else
-                        RecordAudioSlideWidget(
-                          opacity: opacity(),
-                          time: _time,
-                          running: startAudioRecorder,
-                          streamTime: recordSubject,
-                        ),
-                      StreamBuilder<bool>(
-                        stream: _showSendIcon,
-                        builder: (c, sm) {
-                          if (sm.hasData &&
-                              !sm.data! &&
-                              !widget.waitingForForward &&
-                              !isDesktop) {
-                            return GestureDetector(
-                              onTapDown: (_) async {
-                                recordAudioPermission = await checkPermission
-                                    .checkAudioRecorderPermission();
-                              },
-                              onLongPressMoveUpdate: (tg) {
-                                if (tg.offsetFromOrigin.dx > -dx && started) {
-                                  setState(() {
-                                    x = -tg.offsetFromOrigin.dx;
-                                    startAudioRecorder = true;
-                                  });
-                                } else {
-                                  if (started) {
-                                    started = false;
-                                    _tickTimer.cancel();
-                                    vibrate(duration: 200);
-                                    setState(() {
-                                      startAudioRecorder = false;
-                                      x = 0;
-                                      size = 1;
-                                    });
-                                  }
-                                }
-                              },
-                              onLongPressStart: (dw) async {
-                                if (recordAudioPermission) {
-                                  final s =
-                                      await getApplicationDocumentsDirectory();
-                                  final path =
-                                      "${s.path}/$APPLICATION_FOLDER_NAME/${clock.now().millisecondsSinceEpoch}.m4a";
-                                  _audioPlayerService.pause();
-                                  recordSubject.add(clock.now());
-                                  setTime();
-                                  sendRecordActivity();
-                                  vibrate(duration: 200).ignore();
-                                  // Start recording
-                                  await record.start(
-                                    path: path,
-                                    samplingRate: 16000, // by default
-                                  );
-                                  setState(() {
-                                    startAudioRecorder = true;
-                                    size = 2;
-                                    started = true;
-                                    _time = clock.now();
-                                  });
-                                }
-                              },
-                              onLongPressEnd: (s) async {
-                                if (!recordAudioPermission) {
-                                  return;
-                                }
-
-                                _tickTimer.cancel();
-                                final res = await record.stop();
-
-                                // _soundRecorder.closeAudioSession();
-                                recordAudioTimer.cancel();
-                                setState(() {
-                                  startAudioRecorder = false;
-                                  x = 0;
-                                  size = 1;
-                                });
-                                if (started) {
-                                  try {
-                                    unawaited(
-                                      _messageRepo.sendFileMessage(
-                                        widget.currentRoom.uid.asUid(),
-                                        File(res!, res),
-                                      ),
-                                    );
-                                  } catch (_) {}
-                                }
-                              },
-                              child: const Opacity(
-                                opacity: 0,
-                                child: Material(
-                                  // button color
-                                  child: SizedBox(
-                                    width: 50,
-                                    height: 50,
-                                  ),
-                                ),
+                      return RecordAudioAnimation(
+                        onComplete: (res) {
+                          if (res != null) {
+                            unawaited(
+                              _messageRepo.sendFileMessage(
+                                widget.currentRoom.uid.asUid(),
+                                File(res, res),
                               ),
                             );
-                          } else {
-                            return const SizedBox(height: 50);
                           }
                         },
-                      )
-                    ],
-                  ),
+                        roomUid: widget.currentRoom.uid.asUid(),
+                      );
+                    },
+                  )
                 ],
               ),
             ),
             StreamBuilder<bool>(
-              stream: _backSubject,
+              stream: _showEmojiKeyboard,
               builder: (context, back) {
-                if (back.hasData && back.data!) {
-                  return SizedBox(
-                    height: 270.0,
-                    child: EmojiKeyboard(
-                      onTap: (emoji) {
-                        if (widget.textController.text.isNotEmpty) {
-                          final start =
-                              widget.textController.selection.baseOffset;
-                          var block_1 =
-                              widget.textController.text.substring(0, start);
-                          block_1 = block_1.substring(0, start);
-                          final block_2 = widget.textController.text.substring(
-                            start,
-                            widget.textController.text.length,
-                          );
-                          widget.textController.text =
-                              block_1 + emoji + block_2;
-                          widget.textController.selection =
-                              TextSelection.fromPosition(
-                            TextPosition(
-                              offset: widget.textController.text.length -
-                                  block_2.length,
-                            ),
-                          );
-                        } else {
-                          widget.textController.text =
-                              widget.textController.text + emoji;
-                          widget.textController.selection =
-                              TextSelection.fromPosition(
-                            TextPosition(
-                              offset: widget.textController.text.length,
-                            ),
-                          );
-                        }
-                        if (isDesktop) {
-                          widget.focusNode.requestFocus();
-                        }
-                      },
-                    ),
-                  );
-                } else {
-                  return const SizedBox.shrink();
-                }
+                final showEmojiKeyboard = back.data ?? false;
+
+                return AnimatedContainer(
+                  duration: SLOW_ANIMATION_DURATION,
+                  curve: Curves.easeInOut,
+                  height: showEmojiKeyboard ? 270.0 : 0,
+                  child: EmojiKeyboard(
+                    onTap: (emoji) {
+                      if (widget.textController.text.isNotEmpty) {
+                        final start =
+                            widget.textController.selection.baseOffset;
+                        var block_1 =
+                            widget.textController.text.substring(0, start);
+                        block_1 = block_1.substring(0, start);
+                        final block_2 = widget.textController.text.substring(
+                          start,
+                          widget.textController.text.length,
+                        );
+                        widget.textController.text = block_1 + emoji + block_2;
+                        widget.textController.selection =
+                            TextSelection.fromPosition(
+                          TextPosition(
+                            offset: widget.textController.text.length -
+                                block_2.length,
+                          ),
+                        );
+                      } else {
+                        widget.textController.text =
+                            widget.textController.text + emoji;
+                        widget.textController.selection =
+                            TextSelection.fromPosition(
+                          TextPosition(
+                            offset: widget.textController.text.length,
+                          ),
+                        );
+                      }
+                      if (isDesktop) {
+                        widget.focusNode.requestFocus();
+                      }
+                    },
+                  ),
+                );
               },
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  StreamBuilder<bool> buildEmojiKeyboardActions() {
+    return StreamBuilder<bool>(
+      stream: _showEmojiKeyboard,
+      builder: (context, snapshot) {
+        final showEmojiKeyboard = snapshot.data ?? false;
+        return IconButton(
+          icon: Icon(
+            showEmojiKeyboard
+                ? CupertinoIcons.keyboard_chevron_compact_down
+                : CupertinoIcons.smiley,
+          ),
+          onPressed: () {
+            if (showEmojiKeyboard) {
+              _showEmojiKeyboard.add(false);
+              widget.focusNode.requestFocus();
+            } else if (!showEmojiKeyboard) {
+              if (isDesktop) {
+                _showEmojiKeyboard.add(true);
+              } else {
+                FocusScope.of(context).unfocus();
+                Timer(
+                    const Duration(
+                      milliseconds: 200,
+                    ), () {
+                  _showEmojiKeyboard.add(true);
+                });
+              }
+            }
+          },
+        );
+      },
+    );
+  }
+
+  StreamBuilder<bool> buildDefaultActions() {
+    return StreamBuilder<bool>(
+      stream: _showSendIcon,
+      builder: (context, snapshot) {
+        final showSendButton =
+            (snapshot.data ?? false) || widget.waitingForForward;
+
+        final showCommandsButton = !showSendButton &&
+            currentRoom.uid.asUid().category == Categories.BOT;
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            if (showCommandsButton)
+              IconButton(
+                icon: const Icon(
+                  CupertinoIcons.slash_circle,
+                ),
+                onPressed: () => {
+                  widget.focusNode.requestFocus(),
+                  _botCommandQuery.add(
+                    _botCommandQuery.value == "-" ? "" : "-",
+                  ),
+                },
+              ),
+            if ((isWindows || isMacOS) &&
+                !showSendButton &&
+                !widget.waitingForForward)
+              IconButton(
+                icon: const Icon(
+                  CupertinoIcons.location,
+                ),
+                onPressed: () => AttachLocation(
+                  context,
+                  currentRoom.uid.asUid(),
+                ).attachLocationInWindows(),
+              ),
+            if (!showSendButton && !widget.waitingForForward)
+              IconButton(
+                icon: const Icon(
+                  CupertinoIcons.paperclip,
+                ),
+                onPressed: () {
+                  _showEmojiKeyboard.add(false);
+
+                  showButtonSheet();
+                },
+              ),
+            if (showSendButton && !widget.waitingForForward)
+              IconButton(
+                icon: FaIcon(
+                  FontAwesomeIcons.markdown,
+                  size: 18,
+                  color: !_shouldSynthesize ? ACTIVE_COLOR : null,
+                ),
+                onPressed: () {
+                  setState(() {
+                    _shouldSynthesize = !_shouldSynthesize;
+                  });
+                },
+              ),
+            if (showSendButton || widget.waitingForForward)
+              IconButton(
+                icon: const Icon(
+                  CupertinoIcons.paperplane_fill,
+                  color: Colors.blue,
+                ),
+                onPressed: widget.textController.text.isEmpty &&
+                        !widget.waitingForForward
+                    ? () async {}
+                    : () {
+                        sendMessage();
+                      },
+              )
+          ],
+        );
+      },
+    );
+  }
+
+  Flexible buildTextInput(ThemeData theme) {
+    return Flexible(
+      child: StreamBuilder<Message?>(
+        stream: widget.replyMessageIdStream,
+        builder: (context, snapshot) {
+          return RawKeyboardListener(
+            focusNode: keyboardRawFocusNode,
+            onKey: handleKey,
+            child: StreamBuilder<TextDirection>(
+              stream: textDirection.distinct(),
+              builder: (c, sn) {
+                final textDir = sn.data ?? TextDirection.ltr;
+                return TextField(
+                  selectionControls: isDesktop ? selectionControls : null,
+                  focusNode: widget.focusNode,
+                  autofocus: (snapshot.data?.id ?? 0) > 0 || isDesktop,
+                  controller: widget.textController,
+                  decoration: InputDecoration(
+                    contentPadding: const EdgeInsets.only(top: 12, bottom: 12),
+                    border: InputBorder.none,
+                    counterText: "",
+                    hintText: _i18n.get("write_a_message"),
+                    hintTextDirection:
+                        _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                    hintStyle: theme.textTheme.bodyMedium,
+                  ),
+                  textInputAction: TextInputAction.newline,
+                  minLines: 1,
+                  maxLines: isAndroid ? 10 : 15,
+                  maxLength: INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH,
+                  inputFormatters: [
+                    MaxLinesTextInputFormatter(
+                      INPUT_MESSAGE_TEXT_FIELD_MAX_LINE,
+                    )
+                    //max line of text field
+                  ],
+                  textDirection: textDir,
+                  style: theme.textTheme.bodyMedium,
+                  onTap: () {
+                    if (!isDesktop) _showEmojiKeyboard.add(false);
+                  },
+                  onChanged: (str) {
+                    if (str.isNotEmpty) {
+                      isTypingActivitySubject.add(
+                        ActivityType.TYPING,
+                      );
+                    } else {
+                      noActivitySubject.add(
+                        ActivityType.NO_ACTIVITY,
+                      );
+                    }
+                  },
+                );
+              },
+            ),
+          );
+        },
       ),
     );
   }
@@ -710,7 +619,7 @@ class InputMessageWidgetState extends State<InputMessage> {
     }
   }
 
-  void onCommandClick(String command) {
+  void onCommandSelected(String command) {
     widget.textController.text = "/$command";
     widget.textController.selection = TextSelection.fromPosition(
       TextPosition(offset: widget.textController.text.length),
@@ -723,9 +632,7 @@ class InputMessageWidgetState extends State<InputMessage> {
       if (widget.editableMessage == null) {
         Future.delayed(const Duration(milliseconds: 100), () {}).then((_) {
           if (widget.editableMessage != null) {
-            widget.textController.selection = TextSelection.collapsed(
-              offset: widget.textController.text.length,
-            );
+            moveCursorToEnd();
           }
         });
       }
@@ -736,30 +643,25 @@ class InputMessageWidgetState extends State<InputMessage> {
     if (event is RawKeyDownEvent &&
         {PhysicalKeyboardKey.arrowUp, PhysicalKeyboardKey.arrowDown}
             .contains(event.physicalKey)) {
-      _handleArrow(event);
+      if (_mentionQuery.value == null && _botCommandQuery.value == "-") {
+        _handleArrow(event);
+      }
     }
     if (event is RawKeyUpEvent &&
         event.physicalKey == PhysicalKeyboardKey.delete) {
       widget.deleteSelectedMessage();
     }
-    if (!_uxService.sendByEnter &&
-        event.isShiftPressed &&
+    if (((!_uxService.sendByEnter && event.isShiftPressed) ||
+            (_uxService.sendByEnter && !event.isShiftPressed)) &&
         isEnterClicked(event)) {
       if (widget.currentRoom.uid.isGroup() &&
           mentionSelectedIndex >= 0 &&
           _mentionQuery.value != null) {
         addMentionByEnter();
-      } else {
-        sendMessage();
-      }
-      return KeyEventResult.handled;
-    } else if (_uxService.sendByEnter &&
-        !event.isShiftPressed &&
-        isEnterClicked(event)) {
-      if (widget.currentRoom.uid.isGroup() &&
-          mentionSelectedIndex >= 0 &&
-          _mentionQuery.value != null) {
-        addMentionByEnter();
+      } else if (widget.currentRoom.uid.isBot() &&
+          botCommandSelectedIndex >= 0 &&
+          _botCommandQuery.value != "-") {
+        addBotCommandByEnter();
       } else {
         sendMessage();
       }
@@ -793,7 +695,6 @@ class InputMessageWidgetState extends State<InputMessage> {
           event,
           scrollDownInBotCommand,
           scrollUpInBotCommand,
-          sendBotCommandByEnter,
           _botCommandData,
         );
       });
@@ -837,6 +738,9 @@ class InputMessageWidgetState extends State<InputMessage> {
   }
 
   void scrollUpInBotCommand() {
+    Future.delayed(const Duration(), () {}).then((_) {
+      moveCursorToEnd();
+    });
     var length = 0;
     if (botCommandSelectedIndex <= 0) {
       _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then(
@@ -853,15 +757,17 @@ class InputMessageWidgetState extends State<InputMessage> {
     }
   }
 
-  void sendBotCommandByEnter() {
-    _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then(
-          (value) => {
-            if (value != null)
-              onCommandClick(
-                value.commands!.keys.toList()[botCommandSelectedIndex],
-              )
-          },
-        );
+  Future<void> addBotCommandByEnter() async {
+    final value = await _botRepo.getBotInfo(widget.currentRoom.uid.asUid());
+    if (value != null && value.commands!.isNotEmpty) {
+      onCommandSelected(
+        value.commands!.keys
+            .where((element) => element.contains(_botCommandData))
+            .toList()[botCommandSelectedIndex],
+      );
+    } else {
+      sendMessage();
+    }
   }
 
   Future<void> addMentionByEnter() async {
@@ -898,12 +804,15 @@ class InputMessageWidgetState extends State<InputMessage> {
           .getFilteredMember(currentRoom.uid, query: _mentionQuery.value)
           .then(
             (value) => {
-              mentionSelectedIndex = value.length - 1,
+              mentionSelectedIndex = value.length,
             },
           );
     } else {
       mentionSelectedIndex--;
     }
+    Future.delayed(const Duration(), () {
+      moveCursorToEnd();
+    });
   }
 
   void sendMessage() {
@@ -914,6 +823,7 @@ class InputMessageWidgetState extends State<InputMessage> {
     }
     if (widget.waitingForForward == true) {
       widget.sendForwardMessage?.call();
+      widget.resetRoomPageDetails!();
     }
 
     final text = _shouldSynthesize
@@ -933,7 +843,7 @@ class InputMessageWidgetState extends State<InputMessage> {
           _messageRepo.editTextMessage(
             currentRoom.uid.asUid(),
             widget.editableMessage!,
-            widget.textController.text,
+            text,
           );
           widget.resetRoomPageDetails!();
         } else {
@@ -947,15 +857,6 @@ class InputMessageWidgetState extends State<InputMessage> {
     }
     widget.scrollToLastSentMessage();
   }
-
-  void sendRecordActivity() {
-    recordAudioTimer = Timer(const Duration(seconds: 2), () {
-      isTypingActivitySubject.add(ActivityType.RECORDING_VOICE);
-      sendRecordActivity();
-    });
-  }
-
-  double opacity() => x < 0.0 ? 1.0 : (dx - x) / dx;
 
   Future<void> _attachFileInWindowsMode() async {
     try {
@@ -992,13 +893,6 @@ class InputMessageWidgetState extends State<InputMessage> {
     } catch (e) {
       _logger.d(e.toString());
     }
-  }
-
-  void setTime() {
-    _tickTimer = Timer(const Duration(milliseconds: 500), () {
-      recordSubject.add(clock.now());
-      setTime();
-    });
   }
 
   void showCaptionDialog({
@@ -1047,6 +941,12 @@ class InputMessageWidgetState extends State<InputMessage> {
         text = widget.editableMessage!.json.toFile().caption;
     }
     return "$text ";
+  }
+
+  void moveCursorToEnd() {
+    widget.textController.selection = TextSelection.collapsed(
+      offset: widget.textController.text.length,
+    );
   }
 }
 

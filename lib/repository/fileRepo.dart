@@ -15,6 +15,7 @@ import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
+import 'package:pasteboard/pasteboard.dart';
 import 'package:rxdart/rxdart.dart';
 
 class FileRepo {
@@ -60,7 +61,6 @@ class FileRepo {
       uploadFileStatusCode[uploadKey]!.add(value.statusCode);
       try {
         var uploadedFile = file_pb.File();
-
         uploadedFile = file_pb.File()
           ..uuid = json["uuid"]
           ..size = Int64.parseInt(json["size"])
@@ -70,7 +70,24 @@ class FileRepo {
           ..height = json["height"] ?? 0
           ..duration = json["duration"] ?? 0
           ..blurHash = json["blurHash"] ?? ""
-          ..hash = json["hash"] ?? "";
+          ..hash = json["hash"] ?? ""
+          ..sign = json["sign"] ?? "";
+        if (json["audioWaveform"] != null) {
+          final audioWaveform = json["audioWaveform"] as Map;
+          if (audioWaveform.isNotEmpty) {
+            uploadedFile.audioWaveform = file_pb.AudioWaveform(
+              bits: audioWaveform["bits"] ?? 0,
+              channels: audioWaveform["channels"] ?? 0,
+              data: audioWaveform["data"] != null
+                  ? List<int>.from(audioWaveform["data"])
+                  : [],
+              length: audioWaveform["length"] ?? 0,
+              sampleRate: audioWaveform["sampleRate"] ?? 0,
+              samplesPerPixel: audioWaveform["samplesPerPixel"] ?? 0,
+              version: audioWaveform["version"] ?? 0,
+            );
+          }
+        }
         _logger.v(uploadedFile);
 
         await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
@@ -225,5 +242,31 @@ class FileRepo {
     getFileIfExist(uuid, name).then(
       (path) => _fileService.saveFileInDownloadFolder(path!, name, dir),
     );
+  }
+
+  void cancelUploadFile(String uuid) {
+    try {
+      if (_fileService.cancelTokens[uuid] != null &&
+          _fileService.cancelTokens[uuid]!.value != null &&
+          !_fileService.cancelTokens[uuid]!.value!.isCancelled) {
+        _fileService.cancelTokens[uuid]!.value!.cancel('cancelled');
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+
+  void saveFileToSpecifiedAddress(
+    String path,
+    String name,
+    String address,
+  ) {
+    _fileService.saveFileToSpecifiedAddress(path, name, address);
+  }
+
+  void copyFileToPasteboard(
+    String path,
+  ) {
+    Pasteboard.writeFiles([path]);
   }
 }

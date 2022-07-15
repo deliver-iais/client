@@ -52,43 +52,89 @@ class SyncContact {
     }
   }
 
-  static Widget syncingStatusWidget(BuildContext context) {
+  static Widget syncingStatusWidget(
+    BuildContext context, {
+    EdgeInsets padding = const EdgeInsets.symmetric(
+      horizontal: 8.0,
+      vertical: 8,
+    ),
+  }) {
     final theme = Theme.of(context);
     return StreamBuilder<bool>(
       initialData: false,
       stream: _contactRepo.isSyncingContacts,
       builder: (context, snapshot) {
         final isSyncing = snapshot.data ?? false;
-        // final isSyncing = true;
 
-        return AnimatedOpacity(
+        return AnimatedContainer(
           duration: SLOW_ANIMATION_DURATION,
-          curve: Curves.easeInOut,
-          opacity: isSyncing ? 1 : 0,
-          child: Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.secondaryContainer,
-              borderRadius: mainBorder,
-            ),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 12,
-              vertical: 8,
-            ),
-            margin: const EdgeInsets.symmetric(horizontal: 12),
-            child: Row(
-              children: [
-                Text(_i18n.get("syncing_contact")),
-                const SizedBox(width: 8),
-                SizedBox(
-                  width: 18,
-                  height: 18,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: theme.colorScheme.onTertiaryContainer,
+          height: isSyncing ? 54 : 0,
+          padding: isSyncing ? padding : EdgeInsets.zero,
+          child: AnimatedOpacity(
+            duration: SLOW_ANIMATION_DURATION,
+            curve: Curves.easeInOut,
+            opacity: isSyncing ? 1 : 0,
+            child: StreamBuilder<double>(
+              stream: _contactRepo.sendContactProgress,
+              initialData: 0,
+              builder: (context, gradientSnapshot) {
+                final percent = gradientSnapshot.data ?? 0;
+
+                return AnimatedContainer(
+                  duration: ANIMATION_DURATION,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        theme.colorScheme.primaryContainer,
+                        theme.colorScheme.tertiaryContainer,
+                      ],
+                      stops: [percent, percent],
+                    ),
+                    borderRadius: mainBorder,
                   ),
-                ),
-                const SizedBox(width: 4),
-              ],
+                  padding: const EdgeInsets.only(
+                    left: 8,
+                    right: 8,
+                    top: 8,
+                    bottom: 6,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(children: [
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 2.0, left: 10),
+                          child: SizedBox(
+                            width: 14,
+                            height: 14,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: theme.colorScheme.onTertiaryContainer,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          _i18n.get("syncing_contact"),
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      ],),
+
+                      Padding(
+                        padding: const EdgeInsets.only(right: 20),
+                        child: Text(
+                          "${((percent) * 100).toInt()} %",
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(fontSize: 14),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
         );

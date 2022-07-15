@@ -15,7 +15,8 @@ class EmptyContacts extends StatelessWidget {
     );
 
     final i18n = GetIt.I.get<I18N>();
-    return Expanded(
+    return Padding(
+      padding: const EdgeInsets.all(24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         mainAxisAlignment: MainAxisAlignment.center,

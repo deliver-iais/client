@@ -33,7 +33,7 @@ import '../helper/test_helper.dart';
 void main() {
   group('MessageRepoTest -', () {
     setUp(() => registerServices());
-    tearDown(() => unregisterServices());
+    tearDown(() =>  unregisterServices());
     group('MessageRepo -', () {
       test('When called should check coreServices.connectionStatus', () async {
         final coreServices = getAndRegisterCoreServices();

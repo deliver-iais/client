@@ -159,8 +159,13 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                   StreamBuilder<int>(
                     stream: _idSubject,
                     builder: (context, snapshot) {
-                      return Background(
-                        id: snapshot.data ?? 0,
+                      return StreamBuilder<int>(
+                        stream: _uxService.patternIndexStream,
+                        builder: (ctx, s) {
+                          return Background(
+                            id: snapshot.data ?? 0,
+                          );
+                        },
                       );
                     },
                   ),
@@ -238,18 +243,25 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                             ),
                           ),
                         ),
-                        SettingsTile(
-                          title: "Pattern",
-                          leading: const Icon(CupertinoIcons.photo),
-                          trailing: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
+                        StreamBuilder<int>(
+                          stream: _uxService.patternIndexStream,
+                          builder: (context, snapshot) {
+                            return Column(
                               children: [
-                                for (var i = 0; i < patterns.length; i++)
-                                  pattern(patterns[i], i)
+                                const SettingsTile(
+                                  title: "Pattern",
+                                  leading: Icon(CupertinoIcons.photo),
+                                  trailing: SizedBox.shrink(),
+                                ),
+                                Wrap(
+                                  children: [
+                                    for (var i = 0; i < patterns.length; i++)
+                                      pattern(patterns[i], i)
+                                  ],
+                                )
                               ],
-                            ),
-                          ),
+                            );
+                          },
                         ),
                         SettingsTile.switchTile(
                           title: "Colorful Messages",
@@ -314,7 +326,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         },
         child: Container(
           clipBehavior: Clip.hardEdge,
-          margin: const EdgeInsets.symmetric(horizontal: 4.0),
+          margin: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             borderRadius: secondaryBorder,
             border: isSelected

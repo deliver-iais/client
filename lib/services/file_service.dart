@@ -46,6 +46,9 @@ class FileService {
         await io.Directory('${directory.path}/$APPLICATION_FOLDER_NAME')
             .create(recursive: true);
       }
+      if(isWindows){
+        return "${directory.path}\\$APPLICATION_FOLDER_NAME";
+      }
       return "${directory.path}/$APPLICATION_FOLDER_NAME";
     }
     throw Exception("There is no Storage Permission!");
@@ -53,6 +56,9 @@ class FileService {
 
   Future<String> localFilePath(String fileUuid, String fileType) async {
     final path = await _localPath;
+    if(isWindows){
+      return '$path\\$fileUuid.$fileType';
+    }
     return '$path/$fileUuid.$fileType';
   }
 
@@ -92,6 +98,7 @@ class FileService {
           options.baseUrl =
               GetIt.I.get<ServicesDiscoveryRepo>().fileServiceBaseUrl;
           options.headers["Authorization"] = await _authRepo.getAccessToken();
+          options.headers["service"] = "ms-file";
 
           return handler.next(options); //continue
         },
@@ -185,6 +192,17 @@ class FileService {
     } catch (_) {}
   }
 
+  Future<void> saveFileToSpecifiedAddress(
+    String path,
+    String name,
+    String address,
+  ) async {
+    try {
+      final f = io.File(address);
+      await f.writeAsBytes(io.File(path).readAsBytesSync());
+    } catch (_) {}
+  }
+
   Future<String> _getFileThumbnail(
     String uuid,
     String filename,
@@ -232,7 +250,8 @@ class FileService {
       final param = ImageFileConfiguration(input: input, config: config);
       final output = await compressor.compressWebpThenJpg(param);
       final name = clock.now().millisecondsSinceEpoch.toString();
-      final outPutFile = await localFile(name, output.extension);
+      final extension = getExtensionFromContentType(output.contentType)!;
+      final outPutFile = await localFile(name, extension);
       outPutFile.writeAsBytesSync(output.rawBytes);
       return outPutFile.path;
     } catch (_) {
@@ -261,6 +280,18 @@ class FileService {
     }
   }
 
+  String? getExtensionFromContentType(String? contentType) {
+    if (contentType == null) {
+      return null;
+    }
+    final parts = contentType.split('/');
+    if (parts.length == 2) {
+      return parts[1].toLowerCase();
+    }
+
+    return null;
+  }
+
   // TODO(hasan): refactoring needed,
   Future<Response<dynamic>?> uploadFile(
     String filePath,
@@ -271,6 +302,9 @@ class FileService {
     try {
       if (!isWeb) {
         try {
+          if(isWindows){
+            filePath = filePath.replaceAll("\\", "/");
+          }
           final mediaType =
               MediaType.parse(mime(filePath) ?? filePath).toString();
           if (mediaType.contains("image") && !mediaType.endsWith("/gif")) {
@@ -304,6 +338,9 @@ class FileService {
             filePath,
             contentType:
                 MediaType.parse(mime(filePath) ?? "application/octet-stream"),
+            headers: {
+              Headers.contentLengthHeader: [(File(filePath).lengthSync()).toString()], // set content-length
+            },
           )
         });
       }
@@ -312,12 +349,14 @@ class FileService {
         InterceptorsWrapper(
           onRequest: (options, handler) async {
             options.onSendProgress = (i, j) {
-              sendActivity?.call(i);
-              if (filesProgressBarStatus[uploadKey] == null) {
-                final d = BehaviorSubject<double>();
-                filesProgressBarStatus[uploadKey] = d;
+              if (i / j < 1) {
+                sendActivity?.call(i);
+                if (filesProgressBarStatus[uploadKey] == null) {
+                  final d = BehaviorSubject<double>();
+                  filesProgressBarStatus[uploadKey] = d;
+                }
+                filesProgressBarStatus[uploadKey]!.add((i / j));
               }
-              filesProgressBarStatus[uploadKey]!.add((i / j));
             };
             handler.next(options);
           },

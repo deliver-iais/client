@@ -16,6 +16,7 @@ import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/group.pb.dart' as group_pb;
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
@@ -197,6 +198,7 @@ class MucRepo {
         if (createNewRoom) {
           await _roomDao.updateRoom(
             uid: mucUid.asString(),
+            deleted: false,
             lastMessageId: group.lastMessageId.toInt(),
           );
         }
@@ -651,7 +653,7 @@ class MucRepo {
                 return UidIdName(
                   uid: member.memberUid,
                   id: a.username,
-                  name: a.firstname,
+                  name: buildName(a.firstname, a.lastname),
                 );
               } else {
                 final uidIdName =
@@ -691,11 +693,11 @@ class MucRepo {
       list,
       options: FuzzyOptions(
         tokenize: true,
-        threshold: 0.3,
+        threshold: 0.2,
       ),
     )
         .search(query)
-        .where((element) => element.score < 0.4)
+        .where((element) => element.score < 0.2)
         .map((e) => e.item)
         .toList();
     return fuzzy;

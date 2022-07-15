@@ -233,7 +233,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     }
 
     // Wrap in Swipe widget if needed
-    if (!widget.message.roomUid.asUid().isChannel()) {
+    if (!widget.message.roomUid.asUid().isChannel() &&
+        widget.message.id != null) {
       messageWidget = Swipe(
         onSwipeLeft: widget.onReply,
         child: Container(
@@ -601,6 +602,9 @@ class OperationOnMessageSelection {
 
   void onDeletePendingMessage() {
     _messageRepo.deletePendingMessage(message.packetId);
+    if (message.type == MessageType.FILE) {
+      _fileRepo.cancelUploadFile(message.json.toFile().uuid);
+    }
   }
 
   void onReportMessage() {
