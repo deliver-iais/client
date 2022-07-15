@@ -117,7 +117,7 @@ void main() {
       });
 
       test('When called should get All UserRoomMeta', () async {
-        final queryServiceClient = getAndRegisterQueryServiceClient();
+        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
         await MessageRepo().updatingMessages();
         verify(
           queryServiceClient.queryServiceClient.getAllUserRoomMeta(
@@ -130,7 +130,7 @@ void main() {
       test(
           'When called should get All UserRoomMeta and if finished be true should put on sharedDao',
           () async {
-        final queryServiceClient = getAndRegisterQueryServiceClient();
+        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
         final sharedDao = getAndRegisterSharedDao();
         await MessageRepo().updatingMessages();
         final getAllUserRoomMetaRes =
@@ -146,7 +146,7 @@ void main() {
           'When called should get All UserRoomMeta and if finished be false should never put on sharedDao',
           () async {
         final queryServiceClient =
-            getAndRegisterQueryServiceClient(finished: false);
+            getAndRegisterServicesDiscoveryRepo(finished: false);
         final sharedDao = getAndRegisterSharedDao();
         await MessageRepo().updatingMessages();
         final getAllUserRoomMetaRes =
@@ -168,7 +168,7 @@ void main() {
       test(
           'When called if roomMetadata.presenceType be Active and room last message id and last update be greater than roomMetadata should stop getting room',
           () async {
-        getAndRegisterQueryServiceClient(lastMessageId: 0, lastUpdate: 0);
+        getAndRegisterServicesDiscoveryRepo(lastMessageId: 0, lastUpdate: 0);
         final roomDao = getAndRegisterRoomDao(
           rooms: [
             Room(
@@ -184,7 +184,7 @@ void main() {
       test(
           'When called if roomMetadata.presenceType be Active and rooms deleted being true should update the room',
           () async {
-        getAndRegisterQueryServiceClient();
+        getAndRegisterServicesDiscoveryRepo();
         final roomDao = getAndRegisterRoomDao(
           rooms: [
             Room(
@@ -208,7 +208,7 @@ void main() {
       test(
           'When called if roomMetadata.presenceType not be Active should updateRoom',
           () async {
-        getAndRegisterQueryServiceClient(presenceType: PresenceType.DELETED);
+        getAndRegisterServicesDiscoveryRepo(presenceType: PresenceType.DELETED);
         final roomDao = getAndRegisterRoomDao();
         await MessageRepo().updatingMessages();
         verify(
@@ -256,7 +256,7 @@ void main() {
           'When called should fetch all room from roomDao and if last message id not be null should check isCurrentUser',
           () async {
         final authRepo = getAndRegisterAuthRepo(isCurrentUser: true);
-        final queryServiceClient = getAndRegisterQueryServiceClient();
+        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
         getAndRegisterRoomDao(
           rooms: [
             Room(
@@ -306,7 +306,7 @@ void main() {
 
     group('fetchHiddenMessageCount -', () {
       test('When called should countIsHiddenMessages', () async {
-        final queryServiceClient = getAndRegisterQueryServiceClient();
+        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
         await MessageRepo().fetchHiddenMessageCount(testUid, 0);
         verify(
           queryServiceClient.queryServiceClient.countIsHiddenMessages(
@@ -524,7 +524,7 @@ void main() {
       test(
           'When called if user category being USER or GROUP should fetchLastOtherUserSeenData and save MySeen',
           () async {
-        final queryServiceClient = getAndRegisterQueryServiceClient();
+        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
         final seenDo = getAndRegisterSeenDao();
         await MessageRepo().fetchOtherSeen(testUid);
         verify(
@@ -539,7 +539,7 @@ void main() {
       final room = Room(uid: testUid.asString());
 
       test('When called should fetch CurrentUser SeenData', () async {
-        final queryServiceClient = getAndRegisterQueryServiceClient();
+        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
         MessageRepo().fetchCurrentUserLastSeen(room);
         verify(
           queryServiceClient.queryServiceClient.fetchCurrentUserSeenData(
@@ -575,7 +575,7 @@ void main() {
     group('getMentions -', () {
       test('When called should fetchMentionList from  queryServiceClient',
           () async {
-        final queryServiceClient = getAndRegisterQueryServiceClient();
+        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
         await MessageRepo().getMentions(
           Room(
             uid: testUid.asString(),
@@ -594,7 +594,7 @@ void main() {
           'When called should fetchMentionList from  queryServiceClient and  if idList not be empty should updateRoom',
           () async {
         final roomDao = getAndRegisterRoomDao();
-        getAndRegisterQueryServiceClient(mentionIdList: 0);
+        getAndRegisterServicesDiscoveryRepo(mentionIdList: 0);
         await MessageRepo().getMentions(
           Room(
             uid: testUid.asString(),
@@ -1655,7 +1655,7 @@ void main() {
         verify(messageDao.deletePendingMessage(""));
       });
       test('When called if msg.id not be null should deleteMessage', () async {
-        final queryServiceClient = getAndRegisterQueryServiceClient();
+        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
         await MessageRepo()
             .deleteMessage([testMessage.copyWith(packetId: "", id: 0)]);
         verify(
@@ -1758,7 +1758,7 @@ void main() {
             )
           ],
         );
-        final queryServiceClient = getAndRegisterQueryServiceClient();
+        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
         await MessageRepo().editTextMessage(testUid, testMessage, "test");
         final updatedMessage = message_pb.MessageByClient()
           ..to = testMessage.to.asUid()
@@ -1818,7 +1818,7 @@ void main() {
             )
           ],
         );
-        getAndRegisterQueryServiceClient(updateMessageId: 2);
+        getAndRegisterServicesDiscoveryRepo(updateMessageId: 2);
         await MessageRepo()
             .editTextMessage(testUid, testMessage.copyWith(id: 2), "test");
         verify(
@@ -1842,7 +1842,7 @@ void main() {
             )
           ],
         );
-        getAndRegisterQueryServiceClient(updateMessageGetError: true);
+        getAndRegisterServicesDiscoveryRepo(updateMessageGetError: true);
         await MessageRepo().editTextMessage(testUid, testMessage, "test");
         verifyNever(
           roomDao.updateRoom(
@@ -1883,7 +1883,7 @@ void main() {
 
       test('When called if file not be null should uploadClonedFile', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
-          getAndRegisterQueryServiceClient(updatedMessageFile: updatedMessage);
+          getAndRegisterServicesDiscoveryRepo(updatedMessageFile: updatedMessage);
           final fileRepo = getAndRegisterFileRepo(
             fileInfo: file_pb.File(
               uuid: testUid.asString(),
@@ -1901,7 +1901,7 @@ void main() {
       });
       test('When called should updateMessage', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
-          final queryServiceClient = getAndRegisterQueryServiceClient(
+          final queryServiceClient = getAndRegisterServicesDiscoveryRepo(
             updatedMessageFile: updatedMessage,
           );
           getAndRegisterFileRepo(
@@ -1935,7 +1935,7 @@ void main() {
               )
             ],
           );
-          getAndRegisterQueryServiceClient(updatedMessageFile: updatedMessage);
+          getAndRegisterServicesDiscoveryRepo(updatedMessageFile: updatedMessage);
           getAndRegisterFileRepo(
             fileInfo: file_pb.File(
               uuid: testUid.asString(),
