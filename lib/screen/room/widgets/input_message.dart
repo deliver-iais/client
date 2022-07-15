@@ -233,6 +233,7 @@ class InputMessageWidgetState extends State<InputMessage> {
       textController: widget.textController,
       captionController: captionTextController,
       roomUid: currentRoom.uid.asUid(),
+      enableMarkDown: enableMarkdown,
     );
     super.initState();
   }
@@ -947,6 +948,14 @@ class InputMessageWidgetState extends State<InputMessage> {
     widget.textController.selection = TextSelection.collapsed(
       offset: widget.textController.text.length,
     );
+  }
+
+  void enableMarkdown() {
+    if (_shouldSynthesize) {
+      setState(() {
+        _shouldSynthesize = false;
+      });
+    }
   }
 }
 
