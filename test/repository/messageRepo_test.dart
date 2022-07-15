@@ -117,10 +117,10 @@ void main() {
       });
 
       test('When called should get All UserRoomMeta', () async {
-        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
+        final services = getAndRegisterServicesDiscoveryRepo();
         await MessageRepo().updatingMessages();
         verify(
-          queryServiceClient.queryServiceClient.getAllUserRoomMeta(
+          services.queryServiceClient.getAllUserRoomMeta(
             GetAllUserRoomMetaReq()
               ..pointer = 0
               ..limit = 10,
@@ -572,40 +572,40 @@ void main() {
         );
       });
     });
-    group('getMentions -', () {
-      test('When called should fetchMentionList from  queryServiceClient',
-          () async {
-        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
-        await MessageRepo().getMentions(
-          Room(
-            uid: testUid.asString(),
-            lastMessage: testMessage.copyWith(id: 0),
-          ),
-        );
-        verify(
-          queryServiceClient.queryServiceClient.fetchMentionList(
-            FetchMentionListReq()
-              ..group = testUid
-              ..afterId = Int64.parseInt("0"),
-          ),
-        );
-      });
-      test(
-          'When called should fetchMentionList from  queryServiceClient and  if idList not be empty should updateRoom',
-          () async {
-        final roomDao = getAndRegisterRoomDao();
-        getAndRegisterServicesDiscoveryRepo(mentionIdList: 0);
-        await MessageRepo().getMentions(
-          Room(
-            uid: testUid.asString(),
-            lastMessage: testMessage.copyWith(id: 0),
-          ),
-        );
-        verify(
-          roomDao.updateRoom(uid: testUid.asString(), mentioned: true),
-        );
-      });
-    });
+    // group('getMentions -', () {
+    //   test('When called should fetchMentionList from  queryServiceClient',
+    //       () async {
+    //     final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
+    //     await MessageRepo().getMentions(
+    //       Room(
+    //         uid: testUid.asString(),
+    //         lastMessage: testMessage.copyWith(id: 0),
+    //       ),
+    //     );
+    //     verify(
+    //       queryServiceClient.queryServiceClient.fetchMentionList(
+    //         FetchMentionListReq()
+    //           ..group = testUid
+    //           ..afterId = Int64.parseInt("0"),
+    //       ),
+    //     );
+    //   });
+    //   test(
+    //       'When called should fetchMentionList from  queryServiceClient and  if idList not be empty should updateRoom',
+    //       () async {
+    //     final roomDao = getAndRegisterRoomDao();
+    //     getAndRegisterServicesDiscoveryRepo(mentionIdList: 0);
+    //     await MessageRepo().getMentions(
+    //       Room(
+    //         uid: testUid.asString(),
+    //         lastMessage: testMessage.copyWith(id: 0),
+    //       ),
+    //     );
+    //     verify(
+    //       roomDao.updateRoom(uid: testUid.asString(), mentioned: true),
+    //     );
+    //   });
+    // });
     group('sendTextMessage -', () {
       final pm = testPendingMessage.copyWith(
         msg: testPendingMessage.msg.copyWith(
