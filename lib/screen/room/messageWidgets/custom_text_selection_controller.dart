@@ -269,45 +269,6 @@ class _CupertinoTextSelectionControlsToolbarState
       );
     }
 
-    addItemToToolBar(addToolbarButton, localizations, items);
-
-    // If there is no option available, build an empty widget.
-    if (items.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return isDesktop
-        ? CustomSingleChildLayout(
-            delegate: TextSelectionToolbarLayoutDelegate(
-              anchorAbove: anchorAbove,
-              anchorBelow: anchorBelow,
-            ),
-            child: Container(
-              width: 150,
-              decoration: BoxDecoration(
-                boxShadow: DEFAULT_BOX_SHADOWS,
-                borderRadius: tertiaryBorder,
-                color: Theme.of(context).dialogBackgroundColor,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: items,
-              ),
-            ),
-          )
-        : CupertinoTextSelectionToolbar(
-            anchorAbove: anchorAbove,
-            anchorBelow: anchorBelow,
-            children: items,
-          );
-  }
-
-  void addItemToToolBar(
-    void Function(String text, VoidCallback onPressed, IconData iconData)
-        addToolbarButton,
-    CupertinoLocalizations localizations,
-    List<Widget> items,
-  ) {
     if (widget.handleCut != null) {
       addToolbarButton(
         localizations.cutButtonLabel,
@@ -362,5 +323,35 @@ class _CupertinoTextSelectionControlsToolbarState
         Icons.select_all_rounded,
       );
     }
+
+    // If there is no option available, build an empty widget.
+    if (items.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    //todo new style for desktop
+    return isDesktop
+        ? CustomSingleChildLayout(
+            delegate: TextSelectionToolbarLayoutDelegate(
+              anchorAbove: anchorAbove,
+              anchorBelow: anchorBelow,
+            ),
+            child: Container(
+              width: 150,
+              decoration: BoxDecoration(
+                boxShadow: DEFAULT_BOX_SHADOWS,
+                borderRadius: tertiaryBorder,
+                color: Theme.of(context).dialogBackgroundColor,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: items,
+              ),
+            ),
+          )
+        : CupertinoTextSelectionToolbar(
+            anchorAbove: anchorAbove,
+            anchorBelow: anchorBelow,
+            children: items,
+          );
   }
 }
