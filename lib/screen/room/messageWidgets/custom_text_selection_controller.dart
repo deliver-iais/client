@@ -61,21 +61,16 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
             }
           : null,
       handleUnderline: () => handleFormatting(
-        textController,
         delegate,
         UnderlineFeature.specialChar,
       ),
       handleSpoiler: () => handleFormatting(
-        textController,
         delegate,
         SpoilerFeature.specialChar,
       ),
-      handleBold: () =>
-          handleFormatting(textController, delegate, BoldFeature.specialChar),
-      handleItalic: () =>
-          handleFormatting(textController, delegate, ItalicFeature.specialChar),
+      handleBold: () => handleFormatting(delegate, BoldFeature.specialChar),
+      handleItalic: () => handleFormatting(delegate, ItalicFeature.specialChar),
       handleStrikethrough: () => handleFormatting(
-        textController,
         delegate,
         StrikethroughFeature.specialChar,
       ),
@@ -83,14 +78,16 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
           canSelectAll(delegate) ? () => handleSelectAll(delegate) : null,
       selectionMidpoint: selectionMidpoint,
       textLineHeight: textLineHeight,
-      isAnyThingSelected: () {
-        if (textController.selection.start != textController.selection.end) {
-          return true;
-        } else {
-          return false;
-        }
-      },
+      isAnyThingSelected: isAnyThingSelected,
     );
+  }
+
+  bool isAnyThingSelected() {
+    if (textController.selection.start != textController.selection.end) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   void moveCursor(TextSelectionDelegate delegate, int offset) {
@@ -101,17 +98,18 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
   }
 
   void handleFormatting(
-    TextEditingController textController,
     TextSelectionDelegate delegate,
     String specialChar,
   ) {
-    final end = textController.selection.end;
-    textController.text = createFormattedText(specialChar, textController);
-    enableMarkDown();
-    moveCursor(
-      delegate,
-      end + specialChar.length * 2,
-    );
+    if (isAnyThingSelected()) {
+      final end = textController.selection.end;
+      textController.text = createFormattedText(specialChar, textController);
+      enableMarkDown();
+      moveCursor(
+        delegate,
+        end + specialChar.length * 2,
+      );
+    }
   }
 }
 
@@ -267,6 +265,7 @@ class _CupertinoTextSelectionControlsToolbarState
                     Icon(
                       iconData,
                       size: 15,
+                      color: textColor,
                     ),
                     const SizedBox(
                       width: 5,
@@ -307,8 +306,13 @@ class _CupertinoTextSelectionControlsToolbarState
     //todo more user of  final _i18n = GetIt.I.get<I18N>();
     if (widget.isAnyThingSelected() || isDesktop) {
       Color? color;
-      if (widget.isAnyThingSelected()) color = Colors.grey;
-      addToolbarButton("Bold", widget.handleBold, Icons.format_bold_rounded);
+      if (!widget.isAnyThingSelected()) color = Colors.grey;
+      addToolbarButton(
+        "Bold",
+        widget.handleBold,
+        Icons.format_bold_rounded,
+        textColor: color,
+      );
       addToolbarButton(
         "Italic",
         widget.handleItalic,
