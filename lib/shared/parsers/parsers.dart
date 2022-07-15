@@ -119,7 +119,7 @@ class StrikethroughFeature extends Feature {
 }
 
 class SpoilerFeature extends Feature {
-  static const specialChar = "|";
+  static const specialChar = "||";
 
   @override
   bool operator ==(Object other) =>
@@ -174,7 +174,16 @@ List<Block> partitioner(
 
     if (text.substring(p.start, p.end).isNotEmpty) {
       if (p.replacedText != null && forceToDeleteReplaceFunctions) {
-        _setSpecialCharacterFeature(p, text, blocks, block);
+        try {
+          _setSpecialCharacterFeature(p, text, blocks, block);
+        } catch (e) {
+          blocks.add(
+            Block(
+              text: text.substring(p.start, p.end),
+              features: {...block.features, ...p.features},
+            ),
+          );
+        }
       } else {
         blocks.add(
           Block(
