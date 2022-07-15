@@ -1,8 +1,7 @@
 import 'package:deliver/services/raw_keyboard_service.dart';
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/parsers/detectors.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
-import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +11,7 @@ import 'package:get_it/get_it.dart';
 class CustomTextSelectionController extends CupertinoTextSelectionControls {
   TextEditingController captionController;
   TextEditingController textController;
+  VoidCallback enableMarkDown;
   BuildContext buildContext;
   Uid roomUid;
   static final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
@@ -21,6 +21,7 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
     required this.buildContext,
     required this.textController,
     required this.roomUid,
+    required this.enableMarkDown,
   });
 
   @override
@@ -45,14 +46,28 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
           : null,
       handlePaste: canPaste(delegate)
           ? () {
-              handlePaste(delegate);
-              _rawKeyboardService.controlVHandle(
-                textController,
-                buildContext,
-                roomUid,
-              );
+              if (!isDesktop) {
+                handlePaste(delegate);
+              } else {
+                _rawKeyboardService.controlVHandle(
+                  textController,
+                  buildContext,
+                  roomUid,
+                );
+                delegate.hideToolbar();
+              }
             }
           : null,
+      handleUnderline: () => handleFormatting(
+        textController,
+        delegate,
+        UnderlineFeature.specialChar,
+      ),
+      handleSpoiler: () => handleFormatting(
+        textController,
+        delegate,
+        SpoilerFeature.specialChar,
+      ),
       handleBold: () =>
           handleFormatting(textController, delegate, BoldFeature.specialChar),
       handleItalic: () =>
@@ -83,6 +98,7 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
   ) {
     final end = textController.selection.end;
     textController.text = createFormattedText(specialChar, textController);
+    enableMarkDown();
     moveCursor(
       delegate,
       end + specialChar.length * 2,
@@ -107,6 +123,8 @@ class _CupertinoTextSelectionControlsToolbar extends StatefulWidget {
     required this.handleBold,
     required this.handleItalic,
     required this.handleStrikethrough,
+    required this.handleSpoiler,
+    required this.handleUnderline,
   });
 
   final ClipboardStatusNotifier? clipboardStatus;
@@ -119,6 +137,8 @@ class _CupertinoTextSelectionControlsToolbar extends StatefulWidget {
   final VoidCallback handleBold;
   final VoidCallback handleItalic;
   final VoidCallback handleStrikethrough;
+  final VoidCallback handleSpoiler;
+  final VoidCallback handleUnderline;
   final Offset selectionMidpoint;
   final double textLineHeight;
 
@@ -213,8 +233,9 @@ class _CupertinoTextSelectionControlsToolbarState
 
     final items = <Widget>[];
     final localizations = CupertinoLocalizations.of(context);
-    final Widget onePhysicalPixelVerticalDivider =
-        SizedBox(width: 1.0 / MediaQuery.of(context).devicePixelRatio);
+    final Widget onePhysicalPixelVerticalDivider = SizedBox(
+      width: 1.0 / MediaQuery.of(context).devicePixelRatio,
+    );
 
     void addToolbarButton(
       String text,
@@ -241,10 +262,12 @@ class _CupertinoTextSelectionControlsToolbarState
     if (widget.handlePaste != null) {
       addToolbarButton(localizations.pasteButtonLabel, widget.handlePaste!);
     }
+    //todo more user of  final _i18n = GetIt.I.get<I18N>();
     addToolbarButton("Bold", widget.handleBold);
     addToolbarButton("Italic", widget.handleItalic);
     addToolbarButton("Strike through", widget.handleStrikethrough);
-
+    addToolbarButton("Spoiler", widget.handleSpoiler);
+    addToolbarButton("Underline", widget.handleUnderline);
     if (widget.handleSelectAll != null) {
       addToolbarButton(
         localizations.selectAllButtonLabel,
@@ -256,22 +279,11 @@ class _CupertinoTextSelectionControlsToolbarState
     if (items.isEmpty) {
       return const SizedBox.shrink();
     }
-    return CustomSingleChildLayout(
-      delegate: TextSelectionToolbarLayoutDelegate(
-        anchorAbove: anchorAbove,
-        anchorBelow: anchorBelow,
-      ),
-      child: Container(
-        decoration: BoxDecoration(
-          boxShadow: DEFAULT_BOX_SHADOWS,
-          borderRadius: tertiaryBorder,
-          color: Theme.of(context).dialogBackgroundColor,
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: items,
-        ),
-      ),
+    //todo new style for desktop
+    return CupertinoTextSelectionToolbar(
+      anchorAbove: anchorAbove,
+      anchorBelow: anchorBelow,
+      children: items,
     );
   }
 }
