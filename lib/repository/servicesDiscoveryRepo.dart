@@ -64,6 +64,11 @@ class ServicesDiscoveryRepo {
     _initLiverLocationClientServices(ip, grpcClientInterceptors);
   }
 
+
+  set groupServiceClient(GroupServiceClient value) {
+    _groupServiceClient = value;
+  }
+
   void _initQueryClientChannelServices(
     String ip,
     List<ClientInterceptor> grpcClientInterceptors,

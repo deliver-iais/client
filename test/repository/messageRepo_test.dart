@@ -33,7 +33,7 @@ import '../helper/test_helper.dart';
 void main() {
   group('MessageRepoTest -', () {
     setUp(() => registerServices());
-    tearDown(() =>  unregisterServices());
+    tearDown(() => unregisterServices());
     group('MessageRepo -', () {
       test('When called should check coreServices.connectionStatus', () async {
         final coreServices = getAndRegisterCoreServices();
@@ -90,25 +90,6 @@ void main() {
       });
     });
 
-    group('updateNewMuc -', () {
-      test('When called should update roomDao', () async {
-        final roomDao = getAndRegisterRoomDao();
-        withClock(
-          Clock.fixed(DateTime(2000)),
-          () async {
-            // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
-            verify(
-              roomDao.updateRoom(
-                uid: testUid.asString(),
-                lastMessageId: 0,
-                lastUpdateTime: clock.now().millisecondsSinceEpoch,
-              ),
-            );
-          },
-        );
-      });
-    });
-
     group('updatingMessages -', () {
       test('When called should fetch all room from sharedDao', () async {
         final sharedDao = getAndRegisterSharedDao();
@@ -117,10 +98,11 @@ void main() {
       });
 
       test('When called should get All UserRoomMeta', () async {
-        final services = getAndRegisterServicesDiscoveryRepo();
+        var s = getAndRegisterServicesDiscoveryRepo();
+        s.queryServiceClient = getMockQueryServicesClient();
         await MessageRepo().updatingMessages();
         verify(
-          services.queryServiceClient.getAllUserRoomMeta(
+          getMockQueryServicesClient().getAllUserRoomMeta(
             GetAllUserRoomMetaReq()
               ..pointer = 0
               ..limit = 10,
@@ -130,11 +112,11 @@ void main() {
       test(
           'When called should get All UserRoomMeta and if finished be true should put on sharedDao',
           () async {
-        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
         final sharedDao = getAndRegisterSharedDao();
         await MessageRepo().updatingMessages();
+        final queryServiceClient = getMockQueryServicesClient();
         final getAllUserRoomMetaRes =
-            await queryServiceClient.queryServiceClient.getAllUserRoomMeta(
+            await queryServiceClient.getAllUserRoomMeta(
           GetAllUserRoomMetaReq()
             ..pointer = 0
             ..limit = 10,
@@ -145,12 +127,11 @@ void main() {
       test(
           'When called should get All UserRoomMeta and if finished be false should never put on sharedDao',
           () async {
-        final queryServiceClient =
-            getAndRegisterServicesDiscoveryRepo(finished: false);
+        final queryServiceClient = getMockQueryServicesClient(finished: false);
         final sharedDao = getAndRegisterSharedDao();
         await MessageRepo().updatingMessages();
         final getAllUserRoomMetaRes =
-            await queryServiceClient.queryServiceClient.getAllUserRoomMeta(
+            await queryServiceClient.getAllUserRoomMeta(
           GetAllUserRoomMetaReq()
             ..pointer = 0
             ..limit = 10,
@@ -160,15 +141,17 @@ void main() {
       });
 
       test('When called should get room from roomDao', () async {
+        getMockQueryServicesClient();
         final roomDao = getAndRegisterRoomDao();
         await MessageRepo().updatingMessages();
+        getAndRegisterServicesDiscoveryRepo();
         verify(roomDao.getRoom(testUid.asString()));
       });
 
       test(
           'When called if roomMetadata.presenceType be Active and room last message id and last update be greater than roomMetadata should stop getting room',
           () async {
-        getAndRegisterServicesDiscoveryRepo(lastMessageId: 0, lastUpdate: 0);
+        getMockQueryServicesClient(lastMessageId: 0, lastUpdate: 0);
         final roomDao = getAndRegisterRoomDao(
           rooms: [
             Room(
@@ -184,7 +167,7 @@ void main() {
       test(
           'When called if roomMetadata.presenceType be Active and rooms deleted being true should update the room',
           () async {
-        getAndRegisterServicesDiscoveryRepo();
+        getMockQueryServicesClient();
         final roomDao = getAndRegisterRoomDao(
           rooms: [
             Room(
@@ -208,7 +191,7 @@ void main() {
       test(
           'When called if roomMetadata.presenceType not be Active should updateRoom',
           () async {
-        getAndRegisterServicesDiscoveryRepo(presenceType: PresenceType.DELETED);
+        getMockQueryServicesClient(presenceType: PresenceType.DELETED);
         final roomDao = getAndRegisterRoomDao();
         await MessageRepo().updatingMessages();
         verify(
@@ -256,7 +239,7 @@ void main() {
           'When called should fetch all room from roomDao and if last message id not be null should check isCurrentUser',
           () async {
         final authRepo = getAndRegisterAuthRepo(isCurrentUser: true);
-        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
+        final queryServiceClient = getMockQueryServicesClient();
         getAndRegisterRoomDao(
           rooms: [
             Room(
@@ -268,7 +251,7 @@ void main() {
         await MessageRepo().updatingLastSeen();
         verify(authRepo.isCurrentUser(testUid.asString()));
         verifyNever(
-          queryServiceClient.queryServiceClient
+          queryServiceClient
               .getUserRoomMeta(GetUserRoomMetaReq()..roomUid = testUid),
         );
       });
@@ -306,10 +289,10 @@ void main() {
 
     group('fetchHiddenMessageCount -', () {
       test('When called should countIsHiddenMessages', () async {
-        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
+        final queryServiceClient = getMockQueryServicesClient();
         await MessageRepo().fetchHiddenMessageCount(testUid, 0);
         verify(
-          queryServiceClient.queryServiceClient.countIsHiddenMessages(
+          queryServiceClient.countIsHiddenMessages(
             CountIsHiddenMessagesReq()
               ..roomUid = testUid
               ..messageId = Int64(0 + 1),
@@ -524,11 +507,11 @@ void main() {
       test(
           'When called if user category being USER or GROUP should fetchLastOtherUserSeenData and save MySeen',
           () async {
-        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
+        final queryServiceClient = getMockQueryServicesClient();
         final seenDo = getAndRegisterSeenDao();
         await MessageRepo().fetchOtherSeen(testUid);
         verify(
-          queryServiceClient.queryServiceClient.fetchLastOtherUserSeenData(
+          queryServiceClient.fetchLastOtherUserSeenData(
             FetchLastOtherUserSeenDataReq()..roomUid = testUid,
           ),
         );
@@ -539,10 +522,10 @@ void main() {
       final room = Room(uid: testUid.asString());
 
       test('When called should fetch CurrentUser SeenData', () async {
-        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
+        final queryServiceClient = getMockQueryServicesClient();
         MessageRepo().fetchCurrentUserLastSeen(room);
         verify(
-          queryServiceClient.queryServiceClient.fetchCurrentUserSeenData(
+          queryServiceClient.fetchCurrentUserSeenData(
             FetchCurrentUserSeenDataReq()..roomUid = testUid,
           ),
         );
@@ -1655,11 +1638,11 @@ void main() {
         verify(messageDao.deletePendingMessage(""));
       });
       test('When called if msg.id not be null should deleteMessage', () async {
-        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
+        final queryServiceClient = getMockQueryServicesClient();
         await MessageRepo()
             .deleteMessage([testMessage.copyWith(packetId: "", id: 0)]);
         verify(
-          queryServiceClient.queryServiceClient.deleteMessage(
+          queryServiceClient.deleteMessage(
             DeleteMessageReq()
               ..messageId = Int64()
               ..roomUid = testUid,
@@ -1758,14 +1741,14 @@ void main() {
             )
           ],
         );
-        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
+        final queryServiceClient = getMockQueryServicesClient();
         await MessageRepo().editTextMessage(testUid, testMessage, "test");
         final updatedMessage = message_pb.MessageByClient()
           ..to = testMessage.to.asUid()
           ..replyToId = Int64(testMessage.replyToId)
           ..text = message_pb.Text(text: "test");
         verify(
-          queryServiceClient.queryServiceClient.updateMessage(
+          queryServiceClient.updateMessage(
             UpdateMessageReq()
               ..message = updatedMessage
               ..messageId = Int64(),
@@ -1818,7 +1801,7 @@ void main() {
             )
           ],
         );
-        getAndRegisterServicesDiscoveryRepo(updateMessageId: 2);
+        getMockQueryServicesClient(updateMessageId: 2);
         await MessageRepo()
             .editTextMessage(testUid, testMessage.copyWith(id: 2), "test");
         verify(
@@ -1842,7 +1825,7 @@ void main() {
             )
           ],
         );
-        getAndRegisterServicesDiscoveryRepo(updateMessageGetError: true);
+        getMockQueryServicesClient(updateMessageGetError: true);
         await MessageRepo().editTextMessage(testUid, testMessage, "test");
         verifyNever(
           roomDao.updateRoom(
@@ -1883,8 +1866,7 @@ void main() {
 
       test('When called if file not be null should uploadClonedFile', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
-          getAndRegisterServicesDiscoveryRepo(
-              updatedMessageFile: updatedMessage);
+          getMockQueryServicesClient(updatedMessageFile: updatedMessage);
           final fileRepo = getAndRegisterFileRepo(
             fileInfo: file_pb.File(
               uuid: testUid.asString(),
@@ -1902,7 +1884,7 @@ void main() {
       });
       test('When called should updateMessage', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
-          final queryServiceClient = getAndRegisterServicesDiscoveryRepo(
+          final queryServiceClient = getMockQueryServicesClient(
             updatedMessageFile: updatedMessage,
           );
           getAndRegisterFileRepo(
@@ -1918,7 +1900,7 @@ void main() {
             file: model.File("test", "test"),
           );
           verify(
-            queryServiceClient.queryServiceClient.updateMessage(
+            queryServiceClient.updateMessage(
               UpdateMessageReq()
                 ..message = updatedMessage
                 ..messageId = Int64(),
@@ -1936,8 +1918,7 @@ void main() {
               )
             ],
           );
-          getAndRegisterServicesDiscoveryRepo(
-              updatedMessageFile: updatedMessage);
+          getMockQueryServicesClient(updatedMessageFile: updatedMessage);
           getAndRegisterFileRepo(
             fileInfo: file_pb.File(
               uuid: testUid.asString(),

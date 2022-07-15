@@ -2781,6 +2781,10 @@ class MockServicesDiscoveryRepo extends _i1.Mock
           .noSuchMethod(Invocation.getter(#fileServiceBaseUrl), returnValue: '')
       as String);
   @override
+  set groupServiceClient(_i7.GroupServiceClient? value) =>
+      super.noSuchMethod(Invocation.setter(#groupServiceClient, value),
+          returnValueForMissingStub: null);
+  @override
   bool get badCertificateConnection =>
       (super.noSuchMethod(Invocation.getter(#badCertificateConnection),
           returnValue: false) as bool);

@@ -118,7 +118,7 @@ class MessageRepo {
             }
           });
           sendPendingMessages().ignore();
-          unawaited(_fetchNotSyncedRoom());
+          _fetchNotSyncedRoom().ignore();
 
           _logger.i('updating done -----------------');
           break;

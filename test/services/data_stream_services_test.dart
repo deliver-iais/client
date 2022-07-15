@@ -231,7 +231,7 @@ void main() {
         test(
             'When called if message type is  MessageManipulationPersistentEvent_Action.EDITED should getMessage from messageDao and if message is not null should fetchMessages',
             () async {
-          final queryServiceClient = getAndRegisterServicesDiscoveryRepo(
+          final queryServiceClient = getMockQueryServicesClient(
             fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
             fetchMessagesHasOptions: false,
             fetchMessagesLimit: 1,
@@ -255,7 +255,7 @@ void main() {
         test(
             'When called if message type is  MessageManipulationPersistentEvent_Action.EDITED should getMessage from messageDao and if message is not null should fetchMessages',
             () async {
-          final queryServiceClient = getAndRegisterServicesDiscoveryRepo(
+          final queryServiceClient = getMockQueryServicesClient(
             fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
             fetchMessagesHasOptions: false,
             fetchMessagesLimit: 1,
@@ -280,7 +280,7 @@ void main() {
             'When called if message type is  MessageManipulationPersistentEvent_Action.EDITED should getMessage from messageDao and if message is not null should getRoom',
             () async {
           final roomDao = getAndRegisterRoomDao();
-          getAndRegisterServicesDiscoveryRepo(
+          getMockQueryServicesClient(
             fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
             fetchMessagesHasOptions: false,
             fetchMessagesLimit: 1,
@@ -308,7 +308,7 @@ void main() {
               )
             ],
           );
-          getAndRegisterServicesDiscoveryRepo(
+          getMockQueryServicesClient(
             fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
             fetchMessagesHasOptions: false,
             fetchMessagesLimit: 1,
@@ -329,7 +329,7 @@ void main() {
         test(
             'When called if message type is  MessageManipulationPersistentEvent_Action.EDITED should update room',
             () async {
-          getAndRegisterServicesDiscoveryRepo(
+          getMockQueryServicesClient(
             fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
             fetchMessagesHasOptions: false,
             fetchMessagesLimit: 1,
@@ -1249,7 +1249,7 @@ void main() {
         test(
             'When called should getMessage from messageDao and if msg be null should get justNotHiddenMessages from server',
             () async {
-          final queryServicesClient = getAndRegisterServicesDiscoveryRepo(
+          final queryServicesClient = getMockQueryServicesClient(
             fetchMessagesLimit: 1,
             fetchMessagesPointer: 1,
             justNotHiddenMessages: true,
@@ -1280,7 +1280,7 @@ void main() {
           getAndRegisterMessageDao(
             getMessageId: 1,
           );
-          getAndRegisterServicesDiscoveryRepo(
+          getMockQueryServicesClient(
             fetchMessagesLimit: 1,
             fetchMessagesPointer: 1,
             justNotHiddenMessages: true,
@@ -1304,7 +1304,7 @@ void main() {
           getAndRegisterMessageDao(
             getMessageId: 1,
           );
-          getAndRegisterServicesDiscoveryRepo(
+          getMockQueryServicesClient(
             fetchMessagesLimit: 1,
             fetchMessagesPointer: 1,
             fetchMessagesId: 1,
@@ -1325,7 +1325,7 @@ void main() {
           getAndRegisterMessageDao(
             getMessageId: 1,
           );
-          getAndRegisterServicesDiscoveryRepo(
+          getMockQueryServicesClient(
             fetchMessagesLimit: 1,
             fetchMessagesPointer: 1,
             justNotHiddenMessages: true,

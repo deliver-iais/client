@@ -165,7 +165,7 @@ void main() {
           () async {
         roomNameCache.clear();
         final uidIdNameDao = getAndRegisterUidIdNameDao();
-        getAndRegisterServicesDiscoveryRepo(getIdByUidData: "test");
+        getMockQueryServicesClient(getIdByUidData: "test");
         final name = await RoomRepo().getName(groupUid);
         verify(uidIdNameDao.update(groupUid.asString(), id: "test"));
         expect(name, "test");
@@ -185,7 +185,7 @@ void main() {
       test(
           'When called should userInfo and if  be null should return getIdByUid',
           () async {
-        getAndRegisterServicesDiscoveryRepo(getIdByUidData: "test");
+        getMockQueryServicesClient(getIdByUidData: "test");
         expect(await RoomRepo().watchId(testUid).first, "test");
       });
     });
@@ -198,10 +198,10 @@ void main() {
         verify(mediaDao.clear(testUid.asString()));
       });
       test('When called if should removePrivateRoom', () async {
-        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
+        final queryServiceClient = getMockQueryServicesClient();
         await RoomRepo().deleteRoom(testUid);
         verify(
-          queryServiceClient.queryServiceClient
+          queryServiceClient
               .removePrivateRoom(RemovePrivateRoomReq()..roomUid = testUid),
         );
       });
@@ -226,7 +226,7 @@ void main() {
       test('When called if removePrivateRoom get error should return false',
           () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
-          getAndRegisterServicesDiscoveryRepo(removePrivateRoomGetError: true);
+          getMockQueryServicesClient(removePrivateRoomGetError: true);
           final roomDao = getAndRegisterRoomDao(rooms: [testRoom]);
           final deleted = await RoomRepo().deleteRoom(testUid);
           verifyNever(roomDao.getRoom(testUid.asString()));
@@ -243,15 +243,15 @@ void main() {
     });
     group('getIdByUid -', () {
       test('When called should getIdByUid', () async {
-        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
+        final queryServiceClient = getMockQueryServicesClient();
         await RoomRepo().getIdByUid(testUid);
-        verify(queryServiceClient.queryServiceClient.getIdByUid(GetIdByUidReq()..uid = testUid));
+        verify(queryServiceClient.getIdByUid(GetIdByUidReq()..uid = testUid));
       });
       test(
           'When called should getIdByUid and update uidIdNameDao with new value',
           () async {
         final uidIdNameDao = getAndRegisterUidIdNameDao();
-        getAndRegisterServicesDiscoveryRepo(getIdByUidData: "test");
+        getMockQueryServicesClient(getIdByUidData: "test");
         final id = await RoomRepo().getIdByUid(testUid);
         verify(uidIdNameDao.update(testUid.asString(), id: "test"));
         expect(id, "test");
@@ -259,7 +259,7 @@ void main() {
       test('When called should getIdByUid and if get error should return null',
           () async {
         final uidIdNameDao = getAndRegisterUidIdNameDao();
-        getAndRegisterServicesDiscoveryRepo(getIdByUidGetError: true);
+        getMockQueryServicesClient(getIdByUidGetError: true);
         final id = await RoomRepo().getIdByUid(testUid);
         verifyNever(uidIdNameDao.update(testUid.asString(), id: "test"));
         expect(id, null);
@@ -449,24 +449,24 @@ void main() {
     group('block -', () {
       test('When called if block is true should block room', () async {
         final blockDao = getAndRegisterBlockDao();
-        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
+        final queryServiceClient = getMockQueryServicesClient();
         await RoomRepo().block(testUid.asString(), block: true);
-        verify(queryServiceClient.queryServiceClient.block(BlockReq()..uid = testUid));
+        verify(queryServiceClient.block(BlockReq()..uid = testUid));
         verify(blockDao.block(testUid.asString()));
       });
       test('When called if block is false should unblock room', () async {
         final blockDao = getAndRegisterBlockDao();
-        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
+        final queryServiceClient = getMockQueryServicesClient();
         await RoomRepo().block(testUid.asString(), block: false);
-        verify(queryServiceClient.queryServiceClient.unblock(UnblockReq()..uid = testUid));
+        verify(queryServiceClient.unblock(UnblockReq()..uid = testUid));
         verify(blockDao.unblock(testUid.asString()));
       });
     });
     group('fetchBlockedRoom -', () {
       test('When called should getBlockedList', () async {
-        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
+        final queryServiceClient = getMockQueryServicesClient();
         await RoomRepo().fetchBlockedRoom();
-        verify(queryServiceClient.queryServiceClient.getBlockedList(GetBlockedListReq()));
+        verify(queryServiceClient.getBlockedList(GetBlockedListReq()));
       });
       test('When called should getBlockedList and block them', () async {
         final blockDao = getAndRegisterBlockDao();
@@ -517,16 +517,16 @@ void main() {
       test(
           'When called if uidIdNameDao doesnt contain uid should fetchUidById and update uidIdNameDao',
           () async {
-        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
+        final queryServiceClient = getMockQueryServicesClient();
         expect(await RoomRepo().fetchUidById("test"), testUid);
-        verify(queryServiceClient.queryServiceClient.getUidById(GetUidByIdReq()..id = "test"));
+        verify(queryServiceClient.getUidById(GetUidByIdReq()..id = "test"));
       });
     });
     group('reportRoom -', () {
       test('When called should report the room', () async {
-        final queryServiceClient = getAndRegisterServicesDiscoveryRepo();
+        final queryServiceClient = getMockQueryServicesClient();
         RoomRepo().reportRoom(testUid);
-        verify(queryServiceClient.queryServiceClient.report(ReportReq()..uid = testUid));
+        verify(queryServiceClient.report(ReportReq()..uid = testUid));
       });
     });
 
