@@ -329,7 +329,10 @@ class _CupertinoTextSelectionControlsToolbarState
         Icons.paste_outlined,
       );
     }
-    items.add(const Divider());
+    if (isDesktop) {
+      items.add(const Divider());
+    }
+
     //todo more user of  final _i18n = GetIt.I.get<I18N>();
     addToolbarButton("Bold", widget.handleBold, Icons.format_bold_rounded);
     addToolbarButton(
