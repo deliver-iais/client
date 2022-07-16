@@ -109,9 +109,9 @@ void main() {
         final contactRepo = getAndRegisterContactRepo(getContactHasData: true);
         final name = await RoomRepo().getName(testUid);
         verify(contactRepo.getContact(testUid));
-        expect(name, "testtest");
-        expect(roomNameCache[testUid.asString()], "testtest");
-        verify(uidIdNameDao.update(testUid.asString(), name: "testtest"));
+        expect(name, "test test");
+        expect(roomNameCache[testUid.asString()], "test test");
+        verify(uidIdNameDao.update(testUid.asString(), name: "test test"));
       });
       test(
           'When called if category is user should getContact from contactRepo and if contact be empty should getContactFromServer and save it in cache',

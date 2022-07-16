@@ -1,4 +1,5 @@
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
@@ -29,6 +30,16 @@ Message testMessage = Message(
   json: '',
   isHidden: false,
 );
+
+Message testMessageToTest = Message(
+  to: testUid.asString(),
+  from: testUid.asString(),
+  packetId: testUid.asString(),
+  roomUid: testUid.asString(),
+  time: 0,
+  json: '',
+  isHidden: false,
+);
 PendingMessage testPendingMessage = PendingMessage(
   roomUid: testUid.asString(),
   packetId: "946672200000000",
@@ -37,6 +48,14 @@ PendingMessage testPendingMessage = PendingMessage(
     packetId: "946672200000000",
   ),
   status: SendingStatus.PENDING,
+);
+final filePendingMessage = testPendingMessage.copyWith(
+  msg: testPendingMessage.msg.copyWith(
+    type: MessageType.FILE,
+    json:
+    "{\"1\":\"946672200000000\",\"2\":\"4096\",\"3\":\"application/octet-stream\",\"4\":\"test\",\"5\":\"test\",\"6\":0,\"7\":0,\"8\":0.0}",
+  ),
+  status: SendingStatus.UPLIOD_FILE_FAIL,
 );
 Activity testActivity = Activity(
   to: testUid,

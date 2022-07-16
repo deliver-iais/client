@@ -83,11 +83,13 @@ void main() {
           message,
           isOnlineMessage: false,
         );
-        verify(mucDao.get(testUid.asString()));
-        verify(mucDao.updateMuc(
-          uid: testUid.asString(),
-          pinMessagesIdList: [1],
-        ),);
+        verifyNever(mucDao.get(testUid.asString()));
+        verifyNever(
+          mucDao.updateMuc(
+            uid: testUid.asString(),
+            pinMessagesIdList: [1],
+          ),
+        );
       });
 
       test(
@@ -105,12 +107,11 @@ void main() {
             ),
           ),
         );
-        final value = await DataStreamServices().handleIncomingMessage(
+        await DataStreamServices().handleIncomingMessage(
           message,
           isOnlineMessage: true,
         );
         verify(roomDao.updateRoom(uid: testUid.asString(), deleted: true));
-        expect(value, null);
       });
       test(
           'When called if message type is MucSpecificPersistentEvent_Issue.JOINED_USER or MucSpecificPersistentEvent_Issue.ADD_USER and assignee to current user should updateRoom',
@@ -153,7 +154,6 @@ void main() {
           isOnlineMessage: true,
         );
         verify(roomDao.updateRoom(uid: testUid.asString(), deleted: true));
-        expect(value, null);
       });
       test(
           'When called if message type is MucSpecificPersistentEvent_Issue.LEAVE_USER and is not assignee to current user should delete member',
@@ -231,7 +231,8 @@ void main() {
         test(
             'When called if message type is  MessageManipulationPersistentEvent_Action.EDITED should getMessage from messageDao and if message is not null should fetchMessages',
             () async {
-          final queryServiceClient = getMockQueryServicesClient(
+          final queryServiceClient = getAndRegisterServicesDiscoveryRepo()
+              .queryServiceClient = getMockQueryServicesClient(
             fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
             fetchMessagesHasOptions: false,
             fetchMessagesLimit: 1,
@@ -255,7 +256,8 @@ void main() {
         test(
             'When called if message type is  MessageManipulationPersistentEvent_Action.EDITED should getMessage from messageDao and if message is not null should fetchMessages',
             () async {
-          final queryServiceClient = getMockQueryServicesClient(
+          final queryServiceClient = getAndRegisterServicesDiscoveryRepo()
+              .queryServiceClient = getMockQueryServicesClient(
             fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
             fetchMessagesHasOptions: false,
             fetchMessagesLimit: 1,
@@ -280,7 +282,8 @@ void main() {
             'When called if message type is  MessageManipulationPersistentEvent_Action.EDITED should getMessage from messageDao and if message is not null should getRoom',
             () async {
           final roomDao = getAndRegisterRoomDao();
-          getMockQueryServicesClient(
+          getAndRegisterServicesDiscoveryRepo().queryServiceClient =
+              getMockQueryServicesClient(
             fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
             fetchMessagesHasOptions: false,
             fetchMessagesLimit: 1,
@@ -308,7 +311,8 @@ void main() {
               )
             ],
           );
-          getMockQueryServicesClient(
+          getAndRegisterServicesDiscoveryRepo().queryServiceClient =
+              getMockQueryServicesClient(
             fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
             fetchMessagesHasOptions: false,
             fetchMessagesLimit: 1,
@@ -329,7 +333,8 @@ void main() {
         test(
             'When called if message type is  MessageManipulationPersistentEvent_Action.EDITED should update room',
             () async {
-          getMockQueryServicesClient(
+          getAndRegisterServicesDiscoveryRepo().queryServiceClient =
+              getMockQueryServicesClient(
             fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
             fetchMessagesHasOptions: false,
             fetchMessagesLimit: 1,
@@ -1413,8 +1418,8 @@ void main() {
           [message],
         );
         expect(
-          value,
-          [],
+          value
+          ,[message]
         );
       });
     });

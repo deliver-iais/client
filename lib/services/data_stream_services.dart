@@ -590,7 +590,7 @@ class DataStreamServices {
           break;
         }
       } catch (_) {
-        break;
+        return null;
       }
     }
 

@@ -39,6 +39,7 @@ import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/firebase_services.dart';
+import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/ux_service.dart';
@@ -62,6 +63,7 @@ import 'package:rxdart/rxdart.dart';
 
 import '../constants/constants.dart';
 import '../helper/test_helper.mocks.dart';
+import 'mock_services_discovery_repo.dart';
 
 class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
   final T value;
@@ -112,7 +114,6 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
     MockSpec<LastActivityDao>(returnNullOnMissingStub: true),
     MockSpec<MucDao>(returnNullOnMissingStub: true),
     MockSpec<UxService>(returnNullOnMissingStub: true),
-    MockSpec<ServicesDiscoveryRepo>(returnNullOnMissingStub: true),
   ],
 )
 MockCoreServices getAndRegisterCoreServices({
@@ -143,6 +144,8 @@ MockDataStreamServices getAndRegisterDataStreamServices() {
   _removeRegistrationIfExists<DataStreamServices>();
   final service = MockDataStreamServices();
   GetIt.I.registerSingleton<DataStreamServices>(service);
+  when(service.fetchLastNotHiddenMessage(testUid, 0, 0))
+      .thenAnswer((realInvocation) => Future.value(testMessage));
   return service;
 }
 
@@ -155,10 +158,9 @@ MockMediaRepo getAndRegisterMediaRepo() {
 
 MockServicesDiscoveryRepo getAndRegisterServicesDiscoveryRepo() {
   _removeRegistrationIfExists<ServicesDiscoveryRepo>();
-  final service = MockServicesDiscoveryRepo();
-  GetIt.I.registerSingleton<ServicesDiscoveryRepo>(service);
-  service.initRepo();
-  return service;
+  final mockServicesDiscoveryRepo = MockServicesDiscoveryRepo();
+  GetIt.I.registerSingleton<ServicesDiscoveryRepo>(mockServicesDiscoveryRepo);
+  return mockServicesDiscoveryRepo;
 }
 
 MockAnalyticsRepo getAndRegisterAnalyserRepo() {
@@ -272,6 +274,10 @@ MockBotRepo getAndRegisterBotRepo({BotInfo? botInfo}) {
       .thenAnswer((realInvocation) => Future.value(botInfo));
   return service;
 }
+void getAndRegisterMessageExtractorServices(){
+  _removeRegistrationIfExists<MessageExtractorServices>();
+  GetIt.I.registerSingleton<MessageExtractorServices>(MessageExtractorServices());
+}
 
 MockCustomNotificationDao getAndRegisterCustomNotificationDao() {
   _removeRegistrationIfExists<CustomNotificationDao>();
@@ -320,6 +326,8 @@ MockMessageDao getAndRegisterMessageDao({
       .thenAnswer((realInvocation) => Stream.value([testPendingMessage]));
   when(service.getPendingMessages(testUid.asString()))
       .thenAnswer((realInvocation) => Future.value([testPendingMessage]));
+  when(service.getPendingMessage("946672200000000"))
+      .thenAnswer((realInvocation) => Future.value(filePendingMessage));
   return service;
 }
 
@@ -496,6 +504,15 @@ MockSeenDao getAndRegisterSeenDao({int messageId = 0}) {
       ),
     ),
   );
+  when(service.getMySeen(testUid.asString())).thenAnswer(
+        (realInvocation) => Future.value(
+      seen_box.Seen(
+        uid: testUid.asString(),
+        messageId: messageId,
+        hiddenMessageCount: 0,
+      ),
+    ),
+  );
   when(service.watchMySeen(testUid.asString()))
       .thenAnswer((realInvocation) => Stream.value(testSeen));
   return service;
@@ -556,7 +573,7 @@ MockQueryServiceClient getMockQueryServicesClient({
     ),
   );
   when(queryServiceClient
-          .getUserRoomMeta(GetUserRoomMetaReq()..roomUid = testUid))
+          .getUserRoomMeta(GetUserRoomMetaReq()..roomUid = testUid),)
       .thenAnswer(
     (realInvocation) => MockResponseFuture<GetUserRoomMetaRes>(
       GetUserRoomMetaRes(roomMeta: roomMetadata),
@@ -569,7 +586,7 @@ MockQueryServiceClient getMockQueryServicesClient({
   ).thenAnswer(
     (realInvocation) => MockResponseFuture<FetchCurrentUserSeenDataRes>(
       FetchCurrentUserSeenDataRes(
-        seen: seen_pb.Seen(from: testUid, to: testUid),
+        seen: seen_pb.Seen(from: testUid, to: testUid, id: Int64()),
       ),
     ),
   );
@@ -658,7 +675,7 @@ MockQueryServiceClient getMockQueryServicesClient({
   final updatedMessage = message_pb.MessageByClient()
     ..to = testMessage.to.asUid()
     ..replyToId = Int64(testMessage.replyToId)
-    ..text = message_pb.Text(text: "test");
+    ..text = message_pb.Text(text: "editText");
   updateMessageGetError
       ? when(
           queryServiceClient.updateMessage(
@@ -739,12 +756,12 @@ MockQueryServiceClient getMockQueryServicesClient({
   return queryServiceClient;
 }
 
-MockSharedDao getAndRegisterSharedDao() {
+MockSharedDao getAndRegisterSharedDao({bool allRoomFetched = false}) {
   _removeRegistrationIfExists<SharedDao>();
   final service = MockSharedDao();
   GetIt.I.registerSingleton<SharedDao>(service);
   when(service.getBoolean(SHARED_DAO_ALL_ROOMS_FETCHED))
-      .thenAnswer((realInvocation) => Future.value(false));
+      .thenAnswer((realInvocation) => Future.value(allRoomFetched));
   return service;
 }
 
@@ -810,6 +827,7 @@ void registerServices() {
   getAndRegisterCustomNotificationDao();
   getAndRegisterMediaMetaDataDao();
   getAndRegisterCallService();
+  getAndRegisterMessageExtractorServices();
   getAndRegisterNotificationServices();
   getAndRegisterLastActivityDao();
   getAndRegisterMucDao();
@@ -841,6 +859,7 @@ void unregisterServices() {
   GetIt.I.unregister<BotRepo>();
   GetIt.I.unregister<CustomNotificationDao>();
   GetIt.I.unregister<MediaDao>();
+  GetIt.I.unregister<MessageExtractorServices>();
   GetIt.I.unregister<MediaMetaDataDao>();
   GetIt.I.unregister<CallService>();
   GetIt.I.unregister<NotificationServices>();

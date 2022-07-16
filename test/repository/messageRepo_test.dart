@@ -19,6 +19,7 @@ import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart'
     as location_pb;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
@@ -53,15 +54,31 @@ void main() {
         verify(logger.i('updating -----------------'));
       });
       test(
-          'When called should check if coreServices.connectionStatus is connected  updatingStatus should be TitleStatusConditions.Updating',
+          'When called should check if coreServices.connectionStatus is connected  updatingStatus should be TitleStatusConditions.Syncing',
           () async {
+        getAndRegisterSharedDao();
         getAndRegisterCoreServices(
           connectionStatus: ConnectionStatus.Connected,
         );
         final messageRepo = await getAndRegisterMessageRepo();
+        await messageRepo.connectionStatusHandler();
         expect(
           messageRepo.updatingStatus.value,
-          TitleStatusConditions.Connected,
+          TitleStatusConditions.Syncing,
+        );
+      });
+      test(
+          'When called should check if coreServices.connectionStatus is connected  updatingStatus should be TitleStatusConditions Updating ',
+          () async {
+        getAndRegisterSharedDao(allRoomFetched: true);
+        getAndRegisterCoreServices(
+          connectionStatus: ConnectionStatus.Connected,
+        );
+        final messageRepo = await getAndRegisterMessageRepo();
+        await messageRepo.connectionStatusHandler();
+        expect(
+          messageRepo.updatingStatus.value,
+          TitleStatusConditions.Updating,
         );
       });
 
@@ -98,10 +115,10 @@ void main() {
       });
 
       test('When called should get All UserRoomMeta', () async {
-        getAndRegisterServicesDiscoveryRepo();
+        final msdr = getAndRegisterServicesDiscoveryRepo();
         await MessageRepo().updatingMessages();
         verify(
-          getMockQueryServicesClient().getAllUserRoomMeta(
+          msdr.queryServiceClient.getAllUserRoomMeta(
             GetAllUserRoomMetaReq()
               ..pointer = 0
               ..limit = 10,
@@ -166,7 +183,7 @@ void main() {
       test(
           'When called if roomMetadata.presenceType be Active and rooms deleted being true should update the room',
           () async {
-        getMockQueryServicesClient();
+        getAndRegisterServicesDiscoveryRepo();
         final roomDao = getAndRegisterRoomDao(
           rooms: [
             Room(
@@ -180,6 +197,8 @@ void main() {
           roomDao.updateRoom(
             uid: testUid.asString(),
             deleted: false,
+            synced: false,
+            lastCurrentUserSentMessageId: 0,
             lastMessageId: 0,
             firstMessageId: 0,
             lastUpdateTime: 0,
@@ -190,7 +209,8 @@ void main() {
       test(
           'When called if roomMetadata.presenceType not be Active should updateRoom',
           () async {
-        getMockQueryServicesClient(presenceType: PresenceType.DELETED);
+        getAndRegisterServicesDiscoveryRepo().queryServiceClient =
+            getMockQueryServicesClient(presenceType: PresenceType.DELETED);
         final roomDao = getAndRegisterRoomDao();
         await MessageRepo().updatingMessages();
         verify(
@@ -272,6 +292,7 @@ void main() {
       });
       test('When called if lastMessage id not be null should getOthersSeen ',
           () async {
+        getAndRegisterAuthRepo(isCurrentUser: true);
         final seenDo = getAndRegisterSeenDao();
         getAndRegisterRoomDao(
           rooms: [
@@ -288,10 +309,10 @@ void main() {
 
     group('fetchHiddenMessageCount -', () {
       test('When called should countIsHiddenMessages', () async {
-        final queryServiceClient = getMockQueryServicesClient();
+        final service = getAndRegisterServicesDiscoveryRepo();
         await MessageRepo().fetchHiddenMessageCount(testUid, 0);
         verify(
-          queryServiceClient.countIsHiddenMessages(
+          service.queryServiceClient.countIsHiddenMessages(
             CountIsHiddenMessagesReq()
               ..roomUid = testUid
               ..messageId = Int64(0 + 1),
@@ -506,11 +527,11 @@ void main() {
       test(
           'When called if user category being USER or GROUP should fetchLastOtherUserSeenData and save MySeen',
           () async {
-        final queryServiceClient = getMockQueryServicesClient();
+        final service = getAndRegisterServicesDiscoveryRepo();
         final seenDo = getAndRegisterSeenDao();
         await MessageRepo().fetchOtherSeen(testUid);
         verify(
-          queryServiceClient.fetchLastOtherUserSeenData(
+          service.queryServiceClient.fetchLastOtherUserSeenData(
             FetchLastOtherUserSeenDataReq()..roomUid = testUid,
           ),
         );
@@ -518,13 +539,16 @@ void main() {
       });
     });
     group('fetchCurrentUserLastSeen -', () {
-      final room = Room(uid: testUid.asString());
+      final room = Room(
+        uid: testUid.asString(),
+        lastMessage: testMessage.copyWith(id: 2),
+      );
 
       test('When called should fetch CurrentUser SeenData', () async {
-        final queryServiceClient = getMockQueryServicesClient();
-        MessageRepo().fetchCurrentUserLastSeen(room);
+        final service = getAndRegisterServicesDiscoveryRepo();
+        await MessageRepo().fetchCurrentUserLastSeen(room);
         verify(
-          queryServiceClient.fetchCurrentUserSeenData(
+          service.queryServiceClient.fetchCurrentUserSeenData(
             FetchCurrentUserSeenDataReq()..roomUid = testUid,
           ),
         );
@@ -621,7 +645,6 @@ void main() {
                 lastMessage: pm.msg,
                 lastMessageId: pm.msg.id,
                 deleted: false,
-                lastUpdateTime: pm.msg.time,
               ),
             );
           },
@@ -648,7 +671,7 @@ void main() {
       final pm = testPendingMessage.copyWith(
         msg: testPendingMessage.msg.copyWith(
           type: MessageType.LOCATION,
-          json: "{\"1\":0.0,\"2\":0.0}",
+          json: "{\"1\":0,\"2\":0}",
         ),
       );
 
@@ -676,7 +699,6 @@ void main() {
                 lastMessage: pm.msg,
                 lastMessageId: pm.msg.id,
                 deleted: false,
-                lastUpdateTime: pm.msg.time,
               ),
             );
           },
@@ -712,7 +734,8 @@ void main() {
           () async {
             final fileRepo = getAndRegisterFileRepo();
             // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
-            await MessageRepo().sendMultipleFilesMessages(
+            var m =  await getAndRegisterMessageRepo();
+            await m.sendMultipleFilesMessages(
               testUid,
               [model.File("test", "test")],
               caption: "test",
@@ -786,6 +809,8 @@ void main() {
                 uuid: testUid.asString(),
                 caption: "test",
                 name: "test",
+                sign: "test",
+                hash: "test",
               ),
             );
             // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
@@ -802,6 +827,8 @@ void main() {
                 name: "test",
                 caption: "test",
                 uuid: testUid.asString(),
+                sign: "test",
+                hash: "test",
               );
             verify(coreServices.sendMessage(byClient));
           },
@@ -882,7 +909,6 @@ void main() {
             ),
             lastMessageId: pm.msg.id,
             deleted: false,
-            lastUpdateTime: pm.msg.time,
           ),
         );
       });
@@ -895,6 +921,8 @@ void main() {
             uuid: testUid.asString(),
             caption: "test",
             name: "test",
+            sign: "test",
+            hash: "test",
           ),
         );
         getAndRegisterMessageDao(allPendingMessage: pm);
@@ -906,6 +934,8 @@ void main() {
           ..file = file_pb.File(
             name: "test",
             caption: "test",
+            sign: "test",
+            hash: "test",
             uuid: testUid.asString(),
           );
         verify(coreServices.sendMessage(byClient));
@@ -1093,7 +1123,6 @@ void main() {
               lastMessage: pm.msg,
               lastMessageId: pm.msg.id,
               deleted: false,
-              lastUpdateTime: pm.msg.time,
             ),
           );
         });
@@ -1334,7 +1363,6 @@ void main() {
               lastMessage: pm.msg,
               lastMessageId: pm.msg.id,
               deleted: false,
-              lastUpdateTime: pm.msg.time,
             ),
           );
         });
@@ -1382,7 +1410,6 @@ void main() {
               lastMessage: pm.msg,
               lastMessageId: pm.msg.id,
               deleted: false,
-              lastUpdateTime: pm.msg.time,
             ),
           );
         });
@@ -1433,7 +1460,6 @@ void main() {
               lastMessage: pm.msg,
               lastMessageId: pm.msg.id,
               deleted: false,
-              lastUpdateTime: pm.msg.time,
             ),
           );
         });
@@ -1527,7 +1553,6 @@ void main() {
             lastMessage: testPendingMessage.msg,
             lastMessageId: testPendingMessage.msg.id,
             deleted: false,
-            lastUpdateTime: testPendingMessage.msg.time,
           ),
         );
         final byClient = message_pb.MessageByClient()
@@ -1598,7 +1623,6 @@ void main() {
               lastMessage: pm.msg,
               lastMessageId: pm.msg.id,
               deleted: false,
-              lastUpdateTime: pm.msg.time,
             ),
           );
           final byClient = message_pb.MessageByClient()
@@ -1637,11 +1661,11 @@ void main() {
         verify(messageDao.deletePendingMessage(""));
       });
       test('When called if msg.id not be null should deleteMessage', () async {
-        final queryServiceClient = getMockQueryServicesClient();
+        final service = getAndRegisterServicesDiscoveryRepo();
         await MessageRepo()
             .deleteMessage([testMessage.copyWith(packetId: "", id: 0)]);
         verify(
-          queryServiceClient.deleteMessage(
+          service.queryServiceClient.deleteMessage(
             DeleteMessageReq()
               ..messageId = Int64()
               ..roomUid = testUid,
@@ -1669,7 +1693,6 @@ void main() {
           verify(
             roomDao.updateRoom(
               uid: testUid.asString(),
-              lastUpdateTime: clock.now().millisecondsSinceEpoch,
             ),
           );
         });
@@ -1707,7 +1730,6 @@ void main() {
           verify(
             roomDao.updateRoom(
               uid: testUid.asString(),
-              lastUpdateTime: clock.now().millisecondsSinceEpoch,
             ),
           );
         });
@@ -1736,18 +1758,30 @@ void main() {
           rooms: [
             Room(
               uid: testUid.asString(),
-              lastMessage: testMessage.copyWith(id: 0),
+              lastMessage: testMessage.copyWith(
+                id: 0,
+                json: (Text()..text = "text").writeToJson(),
+              ),
             )
           ],
         );
-        final queryServiceClient = getMockQueryServicesClient();
-        await MessageRepo().editTextMessage(testUid, testMessage, "test");
+        final service = getAndRegisterServicesDiscoveryRepo();
+        await MessageRepo().editTextMessage(
+          testUid,
+          testMessage.copyWith(
+            id: 0,
+            json: (Text()..text = "text").writeToJson(),
+          ),
+          "editText",
+        );
         final updatedMessage = message_pb.MessageByClient()
           ..to = testMessage.to.asUid()
           ..replyToId = Int64(testMessage.replyToId)
-          ..text = message_pb.Text(text: "test");
+          ..text = message_pb.Text(
+            text: "editText",
+          );
         verify(
-          queryServiceClient.updateMessage(
+          service.queryServiceClient.updateMessage(
             UpdateMessageReq()
               ..message = updatedMessage
               ..messageId = Int64(),
@@ -1759,15 +1793,29 @@ void main() {
           rooms: [
             Room(
               uid: testUid.asString(),
-              lastMessage: testMessage.copyWith(id: 0),
+              lastMessage: testMessage.copyWith(
+                id: 0,
+                json: (Text()..text = "text").writeToJson(),
+              ),
             )
           ],
         );
         final messageDao = getAndRegisterMessageDao();
-        await MessageRepo().editTextMessage(testUid, testMessage, "test");
+        await MessageRepo().editTextMessage(
+          testUid,
+          testMessage.copyWith(
+            id: 0,
+            json: (Text()..text = "text").writeToJson(),
+          ),
+          "editText",
+        );
         verify(
           messageDao.saveMessage(
-            testMessage.copyWith(edited: true, json: "{\"1\":\"test\"}"),
+            testMessage.copyWith(
+              id: 0,
+              edited: true,
+              json: "{\"1\":\"editText\"}",
+            ),
           ),
         );
       });
@@ -1776,16 +1824,29 @@ void main() {
           rooms: [
             Room(
               uid: testUid.asString(),
-              lastMessage: testMessage.copyWith(id: 0),
+              lastMessage: testMessage.copyWith(
+                id: 0,
+                json: (Text()..text = "text").writeToJson(),
+              ),
             )
           ],
         );
-        await MessageRepo()
-            .editTextMessage(testUid, testMessage.copyWith(id: 0), "test");
+        await MessageRepo().editTextMessage(
+          testUid,
+          testMessage.copyWith(
+            id: 0,
+            json: (Text()..text = "text").writeToJson(),
+          ),
+          "editText",
+        );
         verify(
           roomDao.updateRoom(
             uid: testUid.asString(),
-            lastMessage: testMessage.copyWith(id: 0),
+            lastMessage: testMessage.copyWith(
+              id: 0,
+              edited: true,
+              json: "{\"1\":\"editText\"}",
+            ),
           ),
         );
       });
@@ -1800,16 +1861,23 @@ void main() {
             )
           ],
         );
-        getMockQueryServicesClient(updateMessageId: 2);
-        await MessageRepo()
-            .editTextMessage(testUid, testMessage.copyWith(id: 2), "test");
+        getAndRegisterServicesDiscoveryRepo().queryServiceClient =
+            getMockQueryServicesClient(updateMessageId: 2);
+        await MessageRepo().editTextMessage(
+          testUid,
+          testMessage.copyWith(
+            id: 2,
+            json: (Text()..text = "text").writeToJson(),
+          ),
+          "editText",
+        );
         verify(
           roomDao.updateRoom(
             uid: testUid.asString(),
             lastMessage: testMessage.copyWith(
               id: 2,
               edited: true,
-              json: "{\"1\":\"test\"}",
+              json: "{\"1\":\"editText\"}",
             ),
           ),
         );
@@ -1824,8 +1892,9 @@ void main() {
             )
           ],
         );
-        getMockQueryServicesClient(updateMessageGetError: true);
-        await MessageRepo().editTextMessage(testUid, testMessage, "test");
+        getAndRegisterServicesDiscoveryRepo().queryServiceClient =
+            getMockQueryServicesClient(updateMessageGetError: true);
+        await MessageRepo().editTextMessage(testUid, testMessage, "editTest");
         verifyNever(
           roomDao.updateRoom(
             uid: testUid.asString(),
@@ -1833,7 +1902,7 @@ void main() {
         );
         verifyNever(
           messageDao.saveMessage(
-            testMessage.copyWith(edited: true, json: "{\"1\":\"test\"}"),
+            testMessage.copyWith(edited: true, json: "{\"1\":\"editTest\"}"),
           ),
         );
       });
@@ -1845,6 +1914,8 @@ void main() {
           uuid: testUid.asString(),
           caption: "test",
           name: "test",
+          sign: "test",
+          hash: "test",
         );
 
       // test('When called if file not be null should cloneFileInLocalDirectory',
@@ -1865,12 +1936,15 @@ void main() {
 
       test('When called if file not be null should uploadClonedFile', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
-          getMockQueryServicesClient(updatedMessageFile: updatedMessage);
+          getAndRegisterServicesDiscoveryRepo().queryServiceClient =
+              getMockQueryServicesClient(updatedMessageFile: updatedMessage);
           final fileRepo = getAndRegisterFileRepo(
             fileInfo: file_pb.File(
               uuid: testUid.asString(),
               caption: "test",
               name: "test",
+              sign: "test",
+              hash: "test",
             ),
           );
           await MessageRepo().editFileMessage(
@@ -1883,7 +1957,8 @@ void main() {
       });
       test('When called should updateMessage', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
-          final queryServiceClient = getMockQueryServicesClient(
+          final service = getAndRegisterServicesDiscoveryRepo()
+              .queryServiceClient = getMockQueryServicesClient(
             updatedMessageFile: updatedMessage,
           );
           getAndRegisterFileRepo(
@@ -1891,6 +1966,8 @@ void main() {
               uuid: testUid.asString(),
               caption: "test",
               name: "test",
+              sign: "test",
+              hash: "test",
             ),
           );
           await MessageRepo().editFileMessage(
@@ -1899,11 +1976,12 @@ void main() {
             file: model.File("test", "test"),
           );
           verify(
-            queryServiceClient.updateMessage(
-              UpdateMessageReq()
-                ..message = updatedMessage
-                ..messageId = Int64(),
-            ),
+            service
+              ..updateMessage(
+                UpdateMessageReq()
+                  ..message = updatedMessage
+                  ..messageId = Int64(),
+              ),
           );
         });
       });

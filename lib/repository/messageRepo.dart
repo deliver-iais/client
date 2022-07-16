@@ -104,6 +104,10 @@ class MessageRepo {
       BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
 
   MessageRepo() {
+    connectionStatusHandler();
+  }
+
+  Future<void> connectionStatusHandler() async {
     _coreServices.connectionStatus.listen((mode) async {
       switch (mode) {
         case ConnectionStatus.Connected:
@@ -276,11 +280,7 @@ class MessageRepo {
 
   Future<void> _updateLastSeen(Room room) async {
     if (room.lastMessage == null || room.lastMessage!.id == null) return;
-    final category = room.lastMessage!.to.asUid().category;
-    if (!_authRepo.isCurrentUser(room.lastMessage!.from) &&
-        (category == Categories.GROUP ||
-            category == Categories.USER ||
-            category == Categories.CHANNEL)) {
+    if (!_authRepo.isCurrentUser(room.lastMessage!.from)) {
       await fetchCurrentUserLastSeen(room);
     } else {
       unawaited(_roomDao.updateRoom(uid: room.uid, seenSynced: true));
@@ -724,14 +724,16 @@ class MessageRepo {
       await _updateRoomLastMessage(newPm);
       return newPm;
     } else {
-      final p = await _messageDao.getPendingMessage(
-        pm.packetId,
-      ); //check pending message  delete when  file  uploading
-      if (p != null) {
-        final newPm = pm.copyWith(status: SendingStatus.UPLIOD_FILE_FAIL);
-        return newPm;
-      }
-      return null;
+
+        final p = await _messageDao.getPendingMessage(
+          pm.packetId,
+        ); //check pending message  delete when  file  uploading
+        if (p != null) {
+          final newPm = pm.copyWith(status: SendingStatus.UPLIOD_FILE_FAIL);
+          return newPm;
+        }
+        return null;
+
     }
   }
 
@@ -1216,67 +1218,71 @@ class MessageRepo {
     String? caption,
     model.File? file,
   }) async {
-    file_pb.File? updatedFile;
-    if (file != null) {
-      final uploadKey = clock.now().millisecondsSinceEpoch.toString();
-      await _fileRepo.cloneFileInLocalDirectory(
-        dart_file.File(file.path),
-        uploadKey,
-        file.name,
+    try {
+      file_pb.File? updatedFile;
+      if (file != null) {
+        final uploadKey = clock.now().millisecondsSinceEpoch.toString();
+        await _fileRepo.cloneFileInLocalDirectory(
+          dart_file.File(file.path),
+          uploadKey,
+          file.name,
+        );
+
+        updatedFile = await _fileRepo.uploadClonedFile(uploadKey, file.name);
+        if (updatedFile != null && caption != null) {
+          updatedFile.caption = caption;
+        }
+      } else {
+        final preFile = editableMessage.json.toFile();
+        if (caption == preFile.caption) {
+          return;
+        }
+        updatedFile = file_pb.File.create()
+          ..caption = caption ?? ""
+          ..name = preFile.name
+          ..uuid = preFile.uuid
+          ..type = preFile.type
+          ..blurHash = preFile.blurHash
+          ..size = preFile.size
+          ..duration = preFile.duration
+          ..height = preFile.height
+          ..width = preFile.width
+          ..tempLink = preFile.tempLink
+          ..hash = preFile.hash
+          ..sign = preFile.sign;
+      }
+      final updatedMessage = message_pb.MessageByClient()
+        ..to = editableMessage.to.asUid()
+        ..file = updatedFile!;
+      await _sdr.queryServiceClient.updateMessage(
+        UpdateMessageReq()
+          ..message = updatedMessage
+          ..messageId = Int64(editableMessage.id ?? 0),
+      );
+      editableMessage
+        ..json = updatedFile.writeToJson()
+        ..edited = true;
+      await _messageDao.saveMessage(editableMessage);
+      await _mediaRepo.updateMedia(editableMessage);
+      messageEventSubject.add(
+        MessageEvent(
+          editableMessage.roomUid,
+          clock.now().millisecondsSinceEpoch,
+          editableMessage.id!,
+          MessageManipulationPersistentEvent_Action.EDITED,
+        ),
       );
 
-      updatedFile = await _fileRepo.uploadClonedFile(uploadKey, file.name);
-      if (updatedFile != null && caption != null) {
-        updatedFile.caption = caption;
-      }
-    } else {
-      final preFile = editableMessage.json.toFile();
-      if (caption == preFile.caption) {
-        return;
-      }
-      updatedFile = file_pb.File.create()
-        ..caption = caption ?? ""
-        ..name = preFile.name
-        ..uuid = preFile.uuid
-        ..type = preFile.type
-        ..blurHash = preFile.blurHash
-        ..size = preFile.size
-        ..duration = preFile.duration
-        ..height = preFile.height
-        ..width = preFile.width
-        ..tempLink = preFile.tempLink
-        ..hash = preFile.hash
-        ..sign = preFile.sign;
-    }
-    final updatedMessage = message_pb.MessageByClient()
-      ..to = editableMessage.to.asUid()
-      ..file = updatedFile!;
-    await _sdr.queryServiceClient.updateMessage(
-      UpdateMessageReq()
-        ..message = updatedMessage
-        ..messageId = Int64(editableMessage.id ?? 0),
-    );
-    editableMessage
-      ..json = updatedFile.writeToJson()
-      ..edited = true;
-    await _messageDao.saveMessage(editableMessage);
-    await _mediaRepo.updateMedia(editableMessage);
-    messageEventSubject.add(
-      MessageEvent(
-        editableMessage.roomUid,
-        clock.now().millisecondsSinceEpoch,
-        editableMessage.id!,
-        MessageManipulationPersistentEvent_Action.EDITED,
-      ),
-    );
+      final room = (await _roomDao.getRoom(editableMessage.roomUid))!;
 
-    final room = (await _roomDao.getRoom(editableMessage.roomUid))!;
-
-    if (editableMessage.id == room.lastMessage?.id) {
-      await _roomDao.updateRoom(
-        uid: roomUid.asString(),
-        lastMessage: editableMessage,
-      );
+      if (editableMessage.id == room.lastMessage?.id) {
+        await _roomDao.updateRoom(
+          uid: roomUid.asString(),
+          lastMessage: editableMessage,
+        );
+      }
+    } catch (e) {
+      _logger.e(e);
     }
   }
 }
