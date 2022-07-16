@@ -453,7 +453,7 @@ class _CupertinoTextSelectionControlsToolbarState
               ),
             ),
           )
-        : CupertinoTextSelectionToolbar(
+        : TextSelectionToolbar(
             anchorAbove: anchorAbove,
             anchorBelow: anchorBelow,
             children: items,
