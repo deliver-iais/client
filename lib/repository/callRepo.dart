@@ -134,27 +134,27 @@ class CallRepo {
 
   CallRepo() {
     _callService.watchCurrentCall().listen((call) {
-      if (call != null && !isDesktop) {
-        _logger.i("read call from DB");
-        if (call.expireTime > clock.now().millisecondsSinceEpoch &&
-            _callService.getUserCallState == UserCallState.NOCALL) {
-          _callService.callEvents.add(
-            CallEvents.callEvent(
-              call_pb.CallEvent()
-                ..newStatus =
-                    _callService.findCallEventStatusDB(call.callEvent.newStatus)
-                ..id = call.callEvent.id
-                ..callDuration = Int64(call.callEvent.callDuration)
-                ..endOfCallTime = Int64(call.callEvent.endOfCallTime)
-                ..callType = _callService
-                    .findProtoCallEventType(call.callEvent.callType),
-              roomUid: call.from.asUid(),
-              callId: call.callEvent.id,
-              time: call.expireTime - 60000,
-            ),
-          );
-        }
-      }
+      // if (call != null && !isDesktop) {
+      //   _logger.i("read call from DB");
+      //   if (call.expireTime > clock.now().millisecondsSinceEpoch &&
+      //       _callService.getUserCallState == UserCallState.NOCALL) {
+      //     _callService.callEvents.add(
+      //       CallEvents.callEvent(
+      //         call_pb.CallEvent()
+      //           ..newStatus =
+      //               _callService.findCallEventStatusDB(call.callEvent.newStatus)
+      //           ..id = call.callEvent.id
+      //           ..callDuration = Int64(call.callEvent.callDuration)
+      //           ..endOfCallTime = Int64(call.callEvent.endOfCallTime)
+      //           ..callType = _callService
+      //               .findProtoCallEventType(call.callEvent.callType),
+      //         roomUid: call.from.asUid(),
+      //         callId: call.callEvent.id,
+      //         time: call.expireTime - 60000,
+      //       ),
+      //     );
+      //   }
+      // }
     });
     _callService.callEvents.listen((event) {
       switch (event.callType) {

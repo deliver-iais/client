@@ -31,6 +31,7 @@ import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pro;
 import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:desktop_window/desktop_window.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -604,28 +605,29 @@ class AndroidNotifier implements Notifier {
   }
 
   Future<void> onCallAccepted(CallEvent callEvent) async {
-    await GetIt.I.get<CallService>().clearCallData();
+    FlutterForegroundTask.launchApp("/call-screen");
     Notifier.onCallAccept(callEvent.userInfo!["uid"]!);
-    final callEventInfo =
-        call_pro.CallEvent.fromJson(callEvent.userInfo!["callEventJson"]!);
-    //here status be JOINED means ACCEPT CALL and when app Start should go on accepting status
-    final currentCallEvent = call_event.CallEvent(
-      callDuration: callEventInfo.callDuration.toInt(),
-      endOfCallTime: callEventInfo.endOfCallTime.toInt(),
-      callType: _callService.findCallEventType(callEventInfo.callType),
-      newStatus:
-          _callService.findCallEventStatusProto(CallEvent_CallStatus.JOINED),
-      id: callEventInfo.id,
-    );
-
-    final callInfo = current_call_info.CurrentCallInfo(
-      callEvent: currentCallEvent,
-      from: callEvent.userInfo!["uid"]!,
-      to: _authRepo.currentUserUid.toString(),
-      expireTime: clock.now().millisecondsSinceEpoch + 60000,
-    );
-
-    await _callService.saveCallOnDb(callInfo);
+    //await GetIt.I.get<CallService>().clearCallData();
+    // final callEventInfo =
+    //     call_pro.CallEvent.fromJson(callEvent.userInfo!["callEventJson"]!);
+    // //here status be JOINED means ACCEPT CALL and when app Start should go on accepting status
+    // final currentCallEvent = call_event.CallEvent(
+    //   callDuration: callEventInfo.callDuration.toInt(),
+    //   endOfCallTime: callEventInfo.endOfCallTime.toInt(),
+    //   callType: _callService.findCallEventType(callEventInfo.callType),
+    //   newStatus:
+    //       _callService.findCallEventStatusProto(CallEvent_CallStatus.JOINED),
+    //   id: callEventInfo.id,
+    // );
+    //
+    // final callInfo = current_call_info.CurrentCallInfo(
+    //   callEvent: currentCallEvent,
+    //   from: callEvent.userInfo!["uid"]!,
+    //   to: _authRepo.currentUserUid.toString(),
+    //   expireTime: clock.now().millisecondsSinceEpoch + 60000,
+    // );
+    //
+    // await _callService.saveCallOnDb(callInfo);
   }
 
   @override
