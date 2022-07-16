@@ -108,7 +108,7 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
   bool isAnyThingSelected() {
     final start = textController.selection.start;
     final end = textController.selection.end;
-    if (start != end && textController.text.substring(start, end).isNotEmpty) {
+    if (start != end && textController.text.substring(start, end).trim().isNotEmpty) {
       return true;
     } else {
       return false;
