@@ -82,7 +82,7 @@ class HomePageState extends State<HomePage> {
 
     _addLifeCycleListener();
 
-   _contactRepo.sendNotSyncedContactInStartTime();
+    _contactRepo.sendNotSyncedContactInStartTime();
 
     super.initState();
   }
@@ -151,11 +151,9 @@ class HomePageState extends State<HomePage> {
         _routingService.maybePop();
         return false;
       },
-      child: WithForegroundTask(
-        child: Container(
-          color: theme.colorScheme.background,
-          child: _routingService.outlet(context),
-        ),
+      child: Container(
+        color: theme.colorScheme.background,
+        child: _routingService.outlet(context),
       ),
     );
   }

@@ -42,6 +42,7 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_foreground_task/ui/with_foreground_task.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -456,18 +457,20 @@ class Empty extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Scaffold(
-      body: Center(
-        child: Container(
-          decoration: BoxDecoration(
-            color: theme.colorScheme.onPrimary,
-            borderRadius: secondaryBorder,
-          ),
-          padding:
-              const EdgeInsets.only(left: 10, right: 10, top: 6, bottom: 4),
-          child: Text(
-            _i18n.get("please_select_a_chat_to_start_messaging"),
-            style: theme.primaryTextTheme.bodyMedium,
+    return WithForegroundTask(
+      child: Scaffold(
+        body: Center(
+          child: Container(
+            decoration: BoxDecoration(
+              color: theme.colorScheme.onPrimary,
+              borderRadius: secondaryBorder,
+            ),
+            padding:
+                const EdgeInsets.only(left: 10, right: 10, top: 6, bottom: 4),
+            child: Text(
+              _i18n.get("please_select_a_chat_to_start_messaging"),
+              style: theme.primaryTextTheme.bodyMedium,
+            ),
           ),
         ),
       ),
