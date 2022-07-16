@@ -92,12 +92,12 @@ class CallBottomRowState extends State<CallBottomRow> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
-                    FloatingActionButton(
+                    if (isAndroid) FloatingActionButton(
                       heroTag: 22,
                       backgroundColor: _switchCameraIcon,
                       child: const Icon(Icons.switch_camera_rounded),
                       onPressed: () => _switchCamera(theme),
-                    ),
+                    ) else const SizedBox.shrink(),
                     FloatingActionButton(
                       heroTag: 33,
                       backgroundColor: _offVideoCamIcon,

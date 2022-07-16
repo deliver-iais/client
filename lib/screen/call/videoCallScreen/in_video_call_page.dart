@@ -5,6 +5,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
+import 'package:rxdart/rxdart.dart';
 
 import '../call_bottom_icons.dart';
 
@@ -37,6 +38,12 @@ class InVideoCallPageState extends State<InVideoCallPage> {
     super.initState();
   }
 
+  // @override
+  // void dispose(){
+  //   super.dispose();
+  //   callRepo.disposeRenderer();
+  // }
+
   @override
   Widget build(BuildContext context) {
     final x = MediaQuery.of(context).size.width;
@@ -44,15 +51,19 @@ class InVideoCallPageState extends State<InVideoCallPage> {
     return Stack(
       children: <Widget>[
         StreamBuilder<bool>(
-          stream: callRepo.mute_camera,
+          stream: MergeStream([
+          callRepo.mute_camera,
+          callRepo.sharing,
+          ]),
           builder: (c, s) {
             if (s.hasData && s.data!) {
               return Stack(
                 children: [
                   RTCVideoView(
                     widget.remoteRenderer,
-                    objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                    mirror: true,
+                    objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitContain,
+                    mirror: callRepo.sharing.value ? false: true,
+                    filterQuality: FilterQuality.medium,
                   ),
                   Positioned(
                     left: position.dx,
@@ -107,8 +118,10 @@ class InVideoCallPageState extends State<InVideoCallPage> {
                                 mirror: true,
                               ),
                               onTap: () {
-                                callRepo.switching
-                                    .add(!callRepo.switching.value);
+                                if(isAndroid){
+                                  callRepo.switching
+                                      .add(!callRepo.switching.value);
+                                }
                               },
                             ),
                           ),

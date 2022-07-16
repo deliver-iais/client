@@ -103,6 +103,7 @@ class CallRepo {
   bool _isDCReceived = false;
   bool _reconnectTry = false;
   bool _isEnded = false;
+  bool _isEndedRecivied = false;
   bool _isOfferReady = false;
 
   bool get isCaller => _isCaller;
@@ -335,6 +336,10 @@ class CallRepo {
 
     _localStream = await _getUserMedia();
 
+    if(isVideo){
+      _localStream!.getVideoTracks()[0].enabled = false ;
+    }
+
     final pc = await createPeerConnection(iceServers, config);
 
     final camAudioTrack = _localStream!.getAudioTracks()[0];
@@ -354,7 +359,7 @@ class CallRepo {
         // we can do special work on every change in candidate Connection State
         switch (e) {
           case RTCIceConnectionState.RTCIceConnectionStateFailed:
-            if (!_reconnectTry) {
+            if (!_reconnectTry && !_isEnded && !_isEndedRecivied) {
               _reconnectTry = true;
               callingStatus.add(CallStatus.RECONNECTING);
               _audioService.stopBeepSound();
@@ -381,7 +386,7 @@ class CallRepo {
             break;
           case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
             Timer(const Duration(seconds: 1), () {
-              if (!_reconnectTry && !_isEnded) {
+              if (!_reconnectTry && !_isEnded && !_isEndedRecivied) {
                 callingStatus.add(CallStatus.DISCONNECTED);
                 _audioService.stopBeepSound();
               }
@@ -431,7 +436,7 @@ class CallRepo {
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateDisconnected:
             Timer(const Duration(seconds: 1), () {
-              if (!_reconnectTry && !_isEnded) {
+              if (!_reconnectTry && !_isEnded && !_isEndedRecivied) {
                 callingStatus.add(CallStatus.DISCONNECTED);
                 _audioService.stopBeepSound();
               }
@@ -439,7 +444,7 @@ class CallRepo {
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
             //Try reconnect
-            if (!_reconnectTry) {
+            if (!_reconnectTry && !_isEnded && !_isEndedRecivied) {
               _reconnectTry = true;
               callingStatus.add(CallStatus.RECONNECTING);
               _audioService.stopBeepSound();
@@ -555,7 +560,7 @@ class CallRepo {
               break;
             case STATUS_CONNECTION_ENDED:
               //received end from Callee
-              receivedEndCall(0);
+                receivedEndCall(0);
               break;
           }
         };
@@ -651,6 +656,10 @@ class CallRepo {
           callingStatus.add(CallStatus.CONNECTING);
           _audioService.stopBeepSound();
           break;
+        case STATUS_CONNECTION_ENDED:
+          // this case use for prevent from disconnected state
+          _isEndedRecivied = true;
+          break;
       }
     };
     return dataChannel;
@@ -730,12 +739,14 @@ class CallRepo {
       await _videoSender!.replaceTrack(screenVideoTrack);
       onLocalStream?.call(_localStreamShare!);
       _isSharing = true;
+      sharing.add(true);
       return _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_SCREEN));
     } else {
       final camVideoTrack = _localStream!.getVideoTracks()[0];
       await _videoSender!.replaceTrack(camVideoTrack);
       onLocalStream?.call(_localStream!);
       _isSharing = false;
+      sharing.add(false);
       return _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_VIDEO));
     }
   }
@@ -1075,6 +1086,9 @@ class CallRepo {
       }
       if (_callService.getUserCallState != CallStatus.NO_CALL) {
         if (_isCaller) {
+          if (_isDCReceived) {
+            _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
+          }
           receivedEndCall(0);
         } else {
           if (_isDCReceived) {
@@ -1269,10 +1283,12 @@ class CallRepo {
       }
       _candidate = [];
       callingStatus.add(CallStatus.ENDED);
-      Timer(const Duration(milliseconds: 1500), () async {
-        _roomUid = null;
-        callingStatus.add(CallStatus.NO_CALL);
-      });
+      // Timer(const Duration(milliseconds: 1500), () async {
+      //   _roomUid = null;
+      //   callingStatus.add(CallStatus.NO_CALL);
+      //   _isEnded = false;
+      //   _isEndedRecivied = false;
+      // });
       _audioService.stopBeepSound();
       // Timer(const Duration(seconds: 2), () async {
       //  callingStatus.add(CallStatus.NO_CALL);
@@ -1292,16 +1308,21 @@ class CallRepo {
       _startCallTime = 0;
       _callDuration = 0;
       callTimer.add(CallTimer(0, 0, 0));
-      Timer(const Duration(seconds: 2), () async {
-        if (_isInitRenderer) {
-          await disposeRenderer();
-        }
-      });
+      // Timer(const Duration(seconds: 2), () async {
+      //   if (_isInitRenderer) {
+      //     await disposeRenderer();
+      //   }
+      // });
     } catch (e) {
       _logger.e(e);
     } finally {
       await _callService.clearCallData(forceToClearData: true);
-      _isEnded = false;
+      Timer(const Duration(milliseconds: 1500), () async {
+        _roomUid = null;
+        callingStatus.add(CallStatus.NO_CALL);
+        _isEnded = false;
+        _isEndedRecivied = false;
+      });
     }
   }
 
@@ -1377,6 +1398,7 @@ class CallRepo {
   BehaviorSubject<CallStatus> callingStatus =
       BehaviorSubject.seeded(CallStatus.NO_CALL);
   BehaviorSubject<bool> switching = BehaviorSubject.seeded(false);
+  BehaviorSubject<bool> sharing = BehaviorSubject.seeded(false);
 
   Future<void> fetchUserCallList(
     Uid roomUid,
