@@ -1094,9 +1094,9 @@ packages:
     dependency: "direct main"
     description:
       path: just_audio_windows
-      ref: "2a032ce712646fcc8a68c8490afe008ea907890b"
-      resolved-ref: "2a032ce712646fcc8a68c8490afe008ea907890b"
-      url: "https://github.com/deliveriais/just_audio_windows"
+      ref: "413f05fd2b9e063f4b7fa2903031a174ce3b6b0b"
+      resolved-ref: "413f05fd2b9e063f4b7fa2903031a174ce3b6b0b"
+      url: "https://github.com/bdlukaa/just_audio"
     source: git
     version: "0.1.0"
   jwt_decoder:
