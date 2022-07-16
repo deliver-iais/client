@@ -243,7 +243,7 @@ void main() {
             isOnlineMessage: true,
           );
           verify(
-            queryServiceClient.queryServiceClient.fetchMessages(
+            queryServiceClient.fetchMessages(
               FetchMessagesReq()
                 ..roomUid = testUid
                 ..limit = 1
@@ -267,7 +267,7 @@ void main() {
             isOnlineMessage: true,
           );
           verify(
-            queryServiceClient.queryServiceClient.fetchMessages(
+            queryServiceClient.fetchMessages(
               FetchMessagesReq()
                 ..roomUid = testUid
                 ..limit = 1
@@ -1263,7 +1263,7 @@ void main() {
             0,
           );
           verify(
-            queryServicesClient.queryServiceClient.fetchMessages(
+            queryServicesClient.fetchMessages(
               FetchMessagesReq()
                 ..roomUid = testUid
                 ..pointer = Int64(1)

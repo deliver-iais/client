@@ -98,8 +98,7 @@ void main() {
       });
 
       test('When called should get All UserRoomMeta', () async {
-        var s = getAndRegisterServicesDiscoveryRepo();
-        s.queryServiceClient = getMockQueryServicesClient();
+        getAndRegisterServicesDiscoveryRepo();
         await MessageRepo().updatingMessages();
         verify(
           getMockQueryServicesClient().getAllUserRoomMeta(
