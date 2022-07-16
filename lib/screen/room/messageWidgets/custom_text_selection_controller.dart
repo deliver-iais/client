@@ -79,15 +79,8 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
       selectionMidpoint: selectionMidpoint,
       textLineHeight: textLineHeight,
       isAnyThingSelected: isAnyThingSelected,
+      handleCreateLink: () => handleCreateLink(delegate),
     );
-  }
-
-  bool isAnyThingSelected() {
-    if (textController.selection.start != textController.selection.end) {
-      return true;
-    } else {
-      return false;
-    }
   }
 
   void moveCursor(TextSelectionDelegate delegate, int offset) {
@@ -111,6 +104,87 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
       );
     }
   }
+
+  bool isAnyThingSelected() {
+    final start = textController.selection.start;
+    final end = textController.selection.end;
+    if (start != end && textController.text.substring(start, end).isNotEmpty) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
+  void handleCreateLink(
+    TextSelectionDelegate delegate,
+  ) {
+    final textController = TextEditingController();
+    final linkController = TextEditingController();
+    showDialog(
+      context: buildContext,
+      builder: (context) {
+        return AlertDialog(
+          actionsPadding: const EdgeInsets.only(bottom: 8, right: 8),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                "Create Link",
+                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
+              ),
+              const SizedBox(height: 10),
+              createLinkTextField(textController, "Text"),
+              const SizedBox(height: 10),
+              createLinkTextField(linkController, "Link"),
+            ],
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                //todo edit text controller
+                //  final link =
+                createLink(textController.text, linkController.text);
+                // textController.
+                Navigator.pop(context);
+              },
+              child: const Text(
+                "create",
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text(
+                "cancel",
+              ),
+            )
+          ],
+        );
+      },
+    );
+  }
+
+  TextField createLinkTextField(
+    TextEditingController controller,
+    String label,
+  ) {
+    return TextField(
+      controller: controller,
+      decoration: InputDecoration(
+        labelText: label,
+        contentPadding: const EdgeInsets.only(),
+        border: InputBorder.none,
+        enabledBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.grey),
+        ),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: Theme.of(buildContext).primaryColor),
+        ),
+      ),
+    );
+  }
 }
 
 const double _kArrowScreenPadding = 26.0;
@@ -133,6 +207,7 @@ class _CupertinoTextSelectionControlsToolbar extends StatefulWidget {
     required this.handleSpoiler,
     required this.handleUnderline,
     required this.isAnyThingSelected,
+    required this.handleCreateLink,
   });
 
   final ClipboardStatusNotifier? clipboardStatus;
@@ -147,6 +222,7 @@ class _CupertinoTextSelectionControlsToolbar extends StatefulWidget {
   final VoidCallback handleStrikethrough;
   final VoidCallback handleSpoiler;
   final VoidCallback handleUnderline;
+  final VoidCallback handleCreateLink;
   final Offset selectionMidpoint;
   final double textLineHeight;
   final bool Function() isAnyThingSelected;
@@ -299,6 +375,13 @@ class _CupertinoTextSelectionControlsToolbarState
         Icons.paste_outlined,
       );
     }
+    if (widget.handleSelectAll != null) {
+      addToolbarButton(
+        localizations.selectAllButtonLabel,
+        widget.handleSelectAll!,
+        Icons.select_all_rounded,
+      );
+    }
     if (isDesktop) {
       items.add(const Divider());
     }
@@ -338,13 +421,14 @@ class _CupertinoTextSelectionControlsToolbarState
         textColor: color,
       );
     }
-    if (widget.handleSelectAll != null) {
-      addToolbarButton(
-        localizations.selectAllButtonLabel,
-        widget.handleSelectAll!,
-        Icons.select_all_rounded,
-      );
+    if (isDesktop) {
+      items.add(const Divider());
     }
+    addToolbarButton(
+      "Create Link",
+      widget.handleCreateLink,
+      Icons.link_rounded,
+    );
 
     // If there is no option available, build an empty widget.
     if (items.isEmpty) {
