@@ -132,19 +132,22 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
       builder: (context) {
         return AlertDialog(
           actionsPadding: const EdgeInsets.only(bottom: 8, right: 8),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                "Create Link",
-                style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
-              ),
-              const SizedBox(height: 10),
-              createLinkTextField(linkTextController, "Text"),
-              const SizedBox(height: 10),
-              createLinkTextField(linkController, "Link"),
-            ],
+          content: SizedBox(
+            width: 200,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Create Link",
+                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
+                ),
+                const SizedBox(height: 10),
+                createLinkTextField(linkTextController, "Text"),
+                const SizedBox(height: 10),
+                createLinkTextField(linkController, "Link"),
+              ],
+            ),
           ),
           actions: <Widget>[
             TextButton(
