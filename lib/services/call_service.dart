@@ -84,9 +84,15 @@ class CallService {
 
   String _callId = "";
 
+  Uid _roomUid = Uid.getDefault();
+
   UserCallState get getUserCallState => _callState;
 
   set setUserCallState(UserCallState cs) => _callState = cs;
+
+  Uid get getRoomUid => _roomUid;
+
+  set setRoomUid(Uid ru) => _roomUid = ru;
 
   Uid get getCallOwner => _callOwner;
 

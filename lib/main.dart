@@ -56,6 +56,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/repository/stickerRepo.dart';
+import 'package:deliver/screen/call/call_screen.dart';
 import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
@@ -312,6 +313,7 @@ class MyApp extends StatelessWidget {
   final _routingService = GetIt.I.get<RoutingService>();
   final _i18n = GetIt.I.get<I18N>();
   final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
+  final _callService = GetIt.I.get<CallService>();
 
   MyApp({super.key});
 
@@ -377,6 +379,10 @@ class MyApp extends StatelessWidget {
                   textDirection: TextDirection.ltr,
                   child: c!,
                 ),
+                initialRoute: '/',
+                routes: {
+                  '/call-screen': (context) => CallScreen(roomUid: _callService.getRoomUid, isCallAccepted: true),
+                },
               ),
             ),
           ),

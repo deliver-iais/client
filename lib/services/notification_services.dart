@@ -607,6 +607,7 @@ class AndroidNotifier implements Notifier {
   Future<void> onCallAccepted(CallEvent callEvent) async {
     FlutterForegroundTask.launchApp("/call-screen");
     Notifier.onCallAccept(callEvent.userInfo!["uid"]!);
+    _callService.setRoomUid = callEvent.userInfo!["uid"]!.asUid();
     //await GetIt.I.get<CallService>().clearCallData();
     // final callEventInfo =
     //     call_pro.CallEvent.fromJson(callEvent.userInfo!["callEventJson"]!);
