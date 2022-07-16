@@ -108,7 +108,8 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
   bool isAnyThingSelected() {
     final start = textController.selection.start;
     final end = textController.selection.end;
-    if (start != end && textController.text.substring(start, end).trim().isNotEmpty) {
+    if (start != end &&
+        textController.text.substring(start, end).trim().isNotEmpty) {
       return true;
     } else {
       return false;
@@ -118,8 +119,14 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
   void handleCreateLink(
     TextSelectionDelegate delegate,
   ) {
-    final textController = TextEditingController();
+    final linkTextController = TextEditingController();
     final linkController = TextEditingController();
+    final end = textController.selection.end;
+    final start = textController.selection.start;
+
+    if (isAnyThingSelected()) {
+      linkTextController.text = textController.text.substring(start, end);
+    }
     showDialog(
       context: buildContext,
       builder: (context) {
@@ -134,7 +141,7 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
                 style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
               ),
               const SizedBox(height: 10),
-              createLinkTextField(textController, "Text"),
+              createLinkTextField(linkTextController, "Text"),
               const SizedBox(height: 10),
               createLinkTextField(linkController, "Link"),
             ],
@@ -142,24 +149,32 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
           actions: <Widget>[
             TextButton(
               onPressed: () {
-                //todo edit text controller
-                //  final link =
-                createLink(textController.text, linkController.text);
-                // textController.
+                Navigator.pop(context);
+              },
+              child: const Text(
+                "cancel",
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                final link =
+                    createLink(linkTextController.text, linkController.text);
+
+                textController.text = textController.text.substring(
+                      0,
+                      start,
+                    ) +
+                    link +
+                    textController.text.substring(
+                      isAnyThingSelected() ? end : start,
+                    );
+
                 Navigator.pop(context);
               },
               child: const Text(
                 "create",
               ),
             ),
-            TextButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              child: const Text(
-                "cancel",
-              ),
-            )
           ],
         );
       },

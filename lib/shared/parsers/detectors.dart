@@ -186,7 +186,7 @@ String createFormattedText(
 }
 
 String createLink(String text, String link) {
-  return "[$text}]($link)";
+  return "[$text]($link)";
 }
 
 Detector simpleStyleDetectorTwoCharacter(
