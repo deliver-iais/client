@@ -457,8 +457,7 @@ class Empty extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return WithForegroundTask(
-      child: Scaffold(
+    return Scaffold(
         body: Center(
           child: Container(
             decoration: BoxDecoration(
@@ -473,7 +472,6 @@ class Empty extends StatelessWidget {
             ),
           ),
         ),
-      ),
     );
   }
 }

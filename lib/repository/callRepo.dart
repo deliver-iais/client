@@ -745,9 +745,10 @@ class CallRepo {
         channelName: 'Foreground Notification',
         channelDescription:
             'This notification appears when the foreground service is running.',
-        channelImportance: NotificationChannelImportance.LOW,
-        priority: NotificationPriority.LOW,
+        channelImportance: NotificationChannelImportance.HIGH,
+        priority: NotificationPriority.HIGH,
         isSticky: false,
+        playSound: true,
         iconData: const NotificationIconData(
           resType: ResourceType.mipmap,
           resPrefix: ResourcePrefix.ic,
@@ -906,7 +907,8 @@ class CallRepo {
       });
       _callIdGenerator();
       _sendStartCallEvent();
-      await _foregroundTaskInitializing();
+      _callService.isUserOnCall.add(true);
+      //await _foregroundTaskInitializing();
     } else {
       _logger.i("User on Call ... !");
     }
@@ -954,7 +956,8 @@ class CallRepo {
       }
     });
     unawaited(_sendOffer());
-    await _foregroundTaskInitializing();
+    _callService.isUserOnCall.add(true);
+    //await _foregroundTaskInitializing();
   }
 
   Future<void> declineCall() async {

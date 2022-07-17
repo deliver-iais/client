@@ -30,6 +30,9 @@ class CallService {
   final _featureFlags = GetIt.I.get<FeatureFlags>();
   final _logger = GetIt.I.get<Logger>();
 
+  final BehaviorSubject<bool> isUserOnCall =
+      BehaviorSubject.seeded(false);
+
   final BehaviorSubject<CallEvents> callEvents =
       BehaviorSubject.seeded(CallEvents.none);
 
