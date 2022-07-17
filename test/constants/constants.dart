@@ -31,15 +31,6 @@ Message testMessage = Message(
   isHidden: false,
 );
 
-Message testMessageToTest = Message(
-  to: testUid.asString(),
-  from: testUid.asString(),
-  packetId: testUid.asString(),
-  roomUid: testUid.asString(),
-  time: 0,
-  json: '',
-  isHidden: false,
-);
 PendingMessage testPendingMessage = PendingMessage(
   roomUid: testUid.asString(),
   packetId: "946672200000000",

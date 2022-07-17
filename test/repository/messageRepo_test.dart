@@ -734,8 +734,8 @@ void main() {
           () async {
             final fileRepo = getAndRegisterFileRepo();
             // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
-            var m =  await getAndRegisterMessageRepo();
-            await m.sendMultipleFilesMessages(
+            final messageRepo = await getAndRegisterMessageRepo();
+            await messageRepo.sendMultipleFilesMessages(
               testUid,
               [model.File("test", "test")],
               caption: "test",
@@ -1957,7 +1957,7 @@ void main() {
       });
       test('When called should updateMessage', () async {
         withClock(Clock.fixed(DateTime(2000)), () async {
-          final service = getAndRegisterServicesDiscoveryRepo()
+          final queryServiceClient = getAndRegisterServicesDiscoveryRepo()
               .queryServiceClient = getMockQueryServicesClient(
             updatedMessageFile: updatedMessage,
           );
@@ -1976,7 +1976,7 @@ void main() {
             file: model.File("test", "test"),
           );
           verify(
-            service
+            queryServiceClient
               ..updateMessage(
                 UpdateMessageReq()
                   ..message = updatedMessage

@@ -182,6 +182,7 @@ MockI18N getAndRegisterI18N() {
   final service = MockI18N();
   GetIt.I.registerSingleton<I18N>(service);
   when(service.get("you")).thenReturn("you");
+  when(service.get("saved_message")).thenReturn("Saved Message");
   return service;
 }
 
@@ -214,6 +215,7 @@ MockUidIdNameDao getAndRegisterUidIdNameDao({
     (realInvocation) =>
         Future.value(getUidByIdHasData ? testUid.asString() : null),
   );
+
   return service;
 }
 
@@ -274,9 +276,11 @@ MockBotRepo getAndRegisterBotRepo({BotInfo? botInfo}) {
       .thenAnswer((realInvocation) => Future.value(botInfo));
   return service;
 }
-void getAndRegisterMessageExtractorServices(){
+
+void getAndRegisterMessageExtractorServices() {
   _removeRegistrationIfExists<MessageExtractorServices>();
-  GetIt.I.registerSingleton<MessageExtractorServices>(MessageExtractorServices());
+  GetIt.I
+      .registerSingleton<MessageExtractorServices>(MessageExtractorServices());
 }
 
 MockCustomNotificationDao getAndRegisterCustomNotificationDao() {
@@ -505,7 +509,7 @@ MockSeenDao getAndRegisterSeenDao({int messageId = 0}) {
     ),
   );
   when(service.getMySeen(testUid.asString())).thenAnswer(
-        (realInvocation) => Future.value(
+    (realInvocation) => Future.value(
       seen_box.Seen(
         uid: testUid.asString(),
         messageId: messageId,
@@ -572,9 +576,9 @@ MockQueryServiceClient getMockQueryServicesClient({
       GetAllUserRoomMetaRes(roomsMeta: roomsMeta, finished: finished),
     ),
   );
-  when(queryServiceClient
-          .getUserRoomMeta(GetUserRoomMetaReq()..roomUid = testUid),)
-      .thenAnswer(
+  when(
+    queryServiceClient.getUserRoomMeta(GetUserRoomMetaReq()..roomUid = testUid),
+  ).thenAnswer(
     (realInvocation) => MockResponseFuture<GetUserRoomMetaRes>(
       GetUserRoomMetaRes(roomMeta: roomMetadata),
     ),

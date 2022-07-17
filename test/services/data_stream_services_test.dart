@@ -1,6 +1,7 @@
 import 'package:clock/clock.dart';
 import 'package:deliver/box/last_activity.dart';
 import 'package:deliver/box/member.dart';
+import 'package:deliver/box/message.dart' as model_message;
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart' as model_seen;
@@ -149,7 +150,7 @@ void main() {
             ),
           ),
         );
-        final value = await DataStreamServices().handleIncomingMessage(
+        await DataStreamServices().handleIncomingMessage(
           message,
           isOnlineMessage: true,
         );
@@ -213,6 +214,18 @@ void main() {
                 MessageManipulationPersistentEvent(
               action: MessageManipulationPersistentEvent_Action.EDITED,
               messageId: Int64(),
+            ),
+          ),
+        );
+
+        final editLastMessage = Message(
+          from: testUid,
+          to: testUid,
+          persistEvent: PersistentEvent(
+            messageManipulationPersistentEvent:
+                MessageManipulationPersistentEvent(
+              action: MessageManipulationPersistentEvent_Action.EDITED,
+              messageId: Int64(1),
             ),
           ),
         );
@@ -314,19 +327,21 @@ void main() {
           getAndRegisterServicesDiscoveryRepo().queryServiceClient =
               getMockQueryServicesClient(
             fetchMessagesType: FetchMessagesReq_Type.FORWARD_FETCH,
-            fetchMessagesHasOptions: false,
             fetchMessagesLimit: 1,
+            fetchMessagesHasOptions: false,
+            fetchMessagesPointer: 1,
+            fetchMessagesId: 1,
           );
-          getAndRegisterMessageDao(message: testMessage);
+          getAndRegisterMessageDao(message: testMessage, getMessageId: 1);
 
           await DataStreamServices().handleIncomingMessage(
-            message,
+            editLastMessage,
             isOnlineMessage: true,
           );
           verify(
             roomDao.updateRoom(
               uid: testUid.asString(),
-              lastUpdateTime: 0,
+              lastMessage: testMessage,
             ),
           );
         });
@@ -440,7 +455,7 @@ void main() {
         test(
             'When called should get the room and if room!.lastMessage != null && room.lastMessage!.id != id should update the room with new lastUpdateTime and add MessageEvent to the messageEventSubject',
             () async {
-          final roomDao = getAndRegisterRoomDao(
+          getAndRegisterRoomDao(
             rooms: [
               testRoom.copyWith(
                 lastMessage: testMessage.copyWith(id: 1),
@@ -454,9 +469,6 @@ void main() {
           await DataStreamServices().handleIncomingMessage(
             message,
             isOnlineMessage: true,
-          );
-          verify(
-            roomDao.updateRoom(uid: testUid.asString(), lastUpdateTime: 0),
           );
           expect(
             messageEventSubject.value,
@@ -491,7 +503,6 @@ void main() {
           verify(
             roomDao.updateRoom(
               uid: testUid.asString(),
-              lastUpdateTime: 0,
               lastMessage: testMessage.copyWith(id: 2),
             ),
           );
@@ -855,13 +866,23 @@ void main() {
         );
       });
       test(
+          'When called if messageDeliveryAck.id larger than , should update seen',
+          () async {
+        getAndRegisterMessageDao(pendingMessage: testPendingMessage);
+        final roomRepo = getAndRegisterRoomRepo();
+        await DataStreamServices().handleAckMessage(
+          messageDeliveryAck..id = Int64(2),
+        );
+        verify(roomRepo.updateMySeen(uid: testUid.asString(), messageId: 2));
+      });
+      test(
           'When called if messageDeliveryAck.id is not 0 should getPendingMessage and if pm is not null should updateRoom with new last message and last message id and notifyOutgoingMessage',
           () async {
         getAndRegisterMessageDao(pendingMessage: testPendingMessage);
         final roomDao = getAndRegisterRoomDao();
         final notificationServices = getAndRegisterNotificationServices();
         await DataStreamServices().handleAckMessage(
-          messageDeliveryAck,
+          messageDeliveryAck..id = Int64(1),
         );
         verify(
           roomDao.updateRoom(
@@ -1236,8 +1257,8 @@ void main() {
           roomDao.updateRoom(
             uid: testUid.asString(),
             firstMessageId: 0,
-            lastUpdateTime: 0,
             lastMessageId: 1,
+            synced: true,
             lastMessage: testMessage.copyWith(
               id: 1,
             ),
@@ -1254,9 +1275,11 @@ void main() {
         test(
             'When called should getMessage from messageDao and if msg be null should get justNotHiddenMessages from server',
             () async {
-          final queryServicesClient = getMockQueryServicesClient(
+          final queryServicesClient = getAndRegisterServicesDiscoveryRepo()
+              .queryServiceClient = getMockQueryServicesClient(
             fetchMessagesLimit: 1,
             fetchMessagesPointer: 1,
+            fetchMessagesHasOptions: false,
             justNotHiddenMessages: true,
           );
           getAndRegisterMessageDao(
@@ -1275,7 +1298,8 @@ void main() {
                 ..justNotHiddenMessages = true
                 ..type = FetchMessagesReq_Type.BACKWARD_FETCH
                 ..limit = 1,
-              options: CallOptions(timeout: const Duration(seconds: 3)),
+              // options: CallOptions(timeout: const Duration(seconds: 3)
+              //  ),
             ),
           );
         });
@@ -1309,10 +1333,12 @@ void main() {
           getAndRegisterMessageDao(
             getMessageId: 1,
           );
-          getMockQueryServicesClient(
+          getAndRegisterServicesDiscoveryRepo().queryServiceClient =
+              getMockQueryServicesClient(
             fetchMessagesLimit: 1,
             fetchMessagesPointer: 1,
             fetchMessagesId: 1,
+            fetchMessagesHasOptions: false,
             justNotHiddenMessages: true,
           );
           final value = await DataStreamServices().fetchLastNotHiddenMessage(
@@ -1330,10 +1356,12 @@ void main() {
           getAndRegisterMessageDao(
             getMessageId: 1,
           );
-          getMockQueryServicesClient(
+          getAndRegisterServicesDiscoveryRepo().queryServiceClient =
+              getMockQueryServicesClient(
             fetchMessagesLimit: 1,
             fetchMessagesPointer: 1,
             justNotHiddenMessages: true,
+            fetchMessagesHasOptions: false,
             fetchMessagesText: 'test',
           );
           final value = await DataStreamServices().fetchLastNotHiddenMessage(
@@ -1352,8 +1380,8 @@ void main() {
             roomDao.updateRoom(
               uid: testUid.asString(),
               firstMessageId: 0,
-              lastUpdateTime: 0,
               lastMessageId: 1,
+              synced: true,
               lastMessage: returnedMessage,
             ),
           );
@@ -1418,8 +1446,21 @@ void main() {
           [message],
         );
         expect(
-          value
-          ,[message]
+          value,
+          [
+            model_message.Message(
+              roomUid: testUid.asString(),
+              packetId: "",
+              forwardedFrom: "0:",
+              id: 0,
+              type: MessageType.PERSISTENT_EVENT,
+              time: 0,
+              from: testUid.asString(),
+              to: testUid.asString(),
+              json: "{\"1\":{\"2\":8}}",
+              isHidden: false,
+            )
+          ],
         );
       });
     });
