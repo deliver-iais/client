@@ -1,11 +1,9 @@
 import 'dart:async';
-import 'dart:isolate';
+
 import 'dart:ui';
 import 'package:deliver/repository/accountRepo.dart';
-import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
-import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';

@@ -313,7 +313,6 @@ class MyApp extends StatelessWidget {
   final _routingService = GetIt.I.get<RoutingService>();
   final _i18n = GetIt.I.get<I18N>();
   final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
-  final _callService = GetIt.I.get<CallService>();
 
   MyApp({super.key});
 
@@ -379,10 +378,6 @@ class MyApp extends StatelessWidget {
                   textDirection: TextDirection.ltr,
                   child: c!,
                 ),
-                initialRoute: '/',
-                routes: {
-                  //'/call-screen': (context) => CallScreen(roomUid: _callService.getRoomUid, isCallAccepted: true),
-                },
               ),
             ),
           ),

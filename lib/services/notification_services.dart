@@ -2,11 +2,8 @@ import 'dart:async';
 
 import 'package:clock/clock.dart';
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
-import 'package:deliver/box/call_event.dart' as call_event;
-import 'package:deliver/box/current_call_info.dart' as current_call_info;
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/main.dart';
-import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
@@ -27,8 +24,6 @@ import 'package:deliver/shared/parsers/parsers.dart';
 import 'package:deliver/shared/parsers/transformers.dart';
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
-import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pro;
-import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:desktop_window/desktop_window.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
@@ -39,7 +34,8 @@ import 'package:tuple/tuple.dart';
 import 'package:win_toast/win_toast.dart';
 
 abstract class Notifier {
-  static void onCallAccept(String roomUid) {
+  static Future<void> onCallAccept(String roomUid) async {
+    await FlutterForegroundTask.saveData(key: "callStatus", value: "Accepted");
     GetIt.I
         .get<RoutingService>()
         .openCallScreen(roomUid.asUid(), isCallAccepted: true);
@@ -527,7 +523,6 @@ class AndroidNotifier implements Notifier {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _i18n = GetIt.I.get<I18N>();
   final _callService = GetIt.I.get<CallService>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
 
   AndroidNotificationChannel channel = const AndroidNotificationChannel(
     'notifications', // id

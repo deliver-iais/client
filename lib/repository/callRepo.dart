@@ -103,9 +103,10 @@ class CallRepo {
   bool _isSpeaker = false;
   bool _isMicMuted = false;
   bool _isInitRenderer = false;
-  bool _isDCRecived = false;
+  bool _isDCReceived = false;
   bool _reconnectTry = false;
   bool _isEnded = false;
+  bool _isEndedRecivied = false;
   bool _isOfferReady = false;
 
   bool get isCaller => _isCaller;
@@ -130,13 +131,13 @@ class CallRepo {
   Timer? timerDisconnected;
   Timer? timerEndCallDispose;
   BehaviorSubject<CallTimer> callTimer =
-      BehaviorSubject.seeded(CallTimer(0, 0, 0));
+  BehaviorSubject.seeded(CallTimer(0, 0, 0));
   Timer? timer;
 
   ReceivePort? _receivePort;
 
   CallRepo() {
-    _callService.watchCurrentCall().listen((call) {
+    // _callService.watchCurrentCall().listen((call) {
       // if (call != null && !isDesktop) {
       //   _logger.i("read call from DB");
       //   if (call.expireTime > clock.now().millisecondsSinceEpoch &&
@@ -158,8 +159,8 @@ class CallRepo {
       //     );
       //   }
       // }
-    });
-    _callService.callEvents.listen((event) {
+    // });
+    _callService.callEvents.listen((event) async {
       switch (event.callType) {
         case CallTypes.Answer:
           timerResendOffer!.cancel();
@@ -181,31 +182,8 @@ class CallRepo {
               break;
             case CallEvent_CallStatus.CREATED:
               if (_callService.getUserCallState == UserCallState.NOCALL) {
-                _callService.setUserCallState = UserCallState.INUSERCALL;
-                if (!isWindows) {
-                  //get call Info and Save on DB
-                  final currentCallEvent = call_event.CallEvent(
-                    callDuration: callEvent.callDuration.toInt(),
-                    endOfCallTime: callEvent.endOfCallTime.toInt(),
-                    callType: _callService.findCallEventType(
-                      callEvent.callType,
-                    ),
-                    newStatus: _callService
-                        .findCallEventStatusProto(callEvent.newStatus),
-                    id: callEvent.id,
-                  );
-                  final callInfo = current_call_info.CurrentCallInfo(
-                    callEvent: currentCallEvent,
-                    from: event.roomUid!.asString(),
-                    to: _authRepo.currentUserUid.asString(),
-                    expireTime: event.time + 60000,
-                  );
-
-                  _callService.saveCallOnDb(callInfo);
-                  _logger.i("save call on db!");
-                }
-
-                _callService
+                final callStatus = await FlutterForegroundTask.getData(key: "callStatus");
+                _callService..setUserCallState = UserCallState.INUSERCALL
                   ..setCallOwner = callEvent.memberOrCallOwnerPvp
                   ..setCallId = callEvent.id;
 
@@ -215,11 +193,38 @@ class CallRepo {
                 } else {
                   _isVideo = false;
                 }
-                _incomingCall(
-                  event.roomUid!,
-                  false,
-                  _callService.writeCallEventsToJson(event),
-                );
+                if(callStatus != null && callStatus == "Accepted"){
+                  modifyRoutingByNotificationAcceptCallInBackgroundInAndroid
+                      .add(event.roomUid!.asString());
+                }else{
+                  _incomingCall(
+                    event.roomUid!,
+                    false,
+                    _callService.writeCallEventsToJson(event),
+                  );
+                }
+                // if (!isWindows) {
+                //   //get call Info and Save on DB
+                //   final currentCallEvent = call_event.CallEvent(
+                //     callDuration: callEvent.callDuration.toInt(),
+                //     endOfCallTime: callEvent.endOfCallTime.toInt(),
+                //     callType: _callService.findCallEventType(
+                //       callEvent.callType,
+                //     ),
+                //     newStatus: _callService
+                //         .findCallEventStatusProto(callEvent.newStatus),
+                //     id: callEvent.id,
+                //   );
+                //   final callInfo = current_call_info.CurrentCallInfo(
+                //     callEvent: currentCallEvent,
+                //     from: event.roomUid!.asString(),
+                //     to: _authRepo.currentUserUid.asString(),
+                //     expireTime: event.time + 60000,
+                //   );
+                //
+                //   _callService.saveCallOnDb(callInfo);
+                //   _logger.i("save call on db!");
+                // }
               } else if (event.roomUid == _roomUid) {
                 _incomingCall(
                   event.roomUid!,
@@ -227,7 +232,9 @@ class CallRepo {
                   _callService.writeCallEventsToJson(event),
                 );
               } else if (callEvent.id != _callService.getCallId) {
-                final endOfCallDuration = clock.now().millisecondsSinceEpoch;
+                final endOfCallDuration = clock
+                    .now()
+                    .millisecondsSinceEpoch;
                 _messageRepo.sendCallMessage(
                   CallEvent_CallStatus.BUSY,
                   event.roomUid!,
@@ -355,7 +362,7 @@ class CallRepo {
         // we can do special work on every change in candidate Connection State
         switch (e) {
           case RTCIceConnectionState.RTCIceConnectionStateFailed:
-            if (!_reconnectTry) {
+            if (!_reconnectTry && !_isEnded && !_isEndedRecivied) {
               _reconnectTry = true;
               callingStatus.add(CallStatus.RECONNECTING);
               _audioService.stopBeepSound();
@@ -382,7 +389,7 @@ class CallRepo {
             break;
           case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
             Timer(const Duration(seconds: 1), () {
-              if (!_reconnectTry && !_isEnded) {
+              if (!_reconnectTry && !_isEnded && !_isEndedRecivied) {
                 callingStatus.add(CallStatus.DISCONNECTED);
                 _audioService.stopBeepSound();
               }
@@ -394,29 +401,29 @@ class CallRepo {
           case RTCIceConnectionState.RTCIceConnectionStateCompleted:
           case RTCIceConnectionState.RTCIceConnectionStateCount:
           case RTCIceConnectionState.RTCIceConnectionStateClosed:
-            // this cases no matter and don't have impact on our Work
+          // this cases no matter and don't have impact on our Work
             break;
         }
       }
 
-      //https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/connectionState
+    //https://developer.mozilla.org/en-US/docs/Web/API/RTCPeerConnection/connectionState
       ..onConnectionState = (state) {
         _logger.i("onConnectionState $state");
         switch (state) {
           case RTCPeerConnectionState.RTCPeerConnectionStateConnected:
-            //when connection Connected Status we Set some limit on bitRate
-            // var params = _videoSender.parameters;
-            // if (params.encodings.isEmpty) {
-            //   params.encodings = [];
-            //   params.encodings.add(new RTCRtpEncoding());
-            // }
-            //
-            // params.encodings[0].maxBitrate =
-            //     WEBRTC_MAX_BITRATE; // 256 kbps and use less about 150-160 kbps
-            // params.encodings[0].minBitrate = WEBRTC_MIN_BITRATE; // 128 kbps
-            // params.encodings[0].maxFramerate = WEBRTC_MAX_FRAME_RATE;
-            //     params.encodings[0].scaleResolutionDownBy = 2;
-            // await _videoSender.setParameters(params);
+          //when connection Connected Status we Set some limit on bitRate
+          // var params = _videoSender.parameters;
+          // if (params.encodings.isEmpty) {
+          //   params.encodings = [];
+          //   params.encodings.add(new RTCRtpEncoding());
+          // }
+          //
+          // params.encodings[0].maxBitrate =
+          //     WEBRTC_MAX_BITRATE; // 256 kbps and use less about 150-160 kbps
+          // params.encodings[0].minBitrate = WEBRTC_MIN_BITRATE; // 128 kbps
+          // params.encodings[0].maxFramerate = WEBRTC_MAX_FRAME_RATE;
+          //     params.encodings[0].scaleResolutionDownBy = 2;
+          // await _videoSender.setParameters(params);
             callingStatus.add(CallStatus.CONNECTED);
             vibrate(duration: 50);
             _audioService.stopBeepSound();
@@ -432,15 +439,15 @@ class CallRepo {
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateDisconnected:
             Timer(const Duration(seconds: 1), () {
-              if (!_reconnectTry && !_isEnded) {
+              if (!_reconnectTry && !_isEnded && !_isEndedRecivied) {
                 callingStatus.add(CallStatus.DISCONNECTED);
                 _audioService.stopBeepSound();
               }
             });
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
-            //Try reconnect
-            if (!_reconnectTry) {
+          //Try reconnect
+            if (!_reconnectTry && !_isEnded && !_isEndedRecivied) {
               _reconnectTry = true;
               callingStatus.add(CallStatus.RECONNECTING);
               _audioService.stopBeepSound();
@@ -459,7 +466,7 @@ class CallRepo {
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateNew:
           case RTCPeerConnectionState.RTCPeerConnectionStateConnecting:
-            // this cases no matter and don't have any impact on our work
+          // this cases no matter and don't have any impact on our work
             break;
         }
       }
@@ -501,7 +508,7 @@ class CallRepo {
       ..onDataChannel = (channel) {
         _logger.i("data Channel Received!!");
         _dataChannel = channel;
-        _isDCRecived = true;
+        _isDCReceived = true;
         //it means Connection is Connected
         _startCallTimerAndChangeStatus();
         _dataChannel!.onMessage = (data) {
@@ -528,19 +535,19 @@ class CallRepo {
             case STATUS_CONNECTION_DISCONNECTED:
               break;
             case STATUS_CONNECTION_CONNECTED:
-              //when connection Connected Status we Set some limit on bitRate
-              // var params = _videoSender.parameters;
-              // if (params.encodings.isEmpty) {
-              //   params.encodings = [];
-              //   params.encodings.add(new RTCRtpEncoding());
-              // }
-              //
-              // params.encodings[0].maxBitrate =
-              //     WEBRTC_MAX_BITRATE; // 256 kbps and use less about 150-160 kbps
-              // params.encodings[0].minBitrate = WEBRTC_MIN_BITRATE; // 128 kbps
-              // params.encodings[0].maxFramerate = WEBRTC_MAX_FRAME_RATE;
-              //     params.encodings[0].scaleResolutionDownBy = 2;
-              // await _videoSender.setParameters(params);
+            //when connection Connected Status we Set some limit on bitRate
+            // var params = _videoSender.parameters;
+            // if (params.encodings.isEmpty) {
+            //   params.encodings = [];
+            //   params.encodings.add(new RTCRtpEncoding());
+            // }
+            //
+            // params.encodings[0].maxBitrate =
+            //     WEBRTC_MAX_BITRATE; // 256 kbps and use less about 150-160 kbps
+            // params.encodings[0].minBitrate = WEBRTC_MIN_BITRATE; // 128 kbps
+            // params.encodings[0].maxFramerate = WEBRTC_MAX_FRAME_RATE;
+            //     params.encodings[0].scaleResolutionDownBy = 2;
+            // await _videoSender.setParameters(params);
               if (!_reconnectTry) {
                 _startCallTimerAndChangeStatus();
               } else {
@@ -555,7 +562,7 @@ class CallRepo {
               _audioService.stopBeepSound();
               break;
             case STATUS_CONNECTION_ENDED:
-              //received end from Callee
+            //received end from Callee
               receivedEndCall(0);
               break;
           }
@@ -572,19 +579,14 @@ class CallRepo {
     }
   }
 
-  Future<void> _foregroundTaskInitializing() async {
-    if (isAndroid) {
-      await _initForegroundTask();
-      await _startForegroundTask();
-    }
-  }
-
   Future<void> _startCallTimerAndChangeStatus() async {
     startCallTimer();
     if (_startCallTime == 0) {
-      _startCallTime = clock.now().millisecondsSinceEpoch;
+      _startCallTime = clock
+          .now()
+          .millisecondsSinceEpoch;
     }
-    if (_isDCRecived) {
+    if (_isDCReceived) {
       await _dataChannel!
           .send(RTCDataChannelMessage(STATUS_CONNECTION_CONNECTED));
     }
@@ -599,11 +601,12 @@ class CallRepo {
   }
 
   Future<RTCDataChannel> _createDataChannel() async {
-    final dataChannelDict = RTCDataChannelInit()..maxRetransmits = 15;
+    final dataChannelDict = RTCDataChannelInit()
+      ..maxRetransmits = 15;
 
     final dataChannel = await _peerConnection!
         .createDataChannel("stateTransfer", dataChannelDict);
-    _isDCRecived = true;
+    _isDCReceived = true;
     dataChannel.onMessage = (data) {
       final status = data.text;
       _logger.i(status);
@@ -628,19 +631,19 @@ class CallRepo {
         case STATUS_CONNECTION_DISCONNECTED:
           break;
         case STATUS_CONNECTION_CONNECTED:
-          //when connection Connected Status we Set some limit on bitRate
-          // var params = _videoSender.parameters;
-          // if (params.encodings.isEmpty) {
-          //   params.encodings = [];
-          //   params.encodings.add(new RTCRtpEncoding());
-          // }
-          //
-          // params.encodings[0].maxBitrate =
-          //     WEBRTC_MAX_BITRATE; // 256 kbps and use less about 150-160 kbps
-          // params.encodings[0].minBitrate = WEBRTC_MIN_BITRATE; // 128 kbps
-          // params.encodings[0].maxFramerate = WEBRTC_MAX_FRAME_RATE;
-          //     params.encodings[0].scaleResolutionDownBy = 2;
-          // await _videoSender.setParameters(params);
+        //when connection Connected Status we Set some limit on bitRate
+        // var params = _videoSender.parameters;
+        // if (params.encodings.isEmpty) {
+        //   params.encodings = [];
+        //   params.encodings.add(new RTCRtpEncoding());
+        // }
+        //
+        // params.encodings[0].maxBitrate =
+        //     WEBRTC_MAX_BITRATE; // 256 kbps and use less about 150-160 kbps
+        // params.encodings[0].minBitrate = WEBRTC_MIN_BITRATE; // 128 kbps
+        // params.encodings[0].maxFramerate = WEBRTC_MAX_FRAME_RATE;
+        //     params.encodings[0].scaleResolutionDownBy = 2;
+        // await _videoSender.setParameters(params);
           if (!_isConnected) {
             _startCallTimerAndChangeStatus();
           }
@@ -651,6 +654,10 @@ class CallRepo {
         case STATUS_CONNECTION_CONNECTING:
           callingStatus.add(CallStatus.CONNECTING);
           _audioService.stopBeepSound();
+          break;
+        case STATUS_CONNECTION_ENDED:
+        // this case use for prevent from disconnected state
+          _isEndedRecivied = true;
           break;
       }
     };
@@ -667,17 +674,17 @@ class CallRepo {
       mediaConstraints = {
         'video': _isVideo
             ? {
-                'mandatory': {
-                  'minWidth': '640',
-                  'maxWidth': '720',
-                  'minHeight': '360',
-                  'maxHeight': '480',
-                  'minFrameRate': '20',
-                  'maxFrameRate': '30',
-                },
-                'facingMode': 'user',
-                'optional': [],
-              }
+          'mandatory': {
+            'minWidth': '640',
+            'maxWidth': '720',
+            'minHeight': '360',
+            'maxHeight': '480',
+            'minFrameRate': '20',
+            'maxFrameRate': '30',
+          },
+          'facingMode': 'user',
+          'optional': [],
+        }
             : false,
         'audio': {
           'sampleSize': '16',
@@ -688,17 +695,17 @@ class CallRepo {
       mediaConstraints = {
         'video': _isVideo
             ? {
-                'mandatory': {
-                  'minWidth': '480',
-                  'maxWidth': '640',
-                  'minHeight': '320',
-                  'maxHeight': '480',
-                  'minFrameRate': '20',
-                  'maxFrameRate': '30',
-                },
-                'facingMode': 'user',
-                'optional': [],
-              }
+          'mandatory': {
+            'minWidth': '480',
+            'maxWidth': '640',
+            'minHeight': '320',
+            'maxHeight': '480',
+            'minFrameRate': '20',
+            'maxFrameRate': '30',
+          },
+          'facingMode': 'user',
+          'optional': [],
+        }
             : false,
         'audio': {
           'sampleSize': '16',
@@ -718,7 +725,7 @@ class CallRepo {
     final mediaConstraints = <String, dynamic>{'audio': false, 'video': true};
 
     final stream =
-        await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
+    await navigator.mediaDevices.getDisplayMedia(mediaConstraints);
     return stream;
   }
 
@@ -741,66 +748,73 @@ class CallRepo {
     }
   }
 
-  Future<void> _initForegroundTask() async {
-    await FlutterForegroundTask.init(
-      androidNotificationOptions: AndroidNotificationOptions(
-        channelId: 'notification_channel_id',
-        channelName: 'Foreground Notification',
-        channelDescription:
-            'This notification appears when the foreground service is running.',
-        channelImportance: NotificationChannelImportance.HIGH,
-        priority: NotificationPriority.HIGH,
-        isSticky: false,
-        playSound: true,
-        iconData: const NotificationIconData(
-          resType: ResourceType.mipmap,
-          resPrefix: ResourcePrefix.ic,
-          name: 'launcher',
-        ),
-        buttons: [
-          const NotificationButton(id: 'endCall', text: 'End Call'),
-        ],
-      ),
-      iosNotificationOptions: const IOSNotificationOptions(),
-      foregroundTaskOptions: const ForegroundTaskOptions(
-        autoRunOnBoot: true,
-        allowWifiLock: true,
-      ),
-      printDevLog: true,
-    );
-  }
-
-  Future<bool> _startForegroundTask() async {
-    ReceivePort? receivePort;
-    if (await FlutterForegroundTask.isRunningService) {
-      receivePort = await FlutterForegroundTask.restartService();
-    } else {
-      receivePort = await FlutterForegroundTask.startService(
-        notificationTitle: '$APPLICATION_NAME Call on BackGround',
-        notificationText: 'Tap to return to the app',
-        callback: startCallback,
-      );
-    }
-
-    if (receivePort != null) {
-      _receivePort = receivePort;
-      _receivePort?.listen((message) {
-        if (message == "endCall") {
-          endCall();
-        } else if (message == 'onNotificationPressed') {
-            _routingService.openCallScreen(roomUid!);
-        } else {
-          _logger.i('receive callStatus: $message');
-        }
-      });
-      return true;
-    }
-
-    return false;
-  }
-
-  Future<bool> _stopForegroundTask() async =>
-      FlutterForegroundTask.stopService();
+  // Future<void> _foregroundTaskInitializing() async {
+  //   if (isAndroid) {
+  //     await _initForegroundTask();
+  //     await _startForegroundTask();
+  //   }
+  // }
+  //
+  //
+  // Future<void> _initForegroundTask() async {
+  //   await FlutterForegroundTask.init(
+  //     androidNotificationOptions: AndroidNotificationOptions(
+  //       channelId: 'notification_channel_id',
+  //       channelName: 'Foreground Notification',
+  //       channelDescription:
+  //       'This notification appears when the foreground service is running.',
+  //       channelImportance: NotificationChannelImportance.HIGH,
+  //       priority: NotificationPriority.HIGH,
+  //       isSticky: false,
+  //       iconData: const NotificationIconData(
+  //         resType: ResourceType.mipmap,
+  //         resPrefix: ResourcePrefix.ic,
+  //         name: 'launcher',
+  //       ),
+  //       buttons: [
+  //         const NotificationButton(id: 'endCall', text: 'End Call'),
+  //       ],
+  //     ),
+  //     iosNotificationOptions: const IOSNotificationOptions(),
+  //     foregroundTaskOptions: const ForegroundTaskOptions(
+  //       autoRunOnBoot: true,
+  //       allowWifiLock: true,
+  //     ),
+  //     printDevLog: true,
+  //   );
+  // }
+  //
+  // Future<bool> _startForegroundTask() async {
+  //   ReceivePort? receivePort;
+  //   if (await FlutterForegroundTask.isRunningService) {
+  //     receivePort = await FlutterForegroundTask.restartService();
+  //   } else {
+  //     receivePort = await FlutterForegroundTask.startService(
+  //       notificationTitle: '$APPLICATION_NAME Call on BackGround',
+  //       notificationText: 'Tap to return to the app',
+  //       callback: startCallback,
+  //     );
+  //   }
+  //
+  //   if (receivePort != null) {
+  //     _receivePort = receivePort;
+  //     _receivePort?.listen((message) {
+  //       if (message == "endCall") {
+  //         endCall();
+  //       } else if (message == 'onNotificationPressed') {
+  //         _routingService.openCallScreen(roomUid!);
+  //       } else {
+  //         _logger.i('receive callStatus: $message');
+  //       }
+  //     });
+  //     return true;
+  //   }
+  //
+  //   return false;
+  // }
+  //
+  // Future<bool> _stopForegroundTask() async =>
+  //     FlutterForegroundTask.stopService();
 
   /*
   * For Close Microphone
@@ -860,11 +874,9 @@ class CallRepo {
     return false;
   }
 
-  Future<void> _incomingCall(
-    Uid roomId,
-    bool isDuplicated,
-    String callEventJson,
-  ) async {
+  Future<void> _incomingCall(Uid roomId,
+      bool isDuplicated,
+      String callEventJson,) async {
     if (!isDuplicated) {
       unawaited(
         _notificationServices.notifyIncomingCall(
@@ -876,7 +888,9 @@ class CallRepo {
     _roomUid = roomId;
     _logger.i("incoming Call and Created!!! - $isDuplicated");
     callingStatus.add(CallStatus.CREATED);
-    final endOfCallDuration = clock.now().millisecondsSinceEpoch;
+    final endOfCallDuration = clock
+        .now()
+        .millisecondsSinceEpoch;
     await _messageRepo.sendCallMessage(
       CallEvent_CallStatus.IS_RINGING,
       _roomUid!,
@@ -911,7 +925,21 @@ class CallRepo {
       });
       _callIdGenerator();
       _sendStartCallEvent();
-      await _foregroundTaskInitializing();
+      final foregroundStatus = await _callService.foregroundTaskInitializing();
+      if (foregroundStatus) {
+        _receivePort = _callService.getReceivePort;
+        _receivePort?.listen((message) {
+          if (message == "endCall") {
+            endCall();
+          } else if (message == 'onNotificationPressed') {
+            _routingService.openCallScreen(roomUid!);
+          } else if (message == 'callAccepted') {
+            acceptCall(roomUid!);
+          } else {
+            _logger.i('receive callStatus: $message');
+          }
+        });
+      }
     } else {
       _logger.i("User on Call ... !");
     }
@@ -919,7 +947,9 @@ class CallRepo {
 
   void _sendStartCallEvent() {
     // TODO(AmirHossein): handle recivied Created on fetchMessage when User offline then go online
-    final endOfCallDuration = clock.now().millisecondsSinceEpoch;
+    final endOfCallDuration = clock
+        .now()
+        .millisecondsSinceEpoch;
     _messageRepo.sendCallMessageWithMemberOrCallOwnerPvp(
       CallEvent_CallStatus.CREATED,
       _roomUid!,
@@ -933,7 +963,9 @@ class CallRepo {
 
   void _callIdGenerator() {
     final random = randomAlphaNumeric(10);
-    final time = clock.now().millisecondsSinceEpoch;
+    final time = clock
+        .now()
+        .millisecondsSinceEpoch;
     //call event id: (Epoch time milliseconds)-(Random String with alphabet and numerics with 10 characters length)
     final callId = "$time-$random";
     _callService.setCallId = callId;
@@ -944,9 +976,7 @@ class CallRepo {
       _notificationServices.cancelRoomNotifications(roomUid!.node);
     }
     _roomUid = roomId;
-    callingStatus
-      ..add(CallStatus.ACCEPTED)
-      ..add(CallStatus.CONNECTING);
+    callingStatus..add(CallStatus.ACCEPTED)..add(CallStatus.CONNECTING);
     _audioService.stopBeepSound();
 
     //after accept Call w8 for 30 sec if don't connecting force end Call
@@ -959,7 +989,21 @@ class CallRepo {
       }
     });
     unawaited(_sendOffer());
-    await _foregroundTaskInitializing();
+    final foregroundStatus = await _callService.foregroundTaskInitializing();
+    if (foregroundStatus) {
+      _receivePort = _callService.getReceivePort;
+      _receivePort?.listen((message) {
+        if (message == "endCall") {
+          endCall();
+        } else if (message == 'onNotificationPressed') {
+          _routingService.openCallScreen(roomUid!);
+        } else if (message == 'callAccepted') {
+          acceptCall(roomUid!);
+        } else {
+          _logger.i('receive callStatus: $message');
+        }
+      });
+    }
   }
 
   Future<void> declineCall() async {
@@ -969,7 +1013,9 @@ class CallRepo {
       }
       _logger.i("declineCall");
       callingStatus.add(CallStatus.DECLINED);
-      final endOfCallDuration = clock.now().millisecondsSinceEpoch;
+      final endOfCallDuration = clock
+          .now()
+          .millisecondsSinceEpoch;
       await _messageRepo.sendCallMessage(
         CallEvent_CallStatus.DECLINED,
         _roomUid!,
@@ -1009,12 +1055,13 @@ class CallRepo {
   Future<void> _setCallCandidate(String candidatesJson) async {
     final candidates = (jsonDecode(candidatesJson) as List)
         .map(
-          (data) => RTCIceCandidate(
+          (data) =>
+          RTCIceCandidate(
             data['candidate'],
             data['sdpMid'],
             data['sdpMlineIndex'],
           ),
-        )
+    )
         .toList();
     await _setCandidate(candidates);
   }
@@ -1041,7 +1088,9 @@ class CallRepo {
       if (_isCaller) {
         _callDuration = calculateCallEndTime();
         _logger.i("Call Duration on Caller(1): $_callDuration");
-        final endOfCallDuration = clock.now().millisecondsSinceEpoch;
+        final endOfCallDuration = clock
+            .now()
+            .millisecondsSinceEpoch;
         await _messageRepo.sendCallMessage(
           CallEvent_CallStatus.ENDED,
           _roomUid!,
@@ -1075,9 +1124,12 @@ class CallRepo {
       }
       if (_callService.getUserCallState != CallStatus.NO_CALL) {
         if (_isCaller) {
+          if (_isDCReceived) {
+            _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
+          }
           receivedEndCall(0);
         } else {
-          if (_isDCRecived) {
+          if (_isDCReceived) {
             _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
           }
           timerEndCallDispose = Timer(const Duration(seconds: 8), () {
@@ -1092,7 +1144,9 @@ class CallRepo {
   int calculateCallEndTime() {
     var time = 0;
     if (_startCallTime != null && _isConnected) {
-      _endCallTime = clock.now().millisecondsSinceEpoch;
+      _endCallTime = clock
+          .now()
+          .millisecondsSinceEpoch;
       time = _endCallTime! - _startCallTime!;
     }
     return time;
@@ -1143,10 +1197,14 @@ class CallRepo {
   Future<void> _waitUntilCandidateConditionDone() async {
     final completer = Completer();
     _logger.i(
-      "Time for w8:${clock.now().millisecondsSinceEpoch - _candidateStartTime}",
+      "Time for w8:${clock
+          .now()
+          .millisecondsSinceEpoch - _candidateStartTime}",
     );
     if ((_candidate.length >= _candidateNumber) ||
-        (clock.now().millisecondsSinceEpoch - _candidateStartTime >
+        (clock
+            .now()
+            .millisecondsSinceEpoch - _candidateStartTime >
             _candidateTimeLimit)) {
       completer.complete();
       _isOfferReady = true;
@@ -1169,7 +1227,9 @@ class CallRepo {
   }
 
   Future<void> _calculateCandidate() async {
-    _candidateStartTime = clock.now().millisecondsSinceEpoch;
+    _candidateStartTime = clock
+        .now()
+        .millisecondsSinceEpoch;
     //w8 till candidate gathering conditions complete
     await _waitUntilCandidateConditionDone();
     _logger.i("Candidate Number is :${_candidate.length}");
@@ -1194,7 +1254,9 @@ class CallRepo {
   }
 
   Future<void> _calculateCandidateAndSendAnswer() async {
-    _candidateStartTime = clock.now().millisecondsSinceEpoch;
+    _candidateStartTime = clock
+        .now()
+        .millisecondsSinceEpoch;
     await _waitUntilCandidateConditionDone();
     _logger.i("Candidate Number is :${_candidate.length}");
     // Send Candidate back to Sender
@@ -1239,7 +1301,7 @@ class CallRepo {
     try {
       if (isAndroid) {
         _receivePort?.close();
-        await _stopForegroundTask();
+        await _callService.stopForegroundTask();
         if (!_isCaller) {
           await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
             isVisible: false,
@@ -1269,10 +1331,12 @@ class CallRepo {
       }
       _candidate = [];
       callingStatus.add(CallStatus.ENDED);
-      Timer(const Duration(milliseconds: 1500), () async {
-        _roomUid = null;
-        callingStatus.add(CallStatus.NO_CALL);
-      });
+      // Timer(const Duration(milliseconds: 1500), () async {
+      //   _roomUid = null;
+      //   callingStatus.add(CallStatus.NO_CALL);
+      //   _isEnded = false;
+      //   _isEndedRecivied = false;
+      // });
       _audioService.stopBeepSound();
       // Timer(const Duration(seconds: 2), () async {
       //  callingStatus.add(CallStatus.NO_CALL);
@@ -1292,16 +1356,21 @@ class CallRepo {
       _startCallTime = 0;
       _callDuration = 0;
       callTimer.add(CallTimer(0, 0, 0));
-      Timer(const Duration(seconds: 2), () async {
-        if (_isInitRenderer) {
-          await disposeRenderer();
-        }
-      });
+      // Timer(const Duration(seconds: 2), () async {
+      //   if (_isInitRenderer) {
+      //     await disposeRenderer();
+      //   }
+      // });
     } catch (e) {
       _logger.e(e);
     } finally {
       await _callService.clearCallData(forceToClearData: true);
-      _isEnded = false;
+      Timer(const Duration(milliseconds: 1500), () async {
+        _roomUid = null;
+        callingStatus.add(CallStatus.NO_CALL);
+        _isEnded = false;
+        _isEndedRecivied = false;
+      });
     }
   }
 
@@ -1375,12 +1444,10 @@ class CallRepo {
   // ignore: non_constant_identifier_names
   BehaviorSubject<bool> mute_camera = BehaviorSubject.seeded(true);
   BehaviorSubject<CallStatus> callingStatus =
-      BehaviorSubject.seeded(CallStatus.NO_CALL);
+  BehaviorSubject.seeded(CallStatus.NO_CALL);
   BehaviorSubject<bool> switching = BehaviorSubject.seeded(false);
 
-  Future<void> fetchUserCallList(
-    Uid roomUid,
-  ) async {
+  Future<void> fetchUserCallList(Uid roomUid,) async {
     try {
       var date = clock.now();
       for (var i = 0; i < 6; i++) {
@@ -1388,7 +1455,9 @@ class CallRepo {
           FetchUserCallsReq()
             ..roomUid = roomUid
             ..limit = 200
-            ..pointer = Int64(clock.now().millisecondsSinceEpoch)
+            ..pointer = Int64(clock
+                .now()
+                .millisecondsSinceEpoch)
             ..fetchingDirectionType =
                 FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH
             ..month = date.month - 1
@@ -1400,7 +1469,7 @@ class CallRepo {
             endOfCallTime: call.callEvent.endOfCallTime.toInt(),
             callType: _callService.findCallEventType(call.callEvent.callType),
             newStatus:
-                _callService.findCallEventStatusProto(call.callEvent.newStatus),
+            _callService.findCallEventStatusProto(call.callEvent.newStatus),
             id: call.callEvent.id,
           );
           final callList = call_info.CallInfo(
