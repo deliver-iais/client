@@ -463,7 +463,7 @@ class _CupertinoTextSelectionControlsToolbarState
         textColor: color,
       );
       addToolbarButton(
-        _i18n.get("spoiler"),
+        _i18n.get("strike_through"),
         widget.handleStrikethrough,
         Icons.strikethrough_s_rounded,
         textColor: color,
