@@ -1,3 +1,4 @@
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -16,7 +17,8 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
   VoidCallback enableMarkDown;
   BuildContext buildContext;
   Uid roomUid;
-  static final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
+  final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
+  final _i18n = GetIt.I.get<I18N>();
 
   CustomTextSelectionController({
     required this.captionController,
@@ -139,9 +141,12 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "Create Link",
-                  style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
+                Text(
+                  _i18n.get("create_link"),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 20,
+                  ),
                 ),
                 const SizedBox(height: 10),
                 Form(
@@ -150,11 +155,14 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      createLinkTextField(linkTextController, "Text"),
+                      createLinkTextField(
+                        linkTextController,
+                        _i18n.get("text"),
+                      ),
                       const SizedBox(height: 10),
                       createLinkTextField(
                         linkController,
-                        "Link",
+                        _i18n.get("link"),
                         useLinkValidator: true,
                       ),
                     ],
@@ -168,8 +176,8 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
               onPressed: () {
                 Navigator.pop(context);
               },
-              child: const Text(
-                "cancel",
+              child: Text(
+                _i18n.get("cancel"),
               ),
             ),
             TextButton(
@@ -191,8 +199,8 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
                   Navigator.pop(context);
                 }
               },
-              child: const Text(
-                "create",
+              child: Text(
+                _i18n.get("create"),
               ),
             ),
           ],
@@ -223,7 +231,7 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
     if (value!.isEmpty) {
       return null;
     } else if (!urlRegex.hasMatch(value) && !inlineUrlRegex.hasMatch(value)) {
-      return "link is not valid";
+      return _i18n.get("link_valid");
     }
     return null;
   }
@@ -231,7 +239,7 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
   String? validateTextLink(String? value) {
     if (value == null) return null;
     if (value.isEmpty) {
-      return "text should not be empty";
+      return _i18n.get("text_empty");
     } else {
       return null;
     }
@@ -286,6 +294,7 @@ class _CupertinoTextSelectionControlsToolbar extends StatefulWidget {
 class _CupertinoTextSelectionControlsToolbarState
     extends State<_CupertinoTextSelectionControlsToolbar> {
   ClipboardStatusNotifier? _clipboardStatus;
+  final _i18n = GetIt.I.get<I18N>();
 
   void _onChangedClipboardStatus() {
     setState(() {
@@ -442,31 +451,31 @@ class _CupertinoTextSelectionControlsToolbarState
       Color? color;
       if (!widget.isAnyThingSelected()) color = Colors.grey;
       addToolbarButton(
-        "Bold",
+        _i18n.get("bold"),
         widget.handleBold,
         Icons.format_bold_rounded,
         textColor: color,
       );
       addToolbarButton(
-        "Italic",
+        _i18n.get("italic"),
         widget.handleItalic,
         Icons.format_italic_rounded,
         textColor: color,
       );
       addToolbarButton(
-        "Strike through",
+        _i18n.get("spoiler"),
         widget.handleStrikethrough,
         Icons.strikethrough_s_rounded,
         textColor: color,
       );
       addToolbarButton(
-        "Spoiler",
+        _i18n.get("spoiler"),
         widget.handleSpoiler,
         Icons.hide_source_rounded,
         textColor: color,
       );
       addToolbarButton(
-        "Underline",
+        _i18n.get("underline"),
         widget.handleUnderline,
         Icons.format_underline_rounded,
         textColor: color,
@@ -476,7 +485,7 @@ class _CupertinoTextSelectionControlsToolbarState
       items.add(const Divider());
     }
     addToolbarButton(
-      "Create Link",
+      _i18n.get("create_link"),
       widget.handleCreateLink,
       Icons.link_rounded,
     );
