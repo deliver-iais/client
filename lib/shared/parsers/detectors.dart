@@ -33,12 +33,12 @@ final justSpoilerDetectors = [
 ];
 
 Detector urlDetector() => simpleRegexDetectorWithGenerator(
-      r"(https?://(www\.)?)?[-a-zA-Z\d@:%._+~#=]{1,256}\.[a-zA-Z\d()]{1,6}\b([-a-zA-Z\d()@:%_+.~#?&/=]*)|(we://(.+))",
+      UrlFeature.urlRegex,
       (match) => {UrlFeature(match)},
     );
 
 Detector inlineUrlDetector() => simpleRegexDetectorWithGenerator(
-      r"\[(((?!]).)+)\]\(((https?://(www\.)?)?[-a-zA-Z\d@:%._+~#=]{1,256}\.[a-zA-Z\d()]{1,6}\b([-a-zA-Z\d()@:%_+.~#?&/=]*)|(we://(.+)))\)",
+      UrlFeature.inlineUrlRegex,
       (match) => {
         UrlFeature(match.substring(match.indexOf("]") + 2, match.indexOf(")")))
       },
@@ -46,16 +46,15 @@ Detector inlineUrlDetector() => simpleRegexDetectorWithGenerator(
           match.substring(match.indexOf("[") + 1, match.indexOf("]")),
     );
 
-Detector idDetector() =>
-    simpleRegexDetector(r"@[a-zA-Z](\w){4,19}", {IdFeature()});
+Detector idDetector() => simpleRegexDetector(IdFeature.regex, {IdFeature()});
 
 Detector emojiDetector() => simpleRegexDetector(
-      r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])+',
+      EmojiFeature.regex,
       {EmojiFeature()},
     );
 
 Detector botCommandDetector() =>
-    simpleRegexDetector(r"/([a-zA-Z\d_-]){5,40}", {BotCommandFeature()});
+    simpleRegexDetector(BotCommandFeature.regex, {BotCommandFeature()});
 
 Detector searchTermDetector(String searchTerm) =>
     simpleRegexDetector(searchTerm, {SearchTermFeature()});
@@ -85,7 +84,7 @@ Detector strikethroughDetector() => simpleStyleDetector(
     );
 
 Detector spoilerDetector() => simpleStyleDetectorTwoCharacter(
-     "|",
+      "|",
       {SpoilerFeature()},
       replacer: (match) => match.substring(2, match.length - 2),
     );

@@ -5,6 +5,10 @@ abstract class Feature {}
 
 class UrlFeature extends Feature {
   final String url;
+  static const urlRegex =
+      r"(https?://(www\.)?)?[-a-zA-Z\d@:%._+~#=]{1,256}\.[a-zA-Z\d()]{1,6}\b([-a-zA-Z\d()@:%_+.~#?&/=]*)|(we://(.+))";
+  static const inlineUrlRegex =
+      r"\[(((?!]).)+)\]\(((https?://(www\.)?)?[-a-zA-Z\d@:%._+~#=]{1,256}\.[a-zA-Z\d()]{1,6}\b([-a-zA-Z\d()@:%_+.~#?&/=]*)|(we://(.+)))\)";
 
   UrlFeature(this.url);
 
@@ -21,6 +25,8 @@ class UrlFeature extends Feature {
 }
 
 class IdFeature extends Feature {
+  static const regex = r"@[a-zA-Z](\w){4,19}";
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -31,6 +37,8 @@ class IdFeature extends Feature {
 }
 
 class BotCommandFeature extends Feature {
+  static const regex = r"/([a-zA-Z\d_-]){5,40}";
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -51,6 +59,9 @@ class SpecialCharacterFeature extends Feature {
 }
 
 class EmojiFeature extends Feature {
+  static const regex =
+      r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])+';
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||

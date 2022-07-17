@@ -119,6 +119,7 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
   void handleCreateLink(
     TextSelectionDelegate delegate,
   ) {
+    final formKey = GlobalKey<FormState>();
     final linkTextController = TextEditingController();
     final linkController = TextEditingController();
     final end = textController.selection.end;
@@ -143,9 +144,22 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
                   style: TextStyle(fontWeight: FontWeight.w600, fontSize: 20),
                 ),
                 const SizedBox(height: 10),
-                createLinkTextField(linkTextController, "Text"),
-                const SizedBox(height: 10),
-                createLinkTextField(linkController, "Link"),
+                Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      createLinkTextField(linkTextController, "Text"),
+                      const SizedBox(height: 10),
+                      createLinkTextField(
+                        linkController,
+                        "Link",
+                        useLinkValidator: true,
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -160,19 +174,22 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
             ),
             TextButton(
               onPressed: () {
-                final link =
-                    createLink(linkTextController.text, linkController.text);
+                final isValidated = formKey.currentState?.validate() ?? false;
+                if (isValidated) {
+                  final link =
+                      createLink(linkTextController.text, linkController.text);
 
-                textController.text = textController.text.substring(
-                      0,
-                      start,
-                    ) +
-                    link +
-                    textController.text.substring(
-                      isAnyThingSelected() ? end : start,
-                    );
+                  textController.text = textController.text.substring(
+                        0,
+                        start,
+                      ) +
+                      link +
+                      textController.text.substring(
+                        isAnyThingSelected() ? end : start,
+                      );
 
-                Navigator.pop(context);
+                  Navigator.pop(context);
+                }
               },
               child: const Text(
                 "create",
@@ -184,24 +201,40 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
     );
   }
 
-  TextField createLinkTextField(
+  TextFormField createLinkTextField(
     TextEditingController controller,
-    String label,
-  ) {
-    return TextField(
+    String label, {
+    bool useLinkValidator = false,
+  }) {
+    return TextFormField(
       controller: controller,
+      validator: useLinkValidator ? validateLink : validateTextLink,
       decoration: InputDecoration(
         labelText: label,
         contentPadding: const EdgeInsets.only(),
-        border: InputBorder.none,
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.grey),
-        ),
-        focusedBorder: UnderlineInputBorder(
-          borderSide: BorderSide(color: Theme.of(buildContext).primaryColor),
-        ),
+        border: const UnderlineInputBorder(),
       ),
     );
+  }
+
+  String? validateLink(String? value) {
+    final urlRegex = RegExp(UrlFeature.urlRegex);
+    final inlineUrlRegex = RegExp(UrlFeature.inlineUrlRegex);
+    if (value!.isEmpty) {
+      return null;
+    } else if (!urlRegex.hasMatch(value) && !inlineUrlRegex.hasMatch(value)) {
+      return "link is not valid";
+    }
+    return null;
+  }
+
+  String? validateTextLink(String? value) {
+    if (value == null) return null;
+    if (value.isEmpty) {
+      return "text should not be empty";
+    } else {
+      return null;
+    }
   }
 }
 
