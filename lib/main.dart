@@ -381,7 +381,7 @@ class MyApp extends StatelessWidget {
                 ),
                 initialRoute: '/',
                 routes: {
-                  '/call-screen': (context) => CallScreen(roomUid: _callService.getRoomUid, isCallAccepted: true),
+                  //'/call-screen': (context) => CallScreen(roomUid: _callService.getRoomUid, isCallAccepted: true),
                 },
               ),
             ),

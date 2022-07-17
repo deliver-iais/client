@@ -37,6 +37,8 @@ import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sdp_transform/sdp_transform.dart';
 
+import '../services/routing_service.dart';
+
 enum CallStatus {
   CREATED,
   IS_RINGING,
@@ -63,6 +65,7 @@ class CallRepo {
   final _callListDao = GetIt.I.get<CallInfoDao>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _audioService = GetIt.I.get<AudioService>();
+  final _routingService = GetIt.I.get<RoutingService>();
 
   final _candidateNumber = 5;
   final _candidateTimeLimit = 250; // 0.25 sec
@@ -784,11 +787,12 @@ class CallRepo {
       _receivePort?.listen((message) {
         if (message == "endCall") {
           endCall();
+        } else if (message == 'onNotificationPressed') {
+            _routingService.openCallScreen(roomUid!);
         } else {
           _logger.i('receive callStatus: $message');
         }
       });
-
       return true;
     }
 
@@ -907,8 +911,7 @@ class CallRepo {
       });
       _callIdGenerator();
       _sendStartCallEvent();
-      _callService.isUserOnCall.add(true);
-      //await _foregroundTaskInitializing();
+      await _foregroundTaskInitializing();
     } else {
       _logger.i("User on Call ... !");
     }
@@ -956,8 +959,7 @@ class CallRepo {
       }
     });
     unawaited(_sendOffer());
-    _callService.isUserOnCall.add(true);
-    //await _foregroundTaskInitializing();
+    await _foregroundTaskInitializing();
   }
 
   Future<void> declineCall() async {
@@ -1448,5 +1450,19 @@ class FirstTaskHandler extends TaskHandler {
   @override
   Future<void> onDestroy(DateTime timestamp, SendPort? sendPort) async {
     await FlutterForegroundTask.clearAllData();
+  }
+
+  @override
+  void onNotificationPressed() {
+    // Called when the notification itself on the Android platform is pressed.
+    //
+    // "android.permission.SYSTEM_ALERT_WINDOW" permission must be granted for
+    // this function to be called.
+
+    // Note that the app will only route to "/resume-route" when it is exited so
+    // it will usually be necessary to send a message through the send port to
+    // signal it to restore state when the app is already started.
+    FlutterForegroundTask.launchApp("/call-screen");
+    sPort?.send('onNotificationPressed');
   }
 }
