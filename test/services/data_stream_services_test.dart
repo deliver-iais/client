@@ -19,7 +19,6 @@ import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:fixnum/fixnum.dart';
-import 'package:grpc/grpc.dart';
 import 'package:mockito/mockito.dart';
 import 'package:test/test.dart';
 

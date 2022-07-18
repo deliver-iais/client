@@ -117,10 +117,11 @@ void main() {
           'When called if category is user should getContact from contactRepo and if contact be empty should getContactFromServer and save it in cache',
           () async {
         roomNameCache.clear();
-        final contactRepo =
-            getAndRegisterContactRepo(getContactFromServerData: "test");
+        final contactRepo = getAndRegisterContactRepo(
+            getContactFromServerData: "test",
+            ignoreInsertingOrUpdatingContactDao: true,);
         final name = await RoomRepo().getName(testUid);
-        verify(contactRepo.getContactFromServer(testUid));
+        verify(contactRepo.getContactFromServer(testUid,ignoreInsertingOrUpdatingContactDao: true));
         expect(name, "test");
         expect(roomNameCache[testUid.asString()], "test");
       });
@@ -181,7 +182,7 @@ void main() {
           () async {
         final uidIdNameDao = getAndRegisterUidIdNameDao(getByUidHasData: true);
         expect(await RoomRepo().watchId(testUid).first, "test");
-        verify(uidIdNameDao.getByUid(testUid.asString()));
+        verify(uidIdNameDao.watchIdByUid(testUid.asString()));
       });
       test(
           'When called should userInfo and if  be null should return getIdByUid',

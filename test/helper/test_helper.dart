@@ -215,12 +215,15 @@ MockUidIdNameDao getAndRegisterUidIdNameDao({
     (realInvocation) =>
         Future.value(getUidByIdHasData ? testUid.asString() : null),
   );
+  when(service.watchIdByUid(testUid.asString()))
+      .thenAnswer((realInvocation) => Stream.value("test"));
 
   return service;
 }
 
 MockContactRepo getAndRegisterContactRepo({
   bool getContactHasData = false,
+  bool ignoreInsertingOrUpdatingContactDao = false,
   String? getContactFromServerData,
 }) {
   _removeRegistrationIfExists<ContactRepo>();
@@ -239,7 +242,9 @@ MockContactRepo getAndRegisterContactRepo({
           : null,
     ),
   );
-  when(service.getContactFromServer(testUid))
+  when(service.getContactFromServer(testUid,
+          ignoreInsertingOrUpdatingContactDao:
+              ignoreInsertingOrUpdatingContactDao))
       .thenAnswer((realInvocation) => Future.value(getContactFromServerData));
   return service;
 }
@@ -383,6 +388,17 @@ MockRoomRepo getAndRegisterRoomRepo({
   when(service.isRoomMuted(any)).thenAnswer(
     (realInvocation) => Future.value(isRoomMuted),
   );
+
+  when(service.getMySeen(any)).thenAnswer(
+    (realInvocation) => Future.value(
+      seen_box.Seen(
+        uid: testUid.asString(),
+        messageId: 0,
+        hiddenMessageCount: 0,
+      ),
+    ),
+  );
+
   return service;
 }
 
