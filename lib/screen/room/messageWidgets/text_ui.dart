@@ -71,24 +71,25 @@ class _TextUIState extends State<TextUI> {
 
   @override
   void initState() {
-    super.initState();
-
     _link = widget.blocks
-            .firstWhere(
-              (b) => b.features.whereType<UrlFeature>().isNotEmpty,
-              orElse: () => const Block(text: "", features: {}),
-            )
-            .features
-            .whereType<UrlFeature>()
-            .firstOrNull
-            ?.url ??
+        .firstWhere(
+          (b) => b.features.whereType<UrlFeature>().isNotEmpty,
+      orElse: () => const Block(text: "", features: {}),
+    )
+        .features
+        .whereType<UrlFeature>()
+        .firstOrNull
+        ?.url ??
         "";
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
+        print(_textBoxKey.currentContext?.size?.width );
         _textBoxWidth.add(_textBoxKey.currentContext?.size?.width ?? 0);
       }
     });
+
+    super.initState();
   }
 
   @override
