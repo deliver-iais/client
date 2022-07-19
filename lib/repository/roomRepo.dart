@@ -339,10 +339,10 @@ class RoomRepo {
 
   Future<void> block(String uid, {bool? block}) async {
     if (block!) {
-      await _sdr.queryServiceClient.block(BlockReq()..uid = uid.asUid());
+      await _sdr.queryServiceClient.blockUid(BlockUidReq()..uid = uid.asUid());
       return _blockDao.block(uid);
     } else {
-      await _sdr.queryServiceClient.unblock(UnblockReq()..uid = uid.asUid());
+      await _sdr.queryServiceClient.unblockUid(UnblockUidReq()..uid = uid.asUid());
       return _blockDao.unblock(uid);
     }
   }
