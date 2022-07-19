@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:deliver/box/account.dart';
 import 'package:deliver/box/bot_info.dart';
@@ -42,6 +43,7 @@ import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/services/notification_services.dart';
+import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -52,6 +54,7 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
+import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
@@ -95,6 +98,7 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
     MockSpec<DataStreamServices>(returnNullOnMissingStub: true),
     MockSpec<CoreServices>(returnNullOnMissingStub: true),
     MockSpec<QueryServiceClient>(returnNullOnMissingStub: true),
+    MockSpec<AuthServiceClient>(returnNullOnMissingStub: true),
     MockSpec<SharedDao>(returnNullOnMissingStub: true),
     MockSpec<AvatarRepo>(returnNullOnMissingStub: true),
     MockSpec<BlockDao>(returnNullOnMissingStub: true),
@@ -114,6 +118,7 @@ class MockResponseFuture<T> extends Mock implements ResponseFuture<T> {
     MockSpec<LastActivityDao>(returnNullOnMissingStub: true),
     MockSpec<MucDao>(returnNullOnMissingStub: true),
     MockSpec<UxService>(returnNullOnMissingStub: true),
+    MockSpec<UrlHandlerService>(returnNullOnMissingStub: true),
   ],
 )
 MockCoreServices getAndRegisterCoreServices({
@@ -149,6 +154,17 @@ MockDataStreamServices getAndRegisterDataStreamServices() {
   return service;
 }
 
+MockAuthServiceClient getMockAuthServiceClient() {
+  final service = MockAuthServiceClient();
+  when(service.checkQrCodeIsVerifiedAndLogin(any)).thenAnswer(
+    (realInvocation) => MockResponseFuture<AccessTokenRes>(AccessTokenRes()),
+  );
+  when(service.verifyAndGetToken(any)).thenAnswer(
+    (realInvocation) => MockResponseFuture<AccessTokenRes>(AccessTokenRes()),
+  );
+  return service;
+}
+
 MockMediaRepo getAndRegisterMediaRepo() {
   _removeRegistrationIfExists<MediaRepo>();
   final service = MockMediaRepo();
@@ -181,6 +197,9 @@ MockI18N getAndRegisterI18N() {
   _removeRegistrationIfExists<I18N>();
   final service = MockI18N();
   GetIt.I.registerSingleton<I18N>(service);
+  when(service.isRtl()).thenAnswer((realInvocation) => true);
+  when(service.locale).thenReturn(const Locale("en"));
+  when(service.get(any)).thenReturn("d");
   when(service.get("you")).thenReturn("you");
   when(service.get("saved_message")).thenReturn("Saved Message");
   return service;
@@ -242,14 +261,16 @@ MockContactRepo getAndRegisterContactRepo({
           : null,
     ),
   );
-  when(service.getContactFromServer(testUid,
-          ignoreInsertingOrUpdatingContactDao:
-              ignoreInsertingOrUpdatingContactDao))
-      .thenAnswer((realInvocation) => Future.value(getContactFromServerData));
+  when(
+    service.getContactFromServer(
+      testUid,
+      ignoreInsertingOrUpdatingContactDao: ignoreInsertingOrUpdatingContactDao,
+    ),
+  ).thenAnswer((realInvocation) => Future.value(getContactFromServerData));
   return service;
 }
 
-MockAccountRepo getAndRegisterAccountRepo() {
+MockAccountRepo getAndRegisterAccountRepo({bool hasProfile = false}) {
   _removeRegistrationIfExists<AccountRepo>();
   final service = MockAccountRepo();
   GetIt.I.registerSingleton<AccountRepo>(service);
@@ -261,6 +282,9 @@ MockAccountRepo getAndRegisterAccountRepo() {
       ),
     ),
   );
+  when(service.hasProfile(
+    retry: true,
+  )).thenAnswer((realInvocation) => Future.value(hasProfile));
   return service;
 }
 
@@ -416,6 +440,10 @@ MockAuthRepo getAndRegisterAuthRepo({bool isCurrentUser = false}) {
   when(service.isCurrentUser(any)).thenReturn(isCurrentUser);
   when(service.isCurrentUserUid(any)).thenReturn(isCurrentUser);
   when(service.currentUserUid).thenReturn(testUid);
+  when(service.sendVerificationCode("12345"))
+      .thenAnswer((d) => Future.value(AccessTokenRes()));
+  when(service.checkQrCodeToken(any))
+      .thenAnswer((f) => Future.value(AccessTokenRes()));
   return service;
 }
 
@@ -817,6 +845,13 @@ MockFireBaseServices getAndRegisterFireBaseServices() {
   return service;
 }
 
+MockUrlHandlerService getAndRegisterUrlHandlerService() {
+  _removeRegistrationIfExists<MockUrlHandlerService>();
+  final service = MockUrlHandlerService();
+  GetIt.I.registerSingleton<UrlHandlerService>(service);
+  return service;
+}
+
 void registerServices() {
   getAndRegisterAnalyserRepo();
   getAndRegisterServicesDiscoveryRepo();
@@ -852,6 +887,7 @@ void registerServices() {
   getAndRegisterLastActivityDao();
   getAndRegisterMucDao();
   getAndRegisterUxService();
+  getAndRegisterUrlHandlerService();
 }
 
 void unregisterServices() {
@@ -886,6 +922,7 @@ void unregisterServices() {
   GetIt.I.unregister<LastActivityDao>();
   GetIt.I.unregister<MucDao>();
   GetIt.I.unregister<UxService>();
+  GetIt.I.unregister<UrlHandlerService>();
 }
 
 void _removeRegistrationIfExists<T extends Object>() {

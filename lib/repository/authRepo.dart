@@ -78,24 +78,24 @@ class AuthRepo {
     String code, {
     String? password,
   }) async {
-    final platform = await getPlatformPB();
+      final platform = await getPlatformPB();
 
-    final device = await getDeviceName();
+      final device = await getDeviceName();
 
-    final res = await _sdr.authServiceClient.verifyAndGetToken(
-      VerifyCodeReq()
-        ..phoneNumber = _tmpPhoneNumber
-        ..code = code
-        ..device = device
-        ..platform = platform
-        ..password = password ?? "",
-    );
+      final res = await _sdr.authServiceClient.verifyAndGetToken(
+        VerifyCodeReq()
+          ..phoneNumber = _tmpPhoneNumber
+          ..code = code
+          ..device = device
+          ..platform = platform
+          ..password = password ?? "",
+      );
 
-    if (res.status == AccessTokenRes_Status.OK) {
-      await _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
-    }
+      if (res.status == AccessTokenRes_Status.OK) {
+        await _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
+      }
 
-    return res;
+      return res;
   }
 
   Future<AccessTokenRes> checkQrCodeToken(

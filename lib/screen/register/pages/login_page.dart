@@ -307,7 +307,7 @@ class LoginPageState extends State<LoginPage> {
                         onSubmitted: (p) {
                           phoneNumber = p;
                           if (_acceptPrivacy) checkAndGoNext();
-                        },
+                        },key: const Key("IntlPhoneField"),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -332,15 +332,18 @@ class LoginPageState extends State<LoginPage> {
                                 _acceptPrivacy = true;
                               });
                             },
-                            child: RichText(
-                              text: TextSpan(
-                                children: buildText(
-                                  "${!_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}]($APPLICATION_TERMS_OF_USE_URL) ${_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}",
-                                  context,
+                            child: SizedBox(
+                              width: 300,
+                              child: RichText(
+                                text: TextSpan(
+                                  children: buildText(
+                                    "${!_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}]($APPLICATION_TERMS_OF_USE_URL) ${_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}",
+                                    context,
+                                  ),
+                                  style: theme.textTheme.bodyText2,
                                 ),
-                                style: theme.textTheme.bodyText2,
+                                textDirection: TextDirection.ltr,
                               ),
-                              textDirection: TextDirection.ltr,
                             ),
                           ),
                         ],
@@ -442,7 +445,7 @@ class LoginPageState extends State<LoginPage> {
                         child: TextButton(
                           onPressed: checkAndGoNext,
                           child: Text(
-                            i18n.get("next"),
+                            i18n.get("next"),key: const Key('next'),
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: theme.primaryColor,
