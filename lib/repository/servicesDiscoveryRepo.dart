@@ -41,11 +41,16 @@ class ServicesDiscoveryRepo {
 
   bool _badCertificateConnection = true;
 
+  bool isInitialize = false;
+
   final _shareDao = GetIt.I.get<SharedDao>();
 
   Future<void> initRepo() async {
-    final ip = (await _shareDao.get(SHARE_DAO_HOST_SET_BY_USER)) ?? "";
-    initClientChannel(ip: ip);
+    if(!isInitialize) {
+      final ip = (await _shareDao.get(SHARE_DAO_HOST_SET_BY_USER)) ?? "";
+      initClientChannel(ip: ip);
+      isInitialize = true;
+    }
   }
 
   void initClientChannel({String ip = ""}) {
