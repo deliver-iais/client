@@ -52,13 +52,20 @@ class AuthRepo {
       final accessToken = await _sharedDao.get(SHARED_DAO_ACCESS_TOKEN_KEY);
       final refreshToken = await _sharedDao.get(SHARED_DAO_REFRESH_TOKEN_KEY);
       return _setTokensAndCurrentUserUid(accessToken, refreshToken);
-    } catch (_) {}
+    } catch (_) {
+      _logger.e(_.toString());
+    }
   }
 
   Future<void> setCurrentUserUid() async {
-    await init();
-    final res = await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID);
-    if (res != null) currentUserUid = (res).asUid();
+    try{
+      init().ignore();
+      final res = await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID);
+      if (res != null) currentUserUid = (res).asUid();
+    }catch(e){
+      _logger.e(e.toString());
+    }
+
   }
 
   Future<void> getVerificationCode(PhoneNumber p) async {
@@ -78,24 +85,24 @@ class AuthRepo {
     String code, {
     String? password,
   }) async {
-      final platform = await getPlatformPB();
+    final platform = await getPlatformPB();
 
-      final device = await getDeviceName();
+    final device = await getDeviceName();
 
-      final res = await _sdr.authServiceClient.verifyAndGetToken(
-        VerifyCodeReq()
-          ..phoneNumber = _tmpPhoneNumber
-          ..code = code
-          ..device = device
-          ..platform = platform
-          ..password = password ?? "",
-      );
+    final res = await _sdr.authServiceClient.verifyAndGetToken(
+      VerifyCodeReq()
+        ..phoneNumber = _tmpPhoneNumber
+        ..code = code
+        ..device = device
+        ..platform = platform
+        ..password = password ?? "",
+    );
 
-      if (res.status == AccessTokenRes_Status.OK) {
-        await _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
-      }
+    if (res.status == AccessTokenRes_Status.OK) {
+      await _setTokensAndCurrentUserUid(res.accessToken, res.refreshToken);
+    }
 
-      return res;
+    return res;
   }
 
   Future<AccessTokenRes> checkQrCodeToken(

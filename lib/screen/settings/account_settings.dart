@@ -296,6 +296,7 @@ class AccountSettingsState extends State<AccountSettings> {
                                   Form(
                                     key: _usernameFormKey,
                                     child: TextFormField(
+                                      key: const Key("username"),
                                       minLines: 1,
                                       controller: _usernameTextController,
                                       textInputAction: TextInputAction.send,
@@ -356,6 +357,7 @@ class AccountSettingsState extends State<AccountSettings> {
                                     height: 20,
                                   ),
                                   TextFormField(
+                                    key: const Key("firstname"),
                                     minLines: 1,
                                     controller: _firstnameTextController,
                                     textInputAction: TextInputAction.send,
@@ -369,6 +371,7 @@ class AccountSettingsState extends State<AccountSettings> {
                                     height: 20,
                                   ),
                                   TextFormField(
+                                    key: const Key("lastname"),
                                     minLines: 1,
                                     controller: _lastnameTextController,
                                     textInputAction: TextInputAction.send,
@@ -381,6 +384,7 @@ class AccountSettingsState extends State<AccountSettings> {
                                   ),
                                   if (TWO_STEP_VERIFICATION_IS_AVAILABLE)
                                     TextFormField(
+                                      key: const Key("email"),
                                       minLines: 1,
                                       controller: _emailTextController,
                                       textInputAction: TextInputAction.send,
@@ -393,6 +397,7 @@ class AccountSettingsState extends State<AccountSettings> {
                                     height: 20,
                                   ),
                                   TextFormField(
+                                    key: const Key("description"),
                                     minLines: 1,
                                     controller: _descriptionTextController,
                                     textInputAction: TextInputAction.send,

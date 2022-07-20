@@ -181,7 +181,7 @@ Future<void> setupDI() async {
   registerSingleton<RoutingService>(RoutingService());
   registerSingleton<AuthRepo>(AuthRepo());
   registerSingleton<FeatureFlags>(FeatureFlags());
-  await GetIt.I.get<AuthRepo>().setCurrentUserUid();
+   GetIt.I.get<AuthRepo>().setCurrentUserUid().ignore();
   registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
   GetIt.I.get<ServicesDiscoveryRepo>().initRepo().ignore();
 

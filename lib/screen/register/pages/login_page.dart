@@ -304,6 +304,7 @@ class LoginPageState extends State<LoginPage> {
                         onChanged: (p) {
                           phoneNumber = p;
                         },
+                        focusNode: FocusNode(),
                         onSubmitted: (p) {
                           phoneNumber = p;
                           if (_acceptPrivacy) checkAndGoNext();

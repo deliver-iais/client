@@ -282,9 +282,15 @@ MockAccountRepo getAndRegisterAccountRepo({bool hasProfile = false}) {
       ),
     ),
   );
-  when(service.hasProfile(
-    retry: true,
-  )).thenAnswer((realInvocation) => Future.value(hasProfile));
+  when(
+    service.hasProfile(
+      retry: true,
+    ),
+  ).thenAnswer((realInvocation) => Future.value(hasProfile));
+
+  when(service.fetchCurrentUserId(retry: true))
+      .thenAnswer((realInvocation) => Future.value(true));
+
   return service;
 }
 
