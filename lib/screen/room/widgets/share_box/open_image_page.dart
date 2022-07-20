@@ -2,12 +2,14 @@ import 'dart:io';
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/edit_image/change_image_color/color_filter_page.dart';
 import 'package:deliver/shared/widgets/edit_image/crop_image/crop_image.dart';
 import 'package:deliver/shared/widgets/edit_image/paint_on_image/page/paint_on_image_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:rxdart/rxdart.dart';
 
 class OpenImagePage extends StatefulWidget {
@@ -75,22 +77,49 @@ class _OpenImagePageState extends State<OpenImagePage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               IconButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (c) {
-                        return CropImage(
-                          imagePath,
-                          (path) {
-                            setState(() {
-                              imagePath = path;
-                            });
-                          },
-                        );
-                      },
-                    ),
-                  );
+                onPressed: () async {
+                  if (isDesktop) {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (c) {
+                          return CropImage(
+                            imagePath,
+                            (path) {
+                              setState(() {
+                                imagePath = path;
+                              });
+                            },
+                          );
+                        },
+                      ),
+                    );
+                  } else {
+                    final theme = Theme.of(context);
+                    final croppedFile = await ImageCropper().cropImage(
+                      sourcePath: imagePath,
+                      compressQuality: 100,
+                      uiSettings: [
+                        AndroidUiSettings(
+                          toolbarTitle: _i18n.get("cropper"),
+                          cropFrameColor: theme.primaryColorDark,
+                          toolbarColor: theme.bottomAppBarColor,
+                          toolbarWidgetColor: theme.colorScheme.onSurface,
+                          activeControlsWidgetColor: theme.primaryColor,
+                          initAspectRatio: CropAspectRatioPreset.original,
+                          lockAspectRatio: false,
+                        ),
+                        IOSUiSettings(
+                          title: _i18n.get("cropper"),
+                        ),
+                      ],
+                    );
+                    if (croppedFile != null) {
+                      setState(() {
+                        imagePath = croppedFile.path;
+                      });
+                    }
+                  }
                 },
                 icon: const Icon(
                   CupertinoIcons.crop_rotate,

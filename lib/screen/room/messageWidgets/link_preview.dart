@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:dcache/dcache.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
@@ -97,8 +95,7 @@ class LinkPreview extends StatelessWidget {
       margin: const EdgeInsets.only(top: 6),
       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
       constraints: BoxConstraints(
-        minWidth: 300,
-        maxWidth: max(300, maxWidth),
+        maxWidth: maxWidth,
         maxHeight: maxHeight,
       ),
       decoration: BoxDecoration(
@@ -124,19 +121,22 @@ class LinkPreview extends StatelessWidget {
             ),
           ),
           if (data.description != null)
-            Expanded(
+            Flexible(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 8.0,
                   vertical: 2.0,
                 ),
-                child: Text(
-                  data.description!,
-                  textDirection: data.description!.isPersian()
-                      ? TextDirection.rtl
-                      : TextDirection.ltr,
-                  style: theme.textTheme.bodyText2,
-                  overflow: TextOverflow.fade,
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Text(
+                    data.description!,
+                    textDirection: data.description!.isPersian()
+                        ? TextDirection.rtl
+                        : TextDirection.ltr,
+                    style: theme.textTheme.bodyText2,
+                    overflow: TextOverflow.fade,
+                  ),
                 ),
               ),
             ),

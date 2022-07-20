@@ -6,6 +6,7 @@ import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
+import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -41,12 +42,28 @@ String buildInviteLinkForBot(String botId) =>
 class UrlHandlerService {
   final _mucDao = GetIt.I.get<MucDao>();
   final _mucRepo = GetIt.I.get<MucRepo>();
+  final _roomRepo = GetIt.I.get<RoomRepo>();
   final _i18n = GetIt.I.get<I18N>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _messageRepo = GetIt.I.get<MessageRepo>();
   final _logger = GetIt.I.get<Logger>();
+
+  Future<void> onUrlTap(String uri, BuildContext context) async {
+    //add prefix if needed
+    final applicationUrlRegex = RegExp(
+      r"(https://wemessenger.ir|we:/|wemessenger.ir)/(login|spda|text|join|user|channel|group|ac).+",
+    );
+    if (applicationUrlRegex.hasMatch(uri)) {
+      if (uri.startsWith("we://")) {
+        uri = "https://wemessenger.ir${uri.substring(4)}";
+      }
+      handleApplicationUri(uri, context);
+    } else {
+      handleNormalLink(uri, context);
+    }
+  }
 
   void handleApplicationUri(
     String url,
@@ -416,8 +433,8 @@ class UrlHandlerService {
     String token, {
     String? name,
   }) async {
-    final muc = await _mucDao.get(roomUid.asString());
-    if (muc != null) {
+    final room = await _roomRepo.getRoom(roomUid.asString());
+    if (room != null && !room.deleted) {
       _routingService.openRoom(roomUid.asString());
     } else {
       Future.delayed(Duration.zero, () {
@@ -452,34 +469,24 @@ class UrlHandlerService {
                     MaterialButton(
                       onPressed: () async {
                         final navigatorState = Navigator.of(context);
-                        if ((roomUid.category == Categories.GROUP ||
-                            roomUid.category == Categories.CHANNEL)) {
-                          final muc = await _mucRepo.getMuc(roomUid.asString());
-                          if (muc == null) {
-                            if (roomUid.category == Categories.GROUP) {
-                              final res = await _mucRepo.joinGroup(
-                                roomUid,
-                                token,
-                              );
-                              if (res != null) {
-                                navigatorState.pop();
-                                _routingService.openRoom(roomUid.asString());
-                              }
-                            } else {
-                              final res = await _mucRepo.joinChannel(
-                                roomUid,
-                                token,
-                              );
-                              if (res != null) {
-                                navigatorState.pop();
-                                _routingService.openRoom(roomUid.asString());
-                              }
-                            }
-                          } else {
+                        if (roomUid.category == Categories.GROUP) {
+                          final res = await _mucRepo.joinGroup(
+                            roomUid,
+                            token,
+                          );
+                          if (res != null) {
+                            navigatorState.pop();
                             _routingService.openRoom(roomUid.asString());
                           }
                         } else {
-                          _routingService.openRoom(roomUid.asString());
+                          final res = await _mucRepo.joinChannel(
+                            roomUid,
+                            token,
+                          );
+                          if (res != null) {
+                            navigatorState.pop();
+                            _routingService.openRoom(roomUid.asString());
+                          }
                         }
                       },
                       child: Text(_i18n.get("join")),

@@ -59,7 +59,7 @@ class SenderAndContent extends StatelessWidget {
 
         return Container(
           constraints: maxWidth != null
-              ? BoxConstraints(maxWidth: maxWidth! - 14.0)
+              ? BoxConstraints(maxWidth: maxWidth! - 8.0)
               : null,
           decoration: showBackgroundColor
               ? BoxDecoration(
@@ -71,8 +71,7 @@ class SenderAndContent extends StatelessWidget {
                   ),
                 )
               : null,
-          padding:
-              const EdgeInsets.only(left: 4.0, top: 4, bottom: 4, right: 8),
+          padding: const EdgeInsets.all(4),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
