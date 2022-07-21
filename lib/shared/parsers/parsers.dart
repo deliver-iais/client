@@ -5,6 +5,10 @@ abstract class Feature {}
 
 class UrlFeature extends Feature {
   final String url;
+  static const urlRegex =
+      r"(https?://(www\.)?)?[-a-zA-Z\d@:%._+~#=]{1,256}\.[a-zA-Z\d()]{1,6}\b([-a-zA-Z\d()@:%_+.~#?&/=]*)|(we://(.+))";
+  static const inlineUrlRegex =
+      r"\[(((?!]).)+)\]\(((https?://(www\.)?)?[-a-zA-Z\d@:%._+~#=]{1,256}\.[a-zA-Z\d()]{1,6}\b([-a-zA-Z\d()@:%_+.~#?&/=]*)|(we://(.+)))\)";
 
   UrlFeature(this.url);
 
@@ -21,6 +25,8 @@ class UrlFeature extends Feature {
 }
 
 class IdFeature extends Feature {
+  static const regex = r"@[a-zA-Z](\w){4,19}";
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -31,6 +37,18 @@ class IdFeature extends Feature {
 }
 
 class BotCommandFeature extends Feature {
+  static const regex = r"/([a-zA-Z\d_-]){5,40}";
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other.runtimeType == runtimeType && other is BotCommandFeature);
+
+  @override
+  int get hashCode => Object.hash(runtimeType, "");
+}
+
+class GrayOutFeature extends Feature {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -41,6 +59,9 @@ class BotCommandFeature extends Feature {
 }
 
 class EmojiFeature extends Feature {
+  static const regex =
+      r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])+';
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -61,6 +82,8 @@ class SearchTermFeature extends Feature {
 }
 
 class BoldFeature extends Feature {
+  static const specialChar = "*";
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -71,6 +94,8 @@ class BoldFeature extends Feature {
 }
 
 class ItalicFeature extends Feature {
+  static const specialChar = "__";
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -81,6 +106,8 @@ class ItalicFeature extends Feature {
 }
 
 class UnderlineFeature extends Feature {
+  static const specialChar = "_";
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -91,6 +118,8 @@ class UnderlineFeature extends Feature {
 }
 
 class StrikethroughFeature extends Feature {
+  static const specialChar = "~";
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -101,6 +130,8 @@ class StrikethroughFeature extends Feature {
 }
 
 class SpoilerFeature extends Feature {
+  static const specialChar = "||";
+
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -112,9 +143,14 @@ class SpoilerFeature extends Feature {
 
 class Block {
   final String text;
+  final bool lockToMoreParsing;
   final Set<Feature> features;
 
-  const Block({required this.text, required this.features});
+  const Block({
+    required this.text,
+    required this.features,
+    this.lockToMoreParsing = false,
+  });
 }
 
 class Partition {
@@ -122,8 +158,15 @@ class Partition {
   final int end;
   final Set<Feature> features;
   final String? replacedText;
+  final bool lockToMoreParsing;
 
-  Partition(this.start, this.end, this.features, {this.replacedText});
+  Partition(
+    this.start,
+    this.end,
+    this.features, {
+    this.replacedText,
+    this.lockToMoreParsing = false,
+  });
 }
 
 typedef Detector = List<Partition> Function(Block);
@@ -133,6 +176,10 @@ typedef Transformer<T> = T Function(Block);
 typedef ThemeBasedTransformer<T> = Transformer<T> Function(ThemeData);
 
 List<Block> partitioner(Block block, Detector detector) {
+  if (block.lockToMoreParsing) {
+    return [block];
+  }
+
   final partitions = detector(block);
 
   final text = block.text;
@@ -153,6 +200,7 @@ List<Block> partitioner(Block block, Detector detector) {
         Block(
           text: p.replacedText ?? text.substring(p.start, p.end),
           features: {...block.features, ...p.features},
+          lockToMoreParsing: p.lockToMoreParsing,
         ),
       );
     }
@@ -167,14 +215,20 @@ List<Block> partitioner(Block block, Detector detector) {
   return blocks;
 }
 
-List<Block> onePathDetection(List<Block> blocks, Detector detector) =>
+List<Block> onePathDetection(
+  List<Block> blocks,
+  Detector detector,
+) =>
     blocks.map((b) => partitioner(b, detector)).expand((e) => e).toList();
 
 List<Block> onePathMultiDetection(
   List<Block> blocks,
   List<Detector> detectors,
 ) =>
-    detectors.fold<List<Block>>(blocks, onePathDetection);
+    detectors.fold<List<Block>>(
+      blocks,
+      (previousValue, element) => onePathDetection(previousValue, element),
+    );
 
 List<T> onePathTransform<T>(
   List<Block> blocks,
