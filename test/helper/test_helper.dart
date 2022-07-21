@@ -722,11 +722,11 @@ MockServicesDiscoveryRepo getAndRegisterQueryServiceClient({
             GetIdByUidRes(id: getIdByUidData),
           ),
         );
-  when(mocSdr.queryServiceClient.block(BlockReq()..uid = testUid))
-      .thenAnswer((realInvocation) => MockResponseFuture<BlockRes>(BlockRes()));
-  when(mocSdr.queryServiceClient.unblock(UnblockReq()..uid = testUid))
+  when(mocSdr.queryServiceClient.blockUid(BlockUidReq()..uid = testUid))
+      .thenAnswer((realInvocation) => MockResponseFuture<BlockUidRes>(BlockUidRes()));
+  when(mocSdr.queryServiceClient.unblockUid(UnblockUidReq()..uid = testUid))
       .thenAnswer(
-    (realInvocation) => MockResponseFuture<UnblockRes>(UnblockRes()),
+    (realInvocation) => MockResponseFuture<UnblockUidRes>(UnblockUidRes()),
   );
   when(mocSdr.queryServiceClient.getUidById(GetUidByIdReq()..id = "test"))
       .thenAnswer(

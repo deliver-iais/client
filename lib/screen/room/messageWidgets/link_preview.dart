@@ -127,13 +127,16 @@ class LinkPreview extends StatelessWidget {
                   horizontal: 8.0,
                   vertical: 2.0,
                 ),
-                child: Text(
-                  data.description!,
-                  textDirection: data.description!.isPersian()
-                      ? TextDirection.rtl
-                      : TextDirection.ltr,
-                  style: theme.textTheme.bodyText2,
-                  overflow: TextOverflow.fade,
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Text(
+                    data.description!,
+                    textDirection: data.description!.isPersian()
+                        ? TextDirection.rtl
+                        : TextDirection.ltr,
+                    style: theme.textTheme.bodyText2,
+                    overflow: TextOverflow.fade,
+                  ),
                 ),
               ),
             ),
