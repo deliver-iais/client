@@ -1,8 +1,9 @@
+import 'package:collection/collection.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
 
 List<Detector> detectorsWithSearchTermDetector({String searchTerm = ""}) => [
-      urlDetector(),
       inlineUrlDetector(),
+      urlDetector(),
       idDetector(),
       emojiDetector(),
       botCommandDetector(),
@@ -13,6 +14,20 @@ List<Detector> detectorsWithSearchTermDetector({String searchTerm = ""}) => [
       spoilerDetector(),
       if (searchTerm.isNotEmpty) searchTermDetector(searchTerm),
     ];
+
+List<Detector> inputTextDetectors() => grayOutDetector([
+      inlineUrlDetector(),
+      urlDetector(),
+      idDetector(),
+      emojiDetector(),
+      botCommandDetector(),
+      boldDetector(),
+      italicDetector(),
+      underlineDetector(),
+      strikethroughDetector(),
+      spoilerDetector(),
+      ignoreCharacterDetector(),
+    ]);
 
 final List<Detector> detectors = [
   urlDetector(),
@@ -31,13 +46,76 @@ final justSpoilerDetectors = [
   spoilerDetector(),
 ];
 
+List<Detector> grayOutDetector(List<Detector> detectors) =>
+    detectors.map((d) => (block) => _grayOutDetector(block, d)).toList();
+
+List<Partition> _grayOutDetector(
+  Block block,
+  Detector detector,
+) {
+  final pList = detector(block);
+
+  final text = block.text;
+
+  final partitions = <Partition>[];
+
+  for (final p in pList) {
+    if (text.substring(p.start, p.end).isNotEmpty) {
+      final actualText = text.substring(p.start, p.end);
+      if (p.replacedText != null && p.replacedText!.isNotEmpty) {
+        final match = p.replacedText!.allMatches(actualText).firstOrNull;
+
+        if (match != null) {
+          if (actualText.substring(0, match.start).isNotEmpty) {
+            partitions.add(
+              Partition(
+                p.start,
+                p.start + match.start,
+                {GrayOutFeature()},
+                lockToMoreParsing: true,
+              ),
+            );
+          }
+          if (actualText.substring(match.start, match.end).isNotEmpty) {
+            partitions.add(
+              Partition(
+                p.start + match.start,
+                p.start + match.end,
+                p.features,
+              ),
+            );
+          }
+          if (actualText.substring(match.end, actualText.length).isNotEmpty) {
+            partitions.add(
+              Partition(
+                p.start + match.end,
+                p.end,
+                {GrayOutFeature()},
+                lockToMoreParsing: true,
+              ),
+            );
+          }
+        } else {
+          partitions.add(p);
+        }
+      } else {
+        partitions.add(p);
+      }
+    } else {
+      partitions.add(p);
+    }
+  }
+
+  return partitions;
+}
+
 Detector urlDetector() => simpleRegexDetectorWithGenerator(
-      r"(https?://(www\.)?)?[-a-zA-Z\d@:%._+~#=]{1,256}\.[a-zA-Z\d()]{1,6}\b([-a-zA-Z\d()@:%_+.~#?&/=]*)|(we://(.+))",
+      UrlFeature.urlRegex,
       (match) => {UrlFeature(match)},
     );
 
 Detector inlineUrlDetector() => simpleRegexDetectorWithGenerator(
-      r"\[(((?!]).)+)\]\(((https?://(www\.)?)?[-a-zA-Z\d@:%._+~#=]{1,256}\.[a-zA-Z\d()]{1,6}\b([-a-zA-Z\d()@:%_+.~#?&/=]*)|(we://(.+)))\)",
+      UrlFeature.inlineUrlRegex,
       (match) => {
         UrlFeature(match.substring(match.indexOf("]") + 2, match.indexOf(")")))
       },
@@ -45,22 +123,49 @@ Detector inlineUrlDetector() => simpleRegexDetectorWithGenerator(
           match.substring(match.indexOf("[") + 1, match.indexOf("]")),
     );
 
-Detector idDetector() =>
-    simpleRegexDetector(r"@[a-zA-Z](\w){4,19}", {IdFeature()});
+Detector idDetector() => simpleRegexDetector(IdFeature.regex, {IdFeature()});
 
 Detector emojiDetector() => simpleRegexDetector(
-      r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])+',
+      EmojiFeature.regex,
       {EmojiFeature()},
     );
 
 Detector botCommandDetector() =>
-    simpleRegexDetector(r"/([a-zA-Z\d_-]){5,40}", {BotCommandFeature()});
+    simpleRegexDetector(BotCommandFeature.regex, {BotCommandFeature()});
 
 Detector searchTermDetector(String searchTerm) =>
     simpleRegexDetector(searchTerm, {SearchTermFeature()});
 
+Detector ignoreCharacterDetector() => (block) {
+      final text = block.text;
+
+      var idx = 0;
+
+      final partitions = <Partition>[];
+
+      while (idx < text.length - 1) {
+        final char = text[idx];
+        final nextChar = text[idx + 1];
+        final nextNextChar = (idx + 2 < text.length) ? text[idx + 2] : "";
+
+        if (char == '\\') {
+          if (nextChar == "*" ||
+              nextChar == "~" ||
+              nextChar == "_" ||
+              (nextChar == "|" && nextNextChar == "|") ||
+              (nextChar == "_" && nextNextChar == "_")) {
+            partitions.add(Partition(idx, idx + 1, {GrayOutFeature()}));
+          }
+        }
+        idx += 1;
+        continue;
+      }
+
+      return partitions;
+    };
+
 Detector boldDetector() => simpleStyleDetector(
-      "*",
+      BoldFeature.specialChar,
       {BoldFeature()},
       replacer: (match) => match.substring(1, match.length - 1),
     );
@@ -72,13 +177,13 @@ Detector italicDetector() => simpleStyleDetectorTwoCharacter(
     );
 
 Detector underlineDetector() => simpleStyleDetector(
-      "_",
+      UnderlineFeature.specialChar,
       {UnderlineFeature()},
       replacer: (match) => match.substring(1, match.length - 1),
     );
 
 Detector strikethroughDetector() => simpleStyleDetector(
-      "~",
+      StrikethroughFeature.specialChar,
       {StrikethroughFeature()},
       replacer: (match) => match.substring(1, match.length - 1),
     );
@@ -214,7 +319,7 @@ Detector simpleStyleDetectorTwoCharacter(
             }
           }
 
-          idx += 2;
+          idx += 1;
           continue;
         }
       }
