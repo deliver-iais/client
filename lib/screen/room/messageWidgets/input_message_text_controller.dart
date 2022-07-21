@@ -10,15 +10,13 @@ class InputMessageTextController extends TextEditingController {
     TextStyle? style,
     required bool withComposing,
   }) {
-    final spans = onePathTransform(
-      onePathMultiDetection(
-        [Block(text: text, features: {})],
-        detectorsWithSearchTermDetector(),
-       forceToDeleteReplaceFunctions: true,
-      ),
+    final spans = onePath(
+      [Block(text: text, features: {})],
+      inputTextDetectors(),
       inlineSpanTransformer(
-        defaultColor: Theme.of(context).colorScheme.onPrimaryContainer,
+        defaultColor: Theme.of(context).colorScheme.onSurface,
         linkColor: Theme.of(context).colorScheme.primary,
+        justHighlightSpoilers: true,
       ),
     );
 

@@ -2,7 +2,6 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/parsers/detectors.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -523,4 +522,17 @@ class _CupertinoTextSelectionControlsToolbarState
             children: items,
           );
   }
+}
+
+String createFormattedText(
+  String specialChar,
+  TextEditingController textController,
+) {
+  return "${textController.text.substring(0, textController.selection.start)}"
+      "$specialChar${textController.text.substring(textController.selection.start, textController.selection.end)}"
+      "$specialChar${textController.text.substring(textController.selection.end, textController.text.length)}";
+}
+
+String createLink(String text, String link) {
+  return "[$text]($link)";
 }

@@ -19,6 +19,7 @@ Transformer<InlineSpan> inlineSpanTransformer({
   OnUsernameClick? onIdClick,
   OnBotCommandClick? onBotCommandClick,
   OnUrlClick? onUrlClick,
+  bool justHighlightSpoilers = false,
 }) {
   return (b) {
     final url = b.features.whereType<UrlFeature>().firstOrNull;
@@ -33,7 +34,7 @@ Transformer<InlineSpan> inlineSpanTransformer({
     final strikethrough =
         b.features.whereType<StrikethroughFeature>().firstOrNull;
     final specialChar =
-        b.features.whereType<SpecialCharacterFeature>().firstOrNull;
+        b.features.whereType<GrayOutFeature>().firstOrNull;
 
     final text = synthesizeToOriginalWord(b.text);
     var textStyle = const TextStyle();
@@ -42,14 +43,20 @@ Transformer<InlineSpan> inlineSpanTransformer({
     GestureRecognizer? gestureRecognizer;
 
     if (spoiler != null) {
-      return WidgetSpan(
-        baseline: TextBaseline.ideographic,
-        alignment: PlaceholderAlignment.middle,
-        child: SpoilerLoader(
-          b.text,
-          foreground: defaultColor,
-        ),
-      );
+      if (!justHighlightSpoilers) {
+        return WidgetSpan(
+          baseline: TextBaseline.ideographic,
+          alignment: PlaceholderAlignment.middle,
+          child: SpoilerLoader(
+            b.text,
+            foreground: defaultColor,
+          ),
+        );
+      } else {
+        textStyle = textStyle.copyWith(
+          backgroundColor: defaultColor.withOpacity(0.4),
+        );
+      }
     }
 
     if (url != null) {
@@ -186,23 +193,5 @@ Transformer<String> textTransformer() {
     } else {
       return synthesizeToOriginalWord(b.text);
     }
-  };
-}
-
-Transformer<TextSpan> emojiTransformer() {
-  return (b) {
-    final emoji = b.features.whereType<EmojiFeature>().firstOrNull;
-
-    final text = synthesizeToOriginalWord(b.text);
-    var textStyle = const TextStyle();
-
-    if (emoji != null) {
-      textStyle = GoogleFonts.notoEmoji(textStyle: textStyle);
-    }
-
-    return TextSpan(
-      text: text,
-      style: textStyle,
-    );
   };
 }

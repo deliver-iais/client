@@ -48,7 +48,7 @@ class BotCommandFeature extends Feature {
   int get hashCode => Object.hash(runtimeType, "");
 }
 
-class SpecialCharacterFeature extends Feature {
+class GrayOutFeature extends Feature {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -143,9 +143,14 @@ class SpoilerFeature extends Feature {
 
 class Block {
   final String text;
+  final bool lockToMoreParsing;
   final Set<Feature> features;
 
-  const Block({required this.text, required this.features});
+  const Block({
+    required this.text,
+    required this.features,
+    this.lockToMoreParsing = false,
+  });
 }
 
 class Partition {
@@ -153,8 +158,15 @@ class Partition {
   final int end;
   final Set<Feature> features;
   final String? replacedText;
+  final bool lockToMoreParsing;
 
-  Partition(this.start, this.end, this.features, {this.replacedText});
+  Partition(
+    this.start,
+    this.end,
+    this.features, {
+    this.replacedText,
+    this.lockToMoreParsing = false,
+  });
 }
 
 typedef Detector = List<Partition> Function(Block);
@@ -163,11 +175,11 @@ typedef Transformer<T> = T Function(Block);
 
 typedef ThemeBasedTransformer<T> = Transformer<T> Function(ThemeData);
 
-List<Block> partitioner(
-  Block block,
-  Detector detector, {
-  bool forceToDeleteReplaceFunctions = false,
-}) {
+List<Block> partitioner(Block block, Detector detector) {
+  if (block.lockToMoreParsing) {
+    return [block];
+  }
+
   final partitions = detector(block);
 
   final text = block.text;
@@ -184,25 +196,13 @@ List<Block> partitioner(
     }
 
     if (text.substring(p.start, p.end).isNotEmpty) {
-      if (p.replacedText != null && forceToDeleteReplaceFunctions) {
-        try {
-          _setSpecialCharacterFeature(p, text, blocks, block);
-        } catch (e) {
-          blocks.add(
-            Block(
-              text: text.substring(p.start, p.end),
-              features: {...block.features, ...p.features},
-            ),
-          );
-        }
-      } else {
-        blocks.add(
-          Block(
-            text: p.replacedText ?? text.substring(p.start, p.end),
-            features: {...block.features, ...p.features},
-          ),
-        );
-      }
+      blocks.add(
+        Block(
+          text: p.replacedText ?? text.substring(p.start, p.end),
+          features: {...block.features, ...p.features},
+          lockToMoreParsing: p.lockToMoreParsing,
+        ),
+      );
     }
 
     start = p.end;
@@ -215,67 +215,19 @@ List<Block> partitioner(
   return blocks;
 }
 
-void _setSpecialCharacterFeature(
-  Partition p,
-  String text,
-  List<Block> blocks,
-  Block block,
-) {
-  final match = p.replacedText!.allMatches(text).first;
-  if (text.substring(p.start, match.start).isNotEmpty) {
-    blocks.add(
-      Block(
-        text: text.substring(p.start, match.start),
-        features: {SpecialCharacterFeature()},
-      ),
-    );
-  }
-  if (text.substring(match.start, match.end).isNotEmpty) {
-    blocks.add(
-      Block(
-        text: text.substring(match.start, match.end),
-        features: {...block.features, ...p.features},
-      ),
-    );
-  }
-  if (text.substring(match.start, match.end).isNotEmpty) {
-    blocks.add(
-      Block(
-        text: text.substring(match.end, p.end),
-        features: {SpecialCharacterFeature()},
-      ),
-    );
-  }
-}
-
 List<Block> onePathDetection(
   List<Block> blocks,
-  Detector detector, {
-  bool forceToDeleteReplaceFunctions = false,
-}) =>
-    blocks
-        .map(
-          (b) => partitioner(
-            b,
-            detector,
-            forceToDeleteReplaceFunctions: forceToDeleteReplaceFunctions,
-          ),
-        )
-        .expand((e) => e)
-        .toList();
+  Detector detector,
+) =>
+    blocks.map((b) => partitioner(b, detector)).expand((e) => e).toList();
 
 List<Block> onePathMultiDetection(
   List<Block> blocks,
-  List<Detector> detectors, {
-  bool forceToDeleteReplaceFunctions = false,
-}) =>
+  List<Detector> detectors,
+) =>
     detectors.fold<List<Block>>(
       blocks,
-      (previousValue, element) => onePathDetection(
-        previousValue,
-        element,
-        forceToDeleteReplaceFunctions: forceToDeleteReplaceFunctions,
-      ),
+      (previousValue, element) => onePathDetection(previousValue, element),
     );
 
 List<T> onePathTransform<T>(
