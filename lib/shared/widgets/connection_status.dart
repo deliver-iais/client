@@ -108,6 +108,9 @@ class ConnectionStatus extends StatelessWidget {
                                   onPressed:
                                       _coreServices.retryFasterConnection,
                                   child: Row(
+                                    textDirection: _i18n.isPersian
+                                        ? TextDirection.rtl
+                                        : TextDirection.ltr,
                                     children: [
                                       Text(
                                         _i18n.get("reconnecting"),

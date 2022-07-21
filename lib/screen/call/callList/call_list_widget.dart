@@ -8,8 +8,11 @@ import 'package:expandable/expandable.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../../localization/i18n.dart';
+
 class CallListWidget extends StatelessWidget {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
 
   final CallInfo callEvent;
   final DateTime time;
@@ -23,7 +26,6 @@ class CallListWidget extends StatelessWidget {
     required this.caller,
     required this.callEvent,
   });
-
 
   @override
   Widget build(BuildContext context) {
@@ -79,6 +81,9 @@ class CallListWidget extends StatelessWidget {
                         color: theme.colorScheme.primary.withAlpha(130),
                         fontSize: 12,
                       ),
+                      textDirection: _i18n.isPersian
+                          ? TextDirection.rtl
+                          : TextDirection.ltr,
                     )
                   ],
                 ),

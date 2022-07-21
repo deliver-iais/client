@@ -42,49 +42,58 @@ class SearchBoxState extends State<SearchBox> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: TextField(
-        style: const TextStyle(fontSize: 16),
-        focusNode: _focusNode,
-        controller: widget.controller ?? _localController,
-        onChanged: (str) {
-          if (str.isNotEmpty) {
-            _hasText.add(true);
-          } else {
-            _hasText.add(false);
-          }
-          widget.onChange(str);
-        },
-        decoration: InputDecoration(
-          focusedBorder: const OutlineInputBorder(
-            borderRadius: mainBorder,
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: const OutlineInputBorder(
-            borderRadius: mainBorder,
-            borderSide: BorderSide.none,
-          ),
-          filled: true,
-          isDense: true,
-          prefixIcon: const Icon(CupertinoIcons.search),
-          suffixIcon: StreamBuilder<bool?>(
-            stream: _hasText,
-            builder: (c, ht) {
-              if (ht.hasData && ht.data!) {
-                return IconButton(
-                  icon: const Icon(CupertinoIcons.xmark),
-                  onPressed: () {
-                    _hasText.add(false);
-                    _clearTextEditingController();
-                    _focusNode.unfocus();
-                    widget.onCancel?.call();
-                  },
-                );
+      child: Directionality(
+        textDirection: _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+        child: SizedBox(
+          height: 40,
+          child: TextField(
+            textDirection:
+                _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+            style: const TextStyle(fontSize: 16),
+            focusNode: _focusNode,
+            controller: widget.controller ?? _localController,
+            onChanged: (str) {
+              if (str.isNotEmpty) {
+                _hasText.add(true);
               } else {
-                return const SizedBox.shrink();
+                _hasText.add(false);
               }
+              widget.onChange(str);
             },
+            decoration: InputDecoration(
+              contentPadding: const EdgeInsets.only(top: 15),
+              focusedBorder: const OutlineInputBorder(
+                borderRadius: mainBorder,
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: const OutlineInputBorder(
+                borderRadius: mainBorder,
+                borderSide: BorderSide.none,
+              ),
+              filled: true,
+              isDense: true,
+              prefixIcon: const Icon(CupertinoIcons.search),
+              suffixIcon: StreamBuilder<bool?>(
+                stream: _hasText,
+                builder: (c, ht) {
+                  if (ht.hasData && ht.data!) {
+                    return IconButton(
+                      icon: const Icon(CupertinoIcons.xmark),
+                      onPressed: () {
+                        _hasText.add(false);
+                        _clearTextEditingController();
+                        _focusNode.unfocus();
+                        widget.onCancel?.call();
+                      },
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
+              hintText: _i18n.get("search"),
+            ),
           ),
-          hintText: _i18n.get("search"),
         ),
       ),
     );

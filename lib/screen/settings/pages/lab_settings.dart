@@ -31,35 +31,39 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
         ),
       ),
       body: FluidContainerWidget(
-        child: ListView(
-          children: [
-            Card(
-              color: theme.colorScheme.errorContainer,
-              elevation: 10,
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Text(_i18n.get("these_feature_arent_stable_yet")),
-              ),
-            ),
-            Section(
-              title: _i18n.get("calls"),
-              children: [
-                StreamBuilder<bool>(
-                  stream: _featureFlags.voiceCallFeatureFlagStream,
-                  builder: (context, snapshot) {
-                    return SettingsTile.switchTile(
-                      title: _i18n.get("voice_call_feature"),
-                      leading: const Icon(CupertinoIcons.phone),
-                      switchValue: snapshot.data ?? false,
-                      onToggle: (value) {
-                        _featureFlags.toggleVoiceCallFeatureFlag();
-                      },
-                    );
-                  },
+        child: Directionality(
+          textDirection:
+              _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+          child: ListView(
+            children: [
+              Card(
+                color: theme.colorScheme.errorContainer,
+                elevation: 10,
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Text(_i18n.get("these_feature_arent_stable_yet")),
                 ),
-              ],
-            ),
-          ],
+              ),
+              Section(
+                title: _i18n.get("calls"),
+                children: [
+                  StreamBuilder<bool>(
+                    stream: _featureFlags.voiceCallFeatureFlagStream,
+                    builder: (context, snapshot) {
+                      return SettingsTile.switchTile(
+                        title: _i18n.get("voice_call_feature"),
+                        leading: const Icon(CupertinoIcons.phone),
+                        switchValue: snapshot.data ?? false,
+                        onToggle: (value) {
+                          _featureFlags.toggleVoiceCallFeatureFlag();
+                        },
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -24,6 +24,8 @@ class Section extends AbstractSection {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return CupertinoSection(
       children!,
       header: (title != null || subtitle != null)
@@ -34,9 +36,9 @@ class Section extends AbstractSection {
                 if (title != null)
                   Text(
                     title!,
-                    style: titleTextStyle,
                     maxLines: maxLines,
                     overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),
                   ),
                 if (subtitle != null)
                   Padding(

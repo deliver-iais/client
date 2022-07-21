@@ -100,6 +100,9 @@ class CallListPageState extends State<CallListPage> {
                                           .colorScheme.onSecondaryContainer,
                                       fontSize: 12,
                                     ),
+                                    textDirection: _i18n.isPersian
+                                        ? TextDirection.rtl
+                                        : TextDirection.ltr,
                                   ),
                                 ),
                                 const Divider()

@@ -61,12 +61,19 @@ class DevicesPageState extends State<DevicesPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              _i18n.get("this_device"),
-                              style: theme.primaryTextTheme.subtitle2,
-                            ),
+                          Row(
+                            textDirection: _i18n.isPersian
+                                ? TextDirection.rtl
+                                : TextDirection.ltr,
+                            children: <Widget>[
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  _i18n.get("this_device"),
+                                  style: theme.primaryTextTheme.subtitle2,
+                                ),
+                              ),
+                            ],
                           ),
                           sessionWidget(currentSession),
                         ],

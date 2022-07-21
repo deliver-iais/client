@@ -150,136 +150,140 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         ),
       ),
       body: FluidContainerWidget(
-        child: ListView(
-          children: [
-            SizedBox(
-              height: 528,
-              child: Stack(
-                children: [
-                  StreamBuilder<int>(
-                    stream: _idSubject,
-                    builder: (context, snapshot) {
-                      return StreamBuilder<int>(
-                        stream: _uxService.patternIndexStream,
-                        builder: (ctx, s) {
-                          return Background(
-                            id: snapshot.data ?? 0,
-                          );
-                        },
-                      );
-                    },
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    child: Column(
-                      children: [
-                        ...createFakeMessages(),
-                        const Spacer(),
-                      ],
-                    ),
-                  ),
-                  Transform.translate(
-                    offset: Offset(8, -(mainBorder.topLeft.x) - 8),
-                    child: Align(
-                      alignment: Alignment.bottomLeft,
-                      child: FloatingActionButton(
-                        onPressed: () => _idSubject.add(_idSubject.value + 1),
-                        child: const Icon(Icons.rotate_right),
-                      ),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            Transform.translate(
-              offset: Offset(0, -(mainBorder.topLeft.x)),
-              child: Container(
-                padding: const EdgeInsets.only(bottom: 12, top: 4),
-                decoration: BoxDecoration(
-                  borderRadius: mainBorder,
-                  color: Theme.of(context).colorScheme.background,
-                ),
-                child: Column(
+        child: Directionality(
+          textDirection:
+              _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+          child: ListView(
+            children: [
+              SizedBox(
+                height: 528,
+                child: Stack(
                   children: [
-                    Section(
-                      title: _i18n.get("theme"),
-                      children: [
-                        SettingsTile.switchTile(
-                          title: _i18n.get("dark_mode"),
-                          leading: const Icon(CupertinoIcons.moon),
-                          switchValue: _uxService.themeIsDark,
-                          onToggle: (value) {
-                            setState(() {
-                              _uxService.toggleThemeLightingMode();
-                            });
-                          },
-                        ),
-                        SettingsTile.switchTile(
-                          title: _i18n.get("auto_night_mode"),
-                          leading:
-                              const Icon(CupertinoIcons.circle_lefthalf_fill),
-                          switchValue: _uxService.isAutoNightModeEnable,
-                          onToggle: (value) {
-                            setState(() {
-                              _uxService.toggleIsAutoNightMode();
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                    Section(
-                      title: _i18n.get("advanced_settings"),
-                      children: [
-                        SettingsTile(
-                          title: "Main Color",
-                          leading: const Icon(CupertinoIcons.color_filter),
-                          trailing: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                for (var i = 0; i < palettes.length; i++)
-                                  color(palettes[i], i)
-                              ],
-                            ),
-                          ),
-                        ),
-                        StreamBuilder<int>(
+                    StreamBuilder<int>(
+                      stream: _idSubject,
+                      builder: (context, snapshot) {
+                        return StreamBuilder<int>(
                           stream: _uxService.patternIndexStream,
-                          builder: (context, snapshot) {
-                            return Column(
-                              children: [
-                                const SettingsTile(
-                                  title: "Pattern",
-                                  leading: Icon(CupertinoIcons.photo),
-                                  trailing: SizedBox.shrink(),
-                                ),
-                                Wrap(
-                                  children: [
-                                    for (var i = 0; i < patterns.length; i++)
-                                      pattern(patterns[i], i)
-                                  ],
-                                )
-                              ],
+                          builder: (ctx, s) {
+                            return Background(
+                              id: snapshot.data ?? 0,
                             );
                           },
-                        ),
-                        SettingsTile.switchTile(
-                          title: "Colorful Messages",
-                          leading: const Icon(CupertinoIcons.paintbrush),
-                          switchValue: _uxService.showColorful,
-                          onToggle: (value) {
-                            setState(() {
-                              _uxService.toggleShowColorful();
-                            });
-                          },
-                        ),
-                      ],
+                        );
+                      },
                     ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Column(
+                        children: [
+                          ...createFakeMessages(),
+                          const Spacer(),
+                        ],
+                      ),
+                    ),
+                    Transform.translate(
+                      offset: Offset(8, -(mainBorder.topLeft.x) - 8),
+                      child: Align(
+                        alignment: Alignment.bottomLeft,
+                        child: FloatingActionButton(
+                          onPressed: () => _idSubject.add(_idSubject.value + 1),
+                          child: const Icon(Icons.rotate_right),
+                        ),
+                      ),
+                    )
                   ],
                 ),
               ),
-            )
-          ],
+              Transform.translate(
+                offset: Offset(0, -(mainBorder.topLeft.x)),
+                child: Container(
+                  padding: const EdgeInsets.only(bottom: 12, top: 4),
+                  decoration: BoxDecoration(
+                    borderRadius: mainBorder,
+                    color: Theme.of(context).colorScheme.background,
+                  ),
+                  child: Column(
+                    children: [
+                      Section(
+                        title: _i18n.get("theme"),
+                        children: [
+                          SettingsTile.switchTile(
+                            title: _i18n.get("dark_mode"),
+                            leading: const Icon(CupertinoIcons.moon),
+                            switchValue: _uxService.themeIsDark,
+                            onToggle: (value) {
+                              setState(() {
+                                _uxService.toggleThemeLightingMode();
+                              });
+                            },
+                          ),
+                          SettingsTile.switchTile(
+                            title: _i18n.get("auto_night_mode"),
+                            leading:
+                                const Icon(CupertinoIcons.circle_lefthalf_fill),
+                            switchValue: _uxService.isAutoNightModeEnable,
+                            onToggle: (value) {
+                              setState(() {
+                                _uxService.toggleIsAutoNightMode();
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                      Section(
+                        title: _i18n.get("advanced_settings"),
+                        children: [
+                          SettingsTile(
+                            title: "Main Color",
+                            leading: const Icon(CupertinoIcons.color_filter),
+                            trailing: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: [
+                                  for (var i = 0; i < palettes.length; i++)
+                                    color(palettes[i], i)
+                                ],
+                              ),
+                            ),
+                          ),
+                          StreamBuilder<int>(
+                            stream: _uxService.patternIndexStream,
+                            builder: (context, snapshot) {
+                              return Column(
+                                children: [
+                                  const SettingsTile(
+                                    title: "Pattern",
+                                    leading: Icon(CupertinoIcons.photo),
+                                    trailing: SizedBox.shrink(),
+                                  ),
+                                  Wrap(
+                                    children: [
+                                      for (var i = 0; i < patterns.length; i++)
+                                        pattern(patterns[i], i)
+                                    ],
+                                  )
+                                ],
+                              );
+                            },
+                          ),
+                          SettingsTile.switchTile(
+                            title: "Colorful Messages",
+                            leading: const Icon(CupertinoIcons.paintbrush),
+                            switchValue: _uxService.showColorful,
+                            onToggle: (value) {
+                              setState(() {
+                                _uxService.toggleShowColorful();
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );

@@ -35,38 +35,43 @@ class LanguageSettingsPageState extends State<LanguageSettingsPage> {
       body: FluidContainerWidget(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: ListView(
-            children: [
-              Section(
-                title: 'Languages',
-                children: [
-                  SettingsTile(
-                    title: 'English',
-                    leading: const Icon(Icons.language),
-                    trailing: _i18n.locale.languageCode == english.languageCode
-                        ? const Icon(Icons.done)
-                        : const SizedBox.shrink(),
-                    onPressed: (context) {
-                      setState(() {
-                        _i18n.changeLanguage(english);
-                      });
-                    },
-                  ),
-                  SettingsTile(
-                    title: 'فارسی',
-                    leading: const Icon(Icons.language),
-                    trailing: _i18n.locale.languageCode == farsi.languageCode
-                        ? const Icon(Icons.done)
-                        : const SizedBox.shrink(),
-                    onPressed: (context) {
-                      setState(() {
-                        _i18n.changeLanguage(farsi);
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ],
+          child: Directionality(
+            textDirection:
+                _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+            child: ListView(
+              children: [
+                Section(
+                  title: _i18n.get("languages"),
+                  children: [
+                    SettingsTile(
+                      title: 'English',
+                      leading: const Icon(Icons.language),
+                      trailing:
+                          _i18n.locale.languageCode == english.languageCode
+                              ? const Icon(Icons.done)
+                              : const SizedBox.shrink(),
+                      onPressed: (context) {
+                        setState(() {
+                          _i18n.changeLanguage(english);
+                        });
+                      },
+                    ),
+                    SettingsTile(
+                      title: 'فارسی',
+                      leading: const Icon(Icons.language),
+                      trailing: _i18n.locale.languageCode == farsi.languageCode
+                          ? const Icon(Icons.done)
+                          : const SizedBox.shrink(),
+                      onPressed: (context) {
+                        setState(() {
+                          _i18n.changeLanguage(farsi);
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

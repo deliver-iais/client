@@ -265,7 +265,8 @@ class PersistentEventMessage extends StatelessWidget {
         switch (persistentEventMessage.adminSpecificPersistentEvent.event) {
           case AdminSpecificPersistentEvent_Event.NEW_CONTACT_ADDED:
             return [
-              Text("${_i18n.get("joined_to_app")} ${APPLICATION_NAME.trim()}")
+              Text(
+                "${_i18n.get("joined_to_app")} ${APPLICATION_NAME.trim()}"              )
             ];
 
           default:

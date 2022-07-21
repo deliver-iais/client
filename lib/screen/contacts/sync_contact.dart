@@ -25,8 +25,11 @@ class SyncContact {
             content: SizedBox(
               width: 200,
               child: Text(
+                textDirection:
+                _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
                 _i18n.get("send_contacts_message"),
                 style: Theme.of(context).textTheme.subtitle1,
+                textAlign: TextAlign.center,
               ),
             ),
             actions: <Widget>[

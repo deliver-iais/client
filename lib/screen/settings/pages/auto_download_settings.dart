@@ -31,24 +31,29 @@ class _AutoDownloadSettingsPageState extends State<AutoDownloadSettingsPage> {
         ),
       ),
       body: FluidContainerWidget(
-        child: ListView(
-          children: [
-            Section(
-              title: _i18n.get("in_private_chat"),
-              children: autoDownloadDetails(
-                AutoDownloadRoomCategory.IN_PRIVATE_CHATS,
+        child: Directionality(
+          textDirection:
+              _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+          child: ListView(
+            children: [
+              Section(
+                title: _i18n.get("in_private_chat"),
+                children: autoDownloadDetails(
+                  AutoDownloadRoomCategory.IN_PRIVATE_CHATS,
+                ),
               ),
-            ),
-            Section(
-              title: _i18n.get("in_group_chat"),
-              children: autoDownloadDetails(AutoDownloadRoomCategory.IN_GROUP),
-            ),
-            Section(
-              title: _i18n.get("in_channel_chat"),
-              children:
-                  autoDownloadDetails(AutoDownloadRoomCategory.IN_CHANNEL),
-            ),
-          ],
+              Section(
+                title: _i18n.get("in_group_chat"),
+                children:
+                    autoDownloadDetails(AutoDownloadRoomCategory.IN_GROUP),
+              ),
+              Section(
+                title: _i18n.get("in_channel_chat"),
+                children:
+                    autoDownloadDetails(AutoDownloadRoomCategory.IN_CHANNEL),
+              ),
+            ],
+          ),
         ),
       ),
     );

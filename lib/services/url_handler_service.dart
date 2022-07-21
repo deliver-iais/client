@@ -462,11 +462,12 @@ class UrlHandlerService {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    MaterialButton(
+                    TextButton(
                       onPressed: () => Navigator.of(context).pop(),
                       child: Text(_i18n.get("skip")),
+                      style: TextButton.styleFrom(primary: Theme.of(context).errorColor),
                     ),
-                    MaterialButton(
+                    TextButton(
                       onPressed: () async {
                         final navigatorState = Navigator.of(context);
                         if (roomUid.category == Categories.GROUP) {

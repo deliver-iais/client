@@ -313,7 +313,11 @@ class NavigationCenterState extends State<NavigationCenter> {
                 children: [
                   const Icon(CupertinoIcons.group),
                   const SizedBox(width: 8),
-                  Text(_i18n.get("newGroup")),
+                  Text(
+                    _i18n.get("newGroup"),
+                    style: theme.textTheme.bodyText2
+                        ?.copyWith(color: theme.primaryColor),
+                  ),
                 ],
               ),
             ),
@@ -325,6 +329,8 @@ class NavigationCenterState extends State<NavigationCenter> {
                   const SizedBox(width: 8),
                   Text(
                     _i18n.get("newChannel"),
+                    style: theme.textTheme.bodyText2
+                        ?.copyWith(color: theme.primaryColor),
                   )
                 ],
               ),

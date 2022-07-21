@@ -62,6 +62,8 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return IconTheme(
       data: IconThemeData(
         size: (PopupMenuTheme.of(context).textStyle?.fontSize ?? 20) + 4,
@@ -76,7 +78,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 children: [
                   const Icon(CupertinoIcons.reply),
                   const SizedBox(width: 8),
-                  Text(_i18n.get("reply")),
+                  Text(_i18n.get("reply"), style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor)),
                 ],
               ),
             ),
@@ -92,7 +94,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     children: [
                       const Icon(CupertinoIcons.pin),
                       const SizedBox(width: 8),
-                      Text(_i18n.get("pin")),
+                      Text(_i18n.get("pin"), style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor)),
                     ],
                   ),
                 )
@@ -103,7 +105,8 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     children: [
                       const Icon(CupertinoIcons.delete),
                       const SizedBox(width: 8),
-                      Text(_i18n.get("unpin")),
+                      Text(_i18n.get("unpin"),
+                          style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),),
                     ],
                   ),
                 ),
@@ -119,7 +122,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     size: 18,
                   ),
                   const SizedBox(width: 10),
-                  Text(_i18n.get("copy")),
+                  Text(_i18n.get("copy"), style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor)),
                 ],
               ),
             ),
@@ -144,12 +147,15 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                         const Icon(CupertinoIcons.down_arrow),
                         const SizedBox(width: 8),
                         if (f.type.contains("image"))
-                          Text(_i18n.get("save_to_gallery"))
+                          Text(_i18n.get("save_to_gallery"),
+                              style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),)
                         else if (f.type.contains("audio") ||
                             f.type.contains("mp3"))
-                          Text(_i18n.get("save_in_music"))
+                          Text(_i18n.get("save_in_music"),
+                              style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),)
                         else
-                          Text(_i18n.get("save_to_downloads")),
+                          Text(_i18n.get("save_to_downloads"),
+                              style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),),
                       ],
                     ),
                   );
@@ -170,7 +176,8 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       children: [
                         const Icon(Icons.share),
                         const SizedBox(width: 8),
-                        Text(_i18n.get("share")),
+                        Text(_i18n.get("share"),
+                            style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),),
                       ],
                     ),
                   );
@@ -186,7 +193,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 children: [
                   const Icon(Icons.share),
                   const SizedBox(width: 8),
-                  Text(_i18n.get("share")),
+                  Text(_i18n.get("share"), style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),),
                 ],
               ),
             ),
@@ -197,7 +204,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 children: [
                   const Icon(CupertinoIcons.burst),
                   const SizedBox(width: 8),
-                  Text(_i18n.get("report")),
+                  Text(_i18n.get("report"), style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),),
                 ],
               ),
             ),
@@ -209,7 +216,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 children: [
                   const Icon(CupertinoIcons.arrowshape_turn_up_right),
                   const SizedBox(width: 8),
-                  Text(_i18n.get("forward")),
+                  Text(_i18n.get("forward"), style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),),
                 ],
               ),
             ),
@@ -226,7 +233,8 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       children: [
                         const Icon(CupertinoIcons.refresh),
                         const SizedBox(width: 8),
-                        Text(_i18n.get("resend")),
+                        Text(_i18n.get("resend"),
+                            style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),),
                       ],
                     ),
                   );
@@ -237,7 +245,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
             ),
           if (_hasPermissionToDeleteMsg)
             widget.message.id != null
-                ? deleteMenuWidget()
+                ? deleteMenuWidget(context)
                 : FutureBuilder<PendingMessage?>(
                     future:
                         _messageRepo.getPendingMessage(widget.message.packetId),
@@ -245,7 +253,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       if (snapshot.hasData &&
                           snapshot.data != null &&
                           _isDeletablePendingMessage(snapshot.data!)) {
-                        return deleteMenuWidget();
+                        return deleteMenuWidget(context);
                       } else {
                         return const SizedBox.shrink();
                       }
@@ -265,7 +273,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     size: 18,
                   ),
                   const SizedBox(width: 10),
-                  Text(_i18n.get("edit")),
+                  Text(_i18n.get("edit"), style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),),
                 ],
               ),
             ),
@@ -283,7 +291,8 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       children: [
                         const Icon(CupertinoIcons.folder_open),
                         const SizedBox(width: 8),
-                        Text(_i18n.get("show_in_folder")),
+                        Text(_i18n.get("show_in_folder"),
+                            style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),),
                       ],
                     ),
                   );
@@ -302,7 +311,8 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
           ? pendingMessage.status != SendingStatus.UPLOAD_FILE_COMPELED
           : pendingMessage.failed;
 
-  Widget deleteMenuWidget() {
+  Widget deleteMenuWidget(BuildContext context) {
+    final theme = Theme.of(context);
     return PopupMenuItem(
       value: widget.message.id != null
           ? OperationOnMessage.DELETE
@@ -313,7 +323,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
             CupertinoIcons.delete,
           ),
           const SizedBox(width: 8),
-          Text(_i18n.get("delete")),
+          Text(_i18n.get("delete"), style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),),
         ],
       ),
     );
@@ -330,6 +340,7 @@ void showDeleteMsgDialog(
   BuildContext context,
   void Function() onDelete,
 ) {
+  final theme = Theme.of(context);
   final i18n = GetIt.I.get<I18N>();
   final messageRepo = GetIt.I.get<MessageRepo>();
   showDialog(
@@ -337,7 +348,7 @@ void showDeleteMsgDialog(
     builder: (c) => AlertDialog(
       title: Text(
         "${i18n.get("delete")} ${messages.length > 1 ? messages.length : ""} ${i18n.get("message")}",
-        style: const TextStyle(fontSize: 20),
+        style: theme.textTheme.bodyText2,
       ),
       content: Text(
         messages.length > 1
@@ -346,7 +357,7 @@ void showDeleteMsgDialog(
       ),
       actions: [
         TextButton(
-          child: Text(i18n.get("cancel")),
+          child: Text(i18n.get("cancel"), style: theme.textTheme.bodyText2),
           onPressed: () {
             onDelete();
             Navigator.pop(c);
