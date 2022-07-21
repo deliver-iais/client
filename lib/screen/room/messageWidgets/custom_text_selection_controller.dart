@@ -394,6 +394,9 @@ class _CupertinoTextSelectionControlsToolbarState
 
       items.add(
         TextButton(
+          style: TextButton.styleFrom(
+            shape: const RoundedRectangleBorder(),
+          ),
           onPressed: onPressed,
           child: isDesktop
               ? Row(
@@ -502,6 +505,7 @@ class _CupertinoTextSelectionControlsToolbarState
             ),
             child: Container(
               width: 150,
+              clipBehavior: Clip.hardEdge,
               decoration: BoxDecoration(
                 boxShadow: DEFAULT_BOX_SHADOWS,
                 borderRadius: tertiaryBorder,
