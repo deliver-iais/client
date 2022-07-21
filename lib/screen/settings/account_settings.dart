@@ -413,6 +413,7 @@ class AccountSettingsState extends State<AccountSettings> {
                               alignment: Alignment.centerRight,
                               child: ElevatedButton(
                                 onPressed: checkAndSend,
+                                key: const Key("save"),
                                 child: Text(_i18n.get("save")),
                               ),
                             )

@@ -304,10 +304,12 @@ class NavigationCenterState extends State<NavigationCenter> {
         child: PopupMenuButton(
           icon: const Icon(
             CupertinoIcons.plus_app,
+            key: Key("new_muc"),
           ),
           onSelected: selectChatMenu,
           itemBuilder: (context) => [
             PopupMenuItem<String>(
+              key: const Key("newGroup"),
               value: "newGroup",
               child: Row(
                 children: [
@@ -318,6 +320,7 @@ class NavigationCenterState extends State<NavigationCenter> {
               ),
             ),
             PopupMenuItem<String>(
+              key: const Key("newChannel"),
               value: "newChannel",
               child: Row(
                 children: [

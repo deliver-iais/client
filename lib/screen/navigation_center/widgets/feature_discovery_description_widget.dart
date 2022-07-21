@@ -39,6 +39,7 @@ class FeatureDiscoveryDescriptionWidget extends StatelessWidget {
                   onPressed: () async =>
                       FeatureDiscovery.completeCurrentStep(context),
                   child: Text(
+                    key:const Key("understood"),
                     i18n.get("understood"),
                   ),
                 ),
@@ -46,6 +47,7 @@ class FeatureDiscoveryDescriptionWidget extends StatelessWidget {
                   width: 30,
                 ),
                 TextButton(
+                  key: const Key("dismiss"),
                   onPressed: () => FeatureDiscovery.dismissAll(context),
                   child: Text(
                     i18n.get("dismiss"),
