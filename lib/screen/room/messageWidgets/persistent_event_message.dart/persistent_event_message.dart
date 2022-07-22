@@ -115,9 +115,7 @@ class PersistentEventMessage extends StatelessWidget {
                     builder: (c, s) {
                       if (s.hasData && s.data != null) {
                         return Directionality(
-                          textDirection: _i18n.isPersian
-                              ? TextDirection.rtl
-                              : TextDirection.ltr,
+                          textDirection: _i18n.defaultTextDirection,
                           child: Row(
                             children: s.data!,
                           ),
@@ -265,8 +263,7 @@ class PersistentEventMessage extends StatelessWidget {
         switch (persistentEventMessage.adminSpecificPersistentEvent.event) {
           case AdminSpecificPersistentEvent_Event.NEW_CONTACT_ADDED:
             return [
-              Text(
-                "${_i18n.get("joined_to_app")} ${APPLICATION_NAME.trim()}"              )
+              Text("${_i18n.get("joined_to_app")} ${APPLICATION_NAME.trim()}")
             ];
 
           default:

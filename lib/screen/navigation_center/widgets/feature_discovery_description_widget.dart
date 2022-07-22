@@ -23,7 +23,7 @@ class FeatureDiscoveryDescriptionWidget extends StatelessWidget {
       children: [
         Text(
           description,
-          textDirection: i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+          textDirection: _i18n.defaultTextDirection,
           style: descriptionStyle,
         ),
         const SizedBox(

@@ -148,8 +148,7 @@ class ProfilePageState extends State<ProfilePage>
                   ? _tabsCount + 1
                   : _tabsCount,
               child: Directionality(
-                textDirection:
-                    _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                textDirection: _i18n.defaultTextDirection,
                 child: NestedScrollView(
                   headerSliverBuilder: (context, innerBoxIsScrolled) {
                     return <Widget>[
@@ -937,9 +936,7 @@ class ProfilePageState extends State<ProfilePage>
                       return Form(
                         key: nameFormKey,
                         child: Directionality(
-                          textDirection: _i18n.isPersian
-                              ? TextDirection.rtl
-                              : TextDirection.ltr,
+                          textDirection: _i18n.defaultTextDirection,
                           child: TextFormField(
                             initialValue: name.data,
                             validator: (s) {
@@ -1027,9 +1024,7 @@ class ProfilePageState extends State<ProfilePage>
                     if (muc.hasData && muc.data != null) {
                       mucInfo = muc.data!.info;
                       return Directionality(
-                        textDirection: _i18n.isPersian
-                            ? TextDirection.rtl
-                            : TextDirection.ltr,
+                        textDirection: _i18n.defaultTextDirection,
                         child: TextFormField(
                           initialValue: muc.data!.info,
                           minLines: muc.data!.info.isNotEmpty

@@ -80,9 +80,7 @@ class CallListWidget extends StatelessWidget {
                         color: theme.colorScheme.primary.withAlpha(130),
                         fontSize: 12,
                       ),
-                      textDirection: _i18n.isPersian
-                          ? TextDirection.rtl
-                          : TextDirection.ltr,
+                      textDirection: _i18n.defaultTextDirection,
                     )
                   ],
                 ),

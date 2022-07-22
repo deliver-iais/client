@@ -83,10 +83,7 @@ class NewFeatureDialog extends StatelessWidget {
                             _i18n.isPersian
                                 ? FARSI_FEATURE_LIST[index]
                                 : ENGLISH_FEATURE_LIST[index],
-                            // style: const TextStyle(color: Colors.black54),
-                            textDirection: _i18n.isPersian
-                                ? TextDirection.rtl
-                                : TextDirection.ltr,
+                            textDirection: _i18n.defaultTextDirection,
                           ),
                         ),
                       ],

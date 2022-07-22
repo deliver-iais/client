@@ -44,8 +44,7 @@ class NewContactState extends State<NewContact> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Directionality(
-                    textDirection:
-                        _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                    textDirection: _i18n.defaultTextDirection,
                     child: TextField(
                       onChanged: (firstName) {
                         _firstName = firstName;
@@ -57,8 +56,7 @@ class NewContactState extends State<NewContact> {
                   ),
                   const SizedBox(height: 10),
                   Directionality(
-                    textDirection:
-                        _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                    textDirection: _i18n.defaultTextDirection,
                     child: TextField(
                       onChanged: (lastName) {
                         _lastName = lastName;
@@ -70,8 +68,7 @@ class NewContactState extends State<NewContact> {
                   ),
                   const SizedBox(height: 10),
                   Directionality(
-                    textDirection:
-                        _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                    textDirection: _i18n.defaultTextDirection,
                     child: IntlPhoneField(
                       controller: TextEditingController(),
                       validator: (value) => value!.length != 10 ||

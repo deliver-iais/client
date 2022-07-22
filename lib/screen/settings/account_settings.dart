@@ -207,8 +207,7 @@ class AccountSettingsState extends State<AccountSettings> {
               _emailTextController.text = _account.email ?? "";
 
               return Directionality(
-                textDirection:
-                    _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                textDirection: _i18n.defaultTextDirection,
                 child: ListView(
                   children: [
                     Section(

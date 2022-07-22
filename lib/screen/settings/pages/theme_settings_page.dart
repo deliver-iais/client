@@ -151,8 +151,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
       ),
       body: FluidContainerWidget(
         child: Directionality(
-          textDirection:
-              _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+          textDirection: _i18n.defaultTextDirection,
           child: ListView(
             children: [
               SizedBox(

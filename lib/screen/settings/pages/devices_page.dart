@@ -62,9 +62,7 @@ class DevicesPageState extends State<DevicesPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Row(
-                            textDirection: _i18n.isPersian
-                                ? TextDirection.rtl
-                                : TextDirection.ltr,
+                            textDirection: _i18n.defaultTextDirection,
                             children: <Widget>[
                               Padding(
                                 padding: const EdgeInsets.all(8.0),

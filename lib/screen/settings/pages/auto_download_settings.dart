@@ -32,8 +32,7 @@ class _AutoDownloadSettingsPageState extends State<AutoDownloadSettingsPage> {
       ),
       body: FluidContainerWidget(
         child: Directionality(
-          textDirection:
-              _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+          textDirection: _i18n.defaultTextDirection,
           child: ListView(
             children: [
               Section(

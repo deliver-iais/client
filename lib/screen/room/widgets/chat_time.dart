@@ -33,8 +33,7 @@ class ChatTime extends StatelessWidget {
           padding: const EdgeInsets.only(top: 4.0),
           child: Text(
             outT,
-            textDirection:
-                _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+            textDirection: _i18n.defaultTextDirection,
           ),
         ),
         elevation: 2,

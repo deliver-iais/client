@@ -66,8 +66,7 @@ class SettingsPageState extends State<SettingsPage> {
       ),
       body: FluidContainerWidget(
         child: Directionality(
-          textDirection:
-              _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+          textDirection: _i18n.defaultTextDirection,
           child: ListView(
             children: [
               Section(
@@ -359,7 +358,10 @@ class SettingsPageState extends State<SettingsPage> {
           titlePadding: EdgeInsets.zero,
           actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
           // backgroundColor: Colors.white,
-          content: Text(i18n.get("sure_exit_app"), textAlign: TextAlign.center,),
+          content: Text(
+            i18n.get("sure_exit_app"),
+            textAlign: TextAlign.center,
+          ),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.pop(context),

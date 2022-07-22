@@ -52,8 +52,7 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
       ),
       body: FluidContainerWidget(
         child: Directionality(
-          textDirection:
-              _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+          textDirection: _i18n.defaultTextDirection,
           child: ListView(
             children: [
               Section(

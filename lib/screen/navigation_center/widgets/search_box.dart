@@ -43,12 +43,11 @@ class SearchBoxState extends State<SearchBox> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: Directionality(
-        textDirection: _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+        textDirection: _i18n.defaultTextDirection,
         child: SizedBox(
           height: 40,
           child: TextField(
-            textDirection:
-                _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+            textDirection: _i18n.defaultTextDirection,
             style: const TextStyle(fontSize: 16),
             focusNode: _focusNode,
             controller: widget.controller ?? _localController,

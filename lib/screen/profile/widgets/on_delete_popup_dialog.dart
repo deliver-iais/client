@@ -62,9 +62,7 @@ class OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
                     children: [
                       Expanded(
                         child: Text(
-                          textDirection: _i18n.isPersian
-                              ? TextDirection.rtl
-                              : TextDirection.ltr,
+                          textDirection: _i18n.defaultTextDirection,
                           !widget.roomUid.isMuc()
                               ? "${_i18n.get("sure_delete_room1")} \"${widget.roomName}\" ${_i18n.get("sure_delete_room2")}"
                               : widget.roomUid.isChannel()
@@ -130,9 +128,7 @@ class OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
                     children: [
                       Expanded(
                         child: Text(
-                          textDirection: _i18n.isPersian
-                              ? TextDirection.rtl
-                              : TextDirection.ltr,
+                          textDirection: _i18n.defaultTextDirection,
                           widget.roomUid.isGroup()
                               ? "${_i18n.get("sure_delete_group1")} \"${widget.roomName}\" ${_i18n.get("sure_delete_group2")}"
                               : "${_i18n.get("sure_delete_channel1")} \"${widget.roomName}\" ${_i18n.get("sure_delete_channel2")}",

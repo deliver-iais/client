@@ -36,8 +36,7 @@ class LanguageSettingsPageState extends State<LanguageSettingsPage> {
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
           child: Directionality(
-            textDirection:
-                _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+            textDirection: _i18n.defaultTextDirection,
             child: ListView(
               children: [
                 Section(

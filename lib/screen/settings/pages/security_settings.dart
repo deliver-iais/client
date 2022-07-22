@@ -47,8 +47,7 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
       ),
       body: FluidContainerWidget(
         child: Directionality(
-          textDirection:
-              _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+          textDirection: _i18n.defaultTextDirection,
           child: ListView(
             children: [
               Section(
@@ -199,8 +198,7 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
         titlePadding: EdgeInsets.zero,
         actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
         content: Directionality(
-          textDirection:
-              _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+          textDirection: _i18n.defaultTextDirection,
           child: TextField(
             onChanged: (p) => setState2(() => _currentPass = p),
             obscureText: true,
@@ -263,8 +261,7 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
               ),
             ),
             Directionality(
-              textDirection:
-                  _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+              textDirection: _i18n.defaultTextDirection,
               child: TextField(
                 controller: textController,
                 obscureText: true,
@@ -465,8 +462,7 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
                 height: 20,
               ),
               Directionality(
-                textDirection:
-                    _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                textDirection: _i18n.defaultTextDirection,
                 child: TextField(
                   readOnly: true,
                   controller: TextEditingController(text: email),
@@ -495,8 +491,7 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
           children: [
             if (checkCurrentPassword)
               Directionality(
-                textDirection:
-                    _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                textDirection: _i18n.defaultTextDirection,
                 child: TextField(
                   onChanged: (p) => setState2(() => _currentPass = p),
                   obscureText: true,
@@ -508,8 +503,7 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
               ),
             if (checkCurrentPassword) const SizedBox(height: 40),
             Directionality(
-              textDirection:
-                  _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+              textDirection: _i18n.defaultTextDirection,
               child: TextField(
                 onChanged: (p) => setState2(() => _pass = p),
                 obscureText: true,
@@ -521,8 +515,7 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
             ),
             const SizedBox(height: 10),
             Directionality(
-              textDirection:
-                  _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+              textDirection: _i18n.defaultTextDirection,
               child: TextField(
                 onChanged: (p) => setState2(() => _repeatedPass = p),
                 obscureText: true,
