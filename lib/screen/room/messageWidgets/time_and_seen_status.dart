@@ -56,15 +56,13 @@ class TimeAndSeenStatus extends StatelessWidget {
           borderRadius: tertiaryBorder,
         ),
         child: DefaultTextStyle(
-          style: TextStyle(
-            color: theme.colorScheme.onSurface,
-            fontSize: 13,
-          ),
+          style: (theme.textTheme.bodySmall ?? const TextStyle())
+              .copyWith(color: theme.colorScheme.onSurface),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (message.edited) Text(_i18n.get("edited"), style: theme.textTheme.bodySmall),
+              if (message.edited) Text(_i18n.get("edited")),
               MsgTime(time: date(message.time)),
               if (isSender)
                 Padding(
