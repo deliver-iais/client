@@ -6,7 +6,6 @@ import 'defines.dart';
 
 class Section extends AbstractSection {
   final List<Widget>? children;
-  final TextStyle? titleTextStyle;
   final int? maxLines;
   final Widget? subtitle;
   final EdgeInsetsGeometry subtitlePadding;
@@ -19,7 +18,6 @@ class Section extends AbstractSection {
     this.subtitle,
     this.subtitlePadding = defaultTitlePadding,
     this.children,
-    this.titleTextStyle,
   }) : assert(maxLines == null || maxLines > 0);
 
   @override
