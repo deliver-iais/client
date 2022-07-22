@@ -37,7 +37,6 @@ class OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
       child: widget.selected == "delete_room"
           ? AlertDialog(
               titlePadding: EdgeInsets.zero,
-              // actionsPadding: const EdgeInsets.only(left: 40),
               backgroundColor: Colors.white,
               content: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -103,7 +102,6 @@ class OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
             )
           : AlertDialog(
               titlePadding: EdgeInsets.zero,
-              actionsPadding: const EdgeInsets.only(bottom: 10),
               backgroundColor: Colors.white,
               content: Column(
                 mainAxisSize: MainAxisSize.min,
