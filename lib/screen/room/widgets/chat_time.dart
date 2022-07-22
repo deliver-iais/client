@@ -1,9 +1,8 @@
 import 'package:clock/clock.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-
-import '../../../localization/i18n.dart';
 
 class ChatTime extends StatelessWidget {
   final DateTime currentMessageTime;
