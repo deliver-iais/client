@@ -643,8 +643,7 @@ class ProfilePageState extends State<ProfilePage>
                 const SizedBox(width: 8),
                 Text(
                   _i18n.get("create_invite_link"),
-                  style: theme.textTheme.bodyText2
-                      ?.copyWith(color: theme.primaryColor),
+                  style: theme.primaryTextTheme.bodyText2,
                 )
               ],
             ),
@@ -660,8 +659,7 @@ class ProfilePageState extends State<ProfilePage>
                   widget.roomUid.category == Categories.GROUP
                       ? _i18n.get("manage_group")
                       : _i18n.get("manage_channel"),
-                  style: theme.textTheme.bodyText2
-                      ?.copyWith(color: theme.primaryColor),
+                  style: theme.primaryTextTheme.bodyText2,
                 ),
               ],
             ),
@@ -683,8 +681,7 @@ class ProfilePageState extends State<ProfilePage>
                       : widget.roomUid.isGroup()
                           ? _i18n.get("left_group")
                           : _i18n.get("left_channel"),
-                  style: theme.textTheme.bodyText2
-                      ?.copyWith(color: theme.primaryColor),
+                  style: theme.primaryTextTheme.bodyText2,
                 ),
               ],
             ),
@@ -700,8 +697,7 @@ class ProfilePageState extends State<ProfilePage>
                   widget.roomUid.isGroup()
                       ? _i18n.get("delete_group")
                       : _i18n.get("delete_channel"),
-                  style: theme.textTheme.bodyText2
-                      ?.copyWith(color: theme.primaryColor),
+                  style: theme.primaryTextTheme.bodyText2,
                 )
               ],
             ),
@@ -715,8 +711,7 @@ class ProfilePageState extends State<ProfilePage>
                 const SizedBox(width: 8),
                 Text(
                   _i18n.get("add_to_group"),
-                  style: theme.textTheme.bodyText2
-                      ?.copyWith(color: theme.primaryColor),
+                  style: theme.primaryTextTheme.bodyText2,
                 ),
               ],
             ),
@@ -729,8 +724,7 @@ class ProfilePageState extends State<ProfilePage>
               const SizedBox(width: 8),
               Text(
                 _i18n.get("report"),
-                style: theme.textTheme.bodyText2
-                    ?.copyWith(color: theme.primaryColor),
+                style: theme.primaryTextTheme.bodyText2,
               ),
             ],
           ),
@@ -751,8 +745,7 @@ class ProfilePageState extends State<ProfilePage>
                         s.data == null || !s.data!
                             ? _i18n.get("blockRoom")
                             : _i18n.get("unblock_room"),
-                        style: theme.textTheme.bodyText2
-                            ?.copyWith(color: theme.primaryColor),
+                        style: theme.primaryTextTheme.bodyText2,
                       ),
                     ],
                   );

@@ -78,7 +78,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 children: [
                   const Icon(CupertinoIcons.reply),
                   const SizedBox(width: 8),
-                  Text(_i18n.get("reply"), style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor)),
+                  Text(
+                    _i18n.get("reply"),
+                    style: theme.primaryTextTheme.bodyText2,
+                  ),
                 ],
               ),
             ),
@@ -94,7 +97,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     children: [
                       const Icon(CupertinoIcons.pin),
                       const SizedBox(width: 8),
-                      Text(_i18n.get("pin"), style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor)),
+                      Text(
+                        _i18n.get("pin"),
+                        style: theme.primaryTextTheme.bodyText2,
+                      ),
                     ],
                   ),
                 )
@@ -105,8 +111,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     children: [
                       const Icon(CupertinoIcons.delete),
                       const SizedBox(width: 8),
-                      Text(_i18n.get("unpin"),
-                          style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),),
+                      Text(
+                        _i18n.get("unpin"),
+                        style: theme.primaryTextTheme.bodyText2,
+                      ),
                     ],
                   ),
                 ),
@@ -122,7 +130,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     size: 18,
                   ),
                   const SizedBox(width: 10),
-                  Text(_i18n.get("copy"), style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor)),
+                  Text(
+                    _i18n.get("copy"),
+                    style: theme.primaryTextTheme.bodyText2,
+                  ),
                 ],
               ),
             ),
@@ -147,15 +158,21 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                         const Icon(CupertinoIcons.down_arrow),
                         const SizedBox(width: 8),
                         if (f.type.contains("image"))
-                          Text(_i18n.get("save_to_gallery"),
-                              style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),)
+                          Text(
+                            _i18n.get("save_to_gallery"),
+                            style: theme.primaryTextTheme.bodyText2,
+                          )
                         else if (f.type.contains("audio") ||
                             f.type.contains("mp3"))
-                          Text(_i18n.get("save_in_music"),
-                              style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),)
+                          Text(
+                            _i18n.get("save_in_music"),
+                            style: theme.primaryTextTheme.bodyText2,
+                          )
                         else
-                          Text(_i18n.get("save_to_downloads"),
-                              style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),),
+                          Text(
+                            _i18n.get("save_to_downloads"),
+                            style: theme.primaryTextTheme.bodyText2,
+                          ),
                       ],
                     ),
                   );
@@ -176,8 +193,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       children: [
                         const Icon(Icons.share),
                         const SizedBox(width: 8),
-                        Text(_i18n.get("share"),
-                            style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),),
+                        Text(
+                          _i18n.get("share"),
+                          style: theme.primaryTextTheme.bodyText2,
+                        ),
                       ],
                     ),
                   );
@@ -193,7 +212,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 children: [
                   const Icon(Icons.share),
                   const SizedBox(width: 8),
-                  Text(_i18n.get("share"), style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),),
+                  Text(
+                    _i18n.get("share"),
+                    style: theme.primaryTextTheme.bodyText2,
+                  ),
                 ],
               ),
             ),
@@ -204,7 +226,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 children: [
                   const Icon(CupertinoIcons.burst),
                   const SizedBox(width: 8),
-                  Text(_i18n.get("report"), style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),),
+                  Text(
+                    _i18n.get("report"),
+                    style: theme.primaryTextTheme.bodyText2,
+                  ),
                 ],
               ),
             ),
@@ -216,7 +241,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 children: [
                   const Icon(CupertinoIcons.arrowshape_turn_up_right),
                   const SizedBox(width: 8),
-                  Text(_i18n.get("forward"), style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),),
+                  Text(
+                    _i18n.get("forward"),
+                    style: theme.primaryTextTheme.bodyText2,
+                  ),
                 ],
               ),
             ),
@@ -233,8 +261,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       children: [
                         const Icon(CupertinoIcons.refresh),
                         const SizedBox(width: 8),
-                        Text(_i18n.get("resend"),
-                            style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),),
+                        Text(
+                          _i18n.get("resend"),
+                          style: theme.primaryTextTheme.bodyText2,
+                        ),
                       ],
                     ),
                   );
@@ -273,7 +303,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     size: 18,
                   ),
                   const SizedBox(width: 10),
-                  Text(_i18n.get("edit"), style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),),
+                  Text(
+                    _i18n.get("edit"),
+                    style: theme.primaryTextTheme.bodyText2,
+                  ),
                 ],
               ),
             ),
@@ -291,8 +324,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       children: [
                         const Icon(CupertinoIcons.folder_open),
                         const SizedBox(width: 8),
-                        Text(_i18n.get("show_in_folder"),
-                            style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),),
+                        Text(
+                          _i18n.get("show_in_folder"),
+                          style: theme.primaryTextTheme.bodyText2,
+                        ),
                       ],
                     ),
                   );
@@ -323,7 +358,11 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
             CupertinoIcons.delete,
           ),
           const SizedBox(width: 8),
-          Text(_i18n.get("delete"), style: theme.textTheme.bodyText2?.copyWith(color: theme.primaryColor),),
+          Text(
+            _i18n.get("delete"),
+            style:
+                theme.primaryTextTheme.bodyText2,
+          ),
         ],
       ),
     );

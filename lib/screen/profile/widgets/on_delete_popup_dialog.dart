@@ -37,7 +37,7 @@ class OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
       child: widget.selected == "delete_room"
           ? AlertDialog(
               titlePadding: EdgeInsets.zero,
-              actionsPadding: const EdgeInsets.only(bottom: 10, left: 20),
+              // actionsPadding: const EdgeInsets.only(left: 40),
               backgroundColor: Colors.white,
               content: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -86,24 +86,18 @@ class OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     TextButton(
-                      child: Text(
-                        _i18n.get(
-                          "cancel",
-                        ),
-                      ),
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
+                      child: Text(_i18n.get("cancel")),
                     ),
                     TextButton(
-                      child: Text(
-                        _i18n.get("ok"),
-                      ),
                       onPressed: () {
                         Navigator.pop(context);
                         widget.roomUid.isMuc() ? _leftMuc() : _deleteRoom();
                       },
                       style: TextButton.styleFrom(primary: theme.errorColor),
+                      child: Text(_i18n.get("ok")),
                     ),
                   ],
                 ),
@@ -111,7 +105,7 @@ class OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
             )
           : AlertDialog(
               titlePadding: EdgeInsets.zero,
-              actionsPadding: const EdgeInsets.only(bottom: 10, left: 20),
+              actionsPadding: const EdgeInsets.only(bottom: 10),
               backgroundColor: Colors.white,
               content: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -157,24 +151,18 @@ class OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     TextButton(
-                      child: Text(
-                        _i18n.get(
-                          "cancel",
-                        ),
-                      ),
+                      child: Text(_i18n.get("cancel")),
                       onPressed: () {
                         Navigator.of(context).pop();
                       },
                     ),
                     TextButton(
-                      child: Text(
-                        _i18n.get("ok"),
-                      ),
                       onPressed: () {
                         Navigator.pop(context);
                         _deleteMuc();
                       },
                       style: TextButton.styleFrom(primary: theme.errorColor),
+                      child: Text(_i18n.get("ok")),
                     ),
                   ],
                 ),

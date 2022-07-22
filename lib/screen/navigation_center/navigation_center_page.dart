@@ -315,8 +315,7 @@ class NavigationCenterState extends State<NavigationCenter> {
                   const SizedBox(width: 8),
                   Text(
                     _i18n.get("newGroup"),
-                    style: theme.textTheme.bodyText2
-                        ?.copyWith(color: theme.primaryColor),
+                    style: theme.primaryTextTheme.bodyText2,
                   ),
                 ],
               ),
@@ -329,8 +328,7 @@ class NavigationCenterState extends State<NavigationCenter> {
                   const SizedBox(width: 8),
                   Text(
                     _i18n.get("newChannel"),
-                    style: theme.textTheme.bodyText2
-                        ?.copyWith(color: theme.primaryColor),
+                    style: theme.primaryTextTheme.bodyText2,
                   )
                 ],
               ),
