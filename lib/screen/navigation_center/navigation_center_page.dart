@@ -285,7 +285,7 @@ class NavigationCenterState extends State<NavigationCenter> {
       targetColor: theme.colorScheme.tertiary,
       title: Text(
         _i18n.get("create_group_feature_discovery_title"),
-        textDirection: _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+        textDirection: _i18n.defaultTextDirection,
         style: TextStyle(
           color: theme.colorScheme.onTertiaryContainer,
         ),
@@ -313,7 +313,10 @@ class NavigationCenterState extends State<NavigationCenter> {
                 children: [
                   const Icon(CupertinoIcons.group),
                   const SizedBox(width: 8),
-                  Text(_i18n.get("newGroup")),
+                  Text(
+                    _i18n.get("newGroup"),
+                    style: theme.primaryTextTheme.bodyText2,
+                  ),
                 ],
               ),
             ),
@@ -325,6 +328,7 @@ class NavigationCenterState extends State<NavigationCenter> {
                   const SizedBox(width: 8),
                   Text(
                     _i18n.get("newChannel"),
+                    style: theme.primaryTextTheme.bodyText2,
                   )
                 ],
               ),
@@ -487,8 +491,7 @@ class NavigationCenterState extends State<NavigationCenter> {
                 targetColor: theme.colorScheme.tertiary,
                 title: Text(
                   _i18n.get("setting_icon_feature_discovery_title"),
-                  textDirection:
-                      _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                  textDirection: _i18n.defaultTextDirection,
                   style: TextStyle(
                     color: theme.colorScheme.onTertiaryContainer,
                   ),
@@ -552,8 +555,7 @@ class NavigationCenterState extends State<NavigationCenter> {
                 targetColor: theme.colorScheme.tertiary,
                 title: Text(
                   _i18n.get("qr_code_feature_discovery_title"),
-                  textDirection:
-                      _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                  textDirection: _i18n.defaultTextDirection,
                   style: TextStyle(
                     color: theme.colorScheme.onTertiaryContainer,
                   ),

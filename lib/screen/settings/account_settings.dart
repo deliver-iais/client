@@ -206,217 +206,220 @@ class AccountSettingsState extends State<AccountSettings> {
               _descriptionTextController.text = _account.description ?? "";
               _emailTextController.text = _account.email ?? "";
 
-              return ListView(
-                children: [
-                  Section(
-                    title: _i18n.get("avatar"),
-                    children: [
-                      NormalSettingsTitle(
-                        child: Center(
-                          child: StreamBuilder<String>(
-                            stream: _newAvatarPath,
-                            builder: (context, snapshot) {
-                              if (snapshot.hasData &&
-                                  snapshot.data != null &&
-                                  snapshot.data!.isNotEmpty) {
+              return Directionality(
+                textDirection: _i18n.defaultTextDirection,
+                child: ListView(
+                  children: [
+                    Section(
+                      title: _i18n.get("avatar"),
+                      children: [
+                        NormalSettingsTitle(
+                          child: Center(
+                            child: StreamBuilder<String>(
+                              stream: _newAvatarPath,
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData &&
+                                    snapshot.data != null &&
+                                    snapshot.data!.isNotEmpty) {
+                                  return Stack(
+                                    children: [
+                                      Center(
+                                        child: CircleAvatar(
+                                          radius: 60,
+                                          backgroundImage: isWeb
+                                              ? Image.network(snapshot.data!)
+                                                  .image
+                                              : Image.file(File(snapshot.data!))
+                                                  .image,
+                                        ),
+                                      ),
+                                      const Padding(
+                                        padding: EdgeInsets.only(top: 45),
+                                        child: Center(
+                                          child: CircularProgressIndicator(
+                                            strokeWidth: 6.0,
+                                            color: Colors.blue,
+                                          ),
+                                        ),
+                                      )
+                                    ],
+                                  );
+                                }
                                 return Stack(
                                   children: [
                                     Center(
-                                      child: CircleAvatar(
-                                        radius: 60,
-                                        backgroundImage: isWeb
-                                            ? Image.network(snapshot.data!)
-                                                .image
-                                            : Image.file(File(snapshot.data!))
-                                                .image,
+                                      child: Container(
+                                        height: 130,
+                                        width: 130,
+                                        decoration: BoxDecoration(
+                                          shape: BoxShape.circle,
+                                          color: Colors.grey[500]!
+                                              .withOpacity(0.9),
+                                        ),
+                                        child: CircleAvatarWidget(
+                                          _authRepo.currentUserUid,
+                                          130,
+                                          hideName: true,
+                                        ),
                                       ),
                                     ),
-                                    const Padding(
-                                      padding: EdgeInsets.only(top: 45),
-                                      child: Center(
-                                        child: CircularProgressIndicator(
-                                          strokeWidth: 6.0,
-                                          color: Colors.blue,
+                                    Center(
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(top: 35),
+                                        child: IconButton(
+                                          color: Colors.white,
+                                          splashRadius: 40,
+                                          iconSize: 50,
+                                          icon: const Icon(
+                                            Icons.add_a_photo,
+                                          ),
+                                          onPressed: () => attachFile(),
                                         ),
                                       ),
                                     )
                                   ],
                                 );
-                              }
-                              return Stack(
-                                children: [
-                                  Center(
-                                    child: Container(
-                                      height: 130,
-                                      width: 130,
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        color:
-                                            Colors.grey[500]!.withOpacity(0.9),
-                                      ),
-                                      child: CircleAvatarWidget(
-                                        _authRepo.currentUserUid,
-                                        130,
-                                        hideName: true,
-                                      ),
-                                    ),
-                                  ),
-                                  Center(
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(top: 35),
-                                      child: IconButton(
-                                        color: Colors.white,
-                                        splashRadius: 40,
-                                        iconSize: 50,
-                                        icon: const Icon(
-                                          Icons.add_a_photo,
-                                        ),
-                                        onPressed: () => attachFile(),
-                                      ),
-                                    ),
-                                  )
-                                ],
-                              );
-                            },
+                              },
+                            ),
                           ),
-                        ),
-                      )
-                    ],
-                  ),
-                  Section(
-                    title: _i18n.get("account_info"),
-                    children: [
-                      NormalSettingsTitle(
-                        child: Column(
-                          children: [
-                            Form(
-                              key: _formKey,
-                              child: Column(
-                                children: [
-                                  Form(
-                                    key: _usernameFormKey,
-                                    child: TextFormField(
-                                      minLines: 1,
-                                      controller: _usernameTextController,
-                                      textInputAction: TextInputAction.send,
-                                      onChanged: (str) {
-                                        subject.add(str);
+                        )
+                      ],
+                    ),
+                    Section(
+                      title: _i18n.get("account_info"),
+                      children: [
+                        NormalSettingsTitle(
+                          child: Column(
+                            children: [
+                              Form(
+                                key: _formKey,
+                                child: Column(
+                                  children: [
+                                    Form(
+                                      key: _usernameFormKey,
+                                      child: TextFormField(
+                                        minLines: 1,
+                                        controller: _usernameTextController,
+                                        textInputAction: TextInputAction.send,
+                                        onChanged: (str) {
+                                          subject.add(str);
+                                        },
+                                        validator: validateUsername,
+                                        decoration: buildInputDecoration(
+                                          _i18n.get("username"),
+                                          isOptional: true,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 5,
+                                    ),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            _i18n.get("username_helper"),
+                                            textAlign: TextAlign.justify,
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 2,
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              color: Colors.blueAccent,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    StreamBuilder<bool>(
+                                      stream: _usernameIsAvailable,
+                                      builder: (context, snapshot) {
+                                        if (snapshot.hasData &&
+                                            snapshot.data != null &&
+                                            !snapshot.data!) {
+                                          return Row(
+                                            children: [
+                                              Text(
+                                                _i18n.get(
+                                                  "username_already_exist",
+                                                ),
+                                                style: const TextStyle(
+                                                  fontSize: 10,
+                                                  color: Colors.red,
+                                                ),
+                                              ),
+                                            ],
+                                          );
+                                        } else {
+                                          return const SizedBox.shrink();
+                                        }
                                       },
-                                      validator: validateUsername,
+                                    ),
+                                    const SizedBox(
+                                      height: 20,
+                                    ),
+                                    TextFormField(
+                                      minLines: 1,
+                                      controller: _firstnameTextController,
+                                      textInputAction: TextInputAction.send,
+                                      validator: validateFirstName,
                                       decoration: buildInputDecoration(
-                                        _i18n.get("username"),
+                                        _i18n.get("firstName"),
                                         isOptional: true,
                                       ),
                                     ),
-                                  ),
-                                  const SizedBox(
-                                    height: 5,
-                                  ),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          _i18n.get("username_helper"),
-                                          textAlign: TextAlign.justify,
-                                          overflow: TextOverflow.ellipsis,
-                                          maxLines: 2,
-                                          style: const TextStyle(
-                                            fontSize: 14,
-                                            color: Colors.blueAccent,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  StreamBuilder<bool>(
-                                    stream: _usernameIsAvailable,
-                                    builder: (context, snapshot) {
-                                      if (snapshot.hasData &&
-                                          snapshot.data != null &&
-                                          !snapshot.data!) {
-                                        return Row(
-                                          children: [
-                                            Text(
-                                              _i18n.get(
-                                                "username_already_exist",
-                                              ),
-                                              style: const TextStyle(
-                                                fontSize: 10,
-                                                color: Colors.red,
-                                              ),
-                                            ),
-                                          ],
-                                        );
-                                      } else {
-                                        return const SizedBox.shrink();
-                                      }
-                                    },
-                                  ),
-                                  const SizedBox(
-                                    height: 20,
-                                  ),
-                                  TextFormField(
-                                    minLines: 1,
-                                    controller: _firstnameTextController,
-                                    textInputAction: TextInputAction.send,
-                                    validator: validateFirstName,
-                                    decoration: buildInputDecoration(
-                                      _i18n.get("firstName"),
-                                      isOptional: true,
+                                    const SizedBox(
+                                      height: 20,
                                     ),
-                                  ),
-                                  const SizedBox(
-                                    height: 20,
-                                  ),
-                                  TextFormField(
-                                    minLines: 1,
-                                    controller: _lastnameTextController,
-                                    textInputAction: TextInputAction.send,
-                                    decoration: buildInputDecoration(
-                                      _i18n.get("lastName"),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    height: 20,
-                                  ),
-                                  if (TWO_STEP_VERIFICATION_IS_AVAILABLE)
                                     TextFormField(
                                       minLines: 1,
-                                      controller: _emailTextController,
+                                      controller: _lastnameTextController,
                                       textInputAction: TextInputAction.send,
-                                      validator: validateEmail,
-                                      decoration: InputDecoration(
-                                        labelText: _i18n.get("email"),
+                                      decoration: buildInputDecoration(
+                                        _i18n.get("lastName"),
                                       ),
                                     ),
-                                  const SizedBox(
-                                    height: 20,
-                                  ),
-                                  TextFormField(
-                                    minLines: 1,
-                                    controller: _descriptionTextController,
-                                    textInputAction: TextInputAction.send,
-                                    decoration: InputDecoration(
-                                      labelText: _i18n.get("description"),
+                                    const SizedBox(
+                                      height: 20,
                                     ),
-                                  ),
-                                ],
+                                    if (TWO_STEP_VERIFICATION_IS_AVAILABLE)
+                                      TextFormField(
+                                        minLines: 1,
+                                        controller: _emailTextController,
+                                        textInputAction: TextInputAction.send,
+                                        validator: validateEmail,
+                                        decoration: InputDecoration(
+                                          labelText: _i18n.get("email"),
+                                        ),
+                                      ),
+                                    const SizedBox(
+                                      height: 20,
+                                    ),
+                                    TextFormField(
+                                      minLines: 1,
+                                      controller: _descriptionTextController,
+                                      textInputAction: TextInputAction.send,
+                                      decoration: InputDecoration(
+                                        labelText: _i18n.get("description"),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 8),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: ElevatedButton(
-                                onPressed: checkAndSend,
-                                child: Text(_i18n.get("save")),
-                              ),
-                            )
-                          ],
-                        ),
-                      )
-                    ],
-                  )
-                ],
+                              const SizedBox(height: 8),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: ElevatedButton(
+                                  onPressed: checkAndSend,
+                                  child: Text(_i18n.get("save")),
+                                ),
+                              )
+                            ],
+                          ),
+                        )
+                      ],
+                    )
+                  ],
+                ),
               );
             },
           ),

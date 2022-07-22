@@ -25,8 +25,10 @@ class SyncContact {
             content: SizedBox(
               width: 200,
               child: Text(
+                textDirection: _i18n.defaultTextDirection,
                 _i18n.get("send_contacts_message"),
                 style: Theme.of(context).textTheme.subtitle1,
+                textAlign: TextAlign.center,
               ),
             ),
             actions: <Widget>[
@@ -103,26 +105,28 @@ class SyncContact {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(children: [
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 2.0, left: 10),
-                          child: SizedBox(
-                            width: 14,
-                            height: 14,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: theme.colorScheme.onTertiaryContainer,
+                      Row(
+                        children: [
+                          Padding(
+                            padding:
+                                const EdgeInsets.only(bottom: 2.0, left: 10),
+                            child: SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: theme.colorScheme.onTertiaryContainer,
+                              ),
                             ),
                           ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          _i18n.get("syncing_contact"),
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 14),
-                        ),
-                      ],),
-
+                          const SizedBox(width: 8),
+                          Text(
+                            _i18n.get("syncing_contact"),
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ],
+                      ),
                       Padding(
                         padding: const EdgeInsets.only(right: 20),
                         child: Text(

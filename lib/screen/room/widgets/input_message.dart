@@ -560,8 +560,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                     border: InputBorder.none,
                     counterText: "",
                     hintText: _i18n.get("write_a_message"),
-                    hintTextDirection:
-                        _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                    hintTextDirection: _i18n.defaultTextDirection,
                     hintStyle: theme.textTheme.bodyMedium,
                   ),
                   textInputAction: TextInputAction.newline,
