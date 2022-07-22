@@ -27,24 +27,24 @@ String dateTimeFromNowFormat(DateTime time, {String weekFormat = 'D'}) {
   final now = clock.now();
   final difference = now.difference(time);
   if (difference.inDays < 1 && time.day == now.day) {
-    //TODO : is it important??
+    // TODO(amirhossein): is it important?? [WHY YOU COMMENT WHIT - is is important?]
     return DateTimeFormat.format(time, format: 'H:i');
   } else if (difference.inDays <= 7) {
-    if(_i18n.isPersian){
+    if (_i18n.isPersian) {
       return Jalali.fromDateTime(time).formatter.wN;
-    }else{
+    } else {
       return DateTimeFormat.format(time, format: weekFormat);
     }
   } else if (difference.inDays <= 365) {
-    if(_i18n.isPersian){
+    if (_i18n.isPersian) {
       return Jalali.fromDateTime(time).formatShortMonthDay();
-    }else{
+    } else {
       return DateTimeFormat.format(time, format: 'M j');
     }
-  } else{
-    if(_i18n.isPersian){
+  } else {
+    if (_i18n.isPersian) {
       return Jalali.fromDateTime(time).formatFullDate();
-    }else{
+    } else {
       return DateTimeFormat.format(time, format: 'M j');
     }
   }
@@ -56,23 +56,25 @@ String dateTimeFormat(DateTime time) {
     format: AmericanDateFormats.standardAbbrWithComma,
   );
 }
+
 String sameDayTitle(DateTime time) {
   final now = clock.now();
   final difference = now.difference(time);
   if (difference.inDays < 1 && time.day == now.day) {
     return _i18n.get("today");
-  } if (difference.inDays <=1 && time.day == now.day-1) {
+  }
+  if (difference.inDays <= 1 && time.day == now.day - 1) {
     return _i18n.get("yesterday");
   } else if (difference.inDays <= 7) {
-    if(_i18n.isPersian){
+    if (_i18n.isPersian) {
       return Jalali.fromDateTime(time).formatter.wN;
-    }else{
+    } else {
       return DateTimeFormat.format(time, format: 'l');
     }
   } else {
-    if(_i18n.isPersian){
+    if (_i18n.isPersian) {
       return Jalali.fromDateTime(time).formatShortMonthDay();
-    }else{
+    } else {
       return DateTimeFormat.format(time, format: 'M j');
     }
   }

@@ -464,8 +464,10 @@ class UrlHandlerService {
                   children: [
                     TextButton(
                       onPressed: () => Navigator.of(context).pop(),
+                      style: TextButton.styleFrom(
+                        primary: Theme.of(context).errorColor,
+                      ),
                       child: Text(_i18n.get("skip")),
-                      style: TextButton.styleFrom(primary: Theme.of(context).errorColor),
                     ),
                     TextButton(
                       onPressed: () async {

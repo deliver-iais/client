@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class FeatureDiscoveryDescriptionWidget extends StatelessWidget {
+  static final _i18n = GetIt.I.get<I18N>();
   final String description;
   final Widget? permissionWidget;
   final TextStyle? descriptionStyle;
@@ -17,7 +18,6 @@ class FeatureDiscoveryDescriptionWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final i18n = GetIt.I.get<I18N>();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -39,7 +39,7 @@ class FeatureDiscoveryDescriptionWidget extends StatelessWidget {
                   onPressed: () async =>
                       FeatureDiscovery.completeCurrentStep(context),
                   child: Text(
-                    i18n.get("understood"),
+                    _i18n.get("understood"),
                   ),
                 ),
                 const SizedBox(
@@ -48,7 +48,7 @@ class FeatureDiscoveryDescriptionWidget extends StatelessWidget {
                 TextButton(
                   onPressed: () => FeatureDiscovery.dismissAll(context),
                   child: Text(
-                    i18n.get("dismiss"),
+                    _i18n.get("dismiss"),
                   ),
                 ),
               ],

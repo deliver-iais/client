@@ -123,7 +123,8 @@ class SecuritySettingsPageState extends State<SecuritySettingsPage> {
                                     builder: (c) {
                                       return AlertDialog(
                                         content: Text(
-                                            _i18n.get("need_to_set_email")),
+                                          _i18n.get("need_to_set_email"),
+                                        ),
                                         actions: [
                                           TextButton(
                                             onPressed: () {
