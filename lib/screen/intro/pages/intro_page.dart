@@ -42,11 +42,13 @@ class IntroPageState extends State<IntroPage> {
                 FEATURE_1,
                 FEATURE_2,
                 FEATURE_3,
+                FEATURE_5,
                 FEATURE_4,
               }
             : const <String>{
                 FEATURE_1,
                 FEATURE_3,
+                FEATURE_5,
                 FEATURE_4,
               },
       );
