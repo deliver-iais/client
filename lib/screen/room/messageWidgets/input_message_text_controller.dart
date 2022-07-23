@@ -22,7 +22,11 @@ class InputMessageTextController extends TextEditingController {
               justHighlightSpoilers: true,
             ),
           )
-        : [TextSpan(text: text)];
+        : onePath(
+            [Block(text: text, features: {})],
+            [emojiDetector()],
+            emojiTransformer(),
+          );
 
     return TextSpan(
       style: style,
