@@ -884,7 +884,7 @@ class RoomPageState extends State<RoomPage> {
             builder: (context, snapshot) {
               return snapshot.hasData && !snapshot.data!
                   ? DescribedFeatureOverlay(
-                      featureId: FEATURE_4,
+                      featureId: FEATURE_5,
                       tapTarget: IconButton(
                         icon: const Icon(CupertinoIcons.phone),
                         onPressed: () {},

@@ -513,29 +513,24 @@ class InputMessageWidgetState extends State<InputMessage> {
               ),
             if (showSendButton && !widget.waitingForForward)
               DescribedFeatureOverlay(
-                featureId: FEATURE_5,
+                featureId: FEATURE_4,
                 tapTarget: const FaIcon(
                   FontAwesomeIcons.markdown,
                 ),
                 backgroundColor: theme.colorScheme.tertiaryContainer,
                 targetColor: theme.colorScheme.tertiary,
-                title: Padding(
-                  padding: const EdgeInsets.only(left: 80),
-                  child: Text(
-                    _i18n.get("markdown_feature_discovery_title"),
-                    textDirection: _i18n.defaultTextDirection,
-                    style: TextStyle(
-                      color: theme.colorScheme.onTertiaryContainer,
-                    ),
+                title: Text(
+                  _i18n.get("markdown_feature_discovery_title"),
+                  textDirection: _i18n.defaultTextDirection,
+                  style: TextStyle(
+                    color: theme.colorScheme.onTertiaryContainer,
                   ),
                 ),
-                description: Padding(
-                  padding: const EdgeInsets.only(left: 80),
-                  child: FeatureDiscoveryDescriptionWidget(
-                    description: _i18n.get("markdown_feature_description"),
-                    descriptionStyle: TextStyle(
-                      color: theme.colorScheme.onTertiaryContainer,
-                    ),
+                overflowMode: OverflowMode.extendBackground,
+                description: FeatureDiscoveryDescriptionWidget(
+                  description: _i18n.get("markdown_feature_description"),
+                  descriptionStyle: TextStyle(
+                    color: theme.colorScheme.onTertiaryContainer,
                   ),
                 ),
                 child: IconButton(
