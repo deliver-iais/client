@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:dcache/dcache.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
@@ -95,7 +97,7 @@ class LinkPreview extends StatelessWidget {
       margin: const EdgeInsets.only(top: 6),
       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
       constraints: BoxConstraints(
-        maxWidth: maxWidth,
+        maxWidth: max(maxWidth, 150),
         maxHeight: maxHeight,
       ),
       decoration: BoxDecoration(
