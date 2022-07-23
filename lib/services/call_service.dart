@@ -92,6 +92,8 @@ class CallService {
 
   Uid _roomUid = Uid.getDefault();
 
+  bool _isPermissionDialogShowed = false;
+
   ReceivePort? _receivePort;
 
   SendPort? _sendPort;
@@ -108,6 +110,8 @@ class CallService {
 
   String get getCallId => _callId;
 
+  bool get isPermissionDialogShowed => _isPermissionDialogShowed;
+
   set setUserCallState(UserCallState cs) => _callState = cs;
 
   set setSendPort(SendPort? sp) => _sendPort = sp;
@@ -117,6 +121,8 @@ class CallService {
   set setCallOwner(Uid uid) => _callOwner = uid;
 
   set setCallId(String callId) => _callId = callId;
+
+  set setPermissionDialogShowed(bool pDialog) => _isPermissionDialogShowed = pDialog;
 
   call_status.CallStatus findCallEventStatusProto(
     CallEvent_CallStatus eventCallStatus,
@@ -210,6 +216,7 @@ class CallService {
       _callId = "";
       _callState = UserCallState.NOCALL;
       _callOwner = Uid.getDefault();
+      _isPermissionDialogShowed = false;
       await FlutterForegroundTask.clearAllData();
       await removeCallFromDb();
     }

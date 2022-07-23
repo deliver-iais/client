@@ -19,6 +19,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:random_string/random_string.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 
+import '../../services/call_service.dart';
 import 'videoCallScreen/in_video_call_page.dart';
 
 class CallScreen extends StatefulWidget {
@@ -45,7 +46,8 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
   late final RTCVideoRenderer _localRenderer;
 
   late final RTCVideoRenderer _remoteRenderer;
-  final callRepo = GetIt.I.get<CallRepo>();
+  final _callRepo = GetIt.I.get<CallRepo>();
+  final _callService = GetIt.I.get<CallService>();
   final _logger = GetIt.I.get<Logger>();
   final _audioService = GetIt.I.get<AudioService>();
   final _i18n = GetIt.I.get<I18N>();
@@ -67,12 +69,21 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
   }
 
   @override
+  @mustCallSuper
+  void didChangeDependencies() {
+    if(!_callService.isPermissionDialogShowed){
+      checkForSystemAlertWindowPermission();
+      _callService.setPermissionDialogShowed = true;
+    }
+  }
+
+  @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
     random = randomAlphaNumeric(10);
-    callRepo.initRenderer();
-    _localRenderer = callRepo.getLocalRenderer;
-    _remoteRenderer = callRepo.getRemoteRenderer;
+    _callRepo.initRenderer();
+    _localRenderer = _callRepo.getLocalRenderer;
+    _remoteRenderer = _callRepo.getRemoteRenderer;
     if (!widget.isCallInitialized) {
       startCall();
     }
@@ -181,7 +192,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
   }
 
   Future<void> startCall() async {
-    callRepo
+    _callRepo
       ..onLocalStream = ((stream) {
         _localRenderer.srcObject = stream;
       })
@@ -196,19 +207,19 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
 
     if (widget.isCallAccepted || widget.isIncomingCall) {
       if (widget.isCallAccepted) {
-        await callRepo.acceptCall(widget.roomUid);
+        await _callRepo.acceptCall(widget.roomUid);
       }
     } else if (widget.isVideoCall) {
-      await callRepo.startCall(widget.roomUid, isVideo: true);
+      await _callRepo.startCall(widget.roomUid, isVideo: true);
     } else {
-      await callRepo.startCall(widget.roomUid);
+      await _callRepo.startCall(widget.roomUid);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: callRepo.callingStatus,
+      stream: _callRepo.callingStatus,
       builder: (context, snapshot) {
         _logger.i("callStatus-$random: ${snapshot.data}");
         switch (snapshot.data) {
@@ -216,7 +227,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
             _audioService.stopBeepSound();
             return widget.isVideoCall
                 ? StreamBuilder<bool>(
-                    stream: callRepo.switching,
+                    stream: _callRepo.switching,
                     builder: (context, snapshot) {
                       if (snapshot.hasData && snapshot.data != null) {
                         if (snapshot.data == false) {
@@ -340,13 +351,13 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                     localRenderer: _localRenderer,
                     text: "Calling",
                     remoteRenderer: _remoteRenderer,
-                    isIncomingCall: !callRepo.isCaller,
+                    isIncomingCall: !_callRepo.isCaller,
                     hangUp: _hangUp,
                   )
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: "Calling",
-                    isIncomingCall: !callRepo.isCaller,
+                    isIncomingCall: !_callRepo.isCaller,
                     hangUp: _hangUp,
                   );
           case CallStatus.ENDED:
@@ -357,7 +368,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                 _routingService.pop();
               }
             });
-            callRepo.disposeRenderer();
+            _callRepo.disposeRenderer();
             return AudioCallScreen(
               roomUid: widget.roomUid,
               callStatus: "Ended",
@@ -397,7 +408,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                     hangUp: _hangUp,
                   );
           case CallStatus.ACCEPTED:
-            unawaited(callRepo.cancelCallNotification());
+            unawaited(_callRepo.cancelCallNotification());
             return widget.isVideoCall
                 ? StartVideoCallPage(
                     roomUid: widget.roomUid,
@@ -424,6 +435,6 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
   void _hangUp() {
     _logger.i("Call hang Up ...!");
     _audioService.stopBeepSound();
-    callRepo.endCall();
+    _callRepo.endCall();
   }
 }
