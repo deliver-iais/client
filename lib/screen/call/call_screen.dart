@@ -60,6 +60,8 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+
     if (state == AppLifecycleState.resumed) {
       if (dialogContext != null) {
         Navigator.of(dialogContext!).pop();
@@ -71,7 +73,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
   @override
   @mustCallSuper
   void didChangeDependencies() {
-    if(!_callService.isPermissionDialogShowed){
+    if (!_callService.isPermissionDialogShowed) {
       checkForSystemAlertWindowPermission();
       _callService.setPermissionDialogShowed = true;
     }
@@ -79,7 +81,6 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
 
   @override
   void initState() {
-    WidgetsBinding.instance.addObserver(this);
     random = randomAlphaNumeric(10);
     _callRepo.initRenderer();
     _localRenderer = _callRepo.getLocalRenderer;
@@ -91,6 +92,8 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
       _listenSensor();
     }
     super.initState();
+    //add an observer to monitor the widget lyfecycle changes
+    WidgetsBinding.instance!.addObserver(this);
   }
 
   void showPermissionDialog() {
@@ -98,6 +101,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
       context: context,
       builder: (context) {
         dialogContext = context;
+        final theme = Theme.of(context);
         return AlertDialog(
           title: const Tgs.asset(
             'assets/animations/call_permission.tgs',
@@ -110,7 +114,10 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                 _i18n.get(
                   "alert_window_permission",
                 ),
-                textDirection: TextDirection.rtl,
+                textDirection:
+                    _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                style: theme.textTheme.bodyText1!
+                    .copyWith(color: theme.primaryColor),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
@@ -118,10 +125,10 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                   _i18n.get(
                     "alert_window_permission_attention",
                   ),
-                  textDirection: TextDirection.rtl,
-                  style: const TextStyle(
-                    color: Colors.red,
-                  ),
+                  textDirection:
+                      _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                  style: theme.textTheme.bodyText1!
+                      .copyWith(color: theme.errorColor),
                 ),
               )
             ],
@@ -130,14 +137,17 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
           actionsAlignment: MainAxisAlignment.spaceEvenly,
           actions: <Widget>[
             TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: TextButton.styleFrom(
+                primary: Theme.of(context).errorColor,
+              ),
               child: Text(
                 _i18n.get(
                   "cancel",
                 ),
               ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
             ),
             TextButton(
               child: Text(
