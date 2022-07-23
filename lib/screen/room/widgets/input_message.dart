@@ -514,6 +514,7 @@ class InputMessageWidgetState extends State<InputMessage> {
             if (showSendButton && !widget.waitingForForward)
               DescribedFeatureOverlay(
                 featureId: FEATURE_4,
+                useCustomPosition: true,
                 tapTarget: const FaIcon(
                   FontAwesomeIcons.markdown,
                 ),
