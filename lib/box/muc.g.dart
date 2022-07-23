@@ -25,14 +25,13 @@ class MucAdapter extends TypeAdapter<Muc> {
       pinMessagesIdList: (fields[5] as List).cast<int>(),
       population: fields[6] as int,
       lastCanceledPinMessageId: fields[7] as int,
-      mucType: fields[8] as MucType,
     );
   }
 
   @override
   void write(BinaryWriter writer, Muc obj) {
     writer
-      ..writeByte(9)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.uid)
       ..writeByte(1)
@@ -48,9 +47,7 @@ class MucAdapter extends TypeAdapter<Muc> {
       ..writeByte(6)
       ..write(obj.population)
       ..writeByte(7)
-      ..write(obj.lastCanceledPinMessageId)
-      ..writeByte(8)
-      ..write(obj.mucType);
+      ..write(obj.lastCanceledPinMessageId);
   }
 
   @override
