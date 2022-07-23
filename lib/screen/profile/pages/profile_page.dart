@@ -8,6 +8,7 @@ import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/muc.dart';
+import 'package:deliver/box/muc_type.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -17,6 +18,7 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/muc/widgets/select_muc_type.dart';
 import 'package:deliver/screen/profile/widgets/document_and_file_ui.dart';
 import 'package:deliver/screen/profile/widgets/image_tab_ui.dart';
 import 'package:deliver/screen/profile/widgets/link_tab_ui.dart';
@@ -81,6 +83,7 @@ class ProfilePageState extends State<ProfilePage>
   bool _isMucOwner = false;
   String _roomName = "";
   bool _roomIsBlocked = false;
+  MucType _mucType = MucType.Public;
 
   final BehaviorSubject<bool> _selectMediasForForward =
       BehaviorSubject.seeded(false);
@@ -898,17 +901,7 @@ class ProfilePageState extends State<ProfilePage>
 
   InputDecoration buildInputDecoration(String label) {
     return InputDecoration(
-      enabledBorder: const OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.blue),
-      ),
-      focusedBorder: const OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.blue),
-      ),
-      border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
-      disabledBorder:
-          const OutlineInputBorder(borderSide: BorderSide(color: Colors.red)),
       labelText: label,
-      labelStyle: const TextStyle(color: Colors.blue),
     );
   }
 
@@ -1049,7 +1042,38 @@ class ProfilePageState extends State<ProfilePage>
                       return const SizedBox.shrink();
                     }
                   },
-                )
+                ),
+                if (widget.roomUid.category == Categories.CHANNEL)
+                  Column(
+                    children: [
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      StreamBuilder<Muc?>(
+                        stream: _mucRepo.watchMuc(widget.roomUid.asString()),
+                        builder: (c, muc) {
+                          if (muc.hasData && muc.data != null) {
+                            _mucType = muc.data!.mucType;
+                            return SelectMucType(
+                              backgroundColor:
+                                  Theme.of(context).dialogBackgroundColor,
+                              onMucTypeChange: (value) {
+                                _mucType =
+                                    _mucRepo.pbMucTypeToHiveMucType(value);
+                                if (_mucRepo.pbMucTypeToHiveMucType(value) !=
+                                    muc.data!.mucType) {
+                                  newChange.add(true);
+                                }
+                              },
+                              mucType:
+                                  _mucRepo.hiveMucTypeToPbMucType(_mucType),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
+                    ],
+                  )
               ],
             ),
           ),
@@ -1083,6 +1107,7 @@ class ProfilePageState extends State<ProfilePage>
                                     mucName ?? currentName,
                                     currentId,
                                     mucInfo,
+                                    _mucRepo.hiveMucTypeToPbMucType(_mucType),
                                   );
                                   _roomRepo.updateRoomName(
                                     widget.roomUid,
@@ -1098,6 +1123,7 @@ class ProfilePageState extends State<ProfilePage>
                                       mucName ?? currentName,
                                       channelId,
                                       mucInfo,
+                                      _mucRepo.hiveMucTypeToPbMucType(_mucType),
                                     );
                                     _roomRepo.updateRoomName(
                                       widget.roomUid,
@@ -1111,7 +1137,9 @@ class ProfilePageState extends State<ProfilePage>
                               }
                             }
                           }
-                        : () {},
+                        : () {
+                            Navigator.of(context).pop();
+                          },
                     child: Text(
                       _i18n.get("set"),
                     ),
