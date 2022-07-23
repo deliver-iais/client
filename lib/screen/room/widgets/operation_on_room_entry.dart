@@ -54,6 +54,8 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return IconTheme(
       data: IconThemeData(
         size: (PopupMenuTheme.of(context).textStyle?.fontSize ?? 20) + 4,
@@ -71,7 +73,10 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                     size: 20,
                   ),
                   const SizedBox(width: 8),
-                  Text(_i18n.get("pin_room")),
+                  Text(
+                    _i18n.get("pin_room"),
+                    style: theme.primaryTextTheme.bodyText2,
+                  ),
                 ],
               ),
             )
@@ -85,7 +90,10 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                     size: 20,
                   ),
                   const SizedBox(width: 8),
-                  Text(_i18n.get("unpin_room")),
+                  Text(
+                    _i18n.get("unpin_room"),
+                    style: theme.primaryTextTheme.bodyText2,
+                  ),
                 ],
               ),
             ),
@@ -105,7 +113,10 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                           size: 20,
                         ),
                         const SizedBox(width: 8),
-                        Text(_i18n.get("enable_notifications")),
+                        Text(
+                          _i18n.get("enable_notifications"),
+                          style: theme.primaryTextTheme.bodyText2,
+                        ),
                       ],
                     ),
                   );
@@ -121,7 +132,10 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                           size: 20,
                         ),
                         const SizedBox(width: 8),
-                        Text(_i18n.get("disable_notifications")),
+                        Text(
+                          _i18n.get("disable_notifications"),
+                          style: theme.primaryTextTheme.bodyText2,
+                        ),
                       ],
                     ),
                   );
@@ -156,6 +170,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                               : widget.room.uid.asUid().isGroup()
                                   ? _i18n.get("left_group")
                                   : _i18n.get("left_channel"),
+                          style: theme.primaryTextTheme.bodyText2,
                         ),
                       ],
                     ),
@@ -174,6 +189,7 @@ class OperationOnRoomEntryState extends State<OperationOnRoomEntry> {
                           widget.room.uid.asUid().isGroup()
                               ? _i18n.get("delete_group")
                               : _i18n.get("delete_channel"),
+                          style: theme.primaryTextTheme.bodyText2,
                         ),
                       ],
                     ),

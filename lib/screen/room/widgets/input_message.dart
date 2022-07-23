@@ -233,6 +233,7 @@ class InputMessageWidgetState extends State<InputMessage> {
       textController: widget.textController,
       captionController: captionTextController,
       roomUid: currentRoom.uid.asUid(),
+      enableMarkDown: enableMarkdown,
     );
     super.initState();
   }
@@ -550,7 +551,7 @@ class InputMessageWidgetState extends State<InputMessage> {
               builder: (c, sn) {
                 final textDir = sn.data ?? TextDirection.ltr;
                 return TextField(
-                  selectionControls: isDesktop ? selectionControls : null,
+                  selectionControls: selectionControls,
                   focusNode: widget.focusNode,
                   autofocus: (snapshot.data?.id ?? 0) > 0 || isDesktop,
                   controller: widget.textController,
@@ -559,8 +560,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                     border: InputBorder.none,
                     counterText: "",
                     hintText: _i18n.get("write_a_message"),
-                    hintTextDirection:
-                        _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                    hintTextDirection: _i18n.defaultTextDirection,
                     hintStyle: theme.textTheme.bodyMedium,
                   ),
                   textInputAction: TextInputAction.newline,
@@ -947,6 +947,14 @@ class InputMessageWidgetState extends State<InputMessage> {
     widget.textController.selection = TextSelection.collapsed(
       offset: widget.textController.text.length,
     );
+  }
+
+  void enableMarkdown() {
+    if (_shouldSynthesize) {
+      setState(() {
+        _shouldSynthesize = false;
+      });
+    }
   }
 }
 

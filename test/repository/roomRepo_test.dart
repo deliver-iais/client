@@ -451,14 +451,14 @@ void main() {
         final blockDao = getAndRegisterBlockDao();
         final queryServiceClient = getAndRegisterQueryServiceClient();
         await RoomRepo().block(testUid.asString(), block: true);
-        verify(queryServiceClient.queryServiceClient.block(BlockReq()..uid = testUid));
+        verify(queryServiceClient.queryServiceClient.blockUid(BlockUidReq()..uid = testUid));
         verify(blockDao.block(testUid.asString()));
       });
       test('When called if block is false should unblock room', () async {
         final blockDao = getAndRegisterBlockDao();
         final queryServiceClient = getAndRegisterQueryServiceClient();
         await RoomRepo().block(testUid.asString(), block: false);
-        verify(queryServiceClient.queryServiceClient.unblock(UnblockReq()..uid = testUid));
+        verify(queryServiceClient.queryServiceClient.unblockUid(UnblockUidReq()..uid = testUid));
         verify(blockDao.unblock(testUid.asString()));
       });
     });
