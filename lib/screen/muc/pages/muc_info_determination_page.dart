@@ -1,5 +1,6 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/mucRepo.dart';
+import 'package:deliver/screen/muc/widgets/select_muc_type.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -30,6 +31,7 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
 
   bool autofocus = false;
   bool _showIcon = true;
+  ChannelType _channelType = ChannelType.PUBLIC;
   final _routingService = GetIt.I.get<RoutingService>();
   final _createMucService = GetIt.I.get<CreateMucService>();
   final MucRepo _mucRepo = GetIt.I.get<MucRepo>();
@@ -168,6 +170,23 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                       ),
                     ],
                   ),
+                  if (widget.isChannel)
+                    Column(
+                      children: [
+                        const SizedBox(
+                          height: 20,
+                        ),
+                        SelectMucType(
+                          onMucTypeChange: (value) {
+                            setState(() {
+                              _channelType = value;
+                            });
+                          },
+                          mucType: _channelType,
+                          backgroundColor: theme.colorScheme.background,
+                        ),
+                      ],
+                    ),
                   const SizedBox(
                     height: 20,
                   ),
@@ -248,7 +267,7 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                   idController.text,
                                   memberUidList,
                                   controller.text,
-                                  ChannelType.PUBLIC,
+                                  _channelType,
                                   infoController.text,
                                 );
                               }
