@@ -183,7 +183,7 @@ class CallRepo {
               }
               break;
             case CallEvent_CallStatus.CREATED:
-              if (_callService.getUserCallState == UserCallState.NOCALL) {
+              if (_callService.getUserCallState == UserCallState.NOCALL && (event.time - clock.now().millisecondsSinceEpoch) < 60000) {
                 // final callStatus =
                 //     await FlutterForegroundTask.getData(key: "callStatus");
                 _callService
