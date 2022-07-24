@@ -949,8 +949,8 @@ class ProfilePageState extends State<ProfilePage>
                             keyboardType: TextInputType.text,
                             decoration: buildInputDecoration(
                               widget.roomUid.isGroup()
-                                  ? _i18n.get("group_name")
-                                  : _i18n.get("channel_name"),
+                                  ? _i18n.get("enter_group_name")
+                                  : _i18n.get("enter_channel_name"),
                             ),
                           ),
                         ),
@@ -968,23 +968,26 @@ class ProfilePageState extends State<ProfilePage>
                         currentId = muc.data!.id;
                         return Column(
                           children: [
-                            Form(
-                              key: channelIdFormKey,
-                              child: TextFormField(
-                                initialValue: muc.data!.id,
-                                minLines: 1,
-                                validator: validateChannelId,
-                                onChanged: (str) {
-                                  if (str.isNotEmpty && str != muc.data!.id) {
-                                    channelId = str;
-                                    if (!newChange.value) {
-                                      newChange.add(true);
+                            Directionality(
+                              textDirection: _i18n.defaultTextDirection,
+                              child: Form(
+                                key: channelIdFormKey,
+                                child: TextFormField(
+                                  initialValue: muc.data!.id,
+                                  minLines: 1,
+                                  validator: validateChannelId,
+                                  onChanged: (str) {
+                                    if (str.isNotEmpty && str != muc.data!.id) {
+                                      channelId = str;
+                                      if (!newChange.value) {
+                                        newChange.add(true);
+                                      }
                                     }
-                                  }
-                                },
-                                keyboardType: TextInputType.text,
-                                decoration: buildInputDecoration(
-                                  _i18n.get("channel_id"),
+                                  },
+                                  keyboardType: TextInputType.text,
+                                  decoration: buildInputDecoration(
+                                    _i18n.get("enter_channel_id"),
+                                  ),
                                 ),
                               ),
                             ),

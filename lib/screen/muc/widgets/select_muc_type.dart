@@ -1,5 +1,7 @@
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class SelectMucType extends StatefulWidget {
   final Function(ChannelType channelType) onMucTypeChange;
@@ -19,6 +21,7 @@ class SelectMucType extends StatefulWidget {
 
 class SelectMucTypeState extends State<SelectMucType> {
   late ChannelType _groupValue;
+  final I18N _i18n = GetIt.I.get<I18N>();
 
   @override
   void initState() {
@@ -29,50 +32,53 @@ class SelectMucTypeState extends State<SelectMucType> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
-      decoration: BoxDecoration(
-        border: Border.all(color: Colors.grey),
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Container(
-            // Negative padding
-            transform: Matrix4.translationValues(
-              5.0,
-              -10.0,
-              0.0,
-            ),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 5,
-            ),
-            decoration: BoxDecoration(
-              color: widget.backgroundColor,
-            ),
-            child: Text(
-              'Channel Type',
-              style: TextStyle(
-                color: theme.primaryColor,
-                fontSize: 12,
+    return Directionality(
+      textDirection: _i18n.defaultTextDirection,
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.grey),
+          borderRadius: BorderRadius.circular(15),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              // Negative padding
+              transform: Matrix4.translationValues(
+                5.0,
+                -10.0,
+                0.0,
+              ),
+              padding: const EdgeInsets.symmetric(
+                horizontal: 5,
+              ),
+              decoration: BoxDecoration(
+                color: widget.backgroundColor,
+              ),
+              child: Text(
+                _i18n.get("channel_type"),
+                style: TextStyle(
+                  color: theme.primaryColor,
+                  fontSize: 12,
+                ),
               ),
             ),
-          ),
-          Column(
-            children: [
-              buildSelectMucTypeRow(
-                title: "Public Channel",
-                description: "Anyone can find the channel in search and join",
-                radioValue: ChannelType.PUBLIC,
-              ),
-              buildSelectMucTypeRow(
-                title: "Private Channel",
-                description: "only people with an invite link can join",
-                radioValue: ChannelType.PRIVATE,
-              )
-            ],
-          )
-        ],
+            Column(
+              children: [
+                buildSelectMucTypeRow(
+                  title: _i18n.get("public_channel"),
+                  description: _i18n.get("public_channel_description"),
+                  radioValue: ChannelType.PUBLIC,
+                ),
+                buildSelectMucTypeRow(
+                  title: _i18n.get("private_channel"),
+                  description: _i18n.get("private_channel_description"),
+                  radioValue: ChannelType.PRIVATE,
+                )
+              ],
+            )
+          ],
+        ),
       ),
     );
   }
@@ -91,12 +97,12 @@ class SelectMucTypeState extends State<SelectMucType> {
           Radio<ChannelType>(
             activeColor: theme.primaryColor,
             value: radioValue,
-            groupValue:_groupValue,
+            groupValue: _groupValue,
             onChanged: (value) {
               if (value != null) {
                 widget.onMucTypeChange(value);
                 setState(() {
-                  _groupValue=value;
+                  _groupValue = value;
                 });
               }
             },
