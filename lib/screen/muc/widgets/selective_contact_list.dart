@@ -32,23 +32,18 @@ class SelectiveContactsList extends StatefulWidget {
 }
 
 class SelectiveContactsListState extends State<SelectiveContactsList> {
+  final _contactRepo = GetIt.I.get<ContactRepo>();
+  final _routingService = GetIt.I.get<RoutingService>();
+  final _mucRepo = GetIt.I.get<MucRepo>();
+  final _createMucService = GetIt.I.get<CreateMucService>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
+  final _i18n = GetIt.I.get<I18N>();
+
   late TextEditingController editingController;
 
   List<Contact> selectedList = [];
 
   List<Contact>? items;
-
-  final _contactRepo = GetIt.I.get<ContactRepo>();
-
-  final _routingService = GetIt.I.get<RoutingService>();
-
-  final _mucRepo = GetIt.I.get<MucRepo>();
-
-  final _createMucService = GetIt.I.get<CreateMucService>();
-
-  final _authRepo = GetIt.I.get<AuthRepo>();
-
-  final _i18n = GetIt.I.get<I18N>();
 
   List<Contact> contacts = [];
 
@@ -102,8 +97,6 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
     }
   }
 
-  I18N i18n = GetIt.I.get<I18N>();
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -134,7 +127,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                               !_authRepo.isCurrentUser(element.uid!) &&
                               !element.isUsersContact(),
                         )
-                        .toList(growable: false);
+                        .toList();
 
                     items ??= contacts;
 
@@ -220,7 +213,7 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
 
                             } else {
                               ToastDisplay.showToast(
-                                toastText: i18n.get("error_occurred"),
+                                toastText: _i18n.get("error_occurred"),
                                 toastContext: context,
                               );
                               // _routingService.pop();
