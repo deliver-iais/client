@@ -42,7 +42,7 @@ class CallScreen extends StatefulWidget {
   CallScreenState createState() => CallScreenState();
 }
 
-class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
+class CallScreenState extends State<CallScreen> {
   late final RTCVideoRenderer _localRenderer;
 
   late final RTCVideoRenderer _remoteRenderer;
@@ -53,34 +53,13 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
   final _i18n = GetIt.I.get<I18N>();
   final _routingService = GetIt.I.get<RoutingService>();
   late final String random;
-  BuildContext? dialogContext;
 
   final List<StreamSubscription<AccelerometerEvent>?> _accelerometerEvents =
       <StreamSubscription<AccelerometerEvent>>[];
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-
-    if (state == AppLifecycleState.resumed) {
-      if (dialogContext != null) {
-        Navigator.of(dialogContext!).pop();
-      }
-      checkForSystemAlertWindowPermission();
-    }
-  }
-
-  @override
-  @mustCallSuper
-  void didChangeDependencies() {
-    if (!_callService.isPermissionDialogShowed) {
-      checkForSystemAlertWindowPermission();
-      _callService.setPermissionDialogShowed = true;
-    }
-  }
-
-  @override
   void initState() {
+    super.initState();
     random = randomAlphaNumeric(10);
     _callRepo.initRenderer();
     _localRenderer = _callRepo.getLocalRenderer;
@@ -92,15 +71,16 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
       _listenSensor();
     }
     super.initState();
-    //add an observer to monitor the widget lyfecycle changes
-    WidgetsBinding.instance!.addObserver(this);
+    if (!_callService.isPermissionDialogShowed) {
+      checkForSystemAlertWindowPermission();
+      _callService.setPermissionDialogShowed = true;
+    }
   }
 
   void showPermissionDialog() {
     showDialog(
       context: context,
       builder: (context) {
-        dialogContext = context;
         final theme = Theme.of(context);
         return AlertDialog(
           title: const Tgs.asset(
@@ -109,6 +89,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
             height: 150,
           ),
           content: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 _i18n.get(
@@ -154,7 +135,9 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                 _i18n.get("go_to_setting"),
               ),
               onPressed: () async {
-                await Permission.systemAlertWindow.request();
+                if(await Permission.systemAlertWindow.request().isGranted){
+                  Navigator.of(context).pop();
+                }
               },
             ),
           ],
@@ -180,7 +163,6 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
       }
       setOnLockScreenVisibility();
     }
-    WidgetsBinding.instance.removeObserver(this);
   }
 
   Future<void> setOnLockScreenVisibility() async {
