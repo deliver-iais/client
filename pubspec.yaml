@@ -61,7 +61,7 @@ dependencies:
   expandable: 5.0.1
   feature_discovery:
     git:
-      ref: f775bf10512cf8c00a6d7c5c35bd4f85e2f058b0
+      ref: 319d1fe74fcee87eef427a6136639b3bf2537a89
       url: https://github.com/deliveriais/feature_discovery
   file_picker: 4.6.1
   file_selector: 0.8.4+3

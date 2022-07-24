@@ -33,8 +33,7 @@ Transformer<InlineSpan> inlineSpanTransformer({
     final italic = b.features.whereType<ItalicFeature>().firstOrNull;
     final strikethrough =
         b.features.whereType<StrikethroughFeature>().firstOrNull;
-    final specialChar =
-        b.features.whereType<GrayOutFeature>().firstOrNull;
+    final specialChar = b.features.whereType<GrayOutFeature>().firstOrNull;
 
     final text = synthesizeToOriginalWord(b.text);
     var textStyle = const TextStyle();
@@ -179,6 +178,24 @@ Transformer<InlineSpan> simpleInlineSpanTransformer({
     return TextSpan(
       text: text,
       recognizer: gestureRecognizer,
+      style: textStyle,
+    );
+  };
+}
+
+Transformer<TextSpan> emojiTransformer() {
+  return (b) {
+    final emoji = b.features.whereType<EmojiFeature>().firstOrNull;
+
+    final text = synthesizeToOriginalWord(b.text);
+    var textStyle = const TextStyle();
+
+    if (emoji != null) {
+      textStyle = GoogleFonts.notoEmoji(textStyle: textStyle);
+    }
+
+    return TextSpan(
+      text: text,
       style: textStyle,
     );
   };
