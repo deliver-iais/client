@@ -19,7 +19,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:random_string/random_string.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 
-import '../../services/call_service.dart';
 import 'videoCallScreen/in_video_call_page.dart';
 
 class CallScreen extends StatefulWidget {
@@ -47,7 +46,6 @@ class CallScreenState extends State<CallScreen> {
 
   late final RTCVideoRenderer _remoteRenderer;
   final _callRepo = GetIt.I.get<CallRepo>();
-  final _callService = GetIt.I.get<CallService>();
   final _logger = GetIt.I.get<Logger>();
   final _audioService = GetIt.I.get<AudioService>();
   final _i18n = GetIt.I.get<I18N>();
@@ -66,15 +64,13 @@ class CallScreenState extends State<CallScreen> {
     _remoteRenderer = _callRepo.getRemoteRenderer;
     if (!widget.isCallInitialized) {
       startCall();
+    }else{
+      checkForSystemAlertWindowPermission();
     }
     if (isAndroid) {
       _listenSensor();
     }
     super.initState();
-    if (!_callService.isPermissionDialogShowed) {
-      checkForSystemAlertWindowPermission();
-      _callService.setPermissionDialogShowed = true;
-    }
   }
 
   void showPermissionDialog() {
