@@ -526,8 +526,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: f775bf10512cf8c00a6d7c5c35bd4f85e2f058b0
-      resolved-ref: f775bf10512cf8c00a6d7c5c35bd4f85e2f058b0
+      ref: "319d1fe74fcee87eef427a6136639b3bf2537a89"
+      resolved-ref: "319d1fe74fcee87eef427a6136639b3bf2537a89"
       url: "https://github.com/deliveriais/feature_discovery"
     source: git
     version: "0.14.1"

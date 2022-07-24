@@ -231,6 +231,8 @@
   "manage_channel": "Manage Channel",
   "manage_group": "Manage Group",
   "mark_as_read": "Mark as Read",
+  "markdown_feature_discovery_title": "You can use mark down feature and add format to your text",
+  "markdown_feature_description": "if you enable markdown you can add format to your text \n\nfor example : \n\nif you add * to the beginning and end of your text , your text will be bold \n\nor you can select your text and press bold from menu",
   "max_length": "Max length",
   "max_member": "up to 200000 members",
   "member": "Member",
