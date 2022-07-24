@@ -8,6 +8,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
+import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/channel.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -70,255 +71,271 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
           widget.isChannel ? _i18n.get("newChannel") : _i18n.get("newGroup"),
         ),
       ),
-      body: FluidContainerWidget(
-        showStandardContainer: true,
-        child: Stack(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+      body: SingleChildScrollView(
+        child: FluidContainerWidget(
+          showStandardContainer: true,
+          backGroundColor: elevation(
+            theme.colorScheme.surface,
+            theme.colorScheme.primary,
+            2,
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Directionality(
+                  textDirection: _i18n.defaultTextDirection,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Flexible(
-                        child: Form(
-                          key: mucNameKey,
-                          child: TextFormField(
-                            minLines: 1,
-                            autofocus: autofocus,
-                            validator: checkMucNameIsSet,
-                            textInputAction: TextInputAction.send,
-                            controller: controller,
-                            decoration: buildInputDecoration(
-                              widget.isChannel
-                                  ? _i18n.get("enter_channel_name")
-                                  : _i18n.get("enter_group_name"),
-                              context,
-                              isOptional: true,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  if (widget.isChannel)
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Form(
-                            key: _channelIdKey,
-                            child: TextFormField(
-                              minLines: 1,
-                              autofocus: autofocus,
-                              textInputAction: TextInputAction.send,
-                              controller: idController,
-                              validator: validateUsername,
-                              decoration: InputDecoration(
-                                disabledBorder: const OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.red),
-                                  borderRadius: mainBorder,
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Form(
+                              key: mucNameKey,
+                              child: TextFormField(
+                                minLines: 1,
+                                autofocus: autofocus,
+                                validator: checkMucNameIsSet,
+                                textInputAction: TextInputAction.send,
+                                controller: controller,
+                                decoration: buildInputDecoration(
+                                  widget.isChannel
+                                      ? _i18n.get("enter_channel_name")
+                                      : _i18n.get("enter_group_name"),
+                                  context,
+                                  isOptional: true,
                                 ),
-                                suffixIcon: const Padding(
-                                  padding: EdgeInsets.only(top: 20, left: 25),
-                                  child: Text("*"),
-                                ),
-                                helperText: _i18n.get("username_helper"),
-                                labelText: _i18n.get("enter_channel_id"),
                               ),
                             ),
                           ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      if (widget.isChannel)
+                        Row(
+                          children: [
+                            Flexible(
+                              child: Form(
+                                key: _channelIdKey,
+                                child: TextFormField(
+                                  minLines: 1,
+                                  autofocus: autofocus,
+                                  textInputAction: TextInputAction.send,
+                                  controller: idController,
+                                  validator: validateUsername,
+                                  decoration: InputDecoration(
+                                    disabledBorder: const OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.red),
+                                      borderRadius: mainBorder,
+                                    ),
+                                    suffixIcon: const Padding(
+                                      padding:
+                                          EdgeInsets.only(top: 20, left: 25),
+                                      child: Text("*"),
+                                    ),
+                                    helperText: _i18n.get("username_helper"),
+                                    labelText: _i18n.get("enter_channel_id"),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                  StreamBuilder<bool>(
-                    stream: showChannelIdError,
-                    builder: (c, e) {
-                      if (e.hasData && e.data!) {
-                        return Text(
-                          _i18n.get("channel_id_is_exist"),
-                          style: theme.textTheme.overline!
-                              .copyWith(color: Colors.red),
-                        );
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    },
-                  ),
-                  const SizedBox(
-                    height: 10,
-                  ),
-                  Row(
-                    children: [
-                      Flexible(
-                        child: Form(
-                          child: TextFormField(
-                            minLines: 1,
-                            maxLines: 4,
-                            autofocus: autofocus,
-                            textInputAction: TextInputAction.newline,
-                            controller: infoController,
-                            decoration: buildInputDecoration(
-                              widget.isChannel
-                                  ? _i18n.get("enter_channel_desc")
-                                  : _i18n.get("enter_group_desc"),
-                              context,
+                      StreamBuilder<bool>(
+                        stream: showChannelIdError,
+                        builder: (c, e) {
+                          if (e.hasData && e.data!) {
+                            return Text(
+                              _i18n.get("channel_id_is_exist"),
+                              style: theme.textTheme.overline!
+                                  .copyWith(color: Colors.red),
+                            );
+                          } else {
+                            return const SizedBox.shrink();
+                          }
+                        },
+                      ),
+                      const SizedBox(
+                        height: 10,
+                      ),
+                      Row(
+                        children: [
+                          Flexible(
+                            child: Form(
+                              child: TextFormField(
+                                minLines: 1,
+                                maxLines: 4,
+                                autofocus: autofocus,
+                                textInputAction: TextInputAction.newline,
+                                controller: infoController,
+                                decoration: buildInputDecoration(
+                                  widget.isChannel
+                                      ? _i18n.get("enter_channel_desc")
+                                      : _i18n.get("enter_group_desc"),
+                                  context,
+                                ),
+                              ),
                             ),
                           ),
+                        ],
+                      ),
+                      if (widget.isChannel)
+                        Column(
+                          children: [
+                            const SizedBox(
+                              height: 20,
+                            ),
+                            SelectMucType(
+                              onMucTypeChange: (value) {
+                                _channelType = value;
+                              },
+                              mucType: _channelType,
+                              backgroundColor: elevation(
+                                theme.colorScheme.surface,
+                                theme.colorScheme.primary,
+                                2,
+                              ),
+                            ),
+                          ],
                         ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      StreamBuilder<int>(
+                        stream: _createMucService.selectedLengthStream(),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return const SizedBox.shrink();
+                          }
+                          return Text(
+                            '${snapshot.data} ${_i18n.get("members")}',
+                            style: theme.primaryTextTheme.subtitle2,
+                          );
+                        },
+                      ),
+                      const SizedBox(
+                        height: 8,
+                      ),
+                      StreamBuilder<int>(
+                        stream: _createMucService.selectedLengthStream(),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return const SizedBox.shrink();
+                          }
+                          return ListView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: snapshot.data,
+                            itemBuilder: (context, index) => ContactWidget(
+                              contact: _createMucService.contacts[index],
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),
-                  if (widget.isChannel)
-                    Column(
-                      children: [
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        SelectMucType(
-                          onMucTypeChange: (value) {
-                            _channelType = value;
-                          },
-                          mucType: _channelType,
-                          backgroundColor: theme.colorScheme.background,
-                        ),
-                      ],
-                    ),
-                  const SizedBox(
-                    height: 20,
-                  ),
-                  StreamBuilder<int>(
-                    stream: _createMucService.selectedLengthStream(),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return const SizedBox.shrink();
-                      }
-                      return Text(
-                        '${snapshot.data} ${_i18n.get("members")}',
-                        style: theme.primaryTextTheme.subtitle2,
-                      );
-                    },
-                  ),
-                  const SizedBox(
-                    height: 8,
-                  ),
-                  Expanded(
-                    child: StreamBuilder<int>(
-                      stream: _createMucService.selectedLengthStream(),
-                      builder: (context, snapshot) {
-                        if (!snapshot.hasData) {
-                          return const SizedBox.shrink();
-                        }
-                        return ListView.builder(
-                          itemCount: snapshot.data,
-                          itemBuilder: (context, index) => ContactWidget(
-                            contact: _createMucService.contacts[index],
-                          ),
-                        );
-                      },
-                    ),
-                  )
-                ],
-              ),
-            ),
-            Positioned(
-              bottom: 5,
-              right: 15,
-              child: _showIcon
-                  ? Container(
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
                       width: 40,
                       height: 40,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: theme.colorScheme.primary,
+                        color: theme.primaryColor,
                       ),
                       child: IconButton(
                         padding: const EdgeInsets.all(0),
-                        icon: Icon(
-                          Icons.check,
-                          color: theme.colorScheme.onPrimary,
-                        ),
+                        icon: const Icon(Icons.arrow_back, color: Colors.white),
                         onPressed: () async {
-                          final res =
-                              mucNameKey.currentState?.validate() ?? false;
-                          if (res) {
-                            setState(() {
-                              _showIcon = false;
-                            });
-                            final memberUidList = <Uid>[];
-                            Uid? mucUid;
-                            for (var i = 0;
-                                i < _createMucService.contacts.length;
-                                i++) {
-                              if (_createMucService.contacts[i].uid != null) {
-                                memberUidList.add(
-                                  _createMucService.contacts[i].uid!.asUid(),
-                                );
+                          _routingService.pop();
+                        },
+                      ),
+                    ),
+                    if (_showIcon)
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: theme.colorScheme.primary,
+                        ),
+                        child: IconButton(
+                          padding: const EdgeInsets.all(0),
+                          icon: Icon(
+                            Icons.check,
+                            color: theme.colorScheme.onPrimary,
+                          ),
+                          onPressed: () async {
+                            final res =
+                                mucNameKey.currentState?.validate() ?? false;
+                            if (res) {
+                              setState(() {
+                                _showIcon = false;
+                              });
+                              final memberUidList = <Uid>[];
+                              Uid? mucUid;
+                              for (var i = 0;
+                                  i < _createMucService.contacts.length;
+                                  i++) {
+                                if (_createMucService.contacts[i].uid != null) {
+                                  memberUidList.add(
+                                    _createMucService.contacts[i].uid!.asUid(),
+                                  );
+                                }
                               }
-                            }
-                            if (widget.isChannel) {
-                              if ((_channelIdKey.currentState?.validate() ??
-                                      false) &&
-                                  await checkChannelD(idController.text)) {
-                                mucUid = await _mucRepo.createNewChannel(
-                                  idController.text,
+                              if (widget.isChannel) {
+                                if ((_channelIdKey.currentState?.validate() ??
+                                        false) &&
+                                    await checkChannelD(
+                                      idController.text,
+                                    )) {
+                                  mucUid = await _mucRepo.createNewChannel(
+                                    idController.text,
+                                    memberUidList,
+                                    controller.text,
+                                    _channelType,
+                                    infoController.text,
+                                  );
+                                }
+                              } else {
+                                mucUid = await _mucRepo.createNewGroup(
                                   memberUidList,
                                   controller.text,
-                                  _channelType,
                                   infoController.text,
                                 );
                               }
-                            } else {
-                              mucUid = await _mucRepo.createNewGroup(
-                                memberUidList,
-                                controller.text,
-                                infoController.text,
-                              );
+                              if (mucUid != null) {
+                                _createMucService.reset();
+                                _routingService.openRoom(
+                                  mucUid.asString(),
+                                  popAllBeforePush: true,
+                                );
+                              } else {
+                                ToastDisplay.showToast(
+                                  toastText: _i18n.get("error_occurred"),
+                                  toastContext: context,
+                                );
+                                setState(() {
+                                  _showIcon = true;
+                                });
+                              }
                             }
-                            if (mucUid != null) {
-                              _createMucService.reset();
-                              _routingService.openRoom(
-                                mucUid.asString(),
-                                popAllBeforePush: true,
-                              );
-                            } else {
-                              ToastDisplay.showToast(
-                                toastText: _i18n.get("error_occurred"),
-                                toastContext: context,
-                              );
-                              setState(() {
-                                _showIcon = true;
-                              });
-                            }
-                          }
-                        },
+                          },
+                        ),
+                      )
+                    else
+                      const CircularProgressIndicator(
+                        color: Colors.blueAccent,
                       ),
-                    )
-                  : const CircularProgressIndicator(
-                      color: Colors.blueAccent,
-                    ),
+                  ],
+                )
+              ],
             ),
-            Positioned(
-              bottom: 5,
-              left: 15,
-              child: Container(
-                width: 40,
-                height: 40,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: theme.primaryColor,
-                ),
-                child: IconButton(
-                  padding: const EdgeInsets.all(0),
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () async {
-                    _routingService.pop();
-                  },
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
     );
