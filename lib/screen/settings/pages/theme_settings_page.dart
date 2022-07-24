@@ -150,50 +150,50 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         ),
       ),
       body: FluidContainerWidget(
-        child: Directionality(
-          textDirection: _i18n.defaultTextDirection,
-          child: ListView(
-            children: [
-              SizedBox(
-                height: 528,
-                child: Stack(
-                  children: [
-                    StreamBuilder<int>(
-                      stream: _idSubject,
-                      builder: (context, snapshot) {
-                        return StreamBuilder<int>(
-                          stream: _uxService.patternIndexStream,
-                          builder: (ctx, s) {
-                            return Background(
-                              id: snapshot.data ?? 0,
-                            );
-                          },
-                        );
-                      },
+        child: ListView(
+          children: [
+            SizedBox(
+              height: 528,
+              child: Stack(
+                children: [
+                  StreamBuilder<int>(
+                    stream: _idSubject,
+                    builder: (context, snapshot) {
+                      return StreamBuilder<int>(
+                        stream: _uxService.patternIndexStream,
+                        builder: (ctx, s) {
+                          return Background(
+                            id: snapshot.data ?? 0,
+                          );
+                        },
+                      );
+                    },
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Column(
+                      children: [
+                        ...createFakeMessages(),
+                        const Spacer(),
+                      ],
                     ),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      child: Column(
-                        children: [
-                          ...createFakeMessages(),
-                          const Spacer(),
-                        ],
+                  ),
+                  Transform.translate(
+                    offset: Offset(8, -(mainBorder.topLeft.x) - 8),
+                    child: Align(
+                      alignment: Alignment.bottomLeft,
+                      child: FloatingActionButton(
+                        onPressed: () => _idSubject.add(_idSubject.value + 1),
+                        child: const Icon(Icons.rotate_right),
                       ),
                     ),
-                    Transform.translate(
-                      offset: Offset(8, -(mainBorder.topLeft.x) - 8),
-                      child: Align(
-                        alignment: Alignment.bottomLeft,
-                        child: FloatingActionButton(
-                          onPressed: () => _idSubject.add(_idSubject.value + 1),
-                          child: const Icon(Icons.rotate_right),
-                        ),
-                      ),
-                    )
-                  ],
-                ),
+                  )
+                ],
               ),
-              Transform.translate(
+            ),
+            Directionality(
+              textDirection: _i18n.defaultTextDirection,
+              child: Transform.translate(
                 offset: Offset(0, -(mainBorder.topLeft.x)),
                 child: Container(
                   padding: const EdgeInsets.only(bottom: 12, top: 4),
@@ -280,9 +280,9 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                     ],
                   ),
                 ),
-              )
-            ],
-          ),
+              ),
+            )
+          ],
         ),
       ),
     );
