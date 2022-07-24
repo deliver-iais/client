@@ -178,9 +178,7 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                         ),
                         SelectMucType(
                           onMucTypeChange: (value) {
-                            setState(() {
-                              _channelType = value;
-                            });
+                            _channelType = value;
                           },
                           mucType: _channelType,
                           backgroundColor: theme.colorScheme.background,
