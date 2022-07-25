@@ -62,10 +62,10 @@ class ReceivedMessageBox extends StatelessWidget {
               children: [
                 MessageWrapper(
                   uid: message.from,
-                  child: boxContent,
                   isSender: false,
                   isFirstMessageInGroupedMessages:
                       isFirstMessageInGroupedMessages,
+                  child: boxContent,
                 ),
                 InlineMarkUpButtonWidget(
                   message: message,

@@ -470,26 +470,26 @@ class MessageExtractorServices {
       isHidden = isHiddenPbMessage(message);
     } catch (_) {}
     //for testing remove later
-    // message.messageMarkup = markup_pb.MessageMarkup(
-    //   removeReplyKeyboardMarkup: true,
-    //   inlineKeyboardMarkup: markup_pb.InlineKeyboardMarkup(rows: [
-    //     markup_pb.InlineKeyboardRow(buttons: [
-    //       markup_pb.InlineKeyboardButton(
-    //           text: "test",
-    //           url: markup_pb.InlineKeyboardButtonUrl(url: "https://google.com")),
-    //
-    //     ]),
-    //
-    //     markup_pb.InlineKeyboardRow(buttons: [
-    //       markup_pb.InlineKeyboardButton(
-    //           text: "test",
-    //           url: markup_pb.InlineKeyboardButtonUrl(url: "https://google.com")),
-    //       markup_pb.InlineKeyboardButton(
-    //           text: "lets buy it",
-    //           url: markup_pb.InlineKeyboardButtonUrl(url: "https://google.com"))
-    //     ])
-    //   ]),
-    // );
+    message.messageMarkup = markup_pb.MessageMarkup(
+      removeReplyKeyboardMarkup: true,
+      inlineKeyboardMarkup: markup_pb.InlineKeyboardMarkup(rows: [
+        markup_pb.InlineKeyboardRow(buttons: [
+          markup_pb.InlineKeyboardButton(
+              text: "test",
+              url: markup_pb.InlineKeyboardButtonUrl(url: "https://google.com"),),
+
+        ],),
+
+        markup_pb.InlineKeyboardRow(buttons: [
+          markup_pb.InlineKeyboardButton(
+              text: "test",
+              url: markup_pb.InlineKeyboardButtonUrl(url: "https://google.com"),),
+          markup_pb.InlineKeyboardButton(
+              text: "lets buy it",
+              url: markup_pb.InlineKeyboardButtonUrl(url: "https://google.com"),)
+        ],)
+      ],),
+    );
     return Message(
       id: message.id.toInt(),
       roomUid: getRoomUid(_authRepo, message).asString(),

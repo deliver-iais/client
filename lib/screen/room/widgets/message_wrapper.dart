@@ -18,7 +18,7 @@ class MessageWrapper extends StatelessWidget {
     required this.uid,
     required this.isSender,
     this.isFirstMessageInGroupedMessages = true,
-  this.isInlineMarkUpMessage = false,
+    this.isInlineMarkUpMessage = false,
   });
 
   @override
@@ -26,7 +26,7 @@ class MessageWrapper extends StatelessWidget {
     var color = ExtraTheme.of(context).messageBackgroundColor(uid);
     if (isInlineMarkUpMessage) {
       color = Color.alphaBlend(
-        Theme.of(context).primaryColor.withAlpha(80),
+        Theme.of(context).primaryColor.withAlpha(50),
         Colors.black12,
       );
     }
@@ -49,9 +49,7 @@ class MessageWrapper extends StatelessWidget {
       children: [
         Container(
           clipBehavior: Clip.hardEdge,
-          margin:
-              EdgeInsets.symmetric(horizontal: isInlineMarkUpMessage ? 3 : 10.0)
-                  .copyWith(
+          margin: const EdgeInsets.symmetric(horizontal: 10.0).copyWith(
             top: isFirstMessageInGroupedMessages && isSender ? 16 : 0,
             bottom: 6,
           ),
