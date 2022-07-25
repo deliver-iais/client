@@ -19,6 +19,7 @@ Transformer<InlineSpan> inlineSpanTransformer({
   OnUsernameClick? onIdClick,
   OnBotCommandClick? onBotCommandClick,
   OnUrlClick? onUrlClick,
+  bool justHighlightSpoilers = false,
 }) {
   return (b) {
     final url = b.features.whereType<UrlFeature>().firstOrNull;
@@ -32,6 +33,7 @@ Transformer<InlineSpan> inlineSpanTransformer({
     final italic = b.features.whereType<ItalicFeature>().firstOrNull;
     final strikethrough =
         b.features.whereType<StrikethroughFeature>().firstOrNull;
+    final specialChar = b.features.whereType<GrayOutFeature>().firstOrNull;
 
     final text = synthesizeToOriginalWord(b.text);
     var textStyle = const TextStyle();
@@ -40,14 +42,20 @@ Transformer<InlineSpan> inlineSpanTransformer({
     GestureRecognizer? gestureRecognizer;
 
     if (spoiler != null) {
-      return WidgetSpan(
-        baseline: TextBaseline.ideographic,
-        alignment: PlaceholderAlignment.middle,
-        child: SpoilerLoader(
-          b.text,
-          foreground: defaultColor,
-        ),
-      );
+      if (!justHighlightSpoilers) {
+        return WidgetSpan(
+          baseline: TextBaseline.ideographic,
+          alignment: PlaceholderAlignment.middle,
+          child: SpoilerLoader(
+            b.text,
+            foreground: defaultColor,
+          ),
+        );
+      } else {
+        textStyle = textStyle.copyWith(
+          backgroundColor: defaultColor.withOpacity(0.4),
+        );
+      }
     }
 
     if (url != null) {
@@ -70,6 +78,9 @@ Transformer<InlineSpan> inlineSpanTransformer({
 
     if (searchTerm != null) {
       textStyle = textStyle.copyWith(backgroundColor: Colors.yellow.shade500);
+    }
+    if (specialChar != null) {
+      textStyle = textStyle.copyWith(color: Colors.grey);
     }
 
     if (bold != null) {
@@ -172,18 +183,6 @@ Transformer<InlineSpan> simpleInlineSpanTransformer({
   };
 }
 
-Transformer<String> textTransformer() {
-  return (b) {
-    final spoiler = b.features.whereType<SpoilerFeature>().firstOrNull;
-
-    if (spoiler != null) {
-      return "▩" * b.text.length;
-    } else {
-      return synthesizeToOriginalWord(b.text);
-    }
-  };
-}
-
 Transformer<TextSpan> emojiTransformer() {
   return (b) {
     final emoji = b.features.whereType<EmojiFeature>().firstOrNull;
@@ -199,5 +198,17 @@ Transformer<TextSpan> emojiTransformer() {
       text: text,
       style: textStyle,
     );
+  };
+}
+
+Transformer<String> textTransformer() {
+  return (b) {
+    final spoiler = b.features.whereType<SpoilerFeature>().firstOrNull;
+
+    if (spoiler != null) {
+      return "▩" * b.text.length;
+    } else {
+      return synthesizeToOriginalWord(b.text);
+    }
   };
 }

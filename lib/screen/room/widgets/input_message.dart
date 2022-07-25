@@ -10,6 +10,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/custom_text_selection_controller.dart';
+import 'package:deliver/screen/room/messageWidgets/input_message_text_controller.dart';
 import 'package:deliver/screen/room/messageWidgets/max_lenght_text_input_formatter.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/widgets/bot_commands.dart';
@@ -34,6 +35,7 @@ import 'package:deliver/shared/widgets/attach_location.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:feature_discovery/feature_discovery.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
@@ -45,6 +47,8 @@ import 'package:logger/logger.dart';
 import 'package:pasteboard/pasteboard.dart';
 import 'package:rxdart/rxdart.dart';
 
+import '../../navigation_center/widgets/feature_discovery_description_widget.dart';
+
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
   final BehaviorSubject<Message?> replyMessageIdStream;
@@ -55,7 +59,7 @@ class InputMessage extends StatefulWidget {
   final void Function() scrollToLastSentMessage;
   final Message? editableMessage;
   final FocusNode focusNode;
-  final TextEditingController textController;
+  final InputMessageTextController textController;
   final Function(int dir, bool, bool) handleScrollToMessage;
   final Function() deleteSelectedMessage;
 
@@ -233,6 +237,7 @@ class InputMessageWidgetState extends State<InputMessage> {
       textController: widget.textController,
       captionController: captionTextController,
       roomUid: currentRoom.uid.asUid(),
+      enableMarkDown: enableMarkdown,
     );
     super.initState();
   }
@@ -458,6 +463,7 @@ class InputMessageWidgetState extends State<InputMessage> {
   }
 
   StreamBuilder<bool> buildDefaultActions() {
+    final theme = Theme.of(context);
     return StreamBuilder<bool>(
       stream: _showSendIcon,
       builder: (context, snapshot) {
@@ -506,17 +512,42 @@ class InputMessageWidgetState extends State<InputMessage> {
                 },
               ),
             if (showSendButton && !widget.waitingForForward)
-              IconButton(
-                icon: FaIcon(
+              DescribedFeatureOverlay(
+                featureId: FEATURE_4,
+                useCustomPosition: true,
+                tapTarget: const FaIcon(
                   FontAwesomeIcons.markdown,
-                  size: 18,
-                  color: !_shouldSynthesize ? ACTIVE_COLOR : null,
                 ),
-                onPressed: () {
-                  setState(() {
-                    _shouldSynthesize = !_shouldSynthesize;
-                  });
-                },
+                backgroundColor: theme.colorScheme.tertiaryContainer,
+                targetColor: theme.colorScheme.tertiary,
+                title: Text(
+                  _i18n.get("markdown_feature_discovery_title"),
+                  textDirection: _i18n.defaultTextDirection,
+                  style: TextStyle(
+                    color: theme.colorScheme.onTertiaryContainer,
+                  ),
+                ),
+                overflowMode: OverflowMode.extendBackground,
+                description: FeatureDiscoveryDescriptionWidget(
+                  description: _i18n.get("markdown_feature_description"),
+                  descriptionStyle: TextStyle(
+                    color: theme.colorScheme.onTertiaryContainer,
+                  ),
+                ),
+                child: IconButton(
+                  icon: FaIcon(
+                    FontAwesomeIcons.markdown,
+                    size: 18,
+                    color: !_shouldSynthesize ? ACTIVE_COLOR : null,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      widget.textController.isMarkDownEnable =
+                          _shouldSynthesize;
+                      _shouldSynthesize = !_shouldSynthesize;
+                    });
+                  },
+                ),
               ),
             if (showSendButton || widget.waitingForForward)
               IconButton(
@@ -550,7 +581,7 @@ class InputMessageWidgetState extends State<InputMessage> {
               builder: (c, sn) {
                 final textDir = sn.data ?? TextDirection.ltr;
                 return TextField(
-                  selectionControls: isDesktop ? selectionControls : null,
+                  selectionControls: selectionControls,
                   focusNode: widget.focusNode,
                   autofocus: (snapshot.data?.id ?? 0) > 0 || isDesktop,
                   controller: widget.textController,
@@ -559,8 +590,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                     border: InputBorder.none,
                     counterText: "",
                     hintText: _i18n.get("write_a_message"),
-                    hintTextDirection:
-                        _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                    hintTextDirection: _i18n.defaultTextDirection,
                     hintStyle: theme.textTheme.bodyMedium,
                   ),
                   textInputAction: TextInputAction.newline,
@@ -947,6 +977,15 @@ class InputMessageWidgetState extends State<InputMessage> {
     widget.textController.selection = TextSelection.collapsed(
       offset: widget.textController.text.length,
     );
+  }
+
+  void enableMarkdown() {
+    if (_shouldSynthesize) {
+      setState(() {
+        _shouldSynthesize = false;
+        widget.textController.isMarkDownEnable = true;
+      });
+    }
   }
 }
 

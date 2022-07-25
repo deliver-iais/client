@@ -884,7 +884,8 @@ class RoomPageState extends State<RoomPage> {
             builder: (context, snapshot) {
               return snapshot.hasData && !snapshot.data!
                   ? DescribedFeatureOverlay(
-                      featureId: FEATURE_4,
+                      useCustomPosition: true,
+                      featureId: FEATURE_5,
                       tapTarget: IconButton(
                         icon: const Icon(CupertinoIcons.phone),
                         onPressed: () {},
@@ -893,9 +894,7 @@ class RoomPageState extends State<RoomPage> {
                       targetColor: theme.colorScheme.tertiary,
                       title: Text(
                         _i18n.get("call_feature_discovery_title"),
-                        textDirection: _i18n.isPersian
-                            ? TextDirection.rtl
-                            : TextDirection.ltr,
+                        textDirection: _i18n.defaultTextDirection,
                         style: TextStyle(
                           color: theme.colorScheme.onTertiaryContainer,
                         ),
@@ -930,9 +929,8 @@ class RoomPageState extends State<RoomPage> {
                                                 _i18n.get(
                                                   "alert_window_permission",
                                                 ),
-                                                textDirection: _i18n.isPersian
-                                                    ? TextDirection.rtl
-                                                    : TextDirection.ltr,
+                                                textDirection:
+                                                    _i18n.defaultTextDirection,
                                                 style: TextStyle(
                                                   color: theme.colorScheme
                                                       .onErrorContainer,
@@ -946,9 +944,8 @@ class RoomPageState extends State<RoomPage> {
                                                   _i18n.get(
                                                     "alert_window_permission_attention",
                                                   ),
-                                                  textDirection: _i18n.isPersian
-                                                      ? TextDirection.rtl
-                                                      : TextDirection.ltr,
+                                                  textDirection: _i18n
+                                                      .defaultTextDirection,
                                                   style: TextStyle(
                                                     color:
                                                         theme.colorScheme.error,

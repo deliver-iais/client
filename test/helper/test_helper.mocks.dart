@@ -1252,19 +1252,19 @@ class MockQueryServiceClient extends _i1.Mock
               returnValue: _FakeResponseFuture_6<_i13.SetIdRes>())
           as _i8.ResponseFuture<_i13.SetIdRes>);
   @override
-  _i8.ResponseFuture<_i13.BlockRes> block(_i13.BlockReq? request,
+  _i8.ResponseFuture<_i13.BlockUidRes> blockUid(_i13.BlockUidReq? request,
           {_i8.CallOptions? options}) =>
       (super.noSuchMethod(
-              Invocation.method(#block, [request], {#options: options}),
-              returnValue: _FakeResponseFuture_6<_i13.BlockRes>())
-          as _i8.ResponseFuture<_i13.BlockRes>);
+              Invocation.method(#blockUid, [request], {#options: options}),
+              returnValue: _FakeResponseFuture_6<_i13.BlockUidRes>())
+          as _i8.ResponseFuture<_i13.BlockUidRes>);
   @override
-  _i8.ResponseFuture<_i13.UnblockRes> unblock(_i13.UnblockReq? request,
+  _i8.ResponseFuture<_i13.UnblockUidRes> unblockUid(_i13.UnblockUidReq? request,
           {_i8.CallOptions? options}) =>
       (super.noSuchMethod(
-              Invocation.method(#unblock, [request], {#options: options}),
-              returnValue: _FakeResponseFuture_6<_i13.UnblockRes>())
-          as _i8.ResponseFuture<_i13.UnblockRes>);
+              Invocation.method(#unblockUid, [request], {#options: options}),
+              returnValue: _FakeResponseFuture_6<_i13.UnblockUidRes>())
+          as _i8.ResponseFuture<_i13.UnblockUidRes>);
   @override
   _i8.ResponseFuture<_i13.ReportRes> report(_i13.ReportReq? request,
           {_i8.CallOptions? options}) =>

@@ -242,6 +242,7 @@ class ChatItemState extends State<ChatItem> {
                         fontWeight: FontWeight.w100,
                         fontSize: 11,
                       ),
+                      textDirection: _i18n.defaultTextDirection,
                     ),
                 ],
               ),

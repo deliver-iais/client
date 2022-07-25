@@ -8,13 +8,6 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "41.0.0"
-  all_sensors2:
-    dependency: "direct main"
-    description:
-      name: all_sensors2
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.1"
   analyzer:
     dependency: transitive
     description:
@@ -445,11 +438,11 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: "tags/v1.12.13-rc.20"
-      resolved-ref: "1f0efdb97320394081f2ecb91388259b3d37d07d"
+      ref: "tags/v1.12.13-rc.26"
+      resolved-ref: "3adc520e39be67bca9615f41cf904d524e724972"
       url: "https://github.com/deliver-iais/pub-dart-artifactory"
     source: git
-    version: "1.12.13-rc.20"
+    version: "1.12.13-rc.26"
   dependency_validator:
     dependency: "direct dev"
     description:
@@ -533,8 +526,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: f775bf10512cf8c00a6d7c5c35bd4f85e2f058b0
-      resolved-ref: f775bf10512cf8c00a6d7c5c35bd4f85e2f058b0
+      ref: "319d1fe74fcee87eef427a6136639b3bf2537a89"
+      resolved-ref: "319d1fe74fcee87eef427a6136639b3bf2537a89"
       url: "https://github.com/deliveriais/feature_discovery"
     source: git
     version: "0.14.1"
@@ -1130,9 +1123,9 @@ packages:
     dependency: "direct main"
     description:
       path: just_audio_windows
-      ref: "2a032ce712646fcc8a68c8490afe008ea907890b"
-      resolved-ref: "2a032ce712646fcc8a68c8490afe008ea907890b"
-      url: "https://github.com/deliveriais/just_audio_windows"
+      ref: "413f05fd2b9e063f4b7fa2903031a174ce3b6b0b"
+      resolved-ref: "413f05fd2b9e063f4b7fa2903031a174ce3b6b0b"
+      url: "https://github.com/bdlukaa/just_audio"
     source: git
     version: "0.1.0"
   jwt_decoder:
@@ -1657,6 +1650,27 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "0.3.2"
+  sensors_plus:
+    dependency: "direct main"
+    description:
+      name: sensors_plus
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.3.2"
+  sensors_plus_platform_interface:
+    dependency: transitive
+    description:
+      name: sensors_plus_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.1"
+  sensors_plus_web:
+    dependency: transitive
+    description:
+      name: sensors_plus_web
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.1"
   service_worker:
     dependency: "direct main"
     description:

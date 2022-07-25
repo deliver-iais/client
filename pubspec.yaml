@@ -24,7 +24,6 @@ environment:
   flutter: ">=3.0.0"
 
 dependencies:
-  all_sensors2: 1.0.1
   android_intent_plus: 3.1.1
   audioplayers:
     git:
@@ -49,7 +48,7 @@ dependencies:
   dcache: 0.4.0
   deliver_public_protocol:
     git:
-      ref: tags/v1.12.13-rc.20
+      ref: tags/v1.12.13-rc.26
       url: https://github.com/deliver-iais/pub-dart-artifactory
   desktop_drop: 0.3.3
   desktop_lifecycle: 0.1.0
@@ -62,7 +61,7 @@ dependencies:
   expandable: 5.0.1
   feature_discovery:
     git:
-      ref: f775bf10512cf8c00a6d7c5c35bd4f85e2f058b0
+      ref: 319d1fe74fcee87eef427a6136639b3bf2537a89
       url: https://github.com/deliveriais/feature_discovery
   file_picker: 4.6.1
   file_selector: 0.8.4+3
@@ -107,8 +106,8 @@ dependencies:
   just_audio_windows:
     git:
       path: just_audio_windows
-      ref: 2a032ce712646fcc8a68c8490afe008ea907890b
-      url: https://github.com/deliveriais/just_audio_windows
+      ref: 413f05fd2b9e063f4b7fa2903031a174ce3b6b0b
+      url: https://github.com/bdlukaa/just_audio
   jwt_decoder: 2.0.1
   latlong2: 0.8.1
   logger: 1.1.0
@@ -145,6 +144,7 @@ dependencies:
   screenshot: 1.2.3
   scrollable_positioned_list: 0.3.2
   sdp_transform: 0.3.2
+  sensors_plus: 1.3.2
   service_worker: 0.2.4
   share: 2.0.4
   shimmer: 2.0.0

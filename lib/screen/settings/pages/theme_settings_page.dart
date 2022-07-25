@@ -191,91 +191,94 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                 ],
               ),
             ),
-            Transform.translate(
-              offset: Offset(0, -(mainBorder.topLeft.x)),
-              child: Container(
-                padding: const EdgeInsets.only(bottom: 12, top: 4),
-                decoration: BoxDecoration(
-                  borderRadius: mainBorder,
-                  color: Theme.of(context).colorScheme.background,
-                ),
-                child: Column(
-                  children: [
-                    Section(
-                      title: _i18n.get("theme"),
-                      children: [
-                        SettingsTile.switchTile(
-                          title: _i18n.get("dark_mode"),
-                          leading: const Icon(CupertinoIcons.moon),
-                          switchValue: _uxService.themeIsDark,
-                          onToggle: (value) {
-                            setState(() {
-                              _uxService.toggleThemeLightingMode();
-                            });
-                          },
-                        ),
-                        SettingsTile.switchTile(
-                          title: _i18n.get("auto_night_mode"),
-                          leading:
-                              const Icon(CupertinoIcons.circle_lefthalf_fill),
-                          switchValue: _uxService.isAutoNightModeEnable,
-                          onToggle: (value) {
-                            setState(() {
-                              _uxService.toggleIsAutoNightMode();
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                    Section(
-                      title: _i18n.get("advanced_settings"),
-                      children: [
-                        SettingsTile(
-                          title: "Main Color",
-                          leading: const Icon(CupertinoIcons.color_filter),
-                          trailing: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                for (var i = 0; i < palettes.length; i++)
-                                  color(palettes[i], i)
-                              ],
+            Directionality(
+              textDirection: _i18n.defaultTextDirection,
+              child: Transform.translate(
+                offset: Offset(0, -(mainBorder.topLeft.x)),
+                child: Container(
+                  padding: const EdgeInsets.only(bottom: 12, top: 4),
+                  decoration: BoxDecoration(
+                    borderRadius: mainBorder,
+                    color: Theme.of(context).colorScheme.background,
+                  ),
+                  child: Column(
+                    children: [
+                      Section(
+                        title: _i18n.get("theme"),
+                        children: [
+                          SettingsTile.switchTile(
+                            title: _i18n.get("dark_mode"),
+                            leading: const Icon(CupertinoIcons.moon),
+                            switchValue: _uxService.themeIsDark,
+                            onToggle: (value) {
+                              setState(() {
+                                _uxService.toggleThemeLightingMode();
+                              });
+                            },
+                          ),
+                          SettingsTile.switchTile(
+                            title: _i18n.get("auto_night_mode"),
+                            leading:
+                                const Icon(CupertinoIcons.circle_lefthalf_fill),
+                            switchValue: _uxService.isAutoNightModeEnable,
+                            onToggle: (value) {
+                              setState(() {
+                                _uxService.toggleIsAutoNightMode();
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                      Section(
+                        title: _i18n.get("advanced_settings"),
+                        children: [
+                          SettingsTile(
+                            title: "Main Color",
+                            leading: const Icon(CupertinoIcons.color_filter),
+                            trailing: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: [
+                                  for (var i = 0; i < palettes.length; i++)
+                                    color(palettes[i], i)
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                        StreamBuilder<int>(
-                          stream: _uxService.patternIndexStream,
-                          builder: (context, snapshot) {
-                            return Column(
-                              children: [
-                                const SettingsTile(
-                                  title: "Pattern",
-                                  leading: Icon(CupertinoIcons.photo),
-                                  trailing: SizedBox.shrink(),
-                                ),
-                                Wrap(
-                                  children: [
-                                    for (var i = 0; i < patterns.length; i++)
-                                      pattern(patterns[i], i)
-                                  ],
-                                )
-                              ],
-                            );
-                          },
-                        ),
-                        SettingsTile.switchTile(
-                          title: "Colorful Messages",
-                          leading: const Icon(CupertinoIcons.paintbrush),
-                          switchValue: _uxService.showColorful,
-                          onToggle: (value) {
-                            setState(() {
-                              _uxService.toggleShowColorful();
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
+                          StreamBuilder<int>(
+                            stream: _uxService.patternIndexStream,
+                            builder: (context, snapshot) {
+                              return Column(
+                                children: [
+                                  const SettingsTile(
+                                    title: "Pattern",
+                                    leading: Icon(CupertinoIcons.photo),
+                                    trailing: SizedBox.shrink(),
+                                  ),
+                                  Wrap(
+                                    children: [
+                                      for (var i = 0; i < patterns.length; i++)
+                                        pattern(patterns[i], i)
+                                    ],
+                                  )
+                                ],
+                              );
+                            },
+                          ),
+                          SettingsTile.switchTile(
+                            title: "Colorful Messages",
+                            leading: const Icon(CupertinoIcons.paintbrush),
+                            switchValue: _uxService.showColorful,
+                            onToggle: (value) {
+                              setState(() {
+                                _uxService.toggleShowColorful();
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             )

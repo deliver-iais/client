@@ -71,8 +71,6 @@ class _TextUIState extends State<TextUI> {
 
   @override
   void initState() {
-    super.initState();
-
     _link = widget.blocks
             .firstWhere(
               (b) => b.features.whereType<UrlFeature>().isNotEmpty,
@@ -89,6 +87,8 @@ class _TextUIState extends State<TextUI> {
         _textBoxWidth.add(_textBoxKey.currentContext?.size?.width ?? 0);
       }
     });
+
+    super.initState();
   }
 
   @override
