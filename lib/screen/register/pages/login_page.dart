@@ -304,7 +304,6 @@ class LoginPageState extends State<LoginPage> {
                         onChanged: (p) {
                           phoneNumber = p;
                         },
-                        focusNode: FocusNode(),
                         onSubmitted: (p) {
                           phoneNumber = p;
                           if (_acceptPrivacy) checkAndGoNext();
@@ -333,18 +332,15 @@ class LoginPageState extends State<LoginPage> {
                                 _acceptPrivacy = true;
                               });
                             },
-                            child: SizedBox(
-                              width: 300,
-                              child: RichText(
-                                text: TextSpan(
-                                  children: buildText(
-                                    "${!_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}]($APPLICATION_TERMS_OF_USE_URL) ${_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}",
-                                    context,
-                                  ),
-                                  style: theme.textTheme.bodyText2,
+                            child: RichText(
+                              text: TextSpan(
+                                children: buildText(
+                                  "${!_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}]($APPLICATION_TERMS_OF_USE_URL) ${_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}",
+                                  context,
                                 ),
-                                textDirection: TextDirection.ltr,
+                                style: theme.textTheme.bodyText2,
                               ),
+                              textDirection: TextDirection.ltr,
                             ),
                           ),
                         ],
