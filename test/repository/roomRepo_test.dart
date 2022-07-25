@@ -459,7 +459,7 @@ void main() {
         final queryServiceClient = getAndRegisterServicesDiscoveryRepo()
             .queryServiceClient = getMockQueryServicesClient();
         await RoomRepo().block(testUid.asString(), block: true);
-        verify(.queryServiceClient.blockUid(BlockUidReq()..uid = testUid));
+        verify(queryServiceClient.blockUid(BlockUidReq()..uid = testUid));
         verify(blockDao.block(testUid.asString()));
       });
       test('When called if block is false should unblock room', () async {

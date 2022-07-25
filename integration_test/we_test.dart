@@ -25,23 +25,23 @@ void main() {
           find.byKey(const Key("verificationCode")),
           "53358",
         );
-        // await tester.pump(const Duration(seconds: 2));
-        // await tester.pumpAndSettle();
-        // await tester.enterText(find.byKey(const Key("username")), "fake_user");
-        // await tester.pumpAndSettle();
-        // await tester.enterText(
-        //     find.byKey(const Key("firstname")), "first name");
-        // await tester.pumpAndSettle();
-        // await tester.enterText(find.byKey(const Key("lastname")), "last name");
-        // await tester.pumpAndSettle();
-        // await tester.enterText(
-        //   find.byKey(const Key("description")),
-        //   "description",
-        // );
-        // await tester.pumpAndSettle();
-        // await tester.ensureVisible(find.byKey(const Key("save")));
-        // await tester.pumpAndSettle();
-        // await tester.tap(find.byKey(const Key('save')));
+        await tester.pump(const Duration(seconds: 2));
+        await tester.pumpAndSettle();
+        await tester.enterText(find.byKey(const Key("username")), "fake_user");
+        await tester.pumpAndSettle();
+        await tester.enterText(
+            find.byKey(const Key("firstname")), "first name",);
+        await tester.pumpAndSettle();
+        await tester.enterText(find.byKey(const Key("lastname")), "last name");
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.byKey(const Key("description")),
+          "description",
+        );
+        await tester.pumpAndSettle();
+        await tester.ensureVisible(find.byKey(const Key("save")));
+        await tester.pumpAndSettle();
+        await tester.tap(find.byKey(const Key('save')));
         await tester.pumpAndSettle();
         await tester.tap(find.byKey(const Key("new_muc")));
         await tester.tap(find.byKey(const Key('dismiss')));

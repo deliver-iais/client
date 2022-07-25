@@ -338,11 +338,11 @@ class DataStreamServices {
 
     if (isOnlineMessage) {
       final room = await _roomDao.getRoom(roomUid.asString());
-      if (room != null) {
-         _roomDao.updateRoom(
+      if (room != null && room.lastMessage?.id == id) {
+        await _roomDao.updateRoom(
           uid: room.uid,
-          lastMessage: (room.lastMessage?.id == id) ? msg : null,
-        ).ignore();
+          lastMessage: msg,
+        );
       }
     }
 

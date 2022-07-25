@@ -30,6 +30,18 @@ Message testMessage = Message(
   json: '',
   isHidden: false,
 );
+Message testLastMessage = Message(
+  to: testUid.asString(),
+  from: testUid.asString(),
+  packetId: "",
+  roomUid: testUid.asString(),
+  forwardedFrom: testUid.asString(),
+  type: MessageType.TEXT,
+  time: 0,
+  id: 1,
+  json: '{}',
+  isHidden: false,
+);
 
 PendingMessage testPendingMessage = PendingMessage(
   roomUid: testUid.asString(),

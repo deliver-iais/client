@@ -795,10 +795,10 @@ MockQueryServiceClient getMockQueryServicesClient({
             GetIdByUidRes(id: getIdByUidData),
           ),
         );
-  when(queryServiceClient.block(BlockReq()..uid = testUid))
-      .thenAnswer((realInvocation) => MockResponseFuture<BlockRes>(BlockRes()));
-  when(queryServiceClient.unblock(UnblockReq()..uid = testUid)).thenAnswer(
-    (realInvocation) => MockResponseFuture<UnblockRes>(UnblockRes()),
+  when(queryServiceClient.blockUid(BlockUidReq()..uid = testUid))
+      .thenAnswer((realInvocation) => MockResponseFuture<BlockUidRes>(BlockUidRes()));
+  when(queryServiceClient.unblockUid(UnblockUidReq()..uid = testUid)).thenAnswer(
+    (realInvocation) => MockResponseFuture<UnblockUidRes>(UnblockUidRes()),
   );
   when(queryServiceClient.getUidById(GetUidByIdReq()..id = "test")).thenAnswer(
     (realInvocation) =>

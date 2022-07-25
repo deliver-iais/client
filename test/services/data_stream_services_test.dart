@@ -220,6 +220,7 @@ void main() {
         final editLastMessage = Message(
           from: testUid,
           to: testUid,
+          id: Int64(2),
           persistEvent: PersistentEvent(
             messageManipulationPersistentEvent:
                 MessageManipulationPersistentEvent(
@@ -313,13 +314,13 @@ void main() {
           );
         });
         test(
-            'When called if message type is  MessageManipulationPersistentEvent_Action.EDITED should add MessageEvent messageEventSubject',
+            'When called if message type is  MessageManipulationPersistentEvent_Action.EDITED  and edit id = lastMessageId should update lastMessage of room',
             () async {
           final roomDao = getAndRegisterRoomDao(
             rooms: [
               Room(
                 uid: testUid.asString(),
-                lastMessage: testMessage.copyWith(id: 1),
+                lastMessage: testLastMessage,
               )
             ],
           );
@@ -330,6 +331,7 @@ void main() {
             fetchMessagesHasOptions: false,
             fetchMessagesPointer: 1,
             fetchMessagesId: 1,
+            fetchMessagesText: "text",
           );
           getAndRegisterMessageDao(message: testMessage, getMessageId: 1);
 
@@ -340,12 +342,12 @@ void main() {
           verify(
             roomDao.updateRoom(
               uid: testUid.asString(),
-              lastMessage: testMessage,
+              lastMessage: testLastMessage.copyWith(json:Text(text: "text").writeToJson() ),
             ),
           );
         });
         test(
-            'When called if message type is  MessageManipulationPersistentEvent_Action.EDITED should update room',
+            'When called if message type is  MessageManipulationPersistentEvent_Action.EDITED should add MessageEvent messageEventSubject',
             () async {
           getAndRegisterServicesDiscoveryRepo().queryServiceClient =
               getMockQueryServicesClient(
