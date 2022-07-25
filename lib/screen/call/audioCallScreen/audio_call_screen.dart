@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:deliver/box/avatar.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
@@ -38,6 +39,7 @@ class AudioCallScreenState extends State<AudioCallScreen>
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final callRepo = GetIt.I.get<CallRepo>();
+  final _i18n = GetIt.I.get<I18N>();
   late AnimationController _repeatEndCallAnimationController;
 
   @override
@@ -101,7 +103,7 @@ class AudioCallScreenState extends State<AudioCallScreen>
                 CenterAvatarInCall(
                   roomUid: widget.roomUid,
                 ),
-                if (widget.callStatus == "Connected")
+                if (widget.callStatus == _i18n.get("call_connected"))
                   StreamBuilder<CallTimer>(
                     stream: callRepo.callTimer,
                     builder: (context, snapshot) {
@@ -112,7 +114,7 @@ class AudioCallScreenState extends State<AudioCallScreen>
                       }
                     },
                   )
-                else if (widget.callStatus == "Ended")
+                else if (widget.callStatus == _i18n.get("call_ended"))
                   FadeTransition(
                     opacity: _repeatEndCallAnimationController,
                     child: callRepo.callTimer.value.seconds == 0 &&
@@ -125,23 +127,28 @@ class AudioCallScreenState extends State<AudioCallScreen>
                         : callTimerWidget(callRepo.callTimer.value),
                   )
                 else
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        widget.callStatus,
-                        style: const TextStyle(color: Colors.white70),
-                      ),
-                      if (widget.callStatus == "Connecting" ||
-                          widget.callStatus == "Reconnecting" ||
-                          widget.callStatus == "Ringing" ||
-                          widget.callStatus == "Calling")
-                        const DotAnimation()
-                    ],
-                  )
+                  Directionality(
+                    textDirection: _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          widget.callStatus,
+                          style: const TextStyle(color: Colors.white70),
+                        ),
+                        if (widget.callStatus == _i18n.get("call_connecting") ||
+                            widget.callStatus ==
+                                _i18n.get("call_reconnecting") ||
+                            widget.callStatus == _i18n.get("call_ringing") ||
+                            widget.callStatus == _i18n.get("call_calling") ||
+                            widget.callStatus == _i18n.get("call_incoming"))
+                          const DotAnimation()
+                      ],
+                    ),
+                  ),
               ],
             ),
-            if (widget.callStatus == "Ended")
+            if (widget.callStatus == _i18n.get("call_ended"))
               Padding(
                 padding: const EdgeInsets.only(bottom: 25, right: 25, left: 25),
                 child: Align(
