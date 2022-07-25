@@ -393,6 +393,9 @@ MockRoomDao getAndRegisterRoomDao({List<Room>? rooms}) {
       .thenAnswer((realInvocation) => Stream.value(testRoom));
   when(service.getAllGroups())
       .thenAnswer((realInvocation) => Future.value([testRoom]));
+
+  when(service.getNotSyncedRoom())
+      .thenAnswer((realInvocation) => Future.value([testRoom]));
   return service;
 }
 
@@ -795,9 +798,10 @@ MockQueryServiceClient getMockQueryServicesClient({
             GetIdByUidRes(id: getIdByUidData),
           ),
         );
-  when(queryServiceClient.blockUid(BlockUidReq()..uid = testUid))
-      .thenAnswer((realInvocation) => MockResponseFuture<BlockUidRes>(BlockUidRes()));
-  when(queryServiceClient.unblockUid(UnblockUidReq()..uid = testUid)).thenAnswer(
+  when(queryServiceClient.blockUid(BlockUidReq()..uid = testUid)).thenAnswer(
+      (realInvocation) => MockResponseFuture<BlockUidRes>(BlockUidRes()));
+  when(queryServiceClient.unblockUid(UnblockUidReq()..uid = testUid))
+      .thenAnswer(
     (realInvocation) => MockResponseFuture<UnblockUidRes>(UnblockUidRes()),
   );
   when(queryServiceClient.getUidById(GetUidByIdReq()..id = "test")).thenAnswer(

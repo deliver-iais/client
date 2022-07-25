@@ -122,7 +122,7 @@ class MessageRepo {
             }
           });
           sendPendingMessages().ignore();
-          _fetchNotSyncedRoom().ignore();
+          unawaited(_fetchNotSyncedRoom());
 
           _logger.i('updating done -----------------');
           break;
@@ -724,16 +724,14 @@ class MessageRepo {
       await _updateRoomLastMessage(newPm);
       return newPm;
     } else {
-
-        final p = await _messageDao.getPendingMessage(
-          pm.packetId,
-        ); //check pending message  delete when  file  uploading
-        if (p != null) {
-          final newPm = pm.copyWith(status: SendingStatus.UPLIOD_FILE_FAIL);
-          return newPm;
-        }
-        return null;
-
+      final p = await _messageDao.getPendingMessage(
+        pm.packetId,
+      ); //check pending message  delete when  file  uploading
+      if (p != null) {
+        final newPm = pm.copyWith(status: SendingStatus.UPLIOD_FILE_FAIL);
+        return newPm;
+      }
+      return null;
     }
   }
 
