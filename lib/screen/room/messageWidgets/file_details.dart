@@ -7,15 +7,21 @@ import 'package:flutter/material.dart';
 
 class FileDetails extends StatelessWidget {
   final File file;
+  final double maxWidth;
   final CustomColorScheme colorScheme;
 
-  const FileDetails({Key? key, required this.file, required this.colorScheme})
-      : super(key: key);
+  const FileDetails({
+    super.key,
+    required this.file,
+    required this.colorScheme,
+    required this.maxWidth,
+  });
 
   @override
   Widget build(BuildContext context) {
     return file.type.contains("audio")
         ? AudioPlayProgress(
+            maxWidth: maxWidth,
             audio: file,
             audioUuid: file.uuid,
             colorScheme: colorScheme,
@@ -25,9 +31,7 @@ class FileDetails extends StatelessWidget {
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                sizeFormatter(file.size.toInt()) +
-                    " " +
-                    findFileType(file.name),
+                "${sizeFormatter(file.size.toInt())} ${findFileType(file.name)}",
                 style: const TextStyle(fontSize: 10),
               ),
             ),

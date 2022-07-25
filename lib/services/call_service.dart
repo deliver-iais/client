@@ -4,9 +4,11 @@ import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/current_call_info.dart';
 import 'package:deliver/box/dao/current_call_dao.dart';
 import 'package:deliver/models/call_event_type.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
 enum UserCallState {
@@ -25,6 +27,8 @@ enum UserCallState {
 
 class CallService {
   final _currentCall = GetIt.I.get<CurrentCallInfoDao>();
+  final _featureFlags = GetIt.I.get<FeatureFlags>();
+  final _logger = GetIt.I.get<Logger>();
 
   final BehaviorSubject<CallEvents> callEvents =
       BehaviorSubject.seeded(CallEvents.none);
@@ -38,9 +42,12 @@ class CallService {
   final BehaviorSubject<CallEvents> _groupCallEvents =
       BehaviorSubject.seeded(CallEvents.none);
 
+  bool shouldRemoveData = false;
+
   CallService() {
     _callEvents.distinct().listen((event) {
       callEvents.add(event);
+      _featureFlags.enableVoiceCallFeatureFlag();
     });
     _groupCallEvents.distinct().listen((event) {
       groupCallEvents.add(event);
@@ -173,5 +180,15 @@ class CallService {
           ..callDuration = event.callEvent!.callDuration
           ..newStatus = event.callEvent!.newStatus)
         .writeToJson();
+  }
+
+  Future<void> clearCallData({bool forceToClearData = false}) async {
+    if (shouldRemoveData || forceToClearData) {
+      _logger.d("Clearing Call Data");
+      _callId = "";
+      _callState = UserCallState.NOCALL;
+      _callOwner = Uid.getDefault();
+      await removeCallFromDb();
+    }
   }
 }

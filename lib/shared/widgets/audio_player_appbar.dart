@@ -4,7 +4,7 @@ import 'package:get_it/get_it.dart';
 import 'package:marquee/marquee.dart';
 
 class AudioPlayerAppBar extends StatefulWidget {
-  const AudioPlayerAppBar({Key? key}) : super(key: key);
+  const AudioPlayerAppBar({super.key});
 
   @override
   State<AudioPlayerAppBar> createState() => _AudioPlayerAppBarState();
@@ -16,10 +16,12 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return StreamBuilder<bool>(
-      stream: audioPlayerService.audioCenterIsOn,
+    return StreamBuilder<AudioTrack?>(
+      stream: audioPlayerService.track,
       builder: (c, s) {
-        if (s.hasData && s.data!) {
+        final track = s.data;
+
+        if (track != null) {
           return Container(
             height: 45,
             decoration: BoxDecoration(
@@ -39,21 +41,21 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 StreamBuilder<AudioPlayerState>(
-                  stream: audioPlayerService.audioCurrentState(),
+                  stream: audioPlayerService.playerState,
                   builder: (c, cs) {
-                    if (cs.hasData && cs.data == AudioPlayerState.PLAYING) {
+                    if (cs.hasData && cs.data == AudioPlayerState.playing) {
                       return IconButton(
                         onPressed: () {
-                          audioPlayerService.pause();
+                          audioPlayerService.pauseAudio();
                         },
-                        icon: const Icon(Icons.pause),
+                        icon: const Icon(Icons.pause_rounded),
                       );
                     } else {
                       return IconButton(
                         onPressed: () async {
-                          audioPlayerService.resume();
+                          audioPlayerService.resumeAudio();
                         },
-                        icon: const Icon(Icons.play_arrow),
+                        icon: const Icon(Icons.play_arrow_rounded),
                       );
                     }
                   },
@@ -64,10 +66,9 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
                       height: 25,
                       child: LayoutBuilder(
                         builder: (context, constraints) => RepaintBoundary(
-                          child: audioPlayerService.audioName.length >
-                                  (constraints.maxWidth / 10)
+                          child: track.name.length > (constraints.maxWidth / 10)
                               ? Marquee(
-                                  text: audioPlayerService.audioName,
+                                  text: track.name,
                                   style: const TextStyle(fontSize: 16),
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   blankSpace: constraints.maxWidth / 2,
@@ -81,12 +82,9 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
                               : SizedBox(
                                   width: double.infinity,
                                   child: Text(
-                                    audioPlayerService.audioName,
+                                    track.name,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                    ),
                                   ),
                                 ),
                         ),
@@ -95,17 +93,17 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
                   ),
                 ),
                 TextButton(
-                  style: theme.textButtonTheme.style!.copyWith(
+                  style: theme.textButtonTheme.style?.copyWith(
                     padding: MaterialStateProperty.all(
                       EdgeInsets.zero,
                     ),
                   ),
                   onPressed: () {
                     setState(() {
-                      audioPlayerService.changePlayBackRate(
-                        audioPlayerService.getPlayBackRate() == 1
+                      audioPlayerService.changeAudioPlaybackRate(
+                        audioPlayerService.getAudioPlaybackRate() == 1
                             ? 1.5
-                            : audioPlayerService.getPlayBackRate() == 1.5
+                            : audioPlayerService.getAudioPlaybackRate() == 1.5
                                 ? 2
                                 : 1,
                       );
@@ -120,9 +118,9 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
                     ),
                     child: Center(
                       child: Text(
-                        audioPlayerService.getPlayBackRate() == 1
+                        audioPlayerService.getAudioPlaybackRate() == 1
                             ? "1x"
-                            : audioPlayerService.getPlayBackRate() == 1.5
+                            : audioPlayerService.getAudioPlaybackRate() == 1.5
                                 ? "1.5x"
                                 : "2x",
                         style: const TextStyle(fontSize: 12),
@@ -134,9 +132,9 @@ class _AudioPlayerAppBarState extends State<AudioPlayerAppBar> {
                   padding: const EdgeInsets.only(right: 5),
                   constraints: const BoxConstraints(),
                   onPressed: () {
-                    audioPlayerService.close();
+                    audioPlayerService.stopAudio();
                   },
-                  icon: const Icon(Icons.close),
+                  icon: const Icon(Icons.close_rounded),
                 )
               ],
             ),

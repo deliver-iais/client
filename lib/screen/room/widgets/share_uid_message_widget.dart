@@ -1,11 +1,11 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/repository/mucRepo.dart';
+import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -13,26 +13,27 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class ShareUidMessageWidget extends StatelessWidget {
+  static final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _routingServices = GetIt.I.get<RoutingService>();
+  static final _i18n = GetIt.I.get<I18N>();
+
   final Message message;
   final bool isSender;
   final bool isSeen;
   final CustomColorScheme colorScheme;
 
-  final _mucRepo = GetIt.I.get<MucRepo>();
-  final _routingServices = GetIt.I.get<RoutingService>();
-  final _i18n = GetIt.I.get<I18N>();
-
-  ShareUidMessageWidget({
-    Key? key,
+  const ShareUidMessageWidget({
+    super.key,
     required this.message,
     required this.isSender,
     required this.colorScheme,
     required this.isSeen,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
-    final _shareUid = message.json.toShareUid();
+    final shareUid = message.json.toShareUid();
     return Padding(
       padding: const EdgeInsets.only(top: 4.0, bottom: 2.0, left: 4, right: 4),
       child: Column(
@@ -43,22 +44,23 @@ class ShareUidMessageWidget extends StatelessWidget {
             icon: Padding(
               padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
               child: CircleAvatarWidget(
-                _shareUid.uid,
+                shareUid.uid,
                 14,
-                forceText: _shareUid.name,
+                forceText: shareUid.name,
               ),
             ),
             label: Row(
               children: [
-                if (_shareUid.uid.category == Categories.GROUP)
-                  const Padding(
-                    padding: EdgeInsets.only(left: 4.0),
+                if (shareUid.uid.category == Categories.GROUP)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4.0),
                     child: Icon(
                       Icons.group_rounded,
                       size: 18,
+                      color: colorScheme.onPrimary,
                     ),
                   ),
-                if (_shareUid.uid.category == Categories.CHANNEL)
+                if (shareUid.uid.category == Categories.CHANNEL)
                   const Padding(
                     padding: EdgeInsets.only(left: 4.0),
                     child: Icon(
@@ -69,100 +71,33 @@ class ShareUidMessageWidget extends StatelessWidget {
                 Padding(
                   padding: const EdgeInsets.only(left: 4.0),
                   child: Text(
-                    _shareUid.name +
-                        (_shareUid.uid.category != Categories.USER
+                    shareUid.name +
+                        (shareUid.uid.category != Categories.USER
                             ? " ${_i18n.get("invite_link")}"
                             : ""),
+                    style: TextStyle(color: colorScheme.onPrimary),
                   ),
                 ),
                 const Icon(Icons.chevron_right, size: 18)
               ],
             ),
             onPressed: () async {
-              if ((_shareUid.uid.category == Categories.GROUP ||
-                  _shareUid.uid.category == Categories.CHANNEL)) {
-                final muc = await _mucRepo.getMuc(_shareUid.uid.asString());
-                if (muc != null) {
-                  _routingServices.openRoom(_shareUid.uid.asString());
+              if ((shareUid.uid.category == Categories.GROUP ||
+                  shareUid.uid.category == Categories.CHANNEL)) {
+                final room = await _roomRepo.getRoom(shareUid.uid.asString());
+                if (room != null && !room.deleted) {
+                  _routingServices.openRoom(shareUid.uid.asString());
                 } else {
-                  showFloatingModalBottomSheet(
-                    context: context,
-                    builder: (context) => Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: <Widget>[
-                          CircleAvatarWidget(
-                            _shareUid.uid,
-                            40,
-                            forceText: _shareUid.name,
-                          ),
-                          Text(
-                            _shareUid.name,
-                            style: Theme.of(context).textTheme.headline6,
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              MaterialButton(
-                                onPressed: () => Navigator.of(context).pop(),
-                                child: Text(_i18n.get("skip")),
-                              ),
-                              MaterialButton(
-                                onPressed: () async {
-                                  final navigatorState = Navigator.of(context);
-                                  if ((_shareUid.uid.category ==
-                                          Categories.GROUP ||
-                                      _shareUid.uid.category ==
-                                          Categories.CHANNEL)) {
-                                    final muc = await _mucRepo
-                                        .getMuc(_shareUid.uid.asString());
-                                    if (muc == null) {
-                                      if (_shareUid.uid.category ==
-                                          Categories.GROUP) {
-                                        final res = await _mucRepo.joinGroup(
-                                          _shareUid.uid,
-                                          _shareUid.joinToken,
-                                        );
-                                        if (res != null) {
-                                          navigatorState.pop();
-                                          _routingServices.openRoom(
-                                            _shareUid.uid.asString(),
-                                          );
-                                        }
-                                      } else {
-                                        final res = await _mucRepo.joinChannel(
-                                          _shareUid.uid,
-                                          _shareUid.joinToken,
-                                        );
-                                        if (res != null) {
-                                          navigatorState.pop();
-                                          _routingServices.openRoom(
-                                            _shareUid.uid.asString(),
-                                          );
-                                        }
-                                      }
-                                    } else {
-                                      _routingServices
-                                          .openRoom(_shareUid.uid.asString());
-                                    }
-                                  } else {
-                                    _routingServices
-                                        .openRoom(_shareUid.uid.asString());
-                                  }
-                                },
-                                child: Text(_i18n.get("join")),
-                              )
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ).ignore();
+                  // ignore: use_build_context_synchronously
+                  await _urlHandlerService.handleJoin(
+                    context,
+                    shareUid.uid,
+                    shareUid.joinToken,
+                    name: shareUid.name,
+                  );
                 }
               } else {
-                _routingServices.openRoom(_shareUid.uid.asString());
+                _routingServices.openRoom(shareUid.uid.asString());
               }
             },
           ),

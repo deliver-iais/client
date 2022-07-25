@@ -11,22 +11,21 @@ class SearchBox extends StatefulWidget {
   final TextEditingController? controller;
 
   const SearchBox({
-    Key? key,
+    super.key,
     required this.onChange,
     this.onCancel,
     this.controller,
-  }) : super(key: key);
+  });
 
   @override
-  _SearchBoxState createState() => _SearchBoxState();
+  SearchBoxState createState() => SearchBoxState();
 }
 
-class _SearchBoxState extends State<SearchBox> {
+class SearchBoxState extends State<SearchBox> {
   final TextEditingController _localController = TextEditingController();
   final BehaviorSubject<bool> _hasText = BehaviorSubject.seeded(false);
   final _focusNode = FocusNode(canRequestFocus: false);
   static final _i18n = GetIt.I.get<I18N>();
-
 
   void _clearTextEditingController() {
     widget.controller?.clear();
@@ -43,53 +42,57 @@ class _SearchBoxState extends State<SearchBox> {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: TextField(
-        style: const TextStyle(fontSize: 16, height: 1.2),
-        focusNode: _focusNode,
-        controller: widget.controller ?? _localController,
-        onChanged: (str) {
-          if (str.isNotEmpty) {
-            _hasText.add(true);
-          } else {
-            _hasText.add(false);
-          }
-          widget.onChange(str);
-        },
-        decoration: InputDecoration(
-          focusedBorder: const OutlineInputBorder(
-            borderRadius: mainBorder,
-            borderSide: BorderSide.none,
-          ),
-          enabledBorder: const OutlineInputBorder(
-            borderRadius: mainBorder,
-            borderSide: BorderSide.none,
-          ),
-          filled: true,
-          isDense: true,
-          prefixIcon: const Icon(
-            CupertinoIcons.search,
-            // size: 20,
-          ),
-          suffixIcon: StreamBuilder<bool?>(
-            stream: _hasText.stream,
-            builder: (c, ht) {
-              if (ht.hasData && ht.data!) {
-                return IconButton(
-                  iconSize: 20,
-                  icon: const Icon(CupertinoIcons.xmark),
-                  onPressed: () {
-                    _hasText.add(false);
-                    _clearTextEditingController();
-                    _focusNode.unfocus();
-                    widget.onCancel?.call();
-                  },
-                );
+      child: Directionality(
+        textDirection: _i18n.defaultTextDirection,
+        child: SizedBox(
+          height: 40,
+          child: TextField(
+            textDirection: _i18n.defaultTextDirection,
+            style: const TextStyle(fontSize: 16),
+            focusNode: _focusNode,
+            controller: widget.controller ?? _localController,
+            onChanged: (str) {
+              if (str.isNotEmpty) {
+                _hasText.add(true);
               } else {
-                return const SizedBox.shrink();
+                _hasText.add(false);
               }
+              widget.onChange(str);
             },
+            decoration: InputDecoration(
+              contentPadding: const EdgeInsets.only(top: 15),
+              focusedBorder: const OutlineInputBorder(
+                borderRadius: mainBorder,
+                borderSide: BorderSide.none,
+              ),
+              enabledBorder: const OutlineInputBorder(
+                borderRadius: mainBorder,
+                borderSide: BorderSide.none,
+              ),
+              filled: true,
+              isDense: true,
+              prefixIcon: const Icon(CupertinoIcons.search),
+              suffixIcon: StreamBuilder<bool?>(
+                stream: _hasText,
+                builder: (c, ht) {
+                  if (ht.hasData && ht.data!) {
+                    return IconButton(
+                      icon: const Icon(CupertinoIcons.xmark),
+                      onPressed: () {
+                        _hasText.add(false);
+                        _clearTextEditingController();
+                        _focusNode.unfocus();
+                        widget.onCancel?.call();
+                      },
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              ),
+              hintText: _i18n.get("search"),
+            ),
           ),
-          hintText: _i18n.get("search"),
         ),
       ),
     );

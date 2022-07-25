@@ -14,17 +14,17 @@ class OnDeletePopupDialog extends StatefulWidget {
   final String roomName;
 
   const OnDeletePopupDialog({
-    Key? key,
+    super.key,
     required this.selected,
     required this.roomUid,
     required this.roomName,
-  }) : super(key: key);
+  });
 
   @override
-  _OnDeletePopupDialogState createState() => _OnDeletePopupDialogState();
+  OnDeletePopupDialogState createState() => OnDeletePopupDialogState();
 }
 
-class _OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
+class OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
   final _mucRepo = GetIt.I.get<MucRepo>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
@@ -32,26 +32,27 @@ class _OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Container(
       child: widget.selected == "delete_room"
           ? AlertDialog(
               titlePadding: EdgeInsets.zero,
-              actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
               backgroundColor: Colors.white,
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       CircleAvatarWidget(widget.roomUid, 25),
-                      const SizedBox(width: 5),
                       Text(
                         !widget.roomUid.isMuc()
                             ? _i18n.get("delete_chat")
                             : widget.roomUid.isChannel()
                                 ? _i18n.get("left_channel")
                                 : _i18n.get("left_group"),
-                        style: const TextStyle(fontWeight: FontWeight.bold),
+                        style: theme.textTheme.headline6
+                            ?.copyWith(color: theme.errorColor),
                       )
                     ],
                   ),
@@ -60,11 +61,12 @@ class _OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
                     children: [
                       Expanded(
                         child: Text(
+                          textDirection: _i18n.defaultTextDirection,
                           !widget.roomUid.isMuc()
-                              ? "${_i18n.get("sure_delete_room")} ${widget.roomName} ?"
+                              ? "${_i18n.get("sure_delete_room1")} \"${widget.roomName}\" ${_i18n.get("sure_delete_room2")}"
                               : widget.roomUid.isChannel()
-                                  ? "${_i18n.get("sure_left_channel")} ${widget.roomName} ?"
-                                  : "${_i18n.get("sure_left_group")} ${widget.roomName} ?",
+                                  ? "${_i18n.get("sure_left_channel1")} \"${widget.roomName}\" ${_i18n.get("sure_left_channel2")}"
+                                  : "${_i18n.get("sure_left_group1")} \"${widget.roomName}\" ${_i18n.get("sure_left_group2")}",
                           style: const TextStyle(
                             color: Colors.black,
                             fontSize: 18,
@@ -78,47 +80,34 @@ class _OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
               ),
               actions: <Widget>[
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    GestureDetector(
-                      child: Text(
-                        _i18n.get("cancel"),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.blue,
-                        ),
-                      ),
-                      onTap: () => Navigator.pop(context),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: Text(_i18n.get("cancel")),
                     ),
-                    const SizedBox(
-                      width: 20,
-                    ),
-                    GestureDetector(
-                      child: Text(
-                        _i18n.get("ok"),
-                        style: const TextStyle(
-                          fontSize: 16,
-                          color: Colors.red,
-                        ),
-                      ),
-                      onTap: () {
+                    TextButton(
+                      onPressed: () {
                         Navigator.pop(context);
                         widget.roomUid.isMuc() ? _leftMuc() : _deleteRoom();
                       },
+                      style: TextButton.styleFrom(primary: theme.errorColor),
+                      child: Text(_i18n.get("ok")),
                     ),
-                    const SizedBox(width: 10)
                   ],
                 ),
               ],
             )
           : AlertDialog(
               titlePadding: EdgeInsets.zero,
-              actionsPadding: const EdgeInsets.only(bottom: 10, right: 5),
               backgroundColor: Colors.white,
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       CircleAvatarWidget(widget.roomUid, 25),
                       const SizedBox(width: 5),
@@ -126,6 +115,8 @@ class _OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
                         widget.roomUid.isChannel()
                             ? _i18n.get("delete_channel")
                             : _i18n.get("delete_group"),
+                        style: theme.textTheme.headline6
+                            ?.copyWith(color: theme.errorColor),
                       )
                     ],
                   ),
@@ -135,9 +126,10 @@ class _OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
                     children: [
                       Expanded(
                         child: Text(
+                          textDirection: _i18n.defaultTextDirection,
                           widget.roomUid.isGroup()
-                              ? "${_i18n.get("sure_delete_group")} ${widget.roomName} ?"
-                              : "${_i18n.get("sure_delete_channel")} ${widget.roomName} ?",
+                              ? "${_i18n.get("sure_delete_group1")} \"${widget.roomName}\" ${_i18n.get("sure_delete_group2")}"
+                              : "${_i18n.get("sure_delete_channel1")} \"${widget.roomName}\" ${_i18n.get("sure_delete_channel2")}",
                           style: const TextStyle(
                             color: Colors.black,
                             fontSize: 18,
@@ -150,34 +142,22 @@ class _OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
               ),
               actions: <Widget>[
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    GestureDetector(
-                      child: Text(
-                        _i18n.get("cancel"),
-                        style:
-                            const TextStyle(fontSize: 16, color: Colors.blue),
-                      ),
-                      onTap: () {
-                        Navigator.pop(context);
+                    TextButton(
+                      child: Text(_i18n.get("cancel")),
+                      onPressed: () {
+                        Navigator.of(context).pop();
                       },
                     ),
-                    const SizedBox(
-                      width: 20,
-                    ),
-                    GestureDetector(
-                      child: Text(
-                        _i18n.get("ok"),
-                        style: const TextStyle(fontSize: 16, color: Colors.red),
-                      ),
-                      onTap: () {
+                    TextButton(
+                      onPressed: () {
                         Navigator.pop(context);
                         _deleteMuc();
                       },
+                      style: TextButton.styleFrom(primary: theme.errorColor),
+                      child: Text(_i18n.get("ok")),
                     ),
-                    const SizedBox(
-                      width: 10,
-                    )
                   ],
                 ),
               ],

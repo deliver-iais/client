@@ -6,8 +6,7 @@ class SelectionItems extends StatelessWidget {
   final ModeData? data;
   final VoidCallback? onTap;
 
-  const SelectionItems({Key? key, this.isSelected, this.data, this.onTap})
-      : super(key: key);
+  const SelectionItems({super.key, this.isSelected, this.data, this.onTap});
 
   @override
   Widget build(BuildContext context) {

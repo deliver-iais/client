@@ -1,34 +1,30 @@
 import 'package:deliver/box/call_info.dart';
 import 'package:deliver/box/call_status.dart' as call_status;
 import 'package:deliver/box/dao/call_info_dao.dart';
-
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
-
 import 'package:deliver/screen/call/callList/call_detail_page.dart';
 import 'package:deliver/screen/call/callList/call_list_widget.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/time.dart';
-
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:expandable/expandable.dart';
-
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class CallListPage extends StatefulWidget {
-  const CallListPage({Key? key}) : super(key: key);
+  const CallListPage({super.key});
 
   @override
-  _CallListPageState createState() => _CallListPageState();
+  CallListPageState createState() => CallListPageState();
 }
 
-class _CallListPageState extends State<CallListPage> {
+class CallListPageState extends State<CallListPage> {
   final _i18n = GetIt.I.get<I18N>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _callListDao = GetIt.I.get<CallInfoDao>();
@@ -45,7 +41,7 @@ class _CallListPageState extends State<CallListPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: UltimateAppBar(
+      appBar: BlurredPreferredSizedWidget(
         child: AppBar(
           titleSpacing: 8,
           title: Text(_i18n.get("calls")),
@@ -60,7 +56,7 @@ class _CallListPageState extends State<CallListPage> {
             if (snapshot.hasData && snapshot.data != null) {
               final calls = snapshot.data!.reversed.toList();
               if (snapshot.data!.isEmpty) {
-                return const TGS.asset(
+                return const Tgs.asset(
                   'assets/animations/not-found.tgs',
                   width: 180,
                   height: 150,
@@ -104,6 +100,7 @@ class _CallListPageState extends State<CallListPage> {
                                           .colorScheme.onSecondaryContainer,
                                       fontSize: 12,
                                     ),
+                                    textDirection: _i18n.defaultTextDirection,
                                   ),
                                 ),
                                 const Divider()

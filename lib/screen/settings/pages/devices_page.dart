@@ -11,13 +11,13 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class DevicesPage extends StatefulWidget {
-  const DevicesPage({Key? key}) : super(key: key);
+  const DevicesPage({super.key});
 
   @override
-  _DevicesPageState createState() => _DevicesPageState();
+  DevicesPageState createState() => DevicesPageState();
 }
 
-class _DevicesPageState extends State<DevicesPage> {
+class DevicesPageState extends State<DevicesPage> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
@@ -61,12 +61,17 @@ class _DevicesPageState extends State<DevicesPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Text(
-                              _i18n.get("this_device"),
-                              style: theme.primaryTextTheme.subtitle2,
-                            ),
+                          Row(
+                            textDirection: _i18n.defaultTextDirection,
+                            children: <Widget>[
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  _i18n.get("this_device"),
+                                  style: theme.primaryTextTheme.subtitle2,
+                                ),
+                              ),
+                            ],
                           ),
                           sessionWidget(currentSession),
                         ],
@@ -82,14 +87,16 @@ class _DevicesPageState extends State<DevicesPage> {
                     ),
                     width: double.infinity,
                     child: TextButton(
+                      style: TextButton.styleFrom(
+                        primary: theme.colorScheme.error,
+                      ),
+                      onPressed: () {
+                        _showTerminateSession(otherSessions, context);
+                      },
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(_i18n.get("terminate_all_other_sessions")),
                       ),
-                      style: TextButton.styleFrom(primary: Colors.red),
-                      onPressed: () {
-                        _showTerminateSession(otherSessions, context);
-                      },
                     ),
                   ),
                   const Divider(),
@@ -175,7 +182,9 @@ class _DevicesPageState extends State<DevicesPage> {
                     Text(
                       session.createdOn.toInt() == 0
                           ? "No Time Provided"
-                          : dateTimeFromNowFormat(date(session.createdOn.toInt())),
+                          : dateTimeFromNowFormat(
+                              date(session.createdOn.toInt()),
+                            ),
                     ),
                   ],
                 ),
@@ -188,6 +197,8 @@ class _DevicesPageState extends State<DevicesPage> {
   }
 
   void _showTerminateSession(List<Session> sessions, BuildContext context) {
+    final theme = Theme.of(context);
+
     showDialog(
       context: context,
       builder: (context) {
@@ -215,8 +226,9 @@ class _DevicesPageState extends State<DevicesPage> {
                 ),
                 const SizedBox(width: 20),
                 TextButton(
-                  child: Text(_i18n.get("delete")),
-                  style: TextButton.styleFrom(primary: Colors.red),
+                  style: TextButton.styleFrom(
+                    primary: theme.colorScheme.error,
+                  ),
                   onPressed: () async {
                     final navigatorState = Navigator.of(context);
                     if (sessions.length > 1) {
@@ -248,6 +260,7 @@ class _DevicesPageState extends State<DevicesPage> {
                       sessionIds.add(element.sessionId);
                     }
                   },
+                  child: Text(_i18n.get("delete")),
                 ),
                 const SizedBox(
                   width: 10,

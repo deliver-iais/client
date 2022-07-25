@@ -11,17 +11,17 @@ class StickerMessageWidget extends StatefulWidget {
 
   const StickerMessageWidget(
     this.message, {
-    Key? key,
+    super.key,
     required this.colorScheme,
     required this.isSender,
     required this.isSeen,
-  }) : super(key: key);
+  });
 
   @override
-  _StickerMessageWidgetState createState() => _StickerMessageWidgetState();
+  StickerMessageWidgetState createState() => StickerMessageWidgetState();
 }
 
-class _StickerMessageWidgetState extends State<StickerMessageWidget> {
+class StickerMessageWidgetState extends State<StickerMessageWidget> {
   // final _fileRepo = GetIt.I.get<FileRepo>();
   // final _i18n = GetIt.I.get<I18N>();
 
@@ -31,7 +31,7 @@ class _StickerMessageWidgetState extends State<StickerMessageWidget> {
     // FileProto.File stickerMessage = widget.message.json.toFile();
     // i18n = AppLocalization.of(context);
     // return Container(
-    //     color:theme.backgroundColor,
+    //     color:theme.colorScheme.background,
     //     child: Stack(
     //       children: [
     //         FutureBuilder<File>(

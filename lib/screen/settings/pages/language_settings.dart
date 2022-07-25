@@ -7,13 +7,15 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class LanguageSettingsPage extends StatefulWidget {
-  const LanguageSettingsPage({Key? key}) : super(key: key);
+  final bool rootFromLoginPage;
+
+  const LanguageSettingsPage({super.key, this.rootFromLoginPage = false});
 
   @override
-  _LanguageSettingsPageState createState() => _LanguageSettingsPageState();
+  LanguageSettingsPageState createState() => LanguageSettingsPageState();
 }
 
-class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
+class LanguageSettingsPageState extends State<LanguageSettingsPage> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _i18n = GetIt.I.get<I18N>();
 
@@ -25,44 +27,50 @@ class _LanguageSettingsPageState extends State<LanguageSettingsPage> {
         child: AppBar(
           titleSpacing: 8,
           title: Text(_i18n.get("language")),
-          leading: _routingService.backButtonLeading(),
+          leading: widget.rootFromLoginPage
+              ? null
+              : _routingService.backButtonLeading(),
         ),
       ),
       body: FluidContainerWidget(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
-          child: ListView(
-            children: [
-              Section(
-                title: 'Languages',
-                children: [
-                  SettingsTile(
-                    title: 'English',
-                    leading: const Icon(Icons.language),
-                    trailing: _i18n.locale.languageCode == english.languageCode
-                        ? const Icon(Icons.done)
-                        : const SizedBox.shrink(),
-                    onPressed: (context) {
-                      setState(() {
-                        _i18n.changeLanguage(english);
-                      });
-                    },
-                  ),
-                  SettingsTile(
-                    title: 'فارسی',
-                    leading: const Icon(Icons.language),
-                    trailing: _i18n.locale.languageCode == farsi.languageCode
-                        ? const Icon(Icons.done)
-                        : const SizedBox.shrink(),
-                    onPressed: (context) {
-                      setState(() {
-                        _i18n.changeLanguage(farsi);
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ],
+          child: Directionality(
+            textDirection: _i18n.defaultTextDirection,
+            child: ListView(
+              children: [
+                Section(
+                  title: _i18n.get("languages"),
+                  children: [
+                    SettingsTile(
+                      title: 'English',
+                      leading: const Icon(Icons.language),
+                      trailing:
+                          _i18n.locale.languageCode == english.languageCode
+                              ? const Icon(Icons.done)
+                              : const SizedBox.shrink(),
+                      onPressed: (context) {
+                        setState(() {
+                          _i18n.changeLanguage(english);
+                        });
+                      },
+                    ),
+                    SettingsTile(
+                      title: 'فارسی',
+                      leading: const Icon(Icons.language),
+                      trailing: _i18n.locale.languageCode == farsi.languageCode
+                          ? const Icon(Icons.done)
+                          : const SizedBox.shrink(),
+                      onPressed: (context) {
+                        setState(() {
+                          _i18n.changeLanguage(farsi);
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),

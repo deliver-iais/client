@@ -29,6 +29,7 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
+import 'package:rxdart/rxdart.dart';
 
 class BoxContent extends StatefulWidget {
   final Message message;
@@ -47,7 +48,7 @@ class BoxContent extends StatefulWidget {
   final void Function() onEdit;
 
   const BoxContent({
-    Key? key,
+    super.key,
     required this.message,
     required this.maxWidth,
     required this.minWidth,
@@ -62,23 +63,30 @@ class BoxContent extends StatefulWidget {
     this.pattern,
     this.messageReplyBrief,
     required this.onEdit,
-  }) : super(key: key);
+  });
 
   Type getState() {
-    return _BoxContentState;
+    return BoxContentState;
   }
 
   @override
-  _BoxContentState createState() => _BoxContentState();
+  BoxContentState createState() => BoxContentState();
 }
 
-class _BoxContentState extends State<BoxContent> {
+class BoxContentState extends State<BoxContent> {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _routingServices = GetIt.I.get<RoutingService>();
-  bool hideArrowDopIcon = true;
+  final showMenuBehavior = BehaviorSubject.seeded(false);
+  final GlobalKey _messageBoxKey = GlobalKey();
+  final messageBoxWidth = BehaviorSubject.seeded(0.0);
 
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        messageBoxWidth.add(_messageBoxKey.currentContext?.size?.width ?? 0);
+      }
+    });
     super.initState();
   }
 
@@ -88,14 +96,8 @@ class _BoxContentState extends State<BoxContent> {
         ExtraTheme.of(context).messageColorScheme(widget.message.from);
 
     return MouseRegion(
-      onHover: (s) {
-        hideArrowDopIcon = false;
-        setState(() {});
-      },
-      onExit: (s) {
-        hideArrowDopIcon = true;
-        setState(() {});
-      },
+      onHover: (_) => showMenuBehavior.add(true),
+      onExit: (_) => showMenuBehavior.add(false),
       child: Stack(
       alignment: Alignment.topRight,
         children: [
@@ -115,33 +117,41 @@ class _BoxContentState extends State<BoxContent> {
                 if (shouldShowSenderName()) senderNameBox(colorScheme),
                 if (hasReply()) replyToIdBox(),
                 if (isForwarded()) forwardedFromBox(),
-                messageBox()
+                Container(key: _messageBoxKey, child: messageBox())
               ],
             ),
           ),
           if (isDesktop | isWeb)
-            MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: GestureDetector(
-                onTapDown: (tapDownDetails) {
-                  widget.storePosition(tapDownDetails);
-                },
-                onTap: () => widget.onArrowIconClick(),
-                child: AnimatedOpacity(
-                  opacity: !hideArrowDopIcon ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 200),
-                  child: Container(
-                    margin: const EdgeInsets.all(2),
-                    child: const BlurContainer(
-                      padding: EdgeInsets.all(3),
-                      child: Icon(
-                        CupertinoIcons.chevron_down,
-                        size: 16,
+            StreamBuilder<bool>(
+              initialData: false,
+              stream: showMenuBehavior.distinct(),
+              builder: (context, snapshot) {
+                final showMenu = snapshot.data ?? false;
+
+                return MouseRegion(
+                  cursor: SystemMouseCursors.click,
+                  child: GestureDetector(
+                    onTapDown: (tapDownDetails) {
+                      widget.storePosition(tapDownDetails);
+                    },
+                    onTap: () => widget.onArrowIconClick(),
+                    child: AnimatedOpacity(
+                      opacity: showMenu ? 1.0 : 0.0,
+                      duration: const Duration(milliseconds: 200),
+                      child: Container(
+                        margin: const EdgeInsets.all(2),
+                        child: const BlurContainer(
+                          padding: EdgeInsets.all(3),
+                          child: Icon(
+                            CupertinoIcons.chevron_down,
+                            size: 16,
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                ),
-              ),
+                );
+              },
             ),
         ],
       ),
@@ -161,13 +171,18 @@ class _BoxContentState extends State<BoxContent> {
             widget.message.id ?? 0,
           );
         },
-        child: ReplyBrief(
-          roomId: widget.message.roomUid,
-          replyToId: widget.message.replyToId,
-          messageReplyBrief: widget.messageReplyBrief,
-          maxWidth: widget.minWidth,
-          backgroundColor: colorScheme.onPrimary,
-          foregroundColor: colorScheme.primary,
+        child: StreamBuilder<double>(
+          stream: messageBoxWidth,
+          builder: (context, snapshot) {
+            return ReplyBrief(
+              roomId: widget.message.roomUid,
+              replyToId: widget.message.replyToId,
+              messageReplyBrief: widget.messageReplyBrief,
+              maxWidth: snapshot.data ?? 0,
+              backgroundColor: colorScheme.onPrimary,
+              foregroundColor: colorScheme.primary,
+            );
+          },
         ),
       ),
     );
@@ -226,7 +241,7 @@ class _BoxContentState extends State<BoxContent> {
   Widget messageBox() {
     final colorScheme =
         ExtraTheme.of(context).messageColorScheme(widget.message.from);
-    if (AnimatedEmoji.isAnimatedEmoji(widget.message)) {
+    if (AnimatedEmoji.isAnimatedEmojiMessage(widget.message)) {
       return AnimatedEmoji(
         message: widget.message,
         isSeen: widget.isSeen,
@@ -313,6 +328,7 @@ class _BoxContentState extends State<BoxContent> {
         return BotTableWidget(
           message: widget.message,
           colorScheme: colorScheme,
+          maxWidth: widget.maxWidth,
         );
       case MessageType.SHARE_UID:
         return ShareUidMessageWidget(

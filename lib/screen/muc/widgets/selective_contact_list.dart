@@ -1,8 +1,11 @@
+import 'package:collection/collection.dart';
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
+import 'package:deliver/screen/contacts/empty_contacts.dart';
+import 'package:deliver/screen/contacts/sync_contact.dart';
 import 'package:deliver/screen/muc/widgets/selective_contact.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
@@ -18,29 +21,29 @@ class SelectiveContactsList extends StatefulWidget {
 
   final bool isChannel;
 
-  const SelectiveContactsList({Key? key, required this.isChannel, this.mucUid})
-      : super(key: key);
+  const SelectiveContactsList({
+    super.key,
+    required this.isChannel,
+    this.mucUid,
+  });
 
   @override
-  _SelectiveContactsListState createState() => _SelectiveContactsListState();
+  SelectiveContactsListState createState() => SelectiveContactsListState();
 }
 
-class _SelectiveContactsListState extends State<SelectiveContactsList> {
+class SelectiveContactsListState extends State<SelectiveContactsList> {
+  final _contactRepo = GetIt.I.get<ContactRepo>();
+  final _routingService = GetIt.I.get<RoutingService>();
+  final _mucRepo = GetIt.I.get<MucRepo>();
+  final _createMucService = GetIt.I.get<CreateMucService>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
+  final _i18n = GetIt.I.get<I18N>();
+
   late TextEditingController editingController;
 
   List<Contact> selectedList = [];
 
   List<Contact>? items;
-
-  final _contactRepo = GetIt.I.get<ContactRepo>();
-
-  final _routingService = GetIt.I.get<RoutingService>();
-
-  final _mucRepo = GetIt.I.get<MucRepo>();
-
-  final _createMucService = GetIt.I.get<CreateMucService>();
-
-  final _authRepo = GetIt.I.get<AuthRepo>();
 
   List<Contact> contacts = [];
 
@@ -94,8 +97,6 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
     }
   }
 
-  I18N i18n = GetIt.I.get<I18N>();
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -103,6 +104,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
       children: [
         Column(
           children: [
+            SyncContact.syncingStatusWidget(context),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: SearchBox(
@@ -113,15 +115,20 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
             ),
             Expanded(
               child: FutureBuilder<List<Contact>>(
-                future: _contactRepo.getAll(),
+                future: _contactRepo.getAllUserAsContact(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData &&
                       snapshot.data != null &&
                       snapshot.data!.isNotEmpty) {
-                    snapshot.data!.removeWhere(
-                      (element) => _authRepo.isCurrentUser(element.uid),
-                    );
-                    contacts = snapshot.data!;
+                    contacts = snapshot.data!
+                        .whereNot((element) => element.uid == null)
+                        .where(
+                          (element) =>
+                              !_authRepo.isCurrentUser(element.uid!) &&
+                              !element.isUsersContact(),
+                        )
+                        .toList();
+
                     items ??= contacts;
 
                     if (items!.isNotEmpty) {
@@ -138,12 +145,23 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                         },
                       );
                     } else {
-                      return Center(
-                        child: Text(
-                          i18n.get("no_results"),
-                          style: theme.textTheme.subtitle1!
-                              .copyWith(color: Colors.red),
-                        ),
+                      return ListView(
+                        children: [
+                          const EmptyContacts(),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 32),
+                            child: TextButton(
+                              onPressed: _routingService.openContacts,
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(_i18n.get("contacts")),
+                                  const Icon(Icons.chevron_right_rounded),
+                                ],
+                              ),
+                            ),
+                          )
+                        ],
                       );
                     }
                   } else {
@@ -178,7 +196,9 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
                           onPressed: () async {
                             final users = <Uid>[];
                             for (final contact in _createMucService.contacts) {
-                              users.add(contact.uid.asUid());
+                              if (contact.uid != null) {
+                                users.add(contact.uid!.asUid());
+                              }
                             }
                             final usersAdd = await _mucRepo.sendMembers(
                               widget.mucUid!,
@@ -193,7 +213,7 @@ class _SelectiveContactsListState extends State<SelectiveContactsList> {
 
                             } else {
                               ToastDisplay.showToast(
-                                toastText: i18n.get("error_occurred"),
+                                toastText: _i18n.get("error_occurred"),
                                 toastContext: context,
                               );
                               // _routingService.pop();

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class CallTime extends StatelessWidget {
   final DateTime time;
 
-  const CallTime({Key? key, required this.time}) : super(key: key);
+  const CallTime({super.key, required this.time});
 
   @override
   Widget build(BuildContext context) {
@@ -14,10 +14,10 @@ class CallTime extends StatelessWidget {
     return time.microsecondsSinceEpoch != 0
         ? Text(
             callHour.isNotEmpty
-                ? callHour + " hour and " + callMin + "minute"
+                ? "$callHour hour and ${callMin}minute"
                 : callMin.isNotEmpty
-                    ? callMin + " minute"
-                    : callSec + " second",
+                    ? "$callMin minute"
+                    : "$callSec second",
           )
         : const SizedBox.shrink();
   }

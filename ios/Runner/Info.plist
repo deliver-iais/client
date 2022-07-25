@@ -40,7 +40,7 @@
 	<key>NSContactsUsageDescription</key>
 	<string>This app requires contacts access to function properly.</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>Can I use the mic please?</string>
+	<string>We need to access to the microphone to record audio file</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>In order to access your photo library for attachments and sharing in messenger</string>
 	<key>UILaunchStoryboardName</key>
@@ -62,5 +62,7 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 </dict>
 </plist>

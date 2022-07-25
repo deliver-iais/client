@@ -10,12 +10,12 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class BotAppbarTitle extends StatelessWidget {
-  final _routingService = GetIt.I.get<RoutingService>();
+  static final _routingService = GetIt.I.get<RoutingService>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+
   final Uid botUid;
 
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-
-  BotAppbarTitle({Key? key, required this.botUid}) : super(key: key);
+  const BotAppbarTitle({super.key, required this.botUid});
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +52,7 @@ class BotAppbarTitle extends StatelessWidget {
 
   Column buildColumn(String name, BuildContext context) {
     final theme = Theme.of(context);
-    final _i18n = GetIt.I.get<I18N>();
+    final i18n = GetIt.I.get<I18N>();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -61,7 +61,7 @@ class BotAppbarTitle extends StatelessWidget {
           currentRoomUid: botUid,
           style: theme.textTheme.caption!,
           normalConditionWidget: Text(
-            _i18n.get("bot"),
+            i18n.get("bot"),
             maxLines: 1,
             overflow: TextOverflow.fade,
             softWrap: false,

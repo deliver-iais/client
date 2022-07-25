@@ -19,23 +19,22 @@ import 'package:get_it/get_it.dart';
 
 class PersistentEventMessage extends StatelessWidget {
   final Message message;
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
-  final _fileRepo = GetIt.I.get<FileRepo>();
-  final _i18n = GetIt.I.get<I18N>();
-  final _routingServices = GetIt.I.get<RoutingService>();
-  final _messageDao = GetIt.I.get<MessageDao>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
+  static final _routingServices = GetIt.I.get<RoutingService>();
+  static final _messageDao = GetIt.I.get<MessageDao>();
   final void Function(int, int) onPinMessageClick;
   final PersistentEvent persistentEventMessage;
   final double maxWidth;
 
   PersistentEventMessage({
-    Key? key,
+    super.key,
     required this.message,
     required this.onPinMessageClick,
     required this.maxWidth,
-  })  : persistentEventMessage = message.json.toPersistentEvent(),
-        super(key: key);
+  }) : persistentEventMessage = message.json.toPersistentEvent();
 
   @override
   Widget build(BuildContext context) {
@@ -100,13 +99,12 @@ class PersistentEventMessage extends StatelessWidget {
                   decoration: BoxDecoration(
                     color: theme.chipTheme.backgroundColor,
                     borderRadius: tertiaryBorder,
-                    border: Border.fromBorderSide(theme.chipTheme.side!),
                   ),
                   padding: const EdgeInsets.only(
-                    top: 5,
+                    top: 6.0,
                     left: 8.0,
                     right: 8.0,
-                    bottom: 4.0,
+                    bottom: 2.0,
                   ),
                   child: FutureBuilder<List<Widget>?>(
                     future: getPersistentMessage(
@@ -117,9 +115,7 @@ class PersistentEventMessage extends StatelessWidget {
                     builder: (c, s) {
                       if (s.hasData && s.data != null) {
                         return Directionality(
-                          textDirection: _i18n.isPersian
-                              ? TextDirection.rtl
-                              : TextDirection.ltr,
+                          textDirection: _i18n.defaultTextDirection,
                           child: Row(
                             children: s.data!,
                           ),
@@ -180,7 +176,6 @@ class PersistentEventMessage extends StatelessWidget {
               softWrap: false,
               style: const TextStyle(
                 fontSize: 14,
-                height: 1,
                 fontWeight: FontWeight.bold,
               ),
             ),

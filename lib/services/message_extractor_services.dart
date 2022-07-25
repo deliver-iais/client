@@ -93,6 +93,7 @@ class MessageExtractorServices {
     const typeDetails = "";
     final text = mrb.text;
     const ignoreNotification = false;
+    const shouldBeQuiet = false;
 
     return MessageSimpleRepresentative(
       roomUid: roomUid,
@@ -106,6 +107,7 @@ class MessageExtractorServices {
       typeDetails: typeDetails,
       text: text,
       ignoreNotification: ignoreNotification,
+      shouldBeQuiet: shouldBeQuiet,
     );
   }
 
@@ -214,18 +216,18 @@ class MessageExtractorServices {
     }
 
     return MessageSimpleRepresentative(
-      roomUid: roomUid,
-      from: from,
-      roomName: roomName,
-      sender: sender,
-      senderIsAUserOrBot: msg.from.isUser() || msg.from.isBot(),
-      type: type,
-      id: msg.id.toInt(),
-      packetId: msg.packetId,
-      typeDetails: typeDetails,
-      text: text,
-      ignoreNotification: ignoreNotification,
-    );
+        roomUid: roomUid,
+        from: from,
+        roomName: roomName,
+        sender: sender,
+        senderIsAUserOrBot: msg.from.isUser() || msg.from.isBot(),
+        type: type,
+        id: msg.id.toInt(),
+        packetId: msg.packetId,
+        typeDetails: typeDetails,
+        text: text,
+        ignoreNotification: ignoreNotification,
+        shouldBeQuiet: msg.shouldBeQuiet,);
   }
 
   String? getCallText(
@@ -260,9 +262,9 @@ class MessageExtractorServices {
   }) async {
     switch (pe.whichType()) {
       case PersistentEvent_Type.mucSpecificPersistentEvent:
-        final String? issuer =
+        final issuer =
             await _roomRepo.getSlangName(pe.mucSpecificPersistentEvent.issuer);
-        final String? assignee = await _roomRepo
+        final assignee = await _roomRepo
             .getSlangName(pe.mucSpecificPersistentEvent.assignee);
         switch (pe.mucSpecificPersistentEvent.issue) {
           case MucSpecificPersistentEvent_Issue.ADD_USER:

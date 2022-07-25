@@ -8,22 +8,21 @@ class SelectiveContact extends StatefulWidget {
   final bool currentMember;
 
   const SelectiveContact({
-    Key? key,
+    super.key,
     required this.contact,
     required this.isSelected,
     this.currentMember = false,
-  }) : super(key: key);
+  });
 
   @override
-  _SelectiveContactState createState() => _SelectiveContactState();
+  SelectiveContactState createState() => SelectiveContactState();
 }
 
-class _SelectiveContactState extends State<SelectiveContact> {
+class SelectiveContactState extends State<SelectiveContact> {
   @override
   Widget build(BuildContext context) {
     return ContactWidget(
       contact: widget.contact,
-      circleIcon: widget.isSelected ? CupertinoIcons.checkmark_circle : null,
       isSelected: widget.isSelected,
       currentMember: widget.currentMember,
     );

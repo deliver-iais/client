@@ -5,6 +5,7 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/file_service.dart';
@@ -32,7 +33,7 @@ class ShowCaptionDialog extends StatefulWidget {
   final String? caption;
 
   const ShowCaptionDialog({
-    Key? key,
+    super.key,
     this.files,
     this.type,
     required this.currentRoom,
@@ -41,17 +42,17 @@ class ShowCaptionDialog extends StatefulWidget {
     required this.resetRoomPageDetails,
     required this.replyMessageId,
     this.caption,
-  }) : super(key: key);
+  });
 
   @override
-  _ShowCaptionDialogState createState() => _ShowCaptionDialogState();
+  ShowCaptionDialogState createState() => ShowCaptionDialogState();
 }
 
-class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
-  final _messageRepo = GetIt.I.get<MessageRepo>();
-  final _fileService = GetIt.I.get<FileService>();
-  final _i18n = GetIt.I.get<I18N>();
-  final _fileRepo = GetIt.I.get<FileRepo>();
+class ShowCaptionDialogState extends State<ShowCaptionDialog> {
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _fileService = GetIt.I.get<FileService>();
+  static final _i18n = GetIt.I.get<I18N>();
+  static final _fileRepo = GetIt.I.get<FileRepo>();
 
   final TextEditingController _editingController = TextEditingController();
 
@@ -87,11 +88,11 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
         }
       }
       if (widget.caption != null && widget.caption!.isNotEmpty) {
-        _editingController.text = widget.caption!;
+        _editingController.text = synthesizeToOriginalWord(widget.caption!);
       }
     } else {
       _editableFile = widget.editableMessage!.json.toFile();
-      _editingController.text = _editableFile.caption;
+      _editingController.text = synthesizeToOriginalWord(_editableFile.caption);
       _type = _editableFile.type;
     }
     super.initState();
@@ -410,14 +411,14 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
         ? _messageRepo.editFileMessage(
             widget.editableMessage!.roomUid.asUid(),
             widget.editableMessage!,
-            caption: _editingController.text,
+            caption: synthesize(_editingController.text.trim()),
             file: _editedFile,
           )
         : _messageRepo.sendMultipleFilesMessages(
             widget.currentRoom,
             widget.files!,
             replyToId: widget.replyMessageId,
-            caption: _editingController.text,
+            caption: synthesize(_editingController.text),
           );
     widget.resetRoomPageDetails?.call();
   }
@@ -557,7 +558,7 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
       if (isDesktop) {
         ToastDisplay.showToast(
           toastText: !_isFileFormatAccept
-              ? _i18n.get("cant_sent") + " " + _invalidFormatFileName
+              ? "${_i18n.get("cant_sent")} $_invalidFormatFileName"
               : _i18n.get("file_size_error"),
           toastContext: context,
         );
@@ -568,20 +569,20 @@ class _ShowCaptionDialogState extends State<ShowCaptionDialog> {
 }
 
 class FileErrorDialog extends StatelessWidget {
-  FileErrorDialog({
-    Key? key,
+  static final _i18n = GetIt.I.get<I18N>();
+
+  final bool _isFileFormatAccept;
+  final String _invalidFormatFileName;
+  final String _invalidSizeFileName;
+
+  const FileErrorDialog({
+    super.key,
     required bool isFileFormatAccept,
     required String invalidFormatFileName,
     required String invalidSizeFileName,
   })  : _isFileFormatAccept = isFileFormatAccept,
         _invalidFormatFileName = invalidFormatFileName,
-        _invalidSizeFileName = invalidSizeFileName,
-        super(key: key);
-
-  final _i18n = GetIt.I.get<I18N>();
-  final bool _isFileFormatAccept;
-  final String _invalidFormatFileName;
-  final String _invalidSizeFileName;
+        _invalidSizeFileName = invalidSizeFileName;
 
   @override
   Widget build(BuildContext context) {
@@ -594,8 +595,8 @@ class FileErrorDialog extends StatelessWidget {
         width: 150,
         child: Text(
           !_isFileFormatAccept
-              ? _i18n.get("cant_sent") + " " + _invalidFormatFileName
-              : _invalidSizeFileName + " " + _i18n.get("file_size_error"),
+              ? "${_i18n.get("cant_sent")} $_invalidFormatFileName"
+              : "$_invalidSizeFileName ${_i18n.get("file_size_error")}",
         ),
       ),
       actions: [

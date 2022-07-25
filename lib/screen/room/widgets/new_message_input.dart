@@ -1,6 +1,7 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/input_message_text_controller.dart';
 import 'package:deliver/screen/room/widgets/input_message.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -8,21 +9,22 @@ import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 class NewMessageInput extends StatelessWidget {
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+
   final String currentRoomId;
   final BehaviorSubject<Message?> replyMessageIdStream;
   final void Function() resetRoomPageDetails;
   final bool waitingForForward;
   final Message? editableMessage;
   final void Function()? sendForwardMessage;
-  final _roomRepo = GetIt.I.get<RoomRepo>();
   final void Function() scrollToLastSentMessage;
   final FocusNode focusNode;
-  final void Function(int,bool,bool) handleScrollToMessage;
+  final void Function(int, bool, bool) handleScrollToMessage;
   final void Function() deleteSelectedMessage;
-  final TextEditingController textController;
+  final InputMessageTextController textController;
 
-  NewMessageInput({
-    Key? key,
+  const NewMessageInput({
+    super.key,
     required this.currentRoomId,
     required this.focusNode,
     required this.handleScrollToMessage,
@@ -34,7 +36,7 @@ class NewMessageInput extends StatelessWidget {
     required this.replyMessageIdStream,
     this.editableMessage,
     this.sendForwardMessage,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

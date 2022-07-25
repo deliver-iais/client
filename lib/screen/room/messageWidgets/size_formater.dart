@@ -1,9 +1,9 @@
 String sizeFormatter(int bytes) {
   if (bytes < 1000) {
-    return bytes.toString() + ' B';
+    return '$bytes B';
   } else if (bytes < 1000000) {
-    return (bytes / 1000).round().toString() + ' KB';
+    return '${(bytes / 1000).round()} KB';
   } else {
-    return (bytes / 1000000).round().toString() + ' MB';
+    return '${(bytes / 1000000).round()} MB';
   }
 }

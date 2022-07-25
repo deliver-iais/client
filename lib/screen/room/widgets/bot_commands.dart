@@ -1,5 +1,6 @@
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/repository/botRepo.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -11,19 +12,19 @@ class BotCommands extends StatefulWidget {
   final int botCommandSelectedIndex;
 
   const BotCommands({
-    Key? key,
+    super.key,
     required this.botUid,
     required this.onCommandClick,
     this.query,
     required this.botCommandSelectedIndex,
-  }) : super(key: key);
+  });
 
   @override
-  _BotCommandsState createState() => _BotCommandsState();
+  BotCommandsState createState() => BotCommandsState();
 }
 
-class _BotCommandsState extends State<BotCommands> {
-  final _botRepo = GetIt.I.get<BotRepo>();
+class BotCommandsState extends State<BotCommands> {
+  static final _botRepo = GetIt.I.get<BotRepo>();
 
   @override
   Widget build(BuildContext context) {
@@ -40,20 +41,21 @@ class _BotCommandsState extends State<BotCommands> {
           });
           return AnimatedContainer(
             duration: const Duration(milliseconds: 100),
-            color: theme.backgroundColor,
+            color: theme.colorScheme.background,
             height: botCommands.keys.length * (24.0 + 16),
             child: Scrollbar(
               child: ListView.separated(
                 padding: EdgeInsets.zero,
                 itemCount: botCommands.length,
                 itemBuilder: (c, index) {
-                  var _botCommandItemColor = Colors.transparent;
+                  var botCommandItemColor = Colors.transparent;
                   if (widget.botCommandSelectedIndex == index &&
-                      widget.botCommandSelectedIndex != -1) {
-                    _botCommandItemColor = theme.focusColor;
+                      widget.botCommandSelectedIndex != -1 &&
+                      isDesktop) {
+                    botCommandItemColor = theme.focusColor;
                   }
                   return Container(
-                    color: _botCommandItemColor,
+                    color: botCommandItemColor,
                     child: Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -67,7 +69,7 @@ class _BotCommandsState extends State<BotCommands> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               Text(
-                                "/" + botCommands.keys.toList()[index],
+                                "/${botCommands.keys.toList()[index]}",
                                 style: theme.textTheme.subtitle1,
                               ),
                               const SizedBox(width: 10),

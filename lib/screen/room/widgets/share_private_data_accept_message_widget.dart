@@ -8,19 +8,20 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class SharePrivateDataAcceptMessageWidget extends StatelessWidget {
+  static final _i18n = GetIt.I.get<I18N>();
+
   final Message message;
   final bool isSender;
   final bool isSeen;
   final CustomColorScheme colorScheme;
-  static final _i18n = GetIt.I.get<I18N>();
 
   const SharePrivateDataAcceptMessageWidget({
-    Key? key,
+    super.key,
     required this.message,
     required this.isSender,
     required this.isSeen,
     required this.colorScheme,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

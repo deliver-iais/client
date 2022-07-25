@@ -28,13 +28,15 @@
 	<string>$(MACOSX_DEPLOYMENT_TARGET)</string>
 	<key>NSHumanReadableCopyright</key>
 	<string>$(PRODUCT_COPYRIGHT)</string>
+	<key>NSLocationUsageDescription</key>
+	<string>This app needs access to location.</string>
 	<key>NSMainNibFile</key>
 	<string>MainMenu</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>We need to access to the microphone to record audio file</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>In order to access your photo library</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
-	<key>NSPhotoLibraryUsageDescription</key>
-    <string>In order to access your photo library</string>
-    <key>NSLocationUsageDescription</key>
-    <string>This app needs access to location.</string>
 </dict>
 </plist>

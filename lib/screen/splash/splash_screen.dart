@@ -10,25 +10,18 @@ import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver/shared/widgets/shake_widget.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
-import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:flutter/material.dart';
 
 import 'package:get_it/get_it.dart';
-import 'package:rxdart/rxdart.dart';
-
-BehaviorSubject<bool> outOfDateObject = BehaviorSubject.seeded(false);
-
-BehaviorSubject<NewerVersionInformation?> newVersionInformation =
-    BehaviorSubject.seeded(null);
 
 class SplashScreen extends StatefulWidget {
-  const SplashScreen({Key? key}) : super(key: key);
+  const SplashScreen({super.key});
 
   @override
-  _SplashScreenState createState() => _SplashScreenState();
+  SplashScreenState createState() => SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen>
+class SplashScreenState extends State<SplashScreen>
     with TickerProviderStateMixin {
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _authRepo = GetIt.I.get<AuthRepo>();
@@ -146,7 +139,7 @@ class _SplashScreenState extends State<SplashScreen>
             children: [
               ShakeWidget(
                 controller: _shakeController,
-                child: TGS.asset(
+                child: Tgs.asset(
                   "assets/animations/unlock.tgs",
                   controller: _animationController,
                   autoPlay: false,

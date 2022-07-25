@@ -11,45 +11,41 @@ import 'package:get_it/get_it.dart';
 class AudioPlayProgress extends StatelessWidget {
   final File audio;
   final String audioUuid;
+  final double maxWidth;
   final CustomColorScheme colorScheme;
-  final _audioPlayerService = GetIt.I.get<AudioService>();
+  static final _audioPlayerService = GetIt.I.get<AudioService>();
 
-  AudioPlayProgress({
-    Key? key,
+  const AudioPlayProgress({
+    super.key,
     required this.audioUuid,
     required this.audio,
     required this.colorScheme,
-  }) : super(key: key);
+    required this.maxWidth,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<bool>(
-      stream: _audioPlayerService.audioCenterIsOn,
-      builder: (context, snapshot) {
+    return StreamBuilder<AudioPlayerState>(
+      stream: _audioPlayerService.playerState,
+      builder: (context, stateSnapshot) {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            StreamBuilder<AudioPlayerState>(
-              stream: _audioPlayerService.audioCurrentState(),
-              builder: (c, state) {
-                if (state.data != null &&
-                    (state.data == AudioPlayerState.PLAYING ||
-                        state.data == AudioPlayerState.PAUSED)) {
-                  return StreamBuilder(
-                    stream: _audioPlayerService.audioUuid,
-                    builder: (c, uuid) {
-                      if (uuid.hasData &&
-                          uuid.data.toString().isNotEmpty &&
-                          uuid.data.toString().contains(audioUuid)) {
-                        return AudioProgressIndicator(
-                          colorScheme: colorScheme,
-                          duration: audio.duration,
-                          audioUuid: audioUuid,
-                        );
-                      } else {
-                        return buildPadding(context);
-                      }
-                    },
+            StreamBuilder<AudioTrack?>(
+              stream: _audioPlayerService.track,
+              builder: (c, trackSnapshot) {
+                final state = stateSnapshot.data ?? AudioPlayerState.stopped;
+                final track =
+                    trackSnapshot.data ?? AudioTrack.emptyAudioTrack();
+
+                if (audioUuid.contains(track.uuid) &&
+                    state != AudioPlayerState.stopped) {
+                  return AudioProgressIndicator(
+                    maxWidth: maxWidth,
+                    colorScheme: colorScheme,
+                    audioUuid: track.uuid,
+                    audioPath: track.path,
+                    audioDuration: track.duration,
                   );
                 } else {
                   return buildPadding(context);
@@ -72,7 +68,7 @@ class AudioPlayProgress extends StatelessWidget {
       child: Align(
         alignment: Alignment.centerLeft,
         child: Text(
-          sizeFormatter(audio.size.toInt()) + " " + findFileType(audio.name),
+          "${sizeFormatter(audio.size.toInt())} ${findFileType(audio.name)}",
           style: const TextStyle(fontSize: 10),
         ),
       ),

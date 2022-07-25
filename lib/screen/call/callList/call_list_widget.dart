@@ -1,5 +1,6 @@
 import 'package:deliver/box/call_info.dart';
 import 'package:deliver/box/call_type.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -9,19 +10,21 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class CallListWidget extends StatelessWidget {
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
+
   final CallInfo callEvent;
   final DateTime time;
   final bool isIncomingCall;
   final Uid caller;
 
-  CallListWidget({
-    Key? key,
+  const CallListWidget({
+    super.key,
     required this.time,
     required this.isIncomingCall,
     required this.caller,
     required this.callEvent,
-  }) : super(key: key);
-  final _roomRepo = GetIt.I.get<RoomRepo>();
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -76,8 +79,8 @@ class CallListWidget extends StatelessWidget {
                       style: TextStyle(
                         color: theme.colorScheme.primary.withAlpha(130),
                         fontSize: 12,
-                        height: 1.2,
                       ),
+                      textDirection: _i18n.defaultTextDirection,
                     )
                   ],
                 ),

@@ -15,18 +15,18 @@ class InVideoCallPage extends StatefulWidget {
   final Uid roomUid;
 
   const InVideoCallPage({
-    Key? key,
+    super.key,
     required this.localRenderer,
     required this.remoteRenderer,
     required this.roomUid,
     required this.hangUp,
-  }) : super(key: key);
+  });
 
   @override
-  _InVideoCallPageState createState() => _InVideoCallPageState();
+  InVideoCallPageState createState() => InVideoCallPageState();
 }
 
-class _InVideoCallPageState extends State<InVideoCallPage> {
+class InVideoCallPageState extends State<InVideoCallPage> {
   final callRepo = GetIt.I.get<CallRepo>();
   final width = 100.0;
   final height = 150.0;
@@ -44,7 +44,7 @@ class _InVideoCallPageState extends State<InVideoCallPage> {
     return Stack(
       children: <Widget>[
         StreamBuilder<bool>(
-          stream: callRepo.mute_camera.stream,
+          stream: callRepo.mute_camera,
           builder: (c, s) {
             if (s.hasData && s.data!) {
               return Stack(
@@ -58,29 +58,9 @@ class _InVideoCallPageState extends State<InVideoCallPage> {
                     left: position.dx,
                     top: position.dy,
                     child: Draggable(
-                      child: SizedBox(
+                      feedback: SizedBox(
                         width: width,
                         height: height,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(20.0),
-                          child: MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: GestureDetector(
-                              child: RTCVideoView(
-                                widget.localRenderer,
-                                objectFit: RTCVideoViewObjectFit
-                                    .RTCVideoViewObjectFitCover,
-                                mirror: true,
-                              ),
-                              onTap: () {
-                                callRepo.switching
-                                    .add(!callRepo.switching.value);
-                              },
-                            ),
-                          ),
-                        ),
-                      ),
-                      feedback: SizedBox(
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(20.0),
                           child: RTCVideoView(
@@ -90,8 +70,6 @@ class _InVideoCallPageState extends State<InVideoCallPage> {
                             mirror: true,
                           ),
                         ),
-                        width: width,
-                        height: height,
                       ),
                       onDraggableCanceled: (velocity, offset) {
                         setState(() {
@@ -114,6 +92,28 @@ class _InVideoCallPageState extends State<InVideoCallPage> {
                           }
                         });
                       },
+                      child: SizedBox(
+                        width: width,
+                        height: height,
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20.0),
+                          child: MouseRegion(
+                            cursor: SystemMouseCursors.click,
+                            child: GestureDetector(
+                              child: RTCVideoView(
+                                widget.localRenderer,
+                                objectFit: RTCVideoViewObjectFit
+                                    .RTCVideoViewObjectFitCover,
+                                mirror: true,
+                              ),
+                              onTap: () {
+                                callRepo.switching
+                                    .add(!callRepo.switching.value);
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ],

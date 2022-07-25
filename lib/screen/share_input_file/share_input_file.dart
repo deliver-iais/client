@@ -14,18 +14,23 @@ import 'package:rxdart/rxdart.dart';
 
 class ShareInputFile extends StatefulWidget {
   final List<String> inputSharedFilePath;
+  final String inputShareText;
 
-  const ShareInputFile({required this.inputSharedFilePath, Key? key})
-      : super(key: key);
+  const ShareInputFile({
+    super.key,
+    required this.inputSharedFilePath,
+    required this.inputShareText,
+  });
 
   @override
   State<ShareInputFile> createState() => _ShareInputFileState();
 }
 
 class _ShareInputFileState extends State<ShareInputFile> {
-  final _routingServices = GetIt.I.get<RoutingService>();
-  final _messageRepo = GetIt.I.get<MessageRepo>();
-  final _i18n = GetIt.I.get<I18N>();
+  static final _routingServices = GetIt.I.get<RoutingService>();
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
+
   final _keyboardVisibilityController = KeyboardVisibilityController();
   final BehaviorSubject<bool> _insertCaption = BehaviorSubject.seeded(false);
   final _selectedRooms = <Uid>[];
@@ -43,16 +48,12 @@ class _ShareInputFileState extends State<ShareInputFile> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      backgroundColor: theme.backgroundColor,
+      backgroundColor: theme.colorScheme.background,
       appBar: AppBar(
         title: Text(
           _selectedRooms.isEmpty
               ? _i18n.get("send_To")
               : "${_i18n.get("selected_chats")} : ${_selectedRooms.length}",
-          style: Theme.of(context)
-              .appBarTheme
-              .titleTextStyle!
-              .copyWith(fontSize: 20),
         ),
         leading: _routingServices.backButtonLeading(),
       ),
@@ -63,34 +64,120 @@ class _ShareInputFileState extends State<ShareInputFile> {
             emptyWidget: const SizedBox.shrink(),
           ),
           if (_selectedRooms.isNotEmpty)
-            buildInputCaption(
-              i18n: _i18n,
-              insertCaption: _insertCaption,
-              context: context,
-              captionEditingController: _textEditingController,
-              count: _selectedRooms.length,
-              send: () {
-                for (final path in widget.inputSharedFilePath) {
-                  _messageRepo.sendFileToChats(
-                    _selectedRooms,
-                    File(path, path.split(".").last),
-                    caption: widget.inputSharedFilePath.last == path
-                        ? _textEditingController.text
-                        : "",
-                  );
-                }
-
-                if (_selectedRooms.length == 1) {
-                  _routingServices.openRoom(
-                    _selectedRooms.first.asString(),
-                    popAllBeforePush: true,
-                  );
-                } else {
-                  _routingServices.pop();
-                }
-              },
-            )
+            if (widget.inputShareText.isNotEmpty)
+              buildSend()
+            else
+              buildInputCaption(
+                i18n: _i18n,
+                insertCaption: _insertCaption,
+                context: context,
+                captionEditingController: _textEditingController,
+                count: _selectedRooms.length,
+                send: () {
+                  for (final path in widget.inputSharedFilePath) {
+                    _messageRepo.sendFileToChats(
+                      _selectedRooms,
+                      File(
+                        path,
+                        path.split(".").last,
+                      ),
+                      caption: widget.inputSharedFilePath.last == path
+                          ? _textEditingController.text
+                          : "",
+                    );
+                  }
+                  pop();
+                },
+              )
         ],
+      ),
+    );
+  }
+
+  void pop() {
+    if (_selectedRooms.length == 1) {
+      _routingServices.openRoom(
+        _selectedRooms.first.asString(),
+        popAllBeforePush: true,
+      );
+    } else {
+      _routingServices.pop();
+    }
+  }
+
+  Widget buildSend() {
+    final theme = Theme.of(context);
+    return Align(
+      alignment: Alignment.bottomRight,
+      child: Padding(
+        padding: const EdgeInsets.only(right: 20),
+        child: Stack(
+          children: <Widget>[
+            Container(
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+              ),
+              child: ClipOval(
+                child: Material(
+                  color: Theme.of(context).primaryColor, // button color
+                  child: InkWell(
+                    splashColor: theme.primaryColor, // inkwell color
+                    child: const SizedBox(
+                      width: 60,
+                      height: 60,
+                      child: Icon(
+                        Icons.send,
+                        size: 30,
+                        color: Colors.white,
+                      ),
+                    ),
+                    onTap: () {
+                      for (final roomUid in _selectedRooms) {
+                        _messageRepo.sendTextMessage(
+                          roomUid,
+                          widget.inputShareText,
+                        );
+                      }
+                      pop();
+                    },
+                  ),
+                ),
+              ),
+            ),
+            if (_selectedRooms.isNotEmpty)
+              Positioned(
+                top: 35.0,
+                right: 0.0,
+                left: 35,
+                child: Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.background, // border color
+                    shape: BoxShape.circle,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(2), // border width
+                    child: Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: theme.primaryColor, // inner circle color
+                      ),
+                      child: Center(
+                        child: Text(
+                          _selectedRooms.length.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ), // inner content
+                    ),
+                  ),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }
@@ -119,7 +206,7 @@ class _ShareInputFileState extends State<ShareInputFile> {
               uidList[index],
             )
                 ? theme.hoverColor
-                : theme.backgroundColor,
+                : theme.colorScheme.background,
             child: ShareChatItem(
               uid: uidList[index],
               selected: _selectedRooms.contains(

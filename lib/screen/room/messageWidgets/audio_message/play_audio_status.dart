@@ -6,27 +6,29 @@ import 'package:get_it/get_it.dart';
 import 'package:open_file/open_file.dart';
 
 class PlayAudioStatus extends StatefulWidget {
-  final String fileId;
-  final String fileName;
+  final String uuid;
+  final String name;
   final String filePath;
+  final double duration;
   final Color backgroundColor;
   final Color foregroundColor;
 
   const PlayAudioStatus({
-    Key? key,
-    required this.fileId,
-    required this.fileName,
+    super.key,
+    required this.uuid,
+    required this.name,
     required this.filePath,
+    required this.duration,
     required this.backgroundColor,
     required this.foregroundColor,
-  }) : super(key: key);
+  });
 
   @override
-  _PlayAudioStatusState createState() => _PlayAudioStatusState();
+  PlayAudioStatusState createState() => PlayAudioStatusState();
 }
 
-class _PlayAudioStatusState extends State<PlayAudioStatus> {
-  AudioService audioPlayerService = GetIt.I.get<AudioService>();
+class PlayAudioStatusState extends State<PlayAudioStatus> {
+  static final _audioPlayerService = GetIt.I.get<AudioService>();
 
   @override
   Widget build(BuildContext context) {
@@ -40,24 +42,25 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
           color: widget.backgroundColor,
         ),
         child: StreamBuilder<AudioPlayerState>(
-          stream: audioPlayerService.audioCurrentState(),
+          stream: _audioPlayerService.playerState,
           builder: (context, snapshot) {
-            if (snapshot.data == AudioPlayerState.PLAYING) {
-              return StreamBuilder(
-                stream: audioPlayerService.audioUuid,
-                builder: (context, uuid) {
-                  if (uuid.hasData &&
-                      uuid.data.toString().isNotEmpty &&
-                      uuid.data.toString().contains(widget.fileId)) {
+            if (snapshot.data == AudioPlayerState.playing) {
+              return StreamBuilder<AudioTrack?>(
+                stream: _audioPlayerService.track,
+                builder: (context, trackSnapshot) {
+                  final track =
+                      trackSnapshot.data ?? AudioTrack.emptyAudioTrack();
+
+                  if (track.uuid.contains(widget.uuid)) {
                     return IconButton(
                       padding: EdgeInsets.zero,
                       icon: Icon(
-                        Icons.pause,
+                        Icons.pause_rounded,
                         color: widget.foregroundColor,
                         size: 40,
                       ),
                       onPressed: () {
-                        audioPlayerService.pause();
+                        _audioPlayerService.pauseAudio();
                       },
                     );
                   } else {
@@ -78,16 +81,17 @@ class _PlayAudioStatusState extends State<PlayAudioStatus> {
     return IconButton(
       padding: EdgeInsets.zero,
       icon: Icon(
-        Icons.play_arrow,
+        Icons.play_arrow_rounded,
         color: widget.foregroundColor,
         size: 42,
       ),
       onPressed: () {
-        if (isAndroid || isIOS) {
-          audioPlayerService.play(
+        if (isAndroid || isIOS || isMacOS || isWindows) {
+          _audioPlayerService.playAudioMessage(
             audioPath,
-            widget.fileId,
-            widget.fileName,
+            widget.uuid,
+            widget.name,
+            widget.duration,
           );
         } else {
           OpenFile.open(audioPath);

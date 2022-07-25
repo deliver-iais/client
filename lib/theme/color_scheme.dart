@@ -1,6 +1,7 @@
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:material_color_utilities/blend/blend.dart';
 import 'package:material_color_utilities/palettes/core_palette.dart';
 import 'package:material_color_utilities/palettes/tonal_palette.dart';
@@ -233,56 +234,49 @@ ColorScheme getColorScheme(Material3ColorScheme colorScheme) {
 }
 
 ThemeData getThemeData(Material3ColorScheme colorScheme) {
-  final primaryTextTheme = Typography.blackCupertino.apply(
-    fontFamily: "Vazir",
-    displayColor: colorScheme.primary,
-    bodyColor: colorScheme.primary,
+  final primaryTextTheme = GoogleFonts.vazirmatnTextTheme(
+    Typography.blackCupertino.apply(
+      displayColor: colorScheme.primary,
+      bodyColor: colorScheme.primary,
+    ),
   );
 
-  final textTheme = Typography.blackCupertino.apply(
-    fontFamily: "Vazir",
-    displayColor: colorScheme.onBackground,
-    bodyColor: colorScheme.onBackground,
+  final textTheme = GoogleFonts.vazirmatnTextTheme(
+    Typography.blackCupertino.apply(
+      displayColor: colorScheme.onBackground,
+      bodyColor: colorScheme.onBackground,
+    ),
   );
 
   final theme = ThemeData(
+    useMaterial3: true,
+    visualDensity: VisualDensity.standard,
     brightness: colorScheme.brightness,
-    fontFamily: "Vazir",
-    primaryColor: colorScheme.primary,
+    fontFamily: GoogleFonts.vazirmatn().fontFamily,
     colorScheme: getColorScheme(colorScheme),
-    scaffoldBackgroundColor:
-        elevation(colorScheme.surface, colorScheme.primary, 2),
+    primaryColor: colorScheme.primary,
     primaryTextTheme: primaryTextTheme,
     textTheme: textTheme,
-    cardColor: colorScheme.surface,
-    backgroundColor: colorScheme.background,
-    highlightColor: colorScheme.primary,
-    focusColor: colorScheme.primary.withAlpha(50),
   );
 
   return theme.copyWith(
     useMaterial3: true,
-    visualDensity: VisualDensity.adaptivePlatformDensity,
     snackBarTheme: SnackBarThemeData(
       backgroundColor: colorScheme.inverseSurface,
       actionTextColor: colorScheme.inversePrimary,
       shape: const RoundedRectangleBorder(borderRadius: secondaryBorder),
     ),
     popupMenuTheme: PopupMenuThemeData(
-      textStyle: TextStyle(color: colorScheme.primary, fontSize: 14),
+      textStyle: TextStyle(color: colorScheme.primary, fontSize: 15),
       shape: const RoundedRectangleBorder(borderRadius: secondaryBorder),
-      color: colorScheme.surface,
     ),
     dividerTheme: const DividerThemeData(space: 1.0, thickness: 1.0),
     inputDecorationTheme: const InputDecorationTheme(
       border: OutlineInputBorder(borderRadius: secondaryBorder),
     ),
     appBarTheme: AppBarTheme(
-      color: colorScheme.surface.withOpacity(0.7),
-      elevation: 0,
-      titleTextStyle: textTheme.headline5,
-      toolbarTextStyle: textTheme.headline6,
-      iconTheme: IconThemeData(color: colorScheme.primary),
+      color: colorScheme.background.withOpacity(0.7),
+      scrolledUnderElevation: 2,
     ),
     sliderTheme: SliderThemeData(
       thumbColor: colorScheme.primary,
@@ -293,38 +287,7 @@ ThemeData getThemeData(Material3ColorScheme colorScheme) {
     ),
     chipTheme: theme.chipTheme.copyWith(
       backgroundColor: colorScheme.surface,
-      labelStyle:
-          theme.chipTheme.labelStyle?.copyWith(color: colorScheme.onSurface),
-      shape: const RoundedRectangleBorder(borderRadius: tertiaryBorder),
-      side: BorderSide(color: colorScheme.outline),
-    ),
-    outlinedButtonTheme: OutlinedButtonThemeData(
-      style: OutlinedButton.styleFrom(
-        shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
-        side: BorderSide(color: colorScheme.outline),
-      ),
-    ),
-    elevatedButtonTheme: ElevatedButtonThemeData(
-      style: ElevatedButton.styleFrom(
-        shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
-      ),
-    ),
-    floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      shape: RoundedRectangleBorder(borderRadius: buttonBorder),
-    ),
-    textButtonTheme: TextButtonThemeData(
-      style: TextButton.styleFrom(
-        shape: const RoundedRectangleBorder(borderRadius: buttonBorder),
-      ),
-    ),
-    dialogTheme: const DialogTheme(
-      shape: RoundedRectangleBorder(borderRadius: mainBorder),
-    ),
-    tabBarTheme: TabBarTheme(
-      indicator: UnderlineTabIndicator(
-        borderSide: BorderSide(width: 2.0, color: colorScheme.primary),
-      ),
-      labelColor: colorScheme.primary,
+      shape: const RoundedRectangleBorder(borderRadius: secondaryBorder),
     ),
   );
 }

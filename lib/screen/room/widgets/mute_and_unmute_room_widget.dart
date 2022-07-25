@@ -13,11 +13,11 @@ class MuteAndUnMuteRoomWidget extends StatefulWidget {
   final void Function(int dir, bool ctrlIsPressed, bool per) scrollToMessage;
 
   const MuteAndUnMuteRoomWidget({
-    Key? key,
+    super.key,
     required this.roomId,
     required this.scrollToMessage,
     required this.inputMessage,
-  }) : super(key: key);
+  });
 
   @override
   State<MuteAndUnMuteRoomWidget> createState() =>
@@ -25,10 +25,10 @@ class MuteAndUnMuteRoomWidget extends StatefulWidget {
 }
 
 class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
-  final _roomRepo = GetIt.I.get<RoomRepo>();
-  final _mucRepo = GetIt.I.get<MucRepo>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
-  final _i18n = GetIt.I.get<I18N>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _mucRepo = GetIt.I.get<MucRepo>();
+  static final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
 
   final FocusNode _focusNode = FocusNode();
 
@@ -68,7 +68,7 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
   Widget buildStreamBuilder() {
     return SizedBox(
       width: double.infinity,
-      height: 45,
+      height: 42,
       child: StreamBuilder<bool>(
         stream: _roomRepo.watchIsRoomMuted(widget.roomId),
         builder: (context, isMuted) {

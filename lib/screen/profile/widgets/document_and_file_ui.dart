@@ -21,21 +21,21 @@ class DocumentAndFileUi extends StatefulWidget {
   final List<Media> selectedMedia;
 
   const DocumentAndFileUi({
-    Key? key,
+    super.key,
     required this.roomUid,
     required this.documentCount,
     required this.type,
     required this.addSelectedMedia,
     required this.selectedMedia,
-  }) : super(key: key);
+  });
 
   @override
-  _DocumentAndFileUiState createState() => _DocumentAndFileUiState();
+  DocumentAndFileUiState createState() => DocumentAndFileUiState();
 }
 
-class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
-  final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
-  final _fileRepo = GetIt.I.get<FileRepo>();
+class DocumentAndFileUiState extends State<DocumentAndFileUi> {
+  static final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
+  static final _fileRepo = GetIt.I.get<FileRepo>();
   final _mediaCache = <int, Media>{};
 
   Future<Media> _getMedia(int index) async {
@@ -76,7 +76,7 @@ class _DocumentAndFileUiState extends State<DocumentAndFileUi> {
                 child: Container(
                   color: widget.selectedMedia.contains(mediaSnapshot.data)
                       ? theme.hoverColor.withOpacity(0.4)
-                      : theme.backgroundColor,
+                      : theme.colorScheme.background,
                   child: FutureBuilder<String?>(
                     future: _fileRepo.getFileIfExist(
                       json["uuid"],

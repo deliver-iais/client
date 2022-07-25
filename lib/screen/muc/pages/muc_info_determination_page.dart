@@ -16,15 +16,14 @@ import 'package:rxdart/rxdart.dart';
 class MucInfoDeterminationPage extends StatefulWidget {
   final bool isChannel;
 
-  const MucInfoDeterminationPage({Key? key, required this.isChannel})
-      : super(key: key);
+  const MucInfoDeterminationPage({super.key, required this.isChannel});
 
   @override
-  _MucInfoDeterminationPageState createState() =>
-      _MucInfoDeterminationPageState();
+  MucInfoDeterminationPageState createState() =>
+      MucInfoDeterminationPageState();
 }
 
-class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
+class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
   late TextEditingController controller;
   late TextEditingController idController;
   late TextEditingController infoController;
@@ -132,7 +131,7 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                       ],
                     ),
                   StreamBuilder<bool>(
-                    stream: showChannelIdError.stream,
+                    stream: showChannelIdError,
                     builder: (c, e) {
                       if (e.hasData && e.data!) {
                         return Text(
@@ -235,9 +234,11 @@ class _MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                             for (var i = 0;
                                 i < _createMucService.contacts.length;
                                 i++) {
-                              memberUidList.add(
-                                _createMucService.contacts[i].uid.asUid(),
-                              );
+                              if (_createMucService.contacts[i].uid != null) {
+                                memberUidList.add(
+                                  _createMucService.contacts[i].uid!.asUid(),
+                                );
+                              }
                             }
                             if (widget.isChannel) {
                               if ((_channelIdKey.currentState?.validate() ??

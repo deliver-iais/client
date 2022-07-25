@@ -4,20 +4,35 @@ import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
 abstract class ContactDao {
-  Future<Contact?> get(String countryCode, String nationalNumber);
+  Future<Contact?> get(int countryCode, int nationalNumber);
 
   Future<Contact?> getByUid(String uid);
 
-  Future<List<Contact>> getAll();
+  Future<void> save({
+    required int countryCode,
+    required int nationalNumber,
+    String? firstName,
+    String? lastName,
+    String? uid,
+    String? description,
+    int? syncHash,
+    int? updateTime,
+  });
 
-  Stream<List<Contact>> watchAll();
+  Future<List<Contact>> getAllContacts();
 
-  Future<void> save(Contact contact);
+  Future<List<Contact>> getAllMessengerContacts();
+
+  Stream<List<Contact>> watchAllMessengerContacts();
+
+  Future<List<Contact>> getNotMessengerContacts();
+
+  Stream<List<Contact>> watchNotMessengerContacts();
 }
 
 class ContactDaoImpl implements ContactDao {
   @override
-  Future<Contact?> get(String countryCode, String nationalNumber) async {
+  Future<Contact?> get(int countryCode, int nationalNumber) async {
     final box = await _open();
 
     try {
@@ -34,32 +49,40 @@ class ContactDaoImpl implements ContactDao {
 
   @override
   Future<Contact?> getByUid(String uid) async {
-    final box = await _open();
+    try {
+      final box = await _open();
 
-    return box.get(uid);
+      return box.values
+          .where((element) => element.uid != null && element.uid == uid)
+          .first;
+    } catch (_) {
+      return null;
+    }
   }
 
   @override
-  Future<List<Contact>> getAll() async {
+  Future<List<Contact>> getAllContacts() async {
     final box = await _open();
 
     return box.values.toList();
   }
 
   @override
-  Stream<List<Contact>> watchAll() async* {
+  Future<List<Contact>> getAllMessengerContacts() async {
     final box = await _open();
-
-    yield box.values.toList();
-
-    yield* box.watch().map((event) => box.values.toList());
+    return box.values.where((element) => element.uid != null).toList();
   }
 
   @override
-  Future<void> save(Contact contact) async {
+  Stream<List<Contact>> watchAllMessengerContacts() async* {
     final box = await _open();
 
-    return box.put(contact.uid, contact);
+    yield box.values.where((element) => element.uid != null).toList();
+
+    yield* box.watch().map(
+          (event) =>
+              box.values.where((element) => element.uid != null).toList(),
+        );
   }
 
   static String _key() => "contact";
@@ -67,5 +90,56 @@ class ContactDaoImpl implements ContactDao {
   static Future<BoxPlus<Contact>> _open() {
     BoxInfo.addBox(_key());
     return gen(Hive.openBox<Contact>(_key()));
+  }
+
+  @override
+  Future<void> save({
+    required int countryCode,
+    required int nationalNumber,
+    String? firstName,
+    String? lastName,
+    String? uid,
+    String? description,
+    int? syncHash,
+    int? updateTime,
+  }) async {
+    final box = await _open();
+
+    final clone = box.get(nationalNumber.toString()) ??
+        Contact(countryCode: countryCode, nationalNumber: nationalNumber);
+
+    final c = clone.copyWith(
+      nationalNumber: nationalNumber,
+      countryCode: countryCode,
+      firstName: firstName,
+      lastName: lastName,
+      description: description,
+      updateTime: updateTime,
+      uid: uid,
+      syncHash: syncHash,
+    );
+    if (c != clone) return box.put(nationalNumber.toString(), c);
+  }
+
+  @override
+  Future<List<Contact>> getNotMessengerContacts() async {
+    try {
+      final box = await _open();
+      return box.values.where((element) => element.uid == null).toList();
+    } catch (_) {
+      return [];
+    }
+  }
+
+  @override
+  Stream<List<Contact>> watchNotMessengerContacts() async* {
+    final box = await _open();
+
+    yield box.values.where((element) => element.uid == null).toList();
+
+    yield* box.watch().map(
+          (event) =>
+              box.values.where((element) => element.uid == null).toList(),
+        );
   }
 }

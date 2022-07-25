@@ -11,13 +11,13 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class NewContact extends StatefulWidget {
-  const NewContact({Key? key}) : super(key: key);
+  const NewContact({super.key});
 
   @override
-  _NewContactState createState() => _NewContactState();
+  NewContactState createState() => NewContactState();
 }
 
-class _NewContactState extends State<NewContact> {
+class NewContactState extends State<NewContact> {
   PhoneNumber? _phoneNumber;
 
   final _i18n = GetIt.I.get<I18N>();
@@ -43,38 +43,47 @@ class _NewContactState extends State<NewContact> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  TextField(
-                    onChanged: (firstName) {
-                      _firstName = firstName;
-                    },
-                    style: theme.textTheme.bodyText1,
-                    decoration:
-                        InputDecoration(labelText: _i18n.get("firstName")),
+                  Directionality(
+                    textDirection: _i18n.defaultTextDirection,
+                    child: TextField(
+                      onChanged: (firstName) {
+                        _firstName = firstName;
+                      },
+                      style: theme.textTheme.bodyText1,
+                      decoration:
+                          InputDecoration(labelText: _i18n.get("firstName")),
+                    ),
                   ),
                   const SizedBox(height: 10),
-                  TextField(
-                    onChanged: (lastName) {
-                      _lastName = lastName;
-                    },
-                    style: theme.textTheme.bodyText1,
-                    decoration:
-                        InputDecoration(labelText: _i18n.get("lastName")),
+                  Directionality(
+                    textDirection: _i18n.defaultTextDirection,
+                    child: TextField(
+                      onChanged: (lastName) {
+                        _lastName = lastName;
+                      },
+                      style: theme.textTheme.bodyText1,
+                      decoration:
+                          InputDecoration(labelText: _i18n.get("lastName")),
+                    ),
                   ),
                   const SizedBox(height: 10),
-                  IntlPhoneField(
-                    controller: TextEditingController(),
-                    validator: (value) => value!.length != 10 ||
-                            (value.isNotEmpty && value[0] == '0')
-                        ? _i18n.get("invalid_mobile_number")
-                        : null,
-                    style: theme.textTheme.bodyText1,
-                    onChanged: (ph) {
-                      _phoneNumber = ph;
-                    },
-                    onSubmitted: (p) {
-                      _phoneNumber = p;
-                      // checkAndGoNext();
-                    },
+                  Directionality(
+                    textDirection: _i18n.defaultTextDirection,
+                    child: IntlPhoneField(
+                      controller: TextEditingController(),
+                      validator: (value) => value!.length != 10 ||
+                              (value.isNotEmpty && value[0] == '0')
+                          ? _i18n.get("invalid_mobile_number")
+                          : null,
+                      style: theme.textTheme.bodyText1,
+                      onChanged: (ph) {
+                        _phoneNumber = ph;
+                      },
+                      onSubmitted: (p) {
+                        _phoneNumber = p;
+                        // checkAndGoNext();
+                      },
+                    ),
                   ),
                   const SizedBox(height: 10),
                   Align(

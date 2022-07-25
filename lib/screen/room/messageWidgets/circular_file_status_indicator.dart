@@ -3,6 +3,7 @@ import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/audio_message/play_audio_status.dart';
 import 'package:deliver/screen/room/messageWidgets/file_message.dart/open_file_status.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
+import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
@@ -16,11 +17,11 @@ class CircularFileStatusIndicator extends StatefulWidget {
   final Color foregroundColor;
 
   const CircularFileStatusIndicator({
-    Key? key,
+    super.key,
     required this.message,
     required this.backgroundColor,
     required this.foregroundColor,
-  }) : super(key: key);
+  });
 
   @override
   State<CircularFileStatusIndicator> createState() =>
@@ -29,8 +30,9 @@ class CircularFileStatusIndicator extends StatefulWidget {
 
 class _CircularFileStatusIndicatorState
     extends State<CircularFileStatusIndicator> {
-  final _fileServices = GetIt.I.get<FileService>();
-  final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _fileServices = GetIt.I.get<FileService>();
+  static final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _audioPlayerService = GetIt.I.get<AudioService>();
 
   @override
   void initState() {
@@ -83,7 +85,18 @@ class _CircularFileStatusIndicatorState
                   fileName: file.name,
                   messagePacketId: widget.message.packetId,
                   onPressed: () async {
-                    await _fileRepo.getFile(file.uuid, file.name);
+                    final audioPath =
+                        await _fileRepo.getFile(file.uuid, file.name);
+                    if (audioPath != null &&
+                        (file.type == "audio/mp4" ||
+                            file.type == "audio/ogg")) {
+                      _audioPlayerService.playAudioMessage(
+                        audioPath,
+                        file.uuid,
+                        file.name,
+                        file.duration,
+                      );
+                    }
                     setState(() {});
                   },
                   background: widget.backgroundColor,
@@ -100,9 +113,10 @@ class _CircularFileStatusIndicatorState
   Widget showExitFile(File file, String filePath) {
     return file.type.contains("audio")
         ? PlayAudioStatus(
-            fileId: file.uuid,
+            uuid: file.uuid,
             filePath: filePath,
-            fileName: file.name,
+            name: file.name,
+            duration: file.duration,
             backgroundColor: widget.backgroundColor,
             foregroundColor: widget.foregroundColor,
           )

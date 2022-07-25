@@ -21,18 +21,18 @@ class SentMessageBox extends StatelessWidget {
   final void Function() onEdit;
 
   const SentMessageBox({
-    Key? key,
+    super.key,
     required this.message,
     required this.messageReplyBrief,
     required this.isSeen,
     required this.isFirstMessageInGroupedMessages,
     required this.scrollToMessage,
-    this.pattern,
     required this.onUsernameClick,
     required this.storePosition,
     required this.onArrowIconClick,
     required this.onEdit,
-  }) : super(key: key);
+    this.pattern,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -77,6 +77,6 @@ class SentMessageBox extends StatelessWidget {
 
   bool doNotNeedsWrapper() {
     return message.type == MessageType.STICKER ||
-        AnimatedEmoji.isAnimatedEmoji(message);
+        AnimatedEmoji.isAnimatedEmojiMessage(message);
   }
 }

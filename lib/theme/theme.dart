@@ -3,6 +3,26 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
 import 'package:material_color_utilities/palettes/core_palette.dart';
 
+final ACTIVE_COLOR = Colors.greenAccent.shade700;
+
+const LIGHT_BOX_SHADOWS = [
+  BoxShadow(
+    color: Color(0x10000000),
+    spreadRadius: 2,
+    blurRadius: 6,
+    offset: Offset(0, 2),
+  )
+];
+
+const DEFAULT_BOX_SHADOWS = [
+  BoxShadow(
+    color: Color(0x22000000),
+    spreadRadius: 2,
+    blurRadius: 3,
+    offset: Offset(0, 3),
+  ),
+];
+
 final palettes = [
   const Color(0xFF0060a7),
   const Color(0xff5c00a7),

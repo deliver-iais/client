@@ -1,6 +1,7 @@
 import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/screen/profile/widgets/muc_member_mention_widget.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -8,20 +9,20 @@ import 'package:get_it/get_it.dart';
 const HEIGHT = 52.0;
 
 class ShowMentionList extends StatelessWidget {
+  static final _mucRepo = GetIt.I.get<MucRepo>();
+
   final void Function(String) onSelected;
   final String roomUid;
   final String query;
   final int mentionSelectedIndex;
 
-  ShowMentionList({
-    Key? key,
+  const ShowMentionList({
+    super.key,
     this.query = "-",
     required this.onSelected,
     required this.roomUid,
     required this.mentionSelectedIndex,
-  }) : super(key: key);
-
-  final _mucRepo = GetIt.I.get<MucRepo>();
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -38,19 +39,20 @@ class ShowMentionList extends StatelessWidget {
                       ? HEIGHT * 4
                       : (members.data!.length * HEIGHT),
                   child: Container(
-                    color: theme.backgroundColor,
+                    color: theme.colorScheme.background,
                     child: ListView.separated(
                       padding: EdgeInsets.zero,
                       itemCount: members.data!.length,
                       shrinkWrap: true,
                       itemBuilder: (c, i) {
-                        var _mucMemberMentionColor = Colors.transparent;
+                        var mucMemberMentionColor = Colors.transparent;
                         if (mentionSelectedIndex == i &&
-                            mentionSelectedIndex != -1) {
-                          _mucMemberMentionColor = theme.focusColor;
+                            mentionSelectedIndex != -1 &&
+                            isDesktop) {
+                          mucMemberMentionColor = theme.focusColor;
                         }
                         return Container(
-                          color: _mucMemberMentionColor,
+                          color: mucMemberMentionColor,
                           child: MucMemberMentionWidget(
                             members.data![i]!,
                             onSelected,

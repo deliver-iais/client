@@ -4,6 +4,8 @@ import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 
 class BlurContainer extends StatelessWidget {
+  final double? width;
+  final double? height;
   final Widget child;
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
@@ -12,20 +14,28 @@ class BlurContainer extends StatelessWidget {
   final bool blurIsEnabled;
 
   const BlurContainer({
-    Key? key,
+    super.key,
     required this.child,
+    this.width,
+    this.height,
     this.padding,
     this.margin,
     this.decoration,
     this.skew = 1.0,
     this.blurIsEnabled = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     if (!blurIsEnabled) {
-      return Container(padding: padding, decoration: decoration, child: child);
+      return Container(
+        padding: padding,
+        decoration: decoration,
+        height: height,
+        width: width,
+        child: child,
+      );
     }
     return ClipRRect(
       borderRadius: mainBorder,

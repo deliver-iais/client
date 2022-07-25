@@ -13,6 +13,7 @@ import 'package:deliver/screen/room/messageWidgets/call_message/call_message_wid
 import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver/screen/room/messageWidgets/persistent_event_message.dart/persistent_event_message.dart';
 import 'package:deliver/screen/room/messageWidgets/reply_widgets/swipe_to_reply.dart';
+import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/widgets/recieved_message_box.dart';
 import 'package:deliver/screen/room/widgets/sended_message_box.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
@@ -26,6 +27,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -55,7 +57,7 @@ class BuildMessageBox extends StatefulWidget {
   final BehaviorSubject<bool> selectMultiMessageSubject;
 
   const BuildMessageBox({
-    Key? key,
+    super.key,
     required this.message,
     this.messageBefore,
     required this.roomId,
@@ -73,7 +75,7 @@ class BuildMessageBox extends StatefulWidget {
     required this.addForwardMessage,
     this.menuDisabled = false,
     this.messageReplyBrief,
-  }) : super(key: key);
+  });
 
   @override
   State<BuildMessageBox> createState() => _BuildMessageBoxState();
@@ -140,7 +142,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   Widget _createCallMessageWidget(BuildContext context, Message msg) {
-    final theme = Theme.of(context);
     final colorsScheme = ExtraTheme.of(context).secondaryColorsScheme;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -150,14 +151,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           decoration: BoxDecoration(
             color: colorsScheme.primaryContainer,
             borderRadius: secondaryBorder,
-            boxShadow: [
-              BoxShadow(
-                color: theme.colorScheme.shadow.withOpacity(0.1),
-                spreadRadius: 2,
-                blurRadius: 3,
-                offset: const Offset(0, 3), // changes position of shadow
-              ),
-            ],
+            boxShadow: DEFAULT_BOX_SHADOWS,
           ),
           child: CallMessageWidget(
             message: widget.message,
@@ -178,7 +172,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         GestureDetector(
           behavior: HitTestBehavior.translucent,
           onTap: () {
-            if (widget.selectMultiMessageSubject.stream.value) {
+            if (widget.selectMultiMessageSubject.value) {
               widget.addForwardMessage();
             } else if (!isDesktop) {
               FocusScope.of(context).unfocus();
@@ -188,13 +182,13 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           onSecondaryTap: !isDesktop
               ? null
               : () {
-                  if (!widget.selectMultiMessageSubject.stream.value) {
+                  if (!widget.selectMultiMessageSubject.value) {
                     _showCustomMenu(context, msg);
                   }
                 },
           onDoubleTap: !isDesktop ? null : widget.onReply,
           onLongPress: () {
-            if (!widget.selectMultiMessageSubject.stream.value) {
+            if (!widget.selectMultiMessageSubject.value) {
               widget.selectMultiMessageSubject.add(true);
             }
             widget.addForwardMessage();
@@ -239,7 +233,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     }
 
     // Wrap in Swipe widget if needed
-    if (!widget.message.roomUid.asUid().isChannel()) {
+    if (!widget.message.roomUid.asUid().isChannel() &&
+        widget.message.id != null) {
       messageWidget = Swipe(
         onSwipeLeft: widget.onReply,
         child: Container(
@@ -253,7 +248,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
-        if (widget.selectMultiMessageSubject.stream.value) {
+        if (widget.selectMultiMessageSubject.value) {
           widget.addForwardMessage();
         } else if (!isDesktop) {
           FocusScope.of(context).unfocus();
@@ -263,13 +258,13 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onSecondaryTap: !isDesktop
           ? null
           : () {
-              if (!widget.selectMultiMessageSubject.stream.value) {
+              if (!widget.selectMultiMessageSubject.value) {
                 _showCustomMenu(context, message);
               }
             },
       onDoubleTap: !isDesktop ? null : widget.onReply,
       onLongPress: () {
-        if (!widget.selectMultiMessageSubject.stream.value) {
+        if (!widget.selectMultiMessageSubject.value) {
           widget.selectMultiMessageSubject.add(true);
         }
         widget.addForwardMessage();
@@ -411,6 +406,7 @@ class OperationOnMessageSelection {
   static final _logger = GetIt.I.get<Logger>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _routingServices = GetIt.I.get<RoutingService>();
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
 
   final void Function()? onReply;
   final void Function()? onEdit;
@@ -489,13 +485,13 @@ class OperationOnMessageSelection {
     if (message.type == MessageType.TEXT) {
       Clipboard.setData(
         ClipboardData(
-          text: message.json.toText().text,
+          text: synthesizeToOriginalWord(message.json.toText().text),
         ),
       );
     } else {
       Clipboard.setData(
         ClipboardData(
-          text: message.json.toFile().caption,
+          text: synthesizeToOriginalWord(message.json.toFile().caption),
         ),
       );
     }
@@ -539,19 +535,30 @@ class OperationOnMessageSelection {
   }
 
   Future<void> onShare() async {
-    try {
-      final result = await _fileRepo.getFileIfExist(
-        message.json.toFile().uuid,
-        message.json.toFile().name,
+    if (message.type == MessageType.TEXT) {
+      final copyText =
+          "${await _roomRepo.getName(message.from.asUid())}:\n${message.json.toText().text}\n${DateTime.fromMillisecondsSinceEpoch(
+        message.time,
+      ).toString().substring(0, 19)}";
+
+      return Share.share(
+        copyText,
       );
-      if (result!.isNotEmpty) {
-        return Share.shareFiles(
-          [(result)],
-          text: message.json.toFile().caption,
+    } else {
+      try {
+        final result = await _fileRepo.getFileIfExist(
+          message.json.toFile().uuid,
+          message.json.toFile().name,
         );
+        if (result!.isNotEmpty) {
+          return Share.shareFiles(
+            [(result)],
+            text: message.json.toFile().caption,
+          );
+        }
+      } catch (e) {
+        _logger.e(e);
       }
-    } catch (e) {
-      _logger.e(e);
     }
   }
 
@@ -595,6 +602,9 @@ class OperationOnMessageSelection {
 
   void onDeletePendingMessage() {
     _messageRepo.deletePendingMessage(message.packetId);
+    if (message.type == MessageType.FILE) {
+      _fileRepo.cancelUploadFile(message.json.toFile().uuid);
+    }
   }
 
   void onReportMessage() {

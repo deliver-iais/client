@@ -9,7 +9,7 @@ import 'package:get_it/get_it.dart';
 class NewFeatureDialog extends StatelessWidget {
   final _i18n = GetIt.I.get<I18N>();
 
-  NewFeatureDialog({Key? key}) : super(key: key);
+  NewFeatureDialog({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +41,7 @@ class NewFeatureDialog extends StatelessWidget {
                   ),
                 ),
                 Text(
-                  "V" + VERSION,
+                  "V$VERSION",
                   style: TextStyle(
                     color: theme.colorScheme.primary,
                     fontWeight: FontWeight.w600,
@@ -83,10 +83,7 @@ class NewFeatureDialog extends StatelessWidget {
                             _i18n.isPersian
                                 ? FARSI_FEATURE_LIST[index]
                                 : ENGLISH_FEATURE_LIST[index],
-                            // style: const TextStyle(color: Colors.black54),
-                            textDirection: _i18n.isPersian
-                                ? TextDirection.rtl
-                                : TextDirection.ltr,
+                            textDirection: _i18n.defaultTextDirection,
                           ),
                         ),
                       ],

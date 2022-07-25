@@ -1,49 +1,57 @@
 import 'dart:async';
 import 'dart:ui';
-
 import 'package:deliver/repository/accountRepo.dart';
+import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
-import 'package:deliver/screen/navigation_center/navigation_center_page.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/methods/url.dart';
 import "package:deliver/web_classes/js.dart" if (dart.library.html) 'dart:js'
     as js;
+import 'package:desktop_lifecycle/desktop_lifecycle.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/ui/with_foreground_task.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
-import 'package:uni_links/uni_links.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
   @override
-  _HomePageState createState() => _HomePageState();
+  HomePageState createState() => HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
+class HomePageState extends State<HomePage> {
   final _logger = GetIt.I.get<Logger>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _accountRepo = GetIt.I.get<AccountRepo>();
   final _coreServices = GetIt.I.get<CoreServices>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _uxService = GetIt.I.get<UxService>();
+  final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
+  final _contactRepo = GetIt.I.get<ContactRepo>();
 
-  Future<void> initUniLinks(BuildContext context) async {
-    try {
-      final initialLink = await getInitialLink();
-      if (initialLink != null && initialLink.isNotEmpty) {
-        // ignore: use_build_context_synchronously
-        await handleJoinUri(context, initialLink);
-      }
-    } catch (e) {
-      _logger.e(e);
+  void _addLifeCycleListener() {
+    if (isDesktop) {
+      DesktopLifecycle.instance.isActive.addListener(() {
+        if (DesktopLifecycle.instance.isActive.value) {
+          _coreServices.checkConnectionTimer();
+        }
+      });
+    } else {
+      SystemChannels.lifecycle.setMessageHandler((message) async {
+        if (message != null &&
+            message == AppLifecycleState.resumed.toString()) {
+          _coreServices.checkConnectionTimer();
+        }
+        return message;
+      });
     }
   }
 
@@ -63,19 +71,18 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     };
     _coreServices.initStreamConnection();
     if (isAndroid || isIOS) {
+      checkHaveShareInput(context);
       _notificationServices.cancelAllNotifications();
-    }
-    if (isAndroid) {
-      checkShareFile(context);
-    }
-    if (isAndroid || isIOS) {
-      initUniLinks(context);
     }
     if (isWeb) {
       js.context.callMethod("getNotificationPermission", []);
     }
     checkIfVersionChange();
     checkAddToHomeInWeb(context);
+
+    _addLifeCycleListener();
+
+   _contactRepo.sendNotSyncedContactInStartTime();
 
     super.initState();
   }
@@ -107,14 +114,28 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver {
     });
   }
 
-  void checkShareFile(BuildContext context) {
+  void _shareInputFile(List<SharedMediaFile> files) {
+    if (files.isNotEmpty) {
+      _routingService.openShareInput(paths: files.map((e) => e.path).toList());
+    }
+  }
+
+  void checkHaveShareInput(BuildContext context) {
+    ReceiveSharingIntent.getMediaStream().listen((event) {
+      _shareInputFile(event);
+    });
+
     ReceiveSharingIntent.getInitialMedia().then((value) {
-      if (value.isNotEmpty) {
-        final paths = <String>[];
-        for (final path in value) {
-          paths.add(path.path);
-        }
-        _routingService.openShareFile(path: paths);
+      _shareInputFile(value);
+    });
+
+    ReceiveSharingIntent.getInitialText().then((value) async {
+      if (value != null && value.isNotEmpty) {
+        _urlHandlerService.handleApplicationUri(
+          value,
+          context,
+          shareTextMessage: true,
+        );
       }
     });
   }

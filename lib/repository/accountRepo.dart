@@ -7,23 +7,21 @@ import 'package:deliver/box/dao/account_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/session.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
-
 import 'package:get_it/get_it.dart';
-
 import 'package:logger/logger.dart';
 
 class AccountRepo {
   final _logger = GetIt.I.get<Logger>();
   final _sharedDao = GetIt.I.get<SharedDao>();
-  final _queryServiceClient = GetIt.I.get<QueryServiceClient>();
-  final _profileServiceClient = GetIt.I.get<UserServiceClient>();
-  final _sessionServicesClient = GetIt.I.get<SessionServiceClient>();
+  final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
+
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _accountDao = GetIt.I.get<AccountDao>();
   final _dbManager = GetIt.I.get<DBManager>();
@@ -47,7 +45,7 @@ class AccountRepo {
 
   Future<bool> getUserProfileFromServer() async {
     final result =
-        await _profileServiceClient.getUserProfile(GetUserProfileReq());
+        await _sdr.userServiceClient.getUserProfile(GetUserProfileReq());
     _savePhoneNumber(
       result.profile.phoneNumber.countryCode,
       result.profile.phoneNumber.nationalNumber.toInt(),
@@ -85,7 +83,7 @@ class AccountRepo {
       if ((account != null && account.username != null) && !forceToUpdate) {
         return true;
       }
-      final getIdRequest = await _queryServiceClient
+      final getIdRequest = await _sdr.queryServiceClient
           .getIdByUid(GetIdByUidReq()..uid = _authRepo.currentUserUid);
       if (getIdRequest.id.isNotEmpty) {
         _accountDao.updateAccount(username: getIdRequest.id).ignore();
@@ -108,13 +106,13 @@ class AccountRepo {
   Stream<Account?> getAccountAsStream() => _accountDao.getAccountStream();
 
   Future<bool> checkUserName(String username) async {
-    final checkUsernameRes = await _queryServiceClient
+    final checkUsernameRes = await _sdr.queryServiceClient
         .idIsAvailable(IdIsAvailableReq()..id = username);
     return checkUsernameRes.isAvailable;
   }
 
   Future<bool> updateEmail(String email) async {
-    final res = await _profileServiceClient
+    final res = await _sdr.userServiceClient
         .updateEmail(UpdateEmailReq()..email = email);
     if (res.profile.isEmailVerified) {
       _accountDao
@@ -143,8 +141,10 @@ class AccountRepo {
         return false;
       }
 
-      if (account?.username != null && account?.username != username) {
-        await _queryServiceClient.setId(SetIdReq()..id = username);
+      if (account == null ||
+          account.username == null ||
+          account.username != username) {
+        await _sdr.queryServiceClient.setId(SetIdReq()..id = username);
         _saveProfilePrivateData(username: username);
       }
 
@@ -155,7 +155,7 @@ class AccountRepo {
           ..lastName = lastname ?? "";
 
         final res =
-            await _profileServiceClient.saveUserProfile(saveUserProfileReq);
+            await _sdr.userServiceClient.saveUserProfile(saveUserProfileReq);
         _saveProfilePrivateData(
           firstName: res.profile.firstName,
           lastName: res.profile.lastName,
@@ -181,7 +181,7 @@ class AccountRepo {
       updatePasswordReq.currentPassword = currentPassword;
     }
     try {
-      await _profileServiceClient.updatePassword(updatePasswordReq);
+      await _sdr.userServiceClient.updatePassword(updatePasswordReq);
       await _accountDao.updateAccount(passwordProtected: true);
       return true;
     } catch (e) {
@@ -192,7 +192,7 @@ class AccountRepo {
 
   Future<bool> disableTwoStepVerification(String password) async {
     try {
-      final res = await _profileServiceClient.updatePassword(
+      final res = await _sdr.userServiceClient.updatePassword(
         UpdatePasswordReq()
           ..currentPassword = password
           ..newPassword = "",
@@ -210,8 +210,8 @@ class AccountRepo {
 
   void _savePhoneNumber(int countryCode, int nationalNumber) {
     _accountDao.updateAccount(
-      countryCode: countryCode.toString(),
-      nationalNumber: nationalNumber.toString(),
+      countryCode: countryCode,
+      nationalNumber: nationalNumber,
     );
   }
 
@@ -234,7 +234,8 @@ class AccountRepo {
   }
 
   Future<List<Session>> getSessions() async {
-    final res = await _sessionServicesClient.getMySessions(GetMySessionsReq());
+    final res =
+        await _sdr.sessionServiceClient.getMySessions(GetMySessionsReq());
     return res.sessions;
   }
 
@@ -253,7 +254,7 @@ class AccountRepo {
       }
 
       if (shouldUpdateSessionPlatformInformation(pv)) {
-        await _sessionServicesClient.updateSessionPlatformInformation(
+        await _sdr.sessionServiceClient.updateSessionPlatformInformation(
           UpdateSessionPlatformInformationReq()
             ..platform = await getPlatformPB(),
         );
@@ -276,7 +277,7 @@ class AccountRepo {
 
   Future<bool> verifyQrCodeToken(String token) async {
     try {
-      await _sessionServicesClient.verifyQrCodeToken(
+      await _sdr.sessionServiceClient.verifyQrCodeToken(
         VerifyQrCodeTokenReq()
           ..platform = await getPlatformPB()
           ..token = token,
@@ -289,7 +290,7 @@ class AccountRepo {
 
   Future<bool> revokeSession(String session) async {
     try {
-      await _sessionServicesClient
+      await _sdr.sessionServiceClient
           .revokeSession(RevokeSessionReq(sessionIds: [session]));
       return true;
     } catch (e) {
@@ -299,7 +300,7 @@ class AccountRepo {
 
   Future<bool> revokeAllOtherSession() async {
     try {
-      await _sessionServicesClient
+      await _sdr.sessionServiceClient
           .revokeAllOtherSessions(RevokeAllOtherSessionsReq());
       return true;
     } catch (e) {
@@ -309,7 +310,7 @@ class AccountRepo {
 
   Future<void> logOut() async {
     try {
-      await _sessionServicesClient.logoutSession(LogoutSessionReq());
+      await _sdr.sessionServiceClient.logoutSession(LogoutSessionReq());
     } catch (_) {}
   }
 

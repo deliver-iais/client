@@ -1,24 +1,22 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class CustomNotificationSoundSelection extends StatefulWidget {
   final String roomUid;
-  final AudioCache _player =
-      AudioCache(prefix: 'android/', fixedPlayer: AudioPlayer());
 
-  CustomNotificationSoundSelection({Key? key, required this.roomUid})
-      : super(key: key);
+  const CustomNotificationSoundSelection({super.key, required this.roomUid});
 
   @override
-  _CustomNotificationSoundSelectionState createState() =>
-      _CustomNotificationSoundSelectionState();
+  CustomNotificationSoundSelectionState createState() =>
+      CustomNotificationSoundSelectionState();
 }
 
-class _CustomNotificationSoundSelectionState
+class CustomNotificationSoundSelectionState
     extends State<CustomNotificationSoundSelection> {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   List<String> staticData = [
@@ -34,7 +32,8 @@ class _CustomNotificationSoundSelectionState
     "that_was_quick"
   ];
   Map<int, bool> selectedFlag = {};
-  I18N i18n = GetIt.I.get<I18N>();
+  final _i18n = GetIt.I.get<I18N>();
+  final _audioService = GetIt.I.get<AudioService>();
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +41,7 @@ class _CustomNotificationSoundSelectionState
       appBar: AppBar(
         title: Center(
           child: Text(
-            i18n.get("choose_a_song"),
+            _i18n.get("choose_a_song"),
             style: const TextStyle(fontWeight: FontWeight.w600),
           ),
         ),
@@ -70,7 +69,7 @@ class _CustomNotificationSoundSelectionState
                 Navigator.pop(context);
               },
               child: Text(
-                i18n.get("ok"),
+                _i18n.get("ok"),
               ),
             ),
           )
@@ -107,8 +106,10 @@ class _CustomNotificationSoundSelectionState
       selectedFlag.clear();
       selectedFlag[index] = !isSelected;
     });
-    widget._player.fixedPlayer!.stop();
-    widget._player.play("app/src/main/res/raw/${staticData[index]}.mp3");
+
+    _audioService.playTemporaryAudio(
+      AudioSourcePath.asset("app/src/main/res/raw/${staticData[index]}.mp3"),
+    );
   }
 
   void onLongPress(int index, {bool isSelected = false}) {
@@ -121,15 +122,15 @@ class _CustomNotificationSoundSelectionState
   Widget _buildSelectIcon(bool isSelected, String data) {
     final theme = Theme.of(context);
     return StreamBuilder<Object>(
-      stream: widget._player.fixedPlayer!.onPlayerStateChanged,
+      stream: _audioService.temporaryPlayerState,
       builder: (context, snapshot) {
         return SizedBox(
           width: 80,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              if (isSelected && snapshot.data == PlayerState.PLAYING)
-                const TGS.asset(
+              if (isSelected && snapshot.data == PlayerState.playing)
+                const Tgs.asset(
                   'assets/animations/audio_wave.tgs',
                   width: 40,
                   height: 60,

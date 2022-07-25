@@ -14,13 +14,13 @@ import 'package:rxdart/rxdart.dart';
 import '../animation.dart';
 
 class IntroPage extends StatefulWidget {
-  const IntroPage({Key? key}) : super(key: key);
+  const IntroPage({super.key});
 
   @override
-  _IntroPageState createState() => _IntroPageState();
+  IntroPageState createState() => IntroPageState();
 }
 
-class _IntroPageState extends State<IntroPage> {
+class IntroPageState extends State<IntroPage> {
   IntroAnimationController introAnimationController =
       IntroAnimationController();
 
@@ -34,18 +34,22 @@ class _IntroPageState extends State<IntroPage> {
         introAnimationController.play(pauseTime: d - 0.05);
       });
     });
-    WidgetsBinding.instance!.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
       FeatureDiscovery.discoverFeatures(
         context,
         isAndroid || isIOS
             ? const <String>{
-                feature1,
-                feature2,
-                feature3,
+                FEATURE_1,
+                FEATURE_2,
+                FEATURE_3,
+                FEATURE_4,
+                FEATURE_5,
               }
             : const <String>{
-                feature1,
-                feature3,
+                FEATURE_1,
+                FEATURE_3,
+                FEATURE_4,
+                FEATURE_5,
               },
       );
     });
@@ -87,7 +91,7 @@ class _IntroPageState extends State<IntroPage> {
                       child: SizedBox(
                         width: animationSize,
                         child: Text(
-                          'The world`s fastest messaging app. It is free and secure.',
+                          'Super fast messaging app. It is free and secure.',
                           style: theme.primaryTextTheme.subtitle1,
                           textAlign: TextAlign.center,
                         ),
@@ -174,6 +178,7 @@ class _IntroPageState extends State<IntroPage> {
             nameSkipBtn: _i18n.get("skip"),
             nameNextBtn: _i18n.get("next"),
             onDonePress: navigateToLoginPage,
+            backgroundColorAllSlides: theme.colorScheme.background,
             styleNameSkipBtn: theme.primaryTextTheme.button,
             styleNameDoneBtn: theme.primaryTextTheme.button,
             styleNamePrevBtn: theme.primaryTextTheme.button,

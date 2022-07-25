@@ -4,26 +4,32 @@ import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
-
 import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/register/pages/two_step_verification_page.dart';
 import 'package:deliver/screen/register/pages/verification_page.dart';
 import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
+import 'package:deliver/screen/settings/pages/connection_setting_page.dart';
+import 'package:deliver/screen/settings/pages/language_settings.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
+import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/language.dart';
 import 'package:deliver/shared/methods/phone.dart';
-
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/parsers/detectors.dart';
+import 'package:deliver/shared/parsers/parsers.dart';
+import 'package:deliver/shared/parsers/transformers.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver/shared/widgets/out_of_date.dart';
+import 'package:deliver/shared/widgets/settings_ui/src/settings_tile.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
@@ -31,31 +37,33 @@ import 'package:qr_flutter/qr_flutter.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sms_autofill/sms_autofill.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
 
   @override
-  _LoginPageState createState() => _LoginPageState();
+  LoginPageState createState() => LoginPageState();
 }
 
-class _LoginPageState extends State<LoginPage> {
+class LoginPageState extends State<LoginPage> {
   static final _logger = GetIt.I.get<Logger>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _fireBaseServices = GetIt.I.get<FireBaseServices>();
   static final _contactRepo = GetIt.I.get<ContactRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
   final _formKey = GlobalKey<FormState>();
   final BehaviorSubject<bool> _isLoading = BehaviorSubject.seeded(false);
   bool loginWithQrCode = isDesktop;
-  bool _acceptPrivacy = !isAndroid;
+  bool _acceptPrivacy = kDebugMode;
   final loginToken = BehaviorSubject.seeded(randomAlphaNumeric(36));
   Timer? checkTimer;
   Timer? tokenGeneratorTimer;
   PhoneNumber? phoneNumber;
   final TextEditingController controller = TextEditingController();
+
+  final BehaviorSubject<bool> _networkError = BehaviorSubject.seeded(false);
 
   @override
   void initState() {
@@ -134,11 +142,6 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _loginASTestUser() {
-    _authRepo.saveTestUserInfo();
-    _navigationToHome();
-  }
-
   @override
   void dispose() {
     loginToken.close();
@@ -149,46 +152,42 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> checkAndGoNext({bool doNotCheckValidator = false}) async {
     final navigatorState = Navigator.of(context);
-    if (phoneNumber != null &&
-        phoneNumber!.nationalNumber.toString() == TEST_USER_PHONE_NUMBER) {
-      _logger.e("login as test user ");
-      _loginASTestUser();
-    } else {
-      final isValidated = _formKey.currentState?.validate() ?? false;
-      if ((doNotCheckValidator || isValidated) && phoneNumber != null) {
-        _isLoading.add(true);
-        try {
-          await _authRepo.getVerificationCode(phoneNumber!);
-          navigatorState
-              .push(
-                MaterialPageRoute(builder: (c) => const VerificationPage()),
-              )
-              .ignore();
-          _isLoading.add(false);
-        } on GrpcError catch (e) {
-          _isLoading.add(false);
-          _logger.e(e);
-          if (e.code == StatusCode.unavailable) {
-            ToastDisplay.showToast(
-              toastText: _i18n.get("notwork_is_unavailable"),
-              toastContext: context,
-            );
-          } else if (e.code == StatusCode.aborted) {
-            showOutOfDateDialog(context);
-          } else {
-            ToastDisplay.showToast(
-              toastText: _i18n.get("error_occurred"),
-              toastContext: context,
-            );
-          }
-        } catch (e) {
-          _isLoading.add(false);
-          _logger.e(e);
+
+    final isValidated = _formKey.currentState?.validate() ?? false;
+    if ((doNotCheckValidator || isValidated) && phoneNumber != null) {
+      _isLoading.add(true);
+      try {
+        await _authRepo.getVerificationCode(phoneNumber!);
+        navigatorState
+            .push(
+              MaterialPageRoute(builder: (c) => const VerificationPage()),
+            )
+            .ignore();
+        _isLoading.add(false);
+      } on GrpcError catch (e) {
+        _isLoading.add(false);
+        _logger.e(e);
+        if (e.code == StatusCode.unavailable) {
+          _networkError.add(true);
+          ToastDisplay.showToast(
+            toastText: _i18n.get("notwork_is_unavailable"),
+            toastContext: context,
+          );
+        } else if (e.code == StatusCode.aborted) {
+          showOutOfDateDialog(context);
+        } else {
           ToastDisplay.showToast(
             toastText: _i18n.get("error_occurred"),
             toastContext: context,
           );
         }
+      } catch (e) {
+        _isLoading.add(false);
+        _logger.e(e);
+        ToastDisplay.showToast(
+          toastText: _i18n.get("error_occurred"),
+          toastContext: context,
+        );
       }
     }
   }
@@ -200,10 +199,10 @@ class _LoginPageState extends State<LoginPage> {
       child: Form(
         key: _formKey,
         child: Scaffold(
-          backgroundColor: theme.backgroundColor,
+          backgroundColor: theme.colorScheme.background,
           appBar: AppBar(
             title: Text(_i18n.get("login")),
-            backgroundColor: theme.backgroundColor,
+            backgroundColor: theme.colorScheme.background,
           ),
           body: loginWithQrCode
               ? buildLoginWithQrCode(_i18n, context)
@@ -219,7 +218,7 @@ class _LoginPageState extends State<LoginPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           StreamBuilder<String>(
-            stream: loginToken.stream,
+            stream: loginToken,
             builder: (context, snapshot) {
               if (snapshot.hasData &&
                   snapshot.data != null &&
@@ -244,7 +243,7 @@ class _LoginPageState extends State<LoginPage> {
             },
           ),
           const SizedBox(height: 30),
-          const Text("1. Open Deliver on your phone"),
+          const Text("1. Open $APPLICATION_NAME on your phone"),
           const SizedBox(height: 10),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -261,8 +260,8 @@ class _LoginPageState extends State<LoginPage> {
           const Text("3. Point your phone at this screen to confirm login"),
           const SizedBox(height: 30),
           TextButton(
-            child: const Text(
-              "Don't you have access to an authenticated phone?",
+            child: Text(
+              _i18n.get("access_to_authenticated_phone"),
             ),
             onPressed: () {
               setState(() {
@@ -279,7 +278,7 @@ class _LoginPageState extends State<LoginPage> {
     final theme = Theme.of(context);
     return StreamBuilder<bool>(
       initialData: _isLoading.value,
-      stream: _isLoading.stream,
+      stream: _isLoading,
       builder: (c, loading) {
         if (loading.hasData && loading.data != null && loading.data!) {
           return const Center(child: CircularProgressIndicator());
@@ -292,7 +291,7 @@ class _LoginPageState extends State<LoginPage> {
                 Expanded(
                   child: Column(
                     children: <Widget>[
-                      const SizedBox(height: 5),
+                      const SizedBox(height: 20),
                       IntlPhoneField(
                         initialCountryCode: phoneNumber != null
                             ? phoneNumber!.countryCode.toString()
@@ -307,105 +306,175 @@ class _LoginPageState extends State<LoginPage> {
                         },
                         onSubmitted: (p) {
                           phoneNumber = p;
-                          checkAndGoNext();
+                          if (_acceptPrivacy) checkAndGoNext();
                         },
                       ),
-                      const SizedBox(height: 15),
+                      const SizedBox(height: 8),
                       Text(
                         i18n.get("insert_phone_and_code"),
-                        style: TextStyle(
-                          fontWeight: FontWeight.normal,
-                          color: theme.primaryColor,
-                          fontSize: 15,
-                        ),
+                        style: theme.textTheme.labelSmall,
                       ),
-                      if (isDesktop) const SizedBox(height: 40),
-                      if (isDesktop)
-                        TextButton(
-                          child: Text(
-                            "Login with QR Code",
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: theme.primaryColor,
-                              fontSize: 13,
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Checkbox(
+                            value: _acceptPrivacy,
+                            onChanged: (c) {
+                              setState(() {
+                                _acceptPrivacy = c!;
+                              });
+                            },
+                          ),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                _acceptPrivacy = true;
+                              });
+                            },
+                            child: RichText(
+                              text: TextSpan(
+                                children: buildText(
+                                  "${!_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}]($APPLICATION_TERMS_OF_USE_URL) ${_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}",
+                                  context,
+                                ),
+                                style: theme.textTheme.bodyText2,
+                              ),
+                              textDirection: TextDirection.ltr,
                             ),
                           ),
-                          onPressed: () {
-                            setState(() {
-                              loginWithQrCode = true;
-                            });
-                          },
-                        ),
-                      if (isAndroid)
-                        Row(
-                          children: [
-                            Checkbox(
-                              value: _acceptPrivacy,
-                              onChanged: (c) {
-                                setState(() {
-                                  _acceptPrivacy = c!;
-                                });
-                              },
-                            ),
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _acceptPrivacy = true;
-                                });
-                              },
-                              child: RichText(
-                                text: TextSpan(
-                                  children: [
-                                    TextSpan(
-                                      text: "شرایط حریم خصوصی",
-                                      style: const TextStyle(
-                                        color: Colors.blue,
-                                        fontSize: 13,
-                                      ),
-                                      recognizer: TapGestureRecognizer()
-                                        ..onTap = () => launch(
-                                              "https://deliver-co.ir/#/termofuse",
-                                            ),
-                                    ),
-                                    const TextSpan(
-                                      text:
-                                          " را مطالعه نموده ام و آن را قبول می کنم",
-                                      style: TextStyle(fontSize: 13),
-                                    ),
-                                  ],
-                                  style: theme.textTheme.bodyText2,
-                                ),
-                                textDirection: TextDirection.rtl,
-                              ),
-                            ),
-                          ],
-                        )
+                        ],
+                      ),
                     ],
                   ),
                 ),
-                if (_acceptPrivacy)
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Align(
-                      alignment: Alignment.bottomRight,
-                      child: TextButton(
-                        child: Text(
-                          i18n.get("next"),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: theme.primaryColor,
-                            fontSize: 14.5,
+                Container(
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surfaceVariant,
+                    borderRadius: secondaryBorder,
+                  ),
+                  margin: const EdgeInsets.only(top: 8, bottom: 8),
+                  child: SettingsTile(
+                    title: _i18n.get("language"),
+                    subtitle: _i18n.locale.language().name,
+                    leading: const FaIcon(FontAwesomeIcons.globe),
+                    onPressed: (context) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (c) {
+                            return const LanguageSettingsPage(
+                              rootFromLoginPage: true,
+                            );
+                          },
+                        ),
+                      );
+                      // _routingService.openLanguageSettings();
+                    },
+                  ),
+                ),
+                StreamBuilder<bool>(
+                  initialData: false,
+                  stream: _networkError.stream,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData && snapshot.data!) {
+                      return Container(
+                        height: 40,
+                        margin: const EdgeInsets.only(top: 8, bottom: 8),
+                        decoration: BoxDecoration(
+                          color: theme.colorScheme.surfaceVariant,
+                          borderRadius: secondaryBorder,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(_i18n.get("go_connection_setting_page")),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (c) {
+                                      return const ConnectionSettingPage(
+                                        rootFromLoginPage: true,
+                                      );
+                                    },
+                                  ),
+                                );
+                              },
+                              child: Text(_i18n.get("settings")),
+                            )
+                          ],
+                        ),
+                      );
+                    }
+                    return const SizedBox.shrink();
+                  },
+                ),
+                Row(
+                  children: [
+                    if (isDesktop)
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Align(
+                          alignment: Alignment.bottomLeft,
+                          child: TextButton(
+                            child: Text(
+                              _i18n.get("login_with_qr_code"),
+                              style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: theme.primaryColor,
+                                fontSize: 13,
+                              ),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                loginWithQrCode = true;
+                              });
+                            },
                           ),
                         ),
-                        onPressed: checkAndGoNext,
                       ),
-                    ),
-                  ),
+                    const Spacer(),
+                    if (_acceptPrivacy)
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: TextButton(
+                          onPressed: checkAndGoNext,
+                          child: Text(
+                            i18n.get("next"),
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: theme.primaryColor,
+                              fontSize: 14.5,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ],
             ),
           );
         }
       },
+    );
+  }
+
+  List<InlineSpan> buildText(
+    String text,
+    BuildContext context,
+  ) {
+    final theme = Theme.of(context);
+
+    return onePath(
+      [Block(text: text, features: {})],
+      detectorsWithSearchTermDetector(),
+      inlineSpanTransformer(
+        defaultColor: theme.colorScheme.primary,
+        linkColor: theme.colorScheme.primary,
+        onUrlClick: (text) => _urlHandlerService.onUrlTap(text, context),
+      ),
     );
   }
 }

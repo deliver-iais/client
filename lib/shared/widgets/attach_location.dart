@@ -199,6 +199,7 @@ class AttachLocation {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     primary: Theme.of(context).colorScheme.primary,
+                    onPrimary: Theme.of(context).colorScheme.onPrimary,
                     shape: const RoundedRectangleBorder(
                       borderRadius: tertiaryBorder,
                     ),
@@ -209,6 +210,7 @@ class AttachLocation {
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     primary: Theme.of(context).colorScheme.primary,
+                    onPrimary: Theme.of(context).colorScheme.onPrimary,
                     shape: const RoundedRectangleBorder(
                       borderRadius: tertiaryBorder,
                     ),
@@ -233,7 +235,7 @@ class AttachLocation {
       context: context,
       builder: (context) {
         return StreamBuilder<String>(
-          stream: time.stream,
+          stream: time,
           builder: (context, snapshot) {
             return Padding(
               padding: const EdgeInsets.only(top: 300, left: 30, right: 30),

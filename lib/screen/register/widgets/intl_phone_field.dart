@@ -34,7 +34,7 @@ class IntlPhoneField extends StatefulWidget {
   final List<TextInputFormatter>? inputFormatters;
 
   const IntlPhoneField({
-    Key? key,
+    super.key,
     this.initialCountryCode,
     this.obscureText = false,
     this.textAlign = TextAlign.left,
@@ -54,13 +54,13 @@ class IntlPhoneField extends StatefulWidget {
     this.maxLength = 10,
     this.enabled = true,
     this.keyboardAppearance = Brightness.dark,
-  }) : super(key: key);
+  });
 
   @override
-  _IntlPhoneFieldState createState() => _IntlPhoneFieldState();
+  IntlPhoneFieldState createState() => IntlPhoneFieldState();
 }
 
-class _IntlPhoneFieldState extends State<IntlPhoneField> {
+class IntlPhoneFieldState extends State<IntlPhoneField> {
   final _i18n = GetIt.I.get<I18N>();
 
   Map<String, String> _selectedCountry =

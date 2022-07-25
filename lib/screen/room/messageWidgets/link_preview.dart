@@ -22,14 +22,14 @@ class LinkPreview extends StatelessWidget {
   final Color? foregroundColor;
 
   const LinkPreview({
-    Key? key,
+    super.key,
     required this.link,
     required this.maxWidth,
     this.backgroundColor,
     this.foregroundColor,
     this.maxHeight = 120,
     this.isProfile = false,
-  }) : super(key: key);
+  });
 
   Future<Metadata> _fetchFromHTML(String url) async {
     // Makes a call
@@ -82,7 +82,7 @@ class LinkPreview extends StatelessWidget {
           cursor: SystemMouseCursors.click,
           child: GestureDetector(
             onTap: () async {
-              await launch(link);
+              await launchUrl(Uri.parse(link));
             },
             child: linkPreviewContent(snapshot.data, context),
           ),
@@ -97,8 +97,7 @@ class LinkPreview extends StatelessWidget {
       margin: const EdgeInsets.only(top: 6),
       padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 4.0),
       constraints: BoxConstraints(
-        minWidth: 300,
-        maxWidth: max(300, maxWidth),
+        maxWidth: max(maxWidth, 150),
         maxHeight: maxHeight,
       ),
       decoration: BoxDecoration(
@@ -124,19 +123,22 @@ class LinkPreview extends StatelessWidget {
             ),
           ),
           if (data.description != null)
-            Expanded(
+            Flexible(
               child: Padding(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 8.0,
                   vertical: 2.0,
                 ),
-                child: Text(
-                  data.description!,
-                  textDirection: data.description!.isPersian()
-                      ? TextDirection.rtl
-                      : TextDirection.ltr,
-                  style: theme.textTheme.bodyText2,
-                  overflow: TextOverflow.fade,
+                child: SizedBox(
+                  width: double.infinity,
+                  child: Text(
+                    data.description!,
+                    textDirection: data.description!.isPersian()
+                        ? TextDirection.rtl
+                        : TextDirection.ltr,
+                    style: theme.textTheme.bodyText2,
+                    overflow: TextOverflow.fade,
+                  ),
                 ),
               ),
             ),

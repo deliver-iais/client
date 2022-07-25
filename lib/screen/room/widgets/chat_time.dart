@@ -1,12 +1,15 @@
 import 'package:clock/clock.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class ChatTime extends StatelessWidget {
   final DateTime currentMessageTime;
 
-  const ChatTime({Key? key, required this.currentMessageTime})
-      : super(key: key);
+  const ChatTime({super.key, required this.currentMessageTime});
+
+  static final _i18n = GetIt.I.get<I18N>();
 
   @override
   Widget build(BuildContext context) {
@@ -15,16 +18,25 @@ class ChatTime extends StatelessWidget {
     final currentMonth = clock.now().month;
     if (currentDay == currentMessageTime.day &&
         currentMonth == currentMessageTime.month) {
-      outT = 'Today';
+      outT = _i18n.get("today");
     } else if (currentDay - currentMessageTime.day < 2 &&
         currentMonth == currentMessageTime.month) {
-      outT = 'Yesterday';
+      outT = _i18n.get("yesterday");
     } else {
       outT = dateTimeFromNowFormat(currentMessageTime, weekFormat: 'l');
     }
     return Padding(
       padding: const EdgeInsets.only(top: 20.0),
-      child: Chip(side: BorderSide.none, label: Text(outT)),
+      child: Chip(
+        label: Padding(
+          padding: const EdgeInsets.only(top: 4.0),
+          child: Text(
+            outT,
+            textDirection: _i18n.defaultTextDirection,
+          ),
+        ),
+        elevation: 2,
+      ),
     );
   }
 }

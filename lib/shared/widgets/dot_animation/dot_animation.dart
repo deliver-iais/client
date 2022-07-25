@@ -4,8 +4,7 @@ import 'package:flutter/material.dart';
 class DotAnimation extends StatefulWidget {
   final Color dotsColor;
 
-  const DotAnimation({Key? key, this.dotsColor = Colors.white70})
-      : super(key: key);
+  const DotAnimation({super.key, this.dotsColor = Colors.white70});
 
   @override
   State<DotAnimation> createState() => _DotAnimationState();

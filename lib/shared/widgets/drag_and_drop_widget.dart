@@ -10,10 +10,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dropzone/flutter_dropzone.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:mime_type/mime_type.dart';
 import 'package:universal_html/html.dart';
 
 class DragDropWidget extends StatelessWidget {
+  static final _routingServices = GetIt.I.get<RoutingService>();
+  static final _mucRepo = GetIt.I.get<MucRepo>();
+  static final _authRepo = GetIt.I.get<AuthRepo>();
+  static final _logger = GetIt.I.get<Logger>();
+
   final Widget child;
   final String roomUid;
   final double height;
@@ -21,20 +25,15 @@ class DragDropWidget extends StatelessWidget {
   final int? replyMessageId;
   final bool enabled;
 
-  DragDropWidget({
-    Key? key,
+  const DragDropWidget({
+    super.key,
     required this.child,
     required this.roomUid,
     required this.height,
     this.enabled = true,
     this.resetRoomPageDetails,
     this.replyMessageId,
-  }) : super(key: key);
-
-  final _routingServices = GetIt.I.get<RoutingService>();
-  final _mucRepo = GetIt.I.get<MucRepo>();
-  final _authRepo = GetIt.I.get<AuthRepo>();
-  final _logger = GetIt.I.get<Logger>();
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -47,54 +46,34 @@ class DragDropWidget extends StatelessWidget {
                   child: DropzoneView(
                     operation: DragOperation.copy,
                     cursor: CursorType.grab,
-                    onCreated: (ctrl) {},
-                    onHover: () {},
-                    onDrop: (blob) async {
+                    onDropMultiple: (files) async {
                       try {
-                        final file = blob as File;
-                        final url = Url.createObjectUrlFromBlob(file.slice());
-                        final modelFile = model.File(
-                          url,
-                          file.name,
-                          extension: file.type,
-                          size: file.size,
-                        );
-                        if (!roomUid.asUid().isChannel()) {
-                          showDialogInDesktop(
-                            [modelFile],
-                            context,
-                            file.type,
-                            replyMessageId,
-                            resetRoomPageDetails,
-                          );
-                        } else {
-                          final res = await _mucRepo.isMucAdminOrOwner(
-                            _authRepo.currentUserUid.asString(),
-                            roomUid,
-                          );
-                          if (res) {
-                            // ignore: use_build_context_synchronously
-                            showDialogInDesktop(
-                              [modelFile],
-                              context,
-                              file.type,
-                              replyMessageId,
-                              resetRoomPageDetails,
+                        if (files != null) {
+                          final inputFiles = <model.File>[];
+                          for (final File file in (files)) {
+                            final url =
+                                Url.createObjectUrlFromBlob(file.slice());
+                            inputFiles.add(
+                              model.File(
+                                url,
+                                file.name,
+                                extension: file.type,
+                                size: file.size,
+                              ),
                             );
                           }
+                          _sendInputFiles(inputFiles, context).ignore();
                         }
                       } catch (e) {
                         _logger.e(e);
                       }
                     },
-                    onLeave: () {},
                   ),
                 ),
               child,
             ],
           )
         : DropTarget(
-            child: child,
             enable: enabled,
             onDragDone: (d) async {
               final files = <model.File>[];
@@ -103,38 +82,46 @@ class DragDropWidget extends StatelessWidget {
                   model.File(
                     element.path,
                     element.name,
-                    extension: element.mimeType,
+                    extension: element.path.split(".").last,
                     size: await element.length(),
                   ),
                 );
               }
-              if (!roomUid.asUid().isChannel()) {
-                // ignore: use_build_context_synchronously
-                showDialogInDesktop(
-                  files,
-                  context,
-                  mime(files.first.path) ?? files.first.name.split(".").last,
-                  replyMessageId,
-                  resetRoomPageDetails,
-                );
-              } else {
-                final res = await _mucRepo.isMucAdminOrOwner(
-                  _authRepo.currentUserUid.asString(),
-                  roomUid,
-                );
-                if (res) {
-                  // ignore: use_build_context_synchronously
-                  showDialogInDesktop(
-                    files,
-                    context,
-                    mime(files.first.path) ?? files.first.path.split(".").last,
-                    replyMessageId,
-                    resetRoomPageDetails,
-                  );
-                }
-              }
+              // ignore: use_build_context_synchronously
+              _sendInputFiles(files, context).ignore();
             },
+            child: child,
           );
+  }
+
+  Future<void> _sendInputFiles(
+    List<model.File> inputFiles,
+    BuildContext context,
+  ) async {
+    if (!roomUid.isChannel()) {
+      showDialogInDesktop(
+        inputFiles,
+        context,
+        inputFiles.first.extension!,
+        replyMessageId,
+        resetRoomPageDetails,
+      );
+    } else {
+      final res = await _mucRepo.isMucAdminOrOwner(
+        _authRepo.currentUserUid.asString(),
+        roomUid,
+      );
+      if (res) {
+        // ignore: use_build_context_synchronously
+        showDialogInDesktop(
+          inputFiles,
+          context,
+          inputFiles.first.extension!,
+          replyMessageId,
+          resetRoomPageDetails,
+        );
+      }
+    }
   }
 
   void showDialogInDesktop(

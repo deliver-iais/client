@@ -77,20 +77,11 @@ import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
-import 'package:deliver_public_protocol/pub/v1/avatar.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/channel.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/firebase.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/group.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/live_location.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
-import 'package:deliver_public_protocol/pub/v1/sticker.pbgrpc.dart';
 import 'package:feature_discovery/feature_discovery.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/foundation.dart';
@@ -134,7 +125,7 @@ Future<void> setupDI() async {
     ),
   );
 
-  await Hive.initFlutter("db");
+  await Hive.initFlutter("$APPLICATION_FOLDER_NAME/db");
 
   Hive
     ..registerAdapter(AvatarAdapter())
@@ -196,101 +187,20 @@ Future<void> setupDI() async {
   registerSingleton<AutoDownloadDao>(AutoDownloadDaoImpl());
   registerSingleton<CurrentCallInfoDao>(CurrentCallInfoDaoImpl());
 
+  registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
+
   registerSingleton<I18N>(I18N());
 
   // Order is important, don't change it!
-  registerSingleton<AuthServiceClient>(
-    AuthServiceClient(
-      isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
-    ),
-  );
   registerSingleton<RoutingService>(RoutingService());
   registerSingleton<AuthRepo>(AuthRepo());
+  registerSingleton<FeatureFlags>(FeatureFlags());
   await GetIt.I.get<AuthRepo>().setCurrentUserUid();
   registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
-
-  final grpcClientInterceptors = [
-    GetIt.I.get<DeliverClientInterceptor>(),
-    GetIt.I.get<AnalyticsClientInterceptor>()
-  ];
-
-  registerSingleton<UserServiceClient>(
-    UserServiceClient(
-      isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<ContactServiceClient>(
-    ContactServiceClient(
-      isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<QueryServiceClient>(
-    QueryServiceClient(
-      isWeb ? webQueryClientChannel : QueryClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<CoreServiceClient>(
-    CoreServiceClient(
-      isWeb ? webCoreServicesClientChannel : CoreServicesClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<BotServiceClient>(
-    BotServiceClient(
-      isWeb ? webBotClientChannel : BotClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<StickerServiceClient>(
-    StickerServiceClient(
-      isWeb ? webStickerClientChannel : StickerClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<GroupServiceClient>(
-    GroupServiceClient(
-      isWeb ? webMucServicesClientChannel : MucServicesClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<ChannelServiceClient>(
-    ChannelServiceClient(
-      isWeb ? webMucServicesClientChannel : MucServicesClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<AvatarServiceClient>(
-    AvatarServiceClient(
-      isWeb ? webAvatarServicesClientChannel : AvatarServicesClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<FirebaseServiceClient>(
-    FirebaseServiceClient(
-      isWeb ? webFirebaseServicesClientChannel : FirebaseServicesClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-
-  registerSingleton<SessionServiceClient>(
-    SessionServiceClient(
-      isWeb ? webProfileServicesClientChannel : ProfileServicesClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
-  registerSingleton<LiveLocationServiceClient>(
-    LiveLocationServiceClient(
-      isWeb ? webLiveLocationClientChannel : LiveLocationServiceClientChannel,
-      interceptors: grpcClientInterceptors,
-    ),
-  );
+  GetIt.I.get<ServicesDiscoveryRepo>().initRepo().ignore();
 
   //call Service should be here
   registerSingleton<CallService>(CallService());
-
   registerSingleton<AccountRepo>(AccountRepo());
 
   registerSingleton<CheckPermissionsService>(CheckPermissionsService());
@@ -309,12 +219,6 @@ Future<void> setupDI() async {
   registerSingleton<LastActivityRepo>(LastActivityRepo());
   registerSingleton<LiveLocationRepo>(LiveLocationRepo());
 
-  if (isLinux || isWindows) {
-    // DartVLC.initialize();
-    registerSingleton<AudioPlayerModule>(VlcAudioPlayer());
-  } else {
-    registerSingleton<AudioPlayerModule>(NormalAudioPlayer());
-  }
   try {
     registerSingleton<AudioService>(AudioService());
   } catch (_) {}
@@ -346,6 +250,7 @@ Future<void> setupDI() async {
   registerSingleton<RawKeyboardService>(RawKeyboardService());
 
   registerSingleton<CallRepo>(CallRepo());
+  registerSingleton<UrlHandlerService>(UrlHandlerService());
 }
 
 Future initializeFirebase() async {
@@ -391,9 +296,9 @@ void main() async {
 }
 
 Future<void> _setWindowSize() async {
-  setWindowMinSize(const Size(500, 600));
-  final _sharedDao = GetIt.I.get<SharedDao>();
-  final size = await _sharedDao.get(SHARED_DAO_WINDOWS_SIZE);
+  setWindowMinSize(const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100));
+  final sharedDao = GetIt.I.get<SharedDao>();
+  final size = await sharedDao.get(SHARED_DAO_WINDOWS_SIZE);
   final rect = size?.split('_');
 
   if (rect != null) {
@@ -422,7 +327,7 @@ class MyApp extends StatelessWidget {
   final _i18n = GetIt.I.get<I18N>();
   final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
 
-  MyApp({Key? key}) : super(key: key);
+  MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -439,7 +344,10 @@ class MyApp extends StatelessWidget {
           extraThemeData: _uxService.extraTheme,
           child: AnnotatedRegion<SystemUiOverlayStyle>(
             value: SystemUiOverlayStyle(
-              systemNavigationBarColor: _uxService.theme.colorScheme.background,
+              statusBarIconBrightness:
+                  _uxService.themeIsDark ? Brightness.light : Brightness.dark,
+              systemNavigationBarColor:
+                  _uxService.theme.colorScheme.surfaceVariant,
               systemNavigationBarIconBrightness:
                   _uxService.themeIsDark ? Brightness.light : Brightness.dark,
             ),

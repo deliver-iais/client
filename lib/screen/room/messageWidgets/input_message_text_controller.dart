@@ -1,29 +1,36 @@
-import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
-import 'package:flutter/widgets.dart';
+import 'package:deliver/shared/parsers/detectors.dart';
+import 'package:deliver/shared/parsers/parsers.dart';
+import 'package:deliver/shared/parsers/transformers.dart';
+import 'package:flutter/material.dart';
 
 class InputMessageTextController extends TextEditingController {
+  bool isMarkDownEnable = false;
+
   @override
   TextSpan buildTextSpan({
     required BuildContext context,
     TextStyle? style,
     required bool withComposing,
   }) {
-    var blocks = <Block>[Block(text: text)];
-    final parsers = <Parser>[
-      EmojiParser(fontSize: 16),
-      // BoldTextParser(),
-      // ItalicTextParser()
-    ];
-    for (final p in parsers) {
-      blocks = p.parse(blocks, context);
-    }
+    final spans = isMarkDownEnable
+        ? onePath(
+            [Block(text: text, features: {})],
+            inputTextDetectors(),
+            inlineSpanTransformer(
+              defaultColor: Theme.of(context).colorScheme.onSurface,
+              linkColor: Theme.of(context).colorScheme.primary,
+              justHighlightSpoilers: true,
+            ),
+          )
+        : onePath(
+            [Block(text: text, features: {})],
+            [emojiDetector()],
+            emojiTransformer(),
+          );
 
     return TextSpan(
       style: style,
-      children: blocks
-          .where((b) => b.text.isNotEmpty)
-          .map((e) => TextSpan(text: e.text, style: e.style))
-          .toList(),
+      children: spans,
     );
   }
 }

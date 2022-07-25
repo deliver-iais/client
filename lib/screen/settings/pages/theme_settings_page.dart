@@ -20,7 +20,7 @@ import 'package:rxdart/rxdart.dart';
 import '../../../shared/widgets/settings_ui/box_ui.dart';
 
 class ThemeSettingsPage extends StatefulWidget {
-  const ThemeSettingsPage({Key? key}) : super(key: key);
+  const ThemeSettingsPage({super.key});
 
   @override
   State<ThemeSettingsPage> createState() => _ThemeSettingsPageState();
@@ -157,10 +157,15 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
               child: Stack(
                 children: [
                   StreamBuilder<int>(
-                    stream: _idSubject.stream,
+                    stream: _idSubject,
                     builder: (context, snapshot) {
-                      return Background(
-                        id: snapshot.data ?? 0,
+                      return StreamBuilder<int>(
+                        stream: _uxService.patternIndexStream,
+                        builder: (ctx, s) {
+                          return Background(
+                            id: snapshot.data ?? 0,
+                          );
+                        },
                       );
                     },
                   ),
@@ -186,84 +191,94 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                 ],
               ),
             ),
-            Transform.translate(
-              offset: Offset(0, -(mainBorder.topLeft.x)),
-              child: Container(
-                padding: const EdgeInsets.only(bottom: 12, top: 4),
-                decoration: BoxDecoration(
-                  borderRadius: mainBorder,
-                  color: Theme.of(context).colorScheme.background,
-                ),
-                child: Column(
-                  children: [
-                    Section(
-                      title: _i18n.get("theme"),
-                      children: [
-                        SettingsTile.switchTile(
-                          title: _i18n.get("dark_mode"),
-                          leading: const Icon(CupertinoIcons.moon),
-                          switchValue: _uxService.themeIsDark,
-                          onToggle: (value) {
-                            setState(() {
-                              _uxService.toggleThemeLightingMode();
-                            });
-                          },
-                        ),
-                        SettingsTile.switchTile(
-                          title: _i18n.get("auto_night_mode"),
-                          leading:
-                              const Icon(CupertinoIcons.circle_lefthalf_fill),
-                          switchValue: _uxService.isAutoNightModeEnable,
-                          onToggle: (value) {
-                            setState(() {
-                              _uxService.toggleIsAutoNightMode();
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                    Section(
-                      title: _i18n.get("advanced_settings"),
-                      children: [
-                        SettingsTile(
-                          title: "Main Color",
-                          leading: const Icon(CupertinoIcons.color_filter),
-                          trailing: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                for (var i = 0; i < palettes.length; i++)
-                                  color(palettes[i], i)
-                              ],
+            Directionality(
+              textDirection: _i18n.defaultTextDirection,
+              child: Transform.translate(
+                offset: Offset(0, -(mainBorder.topLeft.x)),
+                child: Container(
+                  padding: const EdgeInsets.only(bottom: 12, top: 4),
+                  decoration: BoxDecoration(
+                    borderRadius: mainBorder,
+                    color: Theme.of(context).colorScheme.background,
+                  ),
+                  child: Column(
+                    children: [
+                      Section(
+                        title: _i18n.get("theme"),
+                        children: [
+                          SettingsTile.switchTile(
+                            title: _i18n.get("dark_mode"),
+                            leading: const Icon(CupertinoIcons.moon),
+                            switchValue: _uxService.themeIsDark,
+                            onToggle: (value) {
+                              setState(() {
+                                _uxService.toggleThemeLightingMode();
+                              });
+                            },
+                          ),
+                          SettingsTile.switchTile(
+                            title: _i18n.get("auto_night_mode"),
+                            leading:
+                                const Icon(CupertinoIcons.circle_lefthalf_fill),
+                            switchValue: _uxService.isAutoNightModeEnable,
+                            onToggle: (value) {
+                              setState(() {
+                                _uxService.toggleIsAutoNightMode();
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                      Section(
+                        title: _i18n.get("advanced_settings"),
+                        children: [
+                          SettingsTile(
+                            title: "Main Color",
+                            leading: const Icon(CupertinoIcons.color_filter),
+                            trailing: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Row(
+                                children: [
+                                  for (var i = 0; i < palettes.length; i++)
+                                    color(palettes[i], i)
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                        SettingsTile(
-                          title: "Pattern",
-                          leading: const Icon(CupertinoIcons.photo),
-                          trailing: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Row(
-                              children: [
-                                for (var i = 0; i < patterns.length; i++)
-                                  pattern(patterns[i], i)
-                              ],
-                            ),
+                          StreamBuilder<int>(
+                            stream: _uxService.patternIndexStream,
+                            builder: (context, snapshot) {
+                              return Column(
+                                children: [
+                                  const SettingsTile(
+                                    title: "Pattern",
+                                    leading: Icon(CupertinoIcons.photo),
+                                    trailing: SizedBox.shrink(),
+                                  ),
+                                  Wrap(
+                                    children: [
+                                      for (var i = 0; i < patterns.length; i++)
+                                        pattern(patterns[i], i)
+                                    ],
+                                  )
+                                ],
+                              );
+                            },
                           ),
-                        ),
-                        SettingsTile.switchTile(
-                          title: "Colorful Messages",
-                          leading: const Icon(CupertinoIcons.paintbrush),
-                          switchValue: _uxService.showColorful,
-                          onToggle: (value) {
-                            setState(() {
-                              _uxService.toggleShowColorful();
-                            });
-                          },
-                        ),
-                      ],
-                    ),
-                  ],
+                          SettingsTile.switchTile(
+                            title: "Colorful Messages",
+                            leading: const Icon(CupertinoIcons.paintbrush),
+                            switchValue: _uxService.showColorful,
+                            onToggle: (value) {
+                              setState(() {
+                                _uxService.toggleShowColorful();
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             )
@@ -282,7 +297,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
           _uxService.selectTheme(index);
         },
         child: AnimatedContainer(
-          duration: ANIMATION_DURATION * 2,
+          duration: ANIMATION_DURATION,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: isSelected
@@ -291,13 +306,13 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
           ),
           padding: const EdgeInsets.all(4),
           child: AnimatedContainer(
-            duration: ANIMATION_DURATION * 2,
+            duration: ANIMATION_DURATION,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               color: color,
             ),
-            width: 24,
-            height: 24,
+            width: isSelected ? 20 : 24,
+            height: isSelected ? 20 : 24,
           ),
         ),
       ),
@@ -312,10 +327,9 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
         onTap: () {
           _uxService.selectPattern(index);
         },
-        child: AnimatedContainer(
-          duration: ANIMATION_DURATION * 2,
+        child: Container(
           clipBehavior: Clip.hardEdge,
-          margin: const EdgeInsets.symmetric(horizontal: 4.0),
+          margin: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             borderRadius: secondaryBorder,
             border: isSelected
@@ -328,8 +342,9 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                     width: 2,
                   ),
           ),
-          child: AnimatedContainer(
-            duration: ANIMATION_DURATION * 2,
+          child: SizedBox(
+            width: 80,
+            height: 100,
             child: Image(
               image: AssetImage("assets/backgrounds/$pattern-thumb.webp"),
               color: isSelected
@@ -338,8 +353,6 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
               fit: BoxFit.cover,
               repeat: ImageRepeat.repeat,
             ),
-            width: 80,
-            height: 100,
           ),
         ),
       ),

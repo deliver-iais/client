@@ -8,6 +8,8 @@ import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:rxdart/rxdart.dart';
 
+const LOADING_INDICATOR_WIDGET_SIZE = 50.0;
+
 class LoadFileStatus extends StatefulWidget {
   final String fileId;
   final String fileName;
@@ -19,7 +21,7 @@ class LoadFileStatus extends StatefulWidget {
   final void Function() onPressed;
 
   const LoadFileStatus({
-    Key? key,
+    super.key,
     required this.fileId,
     required this.fileName,
     required this.onPressed,
@@ -27,15 +29,15 @@ class LoadFileStatus extends StatefulWidget {
     required this.isPendingMessage,
     required this.foreground,
     this.messagePacketId,
-  }) : super(key: key);
+  });
 
   @override
-  _LoadFileStatusState createState() => _LoadFileStatusState();
+  LoadFileStatusState createState() => LoadFileStatusState();
 }
 
-class _LoadFileStatusState extends State<LoadFileStatus> {
-  final _messageRepo = GetIt.I.get<MessageRepo>();
-  final _fileService = GetIt.I.get<FileService>();
+class LoadFileStatusState extends State<LoadFileStatus> {
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _fileService = GetIt.I.get<FileService>();
   final BehaviorSubject<bool> _starDownload = BehaviorSubject.seeded(false);
 
   @override
@@ -47,8 +49,8 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: 50,
-      height: 50,
+      width: LOADING_INDICATOR_WIDGET_SIZE,
+      height: LOADING_INDICATOR_WIDGET_SIZE,
       decoration:
           BoxDecoration(shape: BoxShape.circle, color: widget.background),
       child: widget.isPendingMessage ? buildUpload() : buildDownload(),
@@ -61,7 +63,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data! > 0) {
           return CircularPercentIndicator(
-            radius: 45.0,
+            radius: LOADING_INDICATOR_WIDGET_SIZE / 2,
             lineWidth: 4.0,
             center: StreamBuilder<CancelToken?>(
               stream: _fileService.cancelTokens[widget.fileId],
@@ -122,7 +124,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
       builder: (context, snapshot) {
         if (snapshot.hasData && snapshot.data != null && snapshot.data! > 0) {
           return CircularPercentIndicator(
-            radius: 50.0,
+            radius: LOADING_INDICATOR_WIDGET_SIZE / 2,
             lineWidth: 4.0,
             percent: min(snapshot.data!, 1.0),
             backgroundColor: widget.background,
@@ -148,7 +150,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
                   );
                 } else {
                   return StreamBuilder<bool>(
-                    stream: _starDownload.stream,
+                    stream: _starDownload,
                     builder: (context, snapshot) {
                       if (snapshot.hasData &&
                           snapshot.data != null &&
@@ -187,7 +189,7 @@ class _LoadFileStatusState extends State<LoadFileStatus> {
               color: widget.background,
             ),
             child: StreamBuilder<bool>(
-              stream: _starDownload.stream,
+              stream: _starDownload,
               builder: (context, snapshot) {
                 if (snapshot.hasData &&
                     snapshot.data != null &&

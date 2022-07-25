@@ -19,6 +19,7 @@ import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/notification_services.dart';
@@ -54,8 +55,8 @@ class DataStreamServices {
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
   final _notificationServices = GetIt.I.get<NotificationServices>();
   final _lastActivityDao = GetIt.I.get<LastActivityDao>();
-  final _mucDao = GetIt.I.get<MucDao>();
-  final _queryServicesClient = GetIt.I.get<QueryServiceClient>();
+  final _sdr = GetIt.I.get<MucDao>();
+  final _services = GetIt.I.get<ServicesDiscoveryRepo>();
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _messageExtractorServices = GetIt.I.get<MessageExtractorServices>();
 
@@ -64,6 +65,7 @@ class DataStreamServices {
     String? roomName,
     required bool isOnlineMessage,
     bool saveInDatabase = true,
+    bool isFirebaseMessage = false,
   }) async {
     final roomUid = getRoomUid(_authRepo, message);
     if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
@@ -72,6 +74,9 @@ class DataStreamServices {
     if (message.whichType() == Message_Type.persistEvent) {
       switch (message.persistEvent.whichType()) {
         case PersistentEvent_Type.mucSpecificPersistentEvent:
+          if (!isOnlineMessage) {
+            break;
+          }
           switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
             case MucSpecificPersistentEvent_Issue.DELETED:
               await _roomDao.updateRoom(uid: roomUid.asString(), deleted: true);
@@ -87,7 +92,6 @@ class DataStreamServices {
                   uid: message.from.asString(),
                   deleted: true,
                 );
-                return null;
               }
               break;
             case MucSpecificPersistentEvent_Issue.JOINED_USER:
@@ -110,9 +114,8 @@ class DataStreamServices {
                   uid: message.from.asString(),
                   deleted: true,
                 );
-                return null;
               }
-              await _mucDao.deleteMember(
+              await _sdr.deleteMember(
                 Member(
                   memberUid: message
                       .persistEvent.mucSpecificPersistentEvent.issuer
@@ -166,7 +169,9 @@ class DataStreamServices {
           message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
         _callService.addGroupCallEvent(callEvents);
       } else {
-        _callService.addCallEvent(callEvents);
+        _callService
+          ..addCallEvent(callEvents)
+          ..shouldRemoveData = isFirebaseMessage;
       }
     }
 
@@ -322,7 +327,7 @@ class DataStreamServices {
     // there is no message in db for editing, so if we fetch it eventually, it will be edited anyway
     if (savedMsg == null) return;
 
-    final res = await _queryServicesClient.fetchMessages(
+    final res = await _services.queryServiceClient.fetchMessages(
       FetchMessagesReq()
         ..roomUid = roomUid
         ..limit = 1
@@ -429,9 +434,17 @@ class DataStreamServices {
         lastMessage: msg,
         lastMessageId: msg.id,
       );
-
       _notificationServices
           .notifyOutgoingMessage(messageDeliveryAck.to.asString());
+      final seen = await _roomRepo.getMySeen(msg.roomUid);
+      if (messageDeliveryAck.id > seen.messageId) {
+        _roomRepo
+            .updateMySeen(
+              uid: msg.roomUid,
+              messageId: messageDeliveryAck.id.toInt(),
+            )
+            .ignore();
+      }
     }
   }
 
@@ -550,7 +563,9 @@ class DataStreamServices {
 
         if (msg != null) {
           if (msg.id! <= firstMessageId || (msg.isHidden && msg.id == 1)) {
-            await _roomDao.updateRoom(uid: roomUid.asString(), deleted: true);
+            _roomDao
+                .updateRoom(uid: roomUid.asString(), deleted: true)
+                .ignore();
             break;
           } else if (!msg.isHidden) {
             lastNotHiddenMessage = msg;
@@ -564,18 +579,31 @@ class DataStreamServices {
           );
           break;
         }
+      } on GrpcError catch (e) {
+        if (e.code == StatusCode.notFound) {
+          _roomDao
+              .updateRoom(
+                uid: roomUid.asString(),
+                deleted: true,
+              )
+              .ignore();
+          break;
+        }
       } catch (_) {
         break;
       }
     }
 
     if (lastNotHiddenMessage != null) {
-      await _roomDao.updateRoom(
-        uid: roomUid.asString(),
-        firstMessageId: firstMessageId,
-        lastMessageId: lastMessageId,
-        lastMessage: lastNotHiddenMessage,
-      );
+      _roomDao
+          .updateRoom(
+            uid: roomUid.asString(),
+            firstMessageId: firstMessageId,
+            lastMessageId: lastMessageId,
+            synced: true,
+            lastMessage: lastNotHiddenMessage,
+          )
+          .ignore();
       return lastNotHiddenMessage;
     } else {
       return null;
@@ -587,7 +615,7 @@ class DataStreamServices {
     int pointer,
     int firstMessageId,
   ) async {
-    final fetchMessagesRes = await _queryServicesClient.fetchMessages(
+    final fetchMessagesRes = await _services.queryServiceClient.fetchMessages(
       FetchMessagesReq()
         ..roomUid = roomUid
         ..pointer = Int64(pointer)
@@ -622,7 +650,7 @@ class DataStreamServices {
     final pointer = lastMessageId;
     try {
       // TODO(hasan): Add just hidden message flag in protocol for better query to server just for hidden message of calls.
-      final fetchMessagesRes = await _queryServicesClient.fetchMessages(
+      final fetchMessagesRes = await _services.queryServiceClient.fetchMessages(
         FetchMessagesReq()
           ..roomUid = roomUid
           ..pointer = Int64(pointer)

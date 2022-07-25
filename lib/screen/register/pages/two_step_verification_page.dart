@@ -19,12 +19,12 @@ class TwoStepVerificationPage extends StatefulWidget {
   final AccessTokenRes accessTokenRes;
 
   const TwoStepVerificationPage({
-    Key? key,
+    super.key,
     required this.navigationToHomePage,
     required this.accessTokenRes,
     this.verificationCode,
     this.token,
-  }) : super(key: key);
+  });
 
   @override
   State<TwoStepVerificationPage> createState() =>
@@ -51,7 +51,7 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
     final theme = Theme.of(context);
     return FluidWidget(
       child: Scaffold(
-        backgroundColor: theme.backgroundColor,
+        backgroundColor: theme.colorScheme.background,
         floatingActionButton: FloatingActionButton(
           backgroundColor: theme.primaryColor,
           foregroundColor: theme.buttonTheme.colorScheme!.onPrimary,
@@ -106,7 +106,7 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
           },
         ),
         appBar: AppBar(
-          backgroundColor: theme.backgroundColor,
+          backgroundColor: theme.colorScheme.background,
           title: Text(
             _i18n.get("two_step_verification"),
             style: TextStyle(
@@ -148,7 +148,7 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
                     padding:
                         const EdgeInsets.only(left: 30, right: 30, bottom: 30),
                     child: StreamBuilder<bool>(
-                      stream: _showPasswordHint.stream,
+                      stream: _showPasswordHint,
                       builder: (context, snapshot) {
                         return TextField(
                           controller: _passwordController,
@@ -182,59 +182,60 @@ class _TwoStepVerificationPageState extends State<TwoStepVerificationPage> {
                           recognizer: TapGestureRecognizer()
                             ..onTap = () async {
                               await showDialog(
-                                  context: context,
-                                  builder: (c) {
-                                    return AlertDialog(
-                                      actions: [
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            Navigator.pop(c);
-                                          },
-                                          child: Text(_i18n.get("cancel")),
-                                        ),
-                                        ElevatedButton(
-                                          onPressed: () async {
-                                            await _sendEmail();
-                                          },
-                                          child: Text(_i18n.get("send_email")),
-                                        ),
-                                      ],
-                                      content: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            _i18n.get("insert_phone_number"),
-                                          ),
-                                          const SizedBox(height: 5),
-                                          Form(
-                                            key: _formKey,
-                                            child: IntlPhoneField(
-                                              controller:
-                                                  _phoneNumberController,
-                                              validator: (value) => value ==
-                                                      null
-                                                  ? _i18n.get(
-                                                      "insert_phone_number",)
-                                                  : value.length != 10 ||
-                                                          (value.isNotEmpty &&
-                                                              value[0] == '0')
-                                                      ? _i18n.get(
-                                                          "invalid_mobile_number",)
-                                                      : null,
-                                              onChanged: (p) {
-                                                phoneNumber = p;
-                                              },
-                                              onSubmitted: (p) {
-                                                phoneNumber = p;
-                                                _sendEmail();
-                                              },
-                                            ),
-                                          ),
-                                          const SizedBox(height: 15),
-                                        ],
+                                context: context,
+                                builder: (c) {
+                                  return AlertDialog(
+                                    actions: [
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(c);
+                                        },
+                                        child: Text(_i18n.get("cancel")),
                                       ),
-                                    );
-                                  },);
+                                      ElevatedButton(
+                                        onPressed: () async {
+                                          await _sendEmail();
+                                        },
+                                        child: Text(_i18n.get("send_email")),
+                                      ),
+                                    ],
+                                    content: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          _i18n.get("insert_phone_number"),
+                                        ),
+                                        const SizedBox(height: 5),
+                                        Form(
+                                          key: _formKey,
+                                          child: IntlPhoneField(
+                                            controller: _phoneNumberController,
+                                            validator: (value) => value == null
+                                                ? _i18n.get(
+                                                    "insert_phone_number",
+                                                  )
+                                                : value.length != 10 ||
+                                                        (value.isNotEmpty &&
+                                                            value[0] == '0')
+                                                    ? _i18n.get(
+                                                        "invalid_mobile_number",
+                                                      )
+                                                    : null,
+                                            onChanged: (p) {
+                                              phoneNumber = p;
+                                            },
+                                            onSubmitted: (p) {
+                                              phoneNumber = p;
+                                              _sendEmail();
+                                            },
+                                          ),
+                                        ),
+                                        const SizedBox(height: 15),
+                                      ],
+                                    ),
+                                  );
+                                },
+                              );
                             },
                         ),
                       ],

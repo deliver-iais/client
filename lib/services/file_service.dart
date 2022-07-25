@@ -5,6 +5,7 @@ import 'package:clock/clock.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/check_permissions_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/enum.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:dio/adapter.dart';
@@ -36,18 +37,28 @@ class FileService {
   Map<String, BehaviorSubject<CancelToken?>> cancelTokens = {};
 
   Future<String> get _localPath async {
-    if (await _checkPermission.checkMediaLibraryPermission() || isDesktop || isIOS) {
+    if (await _checkPermission.checkMediaLibraryPermission() ||
+        isDesktop ||
+        isIOS) {
       final directory = await getApplicationDocumentsDirectory();
-      if (!io.Directory('${directory.path}/Deliver').existsSync()) {
-        await io.Directory('${directory.path}/Deliver').create(recursive: true);
+      if (!io.Directory('${directory.path}/$APPLICATION_FOLDER_NAME')
+          .existsSync()) {
+        await io.Directory('${directory.path}/$APPLICATION_FOLDER_NAME')
+            .create(recursive: true);
       }
-      return directory.path + "/Deliver";
+      if(isWindows){
+        return "${directory.path}\\$APPLICATION_FOLDER_NAME";
+      }
+      return "${directory.path}/$APPLICATION_FOLDER_NAME";
     }
     throw Exception("There is no Storage Permission!");
   }
 
   Future<String> localFilePath(String fileUuid, String fileType) async {
     final path = await _localPath;
+    if(isWindows){
+      return '$path\\$fileUuid.$fileType';
+    }
     return '$path/$fileUuid.$fileType';
   }
 
@@ -84,8 +95,10 @@ class FileService {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
-          options.baseUrl = FileServiceBaseUrl;
+          options.baseUrl =
+              GetIt.I.get<ServicesDiscoveryRepo>().fileServiceBaseUrl;
           options.headers["Authorization"] = await _authRepo.getAccessToken();
+          options.headers["service"] = "ms-file";
 
           return handler.next(options); //continue
         },
@@ -145,14 +158,14 @@ class FileService {
       ..click();
   }
 
-  Future<io.File?> getDeliverIcon() async {
-    final file = await localFile("deliver-icon", "png");
+  Future<io.File?> getApplicationIcon() async {
+    final file = await localFile("we-icon", "png");
     if (file.existsSync()) {
       return file;
     } else {
       final res = await rootBundle
           .load('assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
-      final f = io.File("${await _localPath}/deliver-icon.png");
+      final f = io.File("${await _localPath}/we-icon.png");
       try {
         await f.writeAsBytes(res.buffer.asInt8List());
         return f;
@@ -176,6 +189,17 @@ class FileService {
         final f = io.File('$downloadDir/$name');
         await f.writeAsBytes(io.File(path).readAsBytesSync());
       }
+    } catch (_) {}
+  }
+
+  Future<void> saveFileToSpecifiedAddress(
+    String path,
+    String name,
+    String address,
+  ) async {
+    try {
+      final f = io.File(address);
+      await f.writeAsBytes(io.File(path).readAsBytesSync());
     } catch (_) {}
   }
 
@@ -220,14 +244,14 @@ class FileService {
         rawBytes: bytes,
       ); // set the input image file
       const config = Configuration(
-        outputType: ImageOutputType.jpg,
         quality: 30,
       );
 
       final param = ImageFileConfiguration(input: input, config: config);
-      final output = await compressor.compressJpg(param);
+      final output = await compressor.compressWebpThenJpg(param);
       final name = clock.now().millisecondsSinceEpoch.toString();
-      final outPutFile = await localFile(name, "jpg");
+      final extension = getExtensionFromContentType(output.contentType)!;
+      final outPutFile = await localFile(name, extension);
       outPutFile.writeAsBytesSync(output.rawBytes);
       return outPutFile.path;
     } catch (_) {
@@ -240,11 +264,12 @@ class FileService {
   ) async {
     try {
       final name = clock.now().millisecondsSinceEpoch.toString();
-      final targetFilePath = await localFilePath(name, "jpeg");
+      final targetFilePath = await localFilePath(name, "webp");
       final result = await FlutterImageCompress.compressAndGetFile(
         file.path,
         targetFilePath,
         quality: 60,
+        format: CompressFormat.webp,
       );
       if (result != null) {
         return result.path;
@@ -253,6 +278,18 @@ class FileService {
     } catch (_) {
       return file.path;
     }
+  }
+
+  String? getExtensionFromContentType(String? contentType) {
+    if (contentType == null) {
+      return null;
+    }
+    final parts = contentType.split('/');
+    if (parts.length == 2) {
+      return parts[1].toLowerCase();
+    }
+
+    return null;
   }
 
   // TODO(hasan): refactoring needed,
@@ -265,6 +302,9 @@ class FileService {
     try {
       if (!isWeb) {
         try {
+          if(isWindows){
+            filePath = filePath.replaceAll("\\", "/");
+          }
           final mediaType =
               MediaType.parse(mime(filePath) ?? filePath).toString();
           if (mediaType.contains("image") && !mediaType.endsWith("/gif")) {
@@ -298,6 +338,9 @@ class FileService {
             filePath,
             contentType:
                 MediaType.parse(mime(filePath) ?? "application/octet-stream"),
+            headers: {
+              Headers.contentLengthHeader: [(File(filePath).lengthSync()).toString()], // set content-length
+            },
           )
         });
       }
@@ -306,12 +349,14 @@ class FileService {
         InterceptorsWrapper(
           onRequest: (options, handler) async {
             options.onSendProgress = (i, j) {
-              sendActivity?.call(i);
-              if (filesProgressBarStatus[uploadKey] == null) {
-                final d = BehaviorSubject<double>();
-                filesProgressBarStatus[uploadKey] = d;
+              if (i / j < 1) {
+                sendActivity?.call(i);
+                if (filesProgressBarStatus[uploadKey] == null) {
+                  final d = BehaviorSubject<double>();
+                  filesProgressBarStatus[uploadKey] = d;
+                }
+                filesProgressBarStatus[uploadKey]!.add((i / j));
               }
-              filesProgressBarStatus[uploadKey]!.add((i / j));
             };
             handler.next(options);
           },
@@ -353,6 +398,7 @@ class FileService {
         format == "apk" ||
         format == "mkv" ||
         format == "jfif" ||
-        format == "webm";
+        format == "webm" ||
+        format == "webp";
   }
 }

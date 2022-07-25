@@ -1,21 +1,21 @@
-import 'dart:math';
-
+import 'package:collection/collection.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/screen/room/messageWidgets/link_preview.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
-import 'package:deliver/shared/methods/url.dart';
+import 'package:deliver/shared/parsers/detectors.dart';
+import 'package:deliver/shared/parsers/parsers.dart';
+import 'package:deliver/shared/parsers/transformers.dart';
 import 'package:deliver/theme/color_scheme.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:get_it/get_it.dart';
+import 'package:rxdart/rxdart.dart';
 
-class TextUI extends StatelessWidget {
+class TextUI extends StatefulWidget {
   final Message message;
   final double maxWidth;
   final double minWidth;
@@ -27,8 +27,11 @@ class TextUI extends StatelessWidget {
   final bool isBotMessage;
   final CustomColorScheme colorScheme;
 
+  final List<Block> blocks;
+  final String text;
+
   TextUI({
-    Key? key,
+    super.key,
     required this.message,
     required this.maxWidth,
     required this.colorScheme,
@@ -39,70 +42,13 @@ class TextUI extends StatelessWidget {
     this.isSeen = false,
     this.searchTerm,
   })  : isBotMessage = message.roomUid.asUid().isBot(),
-        super(key: key);
+        text = _extractText(message),
+        blocks = onePathMultiDetection(
+          [Block(text: _extractText(message), features: {})],
+          detectorsWithSearchTermDetector(),
+        );
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
-    final text = extractText(message);
-    final blocks = extractBlocks(text, context);
-    final spans = blocks.map<TextSpan>((b) {
-      return TextSpan(
-        text: b.text,
-        style: b.style,
-        recognizer: (b.onTap != null)
-            ? (TapGestureRecognizer()..onTap = () => b.onTap!(b.text))
-            : null,
-      );
-    }).toList();
-    String link;
-    try {
-      link = blocks.firstWhere((b) => b.type == "url").text;
-    } catch (e) {
-      link = "";
-    }
-
-    final double linkPreviewMaxWidth = min(
-      blocks
-              .map((b) => b.text.length)
-              .reduce((value, element) => value < element ? element : value) *
-          6.85,
-      maxWidth,
-    );
-
-    return Container(
-      constraints: BoxConstraints(maxWidth: maxWidth, minWidth: minWidth),
-      padding: const EdgeInsets.only(top: 8, right: 8, left: 8),
-      child: Column(
-        crossAxisAlignment:
-            isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-        textDirection: isSender ? TextDirection.ltr : TextDirection.rtl,
-        children: [
-          RichText(
-            text: TextSpan(children: spans, style: theme.textTheme.bodyText2),
-            textDirection:
-                text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
-          ),
-          LinkPreview(
-            link: link,
-            maxWidth: linkPreviewMaxWidth,
-            backgroundColor:
-                Theme.of(context).colorScheme.shadow.withOpacity(0.1),
-            foregroundColor: colorScheme.primary,
-          ),
-          TimeAndSeenStatus(
-            message,
-            isSender: isSender,
-            isSeen: isSeen,
-            needsPositioned: false,
-          )
-        ],
-      ),
-    );
-  }
-
-  String extractText(Message msg) {
+  static String _extractText(Message msg) {
     if (msg.type == MessageType.TEXT) {
       return msg.json.toText().text.trim();
     } else if (msg.type == MessageType.FILE) {
@@ -112,228 +58,108 @@ class TextUI extends StatelessWidget {
     }
   }
 
-  List<Block> extractBlocks(String text, BuildContext context) {
-    var blocks = <Block>[
-      Block(text: text, style: TextStyle(color: colorScheme.onPrimaryContainer))
-    ];
-    final parsers = <Parser>[
-      EmojiParser(),
-      if (searchTerm != null && searchTerm!.isNotEmpty)
-        SearchTermParser(searchTerm!),
-      UrlParser(),
-      IdParser(onUsernameClick),
-      if (isBotMessage) BotCommandParser(onBotCommandClick),
-      BoldTextParser(),
-      ItalicTextParser()
-    ];
+  @override
+  State<TextUI> createState() => _TextUIState();
+}
 
-    for (final p in parsers) {
-      blocks = p.parse(blocks, context);
-    }
+class _TextUIState extends State<TextUI> {
+  final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
+  final _textBoxKey = GlobalKey();
 
-    return blocks;
+  final _textBoxWidth = BehaviorSubject.seeded(0.0);
+  String _link = "";
+
+  @override
+  void initState() {
+    _link = widget.blocks
+            .firstWhere(
+              (b) => b.features.whereType<UrlFeature>().isNotEmpty,
+              orElse: () => const Block(text: "", features: {}),
+            )
+            .features
+            .whereType<UrlFeature>()
+            .firstOrNull
+            ?.url ??
+        "";
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        _textBoxWidth.add(_textBoxKey.currentContext?.size?.width ?? 0);
+      }
+    });
+
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
+    final spans = onePathTransform(
+      widget.blocks,
+      inlineSpanTransformer(
+        defaultColor: widget.colorScheme.onPrimaryContainer,
+        linkColor: theme.colorScheme.primary,
+        onIdClick: widget.onUsernameClick,
+        onBotCommandClick: widget.onBotCommandClick,
+        onUrlClick: (text) => _urlHandlerService.onUrlTap(text, context),
+      ),
+    );
+
+    return Container(
+      constraints:
+          BoxConstraints(maxWidth: widget.maxWidth, minWidth: widget.minWidth),
+      padding: const EdgeInsets.only(top: 8, right: 8, left: 8),
+      child: Column(
+        crossAxisAlignment:
+            widget.isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        textDirection: widget.isSender ? TextDirection.ltr : TextDirection.rtl,
+        children: [
+          Container(
+            key: _textBoxKey,
+            child: RichText(
+              text: TextSpan(children: spans, style: theme.textTheme.bodyText2),
+              textDirection: widget.text.isPersian()
+                  ? TextDirection.rtl
+                  : TextDirection.ltr,
+            ),
+          ),
+          StreamBuilder<double>(
+            stream: _textBoxWidth,
+            builder: (context, snapshot) {
+              return LinkPreview(
+                link: _link,
+                maxWidth: snapshot.data ?? 0,
+                backgroundColor:
+                    Theme.of(context).colorScheme.shadow.withOpacity(0.1),
+                foregroundColor: widget.colorScheme.primary,
+              );
+            },
+          ),
+          TimeAndSeenStatus(
+            widget.message,
+            isSender: widget.isSender,
+            isSeen: widget.isSeen,
+            needsPositioned: false,
+          )
+        ],
+      ),
+    );
   }
 }
 
-abstract class Parser {
-  List<Block> parse(List<Block> blocks, BuildContext context);
+String synthesizeToOriginalWord(String text) {
+  return text
+      .replaceAll("\\*", "*")
+      .replaceAll("\\_", "_")
+      .replaceAll("\\||", "||")
+      .replaceAll("\\~", "~");
 }
 
-class UrlParser implements Parser {
-  final RegExp regex = RegExp(
-    r"(https?:\/\/(www\.)?)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)",
-  );
-
-  @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
-        blocks,
-        regex,
-        "url",
-        onTap: (uri) async {
-          if (uri.contains("$APPLICATION_DOMAIN/$JOIN") ||
-              uri.contains("$APPLICATION_DOMAIN/$SPDA") ||
-              uri.contains("$APPLICATION_DOMAIN/$TEXT")) {
-            await handleJoinUri(context, uri);
-          } else {
-            await launch(uri);
-          }
-        },
-        style: TextStyle(color: Theme.of(context).primaryColor),
-      );
-}
-
-class IdParser implements Parser {
-  final void Function(String) onUsernameClick;
-  final RegExp regex = RegExp(r"[@][a-zA-Z]([a-zA-Z0-9_]){4,19}");
-
-  IdParser(this.onUsernameClick);
-
-  @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
-        blocks,
-        regex,
-        "id",
-        onTap: (id) => onUsernameClick(id),
-        style: TextStyle(color: Theme.of(context).primaryColor),
-      );
-}
-
-class BoldTextParser implements Parser {
-  final RegExp regex = RegExp(r"\*\*(.+)\*\*", dotAll: true);
-
-  static String transformer(String m) => m.replaceAll("**", "");
-
-  @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
-        blocks,
-        regex,
-        "bold",
-        transformer: BoldTextParser.transformer,
-        style: const TextStyle(fontWeight: FontWeight.w800),
-      );
-}
-
-class ItalicTextParser implements Parser {
-  final RegExp regex = RegExp(r"__(.+)__", dotAll: true);
-
-  static String transformer(String m) => m.replaceAll("__", "");
-
-  @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
-        blocks,
-        regex,
-        "italic",
-        transformer: ItalicTextParser.transformer,
-        style: const TextStyle(fontStyle: FontStyle.italic),
-      );
-}
-
-class EmojiParser implements Parser {
-  final double fontSize;
-  final RegExp regex = RegExp(
-    r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff])+',
-  );
-
-  EmojiParser({this.fontSize = 18});
-
-  @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
-        blocks,
-        regex,
-        "emoji",
-        style: GoogleFonts.notoColorEmojiCompat(fontSize: fontSize),
-      );
-}
-
-class BotCommandParser implements Parser {
-  final void Function(String) onBotCommandClick;
-  final RegExp regex = RegExp(r"[/]([a-zA-Z0-9_-]){5,40}");
-
-  BotCommandParser(this.onBotCommandClick);
-
-  @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
-        blocks,
-        regex,
-        "bot",
-        onTap: (id) => onBotCommandClick(id),
-        style: TextStyle(color: Theme.of(context).primaryColor),
-      );
-}
-
-class SearchTermParser implements Parser {
-  final String searchTerm;
-
-  SearchTermParser(this.searchTerm);
-
-  @override
-  List<Block> parse(List<Block> blocks, BuildContext context) => parseBlocks(
-        blocks,
-        RegExp(searchTerm),
-        "search",
-        style: TextStyle(color: Theme.of(context).primaryColor),
-      );
-}
-
-class Block {
-  final String text;
-  final bool locked;
-  final void Function(String)? onTap;
-  final TextStyle? style;
-  final String? type;
-
-  Block({
-    required this.text,
-    this.locked = false,
-    this.onTap,
-    this.style,
-    this.type,
-  });
-}
-
-List<Block> parseBlocks(
-  List<Block> blocks,
-  RegExp regex,
-  String type, {
-  void Function(String)? onTap,
-  TextStyle? style,
-  String Function(String) transformer = same,
-}) =>
-    flatten(
-      blocks.map<Iterable<Block>>((b) {
-        if (b.locked) {
-          return [b];
-        } else {
-          return parseText(
-            b.text,
-            regex,
-            onTap,
-            style!,
-            type,
-            transformer: transformer,
-          );
-        }
-      }),
-    ).toList();
-
-List<Block> parseText(
-  String text,
-  RegExp regex,
-  void Function(String)? onTap,
-  TextStyle style,
-  String type, {
-  String Function(String) transformer = same,
-}) {
-  var start = 0;
-
-  final matches = regex.allMatches(text);
-
-  final result = <Block>[];
-
-  for (final match in matches) {
-    result
-      ..add(Block(text: transformer(text.substring(start, match.start))))
-      ..add(
-        Block(
-          text: transformer(match[0]!),
-          onTap: onTap,
-          style: style,
-          type: type,
-          locked: true,
-        ),
-      );
-    start = match.end;
-  }
-
-  result.add(Block(text: transformer(text.substring(start))));
-
-  return result;
-}
-
-String same(String m) => m;
-
-Iterable<T> flatten<T>(Iterable<Iterable<T>> items) sync* {
-  for (final i in items) {
-    yield* i;
-  }
+String synthesize(String text) {
+  return text
+      .replaceAll("*", "\\*")
+      .replaceAll("_", "\\_")
+      .replaceAll("||", "\\||")
+      .replaceAll("~", "\\~");
 }

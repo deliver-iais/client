@@ -28,13 +28,13 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
   static final _i18n = GetIt.I.get<I18N>();
 
   const SharePrivateDataRequestMessageWidget({
-    Key? key,
+    super.key,
     required this.message,
     required this.isSender,
     required this.maxWidth,
     required this.colorScheme,
     required this.isSeen,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -82,10 +82,10 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
               margin: const EdgeInsets.all(4.0),
               constraints: const BoxConstraints(minHeight: 35),
               width: maxWidth,
-              child: TextButton(
-                style: TextButton.styleFrom(
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
                   primary: colorScheme.primary,
-                  backgroundColor: colorScheme.onPrimary,
+                  onPrimary: colorScheme.onPrimary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -151,7 +151,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
     BuildContext context,
   ) async {
     final res = <File>[];
-    final types = sharePrivateDataRequest.fileTypeFilter.memeTypeFilter;
+    final types = sharePrivateDataRequest.fileMemeTypeFilters;
     if (isLinux) {
       final typeGroup = <XTypeGroup>[];
       for (final type in types) {
@@ -222,7 +222,6 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                         : _i18n.get("access_username"),
             style: const TextStyle(fontSize: 16),
           ),
-          actionsPadding: const EdgeInsets.only(right: 8, bottom: 8),
           actions: [
             TextButton(
               style: TextButton.styleFrom(
@@ -235,7 +234,6 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
               onPressed: () => Navigator.pop(c),
             ),
             TextButton(
-              child: Text(_i18n.get("ok")),
               style: TextButton.styleFrom(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
@@ -249,6 +247,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
                 );
                 Navigator.pop(c);
               },
+              child: Text(_i18n.get("ok")),
             ),
           ],
         );

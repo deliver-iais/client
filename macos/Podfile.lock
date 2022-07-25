@@ -1,36 +1,43 @@
 PODS:
-  - audioplayers (0.0.1):
+  - audio_session (0.0.1):
     - FlutterMacOS
+  - audioplayers_darwin (0.0.1):
+    - FlutterMacOS
+  - connectivity_plus_macos (0.0.1):
+    - FlutterMacOS
+    - ReachabilitySwift
   - desktop_drop (0.0.1):
     - FlutterMacOS
   - desktop_lifecycle (0.0.1):
     - FlutterMacOS
   - desktop_window (0.0.1):
     - FlutterMacOS
-  - Firebase/Analytics (8.11.0):
+  - file_selector_macos (0.0.1):
+    - FlutterMacOS
+  - Firebase/Analytics (8.15.0):
     - Firebase/Core
-  - Firebase/Core (8.11.0):
+  - Firebase/Core (8.15.0):
     - Firebase/CoreOnly
-    - FirebaseAnalytics (~> 8.11.0)
-  - Firebase/CoreOnly (8.11.0):
-    - FirebaseCore (= 8.11.0)
-  - Firebase/Messaging (8.11.0):
+    - FirebaseAnalytics (~> 8.15.0)
+  - Firebase/CoreOnly (8.15.0):
+    - FirebaseCore (= 8.15.0)
+  - Firebase/Messaging (8.15.0):
     - Firebase/CoreOnly
-    - FirebaseMessaging (~> 8.11.0)
-  - firebase_analytics (9.1.8):
-    - Firebase/Analytics (= 8.11.0)
+    - FirebaseMessaging (~> 8.15.0)
+  - firebase_analytics (9.1.10):
+    - Firebase/Analytics (= 8.15.0)
     - firebase_core
     - FlutterMacOS
-  - firebase_core (1.12.0):
-    - Firebase/CoreOnly (~> 8.11.0)
+  - firebase_core (1.18.0):
+    - Firebase/CoreOnly (~> 8.15.0)
     - FlutterMacOS
-  - firebase_messaging (11.3.0):
-    - Firebase/CoreOnly (~> 8.11.0)
-    - Firebase/Messaging (~> 8.11.0)
+  - firebase_messaging (11.4.2):
+    - Firebase/CoreOnly (~> 8.15.0)
+    - Firebase/Messaging (~> 8.15.0)
     - firebase_core
     - FlutterMacOS
-  - FirebaseAnalytics (8.11.0):
-    - FirebaseAnalytics/AdIdSupport (= 8.11.0)
+  - FirebaseAnalytics (8.15.0):
+    - FirebaseAnalytics/AdIdSupport (= 8.15.0)
     - FirebaseCore (~> 8.0)
     - FirebaseInstallations (~> 8.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 7.7)
@@ -38,16 +45,16 @@ PODS:
     - GoogleUtilities/Network (~> 7.7)
     - "GoogleUtilities/NSData+zlib (~> 7.7)"
     - nanopb (~> 2.30908.0)
-  - FirebaseAnalytics/AdIdSupport (8.11.0):
+  - FirebaseAnalytics/AdIdSupport (8.15.0):
     - FirebaseCore (~> 8.0)
     - FirebaseInstallations (~> 8.0)
-    - GoogleAppMeasurement (= 8.11.0)
+    - GoogleAppMeasurement (= 8.15.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 7.7)
     - GoogleUtilities/MethodSwizzler (~> 7.7)
     - GoogleUtilities/Network (~> 7.7)
     - "GoogleUtilities/NSData+zlib (~> 7.7)"
     - nanopb (~> 2.30908.0)
-  - FirebaseCore (8.11.0):
+  - FirebaseCore (8.15.0):
     - FirebaseCoreDiagnostics (~> 8.0)
     - GoogleUtilities/Environment (~> 7.7)
     - GoogleUtilities/Logger (~> 7.7)
@@ -61,7 +68,7 @@ PODS:
     - GoogleUtilities/Environment (~> 7.7)
     - GoogleUtilities/UserDefaults (~> 7.7)
     - PromisesObjC (< 3.0, >= 1.2)
-  - FirebaseMessaging (8.11.0):
+  - FirebaseMessaging (8.15.0):
     - FirebaseCore (~> 8.0)
     - FirebaseInstallations (~> 8.0)
     - GoogleDataTransport (~> 9.1)
@@ -74,33 +81,33 @@ PODS:
     - FlutterMacOS
   - flutter_webrtc (0.7.1):
     - FlutterMacOS
-    - WebRTC-SDK (= 97.4692.02)
+    - WebRTC-SDK (= 97.4692.05)
   - FlutterMacOS (1.0.0)
   - geolocator_apple (1.2.0):
     - FlutterMacOS
-  - GoogleAppMeasurement (8.11.0):
-    - GoogleAppMeasurement/AdIdSupport (= 8.11.0)
+  - GoogleAppMeasurement (8.15.0):
+    - GoogleAppMeasurement/AdIdSupport (= 8.15.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 7.7)
     - GoogleUtilities/MethodSwizzler (~> 7.7)
     - GoogleUtilities/Network (~> 7.7)
     - "GoogleUtilities/NSData+zlib (~> 7.7)"
     - nanopb (~> 2.30908.0)
-  - GoogleAppMeasurement/AdIdSupport (8.11.0):
-    - GoogleAppMeasurement/WithoutAdIdSupport (= 8.11.0)
+  - GoogleAppMeasurement/AdIdSupport (8.15.0):
+    - GoogleAppMeasurement/WithoutAdIdSupport (= 8.15.0)
     - GoogleUtilities/AppDelegateSwizzler (~> 7.7)
     - GoogleUtilities/MethodSwizzler (~> 7.7)
     - GoogleUtilities/Network (~> 7.7)
     - "GoogleUtilities/NSData+zlib (~> 7.7)"
     - nanopb (~> 2.30908.0)
-  - GoogleAppMeasurement/WithoutAdIdSupport (8.11.0):
+  - GoogleAppMeasurement/WithoutAdIdSupport (8.15.0):
     - GoogleUtilities/AppDelegateSwizzler (~> 7.7)
     - GoogleUtilities/MethodSwizzler (~> 7.7)
     - GoogleUtilities/Network (~> 7.7)
     - "GoogleUtilities/NSData+zlib (~> 7.7)"
     - nanopb (~> 2.30908.0)
-  - GoogleDataTransport (9.1.2):
-    - GoogleUtilities/Environment (~> 7.2)
-    - nanopb (~> 2.30908.0)
+  - GoogleDataTransport (9.1.4):
+    - GoogleUtilities/Environment (~> 7.7)
+    - nanopb (< 2.30910.0, >= 2.30908.0)
     - PromisesObjC (< 3.0, >= 1.2)
   - GoogleUtilities/AppDelegateSwizzler (7.7.0):
     - GoogleUtilities/Environment
@@ -123,13 +130,15 @@ PODS:
     - GoogleUtilities/Logger
   - image_compression_flutter (1.0.0):
     - FlutterMacOS
+  - just_audio (0.0.1):
+    - FlutterMacOS
+  - mobile_scanner (0.0.1):
+    - FlutterMacOS
   - nanopb (2.30908.0):
     - nanopb/decode (= 2.30908.0)
     - nanopb/encode (= 2.30908.0)
   - nanopb/decode (2.30908.0)
   - nanopb/encode (2.30908.0)
-  - package_info_plus_macos (0.0.1):
-    - FlutterMacOS
   - pasteboard (0.0.1):
     - FlutterMacOS
   - path_provider_macos (0.0.1):
@@ -137,22 +146,28 @@ PODS:
   - photo_manager (2.0.0):
     - Flutter
     - FlutterMacOS
-  - PromisesObjC (2.1.0)
+  - PromisesObjC (2.1.1)
+  - ReachabilitySwift (5.0.0)
+  - record_macos (1.0.0):
+    - FlutterMacOS
   - shared_preferences_macos (0.0.1):
     - FlutterMacOS
   - url_launcher_macos (0.0.1):
     - FlutterMacOS
   - wakelock_macos (0.0.1):
     - FlutterMacOS
-  - WebRTC-SDK (97.4692.02)
+  - WebRTC-SDK (97.4692.05)
   - window_size (0.0.2):
     - FlutterMacOS
 
 DEPENDENCIES:
-  - audioplayers (from `Flutter/ephemeral/.symlinks/plugins/audioplayers/macos`)
+  - audio_session (from `Flutter/ephemeral/.symlinks/plugins/audio_session/macos`)
+  - audioplayers_darwin (from `Flutter/ephemeral/.symlinks/plugins/audioplayers_darwin/macos`)
+  - connectivity_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/connectivity_plus_macos/macos`)
   - desktop_drop (from `Flutter/ephemeral/.symlinks/plugins/desktop_drop/macos`)
   - desktop_lifecycle (from `Flutter/ephemeral/.symlinks/plugins/desktop_lifecycle/macos`)
   - desktop_window (from `Flutter/ephemeral/.symlinks/plugins/desktop_window/macos`)
+  - file_selector_macos (from `Flutter/ephemeral/.symlinks/plugins/file_selector_macos/macos`)
   - firebase_analytics (from `Flutter/ephemeral/.symlinks/plugins/firebase_analytics/macos`)
   - firebase_core (from `Flutter/ephemeral/.symlinks/plugins/firebase_core/macos`)
   - firebase_messaging (from `Flutter/ephemeral/.symlinks/plugins/firebase_messaging/macos`)
@@ -161,10 +176,12 @@ DEPENDENCIES:
   - FlutterMacOS (from `Flutter/ephemeral`)
   - geolocator_apple (from `Flutter/ephemeral/.symlinks/plugins/geolocator_apple/macos`)
   - image_compression_flutter (from `Flutter/ephemeral/.symlinks/plugins/image_compression_flutter/macos`)
-  - package_info_plus_macos (from `Flutter/ephemeral/.symlinks/plugins/package_info_plus_macos/macos`)
+  - just_audio (from `Flutter/ephemeral/.symlinks/plugins/just_audio/macos`)
+  - mobile_scanner (from `Flutter/ephemeral/.symlinks/plugins/mobile_scanner/macos`)
   - pasteboard (from `Flutter/ephemeral/.symlinks/plugins/pasteboard/macos`)
   - path_provider_macos (from `Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos`)
   - photo_manager (from `Flutter/ephemeral/.symlinks/plugins/photo_manager/macos`)
+  - record_macos (from `Flutter/ephemeral/.symlinks/plugins/record_macos/macos`)
   - shared_preferences_macos (from `Flutter/ephemeral/.symlinks/plugins/shared_preferences_macos/macos`)
   - url_launcher_macos (from `Flutter/ephemeral/.symlinks/plugins/url_launcher_macos/macos`)
   - wakelock_macos (from `Flutter/ephemeral/.symlinks/plugins/wakelock_macos/macos`)
@@ -183,17 +200,24 @@ SPEC REPOS:
     - GoogleUtilities
     - nanopb
     - PromisesObjC
+    - ReachabilitySwift
     - WebRTC-SDK
 
 EXTERNAL SOURCES:
-  audioplayers:
-    :path: Flutter/ephemeral/.symlinks/plugins/audioplayers/macos
+  audio_session:
+    :path: Flutter/ephemeral/.symlinks/plugins/audio_session/macos
+  audioplayers_darwin:
+    :path: Flutter/ephemeral/.symlinks/plugins/audioplayers_darwin/macos
+  connectivity_plus_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/connectivity_plus_macos/macos
   desktop_drop:
     :path: Flutter/ephemeral/.symlinks/plugins/desktop_drop/macos
   desktop_lifecycle:
     :path: Flutter/ephemeral/.symlinks/plugins/desktop_lifecycle/macos
   desktop_window:
     :path: Flutter/ephemeral/.symlinks/plugins/desktop_window/macos
+  file_selector_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/file_selector_macos/macos
   firebase_analytics:
     :path: Flutter/ephemeral/.symlinks/plugins/firebase_analytics/macos
   firebase_core:
@@ -210,14 +234,18 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/geolocator_apple/macos
   image_compression_flutter:
     :path: Flutter/ephemeral/.symlinks/plugins/image_compression_flutter/macos
-  package_info_plus_macos:
-    :path: Flutter/ephemeral/.symlinks/plugins/package_info_plus_macos/macos
+  just_audio:
+    :path: Flutter/ephemeral/.symlinks/plugins/just_audio/macos
+  mobile_scanner:
+    :path: Flutter/ephemeral/.symlinks/plugins/mobile_scanner/macos
   pasteboard:
     :path: Flutter/ephemeral/.symlinks/plugins/pasteboard/macos
   path_provider_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/path_provider_macos/macos
   photo_manager:
     :path: Flutter/ephemeral/.symlinks/plugins/photo_manager/macos
+  record_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/record_macos/macos
   shared_preferences_macos:
     :path: Flutter/ephemeral/.symlinks/plugins/shared_preferences_macos/macos
   url_launcher_macos:
@@ -228,37 +256,43 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/window_size/macos
 
 SPEC CHECKSUMS:
-  audioplayers: 8b48e22684b6e0d9df143b2d1bbd61dca9dab6b4
+  audio_session: dea1f41890dbf1718f04a56f1d6150fd50039b72
+  audioplayers_darwin: dcad41de4fbd0099cb3749f7ab3b0cb8f70b810c
+  connectivity_plus_macos: f6e86fd000e971d361e54b5afcadc8c8fa773308
   desktop_drop: 69eeff437544aa619c8db7f4481b3a65f7696898
   desktop_lifecycle: a600c10e12fe033c7be9078f2e929b8241f2c1e3
   desktop_window: fb7c4f12c1129f947ac482296b6f14059d57a3c3
-  Firebase: 44dd9724c84df18b486639e874f31436eaa9a20c
-  firebase_analytics: 5fea14b6b3ba3f55095b7a0749a3d02cd85d0f72
-  firebase_core: 76a7538b389ae1231102dbbdd4f3772eec9abbf8
-  firebase_messaging: e122c0ea06ba99565f5fcfc0a6e706870949c769
-  FirebaseAnalytics: 4e4b13031034e6561ed3bd1d47b6fdabbd6487c6
-  FirebaseCore: 2f4f85b453cc8fea4bb2b37e370007d2bcafe3f0
+  file_selector_macos: f1b08a781e66103e3ba279fd5d4024a2478b3af6
+  Firebase: 5f8193dff4b5b7c5d5ef72ae54bb76c08e2b841d
+  firebase_analytics: c696c58a67a371037424a3b81fc239ef1cffd102
+  firebase_core: 24364051f4ce5f24266ee4ff4b808d02abd4afb5
+  firebase_messaging: 0012630ee5a101897c27fe7328ab59820a943456
+  FirebaseAnalytics: 7761cbadb00a717d8d0939363eb46041526474fa
+  FirebaseCore: 5743c5785c074a794d35f2fff7ecc254a91e08b1
   FirebaseCoreDiagnostics: 92e07a649aeb66352b319d43bdd2ee3942af84cb
   FirebaseInstallations: 40bd9054049b2eae9a2c38ef1c3dd213df3605cd
-  FirebaseMessaging: 02e248e8997f71fa8cc9d78e9d49ec1a701ba14a
+  FirebaseMessaging: 5e5118a2383b3531e730d974680954c679ca0a13
   flutter_local_notifications: 3805ca215b2fb7f397d78b66db91f6a747af52e4
-  flutter_webrtc: c2777e19d2884b54e0974f61a7eea8939f17ca4a
+  flutter_webrtc: 37c4efd66d9d306878c1323d5ac5a1d10c748b3a
   FlutterMacOS: 57701585bf7de1b3fc2bb61f6378d73bbdea8424
   geolocator_apple: 72a78ae3f3e4ec0db62117bd93e34523f5011d58
-  GoogleAppMeasurement: aa3cb422fab2b05d2efac543a5720d1a85b9dea5
-  GoogleDataTransport: 629c20a4d363167143f30ea78320d5a7eb8bd940
+  GoogleAppMeasurement: 4c19f031220c72464d460c9daa1fb5d1acce958e
+  GoogleDataTransport: 5fffe35792f8b96ec8d6775f5eccd83c998d5a3b
   GoogleUtilities: e0913149f6b0625b553d70dae12b49fc62914fd1
   image_compression_flutter: 8a67d9fb207a804ddc10d7fd6bc3f2359dbdc34a
+  just_audio: 9b67ca7b97c61cfc9784ea23cd8cc55eb226d489
+  mobile_scanner: 35dc92ffdbd7934b0dbc411b1c731bc2ef23c2dc
   nanopb: a0ba3315591a9ae0a16a309ee504766e90db0c96
-  package_info_plus_macos: f010621b07802a241d96d01876d6705f15e77c1c
   pasteboard: 9b69dba6fedbb04866be632205d532fe2f6b1d99
   path_provider_macos: 3c0c3b4b0d4a76d2bf989a913c2de869c5641a19
   photo_manager: 4f6810b7dfc4feb03b461ac1a70dacf91fba7604
-  PromisesObjC: 99b6f43f9e1044bd87a95a60beff28c2c44ddb72
+  PromisesObjC: ab77feca74fa2823e7af4249b8326368e61014cb
+  ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
+  record_macos: dcf4f2bb654970437e012521cb4ea1fca4f78bb9
   shared_preferences_macos: a64dc611287ed6cbe28fd1297898db1336975727
   url_launcher_macos: 597e05b8e514239626bcf4a850fcf9ef5c856ec3
   wakelock_macos: bc3f2a9bd8d2e6c89fee1e1822e7ddac3bd004a9
-  WebRTC-SDK: dda4e50186f9eed672dc6bcf4faafb30c6ce48e3
+  WebRTC-SDK: a6ee40bda0e3f7dba057907c3897374005c5715b
   window_size: 339dafa0b27a95a62a843042038fa6c3c48de195
 
 PODFILE CHECKSUM: 0d3963a09fc94f580682bd88480486da345dc3f0

@@ -24,16 +24,16 @@ class ImageTabUi extends StatefulWidget {
   const ImageTabUi(
     this.imagesCount,
     this.roomUid, {
-    Key? key,
+    super.key,
     required this.addSelectedMedia,
     required this.selectedMedia,
-  }) : super(key: key);
+  });
 
   @override
-  _ImageTabUiState createState() => _ImageTabUiState();
+  ImageTabUiState createState() => ImageTabUiState();
 }
 
-class _ImageTabUiState extends State<ImageTabUi> {
+class ImageTabUiState extends State<ImageTabUi> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
@@ -94,7 +94,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
-          width: widget.selectedMedia.isEmpty ? 2 : 6,
+          width: widget.selectedMedia.contains(media) ? 10 : 2,
         ),
       ),
       child: Stack(
@@ -112,6 +112,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
                 if (filePath.hasData && filePath.data != null) {
                   return Hero(
                     tag: json["uuid"],
+                    transitionOnUserGestures: true,
                     child: Container(
                       decoration: BoxDecoration(
                         image: DecorationImage(
@@ -124,7 +125,6 @@ class _ImageTabUiState extends State<ImageTabUi> {
                         ),
                       ),
                     ),
-                    transitionOnUserGestures: true,
                   );
                 } else {
                   return SizedBox(child: BlurHash(hash: json["blurHash"]));
@@ -138,8 +138,8 @@ class _ImageTabUiState extends State<ImageTabUi> {
               child: IconButton(
                 onPressed: () => widget.addSelectedMedia(media),
                 icon: Container(
-                  width: 25,
-                  height: 25,
+                  width: 28,
+                  height: 28,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(24),
                     color: Theme.of(context).hoverColor.withOpacity(0.5),
@@ -150,7 +150,7 @@ class _ImageTabUiState extends State<ImageTabUi> {
                           ? Icons.check_circle_outline
                           : Icons.panorama_fish_eye,
                       color: Colors.white,
-                      size: 25,
+                      size: 28,
                     ),
                   ),
                 ),

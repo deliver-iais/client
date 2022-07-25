@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:clock/clock.dart';
 import 'package:custom_image_crop/custom_image_crop.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +15,7 @@ class CropImage extends StatefulWidget {
   final String imagePath;
   final void Function(String) crop;
 
-  const CropImage(this.imagePath, this.crop, {Key? key}) : super(key: key);
+  const CropImage(this.imagePath, this.crop, {super.key});
 
   @override
   State<CropImage> createState() => _CropImageState();
@@ -36,6 +37,7 @@ class _CropImageState extends State<CropImage> {
   }
 
   final _fileServices = GetIt.I.get<FileService>();
+  final _i18n = GetIt.I.get<I18N>();
 
   MemoryImage? memoryImage;
   final BehaviorSubject<bool> _startCrop = BehaviorSubject.seeded(false);
@@ -44,10 +46,10 @@ class _CropImageState extends State<CropImage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("crop"),
+        title: Text(_i18n.get("cropper")),
         actions: [
           StreamBuilder<bool?>(
-            stream: _startCrop.stream,
+            stream: _startCrop,
             builder: (c, s) {
               if (s.hasData && s.data != null && s.data!) {
                 return const SizedBox.shrink();
@@ -93,7 +95,7 @@ class _CropImageState extends State<CropImage> {
                   shape: CustomCropShape.Square,
                 ),
                 StreamBuilder<bool?>(
-                  stream: _startCrop.stream,
+                  stream: _startCrop,
                   builder: (c, s) {
                     if (s.hasData && s.data != null && s.data!) {
                       return const Center(
@@ -107,7 +109,7 @@ class _CropImageState extends State<CropImage> {
             ),
           ),
           StreamBuilder<bool?>(
-            stream: _startCrop.stream,
+            stream: _startCrop,
             builder: (c, s) {
               if (s.hasData && s.data != null && !s.data!) {
                 return Row(

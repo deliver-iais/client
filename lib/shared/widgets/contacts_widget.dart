@@ -1,4 +1,5 @@
 import 'package:deliver/box/contact.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -12,29 +13,62 @@ class ContactWidget extends StatelessWidget {
   final bool currentMember;
 
   const ContactWidget({
-    Key? key,
+    super.key,
     required this.contact,
     this.circleIcon,
     this.isSelected = false,
     this.currentMember = false,
     this.onCircleIcon,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Container(
+    return AnimatedContainer(
+      duration: SLOW_ANIMATION_DURATION,
+      clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
-        color: isSelected ? theme.focusColor : null,
+        borderRadius: messageBorder,
+        border: Border.all(color: theme.colorScheme.outline),
+        color: isSelected
+            ? theme.colorScheme.primaryContainer
+            : theme.colorScheme.surface,
       ),
-      padding: const EdgeInsets.all(8),
+      margin: const EdgeInsets.all(8),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
-          CircleAvatarWidget(
-            contact.uid.asUid(),
-            23,
-            showSavedMessageLogoIfNeeded: true,
+          Stack(
+            children: [
+              if (contact.uid != null)
+                CircleAvatarWidget(
+                  contact.uid!.asUid(),
+                  37,
+                  borderRadius: secondaryBorder,
+                  showSavedMessageLogoIfNeeded: true,
+                ),
+              AnimatedOpacity(
+                duration: ANIMATION_DURATION,
+                opacity: isSelected ? 1 : 0,
+                child: AnimatedScale(
+                  duration: ANIMATION_DURATION,
+                  scale: isSelected ? 1 : 0.8,
+                  child: Container(
+                    height: 74,
+                    width: 74,
+                    decoration: BoxDecoration(
+                      borderRadius: secondaryBorder,
+                      color: theme.colorScheme.primary.withOpacity(0.6),
+                    ),
+                    child: Icon(
+                      Icons.check_box_rounded,
+                      color: theme.colorScheme.onPrimary,
+                      size: 40,
+                    ),
+                  ),
+                ),
+              )
+            ],
           ),
           const SizedBox(
             width: 15,
@@ -49,13 +83,16 @@ class ContactWidget extends StatelessWidget {
             ),
           ),
           if (circleIcon != null)
-            IconButton(
-              splashRadius: 40,
-              iconSize: 24,
-              onPressed: () => onCircleIcon?.call(),
-              icon: Icon(
-                circleIcon,
-                color: theme.colorScheme.primary,
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: IconButton(
+                splashRadius: 40,
+                iconSize: 24,
+                onPressed: () => onCircleIcon?.call(),
+                icon: Icon(
+                  circleIcon,
+                  color: theme.colorScheme.primary,
+                ),
               ),
             ),
         ],

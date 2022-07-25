@@ -6,12 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class ShareChatItem extends StatelessWidget {
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+
   final Uid uid;
   final bool selected;
-  final _roomRepo = GetIt.I.get<RoomRepo>();
 
-  ShareChatItem({Key? key, required this.uid, required this.selected})
-      : super(key: key);
+  const ShareChatItem({super.key, required this.uid, required this.selected});
 
   @override
   Widget build(BuildContext context) {

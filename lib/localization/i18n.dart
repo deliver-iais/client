@@ -36,6 +36,8 @@ class I18N {
         });
   }
 
+  bool isRtl() => _language.value.countryCode.contains(farsi.countryCode);
+
   Future<void> _loadLanguageResource(Language language) async {
     final jsonValues =
         await rootBundle.loadString('lib/lang/${language.languageCode}.json');
@@ -47,7 +49,10 @@ class I18N {
 
   bool get isPersian => _language.value.countryCode.contains(farsi.countryCode);
 
-  Stream get localeStream => _language.stream.distinct().map((e) => e.locale);
+  TextDirection get defaultTextDirection =>
+      isPersian ? TextDirection.rtl : TextDirection.ltr;
+
+  Stream get localeStream => _language.distinct().map((e) => e.locale);
 
   Locale get locale => _language.value.locale;
 

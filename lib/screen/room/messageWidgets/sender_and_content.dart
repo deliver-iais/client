@@ -20,28 +20,27 @@ class SenderAndContent extends StatelessWidget {
   final Color? highlightColor;
 
   const SenderAndContent({
-    Key? key,
+    super.key,
     required this.messageSRF,
     this.maxWidth,
     this.iconData,
     this.expandContent = true,
     this.showBackgroundColor = false,
     this.highlightColor,
-  }) : super(key: key);
+  });
 
   SenderAndContent.viaMessage({
-    Key? key,
+    super.key,
     required Message message,
     this.maxWidth,
     this.iconData,
     this.expandContent = true,
     this.showBackgroundColor = false,
     this.highlightColor,
-  })  : messageSRF =
+  }) : messageSRF =
             _messageExtractorServices.extractMessageSimpleRepresentative(
           _messageExtractorServices.extractProtocolBufferMessage(message),
-        ),
-        super(key: key);
+        );
 
   @override
   Widget build(BuildContext context) {
@@ -60,7 +59,7 @@ class SenderAndContent extends StatelessWidget {
 
         return Container(
           constraints: maxWidth != null
-              ? BoxConstraints(maxWidth: maxWidth! - 14.0)
+              ? BoxConstraints(maxWidth: maxWidth! - 8.0)
               : null,
           decoration: showBackgroundColor
               ? BoxDecoration(
@@ -72,8 +71,7 @@ class SenderAndContent extends StatelessWidget {
                   ),
                 )
               : null,
-          padding:
-              const EdgeInsets.only(left: 4.0, top: 4, bottom: 4, right: 8),
+          padding: const EdgeInsets.all(4),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -89,7 +87,6 @@ class SenderAndContent extends StatelessWidget {
                   messageSR: snapshot.data!,
                   showSender: true,
                   showSeenStatus: false,
-                  showRoomDetails: false,
                   lastMessageId: 0,
                   highlightColor: messageColorScheme.primary,
                   expandContent: expandContent,

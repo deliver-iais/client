@@ -17,19 +17,21 @@ class ContactAdapter extends TypeAdapter<Contact> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return Contact(
-      countryCode: fields[0] as String,
-      nationalNumber: fields[1] as String,
-      uid: fields[2] as String,
+      countryCode: fields[0] as int,
+      nationalNumber: fields[1] as int,
+      uid: fields[2] as String?,
       firstName: fields[3] as String?,
       lastName: fields[4] as String?,
       description: fields[5] as String?,
+      updateTime: fields[6] as int?,
+      syncHash: fields[7] as int?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Contact obj) {
     writer
-      ..writeByte(6)
+      ..writeByte(8)
       ..writeByte(0)
       ..write(obj.countryCode)
       ..writeByte(1)
@@ -41,7 +43,11 @@ class ContactAdapter extends TypeAdapter<Contact> {
       ..writeByte(4)
       ..write(obj.lastName)
       ..writeByte(5)
-      ..write(obj.description);
+      ..write(obj.description)
+      ..writeByte(6)
+      ..write(obj.updateTime)
+      ..writeByte(7)
+      ..write(obj.syncHash);
   }
 
   @override

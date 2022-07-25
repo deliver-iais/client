@@ -19,13 +19,13 @@ class TimeAndSeenStatus extends StatelessWidget {
 
   const TimeAndSeenStatus(
     this.message, {
-    Key? key,
+    super.key,
     required this.isSender,
     required this.isSeen,
     this.needsPositioned = true,
     this.needsPadding = false,
     this.showBackground = false,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -33,9 +33,9 @@ class TimeAndSeenStatus extends StatelessWidget {
 
     if (needsPositioned) {
       return Positioned(
-        child: widget,
         right: 0,
         bottom: 0,
+        child: widget,
       );
     } else {
       return widget;
@@ -43,7 +43,7 @@ class TimeAndSeenStatus extends StatelessWidget {
   }
 
   Widget buildWidget(BuildContext context) {
-    final theme = Theme.of(context).colorScheme;
+    final theme = Theme.of(context);
 
     return RepaintBoundary(
       child: Container(
@@ -52,14 +52,12 @@ class TimeAndSeenStatus extends StatelessWidget {
             ? const EdgeInsets.only(bottom: 2, right: 4, left: 4)
             : null,
         decoration: BoxDecoration(
-          color: showBackground ? theme.surface : null,
+          color: showBackground ? theme.colorScheme.surface : null,
           borderRadius: tertiaryBorder,
         ),
         child: DefaultTextStyle(
-          style: TextStyle(
-            color: theme.onSurface,
-            fontSize: 13,
-          ),
+          style: (theme.textTheme.bodySmall ?? const TextStyle())
+              .copyWith(color: theme.colorScheme.onSurface),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,
@@ -74,7 +72,7 @@ class TimeAndSeenStatus extends StatelessWidget {
                     message.packetId,
                     messageId: message.id,
                     isSeen: isSeen,
-                    iconColor: theme.onSurface,
+                    iconColor: theme.colorScheme.onSurface,
                   ),
                 )
             ],

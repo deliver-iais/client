@@ -27,6 +27,7 @@ import 'package:deliver/screen/profile/widgets/profile_avatar.dart';
 import 'package:deliver/screen/profile/widgets/video_tab_ui.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
@@ -51,13 +52,13 @@ import 'package:url_launcher/url_launcher.dart';
 class ProfilePage extends StatefulWidget {
   final Uid roomUid;
 
-  const ProfilePage(this.roomUid, {Key? key}) : super(key: key);
+  const ProfilePage(this.roomUid, {super.key});
 
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  ProfilePageState createState() => ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage>
+class ProfilePageState extends State<ProfilePage>
     with TickerProviderStateMixin {
   final _logger = GetIt.I.get<Logger>();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
@@ -146,209 +147,221 @@ class _ProfilePageState extends State<ProfilePage>
                       (widget.roomUid.isChannel() && _isMucAdminOrOwner))
                   ? _tabsCount + 1
                   : _tabsCount,
-              child: NestedScrollView(
-                headerSliverBuilder: (context, innerBoxIsScrolled) {
-                  return <Widget>[
-                    _buildInfo(context),
-                    SliverPersistentHeader(
-                      pinned: true,
-                      delegate: _SliverAppBarDelegate(
-                        maxHeight: 45,
-                        minHeight: 45,
-                        child: Box(
-                          borderRadius: BorderRadius.zero,
-                          child: StreamBuilder<bool>(
-                            stream: _selectMediasForForward.stream,
-                            builder: (context, selectMediaToForward) {
-                              if (selectMediaToForward.hasData &&
-                                  selectMediaToForward.data != null &&
-                                  selectMediaToForward.data!) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(
-                                    left: 20,
-                                    right: 20,
-                                  ),
-                                  child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Badge(
-                                        child: IconButton(
-                                          color: theme.primaryColor,
-                                          icon: const Icon(
-                                            Icons.clear,
-                                            size: 25,
+              child: Directionality(
+                textDirection: _i18n.defaultTextDirection,
+                child: NestedScrollView(
+                  headerSliverBuilder: (context, innerBoxIsScrolled) {
+                    return <Widget>[
+                      _buildInfo(context),
+                      SliverPersistentHeader(
+                        pinned: true,
+                        delegate: _SliverAppBarDelegate(
+                          maxHeight: 45,
+                          minHeight: 45,
+                          child: Box(
+                            borderRadius: BorderRadius.zero,
+                            child: StreamBuilder<bool>(
+                              stream: _selectMediasForForward,
+                              builder: (context, selectMediaToForward) {
+                                if (selectMediaToForward.hasData &&
+                                    selectMediaToForward.data != null &&
+                                    selectMediaToForward.data!) {
+                                  return Padding(
+                                    padding: const EdgeInsets.only(
+                                      left: 20,
+                                      right: 20,
+                                    ),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Badge(
+                                          badgeColor: theme.primaryColor,
+                                          badgeContent: Text(
+                                            _selectedMedia.length.toString(),
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color:
+                                                  theme.colorScheme.onPrimary,
+                                            ),
                                           ),
-                                          onPressed: () {
-                                            _selectMediasForForward.add(false);
-                                            _selectedMedia.clear();
-                                            setState(() {});
-                                          },
-                                        ),
-                                        badgeColor: theme.primaryColor,
-                                        badgeContent: Text(
-                                          _selectedMedia.length.toString(),
-                                          style: TextStyle(
-                                            fontSize: 14,
-                                            color: theme.colorScheme.onPrimary,
-                                          ),
-                                        ),
-                                      ),
-                                      if (isAndroid)
-                                        Tooltip(
-                                          message: _i18n.get("share"),
                                           child: IconButton(
                                             color: theme.primaryColor,
                                             icon: const Icon(
-                                              Icons.share,
+                                              Icons.clear,
                                               size: 25,
                                             ),
-                                            onPressed: () async {
-                                              final paths =
-                                                  await _getPathOfMedia(
-                                                      _selectedMedia,);
-                                              if (paths.isNotEmpty) {
-                                                Share.shareFiles(paths)
-                                                    .ignore();
-                                              }
+                                            onPressed: () {
+                                              _selectMediasForForward
+                                                  .add(false);
+                                              _selectedMedia.clear();
+                                              setState(() {});
                                             },
                                           ),
                                         ),
-                                      Tooltip(
-                                        message: _i18n.get("forward"),
-                                        child: IconButton(
-                                          color: theme.primaryColor,
-                                          icon: const Icon(
-                                            Icons.forward,
-                                            size: 25,
+                                        if (isAndroid)
+                                          Tooltip(
+                                            message: _i18n.get("share"),
+                                            child: IconButton(
+                                              color: theme.primaryColor,
+                                              icon: const Icon(
+                                                Icons.share,
+                                                size: 25,
+                                              ),
+                                              onPressed: () async {
+                                                final paths =
+                                                    await _getPathOfMedia(
+                                                  _selectedMedia,
+                                                );
+                                                if (paths.isNotEmpty) {
+                                                  Share.shareFiles(paths)
+                                                      .ignore();
+                                                }
+                                              },
+                                            ),
                                           ),
-                                          onPressed: () {
-                                            _routingService
-                                                .openSelectForwardMessage(
-                                              medias: _selectedMedia,
-                                            );
-                                          },
+                                        Tooltip(
+                                          message: _i18n.get("forward"),
+                                          child: IconButton(
+                                            color: theme.primaryColor,
+                                            icon: const Icon(
+                                              Icons.forward,
+                                              size: 25,
+                                            ),
+                                            onPressed: () {
+                                              _routingService
+                                                  .openSelectForwardMessage(
+                                                medias: _selectedMedia,
+                                              );
+                                            },
+                                          ),
                                         ),
-                                      ),
+                                      ],
+                                    ),
+                                  );
+                                } else {
+                                  return TabBar(
+                                    isScrollable: true,
+                                    tabs: [
+                                      if (widget.roomUid.isGroup() ||
+                                          (widget.roomUid.isChannel() &&
+                                              _isMucAdminOrOwner))
+                                        Tab(
+                                          text: _i18n.get("members"),
+                                        ),
+                                      if (snapshot.hasData &&
+                                          snapshot.data!.imagesCount != 0)
+                                        Tab(
+                                          text: _i18n.get("images"),
+                                        ),
+                                      if (snapshot.hasData &&
+                                          snapshot.data!.videosCount != 0)
+                                        Tab(
+                                          text: _i18n.get("videos"),
+                                        ),
+                                      if (snapshot.hasData &&
+                                          snapshot.data!.filesCount != 0)
+                                        Tab(
+                                          text: _i18n.get("file"),
+                                        ),
+                                      if (snapshot.hasData &&
+                                          snapshot.data!.linkCount != 0)
+                                        Tab(text: _i18n.get("links")),
+                                      if (snapshot.hasData &&
+                                          snapshot.data!.documentsCount != 0)
+                                        Tab(
+                                          text: _i18n.get("documents"),
+                                        ),
+                                      if (snapshot.hasData &&
+                                          snapshot.data!.musicsCount != 0)
+                                        Tab(text: _i18n.get("musics")),
+                                      if (snapshot.hasData &&
+                                          snapshot.data!.audiosCount != 0)
+                                        Tab(text: _i18n.get("audios")),
                                     ],
-                                  ),
-                                );
-                              } else {
-                                return TabBar(
-                                  isScrollable: true,
-                                  tabs: [
-                                    if (widget.roomUid.isGroup() ||
-                                        (widget.roomUid.isChannel() &&
-                                            _isMucAdminOrOwner))
-                                      Tab(
-                                        text: _i18n.get("members"),
-                                      ),
-                                    if (snapshot.hasData &&
-                                        snapshot.data!.imagesCount != 0)
-                                      Tab(
-                                        text: _i18n.get("images"),
-                                      ),
-                                    if (snapshot.hasData &&
-                                        snapshot.data!.videosCount != 0)
-                                      Tab(
-                                        text: _i18n.get("videos"),
-                                      ),
-                                    if (snapshot.hasData &&
-                                        snapshot.data!.filesCount != 0)
-                                      Tab(
-                                        text: _i18n.get("file"),
-                                      ),
-                                    if (snapshot.hasData &&
-                                        snapshot.data!.linkCount != 0)
-                                      Tab(text: _i18n.get("links")),
-                                    if (snapshot.hasData &&
-                                        snapshot.data!.documentsCount != 0)
-                                      Tab(
-                                        text: _i18n.get("documents"),
-                                      ),
-                                    if (snapshot.hasData &&
-                                        snapshot.data!.musicsCount != 0)
-                                      Tab(text: _i18n.get("musics")),
-                                    if (snapshot.hasData &&
-                                        snapshot.data!.audiosCount != 0)
-                                      Tab(text: _i18n.get("audios")),
-                                  ],
-                                  controller: _tabController,
-                                );
-                              }
-                            },
+                                    controller: _tabController,
+                                  );
+                                }
+                              },
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ];
-                },
-                body: Box(
-                  borderRadius: BorderRadius.zero,
-                  child: TabBarView(
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: [
-                      if (widget.roomUid.isGroup() ||
-                          (widget.roomUid.isChannel() && _isMucAdminOrOwner))
-                        SingleChildScrollView(
-                          child: MucMemberWidget(
-                            mucUid: widget.roomUid,
+                    ];
+                  },
+                  body: Box(
+                    borderRadius: BorderRadius.zero,
+                    child: TabBarView(
+                      physics: const NeverScrollableScrollPhysics(),
+                      controller: _tabController,
+                      children: [
+                        if (widget.roomUid.isGroup() ||
+                            (widget.roomUid.isChannel() && _isMucAdminOrOwner))
+                          SingleChildScrollView(
+                            child: MucMemberWidget(
+                              mucUid: widget.roomUid,
+                            ),
                           ),
-                        ),
-                      if (snapshot.hasData && snapshot.data!.imagesCount != 0)
-                        ImageTabUi(
-                          snapshot.data!.imagesCount,
-                          widget.roomUid,
-                          selectedMedia: _selectedMedia,
-                          addSelectedMedia: (media) => _addSelectedMedia(media),
-                        ),
-                      if (snapshot.hasData && snapshot.data!.videosCount != 0)
-                        VideoTabUi(
-                          roomUid: widget.roomUid,
-                          addSelectedMedia: (media) => _addSelectedMedia(media),
-                          selectedMedia: _selectedMedia,
-                          videoCount: snapshot.data!.videosCount,
-                        ),
-                      if (snapshot.hasData && snapshot.data!.filesCount != 0)
-                        DocumentAndFileUi(
-                          roomUid: widget.roomUid,
-                          selectedMedia: _selectedMedia,
-                          addSelectedMedia: (media) => _addSelectedMedia(media),
-                          documentCount: snapshot.data!.filesCount,
-                          type: MediaType.FILE,
-                        ),
-                      if (snapshot.hasData && snapshot.data!.linkCount != 0)
-                        LinkTabUi(
-                          snapshot.data!.linkCount,
-                          widget.roomUid,
-                        ),
-                      if (snapshot.hasData &&
-                          snapshot.data!.documentsCount != 0)
-                        DocumentAndFileUi(
-                          selectedMedia: _selectedMedia,
-                          addSelectedMedia: (media) => _addSelectedMedia(media),
-                          roomUid: widget.roomUid,
-                          documentCount: snapshot.data!.documentsCount,
-                          type: MediaType.DOCUMENT,
-                        ),
-                      if (snapshot.hasData && snapshot.data!.musicsCount != 0)
-                        MusicAndAudioUi(
-                          roomUid: widget.roomUid,
-                          type: MediaType.MUSIC,
-                          selectedMedia: _selectedMedia,
-                          addSelectedMedia: (media) => _addSelectedMedia(media),
-                          mediaCount: snapshot.data!.musicsCount,
-                        ),
-                      if (snapshot.hasData && snapshot.data!.audiosCount != 0)
-                        MusicAndAudioUi(
-                          roomUid: widget.roomUid,
-                          selectedMedia: _selectedMedia,
-                          addSelectedMedia: (media) => _addSelectedMedia(media),
-                          type: MediaType.AUDIO,
-                          mediaCount: snapshot.data!.audiosCount,
-                        ),
-                    ],
-                    controller: _tabController,
+                        if (snapshot.hasData && snapshot.data!.imagesCount != 0)
+                          ImageTabUi(
+                            snapshot.data!.imagesCount,
+                            widget.roomUid,
+                            selectedMedia: _selectedMedia,
+                            addSelectedMedia: (media) =>
+                                _addSelectedMedia(media),
+                          ),
+                        if (snapshot.hasData && snapshot.data!.videosCount != 0)
+                          VideoTabUi(
+                            roomUid: widget.roomUid,
+                            addSelectedMedia: (media) =>
+                                _addSelectedMedia(media),
+                            selectedMedia: _selectedMedia,
+                            videoCount: snapshot.data!.videosCount,
+                          ),
+                        if (snapshot.hasData && snapshot.data!.filesCount != 0)
+                          DocumentAndFileUi(
+                            roomUid: widget.roomUid,
+                            selectedMedia: _selectedMedia,
+                            addSelectedMedia: (media) =>
+                                _addSelectedMedia(media),
+                            documentCount: snapshot.data!.filesCount,
+                            type: MediaType.FILE,
+                          ),
+                        if (snapshot.hasData && snapshot.data!.linkCount != 0)
+                          LinkTabUi(
+                            snapshot.data!.linkCount,
+                            widget.roomUid,
+                          ),
+                        if (snapshot.hasData &&
+                            snapshot.data!.documentsCount != 0)
+                          DocumentAndFileUi(
+                            selectedMedia: _selectedMedia,
+                            addSelectedMedia: (media) =>
+                                _addSelectedMedia(media),
+                            roomUid: widget.roomUid,
+                            documentCount: snapshot.data!.documentsCount,
+                            type: MediaType.DOCUMENT,
+                          ),
+                        if (snapshot.hasData && snapshot.data!.musicsCount != 0)
+                          MusicAndAudioUi(
+                            roomUid: widget.roomUid,
+                            type: MediaType.MUSIC,
+                            selectedMedia: _selectedMedia,
+                            addSelectedMedia: (media) =>
+                                _addSelectedMedia(media),
+                            mediaCount: snapshot.data!.musicsCount,
+                          ),
+                        if (snapshot.hasData && snapshot.data!.audiosCount != 0)
+                          MusicAndAudioUi(
+                            roomUid: widget.roomUid,
+                            selectedMedia: _selectedMedia,
+                            addSelectedMedia: (media) =>
+                                _addSelectedMedia(media),
+                            type: MediaType.AUDIO,
+                            mediaCount: snapshot.data!.audiosCount,
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -362,10 +375,9 @@ class _ProfilePageState extends State<ProfilePage>
   Future<List<String>> _getPathOfMedia(List<Media> medias) async {
     final paths = <String>[];
     for (final media in medias) {
-      final json =
-      jsonDecode(media.json) as Map;
+      final json = jsonDecode(media.json) as Map;
       final path = await (_fileRepo.getFileIfExist(json["uuid"], json["name"]));
-      if(path!= null ){
+      if (path != null) {
         paths.add(path);
       }
     }
@@ -425,7 +437,8 @@ class _ProfilePageState extends State<ProfilePage>
               FutureBuilder<Contact?>(
                 future: _contactRepo.getContact(widget.roomUid),
                 builder: (context, snapshot) {
-                  if (snapshot.data != null) {
+                  if (snapshot.data != null &&
+                      snapshot.data!.countryCode != 0) {
                     return Padding(
                       padding: const EdgeInsets.only(top: 8.0),
                       child: SettingsTile(
@@ -437,8 +450,10 @@ class _ProfilePageState extends State<ProfilePage>
                         subtitleTextStyle: TextStyle(color: theme.primaryColor),
                         leading: const Icon(Icons.phone),
                         trailing: const Icon(Icons.call),
-                        onPressed: (_) => launch(
-                          "tel:${snapshot.data!.countryCode}${snapshot.data!.nationalNumber}",
+                        onPressed: (_) => launchUrl(
+                          Uri.parse(
+                            "tel:${snapshot.data!.countryCode}${snapshot.data!.nationalNumber}",
+                          ),
                         ),
                       ),
                     );
@@ -548,7 +563,7 @@ class _ProfilePageState extends State<ProfilePage>
                   }
                 },
               ),
-            if (widget.roomUid.isGroup() || _isMucAdminOrOwner)
+            if (_isMucAdminOrOwner)
               Padding(
                 padding: const EdgeInsets.only(top: 8.0),
                 child: SettingsTile(
@@ -613,22 +628,28 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   PopupMenuButton<String> _buildMenu(BuildContext context) {
+    final theme = Theme.of(context);
+
     return PopupMenuButton(
       icon: const Icon(Icons.more_vert),
       itemBuilder: (_) => <PopupMenuItem<String>>[
-        if (widget.roomUid.isMuc() && _isMucOwner)
+        if ((widget.roomUid.isMuc() && _isMucOwner) || widget.roomUid.isBot())
           PopupMenuItem<String>(
+            value: "invite_link",
             child: Row(
               children: [
                 const Icon(Icons.add_link_outlined),
                 const SizedBox(width: 8),
-                Text(_i18n.get("create_invite_link"))
+                Text(
+                  _i18n.get("create_invite_link"),
+                  style: theme.primaryTextTheme.bodyText2,
+                )
               ],
             ),
-            value: "invite_link",
           ),
         if (widget.roomUid.isMuc() && _isMucOwner)
           PopupMenuItem<String>(
+            value: "manage",
             child: Row(
               children: [
                 const Icon(Icons.settings),
@@ -637,13 +658,14 @@ class _ProfilePageState extends State<ProfilePage>
                   widget.roomUid.category == Categories.GROUP
                       ? _i18n.get("manage_group")
                       : _i18n.get("manage_channel"),
+                  style: theme.primaryTextTheme.bodyText2,
                 ),
               ],
             ),
-            value: "manage",
           ),
         if (!_isMucOwner)
           PopupMenuItem<String>(
+            value: "delete_room",
             child: Row(
               children: [
                 Icon(
@@ -658,13 +680,14 @@ class _ProfilePageState extends State<ProfilePage>
                       : widget.roomUid.isGroup()
                           ? _i18n.get("left_group")
                           : _i18n.get("left_channel"),
+                  style: theme.primaryTextTheme.bodyText2,
                 ),
               ],
             ),
-            value: "delete_room",
           ),
         if (widget.roomUid.isMuc() && _isMucOwner)
           PopupMenuItem<String>(
+            value: "deleteMuc",
             child: Row(
               children: [
                 const Icon(Icons.delete),
@@ -673,34 +696,41 @@ class _ProfilePageState extends State<ProfilePage>
                   widget.roomUid.isGroup()
                       ? _i18n.get("delete_group")
                       : _i18n.get("delete_channel"),
+                  style: theme.primaryTextTheme.bodyText2,
                 )
               ],
             ),
-            value: "deleteMuc",
           ),
         if (widget.roomUid.category == Categories.BOT)
           PopupMenuItem<String>(
+            value: "addBotToGroup",
             child: Row(
               children: [
                 const Icon(Icons.person_add),
                 const SizedBox(width: 8),
-                Text(_i18n.get("add_to_group")),
+                Text(
+                  _i18n.get("add_to_group"),
+                  style: theme.primaryTextTheme.bodyText2,
+                ),
               ],
             ),
-            value: "addBotToGroup",
           ),
         PopupMenuItem<String>(
+          value: "report",
           child: Row(
             children: [
               const Icon(Icons.report),
               const SizedBox(width: 8),
-              Text(_i18n.get("report")),
+              Text(
+                _i18n.get("report"),
+                style: theme.primaryTextTheme.bodyText2,
+              ),
             ],
           ),
-          value: "report",
         ),
         if (!widget.roomUid.isMuc())
           PopupMenuItem<String>(
+            value: "blockRoom",
             child: StreamBuilder<bool?>(
               stream: _roomRepo.watchIsRoomBlocked(widget.roomUid.asString()),
               builder: (c, s) {
@@ -714,6 +744,7 @@ class _ProfilePageState extends State<ProfilePage>
                         s.data == null || !s.data!
                             ? _i18n.get("blockRoom")
                             : _i18n.get("unblock_room"),
+                        style: theme.primaryTextTheme.bodyText2,
                       ),
                     ],
                   );
@@ -722,7 +753,6 @@ class _ProfilePageState extends State<ProfilePage>
                 }
               },
             ),
-            value: "blockRoom",
           )
       ],
       onSelected: onSelected,
@@ -767,29 +797,33 @@ class _ProfilePageState extends State<ProfilePage>
   }
 
   Future<void> createInviteLink() async {
-    final muc = await _mucRepo.getMuc(widget.roomUid.asString());
-    if (muc != null) {
-      var token = muc.token;
-      if (token.isEmpty) {
-        if (widget.roomUid.category == Categories.GROUP) {
-          token = await _mucRepo.getGroupJointToken(groupUid: widget.roomUid);
-        } else {
-          token =
-              await _mucRepo.getChannelJointToken(channelUid: widget.roomUid);
+    if (widget.roomUid.isBot()) {
+      _showInviteLinkDialog(buildInviteLinkForBot(widget.roomUid.node));
+    } else {
+      final muc = await _mucRepo.getMuc(widget.roomUid.asString());
+      if (muc != null) {
+        var token = muc.token;
+        if (token.isEmpty) {
+          if (widget.roomUid.category == Categories.GROUP) {
+            token = await _mucRepo.getGroupJointToken(groupUid: widget.roomUid);
+          } else {
+            token =
+                await _mucRepo.getChannelJointToken(channelUid: widget.roomUid);
+          }
         }
-      }
-      if (token.isNotEmpty) {
-        _showInviteLinkDialog(token);
-      } else {
-        ToastDisplay.showToast(
-          toastText: _i18n.get("error_occurred"),
-          toastContext: context,
-        );
+        if (token.isNotEmpty) {
+          _showInviteLinkDialog(generateInviteLink(token), token: token);
+        } else {
+          ToastDisplay.showToast(
+            toastText: _i18n.get("error_occurred"),
+            toastContext: context,
+          );
+        }
       }
     }
   }
 
-  void _showInviteLinkDialog(String token) {
+  void _showInviteLinkDialog(String inviteLink, {String token = ""}) {
     showDialog(
       context: context,
       builder: (context) {
@@ -800,6 +834,7 @@ class _ProfilePageState extends State<ProfilePage>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     CircleAvatarWidget(widget.roomUid, 25),
                     const SizedBox(width: 5),
@@ -808,7 +843,8 @@ class _ProfilePageState extends State<ProfilePage>
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  generateInviteLink(token),
+                  inviteLink,
+                  textAlign: TextAlign.center,
                 ),
               ],
             ),
@@ -820,7 +856,9 @@ class _ProfilePageState extends State<ProfilePage>
                 TextButton(
                   onPressed: () {
                     Clipboard.setData(
-                      ClipboardData(text: generateInviteLink(token)),
+                      ClipboardData(
+                        text: inviteLink,
+                      ),
                     );
                     ToastDisplay.showToast(
                       toastText: _i18n.get("copied"),
@@ -877,8 +915,8 @@ class _ProfilePageState extends State<ProfilePage>
   void showManageDialog() {
     final channelIdFormKey = GlobalKey<FormState>();
     final nameFormKey = GlobalKey<FormState>();
-    var _currentName = "";
-    var _currentId = "";
+    var currentName = "";
+    var currentId = "";
     String? mucName;
     var mucInfo = "";
     var channelId = "";
@@ -894,30 +932,33 @@ class _ProfilePageState extends State<ProfilePage>
                   future: _roomRepo.getName(widget.roomUid),
                   builder: (c, name) {
                     if (name.hasData && name.data != null) {
-                      _currentName = name.data!;
+                      currentName = name.data!;
                       return Form(
                         key: nameFormKey,
-                        child: TextFormField(
-                          initialValue: name.data,
-                          validator: (s) {
-                            if (s!.isEmpty) {
-                              return _i18n.get("name_not_empty");
-                            } else {
-                              return null;
-                            }
-                          },
-                          minLines: 1,
-                          onChanged: (str) {
-                            if (str.isNotEmpty && str != name.data) {
-                              mucName = str;
-                              newChange.add(true);
-                            }
-                          },
-                          keyboardType: TextInputType.text,
-                          decoration: buildInputDecoration(
-                            widget.roomUid.isGroup()
-                                ? _i18n.get("group_name")
-                                : _i18n.get("channel_name"),
+                        child: Directionality(
+                          textDirection: _i18n.defaultTextDirection,
+                          child: TextFormField(
+                            initialValue: name.data,
+                            validator: (s) {
+                              if (s!.isEmpty) {
+                                return _i18n.get("name_not_empty");
+                              } else {
+                                return null;
+                              }
+                            },
+                            minLines: 1,
+                            onChanged: (str) {
+                              if (str.isNotEmpty && str != name.data) {
+                                mucName = str;
+                                newChange.add(true);
+                              }
+                            },
+                            keyboardType: TextInputType.text,
+                            decoration: buildInputDecoration(
+                              widget.roomUid.isGroup()
+                                  ? _i18n.get("group_name")
+                                  : _i18n.get("channel_name"),
+                            ),
                           ),
                         ),
                       );
@@ -931,7 +972,7 @@ class _ProfilePageState extends State<ProfilePage>
                     stream: _mucRepo.watchMuc(widget.roomUid.asString()),
                     builder: (c, muc) {
                       if (muc.hasData && muc.data != null) {
-                        _currentId = muc.data!.id;
+                        currentId = muc.data!.id;
                         return Column(
                           children: [
                             Form(
@@ -955,7 +996,7 @@ class _ProfilePageState extends State<ProfilePage>
                               ),
                             ),
                             StreamBuilder<bool?>(
-                              stream: _showChannelIdError.stream,
+                              stream: _showChannelIdError,
                               builder: (c, e) {
                                 if (e.hasData && e.data != null && e.data!) {
                                   return Text(
@@ -982,23 +1023,26 @@ class _ProfilePageState extends State<ProfilePage>
                   builder: (c, muc) {
                     if (muc.hasData && muc.data != null) {
                       mucInfo = muc.data!.info;
-                      return TextFormField(
-                        initialValue: muc.data!.info,
-                        minLines: muc.data!.info.isNotEmpty
-                            ? muc.data!.info.split("\n").length
-                            : 1,
-                        maxLines: muc.data!.info.isNotEmpty
-                            ? muc.data!.info.split("\n").length + 4
-                            : 4,
-                        onChanged: (str) {
-                          mucInfo = str;
-                          newChange.add(true);
-                        },
-                        keyboardType: TextInputType.multiline,
-                        decoration: buildInputDecoration(
-                          widget.roomUid.category == Categories.GROUP
-                              ? _i18n.get("enter_group_desc")
-                              : _i18n.get("enter_channel_desc"),
+                      return Directionality(
+                        textDirection: _i18n.defaultTextDirection,
+                        child: TextFormField(
+                          initialValue: muc.data!.info,
+                          minLines: muc.data!.info.isNotEmpty
+                              ? muc.data!.info.split("\n").length
+                              : 1,
+                          maxLines: muc.data!.info.isNotEmpty
+                              ? muc.data!.info.split("\n").length + 4
+                              : 4,
+                          onChanged: (str) {
+                            mucInfo = str;
+                            newChange.add(true);
+                          },
+                          keyboardType: TextInputType.multiline,
+                          decoration: buildInputDecoration(
+                            widget.roomUid.category == Categories.GROUP
+                                ? _i18n.get("enter_group_desc")
+                                : _i18n.get("enter_channel_desc"),
+                          ),
                         ),
                       );
                     } else {
@@ -1011,7 +1055,7 @@ class _ProfilePageState extends State<ProfilePage>
           ),
           actions: <Widget>[
             StreamBuilder<bool>(
-              stream: newChange.stream,
+              stream: newChange,
               builder: (c, change) {
                 if (change.hasData && change.data != null) {
                   return TextButton(
@@ -1023,12 +1067,12 @@ class _ProfilePageState extends State<ProfilePage>
                               if (widget.roomUid.category == Categories.GROUP) {
                                 await _mucRepo.modifyGroup(
                                   widget.roomUid.asString(),
-                                  mucName ?? _currentName,
+                                  mucName ?? currentName,
                                   mucInfo,
                                 );
                                 _roomRepo.updateRoomName(
                                   widget.roomUid,
-                                  mucName ?? _currentName,
+                                  mucName ?? currentName,
                                 );
                                 setState(() {});
                                 navigatorState.pop();
@@ -1036,13 +1080,13 @@ class _ProfilePageState extends State<ProfilePage>
                                 if (channelId.isEmpty) {
                                   await _mucRepo.modifyChannel(
                                     widget.roomUid.asString(),
-                                    mucName ?? _currentName,
-                                    _currentId,
+                                    mucName ?? currentName,
+                                    currentId,
                                     mucInfo,
                                   );
                                   _roomRepo.updateRoomName(
                                     widget.roomUid,
-                                    mucName ?? _currentName,
+                                    mucName ?? currentName,
                                   );
                                   navigatorState.pop();
                                 } else if (channelIdFormKey.currentState !=
@@ -1051,13 +1095,13 @@ class _ProfilePageState extends State<ProfilePage>
                                   if (await checkChannelD(channelId)) {
                                     await _mucRepo.modifyChannel(
                                       widget.roomUid.asString(),
-                                      mucName ?? _currentName,
+                                      mucName ?? currentName,
                                       channelId,
                                       mucInfo,
                                     );
                                     _roomRepo.updateRoomName(
                                       widget.roomUid,
-                                      mucName ?? _currentName,
+                                      mucName ?? currentName,
                                     );
 
                                     navigatorState.pop();
@@ -1164,45 +1208,47 @@ class _ProfilePageState extends State<ProfilePage>
       builder: (c1) {
         return AlertDialog(
           title: Text(_i18n.get("add_bot_to_group")),
-          content: FutureBuilder<List<Room>>(
-            future: _roomRepo.getAllGroups(),
-            builder: (c, mucs) {
-              if (mucs.hasData && mucs.data != null && mucs.data!.isNotEmpty) {
-                final s = <String>[];
-                for (final room in mucs.data!) {
-                  s.add(room.uid);
-                }
-                groups.add(s);
-                return StreamBuilder<List<String>>(
-                  stream: groups.stream,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                      final filteredGroupList = snapshot.data!;
-                      return SizedBox(
-                        height: min(
-                          MediaQuery.of(context).size.height / 2,
-                          filteredGroupList.length * 100.toDouble(),
-                        ),
-                        width: MediaQuery.of(context).size.width / 2,
-                        child: Column(
-                          children: [
-                            TextField(
-                              onChanged: (str) {
-                                final searchRes = <String>[];
-                                for (final uid in nameOfGroup.keys) {
-                                  if (nameOfGroup[uid]!.contains(str) ||
-                                      nameOfGroup[uid] == str) {
-                                    searchRes.add(uid);
-                                  }
-                                }
-                                groups.add(searchRes);
-                              },
-                              decoration: InputDecoration(
-                                hintText: _i18n.get("search"),
-                                prefixIcon: const Icon(Icons.search),
-                              ),
+          content: Column(
+            children: [
+              TextField(
+                onChanged: (str) {
+                  final searchRes = <String>[];
+                  for (final uid in nameOfGroup.keys) {
+                    if (nameOfGroup[uid]!.contains(str) ||
+                        nameOfGroup[uid] == str) {
+                      searchRes.add(uid);
+                    }
+                  }
+                  groups.add(searchRes);
+                },
+                decoration: InputDecoration(
+                  hintText: _i18n.get("search"),
+                  prefixIcon: const Icon(Icons.search),
+                ),
+              ),
+              FutureBuilder<List<Room>>(
+                future: _roomRepo.getAllGroups(),
+                builder: (c, mucs) {
+                  if (mucs.hasData &&
+                      mucs.data != null &&
+                      mucs.data!.isNotEmpty) {
+                    final s = <String>[];
+                    for (final room in mucs.data!) {
+                      s.add(room.uid);
+                    }
+                    groups.add(s);
+                    return StreamBuilder<List<String>>(
+                      stream: groups,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                          final filteredGroupList = snapshot.data!;
+                          return SizedBox(
+                            height: min(
+                              MediaQuery.of(context).size.height / 2,
+                              filteredGroupList.length * 50.toDouble(),
                             ),
-                            Expanded(
+                            width: MediaQuery.of(context).size.width / 2,
+                            child: Expanded(
                               child: ListView.separated(
                                 itemBuilder: (c, i) {
                                   return GestureDetector(
@@ -1252,19 +1298,17 @@ class _ProfilePageState extends State<ProfilePage>
                                 itemCount: snapshot.data!.length,
                               ),
                             ),
-                          ],
-                        ),
-                      );
-                    } else {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    }
-                  },
-                );
-              }
-              return const Center(child: CircularProgressIndicator());
-            },
+                          );
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      },
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
+            ],
           ),
         );
       },
@@ -1275,7 +1319,7 @@ class _ProfilePageState extends State<ProfilePage>
     BuildContext context,
     BuildContext c1,
     String uid,
-    String? name,
+    String? mucName,
   ) {
     showDialog(
       context: context,
@@ -1287,7 +1331,7 @@ class _ProfilePageState extends State<ProfilePage>
             builder: (c, name) {
               if (name.hasData && name.data != null && name.data!.isNotEmpty) {
                 return Text(
-                  "${_i18n.get("add")} ${name.data} ${_i18n.get("to")} $name",
+                  "${_i18n.get("add")} ${name.data} ${_i18n.get("to")} $mucName",
                 );
               } else {
                 return const SizedBox.shrink();

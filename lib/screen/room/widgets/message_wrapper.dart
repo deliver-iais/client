@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:flutter/material.dart';
 
 class MessageWrapper extends StatelessWidget {
@@ -12,13 +13,13 @@ class MessageWrapper extends StatelessWidget {
   final bool isInlineMarkUpMessage;
 
   const MessageWrapper({
-    Key? key,
+    super.key,
     required this.child,
     required this.uid,
     required this.isSender,
     this.isFirstMessageInGroupedMessages = true,
-    this.isInlineMarkUpMessage = false,
-  }) : super(key: key);
+  this.isInlineMarkUpMessage = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -57,15 +58,7 @@ class MessageWrapper extends StatelessWidget {
           decoration: BoxDecoration(
             borderRadius: border,
             color: color,
-            boxShadow: [
-              BoxShadow(
-                color:
-                    Colors.black.withOpacity(isInlineMarkUpMessage ? 0.2 : 0.1),
-                spreadRadius: 2,
-                blurRadius: 3,
-                offset: const Offset(0, 3), // changes position of shadow
-              ),
-            ],
+            boxShadow: DEFAULT_BOX_SHADOWS,
           ),
           child: child,
         ),

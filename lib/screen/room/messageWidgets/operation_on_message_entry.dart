@@ -2,6 +2,7 @@ import 'package:clock/clock.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/pending_message.dart';
+import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/operation_on_message.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -24,11 +25,11 @@ class OperationOnMessageEntry extends PopupMenuEntry<OperationOnMessage> {
 
   const OperationOnMessageEntry(
     this.message, {
-    Key? key,
+    super.key,
     required this.hasPermissionInChannel,
     required this.hasPermissionInGroup,
     required this.isPinned,
-  }) : super(key: key);
+  });
 
   @override
   OperationOnMessageEntryState createState() => OperationOnMessageEntryState();
@@ -61,6 +62,8 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return IconTheme(
       data: IconThemeData(
         size: (PopupMenuTheme.of(context).textStyle?.fontSize ?? 20) + 4,
@@ -75,7 +78,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 children: [
                   const Icon(CupertinoIcons.reply),
                   const SizedBox(width: 8),
-                  Text(_i18n.get("reply")),
+                  Text(
+                    _i18n.get("reply"),
+                    style: theme.primaryTextTheme.bodyText2,
+                  ),
                 ],
               ),
             ),
@@ -91,7 +97,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     children: [
                       const Icon(CupertinoIcons.pin),
                       const SizedBox(width: 8),
-                      Text(_i18n.get("pin")),
+                      Text(
+                        _i18n.get("pin"),
+                        style: theme.primaryTextTheme.bodyText2,
+                      ),
                     ],
                   ),
                 )
@@ -102,7 +111,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     children: [
                       const Icon(CupertinoIcons.delete),
                       const SizedBox(width: 8),
-                      Text(_i18n.get("unpin")),
+                      Text(
+                        _i18n.get("unpin"),
+                        style: theme.primaryTextTheme.bodyText2,
+                      ),
                     ],
                   ),
                 ),
@@ -118,7 +130,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     size: 18,
                   ),
                   const SizedBox(width: 10),
-                  Text(_i18n.get("copy")),
+                  Text(
+                    _i18n.get("copy"),
+                    style: theme.primaryTextTheme.bodyText2,
+                  ),
                 ],
               ),
             ),
@@ -143,12 +158,21 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                         const Icon(CupertinoIcons.down_arrow),
                         const SizedBox(width: 8),
                         if (f.type.contains("image"))
-                          Text(_i18n.get("save_to_gallery"))
+                          Text(
+                            _i18n.get("save_to_gallery"),
+                            style: theme.primaryTextTheme.bodyText2,
+                          )
                         else if (f.type.contains("audio") ||
                             f.type.contains("mp3"))
-                          Text(_i18n.get("save_in_music"))
+                          Text(
+                            _i18n.get("save_in_music"),
+                            style: theme.primaryTextTheme.bodyText2,
+                          )
                         else
-                          Text(_i18n.get("save_to_downloads")),
+                          Text(
+                            _i18n.get("save_to_downloads"),
+                            style: theme.primaryTextTheme.bodyText2,
+                          ),
                       ],
                     ),
                   );
@@ -157,9 +181,9 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 }
               },
             ),
-          if (widget.message.type == MessageType.FILE && !isDesktop)
+          if (widget.message.type == MessageType.FILE && isAndroid)
             StreamBuilder<bool>(
-              stream: _fileIsExist.stream,
+              stream: _fileIsExist,
               builder: (c, s) {
                 if (s.hasData && s.data!) {
                   _fileIsExist.add(true);
@@ -169,7 +193,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       children: [
                         const Icon(Icons.share),
                         const SizedBox(width: 8),
-                        Text(_i18n.get("share")),
+                        Text(
+                          _i18n.get("share"),
+                          style: theme.primaryTextTheme.bodyText2,
+                        ),
                       ],
                     ),
                   );
@@ -178,6 +205,20 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 }
               },
             ),
+          if (widget.message.type == MessageType.TEXT && isAndroid)
+            PopupMenuItem(
+              value: OperationOnMessage.SHARE,
+              child: Row(
+                children: [
+                  const Icon(Icons.share),
+                  const SizedBox(width: 8),
+                  Text(
+                    _i18n.get("share"),
+                    style: theme.primaryTextTheme.bodyText2,
+                  ),
+                ],
+              ),
+            ),
           if (widget.message.roomUid.isMuc())
             PopupMenuItem(
               value: OperationOnMessage.REPORT,
@@ -185,7 +226,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 children: [
                   const Icon(CupertinoIcons.burst),
                   const SizedBox(width: 8),
-                  Text(_i18n.get("report")),
+                  Text(
+                    _i18n.get("report"),
+                    style: theme.primaryTextTheme.bodyText2,
+                  ),
                 ],
               ),
             ),
@@ -197,7 +241,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 children: [
                   const Icon(CupertinoIcons.arrowshape_turn_up_right),
                   const SizedBox(width: 8),
-                  Text(_i18n.get("forward")),
+                  Text(
+                    _i18n.get("forward"),
+                    style: theme.primaryTextTheme.bodyText2,
+                  ),
                 ],
               ),
             ),
@@ -214,7 +261,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       children: [
                         const Icon(CupertinoIcons.refresh),
                         const SizedBox(width: 8),
-                        Text(_i18n.get("resend")),
+                        Text(
+                          _i18n.get("resend"),
+                          style: theme.primaryTextTheme.bodyText2,
+                        ),
                       ],
                     ),
                   );
@@ -225,15 +275,15 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
             ),
           if (_hasPermissionToDeleteMsg)
             widget.message.id != null
-                ? deleteMenuWidget()
+                ? deleteMenuWidget(context)
                 : FutureBuilder<PendingMessage?>(
                     future:
                         _messageRepo.getPendingMessage(widget.message.packetId),
                     builder: (context, snapshot) {
                       if (snapshot.hasData &&
                           snapshot.data != null &&
-                          snapshot.data!.failed) {
-                        return deleteMenuWidget();
+                          _isDeletablePendingMessage(snapshot.data!)) {
+                        return deleteMenuWidget(context);
                       } else {
                         return const SizedBox.shrink();
                       }
@@ -253,7 +303,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     size: 18,
                   ),
                   const SizedBox(width: 10),
-                  Text(_i18n.get("edit")),
+                  Text(
+                    _i18n.get("edit"),
+                    style: theme.primaryTextTheme.bodyText2,
+                  ),
                 ],
               ),
             ),
@@ -271,7 +324,10 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       children: [
                         const Icon(CupertinoIcons.folder_open),
                         const SizedBox(width: 8),
-                        Text(_i18n.get("show_in_folder")),
+                        Text(
+                          _i18n.get("show_in_folder"),
+                          style: theme.primaryTextTheme.bodyText2,
+                        ),
                       ],
                     ),
                   );
@@ -285,7 +341,13 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
     );
   }
 
-  Widget deleteMenuWidget() {
+  bool _isDeletablePendingMessage(PendingMessage pendingMessage) =>
+      pendingMessage.msg.type == MessageType.FILE
+          ? pendingMessage.status != SendingStatus.UPLOAD_FILE_COMPELED
+          : pendingMessage.failed;
+
+  Widget deleteMenuWidget(BuildContext context) {
+    final theme = Theme.of(context);
     return PopupMenuItem(
       value: widget.message.id != null
           ? OperationOnMessage.DELETE
@@ -296,7 +358,11 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
             CupertinoIcons.delete,
           ),
           const SizedBox(width: 8),
-          Text(_i18n.get("delete")),
+          Text(
+            _i18n.get("delete"),
+            style:
+                theme.primaryTextTheme.bodyText2,
+          ),
         ],
       ),
     );
@@ -313,23 +379,24 @@ void showDeleteMsgDialog(
   BuildContext context,
   void Function() onDelete,
 ) {
-  final _i18n = GetIt.I.get<I18N>();
-  final _messageRepo = GetIt.I.get<MessageRepo>();
+  final theme = Theme.of(context);
+  final i18n = GetIt.I.get<I18N>();
+  final messageRepo = GetIt.I.get<MessageRepo>();
   showDialog(
     context: context,
     builder: (c) => AlertDialog(
       title: Text(
-        "${_i18n.get("delete")} ${messages.length > 1 ? messages.length : ""} ${_i18n.get("message")}",
-        style: const TextStyle(fontSize: 20),
+        "${i18n.get("delete")} ${messages.length > 1 ? messages.length : ""} ${i18n.get("message")}",
+        style: theme.textTheme.bodyText2,
       ),
       content: Text(
         messages.length > 1
-            ? _i18n.get("sure_delete_messages")
-            : _i18n.get("sure_delete_message"),
+            ? i18n.get("sure_delete_messages")
+            : i18n.get("sure_delete_message"),
       ),
       actions: [
         TextButton(
-          child: Text(_i18n.get("cancel")),
+          child: Text(i18n.get("cancel"), style: theme.textTheme.bodyText2),
           onPressed: () {
             onDelete();
             Navigator.pop(c);
@@ -339,12 +406,12 @@ void showDeleteMsgDialog(
           style: TextButton.styleFrom(
             primary: Theme.of(context).colorScheme.error,
           ),
-          child: Text(_i18n.get("delete")),
-          onPressed: () {
-            _messageRepo.deleteMessage(messages);
-
-            onDelete();
+          child: Text(i18n.get("delete")),
+          onPressed: () async {
+            // ignore: use_build_context_synchronously
             Navigator.pop(c);
+            await messageRepo.deleteMessage(messages);
+            onDelete();
           },
         ),
       ],

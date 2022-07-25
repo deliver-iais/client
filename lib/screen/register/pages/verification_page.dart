@@ -15,13 +15,13 @@ import 'package:logger/logger.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 
 class VerificationPage extends StatefulWidget {
-  const VerificationPage({Key? key}) : super(key: key);
+  const VerificationPage({super.key});
 
   @override
-  _VerificationPageState createState() => _VerificationPageState();
+  VerificationPageState createState() => VerificationPageState();
 }
 
-class _VerificationPageState extends State<VerificationPage> {
+class VerificationPageState extends State<VerificationPage> {
   final _logger = GetIt.I.get<Logger>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _fireBaseServices = GetIt.I.get<FireBaseServices>();
@@ -110,7 +110,7 @@ class _VerificationPageState extends State<VerificationPage> {
     final theme = Theme.of(context);
     return FluidWidget(
       child: Scaffold(
-        backgroundColor: theme.backgroundColor,
+        backgroundColor: theme.colorScheme.background,
         floatingActionButton: FloatingActionButton(
           backgroundColor: theme.primaryColor,
           foregroundColor: theme.buttonTheme.colorScheme!.onPrimary,
@@ -120,7 +120,7 @@ class _VerificationPageState extends State<VerificationPage> {
           },
         ),
         appBar: AppBar(
-          backgroundColor: theme.backgroundColor,
+          backgroundColor: theme.colorScheme.background,
           title: Text(
             _i18n.get("verification"),
             style: TextStyle(

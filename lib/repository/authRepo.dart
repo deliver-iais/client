@@ -5,7 +5,7 @@ import 'dart:async';
 import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/message.dart';
-import 'package:deliver/screen/splash/splash_screen.dart';
+import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -19,13 +19,19 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/logger.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:synchronized/synchronized.dart';
 
 class AuthRepo {
   static final _logger = GetIt.I.get<Logger>();
   static final _sharedDao = GetIt.I.get<SharedDao>();
-  static final _authServiceClient = GetIt.I.get<AuthServiceClient>();
+  static final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   static final requestLock = Lock();
+
+  BehaviorSubject<bool> outOfDateObject = BehaviorSubject.seeded(false);
+
+  BehaviorSubject<NewerVersionInformation?> newVersionInformation =
+      BehaviorSubject();
 
   Uid currentUserUid = Uid.create()
     ..category = Categories.USER
@@ -39,16 +45,6 @@ class AuthRepo {
   String? get refreshToken => _refreshToken;
 
   String? get accessToken => _accessToken;
-
-  Future<bool> isTestUser() async {
-    if (currentUserUid.node.isNotEmpty) {
-      return currentUserUid.isSameEntity(TEST_USER_UID.asString());
-    } else {
-      currentUserUid =
-          (await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID))!.asUid();
-      return currentUserUid.isSameEntity(TEST_USER_UID.asString());
-    }
-  }
 
   Future<void> init() async {
     try {
@@ -69,11 +65,12 @@ class AuthRepo {
     final platform = await getPlatformPB();
 
     _tmpPhoneNumber = p;
-    await _authServiceClient.getVerificationCode(
+    await _sdr.authServiceClient.getVerificationCode(
       GetVerificationCodeReq()
         ..phoneNumber = p
         ..type = VerificationType.SMS
         ..platform = platform,
+      options: CallOptions(timeout: const Duration(seconds: 10)),
     );
   }
 
@@ -85,7 +82,7 @@ class AuthRepo {
 
     final device = await getDeviceName();
 
-    final res = await _authServiceClient.verifyAndGetToken(
+    final res = await _sdr.authServiceClient.verifyAndGetToken(
       VerifyCodeReq()
         ..phoneNumber = _tmpPhoneNumber
         ..code = code
@@ -109,7 +106,7 @@ class AuthRepo {
 
     final device = await getDeviceName();
 
-    final res = await _authServiceClient.checkQrCodeIsVerifiedAndLogin(
+    final res = await _sdr.authServiceClient.checkQrCodeIsVerifiedAndLogin(
       CheckQrCodeIsVerifiedAndLoginReq()
         ..token = token
         ..device = device
@@ -126,7 +123,7 @@ class AuthRepo {
 
   Future<RenewAccessTokenRes> _getAccessToken(String refreshToken) =>
       requestLock.synchronized(() async {
-        return await _authServiceClient.renewAccessToken(
+        return await _sdr.authServiceClient.renewAccessToken(
           RenewAccessTokenReq()
             ..refreshToken = refreshToken
             ..platform = await getPlatformPB(),
@@ -141,9 +138,9 @@ class AuthRepo {
       try {
         final renewAccessTokenRes = await _getAccessToken(_refreshToken!);
         _saveTokens(renewAccessTokenRes);
-        if (renewAccessTokenRes.newerVersionInformation.version.isNotEmpty &&
-            renewAccessTokenRes.newerVersionInformation.version != VERSION &&
-            !newVersionInformation.hasValue) {
+        if (!newVersionInformation.hasValue &&
+            renewAccessTokenRes.newerVersionInformation.version.isNotEmpty &&
+            renewAccessTokenRes.newerVersionInformation.version != VERSION) {
           newVersionInformation
               .add(renewAccessTokenRes.newerVersionInformation);
         }
@@ -236,13 +233,8 @@ class AuthRepo {
     await _sharedDao.remove(SHARED_DAO_REFRESH_TOKEN_KEY);
   }
 
-  void saveTestUserInfo() {
-    currentUserUid = TEST_USER_UID;
-    _sharedDao.put(SHARED_DAO_CURRENT_USER_UID, TEST_USER_UID.asString());
-  }
-
   Future<void> sendForgetPasswordEmail(PhoneNumber phoneNumber) async {
-    await _authServiceClient.sendErasePasswordEmail(
+    await _sdr.authServiceClient.sendErasePasswordEmail(
       SendErasePasswordEmailReq()
         ..platform = await getPlatformPB()
         ..phoneNumber = phoneNumber,
@@ -257,10 +249,7 @@ class DeliverClientInterceptor implements ClientInterceptor {
     Map<String, String> metadata,
     String uri,
   ) async {
-    final token = await _authRepo.isTestUser()
-        ? TEST_USER_ACCESS_TOKEN
-        : await _authRepo.getAccessToken();
-    metadata['access_token'] = token;
+    metadata['access_token'] = await _authRepo.getAccessToken();
   }
 
   @override

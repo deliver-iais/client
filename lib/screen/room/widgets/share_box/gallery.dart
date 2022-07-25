@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
@@ -7,7 +8,6 @@ import 'package:deliver/screen/room/widgets/share_box/image_folder_widget.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/services/check_permissions_service.dart';
 import 'package:deliver/shared/constants.dart';
-
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -25,23 +25,25 @@ class ShareBoxGallery extends StatefulWidget {
   final void Function()? resetRoomPageDetails;
 
   const ShareBoxGallery({
-    Key? key,
+    super.key,
     required this.scrollController,
     required this.pop,
     required this.roomUid,
     this.setAvatar,
     this.replyMessageId = 0,
     this.resetRoomPageDetails,
-  }) : super(key: key);
+  });
 
   @override
-  _ShareBoxGalleryState createState() => _ShareBoxGalleryState();
+  ShareBoxGalleryState createState() => ShareBoxGalleryState();
 }
 
-class _ShareBoxGalleryState extends State<ShareBoxGallery> {
+class ShareBoxGalleryState extends State<ShareBoxGallery> {
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _checkPermissionServices =
+      GetIt.I.get<CheckPermissionsService>();
+
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  final _messageRepo = GetIt.I.get<MessageRepo>();
-  final _checkPermissionServices = GetIt.I.get<CheckPermissionsService>();
   final TextEditingController _captionEditingController =
       TextEditingController();
   final _keyboardVisibilityController = KeyboardVisibilityController();
@@ -102,6 +104,8 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       key: _scaffoldKey,
       body: StreamBuilder<List<AssetPathEntity>?>(
@@ -127,30 +131,47 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                     : null;
                 if (index <= 0) {
                   return Container(
-                    margin: const EdgeInsets.all(15.0),
+                    clipBehavior: Clip.hardEdge,
+                    margin: const EdgeInsets.all(18.0),
                     decoration: BoxDecoration(
                       color: Theme.of(co).primaryColor,
                       borderRadius: secondaryBorder,
+                      border: Border.all(
+                        color: theme.colorScheme.outline.withOpacity(0.7),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.colorScheme.shadow.withOpacity(0.3),
+                          spreadRadius: 2,
+                          blurRadius: 3,
+                          offset: const Offset(0, 3),
+                        ),
+                      ],
                     ),
-                    child:
-                        _controller != null && _controller!.value.isInitialized
-                            ? GestureDetector(
-                                onTap: () {
-                                  openCamera(() {
-                                    widget.pop();
-                                    Navigator.pop(context);
-                                  });
-                                },
-                                child: CameraPreview(
-                                  _controller!,
-                                  child: const Icon(
-                                    Icons.photo_camera,
-                                    size: 50,
-                                    color: Colors.white,
-                                  ),
+                    child: Container(
+                      clipBehavior: Clip.hardEdge,
+                      decoration: const BoxDecoration(
+                        borderRadius: secondaryBorder,
+                      ),
+                      child: _controller != null &&
+                              _controller!.value.isInitialized
+                          ? GestureDetector(
+                              onTap: () {
+                                openCamera(() {
+                                  Navigator.pop(context);
+                                });
+                              },
+                              child: CameraPreview(
+                                _controller!,
+                                child: const Icon(
+                                  Icons.photo_camera,
+                                  size: 50,
+                                  color: Colors.white,
                                 ),
-                              )
-                            : const SizedBox.shrink(),
+                              ),
+                            )
+                          : const SizedBox.shrink(),
+                    ),
                   );
                 } else {
                   return GestureDetector(
@@ -179,20 +200,17 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                     child: AnimatedPadding(
                       duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.all(10),
-                      child: Hero(
-                        tag: folder!.name,
-                        child: FutureBuilder<List<AssetEntity>>(
-                          future: folder.getAssetListPaged(page: 0, size: 3),
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                              return Stack(
-                                children:
-                                    buildGallery(snapshot.data!, folder.name),
-                              );
-                            }
-                            return const SizedBox.shrink();
-                          },
-                        ),
+                      child: FutureBuilder<List<AssetEntity>>(
+                        future: folder!.getAssetListPaged(page: 0, size: 3),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                            return Stack(
+                              children:
+                                  buildGallery(snapshot.data!, folder.name),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
                       ),
                     ),
                   );
@@ -207,20 +225,35 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
   }
 
   List<Widget> buildGallery(List<AssetEntity> assets, String folderName) {
-    final widgets = <Widget>[];
-    for (var i = 0; i < assets.length; i++) {
-      widgets.add(
+    final theme = Theme.of(context);
+
+    return <Widget>[
+      for (var i = 0; i < assets.length; i++)
         Positioned(
-          right: (2 - i) * 5,
+          right: (2 - i) * 8,
+          top: (2 - i) * 6,
           child: FutureBuilder<File?>(
             future: assets[i].file,
             builder: (context, fileSnapshot) {
               if (fileSnapshot.hasData && fileSnapshot.data != null) {
                 return Container(
-                  width: 180,
-                  height: 180 - ((2 - i) * 6),
+                  width: MediaQuery.of(context).size.width / 2 - 44 - (i * 3),
+                  height: MediaQuery.of(context).size.width / 2 - 44 - (i * 3),
+                  clipBehavior: Clip.antiAlias,
                   decoration: BoxDecoration(
                     borderRadius: secondaryBorder,
+                    border: Border.all(
+                      color: theme.colorScheme.outline.withOpacity(0.7),
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: theme.colorScheme.shadow.withOpacity(0.3),
+                        spreadRadius: 2,
+                        blurRadius: 3,
+                        offset:
+                            const Offset(0, 3), // changes position of shadow
+                      ),
+                    ],
                     image: DecorationImage(
                       image: Image.file(
                         fileSnapshot.data!,
@@ -230,20 +263,39 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
                     ),
                   ),
                   child: i == 0
-                      ? Padding(
-                          padding: const EdgeInsets.fromLTRB(7, 0, 7, 0),
-                          child: Align(
-                            alignment: Alignment.bottomLeft,
-                            child: Container(
-                              width: 180,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context).backgroundColor,
-                                //  borderRadius: mainBorder,
+                      ? Align(
+                          alignment: Alignment.bottomLeft,
+                          child: Container(
+                            padding: const EdgeInsets.only(
+                              top: 4,
+                              bottom: 6,
+                              left: 6,
+                              right: 6,
+                            ),
+                            width: MediaQuery.of(context).size.width / 2 - 44,
+                            decoration: BoxDecoration(
+                              borderRadius: secondaryBorder.copyWith(
+                                topLeft: Radius.zero,
+                                topRight: Radius.zero,
                               ),
-                              child: Text(
-                                folderName,
-                                style: Theme.of(context).textTheme.bodyText1,
-                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color:
+                                      theme.colorScheme.shadow.withOpacity(0.5),
+                                  spreadRadius: 2,
+                                  blurRadius: 3,
+                                  offset: const Offset(
+                                    0,
+                                    3,
+                                  ), // changes position of shadow
+                                ),
+                              ],
+                              color: Theme.of(context).colorScheme.background,
+                              // borderRadius: mainBorder,
+                            ),
+                            child: Text(
+                              folderName,
+                              style: Theme.of(context).textTheme.bodyText1,
                             ),
                           ),
                         )
@@ -254,9 +306,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
             },
           ),
         ),
-      );
-    }
-    return widgets.reversed.toList();
+    ].reversed.toList();
   }
 
   void openCamera(void Function() pop) {
@@ -268,7 +318,7 @@ class _ShareBoxGalleryState extends State<ShareBoxGallery> {
             body: Stack(
               children: [
                 StreamBuilder<CameraController>(
-                  stream: _cameraController.stream,
+                  stream: _cameraController,
                   builder: (context, snapshot) {
                     return SizedBox(
                       height: MediaQuery.of(context).size.height,
@@ -378,14 +428,14 @@ Stack buildInputCaption({
       Align(
         alignment: Alignment.bottomLeft,
         child: Container(
-          color: theme.backgroundColor,
+          color: theme.colorScheme.background,
           child: TextField(
             decoration: InputDecoration(
               hintText: i18n.get("caption"),
               border: InputBorder.none,
               hintStyle: const TextStyle(fontSize: 16),
               suffixIcon: StreamBuilder<bool>(
-                stream: insertCaption.stream,
+                stream: insertCaption,
                 builder: (c, s) {
                   if (s.hasData && s.data!) {
                     return IconButton(
@@ -420,11 +470,10 @@ Stack buildInputCaption({
           children: <Widget>[
             Container(
               decoration: const BoxDecoration(
-                //boxShadow: [BoxShadow(blurRadius: 20.0)],
                 shape: BoxShape.circle,
               ),
               child: StreamBuilder<bool>(
-                stream: insertCaption.stream,
+                stream: insertCaption,
                 builder: (context, snapshot) {
                   if (snapshot.hasData &&
                       snapshot.data != null &&
@@ -455,11 +504,14 @@ Stack buildInputCaption({
             ),
             if (count > 0)
               Positioned(
+                top: 35.0,
+                right: 0.0,
+                left: 35,
                 child: Container(
                   width: 28,
                   height: 28,
                   decoration: BoxDecoration(
-                    color: theme.backgroundColor, // border color
+                    color: theme.colorScheme.background, // border color
                     shape: BoxShape.circle,
                   ),
                   child: Padding(
@@ -481,9 +533,6 @@ Stack buildInputCaption({
                     ),
                   ),
                 ),
-                top: 35.0,
-                right: 0.0,
-                left: 35,
               ),
           ],
         ),
