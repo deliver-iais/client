@@ -51,6 +51,7 @@ variables:
 
 dev_build:
   needs: [ ]
+  when: manual
   extends:
     - .only-master
     - .deliver-web-builder

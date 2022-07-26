@@ -159,7 +159,8 @@ class InputMessageWidgetState extends State<InputMessage> {
       _messageRepo.sendActivity(widget.currentRoom.uid.asUid(), event);
     });
     _audioService.recordingDuration.listen((value) {
-      if (value.compareTo(Duration.zero) > 0) {
+      if (value.compareTo(Duration.zero) > 0 &&
+          _audioService.recordingRoom == widget.currentRoom.uid) {
         isTypingActivitySubject.add(ActivityType.RECORDING_VOICE);
       }
     });

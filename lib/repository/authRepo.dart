@@ -52,13 +52,20 @@ class AuthRepo {
       final accessToken = await _sharedDao.get(SHARED_DAO_ACCESS_TOKEN_KEY);
       final refreshToken = await _sharedDao.get(SHARED_DAO_REFRESH_TOKEN_KEY);
       return _setTokensAndCurrentUserUid(accessToken, refreshToken);
-    } catch (_) {}
+    } catch (_) {
+      _logger.e(_.toString());
+    }
   }
 
   Future<void> setCurrentUserUid() async {
-    await init();
-    final res = await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID);
-    if (res != null) currentUserUid = (res).asUid();
+    try{
+      init().ignore();
+      final res = await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID);
+      if (res != null) currentUserUid = (res).asUid();
+    }catch(e){
+      _logger.e(e.toString());
+    }
+
   }
 
   Future<void> getVerificationCode(PhoneNumber p) async {
