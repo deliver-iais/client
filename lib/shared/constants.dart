@@ -21,8 +21,7 @@ const GROUP_URL = "group";
 const CHANNEL_URL = "channel";
 
 // Version Constants
-const VERSION =
-    "1.9.0"; // if change the VERSION , is necessary to change version in pubspec.yaml file
+const VERSION = "1.9.1";
 
 // Time Constants
 const ONLINE_TIME = 60000;
