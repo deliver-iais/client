@@ -799,7 +799,7 @@ class MessageRepo {
   Future<void> sendPendingMessages() async {
     final pendingMessages = await _messageDao.getAllPendingMessages();
     for (final pendingMessage in pendingMessages) {
-      if (!pendingMessage.failed) {
+      if (!pendingMessage.failed || pendingMessage.msg.type == MessageType.CALL) {
         switch (pendingMessage.status) {
           case SendingStatus.UPLOAD_FILE_INPROGRSS:
             break;
