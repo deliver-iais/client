@@ -359,7 +359,7 @@ class CallRepo {
               _reconnectingAfterFailedConnection();
               timerDisconnected = Timer(const Duration(seconds: 8), () {
                 if (callingStatus.value == CallStatus.RECONNECTING) {
-                  callingStatus.add(CallStatus.DISCONNECTED);
+                  callingStatus.add(CallStatus.NO_ANSWER);
                   _logger.i("Disconnected and Call End!");
                   endCall();
                 }

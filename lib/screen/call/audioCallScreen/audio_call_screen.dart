@@ -19,6 +19,7 @@ import 'package:lottie/lottie.dart';
 class AudioCallScreen extends StatefulWidget {
   final Uid roomUid;
   final String callStatus;
+  final String callStatusOnScreen;
   final void Function() hangUp;
   final bool isIncomingCall;
 
@@ -26,6 +27,7 @@ class AudioCallScreen extends StatefulWidget {
     super.key,
     required this.roomUid,
     required this.callStatus,
+    required this.callStatusOnScreen,
     required this.hangUp,
     this.isIncomingCall = false,
   });
@@ -103,7 +105,7 @@ class AudioCallScreenState extends State<AudioCallScreen>
                 CenterAvatarInCall(
                   roomUid: widget.roomUid,
                 ),
-                if (widget.callStatus == _i18n.get("call_connected"))
+                if (widget.callStatus == "Connected")
                   StreamBuilder<CallTimer>(
                     stream: callRepo.callTimer,
                     builder: (context, snapshot) {
@@ -114,41 +116,40 @@ class AudioCallScreenState extends State<AudioCallScreen>
                       }
                     },
                   )
-                else if (widget.callStatus == _i18n.get("call_ended"))
+                else if (widget.callStatus == "Ended")
                   FadeTransition(
                     opacity: _repeatEndCallAnimationController,
                     child: callRepo.callTimer.value.seconds == 0 &&
                             callRepo.callTimer.value.minutes == 0 &&
                             callRepo.callTimer.value.hours == 0
                         ? Text(
-                            widget.callStatus,
+                            widget.callStatusOnScreen,
                             style: const TextStyle(color: Colors.white70),
                           )
                         : callTimerWidget(callRepo.callTimer.value),
                   )
                 else
                   Directionality(
-                    textDirection: _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                    textDirection:
+                        _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          widget.callStatus,
+                          widget.callStatusOnScreen,
                           style: const TextStyle(color: Colors.white70),
                         ),
-                        if (widget.callStatus == _i18n.get("call_connecting") ||
-                            widget.callStatus ==
-                                _i18n.get("call_reconnecting") ||
-                            widget.callStatus == _i18n.get("call_ringing") ||
-                            widget.callStatus == _i18n.get("call_calling") ||
-                            widget.callStatus == _i18n.get("call_incoming"))
+                        if (widget.callStatus == "Connecting" ||
+                            widget.callStatus == "Reconnecting" ||
+                            widget.callStatus == "Ringing" ||
+                            widget.callStatus == "Calling")
                           const DotAnimation()
                       ],
                     ),
                   ),
               ],
             ),
-            if (widget.callStatus == _i18n.get("call_ended"))
+            if (widget.callStatus == "Ended")
               Padding(
                 padding: const EdgeInsets.only(bottom: 25, right: 25, left: 25),
                 child: Align(
