@@ -21,8 +21,7 @@ const GROUP_URL = "group";
 const CHANNEL_URL = "channel";
 
 // Version Constants
-const VERSION =
-    "1.9.0"; // if change the VERSION , is necessary to change version in pubspec.yaml file
+const VERSION = "1.9.1";
 
 // Time Constants
 const ONLINE_TIME = 60000;
@@ -215,6 +214,7 @@ const AUTO_DOWNLOAD_TRACK_ID = 25;
 const AUTO_DOWNLOAD_ROOM_CATEGORY_TRACK_ID = 26;
 const CURRENT_CALL_INFO_TRACK_ID = 27;
 const MESSAGE_BRIEF_TRACK_ID = 28;
+const MUC_Type_TRACK_ID = 29;
 
 //FEATURE DISCOVERY ID
 const FEATURE_1 = 'feature1';

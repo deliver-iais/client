@@ -64,7 +64,6 @@ class CallScreenState extends State<CallScreen> {
     _remoteRenderer = _callRepo.getRemoteRenderer;
     if (!widget.isCallInitialized) {
       startCall();
-    }else{
       checkForSystemAlertWindowPermission();
     }
     if (isAndroid) {
@@ -241,6 +240,7 @@ class CallScreenState extends State<CallScreen> {
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: "Connected",
+                    callStatusOnScreen: _i18n.get("call_connected"),
                     hangUp: _hangUp,
                   );
           case CallStatus.DISCONNECTED:
@@ -255,6 +255,7 @@ class CallScreenState extends State<CallScreen> {
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: "disConnected",
+                    callStatusOnScreen: _i18n.get("call_dis_connected"),
                     hangUp: _hangUp,
                   );
           case CallStatus.CONNECTING:
@@ -269,6 +270,7 @@ class CallScreenState extends State<CallScreen> {
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: "Connecting",
+                    callStatusOnScreen: _i18n.get("call_connecting"),
                     hangUp: _hangUp,
                   );
           case CallStatus.RECONNECTING:
@@ -283,6 +285,7 @@ class CallScreenState extends State<CallScreen> {
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: "Reconnecting",
+                    callStatusOnScreen: _i18n.get("call_reconnecting"),
                     hangUp: _hangUp,
                   );
           case CallStatus.FAILED:
@@ -297,6 +300,7 @@ class CallScreenState extends State<CallScreen> {
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: "Connection failed",
+                    callStatusOnScreen: _i18n.get("call_connection_failed"),
                     hangUp: _hangUp,
                   );
           case CallStatus.IS_RINGING:
@@ -313,6 +317,7 @@ class CallScreenState extends State<CallScreen> {
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: "Ringing",
+                    callStatusOnScreen: _i18n.get("call_ringing"),
                     isIncomingCall: widget.isIncomingCall,
                     hangUp: _hangUp,
                   );
@@ -329,6 +334,7 @@ class CallScreenState extends State<CallScreen> {
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: "User not answer",
+                    callStatusOnScreen: _i18n.get("call_user_not_answer"),
                     isIncomingCall: widget.isIncomingCall,
                     hangUp: _hangUp,
                   );
@@ -345,6 +351,9 @@ class CallScreenState extends State<CallScreen> {
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: "Calling",
+                    callStatusOnScreen: widget.isIncomingCall
+                        ? _i18n.get("call_incoming")
+                        : _i18n.get("call_calling"),
                     isIncomingCall: !_callRepo.isCaller,
                     hangUp: _hangUp,
                   );
@@ -360,6 +369,7 @@ class CallScreenState extends State<CallScreen> {
             return AudioCallScreen(
               roomUid: widget.roomUid,
               callStatus: "Ended",
+              callStatusOnScreen: _i18n.get("call_ended"),
               isIncomingCall: widget.isIncomingCall,
               hangUp: _hangUp,
             );
@@ -379,6 +389,7 @@ class CallScreenState extends State<CallScreen> {
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: "Busy....",
+                    callStatusOnScreen: "${_i18n.get("call_busy")}....",
                     hangUp: _hangUp,
                   );
           case CallStatus.DECLINED:
@@ -393,6 +404,7 @@ class CallScreenState extends State<CallScreen> {
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: "Declined....",
+                    callStatusOnScreen: "${_i18n.get("call_declined")}....",
                     hangUp: _hangUp,
                   );
           case CallStatus.ACCEPTED:
@@ -408,6 +420,7 @@ class CallScreenState extends State<CallScreen> {
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: "Accepted",
+                    callStatusOnScreen: _i18n.get("call_accepted"),
                     hangUp: _hangUp,
                   );
 

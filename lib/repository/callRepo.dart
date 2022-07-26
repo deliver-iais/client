@@ -376,7 +376,7 @@ class CallRepo {
               callingStatus.add(CallStatus.RECONNECTING);
               _audioService.stopBeepSound();
               _reconnectingAfterFailedConnection();
-              timerDisconnected = Timer(const Duration(seconds: 10), () {
+              timerDisconnected = Timer(const Duration(seconds: 8), () {
                 if (callingStatus.value == CallStatus.RECONNECTING) {
                   callingStatus.add(CallStatus.NO_ANSWER);
                   _logger.i("Disconnected and Call End!");
@@ -1145,7 +1145,7 @@ class CallRepo {
           if (_isDCReceived) {
             _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
           }
-          timerEndCallDispose = Timer(const Duration(seconds: 8), () {
+          timerEndCallDispose = Timer(const Duration(seconds: 4), () {
             // if don't received EndCall from callee we force to end call
             _dispose();
           });
