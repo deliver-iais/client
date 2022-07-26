@@ -147,6 +147,9 @@ class VerificationPageState extends State<VerificationPage> {
                   ),
                   const SizedBox(height: 30),
                   Text(
+                    textDirection: _i18n.isPersian
+                        ? TextDirection.rtl
+                        : TextDirection.ltr,
                     _i18n.get("we_have_send_a_code"),
                     style: const TextStyle(fontSize: 17),
                   ),
@@ -155,6 +158,7 @@ class VerificationPageState extends State<VerificationPage> {
                     padding:
                         const EdgeInsets.only(left: 30, right: 30, bottom: 30),
                     child: PinFieldAutoFill(
+                      key: const Key("verificationCode"),
                       autoFocus: true,
                       focusNode: _focusNode,
                       codeLength: 5,
