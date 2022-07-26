@@ -11,6 +11,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
@@ -21,7 +22,8 @@ class BotRepo {
   final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
 
   Future<BotInfo> fetchBotInfo(Uid botUid) async {
-    final result = await _sdr.botServiceClient.getInfo(GetInfoReq()..bot = botUid);
+    final result =
+        await _sdr.botServiceClient.getInfo(GetInfoReq()..bot = botUid);
     final botInfo = BotInfo(
       description: result.description,
       uid: botUid.asString(),
@@ -49,6 +51,22 @@ class BotRepo {
     unawaited(_botDao.save(botInfo));
 
     return botInfo;
+  }
+
+  Future<void> sendCallbackQuery(
+    Uid botUid,
+    String data,
+    int messageId,
+    String messagePacketId,
+  ) async {
+    await _sdr.botServiceClient.callbackQuery(
+      CallbackQueryReq()
+        ..id = botUid.node
+        ..data = data
+        ..messageId = Int64(messageId)
+        ..messagePacketId = messagePacketId,
+    );
+    // TODO(fatemeh): handle result
   }
 
   Future<BotInfo?> getBotInfo(Uid botUid) async {

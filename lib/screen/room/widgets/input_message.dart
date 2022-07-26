@@ -17,6 +17,7 @@ import 'package:deliver/screen/room/widgets/bot_commands.dart';
 import 'package:deliver/screen/room/widgets/emoji_keybord.dart';
 import 'package:deliver/screen/room/widgets/record_audio_animation.dart';
 import 'package:deliver/screen/room/widgets/record_audio_slide_widget.dart';
+import 'package:deliver/screen/room/widgets/reply_keyboard_markup.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/screen/room/widgets/show_mention_list.dart';
@@ -375,6 +376,12 @@ class InputMessageWidgetState extends State<InputMessage> {
                 ],
               ),
             ),
+            if (widget.currentRoom.lastMessage?.markup?.replyKeyboardMarkup!=
+                null)
+              ReplyKeyboardMarkupWidget(
+                replyKeyboardMarkup: widget
+                    .currentRoom.lastMessage!.markup!.replyKeyboardMarkup!,
+              ),
             StreamBuilder<bool>(
               stream: _showEmojiKeyboard,
               builder: (context, back) {

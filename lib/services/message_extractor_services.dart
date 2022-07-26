@@ -216,18 +216,19 @@ class MessageExtractorServices {
     }
 
     return MessageSimpleRepresentative(
-        roomUid: roomUid,
-        from: from,
-        roomName: roomName,
-        sender: sender,
-        senderIsAUserOrBot: msg.from.isUser() || msg.from.isBot(),
-        type: type,
-        id: msg.id.toInt(),
-        packetId: msg.packetId,
-        typeDetails: typeDetails,
-        text: text,
-        ignoreNotification: ignoreNotification,
-        shouldBeQuiet: msg.shouldBeQuiet,);
+      roomUid: roomUid,
+      from: from,
+      roomName: roomName,
+      sender: sender,
+      senderIsAUserOrBot: msg.from.isUser() || msg.from.isBot(),
+      type: type,
+      id: msg.id.toInt(),
+      packetId: msg.packetId,
+      typeDetails: typeDetails,
+      text: text,
+      ignoreNotification: ignoreNotification,
+      shouldBeQuiet: msg.shouldBeQuiet,
+    );
   }
 
   String? getCallText(
@@ -471,24 +472,107 @@ class MessageExtractorServices {
     } catch (_) {}
     //for testing remove later
     message.messageMarkup = markup_pb.MessageMarkup(
-      removeReplyKeyboardMarkup: true,
-      inlineKeyboardMarkup: markup_pb.InlineKeyboardMarkup(rows: [
-        markup_pb.InlineKeyboardRow(buttons: [
-          markup_pb.InlineKeyboardButton(
-              text: "test",
-              url: markup_pb.InlineKeyboardButtonUrl(url: "https://google.com"),),
-
-        ],),
-
-        markup_pb.InlineKeyboardRow(buttons: [
-          markup_pb.InlineKeyboardButton(
-              text: "test",
-              url: markup_pb.InlineKeyboardButtonUrl(url: "https://google.com"),),
-          markup_pb.InlineKeyboardButton(
-              text: "lets buy it",
-              url: markup_pb.InlineKeyboardButtonUrl(url: "https://google.com"),)
-        ],)
-      ],),
+      //removeReplyKeyboardMarkup: true,
+      replyKeyboardMarkup: markup_pb.ReplyKeyboardMarkup(
+        inputFieldPlaceholder: "hi",
+        inputSuggestions: ["hello", "hi"],
+        oneTimeKeyboard: true,
+        rows: [
+          markup_pb.ReplyKeyboardRow(
+            buttons: [
+              markup_pb.ReplyKeyboardButton(
+                text: "پردانلود ترین",
+                sendOnClick: true,
+              ),
+            ],
+          ),
+          markup_pb.ReplyKeyboardRow(
+            buttons: [
+              markup_pb.ReplyKeyboardButton(
+                text: "جدیدترین",
+                sendOnClick: true,
+              ),
+            ],
+          ),
+          markup_pb.ReplyKeyboardRow(
+            buttons: [
+              markup_pb.ReplyKeyboardButton(
+                text: "پیشنهادی",
+                sendOnClick: true,
+              ),
+              markup_pb.ReplyKeyboardButton(
+                text: "پیشنهادی",
+                sendOnClick: true,
+              ),
+              markup_pb.ReplyKeyboardButton(
+                text: "پیشنهادی",
+                sendOnClick: true,
+              ),
+              markup_pb.ReplyKeyboardButton(
+                text: "پیشنهادی",
+                sendOnClick: true,
+              ),
+              markup_pb.ReplyKeyboardButton(
+                text: "پیشنهادی",
+                sendOnClick: true,
+              ),
+              markup_pb.ReplyKeyboardButton(
+                text: "پیشنهادی",
+                sendOnClick: true,
+              ),
+              markup_pb.ReplyKeyboardButton(
+                text: "پلی لیست",
+                sendOnClick: false,
+              )
+            ],
+          ),
+          markup_pb.ReplyKeyboardRow(
+            buttons: [
+              markup_pb.ReplyKeyboardButton(
+                text: "فالو شده ها",
+                sendOnClick: false,
+              ),
+              markup_pb.ReplyKeyboardButton(
+                text: "دانلود شده ها",
+                sendOnClick: false,
+              ),
+              markup_pb.ReplyKeyboardButton(
+                text: "آموزش ها",
+                sendOnClick: false,
+              )
+            ],
+          )
+        ],
+      ),
+      inlineKeyboardMarkup: markup_pb.InlineKeyboardMarkup(
+        rows: [
+          markup_pb.InlineKeyboardRow(
+            buttons: [
+              markup_pb.InlineKeyboardButton(
+                text: "test",
+                url: markup_pb.InlineKeyboardButtonUrl(
+                  url: "https://google.com",
+                ),
+              ),
+            ],
+          ),
+          markup_pb.InlineKeyboardRow(
+            buttons: [
+              markup_pb.InlineKeyboardButton(
+                text: "test",
+                callback:
+                    markup_pb.InlineKeyboardButtonCallback(data: "hello test"),
+              ),
+              markup_pb.InlineKeyboardButton(
+                text: "lets buy it",
+                url: markup_pb.InlineKeyboardButtonUrl(
+                  url: "https://google.com",
+                ),
+              )
+            ],
+          )
+        ],
+      ),
     );
     return Message(
       id: message.id.toInt(),

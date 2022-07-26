@@ -1,8 +1,10 @@
 import 'dart:convert';
 
 import 'package:deliver/box/message.dart';
+import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/screen/room/widgets/message_wrapper.dart';
 import 'package:deliver/services/url_handler_service.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -19,6 +21,7 @@ class InlineMarkUpButtonWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final urlHandlerService = GetIt.I.get<UrlHandlerService>();
+    final botRepo = GetIt.I.get<BotRepo>();
     final widgetRows = <Widget>[];
     final rows = message.markup?.inlineKeyboardMarkup?.rows;
     var columns = <Widget>[];
@@ -41,7 +44,12 @@ class InlineMarkUpButtonWidget extends StatelessWidget {
                       if (isUrlInlineKeyboardMarkup) {
                         urlHandlerService.onUrlTap(json['url'], context);
                       } else if (json['data'] != null) {
-                        // TODO(fatemeh): ???,
+                        botRepo.sendCallbackQuery(
+                          message.from.asUid(),
+                          json['data'],
+                          message.id ?? 0,
+                          message.packetId,
+                        );
                       }
                     },
                     child: MessageWrapper(
