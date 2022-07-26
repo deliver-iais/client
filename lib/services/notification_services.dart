@@ -245,6 +245,7 @@ class WindowsNotifier implements Notifier {
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _fileServices = GetIt.I.get<FileService>();
   final _routingService = GetIt.I.get<RoutingService>();
+  final _i18n = GetIt.I.get<I18N>();
 
   Map<String, Map<int, Toast>> toastByRoomId = {};
 
@@ -311,7 +312,7 @@ class WindowsNotifier implements Notifier {
     String roomName,
     String? callEventJson,
   ) async {
-    final actions = <String>['Accept', 'Decline'];
+    final actions = <String>[_i18n.get("accept"), _i18n.get("decline")];
     Toast? toast;
     if (!toastByRoomId.containsKey(
       roomUid.asUid().node,
@@ -330,7 +331,7 @@ class WindowsNotifier implements Notifier {
           type: ToastType.imageAndText02,
           title: roomName,
           actions: actions,
-          subtitle: "Incoming Call",
+          subtitle: _i18n.get("incoming_call"),
           imagePath: file!,
         );
       } else {
