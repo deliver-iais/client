@@ -324,7 +324,7 @@ class LoginPageState extends State<LoginPage> {
                         onSubmitted: (p) {
                           phoneNumber = p;
                           if (_acceptPrivacy) checkAndGoNext();
-                        },
+                        },key: const Key("IntlPhoneField"),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -459,7 +459,7 @@ class LoginPageState extends State<LoginPage> {
                         child: TextButton(
                           onPressed: checkAndGoNext,
                           child: Text(
-                            i18n.get("next"),
+                            i18n.get("next"),key: const Key('next'),
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: theme.primaryColor,

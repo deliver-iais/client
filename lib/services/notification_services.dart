@@ -534,7 +534,6 @@ class AndroidNotifier implements Notifier {
     'Notifications', // title
     description: 'All notifications of application.', // description
     importance: Importance.high,
-    groupId: "all_group",
   );
 
   AndroidNotifier() {
