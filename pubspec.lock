@@ -829,6 +829,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "10.1.0"
+  freezed_annotation:
+    dependency: transitive
+    description:
+      name: freezed_annotation
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.1.0"
   frontend_server_client:
     dependency: transitive
     description:
@@ -942,9 +949,11 @@ packages:
   grpc:
     dependency: "direct main"
     description:
-      name: grpc
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: master
+      resolved-ref: "29af7df647c0999a41c6b4186de8709574d81de5"
+      url: "https://github.com/deliveriais/grpc-dart"
+    source: git
     version: "3.0.2"
   hashcodes:
     dependency: transitive
