@@ -624,8 +624,6 @@ class DataStreamServices {
         ..justNotHiddenMessages = true
         ..type = FetchMessagesReq_Type.BACKWARD_FETCH
         ..limit = 1,
-      // options: CallOptions(timeout: const Duration(seconds: 3),
-      // ),
     );
 
     final messages = await saveFetchMessages(fetchMessagesRes.messages);
