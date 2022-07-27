@@ -57,7 +57,7 @@ class SentMessageBox extends StatelessWidget {
         ? boxContent
         : IntrinsicWidth(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 MessageWrapper(
                   uid: message.from,

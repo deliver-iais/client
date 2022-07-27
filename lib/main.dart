@@ -157,7 +157,6 @@ Future<void> setupDI() async {
     ..registerAdapter(AutoDownloadRoomCategoryAdapter())
     ..registerAdapter(CurrentCallInfoAdapter())
     ..registerAdapter(MucTypeAdapter())
-    ..registerAdapter(AutoDownloadAdapter());
     ..registerAdapter(AutoDownloadAdapter())
     ..registerAdapter(MessageMarkupAdapter())
     ..registerAdapter(InlineKeyboardButtonAdapter())
