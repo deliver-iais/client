@@ -44,6 +44,10 @@ abstract class Notifier {
         .openCallScreen(roomUid.asUid(), isCallAccepted: true);
   }
 
+  static void onCallNotificationTap(String roomUid) {
+    GetIt.I.get<RoutingService>().openCallScreen(roomUid.asUid());
+  }
+
   static void onCallReject() {
     GetIt.I.get<CallRepo>().declineCall();
   }
@@ -537,8 +541,10 @@ class AndroidNotifier implements Notifier {
   );
 
   AndroidNotifier() {
-    ConnectycubeFlutterCallKit.instance
-        .init(onCallAccepted: onCallAccepted, onCallRejected: onCallRejected);
+    ConnectycubeFlutterCallKit.instance.init(
+        onCallAccepted: onCallAccepted,
+        onCallRejected: onCallRejected,
+        onNotificationTap: onCallNotificationTap,);
 
     _flutterLocalNotificationsPlugin.createNotificationChannel(channel);
 
@@ -601,6 +607,12 @@ class AndroidNotifier implements Notifier {
 
   Future<void> onCallRejected(CallEvent callEvent) async {
     Notifier.onCallReject();
+  }
+
+  Future<void> onCallNotificationTap(CallEvent callEvent) async {
+    await GetIt.I.get<CallService>().clearCallData();
+    Notifier.onCallNotificationTap(callEvent.userInfo!["uid"]!);
+
   }
 
   Future<void> onCallAccepted(CallEvent callEvent) async {
