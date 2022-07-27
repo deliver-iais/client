@@ -13,7 +13,8 @@ variables:
   PROJECT_NAME: deliver-web
   KUSTOMIZE_DEPLOYMENT_PATH: deployment
   PROJECT_VERSION: $CI_COMMIT_SHORT_SHA
-  RESOLVER_VERSION: 1
+  PROJECT_BUILD_NAME: "1.9.1"
+  PROJECT_BUILD_NUMBER: "61"
 
 .docker-builder-prim:
   extends:
@@ -62,17 +63,27 @@ dev_deploy:
 
 android_build:
   stage: build
-  timeout: 4h 30m
+  timeout: 6h
   needs: [ resolve ]
   image: $DOCKER_REPO/deliver-flutter-resolved:$RESOLVER_VERSION
   variables:
+    GRADLE_USER_HOME: "cache/.gradle"
     _JAVA_OPTIONS: "-Xmx2048m -XX:+UnlockExperimentalVMOptions"
     GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m"'
   extends:
     - .docker-basic
   script:
     - cd /usr/local/bin/app/
-    - flutter build appbundle --target-platform android-arm --build-name=1.9.1 --build-number=61
+    - flutter build appbundle --target-platform android-arm --build-name=$PROJECT_BUILD_NAME --build-number=$PROJECT_BUILD_NUMBER
+#    - flutter build apk --target-platform android-arm --build-name=$PROJECT_BUILD_NAME --build-number=$PROJECT_BUILD_NUMBER
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    when: always
+    untracked: true
+    paths:
+      - $GRADLE_USER_HOME/caches/
+      - $GRADLE_USER_HOME/wrapper/
+      - $GRADLE_USER_HOME/build-cache/
   artifacts:
     paths:
       - /usr/local/bin/app/build/app/outputs/bundle/release/app-release.aab
