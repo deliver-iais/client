@@ -10,7 +10,6 @@ class MessageWrapper extends StatelessWidget {
   final String uid;
   final bool isSender;
   final bool isFirstMessageInGroupedMessages;
-  final bool isInlineMarkUpMessage;
 
   const MessageWrapper({
     super.key,
@@ -18,18 +17,11 @@ class MessageWrapper extends StatelessWidget {
     required this.uid,
     required this.isSender,
     this.isFirstMessageInGroupedMessages = true,
-    this.isInlineMarkUpMessage = false,
   });
 
   @override
   Widget build(BuildContext context) {
-    var color = ExtraTheme.of(context).messageBackgroundColor(uid);
-    if (isInlineMarkUpMessage) {
-      color = Color.alphaBlend(
-        Theme.of(context).primaryColor.withAlpha(50),
-        Colors.black12,
-      );
-    }
+    final color = ExtraTheme.of(context).messageBackgroundColor(uid);
 
     var border = messageBorder;
 
@@ -45,7 +37,6 @@ class MessageWrapper extends StatelessWidget {
     const height = 30.0;
 
     return Stack(
-      fit: StackFit.passthrough,
       children: [
         Container(
           clipBehavior: Clip.hardEdge,
