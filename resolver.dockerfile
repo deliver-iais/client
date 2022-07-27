@@ -11,9 +11,3 @@ RUN flutter pub get
 
 # Copy the app files to the container
 COPY . /usr/local/bin/app
-
-ARG build_number
-ARG build_name
-
-# Build the app for the web
-RUN flutter build appbundle --target-platform android-arm --build-name=$build_name --build-number=$build_number
