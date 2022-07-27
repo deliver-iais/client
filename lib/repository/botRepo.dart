@@ -96,13 +96,17 @@ class BotRepo {
   }
 
   Future<BotInfo?> getBotInfo(Uid botUid) async {
-    if (!botUid.isBot()) return null;
-    final botInfo = await _botDao.get(botUid.asString());
-    // TODO(hasan): add lastUpdate field in model and check it later in here!, https://gitlab.iais.co/deliver/wiki/-/issues/415
-    if (botInfo != null) {
-      return botInfo;
+    try {
+      if (!botUid.isBot()) return null;
+      final botInfo = await _botDao.get(botUid.asString());
+      // TODO(hasan): add lastUpdate field in model and check it later in here!, https://gitlab.iais.co/deliver/wiki/-/issues/415
+      if (botInfo != null) {
+        return botInfo;
+      }
+      return await fetchBotInfo(botUid);
+    } catch (_) {
+      return null;
     }
-    return fetchBotInfo(botUid);
   }
 
   Future<List<Uid>> searchBotByName(String name) async {

@@ -2,6 +2,7 @@ import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/muc.dart';
+import 'package:deliver/box/muc_type.dart';
 import 'package:hive/hive.dart';
 
 abstract class MucDao {
@@ -22,6 +23,7 @@ abstract class MucDao {
     String? id,
     String? token,
     String? name,
+    MucType? mucType,
   });
 
   Future<Member?> getMember(String mucUid, String memberUid);
@@ -126,30 +128,34 @@ class MucDaoImpl implements MucDao {
   }
 
   @override
-  Future<void> updateMuc(
-      {required String uid,
-      String? info,
-      List<int>? pinMessagesIdList,
-      int? lastCanceledPinMessageId,
-      int? population,
-      String? id,
-      String? token,
-      String? name,}) async {
+  Future<void> updateMuc({
+    required String uid,
+    String? info,
+    List<int>? pinMessagesIdList,
+    int? lastCanceledPinMessageId,
+    int? population,
+    String? id,
+    String? token,
+    MucType? mucType,
+    String? name,
+  }) async {
     final box = await _openMuc();
     final muc = box.get(uid) ?? Muc(uid: uid);
     box
         .put(
-            uid,
-            muc.copyWith(
-              uid: uid,
-              info: info,
-              id: id,
-              population: population,
-              pinMessagesIdList: pinMessagesIdList,
-              lastCanceledPinMessageId: lastCanceledPinMessageId,
-              token: token,
-              name: name,
-            ),)
+          uid,
+          muc.copyWith(
+            uid: uid,
+            info: info,
+            id: id,
+            population: population,
+            pinMessagesIdList: pinMessagesIdList,
+            lastCanceledPinMessageId: lastCanceledPinMessageId,
+            token: token,
+            name: name,
+            mucType: mucType,
+          ),
+        )
         .ignore();
   }
 }

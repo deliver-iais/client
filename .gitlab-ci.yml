@@ -1,14 +1,11 @@
 include:
   - project: deliver/devops
     file: /deployment/templates/base.yml
-    rules:
-      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   - project: deliver/devops
     file: /deployment/templates/commons.yml
-    rules:
-      - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 stages:
+  - resolve
   - build
   - deploy
 
@@ -16,14 +13,15 @@ variables:
   PROJECT_NAME: deliver-web
   KUSTOMIZE_DEPLOYMENT_PATH: deployment
   PROJECT_VERSION: $CI_COMMIT_SHORT_SHA
+  RESOLVER_VERSION: 1
+  PROJECT_BUILD_NAME: "1.9.1"
+  PROJECT_BUILD_NUMBER: "61"
 
 .docker-builder-prim:
   extends:
-#    - .only-master
     - .shell-basic
   script:
     - unset https_proxy && unset http_proxy
-    - export PUB_HOSTED_URL=https://pub.flutter-io.cn
     - if [ "$DOCKER_LOGIN_NEEDED" = true ] ; then docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD $DOCKER_REPO; fi
     - docker build -t $DOCKER_REPO/$PROJECT_NAME:$PROJECT_VERSION .
     - docker push $DOCKER_REPO/$PROJECT_NAME:$PROJECT_VERSION
@@ -38,19 +36,19 @@ variables:
   extends:
     - .kustomize-deploy
 
-# Pre Build - Because of needs of VPN this stage should be run in DEVELOPER PC when pubspecs.yaml changed and don't forget change version in pubspec.yaml if you change it
-.pre_build:
+resolve:
+  stage: resolve
   extends:
-    - .only-master
     - .shell-basic
-  stage: pre-build
-  needs: []
   script:
-    - sudo docker build -t 172.17.4.40:443/deliver-web-builder:2.0.1 -f builder.dockerfile .
-    - sudo docker push 172.17.4.40:443/deliver-web-builder:2.0.1
+    - unset https_proxy && unset http_proxy
+    - if [ "$DOCKER_LOGIN_NEEDED" = true ] ; then docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD $DOCKER_REPO; fi
+    - docker build -t $DOCKER_REPO/deliver-flutter-resolved:$RESOLVER_VERSION -f resolver.dockerfile .
+    - docker push $DOCKER_REPO/deliver-flutter-resolved:$RESOLVER_VERSION
 
 dev_build:
   needs: [ ]
+  when: manual
   extends:
     - .only-master
     - .deliver-web-builder
@@ -64,23 +62,44 @@ dev_deploy:
     - .deliver-web-deployer
     - .dev
 
-prod_and_staging_build:
-  needs: [ ]
+android_build:
+  stage: build
+  timeout: 6h
+  needs: [ resolve ]
+  image: $DOCKER_REPO/deliver-flutter-resolved:$RESOLVER_VERSION
+  variables:
+    GRADLE_USER_HOME: "cache/.gradle"
+    _JAVA_OPTIONS: "-Xmx2048m -XX:+UnlockExperimentalVMOptions"
+    GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m"'
   extends:
-    - .only-master
-    - .deliver-web-builder
-    - .staging
+    - .docker-basic
+  script:
+    - cd /usr/local/bin/app/
+    - flutter build appbundle --target-platform android-arm --build-name=$PROJECT_BUILD_NAME --build-number=$PROJECT_BUILD_NUMBER
+#    - flutter build apk --target-platform android-arm --build-name=$PROJECT_BUILD_NAME --build-number=$PROJECT_BUILD_NUMBER
+  cache:
+    key: "$CI_COMMIT_REF_NAME"
+    when: always
+    untracked: true
+    paths:
+      - $GRADLE_USER_HOME/caches/
+      - $GRADLE_USER_HOME/wrapper/
+      - $GRADLE_USER_HOME/build-cache/
+  artifacts:
+    paths:
+      - /usr/local/bin/app/build/app/outputs/bundle/release/app-release.aab
+    expire_in: 1 week
 
-staging_deploy:
-  needs: [ prod_and_staging_build ]
+prod_build:
+  needs: [ ]
   when: manual
   extends:
     - .only-master
-    - .deliver-web-deployer
-    - .staging
+    - .deliver-web-builder
+    - .prod
 
 prod_deploy:
-  needs: [ prod_and_staging_build ]
+  needs: [ prod_build ]
   extends:
     - .only-master
     - .deliver-web-deployer

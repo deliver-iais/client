@@ -201,6 +201,7 @@ class LoginPageState extends State<LoginPage> {
         child: Scaffold(
           backgroundColor: theme.colorScheme.background,
           appBar: AppBar(
+            centerTitle: true,
             title: Text(_i18n.get("login")),
             backgroundColor: theme.colorScheme.background,
           ),
@@ -243,21 +244,37 @@ class LoginPageState extends State<LoginPage> {
             },
           ),
           const SizedBox(height: 30),
-          const Text("1. Open $APPLICATION_NAME on your phone"),
+          Text(
+              textDirection:
+                  _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+              "1. ${_i18n.get("login_page_open_app_1")} $APPLICATION_NAME ${_i18n.get("login_page_open_app_2")}"),
           const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Text("2. Go to QrCode reader by clicking"),
-              Padding(
-                padding: EdgeInsets.all(4.0),
-                child: Icon(Icons.qr_code_rounded, size: 17),
-              ),
-              Text("in appbar"),
-            ],
+          Directionality(
+            textDirection:
+                _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                    textDirection:
+                        _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                    "2. ${_i18n.get("login_page_qr_code_1")}",),
+                const Padding(
+                  padding: EdgeInsets.all(4.0),
+                  child: Icon(Icons.qr_code_rounded, size: 17),
+                ),
+                Text(
+                    textDirection:
+                        _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                    _i18n.get("login_page_qr_code_2")),
+              ],
+            ),
           ),
           const SizedBox(height: 10),
-          const Text("3. Point your phone at this screen to confirm login"),
+          Text(
+              textDirection:
+                  _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+              "3. ${_i18n.get("login_page_confirm_login")}"),
           const SizedBox(height: 30),
           TextButton(
             child: Text(
@@ -307,7 +324,7 @@ class LoginPageState extends State<LoginPage> {
                         onSubmitted: (p) {
                           phoneNumber = p;
                           if (_acceptPrivacy) checkAndGoNext();
-                        },
+                        },key: const Key("IntlPhoneField"),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -442,7 +459,7 @@ class LoginPageState extends State<LoginPage> {
                         child: TextButton(
                           onPressed: checkAndGoNext,
                           child: Text(
-                            i18n.get("next"),
+                            i18n.get("next"),key: const Key('next'),
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: theme.primaryColor,
