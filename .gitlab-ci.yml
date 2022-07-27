@@ -60,6 +60,7 @@ dev_deploy:
     - .dev
 
 android_build:
+  stage: build
   needs: [ resolve ]
   image: $DOCKER_REPO/deliver-flutter-resolved:$PROJECT_VERSION
   extends:
