@@ -13,3 +13,5 @@ RUN flutter pub get
 
 # Copy the app files to the container
 COPY . /usr/local/bin/app
+
+WORKDIR /usr/local

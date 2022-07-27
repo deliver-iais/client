@@ -62,8 +62,12 @@ dev_deploy:
 
 android_build:
   stage: build
+  timeout: 4h 30m
   needs: [ resolve ]
   image: $DOCKER_REPO/deliver-flutter-resolved:$RESOLVER_VERSION
+  variables:
+    _JAVA_OPTIONS: "-Xmx2048m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+    GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m"'
   extends:
     - .docker-basic
   script:
