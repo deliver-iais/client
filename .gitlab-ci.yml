@@ -66,7 +66,7 @@ android_build:
   needs: [ resolve ]
   image: $DOCKER_REPO/deliver-flutter-resolved:$RESOLVER_VERSION
   variables:
-    _JAVA_OPTIONS: "-Xmx2048m -XX:+UnlockExperimentalVMOptions -XX:+UseCGroupMemoryLimitForHeap"
+    _JAVA_OPTIONS: "-Xmx2048m -XX:+UnlockExperimentalVMOptions"
     GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m"'
   extends:
     - .docker-basic
