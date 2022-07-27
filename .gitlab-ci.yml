@@ -42,6 +42,7 @@ resolve:
     - unset https_proxy && unset http_proxy
     - if [ "$DOCKER_LOGIN_NEEDED" = true ] ; then docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD $DOCKER_REPO; fi
     - docker build -t $DOCKER_REPO/deliver-flutter-resolved:$RESOLVER_VERSION -f resolver.dockerfile .
+    - docker push $DOCKER_REPO/deliver-flutter-resolved:$RESOLVER_VERSION
 
 dev_build:
   needs: [ ]
