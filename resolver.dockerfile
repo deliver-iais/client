@@ -1,5 +1,7 @@
 FROM 172.17.4.40:443/cirrusci/flutter-web:3.0.5 as builder
 
+RUN flutter precache --android
+
 COPY pubspec.yaml /usr/local/bin/app/pubspec.yaml
 COPY pubspec.lock /usr/local/bin/app/pubspec.lock
 

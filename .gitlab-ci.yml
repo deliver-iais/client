@@ -13,6 +13,7 @@ variables:
   PROJECT_NAME: deliver-web
   KUSTOMIZE_DEPLOYMENT_PATH: deployment
   PROJECT_VERSION: $CI_COMMIT_SHORT_SHA
+  RESOLVER_VERSION: 1
 
 .docker-builder-prim:
   extends:
@@ -40,8 +41,7 @@ resolve:
   script:
     - unset https_proxy && unset http_proxy
     - if [ "$DOCKER_LOGIN_NEEDED" = true ] ; then docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD $DOCKER_REPO; fi
-    - docker build -t $DOCKER_REPO/deliver-flutter-resolved:$PROJECT_VERSION -f resolver.dockerfile .
-    - docker push $DOCKER_REPO/deliver-flutter-resolved:$PROJECT_VERSION
+    - docker build -t $DOCKER_REPO/deliver-flutter-resolved:$RESOLVER_VERSION -f resolver.dockerfile .
 
 dev_build:
   needs: [ ]
@@ -62,10 +62,11 @@ dev_deploy:
 android_build:
   stage: build
   needs: [ resolve ]
-  image: $DOCKER_REPO/deliver-flutter-resolved:$PROJECT_VERSION
+  image: $DOCKER_REPO/deliver-flutter-resolved:$RESOLVER_VERSION
   extends:
     - .docker-basic
   script:
+    - cd /usr/local/bin/app/
     - flutter build appbundle --target-platform android-arm --build-name=1.9.1 --build-number=61
   artifacts:
     paths:
