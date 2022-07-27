@@ -1,10 +1,10 @@
 import 'package:deliver/debug/commons_widgets.dart';
+import 'package:deliver/fonts/emoji_font.dart';
 import 'package:deliver/screen/room/messageWidgets/animation_widget.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/emoji.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class EmojiKeyboard extends StatefulWidget {
   final void Function(String) onTap;
@@ -124,7 +124,7 @@ class EmojiKeyboardState extends State<EmojiKeyboard> {
                     Center(
                       child: Text(
                         emoji.toString(),
-                        style: GoogleFonts.notoEmoji(fontSize: 25),
+                        style: EmojiFont.notoColorEmojiCompat(fontSize: 25),
                       ),
                     ),
                     if (isDebugEnabled())
@@ -152,7 +152,7 @@ class EmojiKeyboardState extends State<EmojiKeyboard> {
   }
 
   TextStyle selectionStyle(ThemeData theme, String emoji) {
-    return GoogleFonts.notoEmoji(
+    return EmojiFont.notoColorEmojiCompat(
       fontSize: 22,
       color: selectionColor(theme, emoji),
       fontWeight: isSelectedEmojiGroup(emoji) ? FontWeight.bold : null,

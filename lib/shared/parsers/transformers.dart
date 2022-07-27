@@ -1,10 +1,10 @@
 import 'package:collection/collection.dart';
+import 'package:deliver/fonts/emoji_font.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/shared/loaders/spoiler_loader.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 // Transformers
 String simpleTransformer(Block block) => block.text;
@@ -73,7 +73,7 @@ Transformer<InlineSpan> inlineSpanTransformer({
     }
 
     if (emoji != null) {
-      textStyle = GoogleFonts.notoEmoji(textStyle: textStyle);
+      textStyle = EmojiFont.notoColorEmojiCompat(textStyle: textStyle);
     }
 
     if (searchTerm != null) {
@@ -146,7 +146,7 @@ Transformer<InlineSpan> simpleInlineSpanTransformer({
     }
 
     if (emoji != null) {
-      textStyle = GoogleFonts.notoEmoji(textStyle: textStyle);
+      textStyle =  EmojiFont.notoColorEmojiCompat(textStyle: textStyle);
     }
 
     if (searchTerm != null) {
@@ -191,7 +191,7 @@ Transformer<TextSpan> emojiTransformer() {
     var textStyle = const TextStyle();
 
     if (emoji != null) {
-      textStyle = GoogleFonts.notoEmoji(textStyle: textStyle);
+      textStyle =  EmojiFont.notoColorEmojiCompat(textStyle: textStyle);
     }
 
     return TextSpan(
