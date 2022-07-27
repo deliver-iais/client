@@ -331,8 +331,8 @@ packages:
     dependency: "direct main"
     description:
       path: "."
-      ref: f10624ee079d3212dfef1e412e8bbe24f9eb3b14
-      resolved-ref: f10624ee079d3212dfef1e412e8bbe24f9eb3b14
+      ref: fbfe3a539c70fe2f9fed19f6a42497bbe8de1894
+      resolved-ref: fbfe3a539c70fe2f9fed19f6a42497bbe8de1894
       url: "https://github.com/deliveriais/connectycube_flutter_call_kit"
     source: git
     version: "2.0.5"
