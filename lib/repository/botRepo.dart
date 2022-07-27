@@ -5,11 +5,15 @@ import 'dart:async';
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
+import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
+    as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
@@ -53,20 +57,42 @@ class BotRepo {
     return botInfo;
   }
 
-  Future<void> sendCallbackQuery(
-    Uid botUid,
+  Future<String?> sendCallbackQuery(
     String data,
-    int messageId,
-    String messagePacketId,
+    Message message,
   ) async {
-    await _sdr.botServiceClient.callbackQuery(
-      CallbackQueryReq()
-        ..id = botUid.node
-        ..data = data
-        ..messageId = Int64(messageId)
-        ..messagePacketId = messagePacketId,
-    );
-    // TODO(fatemeh): handle result
+    try {
+      final botUid = message.from.asUid();
+      final result = await _sdr.botServiceClient.callbackQuery(
+        CallbackQueryReq()
+          ..id = botUid.node
+          ..data = data
+          ..messageId = Int64(message.id ?? 0)
+          ..messagePacketId = message.packetId,
+      );
+
+      if (result.text.isNotEmpty) {
+        if (result.showAlert) {
+          //show toast
+          return result.text;
+        } else {
+          //show notification
+          GetIt.I.get<NotificationServices>().notifyIncomingMessage(
+                message_pb.Message(
+                  text: (message_pb.Text()..text = result.text),
+                  id: Int64(message.id ?? 0),
+                  from: message.from.asUid(),
+                  to: message.to.asUid(),
+                ),
+                botUid.asString(),
+              );
+        }
+      }
+      return null;
+    } catch (e) {
+      _logger.e(e);
+    }
+    return null;
   }
 
   Future<BotInfo?> getBotInfo(Uid botUid) async {
