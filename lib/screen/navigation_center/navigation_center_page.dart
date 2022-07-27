@@ -8,7 +8,6 @@ import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chats_page.dart';
 import 'package:deliver/screen/navigation_center/widgets/feature_discovery_description_widget.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
-import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -170,7 +169,7 @@ class NavigationCenterState extends State<NavigationCenter> {
 
   Widget _outOfDateWidget() {
     return StreamBuilder<bool>(
-      stream: outOfDateObject,
+      stream: _authRepo.outOfDateObject,
       builder: (c, snapshot) {
         if (snapshot.hasData && snapshot.data != null && snapshot.data!) {
           showOutOfDateDialog(context);
@@ -183,7 +182,7 @@ class NavigationCenterState extends State<NavigationCenter> {
 
   Widget _newVersionInfo() {
     return StreamBuilder<NewerVersionInformation?>(
-      stream: newVersionInformation,
+      stream: _authRepo.newVersionInformation,
       builder: (context, snapshot) {
         if (snapshot.hasData &&
             snapshot.data != null &&
@@ -286,7 +285,7 @@ class NavigationCenterState extends State<NavigationCenter> {
       targetColor: theme.colorScheme.tertiary,
       title: Text(
         _i18n.get("create_group_feature_discovery_title"),
-        textDirection: _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+        textDirection: _i18n.defaultTextDirection,
         style: TextStyle(
           color: theme.colorScheme.onTertiaryContainer,
         ),
@@ -305,20 +304,26 @@ class NavigationCenterState extends State<NavigationCenter> {
         child: PopupMenuButton(
           icon: const Icon(
             CupertinoIcons.plus_app,
+            key: Key("new_muc"),
           ),
           onSelected: selectChatMenu,
           itemBuilder: (context) => [
             PopupMenuItem<String>(
+              key: const Key("newGroup"),
               value: "newGroup",
               child: Row(
                 children: [
                   const Icon(CupertinoIcons.group),
                   const SizedBox(width: 8),
-                  Text(_i18n.get("newGroup")),
+                  Text(
+                    _i18n.get("newGroup"),
+                    style: theme.primaryTextTheme.bodyText2,
+                  ),
                 ],
               ),
             ),
             PopupMenuItem<String>(
+              key: const Key("newChannel"),
               value: "newChannel",
               child: Row(
                 children: [
@@ -326,6 +331,7 @@ class NavigationCenterState extends State<NavigationCenter> {
                   const SizedBox(width: 8),
                   Text(
                     _i18n.get("newChannel"),
+                    style: theme.primaryTextTheme.bodyText2,
                   )
                 ],
               ),
@@ -488,8 +494,7 @@ class NavigationCenterState extends State<NavigationCenter> {
                 targetColor: theme.colorScheme.tertiary,
                 title: Text(
                   _i18n.get("setting_icon_feature_discovery_title"),
-                  textDirection:
-                      _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                  textDirection: _i18n.defaultTextDirection,
                   style: TextStyle(
                     color: theme.colorScheme.onTertiaryContainer,
                   ),
@@ -553,8 +558,7 @@ class NavigationCenterState extends State<NavigationCenter> {
                 targetColor: theme.colorScheme.tertiary,
                 title: Text(
                   _i18n.get("qr_code_feature_discovery_title"),
-                  textDirection:
-                      _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                  textDirection: _i18n.defaultTextDirection,
                   style: TextStyle(
                     color: theme.colorScheme.onTertiaryContainer,
                   ),

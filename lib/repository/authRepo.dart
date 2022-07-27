@@ -6,7 +6,6 @@ import 'package:deliver/box/avatar.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
-import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -20,6 +19,7 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:jwt_decoder/jwt_decoder.dart';
 import 'package:logger/logger.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:synchronized/synchronized.dart';
 
 class AuthRepo {
@@ -27,6 +27,11 @@ class AuthRepo {
   static final _sharedDao = GetIt.I.get<SharedDao>();
   static final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
   static final requestLock = Lock();
+
+  BehaviorSubject<bool> outOfDateObject = BehaviorSubject.seeded(false);
+
+  BehaviorSubject<NewerVersionInformation?> newVersionInformation =
+      BehaviorSubject();
 
   Uid currentUserUid = Uid.create()
     ..category = Categories.USER
@@ -41,29 +46,26 @@ class AuthRepo {
 
   String? get accessToken => _accessToken;
 
-  Future<bool> isTestUser() async {
-    if (currentUserUid.node.isNotEmpty) {
-      return currentUserUid.isSameEntity(TEST_USER_UID.asString());
-    } else {
-      currentUserUid =
-          (await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID))!.asUid();
-      return currentUserUid.isSameEntity(TEST_USER_UID.asString());
-    }
-  }
-
   Future<void> init() async {
     try {
       _localPassword = await _sharedDao.get(SHARED_DAO_LOCAL_PASSWORD) ?? "";
       final accessToken = await _sharedDao.get(SHARED_DAO_ACCESS_TOKEN_KEY);
       final refreshToken = await _sharedDao.get(SHARED_DAO_REFRESH_TOKEN_KEY);
       return _setTokensAndCurrentUserUid(accessToken, refreshToken);
-    } catch (_) {}
+    } catch (_) {
+      _logger.e(_.toString());
+    }
   }
 
   Future<void> setCurrentUserUid() async {
-    await init();
-    final res = await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID);
-    if (res != null) currentUserUid = (res).asUid();
+    try{
+      init().ignore();
+      final res = await _sharedDao.get(SHARED_DAO_CURRENT_USER_UID);
+      if (res != null) currentUserUid = (res).asUid();
+    }catch(e){
+      _logger.e(e.toString());
+    }
+
   }
 
   Future<void> getVerificationCode(PhoneNumber p) async {
@@ -143,9 +145,9 @@ class AuthRepo {
       try {
         final renewAccessTokenRes = await _getAccessToken(_refreshToken!);
         _saveTokens(renewAccessTokenRes);
-        if (renewAccessTokenRes.newerVersionInformation.version.isNotEmpty &&
-            renewAccessTokenRes.newerVersionInformation.version != VERSION &&
-            !newVersionInformation.hasValue) {
+        if (!newVersionInformation.hasValue &&
+            renewAccessTokenRes.newerVersionInformation.version.isNotEmpty &&
+            renewAccessTokenRes.newerVersionInformation.version != VERSION) {
           newVersionInformation
               .add(renewAccessTokenRes.newerVersionInformation);
         }
@@ -238,11 +240,6 @@ class AuthRepo {
     await _sharedDao.remove(SHARED_DAO_REFRESH_TOKEN_KEY);
   }
 
-  void saveTestUserInfo() {
-    currentUserUid = TEST_USER_UID;
-    _sharedDao.put(SHARED_DAO_CURRENT_USER_UID, TEST_USER_UID.asString());
-  }
-
   Future<void> sendForgetPasswordEmail(PhoneNumber phoneNumber) async {
     await _sdr.authServiceClient.sendErasePasswordEmail(
       SendErasePasswordEmailReq()
@@ -259,10 +256,7 @@ class DeliverClientInterceptor implements ClientInterceptor {
     Map<String, String> metadata,
     String uri,
   ) async {
-    final token = await _authRepo.isTestUser()
-        ? TEST_USER_ACCESS_TOKEN
-        : await _authRepo.getAccessToken();
-    metadata['access_token'] = token;
+    metadata['access_token'] = await _authRepo.getAccessToken();
   }
 
   @override

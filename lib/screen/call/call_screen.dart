@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:core';
 
-import 'package:all_sensors2/all_sensors2.dart';
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/callRepo.dart';
@@ -18,6 +17,7 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:random_string/random_string.dart';
+import 'package:sensors_plus/sensors_plus.dart';
 
 import 'videoCallScreen/in_video_call_page.dart';
 
@@ -53,8 +53,6 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
   late final String random;
   BuildContext? dialogContext;
 
-  final List<StreamSubscription<dynamic>> _streamSubscriptions =
-      <StreamSubscription<dynamic>>[];
   final List<StreamSubscription<AccelerometerEvent>?> _accelerometerEvents =
       <StreamSubscription<AccelerometerEvent>>[];
 
@@ -160,7 +158,6 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
         subscription?.cancel();
       }
       setOnLockScreenVisibility();
-      closeProximitySensor();
     }
     WidgetsBinding.instance.removeObserver(this);
   }
@@ -171,26 +168,13 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
     );
   }
 
-  void closeProximitySensor() {
-    for (final subscription in _streamSubscriptions) {
-      subscription.cancel();
-    }
-  }
-
   Future<void> _listenSensor() async {
     _accelerometerEvents.add(
-      accelerometerEvents?.listen((event) {
+      accelerometerEvents.listen((event) {
         if (event.z < 5 && event.y > 1) {
           //_logger.i('Proximity sensor detected');
-          if (_streamSubscriptions.isEmpty) {
-            if (_streamSubscriptions.isEmpty) {
-              _streamSubscriptions.add(proximityEvents!.listen((event) {}));
-            }
-          }
         } else {
           //_logger.i('Proximity sensor not detected');
-          closeProximitySensor();
-          _streamSubscriptions.clear();
         }
       }),
     );
@@ -258,6 +242,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: "Connected",
+                    callStatusOnScreen: _i18n.get("call_connected"),
                     hangUp: _hangUp,
                   );
           case CallStatus.DISCONNECTED:
@@ -272,6 +257,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: "disConnected",
+                    callStatusOnScreen: _i18n.get("call_dis_connected"),
                     hangUp: _hangUp,
                   );
           case CallStatus.CONNECTING:
@@ -286,6 +272,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: "Connecting",
+                    callStatusOnScreen: _i18n.get("call_connecting"),
                     hangUp: _hangUp,
                   );
           case CallStatus.RECONNECTING:
@@ -300,6 +287,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: "Reconnecting",
+                    callStatusOnScreen: _i18n.get("call_reconnecting"),
                     hangUp: _hangUp,
                   );
           case CallStatus.FAILED:
@@ -314,6 +302,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: "Connection failed",
+                    callStatusOnScreen: _i18n.get("call_connection_failed"),
                     hangUp: _hangUp,
                   );
           case CallStatus.IS_RINGING:
@@ -330,6 +319,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: "Ringing",
+                    callStatusOnScreen: _i18n.get("call_ringing"),
                     isIncomingCall: widget.isIncomingCall,
                     hangUp: _hangUp,
                   );
@@ -346,6 +336,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: "User not answer",
+                    callStatusOnScreen: _i18n.get("call_user_not_answer"),
                     isIncomingCall: widget.isIncomingCall,
                     hangUp: _hangUp,
                   );
@@ -362,6 +353,9 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: "Calling",
+                    callStatusOnScreen: widget.isIncomingCall
+                        ? _i18n.get("call_incoming")
+                        : _i18n.get("call_calling"),
                     isIncomingCall: !callRepo.isCaller,
                     hangUp: _hangUp,
                   );
@@ -377,6 +371,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
             return AudioCallScreen(
               roomUid: widget.roomUid,
               callStatus: "Ended",
+              callStatusOnScreen: _i18n.get("call_ended"),
               isIncomingCall: widget.isIncomingCall,
               hangUp: _hangUp,
             );
@@ -396,6 +391,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: "Busy....",
+                    callStatusOnScreen: "${_i18n.get("call_busy")}....",
                     hangUp: _hangUp,
                   );
           case CallStatus.DECLINED:
@@ -410,6 +406,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: "Declined....",
+                    callStatusOnScreen: "${_i18n.get("call_declined")}....",
                     hangUp: _hangUp,
                   );
           case CallStatus.ACCEPTED:
@@ -425,6 +422,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: "Accepted",
+                    callStatusOnScreen: _i18n.get("call_accepted"),
                     hangUp: _hangUp,
                   );
 

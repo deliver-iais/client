@@ -43,11 +43,13 @@ class IntroPageState extends State<IntroPage> {
                 FEATURE_2,
                 FEATURE_3,
                 FEATURE_4,
+                FEATURE_5,
               }
             : const <String>{
                 FEATURE_1,
                 FEATURE_3,
                 FEATURE_4,
+                FEATURE_5,
               },
       );
     });
@@ -89,7 +91,10 @@ class IntroPageState extends State<IntroPage> {
                       child: SizedBox(
                         width: animationSize,
                         child: Text(
-                          'Super fast messaging app. It is free and secure.',
+                          textDirection: _i18n.isPersian
+                              ? TextDirection.rtl
+                              : TextDirection.ltr,
+                          _i18n.get("login_page_start"),
                           style: theme.primaryTextTheme.subtitle1,
                           textAlign: TextAlign.center,
                         ),
@@ -101,19 +106,19 @@ class IntroPageState extends State<IntroPage> {
               Slide(
                 widgetTitle: Column(
                   children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        'Fast',
-                        style: theme.primaryTextTheme.headline5,
-                      ),
+                    Text(
+                      _i18n.get("login_page_fast_title"),
+                      style: theme.primaryTextTheme.headline5,
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: SizedBox(
                         width: animationSize,
                         child: Text(
-                          'We delivers messages fastest than any other application.',
+                          textDirection: _i18n.isPersian
+                              ? TextDirection.rtl
+                              : TextDirection.ltr,
+                          _i18n.get("login_page_fast_body"),
                           style: theme.primaryTextTheme.subtitle1,
                           textAlign: TextAlign.center,
                         ),
@@ -125,19 +130,19 @@ class IntroPageState extends State<IntroPage> {
               Slide(
                 widgetTitle: Column(
                   children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        'Powerful',
-                        style: theme.primaryTextTheme.headline5,
-                      ),
+                    Text(
+                      _i18n.get("login_page_powerful_title"),
+                      style: theme.primaryTextTheme.headline5,
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: SizedBox(
                         width: animationSize,
                         child: Text(
-                          'Messenger has no limits on the size of your media and chats.',
+                          textDirection: _i18n.isPersian
+                              ? TextDirection.rtl
+                              : TextDirection.ltr,
+                          _i18n.get("login_page_powerful_body"),
                           style: theme.primaryTextTheme.subtitle1,
                           textAlign: TextAlign.center,
                         ),
@@ -149,19 +154,19 @@ class IntroPageState extends State<IntroPage> {
               Slide(
                 widgetTitle: Column(
                   children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Text(
-                        'Secure',
-                        style: theme.primaryTextTheme.headline5,
-                      ),
+                    Text(
+                      _i18n.get("login_page_secure_title"),
+                      style: theme.primaryTextTheme.headline5,
                     ),
                     Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: SizedBox(
                         width: animationSize,
                         child: Text(
-                          'Messenger keeps your messages safe from hacker attacks.',
+                          textDirection: _i18n.isPersian
+                              ? TextDirection.rtl
+                              : TextDirection.ltr,
+                          _i18n.get("login_page_secure_body"),
                           style: theme.primaryTextTheme.subtitle1,
                           textAlign: TextAlign.center,
                         ),

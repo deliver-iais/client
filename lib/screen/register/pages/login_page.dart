@@ -8,15 +8,18 @@ import 'package:deliver/screen/home/pages/home_page.dart';
 import 'package:deliver/screen/register/pages/two_step_verification_page.dart';
 import 'package:deliver/screen/register/pages/verification_page.dart';
 import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
-import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/settings/pages/connection_setting_page.dart';
 import 'package:deliver/screen/settings/pages/language_settings.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/firebase_services.dart';
+import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/language.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/parsers/detectors.dart';
+import 'package:deliver/shared/parsers/parsers.dart';
+import 'package:deliver/shared/parsers/transformers.dart';
 import 'package:deliver/shared/widgets/fluid.dart';
 import 'package:deliver/shared/widgets/out_of_date.dart';
 import 'package:deliver/shared/widgets/settings_ui/src/settings_tile.dart';
@@ -25,7 +28,6 @@ import 'package:deliver_public_protocol/pub/v1/profile.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
@@ -50,6 +52,7 @@ class LoginPageState extends State<LoginPage> {
   static final _contactRepo = GetIt.I.get<ContactRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _accountRepo = GetIt.I.get<AccountRepo>();
+  final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
   final _formKey = GlobalKey<FormState>();
   final BehaviorSubject<bool> _isLoading = BehaviorSubject.seeded(false);
   bool loginWithQrCode = isDesktop;
@@ -139,11 +142,6 @@ class LoginPageState extends State<LoginPage> {
     );
   }
 
-  void _loginASTestUser() {
-    _authRepo.saveTestUserInfo();
-    _navigationToHome();
-  }
-
   @override
   void dispose() {
     loginToken.close();
@@ -154,47 +152,42 @@ class LoginPageState extends State<LoginPage> {
 
   Future<void> checkAndGoNext({bool doNotCheckValidator = false}) async {
     final navigatorState = Navigator.of(context);
-    if (phoneNumber != null &&
-        phoneNumber!.nationalNumber.toString() == TEST_USER_PHONE_NUMBER) {
-      _logger.e("login as test user ");
-      _loginASTestUser();
-    } else {
-      final isValidated = _formKey.currentState?.validate() ?? false;
-      if ((doNotCheckValidator || isValidated) && phoneNumber != null) {
-        _isLoading.add(true);
-        try {
-          await _authRepo.getVerificationCode(phoneNumber!);
-          navigatorState
-              .push(
-                MaterialPageRoute(builder: (c) => const VerificationPage()),
-              )
-              .ignore();
-          _isLoading.add(false);
-        } on GrpcError catch (e) {
-          _isLoading.add(false);
-          _logger.e(e);
-          if (e.code == StatusCode.unavailable) {
-            _networkError.add(true);
-            ToastDisplay.showToast(
-              toastText: _i18n.get("notwork_is_unavailable"),
-              toastContext: context,
-            );
-          } else if (e.code == StatusCode.aborted) {
-            showOutOfDateDialog(context);
-          } else {
-            ToastDisplay.showToast(
-              toastText: _i18n.get("error_occurred"),
-              toastContext: context,
-            );
-          }
-        } catch (e) {
-          _isLoading.add(false);
-          _logger.e(e);
+
+    final isValidated = _formKey.currentState?.validate() ?? false;
+    if ((doNotCheckValidator || isValidated) && phoneNumber != null) {
+      _isLoading.add(true);
+      try {
+        await _authRepo.getVerificationCode(phoneNumber!);
+        navigatorState
+            .push(
+              MaterialPageRoute(builder: (c) => const VerificationPage()),
+            )
+            .ignore();
+        _isLoading.add(false);
+      } on GrpcError catch (e) {
+        _isLoading.add(false);
+        _logger.e(e);
+        if (e.code == StatusCode.unavailable) {
+          _networkError.add(true);
+          ToastDisplay.showToast(
+            toastText: _i18n.get("notwork_is_unavailable"),
+            toastContext: context,
+          );
+        } else if (e.code == StatusCode.aborted) {
+          showOutOfDateDialog(context);
+        } else {
           ToastDisplay.showToast(
             toastText: _i18n.get("error_occurred"),
             toastContext: context,
           );
         }
+      } catch (e) {
+        _isLoading.add(false);
+        _logger.e(e);
+        ToastDisplay.showToast(
+          toastText: _i18n.get("error_occurred"),
+          toastContext: context,
+        );
       }
     }
   }
@@ -208,6 +201,7 @@ class LoginPageState extends State<LoginPage> {
         child: Scaffold(
           backgroundColor: theme.colorScheme.background,
           appBar: AppBar(
+            centerTitle: true,
             title: Text(_i18n.get("login")),
             backgroundColor: theme.colorScheme.background,
           ),
@@ -250,21 +244,37 @@ class LoginPageState extends State<LoginPage> {
             },
           ),
           const SizedBox(height: 30),
-          const Text("1. Open $APPLICATION_NAME on your phone"),
+          Text(
+              textDirection:
+                  _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+              "1. ${_i18n.get("login_page_open_app_1")} $APPLICATION_NAME ${_i18n.get("login_page_open_app_2")}"),
           const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: const [
-              Text("2. Go to QrCode reader by clicking"),
-              Padding(
-                padding: EdgeInsets.all(4.0),
-                child: Icon(Icons.qr_code_rounded, size: 17),
-              ),
-              Text("in appbar"),
-            ],
+          Directionality(
+            textDirection:
+                _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                    textDirection:
+                        _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                    "2. ${_i18n.get("login_page_qr_code_1")}",),
+                const Padding(
+                  padding: EdgeInsets.all(4.0),
+                  child: Icon(Icons.qr_code_rounded, size: 17),
+                ),
+                Text(
+                    textDirection:
+                        _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                    _i18n.get("login_page_qr_code_2")),
+              ],
+            ),
           ),
           const SizedBox(height: 10),
-          const Text("3. Point your phone at this screen to confirm login"),
+          Text(
+              textDirection:
+                  _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+              "3. ${_i18n.get("login_page_confirm_login")}"),
           const SizedBox(height: 30),
           TextButton(
             child: Text(
@@ -314,7 +324,7 @@ class LoginPageState extends State<LoginPage> {
                         onSubmitted: (p) {
                           phoneNumber = p;
                           if (_acceptPrivacy) checkAndGoNext();
-                        },
+                        },key: const Key("IntlPhoneField"),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -449,7 +459,7 @@ class LoginPageState extends State<LoginPage> {
                         child: TextButton(
                           onPressed: checkAndGoNext,
                           child: Text(
-                            i18n.get("next"),
+                            i18n.get("next"),key: const Key('next'),
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: theme.primaryColor,
@@ -471,25 +481,17 @@ class LoginPageState extends State<LoginPage> {
   List<InlineSpan> buildText(
     String text,
     BuildContext context,
-  ) =>
-      extractBlocks(
-        text
-            .split("\n")
-            .map((e) => e.trim())
-            .where((e) => e.trim().isNotEmpty)
-            .join(" "),
-        context: context,
-      ).where((b) => b.text.isNotEmpty).map((e) {
-        var tap = e.text;
-        if (e.type == BlockTypes.INLINE_URL) {
-          tap = e.matchText;
-        }
-        return TextSpan(
-          text: e.text,
-          style: e.style,
-          recognizer: (e.onTap != null)
-              ? (TapGestureRecognizer()..onTap = () => e.onTap!(tap))
-              : null,
-        );
-      }).toList();
+  ) {
+    final theme = Theme.of(context);
+
+    return onePath(
+      [Block(text: text, features: {})],
+      detectorsWithSearchTermDetector(),
+      inlineSpanTransformer(
+        defaultColor: theme.colorScheme.primary,
+        linkColor: theme.colorScheme.primary,
+        onUrlClick: (text) => _urlHandlerService.onUrlTap(text, context),
+      ),
+    );
+  }
 }

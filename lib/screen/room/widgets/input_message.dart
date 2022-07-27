@@ -10,6 +10,7 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/custom_text_selection_controller.dart';
+import 'package:deliver/screen/room/messageWidgets/input_message_text_controller.dart';
 import 'package:deliver/screen/room/messageWidgets/max_lenght_text_input_formatter.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/widgets/bot_commands.dart';
@@ -34,6 +35,7 @@ import 'package:deliver/shared/widgets/attach_location.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:feature_discovery/feature_discovery.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
@@ -45,6 +47,8 @@ import 'package:logger/logger.dart';
 import 'package:pasteboard/pasteboard.dart';
 import 'package:rxdart/rxdart.dart';
 
+import '../../navigation_center/widgets/feature_discovery_description_widget.dart';
+
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
   final BehaviorSubject<Message?> replyMessageIdStream;
@@ -55,7 +59,7 @@ class InputMessage extends StatefulWidget {
   final void Function() scrollToLastSentMessage;
   final Message? editableMessage;
   final FocusNode focusNode;
-  final TextEditingController textController;
+  final InputMessageTextController textController;
   final Function(int dir, bool, bool) handleScrollToMessage;
   final Function() deleteSelectedMessage;
 
@@ -112,7 +116,7 @@ class InputMessageWidgetState extends State<InputMessage> {
   bool _shouldSynthesize = true;
 
   final botCommandRegexp = RegExp(r"(\w)*");
-  final idRegexp = RegExp(r"(\w)*");
+  final idRegexp = RegExp(r"^[a-zA-Z]([a-zA-Z0-9_]){0,19}$");
 
   void showButtonSheet() {
     if (isWeb || isDesktop) {
@@ -155,7 +159,8 @@ class InputMessageWidgetState extends State<InputMessage> {
       _messageRepo.sendActivity(widget.currentRoom.uid.asUid(), event);
     });
     _audioService.recordingDuration.listen((value) {
-      if (value.compareTo(Duration.zero) > 0) {
+      if (value.compareTo(Duration.zero) > 0 &&
+          _audioService.recordingRoom == widget.currentRoom.uid) {
         isTypingActivitySubject.add(ActivityType.RECORDING_VOICE);
       }
     });
@@ -182,7 +187,7 @@ class InputMessageWidgetState extends State<InputMessage> {
           widget.textController.text
               .substring(0 + 1, widget.textController.selection.start),
         );
-      } else if (widget.textController.text.isEmpty) {
+      } else {
         _botCommandQuery.add("-");
       }
 
@@ -202,12 +207,18 @@ class InputMessageWidgetState extends State<InputMessage> {
               (start == 0 || widget.textController.text[start - 1] == " ") &&
               widget.textController.selection.start ==
                   widget.textController.selection.end &&
-              idRegexp.hasMatch(
-                widget.textController.text.substring(
-                  start + 1,
-                  widget.textController.selection.start,
-                ),
-              )) {
+              (idRegexp.hasMatch(
+                    widget.textController.text.substring(
+                      start + 1,
+                      widget.textController.selection.start,
+                    ),
+                  ) ||
+                  widget.textController.text
+                      .substring(
+                        start + 1,
+                        widget.textController.selection.start,
+                      )
+                      .isEmpty)) {
             _mentionQuery.add(
               widget.textController.text
                   .substring(start + 1, widget.textController.selection.start),
@@ -227,6 +238,7 @@ class InputMessageWidgetState extends State<InputMessage> {
       textController: widget.textController,
       captionController: captionTextController,
       roomUid: currentRoom.uid.asUid(),
+      enableMarkDown: enableMarkdown,
     );
     super.initState();
   }
@@ -269,6 +281,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                     mentionSelectedIndex: mentionSelectedIndex,
                   );
                 }
+                mentionSelectedIndex = 0;
                 return const SizedBox.shrink();
               },
             ),
@@ -276,11 +289,14 @@ class InputMessageWidgetState extends State<InputMessage> {
               stream: _botCommandQuery.distinct(),
               builder: (c, show) {
                 _botCommandData = show.data ?? "-";
+                if (_botCommandData == "-") {
+                  botCommandSelectedIndex = 0;
+                }
                 return BotCommands(
                   botUid: widget.currentRoom.uid.asUid(),
                   query: _botCommandData,
                   onCommandClick: (command) {
-                    onCommandClick(command);
+                    onCommandSelected(command);
                   },
                   botCommandSelectedIndex: botCommandSelectedIndex,
                 );
@@ -448,6 +464,7 @@ class InputMessageWidgetState extends State<InputMessage> {
   }
 
   StreamBuilder<bool> buildDefaultActions() {
+    final theme = Theme.of(context);
     return StreamBuilder<bool>(
       stream: _showSendIcon,
       builder: (context, snapshot) {
@@ -465,9 +482,12 @@ class InputMessageWidgetState extends State<InputMessage> {
                 icon: const Icon(
                   CupertinoIcons.slash_circle,
                 ),
-                onPressed: () => _botCommandQuery.add(
-                  _botCommandQuery.value == "-" ? "" : "-",
-                ),
+                onPressed: () => {
+                  widget.focusNode.requestFocus(),
+                  _botCommandQuery.add(
+                    _botCommandQuery.value == "-" ? "" : "-",
+                  ),
+                },
               ),
             if ((isWindows || isMacOS) &&
                 !showSendButton &&
@@ -493,17 +513,42 @@ class InputMessageWidgetState extends State<InputMessage> {
                 },
               ),
             if (showSendButton && !widget.waitingForForward)
-              IconButton(
-                icon: FaIcon(
+              DescribedFeatureOverlay(
+                featureId: FEATURE_4,
+                useCustomPosition: true,
+                tapTarget: const FaIcon(
                   FontAwesomeIcons.markdown,
-                  size: 18,
-                  color: !_shouldSynthesize ? ACTIVE_COLOR : null,
                 ),
-                onPressed: () {
-                  setState(() {
-                    _shouldSynthesize = !_shouldSynthesize;
-                  });
-                },
+                backgroundColor: theme.colorScheme.tertiaryContainer,
+                targetColor: theme.colorScheme.tertiary,
+                title: Text(
+                  _i18n.get("markdown_feature_discovery_title"),
+                  textDirection: _i18n.defaultTextDirection,
+                  style: TextStyle(
+                    color: theme.colorScheme.onTertiaryContainer,
+                  ),
+                ),
+                overflowMode: OverflowMode.extendBackground,
+                description: FeatureDiscoveryDescriptionWidget(
+                  description: _i18n.get("markdown_feature_description"),
+                  descriptionStyle: TextStyle(
+                    color: theme.colorScheme.onTertiaryContainer,
+                  ),
+                ),
+                child: IconButton(
+                  icon: FaIcon(
+                    FontAwesomeIcons.markdown,
+                    size: 18,
+                    color: !_shouldSynthesize ? ACTIVE_COLOR : null,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      widget.textController.isMarkDownEnable =
+                          _shouldSynthesize;
+                      _shouldSynthesize = !_shouldSynthesize;
+                    });
+                  },
+                ),
               ),
             if (showSendButton || widget.waitingForForward)
               IconButton(
@@ -537,7 +582,7 @@ class InputMessageWidgetState extends State<InputMessage> {
               builder: (c, sn) {
                 final textDir = sn.data ?? TextDirection.ltr;
                 return TextField(
-                  selectionControls: isDesktop ? selectionControls : null,
+                  selectionControls: selectionControls,
                   focusNode: widget.focusNode,
                   autofocus: (snapshot.data?.id ?? 0) > 0 || isDesktop,
                   controller: widget.textController,
@@ -546,8 +591,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                     border: InputBorder.none,
                     counterText: "",
                     hintText: _i18n.get("write_a_message"),
-                    hintTextDirection:
-                        _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                    hintTextDirection: _i18n.defaultTextDirection,
                     hintStyle: theme.textTheme.bodyMedium,
                   ),
                   textInputAction: TextInputAction.newline,
@@ -606,7 +650,7 @@ class InputMessageWidgetState extends State<InputMessage> {
     }
   }
 
-  void onCommandClick(String command) {
+  void onCommandSelected(String command) {
     widget.textController.text = "/$command";
     widget.textController.selection = TextSelection.fromPosition(
       TextPosition(offset: widget.textController.text.length),
@@ -619,9 +663,7 @@ class InputMessageWidgetState extends State<InputMessage> {
       if (widget.editableMessage == null) {
         Future.delayed(const Duration(milliseconds: 100), () {}).then((_) {
           if (widget.editableMessage != null) {
-            widget.textController.selection = TextSelection.collapsed(
-              offset: widget.textController.text.length,
-            );
+            moveCursorToEnd();
           }
         });
       }
@@ -632,30 +674,25 @@ class InputMessageWidgetState extends State<InputMessage> {
     if (event is RawKeyDownEvent &&
         {PhysicalKeyboardKey.arrowUp, PhysicalKeyboardKey.arrowDown}
             .contains(event.physicalKey)) {
-      _handleArrow(event);
+      if (_mentionQuery.value == null && _botCommandQuery.value == "-") {
+        _handleArrow(event);
+      }
     }
     if (event is RawKeyUpEvent &&
         event.physicalKey == PhysicalKeyboardKey.delete) {
       widget.deleteSelectedMessage();
     }
-    if (!_uxService.sendByEnter &&
-        event.isShiftPressed &&
+    if (((!_uxService.sendByEnter && event.isShiftPressed) ||
+            (_uxService.sendByEnter && !event.isShiftPressed)) &&
         isEnterClicked(event)) {
       if (widget.currentRoom.uid.isGroup() &&
           mentionSelectedIndex >= 0 &&
           _mentionQuery.value != null) {
         addMentionByEnter();
-      } else {
-        sendMessage();
-      }
-      return KeyEventResult.handled;
-    } else if (_uxService.sendByEnter &&
-        !event.isShiftPressed &&
-        isEnterClicked(event)) {
-      if (widget.currentRoom.uid.isGroup() &&
-          mentionSelectedIndex >= 0 &&
-          _mentionQuery.value != null) {
-        addMentionByEnter();
+      } else if (widget.currentRoom.uid.isBot() &&
+          botCommandSelectedIndex >= 0 &&
+          _botCommandQuery.value != "-") {
+        addBotCommandByEnter();
       } else {
         sendMessage();
       }
@@ -689,7 +726,6 @@ class InputMessageWidgetState extends State<InputMessage> {
           event,
           scrollDownInBotCommand,
           scrollUpInBotCommand,
-          sendBotCommandByEnter,
           _botCommandData,
         );
       });
@@ -733,6 +769,9 @@ class InputMessageWidgetState extends State<InputMessage> {
   }
 
   void scrollUpInBotCommand() {
+    Future.delayed(const Duration(), () {}).then((_) {
+      moveCursorToEnd();
+    });
     var length = 0;
     if (botCommandSelectedIndex <= 0) {
       _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then(
@@ -749,15 +788,17 @@ class InputMessageWidgetState extends State<InputMessage> {
     }
   }
 
-  void sendBotCommandByEnter() {
-    _botRepo.getBotInfo(widget.currentRoom.uid.asUid()).then(
-          (value) => {
-            if (value != null)
-              onCommandClick(
-                value.commands!.keys.toList()[botCommandSelectedIndex],
-              )
-          },
-        );
+  Future<void> addBotCommandByEnter() async {
+    final value = await _botRepo.getBotInfo(widget.currentRoom.uid.asUid());
+    if (value != null && value.commands!.isNotEmpty) {
+      onCommandSelected(
+        value.commands!.keys
+            .where((element) => element.contains(_botCommandData))
+            .toList()[botCommandSelectedIndex],
+      );
+    } else {
+      sendMessage();
+    }
   }
 
   Future<void> addMentionByEnter() async {
@@ -794,12 +835,15 @@ class InputMessageWidgetState extends State<InputMessage> {
           .getFilteredMember(currentRoom.uid, query: _mentionQuery.value)
           .then(
             (value) => {
-              mentionSelectedIndex = value.length - 1,
+              mentionSelectedIndex = value.length,
             },
           );
     } else {
       mentionSelectedIndex--;
     }
+    Future.delayed(const Duration(), () {
+      moveCursorToEnd();
+    });
   }
 
   void sendMessage() {
@@ -928,6 +972,21 @@ class InputMessageWidgetState extends State<InputMessage> {
         text = widget.editableMessage!.json.toFile().caption;
     }
     return "$text ";
+  }
+
+  void moveCursorToEnd() {
+    widget.textController.selection = TextSelection.collapsed(
+      offset: widget.textController.text.length,
+    );
+  }
+
+  void enableMarkdown() {
+    if (_shouldSynthesize) {
+      setState(() {
+        _shouldSynthesize = false;
+        widget.textController.isMarkDownEnable = true;
+      });
+    }
   }
 }
 

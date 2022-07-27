@@ -1,6 +1,7 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/input_message_text_controller.dart';
 import 'package:deliver/screen/room/widgets/input_message.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +21,7 @@ class NewMessageInput extends StatelessWidget {
   final FocusNode focusNode;
   final void Function(int, bool, bool) handleScrollToMessage;
   final void Function() deleteSelectedMessage;
-  final TextEditingController textController;
+  final InputMessageTextController textController;
 
   const NewMessageInput({
     super.key,

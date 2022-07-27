@@ -63,7 +63,6 @@ class ServicesDiscoveryRepo {
     _initFirebaseClientChannelServices(ip, grpcClientInterceptors);
     _initLiverLocationClientServices(ip, grpcClientInterceptors);
   }
-
   void _initQueryClientChannelServices(
     String ip,
     List<ClientInterceptor> grpcClientInterceptors,

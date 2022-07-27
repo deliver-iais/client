@@ -7,6 +7,7 @@ import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/muc.dart';
+import 'package:deliver/box/muc_type.dart';
 import 'package:deliver/box/role.dart';
 import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/repository/accountRepo.dart';
@@ -86,6 +87,7 @@ class MucRepo {
           memberUidList.length + 1,
           info,
           channelId: channelId,
+          mucType: pbMucTypeToHiveMucType(channelType),
         ),
       );
       unawaited(fetchMucInfo(channelUid));
@@ -198,6 +200,7 @@ class MucRepo {
         if (createNewRoom) {
           await _roomDao.updateRoom(
             uid: mucUid.asString(),
+            deleted: false,
             lastMessageId: group.lastMessageId.toInt(),
           );
         }
@@ -257,6 +260,7 @@ class MucRepo {
             pinMessagesIdList:
                 channel.pinMessages.map((e) => e.toInt()).toList(),
             id: channel.info.id,
+            mucType: pbMucTypeToHiveMucType(channel.info.type),
           ),
         );
 
@@ -537,19 +541,28 @@ class MucRepo {
     String name,
     String id,
     String info,
+    ChannelType channelType,
   ) async {
     ChannelInfo channelInfo;
     channelInfo = id.isEmpty
         ? (ChannelInfo()
           ..name = name
+          ..type = channelType
           ..info = info)
         : ChannelInfo()
       ..name = name
       ..id = id
+      ..type = channelType
       ..info = info;
 
     if (await _mucServices.modifyChannel(channelInfo, mucUid.asUid())) {
-      return _mucDao.updateMuc(uid: mucUid, id: id, info: info, name: name);
+      return _mucDao.updateMuc(
+        uid: mucUid,
+        id: id,
+        info: info,
+        name: name,
+        mucType: pbMucTypeToHiveMucType(channelType),
+      );
     }
   }
 
@@ -559,6 +572,7 @@ class MucRepo {
     int population,
     String info, {
     String? channelId,
+    MucType? mucType,
   }) async {
     await _mucDao.updateMuc(
       uid: mucUid.asString(),
@@ -566,6 +580,7 @@ class MucRepo {
       info: info,
       population: population,
       id: channelId,
+      mucType: mucType,
     );
     await _roomDao.updateRoom(uid: mucUid.asString());
   }
@@ -692,11 +707,11 @@ class MucRepo {
       list,
       options: FuzzyOptions(
         tokenize: true,
-        threshold: 0.3,
+        threshold: 0.2,
       ),
     )
         .search(query)
-        .where((element) => element.score < 0.4)
+        .where((element) => element.score < 0.2)
         .map((e) => e.item)
         .toList();
     return fuzzy;
@@ -716,5 +731,17 @@ class MucRepo {
         lastCanceledPinMessageId: 0,
       );
     }
+  }
+
+  MucType pbMucTypeToHiveMucType(ChannelType channelType) {
+    return channelType == ChannelType.PRIVATE
+        ? MucType.Private
+        : MucType.Public;
+  }
+
+  ChannelType hiveMucTypeToPbMucType(MucType mucType) {
+    return mucType == MucType.Private
+        ? ChannelType.PRIVATE
+        : ChannelType.PUBLIC;
   }
 }

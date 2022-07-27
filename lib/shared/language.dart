@@ -2,7 +2,7 @@ import 'dart:ui';
 
 const english = Language(1, 'English', '🇺🇸', "en", "US");
 const farsi = Language(1, 'فارسی', '🇮🇷', "fa", "IR");
-const defaultLanguage = english;
+const defaultLanguage = farsi;
 
 class Language {
   final int id;

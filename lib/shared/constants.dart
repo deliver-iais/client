@@ -21,8 +21,7 @@ const GROUP_URL = "group";
 const CHANNEL_URL = "channel";
 
 // Version Constants
-const VERSION =
-    "1.9.0"; // if change the VERSION , is necessary to change version in pubspec.yaml file
+const VERSION = "1.9.1";
 
 // Time Constants
 const ONLINE_TIME = 60000;
@@ -59,14 +58,6 @@ const INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH =
 
 // Feature Flags
 const bool TWO_STEP_VERIFICATION_IS_AVAILABLE = false;
-
-// Store Testing Fake User Constants
-const TEST_USER_PHONE_NUMBER = "1234567890";
-const String TEST_USER_ACCESS_TOKEN =
-    "eyJUT0tFTl9UWVBFIjoiYWNjZXNzX3Rva2VuIiwiQ0FURUdPUlkiOjAsImFsZyI6IkhTMjU2In0.eyJpc3MiOiJERUxJVkVSLUFVVEgiLCJpYXQiOjE2MzY0Mzc3OTYsImV4cCI6MTc5MTk1Nzc5Niwic3ViIjoiMzA0OTk4N2ItZTE1ZC00Mjg4LTk3Y2QtNDJkYmM2ZDczYWJkIiwianRpIjoiZTI2MWI4ZjItZTE1Zi00NjQ0LWE5ZTMtYTBjZjFhMmNlODIwIn0.e2bx71LfQpLWQ0I1ElPMOJQkOw0Sud-PjlcMNbR92MA";
-final Uid TEST_USER_UID = Uid.create()
-  ..category = Categories.USER
-  ..node = "3049987b-e15d-4288-97cd-42dbc6d73abd";
 
 // Fake User Constants
 final FAKE_USER_UID = Uid()
@@ -223,12 +214,14 @@ const AUTO_DOWNLOAD_TRACK_ID = 25;
 const AUTO_DOWNLOAD_ROOM_CATEGORY_TRACK_ID = 26;
 const CURRENT_CALL_INFO_TRACK_ID = 27;
 const MESSAGE_BRIEF_TRACK_ID = 28;
+const MUC_Type_TRACK_ID = 29;
 
 //FEATURE DISCOVERY ID
 const FEATURE_1 = 'feature1';
 const FEATURE_2 = 'feature2';
 const FEATURE_3 = 'feature3';
 const FEATURE_4 = 'feature4';
+const FEATURE_5 = 'feature5';
 
 // Animation
 const FAST_ANIMATION_DURATION = Duration(milliseconds: 50);

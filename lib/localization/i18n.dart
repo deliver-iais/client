@@ -49,6 +49,9 @@ class I18N {
 
   bool get isPersian => _language.value.countryCode.contains(farsi.countryCode);
 
+  TextDirection get defaultTextDirection =>
+      isPersian ? TextDirection.rtl : TextDirection.ltr;
+
   Stream get localeStream => _language.distinct().map((e) => e.locale);
 
   Locale get locale => _language.value.locale;

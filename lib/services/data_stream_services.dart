@@ -74,6 +74,9 @@ class DataStreamServices {
     if (message.whichType() == Message_Type.persistEvent) {
       switch (message.persistEvent.whichType()) {
         case PersistentEvent_Type.mucSpecificPersistentEvent:
+          if (!isOnlineMessage) {
+            break;
+          }
           switch (message.persistEvent.mucSpecificPersistentEvent.issue) {
             case MucSpecificPersistentEvent_Issue.DELETED:
               await _roomDao.updateRoom(uid: roomUid.asString(), deleted: true);
@@ -89,7 +92,6 @@ class DataStreamServices {
                   uid: message.from.asString(),
                   deleted: true,
                 );
-                return null;
               }
               break;
             case MucSpecificPersistentEvent_Issue.JOINED_USER:
@@ -112,7 +114,6 @@ class DataStreamServices {
                   uid: message.from.asString(),
                   deleted: true,
                 );
-                return null;
               }
               await _sdr.deleteMember(
                 Member(
@@ -336,11 +337,13 @@ class DataStreamServices {
     final msg = await saveMessageInMessagesDB(res.messages.first);
 
     if (isOnlineMessage) {
-      final room = (await _roomDao.getRoom(roomUid.asString()))!;
-      await _roomDao.updateRoom(
-        uid: room.uid,
-        lastMessage: (room.lastMessage?.id == id) ? msg : null,
-      );
+      final room = await _roomDao.getRoom(roomUid.asString());
+      if (room != null && room.lastMessage?.id == id) {
+        await _roomDao.updateRoom(
+          uid: room.uid,
+          lastMessage: msg,
+        );
+      }
     }
 
     messageEventSubject.add(
@@ -589,7 +592,7 @@ class DataStreamServices {
           break;
         }
       } catch (_) {
-        break;
+        return null;
       }
     }
 
@@ -621,7 +624,6 @@ class DataStreamServices {
         ..justNotHiddenMessages = true
         ..type = FetchMessagesReq_Type.BACKWARD_FETCH
         ..limit = 1,
-      options: CallOptions(timeout: const Duration(seconds: 3)),
     );
 
     final messages = await saveFetchMessages(fetchMessagesRes.messages);

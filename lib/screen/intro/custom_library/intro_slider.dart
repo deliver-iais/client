@@ -486,6 +486,7 @@ class IntroSliderState extends State<IntroSlider>
     renderSkipBtn ??= Text(
       nameSkipBtn!,
       style: styleNameSkipBtn,
+      key: const Key("skip"),
     );
 
     // Prev button
@@ -605,6 +606,7 @@ class IntroSliderState extends State<IntroSlider>
 
   Widget buildNextButton() {
     return TextButton(
+      key: const Key("next"),
       onPressed: () {
         if (!isAnimating()) {
           tabController.animateTo(tabController.index + 1);
