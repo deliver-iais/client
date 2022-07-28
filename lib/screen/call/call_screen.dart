@@ -57,7 +57,6 @@ class CallScreenState extends State<CallScreen> {
 
   @override
   void initState() {
-    super.initState();
     random = randomAlphaNumeric(10);
     _callRepo.initRenderer();
     _localRenderer = _callRepo.getLocalRenderer;
