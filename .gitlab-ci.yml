@@ -81,9 +81,8 @@ android_build:
     when: always
     untracked: true
     paths:
-      - /root/.gradle/caches/
-      - /root/.gradle/wrapper/
-      - /root/.gradle/build-cache/
+      - /root/.gradle/
+      - /root/.pub-cache/
   artifacts:
     paths:
       - /usr/local/bin/app/build/app/outputs/bundle/release/app-release.aab
