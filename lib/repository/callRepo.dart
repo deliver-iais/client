@@ -677,11 +677,12 @@ class CallRepo {
             ? {
                 'mandatory': {
                   'minWidth': '640',
-                  'maxWidth': '720',
-                  'minHeight': '360',
-                  'maxHeight': '480',
+                  'maxWidth': '1024',
+                  'minHeight': '480',
+                  'maxHeight': '768',
                   'minFrameRate': '20',
                   'maxFrameRate': '30',
+                  'aspectRatio:': ' 1.777777778',
                 },
                 'facingMode': 'user',
                 'optional': [],
@@ -697,12 +698,13 @@ class CallRepo {
         'video': _isVideo
             ? {
                 'mandatory': {
-                  'minWidth': '480',
-                  'maxWidth': '640',
-                  'minHeight': '320',
-                  'maxHeight': '480',
+                  'minWidth': '640',
+                  'maxWidth': '1024',
+                  'minHeight': '480',
+                  'maxHeight': '768',
                   'minFrameRate': '20',
                   'maxFrameRate': '30',
+                  'aspectRatio:': ' 1.777777778',
                 },
                 'facingMode': 'user',
                 'optional': [],

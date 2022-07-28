@@ -34,17 +34,15 @@ class CallBottomRowState extends State<CallBottomRow> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     _speakerIcon =
-        callRepo.isSpeaker ? theme.buttonTheme.colorScheme!.primary : null;
+        callRepo.isSpeaker ? theme.buttonTheme.colorScheme!.primary : theme.shadowColor.withOpacity(0.4);
     _muteMicIcon =
-        callRepo.isMicMuted ? theme.buttonTheme.colorScheme!.primary : null;
+        callRepo.isMicMuted ? theme.buttonTheme.colorScheme!.primary : theme.shadowColor.withOpacity(0.4);
     _offVideoCamIcon = callRepo.mute_camera.value
         ? theme.buttonTheme.colorScheme!.primary
-        : null;
-
+        : theme.shadowColor.withOpacity(0.4);
     // _switchCameraIcon = callRepo.switching.value
     //     ? theme.buttonTheme.colorScheme!.primary
     //     : null;
-
     if (widget.isIncomingCall) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 25, right: 25, left: 25),
@@ -92,12 +90,15 @@ class CallBottomRowState extends State<CallBottomRow> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: <Widget>[
-                    if (isAndroid) FloatingActionButton(
-                      heroTag: 22,
-                      backgroundColor: _switchCameraIcon,
-                      child: const Icon(Icons.switch_camera_rounded),
-                      onPressed: () => _switchCamera(theme),
-                    ) else const SizedBox.shrink(),
+                    if (isAndroid)
+                      FloatingActionButton(
+                        heroTag: 22,
+                        backgroundColor: _switchCameraIcon,
+                        child: const Icon(Icons.switch_camera_rounded),
+                        onPressed: () => _switchCamera(theme),
+                      )
+                    else
+                      const SizedBox.shrink(),
                     FloatingActionButton(
                       heroTag: 33,
                       backgroundColor: _offVideoCamIcon,
@@ -134,53 +135,73 @@ class CallBottomRowState extends State<CallBottomRow> {
               padding: const EdgeInsets.only(bottom: 80, right: 50, left: 50),
               child: Align(
                 alignment: Alignment.bottomCenter,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: <Widget>[
-                    SizedBox(
-                      width: 60,
-                      height: 60,
-                      child: FloatingActionButton(
-                        heroTag: "1",
-                        elevation: 0,
-                        backgroundColor: _speakerIcon,
-                        onPressed: () => _enableSpeaker(theme),
-                        child: const Icon(
-                          Icons.volume_up_rounded,
-                          size: 35,
+                child: Container(
+                  width: isWindows ? MediaQuery.of(context).size.width/2 : 4*MediaQuery.of(context).size.width/5,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(50.0),
+                    color: theme.shadowColor.withOpacity(0.1),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: SizedBox(
+                          width: 80,
+                          height: 80,
+                          child: FloatingActionButton(
+                            heroTag: "1",
+                            elevation: 0,
+                            shape: const CircleBorder(),
+                            backgroundColor: _speakerIcon,
+                            onPressed: () => _enableSpeaker(theme),
+                            child: const Icon(
+                              Icons.volume_up_rounded,
+                              size: 40,
+                              color: Colors.white,
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      height: 110,
-                      width: 110,
-                      child: FloatingActionButton(
-                        backgroundColor: theme.buttonTheme.colorScheme!.primary,
-                        heroTag: "2",
-                        elevation: 0,
-                        child: const Icon(
-                          Icons.call_end_rounded,
-                          size: 50,
-                        ),
-                        onPressed: () => widget.hangUp(),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 60,
-                      height: 60,
-                      child: FloatingActionButton(
-                        heroTag: "3",
-                        elevation: 0,
-                        backgroundColor: _muteMicIcon,
-                        onPressed: () => _muteMic(theme),
-                        child: const Icon(
-                          Icons.mic_off_rounded,
-                          size: 35,
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        height: 100,
+                        width: 100,
+                        child: FloatingActionButton(
+                          backgroundColor:
+                              theme.buttonTheme.colorScheme!.error,
+                          heroTag: "2",
+                          elevation: 0,
+                          shape: const CircleBorder(),
+                          child: const Icon(
+                            Icons.call_end_rounded,
+                            size: 50,
+                            color: Colors.white,
+                          ),
+                          onPressed: () => widget.hangUp(),
                         ),
                       ),
-                    )
-                  ],
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: SizedBox(
+                          width: 80,
+                          height: 80,
+                          child: FloatingActionButton(
+                            heroTag: "3",
+                            elevation: 0,
+                            shape: const CircleBorder(),
+                            backgroundColor: _muteMicIcon,
+                            onPressed: () => _muteMic(theme),
+                            child: const Icon(
+                              Icons.mic_off_rounded,
+                              size: 40,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ),
             );

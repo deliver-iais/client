@@ -1,12 +1,6 @@
-import 'dart:io';
-
-import 'package:deliver/box/avatar.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/call_timer.dart';
-import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
-import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/screen/call/audioCallScreen/fade_audio_call_background.dart';
 import 'package:deliver/screen/call/call_bottom_icons.dart';
 import 'package:deliver/screen/call/center_avatar_image-in-call.dart';
 import 'package:deliver/shared/widgets/dot_animation/dot_animation.dart';
@@ -15,6 +9,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
+
+import '../../../shared/widgets/animated_gradient.dart';
 
 class AudioCallScreen extends StatefulWidget {
   final Uid roomUid;
@@ -38,8 +34,6 @@ class AudioCallScreen extends StatefulWidget {
 
 class AudioCallScreenState extends State<AudioCallScreen>
     with TickerProviderStateMixin {
-  final _avatarRepo = GetIt.I.get<AvatarRepo>();
-  final _fileRepo = GetIt.I.get<FileRepo>();
   final callRepo = GetIt.I.get<CallRepo>();
   final _i18n = GetIt.I.get<I18N>();
   late AnimationController _repeatEndCallAnimationController;
@@ -59,6 +53,24 @@ class AudioCallScreenState extends State<AudioCallScreen>
     _repeatEndCallAnimationController.repeat(reverse: true);
   }
 
+  List<Color> colorList = [
+    Colors.red,
+    Colors.blue,
+    Colors.green,
+    Colors.yellow
+  ];
+  List<Alignment> alignmentList = [
+    Alignment.bottomLeft,
+    Alignment.bottomRight,
+    Alignment.topRight,
+    Alignment.topLeft,
+  ];
+  int index = 0;
+  Color bottomColor = Colors.red;
+  Color topColor = Colors.yellow;
+  Alignment begin = Alignment.bottomLeft;
+  Alignment end = Alignment.topRight;
+
   @override
   Widget build(BuildContext context) {
     return AnnotatedRegion<SystemUiOverlayStyle>(
@@ -70,53 +82,49 @@ class AudioCallScreenState extends State<AudioCallScreen>
         extendBodyBehindAppBar: true,
         body: Stack(
           children: [
-            FutureBuilder<Avatar?>(
-              future: _avatarRepo.getLastAvatar(widget.roomUid),
-              builder: (context, snapshot) {
-                if (snapshot.hasData &&
-                    snapshot.data != null &&
-                    snapshot.data!.fileId != null) {
-                  return FutureBuilder<String?>(
-                    future: _fileRepo.getFile(
-                      snapshot.data!.fileId!,
-                      snapshot.data!.fileName!,
-                    ),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData && snapshot.data != null) {
-                        return FadeAudioCallBackground(
-                          image: FileImage(File(snapshot.data!)),
-                        );
-                      } else {
-                        return const FadeAudioCallBackground(
-                          image: AssetImage("assets/images/no-profile-pic.png"),
-                        );
-                      }
-                    },
-                  );
-                } else {
-                  return const FadeAudioCallBackground(
-                    image: AssetImage("assets/images/no-profile-pic.png"),
-                  );
-                }
-              },
-            ),
+            AnimatedGradient(),
             Column(
               children: [
-                CenterAvatarInCall(
-                  roomUid: widget.roomUid,
-                ),
                 if (widget.callStatus == "Connected")
                   StreamBuilder<CallTimer>(
                     stream: callRepo.callTimer,
                     builder: (context, snapshot) {
                       if (snapshot.hasData && snapshot.data != null) {
-                        return callTimerWidget(snapshot.data!);
+                        return Padding(
+                            padding: const EdgeInsets.only(top: 10),
+                            child: callTimerWidget(snapshot.data!));
                       } else {
                         return const SizedBox.shrink();
                       }
                     },
                   )
-                else if (widget.callStatus == "Ended")
+                else
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: Directionality(
+                      textDirection: _i18n.isPersian
+                          ? TextDirection.rtl
+                          : TextDirection.ltr,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            widget.callStatusOnScreen,
+                            style: const TextStyle(color: Colors.white70),
+                          ),
+                          if (widget.callStatus == "Connecting" ||
+                              widget.callStatus == "Reconnecting" ||
+                              widget.callStatus == "Ringing" ||
+                              widget.callStatus == "Calling")
+                            const DotAnimation()
+                        ],
+                      ),
+                    ),
+                  ),
+                CenterAvatarInCall(
+                  roomUid: widget.roomUid,
+                ),
+                if (widget.callStatus == "Ended")
                   FadeTransition(
                     opacity: _repeatEndCallAnimationController,
                     child: callRepo.callTimer.value.seconds == 0 &&
@@ -128,25 +136,6 @@ class AudioCallScreenState extends State<AudioCallScreen>
                           )
                         : callTimerWidget(callRepo.callTimer.value),
                   )
-                else
-                  Directionality(
-                    textDirection:
-                        _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          widget.callStatusOnScreen,
-                          style: const TextStyle(color: Colors.white70),
-                        ),
-                        if (widget.callStatus == "Connecting" ||
-                            widget.callStatus == "Reconnecting" ||
-                            widget.callStatus == "Ringing" ||
-                            widget.callStatus == "Calling")
-                          const DotAnimation()
-                      ],
-                    ),
-                  ),
               ],
             ),
             if (widget.callStatus == "Ended")
@@ -190,7 +179,6 @@ class AudioCallScreenState extends State<AudioCallScreen>
   @override
   void dispose() {
     _repeatEndCallAnimationController.dispose();
-
     super.dispose();
   }
 }

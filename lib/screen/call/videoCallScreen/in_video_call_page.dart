@@ -1,4 +1,11 @@
+import 'dart:io';
+
+import 'package:deliver/box/avatar.dart';
+import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
+import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/screen/call/audioCallScreen/fade_audio_call_background.dart';
+import 'package:deliver/screen/call/call_bottom_icons.dart';
 import 'package:deliver/screen/call/center_avatar_image-in-call.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -7,7 +14,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
-import '../call_bottom_icons.dart';
+
 
 class InVideoCallPage extends StatefulWidget {
   final RTCVideoRenderer localRenderer;
@@ -33,6 +40,9 @@ class InVideoCallPageState extends State<InVideoCallPage> {
   final height = 150.0;
   Offset position = const Offset(10, 30);
 
+  final _avatarRepo = GetIt.I.get<AvatarRepo>();
+  final _fileRepo = GetIt.I.get<FileRepo>();
+
   @override
   void initState() {
     super.initState();
@@ -50,6 +60,36 @@ class InVideoCallPageState extends State<InVideoCallPage> {
     final y = MediaQuery.of(context).size.height;
     return Stack(
       children: <Widget>[
+        FutureBuilder<Avatar?>(
+          future: _avatarRepo.getLastAvatar(widget.roomUid),
+          builder: (context, snapshot) {
+            if (snapshot.hasData &&
+                snapshot.data != null &&
+                snapshot.data!.fileId != null) {
+              return FutureBuilder<String?>(
+                future: _fileRepo.getFile(
+                  snapshot.data!.fileId!,
+                  snapshot.data!.fileName!,
+                ),
+                builder: (context, snapshot) {
+                  if (snapshot.hasData && snapshot.data != null) {
+                    return FadeAudioCallBackground(
+                      image: FileImage(File(snapshot.data!)),
+                    );
+                  } else {
+                    return const FadeAudioCallBackground(
+                      image: AssetImage("assets/images/no-profile-pic.png"),
+                    );
+                  }
+                },
+              );
+            } else {
+              return const FadeAudioCallBackground(
+                image: AssetImage("assets/images/no-profile-pic.png"),
+              );
+            }
+          },
+        ),
         StreamBuilder<bool>(
           stream: MergeStream([
           callRepo.mute_camera,
@@ -60,10 +100,9 @@ class InVideoCallPageState extends State<InVideoCallPage> {
               return Stack(
                 children: [
                   RTCVideoView(
-                    widget.remoteRenderer,
-                    objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitContain,
+                    widget.remoteRenderer ,
                     mirror: callRepo.sharing.value ? false: true,
-                    filterQuality: FilterQuality.medium,
+                    filterQuality: FilterQuality.none,
                   ),
                   Positioned(
                     left: position.dx,
@@ -79,6 +118,7 @@ class InVideoCallPageState extends State<InVideoCallPage> {
                             objectFit: RTCVideoViewObjectFit
                                 .RTCVideoViewObjectFitCover,
                             mirror: true,
+                            filterQuality: FilterQuality.high,
                           ),
                         ),
                       ),
@@ -116,6 +156,7 @@ class InVideoCallPageState extends State<InVideoCallPage> {
                                 objectFit: RTCVideoViewObjectFit
                                     .RTCVideoViewObjectFitCover,
                                 mirror: true,
+                                filterQuality: FilterQuality.high,
                               ),
                               onTap: () {
                                 if(isAndroid){
