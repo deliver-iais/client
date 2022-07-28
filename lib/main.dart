@@ -34,6 +34,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_brief.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/muc.dart';
+import 'package:deliver/box/muc_type.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/role.dart';
 import 'package:deliver/box/room.dart';
@@ -148,6 +149,7 @@ Future<void> setupDI() async {
     ..registerAdapter(CallTypeAdapter())
     ..registerAdapter(AutoDownloadRoomCategoryAdapter())
     ..registerAdapter(CurrentCallInfoAdapter())
+    ..registerAdapter(MucTypeAdapter())
     ..registerAdapter(AutoDownloadAdapter());
 
   registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
@@ -183,7 +185,7 @@ Future<void> setupDI() async {
   registerSingleton<FeatureFlags>(FeatureFlags());
   await GetIt.I.get<AuthRepo>().setCurrentUserUid();
   registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
-  GetIt.I.get<ServicesDiscoveryRepo>().initRepo().ignore();
+  GetIt.I.get<ServicesDiscoveryRepo>().initRepoWithCustomIp().ignore();
 
   //call Service should be here
   registerSingleton<CallService>(CallService());

@@ -799,7 +799,8 @@ MockQueryServiceClient getMockQueryServicesClient({
           ),
         );
   when(queryServiceClient.blockUid(BlockUidReq()..uid = testUid)).thenAnswer(
-      (realInvocation) => MockResponseFuture<BlockUidRes>(BlockUidRes()));
+    (realInvocation) => MockResponseFuture<BlockUidRes>(BlockUidRes()),
+  );
   when(queryServiceClient.unblockUid(UnblockUidReq()..uid = testUid))
       .thenAnswer(
     (realInvocation) => MockResponseFuture<UnblockUidRes>(UnblockUidRes()),

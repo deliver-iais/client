@@ -2,6 +2,7 @@ import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/loaders/text_loader.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -62,10 +63,17 @@ class HasCallRowState extends State<HasCallRow> {
                             future: _roomRepo.getName(callRepo.roomUid!),
                             builder: (context, name) {
                               if (name.hasData) {
-                                return Text(
-                                  name.data!,
-                                  style: const TextStyle(
-                                    color: Colors.white,
+                                return Flexible(
+                                  child: TextLoader(
+                                    Text(
+                                      name.data!,
+                                      maxLines: 1,
+                                      softWrap: false,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: theme.textTheme.subtitle2!
+                                          .copyWith(color: Colors.white),
+                                    ),
+                                    width: 120,
                                   ),
                                 );
                               } else {
@@ -88,12 +96,21 @@ class HasCallRowState extends State<HasCallRow> {
                                   builder: (context, snapshot) {
                                     if (snapshot.hasData &&
                                         snapshot.data != null) {
-                                      var callHour = snapshot.data!.hours.toString();
-                                      var callMin = snapshot.data!.minutes.toString();
-                                      var callSecond = snapshot.data!.seconds.toString();
-                                      callHour = callHour.length != 2 ? '0$callHour' : callHour;
-                                      callMin = callMin.length != 2 ? '0$callMin' : callMin;
-                                      callSecond = callSecond.length != 2 ? '0$callSecond' : callSecond;
+                                      var callHour =
+                                          snapshot.data!.hours.toString();
+                                      var callMin =
+                                          snapshot.data!.minutes.toString();
+                                      var callSecond =
+                                          snapshot.data!.seconds.toString();
+                                      callHour = callHour.length != 2
+                                          ? '0$callHour'
+                                          : callHour;
+                                      callMin = callMin.length != 2
+                                          ? '0$callMin'
+                                          : callMin;
+                                      callSecond = callSecond.length != 2
+                                          ? '0$callSecond'
+                                          : callSecond;
                                       return Text(
                                         '$callHour:$callMin:$callSecond',
                                         style: const TextStyle(

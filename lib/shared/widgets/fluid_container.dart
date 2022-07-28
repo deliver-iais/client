@@ -6,11 +6,13 @@ import 'package:flutter/material.dart';
 class FluidContainerWidget extends StatelessWidget {
   final Widget child;
   final bool showStandardContainer;
+  final Color? backGroundColor;
 
   const FluidContainerWidget({
     super.key,
     required this.child,
     this.showStandardContainer = false,
+    this.backGroundColor,
   });
 
   @override
@@ -25,16 +27,19 @@ class FluidContainerWidget extends StatelessWidget {
         decoration: BoxDecoration(
           border: Border.all(color: theme.dividerColor),
           borderRadius: mainBorder,
-          gradient: LinearGradient(
-            colors: [
-              Theme.of(context).colorScheme.surface,
-              elevation(
-                theme.colorScheme.surface,
-                theme.colorScheme.primary,
-                2,
-              )
-            ],
-          ),
+          color: backGroundColor,
+          gradient: (backGroundColor == null)
+              ? LinearGradient(
+                  colors: [
+                    Theme.of(context).colorScheme.surface,
+                    elevation(
+                      theme.colorScheme.surface,
+                      theme.colorScheme.primary,
+                      2,
+                    )
+                  ],
+                )
+              : null,
           boxShadow: LIGHT_BOX_SHADOWS,
         ),
         child: child,
