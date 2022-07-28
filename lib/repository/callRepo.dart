@@ -20,6 +20,7 @@ import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -37,8 +38,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sdp_transform/sdp_transform.dart';
-
-import '../services/routing_service.dart';
 
 enum CallStatus {
   CREATED,
@@ -140,27 +139,27 @@ class CallRepo {
 
   CallRepo() {
     _callService.watchCurrentCall().listen((call) {
-    if (call != null && !isDesktop) {
-      _logger.i("read call from DB");
-      if (call.expireTime > clock.now().millisecondsSinceEpoch &&
-          _callService.getUserCallState == UserCallState.NOCALL) {
-        _callService.callEvents.add(
-          CallEvents.callEvent(
-            call_pb.CallEvent()
-              ..newStatus =
-                  _callService.findCallEventStatusDB(call.callEvent.newStatus)
-              ..id = call.callEvent.id
-              ..callDuration = Int64(call.callEvent.callDuration)
-              ..endOfCallTime = Int64(call.callEvent.endOfCallTime)
-              ..callType = _callService
-                  .findProtoCallEventType(call.callEvent.callType),
-            roomUid: call.from.asUid(),
-            callId: call.callEvent.id,
-            time: call.expireTime - 60000,
-          ),
-        );
+      if (call != null && !isDesktop) {
+        _logger.i("read call from DB");
+        if (call.expireTime > clock.now().millisecondsSinceEpoch &&
+            _callService.getUserCallState == UserCallState.NOCALL) {
+          _callService.callEvents.add(
+            CallEvents.callEvent(
+              call_pb.CallEvent()
+                ..newStatus =
+                    _callService.findCallEventStatusDB(call.callEvent.newStatus)
+                ..id = call.callEvent.id
+                ..callDuration = Int64(call.callEvent.callDuration)
+                ..endOfCallTime = Int64(call.callEvent.endOfCallTime)
+                ..callType = _callService
+                    .findProtoCallEventType(call.callEvent.callType),
+              roomUid: call.from.asUid(),
+              callId: call.callEvent.id,
+              time: call.expireTime - 60000,
+            ),
+          );
+        }
       }
-    }
     });
     _callService.callEvents.listen((event) {
       switch (event.callType) {
@@ -183,7 +182,8 @@ class CallRepo {
               }
               break;
             case CallEvent_CallStatus.CREATED:
-              if (_callService.getUserCallState == UserCallState.NOCALL && (event.time - clock.now().millisecondsSinceEpoch) < 60000) {
+              if (_callService.getUserCallState == UserCallState.NOCALL &&
+                  (event.time - clock.now().millisecondsSinceEpoch) < 60000) {
                 // final callStatus =
                 //     await FlutterForegroundTask.getData(key: "callStatus");
                 _callService
@@ -235,7 +235,6 @@ class CallRepo {
                   false,
                   _callService.writeCallEventsToJson(event),
                 );
-
               } else if (event.roomUid == _roomUid) {
                 _incomingCall(
                   event.roomUid!,
@@ -909,7 +908,7 @@ class CallRepo {
     );
     if (isAndroid) {
       if (!_isVideo && await Permission.microphone.status.isGranted) {
-        if(await getDeviceVersion() >= 31){
+        if (await getDeviceVersion() >= 31) {
           _isCallInited = true;
           await initCall(isOffer: true);
         }

@@ -57,7 +57,6 @@ import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/repository/stickerRepo.dart';
-import 'package:deliver/screen/call/call_screen.dart';
 import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
@@ -186,7 +185,7 @@ Future<void> setupDI() async {
   registerSingleton<FeatureFlags>(FeatureFlags());
   await GetIt.I.get<AuthRepo>().setCurrentUserUid();
   registerSingleton<DeliverClientInterceptor>(DeliverClientInterceptor());
-  GetIt.I.get<ServicesDiscoveryRepo>().initRepo().ignore();
+  GetIt.I.get<ServicesDiscoveryRepo>().initRepoWithCustomIp().ignore();
 
   //call Service should be here
   registerSingleton<CallService>(CallService());

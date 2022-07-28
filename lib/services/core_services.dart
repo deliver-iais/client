@@ -283,9 +283,6 @@ class CoreServices {
       if (isWeb ||
           _clientPacketStream == null ||
           _clientPacketStream!.isClosed) {
-        if(_clientPacketStream == null)        {
-          await _services.initRepo();
-        }
         await _services.coreServiceClient.sendClientPacket(packet);
       } else if (forceToSendEvenNotConnected ||
           _connectionStatus.value == ConnectionStatus.Connected) {

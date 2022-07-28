@@ -7,6 +7,7 @@ import 'package:deliver/box/current_call_info.dart';
 import 'package:deliver/box/dao/current_call_dao.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -14,8 +15,6 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
-
-import '../shared/constants.dart';
 
 enum UserCallState {
   /// User in Group Call then he Can't join any User or Start Own Call
@@ -218,9 +217,9 @@ class CallService {
   Future<bool> foregroundTaskInitializing() async {
     if (isAndroid) {
       await _initForegroundTask();
-      if(await _startForegroundTask()){
+      if (await _startForegroundTask()) {
         return true;
-      }else{
+      } else {
         return false;
       }
     }
@@ -233,7 +232,7 @@ class CallService {
         channelId: 'notification_channel_id',
         channelName: 'Foreground Notification',
         channelDescription:
-        'This notification appears when the foreground service is running.',
+            'This notification appears when the foreground service is running.',
         channelImportance: NotificationChannelImportance.HIGH,
         priority: NotificationPriority.HIGH,
         playSound: true,
@@ -277,9 +276,7 @@ class CallService {
 
   Future<bool> stopForegroundTask() async =>
       FlutterForegroundTask.stopService();
-
 }
-
 
 // The callback function should always be a top-level function.
 void startCallback() {

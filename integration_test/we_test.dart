@@ -1,9 +1,8 @@
 import 'package:deliver/main.dart' as app;
 import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
-
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
-
 import 'package:integration_test/integration_test.dart';
 
 void main() {
@@ -30,7 +29,9 @@ void main() {
         await tester.enterText(find.byKey(const Key("username")), "fake_user");
         await tester.pumpAndSettle();
         await tester.enterText(
-            find.byKey(const Key("firstname")), "first name",);
+          find.byKey(const Key("firstname")),
+          "first name",
+        );
         await tester.pumpAndSettle();
         await tester.enterText(find.byKey(const Key("lastname")), "last name");
         await tester.pumpAndSettle();

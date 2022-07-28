@@ -41,19 +41,18 @@ class ServicesDiscoveryRepo {
 
   bool _badCertificateConnection = true;
 
-  bool isInitialize = false;
-
   final _shareDao = GetIt.I.get<SharedDao>();
 
-  Future<void> initRepo() async {
-    if(!isInitialize) {
-      final ip = (await _shareDao.get(SHARE_DAO_HOST_SET_BY_USER)) ?? "";
-      initClientChannel(ip: ip);
-      isInitialize = true;
-    }
+  ServicesDiscoveryRepo() {
+    initClientChannels();
   }
 
-  void initClientChannel({String ip = ""}) {
+  Future<void> initRepoWithCustomIp() async {
+    final ip = (await _shareDao.get(SHARE_DAO_HOST_SET_BY_USER)) ?? "";
+    initClientChannels(ip: ip);
+  }
+
+  void initClientChannels({String ip = ""}) {
     final grpcClientInterceptors = [
       GetIt.I.get<DeliverClientInterceptor>(),
       GetIt.I.get<AnalyticsClientInterceptor>()
@@ -68,6 +67,7 @@ class ServicesDiscoveryRepo {
     _initFirebaseClientChannelServices(ip, grpcClientInterceptors);
     _initLiverLocationClientServices(ip, grpcClientInterceptors);
   }
+
   void _initQueryClientChannelServices(
     String ip,
     List<ClientInterceptor> grpcClientInterceptors,
