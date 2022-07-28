@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'dart:ui';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
@@ -15,7 +16,7 @@ import 'package:desktop_lifecycle/desktop_lifecycle.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_foreground_task/ui/with_foreground_task.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
@@ -82,7 +83,7 @@ class HomePageState extends State<HomePage> {
 
     _addLifeCycleListener();
 
-   _contactRepo.sendNotSyncedContactInStartTime();
+    _contactRepo.sendNotSyncedContactInStartTime();
 
     super.initState();
   }
@@ -146,16 +147,19 @@ class HomePageState extends State<HomePage> {
     return WillPopScope(
       onWillPop: () async {
         if (!_routingService.canPop()) {
-          return true;
+          if(await FlutterForegroundTask.isRunningService){
+            FlutterForegroundTask.minimizeApp();
+            return false;
+          }else{
+            return true;
+          }
         }
         _routingService.maybePop();
         return false;
       },
-      child: WithForegroundTask(
-        child: Container(
-          color: theme.colorScheme.background,
-          child: _routingService.outlet(context),
-        ),
+      child: Container(
+        color: theme.colorScheme.background,
+        child: _routingService.outlet(context),
       ),
     );
   }

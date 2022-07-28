@@ -116,7 +116,7 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
                               if (!value) {
                                 _shareDao.put(SHARE_DAO_HOST_SET_BY_USER, "");
                                 _textEditingController.text = "";
-                                _servicesDiscoveryRepo.initClientChannel();
+                                _servicesDiscoveryRepo.initClientChannels();
                               }
                               _useCustomIp.add(value);
                               _coreServices.retryConnection();
@@ -153,7 +153,7 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
                                   onPrimary: theme.colorScheme.onPrimary,
                                 ),
                                 onPressed: () {
-                                  _servicesDiscoveryRepo.initClientChannel(
+                                  _servicesDiscoveryRepo.initClientChannels(
                                     ip: _textEditingController.text,
                                   );
                                   _shareDao.put(
