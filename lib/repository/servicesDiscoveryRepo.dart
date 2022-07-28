@@ -23,7 +23,7 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 
 class ServicesDiscoveryRepo {
-  late CoreServiceClient _coreServiceClient;
+  CoreServiceClient? _coreServiceClient;
   late BotServiceClient _botServiceClient;
   late SessionServiceClient _sessionServiceClient;
   late QueryServiceClient _queryServiceClient;
@@ -42,10 +42,6 @@ class ServicesDiscoveryRepo {
   bool _badCertificateConnection = true;
 
   final _shareDao = GetIt.I.get<SharedDao>();
-
-  ServicesDiscoveryRepo() {
-    initClientChannels();
-  }
 
   Future<void> initRepoWithCustomIp() async {
     final ip = (await _shareDao.get(SHARE_DAO_HOST_SET_BY_USER)) ?? "";
@@ -331,7 +327,10 @@ class ServicesDiscoveryRepo {
 
   bool get badCertificateConnection => _badCertificateConnection;
 
-  CoreServiceClient get coreServiceClient => _coreServiceClient;
+  CoreServiceClient? get coreServiceClient {
+    if (_coreServiceClient == null) initClientChannels();
+    return _coreServiceClient;
+  }
 
   BotServiceClient get botServiceClient => _botServiceClient;
 
