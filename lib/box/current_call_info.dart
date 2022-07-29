@@ -19,10 +19,14 @@ class CurrentCallInfo {
   @HiveField(3)
   int expireTime;
 
+  @HiveField(4)
+  bool notificationSelected;
+
   CurrentCallInfo({
     required this.callEvent,
     required this.from,
     required this.to,
     required this.expireTime,
+    this.notificationSelected=false,
   });
 }

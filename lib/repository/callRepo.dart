@@ -133,6 +133,7 @@ class CallRepo {
   Timer? timerEndCallDispose;
   BehaviorSubject<CallTimer> callTimer =
       BehaviorSubject.seeded(CallTimer(0, 0, 0));
+  bool _isNotificationSelected=false;
   Timer? timer;
 
   ReceivePort? _receivePort;
@@ -140,7 +141,8 @@ class CallRepo {
   CallRepo() {
     _callService.watchCurrentCall().listen((call) {
       if (call != null && !isDesktop) {
-        _logger.i("read call from DB");
+        _isNotificationSelected=call.notificationSelected;
+        _logger.i("read call from DB${call.notificationSelected}");
         if (call.expireTime > clock.now().millisecondsSinceEpoch &&
             _callService.getUserCallState == UserCallState.NOCALL) {
           _callService.callEvents.add(
@@ -886,7 +888,7 @@ class CallRepo {
     bool isDuplicated,
     String callEventJson,
   ) async {
-    if (!isDuplicated) {
+    if (!isDuplicated && !_isNotificationSelected) {
       unawaited(
         _notificationServices.notifyIncomingCall(
           roomId.asString(),
@@ -895,7 +897,10 @@ class CallRepo {
       );
     }
     _roomUid = roomId;
-    _logger.i("incoming Call and Created!!! - $isDuplicated");
+    _logger.i(
+      "incoming Call and Created!!! "
+      "(isDuplicated:) $isDuplicated , (notificationSelected) : $_isNotificationSelected",
+    );
     callingStatus.add(CallStatus.CREATED);
     final endOfCallDuration = clock.now().millisecondsSinceEpoch;
     await _messageRepo.sendCallMessage(
@@ -1302,6 +1307,7 @@ class CallRepo {
   Future<void> _dispose() async {
     try {
       if (isAndroid) {
+        _isNotificationSelected=false;
         _receivePort?.close();
         await _callService.stopForegroundTask();
         if (!_isCaller) {
