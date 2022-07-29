@@ -179,7 +179,8 @@ class RecorderModule {
     }
   }
 
-  Future<void> end() async {
+  Future<bool> end() async {
+    try{
     _logger.wtf("recording ended");
 
     isRecordingStream.add(false);
@@ -203,9 +204,13 @@ class RecorderModule {
       pathLengthRetry--;
     }
 
-    _onCompleteCallbackStream.valueOrNull?.call(path);
+    _onCompleteCallbackStream.valueOrNull?.call(path); return true;}
+    catch(e){
+      _logger.e(e);
+      return false;
+    }
 
-    return;
+
   }
 
   Future<void> cancel() {
