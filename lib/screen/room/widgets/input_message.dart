@@ -101,6 +101,7 @@ class InputMessageWidgetState extends State<InputMessage> {
   final BehaviorSubject<bool> _showEmojiKeyboard =
       BehaviorSubject.seeded(false);
   final BehaviorSubject<bool> _showSendIcon = BehaviorSubject.seeded(false);
+  final BehaviorSubject<bool> _showReplyMarkUp = BehaviorSubject.seeded(true);
   final BehaviorSubject<String?> _mentionQuery = BehaviorSubject.seeded(null);
   final BehaviorSubject<String> _botCommandQuery = BehaviorSubject.seeded("-");
   TextEditingController captionTextController = TextEditingController();
@@ -267,170 +268,178 @@ class InputMessageWidgetState extends State<InputMessage> {
       },
       child: IconTheme(
         data: IconThemeData(opacity: 0.6, color: theme.iconTheme.color),
-        child: Column(
-          children: <Widget>[
-            StreamBuilder<String?>(
-              stream: _mentionQuery.distinct(),
-              builder: (c, showMention) {
-                if (showMention.hasData && showMention.data != null) {
-                  return ShowMentionList(
-                    query: showMention.data!,
-                    onSelected: (s) {
-                      onMentionSelected(s);
-                    },
-                    roomUid: widget.currentRoom.uid,
-                    mentionSelectedIndex: mentionSelectedIndex,
-                  );
-                }
-                mentionSelectedIndex = 0;
-                return const SizedBox.shrink();
-              },
-            ),
-            StreamBuilder<String>(
-              stream: _botCommandQuery.distinct(),
-              builder: (c, show) {
-                _botCommandData = show.data ?? "-";
-                if (_botCommandData == "-") {
-                  botCommandSelectedIndex = 0;
-                }
-                return BotCommands(
-                  botUid: widget.currentRoom.uid.asUid(),
-                  query: _botCommandData,
-                  onCommandClick: (command) {
-                    onCommandSelected(command);
-                  },
-                  botCommandSelectedIndex: botCommandSelectedIndex,
-                );
-              },
-            ),
-            Container(
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: <Widget>[
-                  StreamBuilder<bool>(
-                    stream: _audioService.recorderIsRecording,
-                    builder: (ctx, snapshot) {
-                      final isRecording = snapshot.data ?? false;
-                      final isRecordingInCurrentRoom =
-                          _audioService.recordingRoom == widget.currentRoom.uid;
-
-                      return Expanded(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: <Widget>[
-                            if (!isRecording) buildEmojiKeyboardActions(),
-                            if (!isRecording) buildTextInput(theme),
-                            if (!isRecording) buildDefaultActions(),
-                            if (isRecording && isRecordingInCurrentRoom)
-                              const RecordAudioSlideWidget(),
-                            if (isRecording && !isRecordingInCurrentRoom)
-                              Expanded(
-                                child: IconButton(
-                                  icon: SizedBox(
-                                    width: double.infinity,
-                                    child: TextButton(
-                                      onPressed: () => _routingService.openRoom(
-                                        _audioService.recordingRoom,
-                                      ),
-                                      // color: theme.colorScheme.primary,
-                                      child: Text(
-                                        _i18n.get("go_to_recording_room"),
-                                      ),
-                                    ),
-                                  ),
-                                  onPressed: () {},
-                                ),
-                              )
-                          ],
-                        ),
+        child: StreamBuilder<bool>(
+          stream: _showReplyMarkUp,
+          builder: (context, snapshot) {
+            return Column(
+              children: <Widget>[
+                StreamBuilder<String?>(
+                  stream: _mentionQuery.distinct(),
+                  builder: (c, showMention) {
+                    if (showMention.hasData && showMention.data != null) {
+                      return ShowMentionList(
+                        query: showMention.data!,
+                        onSelected: (s) {
+                          onMentionSelected(s);
+                        },
+                        roomUid: widget.currentRoom.uid,
+                        mentionSelectedIndex: mentionSelectedIndex,
                       );
-                    },
+                    }
+                    mentionSelectedIndex = 0;
+                    return const SizedBox.shrink();
+                  },
+                ),
+                StreamBuilder<String>(
+                  stream: _botCommandQuery.distinct(),
+                  builder: (c, show) {
+                    _botCommandData = show.data ?? "-";
+                    if (_botCommandData == "-") {
+                      botCommandSelectedIndex = 0;
+                    }
+                    return BotCommands(
+                      botUid: widget.currentRoom.uid.asUid(),
+                      query: _botCommandData,
+                      onCommandClick: (command) {
+                        onCommandSelected(command);
+                      },
+                      botCommandSelectedIndex: botCommandSelectedIndex,
+                    );
+                  },
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surface,
                   ),
-                  StreamBuilder<bool>(
-                    stream: _showSendIcon,
-                    builder: (c, sm) {
-                      if (!sm.hasData ||
-                          sm.data! ||
-                          widget.waitingForForward ||
-                          !_audioService.recorderIsAvailable()) {
-                        return const SizedBox();
-                      }
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[
+                      StreamBuilder<bool>(
+                        stream: _audioService.recorderIsRecording,
+                        builder: (ctx, snapshot) {
+                          final isRecording = snapshot.data ?? false;
+                          final isRecordingInCurrentRoom =
+                              _audioService.recordingRoom ==
+                                  widget.currentRoom.uid;
 
-                      return RecordAudioAnimation(
-                        onComplete: (res) {
-                          if (res != null) {
-                            unawaited(
-                              _messageRepo.sendFileMessage(
-                                widget.currentRoom.uid.asUid(),
-                                File(res, res),
+                          return Expanded(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: <Widget>[
+                                if (!isRecording) buildEmojiKeyboardActions(),
+                                if (!isRecording) buildTextInput(theme),
+                                if (!isRecording) buildDefaultActions(),
+                                if (isRecording && isRecordingInCurrentRoom)
+                                  const RecordAudioSlideWidget(),
+                                if (isRecording && !isRecordingInCurrentRoom)
+                                  Expanded(
+                                    child: IconButton(
+                                      icon: SizedBox(
+                                        width: double.infinity,
+                                        child: TextButton(
+                                          onPressed: () =>
+                                              _routingService.openRoom(
+                                            _audioService.recordingRoom,
+                                          ),
+                                          // color: theme.colorScheme.primary,
+                                          child: Text(
+                                            _i18n.get("go_to_recording_room"),
+                                          ),
+                                        ),
+                                      ),
+                                      onPressed: () {},
+                                    ),
+                                  )
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                      StreamBuilder<bool>(
+                        stream: _showSendIcon,
+                        builder: (c, sm) {
+                          if (!sm.hasData ||
+                              sm.data! ||
+                              widget.waitingForForward ||
+                              !_audioService.recorderIsAvailable()) {
+                            return const SizedBox();
+                          }
+
+                          return RecordAudioAnimation(
+                            onComplete: (res) {
+                              if (res != null) {
+                                unawaited(
+                                  _messageRepo.sendFileMessage(
+                                    widget.currentRoom.uid.asUid(),
+                                    File(res, res),
+                                  ),
+                                );
+                              }
+                            },
+                            roomUid: widget.currentRoom.uid.asUid(),
+                          );
+                        },
+                      )
+                    ],
+                  ),
+                ),
+                if (hasReplyMarkUp() && _showReplyMarkUp.value)
+                  ReplyKeyboardMarkupWidget(
+                    replyKeyboardMarkup: widget
+                        .currentRoom.lastMessage!.markup!.replyKeyboardMarkup!,
+                  ),
+                StreamBuilder<bool>(
+                  stream: _showEmojiKeyboard,
+                  builder: (context, back) {
+                    final showEmojiKeyboard = back.data ?? false;
+
+                    return AnimatedContainer(
+                      duration: SLOW_ANIMATION_DURATION,
+                      curve: Curves.easeInOut,
+                      height: showEmojiKeyboard ? 270.0 : 0,
+                      child: EmojiKeyboard(
+                        onTap: (emoji) {
+                          if (widget.textController.text.isNotEmpty) {
+                            final start =
+                                widget.textController.selection.baseOffset;
+                            var block_1 =
+                                widget.textController.text.substring(0, start);
+                            block_1 = block_1.substring(0, start);
+                            final block_2 =
+                                widget.textController.text.substring(
+                              start,
+                              widget.textController.text.length,
+                            );
+                            widget.textController.text =
+                                block_1 + emoji + block_2;
+                            widget.textController.selection =
+                                TextSelection.fromPosition(
+                              TextPosition(
+                                offset: widget.textController.text.length -
+                                    block_2.length,
+                              ),
+                            );
+                          } else {
+                            widget.textController.text =
+                                widget.textController.text + emoji;
+                            widget.textController.selection =
+                                TextSelection.fromPosition(
+                              TextPosition(
+                                offset: widget.textController.text.length,
                               ),
                             );
                           }
+                          if (isDesktop) {
+                            widget.focusNode.requestFocus();
+                          }
                         },
-                        roomUid: widget.currentRoom.uid.asUid(),
-                      );
-                    },
-                  )
-                ],
-              ),
-            ),
-            if (widget.currentRoom.lastMessage?.markup?.replyKeyboardMarkup!=
-                null)
-              ReplyKeyboardMarkupWidget(
-                replyKeyboardMarkup: widget
-                    .currentRoom.lastMessage!.markup!.replyKeyboardMarkup!,
-              ),
-            StreamBuilder<bool>(
-              stream: _showEmojiKeyboard,
-              builder: (context, back) {
-                final showEmojiKeyboard = back.data ?? false;
-
-                return AnimatedContainer(
-                  duration: SLOW_ANIMATION_DURATION,
-                  curve: Curves.easeInOut,
-                  height: showEmojiKeyboard ? 270.0 : 0,
-                  child: EmojiKeyboard(
-                    onTap: (emoji) {
-                      if (widget.textController.text.isNotEmpty) {
-                        final start =
-                            widget.textController.selection.baseOffset;
-                        var block_1 =
-                            widget.textController.text.substring(0, start);
-                        block_1 = block_1.substring(0, start);
-                        final block_2 = widget.textController.text.substring(
-                          start,
-                          widget.textController.text.length,
-                        );
-                        widget.textController.text = block_1 + emoji + block_2;
-                        widget.textController.selection =
-                            TextSelection.fromPosition(
-                          TextPosition(
-                            offset: widget.textController.text.length -
-                                block_2.length,
-                          ),
-                        );
-                      } else {
-                        widget.textController.text =
-                            widget.textController.text + emoji;
-                        widget.textController.selection =
-                            TextSelection.fromPosition(
-                          TextPosition(
-                            offset: widget.textController.text.length,
-                          ),
-                        );
-                      }
-                      if (isDesktop) {
-                        widget.focusNode.requestFocus();
-                      }
-                    },
-                  ),
-                );
-              },
-            ),
-          ],
+                      ),
+                    );
+                  },
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -484,6 +493,19 @@ class InputMessageWidgetState extends State<InputMessage> {
         return Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
+            if (!showSendButton &&
+                !widget.waitingForForward &&
+                hasReplyMarkUp())
+              IconButton(
+                icon: Icon(
+                  _showReplyMarkUp.value
+                      ? CupertinoIcons.chevron_down_square
+                      : CupertinoIcons.square_grid_2x2,
+                ),
+                onPressed: () {
+                  _showReplyMarkUp.add(!_showReplyMarkUp.value);
+                },
+              ),
             if (showCommandsButton)
               IconButton(
                 icon: const Icon(
@@ -994,6 +1016,12 @@ class InputMessageWidgetState extends State<InputMessage> {
         widget.textController.isMarkDownEnable = true;
       });
     }
+  }
+
+  bool hasReplyMarkUp() {
+    final replyMarkUp =
+        widget.currentRoom.lastMessage?.markup?.replyKeyboardMarkup;
+    return replyMarkUp?.rows.isNotEmpty ?? false;
   }
 }
 

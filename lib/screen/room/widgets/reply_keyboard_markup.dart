@@ -15,9 +15,6 @@ class ReplyKeyboardMarkupWidget extends StatelessWidget {
     final widgetRows = <Widget>[];
     final rows = replyKeyboardMarkup.rows;
     var columns = <Widget>[];
-    if (rows.isEmpty) {
-      return const SizedBox.shrink();
-    }
     for (final row in rows) {
       columns = [];
       for (var i = 0; i < row.buttons.length; ++i) {
