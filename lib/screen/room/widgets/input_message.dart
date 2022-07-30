@@ -313,6 +313,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                 InputSuggestionsWidget(
                   inputSuggestions:
                       widget.replyKeyboardMarkup?.inputSuggestions ?? [],
+                  textController: widget.textController,
                 ),
                 Divider(
                   color: theme.primaryColorLight,
