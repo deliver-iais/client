@@ -474,8 +474,17 @@ class MessageExtractorServices {
     message.messageMarkup = markup_pb.MessageMarkup(
       //removeReplyKeyboardMarkup: true,
       replyKeyboardMarkup: markup_pb.ReplyKeyboardMarkup(
-        inputFieldPlaceholder: "hi",
-        inputSuggestions: ["hello", "hi"],
+        inputFieldPlaceholder: "یکی از گزینه ها را انتخاب کنید",
+        inputSuggestions: [
+          "پردانلود ترین",
+          "جدیدترین",
+          "پیشنهادی",
+          "پلی لیست",
+          "پردانلود ترین",
+          "جدیدترین",
+          "پیشنهادی",
+          "پلی لیست"
+        ],
         oneTimeKeyboard: true,
         rows: [
           markup_pb.ReplyKeyboardRow(
@@ -490,32 +499,12 @@ class MessageExtractorServices {
             buttons: [
               markup_pb.ReplyKeyboardButton(
                 text: "جدیدترین",
-                sendOnClick: true,
+                sendOnClick: false,
               ),
             ],
           ),
           markup_pb.ReplyKeyboardRow(
             buttons: [
-              markup_pb.ReplyKeyboardButton(
-                text: "پیشنهادی",
-                sendOnClick: true,
-              ),
-              markup_pb.ReplyKeyboardButton(
-                text: "پیشنهادی",
-                sendOnClick: true,
-              ),
-              markup_pb.ReplyKeyboardButton(
-                text: "پیشنهادی",
-                sendOnClick: true,
-              ),
-              markup_pb.ReplyKeyboardButton(
-                text: "پیشنهادی",
-                sendOnClick: true,
-              ),
-              markup_pb.ReplyKeyboardButton(
-                text: "پیشنهادی",
-                sendOnClick: true,
-              ),
               markup_pb.ReplyKeyboardButton(
                 text: "پیشنهادی",
                 sendOnClick: true,
