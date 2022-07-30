@@ -1,5 +1,4 @@
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/screen/room/widgets/input_message.dart';
 import 'package:deliver/shared/widgets/shake_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
 import 'package:flutter/material.dart';
@@ -91,7 +90,7 @@ class FormSimpleInputFieldWidgetState
           textDirection: value,
           onChanged: (str) {
             if (str.isNotEmpty) {
-              final dir = getDirection(str);
+              final dir = _i18n.getDirection(str);
               if (dir != value) {
                 _textDir.value = dir;
               }
