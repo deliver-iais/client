@@ -9,7 +9,6 @@ import 'package:deliver/box/media.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/pending_message.dart';
-import 'package:deliver/box/reply_keyboard_markup.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/debug/commons_widgets.dart';
@@ -131,8 +130,6 @@ class RoomPageState extends State<RoomPage> {
   final _itemPositionsListener = ItemPositionsListener.create();
   final _itemScrollController = ItemScrollController();
   final _editableMessage = BehaviorSubject<Message?>.seeded(null);
-  final _replyKeyBoardMarkUp =
-      BehaviorSubject<ReplyKeyboardMarkup?>.seeded(null);
   final _searchMode = BehaviorSubject.seeded(false);
   final _lastPinedMessage = BehaviorSubject.seeded(0);
   final _itemCountSubject = BehaviorSubject.seeded(0);
@@ -147,7 +144,6 @@ class RoomPageState extends State<RoomPage> {
   final List<int> _messageReplyHistory = [];
   Timer? scrollEndNotificationTimer;
   Timer? highlightMessageTimer;
-  Message? _replyMarkUp;
   bool _isArrowIconFocused = false;
   bool _isLastMessages = false;
 
@@ -809,24 +805,18 @@ class RoomPageState extends State<RoomPage> {
   Widget messageInput() => StreamBuilder(
         stream: _editableMessage,
         builder: (c, data) {
-          return StreamBuilder<ReplyKeyboardMarkup?>(
-            stream: _replyKeyBoardMarkUp,
-            builder: (context, snapshot) {
-              return NewMessageInput(
-                currentRoomId: widget.roomId,
-                deleteSelectedMessage: _deleteSelectedMessage,
-                replyMessageIdStream: _repliedMessage,
-                editableMessage: _editableMessage.value,
-                resetRoomPageDetails: _resetRoomPageDetails,
-                waitingForForward: _waitingForForwardedMessage.value,
-                sendForwardMessage: _sendForwardMessage,
-                scrollToLastSentMessage: _scrollToLastMessage,
-                handleScrollToMessage: _handleScrollToMsg,
-                focusNode: _inputMessageFocusNode,
-                textController: _inputMessageTextController,
-                replyKeyboardMarkup: _replyKeyBoardMarkUp.value,
-              );
-            },
+          return NewMessageInput(
+            currentRoomId: widget.roomId,
+            deleteSelectedMessage: _deleteSelectedMessage,
+            replyMessageIdStream: _repliedMessage,
+            editableMessage: _editableMessage.value,
+            resetRoomPageDetails: _resetRoomPageDetails,
+            waitingForForward: _waitingForForwardedMessage.value,
+            sendForwardMessage: _sendForwardMessage,
+            scrollToLastSentMessage: _scrollToLastMessage,
+            handleScrollToMessage: _handleScrollToMsg,
+            focusNode: _inputMessageFocusNode,
+            textController: _inputMessageTextController,
           );
         },
       );
@@ -1333,14 +1323,12 @@ class RoomPageState extends State<RoomPage> {
 
     final tuple = _fastForwardFetchMessageAndMessageBefore(index);
     if (tuple != null) {
-      checkForReplyKeyBoardMarkUp(tuple.item2);
       widget = _cachedBuildMessage(index, tuple);
     } else {
       widget = FutureBuilder<Tuple2<Message?, Message?>>(
         initialData: _fastForwardFetchMessageAndMessageBefore(index),
         future: _fetchMessageAndMessageBefore(index),
         builder: (context, ms) {
-          checkForReplyKeyBoardMarkUp(ms.data?.item2);
           return _cachedBuildMessage(index, ms.data);
         },
       );
@@ -1529,21 +1517,5 @@ class RoomPageState extends State<RoomPage> {
 
   void openRoomSearchBox() {
     _searchMode.add(true);
-  }
-
-  void checkForReplyKeyBoardMarkUp(Message? message) {
-    if (message?.markup != null) {
-      if (message?.markup?.removeReplyKeyboard != null &&
-          message!.markup!.removeReplyKeyboard) {
-        _replyMarkUp = null;
-      }
-      if (message?.markup?.replyKeyboardMarkup?.rows != null &&
-          message!.markup!.replyKeyboardMarkup!.rows.isNotEmpty) {
-        _replyMarkUp = message;
-      }
-      if (message?.id == room.lastMessageId) {
-        _replyKeyBoardMarkUp.add(_replyMarkUp?.markup?.replyKeyboardMarkup);
-      }
-    }
   }
 }

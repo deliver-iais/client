@@ -64,7 +64,6 @@ class InputMessage extends StatefulWidget {
   final InputMessageTextController textController;
   final Function(int dir, bool, bool) handleScrollToMessage;
   final Function() deleteSelectedMessage;
-  final ReplyKeyboardMarkup? replyKeyboardMarkup;
 
   const InputMessage({
     super.key,
@@ -80,7 +79,6 @@ class InputMessage extends StatefulWidget {
     this.sendForwardMessage,
     this.editableMessage,
     this.showMentionList,
-    this.replyKeyboardMarkup,
   });
 
   @override
@@ -310,13 +308,17 @@ class InputMessageWidgetState extends State<InputMessage> {
                     );
                   },
                 ),
-                InputSuggestionsWidget(
-                  inputSuggestions:
-                      widget.replyKeyboardMarkup?.inputSuggestions ?? [],
-                  textController: widget.textController,
-                ),
-                Divider(
-                  color: theme.primaryColorLight,
+                FutureBuilder<Message?>(
+                  future: _messageRepo
+                      .getReplyKeyBoardMarkUpMessage(widget.currentRoom.uid),
+                  builder: (context, replyMarkUpMessage) {
+                    return InputSuggestionsWidget(
+                      inputSuggestions: replyMarkUpMessage.data?.markup
+                              ?.replyKeyboardMarkup?.inputSuggestions ??
+                          [],
+                      textController: widget.textController,
+                    );
+                  },
                 ),
                 Container(
                   decoration: BoxDecoration(
@@ -394,20 +396,32 @@ class InputMessageWidgetState extends State<InputMessage> {
                     ],
                   ),
                 ),
-                if (widget.replyKeyboardMarkup != null)
-                  AnimatedContainer(
-                    duration: SLOW_ANIMATION_DURATION,
-                    curve: Curves.easeInOut,
-                    constraints: BoxConstraints(
-                      maxHeight: _showReplyMarkUp.value ? 270.0 : 0,
-                    ),
-                    child: ReplyKeyboardMarkupWidget(
-                      replyKeyboardMarkup: widget.replyKeyboardMarkup!,
-                      showReplyMarkUp: _showReplyMarkUp,
-                      roomUid: widget.currentRoom.uid,
-                      textController: widget.textController,
-                    ),
+                //  if (widget.replyKeyboardMarkup != null)
+                AnimatedContainer(
+                  duration: SLOW_ANIMATION_DURATION,
+                  curve: Curves.easeInOut,
+                  constraints: BoxConstraints(
+                    maxHeight: _showReplyMarkUp.value ? 270.0 : 0,
                   ),
+                  child: FutureBuilder<Message?>(
+                    future: _messageRepo.getReplyKeyBoardMarkUpMessage(
+                      widget.currentRoom.uid,
+                      forceToCheckKeyboard: true,
+                    ),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data != null) {
+                        return ReplyKeyboardMarkupWidget(
+                          replyKeyboardMarkup:
+                              snapshot.data!.markup!.replyKeyboardMarkup!,
+                          showReplyMarkUp: _showReplyMarkUp,
+                          roomUid: widget.currentRoom.uid,
+                          textController: widget.textController,
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                ),
                 StreamBuilder<bool>(
                   stream: _showEmojiKeyboard,
                   builder: (context, back) {
@@ -514,17 +528,28 @@ class InputMessageWidgetState extends State<InputMessage> {
         return Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            if (!widget.waitingForForward && widget.replyKeyboardMarkup != null)
-              IconButton(
-                icon: Icon(
-                  _showReplyMarkUp.value
-                      ? CupertinoIcons.chevron_down_square
-                      : CupertinoIcons.square_grid_2x2,
+            if (!widget.waitingForForward)
+              FutureBuilder<Message?>(
+                future: _messageRepo.getReplyKeyBoardMarkUpMessage(
+                  widget.currentRoom.uid,
+                  forceToCheckKeyboard: true,
                 ),
-                onPressed: () {
-                  widget.focusNode.requestFocus();
-                  _showEmojiKeyboard.add(false);
-                  _showReplyMarkUp.add(!_showReplyMarkUp.value);
+                builder: (context, snapshot) {
+                  if (snapshot.hasData && snapshot.data != null) {
+                    return IconButton(
+                      icon: Icon(
+                        _showReplyMarkUp.value
+                            ? CupertinoIcons.chevron_down_square
+                            : CupertinoIcons.square_grid_2x2,
+                      ),
+                      onPressed: () {
+                        FocusScope.of(context).unfocus();
+                        _showEmojiKeyboard.add(false);
+                        _showReplyMarkUp.add(!_showReplyMarkUp.value);
+                      },
+                    );
+                  }
+                  return const SizedBox.shrink();
                 },
               ),
             if (showCommandsButton)
@@ -632,50 +657,67 @@ class InputMessageWidgetState extends State<InputMessage> {
               stream: textDirection.distinct(),
               builder: (c, sn) {
                 final textDir = sn.data ?? TextDirection.ltr;
-                return TextField(
-                  selectionControls: selectionControls,
-                  focusNode: widget.focusNode,
-                  autofocus: (snapshot.data?.id ?? 0) > 0 || isDesktop,
-                  controller: widget.textController,
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.only(top: 12, bottom: 12),
-                    border: InputBorder.none,
-                    counterText: "",
-                    hintText: hasMarkUpPlaceHolder()
-                        ? widget.replyKeyboardMarkup!.inputFieldPlaceHolder
-                        : _i18n.get("write_a_message"),
-                    hintTextDirection: hasMarkUpPlaceHolder()
-                        ? _i18n.getDirection(
-                            widget.replyKeyboardMarkup!.inputFieldPlaceHolder,
-                          )
-                        : _i18n.defaultTextDirection,
-                    hintStyle: theme.textTheme.bodyMedium,
+                return FutureBuilder<Message?>(
+                  future: _messageRepo.getReplyKeyBoardMarkUpMessage(
+                    widget.currentRoom.uid,
                   ),
-                  textInputAction: TextInputAction.newline,
-                  minLines: 1,
-                  maxLines: isAndroid ? 10 : 15,
-                  maxLength: INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH,
-                  inputFormatters: [
-                    MaxLinesTextInputFormatter(
-                      INPUT_MESSAGE_TEXT_FIELD_MAX_LINE,
-                    )
-                    //max line of text field
-                  ],
-                  textDirection: textDir,
-                  style: theme.textTheme.bodyMedium,
-                  onTap: () {
-                    if (!isDesktop) _showEmojiKeyboard.add(false);
-                  },
-                  onChanged: (str) {
-                    if (str.isNotEmpty) {
-                      isTypingActivitySubject.add(
-                        ActivityType.TYPING,
-                      );
-                    } else {
-                      noActivitySubject.add(
-                        ActivityType.NO_ACTIVITY,
-                      );
-                    }
+                  builder: (context, replyKeyboardMarkup) {
+                    return TextField(
+                      selectionControls: selectionControls,
+                      focusNode: widget.focusNode,
+                      autofocus: (snapshot.data?.id ?? 0) > 0 || isDesktop,
+                      controller: widget.textController,
+                      decoration: InputDecoration(
+                        contentPadding:
+                            const EdgeInsets.only(top: 12, bottom: 12),
+                        border: InputBorder.none,
+                        counterText: "",
+                        hintText: hasMarkUpPlaceHolder(
+                          replyKeyboardMarkup.data?.markup?.replyKeyboardMarkup,
+                        )
+                            ? replyKeyboardMarkup.data!.markup!
+                                .replyKeyboardMarkup!.inputFieldPlaceHolder
+                            : _i18n.get("write_a_message"),
+                        hintTextDirection: hasMarkUpPlaceHolder(
+                          replyKeyboardMarkup.data?.markup?.replyKeyboardMarkup,
+                        )
+                            ? _i18n.getDirection(
+                                replyKeyboardMarkup.data!.markup!
+                                    .replyKeyboardMarkup!.inputFieldPlaceHolder,
+                              )
+                            : _i18n.defaultTextDirection,
+                        hintStyle: theme.textTheme.bodyMedium,
+                      ),
+                      textInputAction: TextInputAction.newline,
+                      minLines: 1,
+                      maxLines: isAndroid ? 10 : 15,
+                      maxLength: INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH,
+                      inputFormatters: [
+                        MaxLinesTextInputFormatter(
+                          INPUT_MESSAGE_TEXT_FIELD_MAX_LINE,
+                        )
+                        //max line of text field
+                      ],
+                      textDirection: textDir,
+                      style: theme.textTheme.bodyMedium,
+                      onTap: () {
+                        if (!isDesktop) {
+                          _showEmojiKeyboard.add(false);
+                          _showReplyMarkUp.add(false);
+                        }
+                      },
+                      onChanged: (str) {
+                        if (str.isNotEmpty) {
+                          isTypingActivitySubject.add(
+                            ActivityType.TYPING,
+                          );
+                        } else {
+                          noActivitySubject.add(
+                            ActivityType.NO_ACTIVITY,
+                          );
+                        }
+                      },
+                    );
                   },
                 );
               },
@@ -1046,8 +1088,8 @@ class InputMessageWidgetState extends State<InputMessage> {
     }
   }
 
-  bool hasMarkUpPlaceHolder() {
-    return widget.replyKeyboardMarkup?.inputFieldPlaceHolder != null &&
-        widget.replyKeyboardMarkup!.inputFieldPlaceHolder.isNotEmpty;
+  bool hasMarkUpPlaceHolder(ReplyKeyboardMarkup? replyKeyboardMarkup) {
+    return replyKeyboardMarkup?.inputFieldPlaceHolder != null &&
+        replyKeyboardMarkup!.inputFieldPlaceHolder.isNotEmpty;
   }
 }
