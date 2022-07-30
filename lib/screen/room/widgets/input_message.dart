@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_type.dart';
+import 'package:deliver/box/reply_keyboard_markup.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart';
@@ -15,9 +16,10 @@ import 'package:deliver/screen/room/messageWidgets/max_lenght_text_input_formatt
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/widgets/bot_commands.dart';
 import 'package:deliver/screen/room/widgets/emoji_keybord.dart';
+import 'package:deliver/screen/room/widgets/markup/input_suggestions_widget.dart';
+import 'package:deliver/screen/room/widgets/markup/reply_keyboard_markup.dart';
 import 'package:deliver/screen/room/widgets/record_audio_animation.dart';
 import 'package:deliver/screen/room/widgets/record_audio_slide_widget.dart';
-import 'package:deliver/screen/room/widgets/reply_keyboard_markup.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/screen/room/widgets/show_mention_list.dart';
@@ -29,7 +31,6 @@ import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/keyboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/attach_location.dart';
@@ -63,6 +64,7 @@ class InputMessage extends StatefulWidget {
   final InputMessageTextController textController;
   final Function(int dir, bool, bool) handleScrollToMessage;
   final Function() deleteSelectedMessage;
+  final ReplyKeyboardMarkup? replyKeyboardMarkup;
 
   const InputMessage({
     super.key,
@@ -78,6 +80,7 @@ class InputMessage extends StatefulWidget {
     this.sendForwardMessage,
     this.editableMessage,
     this.showMentionList,
+    this.replyKeyboardMarkup,
   });
 
   @override
@@ -172,7 +175,7 @@ class InputMessageWidgetState extends State<InputMessage> {
     widget.textController.addListener(() {
       _showSendIcon.add(widget.textController.text.isNotEmpty);
       if (widget.textController.text.isNotEmpty) {
-        textDirection.add(getDirection(widget.textController.text));
+        textDirection.add(_i18n.getDirection(widget.textController.text));
       }
 
       if (currentRoom.uid.asUid().category == Categories.BOT &&
@@ -307,6 +310,14 @@ class InputMessageWidgetState extends State<InputMessage> {
                     );
                   },
                 ),
+                if (hasInputSuggestions())
+                  InputSuggestionsWidget(
+                    inputSuggestions:
+                        widget.replyKeyboardMarkup!.inputSuggestions,
+                  ),
+                Divider(
+                  color: theme.primaryColorLight,
+                ),
                 Container(
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surface,
@@ -383,10 +394,19 @@ class InputMessageWidgetState extends State<InputMessage> {
                     ],
                   ),
                 ),
-                if (hasReplyMarkUp() && _showReplyMarkUp.value)
-                  ReplyKeyboardMarkupWidget(
-                    replyKeyboardMarkup: widget
-                        .currentRoom.lastMessage!.markup!.replyKeyboardMarkup!,
+                if (widget.replyKeyboardMarkup != null)
+                  AnimatedContainer(
+                    duration: SLOW_ANIMATION_DURATION,
+                    curve: Curves.easeInOut,
+                    constraints: BoxConstraints(
+                      maxHeight: _showReplyMarkUp.value ? 270.0 : 0,
+                    ),
+                    child: ReplyKeyboardMarkupWidget(
+                      replyKeyboardMarkup: widget.replyKeyboardMarkup!,
+                      showReplyMarkUp: _showReplyMarkUp,
+                      roomUid: widget.currentRoom.uid,
+                      textController: widget.textController,
+                    ),
                   ),
                 StreamBuilder<bool>(
                   stream: _showEmojiKeyboard,
@@ -457,6 +477,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                 : CupertinoIcons.smiley,
           ),
           onPressed: () {
+            _showReplyMarkUp.add(false);
             if (showEmojiKeyboard) {
               _showEmojiKeyboard.add(false);
               widget.focusNode.requestFocus();
@@ -493,9 +514,7 @@ class InputMessageWidgetState extends State<InputMessage> {
         return Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            if (!showSendButton &&
-                !widget.waitingForForward &&
-                hasReplyMarkUp())
+            if (!widget.waitingForForward && widget.replyKeyboardMarkup != null)
               IconButton(
                 icon: Icon(
                   _showReplyMarkUp.value
@@ -503,6 +522,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                       : CupertinoIcons.square_grid_2x2,
                 ),
                 onPressed: () {
+                  _showEmojiKeyboard.add(false);
                   _showReplyMarkUp.add(!_showReplyMarkUp.value);
                 },
               ),
@@ -537,6 +557,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                 ),
                 onPressed: () {
                   _showEmojiKeyboard.add(false);
+                  _showReplyMarkUp.add(false);
 
                   showButtonSheet();
                 },
@@ -619,8 +640,14 @@ class InputMessageWidgetState extends State<InputMessage> {
                     contentPadding: const EdgeInsets.only(top: 12, bottom: 12),
                     border: InputBorder.none,
                     counterText: "",
-                    hintText: _i18n.get("write_a_message"),
-                    hintTextDirection: _i18n.defaultTextDirection,
+                    hintText: hasMarkUpPlaceHolder()
+                        ? widget.replyKeyboardMarkup!.inputFieldPlaceHolder
+                        : _i18n.get("write_a_message"),
+                    hintTextDirection: hasMarkUpPlaceHolder()
+                        ? _i18n.getDirection(
+                            widget.replyKeyboardMarkup!.inputFieldPlaceHolder,
+                          )
+                        : _i18n.defaultTextDirection,
                     hintStyle: theme.textTheme.bodyMedium,
                   ),
                   textInputAction: TextInputAction.newline,
@@ -1018,18 +1045,13 @@ class InputMessageWidgetState extends State<InputMessage> {
     }
   }
 
-  bool hasReplyMarkUp() {
-    final replyMarkUp =
-        widget.currentRoom.lastMessage?.markup?.replyKeyboardMarkup;
-    return replyMarkUp?.rows.isNotEmpty ?? false;
+  bool hasInputSuggestions() {
+    return widget.replyKeyboardMarkup?.inputSuggestions != null &&
+        widget.replyKeyboardMarkup!.inputSuggestions.isNotEmpty;
   }
-}
 
-TextDirection getDirection(String v) {
-  final string = v.trim();
-  if (string.isEmpty) return TextDirection.ltr;
-  if (string.isPersian()) {
-    return TextDirection.rtl;
+  bool hasMarkUpPlaceHolder() {
+    return widget.replyKeyboardMarkup?.inputFieldPlaceHolder != null &&
+        widget.replyKeyboardMarkup!.inputFieldPlaceHolder.isNotEmpty;
   }
-  return TextDirection.ltr;
 }
