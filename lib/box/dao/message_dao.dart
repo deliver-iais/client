@@ -34,6 +34,9 @@ abstract class MessageDao {
   Future<void> deletePendingMessage(String packetId);
 
   Future<void> savePendingMessage(PendingMessage pm);
+
+  Future<Message?> checkForReplyKeyBoardMarkUp(String roomUid,
+      {bool forceToCheckKeyboard = false,});
 }
 
 class MessageDaoImpl implements MessageDao {
@@ -63,6 +66,29 @@ class MessageDaoImpl implements MessageDao {
     final box = await _openPendingMessages();
 
     return box.values.toList();
+  }
+
+  @override
+  Future<Message?> checkForReplyKeyBoardMarkUp(String roomUid,
+      {bool forceToCheckKeyboard = false,}) async {
+    final box = await _openMessages(roomUid);
+    final removeId = box.values
+            .toList()
+            .lastWhere(
+              ((element) =>
+                  element.markup?.removeReplyKeyboard != null &&
+                  element.markup!.removeReplyKeyboard),
+            )
+            .id ??
+        0;
+
+    return box.values.toList().lastWhere(
+          ((element) =>
+              element.markup?.replyKeyboardMarkup != null &&
+              (!forceToCheckKeyboard ||
+                  element.markup!.replyKeyboardMarkup!.rows.isNotEmpty) &&
+              (element.id ?? 0) >= removeId),
+        );
   }
 
   @override
