@@ -1,5 +1,4 @@
 import 'package:deliver/box/message.dart';
-import 'package:deliver/box/reply_keyboard_markup.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/input_message_text_controller.dart';
@@ -23,7 +22,6 @@ class NewMessageInput extends StatelessWidget {
   final void Function(int, bool, bool) handleScrollToMessage;
   final void Function() deleteSelectedMessage;
   final InputMessageTextController textController;
-  final ReplyKeyboardMarkup? replyKeyboardMarkup;
 
   const NewMessageInput({
     super.key,
@@ -37,7 +35,7 @@ class NewMessageInput extends StatelessWidget {
     required this.deleteSelectedMessage,
     required this.replyMessageIdStream,
     this.editableMessage,
-    this.sendForwardMessage, this.replyKeyboardMarkup,
+    this.sendForwardMessage,
   });
 
   @override
@@ -58,7 +56,6 @@ class NewMessageInput extends StatelessWidget {
             scrollToLastSentMessage: scrollToLastSentMessage,
             focusNode: focusNode,
             textController: textController,
-            replyKeyboardMarkup: replyKeyboardMarkup,
           );
         } else {
           _roomRepo.createRoomIfNotExist(currentRoomId);
