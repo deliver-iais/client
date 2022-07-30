@@ -1,4 +1,6 @@
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/callRepo.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
@@ -20,6 +22,8 @@ class CallBottomRow extends StatefulWidget {
 }
 
 class CallBottomRowState extends State<CallBottomRow> {
+  final _i18n = GetIt.I.get<I18N>();
+
   Color? _switchCameraIcon;
 
   Color? _offVideoCamIcon;
@@ -33,10 +37,8 @@ class CallBottomRowState extends State<CallBottomRow> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    _speakerIcon =
-        callRepo.isSpeaker ? theme.buttonTheme.colorScheme!.primary : theme.shadowColor.withOpacity(0.4);
-    _muteMicIcon =
-        callRepo.isMicMuted ? theme.buttonTheme.colorScheme!.primary : theme.shadowColor.withOpacity(0.4);
+    _speakerIcon = callRepo.isSpeaker ? Colors.green : theme.shadowColor;
+    _muteMicIcon = callRepo.isMicMuted ? Colors.green : theme.shadowColor;
     _offVideoCamIcon = callRepo.mute_camera.value
         ? theme.buttonTheme.colorScheme!.primary
         : theme.shadowColor.withOpacity(0.4);
@@ -72,7 +74,7 @@ class CallBottomRowState extends State<CallBottomRow> {
                   onPressed: () => _declineCall(),
                   backgroundColor: theme.buttonTheme.colorScheme!.primary,
                   child: const Icon(
-                    Icons.call_end_rounded,
+                    CupertinoIcons.phone_down_fill,
                     size: 40,
                   ),
                 ),
@@ -136,10 +138,12 @@ class CallBottomRowState extends State<CallBottomRow> {
               child: Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
-                  width: isWindows ? MediaQuery.of(context).size.width/2 : 4*MediaQuery.of(context).size.width/5,
+                  width: isWindows
+                      ? MediaQuery.of(context).size.width / 2
+                      : 9 * MediaQuery.of(context).size.width / 10,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(50.0),
-                    color: theme.shadowColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(35.0),
+                    color: theme.cardColor.withOpacity(0.8),
                   ),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -147,35 +151,49 @@ class CallBottomRowState extends State<CallBottomRow> {
                       Padding(
                         padding: const EdgeInsets.only(left: 8),
                         child: SizedBox(
-                          width: 80,
-                          height: 80,
-                          child: FloatingActionButton(
-                            heroTag: "1",
-                            elevation: 0,
-                            shape: const CircleBorder(),
-                            backgroundColor: _speakerIcon,
-                            onPressed: () => _enableSpeaker(theme),
-                            child: const Icon(
-                              Icons.volume_up_rounded,
-                              size: 40,
-                              color: Colors.white,
-                            ),
+                          width: isAndroid ? 75 : 80,
+                          height: isAndroid ? 75 : 80,
+                          child: Column(
+                            children: <Widget>[
+                              SizedBox(
+                                height: 50.0,
+                                width: 50.0,
+                                child: FittedBox(
+                                  child: FloatingActionButton(
+                                    heroTag: "1",
+                                    elevation: 0,
+                                    shape: const CircleBorder(),
+                                    backgroundColor:
+                                        theme.cardColor.withOpacity(0),
+                                    hoverColor:
+                                        theme.primaryColor.withOpacity(0.6),
+                                    onPressed: () => _enableSpeaker(theme),
+                                    child: Icon(
+                                      CupertinoIcons.speaker_2,
+                                      size: isAndroid ? 30 : 40,
+                                      color: _speakerIcon,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Text(_i18n.get("speaker"),
+                                  style: theme.textTheme.titleSmall),
+                            ],
                           ),
                         ),
                       ),
                       Container(
                         padding: const EdgeInsets.all(10),
-                        height: 100,
-                        width: 100,
+                        height: isAndroid ? 80 : 100,
+                        width: isAndroid ? 80 : 100,
                         child: FloatingActionButton(
-                          backgroundColor:
-                              theme.buttonTheme.colorScheme!.error,
+                          backgroundColor: Colors.red,
                           heroTag: "2",
                           elevation: 0,
                           shape: const CircleBorder(),
-                          child: const Icon(
-                            Icons.call_end_rounded,
-                            size: 50,
+                          child: Icon(
+                            CupertinoIcons.phone_down_fill,
+                            size: isAndroid ? 40 : 50,
                             color: Colors.white,
                           ),
                           onPressed: () => widget.hangUp(),
@@ -184,19 +202,37 @@ class CallBottomRowState extends State<CallBottomRow> {
                       Padding(
                         padding: const EdgeInsets.only(right: 8),
                         child: SizedBox(
-                          width: 80,
-                          height: 80,
-                          child: FloatingActionButton(
-                            heroTag: "3",
-                            elevation: 0,
-                            shape: const CircleBorder(),
-                            backgroundColor: _muteMicIcon,
-                            onPressed: () => _muteMic(theme),
-                            child: const Icon(
-                              Icons.mic_off_rounded,
-                              size: 40,
-                              color: Colors.white,
-                            ),
+                          width: isAndroid ? 75 : 80,
+                          height: isAndroid ? 75 : 80,
+                          child: Column(
+                            children: <Widget>[
+                              SizedBox(
+                                height: 50.0,
+                                width: 50.0,
+                                child: FittedBox(
+                                  child: FloatingActionButton(
+                                    heroTag: "3",
+                                    elevation: 0,
+                                    shape: const CircleBorder(),
+                                    backgroundColor:
+                                        theme.cardColor.withOpacity(0),
+                                    hoverColor:
+                                        theme.primaryColor.withOpacity(0.6),
+                                    onPressed: () => _muteMic(theme),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(0),
+                                      child: Icon(
+                                        CupertinoIcons.mic_off,
+                                        size: isAndroid ? 30 : 40,
+                                        color: _muteMicIcon,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Text(_i18n.get("mute_call"),
+                                  style: theme.textTheme.titleSmall),
+                            ],
                           ),
                         ),
                       )

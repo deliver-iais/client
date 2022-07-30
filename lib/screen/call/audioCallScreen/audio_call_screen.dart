@@ -5,6 +5,7 @@ import 'package:deliver/screen/call/call_bottom_icons.dart';
 import 'package:deliver/screen/call/center_avatar_image-in-call.dart';
 import 'package:deliver/shared/widgets/dot_animation/dot_animation.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -53,26 +54,9 @@ class AudioCallScreenState extends State<AudioCallScreen>
     _repeatEndCallAnimationController.repeat(reverse: true);
   }
 
-  List<Color> colorList = [
-    Colors.red,
-    Colors.blue,
-    Colors.green,
-    Colors.yellow
-  ];
-  List<Alignment> alignmentList = [
-    Alignment.bottomLeft,
-    Alignment.bottomRight,
-    Alignment.topRight,
-    Alignment.topLeft,
-  ];
-  int index = 0;
-  Color bottomColor = Colors.red;
-  Color topColor = Colors.yellow;
-  Alignment begin = Alignment.bottomLeft;
-  Alignment end = Alignment.topRight;
-
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: const SystemUiOverlayStyle(
         systemNavigationBarColor: Colors.black,
@@ -82,7 +66,21 @@ class AudioCallScreenState extends State<AudioCallScreen>
         extendBodyBehindAppBar: true,
         body: Stack(
           children: [
-            AnimatedGradient(),
+            if (!callRepo.isConnected)
+              const AnimatedGradient()
+            else
+              Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.bottomLeft,
+                    end: Alignment.topRight,
+                    colors: [
+                      Color.fromARGB(255, 75, 105, 100),
+                      Color.fromARGB(255, 49, 89, 107),
+                    ],
+                  ),
+                ),
+              ),
             Column(
               children: [
                 if (widget.callStatus == "Connected")
@@ -91,8 +89,10 @@ class AudioCallScreenState extends State<AudioCallScreen>
                     builder: (context, snapshot) {
                       if (snapshot.hasData && snapshot.data != null) {
                         return Padding(
-                            padding: const EdgeInsets.only(top: 10),
-                            child: callTimerWidget(snapshot.data!));
+                          padding: const EdgeInsets.only(top: 50),
+                          child: callTimerWidget(theme, snapshot.data!,
+                              isEnd: false),
+                        );
                       } else {
                         return const SizedBox.shrink();
                       }
@@ -100,7 +100,7 @@ class AudioCallScreenState extends State<AudioCallScreen>
                   )
                 else
                   Padding(
-                    padding: const EdgeInsets.only(top: 10),
+                    padding: const EdgeInsets.only(top: 50),
                     child: Directionality(
                       textDirection: _i18n.isPersian
                           ? TextDirection.rtl
@@ -108,10 +108,30 @@ class AudioCallScreenState extends State<AudioCallScreen>
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            widget.callStatusOnScreen,
-                            style: const TextStyle(color: Colors.white70),
-                          ),
+                          if (widget.callStatus != "Ended")
+                            Text(
+                              widget.callStatusOnScreen,
+                              style: theme.textTheme.titleLarge!
+                                  .copyWith(color: Colors.white70),
+                            )
+                          else
+                            FadeTransition(
+                              opacity: _repeatEndCallAnimationController,
+                              child: (callRepo.isConnected)
+                                  ? Directionality(
+                                      textDirection: TextDirection.ltr,
+                                      child: callTimerWidget(
+                                        theme,
+                                        callRepo.callTimer.value,
+                                        isEnd: true,
+                                      ),
+                                    )
+                                  : Text(
+                                      widget.callStatusOnScreen,
+                                      style: theme.textTheme.titleLarge!
+                                          .copyWith(color: Colors.red),
+                                    ),
+                            ),
                           if (widget.callStatus == "Connecting" ||
                               widget.callStatus == "Reconnecting" ||
                               widget.callStatus == "Ringing" ||
@@ -124,18 +144,6 @@ class AudioCallScreenState extends State<AudioCallScreen>
                 CenterAvatarInCall(
                   roomUid: widget.roomUid,
                 ),
-                if (widget.callStatus == "Ended")
-                  FadeTransition(
-                    opacity: _repeatEndCallAnimationController,
-                    child: callRepo.callTimer.value.seconds == 0 &&
-                            callRepo.callTimer.value.minutes == 0 &&
-                            callRepo.callTimer.value.hours == 0
-                        ? Text(
-                            widget.callStatusOnScreen,
-                            style: const TextStyle(color: Colors.white70),
-                          )
-                        : callTimerWidget(callRepo.callTimer.value),
-                  )
               ],
             ),
             if (widget.callStatus == "Ended")
@@ -160,19 +168,30 @@ class AudioCallScreenState extends State<AudioCallScreen>
     );
   }
 
-  Text callTimerWidget(CallTimer callTimer) {
+  Row callTimerWidget(ThemeData theme, CallTimer callTimer,
+      {required bool isEnd}) {
     var callHour = callTimer.hours.toString();
     var callMin = callTimer.minutes.toString();
     var callSecond = callTimer.seconds.toString();
     callHour = callHour.length != 2 ? '0$callHour' : callHour;
     callMin = callMin.length != 2 ? '0$callMin' : callMin;
     callSecond = callSecond.length != 2 ? '0$callSecond' : callSecond;
-    return Text(
-      '$callHour:$callMin:$callSecond',
-      style: const TextStyle(
-        color: Colors.white54,
-        fontStyle: FontStyle.italic,
-      ),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Icon(
+          CupertinoIcons.phone_fill,
+          size: 25,
+          color: isEnd ? Colors.red : Colors.white54,
+        ),
+        Text(
+          '$callHour:$callMin:$callSecond',
+          style: theme.textTheme.titleLarge!.copyWith(
+            color: isEnd ? Colors.red : Colors.white54,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+      ],
     );
   }
 

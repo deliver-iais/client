@@ -33,35 +33,15 @@ class CenterAvatarInCallState extends State<CenterAvatarInCall> {
               stream: _avatarRepo.getLastAvatarFilePathStream(widget.roomUid),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  return WidgetCircularAnimator(
-                    innerAnimation: Curves.bounceIn,
-                    outerAnimation: Curves.bounceIn,
-                    innerColor: Colors.white24,
-                    reverse: false,
-                    size: 160,
-                    outerColor: Colors.white70,
-                    innerAnimationSeconds: 10,
-                    outerAnimationSeconds: 10,
-                    child: CircleAvatarWidget(widget.roomUid, 60),
-                  );
+                  return CircleAvatarWidget(widget.roomUid, 60);
                 } else {
-                  return WidgetCircularAnimator(
-                    innerAnimation: Curves.bounceIn,
-                    outerAnimation: Curves.bounceIn,
-                    innerColor: Colors.white24,
-                    reverse: false,
-                    size: 160,
-                    outerColor: Colors.white70,
-                    innerAnimationSeconds: 10,
-                    outerAnimationSeconds: 10,
-                    child: ClipRRect(
+                  return  ClipRRect(
                       borderRadius: BorderRadius.circular(60),
                       child: const Image(
                         width: 120,
                         height: 120,
                         image: AssetImage('assets/images/no-profile-pic.png'),
                       ),
-                    ),
                   );
                 }
               },

@@ -275,6 +275,7 @@ void main() async {
     }
   }
 
+  Paint.enableDithering = true;
   runApp(
     FeatureDiscovery.withProvider(
       persistenceProvider: const NoPersistenceProvider(),

@@ -14,7 +14,7 @@ class AnimatedGradient extends StatefulWidget {
 
 class AnimatedGradientState extends State<AnimatedGradient> {
   List<Color> colorList = [
-    Colors.blue,
+    Colors.teal,
     Colors.greenAccent,
     Colors.cyan,
     Colors.green,
@@ -34,18 +34,17 @@ class AnimatedGradientState extends State<AnimatedGradient> {
   Alignment end = Alignment.topRight;
 
   @override
-  void initState() {
-    bottomColor = Colors.blue;
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    Future.delayed(const Duration(milliseconds: 10), () {
+      setState(() {
+        bottomColor = Colors.teal;
+      });
+    });
     return Scaffold(
         body: Stack(
       children: [
         AnimatedContainer(
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
           onEnd: () {
             setState(() {
               index = index + 1;
@@ -59,8 +58,12 @@ class AnimatedGradientState extends State<AnimatedGradient> {
             });
           },
           decoration: BoxDecoration(
-              gradient: LinearGradient(
-                  begin: begin, end: end, colors: [bottomColor, topColor])),
+            gradient: LinearGradient(
+              begin: begin,
+              end: end,
+              colors: [bottomColor, topColor],
+            ),
+          ),
         ),
         // Positioned.fill(
         //   child: IconButton(

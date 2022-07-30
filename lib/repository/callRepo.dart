@@ -107,6 +107,7 @@ class CallRepo {
   bool _isOfferReady = false;
 
   bool get isCaller => _isCaller;
+  bool get isConnected => _isConnected;
   Uid? _roomUid;
 
   Uid? get roomUid => _roomUid;
@@ -1303,13 +1304,11 @@ class CallRepo {
       _isSpeaker = false;
       _isCaller = false;
       _isVideo = false;
-      _isConnected = false;
       _reconnectTry = false;
       _isOfferReady = false;
       _callDuration = 0;
       _startCallTime = 0;
       _callDuration = 0;
-      callTimer.add(CallTimer(0, 0, 0));
       // Timer(const Duration(seconds: 2), () async {
       //   if (_isInitRenderer) {
       //     await disposeRenderer();
@@ -1324,6 +1323,8 @@ class CallRepo {
         callingStatus.add(CallStatus.NO_CALL);
         _isEnded = false;
         _isEndedRecivied = false;
+        _isConnected = false;
+        callTimer.add(CallTimer(0, 0, 0));
       });
     }
   }
