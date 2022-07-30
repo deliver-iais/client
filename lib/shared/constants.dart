@@ -240,8 +240,8 @@ const SUPER_SLOW_ANIMATION_DURATION = Duration(milliseconds: 500);
 
 // UI
 const double APPBAR_HEIGHT = 56.0;
-const double FLUID_MAX_WIDTH = 400.0;
-const double FLUID_MAX_HEIGHT = 540.0;
+const double FLUID_MAX_WIDTH = 500.0;
+const double FLUID_MAX_HEIGHT = 640.0;
 const double FLUID_CONTAINER_MAX_WIDTH = 768.0;
 const double LARGE_BREAKDOWN_SIZE = 768.0;
 const double VERY_LARGE_BREAKDOWN_SIZE = 1150.0;
