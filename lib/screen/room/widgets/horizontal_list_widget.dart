@@ -124,7 +124,7 @@ class HorizontalListWidgetState extends State<HorizontalListWidget> {
       return Positioned(
         left: isLeftPosition ? 0 : null,
         right: isLeftPosition ? null : 0,
-        width: widget.maxWidth * 0.2,
+        width: 60,
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -132,11 +132,9 @@ class HorizontalListWidgetState extends State<HorizontalListWidget> {
                   isLeftPosition ? Alignment.centerLeft : Alignment.centerRight,
               end:
                   isLeftPosition ? Alignment.centerRight : Alignment.centerLeft,
-              stops: const [0.0, 0.8, 1.0],
               colors: [
                 widget.fadeLayoutColor,
                 widget.fadeLayoutColor.withAlpha(80),
-                widget.fadeLayoutColor.withAlpha(30),
               ],
             ),
           ),
