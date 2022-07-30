@@ -37,41 +37,48 @@ class InputSuggestionsWidgetState extends State<InputSuggestionsWidget> {
         });
         return true;
       },
-      child: HorizontalListWidget(
-        controller: _controller,
-        fadeLayoutColor: theme.colorScheme.surface,
-        maxWidth: size ?? MediaQuery.of(context).size.width,
-        primaryColor: theme.primaryColor,
-        child: Container(
-          height: 40,
-          color: theme.colorScheme.surface,
-          child: ListView.separated(
+      child: Column(
+        children: [
+          HorizontalListWidget(
             controller: _controller,
-            separatorBuilder: (context, index) {
-              return Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: VerticalDivider(
-                  color: theme.primaryColorLight,
-                ),
-              );
-            },
-            scrollDirection: Axis.horizontal,
-            itemCount: widget.inputSuggestions.length,
-            itemBuilder: (c, i) {
-              return InkWell(
-                onTap: () {
-                  widget.textController.text = widget.inputSuggestions[i];
-                },
-                child: Center(
-                  child: Padding(
+            fadeLayoutColor: theme.colorScheme.surface,
+            maxWidth: size ?? MediaQuery.of(context).size.width,
+            primaryColor: theme.primaryColor,
+            child: Container(
+              height: 40,
+              color: theme.colorScheme.surface,
+              child: ListView.separated(
+                controller: _controller,
+                separatorBuilder: (context, index) {
+                  return Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: Text(widget.inputSuggestions[i]),
-                  ),
-                ),
-              );
-            },
+                    child: VerticalDivider(
+                      color: theme.primaryColorLight,
+                    ),
+                  );
+                },
+                scrollDirection: Axis.horizontal,
+                itemCount: widget.inputSuggestions.length,
+                itemBuilder: (c, i) {
+                  return InkWell(
+                    onTap: () {
+                      widget.textController.text = widget.inputSuggestions[i];
+                    },
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(widget.inputSuggestions[i]),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
           ),
-        ),
+          Divider(
+            color: theme.primaryColorLight,
+          ),
+        ],
       ),
     );
   }
