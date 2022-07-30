@@ -799,7 +799,8 @@ class MessageRepo {
   Future<void> sendPendingMessages() async {
     final pendingMessages = await _messageDao.getAllPendingMessages();
     for (final pendingMessage in pendingMessages) {
-      if (!pendingMessage.failed || pendingMessage.msg.type == MessageType.CALL) {
+      if (!pendingMessage.failed ||
+          pendingMessage.msg.type == MessageType.CALL) {
         switch (pendingMessage.status) {
           case SendingStatus.UPLOAD_FILE_INPROGRSS:
             break;
@@ -938,6 +939,14 @@ class MessageRepo {
     });
 
     return completer.future;
+  }
+
+  Future<Message?> getReplyKeyBoardMarkUpMessage(
+    String roomUid, {
+    bool forceToCheckKeyboard = false,
+  }) {
+    return _messageDao.checkForReplyKeyBoardMarkUp(roomUid,
+        forceToCheckKeyboard: forceToCheckKeyboard,);
   }
 
   Future<void> getMessages(
