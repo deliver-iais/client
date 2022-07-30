@@ -310,11 +310,10 @@ class InputMessageWidgetState extends State<InputMessage> {
                     );
                   },
                 ),
-                if (hasInputSuggestions())
-                  InputSuggestionsWidget(
-                    inputSuggestions:
-                        widget.replyKeyboardMarkup!.inputSuggestions,
-                  ),
+                InputSuggestionsWidget(
+                  inputSuggestions:
+                      widget.replyKeyboardMarkup?.inputSuggestions ?? [],
+                ),
                 Divider(
                   color: theme.primaryColorLight,
                 ),
@@ -522,6 +521,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                       : CupertinoIcons.square_grid_2x2,
                 ),
                 onPressed: () {
+                  widget.focusNode.requestFocus();
                   _showEmojiKeyboard.add(false);
                   _showReplyMarkUp.add(!_showReplyMarkUp.value);
                 },
@@ -1043,11 +1043,6 @@ class InputMessageWidgetState extends State<InputMessage> {
         widget.textController.isMarkDownEnable = true;
       });
     }
-  }
-
-  bool hasInputSuggestions() {
-    return widget.replyKeyboardMarkup?.inputSuggestions != null &&
-        widget.replyKeyboardMarkup!.inputSuggestions.isNotEmpty;
   }
 
   bool hasMarkUpPlaceHolder() {

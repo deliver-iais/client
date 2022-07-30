@@ -17,14 +17,17 @@ class InputSuggestionsWidgetState extends State<InputSuggestionsWidget> {
 
   @override
   Widget build(BuildContext context) {
+    if (widget.inputSuggestions.isEmpty) {
+      return const SizedBox.shrink();
+    }
     final theme = Theme.of(context);
     return NotificationListener(
       onNotification: (notification) {
-          setState(() {
-            if (mounted && context.findRenderObject() != null) {
-              final renderBox = context.findRenderObject() as RenderBox;
-              size = renderBox.size;
-            }
+        setState(() {
+          if (mounted && context.findRenderObject() != null) {
+            final renderBox = context.findRenderObject() as RenderBox;
+            size = renderBox.size;
+          }
         });
         return true;
       },
