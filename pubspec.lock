@@ -799,7 +799,7 @@ packages:
     source: hosted
     version: "2.0.6"
   flutter_test:
-    dependency: transitive
+    dependency: "direct dev"
     description: flutter
     source: sdk
     version: "0.0.0"
@@ -942,9 +942,11 @@ packages:
   great_list_view:
     dependency: "direct main"
     description:
-      name: great_list_view
-      url: "https://pub.dartlang.org"
-    source: hosted
+      path: "."
+      ref: master
+      resolved-ref: "4823160c813eae9ef4ff0481d06d87f4daca1a4f"
+      url: "https://github.com/deliveriais/great_list_view"
+    source: git
     version: "0.1.4"
   grpc:
     dependency: "direct main"

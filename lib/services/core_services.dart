@@ -134,10 +134,10 @@ class CoreServices {
     try {
       _clientPacketStream = StreamController<ClientPacket>();
       _responseStream = isWeb
-          ? _services.coreServiceClient.establishServerSideStream(
+          ? _services.coreServiceClient?.establishServerSideStream(
               EstablishServerSideStreamReq(),
             )
-          : _services.coreServiceClient.establishStream(
+          : _services.coreServiceClient?.establishStream(
               _clientPacketStream!.stream,
             );
 
@@ -283,7 +283,7 @@ class CoreServices {
       if (isWeb ||
           _clientPacketStream == null ||
           _clientPacketStream!.isClosed) {
-        await _services.coreServiceClient.sendClientPacket(packet);
+        await _services.coreServiceClient?.sendClientPacket(packet);
       } else if (forceToSendEvenNotConnected ||
           _connectionStatus.value == ConnectionStatus.Connected) {
         _clientPacketStream!.add(packet);

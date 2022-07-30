@@ -457,20 +457,20 @@ class Empty extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-      body: Center(
-        child: Container(
-          decoration: BoxDecoration(
-            color: theme.colorScheme.onPrimary,
-            borderRadius: secondaryBorder,
-          ),
-          padding:
-              const EdgeInsets.only(left: 10, right: 10, top: 6, bottom: 4),
-          child: Text(
-            _i18n.get("please_select_a_chat_to_start_messaging"),
-            style: theme.primaryTextTheme.bodyMedium,
+        body: Center(
+          child: Container(
+            decoration: BoxDecoration(
+              color: theme.colorScheme.onPrimary,
+              borderRadius: secondaryBorder,
+            ),
+            padding:
+                const EdgeInsets.only(left: 10, right: 10, top: 6, bottom: 4),
+            child: Text(
+              _i18n.get("please_select_a_chat_to_start_messaging"),
+              style: theme.primaryTextTheme.bodyMedium,
+            ),
           ),
         ),
-      ),
     );
   }
 }

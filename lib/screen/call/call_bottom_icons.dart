@@ -1,7 +1,9 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/callRepo.dart';
+import 'package:deliver/screen/call/shareScreen/screen_select_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
 
@@ -24,27 +26,46 @@ class CallBottomRow extends StatefulWidget {
 class CallBottomRowState extends State<CallBottomRow> {
   final _i18n = GetIt.I.get<I18N>();
 
-  Color? _switchCameraIcon;
+  Color? _switchCameraColor;
+  Color? _offVideoCamColor;
+  Color? _speakerColor;
+  Color? _screenShareColor;
+  Color? _muteMicColor;
 
-  Color? _offVideoCamIcon;
+  IconData? _offVideoCamIcon;
+  IconData? _speakerIcon;
+  IconData? _screenShareIcon;
+  IconData? _muteMicIcon;
 
-  Color? _speakerIcon;
-
-  Color? _screenShareIcon;
-  Color? _muteMicIcon;
   final callRepo = GetIt.I.get<CallRepo>();
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    _speakerIcon = callRepo.isSpeaker ? Colors.green : theme.shadowColor;
-    _muteMicIcon = callRepo.isMicMuted ? Colors.green : theme.shadowColor;
+    _speakerColor = callRepo.isSpeaker ? Colors.green : theme.shadowColor;
+    _muteMicColor = callRepo.isMicMuted ? Colors.green : theme.shadowColor;
+    _offVideoCamColor =
+        callRepo.mute_camera.value ? Colors.green : theme.shadowColor;
+    _switchCameraColor =
+        callRepo.switching.value ? Colors.green : theme.shadowColor;
+    _screenShareColor = callRepo.isSharing ? Colors.green : theme.shadowColor;
+
+    _speakerIcon = callRepo.isSpeaker
+        ? CupertinoIcons.speaker_3
+        : CupertinoIcons.speaker_1;
+    _muteMicIcon =
+        callRepo.isMicMuted ? CupertinoIcons.mic_off : CupertinoIcons.mic;
     _offVideoCamIcon = callRepo.mute_camera.value
-        ? theme.buttonTheme.colorScheme!.primary
-        : theme.shadowColor.withOpacity(0.4);
-    // _switchCameraIcon = callRepo.switching.value
-    //     ? theme.buttonTheme.colorScheme!.primary
-    //     : null;
+        ? Icons.videocam_off_outlined
+        : Icons.videocam_outlined;
+    _screenShareIcon = callRepo.isSharing
+        ? (isWindows
+            ? Icons.stop_screen_share_outlined
+            : Icons.mobile_screen_share_outlined)
+        : (isWindows
+            ? Icons.screen_share_outlined
+            : Icons.mobile_screen_share_outlined);
+
     if (widget.isIncomingCall) {
       return Padding(
         padding: const EdgeInsets.only(bottom: 25, right: 25, left: 25),
@@ -89,47 +110,186 @@ class CallBottomRowState extends State<CallBottomRow> {
               padding: const EdgeInsets.only(bottom: 25, right: 25, left: 25),
               child: Align(
                 alignment: Alignment.bottomCenter,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    if (isAndroid)
-                      FloatingActionButton(
-                        heroTag: 22,
-                        backgroundColor: _switchCameraIcon,
-                        child: const Icon(Icons.switch_camera_rounded),
-                        onPressed: () => _switchCamera(theme),
-                      )
-                    else
-                      const SizedBox.shrink(),
-                    FloatingActionButton(
-                      heroTag: 33,
-                      backgroundColor: _offVideoCamIcon,
-                      child: const Icon(Icons.videocam_off_rounded),
-                      onPressed: () => _offVideoCam(theme),
-                    ),
-                    FloatingActionButton(
-                      heroTag: 44,
-                      backgroundColor: _muteMicIcon,
-                      child: const Icon(Icons.mic_off_rounded),
-                      onPressed: () => _muteMic(theme),
-                    ),
-                    // TODO(AmirHossein): enable it after fixing 3 issues in flutter-webRtc project itself, https://gitlab.iais.co/deliver/wiki/-/issues/425
-                    FloatingActionButton(
-                      heroTag: 55,
-                      backgroundColor: _screenShareIcon,
-                      child: (isAndroid)
-                          ? const Icon(Icons.mobile_screen_share)
-                          : const Icon(Icons.screen_share_outlined),
-                      onPressed: () => _shareScreen(theme),
-                    ),
-                    FloatingActionButton(
-                      heroTag: 66,
-                      onPressed: () => widget.hangUp(),
-                      tooltip: 'Hangup',
-                      backgroundColor: theme.buttonTheme.colorScheme!.primary,
-                      child: const Icon(Icons.call_end),
-                    ),
-                  ],
+                child: Container(
+                  width: isWindows
+                      ? MediaQuery.of(context).size.width / 2
+                      : 99 * MediaQuery.of(context).size.width / 100,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(35.0),
+                    color: theme.cardColor.withOpacity(0.8),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: SizedBox(
+                          width: isAndroid ? 75 : 80,
+                          height: isAndroid ? 75 : 80,
+                          child: Column(
+                            children: <Widget>[
+                              SizedBox(
+                                height: 50.0,
+                                width: 50.0,
+                                child: FittedBox(
+                                  child: FloatingActionButton(
+                                    heroTag: 22,
+                                    elevation: 0,
+                                    shape: const CircleBorder(),
+                                    backgroundColor:
+                                        theme.cardColor.withOpacity(0),
+                                    hoverColor: isAndroid
+                                        ? theme.primaryColor.withOpacity(0.6)
+                                        : null,
+                                    onPressed: () =>
+                                        isAndroid ? _switchCamera(theme) : null,
+                                    child: Icon(
+                                      CupertinoIcons.switch_camera,
+                                      size: isAndroid ? 30 : 40,
+                                      color: isAndroid
+                                          ? _switchCameraColor
+                                          : Colors.white10,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Text(_i18n.get("camera_switch"),
+                                  style: theme.textTheme.titleSmall),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: SizedBox(
+                          width: isAndroid ? 75 : 80,
+                          height: isAndroid ? 75 : 80,
+                          child: Column(
+                            children: <Widget>[
+                              SizedBox(
+                                height: 50.0,
+                                width: 50.0,
+                                child: FittedBox(
+                                  child: FloatingActionButton(
+                                    heroTag: 33,
+                                    elevation: 0,
+                                    shape: const CircleBorder(),
+                                    backgroundColor:
+                                        theme.cardColor.withOpacity(0),
+                                    hoverColor:
+                                        theme.primaryColor.withOpacity(0.6),
+                                    onPressed: () => _offVideoCam(theme),
+                                    child: Icon(
+                                      _offVideoCamIcon,
+                                      size: isAndroid ? 30 : 40,
+                                      color: _offVideoCamColor,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Text(_i18n.get("camera"),
+                                  style: theme.textTheme.titleSmall),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Container(
+                        padding: const EdgeInsets.all(10),
+                        height: isAndroid ? 80 : 100,
+                        width: isAndroid ? 80 : 100,
+                        child: FloatingActionButton(
+                          backgroundColor: Colors.red,
+                          heroTag: 66,
+                          elevation: 0,
+                          shape: const CircleBorder(),
+                          child: Icon(
+                            CupertinoIcons.phone_down_fill,
+                            size: isAndroid ? 40 : 50,
+                            color: Colors.white,
+                          ),
+                          onPressed: () => widget.hangUp(),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: SizedBox(
+                          width: isAndroid ? 75 : 80,
+                          height: isAndroid ? 75 : 80,
+                          child: Column(
+                            children: <Widget>[
+                              SizedBox(
+                                height: 50.0,
+                                width: 50.0,
+                                child: FittedBox(
+                                  child: FloatingActionButton(
+                                    heroTag: 44,
+                                    elevation: 0,
+                                    shape: const CircleBorder(),
+                                    backgroundColor:
+                                        theme.cardColor.withOpacity(0),
+                                    hoverColor:
+                                        theme.primaryColor.withOpacity(0.6),
+                                    onPressed: () => _muteMic(theme),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(0),
+                                      child: Icon(
+                                        _muteMicIcon,
+                                        size: isAndroid ? 30 : 40,
+                                        color: _muteMicColor,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Text(_i18n.get("mute_call"),
+                                  style: theme.textTheme.titleSmall),
+                            ],
+                          ),
+                        ),
+                      ),
+                      // TODO(AmirHossein): enable it after fixing 3 issues in flutter-webRtc project itself, https://gitlab.iais.co/deliver/wiki/-/issues/425
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: SizedBox(
+                          width: isAndroid ? 75 : 80,
+                          height: isAndroid ? 75 : 80,
+                          child: Column(
+                            children: <Widget>[
+                              SizedBox(
+                                height: 50.0,
+                                width: 50.0,
+                                child: FittedBox(
+                                  child: FloatingActionButton(
+                                    heroTag: 55,
+                                    elevation: 0,
+                                    shape: const CircleBorder(),
+                                    backgroundColor:
+                                        theme.cardColor.withOpacity(0),
+                                    hoverColor:
+                                        theme.primaryColor.withOpacity(0.6),
+                                    onPressed: () =>
+                                        _shareScreen(theme, context),
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(0),
+                                      child: Icon(
+                                        _screenShareIcon,
+                                        size: isAndroid ? 30 : 40,
+                                        color: _screenShareColor,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                _i18n.get("share_screen"),
+                                style: theme.textTheme.titleSmall,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             )
@@ -169,9 +329,9 @@ class CallBottomRowState extends State<CallBottomRow> {
                                         theme.primaryColor.withOpacity(0.6),
                                     onPressed: () => _enableSpeaker(theme),
                                     child: Icon(
-                                      CupertinoIcons.speaker_2,
+                                      _speakerIcon,
                                       size: isAndroid ? 30 : 40,
-                                      color: _speakerIcon,
+                                      color: _speakerColor,
                                     ),
                                   ),
                                 ),
@@ -222,9 +382,9 @@ class CallBottomRowState extends State<CallBottomRow> {
                                     child: Padding(
                                       padding: const EdgeInsets.all(0),
                                       child: Icon(
-                                        CupertinoIcons.mic_off,
+                                        _muteMicIcon,
                                         size: isAndroid ? 30 : 40,
-                                        color: _muteMicIcon,
+                                        color: _muteMicColor,
                                       ),
                                     ),
                                   ),
@@ -245,36 +405,48 @@ class CallBottomRowState extends State<CallBottomRow> {
   }
 
   Future<void> _switchCamera(ThemeData theme) async {
-    _switchCameraIcon = !await callRepo.switchCamera()
+    _switchCameraColor = !await callRepo.switchCamera()
         ? theme.buttonTheme.colorScheme!.primary
         : null;
     setState(() {});
   }
 
   void _muteMic(ThemeData theme) {
-    _muteMicIcon = callRepo.muteMicrophone()
-        ? theme.buttonTheme.colorScheme!.primary
-        : null;
+    _muteMicColor =
+        callRepo.muteMicrophone() ? Colors.green : theme.shadowColor;
     setState(() {});
   }
 
   void _offVideoCam(ThemeData theme) {
-    _offVideoCamIcon =
-        callRepo.muteCamera() ? theme.buttonTheme.colorScheme!.primary : null;
+    _offVideoCamColor =
+        callRepo.muteCamera() ? theme.shadowColor : Colors.green;
     setState(() {});
   }
 
-  void _shareScreen(ThemeData theme) {
-    callRepo.shareScreen();
-    _screenShareIcon =
+  Future<void> _shareScreen(ThemeData theme, BuildContext context) async {
+    if (WebRTC.platformIsMacOS || WebRTC.platformIsWindows) {
+      if (!callRepo.isSharing) {
+        final source = await showDialog<DesktopCapturerSource>(
+          context: context,
+          builder: (context) => ScreenSelectDialog(),
+        );
+        if (source != null) {
+          await callRepo.shareScreen(true, source);
+        }
+      } else{
+        await callRepo.shareScreen(true, null);
+      }
+    } else {
+      await callRepo.shareScreen(false, null);
+    }
+    _screenShareColor =
         callRepo.isSharing ? theme.buttonTheme.colorScheme!.primary : null;
     setState(() {});
   }
 
   void _enableSpeaker(ThemeData theme) {
-    _speakerIcon = callRepo.enableSpeakerVoice()
-        ? theme.buttonTheme.colorScheme!.primary
-        : null;
+    _speakerColor =
+        callRepo.enableSpeakerVoice() ? Colors.green : theme.shadowColor;
     setState(() {});
   }
 

@@ -117,7 +117,6 @@ class InVideoCallPageState extends State<InVideoCallPage> {
                             widget.localRenderer,
                             objectFit: RTCVideoViewObjectFit
                                 .RTCVideoViewObjectFitCover,
-                            mirror: true,
                             filterQuality: FilterQuality.high,
                           ),
                         ),

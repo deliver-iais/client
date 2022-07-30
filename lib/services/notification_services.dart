@@ -546,7 +546,6 @@ class AndroidNotifier implements Notifier {
   AndroidNotifier() {
     ConnectycubeFlutterCallKit.instance
         .init(onCallAccepted: onCallAccepted, onCallRejected: onCallRejected);
-
     _flutterLocalNotificationsPlugin.createNotificationChannel(channel);
 
     const notificationSetting =
@@ -611,6 +610,9 @@ class AndroidNotifier implements Notifier {
   }
 
   Future<void> onCallAccepted(CallEvent callEvent) async {
+    await GetIt.I.get<CallService>().clearCallData();
+    Notifier.onCallAccept(callEvent.userInfo!["uid"]!);
+    _callService.setRoomUid = callEvent.userInfo!["uid"]!.asUid();
     await GetIt.I.get<CallService>().clearCallData();
     final callEventInfo =
         call_pro.CallEvent.fromJson(callEvent.userInfo!["callEventJson"]!);
