@@ -35,8 +35,15 @@ abstract class MessageDao {
 
   Future<void> savePendingMessage(PendingMessage pm);
 
-  Future<Message?> checkForReplyKeyBoardMarkUp(String roomUid,
-      {bool forceToCheckKeyboard = false,});
+  Future<Message?> checkForReplyKeyBoardMarkUp(
+    String roomUid,
+    int firstMessageId, {
+    bool forceToCheckKeyboard = false,
+  });
+
+  Future<int> checkForRemoveReplyKeyboard(
+    String roomUid,
+  );
 }
 
 class MessageDaoImpl implements MessageDao {
@@ -69,8 +76,26 @@ class MessageDaoImpl implements MessageDao {
   }
 
   @override
-  Future<Message?> checkForReplyKeyBoardMarkUp(String roomUid,
-      {bool forceToCheckKeyboard = false,}) async {
+  Future<Message?> checkForReplyKeyBoardMarkUp(
+    String roomUid,
+    int firstMessageId, {
+    bool forceToCheckKeyboard = false,
+  }) async {
+    final box = await _openMessages(roomUid);
+
+    return box.values.toList().lastWhere(
+          ((element) =>
+              element.markup?.replyKeyboardMarkup != null &&
+              (!forceToCheckKeyboard ||
+                  element.markup!.replyKeyboardMarkup!.rows.isNotEmpty) &&
+              (element.id ?? 0) > firstMessageId),
+        );
+  }
+
+  @override
+  Future<int> checkForRemoveReplyKeyboard(
+    String roomUid,
+  ) async {
     final box = await _openMessages(roomUid);
     final removeId = box.values
             .toList()
@@ -82,13 +107,7 @@ class MessageDaoImpl implements MessageDao {
             .id ??
         0;
 
-    return box.values.toList().lastWhere(
-          ((element) =>
-              element.markup?.replyKeyboardMarkup != null &&
-              (!forceToCheckKeyboard ||
-                  element.markup!.replyKeyboardMarkup!.rows.isNotEmpty) &&
-              (element.id ?? 0) >= removeId),
-        );
+    return removeId;
   }
 
   @override
