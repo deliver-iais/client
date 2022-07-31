@@ -636,8 +636,10 @@ class CallRepo {
         case STATUS_MIC_CLOSE:
           break;
         case STATUS_SHARE_SCREEN:
+          incomingSharing.add(true);
           break;
         case STATUS_SHARE_VIDEO:
+          incomingSharing.add(false);
           break;
         case STATUS_CONNECTION_FAILED:
           break;
@@ -1482,6 +1484,7 @@ class CallRepo {
       BehaviorSubject.seeded(CallStatus.NO_CALL);
   BehaviorSubject<bool> switching = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> sharing = BehaviorSubject.seeded(false);
+  BehaviorSubject<bool> incomingSharing = BehaviorSubject.seeded(false);
 
   Future<void> fetchUserCallList(
     Uid roomUid,

@@ -14,8 +14,6 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
-
-
 class InVideoCallPage extends StatefulWidget {
   final RTCVideoRenderer localRenderer;
   final RTCVideoRenderer remoteRenderer;
@@ -92,85 +90,173 @@ class InVideoCallPageState extends State<InVideoCallPage> {
         ),
         StreamBuilder<bool>(
           stream: MergeStream([
-          callRepo.mute_camera,
-          callRepo.sharing,
+            callRepo.incomingSharing,
+            callRepo.sharing,
           ]),
           builder: (c, s) {
             if (s.hasData && s.data!) {
-              return Stack(
-                children: [
-                  RTCVideoView(
-                    widget.remoteRenderer ,
-                    mirror: callRepo.sharing.value ? false: true,
-                    filterQuality: FilterQuality.none,
-                  ),
-                  Positioned(
-                    left: position.dx,
-                    top: position.dy,
-                    child: Draggable(
-                      feedback: SizedBox(
-                        width: width,
-                        height: height,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(20.0),
-                          child: RTCVideoView(
-                            widget.localRenderer,
-                            objectFit: RTCVideoViewObjectFit
-                                .RTCVideoViewObjectFitCover,
-                            filterQuality: FilterQuality.high,
+              return isWindows
+                  ? OrientationBuilder(
+                      builder: (context, orientation) {
+                        return Container(
+                          width: MediaQuery.of(context).size.width,
+                          height: MediaQuery.of(context).size.height,
+                          decoration: const BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.bottomLeft,
+                              end: Alignment.topRight,
+                              colors: [
+                                Color.fromARGB(255, 75, 105, 100),
+                                Color.fromARGB(255, 49, 89, 107),
+                              ],
+                            ),
                           ),
-                        ),
-                      ),
-                      onDraggableCanceled: (velocity, offset) {
-                        setState(() {
-                          if (isDesktop) {
-                            position = const Offset(20, 40);
-                          } else {
-                            if (offset.dx > x / 2 && offset.dy > y / 2) {
-                              position =
-                                  Offset(x - width - 20, y - height - 40);
-                            }
-                            if (offset.dx < x / 2 && offset.dy > y / 2) {
-                              position = Offset(20, y - height - 40);
-                            }
-                            if (offset.dx > x / 2 && offset.dy < y / 2) {
-                              position = Offset(x - 500, 40);
-                            }
-                            if (offset.dx < x / 2 && offset.dy < y / 2) {
-                              position = const Offset(20, 40);
-                            }
-                          }
-                        });
-                      },
-                      child: SizedBox(
-                        width: width,
-                        height: height,
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(20.0),
-                          child: MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: GestureDetector(
-                              child: RTCVideoView(
-                                widget.localRenderer,
-                                objectFit: RTCVideoViewObjectFit
-                                    .RTCVideoViewObjectFitCover,
-                                mirror: true,
-                                filterQuality: FilterQuality.high,
+                          child: Stack(
+                            children: <Widget>[
+                              Column(
+                                children: [
+                                  if (s.hasData && callRepo.sharing.value)
+                                    Container(
+                                      margin: const EdgeInsets.all(0),
+                                      width: MediaQuery.of(context).size.width,
+                                      height:
+                                          MediaQuery.of(context).size.height,
+                                      child: RTCVideoView(
+                                        widget.localRenderer,
+                                      ),
+                                    )
+                                  else
+                                    Container(
+                                      margin: const EdgeInsets.fromLTRB(
+                                        0.0,
+                                        0.0,
+                                        0.0,
+                                        0.0,
+                                      ),
+                                      width: MediaQuery.of(context).size.width,
+                                      height:
+                                          MediaQuery.of(context).size.height,
+                                      child: RTCVideoView(
+                                        widget.localRenderer,
+                                        mirror: true,
+                                      ),
+                                    ),
+                                  if (s.hasData &&
+                                      callRepo.incomingSharing.value)
+                                    Container(
+                                      margin: const EdgeInsets.all(0),
+                                      width: MediaQuery.of(context).size.width,
+                                      height:
+                                          MediaQuery.of(context).size.height,
+                                      child: RTCVideoView(
+                                        widget.remoteRenderer,
+                                        filterQuality: FilterQuality.none,
+                                      ),
+                                    )
+                                  else
+                                    Container(
+                                      margin: const EdgeInsets.fromLTRB(
+                                        0.0,
+                                        0.0,
+                                        0.0,
+                                        0.0,
+                                      ),
+                                      width: MediaQuery.of(context).size.width,
+                                      height:
+                                          MediaQuery.of(context).size.height,
+                                      child: RTCVideoView(
+                                        widget.remoteRenderer,
+                                        filterQuality: FilterQuality.none,
+                                        mirror: true,
+                                      ),
+                                    ),
+                                ],
                               ),
-                              onTap: () {
-                                if(isAndroid){
-                                  callRepo.switching
-                                      .add(!callRepo.switching.value);
+                            ],
+                          ),
+                        );
+                      },
+                    )
+                  : Stack(
+                      children: [
+                        if (callRepo.sharing.value)
+                          RTCVideoView(
+                            widget.remoteRenderer,
+                            filterQuality: FilterQuality.none,
+                          )
+                        else
+                          RTCVideoView(
+                            widget.remoteRenderer,
+                            mirror: true,
+                            filterQuality: FilterQuality.none,
+                          ),
+                        Positioned(
+                          left: position.dx,
+                          top: position.dy,
+                          child: Draggable(
+                            feedback: SizedBox(
+                              width: width,
+                              height: height,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(20.0),
+                                child: RTCVideoView(
+                                  widget.localRenderer,
+                                  objectFit: RTCVideoViewObjectFit
+                                      .RTCVideoViewObjectFitCover,
+                                  filterQuality: FilterQuality.high,
+                                ),
+                              ),
+                            ),
+                            onDraggableCanceled: (velocity, offset) {
+                              setState(() {
+                                if (isDesktop) {
+                                  position = const Offset(20, 40);
+                                } else {
+                                  if (offset.dx > x / 2 && offset.dy > y / 2) {
+                                    position =
+                                        Offset(x - width - 20, y - height - 40);
+                                  }
+                                  if (offset.dx < x / 2 && offset.dy > y / 2) {
+                                    position = Offset(20, y - height - 40);
+                                  }
+                                  if (offset.dx > x / 2 && offset.dy < y / 2) {
+                                    position = Offset(x - 500, 40);
+                                  }
+                                  if (offset.dx < x / 2 && offset.dy < y / 2) {
+                                    position = const Offset(20, 40);
+                                  }
                                 }
-                              },
+                              });
+                            },
+                            child: SizedBox(
+                              width: width,
+                              height: height,
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(20.0),
+                                child: MouseRegion(
+                                  cursor: SystemMouseCursors.click,
+                                  child: GestureDetector(
+                                    child: RTCVideoView(
+                                      widget.localRenderer,
+                                      objectFit: RTCVideoViewObjectFit
+                                          .RTCVideoViewObjectFitCover,
+                                      mirror: true,
+                                      filterQuality: FilterQuality.high,
+                                    ),
+                                    onTap: () {
+                                      if (isAndroid) {
+                                        callRepo.switching
+                                            .add(!callRepo.switching.value);
+                                      }
+                                    },
+                                  ),
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-                ],
-              );
+                      ],
+                    );
             } else {
               return CenterAvatarInCall(
                 roomUid: widget.roomUid,
