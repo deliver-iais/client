@@ -260,6 +260,10 @@ class InputMessageWidgetState extends State<InputMessage> {
     final theme = Theme.of(context);
     return WillPopScope(
       onWillPop: () async {
+        if (_showReplyMarkUp.value) {
+          _showReplyMarkUp.add(false);
+          return false;
+        }
         if (_showEmojiKeyboard.value) {
           _showEmojiKeyboard.add(false);
           return false;
@@ -309,8 +313,10 @@ class InputMessageWidgetState extends State<InputMessage> {
                   },
                 ),
                 FutureBuilder<Message?>(
-                  future: _messageRepo
-                      .getReplyKeyBoardMarkUpMessage(widget.currentRoom.uid),
+                  future: _messageRepo.getReplyKeyBoardMarkUpMessage(
+                    widget.currentRoom.uid,
+                    widget.currentRoom.firstMessageId,
+                  ),
                   builder: (context, replyMarkUpMessage) {
                     return InputSuggestionsWidget(
                       inputSuggestions: replyMarkUpMessage.data?.markup
@@ -406,16 +412,20 @@ class InputMessageWidgetState extends State<InputMessage> {
                   child: FutureBuilder<Message?>(
                     future: _messageRepo.getReplyKeyBoardMarkUpMessage(
                       widget.currentRoom.uid,
+                      widget.currentRoom.firstMessageId,
                       forceToCheckKeyboard: true,
                     ),
                     builder: (context, snapshot) {
                       if (snapshot.hasData && snapshot.data != null) {
-                        return ReplyKeyboardMarkupWidget(
-                          replyKeyboardMarkup:
-                              snapshot.data!.markup!.replyKeyboardMarkup!,
-                          showReplyMarkUp: _showReplyMarkUp,
-                          roomUid: widget.currentRoom.uid,
-                          textController: widget.textController,
+                        return checkRemoveKeyBoardMarkUp(
+                          snapshot.data?.id,
+                          ReplyKeyboardMarkupWidget(
+                            replyKeyboardMarkup:
+                                snapshot.data!.markup!.replyKeyboardMarkup!,
+                            showReplyMarkUp: _showReplyMarkUp,
+                            roomUid: widget.currentRoom.uid,
+                            textController: widget.textController,
+                          ),
                         );
                       }
                       return const SizedBox.shrink();
@@ -532,21 +542,25 @@ class InputMessageWidgetState extends State<InputMessage> {
               FutureBuilder<Message?>(
                 future: _messageRepo.getReplyKeyBoardMarkUpMessage(
                   widget.currentRoom.uid,
+                  widget.currentRoom.firstMessageId,
                   forceToCheckKeyboard: true,
                 ),
                 builder: (context, snapshot) {
                   if (snapshot.hasData && snapshot.data != null) {
-                    return IconButton(
-                      icon: Icon(
-                        _showReplyMarkUp.value
-                            ? CupertinoIcons.chevron_down_square
-                            : CupertinoIcons.square_grid_2x2,
+                    return checkRemoveKeyBoardMarkUp(
+                      snapshot.data?.id,
+                      IconButton(
+                        icon: Icon(
+                          _showReplyMarkUp.value
+                              ? CupertinoIcons.chevron_down_square
+                              : CupertinoIcons.square_grid_2x2,
+                        ),
+                        onPressed: () {
+                          FocusScope.of(context).unfocus();
+                          _showEmojiKeyboard.add(false);
+                          _showReplyMarkUp.add(!_showReplyMarkUp.value);
+                        },
                       ),
-                      onPressed: () {
-                        FocusScope.of(context).unfocus();
-                        _showEmojiKeyboard.add(false);
-                        _showReplyMarkUp.add(!_showReplyMarkUp.value);
-                      },
                     );
                   }
                   return const SizedBox.shrink();
@@ -660,6 +674,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                 return FutureBuilder<Message?>(
                   future: _messageRepo.getReplyKeyBoardMarkUpMessage(
                     widget.currentRoom.uid,
+                    widget.currentRoom.firstMessageId,
                   ),
                   builder: (context, replyKeyboardMarkup) {
                     return TextField(
@@ -1091,5 +1106,19 @@ class InputMessageWidgetState extends State<InputMessage> {
   bool hasMarkUpPlaceHolder(ReplyKeyboardMarkup? replyKeyboardMarkup) {
     return replyKeyboardMarkup?.inputFieldPlaceHolder != null &&
         replyKeyboardMarkup!.inputFieldPlaceHolder.isNotEmpty;
+  }
+
+  Widget checkRemoveKeyBoardMarkUp(int? id, Widget child) {
+    return FutureBuilder<int>(
+      future: _messageRepo.checkForRemoveReplyKeyboard(
+        widget.currentRoom.uid,
+      ),
+      builder: (context, remove) {
+        if ((id ?? 0) >= (remove.data ?? 0)) {
+          return child;
+        }
+        return const SizedBox.shrink();
+      },
+    );
   }
 }
