@@ -524,7 +524,6 @@ class CallRepo {
       ..onDataChannel = (channel) {
         _logger.i("data Channel Received!!");
         _dataChannel = channel;
-        _isDCReceived = true;
         //it means Connection is Connected
         _startCallTimerAndChangeStatus();
         _dataChannel!.onMessage = (data) {
@@ -585,6 +584,7 @@ class CallRepo {
         };
       };
 
+    _isDCReceived = true;
     return pc;
   }
 
@@ -600,7 +600,7 @@ class CallRepo {
     if (_startCallTime == 0) {
       _startCallTime = clock.now().millisecondsSinceEpoch;
     }
-    if (_isDCReceived) {
+    if (_isDCReceived && _dataChannel?.state == RTCDataChannelState.RTCDataChannelConnecting) {
       await _dataChannel!
           .send(RTCDataChannelMessage(STATUS_CONNECTION_CONNECTED));
     }

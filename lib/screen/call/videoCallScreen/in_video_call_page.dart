@@ -14,6 +14,8 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
+import '../../../shared/widgets/animated_gradient.dart';
+
 class InVideoCallPage extends StatefulWidget {
   final RTCVideoRenderer localRenderer;
   final RTCVideoRenderer remoteRenderer;
@@ -58,36 +60,6 @@ class InVideoCallPageState extends State<InVideoCallPage> {
     final y = MediaQuery.of(context).size.height;
     return Stack(
       children: <Widget>[
-        FutureBuilder<Avatar?>(
-          future: _avatarRepo.getLastAvatar(widget.roomUid),
-          builder: (context, snapshot) {
-            if (snapshot.hasData &&
-                snapshot.data != null &&
-                snapshot.data!.fileId != null) {
-              return FutureBuilder<String?>(
-                future: _fileRepo.getFile(
-                  snapshot.data!.fileId!,
-                  snapshot.data!.fileName!,
-                ),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData && snapshot.data != null) {
-                    return FadeAudioCallBackground(
-                      image: FileImage(File(snapshot.data!)),
-                    );
-                  } else {
-                    return const FadeAudioCallBackground(
-                      image: AssetImage("assets/images/no-profile-pic.png"),
-                    );
-                  }
-                },
-              );
-            } else {
-              return const FadeAudioCallBackground(
-                image: AssetImage("assets/images/no-profile-pic.png"),
-              );
-            }
-          },
-        ),
         StreamBuilder<bool>(
           stream: MergeStream([
             callRepo.incomingSharing,

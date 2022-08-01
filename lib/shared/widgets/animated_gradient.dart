@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 class AnimatedGradient extends StatefulWidget {
@@ -32,10 +34,18 @@ class AnimatedGradientState extends State<AnimatedGradient> {
   Color topColor = Colors.greenAccent;
   Alignment begin = Alignment.bottomLeft;
   Alignment end = Alignment.topRight;
+  Timer? gradiantTimer;
+
+  @override
+  void dispose(){
+    super.dispose();
+    gradiantTimer!.cancel();
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    Future.delayed(const Duration(milliseconds: 10), () {
+    gradiantTimer = Timer(const Duration(milliseconds: 10), () {
       setState(() {
         bottomColor = Colors.teal;
       });
