@@ -19,12 +19,6 @@ class NewFeatureDialog extends StatelessWidget {
     return Directionality(
       textDirection: _i18n.defaultTextDirection,
       child: AlertDialog(
-        contentPadding: const EdgeInsets.only(
-          left: 24,
-          right: 24,
-          top: 16,
-          bottom: 8,
-        ),
         content: SizedBox(
           width: min(maxWidthOfMessage(context) * 1.3, pageSize.width - 50),
           child: Column(
@@ -50,12 +44,9 @@ class NewFeatureDialog extends StatelessWidget {
                   ),
                 ],
               ),
-              Padding(
-                padding: const EdgeInsets.only(top: 8),
-                child: Container(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height - 170,
-                  ),
+              Flexible(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8),
                   child: ListView.separated(
                     shrinkWrap: true,
                     separatorBuilder: (context, index) {
