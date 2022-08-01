@@ -348,21 +348,23 @@ class LoginPageState extends State<LoginPage> {
                               });
                             },
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _acceptPrivacy = true;
-                              });
-                            },
-                            child: RichText(
-                              text: TextSpan(
-                                children: buildText(
-                                  "${!_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}]($APPLICATION_TERMS_OF_USE_URL) ${_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}",
-                                  context,
+                          Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _acceptPrivacy = true;
+                                });
+                              },
+                              child: RichText(
+                                text: TextSpan(
+                                  children: buildText(
+                                    "${!_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}]($APPLICATION_TERMS_OF_USE_URL) ${_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}",
+                                    context,
+                                  ),
+                                  style: theme.textTheme.bodyText2,
                                 ),
-                                style: theme.textTheme.bodyText2,
+                                textDirection: TextDirection.ltr,
                               ),
-                              textDirection: TextDirection.ltr,
                             ),
                           ),
                         ],
