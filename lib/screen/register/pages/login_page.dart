@@ -348,7 +348,7 @@ class LoginPageState extends State<LoginPage> {
                               });
                             },
                           ),
-                          Expanded(
+                          Flexible(
                             child: GestureDetector(
                               onTap: () {
                                 setState(() {
