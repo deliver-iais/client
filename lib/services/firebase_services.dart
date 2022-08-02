@@ -127,11 +127,10 @@ Future<void> _backgroundRemoteMessageHandler(
 ) async {
   if (remoteMessage.data.containsKey('body')) {
     try {
+      // hive does not support multithreading
+      await Hive.close();
       await setupDI();
     } catch (_) {}
-
-    // hive does not support multithreading
-    await Hive.close();
 
     try {
       final msg = _decodeMessage(remoteMessage.data["body"]);
