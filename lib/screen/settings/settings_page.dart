@@ -67,281 +67,285 @@ class SettingsPageState extends State<SettingsPage> {
       body: FluidContainerWidget(
         child: Directionality(
           textDirection: _i18n.defaultTextDirection,
-          child: ListView(
-            children: [
-              Section(
-                children: [
-                  NormalSettingsTitle(
-                    onTap: () => _routingService.openAccountSettings(),
-                    child: Row(
-                      children: <Widget>[
-                        GestureDetector(
-                          onTap: () async {
-                            final lastAvatar = await _avatarRepo
-                                .getLastAvatar(_authRepo.currentUserUid);
-                            if (lastAvatar?.createdOn != null &&
-                                lastAvatar!.createdOn > 0) {
-                              _routingService.openShowAllAvatars(
-                                uid: _authRepo.currentUserUid,
-                                hasPermissionToDeleteAvatar: true,
-                                heroTag: "avatar",
-                              );
-                            }
-                          },
-                          child: CircleAvatarWidget(
-                            _authRepo.currentUserUid,
-                            35,
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: StreamBuilder<Account?>(
-                            stream: _accountRepo.getAccountAsStream(),
-                            builder: (context, snapshot) {
-                              if (snapshot.data != null) {
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      buildName(
-                                        snapshot.data!.firstname,
-                                        snapshot.data!.lastname,
-                                      ),
-                                      overflow: TextOverflow.fade,
-                                      // maxLines: 1,
-                                      textDirection: TextDirection.rtl,
-                                      // softWrap: false,
-                                      style: theme.textTheme.headline6,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      snapshot.data!.username ?? "",
-                                      style: theme.primaryTextTheme.subtitle1,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      buildPhoneNumber(
-                                        snapshot.data!.countryCode!,
-                                        snapshot.data!.nationalNumber!,
-                                      ),
-                                      style: theme.textTheme.subtitle1,
-                                    )
-                                  ],
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                const SizedBox(height: APPBAR_HEIGHT,),
+                Section(
+                  children: [
+                    NormalSettingsTitle(
+                      onTap: () => _routingService.openAccountSettings(),
+                      child: Row(
+                        children: <Widget>[
+                          GestureDetector(
+                            onTap: () async {
+                              final lastAvatar = await _avatarRepo
+                                  .getLastAvatar(_authRepo.currentUserUid);
+                              if (lastAvatar?.createdOn != null &&
+                                  lastAvatar!.createdOn > 0) {
+                                _routingService.openShowAllAvatars(
+                                  uid: _authRepo.currentUserUid,
+                                  hasPermissionToDeleteAvatar: true,
+                                  heroTag: "avatar",
                                 );
-                              } else {
-                                return const SizedBox.shrink();
                               }
                             },
+                            child: CircleAvatarWidget(
+                              _authRepo.currentUserUid,
+                              35,
+                            ),
                           ),
-                        ),
-                        Container(
-                          padding: const EdgeInsets.only(left: 4.0),
-                          child: const Icon(Icons.navigate_next),
-                        )
-                      ],
-                    ),
-                  )
-                ],
-              ),
-              Section(
-                title: _i18n.get("other"),
-                children: [
-                  SettingsTile(
-                    title: _i18n.get("qr_share"),
-                    leading: const Icon(CupertinoIcons.qrcode),
-                    onPressed: (context) async {
-                      final account = await _accountRepo.getAccount();
-                      // ignore: use_build_context_synchronously
-                      showQrCode(
-                        context,
-                        buildShareUserUrl(
-                          account!.countryCode!,
-                          account.nationalNumber!,
-                          account.firstname!,
-                          account.lastname!,
-                        ),
-                      );
-                    },
-                  ),
-                  SettingsTile(
-                    title: _i18n.get("saved_message"),
-                    leading: const Icon(CupertinoIcons.bookmark),
-                    onPressed: (context) {
-                      _routingService
-                          .openRoom(_authRepo.currentUserUid.asString());
-                    },
-                  ),
-                  SettingsTile(
-                    title: _i18n.get("contacts"),
-                    leading: const Icon(CupertinoIcons.person_2),
-                    onPressed: (context) {
-                      _routingService.openContacts();
-                    },
-                  ),
-                  if (_featureFlags.isVoiceCallAvailable())
-                    SettingsTile(
-                      title: _i18n.get("calls"),
-                      leading: const Icon(CupertinoIcons.phone),
-                      onPressed: (context) {
-                        _routingService.openCallsList();
-                      },
-                    )
-                ],
-              ),
-              Section(
-                title: _i18n.get("user_experience"),
-                children: [
-                  SettingsTile.switchTile(
-                    title: _i18n.get("notification"),
-                    leading: const Icon(CupertinoIcons.bell),
-                    switchValue: !_uxService.isAllNotificationDisabled,
-                    onToggle: (value) => setState(
-                      () => _uxService.toggleIsAllNotificationDisabled(),
-                    ),
-                  ),
-                  SettingsTile(
-                    title: _i18n.get("language"),
-                    subtitle: _i18n.locale.language().name,
-                    leading: const FaIcon(FontAwesomeIcons.globe),
-                    onPressed: (context) {
-                      _routingService.openLanguageSettings();
-                    },
-                  ),
-                  SettingsTile(
-                    title: _i18n.get("security"),
-                    leading: const Icon(CupertinoIcons.shield_lefthalf_fill),
-                    onPressed: (context) =>
-                        _routingService.openSecuritySettings(),
-                    trailing: const SizedBox.shrink(),
-                  ),
-                  SettingsTile(
-                    title: _i18n.get("devices"),
-                    leading: const Icon(CupertinoIcons.device_desktop),
-                    onPressed: (c) {
-                      _routingService.openDevices();
-                    },
-                  ),
-                  if (isDesktop)
-                    SettingsTile.switchTile(
-                      title: _i18n.get("send_by_shift_enter"),
-                      leading: const Icon(CupertinoIcons.keyboard),
-                      switchValue: !_uxService.sendByEnter,
-                      onToggle: (value) {
-                        setState(() => _uxService.toggleSendByEnter());
-                      },
-                    ),
-                ],
-              ),
-              Section(
-                title: _i18n.get("theme"),
-                children: [
-                  SettingsTile.switchTile(
-                    title: _i18n.get("dark_mode"),
-                    leading: const Icon(CupertinoIcons.moon),
-                    switchValue: _uxService.themeIsDark,
-                    onToggle: (value) {
-                      setState(() {
-                        _uxService.toggleThemeLightingMode();
-                      });
-                    },
-                  ),
-                  SettingsTile.switchTile(
-                    title: _i18n.get("auto_night_mode"),
-                    leading: const Icon(CupertinoIcons.circle_lefthalf_fill),
-                    switchValue: _uxService.isAutoNightModeEnable,
-                    onToggle: (value) {
-                      setState(() {
-                        _uxService.toggleIsAutoNightMode();
-                      });
-                    },
-                  ),
-                  SettingsTile(
-                    title: _i18n.get("advanced_settings"),
-                    leading: const Icon(CupertinoIcons.paintbrush),
-                    onPressed: (context) {
-                      _routingService.openThemeSettings();
-                    },
-                  ),
-                ],
-              ),
-              Section(
-                title: _i18n.get("network"),
-                children: [
-                  SettingsTile(
-                    title: _i18n.get("automatic_download"),
-                    subtitleTextStyle: TextStyle(
-                      color: theme.primaryColor,
-                    ),
-                    leading: const Icon(CupertinoIcons.cloud_download),
-                    onPressed: (context) => _routingService.openAutoDownload(),
-                  ),
-                  SettingsTile(
-                    title: _i18n.get("connection_settings"),
-                    subtitleTextStyle: TextStyle(
-                      color: theme.primaryColor,
-                    ),
-                    leading: const Icon(CupertinoIcons.settings),
-                    onPressed: (context) =>
-                        _routingService.openConnectionSettingPage(),
-                  ),
-                ],
-              ),
-              if (UxService.isDeveloperMode)
-                Section(
-                  title: 'Developer Mode',
-                  children: [
-                    SettingsTile(
-                      title: 'Developer Page',
-                      subtitle: "Log Level: ${LogLevelHelper.levelToString(
-                        GetIt.I.get<DeliverLogFilter>().level!,
-                      )}",
-                      leading: const Icon(Icons.bug_report_rounded),
-                      onPressed: (context) {
-                        _routingService.openDeveloperPage();
-                      },
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: StreamBuilder<Account?>(
+                              stream: _accountRepo.getAccountAsStream(),
+                              builder: (context, snapshot) {
+                                if (snapshot.data != null) {
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        buildName(
+                                          snapshot.data!.firstname,
+                                          snapshot.data!.lastname,
+                                        ),
+                                        overflow: TextOverflow.fade,
+                                        // maxLines: 1,
+                                        textDirection: TextDirection.rtl,
+                                        // softWrap: false,
+                                        style: theme.textTheme.headline6,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        snapshot.data!.username ?? "",
+                                        style: theme.primaryTextTheme.subtitle1,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Text(
+                                        buildPhoneNumber(
+                                          snapshot.data!.countryCode!,
+                                          snapshot.data!.nationalNumber!,
+                                        ),
+                                        style: theme.textTheme.subtitle1,
+                                      )
+                                    ],
+                                  );
+                                } else {
+                                  return const SizedBox.shrink();
+                                }
+                              },
+                            ),
+                          ),
+                          Container(
+                            padding: const EdgeInsets.only(left: 4.0),
+                            child: const Icon(Icons.navigate_next),
+                          )
+                        ],
+                      ),
                     )
                   ],
                 ),
-              Section(
-                children: [
-                  if (_featureFlags.labIsAvailable())
+                Section(
+                  title: _i18n.get("other"),
+                  children: [
                     SettingsTile(
-                      title: _i18n.get("lab"),
-                      subtitleTextStyle: TextStyle(color: theme.primaryColor),
-                      leading: const FaIcon(FontAwesomeIcons.vial),
-                      onPressed: (context) => _routingService.openLab(),
+                      title: _i18n.get("qr_share"),
+                      leading: const Icon(CupertinoIcons.qrcode),
+                      onPressed: (context) async {
+                        final account = await _accountRepo.getAccount();
+                        // ignore: use_build_context_synchronously
+                        showQrCode(
+                          context,
+                          buildShareUserUrl(
+                            account!.countryCode!,
+                            account.nationalNumber!,
+                            account.firstname!,
+                            account.lastname!,
+                          ),
+                        );
+                      },
                     ),
-                  SettingsTile(
-                    title: _i18n.get("version"),
-                    leading:
-                        const Icon(CupertinoIcons.square_stack_3d_down_right),
-                    trailing: UxService.isDeveloperMode
-                        ? FutureBuilder<String?>(
-                            future: SmsAutoFill().getAppSignature,
-                            builder: (c, sms) => Text(sms.data ?? VERSION),
-                          )
-                        : const Text(VERSION),
-                    onPressed: (_) async {
-                      _logger.d(developerModeCounterCountDown);
-                      developerModeCounterCountDown--;
-                      if (developerModeCounterCountDown < 1) {
+                    SettingsTile(
+                      title: _i18n.get("saved_message"),
+                      leading: const Icon(CupertinoIcons.bookmark),
+                      onPressed: (context) {
+                        _routingService
+                            .openRoom(_authRepo.currentUserUid.asString());
+                      },
+                    ),
+                    SettingsTile(
+                      title: _i18n.get("contacts"),
+                      leading: const Icon(CupertinoIcons.person_2),
+                      onPressed: (context) {
+                        _routingService.openContacts();
+                      },
+                    ),
+                    if (_featureFlags.isVoiceCallAvailable())
+                      SettingsTile(
+                        title: _i18n.get("calls"),
+                        leading: const Icon(CupertinoIcons.phone),
+                        onPressed: (context) {
+                          _routingService.openCallsList();
+                        },
+                      )
+                  ],
+                ),
+                Section(
+                  title: _i18n.get("user_experience"),
+                  children: [
+                    SettingsTile.switchTile(
+                      title: _i18n.get("notification"),
+                      leading: const Icon(CupertinoIcons.bell),
+                      switchValue: !_uxService.isAllNotificationDisabled,
+                      onToggle: (value) => setState(
+                        () => _uxService.toggleIsAllNotificationDisabled(),
+                      ),
+                    ),
+                    SettingsTile(
+                      title: _i18n.get("language"),
+                      subtitle: _i18n.locale.language().name,
+                      leading: const FaIcon(FontAwesomeIcons.globe),
+                      onPressed: (context) {
+                        _routingService.openLanguageSettings();
+                      },
+                    ),
+                    SettingsTile(
+                      title: _i18n.get("security"),
+                      leading: const Icon(CupertinoIcons.shield_lefthalf_fill),
+                      onPressed: (context) =>
+                          _routingService.openSecuritySettings(),
+                      trailing: const SizedBox.shrink(),
+                    ),
+                    SettingsTile(
+                      title: _i18n.get("devices"),
+                      leading: const Icon(CupertinoIcons.device_desktop),
+                      onPressed: (c) {
+                        _routingService.openDevices();
+                      },
+                    ),
+                    if (isDesktop)
+                      SettingsTile.switchTile(
+                        title: _i18n.get("send_by_shift_enter"),
+                        leading: const Icon(CupertinoIcons.keyboard),
+                        switchValue: !_uxService.sendByEnter,
+                        onToggle: (value) {
+                          setState(() => _uxService.toggleSendByEnter());
+                        },
+                      ),
+                  ],
+                ),
+                Section(
+                  title: _i18n.get("theme"),
+                  children: [
+                    SettingsTile.switchTile(
+                      title: _i18n.get("dark_mode"),
+                      leading: const Icon(CupertinoIcons.moon),
+                      switchValue: _uxService.themeIsDark,
+                      onToggle: (value) {
                         setState(() {
-                          UxService.isDeveloperMode = true;
+                          _uxService.toggleThemeLightingMode();
                         });
-                      }
-                    },
+                      },
+                    ),
+                    SettingsTile.switchTile(
+                      title: _i18n.get("auto_night_mode"),
+                      leading: const Icon(CupertinoIcons.circle_lefthalf_fill),
+                      switchValue: _uxService.isAutoNightModeEnable,
+                      onToggle: (value) {
+                        setState(() {
+                          _uxService.toggleIsAutoNightMode();
+                        });
+                      },
+                    ),
+                    SettingsTile(
+                      title: _i18n.get("advanced_settings"),
+                      leading: const Icon(CupertinoIcons.paintbrush),
+                      onPressed: (context) {
+                        _routingService.openThemeSettings();
+                      },
+                    ),
+                  ],
+                ),
+                Section(
+                  title: _i18n.get("network"),
+                  children: [
+                    SettingsTile(
+                      title: _i18n.get("automatic_download"),
+                      subtitleTextStyle: TextStyle(
+                        color: theme.primaryColor,
+                      ),
+                      leading: const Icon(CupertinoIcons.cloud_download),
+                      onPressed: (context) =>
+                          _routingService.openAutoDownload(),
+                    ),
+                    SettingsTile(
+                      title: _i18n.get("connection_settings"),
+                      subtitleTextStyle: TextStyle(
+                        color: theme.primaryColor,
+                      ),
+                      leading: const Icon(CupertinoIcons.settings),
+                      onPressed: (context) =>
+                          _routingService.openConnectionSettingPage(),
+                    ),
+                  ],
+                ),
+                if (UxService.isDeveloperMode)
+                  Section(
+                    title: 'Developer Mode',
+                    children: [
+                      SettingsTile(
+                        title: 'Developer Page',
+                        subtitle: "Log Level: ${LogLevelHelper.levelToString(
+                          GetIt.I.get<DeliverLogFilter>().level!,
+                        )}",
+                        leading: const Icon(Icons.bug_report_rounded),
+                        onPressed: (context) {
+                          _routingService.openDeveloperPage();
+                        },
+                      )
+                    ],
                   ),
-                  SettingsTile(
-                    title: _i18n.get("logout"),
-                    leading: const Icon(CupertinoIcons.square_arrow_left),
-                    onPressed: (context) =>
-                        openLogoutAlertDialog(context, _i18n),
-                    trailing: const SizedBox.shrink(),
-                  ),
-                ],
-              ),
-            ],
+                Section(
+                  children: [
+                    if (_featureFlags.labIsAvailable())
+                      SettingsTile(
+                        title: _i18n.get("lab"),
+                        subtitleTextStyle: TextStyle(color: theme.primaryColor),
+                        leading: const FaIcon(FontAwesomeIcons.vial),
+                        onPressed: (context) => _routingService.openLab(),
+                      ),
+                    SettingsTile(
+                      title: _i18n.get("version"),
+                      leading:
+                          const Icon(CupertinoIcons.square_stack_3d_down_right),
+                      trailing: UxService.isDeveloperMode
+                          ? FutureBuilder<String?>(
+                              future: SmsAutoFill().getAppSignature,
+                              builder: (c, sms) => Text(sms.data ?? VERSION),
+                            )
+                          : const Text(VERSION),
+                      onPressed: (_) async {
+                        _logger.d(developerModeCounterCountDown);
+                        developerModeCounterCountDown--;
+                        if (developerModeCounterCountDown < 1) {
+                          setState(() {
+                            UxService.isDeveloperMode = true;
+                          });
+                        }
+                      },
+                    ),
+                    SettingsTile(
+                      title: _i18n.get("logout"),
+                      leading: const Icon(CupertinoIcons.square_arrow_left),
+                      onPressed: (context) =>
+                          openLogoutAlertDialog(context, _i18n),
+                      trailing: const SizedBox.shrink(),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
       ),
