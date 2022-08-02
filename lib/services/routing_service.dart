@@ -391,7 +391,7 @@ class RoutingService {
         MaterialPageRoute(
           builder: (c) => const LoginPage(key: Key("/login_page")),
         ),
-        (route) => route.isFirst,
+        (route) => false,
       );
     }
   }
