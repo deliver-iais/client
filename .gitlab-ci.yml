@@ -79,11 +79,11 @@ android_build:
   cache:
     key: "$CI_COMMIT_REF_NAME"
     when: always
-    untracked: true
     paths:
       - /root/.gradle/
       - /root/.pub-cache/
   artifacts:
+    untracked: true
     paths:
       - /usr/local/bin/app/build/app/outputs/bundle/release/app-release.aab
       - /usr/local/bin/app/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
