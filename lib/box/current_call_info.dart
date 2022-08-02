@@ -27,6 +27,6 @@ class CurrentCallInfo {
     required this.from,
     required this.to,
     required this.expireTime,
-    this.notificationSelected=false,
+    required this.notificationSelected,
   });
 }
