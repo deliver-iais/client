@@ -20,6 +20,8 @@ abstract class AvatarDao {
   Future<void> removeAvatar(Avatar avatar);
 
   Future<void> closeAvatarBox(String uid);
+
+  Future<void> clearAllAvatars(String uid);
 }
 
 class AvatarDaoImpl implements AvatarDao {
@@ -154,5 +156,11 @@ class AvatarDaoImpl implements AvatarDao {
   static Future<BoxPlus<Avatar>> _open2() {
     BoxInfo.addBox(_key2());
     return gen(Hive.openBox<Avatar>(_key2()));
+  }
+
+  @override
+  Future<void> clearAllAvatars(String uid) async {
+    final box = await _open(uid);
+    return box.clear();
   }
 }
