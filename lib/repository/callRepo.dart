@@ -133,7 +133,7 @@ class CallRepo {
   Timer? timerEndCallDispose;
   BehaviorSubject<CallTimer> callTimer =
       BehaviorSubject.seeded(CallTimer(0, 0, 0));
-  bool _isNotificationSelected=false;
+  bool _isNotificationSelected = false;
   Timer? timer;
 
   ReceivePort? _receivePort;
@@ -141,8 +141,9 @@ class CallRepo {
   CallRepo() {
     _callService.watchCurrentCall().listen((call) {
       if (call != null && !isDesktop) {
-        _isNotificationSelected=call.notificationSelected;
-        _logger.i("read call from DB${call.notificationSelected}");
+        _isNotificationSelected = call.notificationSelected;
+        _logger.i(
+            "read call from DB notificationSelected : ${call.notificationSelected}");
         if (call.expireTime > clock.now().millisecondsSinceEpoch &&
             _callService.getUserCallState == UserCallState.NOCALL) {
           _callService.callEvents.add(
@@ -226,6 +227,7 @@ class CallRepo {
                     from: event.roomUid!.asString(),
                     to: _authRepo.currentUserUid.asString(),
                     expireTime: event.time + 60000,
+                    notificationSelected: _isNotificationSelected,
                   );
 
                   _callService.saveCallOnDb(callInfo);
@@ -274,7 +276,7 @@ class CallRepo {
               break;
             case CallEvent_CallStatus.JOINED:
               modifyRoutingByNotificationAcceptCallInBackgroundInAndroid
-                  .add(event.roomUid!.asString());
+                  .add({event.roomUid!.asString(): true});
               if (_callService.getUserCallState == UserCallState.NOCALL) {
                 _callService
                   ..setUserCallState = UserCallState.INUSERCALL
@@ -888,7 +890,10 @@ class CallRepo {
     bool isDuplicated,
     String callEventJson,
   ) async {
-    if (!isDuplicated && !_isNotificationSelected) {
+    if (_isNotificationSelected) {
+      modifyRoutingByNotificationAcceptCallInBackgroundInAndroid
+          .add({roomId.asString(): false});
+    } else if (!isDuplicated) {
       unawaited(
         _notificationServices.notifyIncomingCall(
           roomId.asString(),
@@ -1307,7 +1312,7 @@ class CallRepo {
   Future<void> _dispose() async {
     try {
       if (isAndroid) {
-        _isNotificationSelected=false;
+        _isNotificationSelected = false;
         _receivePort?.close();
         await _callService.stopForegroundTask();
         if (!_isCaller) {
