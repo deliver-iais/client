@@ -180,37 +180,36 @@ class RecorderModule {
   }
 
   Future<bool> end() async {
-    try{
-    _logger.wtf("recording ended");
+    try {
+      _logger.wtf("recording ended");
 
-    isRecordingStream.add(false);
-    recordingRoom = "";
+      isRecordingStream.add(false);
+      recordingRoom = "";
 
-    quickVibrate();
+      quickVibrate();
 
-    final String? path;
-    if (await _recorder.isPaused()) {
-      await _recorder.resume();
-      path = await _recorder.stop();
-    } else {
-      path = await _recorder.stop();
-    }
+      final String? path;
+      if (await _recorder.isPaused()) {
+        await _recorder.resume();
+        path = await _recorder.stop();
+      } else {
+        path = await _recorder.stop();
+      }
 
-    var fileLength = await File(path!).length();
-    var pathLengthRetry = 4;
-    while (fileLength % 1048576 == 0 && pathLengthRetry > 0) {
-      fileLength = File(path).lengthSync();
-      await Future.delayed(const Duration(milliseconds: 50));
-      pathLengthRetry--;
-    }
+      var fileLength = await File(path!).length();
+      var pathLengthRetry = 4;
+      while (fileLength % 1048576 == 0 && pathLengthRetry > 0) {
+        fileLength = File(path).lengthSync();
+        await Future.delayed(const Duration(milliseconds: 50));
+        pathLengthRetry--;
+      }
 
-    _onCompleteCallbackStream.valueOrNull?.call(path); return true;}
-    catch(e){
+      _onCompleteCallbackStream.valueOrNull?.call(path);
+      return true;
+    } catch (e) {
       _logger.e(e);
       return false;
     }
-
-
   }
 
   Future<void> cancel() {
