@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:rxdart/rxdart.dart';
 import 'package:sms_autofill/sms_autofill.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -43,13 +44,23 @@ class SettingsPageState extends State<SettingsPage> {
   static final _avatarRepo = GetIt.I.get<AvatarRepo>();
 
   int developerModeCounterCountDown = kDebugMode ? 1 : 10;
+  final account = BehaviorSubject<Account?>.seeded(null);
 
   @override
   void initState() {
     _accountRepo
       ..getUserProfileFromServer()
       ..fetchCurrentUserId(forceToUpdate: true);
+    _accountRepo.getAccountAsStream().listen((event) {
+      account.add(event);
+    });
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    account.close();
+    super.dispose();
   }
 
   @override
@@ -96,7 +107,7 @@ class SettingsPageState extends State<SettingsPage> {
                         const SizedBox(width: 10),
                         Expanded(
                           child: StreamBuilder<Account?>(
-                            stream: _accountRepo.getAccountAsStream(),
+                            stream: account.stream,
                             builder: (context, snapshot) {
                               if (snapshot.data != null) {
                                 return Column(
