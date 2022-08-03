@@ -20,6 +20,8 @@ abstract class AvatarDao {
   Future<void> removeAvatar(Avatar avatar);
 
   Future<void> closeAvatarBox(String uid);
+
+  Future<void> clearAllAvatars(String uid);
 }
 
 class AvatarDaoImpl implements AvatarDao {
@@ -52,6 +54,7 @@ class AvatarDaoImpl implements AvatarDao {
 
   Future<void> saveLastAvatar(List<Avatar> avatars, String uid) async {
     final box2 = await _open2();
+    final box = await _open(uid);
 
     final lastAvatarOfList = avatars.fold<Avatar?>(
       null,
@@ -65,7 +68,8 @@ class AvatarDaoImpl implements AvatarDao {
     final lastAvatar = box2.get(uid);
 
     if (lastAvatar == null ||
-        lastAvatar.createdOn < lastAvatarOfList!.createdOn) {
+        lastAvatar.createdOn < lastAvatarOfList!.createdOn ||
+        box.values.length == 1) {
       return box2.put(
         lastAvatarOfList!.uid,
         lastAvatarOfList.copyWith(
@@ -154,5 +158,11 @@ class AvatarDaoImpl implements AvatarDao {
   static Future<BoxPlus<Avatar>> _open2() {
     BoxInfo.addBox(_key2());
     return gen(Hive.openBox<Avatar>(_key2()));
+  }
+
+  @override
+  Future<void> clearAllAvatars(String uid) async {
+    final box = await _open(uid);
+    return box.clear();
   }
 }
