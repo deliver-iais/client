@@ -69,6 +69,7 @@ class AvatarRepo {
           .toList();
 
       if (avatars.isNotEmpty) {
+        await _avatarDao.clearAllAvatars(userUid.asString());
         return _avatarDao.saveAvatars(userUid.asString(), avatars);
       } else {
         return _avatarDao.saveLastAvatarAsNull(userUid.asString());
