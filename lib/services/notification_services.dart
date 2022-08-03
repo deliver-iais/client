@@ -611,7 +611,6 @@ class AndroidNotifier implements Notifier {
 
   Future<void> onCallAccepted(CallEvent callEvent) async {
     await GetIt.I.get<CallService>().clearCallData();
-    Notifier.onCallAccept(callEvent.userInfo!["uid"]!);
     _callService.setRoomUid = callEvent.userInfo!["uid"]!.asUid();
     await GetIt.I.get<CallService>().clearCallData();
     final callEventInfo =
