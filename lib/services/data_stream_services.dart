@@ -69,19 +69,7 @@ class DataStreamServices {
   }) async {
     final roomUid = getRoomUid(_authRepo, message);
     if (isOnlineMessage) {
-      if (message.messageMarkup.replyKeyboardMarkup.rows.isNotEmpty) {
-        await _roomRepo.updateReplyKeyboard(
-          _messageExtractorServices.extractReplyKeyboardMarkup(
-            message.messageMarkup.replyKeyboardMarkup,
-          ),
-          roomUid.asString(),
-        );
-      } else if (message.messageMarkup.removeReplyKeyboardMarkup) {
-        await _roomRepo.updateReplyKeyboard(
-          null,
-          roomUid.asString(),
-        );
-      }
+      await _checkForReplyKeyBoard(message);
     }
 
     if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
@@ -251,6 +239,23 @@ class DataStreamServices {
     }
 
     return msg;
+  }
+
+  Future<void> _checkForReplyKeyBoard(Message message) async {
+    final roomUid = getRoomUid(_authRepo, message);
+    if (message.messageMarkup.replyKeyboardMarkup.rows.isNotEmpty) {
+      await _roomRepo.updateReplyKeyboard(
+        _messageExtractorServices.extractReplyKeyboardMarkup(
+          message.messageMarkup.replyKeyboardMarkup,
+        ),
+        roomUid.asString(),
+      );
+    } else if (message.messageMarkup.removeReplyKeyboardMarkup) {
+      await _roomRepo.updateReplyKeyboard(
+        null,
+        roomUid.asString(),
+      );
+    }
   }
 
   Future<void> _fetchMySeen(String roomUid) async {
@@ -730,6 +735,9 @@ class DataStreamServices {
   ) async {
     final msgList = <message_model.Message>[];
     for (final message in messages) {
+      if (messages.last.id - message.id < 100) {
+        await _checkForReplyKeyBoard(message);
+      }
       await _messageDao.deletePendingMessage(message.packetId);
       try {
         final m = await handleIncomingMessage(
