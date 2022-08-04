@@ -14,31 +14,18 @@ class ReplyKeyboardMarkup {
   @HiveField(1)
   bool oneTimeKeyboard;
 
-  @HiveField(2)
-  String inputFieldPlaceHolder;
-
-  @HiveField(3)
-  List<String> inputSuggestions;
-
   ReplyKeyboardMarkup({
     required this.rows,
-    required this.inputFieldPlaceHolder,
-    required this.inputSuggestions,
     required this.oneTimeKeyboard,
   });
 
   ReplyKeyboardMarkup copyWith({
     List<ReplyKeyboardRow>? rows,
     bool? oneTimeKeyboard,
-    String? inputFieldPlaceHolder,
-    List<String>? inputSuggestions,
   }) =>
       ReplyKeyboardMarkup(
         rows: rows ?? this.rows,
         oneTimeKeyboard: oneTimeKeyboard ?? this.oneTimeKeyboard,
-        inputFieldPlaceHolder:
-            inputFieldPlaceHolder ?? this.inputFieldPlaceHolder,
-        inputSuggestions: inputSuggestions ?? this.inputSuggestions,
       );
 
   @override
@@ -46,28 +33,22 @@ class ReplyKeyboardMarkup {
       identical(this, other) ||
       (other.runtimeType == runtimeType &&
           other is ReplyKeyboardMarkup &&
-          const DeepCollectionEquality()
-              .equals(other.inputSuggestions, inputSuggestions) &&
           const DeepCollectionEquality().equals(
             other.rows,
             rows,
           ) &&
-          const DeepCollectionEquality()
-              .equals(other.inputFieldPlaceHolder, inputFieldPlaceHolder) &&
           const DeepCollectionEquality()
               .equals(other.oneTimeKeyboard, oneTimeKeyboard));
 
   @override
   int get hashCode => Object.hash(
         runtimeType,
-        const DeepCollectionEquality().hash(inputFieldPlaceHolder),
-        const DeepCollectionEquality().hash(inputSuggestions),
         const DeepCollectionEquality().hash(rows),
         const DeepCollectionEquality().hash(oneTimeKeyboard),
       );
 
   @override
   String toString() {
-    return 'ReplyKeyboardMarkup{rows: $rows, oneTimeKeyboard: $oneTimeKeyboard, inputFieldPlaceHolder: $inputFieldPlaceHolder, inputSuggestions: $inputSuggestions}';
+    return 'ReplyKeyboardMarkup{rows: $rows, oneTimeKeyboard: $oneTimeKeyboard}';
   }
 }

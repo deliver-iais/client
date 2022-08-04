@@ -18,8 +18,6 @@ class ReplyKeyboardMarkupAdapter extends TypeAdapter<ReplyKeyboardMarkup> {
     };
     return ReplyKeyboardMarkup(
       rows: (fields[0] as List).cast<ReplyKeyboardRow>(),
-      inputFieldPlaceHolder: fields[2] as String,
-      inputSuggestions: (fields[3] as List).cast<String>(),
       oneTimeKeyboard: fields[1] as bool,
     );
   }
@@ -27,15 +25,11 @@ class ReplyKeyboardMarkupAdapter extends TypeAdapter<ReplyKeyboardMarkup> {
   @override
   void write(BinaryWriter writer, ReplyKeyboardMarkup obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(2)
       ..writeByte(0)
       ..write(obj.rows)
       ..writeByte(1)
-      ..write(obj.oneTimeKeyboard)
-      ..writeByte(2)
-      ..write(obj.inputFieldPlaceHolder)
-      ..writeByte(3)
-      ..write(obj.inputSuggestions);
+      ..write(obj.oneTimeKeyboard);
   }
 
   @override

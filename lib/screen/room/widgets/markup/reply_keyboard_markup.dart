@@ -4,6 +4,7 @@ import 'package:deliver/screen/room/messageWidgets/input_message_text_controller
 import 'package:deliver/shared/extensions/uid_extension.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/subjects.dart';
 
@@ -24,6 +25,10 @@ class ReplyKeyboardMarkupWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final messageRepo = GetIt.I.get<MessageRepo>();
+    final bgColor = Color.alphaBlend(
+      Theme.of(context).primaryColor.withAlpha(30),
+      Theme.of(context).colorScheme.surface,
+    );
     final widgetRows = <Widget>[];
     final rows = replyKeyboardMarkup.rows;
     var columns = <Widget>[];
@@ -97,17 +102,20 @@ class ReplyKeyboardMarkupWidget extends StatelessWidget {
         ),
       );
     }
-    return Container(
-      color: Color.alphaBlend(
-        Theme.of(context).primaryColor.withAlpha(30),
-        Theme.of(context).colorScheme.surface,
+
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle(
+        systemNavigationBarColor: bgColor,
       ),
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(15),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: widgetRows,
+      child: Container(
+        color: bgColor,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(15),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: widgetRows,
+            ),
           ),
         ),
       ),
