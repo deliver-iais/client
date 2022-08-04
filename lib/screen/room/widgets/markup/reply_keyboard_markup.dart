@@ -9,6 +9,7 @@ import 'package:get_it/get_it.dart';
 import 'package:rxdart/subjects.dart';
 
 class ReplyKeyboardMarkupWidget extends StatelessWidget {
+  static final messageRepo = GetIt.I.get<MessageRepo>();
   final ReplyKeyboardMarkup replyKeyboardMarkup;
   final BehaviorSubject<bool> showReplyMarkUp;
   final String roomUid;
@@ -24,7 +25,6 @@ class ReplyKeyboardMarkupWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final messageRepo = GetIt.I.get<MessageRepo>();
     final bgColor = Color.alphaBlend(
       Theme.of(context).primaryColor.withAlpha(30),
       Theme.of(context).colorScheme.surface,
