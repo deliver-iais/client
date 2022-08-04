@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/reply_keyboard_markup.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:hive/hive.dart';
 
@@ -48,6 +49,9 @@ class Room {
   @HiveField(12)
   bool seenSynced;
 
+  @HiveField(13)
+  ReplyKeyboardMarkup? replyKeyboardMarkup;
+
   Room({
     required this.uid,
     this.lastMessage,
@@ -62,6 +66,7 @@ class Room {
     this.synced = false,
     this.lastCurrentUserSentMessageId = 0,
     this.seenSynced = true,
+    this.replyKeyboardMarkup,
   });
 
   Room copyWith({
@@ -79,6 +84,8 @@ class Room {
     bool? synced,
     int? lastCurrentUserSentMessageId,
     bool? seenSynced,
+    ReplyKeyboardMarkup? replyKeyboardMarkup,
+    bool forceToUpdateReplyKeyboardMarkup = false,
   }) =>
       Room(
         uid: uid ?? this.uid,
@@ -95,6 +102,10 @@ class Room {
         lastCurrentUserSentMessageId:
             lastCurrentUserSentMessageId ?? this.lastCurrentUserSentMessageId,
         seenSynced: seenSynced ?? this.seenSynced,
+        replyKeyboardMarkup: replyKeyboardMarkup ??
+            (forceToUpdateReplyKeyboardMarkup
+                ? null
+                : this.replyKeyboardMarkup),
       );
 
   @override
@@ -121,7 +132,9 @@ class Room {
             lastCurrentUserSentMessageId,
           ) &&
           const DeepCollectionEquality().equals(other.synced, synced) &&
-          const DeepCollectionEquality().equals(other.seenSynced, seenSynced));
+          const DeepCollectionEquality().equals(other.seenSynced, seenSynced) &&
+          const DeepCollectionEquality()
+              .equals(other.replyKeyboardMarkup, replyKeyboardMarkup));
 
   @override
   int get hashCode => Object.hash(
@@ -139,6 +152,7 @@ class Room {
         const DeepCollectionEquality().hash(synced),
         const DeepCollectionEquality().hash(lastCurrentUserSentMessageId),
         const DeepCollectionEquality().hash(seenSynced),
+        const DeepCollectionEquality().hash(replyKeyboardMarkup),
       );
 
   @override
