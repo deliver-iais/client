@@ -68,6 +68,22 @@ class DataStreamServices {
     bool isFirebaseMessage = false,
   }) async {
     final roomUid = getRoomUid(_authRepo, message);
+    if (isOnlineMessage) {
+      if (message.messageMarkup.replyKeyboardMarkup.rows.isNotEmpty) {
+        await _roomRepo.updateReplyKeyboard(
+          _messageExtractorServices.extractReplyKeyboardMarkup(
+            message.messageMarkup.replyKeyboardMarkup,
+          ),
+          roomUid.asString(),
+        );
+      } else if (message.messageMarkup.removeReplyKeyboardMarkup) {
+        await _roomRepo.updateReplyKeyboard(
+          null,
+          roomUid.asString(),
+        );
+      }
+    }
+
     if (await _roomRepo.isRoomBlocked(roomUid.asString())) {
       return null;
     }
