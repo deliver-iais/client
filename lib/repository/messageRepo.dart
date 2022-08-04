@@ -941,24 +941,6 @@ class MessageRepo {
     return completer.future;
   }
 
-  Future<Message?> getReplyKeyBoardMarkUpMessage(
-    String roomUid,
-    int firstMessageId, {
-    bool forceToCheckKeyboard = false,
-  }) {
-    return _messageDao.checkForReplyKeyBoardMarkUp(
-      roomUid,
-      forceToCheckKeyboard: forceToCheckKeyboard,
-      firstMessageId,
-    );
-  }
-
-  Future<int> checkForRemoveReplyKeyboard(
-    String roomUid,
-  ) {
-    return _messageDao.checkForRemoveReplyKeyboard(roomUid);
-  }
-
   Future<void> getMessages(
     String roomId,
     int page,

@@ -470,99 +470,6 @@ class MessageExtractorServices {
       body = messageBodyToJson(message);
       isHidden = isHiddenPbMessage(message);
     } catch (_) {}
-    //for testing remove later
-    message.messageMarkup = markup_pb.MessageMarkup(
-      //removeReplyKeyboardMarkup: true,
-      replyKeyboardMarkup: markup_pb.ReplyKeyboardMarkup(
-        inputFieldPlaceholder: "یکی از گزینه ها را انتخاب کنید",
-        inputSuggestions: [
-          "پردانلود ترین",
-          "جدیدترین",
-          "پیشنهادی",
-          "پلی لیست",
-          "پردانلود ترین",
-          "جدیدترین",
-          "پیشنهادی",
-          "پلی لیست"
-        ],
-        oneTimeKeyboard: true,
-        rows: [
-          markup_pb.ReplyKeyboardRow(
-            buttons: [
-              markup_pb.ReplyKeyboardButton(
-                text: "پردانلود ترین",
-                sendOnClick: true,
-              ),
-            ],
-          ),
-          markup_pb.ReplyKeyboardRow(
-            buttons: [
-              markup_pb.ReplyKeyboardButton(
-                text: "جدیدترین",
-                sendOnClick: false,
-              ),
-            ],
-          ),
-          markup_pb.ReplyKeyboardRow(
-            buttons: [
-              markup_pb.ReplyKeyboardButton(
-                text: "پیشنهادی",
-                sendOnClick: true,
-              ),
-              markup_pb.ReplyKeyboardButton(
-                text: "پلی لیست",
-                sendOnClick: false,
-              )
-            ],
-          ),
-          markup_pb.ReplyKeyboardRow(
-            buttons: [
-              markup_pb.ReplyKeyboardButton(
-                text: "فالو شده ها",
-                sendOnClick: false,
-              ),
-              markup_pb.ReplyKeyboardButton(
-                text: "دانلود شده ها",
-                sendOnClick: false,
-              ),
-              markup_pb.ReplyKeyboardButton(
-                text: "آموزش ها",
-                sendOnClick: false,
-              )
-            ],
-          )
-        ],
-      ),
-      inlineKeyboardMarkup: markup_pb.InlineKeyboardMarkup(
-        rows: [
-          markup_pb.InlineKeyboardRow(
-            buttons: [
-              markup_pb.InlineKeyboardButton(
-                text: "test",
-                url: markup_pb.InlineKeyboardButtonUrl(
-                  url: "https://google.com",
-                ),
-              ),
-            ],
-          ),
-          markup_pb.InlineKeyboardRow(
-            buttons: [
-              markup_pb.InlineKeyboardButton(
-                text: "test",
-                callback:
-                    markup_pb.InlineKeyboardButtonCallback(data: "hello test"),
-              ),
-              markup_pb.InlineKeyboardButton(
-                text: "lets buy it",
-                url: markup_pb.InlineKeyboardButtonUrl(
-                  url: "https://google.com",
-                ),
-              )
-            ],
-          )
-        ],
-      ),
-    );
     return Message(
       id: message.id.toInt(),
       roomUid: getRoomUid(_authRepo, message).asString(),
@@ -587,11 +494,8 @@ class MessageExtractorServices {
             inlineKeyboardMarkup: extractInlineKeyboardMarkup(
               message.messageMarkup.inlineKeyboardMarkup,
             ),
-            replyKeyboardMarkup: extractReplyKeyboardMarkup(
-              message.messageMarkup.replyKeyboardMarkup,
-            ),
-            removeReplyKeyboard:
-                message.messageMarkup.removeReplyKeyboardMarkup,
+            inputFieldPlaceHolder: message.messageMarkup.inputFieldPlaceholder,
+            inputSuggestions: message.messageMarkup.inputSuggestions,
           )
         : null;
   }
@@ -647,8 +551,6 @@ class MessageExtractorServices {
             ),
           )
           .toList(),
-      inputFieldPlaceHolder: replyKeyboardMarkup.inputFieldPlaceholder,
-      inputSuggestions: replyKeyboardMarkup.inputSuggestions,
       oneTimeKeyboard: replyKeyboardMarkup.oneTimeKeyboard,
     );
   }
