@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/message.dart';
@@ -34,16 +33,6 @@ abstract class MessageDao {
   Future<void> deletePendingMessage(String packetId);
 
   Future<void> savePendingMessage(PendingMessage pm);
-
-  Future<Message?> checkForReplyKeyBoardMarkUp(
-    String roomUid,
-    int firstMessageId, {
-    bool forceToCheckKeyboard = false,
-  });
-
-  Future<int> checkForRemoveReplyKeyboard(
-    String roomUid,
-  );
 }
 
 class MessageDaoImpl implements MessageDao {
@@ -73,41 +62,6 @@ class MessageDaoImpl implements MessageDao {
     final box = await _openPendingMessages();
 
     return box.values.toList();
-  }
-
-  @override
-  Future<Message?> checkForReplyKeyBoardMarkUp(
-    String roomUid,
-    int firstMessageId, {
-    bool forceToCheckKeyboard = false,
-  }) async {
-    final box = await _openMessages(roomUid);
-
-    return box.values.toList().lastWhere(
-          ((element) =>
-              element.markup?.replyKeyboardMarkup != null &&
-              (!forceToCheckKeyboard ||
-                  element.markup!.replyKeyboardMarkup!.rows.isNotEmpty) &&
-              (element.id ?? 0) > firstMessageId),
-        );
-  }
-
-  @override
-  Future<int> checkForRemoveReplyKeyboard(
-    String roomUid,
-  ) async {
-    final box = await _openMessages(roomUid);
-    final removeId = box.values
-            .toList()
-            .lastWhere(
-              ((element) =>
-                  element.markup?.removeReplyKeyboard != null &&
-                  element.markup!.removeReplyKeyboard),
-            )
-            .id ??
-        0;
-
-    return removeId;
   }
 
   @override
