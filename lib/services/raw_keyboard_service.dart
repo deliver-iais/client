@@ -51,10 +51,14 @@ class RawKeyboardService {
           .add(model.File(file.path, name, extension: name.split(".").last));
     } else {
       final data = await Clipboard.getData(Clipboard.kTextPlain);
+      final start = controller.selection.start;
+      final end = controller.selection.end;
       controller
-        ..text = controller.text + data!.text!.replaceAll("\r\n", "\n")
+        ..text = controller.text.substring(0, start) +
+            data!.text!.replaceAll("\r", "") +
+            controller.text.substring(end)
         ..selection = TextSelection.fromPosition(
-          TextPosition(offset: controller.text.length),
+          TextPosition(offset: start + data.text!.replaceAll("\r", "").length),
         );
     }
     if (fileList.isNotEmpty) {

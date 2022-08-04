@@ -41,40 +41,29 @@ class CallScreen extends StatefulWidget {
   CallScreenState createState() => CallScreenState();
 }
 
-class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
+class CallScreenState extends State<CallScreen> {
   late final RTCVideoRenderer _localRenderer;
 
   late final RTCVideoRenderer _remoteRenderer;
-  final callRepo = GetIt.I.get<CallRepo>();
+  final _callRepo = GetIt.I.get<CallRepo>();
   final _logger = GetIt.I.get<Logger>();
   final _audioService = GetIt.I.get<AudioService>();
   final _i18n = GetIt.I.get<I18N>();
   final _routingService = GetIt.I.get<RoutingService>();
   late final String random;
-  BuildContext? dialogContext;
 
   final List<StreamSubscription<AccelerometerEvent>?> _accelerometerEvents =
       <StreamSubscription<AccelerometerEvent>>[];
 
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    if (state == AppLifecycleState.resumed) {
-      if (dialogContext != null) {
-        Navigator.of(dialogContext!).pop();
-      }
-      checkForSystemAlertWindowPermission();
-    }
-  }
-
-  @override
   void initState() {
-    WidgetsBinding.instance.addObserver(this);
     random = randomAlphaNumeric(10);
-    callRepo.initRenderer();
-    _localRenderer = callRepo.getLocalRenderer;
-    _remoteRenderer = callRepo.getRemoteRenderer;
+    _callRepo.initRenderer();
+    _localRenderer = _callRepo.getLocalRenderer;
+    _remoteRenderer = _callRepo.getRemoteRenderer;
     if (!widget.isCallInitialized) {
       startCall();
+      checkForSystemAlertWindowPermission();
     }
     if (isAndroid) {
       _listenSensor();
@@ -86,7 +75,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
     showDialog(
       context: context,
       builder: (context) {
-        dialogContext = context;
+        final theme = Theme.of(context);
         return AlertDialog(
           title: const Tgs.asset(
             'assets/animations/call_permission.tgs',
@@ -94,12 +83,16 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
             height: 150,
           ),
           content: Column(
+            mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 _i18n.get(
                   "alert_window_permission",
                 ),
-                textDirection: TextDirection.rtl,
+                textDirection:
+                    _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                style: theme.textTheme.bodyText1!
+                    .copyWith(color: theme.primaryColor),
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
@@ -107,10 +100,10 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                   _i18n.get(
                     "alert_window_permission_attention",
                   ),
-                  textDirection: TextDirection.rtl,
-                  style: const TextStyle(
-                    color: Colors.red,
-                  ),
+                  textDirection:
+                      _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                  style: theme.textTheme.bodyText1!
+                      .copyWith(color: theme.errorColor),
                 ),
               )
             ],
@@ -119,21 +112,26 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
           actionsAlignment: MainAxisAlignment.spaceEvenly,
           actions: <Widget>[
             TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: TextButton.styleFrom(
+                primary: Theme.of(context).errorColor,
+              ),
               child: Text(
                 _i18n.get(
                   "cancel",
                 ),
               ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
             ),
             TextButton(
               child: Text(
                 _i18n.get("go_to_setting"),
               ),
               onPressed: () async {
-                await Permission.systemAlertWindow.request();
+                if(await Permission.systemAlertWindow.request().isGranted){
+                  Navigator.of(context).pop();
+                }
               },
             ),
           ],
@@ -159,7 +157,6 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
       }
       setOnLockScreenVisibility();
     }
-    WidgetsBinding.instance.removeObserver(this);
   }
 
   Future<void> setOnLockScreenVisibility() async {
@@ -181,7 +178,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
   }
 
   Future<void> startCall() async {
-    callRepo
+    _callRepo
       ..onLocalStream = ((stream) {
         _localRenderer.srcObject = stream;
       })
@@ -196,19 +193,19 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
 
     if (widget.isCallAccepted || widget.isIncomingCall) {
       if (widget.isCallAccepted) {
-        await callRepo.acceptCall(widget.roomUid);
+        await _callRepo.acceptCall(widget.roomUid);
       }
     } else if (widget.isVideoCall) {
-      await callRepo.startCall(widget.roomUid, isVideo: true);
+      await _callRepo.startCall(widget.roomUid, isVideo: true);
     } else {
-      await callRepo.startCall(widget.roomUid);
+      await _callRepo.startCall(widget.roomUid);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
-      stream: callRepo.callingStatus,
+      stream: _callRepo.callingStatus,
       builder: (context, snapshot) {
         _logger.i("callStatus-$random: ${snapshot.data}");
         switch (snapshot.data) {
@@ -216,7 +213,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
             _audioService.stopBeepSound();
             return widget.isVideoCall
                 ? StreamBuilder<bool>(
-                    stream: callRepo.switching,
+                    stream: _callRepo.switching,
                     builder: (context, snapshot) {
                       if (snapshot.hasData && snapshot.data != null) {
                         if (snapshot.data == false) {
@@ -347,7 +344,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                     localRenderer: _localRenderer,
                     text: "Calling",
                     remoteRenderer: _remoteRenderer,
-                    isIncomingCall: !callRepo.isCaller,
+                    isIncomingCall: !_callRepo.isCaller,
                     hangUp: _hangUp,
                   )
                 : AudioCallScreen(
@@ -356,7 +353,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                     callStatusOnScreen: widget.isIncomingCall
                         ? _i18n.get("call_incoming")
                         : _i18n.get("call_calling"),
-                    isIncomingCall: !callRepo.isCaller,
+                    isIncomingCall: !_callRepo.isCaller,
                     hangUp: _hangUp,
                   );
           case CallStatus.ENDED:
@@ -367,7 +364,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                 _routingService.pop();
               }
             });
-            callRepo.disposeRenderer();
+            _callRepo.disposeRenderer();
             return AudioCallScreen(
               roomUid: widget.roomUid,
               callStatus: "Ended",
@@ -410,7 +407,7 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
                     hangUp: _hangUp,
                   );
           case CallStatus.ACCEPTED:
-            unawaited(callRepo.cancelCallNotification());
+            unawaited(_callRepo.cancelCallNotification());
             return widget.isVideoCall
                 ? StartVideoCallPage(
                     roomUid: widget.roomUid,
@@ -438,6 +435,6 @@ class CallScreenState extends State<CallScreen> with WidgetsBindingObserver {
   void _hangUp() {
     _logger.i("Call hang Up ...!");
     _audioService.stopBeepSound();
-    callRepo.endCall();
+    _callRepo.endCall();
   }
 }

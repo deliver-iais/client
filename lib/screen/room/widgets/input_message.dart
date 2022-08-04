@@ -46,7 +46,6 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:pasteboard/pasteboard.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../navigation_center/widgets/feature_discovery_description_widget.dart';
@@ -804,24 +803,13 @@ class InputMessageWidgetState extends State<InputMessage> {
   }
 
   Future<void> _handleCV(RawKeyEvent event) async {
-    final files = await Pasteboard.files();
-    if (files.isEmpty) {
-      final data = await Clipboard.getData(Clipboard.kTextPlain);
-      widget.textController.text =
-          widget.textController.text + data!.text!.replaceAll("\r", "");
-      widget.textController.selection = TextSelection.fromPosition(
-        TextPosition(offset: widget.textController.text.length),
-      );
-    } else {
-      unawaited(
-        // ignore: use_build_context_synchronously
-        _rawKeyboardService.controlVHandle(
-          widget.textController,
-          context,
-          widget.currentRoom.uid.asUid(),
-        ),
-      );
-    }
+    unawaited(
+      _rawKeyboardService.controlVHandle(
+        widget.textController,
+        context,
+        widget.currentRoom.uid.asUid(),
+      ),
+    );
   }
 
   KeyEventResult _handleArrow(RawKeyEvent event) {

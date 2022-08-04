@@ -20,6 +20,7 @@ import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -33,6 +34,7 @@ import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sdp_transform/sdp_transform.dart';
@@ -63,9 +65,10 @@ class CallRepo {
   final _callListDao = GetIt.I.get<CallInfoDao>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _audioService = GetIt.I.get<AudioService>();
+  final _routingService = GetIt.I.get<RoutingService>();
 
   final _candidateNumber = 5;
-  final _candidateTimeLimit = 250; // 0.25 sec
+  final _candidateTimeLimit = 100; // 0.1 sec
 
   late RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   late RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
@@ -100,10 +103,12 @@ class CallRepo {
   bool _isSpeaker = false;
   bool _isMicMuted = false;
   bool _isInitRenderer = false;
-  bool _isDCRecived = false;
+  bool _isDCReceived = false;
   bool _reconnectTry = false;
   bool _isEnded = false;
+  bool _isEndedRecivied = false;
   bool _isOfferReady = false;
+  bool _isCallInited = false;
 
   bool get isCaller => _isCaller;
   Uid? _roomUid;
@@ -177,8 +182,31 @@ class CallRepo {
               }
               break;
             case CallEvent_CallStatus.CREATED:
-              if (_callService.getUserCallState == UserCallState.NOCALL) {
-                _callService.setUserCallState = UserCallState.INUSERCALL;
+              if (_callService.getUserCallState == UserCallState.NOCALL &&
+                  (event.time - clock.now().millisecondsSinceEpoch) < 60000) {
+                // final callStatus =
+                //     await FlutterForegroundTask.getData(key: "callStatus");
+                _callService
+                  ..setUserCallState = UserCallState.INUSERCALL
+                  ..setCallOwner = callEvent.memberOrCallOwnerPvp
+                  ..setCallId = callEvent.id;
+
+                if (callEvent.callType == CallEvent_CallType.VIDEO) {
+                  _logger.i("VideoCall");
+                  _isVideo = true;
+                } else {
+                  _isVideo = false;
+                }
+                // if (callStatus != null && callStatus == "Accepted") {
+                //   modifyRoutingByNotificationAcceptCallInBackgroundInAndroid
+                //       .add(event.roomUid!.asString());
+                // } else {
+                //   _incomingCall(
+                //     event.roomUid!,
+                //     false,
+                //     _callService.writeCallEventsToJson(event),
+                //   );
+                // }
                 if (!isWindows) {
                   //get call Info and Save on DB
                   final currentCallEvent = call_event.CallEvent(
@@ -202,16 +230,6 @@ class CallRepo {
                   _logger.i("save call on db!");
                 }
 
-                _callService
-                  ..setCallOwner = callEvent.memberOrCallOwnerPvp
-                  ..setCallId = callEvent.id;
-
-                if (callEvent.callType == CallEvent_CallType.VIDEO) {
-                  _logger.i("VideoCall");
-                  _isVideo = true;
-                } else {
-                  _isVideo = false;
-                }
                 _incomingCall(
                   event.roomUid!,
                   false,
@@ -331,9 +349,9 @@ class CallRepo {
       "optional": [],
     };
 
-    _localStream = await _getUserMedia();
-
     final pc = await createPeerConnection(iceServers, config);
+
+    _localStream = await _getUserMedia();
 
     final camAudioTrack = _localStream!.getAudioTracks()[0];
     if (!isWindows) {
@@ -352,7 +370,7 @@ class CallRepo {
         // we can do special work on every change in candidate Connection State
         switch (e) {
           case RTCIceConnectionState.RTCIceConnectionStateFailed:
-            if (!_reconnectTry) {
+            if (!_reconnectTry && !_isEnded && !_isEndedRecivied) {
               _reconnectTry = true;
               callingStatus.add(CallStatus.RECONNECTING);
               _audioService.stopBeepSound();
@@ -379,7 +397,7 @@ class CallRepo {
             break;
           case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
             Timer(const Duration(seconds: 1), () {
-              if (!_reconnectTry && !_isEnded) {
+              if (!_reconnectTry && !_isEnded && !_isEndedRecivied) {
                 callingStatus.add(CallStatus.DISCONNECTED);
                 _audioService.stopBeepSound();
               }
@@ -429,7 +447,7 @@ class CallRepo {
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateDisconnected:
             Timer(const Duration(seconds: 1), () {
-              if (!_reconnectTry && !_isEnded) {
+              if (!_reconnectTry && !_isEnded && !_isEndedRecivied) {
                 callingStatus.add(CallStatus.DISCONNECTED);
                 _audioService.stopBeepSound();
               }
@@ -437,7 +455,7 @@ class CallRepo {
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
             //Try reconnect
-            if (!_reconnectTry) {
+            if (!_reconnectTry && !_isEnded && !_isEndedRecivied) {
               _reconnectTry = true;
               callingStatus.add(CallStatus.RECONNECTING);
               _audioService.stopBeepSound();
@@ -498,7 +516,7 @@ class CallRepo {
       ..onDataChannel = (channel) {
         _logger.i("data Channel Received!!");
         _dataChannel = channel;
-        _isDCRecived = true;
+        _isDCReceived = true;
         //it means Connection is Connected
         _startCallTimerAndChangeStatus();
         _dataChannel!.onMessage = (data) {
@@ -569,19 +587,12 @@ class CallRepo {
     }
   }
 
-  Future<void> _foregroundTaskInitializing() async {
-    if (isAndroid) {
-      await _initForegroundTask();
-      await _startForegroundTask();
-    }
-  }
-
   Future<void> _startCallTimerAndChangeStatus() async {
     startCallTimer();
     if (_startCallTime == 0) {
       _startCallTime = clock.now().millisecondsSinceEpoch;
     }
-    if (_isDCRecived) {
+    if (_isDCReceived) {
       await _dataChannel!
           .send(RTCDataChannelMessage(STATUS_CONNECTION_CONNECTED));
     }
@@ -600,7 +611,7 @@ class CallRepo {
 
     final dataChannel = await _peerConnection!
         .createDataChannel("stateTransfer", dataChannelDict);
-    _isDCRecived = true;
+    _isDCReceived = true;
     dataChannel.onMessage = (data) {
       final status = data.text;
       _logger.i(status);
@@ -649,6 +660,10 @@ class CallRepo {
           callingStatus.add(CallStatus.CONNECTING);
           _audioService.stopBeepSound();
           break;
+        case STATUS_CONNECTION_ENDED:
+          // this case use for prevent from disconnected state
+          _isEndedRecivied = true;
+          break;
       }
     };
     return dataChannel;
@@ -679,6 +694,7 @@ class CallRepo {
         'audio': {
           'sampleSize': '16',
           'channelCount': '2',
+          'echoCancellation': 'true',
         }
       };
     } else {
@@ -700,6 +716,7 @@ class CallRepo {
         'audio': {
           'sampleSize': '16',
           'channelCount': '2',
+          'echoCancellation': 'true',
         }
       };
     }
@@ -738,64 +755,73 @@ class CallRepo {
     }
   }
 
-  Future<void> _initForegroundTask() async {
-    await FlutterForegroundTask.init(
-      androidNotificationOptions: AndroidNotificationOptions(
-        channelId: 'notification_channel_id',
-        channelName: 'Foreground Notification',
-        channelDescription:
-            'This notification appears when the foreground service is running.',
-        channelImportance: NotificationChannelImportance.LOW,
-        priority: NotificationPriority.LOW,
-        isSticky: false,
-        iconData: const NotificationIconData(
-          resType: ResourceType.mipmap,
-          resPrefix: ResourcePrefix.ic,
-          name: 'launcher',
-        ),
-        buttons: [
-          const NotificationButton(id: 'endCall', text: 'End Call'),
-        ],
-      ),
-      iosNotificationOptions: const IOSNotificationOptions(),
-      foregroundTaskOptions: const ForegroundTaskOptions(
-        autoRunOnBoot: true,
-        allowWifiLock: true,
-      ),
-      printDevLog: true,
-    );
-  }
-
-  Future<bool> _startForegroundTask() async {
-    ReceivePort? receivePort;
-    if (await FlutterForegroundTask.isRunningService) {
-      receivePort = await FlutterForegroundTask.restartService();
-    } else {
-      receivePort = await FlutterForegroundTask.startService(
-        notificationTitle: '$APPLICATION_NAME Call on BackGround',
-        notificationText: 'Tap to return to the app',
-        callback: startCallback,
-      );
-    }
-
-    if (receivePort != null) {
-      _receivePort = receivePort;
-      _receivePort?.listen((message) {
-        if (message == "endCall") {
-          endCall();
-        } else {
-          _logger.i('receive callStatus: $message');
-        }
-      });
-
-      return true;
-    }
-
-    return false;
-  }
-
-  Future<bool> _stopForegroundTask() async =>
-      FlutterForegroundTask.stopService();
+  // Future<void> _foregroundTaskInitializing() async {
+  //   if (isAndroid) {
+  //     await _initForegroundTask();
+  //     await _startForegroundTask();
+  //   }
+  // }
+  //
+  //
+  // Future<void> _initForegroundTask() async {
+  //   await FlutterForegroundTask.init(
+  //     androidNotificationOptions: AndroidNotificationOptions(
+  //       channelId: 'notification_channel_id',
+  //       channelName: 'Foreground Notification',
+  //       channelDescription:
+  //       'This notification appears when the foreground service is running.',
+  //       channelImportance: NotificationChannelImportance.HIGH,
+  //       priority: NotificationPriority.HIGH,
+  //       isSticky: false,
+  //       iconData: const NotificationIconData(
+  //         resType: ResourceType.mipmap,
+  //         resPrefix: ResourcePrefix.ic,
+  //         name: 'launcher',
+  //       ),
+  //       buttons: [
+  //         const NotificationButton(id: 'endCall', text: 'End Call'),
+  //       ],
+  //     ),
+  //     iosNotificationOptions: const IOSNotificationOptions(),
+  //     foregroundTaskOptions: const ForegroundTaskOptions(
+  //       autoRunOnBoot: true,
+  //       allowWifiLock: true,
+  //     ),
+  //     printDevLog: true,
+  //   );
+  // }
+  //
+  // Future<bool> _startForegroundTask() async {
+  //   ReceivePort? receivePort;
+  //   if (await FlutterForegroundTask.isRunningService) {
+  //     receivePort = await FlutterForegroundTask.restartService();
+  //   } else {
+  //     receivePort = await FlutterForegroundTask.startService(
+  //       notificationTitle: '$APPLICATION_NAME Call on BackGround',
+  //       notificationText: 'Tap to return to the app',
+  //       callback: startCallback,
+  //     );
+  //   }
+  //
+  //   if (receivePort != null) {
+  //     _receivePort = receivePort;
+  //     _receivePort?.listen((message) {
+  //       if (message == "endCall") {
+  //         endCall();
+  //       } else if (message == 'onNotificationPressed') {
+  //         _routingService.openCallScreen(roomUid!);
+  //       } else {
+  //         _logger.i('receive callStatus: $message');
+  //       }
+  //     });
+  //     return true;
+  //   }
+  //
+  //   return false;
+  // }
+  //
+  // Future<bool> _stopForegroundTask() async =>
+  //     FlutterForegroundTask.stopService();
 
   /*
   * For Close Microphone
@@ -880,7 +906,17 @@ class CallRepo {
       endOfCallDuration,
       _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
     );
-    await initCall(isOffer: true);
+    if (isAndroid) {
+      if (!_isVideo && await Permission.microphone.status.isGranted) {
+        if (await getDeviceVersion() >= 31) {
+          _isCallInited = true;
+          await initCall(isOffer: true);
+        }
+      }
+    } else {
+      _isCallInited = true;
+      await initCall(isOffer: true);
+    }
   }
 
   Future<void> startCall(Uid roomId, {bool isVideo = false}) async {
@@ -891,6 +927,7 @@ class CallRepo {
       _isCaller = true;
       _isVideo = isVideo;
       _roomUid = roomId;
+      _isCallInited = true;
       await initCall();
       _logger.i("Start Call and Created !!!");
       callingStatus.add(CallStatus.CREATED);
@@ -906,7 +943,19 @@ class CallRepo {
       });
       _callIdGenerator();
       _sendStartCallEvent();
-      await _foregroundTaskInitializing();
+      final foregroundStatus = await _callService.foregroundTaskInitializing();
+      if (foregroundStatus) {
+        _receivePort = _callService.getReceivePort;
+        _receivePort?.listen((message) {
+          if (message == "endCall") {
+            endCall();
+          } else if (message == 'onNotificationPressed') {
+            _routingService.openCallScreen(roomUid!);
+          } else {
+            _logger.i('receive callStatus: $message');
+          }
+        });
+      }
     } else {
       _logger.i("User on Call ... !");
     }
@@ -953,8 +1002,25 @@ class CallRepo {
         endCall();
       }
     });
+    //if call come from backGround doesn't init and should be initialize
+    if (!_isCallInited) {
+      await initCall(isOffer: true);
+    }
+
     unawaited(_sendOffer());
-    await _foregroundTaskInitializing();
+    final foregroundStatus = await _callService.foregroundTaskInitializing();
+    if (foregroundStatus) {
+      _receivePort = _callService.getReceivePort;
+      _receivePort?.listen((message) {
+        if (message == "endCall") {
+          endCall();
+        } else if (message == 'onNotificationPressed') {
+          _routingService.openCallScreen(roomUid!);
+        } else {
+          _logger.i('receive callStatus: $message');
+        }
+      });
+    }
   }
 
   Future<void> declineCall() async {
@@ -1070,9 +1136,12 @@ class CallRepo {
       }
       if (_callService.getUserCallState != CallStatus.NO_CALL) {
         if (_isCaller) {
+          if (_isDCReceived) {
+            _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
+          }
           receivedEndCall(0);
         } else {
-          if (_isDCRecived) {
+          if (_isDCReceived) {
             _dataChannel!.send(RTCDataChannelMessage(STATUS_CONNECTION_ENDED));
           }
           timerEndCallDispose = Timer(const Duration(seconds: 4), () {
@@ -1234,7 +1303,7 @@ class CallRepo {
     try {
       if (isAndroid) {
         _receivePort?.close();
-        await _stopForegroundTask();
+        await _callService.stopForegroundTask();
         if (!_isCaller) {
           await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(
             isVisible: false,
@@ -1264,10 +1333,12 @@ class CallRepo {
       }
       _candidate = [];
       callingStatus.add(CallStatus.ENDED);
-      Timer(const Duration(milliseconds: 1500), () async {
-        _roomUid = null;
-        callingStatus.add(CallStatus.NO_CALL);
-      });
+      // Timer(const Duration(milliseconds: 1500), () async {
+      //   _roomUid = null;
+      //   callingStatus.add(CallStatus.NO_CALL);
+      //   _isEnded = false;
+      //   _isEndedRecivied = false;
+      // });
       _audioService.stopBeepSound();
       // Timer(const Duration(seconds: 2), () async {
       //  callingStatus.add(CallStatus.NO_CALL);
@@ -1287,16 +1358,22 @@ class CallRepo {
       _startCallTime = 0;
       _callDuration = 0;
       callTimer.add(CallTimer(0, 0, 0));
-      Timer(const Duration(seconds: 2), () async {
-        if (_isInitRenderer) {
-          await disposeRenderer();
-        }
-      });
+      // Timer(const Duration(seconds: 2), () async {
+      //   if (_isInitRenderer) {
+      //     await disposeRenderer();
+      //   }
+      // });
     } catch (e) {
       _logger.e(e);
     } finally {
       await _callService.clearCallData(forceToClearData: true);
-      _isEnded = false;
+      Timer(const Duration(milliseconds: 1500), () async {
+        _roomUid = null;
+        callingStatus.add(CallStatus.NO_CALL);
+        _isEnded = false;
+        _isEndedRecivied = false;
+        _isCallInited = false;
+      });
     }
   }
 
@@ -1445,5 +1522,19 @@ class FirstTaskHandler extends TaskHandler {
   @override
   Future<void> onDestroy(DateTime timestamp, SendPort? sendPort) async {
     await FlutterForegroundTask.clearAllData();
+  }
+
+  @override
+  void onNotificationPressed() {
+    // Called when the notification itself on the Android platform is pressed.
+    //
+    // "android.permission.SYSTEM_ALERT_WINDOW" permission must be granted for
+    // this function to be called.
+
+    // Note that the app will only route to "/resume-route" when it is exited so
+    // it will usually be necessary to send a message through the send port to
+    // signal it to restore state when the app is already started.
+    FlutterForegroundTask.launchApp("/call-screen");
+    sPort?.send('onNotificationPressed');
   }
 }

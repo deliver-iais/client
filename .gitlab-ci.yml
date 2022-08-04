@@ -13,7 +13,7 @@ variables:
   PROJECT_NAME: deliver-web
   KUSTOMIZE_DEPLOYMENT_PATH: deployment
   PROJECT_VERSION: $CI_COMMIT_SHORT_SHA
-  RESOLVER_VERSION: 1
+  RESOLVER_VERSION: 2
   PROJECT_BUILD_NAME: "1.9.1"
   PROJECT_BUILD_NUMBER: "61"
 
@@ -68,7 +68,6 @@ android_build:
   needs: [ resolve ]
   image: $DOCKER_REPO/deliver-flutter-resolved:$RESOLVER_VERSION
   variables:
-    GRADLE_USER_HOME: "cache/.gradle"
     _JAVA_OPTIONS: "-Xmx2048m -XX:+UnlockExperimentalVMOptions"
     GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m"'
   extends:
@@ -76,18 +75,18 @@ android_build:
   script:
     - cd /usr/local/bin/app/
     - flutter build appbundle --target-platform android-arm --build-name=$PROJECT_BUILD_NAME --build-number=$PROJECT_BUILD_NUMBER
-#    - flutter build apk --target-platform android-arm --build-name=$PROJECT_BUILD_NAME --build-number=$PROJECT_BUILD_NUMBER
+    - flutter build apk --split-per-abi
   cache:
     key: "$CI_COMMIT_REF_NAME"
     when: always
+    paths:
+      - /root/.gradle/
+      - /root/.pub-cache/
+  artifacts:
     untracked: true
     paths:
-      - $GRADLE_USER_HOME/caches/
-      - $GRADLE_USER_HOME/wrapper/
-      - $GRADLE_USER_HOME/build-cache/
-  artifacts:
-    paths:
       - /usr/local/bin/app/build/app/outputs/bundle/release/app-release.aab
+      - /usr/local/bin/app/build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk
     expire_in: 1 week
 
 prod_build:

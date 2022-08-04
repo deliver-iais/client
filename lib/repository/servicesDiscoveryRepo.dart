@@ -23,7 +23,7 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 
 class ServicesDiscoveryRepo {
-  late CoreServiceClient _coreServiceClient;
+  CoreServiceClient? _coreServiceClient;
   late BotServiceClient _botServiceClient;
   late SessionServiceClient _sessionServiceClient;
   late QueryServiceClient _queryServiceClient;
@@ -43,12 +43,12 @@ class ServicesDiscoveryRepo {
 
   final _shareDao = GetIt.I.get<SharedDao>();
 
-  Future<void> initRepo() async {
+  Future<void> initRepoWithCustomIp() async {
     final ip = (await _shareDao.get(SHARE_DAO_HOST_SET_BY_USER)) ?? "";
-    initClientChannel(ip: ip);
+    initClientChannels(ip: ip);
   }
 
-  void initClientChannel({String ip = ""}) {
+  void initClientChannels({String ip = ""}) {
     final grpcClientInterceptors = [
       GetIt.I.get<DeliverClientInterceptor>(),
       GetIt.I.get<AnalyticsClientInterceptor>()
@@ -63,6 +63,7 @@ class ServicesDiscoveryRepo {
     _initFirebaseClientChannelServices(ip, grpcClientInterceptors);
     _initLiverLocationClientServices(ip, grpcClientInterceptors);
   }
+
   void _initQueryClientChannelServices(
     String ip,
     List<ClientInterceptor> grpcClientInterceptors,
@@ -326,7 +327,10 @@ class ServicesDiscoveryRepo {
 
   bool get badCertificateConnection => _badCertificateConnection;
 
-  CoreServiceClient get coreServiceClient => _coreServiceClient;
+  CoreServiceClient? get coreServiceClient {
+    if (_coreServiceClient == null) initClientChannels();
+    return _coreServiceClient;
+  }
 
   BotServiceClient get botServiceClient => _botServiceClient;
 

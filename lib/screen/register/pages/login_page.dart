@@ -245,9 +245,10 @@ class LoginPageState extends State<LoginPage> {
           ),
           const SizedBox(height: 30),
           Text(
-              textDirection:
-                  _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
-              "1. ${_i18n.get("login_page_open_app_1")} $APPLICATION_NAME ${_i18n.get("login_page_open_app_2")}"),
+            textDirection:
+                _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+            "1. ${_i18n.get("login_page_open_app_1")} $APPLICATION_NAME ${_i18n.get("login_page_open_app_2")}",
+          ),
           const SizedBox(height: 10),
           Directionality(
             textDirection:
@@ -256,25 +257,28 @@ class LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                    textDirection:
-                        _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
-                    "2. ${_i18n.get("login_page_qr_code_1")}",),
+                  textDirection:
+                      _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                  "2. ${_i18n.get("login_page_qr_code_1")}",
+                ),
                 const Padding(
                   padding: EdgeInsets.all(4.0),
                   child: Icon(Icons.qr_code_rounded, size: 17),
                 ),
                 Text(
-                    textDirection:
-                        _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
-                    _i18n.get("login_page_qr_code_2")),
+                  textDirection:
+                      _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                  _i18n.get("login_page_qr_code_2"),
+                ),
               ],
             ),
           ),
           const SizedBox(height: 10),
           Text(
-              textDirection:
-                  _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
-              "3. ${_i18n.get("login_page_confirm_login")}"),
+            textDirection:
+                _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+            "3. ${_i18n.get("login_page_confirm_login")}",
+          ),
           const SizedBox(height: 30),
           TextButton(
             child: Text(
@@ -324,7 +328,8 @@ class LoginPageState extends State<LoginPage> {
                         onSubmitted: (p) {
                           phoneNumber = p;
                           if (_acceptPrivacy) checkAndGoNext();
-                        },key: const Key("IntlPhoneField"),
+                        },
+                        key: const Key("IntlPhoneField"),
                       ),
                       const SizedBox(height: 8),
                       Text(
@@ -343,21 +348,23 @@ class LoginPageState extends State<LoginPage> {
                               });
                             },
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _acceptPrivacy = true;
-                              });
-                            },
-                            child: RichText(
-                              text: TextSpan(
-                                children: buildText(
-                                  "${!_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}]($APPLICATION_TERMS_OF_USE_URL) ${_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}",
-                                  context,
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _acceptPrivacy = true;
+                                });
+                              },
+                              child: RichText(
+                                text: TextSpan(
+                                  children: buildText(
+                                    "${!_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}]($APPLICATION_TERMS_OF_USE_URL) ${_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}",
+                                    context,
+                                  ),
+                                  style: theme.textTheme.bodyText2,
                                 ),
-                                style: theme.textTheme.bodyText2,
+                                textDirection: TextDirection.ltr,
                               ),
-                              textDirection: TextDirection.ltr,
                             ),
                           ),
                         ],
@@ -459,7 +466,8 @@ class LoginPageState extends State<LoginPage> {
                         child: TextButton(
                           onPressed: checkAndGoNext,
                           child: Text(
-                            i18n.get("next"),key: const Key('next'),
+                            i18n.get("next"),
+                            key: const Key('next'),
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: theme.primaryColor,
