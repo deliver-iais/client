@@ -12,27 +12,29 @@ class MessageMarkup {
   @HiveField(0)
   InlineKeyboardMarkup? inlineKeyboardMarkup;
 
-  @HiveField(1)
-  ReplyKeyboardMarkup? replyKeyboardMarkup;
+  @HiveField(3)
+  List<String> inputSuggestions;
 
-  @HiveField(2)
-  bool removeReplyKeyboard;
+  @HiveField(4)
+  String inputFieldPlaceHolder;
 
   MessageMarkup({
     required this.inlineKeyboardMarkup,
-    required this.removeReplyKeyboard,
-    required this.replyKeyboardMarkup,
+    required this.inputFieldPlaceHolder,
+    required this.inputSuggestions,
   });
 
   MessageMarkup copyWith({
     InlineKeyboardMarkup? inlineKeyboardMarkup,
-    ReplyKeyboardMarkup? replyKeyboardMarkup,
     bool? removeReplyKeyboard,
+    String? inputFieldPlaceHolder,
+    List<String>? inputSuggestions,
   }) =>
       MessageMarkup(
         inlineKeyboardMarkup: inlineKeyboardMarkup ?? this.inlineKeyboardMarkup,
-        removeReplyKeyboard: removeReplyKeyboard ?? this.removeReplyKeyboard,
-        replyKeyboardMarkup: replyKeyboardMarkup ?? this.replyKeyboardMarkup,
+        inputFieldPlaceHolder:
+            inputFieldPlaceHolder ?? this.inputFieldPlaceHolder,
+        inputSuggestions: inputSuggestions ?? this.inputSuggestions,
       );
 
   @override
@@ -42,23 +44,21 @@ class MessageMarkup {
           other is MessageMarkup &&
           const DeepCollectionEquality()
               .equals(other.inlineKeyboardMarkup, inlineKeyboardMarkup) &&
-          const DeepCollectionEquality().equals(
-            other.removeReplyKeyboard,
-            removeReplyKeyboard,
-          ) &&
           const DeepCollectionEquality()
-              .equals(other.replyKeyboardMarkup, replyKeyboardMarkup));
+              .equals(other.inputSuggestions, inputSuggestions) &&
+          const DeepCollectionEquality()
+              .equals(other.inputFieldPlaceHolder, inputFieldPlaceHolder));
 
   @override
   int get hashCode => Object.hash(
         runtimeType,
         const DeepCollectionEquality().hash(inlineKeyboardMarkup),
-        const DeepCollectionEquality().hash(removeReplyKeyboard),
-        const DeepCollectionEquality().hash(replyKeyboardMarkup),
+        const DeepCollectionEquality().hash(inputFieldPlaceHolder),
+        const DeepCollectionEquality().hash(inputSuggestions),
       );
 
   @override
   String toString() {
-    return 'MessageMarkup{inlineKeyboardMarkup: $inlineKeyboardMarkup, removeReplyKeyboard: $removeReplyKeyboard, }';
+    return 'MessageMarkup{inlineKeyboardMarkup: $inlineKeyboardMarkup }';
   }
 }

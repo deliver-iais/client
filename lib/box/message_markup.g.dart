@@ -18,8 +18,8 @@ class MessageMarkupAdapter extends TypeAdapter<MessageMarkup> {
     };
     return MessageMarkup(
       inlineKeyboardMarkup: fields[0] as InlineKeyboardMarkup?,
-      removeReplyKeyboard: fields[2] as bool,
-      replyKeyboardMarkup: fields[1] as ReplyKeyboardMarkup?,
+      inputFieldPlaceHolder: fields[4] as String,
+      inputSuggestions: (fields[3] as List).cast<String>(),
     );
   }
 
@@ -29,10 +29,10 @@ class MessageMarkupAdapter extends TypeAdapter<MessageMarkup> {
       ..writeByte(3)
       ..writeByte(0)
       ..write(obj.inlineKeyboardMarkup)
-      ..writeByte(1)
-      ..write(obj.replyKeyboardMarkup)
-      ..writeByte(2)
-      ..write(obj.removeReplyKeyboard);
+      ..writeByte(3)
+      ..write(obj.inputSuggestions)
+      ..writeByte(4)
+      ..write(obj.inputFieldPlaceHolder);
   }
 
   @override
