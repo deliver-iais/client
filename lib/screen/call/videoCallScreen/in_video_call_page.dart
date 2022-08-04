@@ -1,10 +1,6 @@
-import 'dart:io';
-
-import 'package:deliver/box/avatar.dart';
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
-import 'package:deliver/screen/call/audioCallScreen/fade_audio_call_background.dart';
 import 'package:deliver/screen/call/call_bottom_icons.dart';
 import 'package:deliver/screen/call/center_avatar_image-in-call.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -13,8 +9,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
-
-import '../../../shared/widgets/animated_gradient.dart';
 
 class InVideoCallPage extends StatefulWidget {
   final RTCVideoRenderer localRenderer;
@@ -64,6 +58,8 @@ class InVideoCallPageState extends State<InVideoCallPage> {
           stream: MergeStream([
             callRepo.incomingSharing,
             callRepo.sharing,
+            callRepo.videoing,
+            callRepo.incomingVideo,
           ]),
           builder: (c, s) {
             if (s.hasData && s.data!) {
@@ -85,63 +81,77 @@ class InVideoCallPageState extends State<InVideoCallPage> {
                           ),
                           child: Stack(
                             children: <Widget>[
-                              Column(
+                              Row(
                                 children: [
-                                  if (s.hasData && callRepo.sharing.value)
-                                    Container(
-                                      margin: const EdgeInsets.all(0),
-                                      width: MediaQuery.of(context).size.width,
-                                      height:
-                                          MediaQuery.of(context).size.height,
-                                      child: RTCVideoView(
-                                        widget.localRenderer,
-                                      ),
-                                    )
-                                  else
-                                    Container(
-                                      margin: const EdgeInsets.fromLTRB(
-                                        0.0,
-                                        0.0,
-                                        0.0,
-                                        0.0,
-                                      ),
-                                      width: MediaQuery.of(context).size.width,
-                                      height:
-                                          MediaQuery.of(context).size.height,
-                                      child: RTCVideoView(
-                                        widget.localRenderer,
-                                        mirror: true,
-                                      ),
-                                    ),
-                                  if (s.hasData &&
-                                      callRepo.incomingSharing.value)
-                                    Container(
-                                      margin: const EdgeInsets.all(0),
-                                      width: MediaQuery.of(context).size.width,
-                                      height:
-                                          MediaQuery.of(context).size.height,
-                                      child: RTCVideoView(
-                                        widget.remoteRenderer,
-                                        filterQuality: FilterQuality.none,
-                                      ),
-                                    )
-                                  else
-                                    Container(
-                                      margin: const EdgeInsets.fromLTRB(
-                                        0.0,
-                                        0.0,
-                                        0.0,
-                                        0.0,
-                                      ),
-                                      width: MediaQuery.of(context).size.width,
-                                      height:
-                                          MediaQuery.of(context).size.height,
-                                      child: RTCVideoView(
-                                        widget.remoteRenderer,
-                                        filterQuality: FilterQuality.none,
-                                        mirror: true,
-                                      ),
-                                    ),
+                                  Column(
+                                    children: [
+                                      if (s.hasData && callRepo.sharing.value)
+                                        Container(
+                                          margin: const EdgeInsets.all(0),
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          height: MediaQuery.of(context)
+                                              .size
+                                              .height,
+                                          child: RTCVideoView(
+                                            widget.localRenderer,
+                                          ),
+                                        )
+                                      else if (s.hasData &&
+                                          callRepo.videoing.value)
+                                        Container(
+                                          margin: const EdgeInsets.fromLTRB(
+                                            0.0,
+                                            0.0,
+                                            0.0,
+                                            0.0,
+                                          ),
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          height: MediaQuery.of(context)
+                                              .size
+                                              .height,
+                                          child: RTCVideoView(
+                                            widget.localRenderer,
+                                            mirror: true,
+                                          ),
+                                        ),
+                                      if (s.hasData &&
+                                          callRepo.incomingSharing.value)
+                                        Container(
+                                          margin: const EdgeInsets.all(0),
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          height: MediaQuery.of(context)
+                                              .size
+                                              .height,
+                                          child: RTCVideoView(
+                                            widget.remoteRenderer,
+                                            filterQuality: FilterQuality.none,
+                                          ),
+                                        )
+                                      else if (s.hasData &&
+                                          callRepo.incomingVideo.value)
+                                        Container(
+                                          margin: const EdgeInsets.fromLTRB(
+                                            0.0,
+                                            0.0,
+                                            0.0,
+                                            0.0,
+                                          ),
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          height: MediaQuery.of(context)
+                                              .size
+                                              .height,
+                                          child: RTCVideoView(
+                                            widget.remoteRenderer,
+                                            filterQuality: FilterQuality.none,
+                                            mirror: true,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
                                 ],
                               ),
                             ],
@@ -230,8 +240,26 @@ class InVideoCallPageState extends State<InVideoCallPage> {
                       ],
                     );
             } else {
-              return CenterAvatarInCall(
-                roomUid: widget.roomUid,
+              return OrientationBuilder(
+                builder: (context, orientation) {
+                  return Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: MediaQuery.of(context).size.height,
+                    decoration: const BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.bottomLeft,
+                        end: Alignment.topRight,
+                        colors: [
+                          Color.fromARGB(255, 75, 105, 100),
+                          Color.fromARGB(255, 49, 89, 107),
+                        ],
+                      ),
+                    ),
+                    child: CenterAvatarInCall(
+                      roomUid: widget.roomUid,
+                    ),
+                  );
+                },
               );
             }
           },

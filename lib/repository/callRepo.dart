@@ -532,18 +532,20 @@ class CallRepo {
           // we need Decision making by state
           switch (status) {
             case STATUS_CAMERA_OPEN:
-              mute_camera.add(true);
+              incomingVideo.add(true);
               break;
             case STATUS_CAMERA_CLOSE:
-              mute_camera.add(false);
+              incomingVideo.add(false);
               break;
             case STATUS_MIC_OPEN:
               break;
             case STATUS_MIC_CLOSE:
               break;
             case STATUS_SHARE_SCREEN:
+              incomingSharing.add(true);
               break;
             case STATUS_SHARE_VIDEO:
+              incomingSharing.add(false);
               break;
             case STATUS_CONNECTION_FAILED:
               break;
@@ -582,9 +584,9 @@ class CallRepo {
               break;
           }
         };
+        _isDCReceived = true;
       };
 
-    _isDCReceived = true;
     return pc;
   }
 
@@ -600,7 +602,8 @@ class CallRepo {
     if (_startCallTime == 0) {
       _startCallTime = clock.now().millisecondsSinceEpoch;
     }
-    if (_isDCReceived && _dataChannel?.state == RTCDataChannelState.RTCDataChannelConnecting) {
+    if (_isDCReceived &&
+        _dataChannel?.state == RTCDataChannelState.RTCDataChannelConnecting) {
       await _dataChannel!
           .send(RTCDataChannelMessage(STATUS_CONNECTION_CONNECTED));
     }
@@ -626,10 +629,10 @@ class CallRepo {
       // we need Decision making by state
       switch (status) {
         case STATUS_CAMERA_OPEN:
-          mute_camera.add(true);
+          incomingVideo.add(true);
           break;
         case STATUS_CAMERA_CLOSE:
-          mute_camera.add(false);
+          incomingVideo.add(false);
           break;
         case STATUS_MIC_OPEN:
           break;
@@ -740,7 +743,10 @@ class CallRepo {
     return stream;
   }
 
-  Future<MediaStream> _getUserDisplay(bool isWindows, DesktopCapturerSource? source) async {
+  Future<MediaStream> _getUserDisplay(
+    bool isWindows,
+    DesktopCapturerSource? source,
+  ) async {
     if (isWindows) {
       var stream =
           await navigator.mediaDevices.getDisplayMedia(<String, dynamic>{
@@ -767,22 +773,34 @@ class CallRepo {
 
   //https://github.com/flutter-webrtc/flutter-webrtc/issues/831 issue for Android
   //https://github.com/flutter-webrtc/flutter-webrtc/issues/799 issue for Windows
-  Future<void> shareScreen(bool isWindows, DesktopCapturerSource? source) async {
+  Future<void> shareScreen({
+    bool isWindows = false,
+    DesktopCapturerSource? source,
+  }) async {
     if (!_isSharing) {
+      //before sharing if camera on make it off
+      if (videoing.value) {
+        muteCamera();
+      }
+
       _localStreamShare = await _getUserDisplay(isWindows, source);
       final screenVideoTrack = _localStreamShare!.getVideoTracks()[0];
       await _videoSender!.replaceTrack(screenVideoTrack);
       onLocalStream?.call(_localStreamShare!);
       _isSharing = true;
       sharing.add(true);
-      return _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_SCREEN));
+      if (_isDCReceived) {
+        return _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_SCREEN));
+      }
     } else {
       final camVideoTrack = _localStream!.getVideoTracks()[0];
       await _videoSender!.replaceTrack(camVideoTrack);
       onLocalStream?.call(_localStream!);
       _isSharing = false;
       sharing.add(false);
-      return _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_VIDEO));
+      if (_isDCReceived) {
+        return _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_VIDEO));
+      }
     }
   }
 
@@ -901,17 +919,22 @@ class CallRepo {
   * */
   bool muteCamera() {
     if (_localStream != null) {
-      final enabled = _localStream!.getVideoTracks()[0].enabled;
-      if (_isConnected) {
-        if (enabled) {
-          _dataChannel!.send(RTCDataChannelMessage(STATUS_CAMERA_CLOSE));
-        } else {
-          _dataChannel!.send(RTCDataChannelMessage(STATUS_CAMERA_OPEN));
+      if (sharing.value) {
+        shareScreen();
+      } else {
+        final enabled = _localStream!.getVideoTracks()[0].enabled;
+        videoing.add(!enabled);
+        if (_isConnected) {
+          if (enabled) {
+            _dataChannel!.send(RTCDataChannelMessage(STATUS_CAMERA_CLOSE));
+          } else {
+            _dataChannel!.send(RTCDataChannelMessage(STATUS_CAMERA_OPEN));
+          }
         }
+        _localStream!.getVideoTracks()[0].enabled = !enabled;
+        mute_camera.add(enabled);
+        return enabled;
       }
-      _localStream!.getVideoTracks()[0].enabled = !enabled;
-      mute_camera.add(enabled);
-      return enabled;
     }
     return false;
   }
@@ -1368,17 +1391,11 @@ class CallRepo {
       }
       _candidate = [];
       callingStatus.add(CallStatus.ENDED);
-      // Timer(const Duration(milliseconds: 1500), () async {
-      //   _roomUid = null;
-      //   callingStatus.add(CallStatus.NO_CALL);
-      //   _isEnded = false;
-      //   _isEndedRecivied = false;
-      // });
       _audioService.stopBeepSound();
-      // Timer(const Duration(seconds: 2), () async {
-      //  callingStatus.add(CallStatus.NO_CALL);
-      // });
-      switching.add(false);
+    } catch (e) {
+      _logger.e(e);
+    } finally {
+      //reset variable valeus
       _offerSdp = "";
       _answerSdp = "";
       _isSharing = false;
@@ -1388,17 +1405,19 @@ class CallRepo {
       _isVideo = false;
       _reconnectTry = false;
       _isOfferReady = false;
+      _isDCReceived = false;
       _callDuration = 0;
       _startCallTime = 0;
       _callDuration = 0;
-      // Timer(const Duration(seconds: 2), () async {
-      //   if (_isInitRenderer) {
-      //     await disposeRenderer();
-      //   }
-      // });
-    } catch (e) {
-      _logger.e(e);
-    } finally {
+
+      //reset BehaviorSubject values
+      mute_camera.add(true);
+      switching.add(false);
+      sharing.add(false);
+      incomingSharing.add(false);
+      videoing.add(false);
+      incomingVideo.add(false);
+
       await _callService.clearCallData(forceToClearData: true);
       Timer(const Duration(milliseconds: 1500), () async {
         _roomUid = null;
@@ -1413,10 +1432,10 @@ class CallRepo {
 
   Future<void> initRenderer() async {
     if (!_isInitRenderer) {
+      _isInitRenderer = true;
       await _localRenderer.initialize();
       await _remoteRenderer.initialize();
       _logger.i("Initialize Renderers");
-      _isInitRenderer = true;
     }
   }
 
@@ -1485,6 +1504,8 @@ class CallRepo {
   BehaviorSubject<bool> switching = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> sharing = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> incomingSharing = BehaviorSubject.seeded(false);
+  BehaviorSubject<bool> videoing = BehaviorSubject.seeded(false);
+  BehaviorSubject<bool> incomingVideo = BehaviorSubject.seeded(false);
 
   Future<void> fetchUserCallList(
     Uid roomUid,

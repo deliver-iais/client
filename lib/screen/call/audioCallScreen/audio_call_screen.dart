@@ -89,9 +89,14 @@ class AudioCallScreenState extends State<AudioCallScreen>
                     builder: (context, snapshot) {
                       if (snapshot.hasData && snapshot.data != null) {
                         return Padding(
-                          padding: const EdgeInsets.only(top: 50),
-                          child: callTimerWidget(theme, snapshot.data!,
-                              isEnd: false),
+                          padding: EdgeInsets.only(
+                            top: MediaQuery.of(context).size.height * 0.15,
+                          ),
+                          child: callTimerWidget(
+                            theme,
+                            snapshot.data!,
+                            isEnd: false,
+                          ),
                         );
                       } else {
                         return const SizedBox.shrink();
@@ -100,7 +105,9 @@ class AudioCallScreenState extends State<AudioCallScreen>
                   )
                 else
                   Padding(
-                    padding: const EdgeInsets.only(top: 50),
+                    padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).size.height * 0.15,
+                    ),
                     child: Directionality(
                       textDirection: _i18n.isPersian
                           ? TextDirection.rtl
@@ -146,18 +153,7 @@ class AudioCallScreenState extends State<AudioCallScreen>
                 ),
               ],
             ),
-            if (widget.callStatus == "Ended")
-              Padding(
-                padding: const EdgeInsets.only(bottom: 25, right: 25, left: 25),
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Lottie.asset(
-                    'assets/animations/end_of_call.json',
-                    width: 150,
-                  ),
-                ),
-              )
-            else
+            if (widget.callStatus != "Ended")
               CallBottomRow(
                 hangUp: widget.hangUp,
                 isIncomingCall: widget.isIncomingCall,
