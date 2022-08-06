@@ -1402,7 +1402,6 @@ class CallRepo {
       _isMicMuted = false;
       _isSpeaker = false;
       _isCaller = false;
-      _isVideo = false;
       _reconnectTry = false;
       _isOfferReady = false;
       _isDCReceived = false;
@@ -1425,6 +1424,7 @@ class CallRepo {
         _isEnded = false;
         _isEndedRecivied = false;
         _isConnected = false;
+        _isVideo = false;
         callTimer.add(CallTimer(0, 0, 0));
       });
     }
