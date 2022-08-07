@@ -66,9 +66,14 @@ dependencies:
   file_picker: 4.6.1
   file_selector: 0.8.4+3
   file_selector_linux: 0.0.2+1
-  firebase_analytics: 9.1.10
+  firebase_analytics: 9.3.0
   firebase_core: 1.18.0
-  firebase_messaging: 11.4.2
+  firebase_messaging: 12.0.1
+#  firebase_core_platform_interface:
+#    git:
+#      ref: 328b40aadd7d7a5f3a2ee18e1bb6685bd9fb3552
+#      url: https://github.com/firebase/flutterfire
+#      path: packages/firebase_core/firebase_core_platform_interface
   fixnum: 1.0.1
   flare_flutter: 3.0.2
   flutter:
