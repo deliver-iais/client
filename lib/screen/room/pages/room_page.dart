@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:badges/badges.dart';
+import 'package:collection/collection.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
@@ -495,7 +496,12 @@ class RoomPageState extends State<RoomPage> {
   }
 
   void initPendingMessages() {
-    _messageRepo.watchPendingMessages(widget.roomId).listen((event) {
+    _messageRepo
+        .watchPendingMessages(widget.roomId)
+        .map(
+          (event) => event.where((element) => element.msg.id == null).toList(),
+        )
+        .listen((event) {
       if (event.isNotEmpty) {
         _defaultMessageHeight = 50;
       }
@@ -1285,7 +1291,10 @@ class RoomPageState extends State<RoomPage> {
   Future<Message?> _messageAtIndex(int index, {useCache = true}) async {
     return _isPendingMessage(index)
         ? pendingMessages[_itemCount + room.firstMessageId - index - 1].msg
-        : await _getMessage(index + 1, useCache: useCache);
+        : (await _messageRepo.getPendingMessages(widget.roomId))
+                    .lastWhereOrNull(
+                  (element) => element.msg.id == index + 1,
+                )?.msg ?? await _getMessage(index + 1, useCache: useCache);
   }
 
   bool _isPendingMessage(int index) {
