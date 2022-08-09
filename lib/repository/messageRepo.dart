@@ -736,9 +736,38 @@ class MessageRepo {
   }
 
   void _sendMessageToServer(PendingMessage pm) {
-    final byClient = _createMessageByClient(pm.msg);
+    if (pm.msg.id != null) {
+      final updatedMessage = message_pb.MessageByClient()
+        ..to = pm.msg.to.asUid()
+        ..replyToId = Int64(pm.msg.replyToId)
+        ..text = pm.msg.json.toText();
+      updateMessageAtServer(updatedMessage, pm);
+    } else {
+      final byClient = _createMessageByClient(pm.msg);
 
-    _coreServices.sendMessage(byClient);
+      _coreServices.sendMessage(byClient);
+    }
+  }
+
+  Future<void> updateMessageAtServer(
+    message_pb.MessageByClient updatedMessage,
+    PendingMessage pm,
+  ) async {
+    try {
+      await _sdr.queryServiceClient.updateMessage(
+        UpdateMessageReq()
+          ..message = updatedMessage
+          ..messageId = Int64(pm.msg.id ?? 0),
+      );
+      deletePendingMessage(pm.packetId);
+    } catch (e) {
+      _logger.e(e);
+      await _savePendingMessage(
+        pm.copyWith(
+          failed: true,
+        ),
+      );
+    }
   }
 
   message_pb.MessageByClient _createMessageByClient(Message message) {
@@ -799,7 +828,8 @@ class MessageRepo {
   Future<void> sendPendingMessages() async {
     final pendingMessages = await _messageDao.getAllPendingMessages();
     for (final pendingMessage in pendingMessages) {
-      if (!pendingMessage.failed || pendingMessage.msg.type == MessageType.CALL) {
+      if (!pendingMessage.failed ||
+          pendingMessage.msg.type == MessageType.CALL) {
         switch (pendingMessage.status) {
           case SendingStatus.UPLOAD_FILE_INPROGRSS:
             break;
@@ -1070,6 +1100,7 @@ class MessageRepo {
   }
 
   void deletePendingMessage(String packetId) {
+    _logger.i("deletePendingMessage");
     _messageDao.deletePendingMessage(packetId);
   }
 
@@ -1176,6 +1207,14 @@ class MessageRepo {
       if (text == editableMessage.json.toText().text) {
         return;
       }
+      final pm = _createPendingMessage(
+        editableMessage
+          ..json = (message_pb.Text()..text = text).writeToJson()
+          ..edited = true,
+        SendingStatus.PENDING,
+      );
+      await _savePendingMessage(pm);
+
       final updatedMessage = message_pb.MessageByClient()
         ..to = editableMessage.to.asUid()
         ..replyToId = Int64(editableMessage.replyToId)
@@ -1188,6 +1227,7 @@ class MessageRepo {
       editableMessage
         ..json = (message_pb.Text()..text = text).writeToJson()
         ..edited = true;
+      deletePendingMessage(editableMessage.packetId);
       await _messageDao.saveMessage(editableMessage);
       messageEventSubject.add(
         MessageEvent(
