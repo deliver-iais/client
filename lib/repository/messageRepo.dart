@@ -1100,7 +1100,6 @@ class MessageRepo {
   }
 
   void deletePendingMessage(String packetId) {
-    _logger.i("deletePendingMessage");
     _messageDao.deletePendingMessage(packetId);
   }
 
