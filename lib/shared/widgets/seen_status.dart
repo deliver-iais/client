@@ -53,11 +53,11 @@ class SeenStatus extends StatelessWidget {
       ),
     );
 
-    if (messageId == null) {
-      return FutureBuilder<PendingMessage?>(
-        future: messageRepo.getPendingMessage(messagePacketId),
-        builder: ((c, pm) {
-          if (pm.hasData && pm.data != null && pm.data!.failed) {
+    return FutureBuilder<PendingMessage?>(
+      future: messageRepo.getPendingMessage(messagePacketId),
+      builder: ((c, pm) {
+        if (pm.hasData && pm.data != null) {
+          if (pm.data!.failed) {
             return Icon(
               Icons.warning,
               color: theme.colorScheme.error,
@@ -66,35 +66,38 @@ class SeenStatus extends StatelessWidget {
           } else {
             return pendingMessage;
           }
-        }),
-      );
-    } else if (isSeen != null && isSeen!) {
-      return Icon(
-        Icons.done_all,
-        color: color,
-        size: size,
-      );
-    } else {
-      return StreamBuilder<Seen?>(
-        stream: seenDao.watchOthersSeen(roomUid),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
+        } else if (messageId != null) {
+          if (isSeen != null && isSeen!) {
             return Icon(
-              snapshot.data!.messageId >= messageId!
-                  ? Icons.done_all
-                  : Icons.done,
+              Icons.done_all,
               color: color,
               size: size,
             );
           } else {
-            return Icon(
-              Icons.done,
-              color: color,
-              size: size,
+            return StreamBuilder<Seen?>(
+              stream: seenDao.watchOthersSeen(roomUid),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return Icon(
+                    snapshot.data!.messageId >= messageId!
+                        ? Icons.done_all
+                        : Icons.done,
+                    color: color,
+                    size: size,
+                  );
+                } else {
+                  return Icon(
+                    Icons.done,
+                    color: color,
+                    size: size,
+                  );
+                }
+              },
             );
           }
-        },
-      );
-    }
+        }
+        return const SizedBox.shrink();
+      }),
+    );
   }
 }
