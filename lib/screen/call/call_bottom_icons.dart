@@ -3,12 +3,11 @@ import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/shareScreen/screen_select_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
-import 'package:lottie/lottie.dart';
 
 import '../../shared/methods/platform.dart';
-
 class CallBottomRow extends StatefulWidget {
   final void Function() hangUp;
   final bool isIncomingCall;
@@ -23,7 +22,8 @@ class CallBottomRow extends StatefulWidget {
   CallBottomRowState createState() => CallBottomRowState();
 }
 
-class CallBottomRowState extends State<CallBottomRow> {
+class CallBottomRowState extends State<CallBottomRow>
+    with SingleTickerProviderStateMixin {
   final _i18n = GetIt.I.get<I18N>();
   final boxSize = isAndroid ? 50.0 : 60.0;
   final iconSize = isAndroid ? 35.0 : 40.0;
@@ -40,6 +40,28 @@ class CallBottomRowState extends State<CallBottomRow> {
   IconData? _muteMicIcon;
 
   final callRepo = GetIt.I.get<CallRepo>();
+
+  late AnimationController animationController;
+  late Animation<double> animation;
+
+  @override
+  void initState() {
+    super.initState();
+    animationController = AnimationController(
+      vsync: this,
+      duration: Duration(milliseconds: 1000),
+    );
+    animation = CurvedAnimation(
+      parent: animationController,
+      curve: Curves.easeIn,
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,23 +93,28 @@ class CallBottomRowState extends State<CallBottomRow> {
     final width = MediaQuery.of(context).size.width;
 
     if (widget.isIncomingCall) {
+      SystemChrome.setEnabledSystemUIMode(SystemUiMode.leanBack);
       return Padding(
         padding: const EdgeInsets.only(bottom: 25, right: 25, left: 25),
         child: Align(
           alignment: Alignment.bottomCenter,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Container(
+                padding: const EdgeInsets.all(10),
                 width: 100,
                 height: 100,
                 color: Colors.transparent,
                 child: FloatingActionButton(
                   heroTag: 11,
-                  backgroundColor: Colors.transparent,
+                  backgroundColor: Colors.white,
                   elevation: 0,
-                  child: Lottie.asset(
-                    'assets/animations/accept_call.json',
+                  shape: const CircleBorder(),
+                  child: const Icon(
+                    CupertinoIcons.phone_fill,
+                    size: 50,
+                    color: Colors.green,
                   ),
                   onPressed: () => _acceptCall(),
                 ),
@@ -97,14 +124,14 @@ class CallBottomRowState extends State<CallBottomRow> {
                 height: 100,
                 width: 100,
                 child: FloatingActionButton(
-                  backgroundColor: Colors.red,
+                  backgroundColor: Colors.white,
                   heroTag: 66,
                   elevation: 0,
                   shape: const CircleBorder(),
                   child: const Icon(
                     CupertinoIcons.phone_down_fill,
                     size: 50,
-                    color: Colors.white,
+                    color: Colors.red,
                   ),
                   onPressed: () => _declineCall(),
                 ),
@@ -456,8 +483,8 @@ class CallBottomRowState extends State<CallBottomRow> {
                       ),
                       Container(
                         padding: const EdgeInsets.all(10),
-                        height: isAndroid ? 80 : 100,
-                        width: isAndroid ? 80 : 100,
+                        height: isAndroid ? 85 : 100,
+                        width: isAndroid ? 85 : 100,
                         child: FloatingActionButton(
                           backgroundColor: Colors.red,
                           heroTag: "2",
@@ -465,7 +492,7 @@ class CallBottomRowState extends State<CallBottomRow> {
                           shape: const CircleBorder(),
                           child: Icon(
                             CupertinoIcons.phone_down_fill,
-                            size: isAndroid ? 40 : 50,
+                            size: isAndroid ? 37 : 50,
                             color: Colors.white,
                           ),
                           onPressed: () => widget.hangUp(),

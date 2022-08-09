@@ -57,109 +57,88 @@ class AudioCallScreenState extends State<AudioCallScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        systemNavigationBarColor: Colors.black,
-        systemNavigationBarIconBrightness: Brightness.light,
-      ),
-      child: Scaffold(
-        extendBodyBehindAppBar: true,
-        body: Stack(
-          children: [
-            if (!callRepo.isConnected)
-              const AnimatedGradient()
-            else
-              Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomLeft,
-                    end: Alignment.topRight,
-                    colors: [
-                      Color.fromARGB(255, 75, 105, 100),
-                      Color.fromARGB(255, 49, 89, 107),
-                    ],
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      body: Stack(
+        children: [
+          AnimatedGradient(isConnected: callRepo.isConnected),
+          Column(
+            children: [
+              if (widget.callStatus == "Connected")
+                StreamBuilder<CallTimer>(
+                  stream: callRepo.callTimer,
+                  builder: (context, snapshot) {
+                    if (snapshot.hasData && snapshot.data != null) {
+                      return Padding(
+                        padding: EdgeInsets.only(
+                          top: MediaQuery.of(context).size.height * 0.15,
+                        ),
+                        child: callTimerWidget(
+                          theme,
+                          snapshot.data!,
+                          isEnd: false,
+                        ),
+                      );
+                    } else {
+                      return const SizedBox.shrink();
+                    }
+                  },
+                )
+              else
+                Padding(
+                  padding: EdgeInsets.only(
+                    top: MediaQuery.of(context).size.height * 0.15,
                   ),
-                ),
-              ),
-            Column(
-              children: [
-                if (widget.callStatus == "Connected")
-                  StreamBuilder<CallTimer>(
-                    stream: callRepo.callTimer,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData && snapshot.data != null) {
-                        return Padding(
-                          padding: EdgeInsets.only(
-                            top: MediaQuery.of(context).size.height * 0.15,
-                          ),
-                          child: callTimerWidget(
-                            theme,
-                            snapshot.data!,
-                            isEnd: false,
-                          ),
-                        );
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    },
-                  )
-                else
-                  Padding(
-                    padding: EdgeInsets.only(
-                      top: MediaQuery.of(context).size.height * 0.15,
-                    ),
-                    child: Directionality(
-                      textDirection: _i18n.isPersian
-                          ? TextDirection.rtl
-                          : TextDirection.ltr,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (widget.callStatus != "Ended")
-                            Text(
-                              widget.callStatusOnScreen,
-                              style: theme.textTheme.titleLarge!
-                                  .copyWith(color: Colors.white70),
-                            )
-                          else
-                            FadeTransition(
-                              opacity: _repeatEndCallAnimationController,
-                              child: (callRepo.isConnected)
-                                  ? Directionality(
-                                      textDirection: TextDirection.ltr,
-                                      child: callTimerWidget(
-                                        theme,
-                                        callRepo.callTimer.value,
-                                        isEnd: true,
-                                      ),
-                                    )
-                                  : Text(
-                                      widget.callStatusOnScreen,
-                                      style: theme.textTheme.titleLarge!
-                                          .copyWith(color: Colors.red),
+                  child: Directionality(
+                    textDirection:
+                        _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (widget.callStatus != "Ended")
+                          Text(
+                            widget.callStatusOnScreen,
+                            style: theme.textTheme.titleLarge!
+                                .copyWith(color: Colors.white70),
+                          )
+                        else
+                          FadeTransition(
+                            opacity: _repeatEndCallAnimationController,
+                            child: (callRepo.isConnected)
+                                ? Directionality(
+                                    textDirection: TextDirection.ltr,
+                                    child: callTimerWidget(
+                                      theme,
+                                      callRepo.callTimer.value,
+                                      isEnd: true,
                                     ),
-                            ),
-                          if (widget.callStatus == "Connecting" ||
-                              widget.callStatus == "Reconnecting" ||
-                              widget.callStatus == "Ringing" ||
-                              widget.callStatus == "Calling")
-                            const DotAnimation()
-                        ],
-                      ),
+                                  )
+                                : Text(
+                                    widget.callStatusOnScreen,
+                                    style: theme.textTheme.titleLarge!
+                                        .copyWith(color: Colors.red),
+                                  ),
+                          ),
+                        if (widget.callStatus == "Connecting" ||
+                            widget.callStatus == "Reconnecting" ||
+                            widget.callStatus == "Ringing" ||
+                            widget.callStatus == "Calling")
+                          const DotAnimation()
+                      ],
                     ),
                   ),
-                CenterAvatarInCall(
-                  roomUid: widget.roomUid,
                 ),
-              ],
-            ),
-            if (widget.callStatus != "Ended")
-              CallBottomRow(
-                hangUp: widget.hangUp,
-                isIncomingCall: widget.isIncomingCall,
+              CenterAvatarInCall(
+                roomUid: widget.roomUid,
               ),
-          ],
-        ),
+            ],
+          ),
+          if (widget.callStatus != "Ended")
+            CallBottomRow(
+              hangUp: widget.hangUp,
+              isIncomingCall: widget.isIncomingCall,
+            ),
+        ],
       ),
     );
   }

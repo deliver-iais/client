@@ -4,9 +4,11 @@ import 'package:flutter/material.dart';
 
 class AnimatedGradient extends StatefulWidget {
   final bool isAlignmentGradiant;
+  final bool isConnected;
 
   const AnimatedGradient({
     super.key,
+    required this.isConnected,
     this.isAlignmentGradiant = false,
   });
 
@@ -17,75 +19,71 @@ class AnimatedGradient extends StatefulWidget {
 class AnimatedGradientState extends State<AnimatedGradient> {
   List<Color> colorList = [
     Colors.teal,
-    Colors.greenAccent,
     Colors.cyan,
-    Colors.green,
     Colors.cyanAccent,
+    Colors.lightBlue,
   ];
-  List<Alignment> alignmentList = [
-    Alignment.bottomLeft,
-    Alignment.bottomRight,
-    Alignment.topLeft,
-    Alignment.topRight,
+
+  List<Color> colorListConnected = [
+    const Color.fromARGB(255, 75, 105, 100),
+    const Color.fromARGB(255, 45, 83, 110),
+    const Color.fromARGB(255, 49, 89, 107),
   ];
 
   int index = 0;
-  Color bottomColor = Colors.cyan;
+  int indexConnected = 0;
+  Color bottomColor = Colors.teal;
+  Color midColor = Colors.cyan;
   Color topColor = Colors.greenAccent;
-  Alignment begin = Alignment.bottomLeft;
-  Alignment end = Alignment.topRight;
   Timer? gradiantTimer;
 
   @override
-  void dispose(){
+  void dispose() {
     super.dispose();
     gradiantTimer!.cancel();
   }
-
 
   @override
   Widget build(BuildContext context) {
     gradiantTimer = Timer(const Duration(milliseconds: 10), () {
       setState(() {
-        bottomColor = Colors.teal;
+        bottomColor = const Color.fromARGB(255, 49, 89, 107);
       });
     });
     return Scaffold(
-        body: Stack(
-      children: [
-        AnimatedContainer(
-          duration: const Duration(seconds: 2),
-          onEnd: () {
-            setState(() {
-              index = index + 1;
-              // animate the color
-              bottomColor = colorList[index % colorList.length];
-              topColor = colorList[(index + 1) % colorList.length];
-
-              //// animate the alignment
-              // begin = alignmentList[index % alignmentList.length];
-              // end = alignmentList[(index + 2) % alignmentList.length];
-            });
-          },
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: begin,
-              end: end,
-              colors: [bottomColor, topColor],
+      body: Stack(
+        children: [
+          AnimatedContainer(
+            duration: const Duration(seconds: 2),
+            onEnd: () {
+              if (widget.isConnected) {
+                setState(() {
+                  indexConnected = indexConnected + 1;
+                  // animate the color
+                  bottomColor = colorListConnected[indexConnected % colorListConnected.length];
+                  midColor = colorListConnected[(indexConnected + 1) % colorListConnected.length];
+                  topColor = colorListConnected[(indexConnected + 2) % colorListConnected.length];
+                });
+              } else {
+                setState(() {
+                  index = index + 1;
+                  // animate the color
+                  bottomColor = colorList[index % colorList.length];
+                  midColor = colorList[(index + 1) % colorList.length];
+                  topColor = colorList[(index + 2) % colorList.length];
+                });
+              }
+            },
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.bottomLeft,
+                end: Alignment.topRight,
+                colors: [bottomColor, midColor, topColor],
+              ),
             ),
           ),
-        ),
-        // Positioned.fill(
-        //   child: IconButton(
-        //     icon: Icon(Icons.play_arrow),
-        //     onPressed: () {
-        //       setState(() {
-        //         bottomColor = Colors.blue;
-        //       });
-        //     },
-        //   ),
-        // )
-      ],
-    ));
+        ],
+      ),
+    );
   }
 }

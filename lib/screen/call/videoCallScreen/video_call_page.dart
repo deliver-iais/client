@@ -84,301 +84,272 @@ class VideoCallScreenState extends State<VideoCallScreen>
     final x = MediaQuery.of(context).size.width;
     final y = MediaQuery.of(context).size.height;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
-        systemNavigationBarColor: Colors.black,
-        systemNavigationBarIconBrightness: Brightness.light,
-      ),
-      child: Scaffold(
-        body: Stack(
-          alignment: Alignment.center,
-          children: [
-            if (!_callRepo.isConnected)
-              const AnimatedGradient()
-            else
-              Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomLeft,
-                    end: Alignment.topRight,
-                    colors: [
-                      Color.fromARGB(255, 75, 105, 100),
-                      Color.fromARGB(255, 49, 89, 107),
-                    ],
-                  ),
-                ),
-              ),
-            // CenterAvatarInCall(
-            //   roomUid: widget.roomUid,
-            // ),
-            StreamBuilder<bool>(
-              stream: MergeStream([
-                _callRepo.incomingSharing,
-                _callRepo.sharing,
-                _callRepo.videoing,
-                _callRepo.incomingVideo,
-              ]),
-              builder: (c, s) {
-                return isWindows
-                    ? OrientationBuilder(
-                        builder: (context, orientation) {
-                          return Padding(
-                            padding: EdgeInsets.only(
-                              top: MediaQuery.of(context).size.height * 0.15,
-                              left: 8.0,
-                              right: 8.0,
-                            ),
-                            child: SizedBox(
-                              width: MediaQuery.of(context).size.width,
-                              height:
-                                  MediaQuery.of(context).size.height * 2 / 3,
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                children: <Widget>[
-                                  if (_callRepo.incomingSharing.value)
-                                    Expanded(
-                                      child: Container(
-                                        margin: const EdgeInsets.all(
-                                          0.0,
-                                        ),
-                                        clipBehavior:
-                                            Clip.antiAliasWithSaveLayer,
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .surface,
-                                          borderRadius: mainBorder,
-                                          boxShadow: DEFAULT_BOX_SHADOWS,
-                                        ),
-                                        child: RTCVideoView(
-                                          objectFit: RTCVideoViewObjectFit
-                                              .RTCVideoViewObjectFitCover,
-                                          widget.remoteRenderer,
-                                          filterQuality: FilterQuality.high,
-                                        ),
+    return Scaffold(
+      body: Stack(
+        alignment: Alignment.center,
+        children: [
+          AnimatedGradient(isConnected: _callRepo.isConnected),
+          StreamBuilder<bool>(
+            stream: MergeStream([
+              _callRepo.incomingSharing,
+              _callRepo.sharing,
+              _callRepo.videoing,
+              _callRepo.incomingVideo,
+            ]),
+            builder: (c, s) {
+              return isWindows
+                  ? OrientationBuilder(
+                      builder: (context, orientation) {
+                        return Padding(
+                          padding: EdgeInsets.only(
+                            top: MediaQuery.of(context).size.height * 0.15,
+                            left: 8.0,
+                            right: 8.0,
+                          ),
+                          child: SizedBox(
+                            width: MediaQuery.of(context).size.width,
+                            height: MediaQuery.of(context).size.height * 2 / 3,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: <Widget>[
+                                if (_callRepo.incomingSharing.value)
+                                  Expanded(
+                                    child: Container(
+                                      margin: const EdgeInsets.all(
+                                        0.0,
                                       ),
-                                    )
-                                  else if (_callRepo.incomingVideo.value)
-                                    Expanded(
-                                      child: Container(
-                                        margin: const EdgeInsets.all(
-                                          0.0,
-                                        ),
-                                        clipBehavior:
-                                            Clip.antiAliasWithSaveLayer,
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .surface,
-                                          borderRadius: mainBorder,
-                                          boxShadow: DEFAULT_BOX_SHADOWS,
-                                        ),
-                                        child: RTCVideoView(
-                                          objectFit: RTCVideoViewObjectFit
-                                              .RTCVideoViewObjectFitCover,
-                                          widget.remoteRenderer,
-                                          mirror: true,
-                                          filterQuality: FilterQuality.high,
-                                        ),
+                                      clipBehavior: Clip.antiAliasWithSaveLayer,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .surface,
+                                        borderRadius: mainBorder,
+                                        boxShadow: DEFAULT_BOX_SHADOWS,
                                       ),
-                                    )
-                                  else
-                                    Expanded(
-                                      child: CenterAvatarInCall(
-                                        roomUid: widget.roomUid,
+                                      child: RTCVideoView(
+                                        objectFit: RTCVideoViewObjectFit
+                                            .RTCVideoViewObjectFitCover,
+                                        widget.remoteRenderer,
+                                        filterQuality: FilterQuality.high,
                                       ),
                                     ),
-                                  const Padding(
-                                    padding: EdgeInsets.only(
-                                      left: 8.0,
-                                      right: 8.0,
+                                  )
+                                else if (_callRepo.incomingVideo.value)
+                                  Expanded(
+                                    child: Container(
+                                      margin: const EdgeInsets.all(
+                                        0.0,
+                                      ),
+                                      clipBehavior: Clip.antiAliasWithSaveLayer,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .surface,
+                                        borderRadius: mainBorder,
+                                        boxShadow: DEFAULT_BOX_SHADOWS,
+                                      ),
+                                      child: RTCVideoView(
+                                        objectFit: RTCVideoViewObjectFit
+                                            .RTCVideoViewObjectFitCover,
+                                        widget.remoteRenderer,
+                                        mirror: true,
+                                        filterQuality: FilterQuality.high,
+                                      ),
                                     ),
-                                    child: VerticalDivider(),
+                                  )
+                                else
+                                  Expanded(
+                                    child: CenterAvatarInCall(
+                                      roomUid: widget.roomUid,
+                                    ),
                                   ),
-                                  if (_callRepo.sharing.value)
-                                    Expanded(
-                                      child: Container(
-                                        margin: const EdgeInsets.all(
-                                          0.0,
-                                        ),
-                                        clipBehavior:
-                                            Clip.antiAliasWithSaveLayer,
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .surface,
-                                          borderRadius: mainBorder,
-                                          boxShadow: DEFAULT_BOX_SHADOWS,
-                                        ),
-                                        child: RTCVideoView(
-                                          objectFit: RTCVideoViewObjectFit
-                                              .RTCVideoViewObjectFitCover,
-                                          widget.localRenderer,
-                                          filterQuality: FilterQuality.high,
-                                        ),
+                                const Padding(
+                                  padding: EdgeInsets.only(
+                                    left: 8.0,
+                                    right: 8.0,
+                                  ),
+                                  child: VerticalDivider(),
+                                ),
+                                if (_callRepo.sharing.value)
+                                  Expanded(
+                                    child: Container(
+                                      margin: const EdgeInsets.all(
+                                        0.0,
                                       ),
-                                    )
-                                  else if (_callRepo.videoing.value)
-                                    Expanded(
-                                      child: Container(
-                                        margin: const EdgeInsets.all(
-                                          0.0,
-                                        ),
-                                        clipBehavior:
-                                            Clip.antiAliasWithSaveLayer,
-                                        decoration: BoxDecoration(
-                                          color: Theme.of(context)
-                                              .colorScheme
-                                              .surface,
-                                          borderRadius: mainBorder,
-                                          boxShadow: DEFAULT_BOX_SHADOWS,
-                                        ),
-                                        child: RTCVideoView(
-                                          objectFit: RTCVideoViewObjectFit
-                                              .RTCVideoViewObjectFitCover,
-                                          widget.localRenderer,
-                                          mirror: true,
-                                          filterQuality: FilterQuality.high,
-                                        ),
+                                      clipBehavior: Clip.antiAliasWithSaveLayer,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .surface,
+                                        borderRadius: mainBorder,
+                                        boxShadow: DEFAULT_BOX_SHADOWS,
                                       ),
-                                    )
-                                  else
-                                    Expanded(
-                                      child: CenterAvatarInCall(
-                                        roomUid: _authRepo.currentUserUid,
+                                      child: RTCVideoView(
+                                        objectFit: RTCVideoViewObjectFit
+                                            .RTCVideoViewObjectFitCover,
+                                        widget.localRenderer,
+                                        filterQuality: FilterQuality.high,
                                       ),
                                     ),
-                                ],
-                              ),
+                                  )
+                                else if (_callRepo.videoing.value)
+                                  Expanded(
+                                    child: Container(
+                                      margin: const EdgeInsets.all(
+                                        0.0,
+                                      ),
+                                      clipBehavior: Clip.antiAliasWithSaveLayer,
+                                      decoration: BoxDecoration(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .surface,
+                                        borderRadius: mainBorder,
+                                        boxShadow: DEFAULT_BOX_SHADOWS,
+                                      ),
+                                      child: RTCVideoView(
+                                        objectFit: RTCVideoViewObjectFit
+                                            .RTCVideoViewObjectFitCover,
+                                        widget.localRenderer,
+                                        mirror: true,
+                                        filterQuality: FilterQuality.high,
+                                      ),
+                                    ),
+                                  )
+                                else
+                                  Expanded(
+                                    child: CenterAvatarInCall(
+                                      roomUid: _authRepo.currentUserUid,
+                                    ),
+                                  ),
+                              ],
                             ),
-                          );
-                        },
-                      )
-                    : Stack(
-                        children: [
-                          if (_callRepo.incomingSharing.value ||
-                              (switching.value && _callRepo.sharing.value))
-                            SizedBox(
-                              width: x,
-                              height: y,
-                              child: RTCVideoView(
-                                switching.value
-                                    ? widget.localRenderer
-                                    : widget.remoteRenderer,
-                                objectFit: RTCVideoViewObjectFit
-                                    .RTCVideoViewObjectFitCover,
-                              ),
-                            )
-                          else if (_callRepo.incomingVideo.value ||
-                              (switching.value && _callRepo.videoing.value))
-                            SizedBox(
-                              width: x,
-                              height: y,
-                              child: RTCVideoView(
-                                switching.value
-                                    ? widget.localRenderer
-                                    : widget.remoteRenderer,
-                                mirror: true,
-                                objectFit: RTCVideoViewObjectFit
-                                    .RTCVideoViewObjectFitCover,
-                              ),
-                            )
-                          else
-                            Padding(
-                              padding: EdgeInsets.only(
-                                top: MediaQuery.of(context).size.height * 0.15,
-                              ),
-                              child: CenterAvatarInCall(
-                                roomUid: widget.roomUid,
-                              ),
-                            ),
-                          if (_callRepo.videoing.value)
-                            userVideoWidget(x, y, isMirror: true)
-                          else if (_callRepo.sharing.value)
-                            userVideoWidget(x, y, isMirror: false)
-                        ],
-                      );
-              },
-            ),
-            CallBottomRow(
-              hangUp: widget.hangUp,
-              isIncomingCall: widget.isIncomingCall,
-            ),
-            Positioned(
-              top: 20,
-              child: Column(
-                children: [
-                  if (widget.text == "Connected")
-                    StreamBuilder<CallTimer>(
-                      stream: _callRepo.callTimer,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData && snapshot.data != null) {
-                          return Padding(
-                            padding: EdgeInsets.only(
-                              top: MediaQuery.of(context).size.height * 0.07,
-                            ),
-                            child: callTimerWidget(
-                              theme,
-                              snapshot.data!,
-                              isEnd: false,
-                            ),
-                          );
-                        } else {
-                          return const SizedBox.shrink();
-                        }
+                          ),
+                        );
                       },
                     )
-                  else
-                    Padding(
-                      padding: EdgeInsets.only(
-                        top: MediaQuery.of(context).size.height * 0.07,
-                      ),
-                      child: Directionality(
-                        textDirection: _i18n.isPersian
-                            ? TextDirection.rtl
-                            : TextDirection.ltr,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            if (widget.text != "Ended")
-                              Text(
-                                widget.callStatusOnScreen,
-                                style: theme.textTheme.titleLarge!
-                                    .copyWith(color: Colors.white70),
-                              )
-                            else
-                              FadeTransition(
-                                opacity: _repeatEndCallAnimationController,
-                                child: (_callRepo.isConnected)
-                                    ? Directionality(
-                                        textDirection: TextDirection.ltr,
-                                        child: callTimerWidget(
-                                          theme,
-                                          _callRepo.callTimer.value,
-                                          isEnd: true,
-                                        ),
-                                      )
-                                    : Text(
-                                        widget.callStatusOnScreen,
-                                        style: theme.textTheme.titleLarge!
-                                            .copyWith(color: Colors.red),
+                  : Stack(
+                      children: [
+                        if (_callRepo.incomingSharing.value ||
+                            (switching.value && _callRepo.sharing.value))
+                          SizedBox(
+                            width: x,
+                            height: y,
+                            child: RTCVideoView(
+                              switching.value
+                                  ? widget.localRenderer
+                                  : widget.remoteRenderer,
+                              objectFit: RTCVideoViewObjectFit
+                                  .RTCVideoViewObjectFitCover,
+                            ),
+                          )
+                        else if (_callRepo.incomingVideo.value ||
+                            (switching.value && _callRepo.videoing.value))
+                          SizedBox(
+                            width: x,
+                            height: y,
+                            child: RTCVideoView(
+                              switching.value
+                                  ? widget.localRenderer
+                                  : widget.remoteRenderer,
+                              mirror: true,
+                              objectFit: RTCVideoViewObjectFit
+                                  .RTCVideoViewObjectFitCover,
+                            ),
+                          )
+                        else
+                          Padding(
+                            padding: EdgeInsets.only(
+                              top: MediaQuery.of(context).size.height * 0.15,
+                            ),
+                            child: CenterAvatarInCall(
+                              roomUid: widget.roomUid,
+                            ),
+                          ),
+                        if (_callRepo.videoing.value)
+                          userVideoWidget(x, y, isMirror: true)
+                        else if (_callRepo.sharing.value)
+                          userVideoWidget(x, y, isMirror: false)
+                      ],
+                    );
+            },
+          ),
+          CallBottomRow(
+            hangUp: widget.hangUp,
+            isIncomingCall: widget.isIncomingCall,
+          ),
+          Positioned(
+            top: 20,
+            child: Column(
+              children: [
+                if (widget.text == "Connected")
+                  StreamBuilder<CallTimer>(
+                    stream: _callRepo.callTimer,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data != null) {
+                        return Padding(
+                          padding: EdgeInsets.only(
+                            top: MediaQuery.of(context).size.height * 0.07,
+                          ),
+                          child: callTimerWidget(
+                            theme,
+                            snapshot.data!,
+                            isEnd: false,
+                          ),
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
+                  )
+                else
+                  Padding(
+                    padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).size.height * 0.07,
+                    ),
+                    child: Directionality(
+                      textDirection: _i18n.isPersian
+                          ? TextDirection.rtl
+                          : TextDirection.ltr,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (widget.text != "Ended")
+                            Text(
+                              widget.callStatusOnScreen,
+                              style: theme.textTheme.titleLarge!
+                                  .copyWith(color: Colors.white70),
+                            )
+                          else
+                            FadeTransition(
+                              opacity: _repeatEndCallAnimationController,
+                              child: (_callRepo.isConnected)
+                                  ? Directionality(
+                                      textDirection: TextDirection.ltr,
+                                      child: callTimerWidget(
+                                        theme,
+                                        _callRepo.callTimer.value,
+                                        isEnd: true,
                                       ),
-                              ),
-                            if (widget.text == "Connecting" ||
-                                widget.text == "Reconnecting" ||
-                                widget.text == "Ringing" ||
-                                widget.text == "Calling")
-                              const DotAnimation()
-                          ],
-                        ),
+                                    )
+                                  : Text(
+                                      widget.callStatusOnScreen,
+                                      style: theme.textTheme.titleLarge!
+                                          .copyWith(color: Colors.red),
+                                    ),
+                            ),
+                          if (widget.text == "Connecting" ||
+                              widget.text == "Reconnecting" ||
+                              widget.text == "Ringing" ||
+                              widget.text == "Calling")
+                            const DotAnimation()
+                        ],
                       ),
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
