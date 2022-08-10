@@ -54,7 +54,7 @@ dev_deploy:
 android_build:
   stage: build
   timeout: 6h
-  image: $DOCKER_REPO/deliver-flutter-resolved:$RESOLVER_VERSION
+  image: 172.17.4.40:443/cirrusci/flutter-web:3.0.5
   variables:
     _JAVA_OPTIONS: "-Xmx2048m -XX:+UnlockExperimentalVMOptions"
     GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m"'
