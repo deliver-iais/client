@@ -58,6 +58,7 @@ android_build:
   variables:
     _JAVA_OPTIONS: "-Xmx2048m -XX:+UnlockExperimentalVMOptions"
     GRADLE_OPTS: '-Dorg.gradle.jvmargs="-Xmx2048m"'
+    GRADLE_USER_HOME: 'gradle_home'
   extends:
     - .docker-basic
   script:
@@ -68,8 +69,9 @@ android_build:
     key: "$CI_COMMIT_REF_NAME"
     when: always
     paths:
-      - .gradle/wrapper
-      - .gradle/caches
+      - gradle_home
+      - .gradle
+      - android/.gradle
   artifacts:
     untracked: true
     paths:
