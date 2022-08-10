@@ -378,7 +378,7 @@ class CallRepo {
         // we can do special work on every change in candidate Connection State
         switch (e) {
           case RTCIceConnectionState.RTCIceConnectionStateFailed:
-            if (!_reconnectTry && !_isEnded && !_isEndedRecivied) {
+            if (!_reconnectTry && !_isEnded && !_isEndedRecivied && !isConnected) {
               _reconnectTry = true;
               callingStatus.add(CallStatus.RECONNECTING);
               _audioService.stopBeepSound();
@@ -463,7 +463,7 @@ class CallRepo {
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
             //Try reconnect
-            if (!_reconnectTry && !_isEnded && !_isEndedRecivied) {
+            if (!_reconnectTry && !_isEnded && !_isEndedRecivied && !isConnected) {
               _reconnectTry = true;
               callingStatus.add(CallStatus.RECONNECTING);
               _audioService.stopBeepSound();
@@ -615,6 +615,15 @@ class CallRepo {
       timerConnectionFailed!.cancel();
     }
     _isConnected = true;
+    Timer(const Duration(seconds: 1), () async {
+      if (_isDCReceived) {
+        if(sharing.value){
+          await _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_SCREEN));
+        } else if(videoing.value){
+          await _dataChannel!.send(RTCDataChannelMessage(STATUS_CAMERA_OPEN));
+        }
+      }
+    });
   }
 
   Future<RTCDataChannel> _createDataChannel() async {
@@ -912,6 +921,12 @@ class CallRepo {
       return switching;
     }
     return false;
+  }
+
+  bool toggleDesktopDualVideo() {
+    final dualVideo = desktopDualVideo.value;
+    desktopDualVideo.add(!dualVideo);
+    return !dualVideo;
   }
 
   /*
@@ -1416,6 +1431,7 @@ class CallRepo {
       incomingSharing.add(false);
       videoing.add(false);
       incomingVideo.add(false);
+      desktopDualVideo.add(true);
 
       await _callService.clearCallData(forceToClearData: true);
       Timer(const Duration(milliseconds: 1500), () async {
@@ -1425,6 +1441,7 @@ class CallRepo {
         _isEndedRecivied = false;
         _isConnected = false;
         _isVideo = false;
+        _isCallInited = false;
         callTimer.add(CallTimer(0, 0, 0));
       });
     }
@@ -1506,6 +1523,7 @@ class CallRepo {
   BehaviorSubject<bool> incomingSharing = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> videoing = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> incomingVideo = BehaviorSubject.seeded(false);
+  BehaviorSubject<bool> desktopDualVideo = BehaviorSubject.seeded(true);
 
   Future<void> fetchUserCallList(
     Uid roomUid,

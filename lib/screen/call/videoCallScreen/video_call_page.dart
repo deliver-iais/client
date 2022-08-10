@@ -3,7 +3,6 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -52,9 +51,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
   late AnimationController _repeatEndCallAnimationController;
   BehaviorSubject<bool> switching = BehaviorSubject.seeded(false);
 
-  final width = 150.0;
-  final height = 200.0;
-  Offset position = const Offset(20, 85);
+  Offset position = const Offset(20, 95);
 
   @override
   void initState() {
@@ -81,8 +78,6 @@ class VideoCallScreenState extends State<VideoCallScreen>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final x = MediaQuery.of(context).size.width;
-    final y = MediaQuery.of(context).size.height;
 
     return Scaffold(
       body: Stack(
@@ -95,9 +90,10 @@ class VideoCallScreenState extends State<VideoCallScreen>
               _callRepo.sharing,
               _callRepo.videoing,
               _callRepo.incomingVideo,
+              _callRepo.desktopDualVideo,
             ]),
             builder: (c, s) {
-              return isWindows
+              return isWindows && _callRepo.desktopDualVideo.value
                   ? OrientationBuilder(
                       builder: (context, orientation) {
                         return Padding(
@@ -227,49 +223,58 @@ class VideoCallScreenState extends State<VideoCallScreen>
                         );
                       },
                     )
-                  : Stack(
-                      children: [
-                        if (_callRepo.incomingSharing.value ||
-                            (switching.value && _callRepo.sharing.value))
-                          SizedBox(
-                            width: x,
-                            height: y,
-                            child: RTCVideoView(
-                              switching.value
-                                  ? widget.localRenderer
-                                  : widget.remoteRenderer,
-                              objectFit: RTCVideoViewObjectFit
-                                  .RTCVideoViewObjectFitCover,
-                            ),
-                          )
-                        else if (_callRepo.incomingVideo.value ||
-                            (switching.value && _callRepo.videoing.value))
-                          SizedBox(
-                            width: x,
-                            height: y,
-                            child: RTCVideoView(
-                              switching.value
-                                  ? widget.localRenderer
-                                  : widget.remoteRenderer,
-                              mirror: true,
-                              objectFit: RTCVideoViewObjectFit
-                                  .RTCVideoViewObjectFitCover,
-                            ),
-                          )
-                        else
-                          Padding(
-                            padding: EdgeInsets.only(
-                              top: MediaQuery.of(context).size.height * 0.15,
-                            ),
-                            child: CenterAvatarInCall(
-                              roomUid: widget.roomUid,
-                            ),
-                          ),
-                        if (_callRepo.videoing.value)
-                          userVideoWidget(x, y, isMirror: true)
-                        else if (_callRepo.sharing.value)
-                          userVideoWidget(x, y, isMirror: false)
-                      ],
+                  : OrientationBuilder(
+                      builder: (context, orientation) {
+                        final x = MediaQuery.of(context).size.width;
+                        final y = MediaQuery.of(context).size.height;
+                        final width = (isAndroid || x < 600) ? 150.0 : x * 0.15;
+                        final height = (isAndroid || x < 600) ? 200.0 : y * 0.35;
+
+                        return Stack(
+                          children: [
+                            if (_callRepo.incomingSharing.value ||
+                                (switching.value && _callRepo.sharing.value))
+                              SizedBox(
+                                width: x,
+                                height: y,
+                                child: RTCVideoView(
+                                  switching.value
+                                      ? widget.localRenderer
+                                      : widget.remoteRenderer,
+                                  objectFit: RTCVideoViewObjectFit
+                                      .RTCVideoViewObjectFitCover,
+                                ),
+                              )
+                            else if (_callRepo.incomingVideo.value ||
+                                (switching.value && _callRepo.videoing.value))
+                              SizedBox(
+                                width: x,
+                                height: y,
+                                child: RTCVideoView(
+                                  switching.value
+                                      ? widget.localRenderer
+                                      : widget.remoteRenderer,
+                                  mirror: true,
+                                  objectFit: RTCVideoViewObjectFit
+                                      .RTCVideoViewObjectFitCover,
+                                ),
+                              )
+                            else
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  top: MediaQuery.of(context).size.height * 0.3,
+                                ),
+                                child: CenterAvatarInCall(
+                                  roomUid: widget.roomUid,
+                                ),
+                              ),
+                            if (_callRepo.videoing.value)
+                              userVideoWidget(x, y, width, height, isMirror: true)
+                            else if (_callRepo.sharing.value)
+                              userVideoWidget(x, y, width, height, isMirror: false)
+                          ],
+                        );
+                      },
                     );
             },
           ),
@@ -278,7 +283,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
             isIncomingCall: widget.isIncomingCall,
           ),
           Positioned(
-            top: 15,
+            top: 10,
             child: Column(
               children: [
                 if (widget.text == "Connected")
@@ -304,7 +309,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                 else
                   Padding(
                     padding: EdgeInsets.only(
-                      top: MediaQuery.of(context).size.height * 0.07,
+                      top: MediaQuery.of(context).size.height * 0.05,
                     ),
                     child: Directionality(
                       textDirection: _i18n.isPersian
@@ -354,7 +359,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
     );
   }
 
-  Positioned userVideoWidget(double x, double y, {required bool isMirror}) {
+  Positioned userVideoWidget(double x, double y, double width, double height, {required bool isMirror}) {
     return Positioned(
       left: position.dx,
       top: position.dy,
@@ -373,17 +378,19 @@ class VideoCallScreenState extends State<VideoCallScreen>
         ),
         onDraggableCanceled: (velocity, offset) {
           setState(() {
+            final horizentalMargin = (isAndroid || x < 600) ? 20 : x * 0.22;
+            final verticalMargin = isAndroid ? 95 : 110;
             if (offset.dx > x / 2 && offset.dy > y / 2) {
-              position = Offset(x - width - 20, y - height - 85);
+              position = Offset(x - width - horizentalMargin, y - height - verticalMargin);
             }
             if (offset.dx < x / 2 && offset.dy > y / 2) {
-              position = Offset(20, y - height - 85);
+              position = Offset(20, y - height - verticalMargin);
             }
             if (offset.dx > x / 2 && offset.dy < y / 2) {
-              position = Offset(x - width - 20, 85);
+              position = Offset(x - width - horizentalMargin, 95);
             }
             if (offset.dx < x / 2 && offset.dy < y / 2) {
-              position = const Offset(20, 85);
+              position = const Offset(20, 95);
             }
           });
         },

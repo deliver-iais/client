@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/shareScreen/screen_select_dialog.dart';
@@ -7,6 +9,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../shared/methods/platform.dart';
+
 class CallBottomRow extends StatefulWidget {
   final void Function() hangUp;
   final bool isIncomingCall;
@@ -37,6 +40,7 @@ class CallBottomRowState extends State<CallBottomRow>
   IconData? _speakerIcon;
   IconData? _screenShareIcon;
   IconData? _muteMicIcon;
+  IconData? _desktopDualVideoIcon;
 
   final callRepo = GetIt.I.get<CallRepo>();
 
@@ -87,6 +91,10 @@ class CallBottomRowState extends State<CallBottomRow>
         : (isWindows
             ? Icons.stop_screen_share_outlined
             : Icons.mobile_screen_share_outlined);
+
+    _desktopDualVideoIcon = callRepo.desktopDualVideo.value
+        ? CupertinoIcons.square_line_vertical_square
+        : CupertinoIcons.rectangle;
 
     final width = MediaQuery.of(context).size.width;
 
@@ -146,7 +154,7 @@ class CallBottomRowState extends State<CallBottomRow>
                   child: Align(
                     alignment: Alignment.bottomCenter,
                     child: Container(
-                      width: width > 650 ? width / 2 : width,
+                      width: width > 750 ? width / 2 : width,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(35.0),
                         color: theme.cardColor.withOpacity(0.8),
@@ -169,12 +177,12 @@ class CallBottomRowState extends State<CallBottomRow>
                                   hoverColor: isAndroid
                                       ? theme.primaryColor.withOpacity(0.6)
                                       : null,
-                                  onPressed: () => {},
+                                  onPressed: () => _desktopDualVideo(),
                                   tooltip: _i18n.get("camera_switch"),
                                   child: Icon(
-                                    CupertinoIcons.switch_camera,
+                                    _desktopDualVideoIcon,
                                     size: iconSize,
-                                    color: Colors.white10,
+                                    color: theme.shadowColor,
                                   ),
                                 ),
                               ),
@@ -584,6 +592,10 @@ class CallBottomRowState extends State<CallBottomRow>
     _speakerColor =
         callRepo.enableSpeakerVoice() ? Colors.green : theme.shadowColor;
     setState(() {});
+  }
+
+  void _desktopDualVideo() {
+    callRepo.toggleDesktopDualVideo();
   }
 
   void _acceptCall() {

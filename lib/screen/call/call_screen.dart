@@ -319,14 +319,12 @@ class CallScreenState extends State<CallScreen> {
                     callStatusOnScreen: _i18n.get("call_user_not_answer"),
                     text: "User not answer",
                     remoteRenderer: _remoteRenderer,
-                    isIncomingCall: widget.isIncomingCall,
                     hangUp: _hangUp,
                   )
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: "User not answer",
                     callStatusOnScreen: _i18n.get("call_user_not_answer"),
-                    isIncomingCall: widget.isIncomingCall,
                     hangUp: _hangUp,
                   );
           case CallStatus.CREATED:
@@ -407,7 +405,6 @@ class CallScreenState extends State<CallScreen> {
                     text: "Declined....",
                     callStatusOnScreen: "${_i18n.get("call_declined")}....",
                     remoteRenderer: _remoteRenderer,
-                    isIncomingCall: false,
                     hangUp: _hangUp,
                   )
                 : AudioCallScreen(
@@ -415,7 +412,6 @@ class CallScreenState extends State<CallScreen> {
                     callStatus: "Declined....",
                     callStatusOnScreen: "${_i18n.get("call_declined")}....",
                     hangUp: _hangUp,
-                    isIncomingCall: false,
                   );
           case CallStatus.ACCEPTED:
             unawaited(_callRepo.cancelCallNotification());
