@@ -323,7 +323,7 @@ void main() {
           await RoomRepo().isRoomHaveACustomNotification(testUid.asString()),
           false,
         );
-        verify(customNotificationDao.isHaveCustomNotif(testUid.asString()));
+        verify(customNotificationDao.HaveCustomNotificationSound(testUid.asString()));
       });
     });
     group('setRoomCustomNotification -', () {
@@ -331,7 +331,7 @@ void main() {
         final customNotificationDao = getAndRegisterCustomNotificationDao();
         RoomRepo().setRoomCustomNotification(testUid.asString(), "/test");
         verify(
-          customNotificationDao.setCustomNotif(testUid.asString(), "/test"),
+          customNotificationDao.setCustomNotificationSound(testUid.asString(), "/test"),
         );
       });
     });
@@ -342,7 +342,7 @@ void main() {
           await RoomRepo().getRoomCustomNotification(testUid.asString()),
           "/test",
         );
-        verify(customNotificationDao.getCustomNotif(testUid.asString()));
+        verify(customNotificationDao.watchCustomNotificationSound(testUid.asString()));
       });
     });
     group('mute -', () {
