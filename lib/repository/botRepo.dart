@@ -1,6 +1,7 @@
 // ignore_for_file: file_names
 
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:deliver/box/bot_info.dart';
 import 'package:deliver/box/dao/bot_dao.dart';
@@ -8,7 +9,9 @@ import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/notification_services.dart';
+import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/bot.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -16,6 +19,7 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 
@@ -93,6 +97,33 @@ class BotRepo {
       _logger.e(e);
     }
     return null;
+  }
+
+  Future<void> handleInlineMarkUpMessageCallBack(
+    Message message,
+    BuildContext context,
+    String jsonData,
+  ) async {
+    final urlHandlerService = GetIt.I.get<UrlHandlerService>();
+    final json = jsonDecode(jsonData) as Map;
+    final isUrlInlineKeyboardMarkup = json['url'] != null;
+    if (isUrlInlineKeyboardMarkup) {
+      await urlHandlerService.onUrlTap(
+        json['url'],
+        context,
+      );
+    } else if (json['data'] != null) {
+      final result = await sendCallbackQuery(
+        json['data'],
+        message,
+      );
+      if (result != null) {
+        ToastDisplay.showToast(
+          toastContext: context,
+          toastText: result,
+        );
+      }
+    }
   }
 
   Future<BotInfo?> getBotInfo(Uid botUid) async {
