@@ -65,6 +65,8 @@ android_build:
     - flutter pub get
     - flutter build appbundle --target-platform android-arm --build-name=$PROJECT_BUILD_NAME --build-number=$PROJECT_BUILD_NUMBER
     - flutter build apk --split-per-abi
+    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file build/app/outputs/bundle/release/app-release.aab "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/aab/${PROJECT_BUILD_NAME}/app.aab"'
+    - 'curl --header "JOB-TOKEN: $CI_JOB_TOKEN" --upload-file build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/generic/apk/${PROJECT_BUILD_NAME}/app.apk"'
   cache:
     key: "$CI_COMMIT_REF_NAME"
     when: always
