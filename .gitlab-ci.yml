@@ -69,9 +69,9 @@ android_build:
     key: "$CI_COMMIT_REF_NAME"
     when: always
     paths:
-      - gradle_home
-      - .gradle
-      - android/.gradle
+      - gradle_home/
+      - .gradle/
+      - android/.gradle/
   artifacts:
     untracked: true
     paths:
