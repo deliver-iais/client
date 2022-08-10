@@ -2,8 +2,6 @@ import 'dart:convert';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/botRepo.dart';
-import 'package:deliver/screen/toast_management/toast_display.dart';
-import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -20,7 +18,6 @@ class InlineMarkUpButtonWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final urlHandlerService = GetIt.I.get<UrlHandlerService>();
     final botRepo = GetIt.I.get<BotRepo>();
     final widgetRows = <Widget>[];
     final rows = message.markup?.inlineKeyboardMarkup?.rows;
@@ -54,24 +51,9 @@ class InlineMarkUpButtonWidget extends StatelessWidget {
                         ),
                       ),
                       clipBehavior: Clip.hardEdge,
-                      onPressed: () async {
-                        if (isUrlInlineKeyboardMarkup) {
-                          await urlHandlerService.onUrlTap(
-                            json['url'],
-                            context,
-                          );
-                        } else if (json['data'] != null) {
-                          final result = await botRepo.sendCallbackQuery(
-                            json['data'],
-                            message,
-                          );
-                          if (result != null) {
-                            ToastDisplay.showToast(
-                              toastContext: context,
-                              toastText: result,
-                            );
-                          }
-                        }
+                      onPressed: () {
+                        botRepo.handleInlineMarkUpMessageCallBack(
+                            message, context, row.buttons[i].json,);
                       },
                       child: Center(
                         child: Padding(
