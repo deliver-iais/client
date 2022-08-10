@@ -96,6 +96,7 @@ class InputMessageWidgetState extends State<InputMessage> {
   static final _botRepo = GetIt.I.get<BotRepo>();
   static final _audioService = GetIt.I.get<AudioService>();
   static final _routingService = GetIt.I.get<RoutingService>();
+  static final _featureFlags = GetIt.I.get<FeatureFlags>();
 
   late Room currentRoom;
   final BehaviorSubject<bool> _showEmojiKeyboard =
@@ -567,8 +568,14 @@ class InputMessageWidgetState extends State<InputMessage> {
               ),
             if (showSendButton && !widget.waitingForForward)
               DescribedFeatureOverlay(
-                featureId: FEATURE_4,
+                featureId: _featureFlags
+                            .hasVoiceCallPermission(widget.currentRoom.uid) ||
+                        FeatureDiscovery.currentFeatureIdOf(context) ==
+                            FEATURE_5
+                    ? FEATURE_5
+                    : FEATURE_4,
                 useCustomPosition: true,
+                contentLocation: ContentLocation.above,
                 tapTarget: const FaIcon(
                   FontAwesomeIcons.markdown,
                 ),

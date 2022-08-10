@@ -288,13 +288,16 @@ class RoomRepo {
       roomNameCache.set(uid.asString(), name);
 
   Future<bool> isRoomHaveACustomNotification(String uid) =>
-      _customNotificationDao.isHaveCustomNotif(uid);
+      _customNotificationDao.HaveCustomNotificationSound(uid);
 
   Future<void> setRoomCustomNotification(String uid, String path) =>
-      _customNotificationDao.setCustomNotif(uid, path);
+      _customNotificationDao.setCustomNotificationSound(uid, path);
 
   Future<String?> getRoomCustomNotification(String uid) =>
-      _customNotificationDao.getCustomNotif(uid);
+      _customNotificationDao.getCustomNotificationSound(uid);
+
+  Stream<String?> watchRoomCustomNotification(String uid) =>
+      _customNotificationDao.watchCustomNotificationSound(uid);
 
   Future<bool> isRoomMuted(String uid) => _muteDao.isMuted(uid);
 
