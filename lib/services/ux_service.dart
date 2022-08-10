@@ -267,6 +267,12 @@ class FeatureFlags {
     _voiceCallFeatureFlag.add(newValue);
   }
 
+  bool hasVoiceCallPermission(String roomUid) {
+    return roomUid.asUid().isUser() &&
+        !_authRepo.isCurrentUser(roomUid) &&
+        isVoiceCallAvailable();
+  }
+
   void enableVoiceCallFeatureFlag() {
     if (_voiceCallFeatureFlag.value == true) {
       return;
