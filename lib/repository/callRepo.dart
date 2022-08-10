@@ -971,7 +971,7 @@ class CallRepo {
           await initCall(isOffer: true);
         }
       }
-    } else {
+    } else if(!_isVideo){
       _isCallInited = true;
       await initCall(isOffer: true);
     }

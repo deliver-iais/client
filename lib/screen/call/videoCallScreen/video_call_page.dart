@@ -102,7 +102,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                       builder: (context, orientation) {
                         return Padding(
                           padding: EdgeInsets.only(
-                            top: MediaQuery.of(context).size.height * 0.15,
+                            top: MediaQuery.of(context).size.height * 0.05,
                             left: 8.0,
                             right: 8.0,
                           ),
@@ -278,7 +278,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
             isIncomingCall: widget.isIncomingCall,
           ),
           Positioned(
-            top: 20,
+            top: 15,
             child: Column(
               children: [
                 if (widget.text == "Connected")

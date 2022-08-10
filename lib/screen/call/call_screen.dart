@@ -407,7 +407,7 @@ class CallScreenState extends State<CallScreen> {
                     text: "Declined....",
                     callStatusOnScreen: "${_i18n.get("call_declined")}....",
                     remoteRenderer: _remoteRenderer,
-                    isIncomingCall: true,
+                    isIncomingCall: false,
                     hangUp: _hangUp,
                   )
                 : AudioCallScreen(
@@ -415,7 +415,7 @@ class CallScreenState extends State<CallScreen> {
                     callStatus: "Declined....",
                     callStatusOnScreen: "${_i18n.get("call_declined")}....",
                     hangUp: _hangUp,
-                    isIncomingCall: true,
+                    isIncomingCall: false,
                   );
           case CallStatus.ACCEPTED:
             unawaited(_callRepo.cancelCallNotification());

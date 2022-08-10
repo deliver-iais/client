@@ -3,7 +3,6 @@ import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/shareScreen/screen_select_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 
@@ -60,7 +59,6 @@ class CallBottomRowState extends State<CallBottomRow>
   @override
   void dispose() {
     super.dispose();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   }
 
   @override
@@ -93,7 +91,6 @@ class CallBottomRowState extends State<CallBottomRow>
     final width = MediaQuery.of(context).size.width;
 
     if (widget.isIncomingCall) {
-      SystemChrome.setEnabledSystemUIMode(SystemUiMode.leanBack);
       return Padding(
         padding: const EdgeInsets.only(bottom: 25, right: 25, left: 25),
         child: Align(
@@ -149,7 +146,7 @@ class CallBottomRowState extends State<CallBottomRow>
                   child: Align(
                     alignment: Alignment.bottomCenter,
                     child: Container(
-                      width: width > 578 ? width / 2 : width,
+                      width: width > 650 ? width / 2 : width,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(35.0),
                         color: theme.cardColor.withOpacity(0.8),
