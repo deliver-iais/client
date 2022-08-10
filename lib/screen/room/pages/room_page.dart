@@ -882,16 +882,19 @@ class RoomPageState extends State<RoomPage> {
     return AppBar(
       scrolledUnderElevation: 0,
       actions: [
-        if (room.uid.asUid().isUser() &&
-            !_authRepo.isCurrentUser(room.uid) &&
-            _featureFlags.isVoiceCallAvailable())
+        if (_featureFlags.hasVoiceCallPermission(room.uid))
           StreamBuilder<bool>(
             stream: _selectMultiMessageSubject,
             builder: (context, snapshot) {
               return snapshot.hasData && !snapshot.data!
                   ? DescribedFeatureOverlay(
                       useCustomPosition: true,
-                      featureId: FEATURE_5,
+                      featureId: _featureFlags.hasVoiceCallPermission(room.uid)
+                          ? FeatureDiscovery.currentFeatureIdOf(context) ==
+                                  FEATURE_5
+                              ? FEATURE_5
+                              : FEATURE_4
+                          : FEATURE_3,
                       tapTarget: IconButton(
                         icon: const Icon(CupertinoIcons.phone),
                         onPressed: () {},
