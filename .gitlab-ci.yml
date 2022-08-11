@@ -70,9 +70,9 @@ android_build:
   cache:
     key: "$CI_COMMIT_REF_NAME"
     when: always
+    untracked: true
     paths:
       - gradle_home/
-      - .gradle/
       - android/.gradle/
 
 prod_build:
