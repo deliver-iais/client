@@ -629,6 +629,20 @@ class MessageRepo {
     String? caption,
     int replyToId = 0,
   }) {
+    final sendingFakeFile = _createFakeSendFile(file, fileUuid, caption);
+
+    return _createMessage(room, replyId: replyToId).copyWith(
+      packetId: _getPacketId(),
+      type: MessageType.FILE,
+      json: sendingFakeFile.writeToJson(),
+    );
+  }
+
+  file_pb.File _createFakeSendFile(
+    model.File file,
+    String fileUuid,
+    String? caption,
+  ) {
     var tempDimension = Size.zero;
     int? tempFileSize;
     final tempType = file.extension ?? _findType(file.path);
@@ -661,12 +675,7 @@ class MessageRepo {
       ..size = file.size != null ? Int64(file.size!) : Int64(tempFileSize!)
       ..name = file.name
       ..duration = 0;
-
-    return _createMessage(room, replyId: replyToId).copyWith(
-      packetId: _getPacketId(),
-      type: MessageType.FILE,
-      json: sendingFakeFile.writeToJson(),
-    );
+    return sendingFakeFile;
   }
 
   Future<void> sendStickerMessage({
@@ -1289,16 +1298,30 @@ class MessageRepo {
     try {
       file_pb.File? updatedFile;
       if (file != null) {
-        final uploadKey = clock.now().millisecondsSinceEpoch.toString();
+        final uploadKey = _getPacketId();
         await _fileRepo.cloneFileInLocalDirectory(
           dart_file.File(file.path),
           uploadKey,
           file.name,
         );
-
+        final pm = _createPendingMessage(
+          editableMessage
+            ..json = _createFakeSendFile(file, uploadKey, caption).writeToJson()
+            ..edited = true,
+          SendingStatus.UPLOAD_FILE_INPROGRSS,
+        );
+        await _savePendingEditedMessage(pm);
         updatedFile = await _fileRepo.uploadClonedFile(uploadKey, file.name);
-        if (updatedFile != null && caption != null) {
-          updatedFile.caption = caption;
+        if (updatedFile != null) {
+          await _savePendingEditedMessage(
+            pm.copyWith(
+              msg: pm.msg.copyWith(json: updatedFile.writeToJson()),
+              status: SendingStatus.UPLOAD_FILE_COMPELED,
+            ),
+          );
+          if (caption != null) {
+            updatedFile.caption = caption;
+          }
         }
       } else {
         final preFile = editableMessage.json.toFile();
