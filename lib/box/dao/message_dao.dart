@@ -34,6 +34,16 @@ abstract class MessageDao {
   Future<void> deletePendingMessage(String packetId);
 
   Future<void> savePendingMessage(PendingMessage pm);
+
+  //Pending Edited Message
+
+  Future<PendingMessage?> getPendingEditedMessage(String roomUid, int index);
+
+  Future<List<PendingMessage>> getAllPendingEditedMessages();
+
+  Future<void> deletePendingEditedMessage(String roomUid, int index);
+
+  Future<void> savePendingEditedMessage(PendingMessage pm);
 }
 
 class MessageDaoImpl implements MessageDao {
@@ -148,6 +158,8 @@ class MessageDaoImpl implements MessageDao {
 
   static String _keyPending() => "pending";
 
+  static String _keyPendingEdited() => "pending-edited";
+
   static Future<BoxPlus<Message>> _openMessages(String uid) async {
     try {
       unawaited(BoxInfo.addBox(_keyMessages(uid.replaceAll(":", "-"))));
@@ -166,5 +178,53 @@ class MessageDaoImpl implements MessageDao {
       await Hive.deleteBoxFromDisk(_keyPending());
       return gen(Hive.openBox<PendingMessage>(_keyPending()));
     }
+  }
+
+  static String _generatePendingEditedMessageKey(
+    String roomUid,
+    int index,
+  ) {
+    return "$roomUid-$index";
+  }
+
+  static Future<BoxPlus<PendingMessage>> _openPendingEditedMessages() async {
+    try {
+      unawaited(BoxInfo.addBox(_keyPendingEdited()));
+      return gen(Hive.openBox<PendingMessage>(_keyPendingEdited()));
+    } catch (e) {
+      await Hive.deleteBoxFromDisk(_keyPendingEdited());
+      return gen(Hive.openBox<PendingMessage>(_keyPendingEdited()));
+    }
+  }
+
+  @override
+  Future<void> deletePendingEditedMessage(String roomUid, int index) async {
+    final box = await _openPendingEditedMessages();
+    return box.delete(_generatePendingEditedMessageKey(roomUid, index));
+  }
+
+  @override
+  Future<PendingMessage?> getPendingEditedMessage(
+    String roomUid,
+    int index,
+  ) async {
+    final box = await _openPendingEditedMessages();
+    return box.get(_generatePendingEditedMessageKey(roomUid, index));
+  }
+
+  @override
+  Future<void> savePendingEditedMessage(PendingMessage pm) async {
+    final box = await _openPendingEditedMessages();
+
+    return box.put(
+      _generatePendingEditedMessageKey(pm.roomUid, pm.msg.id ?? 0),
+      pm,
+    );
+  }
+
+  @override
+  Future<List<PendingMessage>> getAllPendingEditedMessages() async {
+    final box = await _openPendingEditedMessages();
+    return box.values.toList();
   }
 }
