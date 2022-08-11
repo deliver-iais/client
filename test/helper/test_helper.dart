@@ -322,9 +322,9 @@ MockCustomNotificationDao getAndRegisterCustomNotificationDao() {
   _removeRegistrationIfExists<CustomNotificationDao>();
   final service = MockCustomNotificationDao();
   GetIt.I.registerSingleton<CustomNotificationDao>(service);
-  when(service.isHaveCustomNotif(testUid.asString()))
+  when(service.HaveCustomNotificationSound(testUid.asString()))
       .thenAnswer((realInvocation) => Future.value(false));
-  when(service.getCustomNotif(testUid.asString()))
+  when(service.getCustomNotificationSound(testUid.asString()))
       .thenAnswer((realInvocation) => Future.value("/test"));
   return service;
 }
