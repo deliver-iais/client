@@ -478,9 +478,9 @@ class ProfilePageState extends State<ProfilePage>
                 ),
               ),
             if (isAndroid)
-              FutureBuilder<String?>(
-                future: _roomRepo
-                    .getRoomCustomNotification(widget.roomUid.asString()),
+              StreamBuilder<String?>(
+                stream: _roomRepo
+                    .watchRoomCustomNotification(widget.roomUid.asString()),
                 builder: (context, snapshot) {
                   if (snapshot.hasData) {
                     return Padding(
