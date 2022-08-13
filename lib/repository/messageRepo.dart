@@ -699,6 +699,32 @@ class MessageRepo {
     // _saveAndSend(pm);
   }
 
+  Future<file_pb.File?> _sendFileToServerOfPendingEditedMessage(
+    PendingMessage pm,
+  ) async {
+    file_pb.File? updatedFile;
+    final file = file_pb.File.fromJson(pm.msg.json);
+    await _savePendingEditedMessage(
+      pm.copyWith(status: SendingStatus.UPLOAD_FILE_INPROGRSS),
+    );
+    updatedFile = await _fileRepo.uploadClonedFile(file.uuid, file.name);
+    if (updatedFile != null) {
+      await _savePendingEditedMessage(
+        pm.copyWith(
+          msg: pm.msg.copyWith(json: updatedFile.writeToJson()),
+          status: SendingStatus.UPLOAD_FILE_COMPELED,
+        ),
+      );
+    } else {
+      await _savePendingEditedMessage(
+        pm.copyWith(
+          status: SendingStatus.UPLIOD_FILE_FAIL,
+        ),
+      );
+    }
+    return updatedFile;
+  }
+
   Future<PendingMessage?> _sendFileToServerOfPendingMessage(
     PendingMessage pm,
   ) async {
@@ -833,17 +859,29 @@ class MessageRepo {
 
   Future<void> sendPendingEditedMessages() async {
     final pendingMessages = await _messageDao.getAllPendingEditedMessages();
+
     for (final pendingMessage in pendingMessages) {
       if (!pendingMessage.failed) {
         switch (pendingMessage.status) {
           case SendingStatus.UPLOAD_FILE_INPROGRSS:
             break;
           case SendingStatus.PENDING:
+          case SendingStatus.UPLOAD_FILE_COMPELED:
             await updateMessageAtServer(pendingMessage);
             break;
-          case SendingStatus.UPLOAD_FILE_COMPELED:
-            break;
           case SendingStatus.UPLIOD_FILE_FAIL:
+            final updatedFile = await _sendFileToServerOfPendingEditedMessage(
+              pendingMessage,
+            );
+            if (updatedFile != null) {
+              await updateMessageAtServer(
+                pendingMessage.copyWith(
+                  msg: pendingMessage.msg
+                      .copyWith(json: updatedFile.writeToJson()),
+                  status: SendingStatus.UPLOAD_FILE_COMPELED,
+                ),
+              );
+            }
             break;
         }
       }
@@ -854,10 +892,7 @@ class MessageRepo {
     PendingMessage pendingMessage,
   ) async {
     try {
-      final updatedMessage = message_pb.MessageByClient()
-        ..to = pendingMessage.msg.to.asUid()
-        ..replyToId = Int64(pendingMessage.msg.replyToId)
-        ..text = pendingMessage.msg.json.toText();
+      final updatedMessage = _createMessageByClient(pendingMessage.msg);
       await _sdr.queryServiceClient.updateMessage(
         UpdateMessageReq()
           ..message = updatedMessage
@@ -1127,8 +1162,8 @@ class MessageRepo {
   Stream<List<PendingMessage>> watchPendingEditedMessages(String roomUid) =>
       _messageDao.watchPendingEditedMessages(roomUid);
 
-  Stream<PendingMessage?> watchPendingEditedMessage(String roomUid , int? id) =>
-      _messageDao.watchPendingEditedMessage(roomUid,id);
+  Stream<PendingMessage?> watchPendingEditedMessage(String roomUid, int? id) =>
+      _messageDao.watchPendingEditedMessage(roomUid, id);
 
   Future<List<PendingMessage>> getPendingMessages(String roomUid) =>
       _messageDao.getPendingMessages(roomUid);
@@ -1310,32 +1345,15 @@ class MessageRepo {
           uploadKey,
           file.name,
         );
-        final pm = _createPendingMessage(
-          editableMessage.copyWith(
-            json: _createFakeSendFile(file, uploadKey, caption).writeToJson(),
-            edited: true,
+        updatedFile = await _sendFileToServerOfPendingEditedMessage(
+          _createPendingMessage(
+            editableMessage.copyWith(
+              json: _createFakeSendFile(file, uploadKey, caption).writeToJson(),
+              edited: true,
+            ),
+            SendingStatus.UPLOAD_FILE_INPROGRSS,
           ),
-          SendingStatus.UPLOAD_FILE_INPROGRSS,
         );
-        await _savePendingEditedMessage(pm);
-        updatedFile = await _fileRepo.uploadClonedFile(uploadKey, file.name);
-        if (updatedFile != null) {
-          await _savePendingEditedMessage(
-            pm.copyWith(
-              msg: pm.msg.copyWith(json: updatedFile.writeToJson()),
-              status: SendingStatus.UPLOAD_FILE_COMPELED,
-            ),
-          );
-          if (caption != null) {
-            updatedFile.caption = caption;
-          }
-        } else {
-          await _savePendingEditedMessage(
-            pm.copyWith(
-              status: SendingStatus.UPLIOD_FILE_FAIL,
-            ),
-          );
-        }
       } else {
         final preFile = editableMessage.json.toFile();
         if (caption == preFile.caption) {
