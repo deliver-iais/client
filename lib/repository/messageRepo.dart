@@ -865,7 +865,7 @@ class MessageRepo {
       );
       deletePendingEditedMessage(
         pendingMessage.roomUid,
-        pendingMessage.msg.id ?? 0,
+        pendingMessage.msg.id,
       );
     } catch (e) {
       _logger.e(e);
@@ -1115,7 +1115,7 @@ class MessageRepo {
   Future<PendingMessage?> getPendingMessage(String packetId) =>
       _messageDao.getPendingMessage(packetId);
 
-  Future<PendingMessage?> getPendingEditedMessage(String roomUid, int index) =>
+  Future<PendingMessage?> getPendingEditedMessage(String roomUid, int? index) =>
       _messageDao.getPendingEditedMessage(roomUid, index);
 
   Stream<PendingMessage?> watchPendingMessage(String packetId) =>
@@ -1123,6 +1123,12 @@ class MessageRepo {
 
   Stream<List<PendingMessage>> watchPendingMessages(String roomUid) =>
       _messageDao.watchPendingMessages(roomUid);
+
+  Stream<List<PendingMessage>> watchPendingEditedMessages(String roomUid) =>
+      _messageDao.watchPendingEditedMessages(roomUid);
+
+  Stream<PendingMessage?> watchPendingEditedMessage(String roomUid , int? id) =>
+      _messageDao.watchPendingEditedMessage(roomUid,id);
 
   Future<List<PendingMessage>> getPendingMessages(String roomUid) =>
       _messageDao.getPendingMessages(roomUid);
@@ -1136,7 +1142,7 @@ class MessageRepo {
     _messageDao.deletePendingMessage(packetId);
   }
 
-  void deletePendingEditedMessage(String roomUid, int index) {
+  void deletePendingEditedMessage(String roomUid, int? index) {
     _messageDao.deletePendingEditedMessage(roomUid, index);
   }
 
@@ -1243,18 +1249,18 @@ class MessageRepo {
       if (text == editableMessage.json.toText().text) {
         return;
       }
-      final pm = _createPendingMessage(
-        editableMessage
-          ..json = (message_pb.Text()..text = text).writeToJson()
-          ..edited = true,
-        SendingStatus.PENDING,
-      );
-      await _savePendingEditedMessage(pm);
-
       final updatedMessage = message_pb.MessageByClient()
         ..to = editableMessage.to.asUid()
         ..replyToId = Int64(editableMessage.replyToId)
         ..text = message_pb.Text(text: text);
+      final pm = _createPendingMessage(
+        editableMessage.copyWith(
+          json: (message_pb.Text()..text = text).writeToJson(),
+          edited: true,
+        ),
+        SendingStatus.PENDING,
+      );
+      await _savePendingEditedMessage(pm);
       await _sdr.queryServiceClient.updateMessage(
         UpdateMessageReq()
           ..message = updatedMessage
@@ -1265,7 +1271,7 @@ class MessageRepo {
         ..edited = true;
       deletePendingEditedMessage(
         editableMessage.roomUid,
-        editableMessage.id ?? 0,
+        editableMessage.id,
       );
       await _messageDao.saveMessage(editableMessage);
       messageEventSubject.add(
@@ -1305,9 +1311,10 @@ class MessageRepo {
           file.name,
         );
         final pm = _createPendingMessage(
-          editableMessage
-            ..json = _createFakeSendFile(file, uploadKey, caption).writeToJson()
-            ..edited = true,
+          editableMessage.copyWith(
+            json: _createFakeSendFile(file, uploadKey, caption).writeToJson(),
+            edited: true,
+          ),
           SendingStatus.UPLOAD_FILE_INPROGRSS,
         );
         await _savePendingEditedMessage(pm);
@@ -1322,6 +1329,12 @@ class MessageRepo {
           if (caption != null) {
             updatedFile.caption = caption;
           }
+        } else {
+          await _savePendingEditedMessage(
+            pm.copyWith(
+              status: SendingStatus.UPLIOD_FILE_FAIL,
+            ),
+          );
         }
       } else {
         final preFile = editableMessage.json.toFile();
@@ -1341,6 +1354,14 @@ class MessageRepo {
           ..tempLink = preFile.tempLink
           ..hash = preFile.hash
           ..sign = preFile.sign;
+        final pm = _createPendingMessage(
+          editableMessage.copyWith(
+            json: updatedFile.writeToJson(),
+            edited: true,
+          ),
+          SendingStatus.PENDING,
+        );
+        await _savePendingEditedMessage(pm);
       }
       final updatedMessage = message_pb.MessageByClient()
         ..to = editableMessage.to.asUid()
@@ -1350,6 +1371,7 @@ class MessageRepo {
           ..message = updatedMessage
           ..messageId = Int64(editableMessage.id ?? 0),
       );
+      deletePendingEditedMessage(editableMessage.roomUid, editableMessage.id);
       editableMessage
         ..json = updatedFile.writeToJson()
         ..edited = true;
