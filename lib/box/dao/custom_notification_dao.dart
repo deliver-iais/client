@@ -3,15 +3,17 @@ import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
 abstract class CustomNotificationDao {
-  Future<bool> isHaveCustomNotif(String uid);
+  Future<bool> HaveCustomNotificationSound(String uid);
 
-  Future<void> setCustomNotif(String uid, String fileName);
+  Future<void> setCustomNotificationSound(String uid, String fileName);
 
-  Future<String?> getCustomNotif(String uid);
+  Stream<String?> watchCustomNotificationSound(String uid);
+
+  Future<String?> getCustomNotificationSound(String uid);
 }
 
 class CustomNotificationDaoImpl implements CustomNotificationDao {
-  static String _key() => "customnotification";
+  static String _key() => "customNotification";
 
   static Future<BoxPlus<String>> _open() {
     BoxInfo.addBox(_key());
@@ -19,7 +21,7 @@ class CustomNotificationDaoImpl implements CustomNotificationDao {
   }
 
   @override
-  Future<bool> isHaveCustomNotif(String uid) async {
+  Future<bool> HaveCustomNotificationSound(String uid) async {
     final box = await _open();
     if (box.get(uid) == null) {
       return false;
@@ -29,19 +31,26 @@ class CustomNotificationDaoImpl implements CustomNotificationDao {
   }
 
   @override
-  Future<void> setCustomNotif(String uid, String fileName) async {
+  Future<void> setCustomNotificationSound(String uid, String fileName) async {
     final box = await _open();
 
     return box.put(uid, fileName);
   }
 
   @override
-  Future<String?> getCustomNotif(String uid) async {
+  Future<String?> getCustomNotificationSound(String uid) async {
     final box = await _open();
     if (box.get(uid) != null) {
       return box.get(uid);
     } else {
       return "-";
     }
+  }
+
+  @override
+  Stream<String?> watchCustomNotificationSound(String uid) async* {
+    final box = await _open();
+    yield box.get(uid) ?? "-";
+    yield* box.watch(key: uid).map((event) => box.get(uid) ?? "-");
   }
 }

@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:io' as io;
 
 import 'package:clock/clock.dart';
+import 'package:deliver/box/dao/file_dao.dart';
+import 'package:deliver/box/file_info.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/check_permissions_service.dart';
@@ -29,6 +32,7 @@ enum ThumbnailSize { medium, small }
 class FileService {
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
+  final _fileDao = GetIt.I.get<FileDao>();
   final _logger = GetIt.I.get<Logger>();
 
   final _dio = Dio();
@@ -46,7 +50,7 @@ class FileService {
         await io.Directory('${directory.path}/$APPLICATION_FOLDER_NAME')
             .create(recursive: true);
       }
-      if(isWindows){
+      if (isWindows) {
         return "${directory.path}\\$APPLICATION_FOLDER_NAME";
       }
       return "${directory.path}/$APPLICATION_FOLDER_NAME";
@@ -56,7 +60,7 @@ class FileService {
 
   Future<String> localFilePath(String fileUuid, String fileType) async {
     final path = await _localPath;
-    if(isWindows){
+    if (isWindows) {
       return '$path\\$fileUuid.$fileType';
     }
     return '$path/$fileUuid.$fileType';
@@ -292,6 +296,38 @@ class FileService {
     return null;
   }
 
+  Future<FileInfo?> _getFileInfoInDB(String size, String uuid) async =>
+      _fileDao.get(uuid, enumToString(size));
+
+  Future<void> _updateFileInfoWithNewPath(
+    String uploadKey,
+    String path,
+  ) async {
+    final real = await _getFileInfoInDB("real", uploadKey);
+    final medium = await _getFileInfoInDB("medium", uploadKey);
+
+    await _fileDao.remove(real!);
+    if (medium != null) {
+      await _fileDao.remove(medium);
+    }
+
+    await _fileDao.save(real.copyWith(path: path, uuid: real.uuid));
+
+    if (medium != null) {
+      await _fileDao.save(medium.copyWith(path: path, uuid: medium.uuid));
+    }
+  }
+
+  Future<void> _concurrentCloneFileInLocalDirectory(
+    io.File file,
+    String uploadKey,
+    String fileType,
+  ) async {
+    final f = await localFile(uploadKey, fileType);
+    await f.writeAsBytes(file.readAsBytesSync());
+    await _updateFileInfoWithNewPath(uploadKey, f.path);
+  }
+
   // TODO(hasan): refactoring needed,
   Future<Response<dynamic>?> uploadFile(
     String filePath,
@@ -302,7 +338,7 @@ class FileService {
     try {
       if (!isWeb) {
         try {
-          if(isWindows){
+          if (isWindows) {
             filePath = filePath.replaceAll("\\", "/");
           }
           final mediaType =
@@ -320,6 +356,16 @@ class FileService {
       }
       final cancelToken = CancelToken();
       cancelTokens[uploadKey!] = BehaviorSubject.seeded(cancelToken);
+      //concurrent save file in local directory
+      if (isDesktop) {
+        unawaited(
+          _concurrentCloneFileInLocalDirectory(
+            File(filePath),
+            uploadKey,
+            MediaType.parse(mime(filePath) ?? filePath).subtype,
+          ),
+        );
+      }
       FormData? formData;
       if (isWeb) {
         final r = await http.get(
@@ -339,7 +385,9 @@ class FileService {
             contentType:
                 MediaType.parse(mime(filePath) ?? "application/octet-stream"),
             headers: {
-              Headers.contentLengthHeader: [(File(filePath).lengthSync()).toString()], // set content-length
+              Headers.contentLengthHeader: [
+                (File(filePath).lengthSync()).toString()
+              ], // set content-length
             },
           )
         });
