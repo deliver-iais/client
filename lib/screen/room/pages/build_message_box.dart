@@ -462,6 +462,9 @@ class OperationOnMessageSelection {
       case OperationOnMessage.DELETE_PENDING_MESSAGE:
         onDeletePendingMessage();
         break;
+      case OperationOnMessage.DELETE_PENDING_EDITED_MESSAGE:
+        onDeletePendingEditedMessage();
+        break;
       case OperationOnMessage.PIN_MESSAGE:
         onPin?.call();
         break;
@@ -602,6 +605,13 @@ class OperationOnMessageSelection {
 
   void onDeletePendingMessage() {
     _messageRepo.deletePendingMessage(message.packetId);
+    if (message.type == MessageType.FILE) {
+      _fileRepo.cancelUploadFile(message.json.toFile().uuid);
+    }
+  }
+
+  void onDeletePendingEditedMessage() {
+    _messageRepo.deletePendingEditedMessage(message.roomUid, message.id);
     if (message.type == MessageType.FILE) {
       _fileRepo.cancelUploadFile(message.json.toFile().uuid);
     }
