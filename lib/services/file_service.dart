@@ -4,6 +4,7 @@ import 'dart:io' as io;
 
 import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/file_dao.dart';
+import 'package:deliver/box/file_info.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/check_permissions_service.dart';
@@ -24,7 +25,6 @@ import 'package:path_provider/path_provider.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:universal_html/html.dart' as html;
 
-import '../box/file_info.dart';
 import 'ext_storage_services.dart';
 
 enum ThumbnailSize { medium, small }
