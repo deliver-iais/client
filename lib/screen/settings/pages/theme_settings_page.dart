@@ -133,6 +133,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
       addForwardMessage: () {},
       scrollToMessage: (a, b) {},
       onDelete: () {},
+      selectedMessageListIndex: BehaviorSubject(),
     );
   }
 

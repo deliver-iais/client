@@ -55,6 +55,7 @@ class BuildMessageBox extends StatefulWidget {
   final bool hasPermissionInGroup;
   final BehaviorSubject<bool> hasPermissionInChannel;
   final BehaviorSubject<bool> selectMultiMessageSubject;
+  final BehaviorSubject<List<int>> selectedMessageListIndex;
 
   const BuildMessageBox({
     super.key,
@@ -70,6 +71,7 @@ class BuildMessageBox extends StatefulWidget {
     required this.pinMessages,
     required this.onReply,
     required this.selectMultiMessageSubject,
+    required this.selectedMessageListIndex,
     required this.hasPermissionInGroup,
     required this.hasPermissionInChannel,
     required this.addForwardMessage,
@@ -90,11 +92,16 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   @override
   Widget build(BuildContext context) {
-    return _buildMessageBox(
-      context,
-      widget.message,
-      widget.messageBefore,
-      messageReplyBrief: widget.messageReplyBrief,
+    return StreamBuilder<bool>(
+      stream: widget.selectMultiMessageSubject,
+      builder: (context, snapshot) {
+        return _buildMessageBox(
+          context,
+          widget.message,
+          widget.messageBefore,
+          messageReplyBrief: widget.messageReplyBrief,
+        );
+      },
     );
   }
 
@@ -186,7 +193,9 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
                     _showCustomMenu(context, msg);
                   }
                 },
-          onDoubleTap: !isDesktop ? null : widget.onReply,
+          onDoubleTap: !isDesktop || widget.selectMultiMessageSubject.value
+              ? null
+              : widget.onReply,
           onLongPress: () {
             if (!widget.selectMultiMessageSubject.value) {
               widget.selectMultiMessageSubject.add(true);
@@ -233,10 +242,10 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     }
 
     // Wrap in Swipe widget if needed
-    if (!widget.message.roomUid.asUid().isChannel() &&
-        widget.message.id != null) {
+    if (!widget.message.roomUid.asUid().isChannel()
+        && widget.message.id != null) {
       messageWidget = Swipe(
-        onSwipeLeft: widget.onReply,
+        onSwipeLeft: !widget.selectMultiMessageSubject.value ? widget.onReply : null,
         child: Container(
           width: double.infinity,
           color: Colors.transparent,
@@ -262,7 +271,9 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
                 _showCustomMenu(context, message);
               }
             },
-      onDoubleTap: !isDesktop ? null : widget.onReply,
+      onDoubleTap: !isDesktop || widget.selectMultiMessageSubject.value
+          ? null
+          : widget.onReply,
       onLongPress: () {
         if (!widget.selectMultiMessageSubject.value) {
           widget.selectMultiMessageSubject.add(true);
@@ -291,12 +302,49 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onUsernameClick: onUsernameClick,
       storePosition: storePosition,
       onEdit: widget.onEdit,
+      showMenuDisable: widget.selectMultiMessageSubject.value,
     );
+
+    Color getColor(Set<MaterialState> states) {
+      const interactiveStates = <MaterialState>{
+        MaterialState.pressed,
+        MaterialState.hovered,
+        MaterialState.focused,
+      };
+      if (states.any(interactiveStates.contains)) {
+        return Colors.blue;
+      }
+      return Colors.red;
+    }
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.end,
-      children: <Widget>[messageWidget],
+      children: <Widget>[
+        messageWidget,
+        StreamBuilder<List<int>>(
+          stream: widget.selectedMessageListIndex,
+          builder: (context, snapshot) {
+            return AnimatedOpacity(
+              duration: SUPER_SLOW_ANIMATION_DURATION,
+              opacity: (snapshot.data ?? []).contains(widget.message.id) ? 1 : 0,
+              child: AnimatedContainer(
+                width: (snapshot.data ?? []).contains(widget.message.id) ? 50 : 0,
+                duration: SUPER_SLOW_ANIMATION_DURATION,
+                child: Checkbox(
+                  checkColor: Colors.white,
+                  fillColor: MaterialStateProperty.resolveWith(getColor),
+                  shape: const CircleBorder(),
+                  value: (snapshot.data ?? []).contains(widget.message.id),
+                  onChanged: (value) {
+                    widget.addForwardMessage();
+                  },
+                ),
+              ),
+            );
+          },
+        ),
+      ],
     );
   }
 
@@ -320,6 +368,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onArrowIconClick: () => _showCustomMenu(context, message),
       storePosition: storePosition,
       onEdit: widget.onEdit,
+      showMenuDisable: widget.selectMultiMessageSubject.value,
     );
 
     return Padding(
@@ -358,7 +407,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     BuildContext context,
     Message message,
   ) async {
-    if (widget.menuDisabled) {
+    if (widget.menuDisabled || widget.selectMultiMessageSubject.value) {
       return;
     }
 
