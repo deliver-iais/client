@@ -1,6 +1,7 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/screen/muc/widgets/select_muc_type.dart';
+import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_form.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -94,7 +95,7 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                           Flexible(
                             child: Form(
                               key: mucNameKey,
-                              child: TextFormField(
+                              child: AutoDirectionTextForm(
                                 minLines: 1,
                                 autofocus: autofocus,
                                 validator: checkMucNameIsSet,
@@ -119,7 +120,7 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                             Flexible(
                               child: Form(
                                 key: _channelIdKey,
-                                child: TextFormField(
+                                child: AutoDirectionTextForm(
                                   minLines: 1,
                                   autofocus: autofocus,
                                   textInputAction: TextInputAction.send,
@@ -164,7 +165,7 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                         children: [
                           Flexible(
                             child: Form(
-                              child: TextFormField(
+                              child: AutoDirectionTextForm(
                                 minLines: 1,
                                 maxLines: 4,
                                 autofocus: autofocus,

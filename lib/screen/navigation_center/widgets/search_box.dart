@@ -1,4 +1,5 @@
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -46,8 +47,7 @@ class SearchBoxState extends State<SearchBox> {
         textDirection: _i18n.defaultTextDirection,
         child: SizedBox(
           height: 40,
-          child: TextField(
-            textDirection: _i18n.defaultTextDirection,
+          child: AutoDirectionTextField(
             style: const TextStyle(fontSize: 16),
             focusNode: _focusNode,
             controller: widget.controller ?? _localController,

@@ -4,6 +4,7 @@ import 'package:camera/camera.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/room/widgets/share_box/image_folder_widget.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/services/check_permissions_service.dart';
@@ -429,7 +430,7 @@ Stack buildInputCaption({
         alignment: Alignment.bottomLeft,
         child: Container(
           color: theme.colorScheme.background,
-          child: TextField(
+          child: AutoDirectionTextField(
             decoration: InputDecoration(
               hintText: i18n.get("caption"),
               border: InputBorder.none,
