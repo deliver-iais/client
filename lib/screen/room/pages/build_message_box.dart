@@ -242,10 +242,11 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     }
 
     // Wrap in Swipe widget if needed
-    if (!widget.message.roomUid.asUid().isChannel()
-        && widget.message.id != null) {
+    if (!widget.message.roomUid.asUid().isChannel() &&
+        widget.message.id != null) {
       messageWidget = Swipe(
-        onSwipeLeft: !widget.selectMultiMessageSubject.value ? widget.onReply : null,
+        onSwipeLeft:
+            !widget.selectMultiMessageSubject.value ? widget.onReply : null,
         child: Container(
           width: double.infinity,
           color: Colors.transparent,
@@ -305,18 +306,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       showMenuDisable: widget.selectMultiMessageSubject.value,
     );
 
-    Color getColor(Set<MaterialState> states) {
-      const interactiveStates = <MaterialState>{
-        MaterialState.pressed,
-        MaterialState.hovered,
-        MaterialState.focused,
-      };
-      if (states.any(interactiveStates.contains)) {
-        return Colors.blue;
-      }
-      return Colors.red;
-    }
-
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.end,
@@ -327,9 +316,9 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           builder: (context, snapshot) {
             return AnimatedOpacity(
               duration: SUPER_SLOW_ANIMATION_DURATION,
-              opacity: (snapshot.data ?? []).contains(widget.message.id) ? 1 : 0,
+              opacity: widget.selectMultiMessageSubject.value ? 1 : 0,
               child: AnimatedContainer(
-                width: (snapshot.data ?? []).contains(widget.message.id) ? 50 : 0,
+                width: widget.selectMultiMessageSubject.value ? 50 : 0,
                 duration: SUPER_SLOW_ANIMATION_DURATION,
                 child: Checkbox(
                   checkColor: Colors.white,
@@ -346,6 +335,18 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         ),
       ],
     );
+  }
+
+  Color getColor(Set<MaterialState> states) {
+    const interactiveStates = <MaterialState>{
+      MaterialState.pressed,
+      MaterialState.hovered,
+      MaterialState.focused,
+    };
+    if (states.any(interactiveStates.contains)) {
+      return (Theme.of(context)).toggleableActiveColor;
+    }
+    return (Theme.of(context)).primaryColor;
   }
 
   void onBotCommandClick(String command) {
@@ -397,7 +398,30 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           if (!isFirstMessageInGroupedMessages &&
               widget.message.roomUid.asUid().category == Categories.GROUP)
             const SizedBox(width: 44),
-          messageWidget
+          messageWidget,
+          const Spacer(),
+          StreamBuilder<List<int>>(
+            stream: widget.selectedMessageListIndex,
+            builder: (context, snapshot) {
+              return AnimatedOpacity(
+                duration: SUPER_SLOW_ANIMATION_DURATION,
+                opacity: widget.selectMultiMessageSubject.value ? 1 : 0,
+                child: AnimatedContainer(
+                  width: widget.selectMultiMessageSubject.value ? SELECTED_MESSAGE_CHECKBOX_WIDTH : 0,
+                  duration: SUPER_SLOW_ANIMATION_DURATION,
+                  child: Checkbox(
+                    checkColor: Colors.white,
+                    fillColor: MaterialStateProperty.resolveWith(getColor),
+                    shape: const CircleBorder(),
+                    value: (snapshot.data ?? []).contains(widget.message.id),
+                    onChanged: (value) {
+                      widget.addForwardMessage();
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
