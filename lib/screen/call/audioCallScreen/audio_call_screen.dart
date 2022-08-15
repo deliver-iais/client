@@ -130,8 +130,7 @@ class AudioCallScreenState extends State<AudioCallScreen>
                   )
                 else
                   Directionality(
-                    textDirection:
-                        _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                    textDirection: _i18n.defaultTextDirection,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
