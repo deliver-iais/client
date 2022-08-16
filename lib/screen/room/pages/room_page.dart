@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:badges/badges.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
@@ -626,7 +625,7 @@ class RoomPageState extends State<RoomPage> {
   void unselectMessages() {
     _selectMultiMessageSubject.add(false);
     _selectedMessages.clear();
-   // setState(() {});
+    setState(() {});
   }
 
   Future<void> onUnPin(Message message) =>

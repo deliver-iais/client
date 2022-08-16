@@ -26,6 +26,7 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/time.dart';
+import 'package:deliver/shared/widgets/animated_delete_widget.dart';
 import 'package:deliver/shared/widgets/animated_switch_widget.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/theme/extra_theme.dart';
@@ -93,7 +94,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedSwitchWidget(
+    return AnimatedDeleteWidget(
       child: _buildMessageBox(
         context,
         widget.message,
@@ -341,8 +342,12 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   bool shouldBeAnimated() {
-    return (clock.now().millisecondsSinceEpoch - widget.message.time).abs() <
-        2000;
+    var widgetSendTime = 0;
+    try{
+      widgetSendTime = int.parse(widget.message.packetId);
+    }catch(_){}
+    return (clock.now().millisecondsSinceEpoch - widgetSendTime).abs() <
+        SLOW_ANIMATION_DURATION.inMilliseconds * 3;
   }
 
   void onBotCommandClick(String command) {
