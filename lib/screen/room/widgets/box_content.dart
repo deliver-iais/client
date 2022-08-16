@@ -36,6 +36,7 @@ class BoxContent extends StatefulWidget {
   final MessageBrief? messageReplyBrief;
   final double maxWidth;
   final double minWidth;
+  final bool showMenuDisable;
   final bool isSender;
   final bool isSeen;
   final bool isFirstMessageInGroupedMessages;
@@ -62,6 +63,7 @@ class BoxContent extends StatefulWidget {
     required this.onUsernameClick,
     this.pattern,
     this.messageReplyBrief,
+    this.showMenuDisable = false,
     required this.onEdit,
   });
 
@@ -96,7 +98,7 @@ class BoxContentState extends State<BoxContent> {
         ExtraTheme.of(context).messageColorScheme(widget.message.from);
 
     return MouseRegion(
-      onHover: (_) => showMenuBehavior.add(true),
+      onHover: (_) => showMenuBehavior.add(true && !widget.showMenuDisable),
       onExit: (_) => showMenuBehavior.add(false),
       child: Stack(
         alignment: widget.isSender ? Alignment.topLeft : Alignment.topRight,
@@ -121,13 +123,12 @@ class BoxContentState extends State<BoxContent> {
               ],
             ),
           ),
-          if (isDesktop | isWeb)
+          if (!widget.showMenuDisable && (isDesktop | isWeb))
             StreamBuilder<bool>(
               initialData: false,
               stream: showMenuBehavior.distinct(),
               builder: (context, snapshot) {
                 final showMenu = snapshot.data ?? false;
-
                 return MouseRegion(
                   cursor: SystemMouseCursors.click,
                   child: GestureDetector(
