@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 
 import 'package:deliver/box/dao/shared_dao.dart';
@@ -79,6 +80,20 @@ class UxService {
   final _isAutoNightModeEnable = BehaviorSubject.seeded(true);
   final _sendByEnter = BehaviorSubject.seeded(isDesktop);
 
+  late StreamSubscription<bool> _isAllNotificationDisabledSubscribe;
+
+  void init() {
+    _isAllNotificationDisabledSubscribe = _sharedDao
+        .getBooleanStream(SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED)
+        .distinct()
+        .listen((isDisabled) => _isAllNotificationDisabled.add(isDisabled));
+  }
+
+  void reInitialize() {
+    _isAllNotificationDisabledSubscribe.cancel();
+    init();
+  }
+
   UxService() {
     _sharedDao
         .getStream(
@@ -101,10 +116,7 @@ class UxService {
         .distinct()
         .listen((isEnable) => _showColorful.add(isEnable));
 
-    _sharedDao
-        .getBooleanStream(SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED)
-        .distinct()
-        .listen((isDisabled) => _isAllNotificationDisabled.add(isDisabled));
+    init();
 
     _sharedDao
         .getBooleanStream(SHARED_DAO_SEND_BY_ENTER, defaultValue: isDesktop)
