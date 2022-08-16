@@ -1,8 +1,9 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/room/widgets/build_input_caption.dart';
 import 'package:deliver/screen/room/widgets/search_box_and_list_widget.dart';
-import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
+
 import 'package:deliver/screen/share_input_file/share_chat_item.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -67,10 +68,8 @@ class _ShareInputFileState extends State<ShareInputFile> {
             if (widget.inputShareText.isNotEmpty)
               buildSend()
             else
-              buildInputCaption(
-                i18n: _i18n,
+              BuildInputCaption(
                 insertCaption: _insertCaption,
-                context: context,
                 captionEditingController: _textEditingController,
                 count: _selectedRooms.length,
                 send: () {
