@@ -46,6 +46,7 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/time.dart';
+import 'package:deliver/shared/widgets/animated_switch_widget.dart';
 import 'package:deliver/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/bot_appbar_title.dart';
@@ -625,7 +626,7 @@ class RoomPageState extends State<RoomPage> {
   void unselectMessages() {
     _selectMultiMessageSubject.add(false);
     _selectedMessages.clear();
-    setState(() {});
+   // setState(() {});
   }
 
   Future<void> onUnPin(Message message) =>
@@ -1036,6 +1037,7 @@ class RoomPageState extends State<RoomPage> {
             },
           ),
       ],
+      leadingWidth: _selectMultiMessageSubject.value ? 100 : null,
       leading: GestureDetector(
         child: StreamBuilder<bool>(
           stream: _searchMode,
@@ -1056,24 +1058,27 @@ class RoomPageState extends State<RoomPage> {
                       snapshot.data!) {
                     return Row(
                       children: [
-                        Badge(
-                          badgeColor: theme.primaryColor,
-                          badgeContent: Text(
+                        IconButton(
+                          color: theme.primaryColor,
+                          icon: const Icon(
+                            CupertinoIcons.xmark,
+                            size: 25,
+                          ),
+                          onPressed: () {
+                            unselectMessages();
+                          },
+                        ),
+                        AnimatedSwitchWidget(
+                          child: Text(
                             _selectedMessages.length.toString(),
+                            // This key causes the AnimatedSwitcher to interpret this as a "new"
+                            // child each time the count changes, so that it will begin its animation
+                            // when the count changes.
+                            key: ValueKey<int>(_selectedMessages.length),
                             style: TextStyle(
                               fontSize: 16,
-                              color: theme.colorScheme.onPrimary,
+                              color: theme.colorScheme.primary,
                             ),
-                          ),
-                          child: IconButton(
-                            color: theme.primaryColor,
-                            icon: const Icon(
-                              CupertinoIcons.xmark,
-                              size: 25,
-                            ),
-                            onPressed: () {
-                              unselectMessages();
-                            },
                           ),
                         ),
                       ],
@@ -1136,7 +1141,7 @@ class RoomPageState extends State<RoomPage> {
                     selectedMessages: _selectedMessages,
                     hasPermissionInChannel: _hasPermissionInChannel.value,
                     hasPermissionInGroup: _hasPermissionInGroup.value,
-                    onDelete: unselectMessages,
+                    onClose: unselectMessages,
                     deleteSelectedMessage: _deleteSelectedMessage,
                   );
                 } else {

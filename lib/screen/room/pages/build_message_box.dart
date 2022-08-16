@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:clock/clock.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_brief.dart';
 import 'package:deliver/box/message_type.dart';
@@ -25,6 +26,7 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/time.dart';
+import 'package:deliver/shared/widgets/animated_switch_widget.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver/theme/theme.dart';
@@ -87,14 +89,17 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _routingServices = GetIt.I.get<RoutingService>();
   static final _roomRepo = GetIt.I.get<RoomRepo>();
+  final animatedWidget = BehaviorSubject.seeded(false);
 
   @override
   Widget build(BuildContext context) {
-    return _buildMessageBox(
-      context,
-      widget.message,
-      widget.messageBefore,
-      messageReplyBrief: widget.messageReplyBrief,
+    return AnimatedSwitchWidget(
+      child: _buildMessageBox(
+        context,
+        widget.message,
+        widget.messageBefore,
+        messageReplyBrief: widget.messageReplyBrief,
+      ),
     );
   }
 
@@ -296,8 +301,48 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.end,
-      children: <Widget>[messageWidget],
+      children: <Widget>[
+        StreamBuilder<bool>(
+            stream: animatedWidget,
+            initialData: shouldBeAnimated(),
+            builder: (context, snapshot) {
+              final isAnimated = snapshot.data ?? false;
+              return AnimatedContainer(
+                duration: SLOW_ANIMATION_DURATION,
+                // transform: Matrix4.rotationX(turns.value * pi * 2),
+                transform: isAnimated
+                    ? Matrix4.translationValues(
+                        -60,
+                        80,
+                        0,
+                      )
+                    : Matrix4.translationValues(
+                        0,
+                        0,
+                        0,
+                      ),
+                transformAlignment: Alignment.center,
+                child: messageWidget,
+              );
+            }),
+      ],
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (shouldBeAnimated()) {
+      animatedWidget.add(true);
+      Timer(const Duration(milliseconds: 1), () {
+        animatedWidget.add(false);
+      });
+    }
+  }
+
+  bool shouldBeAnimated() {
+    return (clock.now().millisecondsSinceEpoch - widget.message.time).abs() <
+        2000;
   }
 
   void onBotCommandClick(String command) {

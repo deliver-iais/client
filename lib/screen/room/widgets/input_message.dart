@@ -109,7 +109,7 @@ class InputMessageWidgetState extends State<InputMessage> {
   Subject<ActivityType> isTypingActivitySubject = BehaviorSubject();
   Subject<ActivityType> noActivitySubject = BehaviorSubject();
   BehaviorSubject<TextDirection> textDirection =
-      BehaviorSubject.seeded(TextDirection.ltr);
+      BehaviorSubject.seeded(_i18n.defaultTextDirection);
   late String _botCommandData;
   int mentionSelectedIndex = 0;
   int botCommandSelectedIndex = 0;
@@ -586,7 +586,7 @@ class InputMessageWidgetState extends State<InputMessage> {
             child: StreamBuilder<TextDirection>(
               stream: textDirection.distinct(),
               builder: (c, sn) {
-                final textDir = sn.data ?? TextDirection.ltr;
+                final textDir = sn.data ?? _i18n.defaultTextDirection;
                 return TextField(
                   selectionControls: selectionControls,
                   focusNode: widget.focusNode,

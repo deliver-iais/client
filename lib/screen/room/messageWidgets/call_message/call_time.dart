@@ -17,11 +17,8 @@ class CallTime extends StatelessWidget {
 
     return time.microsecondsSinceEpoch != 0
         ? Text(
-            textDirection:
-                _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
-            style:
-                theme.textTheme.bodySmall,
-
+            textDirection: _i18n.defaultTextDirection,
+            style: theme.textTheme.bodySmall,
             callHour.isNotEmpty
                 ? "$callHour ${_i18n.get("hour")} ${_i18n.get("and")} $callMin ${_i18n.get("minutes")}"
                 : callMin.isNotEmpty
