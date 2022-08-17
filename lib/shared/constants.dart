@@ -248,6 +248,7 @@ const double VERY_LARGE_BREAKDOWN_SIZE = 1150.0;
 const double NAVIGATION_PANEL_SIZE = 320.0;
 const double MIN_WIDTH = 200.0;
 const int SCROLL_DOWN_BUTTON_HIDING_TIME = 2500;
+const double SELECTED_MESSAGE_CHECKBOX_WIDTH = 35;
 const mainBorder = BorderRadius.all(Radius.circular(28));
 const secondaryBorder = BorderRadius.all(Radius.circular(12));
 const tertiaryBorder = BorderRadius.all(Radius.circular(8));
@@ -278,9 +279,9 @@ double animationSquareSize(BuildContext context) => isLarge(context)
 double maxWidthOfMessage(BuildContext context) => min(
       (MediaQuery.of(context).size.width -
               (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
-          0.8,
+          0.8 - SELECTED_MESSAGE_CHECKBOX_WIDTH,
       450,
     );
 
 double minWidthOfMessage(BuildContext context) =>
-    min(maxWidthOfMessage(context), 200);
+    min(maxWidthOfMessage(context), 200 - SELECTED_MESSAGE_CHECKBOX_WIDTH);

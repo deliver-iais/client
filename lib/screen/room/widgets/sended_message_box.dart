@@ -19,6 +19,7 @@ class SentMessageBox extends StatelessWidget {
   final void Function() onArrowIconClick;
   final void Function(TapDownDetails) storePosition;
   final void Function() onEdit;
+  final bool showMenuDisable;
 
   const SentMessageBox({
     super.key,
@@ -32,6 +33,7 @@ class SentMessageBox extends StatelessWidget {
     required this.onArrowIconClick,
     required this.onEdit,
     this.pattern,
+    this.showMenuDisable = false,
   });
 
   @override
@@ -51,6 +53,7 @@ class SentMessageBox extends StatelessWidget {
       onArrowIconClick: onArrowIconClick,
       storePosition: storePosition,
       onEdit: onEdit,
+      showMenuDisable: showMenuDisable,
     );
 
     return doNotNeedsWrapper()
