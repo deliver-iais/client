@@ -126,7 +126,7 @@ class _ColorFilterPageState extends State<ColorFilterPage> {
         value: brightnessValue,
         sliderLabel: _i18n.get("brightness"),
       ),
-      SizedBox(height: MediaQuery.of(context).padding.bottom),
+      const SizedBox(height: 20),
     ];
   }
 
@@ -188,30 +188,35 @@ class _ColorFilterPageState extends State<ColorFilterPage> {
     required double value,
     required void Function(double)? onChanged,
   }) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 100,
-          child: Center(
-            child:
-                Text(sliderLabel, style: const TextStyle(color: Colors.white)),
-          ),
-        ),
-        Expanded(
-          child: SliderTheme(
-            data: SliderTheme.of(context).copyWith(
-              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-            ),
-            child: Slider(
-              activeColor: Colors.white,
-              inactiveColor: Colors.white24,
-              value: value,
-              min: -1,
-              onChanged: onChanged,
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 500),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 100,
+            child: Center(
+              child: Text(
+                sliderLabel,
+                style: const TextStyle(color: Colors.white),
+              ),
             ),
           ),
-        ),
-      ],
+          Expanded(
+            child: SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+              ),
+              child: Slider(
+                activeColor: Colors.white,
+                inactiveColor: Colors.white24,
+                value: value,
+                min: -1,
+                onChanged: onChanged,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

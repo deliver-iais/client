@@ -206,6 +206,15 @@ class _OpenImagePageState extends State<OpenImagePage> {
                     : const CircularCheckMarkWidget(),
                 iconSize: 30,
               ),
+            if (widget.send == null)
+              IconButton(
+                icon: const Icon(Icons.done),
+                onPressed: () {
+                  setState(() {
+                    widget.onEditEnd(imagePath);
+                  });
+                },
+              ),
           ],
         ),
         body: Container(
