@@ -36,9 +36,10 @@ class DefaultFirebaseOptions {
           'DefaultFirebaseOptions have not been configured for linux - '
           'you can reconfigure this by running the FlutterFire CLI again.',
         );
-      default:
+      case TargetPlatform.fuchsia:
         throw UnsupportedError(
-          'DefaultFirebaseOptions are not supported for this platform.',
+          'DefaultFirebaseOptions have not been configured for fuchsia - '
+          'you can reconfigure this by running the FlutterFire CLI again.',
         );
     }
   }
@@ -70,8 +71,10 @@ class DefaultFirebaseOptions {
     projectId: 'deliver-d705a',
     databaseURL: 'https://deliver-d705a.firebaseio.com',
     storageBucket: 'deliver-d705a.appspot.com',
-    androidClientId: '192675293547-rqr50h441m0on66gegre58assn1cl8f8.apps.googleusercontent.com',
-    iosClientId: '192675293547-v07di0gbgk0modtv9usvucsu56bb3dft.apps.googleusercontent.com',
+    androidClientId:
+        '192675293547-rqr50h441m0on66gegre58assn1cl8f8.apps.googleusercontent.com',
+    iosClientId:
+        '192675293547-v07di0gbgk0modtv9usvucsu56bb3dft.apps.googleusercontent.com',
     iosBundleId: 'ir.we.deliver',
   );
 
@@ -82,8 +85,10 @@ class DefaultFirebaseOptions {
     projectId: 'deliver-d705a',
     databaseURL: 'https://deliver-d705a.firebaseio.com',
     storageBucket: 'deliver-d705a.appspot.com',
-    androidClientId: '192675293547-rqr50h441m0on66gegre58assn1cl8f8.apps.googleusercontent.com',
-    iosClientId: '192675293547-v07di0gbgk0modtv9usvucsu56bb3dft.apps.googleusercontent.com',
+    androidClientId:
+        '192675293547-rqr50h441m0on66gegre58assn1cl8f8.apps.googleusercontent.com',
+    iosClientId:
+        '192675293547-v07di0gbgk0modtv9usvucsu56bb3dft.apps.googleusercontent.com',
     iosBundleId: 'ir.we.deliver',
   );
 }

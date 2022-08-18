@@ -143,7 +143,8 @@ class CallRepo {
       if (call != null && !isDesktop) {
         _isNotificationSelected = call.notificationSelected;
         _logger.i(
-            "read call from DB notificationSelected : ${call.notificationSelected}");
+          "read call from DB notificationSelected : ${call.notificationSelected}",
+        );
         if (call.expireTime > clock.now().millisecondsSinceEpoch &&
             _callService.getUserCallState == UserCallState.NOCALL) {
           _callService.callEvents.add(
