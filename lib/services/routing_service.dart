@@ -46,7 +46,8 @@ import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 // Pages
-const _navigationCenter = NavigationCenter(key: ValueKey("navigator"));
+final _globalKeyNavigationCenter = GlobalKey();
+final _navigationCenter = NavigationCenter(key: _globalKeyNavigationCenter);
 
 const _empty = Empty(key: ValueKey("empty"));
 
@@ -343,7 +344,7 @@ class RoutingService {
     return Row(
       children: [
         if (isLarge(context))
-          const SizedBox(
+          SizedBox(
             width: NAVIGATION_PANEL_SIZE,
             child: _navigationCenter,
           ),

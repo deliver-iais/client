@@ -62,8 +62,8 @@ class RoundUpTransition extends AnimatedWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Opacity(
-      opacity: turns.value,
+    return FadeTransition(
+      opacity: turns,
       child: Container(
         // transform: Matrix4.rotationX(turns.value * pi * 2),
         transform: Matrix4.translationValues(
