@@ -44,6 +44,10 @@ abstract class Notifier {
         .openCallScreen(roomUid.asUid(), isCallAccepted: true);
   }
 
+  static void onCallNotificationTap(String roomUid) {
+    GetIt.I.get<RoutingService>().openCallScreen(roomUid.asUid());
+  }
+
   static void onCallReject() {
     GetIt.I.get<CallRepo>().declineCall();
   }
@@ -537,8 +541,12 @@ class AndroidNotifier implements Notifier {
   );
 
   AndroidNotifier() {
-    ConnectycubeFlutterCallKit.instance
-        .init(onCallAccepted: onCallAccepted, onCallRejected: onCallRejected);
+    ConnectycubeFlutterCallKit.instance.init(
+      onCallAccepted: onCallAccepted,
+      onCallRejected: onCallRejected,
+      onNotificationTap: onCallNotificationTap,
+    );
+
     _flutterLocalNotificationsPlugin.createNotificationChannel(channel);
 
     const notificationSetting =
@@ -602,11 +610,32 @@ class AndroidNotifier implements Notifier {
     Notifier.onCallReject();
   }
 
+  Future<void> onCallNotificationTap(CallEvent callEvent) async {
+    await GetIt.I.get<CallService>().clearCallData();
+    Notifier.onCallNotificationTap(callEvent.userInfo!["uid"]!);
+    _callService.setRoomUid = callEvent.userInfo!["uid"]!.asUid();
+    await _callService.saveCallOnDb(
+      getCallInfo(
+        callEvent,
+        CallEvent_CallStatus.CREATED,
+        isNotificationSelected: true,
+      ),
+    );
+  }
+
   Future<void> onCallAccepted(CallEvent callEvent) async {
     await GetIt.I.get<CallService>().clearCallData();
     Notifier.onCallAccept(callEvent.userInfo!["uid"]!);
     _callService.setRoomUid = callEvent.userInfo!["uid"]!.asUid();
-    await GetIt.I.get<CallService>().clearCallData();
+    await _callService
+        .saveCallOnDb(getCallInfo(callEvent, CallEvent_CallStatus.JOINED));
+  }
+
+  current_call_info.CurrentCallInfo getCallInfo(
+    CallEvent callEvent,
+    CallEvent_CallStatus callEvent_CallStatus, {
+    bool isNotificationSelected = false,
+  }) {
     final callEventInfo =
         call_pro.CallEvent.fromJson(callEvent.userInfo!["callEventJson"]!);
     //here status be JOINED means ACCEPT CALL and when app Start should go on accepting status
@@ -614,19 +643,17 @@ class AndroidNotifier implements Notifier {
       callDuration: callEventInfo.callDuration.toInt(),
       endOfCallTime: callEventInfo.endOfCallTime.toInt(),
       callType: _callService.findCallEventType(callEventInfo.callType),
-      newStatus:
-          _callService.findCallEventStatusProto(CallEvent_CallStatus.JOINED),
+      newStatus: _callService.findCallEventStatusProto(callEvent_CallStatus),
       id: callEventInfo.id,
     );
 
-    final callInfo = current_call_info.CurrentCallInfo(
+    return current_call_info.CurrentCallInfo(
       callEvent: currentCallEvent,
       from: callEvent.userInfo!["uid"]!,
       to: _authRepo.currentUserUid.toString(),
       expireTime: clock.now().millisecondsSinceEpoch + 60000,
+      notificationSelected: isNotificationSelected,
     );
-
-    await _callService.saveCallOnDb(callInfo);
   }
 
   @override
