@@ -137,6 +137,24 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                 ],
               ),
             ),
+          if (widget.message.type == MessageType.TEXT ||
+              widget.message.type == MessageType.FILE)
+            PopupMenuItem(
+              value: OperationOnMessage.SELECT,
+              child: Row(
+                children: [
+                  const Icon(
+                    CupertinoIcons.checkmark_alt_circle,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 10),
+                  Text(
+                    _i18n.get("select"),
+                    style: theme.primaryTextTheme.bodyText2,
+                  ),
+                ],
+              ),
+            ),
           if (widget.message.type == MessageType.FILE && !isDesktop)
             FutureBuilder(
               future: _fileRepo.getFileIfExist(
@@ -360,8 +378,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
           const SizedBox(width: 8),
           Text(
             _i18n.get("delete"),
-            style:
-                theme.primaryTextTheme.bodyText2,
+            style: theme.primaryTextTheme.bodyText2,
           ),
         ],
       ),

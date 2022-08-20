@@ -200,10 +200,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
               ? null
               : widget.onReply,
           onLongPress: () {
-            if (!widget.selectMultiMessageSubject.value) {
-              widget.selectMultiMessageSubject.add(true);
-            }
-            widget.addForwardMessage();
+            selectMessage();
           },
           onTapDown: storePosition,
           onSecondaryTapDown: storePosition,
@@ -220,6 +217,13 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         ),
       ],
     );
+  }
+
+  void selectMessage() {
+    if (!widget.selectMultiMessageSubject.value) {
+      widget.selectMultiMessageSubject.add(true);
+    }
+    widget.addForwardMessage();
   }
 
   Widget _createSidedMessageWidget(
@@ -279,10 +283,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           ? null
           : widget.onReply,
       onLongPress: () {
-        if (!widget.selectMultiMessageSubject.value) {
-          widget.selectMultiMessageSubject.add(true);
-        }
-        widget.addForwardMessage();
+        selectMessage();
       },
       onTapDown: storePosition,
       onSecondaryTapDown: storePosition,
@@ -344,7 +345,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
               duration: SUPER_SLOW_ANIMATION_DURATION,
               opacity: widget.selectMultiMessageSubject.value ? 1 : 0,
               child: AnimatedContainer(
-                width: widget.selectMultiMessageSubject.value ? 50 : 0,
+                width: widget.selectMultiMessageSubject.value ? SELECTED_MESSAGE_CHECKBOX_WIDTH : 0,
                 duration: SUPER_SLOW_ANIMATION_DURATION,
                 child: Checkbox(
                   checkColor: Colors.white,
@@ -507,6 +508,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onPin: widget.onPin,
       onReply: widget.onReply,
       onUnPin: widget.onUnPin,
+      onSelect: selectMessage,
+
     ).selectOperation(selectedValue);
   }
 
@@ -530,6 +533,7 @@ class OperationOnMessageSelection {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
 
   final void Function()? onReply;
+  final void Function()? onSelect;
   final void Function()? onEdit;
   final void Function()? onDelete;
   final void Function()? onPin;
@@ -539,6 +543,7 @@ class OperationOnMessageSelection {
 
   OperationOnMessageSelection({
     this.onReply,
+    this.onSelect,
     this.onEdit,
     this.onDelete,
     this.onPin,
@@ -551,6 +556,9 @@ class OperationOnMessageSelection {
     switch (operationOnMessage) {
       case OperationOnMessage.REPLY:
         onReply?.call();
+        break;
+      case OperationOnMessage.SELECT:
+        onSelect?.call();
         break;
       case OperationOnMessage.COPY:
         onCopy();

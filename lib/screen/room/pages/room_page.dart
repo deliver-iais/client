@@ -1306,20 +1306,29 @@ class RoomPageState extends State<RoomPage> {
   Future<int?> _timeAt(int index) async {
     if (index < 0) return null;
 
+    var searchedIndex = 0;
+
     final msg = await _messageAtIndex(index + 1);
-
-    if (index > 0) {
-      final prevMsg = await _messageAtIndex(index);
-      if (prevMsg!.isHidden || msg!.isHidden) {
-        return null;
-      }
-
-      final d1 = date(prevMsg.time);
-      final d2 = date(msg.time);
-      if (d1.day != d2.day || d1.month != d2.month || d1.year != d2.year) {
-        return msg.time;
-      }
+    if (msg == null || msg.isHidden) {
+      return null;
     }
+
+    Message? prevMsg;
+
+    do {
+      if (index > 0) {
+        prevMsg = await _messageAtIndex(index - searchedIndex++);
+        if (prevMsg == null || prevMsg.isHidden) {
+          continue;
+        }
+
+        final d1 = date(prevMsg.time);
+        final d2 = date(msg.time);
+        if (d1.day != d2.day || d1.month != d2.month || d1.year != d2.year) {
+          return msg.time;
+        }
+      }
+    } while (prevMsg!.isHidden && searchedIndex < 100);
 
     return null;
   }
@@ -1375,7 +1384,8 @@ class RoomPageState extends State<RoomPage> {
 
     if (widget == null) {
       widget = _buildMessageBox(index, tuple);
-      if (tuple.item2?.id != null && !tuple.item2!.isHidden) _messageWidgetCache.set(index, widget);
+      if (tuple.item2?.id != null && !tuple.item2!.isHidden)
+        _messageWidgetCache.set(index, widget);
     }
 
     return widget;
