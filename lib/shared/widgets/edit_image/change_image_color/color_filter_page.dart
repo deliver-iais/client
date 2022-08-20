@@ -1,8 +1,10 @@
 import 'dart:io';
 import 'package:clock/clock.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/widgets/edit_image/change_image_color/color_filter_generator.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:screenshot/screenshot.dart';
 
@@ -25,136 +27,106 @@ class _ColorFilterPageState extends State<ColorFilterPage> {
   double brightnessValue = 0;
   double saturationValue = 0;
   final _fileServices = GetIt.I.get<FileService>();
+  final _i18n = GetIt.I.get<I18N>();
   ScreenshotController screenshotController = ScreenshotController();
   bool showLoading = false;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("image filter"),
-        actions: [
-          if (!showLoading)
-            IconButton(
-              icon: const Icon(Icons.done_rounded),
-              onPressed: () async {
-                await _saveImage(context);
-              },
-            )
-        ],
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        systemNavigationBarColor: Colors.black,
       ),
-      body: SizedBox(
-        height: double.maxFinite,
-        width: double.maxFinite,
-        child: Column(
-          children: [
-            Expanded(
-              child: Stack(
-                children: [
-                  FittedBox(
-                    alignment: FractionalOffset.center,
-                    child: Screenshot(
-                      controller: screenshotController,
-                      child: imageFilterLatest(
-                        hue: hueValue,
-                        brightness: brightnessValue,
-                        saturation: saturationValue,
-                        child:
-                            ClipRect(child: Image.file(File(widget.imagePath))),
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          backgroundColor: Colors.black.withAlpha(120),
+          iconTheme: const IconThemeData(
+            color: Colors.white, //change your color here
+          ),
+          title: Text(
+            _i18n.get("image_filter"),
+            style: const TextStyle(color: Colors.white),
+          ),
+          actions: [
+            if (!showLoading)
+              IconButton(
+                icon: const Icon(Icons.done_rounded),
+                onPressed: () async {
+                  await _saveImage(context);
+                },
+              )
+          ],
+        ),
+        body: Container(
+          color: Colors.black,
+          height: double.maxFinite,
+          width: double.maxFinite,
+          child: Column(
+            children: [
+              Expanded(
+                child: Stack(
+                  alignment: AlignmentDirectional.center,
+                  children: [
+                    FittedBox(
+                      alignment: FractionalOffset.center,
+                      child: Screenshot(
+                        controller: screenshotController,
+                        child: imageFilterLatest(
+                          hue: hueValue,
+                          brightness: brightnessValue,
+                          saturation: saturationValue,
+                          child: ClipRect(
+                            child: Image.file(File(widget.imagePath)),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                  if (showLoading)
-                    const Center(child: CircularProgressIndicator())
-                ],
+                    if (showLoading)
+                      const Center(child: CircularProgressIndicator())
+                  ],
+                ),
               ),
-            ),
-            if (!showLoading) Column(children: bottomSlider())
-          ],
+              if (!showLoading) Column(children: bottomSlider())
+            ],
+          ),
         ),
       ),
     );
   }
 
   List<Widget> bottomSlider() {
-    final theme = Theme.of(context);
     return [
-      Row(
-        children: [
-          const SizedBox(width: 100, child: Center(child: Text('Hue'))),
-          Expanded(
-            child: SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                thumbShape:
-                    const RoundSliderThumbShape(enabledThumbRadius: 12.0),
-              ),
-              child: Slider(
-                activeColor: theme.primaryColor,
-                inactiveColor: Colors.grey,
-                value: hueValue,
-                min: -10.0,
-                max: 10.0,
-                onChanged: (v) {
-                  setState(() {
-                    hueValue = v;
-                  });
-                },
-              ),
-            ),
-          ),
-        ],
+      colorFilterSlider(
+        onChanged: (v) {
+          setState(() {
+            hueValue = v;
+          });
+        },
+        value: hueValue,
+        sliderLabel: _i18n.get("hue"),
       ),
       const SizedBox(height: 10),
-      Row(
-        children: [
-          const SizedBox(width: 100, child: Center(child: Text('Saturation'))),
-          Expanded(
-            child: SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                thumbShape:
-                    const RoundSliderThumbShape(enabledThumbRadius: 12.0),
-              ),
-              child: Slider(
-                activeColor: theme.primaryColor,
-                inactiveColor: Colors.grey,
-                value: saturationValue,
-                min: -10.0,
-                max: 10.0,
-                onChanged: (v) {
-                  setState(() {
-                    saturationValue = v;
-                  });
-                },
-              ),
-            ),
-          ),
-        ],
+      colorFilterSlider(
+        onChanged: (v) {
+          setState(() {
+            saturationValue = v;
+          });
+        },
+        value: saturationValue,
+        sliderLabel: _i18n.get("saturation"),
       ),
       const SizedBox(height: 10),
-      Row(
-        children: [
-          const SizedBox(width: 100, child: Center(child: Text('Brightness'))),
-          Expanded(
-            child: SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                thumbShape:
-                    const RoundSliderThumbShape(enabledThumbRadius: 12.0),
-              ),
-              child: Slider(
-                activeColor: theme.primaryColor,
-                inactiveColor: Colors.grey,
-                value: brightnessValue,
-                onChanged: (v) {
-                  setState(() {
-                    brightnessValue = v;
-                  });
-                },
-              ),
-            ),
-          ),
-        ],
+      colorFilterSlider(
+        onChanged: (v) {
+          setState(() {
+            brightnessValue = v;
+          });
+        },
+        value: brightnessValue,
+        sliderLabel: _i18n.get("brightness"),
       ),
-      SizedBox(height: MediaQuery.of(context).padding.bottom),
+      const SizedBox(height: 20),
     ];
   }
 
@@ -207,6 +179,43 @@ class _ColorFilterPageState extends State<ColorFilterPage> {
           ),
           child: child,
         ),
+      ),
+    );
+  }
+
+  Widget colorFilterSlider({
+    required String sliderLabel,
+    required double value,
+    required void Function(double)? onChanged,
+  }) {
+    return Container(
+      constraints: const BoxConstraints(maxWidth: 500),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 100,
+            child: Center(
+              child: Text(
+                sliderLabel,
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          ),
+          Expanded(
+            child: SliderTheme(
+              data: SliderTheme.of(context).copyWith(
+                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
+              ),
+              child: Slider(
+                activeColor: Colors.white,
+                inactiveColor: Colors.white24,
+                value: value,
+                min: -1,
+                onChanged: onChanged,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

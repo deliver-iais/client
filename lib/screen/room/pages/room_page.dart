@@ -136,6 +136,7 @@ class RoomPageState extends State<RoomPage> {
   final _itemCountSubject = BehaviorSubject.seeded(0);
   final _waitingForForwardedMessage = BehaviorSubject.seeded(false);
   final _selectMultiMessageSubject = BehaviorSubject.seeded(false);
+  final _selectedMessageListIndex = BehaviorSubject<List<int>>.seeded([]);
   final _positionSubject = BehaviorSubject.seeded(0);
   final _hasPermissionInChannel = BehaviorSubject.seeded(true);
   final _hasPermissionInGroup = BehaviorSubject.seeded(false);
@@ -599,6 +600,7 @@ class RoomPageState extends State<RoomPage> {
     _waitingForForwardedMessage.add(false);
     _selectMultiMessageSubject.add(false);
     _selectedMessages.clear();
+    _selectedMessageListIndex.add([]);
     setState(() {});
   }
 
@@ -626,6 +628,7 @@ class RoomPageState extends State<RoomPage> {
   void unselectMessages() {
     _selectMultiMessageSubject.add(false);
     _selectedMessages.clear();
+    _selectedMessageListIndex.add([]);
     setState(() {});
   }
 
@@ -1055,29 +1058,35 @@ class RoomPageState extends State<RoomPage> {
                   if (snapshot.hasData &&
                       snapshot.data != null &&
                       snapshot.data!) {
-                    return Row(
-                      children: [
-                        Badge(
-                          badgeColor: theme.primaryColor,
-                          badgeContent: Text(
-                            _selectedMessages.length.toString(),
-                            style: TextStyle(
-                              fontSize: 16,
-                              color: theme.colorScheme.onPrimary,
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: Row(
+                        children: [
+                          Badge(
+                            position: BadgePosition.topEnd(top: -6, end: -2),
+                            animationDuration:
+                                const Duration(milliseconds: 300),
+                            badgeColor: theme.primaryColor,
+                            badgeContent: Text(
+                              _selectedMessages.length.toString(),
+                              style: TextStyle(
+                                color: theme.colorScheme.onPrimary,
+                                fontSize: 14,
+                              ),
+                            ),
+                            child: IconButton(
+                              color: theme.primaryColor,
+                              icon: const Icon(
+                                CupertinoIcons.xmark,
+                                size: 25,
+                              ),
+                              onPressed: () {
+                                unselectMessages();
+                              },
                             ),
                           ),
-                          child: IconButton(
-                            color: theme.primaryColor,
-                            icon: const Icon(
-                              CupertinoIcons.xmark,
-                              size: 25,
-                            ),
-                            onPressed: () {
-                              unselectMessages();
-                            },
-                          ),
-                        ),
-                      ],
+                        ],
+                      ),
                     );
                   } else {
                     return _routingService.backButtonLeading();
@@ -1338,17 +1347,30 @@ class RoomPageState extends State<RoomPage> {
       );
     }
 
+    Color getColor(Set<MaterialState> states) {
+      const interactiveStates = <MaterialState>{
+        MaterialState.pressed,
+        MaterialState.hovered,
+        MaterialState.focused,
+      };
+      if (states.any(interactiveStates.contains)) {
+        return Colors.blue;
+      }
+      return Colors.red;
+    }
+
     return StreamBuilder<int>(
       initialData: _highlightMessageId.value,
       stream: _highlightMessageId,
       builder: (context, snapshot) {
         return AnimatedContainer(
           key: ValueKey(index),
-          duration: SUPER_SLOW_ANIMATION_DURATION,
+          duration: FAST_ANIMATION_DURATION,
           color: _selectedMessages.containsKey(index + 1) ||
                   (snapshot.data! == index + 1)
-              ? Theme.of(context).focusColor.withAlpha(100)
+              ? Theme.of(context).primaryColor.withAlpha(100)
               : Colors.transparent,
+          curve: Curves.elasticOut,
           child: widget,
         );
       },
@@ -1394,6 +1416,7 @@ class RoomPageState extends State<RoomPage> {
       addForwardMessage: () => _addForwardMessage(message),
       scrollToMessage: _scrollToReplyMessage,
       onDelete: unselectMessages,
+      selectedMessageListIndex: _selectedMessageListIndex,
     );
 
     if (index == room.firstMessageId) {
@@ -1413,6 +1436,13 @@ class RoomPageState extends State<RoomPage> {
     _selectedMessages.containsKey(message.id)
         ? _selectedMessages.remove(message.id)
         : _selectedMessages[message.id!] = message;
+
+    final smlIndex = _selectedMessageListIndex.value;
+    smlIndex.contains(message.id)
+        ? smlIndex.remove(message.id)
+        : smlIndex.add(message.id!);
+    _selectedMessageListIndex.add(smlIndex);
+
     if (_selectedMessages.values.isEmpty) {
       _selectMultiMessageSubject.add(false);
     }
@@ -1477,6 +1507,7 @@ class RoomPageState extends State<RoomPage> {
         unselectMessages,
       );
       _selectedMessages.clear();
+      _selectedMessageListIndex.add([]);
     }
   }
 
