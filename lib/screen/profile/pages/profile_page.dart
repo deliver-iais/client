@@ -27,6 +27,8 @@ import 'package:deliver/screen/profile/widgets/music_and_audio_ui.dart';
 import 'package:deliver/screen/profile/widgets/on_delete_popup_dialog.dart';
 import 'package:deliver/screen/profile/widgets/profile_avatar.dart';
 import 'package:deliver/screen/profile/widgets/video_tab_ui.dart';
+import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
+import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_form.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
@@ -932,7 +934,7 @@ class ProfilePageState extends State<ProfilePage>
                         key: nameFormKey,
                         child: Directionality(
                           textDirection: _i18n.defaultTextDirection,
-                          child: TextFormField(
+                          child: AutoDirectionTextForm(
                             autofocus: true,
                             initialValue: name.data,
                             validator: (s) {
@@ -975,7 +977,7 @@ class ProfilePageState extends State<ProfilePage>
                               textDirection: _i18n.defaultTextDirection,
                               child: Form(
                                 key: channelIdFormKey,
-                                child: TextFormField(
+                                child: AutoDirectionTextForm(
                                   initialValue: muc.data!.id,
                                   minLines: 1,
                                   validator: validateChannelId,
@@ -1024,7 +1026,7 @@ class ProfilePageState extends State<ProfilePage>
                       mucInfo = muc.data!.info;
                       return Directionality(
                         textDirection: _i18n.defaultTextDirection,
-                        child: TextFormField(
+                        child: AutoDirectionTextForm(
                           initialValue: muc.data!.info,
                           minLines: muc.data!.info.isNotEmpty
                               ? muc.data!.info.split("\n").length
@@ -1246,7 +1248,7 @@ class ProfilePageState extends State<ProfilePage>
             title: Text(_i18n.get("add_bot_to_group")),
             content: Column(
               children: [
-                TextField(
+                AutoDirectionTextField(
                   onChanged: (str) {
                     final searchRes = <String>[];
                     for (final uid in nameOfGroup.keys) {
