@@ -28,6 +28,7 @@ import 'package:deliver/screen/room/messageWidgets/reply_widgets/reply_preview.d
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/pages/build_message_box.dart';
 import 'package:deliver/screen/room/pages/pin_message_app_bar.dart';
+import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/room/widgets/bot_start_widget.dart';
 import 'package:deliver/screen/room/widgets/chat_time.dart';
 import 'package:deliver/screen/room/widgets/mute_and_unmute_room_widget.dart';
@@ -1102,7 +1103,7 @@ class RoomPageState extends State<RoomPage> {
             return Row(
               children: [
                 Flexible(
-                  child: TextField(
+                  child: AutoDirectionTextField(
                     minLines: 1,
                     controller: controller,
                     autofocus: true,

@@ -1,6 +1,7 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/screen/register/widgets/intl_phone_field.dart';
+import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
@@ -45,7 +46,7 @@ class NewContactState extends State<NewContact> {
                 children: [
                   Directionality(
                     textDirection: _i18n.defaultTextDirection,
-                    child: TextField(
+                    child: AutoDirectionTextField(
                       onChanged: (firstName) {
                         _firstName = firstName;
                       },
@@ -57,7 +58,7 @@ class NewContactState extends State<NewContact> {
                   const SizedBox(height: 10),
                   Directionality(
                     textDirection: _i18n.defaultTextDirection,
-                    child: TextField(
+                    child: AutoDirectionTextField(
                       onChanged: (lastName) {
                         _lastName = lastName;
                       },

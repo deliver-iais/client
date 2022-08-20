@@ -13,6 +13,7 @@ import 'package:deliver/screen/room/messageWidgets/custom_text_selection_control
 import 'package:deliver/screen/room/messageWidgets/input_message_text_controller.dart';
 import 'package:deliver/screen/room/messageWidgets/max_lenght_text_input_formatter.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
+import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/room/widgets/bot_commands.dart';
 import 'package:deliver/screen/room/widgets/emoji_keybord.dart';
 import 'package:deliver/screen/room/widgets/record_audio_animation.dart';
@@ -108,8 +109,6 @@ class InputMessageWidgetState extends State<InputMessage> {
   late FocusNode keyboardRawFocusNode;
   Subject<ActivityType> isTypingActivitySubject = BehaviorSubject();
   Subject<ActivityType> noActivitySubject = BehaviorSubject();
-  BehaviorSubject<TextDirection> textDirection =
-      BehaviorSubject.seeded(_i18n.defaultTextDirection);
   late String _botCommandData;
   int mentionSelectedIndex = 0;
   int botCommandSelectedIndex = 0;
@@ -169,10 +168,6 @@ class InputMessageWidgetState extends State<InputMessage> {
         .add(currentRoom.draft != null && currentRoom.draft!.isNotEmpty);
     widget.textController.addListener(() {
       _showSendIcon.add(widget.textController.text.isNotEmpty);
-      if (widget.textController.text.isNotEmpty) {
-        textDirection.add(getDirection(widget.textController.text));
-      }
-
       if (currentRoom.uid.asUid().category == Categories.BOT &&
           widget.textController.text.isNotEmpty &&
           widget.textController.text[0] == "/" &&
@@ -583,50 +578,43 @@ class InputMessageWidgetState extends State<InputMessage> {
           return RawKeyboardListener(
             focusNode: keyboardRawFocusNode,
             onKey: handleKey,
-            child: StreamBuilder<TextDirection>(
-              stream: textDirection.distinct(),
-              builder: (c, sn) {
-                final textDir = sn.data ?? _i18n.defaultTextDirection;
-                return TextField(
-                  selectionControls: selectionControls,
-                  focusNode: widget.focusNode,
-                  autofocus: (snapshot.data?.id ?? 0) > 0 || isDesktop,
-                  controller: widget.textController,
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.only(top: 12, bottom: 12),
-                    border: InputBorder.none,
-                    counterText: "",
-                    hintText: _i18n.get("write_a_message"),
-                    hintTextDirection: _i18n.defaultTextDirection,
-                    hintStyle: theme.textTheme.bodyMedium,
-                  ),
-                  textInputAction: TextInputAction.newline,
-                  minLines: 1,
-                  maxLines: isAndroid ? 10 : 15,
-                  maxLength: INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH,
-                  inputFormatters: [
-                    MaxLinesTextInputFormatter(
-                      INPUT_MESSAGE_TEXT_FIELD_MAX_LINE,
-                    )
-                    //max line of text field
-                  ],
-                  textDirection: textDir,
-                  style: theme.textTheme.bodyMedium,
-                  onTap: () {
-                    if (!isDesktop) _showEmojiKeyboard.add(false);
-                  },
-                  onChanged: (str) {
-                    if (str.isNotEmpty) {
-                      isTypingActivitySubject.add(
-                        ActivityType.TYPING,
-                      );
-                    } else {
-                      noActivitySubject.add(
-                        ActivityType.NO_ACTIVITY,
-                      );
-                    }
-                  },
-                );
+            child: AutoDirectionTextField(
+              selectionControls: selectionControls,
+              focusNode: widget.focusNode,
+              autofocus: (snapshot.data?.id ?? 0) > 0 || isDesktop,
+              controller: widget.textController,
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.only(top: 12, bottom: 12),
+                border: InputBorder.none,
+                counterText: "",
+                hintText: _i18n.get("write_a_message"),
+                hintTextDirection: _i18n.defaultTextDirection,
+                hintStyle: theme.textTheme.bodyMedium,
+              ),
+              textInputAction: TextInputAction.newline,
+              minLines: 1,
+              maxLines: isAndroid ? 10 : 15,
+              maxLength: INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH,
+              inputFormatters: [
+                MaxLinesTextInputFormatter(
+                  INPUT_MESSAGE_TEXT_FIELD_MAX_LINE,
+                )
+                //max line of text field
+              ],
+              style: theme.textTheme.bodyMedium,
+              onTap: () {
+                if (!isDesktop) _showEmojiKeyboard.add(false);
+              },
+              onChanged: (str) {
+                if (str.isNotEmpty) {
+                  isTypingActivitySubject.add(
+                    ActivityType.TYPING,
+                  );
+                } else {
+                  noActivitySubject.add(
+                    ActivityType.NO_ACTIVITY,
+                  );
+                }
               },
             ),
           );

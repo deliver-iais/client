@@ -4,6 +4,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/screen/room/widgets/build_input_caption.dart';
 import 'package:deliver/screen/room/widgets/share_box/file.dart';
 import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
 import 'package:deliver/screen/room/widgets/share_box/music.dart';
@@ -180,9 +181,8 @@ class ShareBoxState extends State<ShareBox> {
                             ),
                             child: SizedBox(
                               height: 80,
-                              child: buildInputCaption(
+                              child: BuildInputCaption(
                                 insertCaption: _insertCaption,
-                                context: context,
                                 count: finalSelected.length,
                                 send: () {
                                   _audioPlayer.stop();
@@ -211,7 +211,6 @@ class ShareBoxState extends State<ShareBox> {
                                 },
                                 captionEditingController:
                                     _captionEditingController,
-                                i18n: i18n,
                               ),
                             ),
                           )
