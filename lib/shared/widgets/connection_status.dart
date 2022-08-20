@@ -70,9 +70,7 @@ class ConnectionStatus extends StatelessWidget {
                         ),
                       const SizedBox(width: 8),
                       Text(
-                        textDirection: _i18n.isPersian
-                            ? TextDirection.rtl
-                            : TextDirection.ltr,
+                        textDirection: _i18n.defaultTextDirection,
                         title(status),
                         style: theme.textTheme.bodyLarge?.copyWith(
                           color: theme.colorScheme.onSecondaryContainer,

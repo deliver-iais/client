@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:badges/badges.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
@@ -47,6 +46,7 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/time.dart';
+import 'package:deliver/shared/widgets/animated_switch_widget.dart';
 import 'package:deliver/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/bot_appbar_title.dart';
@@ -121,7 +121,7 @@ class RoomPageState extends State<RoomPage> {
 
   final _messageWidgetCache =
       LruCache<int, Widget?>(storage: InMemoryStorage(200));
-  final _messageCache = LruCache<int, Message>(storage: InMemoryStorage(200));
+  final _messageCache = LruCache<int, Message>(storage: InMemoryStorage(1000));
 
   final _highlightMessageId = BehaviorSubject.seeded(-1);
   final _repliedMessage = BehaviorSubject<Message?>.seeded(null);
@@ -1040,6 +1040,7 @@ class RoomPageState extends State<RoomPage> {
             },
           ),
       ],
+      leadingWidth: _selectMultiMessageSubject.value ? 100 : null,
       leading: GestureDetector(
         child: StreamBuilder<bool>(
           stream: _searchMode,
@@ -1058,35 +1059,32 @@ class RoomPageState extends State<RoomPage> {
                   if (snapshot.hasData &&
                       snapshot.data != null &&
                       snapshot.data!) {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 8.0),
-                      child: Row(
-                        children: [
-                          Badge(
-                            position: BadgePosition.topEnd(top: -6, end: -2),
-                            animationDuration:
-                                const Duration(milliseconds: 300),
-                            badgeColor: theme.primaryColor,
-                            badgeContent: Text(
-                              _selectedMessages.length.toString(),
-                              style: TextStyle(
-                                color: theme.colorScheme.onPrimary,
-                                fontSize: 14,
-                              ),
-                            ),
-                            child: IconButton(
-                              color: theme.primaryColor,
-                              icon: const Icon(
-                                CupertinoIcons.xmark,
-                                size: 25,
-                              ),
-                              onPressed: () {
-                                unselectMessages();
-                              },
+                    return Row(
+                      children: [
+                        IconButton(
+                          color: theme.primaryColor,
+                          icon: const Icon(
+                            CupertinoIcons.xmark,
+                            size: 25,
+                          ),
+                          onPressed: () {
+                            unselectMessages();
+                          },
+                        ),
+                        AnimatedSwitchWidget(
+                          child: Text(
+                            _selectedMessages.length.toString(),
+                            // This key causes the AnimatedSwitcher to interpret this as a "new"
+                            // child each time the count changes, so that it will begin its animation
+                            // when the count changes.
+                            key: ValueKey<int>(_selectedMessages.length),
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: theme.colorScheme.primary,
                             ),
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     );
                   } else {
                     return _routingService.backButtonLeading();
@@ -1146,7 +1144,7 @@ class RoomPageState extends State<RoomPage> {
                     selectedMessages: _selectedMessages,
                     hasPermissionInChannel: _hasPermissionInChannel.value,
                     hasPermissionInGroup: _hasPermissionInGroup.value,
-                    onDelete: unselectMessages,
+                    onClose: unselectMessages,
                     deleteSelectedMessage: _deleteSelectedMessage,
                   );
                 } else {
@@ -1309,20 +1307,29 @@ class RoomPageState extends State<RoomPage> {
   Future<int?> _timeAt(int index) async {
     if (index < 0) return null;
 
+    var searchedIndex = 0;
+
     final msg = await _messageAtIndex(index + 1);
-
-    if (index > 0) {
-      final prevMsg = await _messageAtIndex(index);
-      if (prevMsg!.isHidden || msg!.isHidden) {
-        return null;
-      }
-
-      final d1 = date(prevMsg.time);
-      final d2 = date(msg.time);
-      if (d1.day != d2.day || d1.month != d2.month || d1.year != d2.year) {
-        return msg.time;
-      }
+    if (msg == null || msg.isHidden) {
+      return null;
     }
+
+    Message? prevMsg;
+
+    do {
+      if (index > 0) {
+        prevMsg = await _messageAtIndex(index - searchedIndex++);
+        if (prevMsg == null || prevMsg.isHidden) {
+          continue;
+        }
+
+        final d1 = date(prevMsg.time);
+        final d2 = date(msg.time);
+        if (d1.day != d2.day || d1.month != d2.month || d1.year != d2.year) {
+          return msg.time;
+        }
+      }
+    } while (prevMsg!.isHidden && searchedIndex < 100);
 
     return null;
   }
@@ -1345,18 +1352,6 @@ class RoomPageState extends State<RoomPage> {
           return _cachedBuildMessage(index, ms.data);
         },
       );
-    }
-
-    Color getColor(Set<MaterialState> states) {
-      const interactiveStates = <MaterialState>{
-        MaterialState.pressed,
-        MaterialState.hovered,
-        MaterialState.focused,
-      };
-      if (states.any(interactiveStates.contains)) {
-        return Colors.blue;
-      }
-      return Colors.red;
     }
 
     return StreamBuilder<int>(
@@ -1390,7 +1385,8 @@ class RoomPageState extends State<RoomPage> {
 
     if (widget == null) {
       widget = _buildMessageBox(index, tuple);
-      if (tuple.item2?.id != null) _messageWidgetCache.set(index, widget);
+      if (tuple.item2?.id != null && !tuple.item2!.isHidden)
+        _messageWidgetCache.set(index, widget);
     }
 
     return widget;
@@ -1400,7 +1396,12 @@ class RoomPageState extends State<RoomPage> {
     final messageBefore = tuple.item1;
     final message = tuple.item2!;
 
+    if (message.isHidden) {
+      return const SizedBox.shrink();
+    }
+
     final msgBox = BuildMessageBox(
+      key: GlobalKey(),
       message: message,
       messageBefore: messageBefore,
       roomId: widget.roomId,

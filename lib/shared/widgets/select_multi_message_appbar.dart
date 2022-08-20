@@ -21,7 +21,7 @@ class SelectMultiMessageAppBar extends StatelessWidget {
   final Map<int, Message> selectedMessages;
   final bool hasPermissionInChannel;
   final bool hasPermissionInGroup;
-  final Function() onDelete;
+  final Function() onClose;
   final Function() deleteSelectedMessage;
 
   SelectMultiMessageAppBar({
@@ -29,7 +29,7 @@ class SelectMultiMessageAppBar extends StatelessWidget {
     required this.selectedMessages,
     required this.hasPermissionInChannel,
     required this.hasPermissionInGroup,
-    required this.onDelete,
+    required this.onClose,
     required this.deleteSelectedMessage,
   });
 
@@ -160,7 +160,7 @@ class SelectMultiMessageAppBar extends StatelessWidget {
                   }
 
                   Clipboard.setData(ClipboardData(text: copyText)).ignore();
-                  onDelete();
+                  onClose();
                 },
               ),
             ),
@@ -192,7 +192,7 @@ class SelectMultiMessageAppBar extends StatelessWidget {
                   }
                 }
                 Clipboard.setData(ClipboardData(text: copyText)).ignore();
-                onDelete();
+                onClose();
                 ToastDisplay.showToast(
                   toastText: _i18n.get("copied"),
                   toastContext: context,

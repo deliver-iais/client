@@ -245,20 +245,17 @@ class LoginPageState extends State<LoginPage> {
           ),
           const SizedBox(height: 30),
           Text(
-            textDirection:
-                _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+            textDirection: _i18n.defaultTextDirection,
             "1. ${_i18n.get("login_page_open_app_1")} $APPLICATION_NAME ${_i18n.get("login_page_open_app_2")}",
           ),
           const SizedBox(height: 10),
           Directionality(
-            textDirection:
-                _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+            textDirection: _i18n.defaultTextDirection,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  textDirection:
-                      _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                  textDirection: _i18n.defaultTextDirection,
                   "2. ${_i18n.get("login_page_qr_code_1")}",
                 ),
                 const Padding(
@@ -266,8 +263,7 @@ class LoginPageState extends State<LoginPage> {
                   child: Icon(Icons.qr_code_rounded, size: 17),
                 ),
                 Text(
-                  textDirection:
-                      _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                  textDirection: _i18n.defaultTextDirection,
                   _i18n.get("login_page_qr_code_2"),
                 ),
               ],
@@ -275,8 +271,7 @@ class LoginPageState extends State<LoginPage> {
           ),
           const SizedBox(height: 10),
           Text(
-            textDirection:
-                _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+            textDirection: _i18n.defaultTextDirection,
             "3. ${_i18n.get("login_page_confirm_login")}",
           ),
           const SizedBox(height: 30),
