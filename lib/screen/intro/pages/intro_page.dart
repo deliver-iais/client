@@ -91,9 +91,7 @@ class IntroPageState extends State<IntroPage> {
                       child: SizedBox(
                         width: animationSize,
                         child: Text(
-                          textDirection: _i18n.isPersian
-                              ? TextDirection.rtl
-                              : TextDirection.ltr,
+                          textDirection: _i18n.defaultTextDirection,
                           _i18n.get("login_page_start"),
                           style: theme.primaryTextTheme.subtitle1,
                           textAlign: TextAlign.center,
@@ -115,9 +113,7 @@ class IntroPageState extends State<IntroPage> {
                       child: SizedBox(
                         width: animationSize,
                         child: Text(
-                          textDirection: _i18n.isPersian
-                              ? TextDirection.rtl
-                              : TextDirection.ltr,
+                          textDirection: _i18n.defaultTextDirection,
                           _i18n.get("login_page_fast_body"),
                           style: theme.primaryTextTheme.subtitle1,
                           textAlign: TextAlign.center,
@@ -139,9 +135,7 @@ class IntroPageState extends State<IntroPage> {
                       child: SizedBox(
                         width: animationSize,
                         child: Text(
-                          textDirection: _i18n.isPersian
-                              ? TextDirection.rtl
-                              : TextDirection.ltr,
+                          textDirection: _i18n.defaultTextDirection,
                           _i18n.get("login_page_powerful_body"),
                           style: theme.primaryTextTheme.subtitle1,
                           textAlign: TextAlign.center,
@@ -163,9 +157,7 @@ class IntroPageState extends State<IntroPage> {
                       child: SizedBox(
                         width: animationSize,
                         child: Text(
-                          textDirection: _i18n.isPersian
-                              ? TextDirection.rtl
-                              : TextDirection.ltr,
+                          textDirection: _i18n.defaultTextDirection,
                           _i18n.get("login_page_secure_body"),
                           style: theme.primaryTextTheme.subtitle1,
                           textAlign: TextAlign.center,
