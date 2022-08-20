@@ -51,6 +51,10 @@ class _SwipeState extends State<Swipe> with TickerProviderStateMixin {
   }
 
   void _handleDragUpdate(DragUpdateDetails details) {
+    if(widget.onSwipeLeft == null){
+      return;
+    }
+
     final delta = details.primaryDelta;
     final oldDragExtent = _dragExtent;
     _dragExtent += delta!;

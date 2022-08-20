@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/shared/widgets/edit_image/paint_on_image/widgets/_mode_widget.dart';
 import 'package:deliver/shared/widgets/edit_image/paint_on_image/widgets/_range_slider.dart';
 import 'package:deliver/shared/widgets/edit_image/paint_on_image/widgets/_text_dialog.dart';
@@ -11,6 +12,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart' hide Image;
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 
 import '_image_painter.dart';
 import '_ported_interactive_viewer.dart';
@@ -741,6 +743,7 @@ class ImagePainterState extends State<ImagePainter> {
   }
 
   Widget _buildControls() {
+    final i18n = GetIt.I.get<I18N>();
     return Container(
       padding: const EdgeInsets.all(4),
       color: Colors.transparent,
@@ -777,12 +780,19 @@ class ImagePainterState extends State<ImagePainter> {
             children: [
               TextButton(
                 onPressed: () => setState(_paintHistory.clear),
-                child: const Text("cancel"),
+                child: Text(
+                  i18n.get("reset"),
+                  style: TextStyle(color: Theme.of(context).primaryColorLight),
+                ),
               ),
               const Spacer(),
               if (_paintHistory.isNotEmpty)
                 IconButton(
-                  icon: widget.undoIcon ?? const Icon(Icons.reply),
+                  icon: widget.undoIcon ??
+                      const Icon(
+                        Icons.reply,
+                        color: Colors.white,
+                      ),
                   onPressed: () {
                     if (_paintHistory.isNotEmpty) {
                       setState(_paintHistory.removeLast);
@@ -800,20 +810,27 @@ class ImagePainterState extends State<ImagePainter> {
                       paintModes()
                           .firstWhere((item) => item.mode == ctrl.mode)
                           .icon,
+                      color: Colors.white,
                     ),
                     itemBuilder: (_) => [_showOptionsRow(ctrl)],
                   );
                 },
               ),
               IconButton(
-                icon: const Icon(CupertinoIcons.textformat_alt),
+                icon: const Icon(
+                  CupertinoIcons.textformat_alt,
+                  color: Colors.white,
+                ),
                 onPressed: _openTextDialog,
               ),
               ValueListenableBuilder<Controller>(
                 valueListenable: _controller,
                 builder: (_, controller, __) {
                   return IconButton(
-                    icon: const Icon(CupertinoIcons.hand_draw),
+                    icon: const Icon(
+                      CupertinoIcons.hand_draw,
+                      color: Colors.white,
+                    ),
                     onPressed: () {
                       _controller.value =
                           controller.copyWith(mode: PaintMode.freeStyle);
@@ -823,20 +840,15 @@ class ImagePainterState extends State<ImagePainter> {
               ),
 
               const Spacer(),
-              // IconButton(
-              //     tooltip: textDelegate.undo,
-              //     icon: widget.undoIcon ?? const Icon(Icons.reply),
-              //     onPressed: () {
-              //       if (_paintHistory.isNotEmpty) {
-              //         setState(_paintHistory.removeLast);
-              //       }
-              //     }),
               TextButton(
                 onPressed: () {
                   // ignore: avoid_dynamic_calls
                   widget.onDone!();
                 },
-                child: const Text("Done"),
+                child: Text(
+                  i18n.get("done"),
+                  style: TextStyle(color: Theme.of(context).primaryColorLight),
+                ),
               )
             ],
           ),

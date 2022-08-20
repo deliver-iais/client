@@ -1,9 +1,11 @@
 import 'dart:io';
 
 import 'package:clock/clock.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/widgets/edit_image/paint_on_image/_paint_over_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 
 class PaintOnImagePage extends StatefulWidget {
@@ -18,37 +20,54 @@ class PaintOnImagePage extends StatefulWidget {
 
 class _PaintOnImagePageState extends State<PaintOnImagePage> {
   final _fileServices = GetIt.I.get<FileService>();
+  final _i18n = GetIt.I.get<I18N>();
   final _imageKey = GlobalKey<ImagePainterState>();
 
   bool _showLoading = false;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Paint on Image"),
-        actions: [
-          if (!_showLoading)
-            IconButton(
-              icon: const Icon(Icons.done_rounded),
-              onPressed: () async {
-                await saveImage(context);
-              },
-            )
-        ],
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        systemNavigationBarColor: Colors.black,
       ),
-      body: _showLoading
-          ? const Center(child: CircularProgressIndicator())
-          : ImagePainter.file(
-              widget.file,
-              key: _imageKey,
-              scalable: true,
-              onDone: () async {
-                await saveImage(context);
-              },
-              initialColor: Colors.red,
-              initialPaintMode: PaintMode.freeStyle,
-            ),
+      child: Scaffold(
+        extendBodyBehindAppBar: true,
+        appBar: AppBar(
+          iconTheme: const IconThemeData(
+            color: Colors.white, //change your color here
+          ),
+          backgroundColor: Colors.black.withAlpha(120),
+          title: Text(
+            _i18n.get("paint_on_image"),
+            style: const TextStyle(color: Colors.white),
+          ),
+          actions: [
+            if (!_showLoading)
+              IconButton(
+                icon: const Icon(Icons.done_rounded),
+                onPressed: () async {
+                  await saveImage(context);
+                },
+              )
+          ],
+        ),
+        body: Container(
+          color: Colors.black,
+          child: _showLoading
+              ? const Center(child: CircularProgressIndicator())
+              : ImagePainter.file(
+                  widget.file,
+                  key: _imageKey,
+                  scalable: true,
+                  onDone: () async {
+                    await saveImage(context);
+                  },
+                  initialColor: Colors.red,
+                  initialPaintMode: PaintMode.freeStyle,
+                ),
+        ),
+      ),
     );
   }
 
