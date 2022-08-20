@@ -1,4 +1,5 @@
 import 'package:deliver/box/message.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
@@ -31,6 +32,7 @@ class BotButtonsWidget extends StatefulWidget {
 
 class _BotButtonsWidgetState extends State<BotButtonsWidget> {
   static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
   final BehaviorSubject<bool> _locked = BehaviorSubject.seeded(false);
 
   @override
@@ -89,6 +91,7 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
                               : null,
                           child: Text(
                             btn,
+                            textDirection: _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
                             textAlign: TextAlign.center,
                           ),
                         ),
