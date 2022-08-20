@@ -6,7 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rxdart/rxdart.dart';
 
-class AutoDirectionTextField extends StatefulWidget {
+class AutoDirectionTextField extends StatelessWidget {
+  final direction = BehaviorSubject.seeded(TextDirection.ltr);
+
   final TextEditingController? controller;
 
   final FocusNode? focusNode;
@@ -115,7 +117,7 @@ class AutoDirectionTextField extends StatefulWidget {
 
   final bool enableIMEPersonalizedLearning;
 
-  const AutoDirectionTextField({
+  AutoDirectionTextField({
     Key? key,
     this.controller,
     this.focusNode,
@@ -165,81 +167,73 @@ class AutoDirectionTextField extends StatefulWidget {
     this.restorationId,
     this.scribbleEnabled = true,
     this.enableIMEPersonalizedLearning = true,
-     this.keyboardType,
-     this.smartDashesType,
-     this.smartQuotesType,
-     this.toolbarOptions,
-     this.enableInteractiveSelection,
+    this.keyboardType,
+    this.smartDashesType,
+    this.smartQuotesType,
+    this.toolbarOptions,
+    this.enableInteractiveSelection,
   }) : super(key: key);
-
-  @override
-  State<AutoDirectionTextField> createState() => AutoDirectionTextFieldState();
-}
-
-class AutoDirectionTextFieldState extends State<AutoDirectionTextField> {
-  BehaviorSubject<TextDirection> textDirection =
-      BehaviorSubject.seeded(TextDirection.ltr);
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<TextDirection>(
-      stream: textDirection.distinct(),
+      stream: direction.distinct(),
       builder: (c, sn) {
         final textDir = sn.data ?? TextDirection.ltr;
         return TextField(
-          controller: widget.controller,
-          focusNode: widget.focusNode,
-          decoration: widget.decoration,
-          keyboardType: widget.keyboardType,
-          textInputAction: widget.textInputAction,
-          textCapitalization: widget.textCapitalization,
-          style: widget.style,
-          strutStyle: widget.strutStyle,
-          textAlign: widget.textAlign,
-          textAlignVertical: widget.textAlignVertical,
-          textDirection: widget.textDirection ?? textDir,
-          readOnly: widget.readOnly,
-          toolbarOptions: widget.toolbarOptions,
-          showCursor: widget.showCursor,
-          autofocus: widget.autofocus,
-          obscuringCharacter: widget.obscuringCharacter,
-          obscureText: widget.obscureText,
-          autocorrect: widget.autocorrect,
-          smartDashesType: widget.smartDashesType,
-          smartQuotesType: widget.smartQuotesType,
-          enableSuggestions: widget.enableSuggestions,
-          maxLines: widget.maxLines,
-          minLines: widget.minLines,
-          maxLength: widget.maxLength,
-          maxLengthEnforcement: widget.maxLengthEnforcement,
+          controller: controller,
+          focusNode: focusNode,
+          decoration: decoration,
+          keyboardType: keyboardType,
+          textInputAction: textInputAction,
+          textCapitalization: textCapitalization,
+          style: style,
+          strutStyle: strutStyle,
+          textAlign: textAlign,
+          textAlignVertical: textAlignVertical,
+          textDirection: textDirection ?? textDir,
+          readOnly: readOnly,
+          toolbarOptions: toolbarOptions,
+          showCursor: showCursor,
+          autofocus: autofocus,
+          obscuringCharacter: obscuringCharacter,
+          obscureText: obscureText,
+          autocorrect: autocorrect,
+          smartDashesType: smartDashesType,
+          smartQuotesType: smartQuotesType,
+          enableSuggestions: enableSuggestions,
+          maxLines: maxLines,
+          minLines: minLines,
+          maxLength: maxLength,
+          maxLengthEnforcement: maxLengthEnforcement,
           onChanged: (value) {
             if (value.isNotEmpty) {
-              textDirection.add(getDirection(value));
+              direction.add(getDirection(value));
             }
-            widget.onChanged?.call(value);
+            onChanged?.call(value);
           },
-          onEditingComplete: widget.onEditingComplete,
-          onSubmitted: widget.onSubmitted,
-          onAppPrivateCommand: widget.onAppPrivateCommand,
-          inputFormatters: widget.inputFormatters,
-          enabled: widget.enabled,
-          cursorWidth: widget.cursorWidth,
-          cursorHeight: widget.cursorHeight,
-          cursorRadius: widget.cursorRadius,
-          cursorColor: widget.cursorColor,
-          selectionHeightStyle: widget.selectionHeightStyle,
-          selectionWidthStyle: widget.selectionWidthStyle,
-          keyboardAppearance: widget.keyboardAppearance,
-          scrollPadding: widget.scrollPadding,
-          dragStartBehavior: widget.dragStartBehavior,
-          enableInteractiveSelection: widget.enableInteractiveSelection,
-          selectionControls: widget.selectionControls,
-          scrollPhysics: widget.scrollPhysics,
-          autofillHints: widget.autofillHints,
-          clipBehavior: widget.clipBehavior,
-          restorationId: widget.restorationId,
-          scribbleEnabled: widget.scribbleEnabled,
-          enableIMEPersonalizedLearning: widget.enableIMEPersonalizedLearning,
+          onEditingComplete: onEditingComplete,
+          onSubmitted: onSubmitted,
+          onAppPrivateCommand: onAppPrivateCommand,
+          inputFormatters: inputFormatters,
+          enabled: enabled,
+          cursorWidth: cursorWidth,
+          cursorHeight: cursorHeight,
+          cursorRadius: cursorRadius,
+          cursorColor: cursorColor,
+          selectionHeightStyle: selectionHeightStyle,
+          selectionWidthStyle: selectionWidthStyle,
+          keyboardAppearance: keyboardAppearance,
+          scrollPadding: scrollPadding,
+          dragStartBehavior: dragStartBehavior,
+          enableInteractiveSelection: enableInteractiveSelection,
+          selectionControls: selectionControls,
+          scrollPhysics: scrollPhysics,
+          autofillHints: autofillHints,
+          clipBehavior: clipBehavior,
+          restorationId: restorationId,
+          scribbleEnabled: scribbleEnabled,
+          enableIMEPersonalizedLearning: enableIMEPersonalizedLearning,
         );
       },
     );

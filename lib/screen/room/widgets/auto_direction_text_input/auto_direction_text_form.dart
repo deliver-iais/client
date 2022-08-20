@@ -4,6 +4,8 @@ import 'package:flutter/services.dart';
 import 'package:rxdart/rxdart.dart';
 
 class AutoDirectionTextForm extends StatelessWidget {
+  final direction = BehaviorSubject<TextDirection>.seeded(TextDirection.ltr);
+
   final TextEditingController? controller;
 
   final FocusNode? focusNode;
@@ -110,7 +112,7 @@ class AutoDirectionTextForm extends StatelessWidget {
 
   final FormFieldValidator<String>? validator;
 
-  const AutoDirectionTextForm({
+  AutoDirectionTextForm({
     Key? key,
     this.controller,
     this.focusNode,
@@ -168,7 +170,6 @@ class AutoDirectionTextForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final direction = BehaviorSubject<TextDirection>.seeded(TextDirection.ltr);
     return StreamBuilder<TextDirection>(
       stream: direction.distinct(),
       builder: (c, sn) {
