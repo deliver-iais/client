@@ -10,6 +10,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:get_it/get_it.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -313,69 +314,80 @@ class ShareBoxGalleryState extends State<ShareBoxGallery> {
       context,
       MaterialPageRoute(
         builder: (c) {
-          return Scaffold(
-            body: Stack(
-              children: [
-                StreamBuilder<CameraController>(
-                  stream: _cameraController,
-                  builder: (context, snapshot) {
-                    return SizedBox(
-                      height: MediaQuery.of(context).size.height,
-                      child: CameraPreview(
-                        snapshot.data ?? _controller!,
-                      ),
-                    );
-                  },
-                ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 30, right: 15),
-                    child: IconButton(
-                      onPressed: () async {
-                        final navigatorState = Navigator.of(context);
-                        final file = await _controller!.takePicture();
-                        if (widget.setAvatar != null) {
-                          widget.pop();
-                          navigatorState.pop();
-                          widget.setAvatar!(file.path);
-                        } else {
-                          openImage(file, pop);
-                        }
-                      },
-                      icon: const Icon(
-                        CupertinoIcons.camera_fill,
-                        color: Colors.white,
-                        size: 55,
+          return AnnotatedRegion<SystemUiOverlayStyle>(
+            value: const SystemUiOverlayStyle(
+              systemNavigationBarColor: Colors.black,
+            ),
+            child: Scaffold(
+              body: Stack(
+                children: [
+                  StreamBuilder<CameraController>(
+                    stream: _cameraController,
+                    builder: (context, snapshot) {
+                      final size = MediaQuery.of(context).size;
+                      final camera = _cameraController.value.value;
+                      var scale = size.aspectRatio * camera.aspectRatio;
+                      if (scale < 1) scale = 1 / scale;
+                      return Center(
+                        child: Transform.scale(
+                          scale: scale,
+                          child: CameraPreview(
+                            snapshot.data ?? _controller!,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 30, right: 15),
+                      child: IconButton(
+                        onPressed: () async {
+                          final navigatorState = Navigator.of(context);
+                          final file = await _controller!.takePicture();
+                          if (widget.setAvatar != null) {
+                            widget.pop();
+                            navigatorState.pop();
+                            widget.setAvatar!(file.path);
+                          } else {
+                            openImage(file, pop);
+                          }
+                        },
+                        icon: const Icon(
+                          CupertinoIcons.camera_fill,
+                          color: Colors.white,
+                          size: 55,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                if (_cameras.isNotEmpty && _cameras.length > 1)
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 10, right: 10),
-                      child: IconButton(
-                        onPressed: () async {
-                          _controller = CameraController(
-                            _controller!.description == _cameras[1]
-                                ? _cameras[0]
-                                : _cameras[1],
-                            ResolutionPreset.max,
-                          );
-                          await _controller!.initialize();
-                          _cameraController.add(_controller!);
-                        },
-                        icon: const Icon(
-                          CupertinoIcons.switch_camera,
+                  if (_cameras.isNotEmpty && _cameras.length > 1)
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 10, right: 10),
+                        child: IconButton(
+                          onPressed: () async {
+                            _controller = CameraController(
+                              _controller!.description == _cameras[1]
+                                  ? _cameras[0]
+                                  : _cameras[1],
+                              ResolutionPreset.max,
+                            );
+                            await _controller!.initialize();
+                            _cameraController.add(_controller!);
+                          },
+                          icon: const Icon(
+                            CupertinoIcons.switch_camera,
+                          ),
+                          color: Colors.white70,
+                          iconSize: 40,
                         ),
-                        color: Colors.white70,
-                        iconSize: 40,
                       ),
-                    ),
-                  )
-              ],
+                    )
+                ],
+              ),
             ),
           );
         },
