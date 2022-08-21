@@ -378,38 +378,13 @@ class CallRepo {
         // we can do special work on every change in candidate Connection State
         switch (e) {
           case RTCIceConnectionState.RTCIceConnectionStateFailed:
-            if (!_reconnectTry && !_isEnded && !_isEndedRecivied && !isConnected) {
-              _reconnectTry = true;
-              callingStatus.add(CallStatus.RECONNECTING);
-              _audioService.stopBeepSound();
-              _reconnectingAfterFailedConnection();
-              timerDisconnected = Timer(const Duration(seconds: 8), () {
-                if (callingStatus.value == CallStatus.RECONNECTING) {
-                  callingStatus.add(CallStatus.NO_ANSWER);
-                  _logger.i("Disconnected and Call End!");
-                  endCall();
-                }
-              });
-            }
+            onRTCPeerConnectionStateFailed();
             break;
           case RTCIceConnectionState.RTCIceConnectionStateConnected:
-            callingStatus.add(CallStatus.CONNECTED);
-            vibrate(duration: 50);
-            _audioService.stopBeepSound();
-            if (_reconnectTry) {
-              _reconnectTry = false;
-              timerDisconnected?.cancel();
-            } else if (_isCaller) {
-              timerResendAnswer!.cancel();
-            }
+            onRTCPeerConnectionConnected();
             break;
           case RTCIceConnectionState.RTCIceConnectionStateDisconnected:
-            Timer(const Duration(seconds: 1), () {
-              if (!_reconnectTry && !_isEnded && !_isEndedRecivied) {
-                callingStatus.add(CallStatus.DISCONNECTED);
-                _audioService.stopBeepSound();
-              }
-            });
+            onRTCPeerConnectionDisconnected();
             break;
           case RTCIceConnectionState.RTCIceConnectionStateNew:
           case RTCIceConnectionState.RTCIceConnectionStateChecking:
@@ -440,42 +415,17 @@ class CallRepo {
             // params.encodings[0].maxFramerate = WEBRTC_MAX_FRAME_RATE;
             //     params.encodings[0].scaleResolutionDownBy = 2;
             // await _videoSender.setParameters(params);
-            callingStatus.add(CallStatus.CONNECTED);
-            vibrate(duration: 50);
-            _audioService.stopBeepSound();
-            if (_reconnectTry) {
-              _reconnectTry = false;
-              timerDisconnected?.cancel();
-            } else if (_isCaller) {
-              timerResendAnswer!.cancel();
-            }
+            onRTCPeerConnectionConnected();
             if (!isWeb) {
               _startCallTimerAndChangeStatus();
             }
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateDisconnected:
-            Timer(const Duration(seconds: 1), () {
-              if (!_reconnectTry && !_isEnded && !_isEndedRecivied) {
-                callingStatus.add(CallStatus.DISCONNECTED);
-                _audioService.stopBeepSound();
-              }
-            });
+            onRTCPeerConnectionDisconnected();
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateFailed:
             //Try reconnect
-            if (!_reconnectTry && !_isEnded && !_isEndedRecivied && !isConnected) {
-              _reconnectTry = true;
-              callingStatus.add(CallStatus.RECONNECTING);
-              _audioService.stopBeepSound();
-              _reconnectingAfterFailedConnection();
-              timerDisconnected = Timer(const Duration(seconds: 15), () {
-                if (callingStatus.value == CallStatus.RECONNECTING) {
-                  callingStatus.add(CallStatus.NO_ANSWER);
-                  _logger.i("Disconnected and Call End!");
-                  endCall();
-                }
-              });
-            }
+            onRTCPeerConnectionStateFailed();
             break;
           case RTCPeerConnectionState.RTCPeerConnectionStateClosed:
             _logger.i("Call Peer Connection Closed Successfully");
@@ -588,6 +538,43 @@ class CallRepo {
       };
 
     return pc;
+  }
+
+  void onRTCPeerConnectionDisconnected() {
+    Timer(const Duration(seconds: 1), () {
+      if (!_reconnectTry && !_isEnded && !_isEndedRecivied) {
+        callingStatus.add(CallStatus.DISCONNECTED);
+        _audioService.stopBeepSound();
+      }
+    });
+  }
+
+  void onRTCPeerConnectionConnected() {
+    callingStatus.add(CallStatus.CONNECTED);
+    vibrate(duration: 50);
+    _audioService.stopBeepSound();
+    if (_reconnectTry) {
+      _reconnectTry = false;
+      timerDisconnected?.cancel();
+    } else if (_isCaller) {
+      timerResendAnswer!.cancel();
+    }
+  }
+
+  void onRTCPeerConnectionStateFailed() {
+    if (!_reconnectTry && !_isEnded && !_isEndedRecivied && !isConnected) {
+      _reconnectTry = true;
+      callingStatus.add(CallStatus.RECONNECTING);
+      _audioService.stopBeepSound();
+      _reconnectingAfterFailedConnection();
+      timerDisconnected = Timer(const Duration(seconds: 15), () {
+        if (callingStatus.value != CallStatus.CONNECTED) {
+          callingStatus.add(CallStatus.FAILED);
+          _logger.i("Disconnected and Call End!");
+          endCall();
+        }
+      });
+    }
   }
 
   Future<void> _reconnectingAfterFailedConnection() async {
@@ -1023,7 +1010,7 @@ class CallRepo {
           if (message == "endCall") {
             endCall();
           } else if (message == 'onNotificationPressed') {
-            _routingService.openCallScreen(roomUid!);
+            _routingService.openCallScreen(roomUid!, isVideoCall: isVideo);
           } else {
             _logger.i('receive callStatus: $message');
           }
@@ -1088,7 +1075,7 @@ class CallRepo {
         if (message == "endCall") {
           endCall();
         } else if (message == 'onNotificationPressed') {
-          _routingService.openCallScreen(roomUid!);
+          _routingService.openCallScreen(roomUid!, isVideoCall: isVideo);
         } else {
           _logger.i('receive callStatus: $message');
         }
@@ -1417,7 +1404,6 @@ class CallRepo {
       _isMicMuted = false;
       _isSpeaker = false;
       _isCaller = false;
-      _reconnectTry = false;
       _isOfferReady = false;
       _isDCReceived = false;
       _callDuration = 0;
@@ -1439,6 +1425,7 @@ class CallRepo {
         callingStatus.add(CallStatus.NO_CALL);
         _isEnded = false;
         _isEndedRecivied = false;
+        _reconnectTry = false;
         _isConnected = false;
         _isVideo = false;
         _isCallInited = false;

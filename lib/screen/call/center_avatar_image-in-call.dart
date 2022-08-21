@@ -37,6 +37,7 @@ class CenterAvatarInCallState extends State<CenterAvatarInCall> {
                   return Padding(
                     padding: const EdgeInsets.only(top: 20),
                     child: Text(
+                      textAlign: TextAlign.center,
                       snapshot.data!,
                       style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Colors.white),
                     ),
@@ -50,10 +51,10 @@ class CenterAvatarInCallState extends State<CenterAvatarInCall> {
               stream: _avatarRepo.getLastAvatarFilePathStream(widget.roomUid),
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
-                  return CircleAvatarWidget(widget.roomUid, 80);
+                  return CircleAvatarWidget(widget.roomUid, widget.radius);
                 } else {
                   return ClipRRect(
-                    borderRadius: BorderRadius.circular(60),
+                    borderRadius: BorderRadius.circular(widget.radius),
                     child: const Image(
                       width: 120,
                       height: 120,

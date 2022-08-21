@@ -49,6 +49,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
   final _i18n = GetIt.I.get<I18N>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   late AnimationController _repeatEndCallAnimationController;
+  late AnimationController animationController;
   BehaviorSubject<bool> switching = BehaviorSubject.seeded(false);
 
   Offset position = const Offset(20, 95);
@@ -56,13 +57,17 @@ class VideoCallScreenState extends State<VideoCallScreen>
   @override
   void initState() {
     _initRepeatEndCallAnimation();
-
     super.initState();
+    animationController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat();
   }
 
   @override
   Future<void> dispose() async {
     _repeatEndCallAnimationController.dispose();
+    animationController.dispose();
     super.dispose();
     _logger.i("call dispose in start call status=${widget.text}");
   }
@@ -80,6 +85,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
     final theme = Theme.of(context);
 
     return Scaffold(
+      appBar: _buildAppBar(),
       body: Stack(
         alignment: Alignment.center,
         children: [
@@ -97,8 +103,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                   ? OrientationBuilder(
                       builder: (context, orientation) {
                         return Padding(
-                          padding: EdgeInsets.only(
-                            top: MediaQuery.of(context).size.height * 0.05,
+                          padding: const EdgeInsets.only(
                             left: 8.0,
                             right: 8.0,
                           ),
@@ -122,11 +127,14 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                         borderRadius: mainBorder,
                                         boxShadow: DEFAULT_BOX_SHADOWS,
                                       ),
-                                      child: RTCVideoView(
-                                        objectFit: RTCVideoViewObjectFit
-                                            .RTCVideoViewObjectFitCover,
-                                        widget.remoteRenderer,
-                                        filterQuality: FilterQuality.high,
+                                      child: InteractiveViewer(
+                                        // Set it to false to prevent panning.
+                                        minScale: 0.5,
+                                        maxScale: 4,
+                                        child: RTCVideoView(
+                                          widget.remoteRenderer,
+                                          filterQuality: FilterQuality.high,
+                                        ),
                                       ),
                                     ),
                                   )
@@ -144,12 +152,15 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                         borderRadius: mainBorder,
                                         boxShadow: DEFAULT_BOX_SHADOWS,
                                       ),
-                                      child: RTCVideoView(
-                                        objectFit: RTCVideoViewObjectFit
-                                            .RTCVideoViewObjectFitCover,
-                                        widget.remoteRenderer,
-                                        mirror: true,
-                                        filterQuality: FilterQuality.high,
+                                      child: InteractiveViewer(
+                                        // Set it to false to prevent panning.
+                                        minScale: 0.5,
+                                        maxScale: 4,
+                                        child: RTCVideoView(
+                                          widget.remoteRenderer,
+                                          mirror: true,
+                                          filterQuality: FilterQuality.high,
+                                        ),
                                       ),
                                     ),
                                   )
@@ -180,11 +191,14 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                         borderRadius: mainBorder,
                                         boxShadow: DEFAULT_BOX_SHADOWS,
                                       ),
-                                      child: RTCVideoView(
-                                        objectFit: RTCVideoViewObjectFit
-                                            .RTCVideoViewObjectFitCover,
-                                        widget.localRenderer,
-                                        filterQuality: FilterQuality.high,
+                                      child: InteractiveViewer(
+                                        // Set it to false to prevent panning.
+                                        minScale: 0.5,
+                                        maxScale: 4,
+                                        child: RTCVideoView(
+                                          widget.localRenderer,
+                                          filterQuality: FilterQuality.high,
+                                        ),
                                       ),
                                     ),
                                   )
@@ -202,12 +216,15 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                         borderRadius: mainBorder,
                                         boxShadow: DEFAULT_BOX_SHADOWS,
                                       ),
-                                      child: RTCVideoView(
-                                        objectFit: RTCVideoViewObjectFit
-                                            .RTCVideoViewObjectFitCover,
-                                        widget.localRenderer,
-                                        mirror: true,
-                                        filterQuality: FilterQuality.high,
+                                      child: InteractiveViewer(
+                                        // Set it to false to prevent panning.
+                                        minScale: 0.5,
+                                        maxScale: 4,
+                                        child: RTCVideoView(
+                                          widget.localRenderer,
+                                          mirror: true,
+                                          filterQuality: FilterQuality.high,
+                                        ),
                                       ),
                                     ),
                                   )
@@ -228,52 +245,91 @@ class VideoCallScreenState extends State<VideoCallScreen>
                         final x = MediaQuery.of(context).size.width;
                         final y = MediaQuery.of(context).size.height;
                         final width = (isAndroid || x < 600) ? 150.0 : x * 0.15;
-                        final height = (isAndroid || x < 600) ? 200.0 : y * 0.35;
+                        final height =
+                            (isAndroid || x < 600) ? 200.0 : y * 0.35;
 
-                        return Stack(
-                          children: [
-                            if (_callRepo.incomingSharing.value ||
-                                (switching.value && _callRepo.sharing.value))
-                              SizedBox(
-                                width: x,
-                                height: y,
-                                child: RTCVideoView(
-                                  switching.value
-                                      ? widget.localRenderer
-                                      : widget.remoteRenderer,
-                                  objectFit: RTCVideoViewObjectFit
-                                      .RTCVideoViewObjectFitCover,
-                                ),
-                              )
-                            else if (_callRepo.incomingVideo.value ||
-                                (switching.value && _callRepo.videoing.value))
-                              SizedBox(
-                                width: x,
-                                height: y,
-                                child: RTCVideoView(
-                                  switching.value
-                                      ? widget.localRenderer
-                                      : widget.remoteRenderer,
-                                  mirror: true,
-                                  objectFit: RTCVideoViewObjectFit
-                                      .RTCVideoViewObjectFitCover,
-                                ),
-                              )
-                            else
-                              Padding(
-                                padding: EdgeInsets.only(
-                                  top: MediaQuery.of(context).size.height * 0.3,
-                                ),
-                                child: CenterAvatarInCall(
-                                  roomUid: widget.roomUid,
-                                ),
-                              ),
-                            if (_callRepo.videoing.value)
-                              userVideoWidget(x, y, width, height, isMirror: true)
-                            else if (_callRepo.sharing.value)
-                              userVideoWidget(x, y, width, height, isMirror: false)
-                          ],
-                        );
+                        return StreamBuilder<bool>(
+                            initialData: false,
+                            stream: switching,
+                            builder: (context, snapshot) {
+                              return Stack(
+                                children: [
+                                  if ((_callRepo.incomingSharing.value &&
+                                          !snapshot.data!) ||
+                                      (snapshot.data! &&
+                                          _callRepo.sharing.value))
+                                    SizedBox(
+                                      width: x,
+                                      height: y,
+                                      child: InteractiveViewer(
+                                        // Set it to false to prevent panning.
+                                        minScale: 0.5,
+                                        maxScale: 4,
+                                        child: RTCVideoView(
+                                          snapshot.data!
+                                              ? widget.localRenderer
+                                              : widget.remoteRenderer,
+                                        ),
+                                      ),
+                                    )
+                                  else if ((_callRepo.incomingVideo.value &&
+                                          !snapshot.data!) ||
+                                      (snapshot.data! &&
+                                          _callRepo.videoing.value))
+                                    SizedBox(
+                                      width: x,
+                                      height: y,
+                                      child: InteractiveViewer(
+                                        // Set it to false to prevent panning.
+                                        minScale: 0.5,
+                                        maxScale: 4,
+                                        child: RTCVideoView(
+                                          snapshot.data!
+                                              ? widget.localRenderer
+                                              : widget.remoteRenderer,
+                                          mirror: true,
+                                        ),
+                                      ),
+                                    )
+                                  else
+                                    Padding(
+                                      padding: EdgeInsets.only(
+                                        top:
+                                            MediaQuery.of(context).size.height *
+                                                0.2,
+                                      ),
+                                      child: CenterAvatarInCall(
+                                        roomUid: widget.roomUid,
+                                      ),
+                                    ),
+                                  if (_callRepo.videoing.value)
+                                    userVideoWidget(
+                                      x,
+                                      y,
+                                      width,
+                                      height,
+                                      isMirror:
+                                          (_callRepo.incomingSharing.value &&
+                                                  snapshot.data!)
+                                              ? false
+                                              : true,
+                                      inComingVideo:
+                                          _callRepo.incomingVideo.value ||
+                                              _callRepo.incomingSharing.value,
+                                    )
+                                  else if (_callRepo.sharing.value)
+                                    userVideoWidget(x, y, width, height,
+                                        inComingVideo:
+                                            _callRepo.incomingVideo.value ||
+                                                _callRepo.incomingSharing.value,
+                                        isMirror:
+                                            (_callRepo.incomingVideo.value &&
+                                                    snapshot.data!)
+                                                ? true
+                                                : false)
+                                ],
+                              );
+                            });
                       },
                     );
             },
@@ -282,87 +338,22 @@ class VideoCallScreenState extends State<VideoCallScreen>
             hangUp: widget.hangUp,
             isIncomingCall: widget.isIncomingCall,
           ),
-          Positioned(
-            top: 10,
-            child: Column(
-              children: [
-                if (widget.text == "Connected")
-                  StreamBuilder<CallTimer>(
-                    stream: _callRepo.callTimer,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData && snapshot.data != null) {
-                        return Padding(
-                          padding: EdgeInsets.only(
-                            top: MediaQuery.of(context).size.height * 0.07,
-                          ),
-                          child: callTimerWidget(
-                            theme,
-                            snapshot.data!,
-                            isEnd: false,
-                          ),
-                        );
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    },
-                  )
-                else
-                  Padding(
-                    padding: EdgeInsets.only(
-                      top: MediaQuery.of(context).size.height * 0.05,
-                    ),
-                    child: Directionality(
-                      textDirection: _i18n.isPersian
-                          ? TextDirection.rtl
-                          : TextDirection.ltr,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          if (widget.text != "Ended")
-                            Text(
-                              widget.callStatusOnScreen,
-                              style: theme.textTheme.titleLarge!
-                                  .copyWith(color: Colors.white70),
-                            )
-                          else
-                            FadeTransition(
-                              opacity: _repeatEndCallAnimationController,
-                              child: (_callRepo.isConnected)
-                                  ? Directionality(
-                                      textDirection: TextDirection.ltr,
-                                      child: callTimerWidget(
-                                        theme,
-                                        _callRepo.callTimer.value,
-                                        isEnd: true,
-                                      ),
-                                    )
-                                  : Text(
-                                      widget.callStatusOnScreen,
-                                      style: theme.textTheme.titleLarge!
-                                          .copyWith(color: Colors.red),
-                                    ),
-                            ),
-                          if (widget.text == "Connecting" ||
-                              widget.text == "Reconnecting" ||
-                              widget.text == "Ringing" ||
-                              widget.text == "Calling")
-                            const DotAnimation()
-                        ],
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-          ),
         ],
       ),
     );
   }
 
-  Positioned userVideoWidget(double x, double y, double width, double height, {required bool isMirror}) {
+  Positioned userVideoWidget(
+    double x,
+    double y,
+    double width,
+    double height, {
+    required bool isMirror,
+    required bool inComingVideo,
+  }) {
     return Positioned(
       left: position.dx,
-      top: position.dy,
+      top: position.dy - (isAndroid ? 80 : 50),
       child: Draggable(
         feedback: SizedBox(
           width: width,
@@ -371,7 +362,6 @@ class VideoCallScreenState extends State<VideoCallScreen>
             borderRadius: BorderRadius.circular(20.0),
             child: RTCVideoView(
               switching.value ? widget.remoteRenderer : widget.localRenderer,
-              objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
               mirror: isMirror,
             ),
           ),
@@ -381,7 +371,8 @@ class VideoCallScreenState extends State<VideoCallScreen>
             final horizentalMargin = (isAndroid || x < 600) ? 20 : x * 0.22;
             final verticalMargin = isAndroid ? 95 : 110;
             if (offset.dx > x / 2 && offset.dy > y / 2) {
-              position = Offset(x - width - horizentalMargin, y - height - verticalMargin);
+              position = Offset(
+                  x - width - horizentalMargin, y - height - verticalMargin);
             }
             if (offset.dx < x / 2 && offset.dy > y / 2) {
               position = Offset(20, y - height - verticalMargin);
@@ -403,13 +394,51 @@ class VideoCallScreenState extends State<VideoCallScreen>
             child: MouseRegion(
               cursor: SystemMouseCursors.click,
               child: GestureDetector(
-                child: RTCVideoView(
-                  switching.value
-                      ? widget.remoteRenderer
-                      : widget.localRenderer,
-                  objectFit: RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                  mirror: isMirror,
-                ),
+                child: !switching.value
+                    ? InteractiveViewer(
+                        // Set it to false to prevent panning.
+                        minScale: 0.5,
+                        maxScale: 4,
+                        child: RTCVideoView(
+                          widget.localRenderer,
+                          objectFit:
+                              RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
+                          mirror: isMirror,
+                        ),
+                      )
+                    : inComingVideo
+                        ? InteractiveViewer(
+                            // Set it to false to prevent panning.
+                            minScale: 0.5,
+                            maxScale: 4,
+                            child: RTCVideoView(
+                              widget.remoteRenderer,
+                              mirror: isMirror,
+                            ),
+                          )
+                        : Container(
+                            clipBehavior: Clip.antiAliasWithSaveLayer,
+                            decoration: BoxDecoration(
+                              gradient: const LinearGradient(
+                                begin: Alignment.bottomLeft,
+                                end: Alignment.topRight,
+                                colors: [
+                                  Colors.teal,
+                                  Colors.cyan,
+                                  Colors.greenAccent
+                                ],
+                              ),
+                              color: Theme.of(context)
+                                  .primaryColor
+                                  .withOpacity(0.5),
+                              borderRadius: mainBorder,
+                              boxShadow: DEFAULT_BOX_SHADOWS,
+                            ),
+                            child: CenterAvatarInCall(
+                              radius: 60,
+                              roomUid: widget.roomUid,
+                            ),
+                          ),
                 onTap: () {
                   setState(() {
                     switching.add(!switching.value);
@@ -433,20 +462,112 @@ class VideoCallScreenState extends State<VideoCallScreen>
     callSecond = callSecond.length != 2 ? '0$callSecond' : callSecond;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(
           CupertinoIcons.phone_fill,
           size: 25,
-          color: isEnd ? Colors.red : Colors.white54,
+          color: isEnd ? theme.errorColor : theme.primaryColor,
         ),
         Text(
           '$callHour:$callMin:$callSecond',
           style: theme.textTheme.titleLarge!.copyWith(
-            color: isEnd ? Colors.red : Colors.white54,
+            color: isEnd ? theme.errorColor : theme.primaryColor,
             fontStyle: FontStyle.italic,
           ),
         ),
       ],
+    );
+  }
+
+  Animatable<Color?> background = TweenSequence<Color?>([
+    TweenSequenceItem(
+      weight: 1.0,
+      tween: ColorTween(
+        begin: Colors.blueAccent,
+        end: Colors.greenAccent,
+      ),
+    ),
+    TweenSequenceItem(
+      weight: 1.0,
+      tween: ColorTween(
+        begin: Colors.greenAccent,
+        end: Colors.blueAccent,
+      ),
+    ),
+  ]);
+
+  PreferredSize _buildAppBar() {
+    final theme = Theme.of(context);
+    return PreferredSize(
+      preferredSize: const Size.fromHeight(50),
+      child: AppBar(
+        backgroundColor: background.evaluate(
+          AlwaysStoppedAnimation(animationController.value),
+        ),
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: true,
+        title: Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            if (widget.text == "Connected")
+              StreamBuilder<CallTimer>(
+                stream: _callRepo.callTimer,
+                builder: (context, snapshot) {
+                  if (snapshot.hasData && snapshot.data != null) {
+                    return callTimerWidget(
+                      theme,
+                      snapshot.data!,
+                      isEnd: false,
+                    );
+                  } else {
+                    return const SizedBox.shrink();
+                  }
+                },
+              )
+            else
+              Directionality(
+                textDirection:
+                    _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    if (widget.text != "Ended")
+                      Text(
+                        widget.callStatusOnScreen,
+                        style: theme.textTheme.titleLarge!
+                            .copyWith(color: theme.primaryColor),
+                      )
+                    else
+                      FadeTransition(
+                        opacity: _repeatEndCallAnimationController,
+                        child: (_callRepo.isConnected)
+                            ? Directionality(
+                                textDirection: TextDirection.ltr,
+                                child: callTimerWidget(
+                                  theme,
+                                  _callRepo.callTimer.value,
+                                  isEnd: true,
+                                ),
+                              )
+                            : Text(
+                                widget.callStatusOnScreen,
+                                style: theme.textTheme.titleLarge!
+                                    .copyWith(color: Colors.red),
+                              ),
+                      ),
+                    if (widget.text == "Connecting" ||
+                        widget.text == "Reconnecting" ||
+                        widget.text == "Ringing" ||
+                        widget.text == "Calling")
+                      const DotAnimation()
+                  ],
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

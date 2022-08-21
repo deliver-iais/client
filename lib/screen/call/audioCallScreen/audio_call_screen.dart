@@ -66,22 +66,19 @@ class AudioCallScreenState extends State<AudioCallScreen>
             children: [
               if (widget.callStatus == "Connected")
                 StreamBuilder<CallTimer>(
+                  initialData: CallTimer(0, 0, 0),
                   stream: callRepo.callTimer,
                   builder: (context, snapshot) {
-                    if (snapshot.hasData && snapshot.data != null) {
-                      return Padding(
-                        padding: EdgeInsets.only(
-                          top: MediaQuery.of(context).size.height * 0.15,
-                        ),
-                        child: callTimerWidget(
-                          theme,
-                          snapshot.data!,
-                          isEnd: false,
-                        ),
-                      );
-                    } else {
-                      return const SizedBox.shrink();
-                    }
+                    return Padding(
+                      padding: EdgeInsets.only(
+                        top: MediaQuery.of(context).size.height * 0.15,
+                      ),
+                      child: callTimerWidget(
+                        theme,
+                        snapshot.data!,
+                        isEnd: false,
+                      ),
+                    );
                   },
                 )
               else
@@ -153,16 +150,17 @@ class AudioCallScreenState extends State<AudioCallScreen>
     callSecond = callSecond.length != 2 ? '0$callSecond' : callSecond;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Icon(
           CupertinoIcons.phone_fill,
           size: 25,
-          color: isEnd ? Colors.red : Colors.white54,
+          color: isEnd ? theme.errorColor : theme.colorScheme.surface,
         ),
         Text(
           '$callHour:$callMin:$callSecond',
           style: theme.textTheme.titleLarge!.copyWith(
-            color: isEnd ? Colors.red : Colors.white54,
+            color: isEnd ? theme.errorColor : theme.colorScheme.surface,
             fontStyle: FontStyle.italic,
           ),
         ),
