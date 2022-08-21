@@ -1244,17 +1244,23 @@ class ProfilePageState extends State<ProfilePage>
         return Directionality(
           textDirection: _i18n.defaultTextDirection,
           child: AlertDialog(
+            actions: [
+              TextButton(
+                style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                onPressed: () => Navigator.of(c1).pop(),
+                child: Text(_i18n.get("cancel")),
+              )
+            ],
             contentPadding: const EdgeInsets.only(
               left: 10,
               right: 10,
-              bottom: 10,
             ),
             title: Text(
               _i18n.get("add_bot_to_group"),
               textAlign: _i18n.isPersian ? TextAlign.right : TextAlign.left,
             ),
             content: SizedBox(
-              width: MediaQuery.of(context).size.width,
+              width: 350,
               height: MediaQuery.of(context).size.height / 2,
               child: Column(
                 children: [
@@ -1292,68 +1298,71 @@ class ProfilePageState extends State<ProfilePage>
                               .then((value) {
                             if (value) {
                               s.add(room.uid);
+                              groups.add(s);
                             }
                           });
                         }
-                        groups.add(s);
+
                         return StreamBuilder<List<String>>(
                           stream: groups,
                           builder: (context, snapshot) {
-                            if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                              final filteredGroupList = snapshot.data!;
-                              return Expanded(
-                                child: ListView.separated(
-                                  shrinkWrap: true,
-                                  itemBuilder: (c, i) {
-                                    return GestureDetector(
-                                      child: FutureBuilder<String>(
-                                        future: _roomRepo.getName(
-                                          filteredGroupList[i].asUid(),
-                                        ),
-                                        builder: (c, name) {
-                                          if (name.hasData &&
-                                              name.data != null) {
-                                            nameOfGroup[filteredGroupList[i]] =
-                                                name.data!;
-                                            return SizedBox(
-                                              height: 50,
-                                              child: Row(
-                                                children: [
-                                                  CircleAvatarWidget(
-                                                    filteredGroupList[i]
-                                                        .asUid(),
-                                                    20,
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  Expanded(
-                                                    child: Text(
-                                                      name.data!,
+                            if (snapshot.hasData) {
+                              if (snapshot.data!.isEmpty) {
+                                return noGroupFoundWidget();
+                              } else {
+                                final filteredGroupList = snapshot.data!;
+                                return Expanded(
+                                  child: ListView.builder(
+                                    shrinkWrap: true,
+                                    itemBuilder: (c, i) {
+                                      return GestureDetector(
+                                        child: FutureBuilder<String>(
+                                          future: _roomRepo.getName(
+                                            filteredGroupList[i].asUid(),
+                                          ),
+                                          builder: (c, name) {
+                                            if (name.hasData &&
+                                                name.data != null) {
+                                              nameOfGroup[
+                                                      filteredGroupList[i]] =
+                                                  name.data!;
+                                              return SizedBox(
+                                                height: 50,
+                                                child: Row(
+                                                  children: [
+                                                    CircleAvatarWidget(
+                                                      filteredGroupList[i]
+                                                          .asUid(),
+                                                      20,
                                                     ),
-                                                  )
-                                                ],
-                                              ),
-                                            );
-                                          } else {
-                                            return const SizedBox.shrink();
-                                          }
-                                        },
-                                      ),
-                                      onTap: () => _addBotToGroupButtonOnTab(
-                                        context,
-                                        c1,
-                                        filteredGroupList[i],
-                                        nameOfGroup[filteredGroupList[i]],
-                                      ),
-                                    );
-                                  },
-                                  separatorBuilder: (c, i) {
-                                    return const Divider();
-                                  },
-                                  itemCount: snapshot.data!.length,
-                                ),
-                              );
+                                                    const SizedBox(
+                                                      width: 10,
+                                                    ),
+                                                    Expanded(
+                                                      child: Text(
+                                                        name.data!,
+                                                      ),
+                                                    )
+                                                  ],
+                                                ),
+                                              );
+                                            } else {
+                                              return const SizedBox.shrink();
+                                            }
+                                          },
+                                        ),
+                                        onTap: () => _addBotToGroupButtonOnTab(
+                                          context,
+                                          c1,
+                                          filteredGroupList[i],
+                                          nameOfGroup[filteredGroupList[i]],
+                                        ),
+                                      );
+                                    },
+                                    itemCount: snapshot.data!.length,
+                                  ),
+                                );
+                              }
                             } else {
                               return const SizedBox.shrink();
                             }
@@ -1363,6 +1372,7 @@ class ProfilePageState extends State<ProfilePage>
                       return const SizedBox.shrink();
                     },
                   ),
+                  const Divider(),
                 ],
               ),
             ),
@@ -1370,6 +1380,10 @@ class ProfilePageState extends State<ProfilePage>
         );
       },
     );
+  }
+
+  Widget noGroupFoundWidget() {
+    return const Expanded(child: Center(child: Text("No Group Found")));
   }
 
   void _addBotToGroupButtonOnTab(
