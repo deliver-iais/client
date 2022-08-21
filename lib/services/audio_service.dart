@@ -316,7 +316,7 @@ class AudioService {
 
   void toggleRecorderPause() => _recorder.togglePause();
 
-  void endRecording() => _recorder.end();
+  Future<bool> endRecording() async =>  _recorder.end();
 
   void cancelRecording() => _recorder.cancel();
 

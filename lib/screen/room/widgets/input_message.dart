@@ -14,6 +14,7 @@ import 'package:deliver/screen/room/messageWidgets/custom_text_selection_control
 import 'package:deliver/screen/room/messageWidgets/input_message_text_controller.dart';
 import 'package:deliver/screen/room/messageWidgets/max_lenght_text_input_formatter.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
+import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/room/widgets/bot_commands.dart';
 import 'package:deliver/screen/room/widgets/emoji_keybord.dart';
 import 'package:deliver/screen/room/widgets/markup/input_suggestions_widget.dart';
@@ -111,8 +112,6 @@ class InputMessageWidgetState extends State<InputMessage> {
   late FocusNode keyboardRawFocusNode;
   Subject<ActivityType> isTypingActivitySubject = BehaviorSubject();
   Subject<ActivityType> noActivitySubject = BehaviorSubject();
-  BehaviorSubject<TextDirection> textDirection =
-      BehaviorSubject.seeded(TextDirection.ltr);
   late String _botCommandData;
   int mentionSelectedIndex = 0;
   int botCommandSelectedIndex = 0;
@@ -172,10 +171,6 @@ class InputMessageWidgetState extends State<InputMessage> {
         .add(currentRoom.draft != null && currentRoom.draft!.isNotEmpty);
     widget.textController.addListener(() {
       _showSendIcon.add(widget.textController.text.isNotEmpty);
-      if (widget.textController.text.isNotEmpty) {
-        textDirection.add(_i18n.getDirection(widget.textController.text));
-      }
-
       if (currentRoom.uid.asUid().category == Categories.BOT &&
           widget.textController.text.isNotEmpty &&
           widget.textController.text[0] == "/" &&
@@ -641,7 +636,7 @@ class InputMessageWidgetState extends State<InputMessage> {
               stream: textDirection.distinct(),
               builder: (c, sn) {
                 final textDir = sn.data ?? TextDirection.ltr;
-                return TextField(
+                return AutoDirectionTextField(
                   selectionControls: selectionControls,
                   focusNode: widget.focusNode,
                   autofocus: (snapshot.data?.id ?? 0) > 0 || isDesktop,

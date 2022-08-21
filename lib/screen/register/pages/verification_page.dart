@@ -147,9 +147,7 @@ class VerificationPageState extends State<VerificationPage> {
                   ),
                   const SizedBox(height: 30),
                   Text(
-                    textDirection: _i18n.isPersian
-                        ? TextDirection.rtl
-                        : TextDirection.ltr,
+                    textDirection: _i18n.defaultTextDirection,
                     _i18n.get("we_have_send_a_code"),
                     style: const TextStyle(fontSize: 17),
                   ),

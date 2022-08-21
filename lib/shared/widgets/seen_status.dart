@@ -53,7 +53,7 @@ class SeenStatus extends StatelessWidget {
       ),
     );
 
-    if (messageId == null) {
+    if (messageId == null || messageId == 0) {
       return FutureBuilder<PendingMessage?>(
         future: messageRepo.getPendingMessage(messagePacketId),
         builder: ((c, pm) {

@@ -1,6 +1,7 @@
 import 'package:clock/clock.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/messageWidgets/botMessageWidget/form_simple_input_field_widget.dart';
+import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/shake_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/models/form.pb.dart' as form_pb;
@@ -117,7 +118,7 @@ class _DateAndTimeFieldWidgetState extends State<DateAndTimeFieldWidget> {
       widget: Row(
         children: [
           Expanded(
-            child: TextField(
+            child: AutoDirectionTextField(
               readOnly: true,
               onTap: () => _selectDate(context),
               controller: _dateEditingController,

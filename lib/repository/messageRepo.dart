@@ -399,6 +399,7 @@ class MessageRepo {
     String text, {
     int replyId = 0,
     String? forwardedFrom,
+    String? packetId,
   }) async {
     final textsBlocks = text.split("\n").toList();
     final result = <String>[];
@@ -432,6 +433,7 @@ class MessageRepo {
         room,
         replyId,
         forwardedFrom,
+        packetId,
       );
       i++;
     }
@@ -442,11 +444,12 @@ class MessageRepo {
     Uid room,
     int replyId,
     String? forwardedFrom,
+    String? packetId,
   ) {
     final json = (message_pb.Text()..text = text).writeToJson();
-    final msg =
-        _createMessage(room, replyId: replyId, forwardedFrom: forwardedFrom)
-            .copyWith(type: MessageType.TEXT, json: json);
+    final msg = _createMessage(room,
+            replyId: replyId, forwardedFrom: forwardedFrom, packetId: packetId)
+        .copyWith(type: MessageType.TEXT, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
     _saveAndSend(pm);
@@ -896,10 +899,15 @@ class MessageRepo {
     }
   }
 
-  Message _createMessage(Uid room, {int replyId = 0, String? forwardedFrom}) =>
+  Message _createMessage(
+    Uid room, {
+    int replyId = 0,
+    String? forwardedFrom,
+    String? packetId,
+  }) =>
       Message(
         roomUid: room.asString(),
-        packetId: _getPacketId(),
+        packetId: packetId ?? _getPacketId(),
         time: clock.now().millisecondsSinceEpoch,
         from: _authRepo.currentUserUid.asString(),
         to: room.asString(),
@@ -909,7 +917,7 @@ class MessageRepo {
         isHidden: true,
       );
 
-  String _getPacketId() => clock.now().microsecondsSinceEpoch.toString();
+  String _getPacketId() => clock.now().millisecondsSinceEpoch.toString();
 
   Future<List<Message?>> getPage(
     int page,

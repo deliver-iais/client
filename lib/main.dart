@@ -81,6 +81,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/firebase_options.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:feature_discovery/feature_discovery.dart';
@@ -256,7 +257,7 @@ Future<void> setupDI() async {
 }
 
 Future initializeFirebase() async {
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(name: APPLICATION_NAME, options: DefaultFirebaseOptions.currentPlatform);
 }
 
 // ignore: avoid_void_async

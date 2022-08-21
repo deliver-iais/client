@@ -5,6 +5,7 @@ import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/main.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/data_stream_services.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -26,8 +27,7 @@ external set _decodeMessageForCallFromJs(Function f);
 class FireBaseServices {
   final _logger = GetIt.I.get<Logger>();
   final _sharedDao = GetIt.I.get<SharedDao>();
-  final _services =
-      GetIt.I.get<ServicesDiscoveryRepo>();
+  final _services = GetIt.I.get<ServicesDiscoveryRepo>();
 
   final List<String> _requestedRoom = [];
 
@@ -130,7 +130,9 @@ Future<void> _backgroundRemoteMessageHandler(
       // hive does not support multithreading
       await Hive.close();
       await setupDI();
-    } catch (_) {}
+    } catch (_) {
+      GetIt.I.get<UxService>().reInitialize();
+    }
 
     try {
       final msg = _decodeMessage(remoteMessage.data["body"]);
