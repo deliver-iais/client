@@ -8,6 +8,7 @@ import 'package:deliver/screen/call/audioCallScreen/audio_call_screen.dart';
 import 'package:deliver/screen/call/videoCallScreen/video_call_page.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -18,6 +19,7 @@ import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:random_string/random_string.dart';
 import 'package:sensors_plus/sensors_plus.dart';
+import 'package:window_size/window_size.dart';
 
 class CallScreen extends StatefulWidget {
   final Uid roomUid;
@@ -55,6 +57,9 @@ class CallScreenState extends State<CallScreen> {
 
   @override
   void initState() {
+    setWindowMinSize(
+      const Size(2*FLUID_MAX_WIDTH,  1.5*FLUID_MAX_HEIGHT ),
+    );
     random = randomAlphaNumeric(10);
     _callRepo.initRenderer();
     _localRenderer = _callRepo.getLocalRenderer;
@@ -149,6 +154,9 @@ class CallScreenState extends State<CallScreen> {
   @override
   void dispose() {
     super.dispose();
+    setWindowMinSize(
+      const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100),
+    );
     if (isAndroid) {
       for (final subscription in _accelerometerEvents) {
         subscription?.cancel();
