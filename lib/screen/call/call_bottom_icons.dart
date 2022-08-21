@@ -174,11 +174,8 @@ class CallBottomRowState extends State<CallBottomRow>
                                   shape: const CircleBorder(),
                                   backgroundColor:
                                       theme.cardColor.withOpacity(0),
-                                  hoverColor: isAndroid
-                                      ? theme.primaryColor.withOpacity(0.6)
-                                      : null,
                                   onPressed: () => _desktopDualVideo(),
-                                  tooltip: _i18n.get("camera_switch"),
+                                  tooltip: _i18n.get("screen"),
                                   child: Icon(
                                     _desktopDualVideoIcon,
                                     size: iconSize,
@@ -596,6 +593,7 @@ class CallBottomRowState extends State<CallBottomRow>
 
   void _desktopDualVideo() {
     callRepo.toggleDesktopDualVideo();
+    setState(() {});
   }
 
   void _acceptCall() {

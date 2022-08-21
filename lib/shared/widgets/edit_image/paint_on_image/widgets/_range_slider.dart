@@ -26,6 +26,7 @@ class RangedSlider extends StatelessWidget {
         activeTrackColor: controller.value.color,
         trackShape: const RoundedRectSliderTrackShape(),
         trackHeight: 15,
+        inactiveTrackColor: Colors.white24,
         thumbColor: controller.value.color,
         thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12.0),
         overlayColor: controller.value.color.withAlpha(100),

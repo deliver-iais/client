@@ -1,6 +1,7 @@
 library intl_phone_field;
 
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver_public_protocol/pub/v1/models/phone.pb.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
@@ -83,7 +84,7 @@ class IntlPhoneFieldState extends State<IntlPhoneField> {
               padding: const EdgeInsets.all(10),
               child: Column(
                 children: <Widget>[
-                  TextField(
+                  AutoDirectionTextField(
                     decoration: InputDecoration(
                       suffixIcon: const Icon(Icons.search),
                       labelText: _i18n.get("search_by_country_name"),

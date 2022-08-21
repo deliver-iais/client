@@ -212,10 +212,12 @@ class CoreServices {
         ..message = message
         ..id = clock.now().microsecondsSinceEpoch.toString();
       await _sendClientPacket(clientPacket);
-      Timer(
-        const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
-        () => _checkPendingStatus(message.packetId),
-      );
+      if(_connectionStatus.value == ConnectionStatus.Connected){
+        Timer(
+          const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
+              () => _checkPendingStatus(message.packetId),
+        );
+      }
     } catch (e) {
       _logger.e(e);
     }
@@ -226,12 +228,9 @@ class CoreServices {
     if (pm != null) {
       await _messageDao.savePendingMessage(
         pm.copyWith(
-          failed: true,
+          failed: _connectionStatus.value == ConnectionStatus.Connected,
         ),
       );
-      if (_connectionStatus.value == ConnectionStatus.Connected) {
-        connectionStatus.add(ConnectionStatus.Connected);
-      }
     }
   }
 

@@ -57,9 +57,11 @@ class CallScreenState extends State<CallScreen> {
 
   @override
   void initState() {
-    setWindowMinSize(
-      const Size(2*FLUID_MAX_WIDTH,  1.5*FLUID_MAX_HEIGHT ),
-    );
+    if (isWindows) {
+      setWindowMinSize(
+        const Size(2 * FLUID_MAX_WIDTH, 1.5 * FLUID_MAX_HEIGHT),
+      );
+    }
     random = randomAlphaNumeric(10);
     _callRepo.initRenderer();
     _localRenderer = _callRepo.getLocalRenderer;
@@ -92,8 +94,7 @@ class CallScreenState extends State<CallScreen> {
                 _i18n.get(
                   "alert_window_permission",
                 ),
-                textDirection:
-                    _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                textDirection: _i18n.defaultTextDirection,
                 style: theme.textTheme.bodyText1!
                     .copyWith(color: theme.primaryColor),
               ),
@@ -103,8 +104,7 @@ class CallScreenState extends State<CallScreen> {
                   _i18n.get(
                     "alert_window_permission_attention",
                   ),
-                  textDirection:
-                      _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                  textDirection: _i18n.defaultTextDirection,
                   style: theme.textTheme.bodyText1!
                       .copyWith(color: theme.errorColor),
                 ),
@@ -154,9 +154,11 @@ class CallScreenState extends State<CallScreen> {
   @override
   void dispose() {
     super.dispose();
-    setWindowMinSize(
-      const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100),
-    );
+    if(isWindows) {
+      setWindowMinSize(
+        const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100),
+      );
+    }
     if (isAndroid) {
       for (final subscription in _accelerometerEvents) {
         subscription?.cancel();

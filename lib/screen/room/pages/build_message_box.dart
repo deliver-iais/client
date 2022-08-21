@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:clock/clock.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_brief.dart';
 import 'package:deliver/box/message_type.dart';
@@ -25,6 +26,8 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/time.dart';
+import 'package:deliver/shared/widgets/animated_delete_widget.dart';
+import 'package:deliver/shared/widgets/animated_switch_widget.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver/theme/theme.dart';
@@ -55,6 +58,7 @@ class BuildMessageBox extends StatefulWidget {
   final bool hasPermissionInGroup;
   final BehaviorSubject<bool> hasPermissionInChannel;
   final BehaviorSubject<bool> selectMultiMessageSubject;
+  final BehaviorSubject<List<int>> selectedMessageListIndex;
 
   const BuildMessageBox({
     super.key,
@@ -70,6 +74,7 @@ class BuildMessageBox extends StatefulWidget {
     required this.pinMessages,
     required this.onReply,
     required this.selectMultiMessageSubject,
+    required this.selectedMessageListIndex,
     required this.hasPermissionInGroup,
     required this.hasPermissionInChannel,
     required this.addForwardMessage,
@@ -87,14 +92,23 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _routingServices = GetIt.I.get<RoutingService>();
   static final _roomRepo = GetIt.I.get<RoomRepo>();
+  final animatedWidget = BehaviorSubject.seeded(false);
 
   @override
   Widget build(BuildContext context) {
-    return _buildMessageBox(
-      context,
-      widget.message,
-      widget.messageBefore,
-      messageReplyBrief: widget.messageReplyBrief,
+    return StreamBuilder<bool>(
+      initialData: false,
+      stream: widget.selectMultiMessageSubject,
+      builder: (context, snapshot) {
+        return AnimatedDeleteWidget(
+          child: _buildMessageBox(
+            context,
+            widget.message,
+            widget.messageBefore,
+            messageReplyBrief: widget.messageReplyBrief,
+          ),
+        );
+      },
     );
   }
 
@@ -104,10 +118,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     Message? msgBefore, {
     MessageBrief? messageReplyBrief,
   }) {
-    if (msg.isHidden) {
-      return const SizedBox.shrink();
-    }
-
     final isFirstMsgOfOnePerson = isFirstMessageOfOneDirection(msgBefore, msg);
 
     if (msg.type == MessageType.PERSISTENT_EVENT) {
@@ -186,12 +196,11 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
                     _showCustomMenu(context, msg);
                   }
                 },
-          onDoubleTap: !isDesktop ? null : widget.onReply,
+          onDoubleTap: !isDesktop || widget.selectMultiMessageSubject.value
+              ? null
+              : widget.onReply,
           onLongPress: () {
-            if (!widget.selectMultiMessageSubject.value) {
-              widget.selectMultiMessageSubject.add(true);
-            }
-            widget.addForwardMessage();
+            selectMessage();
           },
           onTapDown: storePosition,
           onSecondaryTapDown: storePosition,
@@ -208,6 +217,13 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
         ),
       ],
     );
+  }
+
+  void selectMessage() {
+    if (!widget.selectMultiMessageSubject.value) {
+      widget.selectMultiMessageSubject.add(true);
+    }
+    widget.addForwardMessage();
   }
 
   Widget _createSidedMessageWidget(
@@ -236,7 +252,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     if (!widget.message.roomUid.asUid().isChannel() &&
         widget.message.id != null) {
       messageWidget = Swipe(
-        onSwipeLeft: widget.onReply,
+        onSwipeLeft:
+            !widget.selectMultiMessageSubject.value ? widget.onReply : null,
         child: Container(
           width: double.infinity,
           color: Colors.transparent,
@@ -262,12 +279,11 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
                 _showCustomMenu(context, message);
               }
             },
-      onDoubleTap: !isDesktop ? null : widget.onReply,
+      onDoubleTap: !isDesktop || widget.selectMultiMessageSubject.value
+          ? null
+          : widget.onReply,
       onLongPress: () {
-        if (!widget.selectMultiMessageSubject.value) {
-          widget.selectMultiMessageSubject.add(true);
-        }
-        widget.addForwardMessage();
+        selectMessage();
       },
       onTapDown: storePosition,
       onSecondaryTapDown: storePosition,
@@ -291,13 +307,93 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onUsernameClick: onUsernameClick,
       storePosition: storePosition,
       onEdit: widget.onEdit,
+      showMenuDisable: widget.selectMultiMessageSubject.value,
     );
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.end,
-      children: <Widget>[messageWidget],
+      children: <Widget>[
+        if (shouldBeAnimated()) StreamBuilder<bool>(
+          stream: animatedWidget,
+          initialData: shouldBeAnimated(),
+          builder: (context, snapshot) {
+            final isAnimated = snapshot.data ?? false;
+            return AnimatedContainer(
+              duration: SLOW_ANIMATION_DURATION,
+              // transform: Matrix4.rotationX(turns.value * pi * 2),
+              transform: isAnimated
+                  ? Matrix4.translationValues(
+                      -60,
+                      80,
+                      0,
+                    )
+                  : Matrix4.translationValues(
+                      0,
+                      0,
+                      0,
+                    ),
+              transformAlignment: Alignment.center,
+              child: messageWidget,
+            );
+          },
+        ) else messageWidget,
+        StreamBuilder<List<int>>(
+          stream: widget.selectedMessageListIndex,
+          builder: (context, snapshot) {
+            return AnimatedOpacity(
+              duration: SUPER_SLOW_ANIMATION_DURATION,
+              opacity: widget.selectMultiMessageSubject.value ? 1 : 0,
+              child: AnimatedContainer(
+                width: widget.selectMultiMessageSubject.value ? SELECTED_MESSAGE_CHECKBOX_WIDTH : 0,
+                duration: SUPER_SLOW_ANIMATION_DURATION,
+                child: Checkbox(
+                  checkColor: Colors.white,
+                  fillColor: MaterialStateProperty.resolveWith(getColor),
+                  shape: const CircleBorder(),
+                  value: (snapshot.data ?? []).contains(widget.message.id),
+                  onChanged: (value) {
+                    widget.addForwardMessage();
+                  },
+                ),
+              ),
+            );
+          },
+        ),
+      ],
     );
+  }
+
+  Color getColor(Set<MaterialState> states) {
+    const interactiveStates = <MaterialState>{
+      MaterialState.pressed,
+      MaterialState.hovered,
+      MaterialState.focused,
+    };
+    if (states.any(interactiveStates.contains)) {
+      return (Theme.of(context)).toggleableActiveColor;
+    }
+    return (Theme.of(context)).primaryColor;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (shouldBeAnimated()) {
+      animatedWidget.add(true);
+      Timer(const Duration(milliseconds: 1), () {
+        animatedWidget.add(false);
+      });
+    }
+  }
+
+  bool shouldBeAnimated() {
+    var widgetSendTime = 0;
+    try {
+      widgetSendTime = int.parse(widget.message.packetId);
+    } catch (_) {}
+    return (clock.now().millisecondsSinceEpoch - widgetSendTime).abs() <
+        SLOW_ANIMATION_DURATION.inMilliseconds * 3;
   }
 
   void onBotCommandClick(String command) {
@@ -320,6 +416,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onArrowIconClick: () => _showCustomMenu(context, message),
       storePosition: storePosition,
       onEdit: widget.onEdit,
+      showMenuDisable: widget.selectMultiMessageSubject.value,
     );
 
     return Padding(
@@ -348,7 +445,32 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           if (!isFirstMessageInGroupedMessages &&
               widget.message.roomUid.asUid().category == Categories.GROUP)
             const SizedBox(width: 44),
-          messageWidget
+          messageWidget,
+          const Spacer(),
+          StreamBuilder<List<int>>(
+            stream: widget.selectedMessageListIndex,
+            builder: (context, snapshot) {
+              return AnimatedOpacity(
+                duration: SUPER_SLOW_ANIMATION_DURATION,
+                opacity: widget.selectMultiMessageSubject.value ? 1 : 0,
+                child: AnimatedContainer(
+                  width: widget.selectMultiMessageSubject.value
+                      ? SELECTED_MESSAGE_CHECKBOX_WIDTH
+                      : 0,
+                  duration: SUPER_SLOW_ANIMATION_DURATION,
+                  child: Checkbox(
+                    checkColor: Colors.white,
+                    fillColor: MaterialStateProperty.resolveWith(getColor),
+                    shape: const CircleBorder(),
+                    value: (snapshot.data ?? []).contains(widget.message.id),
+                    onChanged: (value) {
+                      widget.addForwardMessage();
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
@@ -358,7 +480,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     BuildContext context,
     Message message,
   ) async {
-    if (widget.menuDisabled) {
+    if (widget.menuDisabled || widget.selectMultiMessageSubject.value) {
       return;
     }
 
@@ -386,6 +508,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onPin: widget.onPin,
       onReply: widget.onReply,
       onUnPin: widget.onUnPin,
+      onSelect: selectMessage,
+
     ).selectOperation(selectedValue);
   }
 
@@ -409,6 +533,7 @@ class OperationOnMessageSelection {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
 
   final void Function()? onReply;
+  final void Function()? onSelect;
   final void Function()? onEdit;
   final void Function()? onDelete;
   final void Function()? onPin;
@@ -418,6 +543,7 @@ class OperationOnMessageSelection {
 
   OperationOnMessageSelection({
     this.onReply,
+    this.onSelect,
     this.onEdit,
     this.onDelete,
     this.onPin,
@@ -430,6 +556,9 @@ class OperationOnMessageSelection {
     switch (operationOnMessage) {
       case OperationOnMessage.REPLY:
         onReply?.call();
+        break;
+      case OperationOnMessage.SELECT:
+        onSelect?.call();
         break;
       case OperationOnMessage.COPY:
         onCopy();

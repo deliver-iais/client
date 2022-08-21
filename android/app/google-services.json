@@ -38,6 +38,13 @@
             {
               "client_id": "192675293547-kvc3gkbhpr0brju81m8l6vll88op0r0d.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "192675293547-v07di0gbgk0modtv9usvucsu56bb3dft.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "ir.we.deliver"
+              }
             }
           ]
         }

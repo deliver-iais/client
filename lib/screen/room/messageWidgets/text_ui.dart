@@ -110,39 +110,45 @@ class _TextUIState extends State<TextUI> {
       constraints:
           BoxConstraints(maxWidth: widget.maxWidth, minWidth: widget.minWidth),
       padding: const EdgeInsets.only(top: 8, right: 8, left: 8),
-      child: Column(
-        crossAxisAlignment:
-            widget.isSender ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-        textDirection: widget.isSender ? TextDirection.ltr : TextDirection.rtl,
-        children: [
-          Container(
-            key: _textBoxKey,
-            child: RichText(
-              text: TextSpan(children: spans, style: theme.textTheme.bodyText2),
-              textDirection: widget.text.isPersian()
-                  ? TextDirection.rtl
-                  : TextDirection.ltr,
+      child: IntrinsicWidth(
+        child: Column(
+          crossAxisAlignment: widget.text.isPersian()
+              ? CrossAxisAlignment.end
+              : CrossAxisAlignment.start,
+          children: [
+            Container(
+              key: _textBoxKey,
+              child: RichText(
+                text:
+                    TextSpan(children: spans, style: theme.textTheme.bodyText2),
+                textDirection: widget.text.isPersian()
+                    ? TextDirection.rtl
+                    : TextDirection.ltr,
+              ),
             ),
-          ),
-          StreamBuilder<double>(
-            stream: _textBoxWidth,
-            builder: (context, snapshot) {
-              return LinkPreview(
-                link: _link,
-                maxWidth: snapshot.data ?? 0,
-                backgroundColor:
-                    Theme.of(context).colorScheme.shadow.withOpacity(0.1),
-                foregroundColor: widget.colorScheme.primary,
-              );
-            },
-          ),
-          TimeAndSeenStatus(
-            widget.message,
-            isSender: widget.isSender,
-            isSeen: widget.isSeen,
-            needsPositioned: false,
-          )
-        ],
+            StreamBuilder<double>(
+              stream: _textBoxWidth,
+              builder: (context, snapshot) {
+                return LinkPreview(
+                  link: _link,
+                  maxWidth: snapshot.data ?? 0,
+                  backgroundColor:
+                      Theme.of(context).colorScheme.shadow.withOpacity(0.1),
+                  foregroundColor: widget.colorScheme.primary,
+                );
+              },
+            ),
+            Align(
+              alignment: Alignment.bottomRight,
+              child: TimeAndSeenStatus(
+                widget.message,
+                isSender: widget.isSender,
+                isSeen: widget.isSeen,
+                needsPositioned: false,
+              ),
+            )
+          ],
+        ),
       ),
     );
   }

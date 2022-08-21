@@ -245,20 +245,17 @@ class LoginPageState extends State<LoginPage> {
           ),
           const SizedBox(height: 30),
           Text(
-            textDirection:
-                _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+            textDirection: _i18n.defaultTextDirection,
             "1. ${_i18n.get("login_page_open_app_1")} $APPLICATION_NAME ${_i18n.get("login_page_open_app_2")}",
           ),
           const SizedBox(height: 10),
           Directionality(
-            textDirection:
-                _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+            textDirection: _i18n.defaultTextDirection,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
-                  textDirection:
-                      _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                  textDirection: _i18n.defaultTextDirection,
                   "2. ${_i18n.get("login_page_qr_code_1")}",
                 ),
                 const Padding(
@@ -266,8 +263,7 @@ class LoginPageState extends State<LoginPage> {
                   child: Icon(Icons.qr_code_rounded, size: 17),
                 ),
                 Text(
-                  textDirection:
-                      _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                  textDirection: _i18n.defaultTextDirection,
                   _i18n.get("login_page_qr_code_2"),
                 ),
               ],
@@ -275,8 +271,7 @@ class LoginPageState extends State<LoginPage> {
           ),
           const SizedBox(height: 10),
           Text(
-            textDirection:
-                _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+            textDirection: _i18n.defaultTextDirection,
             "3. ${_i18n.get("login_page_confirm_login")}",
           ),
           const SizedBox(height: 30),
@@ -348,21 +343,23 @@ class LoginPageState extends State<LoginPage> {
                               });
                             },
                           ),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                _acceptPrivacy = true;
-                              });
-                            },
-                            child: RichText(
-                              text: TextSpan(
-                                children: buildText(
-                                  "${!_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}]($APPLICATION_TERMS_OF_USE_URL) ${_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}",
-                                  context,
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _acceptPrivacy = true;
+                                });
+                              },
+                              child: RichText(
+                                text: TextSpan(
+                                  children: buildText(
+                                    "${!_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}[${_i18n.get("privacy_policy")}]($APPLICATION_TERMS_OF_USE_URL) ${_i18n.isRtl() ? _i18n.get("i_read_and_accept") : ""}",
+                                    context,
+                                  ),
+                                  style: theme.textTheme.bodyText2,
                                 ),
-                                style: theme.textTheme.bodyText2,
+                                textDirection: TextDirection.ltr,
                               ),
-                              textDirection: TextDirection.ltr,
                             ),
                           ),
                         ],

@@ -6,6 +6,7 @@ import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
+import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_form.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/file_service.dart';
@@ -198,7 +199,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
                             send();
                           }
                         },
-                        child: TextFormField(
+                        child: AutoDirectionTextForm(
                           controller: _editingController,
                           keyboardType: TextInputType.multiline,
                           minLines: 1,

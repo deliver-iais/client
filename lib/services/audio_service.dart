@@ -165,10 +165,12 @@ class AudioService {
   ValueStream<Duration> get temporaryPlayerPosition =>
       _temporaryPlayer.positionStream;
 
+  Future<Duration?> get temporaryPlayerDuration =>
+      _temporaryPlayer._audioPlayer.getDuration();
+
   ValueStream<AudioTrack?> get track => _trackStream;
 
-  ValueStream<bool> get recorderIsRecording =>
-      _recorder.isRecordingStream;
+  ValueStream<bool> get recorderIsRecording => _recorder.isRecordingStream;
 
   ValueStream<bool> get recorderIsLocked => _recorder.isLockedSteam;
 
@@ -182,7 +184,12 @@ class AudioService {
   ValueStream<double> get recordingAmplitude =>
       _recorder.recordingAmplitudeStream;
 
-  void playAudioMessage(String path, String uuid, String name, double duration) {
+  void playAudioMessage(
+    String path,
+    String uuid,
+    String name,
+    double duration,
+  ) {
     stopTemporaryAudio();
 
     if (_trackStream.valueOrNull?.uuid == uuid) {
@@ -216,13 +223,14 @@ class AudioService {
     _mainPlayer.stop();
   }
 
-  void changeAudioPlaybackRate(double rate) => _mainPlayer.setPlaybackRate(rate);
+  void changeAudioPlaybackRate(double rate) =>
+      _mainPlayer.setPlaybackRate(rate);
 
   double getAudioPlaybackRate() => _mainPlayer.getPlaybackRate();
 
-  void playTemporaryAudio(AudioSourcePath path) {
+  void playTemporaryAudio(AudioSourcePath path, {String? prefix}) {
     _temporaryReversiblePause();
-    _temporaryPlayer.play(path);
+    _temporaryPlayer.play(path, prefix: prefix);
   }
 
   void stopTemporaryAudio() {
@@ -308,7 +316,7 @@ class AudioService {
 
   void toggleRecorderPause() => _recorder.togglePause();
 
-  void endRecording() => _recorder.end();
+  Future<bool> endRecording() async =>  _recorder.end();
 
   void cancelRecording() => _recorder.cancel();
 
@@ -584,7 +592,7 @@ class TemporaryAudioPlayer implements TemporaryAudioPlayerModule {
   final AudioPlayer _audioPlayer = AudioPlayer(playerId: "looped-audio");
 
   @override
-  void play(AudioSourcePath path) {
+  void play(AudioSourcePath path, {String? prefix}) {
     late final Source source;
 
     if (path.isDeviceFile) {
@@ -594,7 +602,9 @@ class TemporaryAudioPlayer implements TemporaryAudioPlayerModule {
     } else {
       source = UrlSource(path.path);
     }
-
+    if (prefix != null) {
+      _audioPlayer.audioCache.prefix = prefix;
+    }
     _audioPlayer
       ..setReleaseMode(ReleaseMode.loop)
       ..play(source, position: Duration.zero);

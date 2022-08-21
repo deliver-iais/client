@@ -13,6 +13,7 @@ import 'package:deliver/screen/room/messageWidgets/custom_text_selection_control
 import 'package:deliver/screen/room/messageWidgets/input_message_text_controller.dart';
 import 'package:deliver/screen/room/messageWidgets/max_lenght_text_input_formatter.dart';
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
+import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/room/widgets/bot_commands.dart';
 import 'package:deliver/screen/room/widgets/emoji_keybord.dart';
 import 'package:deliver/screen/room/widgets/record_audio_animation.dart';
@@ -44,7 +45,6 @@ import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:pasteboard/pasteboard.dart';
 import 'package:rxdart/rxdart.dart';
 
 import '../../navigation_center/widgets/feature_discovery_description_widget.dart';
@@ -95,6 +95,7 @@ class InputMessageWidgetState extends State<InputMessage> {
   static final _botRepo = GetIt.I.get<BotRepo>();
   static final _audioService = GetIt.I.get<AudioService>();
   static final _routingService = GetIt.I.get<RoutingService>();
+  static final _featureFlags = GetIt.I.get<FeatureFlags>();
 
   late Room currentRoom;
   final BehaviorSubject<bool> _showEmojiKeyboard =
@@ -108,8 +109,6 @@ class InputMessageWidgetState extends State<InputMessage> {
   late FocusNode keyboardRawFocusNode;
   Subject<ActivityType> isTypingActivitySubject = BehaviorSubject();
   Subject<ActivityType> noActivitySubject = BehaviorSubject();
-  BehaviorSubject<TextDirection> textDirection =
-      BehaviorSubject.seeded(TextDirection.ltr);
   late String _botCommandData;
   int mentionSelectedIndex = 0;
   int botCommandSelectedIndex = 0;
@@ -169,10 +168,6 @@ class InputMessageWidgetState extends State<InputMessage> {
         .add(currentRoom.draft != null && currentRoom.draft!.isNotEmpty);
     widget.textController.addListener(() {
       _showSendIcon.add(widget.textController.text.isNotEmpty);
-      if (widget.textController.text.isNotEmpty) {
-        textDirection.add(getDirection(widget.textController.text));
-      }
-
       if (currentRoom.uid.asUid().category == Categories.BOT &&
           widget.textController.text.isNotEmpty &&
           widget.textController.text[0] == "/" &&
@@ -514,8 +509,14 @@ class InputMessageWidgetState extends State<InputMessage> {
               ),
             if (showSendButton && !widget.waitingForForward)
               DescribedFeatureOverlay(
-                featureId: FEATURE_4,
+                featureId: _featureFlags
+                            .hasVoiceCallPermission(widget.currentRoom.uid) ||
+                        FeatureDiscovery.currentFeatureIdOf(context) ==
+                            FEATURE_5
+                    ? FEATURE_5
+                    : FEATURE_4,
                 useCustomPosition: true,
+                contentLocation: ContentLocation.above,
                 tapTarget: const FaIcon(
                   FontAwesomeIcons.markdown,
                 ),
@@ -577,50 +578,43 @@ class InputMessageWidgetState extends State<InputMessage> {
           return RawKeyboardListener(
             focusNode: keyboardRawFocusNode,
             onKey: handleKey,
-            child: StreamBuilder<TextDirection>(
-              stream: textDirection.distinct(),
-              builder: (c, sn) {
-                final textDir = sn.data ?? TextDirection.ltr;
-                return TextField(
-                  selectionControls: selectionControls,
-                  focusNode: widget.focusNode,
-                  autofocus: (snapshot.data?.id ?? 0) > 0 || isDesktop,
-                  controller: widget.textController,
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.only(top: 12, bottom: 12),
-                    border: InputBorder.none,
-                    counterText: "",
-                    hintText: _i18n.get("write_a_message"),
-                    hintTextDirection: _i18n.defaultTextDirection,
-                    hintStyle: theme.textTheme.bodyMedium,
-                  ),
-                  textInputAction: TextInputAction.newline,
-                  minLines: 1,
-                  maxLines: isAndroid ? 10 : 15,
-                  maxLength: INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH,
-                  inputFormatters: [
-                    MaxLinesTextInputFormatter(
-                      INPUT_MESSAGE_TEXT_FIELD_MAX_LINE,
-                    )
-                    //max line of text field
-                  ],
-                  textDirection: textDir,
-                  style: theme.textTheme.bodyMedium,
-                  onTap: () {
-                    if (!isDesktop) _showEmojiKeyboard.add(false);
-                  },
-                  onChanged: (str) {
-                    if (str.isNotEmpty) {
-                      isTypingActivitySubject.add(
-                        ActivityType.TYPING,
-                      );
-                    } else {
-                      noActivitySubject.add(
-                        ActivityType.NO_ACTIVITY,
-                      );
-                    }
-                  },
-                );
+            child: AutoDirectionTextField(
+              selectionControls: selectionControls,
+              focusNode: widget.focusNode,
+              autofocus: (snapshot.data?.id ?? 0) > 0 || isDesktop,
+              controller: widget.textController,
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.only(top: 12, bottom: 12),
+                border: InputBorder.none,
+                counterText: "",
+                hintText: _i18n.get("write_a_message"),
+                hintTextDirection: _i18n.defaultTextDirection,
+                hintStyle: theme.textTheme.bodyMedium,
+              ),
+              textInputAction: TextInputAction.newline,
+              minLines: 1,
+              maxLines: isAndroid ? 10 : 15,
+              maxLength: INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH,
+              inputFormatters: [
+                MaxLinesTextInputFormatter(
+                  INPUT_MESSAGE_TEXT_FIELD_MAX_LINE,
+                )
+                //max line of text field
+              ],
+              style: theme.textTheme.bodyMedium,
+              onTap: () {
+                if (!isDesktop) _showEmojiKeyboard.add(false);
+              },
+              onChanged: (str) {
+                if (str.isNotEmpty) {
+                  isTypingActivitySubject.add(
+                    ActivityType.TYPING,
+                  );
+                } else {
+                  noActivitySubject.add(
+                    ActivityType.NO_ACTIVITY,
+                  );
+                }
               },
             ),
           );
@@ -735,24 +729,13 @@ class InputMessageWidgetState extends State<InputMessage> {
   }
 
   Future<void> _handleCV(RawKeyEvent event) async {
-    final files = await Pasteboard.files();
-    if (files.isEmpty) {
-      final data = await Clipboard.getData(Clipboard.kTextPlain);
-      widget.textController.text =
-          widget.textController.text + data!.text!.replaceAll("\r", "");
-      widget.textController.selection = TextSelection.fromPosition(
-        TextPosition(offset: widget.textController.text.length),
-      );
-    } else {
-      unawaited(
-        // ignore: use_build_context_synchronously
-        _rawKeyboardService.controlVHandle(
-          widget.textController,
-          context,
-          widget.currentRoom.uid.asUid(),
-        ),
-      );
-    }
+    unawaited(
+      _rawKeyboardService.controlVHandle(
+        widget.textController,
+        context,
+        widget.currentRoom.uid.asUid(),
+      ),
+    );
   }
 
   KeyEventResult _handleArrow(RawKeyEvent event) {

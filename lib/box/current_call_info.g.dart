@@ -21,13 +21,14 @@ class CurrentCallInfoAdapter extends TypeAdapter<CurrentCallInfo> {
       from: fields[0] as String,
       to: fields[1] as String,
       expireTime: fields[3] as int,
+      notificationSelected: fields[4] as bool,
     );
   }
 
   @override
   void write(BinaryWriter writer, CurrentCallInfo obj) {
     writer
-      ..writeByte(4)
+      ..writeByte(5)
       ..writeByte(0)
       ..write(obj.from)
       ..writeByte(1)
@@ -35,7 +36,9 @@ class CurrentCallInfoAdapter extends TypeAdapter<CurrentCallInfo> {
       ..writeByte(2)
       ..write(obj.callEvent)
       ..writeByte(3)
-      ..write(obj.expireTime);
+      ..write(obj.expireTime)
+      ..writeByte(4)
+      ..write(obj.notificationSelected);
   }
 
   @override

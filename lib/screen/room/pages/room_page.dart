@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:badges/badges.dart';
 import 'package:dcache/dcache.dart';
 import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
@@ -29,6 +28,7 @@ import 'package:deliver/screen/room/messageWidgets/reply_widgets/reply_preview.d
 import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/pages/build_message_box.dart';
 import 'package:deliver/screen/room/pages/pin_message_app_bar.dart';
+import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/room/widgets/bot_start_widget.dart';
 import 'package:deliver/screen/room/widgets/chat_time.dart';
 import 'package:deliver/screen/room/widgets/mute_and_unmute_room_widget.dart';
@@ -46,6 +46,7 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/time.dart';
+import 'package:deliver/shared/widgets/animated_switch_widget.dart';
 import 'package:deliver/shared/widgets/audio_player_appbar.dart';
 import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/bot_appbar_title.dart';
@@ -120,7 +121,7 @@ class RoomPageState extends State<RoomPage> {
 
   final _messageWidgetCache =
       LruCache<int, Widget?>(storage: InMemoryStorage(200));
-  final _messageCache = LruCache<int, Message>(storage: InMemoryStorage(200));
+  final _messageCache = LruCache<int, Message>(storage: InMemoryStorage(1000));
 
   final _highlightMessageId = BehaviorSubject.seeded(-1);
   final _repliedMessage = BehaviorSubject<Message?>.seeded(null);
@@ -135,6 +136,7 @@ class RoomPageState extends State<RoomPage> {
   final _itemCountSubject = BehaviorSubject.seeded(0);
   final _waitingForForwardedMessage = BehaviorSubject.seeded(false);
   final _selectMultiMessageSubject = BehaviorSubject.seeded(false);
+  final _selectedMessageListIndex = BehaviorSubject<List<int>>.seeded([]);
   final _positionSubject = BehaviorSubject.seeded(0);
   final _hasPermissionInChannel = BehaviorSubject.seeded(true);
   final _hasPermissionInGroup = BehaviorSubject.seeded(false);
@@ -598,6 +600,7 @@ class RoomPageState extends State<RoomPage> {
     _waitingForForwardedMessage.add(false);
     _selectMultiMessageSubject.add(false);
     _selectedMessages.clear();
+    _selectedMessageListIndex.add([]);
     setState(() {});
   }
 
@@ -625,6 +628,7 @@ class RoomPageState extends State<RoomPage> {
   void unselectMessages() {
     _selectMultiMessageSubject.add(false);
     _selectedMessages.clear();
+    _selectedMessageListIndex.add([]);
     setState(() {});
   }
 
@@ -876,16 +880,19 @@ class RoomPageState extends State<RoomPage> {
     return AppBar(
       scrolledUnderElevation: 0,
       actions: [
-        if (room.uid.asUid().isUser() &&
-            !_authRepo.isCurrentUser(room.uid) &&
-            _featureFlags.isVoiceCallAvailable())
+        if (_featureFlags.hasVoiceCallPermission(room.uid))
           StreamBuilder<bool>(
             stream: _selectMultiMessageSubject,
             builder: (context, snapshot) {
               return snapshot.hasData && !snapshot.data!
                   ? DescribedFeatureOverlay(
                       useCustomPosition: true,
-                      featureId: FEATURE_5,
+                      featureId: _featureFlags.hasVoiceCallPermission(room.uid)
+                          ? FeatureDiscovery.currentFeatureIdOf(context) ==
+                                  FEATURE_5
+                              ? FEATURE_5
+                              : FEATURE_4
+                          : FEATURE_3,
                       tapTarget: IconButton(
                         icon: const Icon(CupertinoIcons.phone),
                         onPressed: () {},
@@ -1012,6 +1019,7 @@ class RoomPageState extends State<RoomPage> {
             },
           ),
       ],
+      leadingWidth: _selectMultiMessageSubject.value ? 100 : null,
       leading: GestureDetector(
         child: StreamBuilder<bool>(
           stream: _searchMode,
@@ -1032,24 +1040,27 @@ class RoomPageState extends State<RoomPage> {
                       snapshot.data!) {
                     return Row(
                       children: [
-                        Badge(
-                          badgeColor: theme.primaryColor,
-                          badgeContent: Text(
+                        IconButton(
+                          color: theme.primaryColor,
+                          icon: const Icon(
+                            CupertinoIcons.xmark,
+                            size: 25,
+                          ),
+                          onPressed: () {
+                            unselectMessages();
+                          },
+                        ),
+                        AnimatedSwitchWidget(
+                          child: Text(
                             _selectedMessages.length.toString(),
+                            // This key causes the AnimatedSwitcher to interpret this as a "new"
+                            // child each time the count changes, so that it will begin its animation
+                            // when the count changes.
+                            key: ValueKey<int>(_selectedMessages.length),
                             style: TextStyle(
                               fontSize: 16,
-                              color: theme.colorScheme.onPrimary,
+                              color: theme.colorScheme.primary,
                             ),
-                          ),
-                          child: IconButton(
-                            color: theme.primaryColor,
-                            icon: const Icon(
-                              CupertinoIcons.xmark,
-                              size: 25,
-                            ),
-                            onPressed: () {
-                              unselectMessages();
-                            },
                           ),
                         ),
                       ],
@@ -1071,7 +1082,7 @@ class RoomPageState extends State<RoomPage> {
             return Row(
               children: [
                 Flexible(
-                  child: TextField(
+                  child: AutoDirectionTextField(
                     minLines: 1,
                     controller: controller,
                     autofocus: true,
@@ -1112,7 +1123,7 @@ class RoomPageState extends State<RoomPage> {
                     selectedMessages: _selectedMessages,
                     hasPermissionInChannel: _hasPermissionInChannel.value,
                     hasPermissionInGroup: _hasPermissionInGroup.value,
-                    onDelete: unselectMessages,
+                    onClose: unselectMessages,
                     deleteSelectedMessage: _deleteSelectedMessage,
                   );
                 } else {
@@ -1275,20 +1286,29 @@ class RoomPageState extends State<RoomPage> {
   Future<int?> _timeAt(int index) async {
     if (index < 0) return null;
 
+    var searchedIndex = 0;
+
     final msg = await _messageAtIndex(index + 1);
-
-    if (index > 0) {
-      final prevMsg = await _messageAtIndex(index);
-      if (prevMsg!.isHidden || msg!.isHidden) {
-        return null;
-      }
-
-      final d1 = date(prevMsg.time);
-      final d2 = date(msg.time);
-      if (d1.day != d2.day || d1.month != d2.month || d1.year != d2.year) {
-        return msg.time;
-      }
+    if (msg == null || msg.isHidden) {
+      return null;
     }
+
+    Message? prevMsg;
+
+    do {
+      if (index > 0) {
+        prevMsg = await _messageAtIndex(index - searchedIndex++);
+        if (prevMsg == null || prevMsg.isHidden) {
+          continue;
+        }
+
+        final d1 = date(prevMsg.time);
+        final d2 = date(msg.time);
+        if (d1.day != d2.day || d1.month != d2.month || d1.year != d2.year) {
+          return msg.time;
+        }
+      }
+    } while (prevMsg!.isHidden && searchedIndex < 100);
 
     return null;
   }
@@ -1319,11 +1339,12 @@ class RoomPageState extends State<RoomPage> {
       builder: (context, snapshot) {
         return AnimatedContainer(
           key: ValueKey(index),
-          duration: SUPER_SLOW_ANIMATION_DURATION,
+          duration: FAST_ANIMATION_DURATION,
           color: _selectedMessages.containsKey(index + 1) ||
                   (snapshot.data! == index + 1)
-              ? Theme.of(context).focusColor.withAlpha(100)
+              ? Theme.of(context).primaryColor.withAlpha(100)
               : Colors.transparent,
+          curve: Curves.elasticOut,
           child: widget,
         );
       },
@@ -1343,7 +1364,8 @@ class RoomPageState extends State<RoomPage> {
 
     if (widget == null) {
       widget = _buildMessageBox(index, tuple);
-      if (tuple.item2?.id != null) _messageWidgetCache.set(index, widget);
+      if (tuple.item2?.id != null && !tuple.item2!.isHidden)
+        _messageWidgetCache.set(index, widget);
     }
 
     return widget;
@@ -1353,7 +1375,12 @@ class RoomPageState extends State<RoomPage> {
     final messageBefore = tuple.item1;
     final message = tuple.item2!;
 
+    if (message.isHidden) {
+      return const SizedBox.shrink();
+    }
+
     final msgBox = BuildMessageBox(
+      key: GlobalKey(),
       message: message,
       messageBefore: messageBefore,
       roomId: widget.roomId,
@@ -1369,6 +1396,7 @@ class RoomPageState extends State<RoomPage> {
       addForwardMessage: () => _addForwardMessage(message),
       scrollToMessage: _scrollToReplyMessage,
       onDelete: unselectMessages,
+      selectedMessageListIndex: _selectedMessageListIndex,
     );
 
     if (index == room.firstMessageId) {
@@ -1388,6 +1416,13 @@ class RoomPageState extends State<RoomPage> {
     _selectedMessages.containsKey(message.id)
         ? _selectedMessages.remove(message.id)
         : _selectedMessages[message.id!] = message;
+
+    final smlIndex = _selectedMessageListIndex.value;
+    smlIndex.contains(message.id)
+        ? smlIndex.remove(message.id)
+        : smlIndex.add(message.id!);
+    _selectedMessageListIndex.add(smlIndex);
+
     if (_selectedMessages.values.isEmpty) {
       _selectMultiMessageSubject.add(false);
     }
@@ -1452,6 +1487,7 @@ class RoomPageState extends State<RoomPage> {
         unselectMessages,
       );
       _selectedMessages.clear();
+      _selectedMessageListIndex.add([]);
     }
   }
 

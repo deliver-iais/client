@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/audio_modules/recorder_module.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -14,6 +16,7 @@ import 'package:rxdart/rxdart.dart';
 class RecordAudioAnimation extends StatelessWidget {
   static final _audioService = GetIt.I.get<AudioService>();
   static final _routingService = GetIt.I.get<RoutingService>();
+  static final _i18n = GetIt.I.get<I18N>();
   final RecordOnCompleteCallback? onComplete;
   final RecordOnCancelCallback? onCancel;
   final Uid roomUid;
@@ -214,7 +217,7 @@ class RecordAudioAnimation extends StatelessWidget {
                             isRecordingInCurrentRoom &&
                             (_audioService.recorderIsLocked.valueOrNull ??
                                 false)) {
-                          _audioService.endRecording();
+                          endRecording(context);
                         }
                       },
                       onLongPressStart: (_) {
@@ -237,7 +240,7 @@ class RecordAudioAnimation extends StatelessWidget {
                               _audioService.cancelRecording();
                             }
                           } else if (isRecordingInCurrentRoom) {
-                            _audioService.endRecording();
+                            endRecording(context);
                           }
                           _isCanceled = false;
                         }
@@ -298,12 +301,13 @@ class RecordAudioAnimation extends StatelessWidget {
                                               : null,
                                         ),
                                         onPressed: () {
-                                          if (isRecording && !isRecordingInCurrentRoom) {
+                                          if (isRecording &&
+                                              !isRecordingInCurrentRoom) {
                                             _routingService.openRoom(
                                               _audioService.recordingRoom,
                                             );
                                           } else if (showSendButtonInsteadOfMicrophone) {
-                                            _audioService.endRecording();
+                                            endRecording(context);
                                           }
                                         },
                                       );
@@ -324,5 +328,14 @@ class RecordAudioAnimation extends StatelessWidget {
         );
       },
     );
+  }
+
+  Future<void> endRecording(BuildContext context) async {
+    if (!await _audioService.endRecording()) {
+      ToastDisplay.showToast(
+        toastContext: context,
+        toastText: _i18n.get("mic_problem"),
+      );
+    }
   }
 }

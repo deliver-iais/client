@@ -14,6 +14,7 @@ import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:rxdart/rxdart.dart';
 
 class FileMessageUi extends StatefulWidget {
   final Message message;
@@ -45,11 +46,19 @@ class FileMessageUi extends StatefulWidget {
 class FileMessageUiState extends State<FileMessageUi> {
   static final _fileRepo = GetIt.I.get<FileRepo>();
   static final _autoDownloadDao = GetIt.I.get<AutoDownloadDao>();
+  final GlobalKey _fileMessageBoxKey = GlobalKey();
+  final fileMessageBoxWidth = BehaviorSubject.seeded(0.0);
 
   @override
   void initState() {
     super.initState();
     mediaAutomaticDownload();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        fileMessageBoxWidth
+            .add(_fileMessageBoxKey.currentContext?.size?.width ?? 0);
+      }
+    });
   }
 
   @override
@@ -61,23 +70,27 @@ class FileMessageUiState extends State<FileMessageUi> {
       children: <Widget>[
         if (isDebugEnabled())
           DebugC(label: "file details", children: [Debug(widget.file)]),
-        _buildMainUi(),
+        Container(key: _fileMessageBoxKey, child: _buildMainUi()),
         if (widget.file.caption.isNotEmpty)
-          SizedBox(
-            // TODO(hasan): detect more precisely for width in captions;
-            width: dimensions.width,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 4),
-              child: TextUI(
-                message: widget.message,
-                maxWidth: widget.maxWidth,
-                isSender: widget.isSender,
-                isSeen: widget.isSeen,
-                colorScheme: widget.colorScheme,
-                onUsernameClick: widget.onUsernameClick,
-                onBotCommandClick: (str) => {},
-              ),
-            ),
+          StreamBuilder<double>(
+            stream: fileMessageBoxWidth,
+            builder: (context, snapshot) {
+              return SizedBox(
+                width: snapshot.data ?? dimensions.width,
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: TextUI(
+                    message: widget.message,
+                    maxWidth: widget.maxWidth,
+                    isSender: widget.isSender,
+                    isSeen: widget.isSeen,
+                    colorScheme: widget.colorScheme,
+                    onUsernameClick: widget.onUsernameClick,
+                    onBotCommandClick: (str) => {},
+                  ),
+                ),
+              );
+            },
           )
       ],
     );

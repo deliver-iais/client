@@ -40,7 +40,7 @@ class ExtraThemeData {
         Colors.black,
       );
     } else {
-      return CustomColorScheme.light(
+      return CustomColorScheme.dark(
         TonalPalette.of(hctColor.hue, hctColor.chroma),
         Colors.white,
       );
