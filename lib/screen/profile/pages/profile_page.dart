@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:badges/badges.dart';
 import 'package:deliver/box/bot_info.dart';
@@ -1242,52 +1241,69 @@ class ProfilePageState extends State<ProfilePage>
     showDialog(
       context: context,
       builder: (c1) {
-        return Focus(
-          autofocus: true,
+        return Directionality(
+          textDirection: _i18n.defaultTextDirection,
           child: AlertDialog(
-            title: Text(_i18n.get("add_bot_to_group")),
-            content: Column(
-              children: [
-                AutoDirectionTextField(
-                  onChanged: (str) {
-                    final searchRes = <String>[];
-                    for (final uid in nameOfGroup.keys) {
-                      if (nameOfGroup[uid]!.contains(str) ||
-                          nameOfGroup[uid] == str) {
-                        searchRes.add(uid);
+            contentPadding: const EdgeInsets.only(
+              left: 10,
+              right: 10,
+              bottom: 10,
+            ),
+            title: Text(
+              _i18n.get("add_bot_to_group"),
+              textAlign: _i18n.isPersian ? TextAlign.right : TextAlign.left,
+            ),
+            content: SizedBox(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height / 2,
+              child: Column(
+                children: [
+                  AutoDirectionTextField(
+                    autofocus: true,
+                    onChanged: (str) {
+                      final searchRes = <String>[];
+                      for (final uid in nameOfGroup.keys) {
+                        if (nameOfGroup[uid]!.contains(str) ||
+                            nameOfGroup[uid] == str) {
+                          searchRes.add(uid);
+                        }
                       }
-                    }
-                    groups.add(searchRes);
-                  },
-                  decoration: InputDecoration(
-                    hintText: _i18n.get("search"),
-                    prefixIcon: const Icon(Icons.search),
+                      groups.add(searchRes);
+                    },
+                    decoration: InputDecoration(
+                      hintText: _i18n.get("search"),
+                      prefixIcon: const Icon(Icons.search),
+                      border: const UnderlineInputBorder(),
+                    ),
                   ),
-                ),
-                FutureBuilder<List<Room>>(
-                  future: _roomRepo.getAllGroups(),
-                  builder: (c, mucs) {
-                    if (mucs.hasData &&
-                        mucs.data != null &&
-                        mucs.data!.isNotEmpty) {
-                      final s = <String>[];
-                      for (final room in mucs.data!) {
-                        s.add(room.uid);
-                      }
-                      groups.add(s);
-                      return StreamBuilder<List<String>>(
-                        stream: groups,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                            final filteredGroupList = snapshot.data!;
-                            return SizedBox(
-                              height: min(
-                                MediaQuery.of(context).size.height / 2,
-                                filteredGroupList.length * 50.toDouble(),
-                              ),
-                              width: MediaQuery.of(context).size.width / 2,
-                              child: Expanded(
+                  FutureBuilder<List<Room>>(
+                    future: _roomRepo.getAllGroups(),
+                    builder: (c, mucs) {
+                      if (mucs.hasData &&
+                          mucs.data != null &&
+                          mucs.data!.isNotEmpty) {
+                        final s = <String>[];
+                        for (final room in mucs.data!) {
+                          _mucRepo
+                              .isMucAdminOrOwner(
+                            _authRepo.currentUserUid.asString(),
+                            room.uid,
+                          )
+                              .then((value) {
+                            if (value) {
+                              s.add(room.uid);
+                            }
+                          });
+                        }
+                        groups.add(s);
+                        return StreamBuilder<List<String>>(
+                          stream: groups,
+                          builder: (context, snapshot) {
+                            if (snapshot.hasData && snapshot.data!.isNotEmpty) {
+                              final filteredGroupList = snapshot.data!;
+                              return Expanded(
                                 child: ListView.separated(
+                                  shrinkWrap: true,
                                   itemBuilder: (c, i) {
                                     return GestureDetector(
                                       child: FutureBuilder<String>(
@@ -1337,18 +1353,18 @@ class ProfilePageState extends State<ProfilePage>
                                   },
                                   itemCount: snapshot.data!.length,
                                 ),
-                              ),
-                            );
-                          } else {
-                            return const SizedBox.shrink();
-                          }
-                        },
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
-              ],
+                              );
+                            } else {
+                              return const SizedBox.shrink();
+                            }
+                          },
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
         );
