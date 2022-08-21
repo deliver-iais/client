@@ -1,4 +1,5 @@
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_form.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -208,18 +209,21 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
     );
   }
 
-  TextFormField createLinkTextField(
+  Widget createLinkTextField(
     TextEditingController controller,
     String label, {
     bool useLinkValidator = false,
   }) {
-    return TextFormField(
-      controller: controller,
-      validator: useLinkValidator ? validateLink : validateTextLink,
-      decoration: InputDecoration(
-        labelText: label,
-        contentPadding: const EdgeInsets.only(),
-        border: const UnderlineInputBorder(),
+    return Directionality(
+      textDirection: _i18n.defaultTextDirection,
+      child: AutoDirectionTextForm(
+        controller: controller,
+        validator: useLinkValidator ? validateLink : validateTextLink,
+        decoration: InputDecoration(
+          labelText: label,
+          contentPadding: const EdgeInsets.only(),
+          border: const UnderlineInputBorder(),
+        ),
       ),
     );
   }

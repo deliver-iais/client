@@ -19,6 +19,7 @@ class ReceivedMessageBox extends StatelessWidget {
   final void Function(TapDownDetails) storePosition;
   final bool isFirstMessageInGroupedMessages;
   final void Function() onEdit;
+  final bool showMenuDisable;
 
   const ReceivedMessageBox({
     super.key,
@@ -32,6 +33,7 @@ class ReceivedMessageBox extends StatelessWidget {
     this.messageReplyBrief,
     this.pattern,
     required this.onEdit,
+    this.showMenuDisable = false,
   });
 
   @override
@@ -51,6 +53,7 @@ class ReceivedMessageBox extends StatelessWidget {
       onArrowIconClick: onArrowIconClick,
       storePosition: storePosition,
       onEdit: onEdit,
+      showMenuDisable: showMenuDisable,
     );
 
     return doNotNeedsWrapper()

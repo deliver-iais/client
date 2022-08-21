@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:camera/camera.dart';
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/share_box/image_folder_widget.dart';
@@ -11,6 +10,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:get_it/get_it.dart';
 import 'package:photo_manager/photo_manager.dart';
@@ -314,69 +314,80 @@ class ShareBoxGalleryState extends State<ShareBoxGallery> {
       context,
       MaterialPageRoute(
         builder: (c) {
-          return Scaffold(
-            body: Stack(
-              children: [
-                StreamBuilder<CameraController>(
-                  stream: _cameraController,
-                  builder: (context, snapshot) {
-                    return SizedBox(
-                      height: MediaQuery.of(context).size.height,
-                      child: CameraPreview(
-                        snapshot.data ?? _controller!,
-                      ),
-                    );
-                  },
-                ),
-                Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 30, right: 15),
-                    child: IconButton(
-                      onPressed: () async {
-                        final navigatorState = Navigator.of(context);
-                        final file = await _controller!.takePicture();
-                        if (widget.setAvatar != null) {
-                          widget.pop();
-                          navigatorState.pop();
-                          widget.setAvatar!(file.path);
-                        } else {
-                          openImage(file, pop);
-                        }
-                      },
-                      icon: const Icon(
-                        CupertinoIcons.camera_fill,
-                        color: Colors.white,
-                        size: 55,
+          return AnnotatedRegion<SystemUiOverlayStyle>(
+            value: const SystemUiOverlayStyle(
+              systemNavigationBarColor: Colors.black,
+            ),
+            child: Scaffold(
+              body: Stack(
+                children: [
+                  StreamBuilder<CameraController>(
+                    stream: _cameraController,
+                    builder: (context, snapshot) {
+                      final size = MediaQuery.of(context).size;
+                      final camera = _cameraController.value.value;
+                      var scale = size.aspectRatio * camera.aspectRatio;
+                      if (scale < 1) scale = 1 / scale;
+                      return Center(
+                        child: Transform.scale(
+                          scale: scale,
+                          child: CameraPreview(
+                            snapshot.data ?? _controller!,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                  Align(
+                    alignment: Alignment.bottomCenter,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 30, right: 15),
+                      child: IconButton(
+                        onPressed: () async {
+                          final navigatorState = Navigator.of(context);
+                          final file = await _controller!.takePicture();
+                          if (widget.setAvatar != null) {
+                            widget.pop();
+                            navigatorState.pop();
+                            widget.setAvatar!(file.path);
+                          } else {
+                            openImage(file, pop);
+                          }
+                        },
+                        icon: const Icon(
+                          CupertinoIcons.camera_fill,
+                          color: Colors.white,
+                          size: 55,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                if (_cameras.isNotEmpty && _cameras.length > 1)
-                  Align(
-                    alignment: Alignment.bottomRight,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 10, right: 10),
-                      child: IconButton(
-                        onPressed: () async {
-                          _controller = CameraController(
-                            _controller!.description == _cameras[1]
-                                ? _cameras[0]
-                                : _cameras[1],
-                            ResolutionPreset.max,
-                          );
-                          await _controller!.initialize();
-                          _cameraController.add(_controller!);
-                        },
-                        icon: const Icon(
-                          CupertinoIcons.switch_camera,
+                  if (_cameras.isNotEmpty && _cameras.length > 1)
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 10, right: 10),
+                        child: IconButton(
+                          onPressed: () async {
+                            _controller = CameraController(
+                              _controller!.description == _cameras[1]
+                                  ? _cameras[0]
+                                  : _cameras[1],
+                              ResolutionPreset.max,
+                            );
+                            await _controller!.initialize();
+                            _cameraController.add(_controller!);
+                          },
+                          icon: const Icon(
+                            CupertinoIcons.switch_camera,
+                          ),
+                          color: Colors.white70,
+                          iconSize: 40,
                         ),
-                        color: Colors.white70,
-                        iconSize: 40,
                       ),
-                    ),
-                  )
-              ],
+                    )
+                ],
+              ),
             ),
           );
         },
@@ -414,129 +425,4 @@ class ShareBoxGalleryState extends State<ShareBoxGallery> {
   }
 }
 
-Stack buildInputCaption({
-  required BehaviorSubject<bool> insertCaption,
-  required I18N i18n,
-  required TextEditingController captionEditingController,
-  required BuildContext context,
-  required void Function() send,
-  required int count,
-}) {
-  final theme = Theme.of(context);
-  return Stack(
-    children: [
-      Align(
-        alignment: Alignment.bottomLeft,
-        child: Container(
-          color: theme.colorScheme.background,
-          child: TextField(
-            decoration: InputDecoration(
-              hintText: i18n.get("caption"),
-              border: InputBorder.none,
-              hintStyle: const TextStyle(fontSize: 16),
-              suffixIcon: StreamBuilder<bool>(
-                stream: insertCaption,
-                builder: (c, s) {
-                  if (s.hasData && s.data!) {
-                    return IconButton(
-                      onPressed: () => send(),
-                      icon: const Icon(
-                        Icons.check_circle_outline,
-                        size: 35,
-                      ),
-                      color: Colors.lightBlue,
-                    );
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },
-              ),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-            ),
-            style: const TextStyle(fontSize: 17),
-            textInputAction: TextInputAction.newline,
-            minLines: 1,
-            maxLines: 15,
-            controller: captionEditingController,
-          ),
-        ),
-      ),
-      Positioned(
-        right: 15,
-        bottom: 20,
-        child: Stack(
-          alignment: Alignment.bottomRight,
-          children: <Widget>[
-            Container(
-              decoration: const BoxDecoration(
-                shape: BoxShape.circle,
-              ),
-              child: StreamBuilder<bool>(
-                stream: insertCaption,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData &&
-                      snapshot.data != null &&
-                      !snapshot.data!) {
-                    return ClipOval(
-                      child: Material(
-                        color: theme.primaryColor, // button color
-                        child: InkWell(
-                          splashColor: theme.primaryColor, // inkwell color
-                          child: const SizedBox(
-                            width: 60,
-                            height: 60,
-                            child: Icon(
-                              Icons.send,
-                              size: 30,
-                              color: Colors.white,
-                            ),
-                          ),
-                          onTap: () => send(),
-                        ),
-                      ),
-                    );
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },
-              ),
-            ),
-            if (count > 0)
-              Positioned(
-                top: 35.0,
-                right: 0.0,
-                left: 35,
-                child: Container(
-                  width: 28,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.background, // border color
-                    shape: BoxShape.circle,
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(2), // border width
-                    child: Container(
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: theme.primaryColor, // inner circle color
-                      ),
-                      child: Center(
-                        child: Text(
-                          count.toString(),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 11,
-                          ),
-                        ),
-                      ), // inner content
-                    ),
-                  ),
-                ),
-              ),
-          ],
-        ),
-      )
-    ],
-  );
-}
+

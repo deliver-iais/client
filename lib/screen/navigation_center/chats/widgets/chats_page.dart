@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:collection/collection.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/room.dart';
@@ -44,6 +46,7 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   final _i18n = GetIt.I.get<I18N>();
   final _controller = AnimatedListController();
   late AnimatedListDiffListDispatcher<RoomWrapper> _dispatcher;
+  late StreamSubscription<List<RoomWrapper>> _streamSubscription;
 
   List<Room> rooms = <Room>[];
 
@@ -186,7 +189,7 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
       ),
     );
 
-    _roomRepo
+    _streamSubscription = _roomRepo
         .watchAllRooms()
         .distinct(const ListEquality().equals)
         .switchMap((roomsList) {
@@ -205,6 +208,13 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
         })
         .distinct(const ListEquality().equals)
         .listen(_dispatcher.dispatchNewList);
+  }
+
+
+  @override
+  void dispose() {
+    super.dispose();
+    _streamSubscription.cancel();
   }
 
   Stream<T> flattenStreams<T>(Stream<Stream<T>> source) async* {

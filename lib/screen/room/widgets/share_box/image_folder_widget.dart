@@ -1,10 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
-import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
+import 'package:deliver/screen/room/widgets/build_input_caption.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -39,7 +38,6 @@ class ImageFolderWidget extends StatefulWidget {
 const int FETCH_IMAGE_PAGE_SIZE = 40;
 
 class _ImageFolderWidgetState extends State<ImageFolderWidget> {
-  static final _i18n = GetIt.I.get<I18N>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
 
   final List<String> _selectedImage = [];
@@ -228,10 +226,8 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
             },
           ),
           if (_selectedImage.isNotEmpty)
-            buildInputCaption(
-              i18n: _i18n,
+            BuildInputCaption(
               insertCaption: _insertCaption,
-              context: context,
               captionEditingController: _textEditingController,
               count: _selectedImage.length,
               send: () {
