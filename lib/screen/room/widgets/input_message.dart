@@ -632,65 +632,58 @@ class InputMessageWidgetState extends State<InputMessage> {
           return RawKeyboardListener(
             focusNode: keyboardRawFocusNode,
             onKey: handleKey,
-            child: StreamBuilder<TextDirection>(
-              stream: textDirection.distinct(),
-              builder: (c, sn) {
-                final textDir = sn.data ?? TextDirection.ltr;
-                return AutoDirectionTextField(
-                  selectionControls: selectionControls,
-                  focusNode: widget.focusNode,
-                  autofocus: (snapshot.data?.id ?? 0) > 0 || isDesktop,
-                  controller: widget.textController,
-                  decoration: InputDecoration(
-                    contentPadding: const EdgeInsets.only(top: 12, bottom: 12),
-                    border: InputBorder.none,
-                    counterText: "",
-                    hintText: hasMarkUpPlaceHolder(
-                      widget.currentRoom.lastMessage?.markup,
-                    )
-                        ? widget.currentRoom.lastMessage!.markup!
-                            .inputFieldPlaceHolder
-                        : _i18n.get("write_a_message"),
-                    hintTextDirection: hasMarkUpPlaceHolder(
-                      widget.currentRoom.lastMessage?.markup,
-                    )
-                        ? _i18n.getDirection(
-                            widget.currentRoom.lastMessage!.markup!
-                                .inputFieldPlaceHolder,
-                          )
-                        : _i18n.defaultTextDirection,
-                    hintStyle: theme.textTheme.bodyMedium,
-                  ),
-                  textInputAction: TextInputAction.newline,
-                  minLines: 1,
-                  maxLines: isAndroid ? 10 : 15,
-                  maxLength: INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH,
-                  inputFormatters: [
-                    MaxLinesTextInputFormatter(
-                      INPUT_MESSAGE_TEXT_FIELD_MAX_LINE,
-                    )
-                    //max line of text field
-                  ],
-                  textDirection: textDir,
-                  style: theme.textTheme.bodyMedium,
-                  onTap: () {
-                    if (!isDesktop) {
-                      _showEmojiKeyboard.add(false);
-                      _showReplyMarkUp.add(false);
-                    }
-                  },
-                  onChanged: (str) {
-                    if (str.isNotEmpty) {
-                      isTypingActivitySubject.add(
-                        ActivityType.TYPING,
-                      );
-                    } else {
-                      noActivitySubject.add(
-                        ActivityType.NO_ACTIVITY,
-                      );
-                    }
-                  },
-                );
+            child: AutoDirectionTextField(
+              selectionControls: selectionControls,
+              focusNode: widget.focusNode,
+              autofocus: (snapshot.data?.id ?? 0) > 0 || isDesktop,
+              controller: widget.textController,
+              decoration: InputDecoration(
+                contentPadding: const EdgeInsets.only(top: 12, bottom: 12),
+                border: InputBorder.none,
+                counterText: "",
+                hintText: hasMarkUpPlaceHolder(
+                  widget.currentRoom.lastMessage?.markup,
+                )
+                    ? widget
+                        .currentRoom.lastMessage!.markup!.inputFieldPlaceHolder
+                    : _i18n.get("write_a_message"),
+                hintTextDirection: hasMarkUpPlaceHolder(
+                  widget.currentRoom.lastMessage?.markup,
+                )
+                    ? _i18n.getDirection(
+                        widget.currentRoom.lastMessage!.markup!
+                            .inputFieldPlaceHolder,
+                      )
+                    : _i18n.defaultTextDirection,
+                hintStyle: theme.textTheme.bodyMedium,
+              ),
+              textInputAction: TextInputAction.newline,
+              minLines: 1,
+              maxLines: isAndroid ? 10 : 15,
+              maxLength: INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH,
+              inputFormatters: [
+                MaxLinesTextInputFormatter(
+                  INPUT_MESSAGE_TEXT_FIELD_MAX_LINE,
+                )
+                //max line of text field
+              ],
+              style: theme.textTheme.bodyMedium,
+              onTap: () {
+                if (!isDesktop) {
+                  _showEmojiKeyboard.add(false);
+                  _showReplyMarkUp.add(false);
+                }
+              },
+              onChanged: (str) {
+                if (str.isNotEmpty) {
+                  isTypingActivitySubject.add(
+                    ActivityType.TYPING,
+                  );
+                } else {
+                  noActivitySubject.add(
+                    ActivityType.NO_ACTIVITY,
+                  );
+                }
               },
             ),
           );
