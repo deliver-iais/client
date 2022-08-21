@@ -1242,6 +1242,7 @@ class CallRepo {
     await _peerConnection!.setRemoteDescription(description);
   }
 
+
   Future<void> _setRemoteDescriptionAnswer(String remoteSdp) async {
     final dynamic session = await jsonDecode(remoteSdp);
 
@@ -1393,7 +1394,7 @@ class CallRepo {
         }
         timerDeclined!.cancel();
       }
-
+      callingStatus.add(CallStatus.ENDED);
       _logger.i("end call in service");
       await _cleanLocalStream();
       //await _cleanRtpSender();
@@ -1403,7 +1404,6 @@ class CallRepo {
         _peerConnection = null;
       }
       _candidate = [];
-      callingStatus.add(CallStatus.ENDED);
       _audioService.stopBeepSound();
     } catch (e) {
       _logger.e(e);
@@ -1441,6 +1441,7 @@ class CallRepo {
         _isVideo = false;
         _isCallInited = false;
         callTimer.add(CallTimer(0, 0, 0));
+        await _disposeRenderer();
       });
     }
   }
@@ -1454,7 +1455,7 @@ class CallRepo {
     }
   }
 
-  Future<void> disposeRenderer() async {
+  Future<void> _disposeRenderer() async {
     _logger.i("Dispose!");
     if (_isInitRenderer) {
       await _localRenderer.dispose();

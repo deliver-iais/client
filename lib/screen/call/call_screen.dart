@@ -367,7 +367,6 @@ class CallScreenState extends State<CallScreen> {
                 _routingService.pop();
               }
             });
-            _callRepo.disposeRenderer();
             return widget.isVideoCall
                 ? VideoCallScreen(
                     roomUid: widget.roomUid,
