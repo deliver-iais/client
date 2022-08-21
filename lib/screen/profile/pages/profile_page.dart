@@ -1243,137 +1243,140 @@ class ProfilePageState extends State<ProfilePage>
       builder: (c1) {
         return Directionality(
           textDirection: _i18n.defaultTextDirection,
-          child: AlertDialog(
-            actions: [
-              TextButton(
-                style: TextButton.styleFrom(padding: EdgeInsets.zero),
-                onPressed: () => Navigator.of(c1).pop(),
-                child: Text(_i18n.get("cancel")),
-              )
-            ],
-            contentPadding: const EdgeInsets.only(
-              left: 10,
-              right: 10,
-            ),
-            title: Text(
-              _i18n.get("add_bot_to_group"),
-              textAlign: _i18n.isPersian ? TextAlign.right : TextAlign.left,
-            ),
-            content: SizedBox(
-              width: 350,
-              height: MediaQuery.of(context).size.height / 2,
-              child: Column(
-                children: [
-                  AutoDirectionTextField(
-                    autofocus: true,
-                    onChanged: (str) {
-                      final searchRes = <String>[];
-                      for (final uid in nameOfGroup.keys) {
-                        if (nameOfGroup[uid]!.contains(str) ||
-                            nameOfGroup[uid] == str) {
-                          searchRes.add(uid);
+          child: Focus(
+            autofocus: true,
+            child: AlertDialog(
+              actions: [
+                TextButton(
+                  style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                  onPressed: () => Navigator.of(c1).pop(),
+                  child: Text(_i18n.get("cancel")),
+                )
+              ],
+              contentPadding: const EdgeInsets.only(
+                left: 10,
+                right: 10,
+              ),
+              title: Text(
+                _i18n.get("add_bot_to_group"),
+                textAlign: _i18n.isPersian ? TextAlign.right : TextAlign.left,
+              ),
+              content: SizedBox(
+                width: 350,
+                height: MediaQuery.of(context).size.height / 2,
+                child: Column(
+                  children: [
+                    AutoDirectionTextField(
+                      onChanged: (str) {
+                        final searchRes = <String>[];
+                        for (final uid in nameOfGroup.keys) {
+                          if (nameOfGroup[uid]!.contains(str) ||
+                              nameOfGroup[uid] == str) {
+                            searchRes.add(uid);
+                          }
                         }
-                      }
-                      groups.add(searchRes);
-                    },
-                    decoration: InputDecoration(
-                      hintText: _i18n.get("search"),
-                      prefixIcon: const Icon(Icons.search),
-                      border: const UnderlineInputBorder(),
+                        groups.add(searchRes);
+                      },
+                      decoration: InputDecoration(
+                        hintText: _i18n.get("search"),
+                        prefixIcon: const Icon(Icons.search),
+                        border: const UnderlineInputBorder(),
+                      ),
                     ),
-                  ),
-                  FutureBuilder<List<Room>>(
-                    future: _roomRepo.getAllGroups(),
-                    builder: (c, mucs) {
-                      if (mucs.hasData &&
-                          mucs.data != null &&
-                          mucs.data!.isNotEmpty) {
-                        final s = <String>[];
-                        for (final room in mucs.data!) {
-                          _mucRepo
-                              .isMucAdminOrOwner(
-                            _authRepo.currentUserUid.asString(),
-                            room.uid,
-                          )
-                              .then((value) {
-                            if (value) {
-                              s.add(room.uid);
-                              groups.add(s);
-                            }
-                          });
-                        }
-
-                        return StreamBuilder<List<String>>(
-                          stream: groups,
-                          builder: (context, snapshot) {
-                            if (snapshot.hasData) {
-                              if (snapshot.data!.isEmpty) {
-                                return noGroupFoundWidget();
-                              } else {
-                                final filteredGroupList = snapshot.data!;
-                                return Expanded(
-                                  child: ListView.builder(
-                                    shrinkWrap: true,
-                                    itemBuilder: (c, i) {
-                                      return GestureDetector(
-                                        child: FutureBuilder<String>(
-                                          future: _roomRepo.getName(
-                                            filteredGroupList[i].asUid(),
-                                          ),
-                                          builder: (c, name) {
-                                            if (name.hasData &&
-                                                name.data != null) {
-                                              nameOfGroup[
-                                                      filteredGroupList[i]] =
-                                                  name.data!;
-                                              return SizedBox(
-                                                height: 50,
-                                                child: Row(
-                                                  children: [
-                                                    CircleAvatarWidget(
-                                                      filteredGroupList[i]
-                                                          .asUid(),
-                                                      20,
-                                                    ),
-                                                    const SizedBox(
-                                                      width: 10,
-                                                    ),
-                                                    Expanded(
-                                                      child: Text(
-                                                        name.data!,
-                                                      ),
-                                                    )
-                                                  ],
-                                                ),
-                                              );
-                                            } else {
-                                              return const SizedBox.shrink();
-                                            }
-                                          },
-                                        ),
-                                        onTap: () => _addBotToGroupButtonOnTab(
-                                          context,
-                                          c1,
-                                          filteredGroupList[i],
-                                          nameOfGroup[filteredGroupList[i]],
-                                        ),
-                                      );
-                                    },
-                                    itemCount: snapshot.data!.length,
-                                  ),
-                                );
+                    FutureBuilder<List<Room>>(
+                      future: _roomRepo.getAllGroups(),
+                      builder: (c, mucs) {
+                        if (mucs.hasData &&
+                            mucs.data != null &&
+                            mucs.data!.isNotEmpty) {
+                          final s = <String>[];
+                          for (final room in mucs.data!) {
+                            _mucRepo
+                                .isMucAdminOrOwner(
+                              _authRepo.currentUserUid.asString(),
+                              room.uid,
+                            )
+                                .then((value) {
+                              if (value) {
+                                s.add(room.uid);
+                                groups.add(s);
                               }
-                            } else {
-                              return const SizedBox.shrink();
-                            }
-                          },
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
-                  const Divider(),
-                ],
+                            });
+                          }
+
+                          return StreamBuilder<List<String>>(
+                            stream: groups,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                if (snapshot.data!.isEmpty) {
+                                  return noGroupFoundWidget();
+                                } else {
+                                  final filteredGroupList = snapshot.data!;
+                                  return Expanded(
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      itemBuilder: (c, i) {
+                                        return GestureDetector(
+                                          child: FutureBuilder<String>(
+                                            future: _roomRepo.getName(
+                                              filteredGroupList[i].asUid(),
+                                            ),
+                                            builder: (c, name) {
+                                              if (name.hasData &&
+                                                  name.data != null) {
+                                                nameOfGroup[
+                                                        filteredGroupList[i]] =
+                                                    name.data!;
+                                                return SizedBox(
+                                                  height: 50,
+                                                  child: Row(
+                                                    children: [
+                                                      CircleAvatarWidget(
+                                                        filteredGroupList[i]
+                                                            .asUid(),
+                                                        20,
+                                                      ),
+                                                      const SizedBox(
+                                                        width: 10,
+                                                      ),
+                                                      Expanded(
+                                                        child: Text(
+                                                          name.data!,
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                );
+                                              } else {
+                                                return const SizedBox.shrink();
+                                              }
+                                            },
+                                          ),
+                                          onTap: () =>
+                                              _addBotToGroupButtonOnTab(
+                                            context,
+                                            c1,
+                                            filteredGroupList[i],
+                                            nameOfGroup[filteredGroupList[i]],
+                                          ),
+                                        );
+                                      },
+                                      itemCount: snapshot.data!.length,
+                                    ),
+                                  );
+                                }
+                              } else {
+                                return const SizedBox.shrink();
+                              }
+                            },
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                    const Divider(),
+                  ],
+                ),
               ),
             ),
           ),
