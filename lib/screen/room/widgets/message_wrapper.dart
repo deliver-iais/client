@@ -37,6 +37,7 @@ class MessageWrapper extends StatelessWidget {
     const height = 30.0;
 
     return Stack(
+      fit: StackFit.passthrough,
       children: [
         Container(
           clipBehavior: Clip.hardEdge,

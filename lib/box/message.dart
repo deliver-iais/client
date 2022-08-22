@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:deliver/box/message_markup.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/shared/constants.dart';
@@ -47,6 +48,9 @@ class Message {
   @HiveField(12)
   bool isHidden;
 
+  @HiveField(13)
+  MessageMarkup? markup;
+
   Message({
     required this.roomUid,
     required this.packetId,
@@ -61,6 +65,7 @@ class Message {
     this.edited = false,
     this.encrypted = false,
     this.forwardedFrom,
+    this.markup,
   });
 
   Message copyDeleted() => copyWith(json: EMPTY_MESSAGE, isHidden: true);
@@ -136,6 +141,6 @@ class Message {
 
   @override
   String toString() {
-    return "Message [roomUid:$roomUid] [id:$id] [packetId:$packetId] [time:$time] [from:$from] [to:$to] [replyToId:$replyToId] [forwardedFrom:$forwardedFrom] [isHidden:$isHidden] [edited:$edited] [encrypted:$encrypted] [type:$type] [json:$json]";
+    return "Message [roomUid:$roomUid] [id:$id] [packetId:$packetId] [time:$time] [from:$from] [to:$to] [replyToId:$replyToId] [forwardedFrom:$forwardedFrom] [isHidden:$isHidden] [edited:$edited] [encrypted:$encrypted] [type:$type] [json:$json] [markup:$markup]";
   }
 }

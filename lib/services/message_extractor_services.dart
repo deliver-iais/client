@@ -1,6 +1,15 @@
+import 'dart:convert';
+
+import 'package:deliver/box/inline_keyboard_button.dart';
+import 'package:deliver/box/inline_keyboard_markup.dart';
+import 'package:deliver/box/inline_keyboard_row.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/message_brief.dart';
+import 'package:deliver/box/message_markup.dart';
 import 'package:deliver/box/message_type.dart';
+import 'package:deliver/box/reply_keyboard_button.dart';
+import 'package:deliver/box/reply_keyboard_markup.dart';
+import 'package:deliver/box/reply_keyboard_row.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
@@ -10,6 +19,8 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/markup.pb.dart'
+    as markup_pb;
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart'
     as message_pb;
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
@@ -205,18 +216,19 @@ class MessageExtractorServices {
     }
 
     return MessageSimpleRepresentative(
-        roomUid: roomUid,
-        from: from,
-        roomName: roomName,
-        sender: sender,
-        senderIsAUserOrBot: msg.from.isUser() || msg.from.isBot(),
-        type: type,
-        id: msg.id.toInt(),
-        packetId: msg.packetId,
-        typeDetails: typeDetails,
-        text: text,
-        ignoreNotification: ignoreNotification,
-        shouldBeQuiet: msg.shouldBeQuiet,);
+      roomUid: roomUid,
+      from: from,
+      roomName: roomName,
+      sender: sender,
+      senderIsAUserOrBot: msg.from.isUser() || msg.from.isBot(),
+      type: type,
+      id: msg.id.toInt(),
+      packetId: msg.packetId,
+      typeDetails: typeDetails,
+      text: text,
+      ignoreNotification: ignoreNotification,
+      shouldBeQuiet: msg.shouldBeQuiet,
+    );
   }
 
   String? getCallText(
@@ -458,7 +470,6 @@ class MessageExtractorServices {
       body = messageBodyToJson(message);
       isHidden = isHiddenPbMessage(message);
     } catch (_) {}
-
     return Message(
       id: message.id.toInt(),
       roomUid: getRoomUid(_authRepo, message).asString(),
@@ -473,6 +484,74 @@ class MessageExtractorServices {
       encrypted: message.encrypted,
       type: getMessageType(message.whichType()),
       isHidden: isHidden,
+      markup: extractMessageMarkup(message),
+    );
+  }
+
+  MessageMarkup? extractMessageMarkup(message_pb.Message message) {
+    return message.hasMessageMarkup()
+        ? MessageMarkup(
+            inlineKeyboardMarkup: extractInlineKeyboardMarkup(
+              message.messageMarkup.inlineKeyboardMarkup,
+            ),
+            inputFieldPlaceHolder: message.messageMarkup.inputFieldPlaceholder,
+            inputSuggestions: message.messageMarkup.inputSuggestions,
+          )
+        : null;
+  }
+
+  String findInlineKeyboardButtonJson(markup_pb.InlineKeyboardButton button) {
+    var json = Object();
+    if (button.hasUrl()) {
+      json = {"url": button.url.url};
+    } else if (button.hasCallback()) {
+      json = {
+        "data": button.callback.data,
+      };
+    }
+    return jsonEncode(json);
+  }
+
+  InlineKeyboardMarkup extractInlineKeyboardMarkup(
+    markup_pb.InlineKeyboardMarkup inlineKeyboardMarkup,
+  ) {
+    return InlineKeyboardMarkup(
+      rows: inlineKeyboardMarkup.rows
+          .map(
+            (e) => InlineKeyboardRow(
+              buttons: e.buttons
+                  .map(
+                    (button) => InlineKeyboardButton(
+                      text: button.text,
+                      json: findInlineKeyboardButtonJson(button),
+                    ),
+                  )
+                  .toList(),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  ReplyKeyboardMarkup extractReplyKeyboardMarkup(
+    markup_pb.ReplyKeyboardMarkup replyKeyboardMarkup,
+  ) {
+    return ReplyKeyboardMarkup(
+      rows: replyKeyboardMarkup.rows
+          .map(
+            (e) => ReplyKeyboardRow(
+              buttons: e.buttons
+                  .map(
+                    (button) => ReplyKeyboardButton(
+                      text: button.text,
+                      sendOnClick: button.sendOnClick,
+                    ),
+                  )
+                  .toList(),
+            ),
+          )
+          .toList(),
+      oneTimeKeyboard: replyKeyboardMarkup.oneTimeKeyboard,
     );
   }
 }
