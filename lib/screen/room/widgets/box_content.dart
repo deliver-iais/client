@@ -101,7 +101,7 @@ class BoxContentState extends State<BoxContent> {
       onHover: (_) => showMenuBehavior.add(true && !widget.showMenuDisable),
       onExit: (_) => showMenuBehavior.add(false),
       child: Stack(
-        alignment: widget.isSender ? Alignment.topLeft : Alignment.topRight,
+      alignment: Alignment.topRight,
         children: [
           RepaintBoundary(
             child: Column(

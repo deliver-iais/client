@@ -27,7 +27,6 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/animated_delete_widget.dart';
-import 'package:deliver/shared/widgets/animated_switch_widget.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver/theme/theme.dart';
@@ -591,6 +590,9 @@ class OperationOnMessageSelection {
       case OperationOnMessage.DELETE_PENDING_MESSAGE:
         onDeletePendingMessage();
         break;
+      case OperationOnMessage.DELETE_PENDING_EDITED_MESSAGE:
+        onDeletePendingEditedMessage();
+        break;
       case OperationOnMessage.PIN_MESSAGE:
         onPin?.call();
         break;
@@ -731,6 +733,13 @@ class OperationOnMessageSelection {
 
   void onDeletePendingMessage() {
     _messageRepo.deletePendingMessage(message.packetId);
+    if (message.type == MessageType.FILE) {
+      _fileRepo.cancelUploadFile(message.json.toFile().uuid);
+    }
+  }
+
+  void onDeletePendingEditedMessage() {
+    _messageRepo.deletePendingEditedMessage(message.roomUid, message.id);
     if (message.type == MessageType.FILE) {
       _fileRepo.cancelUploadFile(message.json.toFile().uuid);
     }

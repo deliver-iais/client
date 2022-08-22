@@ -30,13 +30,14 @@ class RoomAdapter extends TypeAdapter<Room> {
       synced: fields[10] as bool,
       lastCurrentUserSentMessageId: fields[11] as int,
       seenSynced: fields[12] as bool,
+      replyKeyboardMarkup: fields[13] as ReplyKeyboardMarkup?,
     );
   }
 
   @override
   void write(BinaryWriter writer, Room obj) {
     writer
-      ..writeByte(13)
+      ..writeByte(14)
       ..writeByte(0)
       ..write(obj.uid)
       ..writeByte(1)
@@ -62,7 +63,9 @@ class RoomAdapter extends TypeAdapter<Room> {
       ..writeByte(11)
       ..write(obj.lastCurrentUserSentMessageId)
       ..writeByte(12)
-      ..write(obj.seenSynced);
+      ..write(obj.seenSynced)
+      ..writeByte(13)
+      ..write(obj.replyKeyboardMarkup);
   }
 
   @override

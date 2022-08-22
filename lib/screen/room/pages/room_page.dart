@@ -127,6 +127,7 @@ class RoomPageState extends State<RoomPage> {
   final _repliedMessage = BehaviorSubject<Message?>.seeded(null);
   final _room = BehaviorSubject<Room>();
   final _pendingMessages = BehaviorSubject<List<PendingMessage>>();
+  final _pendingEditedMessage = BehaviorSubject<List<PendingMessage>>();
   final _isScrolling = BehaviorSubject.seeded(false);
   final _itemPositionsListener = ItemPositionsListener.create();
   final _itemScrollController = ItemScrollController();
@@ -328,8 +329,9 @@ class RoomPageState extends State<RoomPage> {
       child: Stack(
         children: [
           StreamBuilder(
-            stream: MergeStream([_pendingMessages, _room])
-                .debounceTime(const Duration(milliseconds: 50)),
+            stream:
+                MergeStream([_pendingMessages, _room, _pendingEditedMessage])
+                    .debounceTime(const Duration(milliseconds: 50)),
             builder: (context, event) {
               // Set Item Count
               _itemCount = room.lastMessageId +
@@ -502,6 +504,10 @@ class RoomPageState extends State<RoomPage> {
         _defaultMessageHeight = 50;
       }
       _pendingMessages.add(event);
+    });
+
+    _messageRepo.watchPendingEditedMessages(widget.roomId).listen((event) {
+      _pendingEditedMessage.add(event);
     });
   }
 
@@ -1275,7 +1281,9 @@ class RoomPageState extends State<RoomPage> {
   Future<Message?> _messageAtIndex(int index, {useCache = true}) async {
     return _isPendingMessage(index)
         ? pendingMessages[_itemCount + room.firstMessageId - index - 1].msg
-        : await _getMessage(index + 1, useCache: useCache);
+        : (await _messageRepo.getPendingEditedMessage(widget.roomId, index + 1))
+                ?.msg ??
+            await _getMessage(index + 1, useCache: useCache);
   }
 
   bool _isPendingMessage(int index) {
@@ -1318,20 +1326,7 @@ class RoomPageState extends State<RoomPage> {
       return const SizedBox.shrink();
     }
 
-    late final Widget widget;
-
     final tuple = _fastForwardFetchMessageAndMessageBefore(index);
-    if (tuple != null) {
-      widget = _cachedBuildMessage(index, tuple);
-    } else {
-      widget = FutureBuilder<Tuple2<Message?, Message?>>(
-        initialData: _fastForwardFetchMessageAndMessageBefore(index),
-        future: _fetchMessageAndMessageBefore(index),
-        builder: (context, ms) {
-          return _cachedBuildMessage(index, ms.data);
-        },
-      );
-    }
 
     return StreamBuilder<int>(
       initialData: _highlightMessageId.value,
@@ -1345,7 +1340,22 @@ class RoomPageState extends State<RoomPage> {
               ? Theme.of(context).primaryColor.withAlpha(100)
               : Colors.transparent,
           curve: Curves.elasticOut,
-          child: widget,
+          child: FutureBuilder<PendingMessage?>(
+            future: _messageRepo.getPendingEditedMessage(room.uid, index + 1),
+            builder: (context, pendingEditedMessage) {
+              if (tuple != null && pendingEditedMessage.data == null) {
+                return _cachedBuildMessage(index, tuple);
+              } else {
+                return FutureBuilder<Tuple2<Message?, Message?>>(
+                  initialData: _fastForwardFetchMessageAndMessageBefore(index),
+                  future: _fetchMessageAndMessageBefore(index),
+                  builder: (context, ms) {
+                    return _cachedBuildMessage(index, ms.data);
+                  },
+                );
+              }
+            },
+          ),
         );
       },
     );
@@ -1364,8 +1374,9 @@ class RoomPageState extends State<RoomPage> {
 
     if (widget == null) {
       widget = _buildMessageBox(index, tuple);
-      if (tuple.item2?.id != null && !tuple.item2!.isHidden)
+      if (tuple.item2?.id != null && !tuple.item2!.isHidden) {
         _messageWidgetCache.set(index, widget);
+      }
     }
 
     return widget;

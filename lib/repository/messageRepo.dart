@@ -122,6 +122,7 @@ class MessageRepo {
             }
           });
           sendPendingMessages().ignore();
+          sendPendingEditedMessages().ignore();
           unawaited(_fetchNotSyncedRoom());
 
           _logger.i('updating done -----------------');
@@ -447,9 +448,12 @@ class MessageRepo {
     String? packetId,
   ) {
     final json = (message_pb.Text()..text = text).writeToJson();
-    final msg = _createMessage(room,
-            replyId: replyId, forwardedFrom: forwardedFrom, packetId: packetId)
-        .copyWith(type: MessageType.TEXT, json: json);
+    final msg = _createMessage(
+      room,
+      replyId: replyId,
+      forwardedFrom: forwardedFrom,
+      packetId: packetId,
+    ).copyWith(type: MessageType.TEXT, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
     _saveAndSend(pm);
@@ -631,6 +635,20 @@ class MessageRepo {
     String? caption,
     int replyToId = 0,
   }) {
+    final sendingFakeFile = _createFakeSendFile(file, fileUuid, caption);
+
+    return _createMessage(room, replyId: replyToId).copyWith(
+      packetId: _getPacketId(),
+      type: MessageType.FILE,
+      json: sendingFakeFile.writeToJson(),
+    );
+  }
+
+  file_pb.File _createFakeSendFile(
+    model.File file,
+    String fileUuid,
+    String? caption,
+  ) {
     var tempDimension = Size.zero;
     int? tempFileSize;
     final tempType = file.extension ?? _findType(file.path);
@@ -663,12 +681,7 @@ class MessageRepo {
       ..size = file.size != null ? Int64(file.size!) : Int64(tempFileSize!)
       ..name = file.name
       ..duration = 0;
-
-    return _createMessage(room, replyId: replyToId).copyWith(
-      packetId: _getPacketId(),
-      type: MessageType.FILE,
-      json: sendingFakeFile.writeToJson(),
-    );
+    return sendingFakeFile;
   }
 
   Future<void> sendStickerMessage({
@@ -690,6 +703,32 @@ class MessageRepo {
     //
     // var pm = _createPendingMessage(msg, SendingStatus.PENDING);
     // _saveAndSend(pm);
+  }
+
+  Future<file_pb.File?> _sendFileToServerOfPendingEditedMessage(
+    PendingMessage pm,
+  ) async {
+    file_pb.File? updatedFile;
+    final file = file_pb.File.fromJson(pm.msg.json);
+    await _savePendingEditedMessage(
+      pm.copyWith(status: SendingStatus.UPLOAD_FILE_INPROGRSS),
+    );
+    updatedFile = await _fileRepo.uploadClonedFile(file.uuid, file.name);
+    if (updatedFile != null) {
+      await _savePendingEditedMessage(
+        pm.copyWith(
+          msg: pm.msg.copyWith(json: updatedFile.writeToJson()),
+          status: SendingStatus.UPLOAD_FILE_COMPELED,
+        ),
+      );
+    } else {
+      await _savePendingEditedMessage(
+        pm.copyWith(
+          status: SendingStatus.UPLIOD_FILE_FAIL,
+        ),
+      );
+    }
+    return updatedFile;
   }
 
   Future<PendingMessage?> _sendFileToServerOfPendingMessage(
@@ -824,6 +863,61 @@ class MessageRepo {
     }
   }
 
+  Future<void> sendPendingEditedMessages() async {
+    final pendingMessages = await _messageDao.getAllPendingEditedMessages();
+
+    for (final pendingMessage in pendingMessages) {
+      if (!pendingMessage.failed) {
+        switch (pendingMessage.status) {
+          case SendingStatus.UPLOAD_FILE_INPROGRSS:
+            break;
+          case SendingStatus.PENDING:
+          case SendingStatus.UPLOAD_FILE_COMPELED:
+            await updateMessageAtServer(pendingMessage);
+            break;
+          case SendingStatus.UPLIOD_FILE_FAIL:
+            final updatedFile = await _sendFileToServerOfPendingEditedMessage(
+              pendingMessage,
+            );
+            if (updatedFile != null) {
+              await updateMessageAtServer(
+                pendingMessage.copyWith(
+                  msg: pendingMessage.msg
+                      .copyWith(json: updatedFile.writeToJson()),
+                  status: SendingStatus.UPLOAD_FILE_COMPELED,
+                ),
+              );
+            }
+            break;
+        }
+      }
+    }
+  }
+
+  Future<void> updateMessageAtServer(
+    PendingMessage pendingMessage,
+  ) async {
+    try {
+      final updatedMessage = _createMessageByClient(pendingMessage.msg);
+      await _sdr.queryServiceClient.updateMessage(
+        UpdateMessageReq()
+          ..message = updatedMessage
+          ..messageId = Int64(pendingMessage.msg.id ?? 0),
+      );
+      deletePendingEditedMessage(
+        pendingMessage.roomUid,
+        pendingMessage.msg.id,
+      );
+    } catch (e) {
+      _logger.e(e);
+      await _savePendingEditedMessage(
+        pendingMessage.copyWith(
+          failed: true,
+        ),
+      );
+    }
+  }
+
   bool _fileOfMessageIsValid(file_pb.File file) =>
       (file.sign.isNotEmpty && file.hash.isNotEmpty);
 
@@ -837,6 +931,9 @@ class MessageRepo {
 
   Future<void> _savePendingMessage(PendingMessage pm) =>
       _messageDao.savePendingMessage(pm);
+
+  Future<void> _savePendingEditedMessage(PendingMessage pm) =>
+      _messageDao.savePendingEditedMessage(pm);
 
   Future<void> sendSeen(
     int messageId,
@@ -1064,11 +1161,20 @@ class MessageRepo {
   Future<PendingMessage?> getPendingMessage(String packetId) =>
       _messageDao.getPendingMessage(packetId);
 
+  Future<PendingMessage?> getPendingEditedMessage(String roomUid, int? index) =>
+      _messageDao.getPendingEditedMessage(roomUid, index);
+
   Stream<PendingMessage?> watchPendingMessage(String packetId) =>
       _messageDao.watchPendingMessage(packetId);
 
   Stream<List<PendingMessage>> watchPendingMessages(String roomUid) =>
       _messageDao.watchPendingMessages(roomUid);
+
+  Stream<List<PendingMessage>> watchPendingEditedMessages(String roomUid) =>
+      _messageDao.watchPendingEditedMessages(roomUid);
+
+  Stream<PendingMessage?> watchPendingEditedMessage(String roomUid, int? id) =>
+      _messageDao.watchPendingEditedMessage(roomUid, id);
 
   Future<List<PendingMessage>> getPendingMessages(String roomUid) =>
       _messageDao.getPendingMessages(roomUid);
@@ -1080,6 +1186,10 @@ class MessageRepo {
 
   void deletePendingMessage(String packetId) {
     _messageDao.deletePendingMessage(packetId);
+  }
+
+  void deletePendingEditedMessage(String roomUid, int? index) {
+    _messageDao.deletePendingEditedMessage(roomUid, index);
   }
 
   Future<void> pinMessage(Message message) => _mucServices.pinMessage(message);
@@ -1189,6 +1299,14 @@ class MessageRepo {
         ..to = editableMessage.to.asUid()
         ..replyToId = Int64(editableMessage.replyToId)
         ..text = message_pb.Text(text: text);
+      final pm = _createPendingMessage(
+        editableMessage.copyWith(
+          json: (message_pb.Text()..text = text).writeToJson(),
+          edited: true,
+        ),
+        SendingStatus.PENDING,
+      );
+      await _savePendingEditedMessage(pm);
       await _sdr.queryServiceClient.updateMessage(
         UpdateMessageReq()
           ..message = updatedMessage
@@ -1197,6 +1315,10 @@ class MessageRepo {
       editableMessage
         ..json = (message_pb.Text()..text = text).writeToJson()
         ..edited = true;
+      deletePendingEditedMessage(
+        editableMessage.roomUid,
+        editableMessage.id,
+      );
       await _messageDao.saveMessage(editableMessage);
       messageEventSubject.add(
         MessageEvent(
@@ -1228,17 +1350,21 @@ class MessageRepo {
     try {
       file_pb.File? updatedFile;
       if (file != null) {
-        final uploadKey = clock.now().millisecondsSinceEpoch.toString();
+        final uploadKey = _getPacketId();
         await _fileRepo.cloneFileInLocalDirectory(
           dart_file.File(file.path),
           uploadKey,
           file.name,
         );
-
-        updatedFile = await _fileRepo.uploadClonedFile(uploadKey, file.name);
-        if (updatedFile != null && caption != null) {
-          updatedFile.caption = caption;
-        }
+        updatedFile = await _sendFileToServerOfPendingEditedMessage(
+          _createPendingMessage(
+            editableMessage.copyWith(
+              json: _createFakeSendFile(file, uploadKey, caption).writeToJson(),
+              edited: true,
+            ),
+            SendingStatus.UPLOAD_FILE_INPROGRSS,
+          ),
+        );
       } else {
         final preFile = editableMessage.json.toFile();
         if (caption == preFile.caption) {
@@ -1257,6 +1383,14 @@ class MessageRepo {
           ..tempLink = preFile.tempLink
           ..hash = preFile.hash
           ..sign = preFile.sign;
+        final pm = _createPendingMessage(
+          editableMessage.copyWith(
+            json: updatedFile.writeToJson(),
+            edited: true,
+          ),
+          SendingStatus.PENDING,
+        );
+        await _savePendingEditedMessage(pm);
       }
       final updatedMessage = message_pb.MessageByClient()
         ..to = editableMessage.to.asUid()
@@ -1266,6 +1400,7 @@ class MessageRepo {
           ..message = updatedMessage
           ..messageId = Int64(editableMessage.id ?? 0),
       );
+      deletePendingEditedMessage(editableMessage.roomUid, editableMessage.id);
       editableMessage
         ..json = updatedFile.writeToJson()
         ..edited = true;
