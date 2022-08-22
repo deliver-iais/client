@@ -19,6 +19,7 @@ import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -38,10 +39,9 @@ import 'package:tuple/tuple.dart';
 import 'package:win_toast/win_toast.dart';
 
 abstract class Notifier {
-  static void onCallAccept(String roomUid) {
-    GetIt.I
-        .get<RoutingService>()
-        .openCallScreen(roomUid.asUid(), isCallAccepted: true);
+  static void onCallAccept(String roomUid, {bool isVideoCall = false}) {
+    GetIt.I.get<RoutingService>().openCallScreen(roomUid.asUid(),
+        isCallAccepted: true, isVideoCall: isVideoCall,);
   }
 
   static void onCallNotificationTap(String roomUid) {
@@ -325,12 +325,15 @@ class WindowsNotifier implements Notifier {
     }
     try {
       final lastAvatar = await _avatarRepo.getLastAvatar(roomUid.asUid());
+      final callType = callEventJson?.toCallEvent().callType;
+      final subtitle = "Incoming ${callType?.name} Call";
       if (lastAvatar != null && lastAvatar.fileId != null) {
         final file = await _fileRepo.getFile(
           lastAvatar.fileId!,
           lastAvatar.fileName!,
           thumbnailSize: ThumbnailSize.medium,
         );
+
         toast = await WinToast.instance().showToast(
           type: ToastType.imageAndText02,
           title: roomName,
@@ -346,7 +349,7 @@ class WindowsNotifier implements Notifier {
             title: roomName,
             imagePath: deliverIcon.path,
             actions: actions,
-            subtitle: "Incoming Call",
+            subtitle: subtitle,
           );
         }
       }
@@ -360,7 +363,11 @@ class WindowsNotifier implements Notifier {
           } else if (event.actionIndex == 0) {
             // Accept
             DesktopWindow.focus();
-            Notifier.onCallAccept(roomUid);
+            if (callType == CallEvent_CallType.VIDEO) {
+              Notifier.onCallAccept(roomUid, isVideoCall: true);
+            } else {
+              Notifier.onCallAccept(roomUid);
+            }
           }
         }
         final roomIdToast = toastByRoomId[roomUid.asUid().node];
@@ -625,7 +632,6 @@ class AndroidNotifier implements Notifier {
 
   Future<void> onCallAccepted(CallEvent callEvent) async {
     await GetIt.I.get<CallService>().clearCallData();
-    Notifier.onCallAccept(callEvent.userInfo!["uid"]!);
     _callService.setRoomUid = callEvent.userInfo!["uid"]!.asUid();
     await _callService
         .saveCallOnDb(getCallInfo(callEvent, CallEvent_CallStatus.JOINED));
@@ -638,6 +644,11 @@ class AndroidNotifier implements Notifier {
   }) {
     final callEventInfo =
         call_pro.CallEvent.fromJson(callEvent.userInfo!["callEventJson"]!);
+    if (callEventInfo.callType == CallEvent_CallType.VIDEO) {
+      Notifier.onCallAccept(callEvent.userInfo!["uid"]!, isVideoCall: true);
+    } else {
+      Notifier.onCallAccept(callEvent.userInfo!["uid"]!);
+    }
     //here status be JOINED means ACCEPT CALL and when app Start should go on accepting status
     final currentCallEvent = call_event.CallEvent(
       callDuration: callEventInfo.callDuration.toInt(),
@@ -761,13 +772,14 @@ class AndroidNotifier implements Notifier {
         thumbnailSize: ThumbnailSize.medium,
       );
     }
+    final callType = callEventJson?.toCallEvent().callType;
     //callType: 0 ==>Audio call 1 ==>Video call
     final ceJson = callEventJson ?? "";
     await ConnectycubeFlutterCallKit.showCallNotification(
       CallEvent(
         sessionId: clock.now().millisecondsSinceEpoch.toString(),
         callerId: 123456789,
-        callType: 0,
+        callType: callType == CallEvent_CallType.AUDIO ? 0 : 1,
         callerName: roomName,
         userInfo: {"uid": roomUid, "callEventJson": ceJson},
         avatarPath: path,

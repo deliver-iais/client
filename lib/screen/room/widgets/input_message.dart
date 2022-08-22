@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/message_markup.dart';
 import 'package:deliver/box/message_type.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -16,6 +17,8 @@ import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/room/widgets/bot_commands.dart';
 import 'package:deliver/screen/room/widgets/emoji_keybord.dart';
+import 'package:deliver/screen/room/widgets/markup/input_suggestions_widget.dart';
+import 'package:deliver/screen/room/widgets/markup/reply_keyboard_markup.dart';
 import 'package:deliver/screen/room/widgets/record_audio_animation.dart';
 import 'package:deliver/screen/room/widgets/record_audio_slide_widget.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
@@ -29,7 +32,6 @@ import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
-import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/keyboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/attach_location.dart';
@@ -101,6 +103,7 @@ class InputMessageWidgetState extends State<InputMessage> {
   final BehaviorSubject<bool> _showEmojiKeyboard =
       BehaviorSubject.seeded(false);
   final BehaviorSubject<bool> _showSendIcon = BehaviorSubject.seeded(false);
+  final BehaviorSubject<bool> _showReplyMarkUp = BehaviorSubject.seeded(true);
   final BehaviorSubject<String?> _mentionQuery = BehaviorSubject.seeded(null);
   final BehaviorSubject<String> _botCommandQuery = BehaviorSubject.seeded("-");
   TextEditingController captionTextController = TextEditingController();
@@ -252,6 +255,11 @@ class InputMessageWidgetState extends State<InputMessage> {
     final theme = Theme.of(context);
     return WillPopScope(
       onWillPop: () async {
+        if (_showReplyMarkUp.value &&
+            widget.currentRoom.replyKeyboardMarkup != null) {
+          _showReplyMarkUp.add(false);
+          return false;
+        }
         if (_showEmojiKeyboard.value) {
           _showEmojiKeyboard.add(false);
           return false;
@@ -261,164 +269,194 @@ class InputMessageWidgetState extends State<InputMessage> {
       },
       child: IconTheme(
         data: IconThemeData(opacity: 0.6, color: theme.iconTheme.color),
-        child: Column(
-          children: <Widget>[
-            StreamBuilder<String?>(
-              stream: _mentionQuery.distinct(),
-              builder: (c, showMention) {
-                if (showMention.hasData && showMention.data != null) {
-                  return ShowMentionList(
-                    query: showMention.data!,
-                    onSelected: (s) {
-                      onMentionSelected(s);
-                    },
-                    roomUid: widget.currentRoom.uid,
-                    mentionSelectedIndex: mentionSelectedIndex,
-                  );
-                }
-                mentionSelectedIndex = 0;
-                return const SizedBox.shrink();
-              },
-            ),
-            StreamBuilder<String>(
-              stream: _botCommandQuery.distinct(),
-              builder: (c, show) {
-                _botCommandData = show.data ?? "-";
-                if (_botCommandData == "-") {
-                  botCommandSelectedIndex = 0;
-                }
-                return BotCommands(
-                  botUid: widget.currentRoom.uid.asUid(),
-                  query: _botCommandData,
-                  onCommandClick: (command) {
-                    onCommandSelected(command);
-                  },
-                  botCommandSelectedIndex: botCommandSelectedIndex,
-                );
-              },
-            ),
-            Container(
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-              ),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: <Widget>[
-                  StreamBuilder<bool>(
-                    stream: _audioService.recorderIsRecording,
-                    builder: (ctx, snapshot) {
-                      final isRecording = snapshot.data ?? false;
-                      final isRecordingInCurrentRoom =
-                          _audioService.recordingRoom == widget.currentRoom.uid;
-
-                      return Expanded(
-                        child: Row(
-                          crossAxisAlignment: CrossAxisAlignment.end,
-                          children: <Widget>[
-                            if (!isRecording) buildEmojiKeyboardActions(),
-                            if (!isRecording) buildTextInput(theme),
-                            if (!isRecording) buildDefaultActions(),
-                            if (isRecording && isRecordingInCurrentRoom)
-                              const RecordAudioSlideWidget(),
-                            if (isRecording && !isRecordingInCurrentRoom)
-                              Expanded(
-                                child: IconButton(
-                                  icon: SizedBox(
-                                    width: double.infinity,
-                                    child: TextButton(
-                                      onPressed: () => _routingService.openRoom(
-                                        _audioService.recordingRoom,
-                                      ),
-                                      // color: theme.colorScheme.primary,
-                                      child: Text(
-                                        _i18n.get("go_to_recording_room"),
-                                      ),
-                                    ),
-                                  ),
-                                  onPressed: () {},
-                                ),
-                              )
-                          ],
-                        ),
+        child: StreamBuilder<bool>(
+          stream: _showReplyMarkUp,
+          builder: (context, snapshot) {
+            return Column(
+              children: <Widget>[
+                StreamBuilder<String?>(
+                  stream: _mentionQuery.distinct(),
+                  builder: (c, showMention) {
+                    if (showMention.hasData && showMention.data != null) {
+                      return ShowMentionList(
+                        query: showMention.data!,
+                        onSelected: (s) {
+                          onMentionSelected(s);
+                        },
+                        roomUid: widget.currentRoom.uid,
+                        mentionSelectedIndex: mentionSelectedIndex,
                       );
-                    },
+                    }
+                    mentionSelectedIndex = 0;
+                    return const SizedBox.shrink();
+                  },
+                ),
+                StreamBuilder<String>(
+                  stream: _botCommandQuery.distinct(),
+                  builder: (c, show) {
+                    _botCommandData = show.data ?? "-";
+                    if (_botCommandData == "-") {
+                      botCommandSelectedIndex = 0;
+                    }
+                    return BotCommands(
+                      botUid: widget.currentRoom.uid.asUid(),
+                      query: _botCommandData,
+                      onCommandClick: (command) {
+                        onCommandSelected(command);
+                      },
+                      botCommandSelectedIndex: botCommandSelectedIndex,
+                    );
+                  },
+                ),
+                InputSuggestionsWidget(
+                  inputSuggestions: widget
+                          .currentRoom.lastMessage?.markup?.inputSuggestions ??
+                      [],
+                  textController: widget.textController,
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surface,
                   ),
-                  StreamBuilder<bool>(
-                    stream: _showSendIcon,
-                    builder: (c, sm) {
-                      if (!sm.hasData ||
-                          sm.data! ||
-                          widget.waitingForForward ||
-                          !_audioService.recorderIsAvailable()) {
-                        return const SizedBox();
-                      }
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[
+                      StreamBuilder<bool>(
+                        stream: _audioService.recorderIsRecording,
+                        builder: (ctx, snapshot) {
+                          final isRecording = snapshot.data ?? false;
+                          final isRecordingInCurrentRoom =
+                              _audioService.recordingRoom ==
+                                  widget.currentRoom.uid;
 
-                      return RecordAudioAnimation(
-                        onComplete: (res) {
-                          if (res != null) {
-                            unawaited(
-                              _messageRepo.sendFileMessage(
-                                widget.currentRoom.uid.asUid(),
-                                File(res, res),
+                          return Expanded(
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: <Widget>[
+                                if (!isRecording) buildEmojiKeyboardActions(),
+                                if (!isRecording) buildTextInput(theme),
+                                if (!isRecording) buildDefaultActions(),
+                                if (isRecording && isRecordingInCurrentRoom)
+                                  const RecordAudioSlideWidget(),
+                                if (isRecording && !isRecordingInCurrentRoom)
+                                  Expanded(
+                                    child: IconButton(
+                                      icon: SizedBox(
+                                        width: double.infinity,
+                                        child: TextButton(
+                                          onPressed: () =>
+                                              _routingService.openRoom(
+                                            _audioService.recordingRoom,
+                                          ),
+                                          // color: theme.colorScheme.primary,
+                                          child: Text(
+                                            _i18n.get("go_to_recording_room"),
+                                          ),
+                                        ),
+                                      ),
+                                      onPressed: () {},
+                                    ),
+                                  )
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                      StreamBuilder<bool>(
+                        stream: _showSendIcon,
+                        builder: (c, sm) {
+                          if (!sm.hasData ||
+                              sm.data! ||
+                              widget.waitingForForward ||
+                              !_audioService.recorderIsAvailable()) {
+                            return const SizedBox();
+                          }
+
+                          return RecordAudioAnimation(
+                            onComplete: (res) {
+                              if (res != null) {
+                                unawaited(
+                                  _messageRepo.sendFileMessage(
+                                    widget.currentRoom.uid.asUid(),
+                                    File(res, res),
+                                  ),
+                                );
+                              }
+                            },
+                            roomUid: widget.currentRoom.uid.asUid(),
+                          );
+                        },
+                      )
+                    ],
+                  ),
+                ),
+                if (widget.currentRoom.replyKeyboardMarkup != null)
+                  AnimatedContainer(
+                    duration: SLOW_ANIMATION_DURATION,
+                    curve: Curves.easeInOut,
+                    constraints: BoxConstraints(
+                      maxHeight: _showReplyMarkUp.value ? 270.0 : 0,
+                    ),
+                    child: ReplyKeyboardMarkupWidget(
+                      replyKeyboardMarkup:
+                          widget.currentRoom.replyKeyboardMarkup!,
+                      showReplyMarkUp: _showReplyMarkUp,
+                      roomUid: widget.currentRoom.uid,
+                      textController: widget.textController,
+                    ),
+                  ),
+                StreamBuilder<bool>(
+                  stream: _showEmojiKeyboard,
+                  builder: (context, back) {
+                    final showEmojiKeyboard = back.data ?? false;
+
+                    return AnimatedContainer(
+                      duration: SLOW_ANIMATION_DURATION,
+                      curve: Curves.easeInOut,
+                      height: showEmojiKeyboard ? 270.0 : 0,
+                      child: EmojiKeyboard(
+                        onTap: (emoji) {
+                          if (widget.textController.text.isNotEmpty) {
+                            final start =
+                                widget.textController.selection.baseOffset;
+                            var block_1 =
+                                widget.textController.text.substring(0, start);
+                            block_1 = block_1.substring(0, start);
+                            final block_2 =
+                                widget.textController.text.substring(
+                              start,
+                              widget.textController.text.length,
+                            );
+                            widget.textController.text =
+                                block_1 + emoji + block_2;
+                            widget.textController.selection =
+                                TextSelection.fromPosition(
+                              TextPosition(
+                                offset: widget.textController.text.length -
+                                    block_2.length,
+                              ),
+                            );
+                          } else {
+                            widget.textController.text =
+                                widget.textController.text + emoji;
+                            widget.textController.selection =
+                                TextSelection.fromPosition(
+                              TextPosition(
+                                offset: widget.textController.text.length,
                               ),
                             );
                           }
+                          if (isDesktop) {
+                            widget.focusNode.requestFocus();
+                          }
                         },
-                        roomUid: widget.currentRoom.uid.asUid(),
-                      );
-                    },
-                  )
-                ],
-              ),
-            ),
-            StreamBuilder<bool>(
-              stream: _showEmojiKeyboard,
-              builder: (context, back) {
-                final showEmojiKeyboard = back.data ?? false;
-
-                return AnimatedContainer(
-                  duration: SLOW_ANIMATION_DURATION,
-                  curve: Curves.easeInOut,
-                  height: showEmojiKeyboard ? 270.0 : 0,
-                  child: EmojiKeyboard(
-                    onTap: (emoji) {
-                      if (widget.textController.text.isNotEmpty) {
-                        final start =
-                            widget.textController.selection.baseOffset;
-                        var block_1 =
-                            widget.textController.text.substring(0, start);
-                        block_1 = block_1.substring(0, start);
-                        final block_2 = widget.textController.text.substring(
-                          start,
-                          widget.textController.text.length,
-                        );
-                        widget.textController.text = block_1 + emoji + block_2;
-                        widget.textController.selection =
-                            TextSelection.fromPosition(
-                          TextPosition(
-                            offset: widget.textController.text.length -
-                                block_2.length,
-                          ),
-                        );
-                      } else {
-                        widget.textController.text =
-                            widget.textController.text + emoji;
-                        widget.textController.selection =
-                            TextSelection.fromPosition(
-                          TextPosition(
-                            offset: widget.textController.text.length,
-                          ),
-                        );
-                      }
-                      if (isDesktop) {
-                        widget.focusNode.requestFocus();
-                      }
-                    },
-                  ),
-                );
-              },
-            ),
-          ],
+                      ),
+                    );
+                  },
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
@@ -436,6 +474,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                 : CupertinoIcons.smiley,
           ),
           onPressed: () {
+            _showReplyMarkUp.add(false);
             if (showEmojiKeyboard) {
               _showEmojiKeyboard.add(false);
               widget.focusNode.requestFocus();
@@ -472,6 +511,20 @@ class InputMessageWidgetState extends State<InputMessage> {
         return Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
+            if (!widget.waitingForForward &&
+                widget.currentRoom.replyKeyboardMarkup != null)
+              IconButton(
+                icon: Icon(
+                  _showReplyMarkUp.value
+                      ? CupertinoIcons.chevron_down_square
+                      : CupertinoIcons.square_grid_2x2,
+                ),
+                onPressed: () {
+                  FocusScope.of(context).unfocus();
+                  _showEmojiKeyboard.add(false);
+                  _showReplyMarkUp.add(!_showReplyMarkUp.value);
+                },
+              ),
             if (showCommandsButton)
               IconButton(
                 icon: const Icon(
@@ -503,6 +556,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                 ),
                 onPressed: () {
                   _showEmojiKeyboard.add(false);
+                  _showReplyMarkUp.add(false);
 
                   showButtonSheet();
                 },
@@ -587,8 +641,20 @@ class InputMessageWidgetState extends State<InputMessage> {
                 contentPadding: const EdgeInsets.only(top: 12, bottom: 12),
                 border: InputBorder.none,
                 counterText: "",
-                hintText: _i18n.get("write_a_message"),
-                hintTextDirection: _i18n.defaultTextDirection,
+                hintText: hasMarkUpPlaceHolder(
+                  widget.currentRoom.lastMessage?.markup,
+                )
+                    ? widget
+                        .currentRoom.lastMessage!.markup!.inputFieldPlaceHolder
+                    : _i18n.get("write_a_message"),
+                hintTextDirection: hasMarkUpPlaceHolder(
+                  widget.currentRoom.lastMessage?.markup,
+                )
+                    ? _i18n.getDirection(
+                        widget.currentRoom.lastMessage!.markup!
+                            .inputFieldPlaceHolder,
+                      )
+                    : _i18n.defaultTextDirection,
                 hintStyle: theme.textTheme.bodyMedium,
               ),
               textInputAction: TextInputAction.newline,
@@ -603,7 +669,10 @@ class InputMessageWidgetState extends State<InputMessage> {
               ],
               style: theme.textTheme.bodyMedium,
               onTap: () {
-                if (!isDesktop) _showEmojiKeyboard.add(false);
+                if (!isDesktop) {
+                  _showEmojiKeyboard.add(false);
+                  _showReplyMarkUp.add(false);
+                }
               },
               onChanged: (str) {
                 if (str.isNotEmpty) {
@@ -859,7 +928,6 @@ class InputMessageWidgetState extends State<InputMessage> {
             widget.editableMessage!,
             text,
           );
-          widget.resetRoomPageDetails!();
         } else {
           _messageRepo.sendTextMessage(currentRoom.uid.asUid(), text);
         }
@@ -869,7 +937,11 @@ class InputMessageWidgetState extends State<InputMessage> {
 
       _mentionQuery.add(null);
     }
-    widget.scrollToLastSentMessage();
+    if (widget.editableMessage != null) {
+      widget.resetRoomPageDetails!();
+    } else {
+      widget.scrollToLastSentMessage();
+    }
   }
 
   Future<void> _attachFileInWindowsMode() async {
@@ -971,13 +1043,9 @@ class InputMessageWidgetState extends State<InputMessage> {
       });
     }
   }
-}
 
-TextDirection getDirection(String v) {
-  final string = v.trim();
-  if (string.isEmpty) return TextDirection.ltr;
-  if (string.isPersian()) {
-    return TextDirection.rtl;
+  bool hasMarkUpPlaceHolder(MessageMarkup? markUp) {
+    return markUp?.inputFieldPlaceHolder != null &&
+        markUp!.inputFieldPlaceHolder.isNotEmpty;
   }
-  return TextDirection.ltr;
 }

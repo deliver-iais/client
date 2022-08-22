@@ -34,8 +34,7 @@ class RoundUpTransition extends AnimatedWidget {
     this.alignment = Alignment.center,
     this.filterQuality,
     this.child,
-  })  : assert(turns != null),
-        super(key: key, listenable: turns);
+  })  : super(key: key, listenable: turns);
 
   /// The animation that controls the rotation of the child.
   ///

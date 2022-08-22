@@ -4,6 +4,8 @@ import 'dart:math';
 import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/pending_message.dart';
+import 'package:deliver/box/sending_status.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/profile/widgets/all_image_page.dart';
@@ -145,77 +147,87 @@ class ImageUiState extends State<ImageUi> {
                                 fit: BoxFit.fill,
                               ),
                       ),
-                      if (widget.message.id == null)
-                        Center(
-                          widthFactor: 1,
-                          heightFactor: 1,
-                          child: StreamBuilder<double>(
-                            stream: _fileServices
-                                .filesProgressBarStatus[widget.image.uuid],
-                            builder: (c, snap) {
-                              if (snap.hasData &&
-                                  snap.data != null &&
-                                  snap.data! <= 1 &&
-                                  snap.data! > 0) {
-                                return Container(
-                                  decoration: BoxDecoration(
-                                    color: lowlight,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: CircularPercentIndicator(
-                                    radius: 25.0,
-                                    lineWidth: 4.0,
-                                    backgroundColor: lowlight,
-                                    percent: snap.data!,
-                                    center: StreamBuilder<CancelToken?>(
-                                      stream: _fileServices
-                                          .cancelTokens[widget.image.uuid],
-                                      builder: (c, s) {
-                                        return GestureDetector(
-                                          child: Icon(
-                                            Icons.close,
-                                            color: highlight,
-                                            size: 35,
-                                          ),
-                                          onTap: () {
-                                            if (s.hasData && s.data != null) {
-                                              s.data!.cancel();
-                                            }
-                                            _messageRepo.deletePendingMessage(
-                                              widget.message.packetId,
+                     FutureBuilder<PendingMessage?>(
+                        future: _messageRepo.getPendingEditedMessage(
+                          widget.message.roomUid,
+                          widget.message.id,
+                        ),
+                        builder: (context, pendingEditedMessage) {
+                          if (widget.message.id == null ||
+                              pendingEditedMessage.data?.status !=
+                                      SendingStatus.PENDING &&
+                                  pendingEditedMessage.data != null) {
+                            return Center(
+                              widthFactor: 1,
+                              heightFactor: 1,
+                              child: StreamBuilder<double>(
+                                stream: _fileServices
+                                    .filesProgressBarStatus[widget.image.uuid],
+                                builder: (c, snap) {
+                                  if (snap.hasData &&
+                                      snap.data != null &&
+                                      snap.data! <= 1 &&
+                                      snap.data! > 0) {
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                        color: lowlight,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: CircularPercentIndicator(
+                                        radius: 25.0,
+                                        lineWidth: 4.0,
+                                        backgroundColor: lowlight,
+                                        percent: snap.data!,
+                                        center: StreamBuilder<CancelToken?>(
+                                          stream: _fileServices
+                                              .cancelTokens[widget.image.uuid],
+                                          builder: (c, s) {
+                                            return GestureDetector(
+                                              child: Icon(
+                                                Icons.close,
+                                                color: highlight,
+                                                size: 35,
+                                              ),
+                                              onTap: () {
+                                                if (s.hasData &&
+                                                    s.data != null) {
+                                                  s.data!.cancel();
+                                                }
+                                                deletePendingMessage();
+                                              },
                                             );
                                           },
-                                        );
-                                      },
-                                    ),
-                                    progressColor: highlight,
-                                  ),
-                                );
-                              } else {
-                                return Stack(
-                                  children: [
-                                    const Center(
-                                      child: CircularProgressIndicator(),
-                                    ),
-                                    Center(
-                                      child: GestureDetector(
-                                        child: const Icon(
-                                          Icons.close,
-                                          size: 35,
                                         ),
-                                        onTap: () {
-                                          _messageRepo.deletePendingMessage(
-                                            widget.message.packetId,
-                                          );
-                                        },
+                                        progressColor: highlight,
                                       ),
-                                    ),
-                                  ],
-                                );
-                              }
-                            },
-                          ),
-                        ),
+                                    );
+                                  } else {
+                                    return Stack(
+                                      children: [
+                                        const Center(
+                                          child: CircularProgressIndicator(),
+                                        ),
+                                        Center(
+                                          child: GestureDetector(
+                                            child: const Icon(
+                                              Icons.close,
+                                              size: 35,
+                                            ),
+                                            onTap: () {
+                                              deletePendingMessage();
+                                            },
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  }
+                                },
+                              ),
+                            );
+                          }
+                          return const SizedBox.shrink();
+                        },
+                      ),
                       if (widget.image.caption.isEmpty)
                         TimeAndSeenStatus(
                           widget.message,
@@ -296,6 +308,19 @@ class ImageUiState extends State<ImageUi> {
             aspectRatio: widget.image.width / widget.image.height,
           ),
         ),
+      );
+    }
+  }
+
+  void deletePendingMessage() {
+    if (widget.message.id == null) {
+      _messageRepo.deletePendingMessage(
+        widget.message.packetId,
+      );
+    } else {
+      _messageRepo.deletePendingEditedMessage(
+        widget.message.roomUid,
+        widget.message.id,
       );
     }
   }

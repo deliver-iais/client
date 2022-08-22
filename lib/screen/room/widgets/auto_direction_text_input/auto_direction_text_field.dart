@@ -1,13 +1,15 @@
 import 'dart:ui';
 
-import 'package:deliver/screen/room/widgets/input_message.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
 class AutoDirectionTextField extends StatelessWidget {
-  final direction = BehaviorSubject.seeded(TextDirection.ltr);
+  static final direction = BehaviorSubject.seeded(TextDirection.ltr);
+  static final _i18n = GetIt.I.get<I18N>();
 
   final TextEditingController? controller;
 
@@ -117,7 +119,7 @@ class AutoDirectionTextField extends StatelessWidget {
 
   final bool enableIMEPersonalizedLearning;
 
-  AutoDirectionTextField({
+  const AutoDirectionTextField({
     Key? key,
     this.controller,
     this.focusNode,
@@ -208,7 +210,7 @@ class AutoDirectionTextField extends StatelessWidget {
           maxLengthEnforcement: maxLengthEnforcement,
           onChanged: (value) {
             if (value.isNotEmpty) {
-              direction.add(getDirection(value));
+              direction.add(_i18n.getDirection(value));
             }
             onChanged?.call(value);
           },

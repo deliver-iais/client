@@ -1,4 +1,5 @@
 import 'package:deliver/box/message.dart';
+import 'package:deliver/screen/room/widgets/horizontal_list_widget.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver/theme/extra_theme.dart';
@@ -22,36 +23,6 @@ class BotTableWidget extends StatefulWidget {
 
 class _BotTableWidgetState extends State<BotTableWidget> {
   final _controller = ScrollController();
-  bool _isEndOfTheList = false;
-  bool _isFirstOfTheList = true;
-
-  @override
-  void initState() {
-    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      if (_controller.position.maxScrollExtent > 0) {
-        setState(() {});
-      }
-    });
-    _controller.addListener(() {
-      if (_controller.position.maxScrollExtent == _controller.position.pixels) {
-        setState(() {
-          _isFirstOfTheList = false;
-          _isEndOfTheList = true;
-        });
-      } else if (_controller.position.pixels == 0) {
-        setState(() {
-          _isFirstOfTheList = true;
-          _isEndOfTheList = false;
-        });
-      } else if (_controller.position.pixels > 0) {
-        setState(() {
-          _isFirstOfTheList = false;
-          _isEndOfTheList = false;
-        });
-      }
-    });
-    super.initState();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,45 +33,33 @@ class _BotTableWidgetState extends State<BotTableWidget> {
     final rows = <TableRow>[];
     final columnWidths = <int, TableColumnWidth>{};
     initRows(columnWidths, rows);
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        ConstrainedBox(
-          constraints: BoxConstraints(
-            maxWidth: widget.maxWidth,
-          ),
-          child: SingleChildScrollView(
-            controller: _controller,
-            scrollDirection: Axis.horizontal,
-            child: Padding(
-              padding: const EdgeInsets.all(12),
-              child: Table(
-                border: TableBorder.all(
-                  color: widget.colorScheme.primary,
-                  borderRadius: const BorderRadius.all(Radius.circular(8)),
-                ),
-                columnWidths: columnWidths,
-                defaultVerticalAlignment: TableCellVerticalAlignment.middle,
-                children: rows,
+    return HorizontalListWidget(
+      maxWidth: widget.maxWidth,
+      primaryColor: widget.colorScheme.primary,
+      controller: _controller,
+      fadeLayoutColor:
+          ExtraTheme.of(context).messageBackgroundColor(widget.message.from),
+      child: ConstrainedBox(
+        constraints: BoxConstraints(
+          maxWidth: widget.maxWidth,
+        ),
+        child: SingleChildScrollView(
+          controller: _controller,
+          scrollDirection: Axis.horizontal,
+          child: Padding(
+            padding: const EdgeInsets.all(12),
+            child: Table(
+              border: TableBorder.all(
+                color: widget.colorScheme.primary,
+                borderRadius: const BorderRadius.all(Radius.circular(8)),
               ),
+              columnWidths: columnWidths,
+              defaultVerticalAlignment: TableCellVerticalAlignment.middle,
+              children: rows,
             ),
           ),
         ),
-        if (!_isFirstOfTheList)
-          fadeLayout(
-            isLeftPosition: true,
-          ),
-        if (!_isFirstOfTheList)
-          arrowIcon(
-            arrowIcon: Icons.arrow_back_ios_outlined,
-            isLeftPosition: true,
-          ),
-        if (!_isEndOfTheList) fadeLayout(),
-        if (!_isEndOfTheList)
-          arrowIcon(
-            arrowIcon: Icons.arrow_forward_ios,
-          ),
-      ],
+      ),
     );
   }
 
@@ -144,76 +103,5 @@ class _BotTableWidgetState extends State<BotTableWidget> {
         ),
       );
     }
-  }
-
-  Widget arrowIcon({required IconData arrowIcon, bool isLeftPosition = false}) {
-    if (_controller.hasClients &&
-        _controller.position.viewportDimension >= widget.maxWidth) {
-      return Positioned(
-        left: isLeftPosition ? 0 : null,
-        right: isLeftPosition ? null : 0,
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: widget.colorScheme.primary.withAlpha(100),
-              borderRadius: const BorderRadius.all(Radius.circular(10)),
-            ),
-            child: IconButton(
-              padding: const EdgeInsets.all(5),
-              constraints: const BoxConstraints(),
-              icon: Icon(
-                arrowIcon,
-                color: widget.colorScheme.primary,
-              ),
-              onPressed: () {
-                _controller.animateTo(
-                  isLeftPosition
-                      ? _controller.position.pixels - widget.maxWidth * 0.7
-                      : _controller.position.pixels + widget.maxWidth * 0.7,
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.ease,
-                );
-              },
-            ),
-          ),
-        ),
-      );
-    }
-    return const SizedBox.shrink();
-  }
-
-  Widget fadeLayout({
-    bool isLeftPosition = false,
-  }) {
-    if (_controller.hasClients &&
-        _controller.position.viewportDimension >= widget.maxWidth) {
-      final color =
-          ExtraTheme.of(context).messageBackgroundColor(widget.message.from);
-      return Positioned(
-        left: isLeftPosition ? 0 : null,
-        right: isLeftPosition ? null : 0,
-        width: widget.maxWidth * 0.2,
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin:
-                  isLeftPosition ? Alignment.centerLeft : Alignment.centerRight,
-              end:
-                  isLeftPosition ? Alignment.centerRight : Alignment.centerLeft,
-              stops: const [0.0, 0.8, 1.0],
-              colors: [
-                color,
-                color.withAlpha(80),
-                color.withAlpha(30),
-              ],
-            ),
-          ),
-          constraints:
-              BoxConstraints(maxHeight: MediaQuery.of(context).size.height),
-        ),
-      );
-    }
-    return const SizedBox.shrink();
   }
 }

@@ -31,7 +31,7 @@ class SeenStatus extends StatelessWidget {
 
     final color = iconColor ?? theme.primaryColor;
     const size = 16.0;
-    final Widget pendingMessage = Container(
+    final Widget pendingMessageWidget = Container(
       child: Lottie.asset(
         'assets/animations/clock.json',
         width: 18,
@@ -52,48 +52,63 @@ class SeenStatus extends StatelessWidget {
         repeat: true,
       ),
     );
+    final Widget failedPendingMessageWidget = Icon(
+      Icons.warning,
+      color: theme.colorScheme.error,
+      size: 15,
+    );
 
     if (messageId == null || messageId == 0) {
       return FutureBuilder<PendingMessage?>(
         future: messageRepo.getPendingMessage(messagePacketId),
         builder: ((c, pm) {
           if (pm.hasData && pm.data != null && pm.data!.failed) {
-            return Icon(
-              Icons.warning,
-              color: theme.colorScheme.error,
-              size: 15,
-            );
+            return failedPendingMessageWidget;
           } else {
-            return pendingMessage;
+            return pendingMessageWidget;
           }
         }),
       );
-    } else if (isSeen != null && isSeen!) {
-      return Icon(
-        Icons.done_all,
-        color: color,
-        size: size,
-      );
     } else {
-      return StreamBuilder<Seen?>(
-        stream: seenDao.watchOthersSeen(roomUid),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
+      return FutureBuilder<PendingMessage?>(
+        future: messageRepo.getPendingEditedMessage(roomUid, messageId ?? 0),
+        builder: ((c, pm) {
+          if (pm.hasData && pm.data != null) {
+            if (pm.data!.failed) {
+              return failedPendingMessageWidget;
+            } else {
+              return pendingMessageWidget;
+            }
+          }
+          if (isSeen != null && isSeen!) {
             return Icon(
-              snapshot.data!.messageId >= messageId!
-                  ? Icons.done_all
-                  : Icons.done,
+              Icons.done_all,
               color: color,
               size: size,
             );
           } else {
-            return Icon(
-              Icons.done,
-              color: color,
-              size: size,
+            return StreamBuilder<Seen?>(
+              stream: seenDao.watchOthersSeen(roomUid),
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return Icon(
+                    snapshot.data!.messageId >= messageId!
+                        ? Icons.done_all
+                        : Icons.done,
+                    color: color,
+                    size: size,
+                  );
+                } else {
+                  return Icon(
+                    Icons.done,
+                    color: color,
+                    size: size,
+                  );
+                }
+              },
             );
           }
-        },
+        }),
       );
     }
   }

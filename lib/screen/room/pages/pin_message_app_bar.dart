@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/last_message.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/theme/theme.dart';
@@ -16,7 +17,8 @@ class PinMessageAppBar extends StatelessWidget {
   final void Function() onTap;
   final void Function() onClose;
 
-  final i18n = GetIt.I.get<I18N>();
+  final _i18n = GetIt.I.get<I18N>();
+  final _botRepo = GetIt.I.get<BotRepo>();
 
   PinMessageAppBar({
     super.key,
@@ -107,7 +109,7 @@ class PinMessageAppBar extends StatelessWidget {
                           children: [
                             if (mes != null)
                               Text(
-                                i18n.get("pinned_message"),
+                                _i18n.get("pinned_message"),
                                 style:
                                     theme.primaryTextTheme.subtitle2?.copyWith(
                                   color: theme.colorScheme.primary,
@@ -122,16 +124,7 @@ class PinMessageAppBar extends StatelessWidget {
                           ],
                         ),
                       ),
-                      IconButton(
-                        iconSize: 20,
-                        onPressed: () {
-                          onClose();
-                        },
-                        icon: Icon(
-                          CupertinoIcons.xmark,
-                          color: theme.colorScheme.inversePrimary,
-                        ),
-                      )
+                      buildPinMessageActions(mes, context)
                     ],
                   ),
                 ),
@@ -164,5 +157,45 @@ class PinMessageAppBar extends StatelessWidget {
             pinMessages.length > 2 &&
             id != pinMessages.first.id &&
             id != pinMessages.last.id);
+  }
+
+  Widget buildPinMessageActions(Message? mes, BuildContext context) {
+    final theme = Theme.of(context);
+    if (mes?.markup?.inlineKeyboardMarkup?.rows.length == 1 &&
+        mes?.markup?.inlineKeyboardMarkup?.rows.first.buttons.length == 1) {
+      final inlineKeyboardButton =
+          mes!.markup!.inlineKeyboardMarkup!.rows.first.buttons.first;
+      return TextButton(
+        onPressed: () => _botRepo.handleInlineMarkUpMessageCallBack(
+          mes,
+          context,
+          inlineKeyboardButton.json,
+        ),
+        style: ButtonStyle(
+          backgroundColor: MaterialStateProperty.all(
+            theme.primaryColor.withAlpha(50),
+          ),
+          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+            const RoundedRectangleBorder(
+              borderRadius: secondaryBorder,
+            ),
+          ),
+        ),
+        child: Text(
+          inlineKeyboardButton.text,
+        ),
+      );
+    } else {
+      return IconButton(
+        iconSize: 20,
+        onPressed: () {
+          onClose();
+        },
+        icon: Icon(
+          CupertinoIcons.xmark,
+          color: theme.colorScheme.inversePrimary,
+        ),
+      );
+    }
   }
 }

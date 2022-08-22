@@ -4,6 +4,7 @@ import 'dart:math';
 import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/message.dart';
+import 'package:deliver/box/reply_keyboard_markup.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
@@ -25,6 +26,8 @@ abstract class RoomDao {
     bool? synced,
     int? lastCurrentUserSentMessageId,
     bool? seenSynced,
+    ReplyKeyboardMarkup? replyKeyboardMarkup,
+    bool forceToUpdateReplyKeyboardMarkup = false,
   });
 
   Future<List<Room>> getAllRooms();
@@ -110,6 +113,8 @@ class RoomDaoImpl implements RoomDao {
     bool? synced,
     int? lastCurrentUserSentMessageId,
     bool? seenSynced,
+    ReplyKeyboardMarkup? replyKeyboardMarkup,
+    bool forceToUpdateReplyKeyboardMarkup = false,
   }) async {
     final box = await _openRoom();
 
@@ -129,6 +134,8 @@ class RoomDaoImpl implements RoomDao {
       synced: synced,
       lastCurrentUserSentMessageId: lastCurrentUserSentMessageId,
       seenSynced: seenSynced,
+      replyKeyboardMarkup: replyKeyboardMarkup,
+      forceToUpdateReplyKeyboardMarkup: forceToUpdateReplyKeyboardMarkup,
     );
 
     if (clone != r) return box.put(uid, clone);
