@@ -20,14 +20,14 @@ import '../center_avatar_image-in-call.dart';
 
 class VideoCallScreen extends StatefulWidget {
   final Uid roomUid;
-  late RTCVideoRenderer localRenderer;
+  final RTCVideoRenderer localRenderer;
   final String text;
   final String callStatusOnScreen;
-  late RTCVideoRenderer remoteRenderer;
+  final RTCVideoRenderer remoteRenderer;
   final void Function() hangUp;
   final bool isIncomingCall;
 
-  VideoCallScreen({
+  const VideoCallScreen({
     super.key,
     required this.text,
     required this.roomUid,
@@ -82,8 +82,6 @@ class VideoCallScreenState extends State<VideoCallScreen>
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
       appBar: _buildAppBar(),
       body: Stack(
@@ -249,87 +247,85 @@ class VideoCallScreenState extends State<VideoCallScreen>
                             (isAndroid || x < 600) ? 200.0 : y * 0.35;
 
                         return StreamBuilder<bool>(
-                            initialData: false,
-                            stream: switching,
-                            builder: (context, snapshot) {
-                              return Stack(
-                                children: [
-                                  if ((_callRepo.incomingSharing.value &&
-                                          !snapshot.data!) ||
-                                      (snapshot.data! &&
-                                          _callRepo.sharing.value))
-                                    SizedBox(
-                                      width: x,
-                                      height: y,
-                                      child: InteractiveViewer(
-                                        // Set it to false to prevent panning.
-                                        minScale: 0.5,
-                                        maxScale: 4,
-                                        child: RTCVideoView(
-                                          snapshot.data!
-                                              ? widget.localRenderer
-                                              : widget.remoteRenderer,
-                                        ),
-                                      ),
-                                    )
-                                  else if ((_callRepo.incomingVideo.value &&
-                                          !snapshot.data!) ||
-                                      (snapshot.data! &&
-                                          _callRepo.videoing.value))
-                                    SizedBox(
-                                      width: x,
-                                      height: y,
-                                      child: InteractiveViewer(
-                                        // Set it to false to prevent panning.
-                                        minScale: 0.5,
-                                        maxScale: 4,
-                                        child: RTCVideoView(
-                                          snapshot.data!
-                                              ? widget.localRenderer
-                                              : widget.remoteRenderer,
-                                          mirror: true,
-                                        ),
-                                      ),
-                                    )
-                                  else
-                                    Padding(
-                                      padding: EdgeInsets.only(
-                                        top:
-                                            MediaQuery.of(context).size.height *
-                                                0.2,
-                                      ),
-                                      child: CenterAvatarInCall(
-                                        roomUid: widget.roomUid,
+                          initialData: false,
+                          stream: switching,
+                          builder: (context, snapshot) {
+                            return Stack(
+                              children: [
+                                if ((_callRepo.incomingSharing.value &&
+                                        !snapshot.data!) ||
+                                    (snapshot.data! && _callRepo.sharing.value))
+                                  SizedBox(
+                                    width: x,
+                                    height: y,
+                                    child: InteractiveViewer(
+                                      // Set it to false to prevent panning.
+                                      minScale: 0.5,
+                                      maxScale: 4,
+                                      child: RTCVideoView(
+                                        snapshot.data!
+                                            ? widget.localRenderer
+                                            : widget.remoteRenderer,
                                       ),
                                     ),
-                                  if (_callRepo.videoing.value)
-                                    userVideoWidget(
-                                      x,
-                                      y,
-                                      width,
-                                      height,
-                                      isMirror:
-                                          (_callRepo.incomingSharing.value &&
-                                                  snapshot.data!)
-                                              ? false
-                                              : true,
-                                      inComingVideo:
-                                          _callRepo.incomingVideo.value ||
-                                              _callRepo.incomingSharing.value,
-                                    )
-                                  else if (_callRepo.sharing.value)
-                                    userVideoWidget(x, y, width, height,
-                                        inComingVideo:
-                                            _callRepo.incomingVideo.value ||
-                                                _callRepo.incomingSharing.value,
-                                        isMirror:
-                                            (_callRepo.incomingVideo.value &&
-                                                    snapshot.data!)
-                                                ? true
-                                                : false)
-                                ],
-                              );
-                            });
+                                  )
+                                else if ((_callRepo.incomingVideo.value &&
+                                        !snapshot.data!) ||
+                                    (snapshot.data! &&
+                                        _callRepo.videoing.value))
+                                  SizedBox(
+                                    width: x,
+                                    height: y,
+                                    child: InteractiveViewer(
+                                      // Set it to false to prevent panning.
+                                      minScale: 0.5,
+                                      maxScale: 4,
+                                      child: RTCVideoView(
+                                        snapshot.data!
+                                            ? widget.localRenderer
+                                            : widget.remoteRenderer,
+                                        mirror: true,
+                                      ),
+                                    ),
+                                  )
+                                else
+                                  Padding(
+                                    padding: EdgeInsets.only(
+                                      top: MediaQuery.of(context).size.height *
+                                          0.2,
+                                    ),
+                                    child: CenterAvatarInCall(
+                                      roomUid: widget.roomUid,
+                                    ),
+                                  ),
+                                if (_callRepo.videoing.value)
+                                  userVideoWidget(
+                                    x,
+                                    y,
+                                    width,
+                                    height,
+                                    isMirror: _callRepo.incomingSharing.value &&
+                                        snapshot.data!,
+                                    inComingVideo:
+                                        _callRepo.incomingVideo.value ||
+                                            _callRepo.incomingSharing.value,
+                                  )
+                                else if (_callRepo.sharing.value)
+                                  userVideoWidget(
+                                    x,
+                                    y,
+                                    width,
+                                    height,
+                                    inComingVideo:
+                                        _callRepo.incomingVideo.value ||
+                                            _callRepo.incomingSharing.value,
+                                    isMirror: _callRepo.incomingVideo.value &&
+                                        snapshot.data!,
+                                  )
+                              ],
+                            );
+                          },
+                        );
                       },
                     );
             },
@@ -372,7 +368,9 @@ class VideoCallScreenState extends State<VideoCallScreen>
             final verticalMargin = isAndroid ? 95 : 110;
             if (offset.dx > x / 2 && offset.dy > y / 2) {
               position = Offset(
-                  x - width - horizentalMargin, y - height - verticalMargin);
+                x - width - horizentalMargin,
+                y - height - verticalMargin,
+              );
             }
             if (offset.dx < x / 2 && offset.dy > y / 2) {
               position = Offset(20, y - height - verticalMargin);
@@ -452,8 +450,11 @@ class VideoCallScreenState extends State<VideoCallScreen>
     );
   }
 
-  Row callTimerWidget(ThemeData theme, CallTimer callTimer,
-      {required bool isEnd}) {
+  Row callTimerWidget(
+    ThemeData theme,
+    CallTimer callTimer, {
+    required bool isEnd,
+  }) {
     var callHour = callTimer.hours.toString();
     var callMin = callTimer.minutes.toString();
     var callSecond = callTimer.seconds.toString();

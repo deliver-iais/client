@@ -2,7 +2,6 @@
 
 import 'package:deliver/repository/avatarRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/call/circular_animator.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +11,11 @@ class CenterAvatarInCall extends StatefulWidget {
   final Uid roomUid;
   final double radius;
 
-  const CenterAvatarInCall({super.key, required this.roomUid, this.radius = 80});
+  const CenterAvatarInCall({
+    super.key,
+    required this.roomUid,
+    this.radius = 80,
+  });
 
   @override
   CenterAvatarInCallState createState() => CenterAvatarInCallState();
@@ -39,7 +42,10 @@ class CenterAvatarInCallState extends State<CenterAvatarInCall> {
                     child: Text(
                       textAlign: TextAlign.center,
                       snapshot.data!,
-                      style: Theme.of(context).textTheme.headlineSmall!.copyWith(color: Colors.white),
+                      style: Theme.of(context)
+                          .textTheme
+                          .headlineSmall!
+                          .copyWith(color: Colors.white),
                     ),
                   );
                 } else {

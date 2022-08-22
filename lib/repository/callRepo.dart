@@ -609,9 +609,9 @@ class CallRepo {
     _isConnected = true;
     Timer(const Duration(seconds: 1), () async {
       if (_isDCReceived) {
-        if(sharing.value){
+        if (sharing.value) {
           await _dataChannel!.send(RTCDataChannelMessage(STATUS_SHARE_SCREEN));
-        } else if(videoing.value){
+        } else if (videoing.value) {
           await _dataChannel!.send(RTCDataChannelMessage(STATUS_CAMERA_OPEN));
         }
       }
@@ -749,18 +749,19 @@ class CallRepo {
     DesktopCapturerSource? source,
   ) async {
     if (isWindows) {
-      var stream =
+      final stream =
           await navigator.mediaDevices.getDisplayMedia(<String, dynamic>{
         'video': source == null
             ? true
             : {
-                'deviceId': {'exact': source!.id},
+                'deviceId': {'exact': source.id},
                 'mandatory': {'frameRate': 30.0}
               }
       });
       stream.getVideoTracks()[0].onEnded = () {
-        print(
-            'By adding a listener on onEnded you can: 1) catch stop video sharing on Web');
+        _logger.i(
+          'By adding a listener on onEnded you can: 1) catch stop video sharing on Web',
+        );
       };
 
       return stream;
@@ -984,7 +985,7 @@ class CallRepo {
           await initCall(isOffer: true);
         }
       }
-    } else if(!_isVideo){
+    } else if (!_isVideo) {
       _isCallInited = true;
       await initCall(isOffer: true);
     }
@@ -1241,7 +1242,6 @@ class CallRepo {
 
     await _peerConnection!.setRemoteDescription(description);
   }
-
 
   Future<void> _setRemoteDescriptionAnswer(String remoteSdp) async {
     final dynamic session = await jsonDecode(remoteSdp);

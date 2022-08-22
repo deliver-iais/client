@@ -1,14 +1,12 @@
-import 'dart:math' as math;
-
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/shareScreen/screen_select_dialog.dart';
+import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
-
-import '../../shared/methods/platform.dart';
 
 class CallBottomRow extends StatefulWidget {
   final void Function() hangUp;
@@ -52,7 +50,7 @@ class CallBottomRowState extends State<CallBottomRow>
     super.initState();
     animationController = AnimationController(
       vsync: this,
-      duration: Duration(milliseconds: 1000),
+      duration: SUPER_SLOW_ANIMATION_DURATION,
     );
     animation = CurvedAnimation(
       parent: animationController,
@@ -477,8 +475,10 @@ class CallBottomRowState extends State<CallBottomRow>
                                   ),
                                 ),
                               ),
-                              Text(_i18n.get("speaker"),
-                                  style: theme.textTheme.titleSmall),
+                              Text(
+                                _i18n.get("speaker"),
+                                style: theme.textTheme.titleSmall,
+                              ),
                             ],
                           ),
                         ),
@@ -531,8 +531,10 @@ class CallBottomRowState extends State<CallBottomRow>
                                   ),
                                 ),
                               ),
-                              Text(_i18n.get("mute_call"),
-                                  style: theme.textTheme.titleSmall),
+                              Text(
+                                _i18n.get("mute_call"),
+                                style: theme.textTheme.titleSmall,
+                              ),
                             ],
                           ),
                         ),

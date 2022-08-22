@@ -3,15 +3,12 @@ import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/call_bottom_icons.dart';
 import 'package:deliver/screen/call/center_avatar_image-in-call.dart';
+import 'package:deliver/shared/widgets/animated_gradient.dart';
 import 'package:deliver/shared/widgets/dot_animation/dot_animation.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
-import 'package:lottie/lottie.dart';
-
-import '../../../shared/widgets/animated_gradient.dart';
 
 class AudioCallScreen extends StatefulWidget {
   final Uid roomUid;
@@ -140,8 +137,11 @@ class AudioCallScreenState extends State<AudioCallScreen>
     );
   }
 
-  Row callTimerWidget(ThemeData theme, CallTimer callTimer,
-      {required bool isEnd}) {
+  Row callTimerWidget(
+    ThemeData theme,
+    CallTimer callTimer, {
+    required bool isEnd,
+  }) {
     var callHour = callTimer.hours.toString();
     var callMin = callTimer.minutes.toString();
     var callSecond = callTimer.seconds.toString();
