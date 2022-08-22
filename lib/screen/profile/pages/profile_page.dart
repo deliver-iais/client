@@ -1291,18 +1291,9 @@ class ProfilePageState extends State<ProfilePage>
                             mucs.data!.isNotEmpty) {
                           final s = <String>[];
                           for (final room in mucs.data!) {
-                            _mucRepo
-                                .isMucAdminOrOwner(
-                              _authRepo.currentUserUid.asString(),
-                              room.uid,
-                            )
-                                .then((value) {
-                              if (value) {
-                                s.add(room.uid);
-                                groups.add(s);
-                              }
-                            });
+                            s.add(room.uid);
                           }
+                          groups.add(s);
 
                           return StreamBuilder<List<String>>(
                             stream: groups,
@@ -1386,7 +1377,7 @@ class ProfilePageState extends State<ProfilePage>
   }
 
   Widget noGroupFoundWidget() {
-    return const Expanded(child: Center(child: Text("No Group Found")));
+    return Expanded(child: Center(child: Text(_i18n.get("no_results"))));
   }
 
   void _addBotToGroupButtonOnTab(
@@ -1400,47 +1391,53 @@ class ProfilePageState extends State<ProfilePage>
       builder: (context) {
         return AlertDialog(
           title: const Icon(Icons.person_add),
-          content: FutureBuilder<String>(
-            future: _roomRepo.getName(widget.roomUid),
-            builder: (c, name) {
-              if (name.hasData && name.data != null && name.data!.isNotEmpty) {
-                return Text(
-                  "${_i18n.get("add")} ${name.data} ${_i18n.get("to")} $mucName",
-                );
-              } else {
-                return const SizedBox.shrink();
-              }
-            },
+          content: Directionality(
+            textDirection: _i18n.defaultTextDirection,
+            child: FutureBuilder<String>(
+              future: _roomRepo.getName(widget.roomUid),
+              builder: (c, name) {
+                if (name.hasData &&
+                    name.data != null &&
+                    name.data!.isNotEmpty) {
+                  return Text(
+                    "${_i18n.get("add")} ${name.data} ${_i18n.get("to")} $mucName",
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
+              },
+            ),
           ),
           actions: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text(_i18n.get("cancel")),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    final basicNavigatorState = Navigator.of(context);
-                    final c1NavigatorState = Navigator.of(c1);
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(_i18n.get("cancel")),
+            ),
+            TextButton(
+              onPressed: () async {
+                final basicNavigatorState = Navigator.of(context);
+                final c1NavigatorState = Navigator.of(c1);
 
-                    final res = await _mucRepo
-                        .sendMembers(uid.asUid(), [widget.roomUid]);
-                    if (res) {
-                      basicNavigatorState.pop();
-                      c1NavigatorState.pop();
-                      _routingService.openRoom(
-                        uid,
-                      );
-                    }
-                  },
-                  child: Text(_i18n.get("add")),
-                ),
-              ],
-            )
+                final res =
+                    await _mucRepo.sendMembers(uid.asUid(), [widget.roomUid]);
+                if (res) {
+                  basicNavigatorState.pop();
+                  c1NavigatorState.pop();
+                  _routingService.openRoom(
+                    uid,
+                  );
+                } else {
+                  c1NavigatorState.pop();
+                  ToastDisplay.showToast(
+                    toastContext: context,
+                    toastText: _i18n.get("error_occurred"),
+                  );
+                }
+              },
+              child: Text(_i18n.get("add")),
+            ),
           ],
         );
       },
