@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/language.dart';
+import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -69,6 +70,15 @@ class I18N {
 
   void changeLanguage(Language language) {
     _sharedDao.put(SHARED_DAO_LANGUAGE, language.countryCode);
+  }
+
+  TextDirection getDirection(String v) {
+    final string = v.trim();
+    if (string.isEmpty) return TextDirection.ltr;
+    if (string.isPersian()) {
+      return TextDirection.rtl;
+    }
+    return TextDirection.ltr;
   }
 
   @Deprecated("Use GetIt version instead. final _i18n = GetIt.I.get<I18N>();")

@@ -1395,8 +1395,9 @@ class RoomPageState extends State<RoomPage> {
 
     if (widget == null) {
       widget = _buildMessageBox(index, tuple);
-      if (tuple.item2?.id != null && !tuple.item2!.isHidden)
+      if (tuple.item2?.id != null && !tuple.item2!.isHidden) {
         _messageWidgetCache.set(index, widget);
+      }
     }
 
     return widget;

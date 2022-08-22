@@ -448,9 +448,12 @@ class MessageRepo {
     String? packetId,
   ) {
     final json = (message_pb.Text()..text = text).writeToJson();
-    final msg = _createMessage(room,
-            replyId: replyId, forwardedFrom: forwardedFrom, packetId: packetId)
-        .copyWith(type: MessageType.TEXT, json: json);
+    final msg = _createMessage(
+      room,
+      replyId: replyId,
+      forwardedFrom: forwardedFrom,
+      packetId: packetId,
+    ).copyWith(type: MessageType.TEXT, json: json);
 
     final pm = _createPendingMessage(msg, SendingStatus.PENDING);
     _saveAndSend(pm);
