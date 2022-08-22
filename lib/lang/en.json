@@ -62,6 +62,7 @@
   "calls": "Calls",
   "cancel": "Cancel",
   "canceled_call": "No Answer Call",
+  "cancel_sending" : "Cancel Sending",
   "cant_sent": "Cant sent",
   "caption": "Caption",
   "change": "Change",

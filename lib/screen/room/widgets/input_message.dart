@@ -928,7 +928,6 @@ class InputMessageWidgetState extends State<InputMessage> {
             widget.editableMessage!,
             text,
           );
-          widget.resetRoomPageDetails!();
         } else {
           _messageRepo.sendTextMessage(currentRoom.uid.asUid(), text);
         }
@@ -938,7 +937,11 @@ class InputMessageWidgetState extends State<InputMessage> {
 
       _mentionQuery.add(null);
     }
-    widget.scrollToLastSentMessage();
+    if (widget.editableMessage != null) {
+      widget.resetRoomPageDetails!();
+    } else {
+      widget.scrollToLastSentMessage();
+    }
   }
 
   Future<void> _attachFileInWindowsMode() async {
