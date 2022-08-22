@@ -257,14 +257,19 @@ class CallService {
 
   Future<bool> _startForegroundTask() async {
     ReceivePort? receivePort;
+    bool reqResult;
     if (await FlutterForegroundTask.isRunningService) {
-      receivePort = await FlutterForegroundTask.restartService();
+      reqResult = await FlutterForegroundTask.restartService();
     } else {
-      receivePort = await FlutterForegroundTask.startService(
+      reqResult = await FlutterForegroundTask.startService(
         notificationTitle: '$APPLICATION_NAME Call on BackGround',
         notificationText: 'Tap to return to the app',
         callback: startCallback,
       );
+    }
+
+    if (reqResult) {
+      receivePort = await FlutterForegroundTask.receivePort;
     }
 
     if (receivePort != null) {

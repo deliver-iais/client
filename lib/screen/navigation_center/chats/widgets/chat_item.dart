@@ -179,6 +179,9 @@ class ChatItemState extends State<ChatItem> {
   }
 
   Widget buildChatItemWidget(String name) {
+    if(widget.room.lastMessage == null){
+      return const SizedBox.shrink();
+    }
     final isReceivedMessage =
         !_authRepo.isCurrentUser(widget.room.lastMessage!.from);
     final theme = Theme.of(context);
