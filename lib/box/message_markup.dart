@@ -1,6 +1,5 @@
 import 'package:collection/collection.dart';
 import 'package:deliver/box/inline_keyboard_markup.dart';
-import 'package:deliver/box/reply_keyboard_markup.dart';
 import 'package:deliver/shared/constants.dart';
 
 import 'package:hive/hive.dart';

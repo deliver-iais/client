@@ -27,7 +27,6 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/animated_delete_widget.dart';
-import 'package:deliver/shared/widgets/animated_switch_widget.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver/theme/theme.dart';
