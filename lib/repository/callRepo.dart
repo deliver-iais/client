@@ -280,8 +280,8 @@ class CallRepo {
               }
               break;
             case CallEvent_CallStatus.JOINED:
-              modifyRoutingByNotificationAcceptCallInBackgroundInAndroid.add(
-                AcceptCallInBackgroundInAndroid(
+              modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
+                CallNotificationActionInBackground(
                   roomId: event.roomUid!.asString(),
                   isCallAccepted: true,
                 ),
@@ -957,8 +957,8 @@ class CallRepo {
     String callEventJson,
   ) async {
     if (_isNotificationSelected) {
-      modifyRoutingByNotificationAcceptCallInBackgroundInAndroid.add(
-        AcceptCallInBackgroundInAndroid(
+      modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
+        CallNotificationActionInBackground(
           roomId: roomId.asString(),
           isCallAccepted: false,
         ),

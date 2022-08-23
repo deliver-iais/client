@@ -33,16 +33,16 @@ import 'package:window_size/window_size.dart';
 BehaviorSubject<String> modifyRoutingByNotificationTapInBackgroundInAndroid =
     BehaviorSubject.seeded("");
 
-class AcceptCallInBackgroundInAndroid {
+class CallNotificationActionInBackground {
   final String roomId;
   final bool isCallAccepted;
 
-  AcceptCallInBackgroundInAndroid(
+  CallNotificationActionInBackground(
       {required this.roomId, required this.isCallAccepted,});
 }
 
-BehaviorSubject<AcceptCallInBackgroundInAndroid?>
-    modifyRoutingByNotificationAcceptCallInBackgroundInAndroid =
+BehaviorSubject<CallNotificationActionInBackground?>
+    modifyRoutingByCallNotificationActionInBackgroundInAndroid =
     BehaviorSubject.seeded(null);
 
 class NavigationCenter extends StatefulWidget {
@@ -76,7 +76,7 @@ class NavigationCenterState extends State<NavigationCenter> {
         _routingService.openRoom(event);
       }
     });
-    modifyRoutingByNotificationAcceptCallInBackgroundInAndroid.listen((event) {
+    modifyRoutingByCallNotificationActionInBackgroundInAndroid.listen((event) {
       if (event?.roomId.isNotEmpty ?? false) {
         _routingService.openCallScreen(
           event!.roomId.asUid(),
