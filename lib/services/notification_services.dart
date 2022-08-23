@@ -44,8 +44,11 @@ abstract class Notifier {
     bool isVideoCall = false,
     bool isCallAccepted = true,
   }) {
-    GetIt.I.get<RoutingService>().openCallScreen(roomUid.asUid(),
-        isVideoCall: isVideoCall, isCallAccepted: isCallAccepted);
+    GetIt.I.get<RoutingService>().openCallScreen(
+          roomUid.asUid(),
+          isVideoCall: isVideoCall,
+          isCallAccepted: isCallAccepted,
+        );
   }
 
   static void onCallReject() {
