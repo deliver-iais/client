@@ -39,13 +39,13 @@ import 'package:tuple/tuple.dart';
 import 'package:win_toast/win_toast.dart';
 
 abstract class Notifier {
-  static void onCallAccept(String roomUid, {bool isVideoCall = false}) {
+  static void onCallNotificationAction(
+    String roomUid, {
+    bool isVideoCall = false,
+    bool isCallAccepted = true,
+  }) {
     GetIt.I.get<RoutingService>().openCallScreen(roomUid.asUid(),
-        isCallAccepted: true, isVideoCall: isVideoCall,);
-  }
-
-  static void onCallNotificationTap(String roomUid) {
-    GetIt.I.get<RoutingService>().openCallScreen(roomUid.asUid());
+        isVideoCall: isVideoCall, isCallAccepted: isCallAccepted);
   }
 
   static void onCallReject() {
@@ -364,9 +364,9 @@ class WindowsNotifier implements Notifier {
             // Accept
             DesktopWindow.focus();
             if (callType == CallEvent_CallType.VIDEO) {
-              Notifier.onCallAccept(roomUid, isVideoCall: true);
+              Notifier.onCallNotificationAction(roomUid, isVideoCall: true);
             } else {
-              Notifier.onCallAccept(roomUid);
+              Notifier.onCallNotificationAction(roomUid);
             }
           }
         }
@@ -619,7 +619,6 @@ class AndroidNotifier implements Notifier {
 
   Future<void> onCallNotificationTap(CallEvent callEvent) async {
     await GetIt.I.get<CallService>().clearCallData();
-    Notifier.onCallNotificationTap(callEvent.userInfo!["uid"]!);
     _callService.setRoomUid = callEvent.userInfo!["uid"]!.asUid();
     await _callService.saveCallOnDb(
       getCallInfo(
@@ -644,11 +643,20 @@ class AndroidNotifier implements Notifier {
   }) {
     final callEventInfo =
         call_pro.CallEvent.fromJson(callEvent.userInfo!["callEventJson"]!);
+
     if (callEventInfo.callType == CallEvent_CallType.VIDEO) {
-      Notifier.onCallAccept(callEvent.userInfo!["uid"]!, isVideoCall: true);
+      Notifier.onCallNotificationAction(
+        callEvent.userInfo!["uid"]!,
+        isVideoCall: true,
+        isCallAccepted: !isNotificationSelected,
+      );
     } else {
-      Notifier.onCallAccept(callEvent.userInfo!["uid"]!);
+      Notifier.onCallNotificationAction(
+        callEvent.userInfo!["uid"]!,
+        isCallAccepted: !isNotificationSelected,
+      );
     }
+
     //here status be JOINED means ACCEPT CALL and when app Start should go on accepting status
     final currentCallEvent = call_event.CallEvent(
       callDuration: callEventInfo.callDuration.toInt(),
