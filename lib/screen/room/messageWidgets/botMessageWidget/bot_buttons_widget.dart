@@ -73,6 +73,21 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
+                    if (buttons.text.isNotEmpty)
+                      Container(
+                        constraints: const BoxConstraints(minHeight: 20),
+                        width: widget.maxWidth,
+                        decoration: BoxDecoration(
+                            border: Border.all(),
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(5)),),
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text(
+                          buttons.text,
+                          textDirection: _i18n.getDirection(buttons.text),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
                     for (final btn in buttons.buttons)
                       Container(
                         constraints: const BoxConstraints(minHeight: 20),
@@ -91,7 +106,7 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
                               : null,
                           child: Text(
                             btn,
-                            textDirection: _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
+                            textDirection: _i18n.getDirection(btn),
                             textAlign: TextAlign.center,
                           ),
                         ),
