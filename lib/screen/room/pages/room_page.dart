@@ -174,10 +174,21 @@ class RoomPageState extends State<RoomPage> {
         replyMessageId: _repliedMessage.value?.id ?? 0,
         resetRoomPageDetails: _resetRoomPageDetails,
         child: SafeArea(
-          child: Scaffold(
-            extendBodyBehindAppBar: true,
-            appBar: buildAppbar(),
-            body: buildBody(),
+          child: Stack(
+            children: [
+              StreamBuilder<Room>(
+                stream: _room,
+                builder: (context, snapshot) => Background(
+                  id: snapshot.data?.lastMessageId ?? 0,
+                ),
+              ),
+              Scaffold(
+                backgroundColor: Colors.transparent,
+                extendBodyBehindAppBar: true,
+                appBar: buildAppbar(),
+                body: buildBody(),
+              ),
+            ],
           ),
         ),
       ),
@@ -187,12 +198,6 @@ class RoomPageState extends State<RoomPage> {
   Stack buildBody() {
     return Stack(
       children: [
-        StreamBuilder<Room>(
-          stream: _room,
-          builder: (context, snapshot) => Background(
-            id: snapshot.data?.lastMessageId ?? 0,
-          ),
-        ),
         Column(
           children: <Widget>[
             buildAllMessagesBox(),
