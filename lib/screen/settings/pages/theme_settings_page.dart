@@ -9,6 +9,7 @@ import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/theme.dart';
@@ -268,15 +269,18 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                                   ),
                                   Row(
                                     children: [
-                                      IconButton(
-                                        onPressed: () => _controller.animateTo(
-                                          _controller.position.pixels - 200,
-                                          duration:
-                                              SUPER_SLOW_ANIMATION_DURATION,
-                                          curve: Curves.ease,
+                                      if (isDesktop)
+                                        IconButton(
+                                          onPressed: () =>
+                                              _controller.animateTo(
+                                            _controller.position.pixels - 200,
+                                            duration:
+                                                SUPER_SLOW_ANIMATION_DURATION,
+                                            curve: Curves.ease,
+                                          ),
+                                          icon:
+                                              const Icon(Icons.arrow_back_ios),
                                         ),
-                                        icon: const Icon(Icons.arrow_back_ios),
-                                      ),
                                       Expanded(
                                         child: SingleChildScrollView(
                                           controller: _controller,
@@ -292,17 +296,19 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                                           ),
                                         ),
                                       ),
-                                      IconButton(
-                                        onPressed: () => _controller.animateTo(
-                                          _controller.position.pixels + 200,
-                                          duration:
-                                              SUPER_SLOW_ANIMATION_DURATION,
-                                          curve: Curves.ease,
+                                      if (isDesktop)
+                                        IconButton(
+                                          onPressed: () =>
+                                              _controller.animateTo(
+                                            _controller.position.pixels + 200,
+                                            duration:
+                                                SUPER_SLOW_ANIMATION_DURATION,
+                                            curve: Curves.ease,
+                                          ),
+                                          icon: const Icon(
+                                            Icons.arrow_forward_ios,
+                                          ),
                                         ),
-                                        icon: const Icon(
-                                          Icons.arrow_forward_ios,
-                                        ),
-                                      ),
                                     ],
                                   )
                                 ],
