@@ -126,10 +126,11 @@ class Background extends StatelessWidget {
                   ],
                 ),
                 Transform.translate(
-                  offset: const Offset(10, 10),
+                  offset: const Offset(0, 0),
                   child: BackdropFilter(
                     filter: ImageFilter.blur(sigmaX: 80.0, sigmaY: 80.0),
-                    child: Container(color: Colors.white.withOpacity(0.0)),
+                    child:
+                        Container(color: theme.primaryColor.withOpacity(0.15)),
                   ),
                 ),
               ],
