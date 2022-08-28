@@ -219,10 +219,12 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
   }
 
   void selectMessage() {
-    if (!widget.selectMultiMessageSubject.value) {
-      widget.selectMultiMessageSubject.add(true);
+    if (widget.message.id != null) {
+      if (!widget.selectMultiMessageSubject.value) {
+        widget.selectMultiMessageSubject.add(true);
+      }
+      widget.addForwardMessage();
     }
-    widget.addForwardMessage();
   }
 
   Widget _createSidedMessageWidget(
