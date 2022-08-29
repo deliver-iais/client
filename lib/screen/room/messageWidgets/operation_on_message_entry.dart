@@ -148,8 +148,8 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                   ),
                 ),
               if (!isPendingMessage &&
-                      widget.message.type == MessageType.TEXT ||
-                  widget.message.type == MessageType.FILE)
+                  (widget.message.type == MessageType.TEXT ||
+                      widget.message.type == MessageType.FILE))
                 PopupMenuItem(
                   value: OperationOnMessage.SELECT,
                   child: Row(
