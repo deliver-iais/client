@@ -1,6 +1,7 @@
 import 'package:deliver/box/message.dart';
 import 'package:deliver/screen/room/widgets/horizontal_list_widget.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:flutter/material.dart';
@@ -80,6 +81,9 @@ class _BotTableWidgetState extends State<BotTableWidget> {
             child: Center(
               child: Text(
                 row.columns[i],
+                textDirection: row.columns[i].isPersian()
+                    ? TextDirection.rtl
+                    : TextDirection.ltr,
                 style: TextStyle(
                   fontWeight: row.bold ? FontWeight.bold : null,
                 ),

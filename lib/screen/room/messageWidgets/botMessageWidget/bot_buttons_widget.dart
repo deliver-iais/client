@@ -2,8 +2,13 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
+import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/is_persian.dart';
+import 'package:deliver/shared/parsers/detectors.dart';
+import 'package:deliver/shared/parsers/parsers.dart';
+import 'package:deliver/shared/parsers/transformers.dart';
 import 'package:deliver/shared/widgets/count_down_timer.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +21,8 @@ class BotButtonsWidget extends StatefulWidget {
   final bool isSender;
   final bool isSeen;
   final CustomColorScheme colorScheme;
+  final void Function(String) onUsernameClick;
+  final void Function(String) onBotCommandClick;
 
   const BotButtonsWidget({
     super.key,
@@ -24,6 +31,8 @@ class BotButtonsWidget extends StatefulWidget {
     required this.isSender,
     required this.colorScheme,
     required this.isSeen,
+    required this.onUsernameClick,
+    required this.onBotCommandClick,
   });
 
   @override
@@ -34,6 +43,7 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   final BehaviorSubject<bool> _locked = BehaviorSubject.seeded(false);
+  final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
 
   @override
   void initState() {
@@ -78,15 +88,12 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
                         constraints: const BoxConstraints(minHeight: 20),
                         width: widget.maxWidth,
                         decoration: BoxDecoration(
-                            border: Border.all(),
-                            borderRadius:
-                                const BorderRadius.all(Radius.circular(5)),),
-                        margin: const EdgeInsets.symmetric(vertical: 8),
-                        child: Text(
-                          buttons.text,
-                          textDirection: _i18n.getDirection(buttons.text),
-                          textAlign: TextAlign.center,
+                          border: Border.all(),
+                          borderRadius:
+                              const BorderRadius.all(Radius.circular(5)),
                         ),
+                        margin: const EdgeInsets.symmetric(vertical: 8),
+                        child: builtText(buttons.text),
                       ),
                     for (final btn in buttons.buttons)
                       Container(
@@ -128,6 +135,30 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
         }
         return const SizedBox.shrink();
       },
+    );
+  }
+
+  Widget builtText(String text) {
+    final theme = Theme.of(context);
+    final blocks = onePathMultiDetection(
+      [Block(text: text, features: {})],
+      detectorsWithSearchTermDetector(),
+    );
+
+    final spans = onePathTransform(
+      blocks,
+      inlineSpanTransformer(
+        defaultColor: widget.colorScheme.onPrimaryContainer,
+        linkColor: theme.colorScheme.primary,
+        onIdClick: widget.onUsernameClick,
+        onBotCommandClick: widget.onBotCommandClick,
+        onUrlClick: (text) => _urlHandlerService.onUrlTap(text, context),
+      ),
+    );
+
+    return RichText(
+      text: TextSpan(children: spans, style: theme.textTheme.bodyText2),
+      textDirection: text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
     );
   }
 }

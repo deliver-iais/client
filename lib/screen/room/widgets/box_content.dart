@@ -101,7 +101,7 @@ class BoxContentState extends State<BoxContent> {
       onHover: (_) => showMenuBehavior.add(true && !widget.showMenuDisable),
       onExit: (_) => showMenuBehavior.add(false),
       child: Stack(
-      alignment: Alignment.topRight,
+        alignment: Alignment.topRight,
         children: [
           RepaintBoundary(
             child: Column(
@@ -322,6 +322,8 @@ class BoxContentState extends State<BoxContent> {
           message: widget.message,
           maxWidth: widget.maxWidth * 0.85,
           isSeen: widget.isSeen,
+          onUsernameClick: widget.onUsernameClick,
+          onBotCommandClick: widget.onBotCommandClick,
           isSender: widget.isSender,
           colorScheme: colorScheme,
         );
