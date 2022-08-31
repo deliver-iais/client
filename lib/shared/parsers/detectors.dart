@@ -1,4 +1,5 @@
 import 'package:collection/collection.dart';
+import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
 
 List<Detector> detectorsWithSearchTermDetector({String searchTerm = ""}) => [
@@ -200,11 +201,11 @@ Detector simpleRegexDetector(
   String Function(String)? replacer,
 }) =>
     (block) => RegExp(source)
-        .allMatches(block.text)
+        .allMatches(synthesizeToOriginalWord(block.text))
         .map(
           (e) => Partition(
             e.start,
-            e.end,
+            e.end+(block.text.length-synthesizeToOriginalWord(block.text).length),
             features,
             replacedText: replacer?.call(
               block.text.substring(e.start, e.end),
