@@ -198,8 +198,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           onDoubleTap: !isDesktop || widget.selectMultiMessageSubject.value
               ? null
               : widget.onReply,
-          onLongPress: () {
-            selectMessage();
+          onLongPress: ()async {
+            await selectMessage();
           },
           onTapDown: storePosition,
           onSecondaryTapDown: storePosition,
@@ -218,11 +218,13 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     );
   }
 
-  void selectMessage() {
-    if (!widget.selectMultiMessageSubject.value) {
-      widget.selectMultiMessageSubject.add(true);
+  Future<void> selectMessage()async {
+    if (widget.message.id != null && (await  _messageRepo.getPendingEditedMessage(widget.message.roomUid, widget.message.id))?.msg==null) {
+      if (!widget.selectMultiMessageSubject.value) {
+        widget.selectMultiMessageSubject.add(true);
+      }
+      widget.addForwardMessage();
     }
-    widget.addForwardMessage();
   }
 
   Widget _createSidedMessageWidget(
@@ -281,8 +283,8 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onDoubleTap: !isDesktop || widget.selectMultiMessageSubject.value
           ? null
           : widget.onReply,
-      onLongPress: () {
-        selectMessage();
+      onLongPress: () async{
+        await selectMessage();
       },
       onTapDown: storePosition,
       onSecondaryTapDown: storePosition,
