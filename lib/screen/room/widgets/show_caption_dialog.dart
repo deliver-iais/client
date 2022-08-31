@@ -110,199 +110,212 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
           )
         : (widget.files != null && widget.files!.isNotEmpty) ||
                 widget.editableMessage != null
-            ? SingleChildScrollView(
-                child: AlertDialog(
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: <Widget>[
-                      if (isSingleImage())
-                        imageUi(null)
-                      else
-                        SizedBox(
-                          height: widget.editableMessage != null
-                              ? 50
-                              : widget.files!.length * 100.toDouble() >
-                                      MediaQuery.of(context).size.height - 300
-                                  ? MediaQuery.of(context).size.height - 300
-                                  : widget.files!.length * 100.toDouble(),
-                          width: 350,
-                          child: ListView.separated(
-                            shrinkWrap: true,
-                            itemCount: widget.editableMessage != null
-                                ? 1
-                                : widget.files!.length,
-                            itemBuilder: (c, index) {
-                              return Row(
-                                children: [
-                                  if (isImageFile(index))
-                                    buildImage(
-                                      widget.files![index].path,
-                                      width: 100,
-                                      height: 100,
-                                    )
-                                  else
-                                    ClipOval(
-                                      child: Material(
-                                        color:
-                                            theme.primaryColor, // button color
-                                        child: const InkWell(
-                                          splashColor:
-                                              Colors.blue, // inkwell color
-                                          child: SizedBox(
-                                            width: 30,
-                                            height: 40,
-                                            child: Icon(
-                                              Icons.insert_drive_file,
-                                              size: 20,
+            ? Directionality(
+                textDirection: _i18n.defaultTextDirection,
+                child: SingleChildScrollView(
+                  child: AlertDialog(
+                    content: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: <Widget>[
+                        if (isSingleImage())
+                          imageUi(null)
+                        else
+                          SizedBox(
+                            height: widget.editableMessage != null
+                                ? 50
+                                : widget.files!.length * 80.toDouble() >
+                                        MediaQuery.of(context).size.height - 300
+                                    ? MediaQuery.of(context).size.height - 300
+                                    : widget.files!.length * 80.toDouble(),
+                            width: 350,
+                            child: ListView.separated(
+                              shrinkWrap: true,
+                              itemCount: widget.editableMessage != null
+                                  ? 1
+                                  : widget.files!.length,
+                              itemBuilder: (c, index) {
+                                return Row(
+                                  children: [
+                                    if (isImageFile(
+                                      widget.files![index].extension,
+                                    ))
+                                      buildImage(
+                                        widget.files![index].path,
+                                        width: 80,
+                                        height: 80,
+                                      )
+                                    else
+                                      ClipOval(
+                                        child: Material(
+                                          color: theme
+                                              .primaryColor, // button color
+                                          child: const InkWell(
+                                            splashColor:
+                                                Colors.blue, // inkwell color
+                                            child: SizedBox(
+                                              width: 40,
+                                              height: 40,
+                                              child: Icon(
+                                                Icons.insert_drive_file,
+                                                size: 20,
+                                                color: Colors.white,
+                                              ),
                                             ),
                                           ),
                                         ),
                                       ),
+                                    const SizedBox(
+                                      width: 3,
                                     ),
-                                  const SizedBox(
-                                    width: 3,
-                                  ),
-                                  Expanded(
-                                    child: Text(
-                                      widget.editableMessage != null
-                                          ? _editedFile != null
-                                              ? _editedFile!.name
-                                              : widget.editableMessage!.json
-                                                  .toFile()
-                                                  .name
-                                          : widget.files![index].name,
-                                      overflow: TextOverflow.ellipsis,
+                                    Expanded(
+                                      child: Text(
+                                        widget.editableMessage != null
+                                            ? _editedFile != null
+                                                ? _editedFile!.name
+                                                : widget.editableMessage!.json
+                                                    .toFile()
+                                                    .name
+                                            : widget.files![index].name,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
                                     ),
-                                  ),
-                                  Align(
-                                    alignment: Alignment.topRight,
-                                    child: buildManage(index: index),
-                                  )
-                                ],
-                              );
-                            },
-                            separatorBuilder: (context, index) {
-                              return const SizedBox(
-                                height: 6,
-                              );
-                            },
+                                    Align(
+                                      alignment: Alignment.topRight,
+                                      child: buildManage(index: index),
+                                    )
+                                  ],
+                                );
+                              },
+                              separatorBuilder: (context, index) {
+                                return const SizedBox(
+                                  height: 6,
+                                );
+                              },
+                            ),
+                          ),
+                        const SizedBox(
+                          height: 5,
+                        ),
+                        RawKeyboardListener(
+                          focusNode: _captionFocusNode,
+                          onKey: (event) {
+                            if (event.physicalKey ==
+                                PhysicalKeyboardKey.enter) {
+                              send();
+                            }
+                          },
+                          child: Container(
+                            constraints: const BoxConstraints(maxWidth: 350),
+                            child: AutoDirectionTextForm(
+                              controller: _editingController,
+                              keyboardType: TextInputType.multiline,
+                              minLines: 1,
+                              maxLines: 5,
+                              autofocus: true,
+                              style: const TextStyle(
+                                fontSize: 15,
+                              ),
+                              decoration: InputDecoration(
+                                border: const UnderlineInputBorder(),
+                                labelText: _i18n.get("caption"),
+                              ),
+                            ),
                           ),
                         ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      RawKeyboardListener(
-                        focusNode: _captionFocusNode,
-                        onKey: (event) {
-                          if (event.physicalKey == PhysicalKeyboardKey.enter) {
-                            send();
-                          }
-                        },
-                        child: AutoDirectionTextForm(
-                          controller: _editingController,
-                          keyboardType: TextInputType.multiline,
-                          minLines: 1,
-                          maxLines: 5,
-                          autofocus: true,
-                          style: const TextStyle(
-                            fontSize: 15,
-                          ),
-                          decoration: InputDecoration(
-                            labelText: _i18n.get("caption"),
-                          ),
+                      ],
+                    ),
+                    actions: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            if (widget.editableMessage == null)
+                              TextButton(
+                                onPressed: () async {
+                                  final res =
+                                      await getFile(allowMultiple: true);
+                                  if (res != null) {
+                                    for (final element in res.files) {
+                                      widget.files!.add(
+                                        model.File(
+                                          isWeb
+                                              ? Uri.dataFromBytes(
+                                                  element.bytes!.toList(),
+                                                ).toString()
+                                              : element.path!,
+                                          element.name,
+                                          extension: element.extension,
+                                          size: element.size,
+                                        ),
+                                      );
+                                    }
+                                    setState(() {});
+                                  }
+                                },
+                                child: Text(
+                                  _i18n.get("add"),
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    color: theme.primaryColor,
+                                  ),
+                                ),
+                              ),
+                            if (widget.editableMessage != null)
+                              const SizedBox(
+                                width: 40,
+                              ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text(
+                                    _i18n.get("cancel"),
+                                    style: TextStyle(
+                                      color: theme.primaryColor,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  width: 16,
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    send();
+                                  },
+                                  child: Text(
+                                    _i18n.get("send"),
+                                    style: TextStyle(
+                                      color: theme.primaryColor,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10)
+                              ],
+                            )
+                          ],
                         ),
-                      ),
+                      )
                     ],
                   ),
-                  actions: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          if (widget.editableMessage == null)
-                            GestureDetector(
-                              onTap: () async {
-                                final res = await getFile(allowMultiple: true);
-                                if (res != null) {
-                                  for (final element in res.files) {
-                                    widget.files!.add(
-                                      model.File(
-                                        isWeb
-                                            ? Uri.dataFromBytes(
-                                                element.bytes!.toList(),
-                                              ).toString()
-                                            : element.path!,
-                                        element.name,
-                                        extension: element.extension,
-                                        size: element.size,
-                                      ),
-                                    );
-                                  }
-                                  setState(() {});
-                                }
-                              },
-                              child: Text(
-                                _i18n.get("add"),
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.blue,
-                                ),
-                              ),
-                            ),
-                          if (widget.editableMessage != null)
-                            const SizedBox(
-                              width: 40,
-                            ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              GestureDetector(
-                                onTap: () {
-                                  Navigator.pop(context);
-                                },
-                                child: Text(
-                                  _i18n.get("cancel"),
-                                  style: const TextStyle(
-                                    color: Colors.blue,
-                                    fontSize: 15,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(
-                                width: 16,
-                              ),
-                              GestureDetector(
-                                onTap: () {
-                                  send();
-                                },
-                                child: Text(
-                                  _i18n.get("send"),
-                                  style: const TextStyle(
-                                    color: Colors.blue,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 10)
-                            ],
-                          )
-                        ],
-                      ),
-                    )
-                  ],
                 ),
               )
             : const SizedBox.shrink();
   }
 
-  bool isImageFile(int index) {
-    return widget.files![index].path.contains("image") ||
-        widget.files![index].path.contains("jpg") ||
-        widget.files![index].path.contains("png") ||
-        widget.files![index].path.contains("jfif") ||
-        widget.files![index].path.contains("jpeg");
+  bool isImageFile(String? extension) {
+    return extension == ("image") ||
+        extension == ("jpg") ||
+        extension == ("png") ||
+        extension == ("jfif") ||
+        extension == ("webp") ||
+        extension == ("jpeg");
   }
 
   Future<void> openEditImagePage(int? index) async {
@@ -346,18 +359,15 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
 
   bool isSingleImage() {
     return ((widget.editableMessage != null || widget.files!.length <= 1) &&
-        (_type.contains("image") ||
-            _type.contains("jpg") ||
-            _type.contains("png") ||
-            _type.contains("jfif") ||
-            _type.contains("jpeg")));
+        (isImageFile(_type)));
   }
 
   Widget imageUi(int? index) {
     //if index==null isSingleImage
     return GestureDetector(
       onTap: () => openEditImagePage(index),
-      child: SizedBox(
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 350),
         height: index == null ? MediaQuery.of(context).size.height / 3 : null,
         child: Stack(
           children: [
@@ -388,7 +398,10 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
               right: 5,
               top: 2,
               child: Container(
-                color: Colors.black12,
+                decoration: const BoxDecoration(
+                  borderRadius: secondaryBorder,
+                  color: Colors.black12,
+                ),
                 child: buildManage(index: 0),
               ),
             ),
