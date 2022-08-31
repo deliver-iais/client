@@ -1,3 +1,4 @@
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 
 class HorizontalListWidget extends StatefulWidget {
@@ -104,7 +105,7 @@ class HorizontalListWidgetState extends State<HorizontalListWidget> {
                           widget.maxWidth * 0.7
                       : widget.controller.position.pixels +
                           widget.maxWidth * 0.7,
-                  duration: const Duration(milliseconds: 500),
+                  duration: SUPER_SLOW_ANIMATION_DURATION,
                   curve: Curves.ease,
                 );
               },
@@ -129,9 +130,9 @@ class HorizontalListWidgetState extends State<HorizontalListWidget> {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin:
-                  isLeftPosition ? Alignment.centerLeft : Alignment.centerRight,
+              isLeftPosition ? Alignment.centerLeft : Alignment.centerRight,
               end:
-                  isLeftPosition ? Alignment.centerRight : Alignment.centerLeft,
+              isLeftPosition ? Alignment.centerRight : Alignment.centerLeft,
               colors: [
                 widget.fadeLayoutColor,
                 widget.fadeLayoutColor.withAlpha(80),
@@ -139,7 +140,7 @@ class HorizontalListWidgetState extends State<HorizontalListWidget> {
             ),
           ),
           constraints:
-              BoxConstraints(maxHeight: MediaQuery.of(context).size.height),
+          BoxConstraints(maxHeight: MediaQuery.of(context).size.height),
         ),
       );
     }
