@@ -310,12 +310,13 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
   }
 
   bool isImageFile(String? extension) {
-    return extension == ("image") ||
-        extension == ("jpg") ||
-        extension == ("png") ||
-        extension == ("jfif") ||
-        extension == ("webp") ||
-        extension == ("jpeg");
+    return (extension != null &&
+        (extension.contains("image") ||
+            extension.contains("jpg") ||
+            extension.contains("png") ||
+            extension.contains("jfif") ||
+            extension.contains("webp") ||
+            extension.contains("jpeg")));
   }
 
   Future<void> openEditImagePage(int? index) async {
