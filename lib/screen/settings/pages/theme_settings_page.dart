@@ -9,6 +9,7 @@ import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/background.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/theme/theme.dart';
@@ -32,6 +33,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
   final _i18n = GetIt.I.get<I18N>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _idSubject = BehaviorSubject.seeded(0);
+  final _controller = ScrollController();
 
   List<Message> messages = [];
 
@@ -233,33 +235,80 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                       Section(
                         title: _i18n.get("advanced_settings"),
                         children: [
-                          SettingsTile(
-                            title: "Main Color",
-                            leading: const Icon(CupertinoIcons.color_filter),
-                            trailing: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Row(
-                                children: [
-                                  for (var i = 0; i < palettes.length; i++)
-                                    color(palettes[i], i)
-                                ],
+                          Column(
+                            children: [
+                              SettingsTile(
+                                title: _i18n.get("main_color"),
+                                leading:
+                                    const Icon(CupertinoIcons.color_filter),
+                                trailing: const SizedBox.shrink(),
                               ),
-                            ),
+                              Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  child: Row(
+                                    children: [
+                                      for (var i = 0; i < palettes.length; i++)
+                                        color(palettes[i], i)
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                           StreamBuilder<int>(
                             stream: _uxService.patternIndexStream,
                             builder: (context, snapshot) {
                               return Column(
                                 children: [
-                                  const SettingsTile(
-                                    title: "Pattern",
-                                    leading: Icon(CupertinoIcons.photo),
-                                    trailing: SizedBox.shrink(),
+                                  SettingsTile(
+                                    title: _i18n.get("pattern"),
+                                    leading: const Icon(CupertinoIcons.photo),
+                                    trailing: const SizedBox.shrink(),
                                   ),
-                                  Wrap(
+                                  Row(
                                     children: [
-                                      for (var i = 0; i < patterns.length; i++)
-                                        pattern(patterns[i], i)
+                                      if (isDesktop)
+                                        IconButton(
+                                          onPressed: () =>
+                                              _controller.animateTo(
+                                            _controller.position.pixels - 200,
+                                            duration:
+                                                SUPER_SLOW_ANIMATION_DURATION,
+                                            curve: Curves.ease,
+                                          ),
+                                          icon:
+                                              const Icon(Icons.arrow_back_ios),
+                                        ),
+                                      Expanded(
+                                        child: SingleChildScrollView(
+                                          controller: _controller,
+                                          scrollDirection: Axis.horizontal,
+                                          child: Row(
+                                            children: [
+                                              for (var i = 0;
+                                                  i < patterns.length;
+                                                  i++)
+                                                pattern(patterns[i], i),
+                                              pattern(null, patterns.length)
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      if (isDesktop)
+                                        IconButton(
+                                          onPressed: () =>
+                                              _controller.animateTo(
+                                            _controller.position.pixels + 200,
+                                            duration:
+                                                SUPER_SLOW_ANIMATION_DURATION,
+                                            curve: Curves.ease,
+                                          ),
+                                          icon: const Icon(
+                                            Icons.arrow_forward_ios,
+                                          ),
+                                        ),
                                     ],
                                   )
                                 ],
@@ -267,7 +316,7 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
                             },
                           ),
                           SettingsTile.switchTile(
-                            title: "Colorful Messages",
+                            title: _i18n.get("colorful_messages"),
                             leading: const Icon(CupertinoIcons.paintbrush),
                             switchValue: _uxService.showColorful,
                             onToggle: (value) {
@@ -291,36 +340,54 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
 
   Widget color(Color color, int index) {
     final isSelected = _uxService.themeIndex == index;
+    final theme = Theme.of(context);
     return MouseRegion(
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
           _uxService.selectTheme(index);
         },
-        child: AnimatedContainer(
-          duration: ANIMATION_DURATION,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: isSelected
-                ? Border.all(color: Theme.of(context).primaryColor, width: 2)
-                : null,
-          ),
-          padding: const EdgeInsets.all(4),
-          child: AnimatedContainer(
-            duration: ANIMATION_DURATION,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: color,
+        child: Stack(
+          alignment: AlignmentDirectional.center,
+          children: [
+            AnimatedContainer(
+              duration: ANIMATION_DURATION,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: isSelected
+                    ? Border.all(
+                        color: theme.primaryColor,
+                        width: 2,
+                      )
+                    : null,
+              ),
+              padding: const EdgeInsets.all(4),
+              child: AnimatedContainer(
+                duration: ANIMATION_DURATION,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: color,
+                ),
+                width: isSelected ? 30 : 35,
+                height: isSelected ? 30 : 35,
+              ),
             ),
-            width: isSelected ? 20 : 24,
-            height: isSelected ? 20 : 24,
-          ),
+            AnimatedContainer(
+              duration: ANIMATION_DURATION,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: BackgroundPalettes[index],
+              ),
+              width: 15,
+              height: 15,
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget pattern(String pattern, int index) {
+  Widget pattern(String? pattern, int index) {
     final isSelected = _uxService.patternIndex == index;
     return MouseRegion(
       cursor: SystemMouseCursors.click,
@@ -346,14 +413,33 @@ class _ThemeSettingsPageState extends State<ThemeSettingsPage> {
           child: SizedBox(
             width: 80,
             height: 100,
-            child: Image(
-              image: AssetImage("assets/backgrounds/$pattern-thumb.webp"),
-              color: isSelected
-                  ? Theme.of(context).colorScheme.primary
-                  : Theme.of(context).colorScheme.outline,
-              fit: BoxFit.cover,
-              repeat: ImageRepeat.repeat,
-            ),
+            child: pattern == null
+                ? Center(
+                    child: Text(
+                      _i18n.get("no_pattern"),
+                      style: TextStyle(
+                        color: isSelected
+                            ? Theme.of(context).colorScheme.primary
+                            : Theme.of(context).colorScheme.outline,
+                      ),
+                    ),
+                  )
+                : Stack(
+                    children: [
+                      Positioned(
+                        top: 0,
+                        child: Image(
+                          width: 200,
+                          image: AssetImage("assets/backgrounds/$pattern.webp"),
+                          color: isSelected
+                              ? Theme.of(context).colorScheme.primary
+                              : Theme.of(context).colorScheme.outline,
+                          fit: BoxFit.fill,
+                          repeat: ImageRepeat.repeat,
+                        ),
+                      ),
+                    ],
+                  ),
           ),
         ),
       ),
