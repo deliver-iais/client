@@ -367,7 +367,7 @@ void main() {
               testUid.asString(),
               0,
               0,
-              MessageManipulationPersistentEvent_Action.EDITED,
+              MessageEventAction.EDIT,
             ),
           );
         });
@@ -477,7 +477,7 @@ void main() {
               testUid.asString(),
               0,
               2,
-              MessageManipulationPersistentEvent_Action.DELETED,
+              MessageEventAction.DELETE,
             ),
           );
         });
@@ -513,7 +513,7 @@ void main() {
               testUid.asString(),
               0,
               2,
-              MessageManipulationPersistentEvent_Action.DELETED,
+              MessageEventAction.DELETE,
             ),
           );
         });

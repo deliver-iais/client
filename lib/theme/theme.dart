@@ -28,12 +28,30 @@ final palettes = [
   const Color(0xff5c00a7),
   Colors.green,
   Colors.yellow,
+  const Color(0xffd36c98),
+  const Color(0xffdda822),
+  const Color(0xffc45245),
+  Colors.blueGrey,
+];
+final BackgroundPalettes = [
+  const Color(0xffacd0d7),
+  const Color(0xffcdd8fa),
+  const Color(0xffcef691),
+  const Color(0xfff13804),
+  const Color(0xFFFF0494),
+  const Color(0xffdda822),
+  const Color(0xffc45245),
+  Colors.blueGrey,
 ];
 
 final patterns = [
   "pattern-1",
   "pattern-2",
   "pattern-3",
+  "pattern-4",
+  "pattern-5",
+  "pattern-6",
+  "pattern-7",
 ];
 
 ThemeScheme getThemeScheme(int index) =>
