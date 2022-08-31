@@ -1190,6 +1190,14 @@ class MessageRepo {
 
   void deletePendingEditedMessage(String roomUid, int? index) {
     _messageDao.deletePendingEditedMessage(roomUid, index);
+    messageEventSubject.add(
+      MessageEvent(
+        roomUid,
+        clock.now().millisecondsSinceEpoch,
+        index ?? 0,
+        MessageEventAction.PENDING_DELETE,
+      ),
+    );
   }
 
   Future<void> pinMessage(Message message) => _mucServices.pinMessage(message);
@@ -1257,7 +1265,7 @@ class MessageRepo {
                 message.roomUid,
                 clock.now().millisecondsSinceEpoch,
                 message.id!,
-                MessageManipulationPersistentEvent_Action.DELETED,
+                MessageEventAction.DELETE,
               ),
             );
 
@@ -1307,6 +1315,14 @@ class MessageRepo {
         SendingStatus.PENDING,
       );
       await _savePendingEditedMessage(pm);
+      messageEventSubject.add(
+        MessageEvent(
+          editableMessage.roomUid,
+          clock.now().millisecondsSinceEpoch,
+          editableMessage.id!,
+          MessageEventAction.PENDING_EDIT,
+        ),
+      );
       await _sdr.queryServiceClient.updateMessage(
         UpdateMessageReq()
           ..message = updatedMessage
@@ -1325,7 +1341,7 @@ class MessageRepo {
           editableMessage.roomUid,
           clock.now().millisecondsSinceEpoch,
           editableMessage.id!,
-          MessageManipulationPersistentEvent_Action.EDITED,
+          MessageEventAction.EDIT,
         ),
       );
       final room = (await _roomDao.getRoom(editableMessage.roomUid))!;
@@ -1356,6 +1372,14 @@ class MessageRepo {
           uploadKey,
           file.name,
         );
+        messageEventSubject.add(
+          MessageEvent(
+            editableMessage.roomUid,
+            clock.now().millisecondsSinceEpoch,
+            editableMessage.id!,
+            MessageEventAction.PENDING_EDIT,
+          ),
+        );
         updatedFile = await _sendFileToServerOfPendingEditedMessage(
           _createPendingMessage(
             editableMessage.copyWith(
@@ -1365,6 +1389,9 @@ class MessageRepo {
             SendingStatus.UPLOAD_FILE_INPROGRSS,
           ),
         );
+        if (updatedFile != null && caption != null) {
+          updatedFile.caption = caption;
+        }
       } else {
         final preFile = editableMessage.json.toFile();
         if (caption == preFile.caption) {
@@ -1391,6 +1418,14 @@ class MessageRepo {
           SendingStatus.PENDING,
         );
         await _savePendingEditedMessage(pm);
+        messageEventSubject.add(
+          MessageEvent(
+            editableMessage.roomUid,
+            clock.now().millisecondsSinceEpoch,
+            editableMessage.id!,
+            MessageEventAction.PENDING_EDIT,
+          ),
+        );
       }
       final updatedMessage = message_pb.MessageByClient()
         ..to = editableMessage.to.asUid()
@@ -1411,7 +1446,7 @@ class MessageRepo {
           editableMessage.roomUid,
           clock.now().millisecondsSinceEpoch,
           editableMessage.id!,
-          MessageManipulationPersistentEvent_Action.EDITED,
+          MessageEventAction.EDIT,
         ),
       );
 

@@ -1,168 +1,169 @@
+import 'dart:ui';
+
 import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:material_color_utilities/palettes/core_palette.dart';
 
 class Background extends StatelessWidget {
   static final _uxService = GetIt.I.get<UxService>();
-
+  final backGroundColors = <Color>[
+    Color(
+      CorePalette.of(BackgroundPalettes[_uxService.themeIndex].value)
+          .tertiary
+          .get(85),
+    ),
+    Color(
+      CorePalette.of(BackgroundPalettes[_uxService.themeIndex].value)
+          .primary
+          .get(93),
+    ),
+    Color(
+      CorePalette.of(BackgroundPalettes[_uxService.themeIndex].value)
+          .secondary
+          .get(90),
+    ),
+    Color(
+      CorePalette.of(BackgroundPalettes[_uxService.themeIndex].value)
+          .tertiary
+          .get(90),
+    ),
+  ];
+  final patternColors = <Color>[
+    Color(
+      CorePalette.of(BackgroundPalettes[_uxService.themeIndex].value)
+          .tertiary
+          .get(70),
+    ),
+    Color(
+      CorePalette.of(BackgroundPalettes[_uxService.themeIndex].value)
+          .primary
+          .get(75),
+    ),
+    Color(
+      CorePalette.of(BackgroundPalettes[_uxService.themeIndex].value)
+          .secondary
+          .get(75),
+    ),
+    Color(
+      CorePalette.of(BackgroundPalettes[_uxService.themeIndex].value)
+          .tertiary
+          .get(75),
+    ),
+  ];
   final int id;
 
-  const Background({super.key, this.id = 0});
+  Background({super.key, this.id = 0});
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
-    final backgroundColor = theme.brightness == Brightness.light
-        ? const Color(0xFF94c697)
-        : const Color(0xFF00101A);
+    List<Color> rotate(List<Color> colors) {
+      final i = id % colors.length;
+      return colors.sublist(i)..addAll(colors.sublist(0, i));
+    }
 
-    final foregroundColor = theme.brightness == Brightness.light
-        ? const Color(0xFF7ab07e).withOpacity(0.7)
-        : const Color(0xFF00233B).withOpacity(0.8);
-
-    final yellow = theme.brightness == Brightness.light
-        ? const Color(0xFFbbd494)
-        : const Color(0xFF002031);
-
-    final yellowTransparent = theme.brightness == Brightness.light
-        ? const Color(0x00bbd494)
-        : const Color(0x00002031);
-
-    final white =
-        theme.brightness == Brightness.light ? const Color(0xFFccdcb7) : yellow;
-
-    final whiteTransparent = theme.brightness == Brightness.light
-        ? const Color(0x00ccdcb7)
-        : yellowTransparent;
-
-    final dark = theme.brightness == Brightness.light
-        ? const Color(0xFF75ba94)
-        : const Color(0xFF000C11);
-
-    final darkTransparent = theme.brightness == Brightness.light
-        ? const Color(0x0075ba94)
-        : const Color(0x00000C11);
-
-    const pp = <Alignment>[
-      Alignment(-0.9, -1),
-      Alignment(-0.3, -.8),
-      Alignment(0, -.8),
-      Alignment(0.3, -.8),
-      Alignment(0.9, -1),
-      Alignment(0.9, 0),
-      Alignment(0.9, 1),
-      Alignment(0.3, 1),
-      Alignment(0, 1),
-      Alignment(-.3, 1),
-      Alignment(-.8, 1),
-      Alignment(-.9, 0),
-    ];
-
-    final y = pp[(id) % 12];
-    final y2 = pp[(id + 1) % 12];
-    final w = pp[(id + 6) % 12];
-    final w2 = pp[(id + 7) % 12];
-    final b = pp[(id + 10) % 12];
-
-    const duration = Duration(milliseconds: 500);
     const curve = Curves.easeOut;
+    final backGroundColor = rotate(backGroundColors);
+    final imageColor = rotate(patternColors);
 
-    return Center(
-      child: Container(
-        color: theme.appBarTheme.backgroundColor,
-        child: Container(
-          width: double.infinity,
-          clipBehavior: Clip.antiAlias,
-          decoration: BoxDecoration(
-            color: backgroundColor,
+    return Container(
+      color: Colors.black,
+      child: Stack(
+        children: [
+          Opacity(
+            opacity: theme.brightness == Brightness.dark ? 0 : 1,
+            child: Stack(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                            child: AnimatedContainer(
+                              duration: SUPER_SLOW_ANIMATION_DURATION,
+                              curve: curve,
+                              color: backGroundColor[0],
+                            ),
+                          ),
+                          Expanded(
+                            child: AnimatedContainer(
+                              duration: SUPER_SLOW_ANIMATION_DURATION,
+                              curve: curve,
+                              color: backGroundColor[1],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Expanded(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Expanded(
+                            child: AnimatedContainer(
+                              duration: SUPER_SLOW_ANIMATION_DURATION,
+                              curve: curve,
+                              color: backGroundColor[3],
+                            ),
+                          ),
+                          Expanded(
+                            child: AnimatedContainer(
+                              duration: SUPER_SLOW_ANIMATION_DURATION,
+                              curve: curve,
+                              color: backGroundColor[2],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                Transform.translate(
+                  offset: const Offset(0, 0),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 80.0, sigmaY: 80.0),
+                    child:
+                        Container(color: theme.primaryColor.withOpacity(0.12)),
+                  ),
+                ),
+              ],
+            ),
           ),
-          child: Stack(
-            children: [
-              AnimatedContainer(
-                duration: duration,
-                curve: curve,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    colors: [
-                      dark,
-                      darkTransparent,
-                    ],
-                    center: b,
+          if (_uxService.patternIndex < patterns.length)
+            Opacity(
+              opacity: theme.brightness == Brightness.dark ? 0.3 : 0.8,
+              child: SizedBox.expand(
+                child: ShaderMask(
+                  shaderCallback: (bounds) {
+                    return SweepGradient(
+                      colors: [
+                        imageColor[2],
+                        imageColor[3],
+                        imageColor[0],
+                        imageColor[1],
+                        imageColor[2]
+                      ],
+                    ).createShader(bounds);
+                  },
+                  blendMode: BlendMode.srcATop,
+                  child: Image(
+                    image: AssetImage(
+                      "assets/backgrounds/${patterns[_uxService.patternIndex]}.webp",
+                    ),
+                    fit: BoxFit.scaleDown,
+                    repeat: ImageRepeat.repeat,
                   ),
                 ),
               ),
-              AnimatedContainer(
-                duration: duration,
-                curve: curve,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    colors: [
-                      yellow,
-                      yellowTransparent,
-                    ],
-                    center: y,
-                  ),
-                ),
-              ),
-              AnimatedContainer(
-                duration: duration,
-                curve: curve,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    colors: [
-                      yellow,
-                      yellowTransparent,
-                    ],
-                    center: y2,
-                  ),
-                ),
-              ),
-              AnimatedContainer(
-                duration: duration,
-                curve: curve,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    colors: [
-                      white,
-                      whiteTransparent,
-                    ],
-                    center: w,
-                  ),
-                ),
-              ),
-              AnimatedContainer(
-                duration: duration,
-                curve: curve,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: RadialGradient(
-                    colors: [
-                      white,
-                      whiteTransparent,
-                    ],
-                    center: w2,
-                  ),
-                ),
-              ),
-              SizedBox.expand(
-                child: Image(
-                  image: AssetImage(
-                    "assets/backgrounds/${patterns[_uxService.patternIndex]}.webp",
-                  ),
-                  fit: BoxFit.scaleDown,
-                  color: foregroundColor,
-                  repeat: ImageRepeat.repeat,
-                ),
-              ),
-            ],
-          ),
-        ),
+            )
+        ],
       ),
     );
   }
