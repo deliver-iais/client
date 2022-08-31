@@ -1,11 +1,12 @@
 import 'package:collection/collection.dart';
-import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
+
+enum MessageEventAction { EDIT, DELETE, PENDING_EDIT, PENDING_DELETE }
 
 class MessageEvent {
   String roomUid;
   int time;
   int id;
-  MessageManipulationPersistentEvent_Action action;
+  MessageEventAction action;
 
   MessageEvent(this.roomUid, this.time, this.id, this.action);
 
