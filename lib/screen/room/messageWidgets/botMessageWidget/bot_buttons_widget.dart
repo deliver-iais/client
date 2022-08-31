@@ -86,12 +86,6 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
                     if (buttons.text.isNotEmpty)
                       Container(
                         constraints: const BoxConstraints(minHeight: 20),
-                        width: widget.maxWidth,
-                        decoration: BoxDecoration(
-                          border: Border.all(),
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(5)),
-                        ),
                         margin: const EdgeInsets.symmetric(vertical: 8),
                         child: builtText(buttons.text),
                       ),
