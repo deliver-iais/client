@@ -280,8 +280,12 @@ class CallRepo {
               }
               break;
             case CallEvent_CallStatus.JOINED:
-              modifyRoutingByNotificationAcceptCallInBackgroundInAndroid
-                  .add({event.roomUid!.asString(): true});
+              modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
+                CallNotificationActionInBackground(
+                  roomId: event.roomUid!.asString(),
+                  isCallAccepted: true,
+                ),
+              );
               if (_callService.getUserCallState == UserCallState.NOCALL) {
                 _callService
                   ..setUserCallState = UserCallState.INUSERCALL
@@ -953,8 +957,12 @@ class CallRepo {
     String callEventJson,
   ) async {
     if (_isNotificationSelected) {
-      modifyRoutingByNotificationAcceptCallInBackgroundInAndroid
-          .add({roomId.asString(): false});
+      modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
+        CallNotificationActionInBackground(
+          roomId: roomId.asString(),
+          isCallAccepted: false,
+        ),
+      );
     } else if (!isDuplicated) {
       unawaited(
         _notificationServices.notifyIncomingCall(
