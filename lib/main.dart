@@ -351,7 +351,7 @@ class MyApp extends StatelessWidget {
               statusBarIconBrightness:
                   _uxService.themeIsDark ? Brightness.light : Brightness.dark,
               systemNavigationBarColor:
-                  _uxService.theme.colorScheme.surface,
+                  _uxService.theme.colorScheme.onInverseSurface,
               systemNavigationBarIconBrightness:
                   _uxService.themeIsDark ? Brightness.light : Brightness.dark,
             ),
