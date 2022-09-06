@@ -97,7 +97,7 @@ class OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
                           Navigator.pop(context);
                           widget.roomUid.isMuc() ? _leftMuc() : _deleteRoom();
                         },
-                        style: TextButton.styleFrom(primary: theme.errorColor),
+                        style: TextButton.styleFrom(foregroundColor: theme.errorColor),
                         child: Text(_i18n.get("ok")),
                       ),
                     ],
@@ -158,7 +158,7 @@ class OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
                           Navigator.pop(context);
                           _deleteMuc();
                         },
-                        style: TextButton.styleFrom(primary: theme.errorColor),
+                        style: TextButton.styleFrom(foregroundColor: theme.errorColor),
                         child: Text(_i18n.get("ok")),
                       ),
                     ],

@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:deliver/localization/i18n.dart';
@@ -416,7 +415,7 @@ class ImagePainterState extends State<ImagePainter> {
     }
   }
 
-  ///Completer function to convert asset or file image to [ui.Image] before drawing on custompainter.
+  ///Completer function to convert asset or file image to [ui.Image] before drawing on custom painter.
   Future<ui.Image> _convertImage(Uint8List img) async {
     final completer = Completer<ui.Image>();
     ui.decodeImageFromList(img, (image) {
@@ -426,7 +425,7 @@ class ImagePainterState extends State<ImagePainter> {
     return completer.future;
   }
 
-  ///Completer function to convert network image to [ui.Image] before drawing on custompainter.
+  ///Completer function to convert network image to [ui.Image] before drawing on custom painter.
   Future<ui.Image> _loadNetworkImage(String path) async {
     final completer = Completer<ImageInfo>();
     final img = NetworkImage(path);

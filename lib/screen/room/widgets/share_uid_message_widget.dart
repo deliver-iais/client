@@ -40,7 +40,7 @@ class ShareUidMessageWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(primary: colorScheme.primary),
+            style: ElevatedButton.styleFrom(backgroundColor: colorScheme.primary),
             icon: Padding(
               padding: const EdgeInsets.only(top: 4.0, bottom: 4.0),
               child: CircleAvatarWidget(

@@ -7,7 +7,7 @@ import 'package:deliver/box/media_type.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
-import 'package:deliver/screen/room/messageWidgets/video_message/vedio_palyer_widget.dart';
+import 'package:deliver/screen/room/messageWidgets/video_message/video_player_widget.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';

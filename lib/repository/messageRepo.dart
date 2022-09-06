@@ -64,8 +64,6 @@ import 'package:logger/logger.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:rxdart/rxdart.dart';
 
-import '../shared/constants.dart';
-
 enum TitleStatusConditions {
   Disconnected,
   Updating,

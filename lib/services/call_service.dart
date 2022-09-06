@@ -19,11 +19,10 @@ import 'package:rxdart/rxdart.dart';
 enum UserCallState {
   /// User in Group Call then he Can't join any User or Start Own Call
   // ignore: constant_identifier_names
-  INGROUPCALL,
+  IN_GROUP_CALL,
 
   /// User in User Call then he Can't join any Group or Start Own Call
-  // ignore: constant_identifier_names
-  INUSERCALL,
+  IN_USER_CALL,
 
   /// User Out of Call then he Can join any Group or User Call or Start Own Call
   // ignore: constant_identifier_names

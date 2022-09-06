@@ -20,12 +20,10 @@ class RecordAudioAnimation extends StatelessWidget {
   final RecordOnCompleteCallback? onComplete;
   final RecordOnCancelCallback? onCancel;
   final Uid roomUid;
-  bool _isCanceled = false;
 
-  late final BehaviorSubject<Offset> _pointerOffset =
-      BehaviorSubject.seeded(Offset.zero);
-  late final BehaviorSubject<Offset> _buttonOffset =
-      BehaviorSubject.seeded(Offset.zero);
+  final _isCanceled = BehaviorSubject.seeded(false);
+  final _pointerOffset = BehaviorSubject.seeded(Offset.zero);
+  final _buttonOffset = BehaviorSubject.seeded(Offset.zero);
 
   RecordAudioAnimation({
     super.key,
@@ -47,9 +45,9 @@ class RecordAudioAnimation extends StatelessWidget {
           _buttonOffset.add(Offset.zero);
         } else {
           if (value.dy.abs() < 30) {
-            if (value.dx < -100 && !_isCanceled) {
+            if (value.dx < -100 && !_isCanceled.value) {
               _audioService.cancelRecording();
-              _isCanceled = true;
+              _isCanceled.add(true);
             } else {
               _buttonOffset.add(Offset(value.dx, 0));
             }
@@ -236,13 +234,13 @@ class RecordAudioAnimation extends StatelessWidget {
                             false)) {
                           if (_pointerOffset.value.dy.abs() < 30 &&
                               _pointerOffset.value.dx < -100) {
-                            if (!_isCanceled) {
+                            if (!_isCanceled.value) {
                               _audioService.cancelRecording();
                             }
                           } else if (isRecordingInCurrentRoom) {
                             endRecording(context);
                           }
-                          _isCanceled = false;
+                          _isCanceled.add(false);
                         }
                       },
                       onLongPressMoveUpdate: (tg) =>

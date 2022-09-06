@@ -35,7 +35,7 @@ dependencies:
   card_swiper: 2.0.4
   chewie: 1.3.4
   circular_countdown_timer: 0.2.2
-  clock: 1.1.0
+  clock: 1.1.1
   collection: 1.16.0
   connectivity_plus: 2.3.6+1
   connectycube_flutter_call_kit:
@@ -119,15 +119,15 @@ dependencies:
   logger: 1.1.0
   lottie: 1.4.1
   marquee: 2.2.3
-  material_color_utilities: 0.1.4
-  meta: 1.7.0
+  material_color_utilities: 0.1.5
+  meta: 1.8.0
   metadata_fetch: 0.4.1
   mime_type: 1.0.0
   mobile_scanner: 2.0.0
   modal_bottom_sheet: 2.1.0
   open_file: 3.2.1
   pasteboard: 0.2.0
-  path: 1.8.1
+  path: 1.8.2
   path_provider: 2.0.11
   path_provider_android: 2.0.15
   patterns_canvas: 0.4.0 # UPDATABLE in FLUTTER 3
@@ -161,7 +161,7 @@ dependencies:
   universal_html: 2.0.8
   url_launcher: 6.1.5
   uuid: 3.0.6
-  vibration: 1.7.5
+  vibration: 1.7.6
   video_player: 2.4.6
   win_toast:
     git:
@@ -188,7 +188,7 @@ dev_dependencies:
     sdk: flutter
   mockito: 5.3.0
   msix: 3.6.3
-  test: 1.21.1
+
 
 
 # The following section is specific to Flutter.
