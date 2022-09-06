@@ -15,6 +15,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:grpc/grpc.dart';
 
 class SelectiveContactsList extends StatefulWidget {
   final Uid? mucUid;
@@ -200,11 +201,11 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                                 users.add(contact.uid!.asUid());
                               }
                             }
-                            final usersAdd = await _mucRepo.sendMembers(
+                            final usersAddCode = await _mucRepo.sendMembers(
                               widget.mucUid!,
                               users,
                             );
-                            if (usersAdd) {
+                            if (usersAddCode == StatusCode.ok) {
                               _routingService.openRoom(
                                 widget.mucUid!.asString(),
                                 popAllBeforePush: true,
@@ -212,8 +213,16 @@ class SelectiveContactsListState extends State<SelectiveContactsList> {
                               // _createMucService.reset();
 
                             } else {
+                              var message = _i18n.get("error_occurred");
+                              if (usersAddCode == StatusCode.unavailable) {
+                                message = _i18n.get("notwork_is_unavailable");
+                              } else if (usersAddCode ==
+                                  StatusCode.permissionDenied) {
+                                message = _i18n.get("permission_denied");
+                              }
+
                               ToastDisplay.showToast(
-                                toastText: _i18n.get("error_occurred"),
+                                toastText: message,
                                 toastContext: context,
                               );
                               // _routingService.pop();
