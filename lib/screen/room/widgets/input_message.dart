@@ -638,7 +638,8 @@ class InputMessageWidgetState extends State<InputMessage> {
               autofocus: (snapshot.data?.id ?? 0) > 0 || isDesktop,
               controller: widget.textController,
               decoration: InputDecoration(
-                contentPadding: const EdgeInsets.only(top: 12, bottom: 12),
+                isCollapsed: true,
+                contentPadding: const EdgeInsets.only(top: 9, bottom: 9),
                 border: InputBorder.none,
                 counterText: "",
                 hintText: hasMarkUpPlaceHolder(
