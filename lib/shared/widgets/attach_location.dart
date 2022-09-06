@@ -254,7 +254,7 @@ class AttachLocation {
                     Container(
                       color: Colors.white,
                       child: Text(
-                        i18n.get("choose_livelocation_time"),
+                        i18n.get("choose_live_location_time"),
                         style: const TextStyle(fontSize: 20),
                       ),
                     ),

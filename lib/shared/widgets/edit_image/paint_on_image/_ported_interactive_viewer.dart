@@ -84,7 +84,7 @@ class ImagePainterTransformer extends StatefulWidget {
   /// Defaults to true.
   ///
   /// {@tool dartpad --template=stateless_widget_scaffold}
-  /// This example shows how to create a pannable table. Because the table is
+  /// This example shows how to create a pan-able table. Because the table is
   /// larger than the entire screen, setting `constrained` to false is necessary
   /// to allow it to be drawn to its full size. The parts of the table that
   /// exceed the screen size can then be panned into view.
@@ -96,7 +96,7 @@ class ImagePainterTransformer extends StatefulWidget {
   ///
   ///     return Scaffold(
   ///       appBar: AppBar(
-  ///         title: const Text('Pannable Table'),
+  ///         title: const Text('Pan-able Table'),
   ///       ),
   ///       body: InteractiveViewer(
   ///         constrained: false,
@@ -495,7 +495,7 @@ class ImagePainterTransformerState extends State<ImagePainterTransformer>
     final boundaryRect =
         widget.boundaryMargin.inflateRect(Offset.zero & childSize);
     // Boundaries that are partially infinite are not allowed because Matrix4's
-    // rotation and translation methods don't handle infinites well.
+    // rotation and translation methods don't handle infinities well.
     assert(
       boundaryRect.isFinite ||
           (boundaryRect.left.isInfinite &&
