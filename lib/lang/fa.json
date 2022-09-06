@@ -326,6 +326,7 @@
   "password_not_valid": "رمز معتبر نمی باشد",
   "pattern": "الگو",
   "payment_transaction": "پرداخت",
+  "permission_denied" : "شما دسترسی مناسب برای این کار را ندارید",
   "phone": "تلفن",
   "phoneNumberAndCodeNull": "شماره تلفن و کد نمی توانند خالی باشند.",
   "phoneNumberNull": "شماره تلفن نمی تواند خالی باشد",
