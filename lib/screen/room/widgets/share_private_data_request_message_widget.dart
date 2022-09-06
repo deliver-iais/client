@@ -84,8 +84,8 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
               width: maxWidth,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  primary: colorScheme.primary,
-                  onPrimary: colorScheme.onPrimary,
+                  backgroundColor: colorScheme.primary,
+                  foregroundColor: colorScheme.onPrimary,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
@@ -225,7 +225,7 @@ class SharePrivateDataRequestMessageWidget extends StatelessWidget {
           actions: [
             TextButton(
               style: TextButton.styleFrom(
-                primary: Theme.of(context).colorScheme.error,
+                foregroundColor: Theme.of(context).colorScheme.error,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),

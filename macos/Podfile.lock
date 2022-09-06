@@ -279,7 +279,7 @@ SPEC CHECKSUMS:
   FirebaseMessaging: 4e220eddd356181469ba2ec5f7d5fafbc2312841
   flutter_local_notifications: 3805ca215b2fb7f397d78b66db91f6a747af52e4
   flutter_webrtc: 45cd8f5825bb32054e817708bf343ceff2c9cab8
-  FlutterMacOS: 57701585bf7de1b3fc2bb61f6378d73bbdea8424
+  FlutterMacOS: ae6af50a8ea7d6103d888583d46bd8328a7e9811
   geolocator_apple: 72a78ae3f3e4ec0db62117bd93e34523f5011d58
   GoogleAppMeasurement: 5d69e04287fc2c10cc43724bfa4bf31fc12c3dff
   GoogleDataTransport: 1c8145da7117bd68bbbed00cf304edb6a24de00f

@@ -28,7 +28,8 @@ class HorizontalListWidgetState extends State<HorizontalListWidget> {
   @override
   void initState() {
     WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-      if (widget.controller.position.maxScrollExtent > 0) {
+      if (widget.controller.positions.isNotEmpty &&
+          widget.controller.position.maxScrollExtent > 0) {
         setState(() {});
       }
     });
@@ -130,9 +131,9 @@ class HorizontalListWidgetState extends State<HorizontalListWidget> {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               begin:
-              isLeftPosition ? Alignment.centerLeft : Alignment.centerRight,
+                  isLeftPosition ? Alignment.centerLeft : Alignment.centerRight,
               end:
-              isLeftPosition ? Alignment.centerRight : Alignment.centerLeft,
+                  isLeftPosition ? Alignment.centerRight : Alignment.centerLeft,
               colors: [
                 widget.fadeLayoutColor,
                 widget.fadeLayoutColor.withAlpha(80),
@@ -140,7 +141,7 @@ class HorizontalListWidgetState extends State<HorizontalListWidget> {
             ),
           ),
           constraints:
-          BoxConstraints(maxHeight: MediaQuery.of(context).size.height),
+              BoxConstraints(maxHeight: MediaQuery.of(context).size.height),
         ),
       );
     }

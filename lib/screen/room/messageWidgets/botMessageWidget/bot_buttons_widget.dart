@@ -96,8 +96,8 @@ class _BotButtonsWidgetState extends State<BotButtonsWidget> {
                         margin: const EdgeInsets.only(bottom: 6),
                         child: ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            primary: widget.colorScheme.primary,
-                            onPrimary: widget.colorScheme.onPrimary,
+                            backgroundColor: widget.colorScheme.primary,
+                            foregroundColor: widget.colorScheme.onPrimary,
                           ),
                           onPressed: !isLocked
                               ? () => _messageRepo.sendTextMessage(

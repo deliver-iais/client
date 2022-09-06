@@ -198,8 +198,8 @@ class AttachLocation {
               actions: [
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    primary: Theme.of(context).colorScheme.primary,
-                    onPrimary: Theme.of(context).colorScheme.onPrimary,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     shape: const RoundedRectangleBorder(
                       borderRadius: tertiaryBorder,
                     ),
@@ -209,8 +209,8 @@ class AttachLocation {
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    primary: Theme.of(context).colorScheme.primary,
-                    onPrimary: Theme.of(context).colorScheme.onPrimary,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     shape: const RoundedRectangleBorder(
                       borderRadius: tertiaryBorder,
                     ),
