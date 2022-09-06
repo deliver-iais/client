@@ -60,7 +60,7 @@ class ScreenSelectDialog extends Dialog {
     for (final element in _subscriptions) {
       await element.cancel();
     }
-    Navigator.pop<DesktopCapturerSource>(context, null);
+    Navigator.pop<DesktopCapturerSource>(context);
   }
 
   Future<void> _getSources() async {

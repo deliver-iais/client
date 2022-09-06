@@ -198,8 +198,8 @@ class AttachLocation {
               actions: [
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    primary: Theme.of(context).colorScheme.primary,
-                    onPrimary: Theme.of(context).colorScheme.onPrimary,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     shape: const RoundedRectangleBorder(
                       borderRadius: tertiaryBorder,
                     ),
@@ -209,8 +209,8 @@ class AttachLocation {
                 ),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                    primary: Theme.of(context).colorScheme.primary,
-                    onPrimary: Theme.of(context).colorScheme.onPrimary,
+                    backgroundColor: Theme.of(context).colorScheme.primary,
+                    foregroundColor: Theme.of(context).colorScheme.onPrimary,
                     shape: const RoundedRectangleBorder(
                       borderRadius: tertiaryBorder,
                     ),
@@ -254,7 +254,7 @@ class AttachLocation {
                     Container(
                       color: Colors.white,
                       child: Text(
-                        i18n.get("choose_livelocation_time"),
+                        i18n.get("choose_live_location_time"),
                         style: const TextStyle(fontSize: 20),
                       ),
                     ),

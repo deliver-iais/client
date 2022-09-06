@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:deliver/box/account.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
@@ -42,6 +44,7 @@ class SettingsPageState extends State<SettingsPage> {
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _i18n = GetIt.I.get<I18N>();
   static final _avatarRepo = GetIt.I.get<AvatarRepo>();
+  StreamSubscription<Account?>? subscription;
 
   int developerModeCounterCountDown = kDebugMode ? 1 : 10;
   final account = BehaviorSubject<Account?>.seeded(null);
@@ -51,7 +54,7 @@ class SettingsPageState extends State<SettingsPage> {
     _accountRepo
       ..getUserProfileFromServer()
       ..fetchCurrentUserId(forceToUpdate: true);
-    _accountRepo.getAccountAsStream().listen((event) {
+    subscription = _accountRepo.getAccountAsStream().listen((event) {
       account.add(event);
     });
     super.initState();
@@ -59,6 +62,7 @@ class SettingsPageState extends State<SettingsPage> {
 
   @override
   void dispose() {
+    subscription?.cancel();
     account.close();
     super.dispose();
   }
@@ -383,7 +387,9 @@ class SettingsPageState extends State<SettingsPage> {
             ),
             TextButton(
               onPressed: () => _routingService.logout(),
-              style: TextButton.styleFrom(primary: theme.colorScheme.error),
+              style: TextButton.styleFrom(
+                foregroundColor: theme.colorScheme.error,
+              ),
               child: Text(i18n.get("logout")),
             ),
           ],

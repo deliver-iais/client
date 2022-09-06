@@ -119,7 +119,7 @@ class CallScreenState extends State<CallScreen> {
                 Navigator.of(context).pop();
               },
               style: TextButton.styleFrom(
-                primary: Theme.of(context).errorColor,
+                foregroundColor: Theme.of(context).errorColor,
               ),
               child: Text(
                 _i18n.get(

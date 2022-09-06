@@ -29,12 +29,12 @@
 //             title: Align(
 //               alignment: Alignment.centerLeft,
 //               child: Text(
-//                 _i18n.getTraslateValue("add_sticker_pack"),
+//                 _i18n.get("add_sticker_pack"),
 //               ),
 //             ),
 //             leading: _routingService.backButtonLeading()),
 //         body: StreamBuilder<List<StickerId>>(
-//             stream: _stickerRepo.getnotDownlodedPackId(),
+//             stream: _stickerRepo.getNotDownloadedPackId(),
 //             builder: (c, stickersId) {
 //               if (stickersId.hasData && stickersId.data != null) {
 //                 return Container(
@@ -58,7 +58,7 @@
 //                                                 Text(stickerPck.data.name),
 //                                                 RaisedButton(
 //                                                     child: Text(_i18n
-//                                                         .getTraslateValue(
+//                                                         .get(
 //                                                             "add_sticker_pack")),
 //                                                     onPressed: () {
 //                                                       _stickerRepo

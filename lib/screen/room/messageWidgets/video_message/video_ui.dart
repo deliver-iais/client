@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:deliver/screen/room/messageWidgets/video_message/vedio_palyer_widget.dart';
+import 'package:deliver/screen/room/messageWidgets/video_message/video_player_widget.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as pb;
 import 'package:flutter/material.dart';
