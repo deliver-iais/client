@@ -337,7 +337,10 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
                 widget.files!.isEmpty
                     ? _editedFile != null
                         ? _editedFile!.path = path
-                        : _editedFile = model.File(path, path.split(".").last)
+                        : _editedFile = model.File(
+                            path,
+                            path.split(".").last,
+                          )
                     : index == null
                         ? widget.files!.first.path = path
                         : widget.files![index].path = path;
@@ -477,6 +480,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
   }
 
   Widget buildManage({required int index}) {
+    final theme=Theme.of(context);
     return Row(
       children: [
         IconButton(
@@ -514,9 +518,9 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
               setState(() {});
             }
           },
-          icon: const Icon(
+          icon:  Icon(
             Icons.wifi_protected_setup,
-            color: Colors.blue,
+            color: theme.primaryColor,
             size: 16,
           ),
         ),
@@ -529,9 +533,9 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
               }
               setState(() {});
             },
-            icon: const Icon(
+            icon:  Icon(
               Icons.delete,
-              color: Colors.blue,
+              color: theme.primaryColor,
               size: 16,
             ),
           ),
@@ -540,9 +544,9 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
             onPressed: () {
               openEditImagePage(index);
             },
-            icon: const Icon(
+            icon:  Icon(
               Icons.edit,
-              color: Colors.blue,
+              color: theme.primaryColor,
               size: 16,
             ),
           )
@@ -601,35 +605,44 @@ class FileErrorDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(
-        _i18n.get("error"),
-        style: const TextStyle(fontSize: 16, color: Colors.blue),
-      ),
-      content: SizedBox(
-        width: 150,
-        child: Text(
-          !_isFileFormatAccept
-              ? "${_i18n.get("cant_sent")} $_invalidFormatFileName"
-              : "$_invalidSizeFileName ${_i18n.get("file_size_error")}",
+    return Directionality(
+      textDirection: _i18n.defaultTextDirection,
+      child: AlertDialog(
+        title: Text(
+          _i18n.get("error"),
+          style: const TextStyle(
+            fontSize: 18,
+          ),
         ),
-      ),
-      actions: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            GestureDetector(
-              onTap: () {
-                Navigator.pop(context);
-              },
-              child: Text(
-                _i18n.get("ok"),
-                style: const TextStyle(fontSize: 16, color: Colors.blue),
+        actions: [
+          GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Text(
+              _i18n.get("ok"),
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).primaryColor,
               ),
             ),
-          ],
+          ),
+        ],
+        content: SizedBox(
+          width: 150,
+          child: Wrap(
+            children: [
+              if (!_isFileFormatAccept) ...[
+                Text(_invalidFormatFileName),
+                Text(_i18n.get("cant_sent"))
+              ] else ...[
+                Text(_invalidSizeFileName),
+                Text(_i18n.get("file_size_error")),
+              ]
+            ],
+          ),
         ),
-      ],
+      ),
     );
   }
 }
