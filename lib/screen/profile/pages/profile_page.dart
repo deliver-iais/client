@@ -47,6 +47,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:share/share.dart';
@@ -1420,19 +1421,26 @@ class ProfilePageState extends State<ProfilePage>
                 final basicNavigatorState = Navigator.of(context);
                 final c1NavigatorState = Navigator.of(c1);
 
-                final res =
+                final usersAddCode =
                     await _mucRepo.sendMembers(uid.asUid(), [widget.roomUid]);
-                if (res) {
+                if (usersAddCode == StatusCode.ok) {
                   basicNavigatorState.pop();
                   c1NavigatorState.pop();
                   _routingService.openRoom(
                     uid,
                   );
                 } else {
+                  var message = _i18n.get("error_occurred");
+                  if (usersAddCode == StatusCode.unavailable) {
+                    message = _i18n.get("notwork_is_unavailable");
+                  } else if (usersAddCode == StatusCode.permissionDenied ||
+                      usersAddCode == StatusCode.internal) {
+                    message = _i18n.get("permission_denied");
+                  }
                   c1NavigatorState.pop();
                   ToastDisplay.showToast(
                     toastContext: context,
-                    toastText: _i18n.get("error_occurred"),
+                    toastText: message,
                   );
                 }
               },

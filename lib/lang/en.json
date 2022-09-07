@@ -325,6 +325,7 @@
   "password_not_valid": "Password not valid",
   "pattern": "Pattern",
   "payment_transaction": "Payment Transaction",
+  "permission_denied" : "Permission Denied",
   "phone": "Phone",
   "phone_number": "PhoneNumber",
   "phone_number_granted": "Access to phone number granted",
