@@ -2936,7 +2936,7 @@ class MockCallService extends _i1.Mock implements _i76.CallService {
   @override
   _i76.UserCallState get getUserCallState =>
       (super.noSuchMethod(Invocation.getter(#getUserCallState),
-          returnValue: _i76.UserCallState.INGROUPCALL) as _i76.UserCallState);
+          returnValue: _i76.UserCallState.IN_GROUP_CALL) as _i76.UserCallState);
   @override
   _i3.Uid get getRoomUid => (super.noSuchMethod(Invocation.getter(#getRoomUid),
           returnValue: _FakeUid_1(this, Invocation.getter(#getRoomUid)))
