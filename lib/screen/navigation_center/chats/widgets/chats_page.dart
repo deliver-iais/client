@@ -185,7 +185,13 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
         .watchAllRooms()
         .distinct(const ListEquality().equals)
         .switchMap((roomsList) {
-          roomsList = rearrangeChatItem(roomsList);
+
+          _pinRoomsList.clear();
+          if (roomsList.first.pinned) {
+            _pinRoomsList.addAll(
+              roomsList.sublist(0, 5).where((element) => element.pinned),
+            );
+          }
 
           return _routingService.currentRouteStream.distinct().map((route) {
             return roomsList
@@ -212,26 +218,5 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
     await for (final stream in source) {
       yield* stream;
     }
-  }
-
-  List<Room> rearrangeChatItem(List<Room> rooms) {
-    _pinRoomsList.clear();
-    rooms.sort((a, b) {
-      if (a.pinned && !b.pinned) {
-        return -1;
-      } else if (!a.pinned && b.pinned) {
-        return 1;
-      } else if (a.pinned && b.pinned) {
-        return b.pinId - a.pinId;
-      } else {
-        return 0;
-      }
-    });
-    if (rooms.first.pinned) {
-      _pinRoomsList.addAll(
-        rooms.sublist(0, 5).where((element) => element.pinned),
-      );
-    }
-    return rooms;
   }
 }
