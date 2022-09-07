@@ -85,9 +85,18 @@ class RoomDaoImpl implements RoomDao {
 
   List<Room> sorted(List<Room> list) => list
     ..sort(
-      (a, b) =>
-          (b.lastMessage?.time ?? b.lastUpdateTime) -
-          (a.lastMessage?.time ?? a.lastUpdateTime),
+      (a, b) {
+        if (a.pinned && !b.pinned) {
+          return -1;
+        } else if (!a.pinned && b.pinned) {
+          return 1;
+        } else if (a.pinned && b.pinned) {
+          return b.pinId - a.pinId;
+        } else {
+          return (b.lastMessage?.time ?? b.lastUpdateTime) -
+              (a.lastMessage?.time ?? a.lastUpdateTime);
+        }
+      },
     );
 
   @override
