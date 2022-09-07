@@ -28,6 +28,7 @@ import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:fuzzy/fuzzy.dart';
 import 'package:get_it/get_it.dart';
+import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
 
 class MucRepo {
@@ -585,9 +586,9 @@ class MucRepo {
     await _roomDao.updateRoom(uid: mucUid.asString());
   }
 
-  Future<bool> sendMembers(Uid mucUid, List<Uid> memberUids) async {
+  Future<int> sendMembers(Uid mucUid, List<Uid> memberUids) async {
     try {
-      var usersAdd = false;
+      var usersAddCode = 0;
       final members = <muc_pb.Member>[];
       for (final uid in memberUids) {
         members.add(
@@ -598,23 +599,22 @@ class MucRepo {
       }
 
       if (mucUid.category == Categories.GROUP) {
-        usersAdd = await _mucServices.addGroupMembers(members, mucUid);
+        usersAddCode = await _mucServices.addGroupMembers(members, mucUid);
       } else {
-        usersAdd = await _mucServices.addChannelMembers(members, mucUid);
+        usersAddCode = await _mucServices.addChannelMembers(members, mucUid);
       }
 
-      if (usersAdd) {
+      if (usersAddCode == StatusCode.ok) {
         if (mucUid.category == Categories.GROUP) {
           unawaited(fetchGroupMembers(mucUid, members.length));
         } else {
           unawaited(fetchChannelMembers(mucUid, members.length));
         }
-        return true;
       }
-      return false;
+      return usersAddCode;
     } catch (e) {
       _logger.e(e);
-      return false;
+      return StatusCode.unknown;
     }
   }
 

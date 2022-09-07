@@ -31,7 +31,7 @@ class MucServices {
     }
   }
 
-  Future<bool> addGroupMembers(
+  Future<int> addGroupMembers(
     List<Member> members,
     Uid groupUid, {
     bool retry = false,
@@ -46,21 +46,24 @@ class MucServices {
         addMemberRequest,
         options: CallOptions(timeout: const Duration(seconds: 6)),
       );
-      return true;
-    } catch (e) {
+      return StatusCode.ok;
+    } on GrpcError catch (e) {
       if (retry) {
         return addGroupMembers(members, groupUid);
       } else {
         _logger.e(e);
-        return false;
+        return e.code;
       }
+    } catch (e) {
+      _logger.e(e);
+      return StatusCode.unknown;
     }
   }
 
   Future<group_pb.GetGroupRes?> getGroup(Uid groupUid) async {
     try {
-      final request =
-          await _serVices.groupServiceClient.getGroup(group_pb.GetGroupReq()..uid = groupUid);
+      final request = await _serVices.groupServiceClient
+          .getGroup(group_pb.GetGroupReq()..uid = groupUid);
       return request;
     } catch (e) {
       return null;
@@ -214,7 +217,7 @@ class MucServices {
     }
   }
 
-  Future<bool> addChannelMembers(List<Member> members, Uid mucUid) async {
+  Future<int> addChannelMembers(List<Member> members, Uid mucUid) async {
     try {
       final addMemberRequest = channel_pb.AddMembersReq();
       for (final member in members) {
@@ -222,10 +225,13 @@ class MucServices {
       }
       addMemberRequest.channel = mucUid;
       await _serVices.channelServiceClient.addMembers(addMemberRequest);
-      return true;
+      return StatusCode.ok;
+    } on GrpcError catch (e) {
+      _logger.e(e);
+      return e.code;
     } catch (e) {
       _logger.e(e);
-      return false;
+      return StatusCode.unknown;
     }
   }
 

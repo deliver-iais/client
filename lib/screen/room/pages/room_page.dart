@@ -205,13 +205,10 @@ class RoomPageState extends State<RoomPage> {
             StreamBuilder(
               stream: _repliedMessage,
               builder: (c, rm) {
-                if (rm.hasData && rm.data != null) {
-                  return ReplyPreview(
-                    message: _repliedMessage.value!,
-                    resetRoomPageDetails: _resetRoomPageDetails,
-                  );
-                }
-                return Container();
+                return ReplyPreview(
+                  message: _repliedMessage.value,
+                  resetRoomPageDetails: _resetRoomPageDetails,
+                );
               },
             ),
             StreamBuilder(
