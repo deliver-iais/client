@@ -318,76 +318,79 @@ class InputMessageWidgetState extends State<InputMessage> {
                   decoration: BoxDecoration(
                     color: theme.colorScheme.surface,
                   ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: <Widget>[
-                      StreamBuilder<bool>(
-                        stream: _audioService.recorderIsRecording,
-                        builder: (ctx, snapshot) {
-                          final isRecording = snapshot.data ?? false;
-                          final isRecordingInCurrentRoom =
-                              _audioService.recordingRoom ==
-                                  widget.currentRoom.uid;
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: <Widget>[
+                        StreamBuilder<bool>(
+                          stream: _audioService.recorderIsRecording,
+                          builder: (ctx, snapshot) {
+                            final isRecording = snapshot.data ?? false;
+                            final isRecordingInCurrentRoom =
+                                _audioService.recordingRoom ==
+                                    widget.currentRoom.uid;
 
-                          return Expanded(
-                            child: Row(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: <Widget>[
-                                if (!isRecording) buildEmojiKeyboardActions(),
-                                if (!isRecording) buildTextInput(theme),
-                                if (!isRecording) buildDefaultActions(),
-                                if (isRecording && isRecordingInCurrentRoom)
-                                  const RecordAudioSlideWidget(),
-                                if (isRecording && !isRecordingInCurrentRoom)
-                                  Expanded(
-                                    child: IconButton(
-                                      icon: SizedBox(
-                                        width: double.infinity,
-                                        child: TextButton(
-                                          onPressed: () =>
-                                              _routingService.openRoom(
-                                            _audioService.recordingRoom,
-                                          ),
-                                          // color: theme.colorScheme.primary,
-                                          child: Text(
-                                            _i18n.get("go_to_recording_room"),
+                            return Expanded(
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: <Widget>[
+                                  if (!isRecording) buildEmojiKeyboardActions(),
+                                  if (!isRecording) buildTextInput(theme),
+                                  if (!isRecording) buildDefaultActions(),
+                                  if (isRecording && isRecordingInCurrentRoom)
+                                    const RecordAudioSlideWidget(),
+                                  if (isRecording && !isRecordingInCurrentRoom)
+                                    Expanded(
+                                      child: IconButton(
+                                        icon: SizedBox(
+                                          width: double.infinity,
+                                          child: TextButton(
+                                            onPressed: () =>
+                                                _routingService.openRoom(
+                                              _audioService.recordingRoom,
+                                            ),
+                                            // color: theme.colorScheme.primary,
+                                            child: Text(
+                                              _i18n.get("go_to_recording_room"),
+                                            ),
                                           ),
                                         ),
+                                        onPressed: () {},
                                       ),
-                                      onPressed: () {},
-                                    ),
-                                  )
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                      StreamBuilder<bool>(
-                        stream: _showSendIcon,
-                        builder: (c, sm) {
-                          if (!sm.hasData ||
-                              sm.data! ||
-                              widget.waitingForForward ||
-                              !_audioService.recorderIsAvailable()) {
-                            return const SizedBox();
-                          }
+                                    )
+                                ],
+                              ),
+                            );
+                          },
+                        ),
+                        StreamBuilder<bool>(
+                          stream: _showSendIcon,
+                          builder: (c, sm) {
+                            if (!sm.hasData ||
+                                sm.data! ||
+                                widget.waitingForForward ||
+                                !_audioService.recorderIsAvailable()) {
+                              return const SizedBox();
+                            }
 
-                          return RecordAudioAnimation(
-                            onComplete: (res) {
-                              if (res != null) {
-                                unawaited(
-                                  _messageRepo.sendFileMessage(
-                                    widget.currentRoom.uid.asUid(),
-                                    File(res, res),
-                                  ),
-                                );
-                              }
-                            },
-                            roomUid: widget.currentRoom.uid.asUid(),
-                          );
-                        },
-                      )
-                    ],
+                            return RecordAudioAnimation(
+                              onComplete: (res) {
+                                if (res != null) {
+                                  unawaited(
+                                    _messageRepo.sendFileMessage(
+                                      widget.currentRoom.uid.asUid(),
+                                      File(res, res),
+                                    ),
+                                  );
+                                }
+                              },
+                              roomUid: widget.currentRoom.uid.asUid(),
+                            );
+                          },
+                        )
+                      ],
+                    ),
                   ),
                 ),
                 if (widget.currentRoom.replyKeyboardMarkup != null)

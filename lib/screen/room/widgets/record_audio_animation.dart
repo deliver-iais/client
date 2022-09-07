@@ -75,7 +75,7 @@ class RecordAudioAnimation extends StatelessWidget {
 
         return AnimatedContainer(
           duration: ANIMATION_DURATION,
-          width: isRecording ? 100 : 48,
+          width: isRecording ? 100 : 40,
           child: Stack(
             clipBehavior: Clip.none,
             children: [

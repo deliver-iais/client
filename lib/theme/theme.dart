@@ -16,10 +16,10 @@ const LIGHT_BOX_SHADOWS = [
 
 const DEFAULT_BOX_SHADOWS = [
   BoxShadow(
-    color: Color(0x22000000),
+    color: Color(0x20000000),
     spreadRadius: 2,
     blurRadius: 3,
-    offset: Offset(0, 3),
+    offset: Offset(0, 2),
   ),
 ];
 
