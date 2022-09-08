@@ -33,9 +33,18 @@ import 'package:deliver/theme/theme.dart';
 
 BehaviorSubject<String> modifyRoutingByNotificationTapInBackgroundInAndroid =
     BehaviorSubject.seeded("");
-BehaviorSubject<Map<String, bool>>
-    modifyRoutingByNotificationAcceptCallInBackgroundInAndroid =
-    BehaviorSubject.seeded({"": false});
+
+class CallNotificationActionInBackground {
+  final String roomId;
+  final bool isCallAccepted;
+
+  CallNotificationActionInBackground(
+      {required this.roomId, required this.isCallAccepted,});
+}
+
+BehaviorSubject<CallNotificationActionInBackground?>
+    modifyRoutingByCallNotificationActionInBackgroundInAndroid =
+    BehaviorSubject.seeded(null);
 
 class NavigationCenter extends StatefulWidget {
   const NavigationCenter({super.key});
@@ -68,10 +77,12 @@ class NavigationCenterState extends State<NavigationCenter> {
         _routingService.openRoom(event);
       }
     });
-    modifyRoutingByNotificationAcceptCallInBackgroundInAndroid.listen((event) {
-      if (event.keys.isNotEmpty) {
-        _routingService.openCallScreen(event.keys.first.asUid(),
-            isCallAccepted: event.values.first,);
+    modifyRoutingByCallNotificationActionInBackgroundInAndroid.listen((event) {
+      if (event?.roomId.isNotEmpty ?? false) {
+        _routingService.openCallScreen(
+          event!.roomId.asUid(),
+          isCallAccepted: event.isCallAccepted,
+        );
       }
     });
 

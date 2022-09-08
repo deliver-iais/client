@@ -149,8 +149,8 @@ class _ConnectionSettingPageState extends State<ConnectionSettingPage> {
                                     horizontal: 45,
                                     vertical: 15,
                                   ),
-                                  primary: theme.colorScheme.primary,
-                                  onPrimary: theme.colorScheme.onPrimary,
+                                  backgroundColor: theme.colorScheme.primary,
+                                  foregroundColor: theme.colorScheme.onPrimary,
                                 ),
                                 onPressed: () {
                                   _servicesDiscoveryRepo.initClientChannels(

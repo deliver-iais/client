@@ -326,7 +326,7 @@ class DataStreamServices {
           roomUid.asString(),
           deleteActionTime,
           id,
-          MessageManipulationPersistentEvent_Action.DELETED,
+          MessageEventAction.DELETE,
         ),
       );
     }
@@ -372,7 +372,7 @@ class DataStreamServices {
         roomUid.asString(),
         time,
         id,
-        MessageManipulationPersistentEvent_Action.EDITED,
+        MessageEventAction.EDIT,
       ),
     );
   }

@@ -19,8 +19,8 @@ import 'package:deliver_public_protocol/pub/v1/models/room_metadata.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pb.dart';
 import 'package:fixnum/fixnum.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:mockito/mockito.dart';
-import 'package:test/test.dart';
 
 import '../constants/constants.dart';
 import '../helper/test_helper.dart';
@@ -342,7 +342,8 @@ void main() {
           verify(
             roomDao.updateRoom(
               uid: testUid.asString(),
-              lastMessage: testLastMessage.copyWith(json:Text(text: "text").writeToJson() ),
+              lastMessage: testLastMessage.copyWith(
+                  json: Text(text: "text").writeToJson(),),
             ),
           );
         });
@@ -367,7 +368,7 @@ void main() {
               testUid.asString(),
               0,
               0,
-              MessageManipulationPersistentEvent_Action.EDITED,
+              MessageEventAction.EDIT,
             ),
           );
         });
@@ -477,7 +478,7 @@ void main() {
               testUid.asString(),
               0,
               2,
-              MessageManipulationPersistentEvent_Action.DELETED,
+              MessageEventAction.DELETE,
             ),
           );
         });
@@ -513,7 +514,7 @@ void main() {
               testUid.asString(),
               0,
               2,
-              MessageManipulationPersistentEvent_Action.DELETED,
+              MessageEventAction.DELETE,
             ),
           );
         });

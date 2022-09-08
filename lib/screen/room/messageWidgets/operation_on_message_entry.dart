@@ -147,8 +147,9 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     ],
                   ),
                 ),
-              if (widget.message.type == MessageType.TEXT ||
-                  widget.message.type == MessageType.FILE)
+              if (!isPendingMessage &&
+                  (widget.message.type == MessageType.TEXT ||
+                      widget.message.type == MessageType.FILE))
                 PopupMenuItem(
                   value: OperationOnMessage.SELECT,
                   child: Row(
@@ -447,7 +448,7 @@ void showDeleteMsgDialog(
         ),
         TextButton(
           style: TextButton.styleFrom(
-            primary: Theme.of(context).colorScheme.error,
+            foregroundColor: Theme.of(context).colorScheme.error,
           ),
           child: Text(i18n.get("delete")),
           onPressed: () async {

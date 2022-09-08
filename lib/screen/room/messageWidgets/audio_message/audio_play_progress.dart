@@ -1,6 +1,6 @@
 import 'package:deliver/screen/room/messageWidgets/audio_message/audio_progress_indicator.dart';
 import 'package:deliver/screen/room/messageWidgets/audio_message/time_progress_indicator.dart';
-import 'package:deliver/screen/room/messageWidgets/size_formater.dart';
+import 'package:deliver/screen/room/messageWidgets/size_formatter.dart';
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/shared/methods/find_file_type.dart';
 import 'package:deliver/theme/color_scheme.dart';

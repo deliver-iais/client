@@ -32,7 +32,7 @@ class ExtraThemeData {
   }
 
   CustomColorScheme createColorWithString(String str) {
-    final hctColor = HctColor.fromInt(ColorUtils.stringToHexInt(str));
+    final hctColor = Hct.fromInt(ColorUtils.stringToHexInt(str));
 
     if (colorScheme.brightness == Brightness.light) {
       return CustomColorScheme.light(

@@ -195,7 +195,7 @@ class CallRepo {
                 // final callStatus =
                 //     await FlutterForegroundTask.getData(key: "callStatus");
                 _callService
-                  ..setUserCallState = UserCallState.INUSERCALL
+                  ..setUserCallState = UserCallState.IN_USER_CALL
                   ..setCallOwner = callEvent.memberOrCallOwnerPvp
                   ..setCallId = callEvent.id;
 
@@ -280,11 +280,15 @@ class CallRepo {
               }
               break;
             case CallEvent_CallStatus.JOINED:
-              modifyRoutingByNotificationAcceptCallInBackgroundInAndroid
-                  .add({event.roomUid!.asString(): true});
+              modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
+                CallNotificationActionInBackground(
+                  roomId: event.roomUid!.asString(),
+                  isCallAccepted: true,
+                ),
+              );
               if (_callService.getUserCallState == UserCallState.NOCALL) {
                 _callService
-                  ..setUserCallState = UserCallState.INUSERCALL
+                  ..setUserCallState = UserCallState.IN_USER_CALL
                   ..setCallOwner = callEvent.memberOrCallOwnerPvp
                   ..setCallId = callEvent.id;
 
@@ -953,8 +957,12 @@ class CallRepo {
     String callEventJson,
   ) async {
     if (_isNotificationSelected) {
-      modifyRoutingByNotificationAcceptCallInBackgroundInAndroid
-          .add({roomId.asString(): false});
+      modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
+        CallNotificationActionInBackground(
+          roomId: roomId.asString(),
+          isCallAccepted: false,
+        ),
+      );
     } else if (!isDuplicated) {
       unawaited(
         _notificationServices.notifyIncomingCall(
@@ -994,7 +1002,7 @@ class CallRepo {
   Future<void> startCall(Uid roomId, {bool isVideo = false}) async {
     if (_callService.getUserCallState == UserCallState.NOCALL) {
       //can't call another ppl or received any call notification
-      _callService.setUserCallState = UserCallState.INUSERCALL;
+      _callService.setUserCallState = UserCallState.IN_USER_CALL;
       _isCaller = true;
       _isVideo = isVideo;
       _roomUid = roomId;
@@ -1095,7 +1103,7 @@ class CallRepo {
   }
 
   Future<void> declineCall() async {
-    if (_callService.getUserCallState == UserCallState.INUSERCALL) {
+    if (_callService.getUserCallState == UserCallState.IN_USER_CALL) {
       if (isWindows) {
         _notificationServices.cancelRoomNotifications(roomUid!.node);
       }

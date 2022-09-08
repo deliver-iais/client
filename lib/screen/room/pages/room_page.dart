@@ -12,6 +12,7 @@ import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/models/message_event.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/repository/callRepo.dart';
@@ -174,10 +175,21 @@ class RoomPageState extends State<RoomPage> {
         replyMessageId: _repliedMessage.value?.id ?? 0,
         resetRoomPageDetails: _resetRoomPageDetails,
         child: SafeArea(
-          child: Scaffold(
-            extendBodyBehindAppBar: true,
-            appBar: buildAppbar(),
-            body: buildBody(),
+          child: Stack(
+            children: [
+              StreamBuilder<Room>(
+                stream: _room,
+                builder: (context, snapshot) => Background(
+                  id: snapshot.data?.lastMessageId ?? 0,
+                ),
+              ),
+              Scaffold(
+                backgroundColor: Colors.transparent,
+                extendBodyBehindAppBar: true,
+                appBar: buildAppbar(),
+                body: buildBody(),
+              ),
+            ],
           ),
         ),
       ),
@@ -187,25 +199,16 @@ class RoomPageState extends State<RoomPage> {
   Stack buildBody() {
     return Stack(
       children: [
-        StreamBuilder<Room>(
-          stream: _room,
-          builder: (context, snapshot) => Background(
-            id: snapshot.data?.lastMessageId ?? 0,
-          ),
-        ),
         Column(
           children: <Widget>[
             buildAllMessagesBox(),
             StreamBuilder(
               stream: _repliedMessage,
               builder: (c, rm) {
-                if (rm.hasData && rm.data != null) {
-                  return ReplyPreview(
-                    message: _repliedMessage.value!,
-                    resetRoomPageDetails: _resetRoomPageDetails,
-                  );
-                }
-                return Container();
+                return ReplyPreview(
+                  message: _repliedMessage.value,
+                  resetRoomPageDetails: _resetRoomPageDetails,
+                );
               },
             ),
             StreamBuilder(
@@ -488,13 +491,22 @@ class RoomPageState extends State<RoomPage> {
         .distinct()
         .where((event) => (event != null && event.roomUid == widget.roomId))
         .listen((value) async {
-      final id = value!.id;
-
-      final msg = await _getMessage(id, useCache: false);
-
-      if (msg != null) {
-        _messageCache.set(id, msg); // Refresh cache
+      final Message? msg;
+      if (value?.action == MessageEventAction.PENDING_EDIT) {
+        msg = (await _messageRepo.getPendingEditedMessage(
+          value!.roomUid,
+          value.id,
+        ))
+            ?.msg;
+      } else {
+        msg = await _getMessage(value!.id, useCache: false);
       }
+      if (msg != null) {
+        // Refresh message cache
+        _messageCache.set(value.id, msg);
+      }
+      // Refresh message widget cache
+      _messageWidgetCache.set(value.id - 1, null);
     });
   }
 
@@ -1326,7 +1338,20 @@ class RoomPageState extends State<RoomPage> {
       return const SizedBox.shrink();
     }
 
+    late final Widget widget;
+
     final tuple = _fastForwardFetchMessageAndMessageBefore(index);
+    if (tuple != null) {
+      widget = _cachedBuildMessage(index, tuple);
+    } else {
+      widget = FutureBuilder<Tuple2<Message?, Message?>>(
+        initialData: _fastForwardFetchMessageAndMessageBefore(index),
+        future: _fetchMessageAndMessageBefore(index),
+        builder: (context, ms) {
+          return _cachedBuildMessage(index, ms.data);
+        },
+      );
+    }
 
     return StreamBuilder<int>(
       initialData: _highlightMessageId.value,
@@ -1340,22 +1365,7 @@ class RoomPageState extends State<RoomPage> {
               ? Theme.of(context).primaryColor.withAlpha(100)
               : Colors.transparent,
           curve: Curves.elasticOut,
-          child: FutureBuilder<PendingMessage?>(
-            future: _messageRepo.getPendingEditedMessage(room.uid, index + 1),
-            builder: (context, pendingEditedMessage) {
-              if (tuple != null && pendingEditedMessage.data == null) {
-                return _cachedBuildMessage(index, tuple);
-              } else {
-                return FutureBuilder<Tuple2<Message?, Message?>>(
-                  initialData: _fastForwardFetchMessageAndMessageBefore(index),
-                  future: _fetchMessageAndMessageBefore(index),
-                  builder: (context, ms) {
-                    return _cachedBuildMessage(index, ms.data);
-                  },
-                );
-              }
-            },
-          ),
+          child: widget,
         );
       },
     );
@@ -1368,7 +1378,7 @@ class RoomPageState extends State<RoomPage> {
 
     Widget? widget;
 
-    if (!tuple.item2!.isHidden && !tuple.item2!.edited) {
+    if (!tuple.item2!.isHidden) {
       widget = _messageWidgetCache.get(index);
     }
 

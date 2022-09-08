@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:math';
 
 import 'package:badges/badges.dart';
 import 'package:deliver/box/bot_info.dart';
@@ -48,6 +47,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
+import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:share/share.dart';
@@ -1242,118 +1242,143 @@ class ProfilePageState extends State<ProfilePage>
     showDialog(
       context: context,
       builder: (c1) {
-        return Focus(
-          autofocus: true,
-          child: AlertDialog(
-            title: Text(_i18n.get("add_bot_to_group")),
-            content: Column(
-              children: [
-                AutoDirectionTextField(
-                  onChanged: (str) {
-                    final searchRes = <String>[];
-                    for (final uid in nameOfGroup.keys) {
-                      if (nameOfGroup[uid]!.contains(str) ||
-                          nameOfGroup[uid] == str) {
-                        searchRes.add(uid);
-                      }
-                    }
-                    groups.add(searchRes);
-                  },
-                  decoration: InputDecoration(
-                    hintText: _i18n.get("search"),
-                    prefixIcon: const Icon(Icons.search),
-                  ),
-                ),
-                FutureBuilder<List<Room>>(
-                  future: _roomRepo.getAllGroups(),
-                  builder: (c, mucs) {
-                    if (mucs.hasData &&
-                        mucs.data != null &&
-                        mucs.data!.isNotEmpty) {
-                      final s = <String>[];
-                      for (final room in mucs.data!) {
-                        s.add(room.uid);
-                      }
-                      groups.add(s);
-                      return StreamBuilder<List<String>>(
-                        stream: groups,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData && snapshot.data!.isNotEmpty) {
-                            final filteredGroupList = snapshot.data!;
-                            return SizedBox(
-                              height: min(
-                                MediaQuery.of(context).size.height / 2,
-                                filteredGroupList.length * 50.toDouble(),
-                              ),
-                              width: MediaQuery.of(context).size.width / 2,
-                              child: Expanded(
-                                child: ListView.separated(
-                                  itemBuilder: (c, i) {
-                                    return GestureDetector(
-                                      child: FutureBuilder<String>(
-                                        future: _roomRepo.getName(
-                                          filteredGroupList[i].asUid(),
-                                        ),
-                                        builder: (c, name) {
-                                          if (name.hasData &&
-                                              name.data != null) {
-                                            nameOfGroup[filteredGroupList[i]] =
-                                                name.data!;
-                                            return SizedBox(
-                                              height: 50,
-                                              child: Row(
-                                                children: [
-                                                  CircleAvatarWidget(
-                                                    filteredGroupList[i]
-                                                        .asUid(),
-                                                    20,
-                                                  ),
-                                                  const SizedBox(
-                                                    width: 10,
-                                                  ),
-                                                  Expanded(
-                                                    child: Text(
-                                                      name.data!,
-                                                    ),
-                                                  )
-                                                ],
-                                              ),
-                                            );
-                                          } else {
-                                            return const SizedBox.shrink();
-                                          }
-                                        },
-                                      ),
-                                      onTap: () => _addBotToGroupButtonOnTab(
-                                        context,
-                                        c1,
-                                        filteredGroupList[i],
-                                        nameOfGroup[filteredGroupList[i]],
-                                      ),
-                                    );
-                                  },
-                                  separatorBuilder: (c, i) {
-                                    return const Divider();
-                                  },
-                                  itemCount: snapshot.data!.length,
-                                ),
-                              ),
-                            );
-                          } else {
-                            return const SizedBox.shrink();
-                          }
-                        },
-                      );
-                    }
-                    return const SizedBox.shrink();
-                  },
-                ),
+        return Directionality(
+          textDirection: _i18n.defaultTextDirection,
+          child: Focus(
+            autofocus: true,
+            child: AlertDialog(
+              actions: [
+                TextButton(
+                  style: TextButton.styleFrom(padding: EdgeInsets.zero),
+                  onPressed: () => Navigator.of(c1).pop(),
+                  child: Text(_i18n.get("cancel")),
+                )
               ],
+              contentPadding: const EdgeInsets.only(
+                left: 10,
+                right: 10,
+              ),
+              title: Text(
+                _i18n.get("add_bot_to_group"),
+                textAlign: _i18n.isPersian ? TextAlign.right : TextAlign.left,
+              ),
+              content: SizedBox(
+                width: 350,
+                height: MediaQuery.of(context).size.height / 2,
+                child: Column(
+                  children: [
+                    AutoDirectionTextField(
+                      onChanged: (str) {
+                        final searchRes = <String>[];
+                        for (final uid in nameOfGroup.keys) {
+                          if (nameOfGroup[uid]!.contains(str) ||
+                              nameOfGroup[uid] == str) {
+                            searchRes.add(uid);
+                          }
+                        }
+                        groups.add(searchRes);
+                      },
+                      decoration: InputDecoration(
+                        hintText: _i18n.get("search"),
+                        prefixIcon: const Icon(Icons.search),
+                        border: const UnderlineInputBorder(),
+                      ),
+                    ),
+                    FutureBuilder<List<Room>>(
+                      future: _roomRepo.getAllGroups(),
+                      builder: (c, mucs) {
+                        if (mucs.hasData &&
+                            mucs.data != null &&
+                            mucs.data!.isNotEmpty) {
+                          final s = <String>[];
+                          for (final room in mucs.data!) {
+                            s.add(room.uid);
+                          }
+                          groups.add(s);
+
+                          return StreamBuilder<List<String>>(
+                            stream: groups,
+                            builder: (context, snapshot) {
+                              if (snapshot.hasData) {
+                                if (snapshot.data!.isEmpty) {
+                                  return noGroupFoundWidget();
+                                } else {
+                                  final filteredGroupList = snapshot.data!;
+                                  return Expanded(
+                                    child: ListView.builder(
+                                      shrinkWrap: true,
+                                      itemBuilder: (c, i) {
+                                        return GestureDetector(
+                                          child: FutureBuilder<String>(
+                                            future: _roomRepo.getName(
+                                              filteredGroupList[i].asUid(),
+                                            ),
+                                            builder: (c, name) {
+                                              if (name.hasData &&
+                                                  name.data != null) {
+                                                nameOfGroup[
+                                                        filteredGroupList[i]] =
+                                                    name.data!;
+                                                return SizedBox(
+                                                  height: 50,
+                                                  child: Row(
+                                                    children: [
+                                                      CircleAvatarWidget(
+                                                        filteredGroupList[i]
+                                                            .asUid(),
+                                                        20,
+                                                      ),
+                                                      const SizedBox(
+                                                        width: 10,
+                                                      ),
+                                                      Expanded(
+                                                        child: Text(
+                                                          name.data!,
+                                                        ),
+                                                      )
+                                                    ],
+                                                  ),
+                                                );
+                                              } else {
+                                                return const SizedBox.shrink();
+                                              }
+                                            },
+                                          ),
+                                          onTap: () =>
+                                              _addBotToGroupButtonOnTab(
+                                            context,
+                                            c1,
+                                            filteredGroupList[i],
+                                            nameOfGroup[filteredGroupList[i]],
+                                          ),
+                                        );
+                                      },
+                                      itemCount: snapshot.data!.length,
+                                    ),
+                                  );
+                                }
+                              } else {
+                                return const SizedBox.shrink();
+                              }
+                            },
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                    const Divider(),
+                  ],
+                ),
+              ),
             ),
           ),
         );
       },
     );
+  }
+
+  Widget noGroupFoundWidget() {
+    return Expanded(child: Center(child: Text(_i18n.get("no_results"))));
   }
 
   void _addBotToGroupButtonOnTab(
@@ -1367,47 +1392,60 @@ class ProfilePageState extends State<ProfilePage>
       builder: (context) {
         return AlertDialog(
           title: const Icon(Icons.person_add),
-          content: FutureBuilder<String>(
-            future: _roomRepo.getName(widget.roomUid),
-            builder: (c, name) {
-              if (name.hasData && name.data != null && name.data!.isNotEmpty) {
-                return Text(
-                  "${_i18n.get("add")} ${name.data} ${_i18n.get("to")} $mucName",
-                );
-              } else {
-                return const SizedBox.shrink();
-              }
-            },
+          content: Directionality(
+            textDirection: _i18n.defaultTextDirection,
+            child: FutureBuilder<String>(
+              future: _roomRepo.getName(widget.roomUid),
+              builder: (c, name) {
+                if (name.hasData &&
+                    name.data != null &&
+                    name.data!.isNotEmpty) {
+                  return Text(
+                    "${_i18n.get("add")} ${name.data} ${_i18n.get("to")} $mucName",
+                  );
+                } else {
+                  return const SizedBox.shrink();
+                }
+              },
+            ),
           ),
           actions: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text(_i18n.get("cancel")),
-                ),
-                TextButton(
-                  onPressed: () async {
-                    final basicNavigatorState = Navigator.of(context);
-                    final c1NavigatorState = Navigator.of(c1);
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(_i18n.get("cancel")),
+            ),
+            TextButton(
+              onPressed: () async {
+                final basicNavigatorState = Navigator.of(context);
+                final c1NavigatorState = Navigator.of(c1);
 
-                    final res = await _mucRepo
-                        .sendMembers(uid.asUid(), [widget.roomUid]);
-                    if (res) {
-                      basicNavigatorState.pop();
-                      c1NavigatorState.pop();
-                      _routingService.openRoom(
-                        uid,
-                      );
-                    }
-                  },
-                  child: Text(_i18n.get("add")),
-                ),
-              ],
-            )
+                final usersAddCode =
+                    await _mucRepo.sendMembers(uid.asUid(), [widget.roomUid]);
+                if (usersAddCode == StatusCode.ok) {
+                  basicNavigatorState.pop();
+                  c1NavigatorState.pop();
+                  _routingService.openRoom(
+                    uid,
+                  );
+                } else {
+                  var message = _i18n.get("error_occurred");
+                  if (usersAddCode == StatusCode.unavailable) {
+                    message = _i18n.get("notwork_is_unavailable");
+                  } else if (usersAddCode == StatusCode.permissionDenied ||
+                      usersAddCode == StatusCode.internal) {
+                    message = _i18n.get("permission_denied");
+                  }
+                  c1NavigatorState.pop();
+                  ToastDisplay.showToast(
+                    toastContext: context,
+                    toastText: message,
+                  );
+                }
+              },
+              child: Text(_i18n.get("add")),
+            ),
           ],
         );
       },
