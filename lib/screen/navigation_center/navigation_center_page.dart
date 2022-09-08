@@ -29,6 +29,7 @@ import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:window_size/window_size.dart';
+import 'package:deliver/theme/theme.dart';
 
 BehaviorSubject<String> modifyRoutingByNotificationTapInBackgroundInAndroid =
     BehaviorSubject.seeded("");
@@ -452,9 +453,32 @@ class NavigationCenterState extends State<NavigationCenter> {
             FutureBuilder<String>(
               future: _roomRepo.getName(uid, forceToReturnSavedMessage: true),
               builder: (c, snaps) {
-                return Text(
-                  snaps.data ?? "",
-                  style: theme.textTheme.subtitle1,
+                return Row(
+                  children: [
+                    Text(
+                      snaps.data ?? "",
+                      style: theme.textTheme.subtitle1,
+                    ),
+                    FutureBuilder<bool>(
+                      initialData: _roomRepo.fastForwardIsVerified(uid),
+                      future: _roomRepo.isVerified(uid),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData && snapshot.data!) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                            child: Icon(
+                              CupertinoIcons.checkmark_seal,
+                              size: ((theme.textTheme.subtitle2)?.fontSize ??
+                                  14),
+                              color: ACTIVE_COLOR,
+                            ),
+                          );
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      },
+                    )
+                  ],
                 );
               },
             ),
