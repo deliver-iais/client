@@ -215,50 +215,42 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
         shrinkWrap: true,
         itemCount: widget.editableMessage != null ? 1 : widget.files!.length,
         itemBuilder: (c, index) {
-          return Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              if (isImageFile(
-                index,
-              ))
-                GestureDetector(
-                  onTap: () => openEditImagePage(index),
-                  child: Container(
-                    width: 250,
-                    decoration: BoxDecoration(
-                      borderRadius: tertiaryBorder,
-                      color: Theme.of(context)
-                          .colorScheme
-                          .primary
-                          .withOpacity(0.3),
-                    ),
-                    child: Stack(
-                      children: [
-                        Center(child: buildImageFileUi(index)),
-                        Positioned(
-                          right: 3,
-                          top: 3,
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: tertiaryBorder,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .secondaryContainer
-                                  .withOpacity(0.9),
-                            ),
-                            child: Center(
-                              child: buildManageFilesRow(index: index),
-                            ),
-                          ),
+          if (isImageFile(
+            index,
+          )) {
+            return GestureDetector(
+              onTap: () => openEditImagePage(index),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: tertiaryBorder,
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                ),
+                child: Stack(
+                  children: [
+                    Center(child: buildImageFileUi(index)),
+                    Positioned(
+                      right: 3,
+                      top: 3,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: tertiaryBorder,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .secondaryContainer
+                              .withOpacity(0.9),
                         ),
-                      ],
+                        child: Center(
+                          child: buildManageFilesRow(index: index),
+                        ),
+                      ),
                     ),
-                  ),
-                )
-              else
-                Flexible(child: buildSimpleFileUi(index))
-            ],
-          );
+                  ],
+                ),
+              ),
+            );
+          } else {
+            return Flexible(child: buildSimpleFileUi(index));
+          }
         },
         separatorBuilder: (context, index) {
           return const SizedBox(
