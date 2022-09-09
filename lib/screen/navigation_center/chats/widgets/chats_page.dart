@@ -47,10 +47,9 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   final _controller = AnimatedListController();
   late AnimatedListDiffListDispatcher<RoomWrapper> _dispatcher;
   late StreamSubscription<List<RoomWrapper>> _streamSubscription;
+  final List<Room> _pinRoomsList = <Room>[];
 
-  List<Room> rooms = <Room>[];
-
-  void _showCustomMenu(BuildContext context, Room room, bool canBePinned) {
+  void _showCustomMenu(BuildContext context, Room room) {
     this.showMenu(
       context: context,
       items: <PopupMenuEntry<OperationOnRoom>>[
@@ -64,48 +63,43 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
       // ignore: missing_enum_constant_in_switch
       switch (opr) {
         case OperationOnRoom.PIN_ROOM:
-          onPin(room, canBePinned: canBePinned);
+          pinTheRoom(room);
           break;
         case OperationOnRoom.UN_PIN_ROOM:
-          onUnPin(room);
+          unPinTheRoom(room);
           break;
       }
     });
   }
 
-  void onUnPin(Room room) {
+  void unPinTheRoom(Room room) {
     _roomDao.updateRoom(uid: room.uid, pinned: false, pinId: 0);
   }
 
-  void onPin(Room room, {bool canBePinned = false}) {
-    if (canBePinned) {
-      final pinned = <Room>[
-        room,
-        ...rooms.where((element) => element.pinned).toList()
-          ..sort((a, b) => (a.pinId - b.pinId))
-      ];
-
-      for (final room in pinned) {
-        _roomDao.updateRoom(
-          uid: room.uid,
-          pinned: true,
-          pinId: pinned.indexOf(room) + 1,
-        );
-      }
+  void pinTheRoom(Room room) {
+    if (canPinTheRoom()) {
+      _roomDao.updateRoom(
+        uid: room.uid,
+        pinned: true,
+        pinId: _pinRoomsList.length + 1,
+      );
     } else {
       showDialog(
         context: context,
         builder: (context) {
-          return AlertDialog(
-            content: Text(_i18n.get("pin_more_than_5")),
-            actions: [
-              TextButton(
-                child: Text(_i18n.get("ok")),
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-              ),
-            ],
+          return Directionality(
+            textDirection: _i18n.defaultTextDirection,
+            child: AlertDialog(
+              content: Text(_i18n.get("pin_more_than_5")),
+              actions: [
+                TextButton(
+                  child: Text(_i18n.get("ok")),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
           );
         },
       );
@@ -129,8 +123,8 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
     );
   }
 
-  bool canBePinned(List<Room> rooms) {
-    return rooms.where((element) => element.pinned).toList().length < 5;
+  bool canPinTheRoom() {
+    return _pinRoomsList.length < 5;
   }
 
   Widget itemBuilder(
@@ -154,7 +148,6 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
         _showCustomMenu(
           context,
           rw.room,
-          canBePinned(rooms),
         );
       },
       onTapDown: storePosition,
@@ -165,7 +158,6 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
               _showCustomMenu(
                 context,
                 rw.room,
-                canBePinned(rooms),
               );
             },
       child: ChatItem(
@@ -193,7 +185,13 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
         .watchAllRooms()
         .distinct(const ListEquality().equals)
         .switchMap((roomsList) {
-          roomsList = rearrangeChatItem(roomsList);
+
+          _pinRoomsList.clear();
+          if (roomsList.first.pinned) {
+            _pinRoomsList.addAll(
+              roomsList.sublist(0, 5).where((element) => element.pinned),
+            );
+          }
 
           return _routingService.currentRouteStream.distinct().map((route) {
             return roomsList
@@ -210,7 +208,6 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
         .listen(_dispatcher.dispatchNewList);
   }
 
-
   @override
   void dispose() {
     super.dispose();
@@ -221,21 +218,5 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
     await for (final stream in source) {
       yield* stream;
     }
-  }
-
-  List<Room> rearrangeChatItem(List<Room> rooms) {
-    final pinned = <Room>[];
-    for (final room in rooms) {
-      if (room.pinned) {
-        pinned.add(room);
-      }
-    }
-    for (final room in pinned) {
-      rooms.remove(room);
-    }
-    pinned
-      ..sort((a, b) => (a.pinId - b.pinId))
-      ..addAll(rooms);
-    return pinned;
   }
 }
