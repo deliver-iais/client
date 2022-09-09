@@ -68,7 +68,6 @@ class ShareBoxMusicState extends State<ShareBoxMusic> {
                           fileItem.path.split("/").last,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            color: Colors.black,
                             fontSize: 14,
                           ),
                           maxLines: 1,

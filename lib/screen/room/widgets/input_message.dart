@@ -995,8 +995,6 @@ class InputMessageWidgetState extends State<InputMessage> {
           resetRoomPageDetails: widget.resetRoomPageDetails,
           replyMessageId: _replyMessageId,
           files: files,
-          type:
-              isWeb ? files.first.extension : files.first.path.split(".").last,
           currentRoom: currentRoom.uid.asUid(),
         );
       },

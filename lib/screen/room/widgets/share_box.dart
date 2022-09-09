@@ -305,7 +305,6 @@ class ShareBoxState extends State<ShareBox> {
 }
 
 void showCaptionDialog({
-  String? type,
   List<model.File>? files,
   required Uid roomUid,
   required BuildContext context,
@@ -315,14 +314,13 @@ void showCaptionDialog({
   String? caption,
   bool showSelectedImage = false,
 }) {
-  if (files!.isEmpty && editableMessage == null) return;
+  if (editableMessage == null && (files?.isEmpty ?? false)) return;
   showDialog(
     context: context,
     builder: (context) {
       return ShowCaptionDialog(
         resetRoomPageDetails: resetRoomPageDetails,
         replyMessageId: replyMessageId,
-        type: type,
         caption: caption,
         showSelectedImage: showSelectedImage,
         editableMessage: editableMessage,

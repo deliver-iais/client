@@ -54,6 +54,7 @@ class AllAvatarPageState extends State<AllAvatarPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme=Theme.of(context);
     return Hero(
       tag: widget.heroTag!,
       child: StreamBuilder<List<Avatar?>>(
@@ -67,15 +68,15 @@ class AllAvatarPageState extends State<AllAvatarPage> {
               _swipePositionSubject.value = _swipePositionSubject.value - 1;
             }
             return AnnotatedRegion<SystemUiOverlayStyle>(
-              value: const SystemUiOverlayStyle(
-                systemNavigationBarColor: Colors.black,
+              value:  SystemUiOverlayStyle(
+                systemNavigationBarColor: theme.shadowColor,
                 systemNavigationBarIconBrightness: Brightness.light,
               ),
               child: Scaffold(
                 extendBodyBehindAppBar: true,
                 appBar: buildAppBar(snapshot.data!.length),
                 body: Container(
-                  color: Colors.black,
+                  color: theme.shadowColor,
                   child: Row(
                     children: [
                       if (isDesktop)
@@ -107,8 +108,8 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                         child: PhotoViewGallery.builder(
                           scrollPhysics: const BouncingScrollPhysics(),
                           itemCount: snapshot.data!.length,
-                          backgroundDecoration: const BoxDecoration(
-                            color: Colors.black,
+                          backgroundDecoration:  BoxDecoration(
+                            color: theme.shadowColor,
                           ),
                           pageController: _pageController,
                           onPageChanged: (index) =>
