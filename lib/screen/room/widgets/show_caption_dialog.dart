@@ -112,7 +112,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
                       constraints: BoxConstraints(
                         maxHeight: MediaQuery.of(context).size.height - 300,
                       ),
-                      width: 350,
+                      width: 300,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
