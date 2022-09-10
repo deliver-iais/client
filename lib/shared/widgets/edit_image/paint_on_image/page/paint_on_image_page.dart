@@ -4,6 +4,7 @@ import 'package:clock/clock.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/widgets/edit_image/paint_on_image/_paint_over_image.dart';
+import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -33,24 +34,30 @@ class _PaintOnImagePageState extends State<PaintOnImagePage> {
       ),
       child: Scaffold(
         extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          iconTheme: const IconThemeData(
-            color: Colors.white, //change your color here
+        appBar: BlurredPreferredSizedWidget(
+          child: AppBar(
+            backgroundColor: Colors.black.withAlpha(120),
+            leading: BackButton(
+              color: Colors.white,
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            title: Text(
+              _i18n.get("paint_on_image"),
+              style: const TextStyle(color: Colors.white),
+            ),
+            actions: [
+              if (!_showLoading)
+                IconButton(
+                  icon: const Icon(Icons.done_rounded),
+                  color: Colors.white,
+                  onPressed: () async {
+                    await saveImage(context);
+                  },
+                )
+            ],
           ),
-          backgroundColor: Colors.black.withAlpha(120),
-          title: Text(
-            _i18n.get("paint_on_image"),
-            style: const TextStyle(color: Colors.white),
-          ),
-          actions: [
-            if (!_showLoading)
-              IconButton(
-                icon: const Icon(Icons.done_rounded),
-                onPressed: () async {
-                  await saveImage(context);
-                },
-              )
-          ],
         ),
         body: Container(
           color: Colors.black,
