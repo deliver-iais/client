@@ -249,7 +249,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
               ),
             );
           } else {
-            return Flexible(child: buildSimpleFileUi(index));
+            return buildSimpleFileUi(index);
           }
         },
         separatorBuilder: (context, index) {
