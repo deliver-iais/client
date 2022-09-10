@@ -103,7 +103,7 @@ class ShareBoxState extends State<ShareBox> {
                   children: <Widget>[
                     Container(
                       padding: !isSelected()
-                          ? const EdgeInsetsDirectional.only(bottom: 80)
+                          ? const EdgeInsetsDirectional.only(bottom: 70)
                           : const EdgeInsets.all(0),
                       child: currentPage == Page.music
                           ? ShareBoxMusic(
@@ -121,12 +121,14 @@ class ShareBoxState extends State<ShareBox> {
                                 setState(() {
                                   if (playAudioIndex == index) {
                                     _audioPlayer.pause();
-                                    icons[index] = Icons.play_arrow;
+                                    icons[index] =
+                                        Icons.play_circle_filled_rounded;
                                     playAudioIndex = -1;
                                   } else {
                                     _audioPlayer.play(DeviceFileSource(path));
                                     icons.remove(playAudioIndex);
-                                    icons[index] = Icons.pause;
+                                    icons[index] =
+                                        Icons.pause_circle_filled_rounded;
                                     playAudioIndex = index;
                                   }
                                 });
@@ -216,9 +218,16 @@ class ShareBoxState extends State<ShareBox> {
                           )
                         else
                           Container(
-                            padding:
-                                const EdgeInsetsDirectional.only(bottom: 10),
-                            color: theme.colorScheme.background,
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.background,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: theme.shadowColor.withOpacity(0.3),
+                                  blurRadius: 10.0,
+                                )
+                              ],
+                            ),
+                            height: 70,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               crossAxisAlignment: CrossAxisAlignment.end,
@@ -230,7 +239,7 @@ class ShareBoxState extends State<ShareBox> {
                                       currentPage = Page.gallery;
                                     });
                                   },
-                                  Icons.insert_drive_file,
+                                  Icons.insert_drive_file_rounded,
                                   i18n.get("gallery"),
                                   40,
                                   context: co,
@@ -242,7 +251,7 @@ class ShareBoxState extends State<ShareBox> {
                                       currentPage = Page.files;
                                     });
                                   },
-                                  Icons.file_upload,
+                                  Icons.file_upload_rounded,
                                   i18n.get("file"),
                                   40,
                                   context: co,
@@ -268,7 +277,7 @@ class ShareBoxState extends State<ShareBox> {
                                       }
                                     }
                                   },
-                                  Icons.location_on,
+                                  Icons.location_on_rounded,
                                   i18n.get("location"),
                                   40,
                                   context: co,
@@ -279,7 +288,7 @@ class ShareBoxState extends State<ShareBox> {
                                       currentPage = Page.music;
                                     });
                                   },
-                                  Icons.music_note,
+                                  Icons.music_note_rounded,
                                   i18n.get("music"),
                                   40,
                                   context: co,
@@ -346,7 +355,7 @@ Widget circleButton(
         child: Material(
           color: theme.primaryColor, // button color
           child: InkWell(
-            splashColor: Colors.red,
+            splashColor: theme.shadowColor.withOpacity(0.3),
             onTap: onTap, // inkwell color
             child: SizedBox(
               width: size,
