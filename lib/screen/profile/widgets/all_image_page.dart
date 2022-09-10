@@ -524,8 +524,7 @@ class _AllImagePageState extends State<AllImagePage>
               return Text(
                 name.data!,
                 overflow: TextOverflow.fade,
-                style: theme.textTheme.bodyText2!
-                    .copyWith(color: Colors.white),
+                style: theme.textTheme.bodyText2!.copyWith(color: Colors.white),
               );
             } else {
               return const SizedBox.shrink();
@@ -599,9 +598,9 @@ class _AllImagePageState extends State<AllImagePage>
                         _routingService.pop();
                       },
                       tooltip: _i18n.get("edit"),
-                      icon: Icon(
-                        CupertinoIcons.paintbrush,
-                        color: theme.primaryColorLight,
+                      icon: const Icon(
+                        Icons.edit_rounded,
+                        color: Colors.white,
                       ),
                     );
                   } else {
@@ -617,9 +616,9 @@ class _AllImagePageState extends State<AllImagePage>
                 }
               },
               tooltip: _i18n.get("rotate"),
-              icon: Icon(
-                Icons.rotate_right,
-                color: theme.primaryColorLight,
+              icon: const Icon(
+                Icons.rotate_right_rounded,
+                color: Colors.white,
               ),
             ),
             IconButton(
@@ -637,8 +636,8 @@ class _AllImagePageState extends State<AllImagePage>
                 );
               },
               icon: Icon(
-                isDesktop ? CupertinoIcons.folder_open : Icons.share,
-                color: theme.primaryColorLight,
+                isDesktop ? CupertinoIcons.folder_open : Icons.share_rounded,
+                color: Colors.white,
               ),
             ),
           ],
@@ -649,15 +648,15 @@ class _AllImagePageState extends State<AllImagePage>
 
   PreferredSizeWidget buildAppBarWidget() {
     return AppBar(
-      iconTheme: const IconThemeData(
-        color: Colors.white, //change your color here
+      leading: _routingService.backButtonLeading(
+        color: Colors.white,
       ),
       backgroundColor: Colors.black.withAlpha(120),
       actions: [
         IconButton(
-          icon: Icon(
+          icon: const Icon(
             CupertinoIcons.arrowshape_turn_up_right,
-            color: theme.primaryColorLight,
+            color: Colors.white,
           ),
           tooltip: _i18n.get("forward"),
           onPressed: () async {
@@ -673,9 +672,9 @@ class _AllImagePageState extends State<AllImagePage>
         ),
         if (!isDesktop)
           IconButton(
-            icon: Icon(
+            icon: const Icon(
               CupertinoIcons.down_arrow,
-              color: theme.primaryColorLight,
+              color: Colors.white,
             ),
             onPressed: () async {
               final message = await getMessage();
