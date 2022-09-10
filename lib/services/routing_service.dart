@@ -397,7 +397,7 @@ class RoutingService {
     }
   }
 
-  Widget backButtonLeading() => BackButton(onPressed: pop);
+  Widget backButtonLeading({Color? color}) => BackButton(onPressed: pop,color: color,);
 }
 
 class RouteEvent {
