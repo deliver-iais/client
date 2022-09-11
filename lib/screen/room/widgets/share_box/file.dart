@@ -82,6 +82,9 @@ class ShareBoxFileState extends State<ShareBoxFile> {
                         final result = await FilePicker.platform
                             .pickFiles(allowMultiple: true);
                         if (result != null && result.files.isNotEmpty) {
+                          if (mounted) {
+                            Navigator.pop(context);
+                          }
                           showCaptionDialog(
                             resetRoomPageDetails: widget.resetRoomPageDetails,
                             replyMessageId: widget.replyMessageId,
