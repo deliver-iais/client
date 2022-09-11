@@ -179,60 +179,70 @@ class MessageRepo {
           _sharedDao.putBoolean(SHARED_DAO_ALL_ROOMS_FETCHED, true).ignore();
         }
         for (final roomMetadata in getAllUserRoomMetaRes.roomsMeta) {
-          final room = await _roomDao.getRoom(roomMetadata.roomUid.asString());
-          if (roomMetadata.presenceType == PresenceType.ACTIVE) {
-            if (room != null &&
-                room.lastMessageId < roomMetadata.lastMessageId.toInt() &&
-                hasFirebaseCapability) {
-              _fireBaseServices
-                  .sendGlitchReportForFirebaseNotification(
-                    roomMetadata.roomUid.asString(),
+          try {
+            final room =
+                await _roomDao.getRoom(roomMetadata.roomUid.asString());
+            if (roomMetadata.presenceType == PresenceType.ACTIVE) {
+              if (room != null &&
+                  room.lastMessageId < roomMetadata.lastMessageId.toInt() &&
+                  hasFirebaseCapability) {
+                _fireBaseServices
+                    .sendGlitchReportForFirebaseNotification(
+                      roomMetadata.roomUid.asString(),
+                    )
+                    .ignore();
+              }
+              try {
+                if (room != null &&
+                    room.lastMessage != null &&
+                    room.lastMessage!.id != null &&
+                    room.lastMessage!.id! >=
+                        roomMetadata.lastMessageId.toInt() &&
+                    room.lastMessage!.id != 0 &&
+                    room.lastUpdateTime >= roomMetadata.lastUpdate.toInt()) {
+                  if (allRoomFetched) {
+                    finished = true;
+                  }
+                  break;
+                }
+                // no more updating needed after this room
+
+              } catch (e) {
+                _logger.e(e);
+              }
+              _roomDao
+                  .updateRoom(
+                    uid: roomMetadata.roomUid.asString(),
+                    deleted: false,
+                    synced: false,
+                    lastCurrentUserSentMessageId:
+                        roomMetadata.lastCurrentUserSentMessageId.toInt(),
+                    lastMessageId: roomMetadata.lastMessageId.toInt(),
+                    firstMessageId: roomMetadata.firstMessageId.toInt(),
+                    lastUpdateTime: roomMetadata.lastUpdate.toInt(),
+                  )
+                  .ignore();
+
+              if (pointer <= FETCH_ROOM_METADATA_IN_SYNCING_SIZE) {
+                await fetchRoomLastMessage(
+                  roomMetadata.roomUid.asString(),
+                  roomMetadata.lastMessageId.toInt(),
+                  roomMetadata.firstMessageId.toInt(),
+                );
+              }
+            } else {
+              _roomDao
+                  .updateRoom(
+                    uid: roomMetadata.roomUid.asString(),
+                    deleted: true,
+                    lastMessageId: roomMetadata.lastMessageId.toInt(),
+                    firstMessageId: roomMetadata.firstMessageId.toInt(),
+                    lastUpdateTime: roomMetadata.lastUpdate.toInt(),
                   )
                   .ignore();
             }
-            if (room != null &&
-                room.lastMessage != null &&
-                room.lastMessage!.id != null &&
-                room.lastMessage!.id! >= roomMetadata.lastMessageId.toInt() &&
-                room.lastMessage!.id != 0 &&
-                room.lastUpdateTime >= roomMetadata.lastUpdate.toInt()) {
-              if (allRoomFetched) {
-                finished = true;
-              }
-              break;
-              // no more updating needed after this room
-
-            }
-            _roomDao
-                .updateRoom(
-                  uid: roomMetadata.roomUid.asString(),
-                  deleted: false,
-                  synced: false,
-                  lastCurrentUserSentMessageId:
-                      roomMetadata.lastCurrentUserSentMessageId.toInt(),
-                  lastMessageId: roomMetadata.lastMessageId.toInt(),
-                  firstMessageId: roomMetadata.firstMessageId.toInt(),
-                  lastUpdateTime: roomMetadata.lastUpdate.toInt(),
-                )
-                .ignore();
-
-            if (pointer <= FETCH_ROOM_METADATA_IN_SYNCING_SIZE) {
-              await fetchRoomLastMessage(
-                roomMetadata.roomUid.asString(),
-                roomMetadata.lastMessageId.toInt(),
-                roomMetadata.firstMessageId.toInt(),
-              );
-            }
-          } else {
-            _roomDao
-                .updateRoom(
-                  uid: roomMetadata.roomUid.asString(),
-                  deleted: true,
-                  lastMessageId: roomMetadata.lastMessageId.toInt(),
-                  firstMessageId: roomMetadata.firstMessageId.toInt(),
-                  lastUpdateTime: roomMetadata.lastUpdate.toInt(),
-                )
-                .ignore();
+          } catch (e) {
+            _logger.e(e);
           }
         }
       } catch (e) {
