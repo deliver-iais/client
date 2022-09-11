@@ -1401,7 +1401,7 @@ class RoomPageState extends State<RoomPage> {
     }
 
     final msgBox = BuildMessageBox(
-      key: GlobalKey(),
+  //    key: GlobalKey(),
       message: message,
       messageBefore: messageBefore,
       roomId: widget.roomId,
