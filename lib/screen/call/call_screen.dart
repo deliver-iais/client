@@ -154,7 +154,7 @@ class CallScreenState extends State<CallScreen> {
   @override
   void dispose() {
     super.dispose();
-    if(isWindows) {
+    if (isWindows) {
       setWindowMinSize(
         const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100),
       );
@@ -212,7 +212,7 @@ class CallScreenState extends State<CallScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder(
+    return StreamBuilder<CallStatus>(
       stream: _callRepo.callingStatus,
       builder: (context, snapshot) {
         _logger.i("callStatus-$random: ${snapshot.data}");
@@ -222,7 +222,7 @@ class CallScreenState extends State<CallScreen> {
             return widget.isVideoCall
                 ? VideoCallScreen(
                     localRenderer: _localRenderer,
-                    text: "Connected",
+                    callStatus: snapshot.data!,
                     callStatusOnScreen: _i18n.get("call_connected"),
                     remoteRenderer: _remoteRenderer,
                     roomUid: widget.roomUid,
@@ -230,7 +230,7 @@ class CallScreenState extends State<CallScreen> {
                   )
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
-                    callStatus: "Connected",
+                    callStatus: snapshot.data!,
                     callStatusOnScreen: _i18n.get("call_connected"),
                     hangUp: _hangUp,
                   );
@@ -239,7 +239,7 @@ class CallScreenState extends State<CallScreen> {
             return widget.isVideoCall
                 ? VideoCallScreen(
                     localRenderer: _localRenderer,
-                    text: "disConnected",
+                    callStatus: snapshot.data!,
                     callStatusOnScreen: _i18n.get("call_dis_connected"),
                     remoteRenderer: _remoteRenderer,
                     roomUid: widget.roomUid,
@@ -247,7 +247,7 @@ class CallScreenState extends State<CallScreen> {
                   )
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
-                    callStatus: "disConnected",
+                    callStatus: snapshot.data!,
                     callStatusOnScreen: _i18n.get("call_dis_connected"),
                     hangUp: _hangUp,
                   );
@@ -256,7 +256,7 @@ class CallScreenState extends State<CallScreen> {
             return widget.isVideoCall
                 ? VideoCallScreen(
                     localRenderer: _localRenderer,
-                    text: "Connecting",
+                    callStatus: snapshot.data!,
                     callStatusOnScreen: _i18n.get("call_connecting"),
                     remoteRenderer: _remoteRenderer,
                     roomUid: widget.roomUid,
@@ -264,7 +264,7 @@ class CallScreenState extends State<CallScreen> {
                   )
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
-                    callStatus: "Connecting",
+                    callStatus: snapshot.data!,
                     callStatusOnScreen: _i18n.get("call_connecting"),
                     hangUp: _hangUp,
                   );
@@ -273,7 +273,7 @@ class CallScreenState extends State<CallScreen> {
             return widget.isVideoCall
                 ? VideoCallScreen(
                     localRenderer: _localRenderer,
-                    text: "Reconnecting",
+                    callStatus: snapshot.data!,
                     callStatusOnScreen: _i18n.get("call_reconnecting"),
                     remoteRenderer: _remoteRenderer,
                     roomUid: widget.roomUid,
@@ -281,7 +281,7 @@ class CallScreenState extends State<CallScreen> {
                   )
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
-                    callStatus: "Reconnecting",
+                    callStatus: snapshot.data!,
                     callStatusOnScreen: _i18n.get("call_reconnecting"),
                     hangUp: _hangUp,
                   );
@@ -290,7 +290,7 @@ class CallScreenState extends State<CallScreen> {
             return widget.isVideoCall
                 ? VideoCallScreen(
                     localRenderer: _localRenderer,
-                    text: "Connection failed",
+                    callStatus: snapshot.data!,
                     callStatusOnScreen: _i18n.get("call_connection_failed"),
                     remoteRenderer: _remoteRenderer,
                     roomUid: widget.roomUid,
@@ -298,7 +298,7 @@ class CallScreenState extends State<CallScreen> {
                   )
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
-                    callStatus: "Connection failed",
+                    callStatus: snapshot.data!,
                     callStatusOnScreen: _i18n.get("call_connection_failed"),
                     hangUp: _hangUp,
                   );
@@ -308,7 +308,7 @@ class CallScreenState extends State<CallScreen> {
                 ? VideoCallScreen(
                     roomUid: widget.roomUid,
                     localRenderer: _localRenderer,
-                    text: "Ringing",
+                    callStatus: snapshot.data!,
                     callStatusOnScreen: _i18n.get("call_ringing"),
                     remoteRenderer: _remoteRenderer,
                     isIncomingCall: widget.isIncomingCall,
@@ -316,7 +316,7 @@ class CallScreenState extends State<CallScreen> {
                   )
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
-                    callStatus: "Ringing",
+                    callStatus: snapshot.data!,
                     callStatusOnScreen: _i18n.get("call_ringing"),
                     isIncomingCall: widget.isIncomingCall,
                     hangUp: _hangUp,
@@ -327,13 +327,13 @@ class CallScreenState extends State<CallScreen> {
                     roomUid: widget.roomUid,
                     localRenderer: _localRenderer,
                     callStatusOnScreen: _i18n.get("call_user_not_answer"),
-                    text: "User not answer",
+                    callStatus: snapshot.data!,
                     remoteRenderer: _remoteRenderer,
                     hangUp: _hangUp,
                   )
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
-                    callStatus: "User not answer",
+                    callStatus: snapshot.data!,
                     callStatusOnScreen: _i18n.get("call_user_not_answer"),
                     hangUp: _hangUp,
                   );
@@ -342,7 +342,7 @@ class CallScreenState extends State<CallScreen> {
                 ? VideoCallScreen(
                     roomUid: widget.roomUid,
                     localRenderer: _localRenderer,
-                    text: "Calling",
+                    callStatus: snapshot.data!,
                     callStatusOnScreen: widget.isIncomingCall
                         ? _i18n.get("call_incoming")
                         : _i18n.get("call_calling"),
@@ -352,7 +352,7 @@ class CallScreenState extends State<CallScreen> {
                   )
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
-                    callStatus: "Calling",
+                    callStatus: snapshot.data!,
                     callStatusOnScreen: widget.isIncomingCall
                         ? _i18n.get("call_incoming")
                         : _i18n.get("call_calling"),
@@ -371,7 +371,7 @@ class CallScreenState extends State<CallScreen> {
                 ? VideoCallScreen(
                     roomUid: widget.roomUid,
                     localRenderer: _localRenderer,
-                    text: "Ended",
+                    callStatus: snapshot.data!,
                     callStatusOnScreen: _i18n.get("call_ended"),
                     remoteRenderer: _remoteRenderer,
                     isIncomingCall:
@@ -380,14 +380,12 @@ class CallScreenState extends State<CallScreen> {
                   )
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
-                    callStatus: "Ended",
+                    callStatus: snapshot.data!,
                     callStatusOnScreen: _i18n.get("call_ended"),
                     isIncomingCall:
                         widget.isIncomingCall && !_callRepo.isConnected,
                     hangUp: _hangUp,
                   );
-          // case CallStatus.NO_CALL:
-          //   return const Scaffold();
           case CallStatus.BUSY:
             _audioService.stopBeepSound();
             _audioService.playBusySound();
@@ -395,14 +393,14 @@ class CallScreenState extends State<CallScreen> {
                 ? VideoCallScreen(
                     roomUid: widget.roomUid,
                     localRenderer: _localRenderer,
-                    text: "Busy....",
+                    callStatus: snapshot.data!,
                     callStatusOnScreen: "${_i18n.get("call_busy")}....",
                     remoteRenderer: _remoteRenderer,
                     hangUp: _hangUp,
                   )
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
-                    callStatus: "Busy....",
+                    callStatus: snapshot.data!,
                     callStatusOnScreen: "${_i18n.get("call_busy")}....",
                     hangUp: _hangUp,
                   );
@@ -411,14 +409,14 @@ class CallScreenState extends State<CallScreen> {
                 ? VideoCallScreen(
                     roomUid: widget.roomUid,
                     localRenderer: _localRenderer,
-                    text: "Declined....",
+                    callStatus: snapshot.data!,
                     callStatusOnScreen: "${_i18n.get("call_declined")}....",
                     remoteRenderer: _remoteRenderer,
                     hangUp: _hangUp,
                   )
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
-                    callStatus: "Declined....",
+                    callStatus: snapshot.data!,
                     callStatusOnScreen: "${_i18n.get("call_declined")}....",
                     hangUp: _hangUp,
                   );
@@ -428,22 +426,21 @@ class CallScreenState extends State<CallScreen> {
                 ? VideoCallScreen(
                     roomUid: widget.roomUid,
                     localRenderer: _localRenderer,
-                    text: "Accepted",
+                    callStatus: snapshot.data!,
                     callStatusOnScreen: _i18n.get("call_accepted"),
                     remoteRenderer: _remoteRenderer,
                     hangUp: _hangUp,
                   )
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
-                    callStatus: "Accepted",
+                    callStatus: snapshot.data!,
                     callStatusOnScreen: _i18n.get("call_accepted"),
                     hangUp: _hangUp,
                   );
-
-          default:
-            {
-              return const Scaffold();
-            }
+          case CallStatus.NO_CALL:
+            return const Scaffold();
+          case null:
+            return const Scaffold();
         }
       },
     );
