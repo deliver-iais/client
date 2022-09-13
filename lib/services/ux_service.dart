@@ -12,6 +12,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:material_color_utilities/material_color_utilities.dart';
 import 'package:rxdart/rxdart.dart';
 
 class DeliverLogFilter extends LogFilter {
@@ -160,6 +161,9 @@ class UxService {
 
   ThemeData get theme =>
       getThemeScheme(_themeIndex.value).theme(isDark: _themeIsDark.value);
+
+  CorePalette getCorePalette() =>
+      CorePalette.of(palettes[themeIndex % palettes.length].value);
 
   ExtraThemeData get extraTheme =>
       getThemeScheme(_themeIndex.value).extraTheme(isDark: _themeIsDark.value);
