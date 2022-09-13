@@ -1,8 +1,10 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/shareScreen/screen_select_dialog.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -25,8 +27,24 @@ class CallBottomRow extends StatefulWidget {
 class CallBottomRowState extends State<CallBottomRow>
     with SingleTickerProviderStateMixin {
   final _i18n = GetIt.I.get<I18N>();
-  final boxSize = isAndroid ? 50.0 : 60.0;
-  final iconSize = isAndroid ? 35.0 : 40.0;
+  final _iconsSize = isAndroid ? 30.0 : 40.0;
+  final _uxService = GetIt.I.get<UxService>();
+  late final _gradientBoxBackground = LinearGradient(
+    begin: Alignment.topRight,
+    end: Alignment.bottomLeft,
+    colors: [
+      Color(
+        _uxService.getCorePalette().tertiary.get(
+              _uxService.themeIsDark ? 65 : 80,
+            ),
+      ),
+      Color(
+        _uxService.getCorePalette().primary.get(
+              _uxService.themeIsDark ? 65 : 80,
+            ),
+      )
+    ],
+  );
 
   Color? _switchCameraColor;
   Color? _offVideoCamColor;
@@ -66,13 +84,276 @@ class CallBottomRowState extends State<CallBottomRow>
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    _speakerColor = callRepo.isSpeaker ? Colors.green : theme.shadowColor;
-    _muteMicColor = callRepo.isMicMuted ? Colors.green : theme.shadowColor;
+    initializeIcons();
+
+    if (widget.isIncomingCall) {
+      return _buildIncomingCallWidget(theme);
+    } else {
+      return callRepo.isVideo
+          ? _buildVideoCallWidget(theme, context)
+          : _buildVoiceCallWidget(theme);
+    }
+  }
+
+  Widget _buildVoiceCallWidget(ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 70, right: 50, left: 50),
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Container(
+          width: 400,
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 5,
+                color: theme.colorScheme.outline.withOpacity(0.6),
+              ),
+            ],
+            gradient: _gradientBoxBackground,
+            borderRadius: BorderRadius.circular(35.0),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 15,
+              vertical: 10,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    FloatingActionButton(
+                      heroTag: "1",
+                      elevation: 0,
+                      shape: const CircleBorder(),
+                      backgroundColor: Colors.transparent,
+                      onPressed: () => _enableSpeaker(theme),
+                      child: Icon(
+                        _speakerIcon,
+                        size: isAndroid ? 30 : 40,
+                        color: _speakerColor,
+                      ),
+                    ),
+                    Text(
+                      _i18n.get("speaker"),
+                      style: theme.textTheme.titleSmall,
+                    ),
+                  ],
+                ),
+                SizedBox(
+                  height: isAndroid ? 65 : 80,
+                  width: isAndroid ? 65 : 80,
+                  child: FloatingActionButton(
+                    backgroundColor: theme.errorColor,
+                    heroTag: "2",
+                    elevation: 0,
+                    shape: const CircleBorder(),
+                    child: Icon(
+                      CupertinoIcons.phone_down_fill,
+                      size: isAndroid ? 37 : 50,
+                      color: Colors.white,
+                    ),
+                    onPressed: () => widget.hangUp(),
+                  ),
+                ),
+                Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    FloatingActionButton(
+                      heroTag: "3",
+                      elevation: 0,
+                      shape: const CircleBorder(),
+                      backgroundColor: theme.cardColor.withOpacity(0),
+                      onPressed: () => _muteMic(theme),
+                      child: Padding(
+                        padding: const EdgeInsets.all(0),
+                        child: Icon(
+                          _muteMicIcon,
+                          size: isAndroid ? 30 : 40,
+                          color: _muteMicColor,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      _i18n.get("mute_call"),
+                      style: theme.textTheme.titleSmall,
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVideoCallWidget(ThemeData theme, BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 25, right: 20, left: 20),
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Container(
+          width: 500,
+          padding: const EdgeInsets.only(
+            bottom: 10,
+            top: 10,
+          ),
+          decoration: BoxDecoration(
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 5,
+                color: theme.colorScheme.outline.withOpacity(0.6),
+              ),
+            ],
+            borderRadius: BorderRadius.circular(35.0),
+            gradient: _gradientBoxBackground,
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              FloatingActionButton(
+                heroTag: 22,
+                elevation: 0,
+                shape: const CircleBorder(),
+                backgroundColor: Colors.transparent,
+                onPressed: () =>
+                    isDesktop ? _desktopDualVideo() : _switchCamera(theme),
+                tooltip: isDesktop
+                    ? _i18n.get("screen")
+                    : _i18n.get("camera_switch"),
+                child: Icon(
+                  isDesktop
+                      ? _desktopDualVideoIcon
+                      : CupertinoIcons.switch_camera,
+                  size: _iconsSize,
+                  color: isDesktop ? theme.shadowColor : _switchCameraColor,
+                ),
+              ),
+              FloatingActionButton(
+                heroTag: 33,
+                elevation: 0,
+                shape: const CircleBorder(),
+                backgroundColor: Colors.transparent,
+                onPressed: () => _offVideoCam(theme),
+                tooltip: _i18n.get("camera"),
+                child: Icon(
+                  _offVideoCamIcon,
+                  size: _iconsSize,
+                  color: _offVideoCamColor,
+                ),
+              ),
+
+              SizedBox(
+                width: 65,
+                height: 65,
+                child: FloatingActionButton(
+                  backgroundColor: theme.errorColor,
+                  heroTag: 66,
+                  elevation: 0,
+                  shape: const CircleBorder(),
+                  child: const Icon(
+                    CupertinoIcons.phone_down_fill,
+                    size: 40,
+                    color: Colors.white,
+                  ),
+                  onPressed: () => widget.hangUp(),
+                ),
+              ),
+              FloatingActionButton(
+                heroTag: 44,
+                elevation: 0,
+                shape: const CircleBorder(),
+                backgroundColor: theme.cardColor.withOpacity(0),
+                hoverColor: theme.primaryColor.withOpacity(0.6),
+                onPressed: () => _muteMic(theme),
+                tooltip: _i18n.get("mute_call"),
+                child: Icon(
+                  _muteMicIcon,
+                  size: _iconsSize,
+                  color: _muteMicColor,
+                ),
+              ),
+
+              // TODO(AmirHossein): enable it after fixing 3 issues in flutter-webRtc project itself, https://gitlab.iais.co/deliver/wiki/-/issues/425
+              FloatingActionButton(
+                heroTag: 55,
+                elevation: 0,
+                shape: const CircleBorder(),
+                backgroundColor: Colors.transparent,
+                onPressed: () => _shareScreen(theme, context),
+                tooltip: _i18n.get("share_screen"),
+                child: Icon(
+                  _screenShareIcon,
+                  size: _iconsSize,
+                  color: _screenShareColor,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Padding _buildIncomingCallWidget(ThemeData theme) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 25, right: 25, left: 25),
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            SizedBox(
+              width: 80,
+              height: 80,
+              child: FloatingActionButton(
+                heroTag: 11,
+                backgroundColor: Colors.white,
+                elevation: 0,
+                shape: const CircleBorder(),
+                child: Icon(
+                  CupertinoIcons.phone_fill,
+                  size: 50,
+                  color: ACTIVE_COLOR,
+                ),
+                onPressed: () => _acceptCall(),
+              ),
+            ),
+            SizedBox(
+              height: 80,
+              width: 80,
+              child: FloatingActionButton(
+                backgroundColor: Colors.white,
+                heroTag: 66,
+                elevation: 0,
+                shape: const CircleBorder(),
+                child: Icon(
+                  CupertinoIcons.phone_down_fill,
+                  size: 50,
+                  color: theme.errorColor,
+                ),
+                onPressed: () => _declineCall(),
+              ),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  void initializeIcons() {
+    final theme = Theme.of(context);
+    _speakerColor = callRepo.isSpeaker ? theme.primaryColor : theme.shadowColor;
+    _muteMicColor =
+        callRepo.isMicMuted ? theme.primaryColor : theme.shadowColor;
     _offVideoCamColor =
-        callRepo.mute_camera.value ? theme.shadowColor : Colors.green;
+        callRepo.mute_camera.value ? theme.shadowColor : theme.primaryColor;
     _switchCameraColor =
-        callRepo.switching.value ? Colors.green : theme.shadowColor;
-    _screenShareColor = callRepo.isSharing ? Colors.green : theme.shadowColor;
+        callRepo.switching.value ? theme.primaryColor : theme.shadowColor;
+    _screenShareColor =
+        callRepo.isSharing ? theme.primaryColor : theme.shadowColor;
 
     _speakerIcon = callRepo.isSpeaker
         ? CupertinoIcons.speaker_3
@@ -93,476 +374,20 @@ class CallBottomRowState extends State<CallBottomRow>
     _desktopDualVideoIcon = callRepo.desktopDualVideo.value
         ? CupertinoIcons.square_line_vertical_square
         : CupertinoIcons.rectangle;
-
-    final width = MediaQuery.of(context).size.width;
-
-    if (widget.isIncomingCall) {
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 25, right: 25, left: 25),
-        child: Align(
-          alignment: Alignment.bottomCenter,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
-              Container(
-                padding: const EdgeInsets.all(10),
-                width: 100,
-                height: 100,
-                color: Colors.transparent,
-                child: FloatingActionButton(
-                  heroTag: 11,
-                  backgroundColor: Colors.white,
-                  elevation: 0,
-                  shape: const CircleBorder(),
-                  child: const Icon(
-                    CupertinoIcons.phone_fill,
-                    size: 50,
-                    color: Colors.green,
-                  ),
-                  onPressed: () => _acceptCall(),
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.all(10),
-                height: 100,
-                width: 100,
-                child: FloatingActionButton(
-                  backgroundColor: Colors.white,
-                  heroTag: 66,
-                  elevation: 0,
-                  shape: const CircleBorder(),
-                  child: const Icon(
-                    CupertinoIcons.phone_down_fill,
-                    size: 50,
-                    color: Colors.red,
-                  ),
-                  onPressed: () => _declineCall(),
-                ),
-              )
-            ],
-          ),
-        ),
-      );
-    } else {
-      return callRepo.isVideo
-          ? isWindows
-              ? Padding(
-                  padding:
-                      const EdgeInsets.only(bottom: 25, right: 25, left: 25),
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Container(
-                      width: width > 750 ? width / 2 : width,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(35.0),
-                        color: theme.cardColor.withOpacity(0.8),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8),
-                            child: SizedBox(
-                              width: boxSize,
-                              height: boxSize,
-                              child: FittedBox(
-                                child: FloatingActionButton(
-                                  heroTag: 22,
-                                  elevation: 0,
-                                  shape: const CircleBorder(),
-                                  backgroundColor:
-                                      theme.cardColor.withOpacity(0),
-                                  onPressed: () => _desktopDualVideo(),
-                                  tooltip: _i18n.get("screen"),
-                                  child: Icon(
-                                    _desktopDualVideoIcon,
-                                    size: iconSize,
-                                    color: theme.shadowColor,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8),
-                            child: SizedBox(
-                              width: boxSize,
-                              height: boxSize,
-                              child: FittedBox(
-                                child: FloatingActionButton(
-                                  heroTag: 33,
-                                  elevation: 0,
-                                  shape: const CircleBorder(),
-                                  backgroundColor:
-                                      theme.cardColor.withOpacity(0),
-                                  hoverColor:
-                                      theme.primaryColor.withOpacity(0.6),
-                                  onPressed: () => _offVideoCam(theme),
-                                  tooltip: _i18n.get("camera"),
-                                  child: Icon(
-                                    _offVideoCamIcon,
-                                    size: iconSize,
-                                    color: _offVideoCamColor,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.all(10),
-                            height: 80,
-                            width: 80,
-                            child: FloatingActionButton(
-                              backgroundColor: Colors.red,
-                              heroTag: 66,
-                              elevation: 0,
-                              shape: const CircleBorder(),
-                              child: const Icon(
-                                CupertinoIcons.phone_down_fill,
-                                size: 40,
-                                color: Colors.white,
-                              ),
-                              onPressed: () => widget.hangUp(),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: SizedBox(
-                              width: boxSize,
-                              height: boxSize,
-                              child: FittedBox(
-                                child: FloatingActionButton(
-                                  heroTag: 44,
-                                  elevation: 0,
-                                  shape: const CircleBorder(),
-                                  backgroundColor:
-                                      theme.cardColor.withOpacity(0),
-                                  hoverColor:
-                                      theme.primaryColor.withOpacity(0.6),
-                                  onPressed: () => _muteMic(theme),
-                                  tooltip: _i18n.get("mute_call"),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(0),
-                                    child: Icon(
-                                      _muteMicIcon,
-                                      size: iconSize,
-                                      color: _muteMicColor,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          // TODO(AmirHossein): enable it after fixing 3 issues in flutter-webRtc project itself, https://gitlab.iais.co/deliver/wiki/-/issues/425
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: SizedBox(
-                              width: boxSize,
-                              height: boxSize,
-                              child: FittedBox(
-                                child: FloatingActionButton(
-                                  heroTag: 55,
-                                  elevation: 0,
-                                  shape: const CircleBorder(),
-                                  backgroundColor:
-                                      theme.cardColor.withOpacity(0),
-                                  hoverColor:
-                                      theme.primaryColor.withOpacity(0.6),
-                                  onPressed: () => _shareScreen(theme, context),
-                                  tooltip: _i18n.get("share_screen"),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(0),
-                                    child: Icon(
-                                      _screenShareIcon,
-                                      size: iconSize,
-                                      color: _screenShareColor,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                )
-              : Padding(
-                  padding:
-                      const EdgeInsets.only(bottom: 25, right: 25, left: 25),
-                  child: Align(
-                    alignment: Alignment.bottomCenter,
-                    child: Container(
-                      width: width,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(35.0),
-                        color: theme.cardColor.withOpacity(0.6),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: <Widget>[
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8),
-                            child: SizedBox(
-                              width: boxSize,
-                              height: boxSize,
-                              child: FittedBox(
-                                child: FloatingActionButton(
-                                  heroTag: 22,
-                                  elevation: 0,
-                                  shape: const CircleBorder(),
-                                  backgroundColor:
-                                      theme.cardColor.withOpacity(0),
-                                  hoverColor:
-                                      theme.primaryColor.withOpacity(0.6),
-                                  onPressed: () => _switchCamera(theme),
-                                  tooltip: _i18n.get("camera_switch"),
-                                  child: Icon(
-                                    CupertinoIcons.switch_camera,
-                                    size: iconSize,
-                                    color: _switchCameraColor,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(left: 8),
-                            child: SizedBox(
-                              width: boxSize,
-                              height: boxSize,
-                              child: FittedBox(
-                                child: FloatingActionButton(
-                                  heroTag: 33,
-                                  elevation: 0,
-                                  shape: const CircleBorder(),
-                                  backgroundColor:
-                                      theme.cardColor.withOpacity(0),
-                                  hoverColor:
-                                      theme.primaryColor.withOpacity(0.6),
-                                  onPressed: () => _offVideoCam(theme),
-                                  tooltip: _i18n.get("camera"),
-                                  child: Icon(
-                                    _offVideoCamIcon,
-                                    size: iconSize,
-                                    color: _offVideoCamColor,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.all(5),
-                            height: 65,
-                            width: 65,
-                            child: FloatingActionButton(
-                              backgroundColor: Colors.red,
-                              heroTag: 66,
-                              elevation: 0,
-                              shape: const CircleBorder(),
-                              child: const Icon(
-                                CupertinoIcons.phone_down_fill,
-                                size: 30,
-                                color: Colors.white,
-                              ),
-                              onPressed: () => widget.hangUp(),
-                            ),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: SizedBox(
-                              width: boxSize,
-                              height: boxSize,
-                              child: FittedBox(
-                                child: FloatingActionButton(
-                                  heroTag: 44,
-                                  elevation: 0,
-                                  shape: const CircleBorder(),
-                                  backgroundColor:
-                                      theme.cardColor.withOpacity(0),
-                                  hoverColor:
-                                      theme.primaryColor.withOpacity(0.6),
-                                  onPressed: () => _muteMic(theme),
-                                  tooltip: _i18n.get("mute_call"),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(0),
-                                    child: Icon(
-                                      _muteMicIcon,
-                                      size: iconSize,
-                                      color: _muteMicColor,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          // TODO(AmirHossein): enable it after fixing 3 issues in flutter-webRtc project itself, https://gitlab.iais.co/deliver/wiki/-/issues/425
-                          Padding(
-                            padding: const EdgeInsets.only(right: 8),
-                            child: SizedBox(
-                              width: boxSize,
-                              height: boxSize,
-                              child: FittedBox(
-                                child: FloatingActionButton(
-                                  heroTag: 55,
-                                  elevation: 0,
-                                  shape: const CircleBorder(),
-                                  backgroundColor:
-                                      theme.cardColor.withOpacity(0),
-                                  hoverColor:
-                                      theme.primaryColor.withOpacity(0.6),
-                                  onPressed: () => _shareScreen(theme, context),
-                                  tooltip: _i18n.get("share_screen"),
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(0),
-                                    child: Icon(
-                                      _screenShareIcon,
-                                      size: iconSize,
-                                      color: _screenShareColor,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                )
-          : Padding(
-              padding: const EdgeInsets.only(bottom: 80, right: 50, left: 50),
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: Container(
-                  width: isWindows
-                      ? width > 578
-                          ? width / 2
-                          : 3 * width / 4
-                      : 99 * MediaQuery.of(context).size.width / 100,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(35.0),
-                    color: theme.cardColor.withOpacity(0.8),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Padding(
-                        padding: const EdgeInsets.only(left: 8),
-                        child: SizedBox(
-                          width: isAndroid ? 75 : 80,
-                          height: isAndroid ? 75 : 80,
-                          child: Column(
-                            children: <Widget>[
-                              SizedBox(
-                                height: 50.0,
-                                width: 50.0,
-                                child: FittedBox(
-                                  child: FloatingActionButton(
-                                    heroTag: "1",
-                                    elevation: 0,
-                                    shape: const CircleBorder(),
-                                    backgroundColor:
-                                        theme.cardColor.withOpacity(0),
-                                    hoverColor:
-                                        theme.primaryColor.withOpacity(0.6),
-                                    onPressed: () => _enableSpeaker(theme),
-                                    child: Icon(
-                                      _speakerIcon,
-                                      size: isAndroid ? 30 : 40,
-                                      color: _speakerColor,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Text(
-                                _i18n.get("speaker"),
-                                style: theme.textTheme.titleSmall,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.all(10),
-                        height: isAndroid ? 85 : 100,
-                        width: isAndroid ? 85 : 100,
-                        child: FloatingActionButton(
-                          backgroundColor: Colors.red,
-                          heroTag: "2",
-                          elevation: 0,
-                          shape: const CircleBorder(),
-                          child: Icon(
-                            CupertinoIcons.phone_down_fill,
-                            size: isAndroid ? 37 : 50,
-                            color: Colors.white,
-                          ),
-                          onPressed: () => widget.hangUp(),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: SizedBox(
-                          width: isAndroid ? 75 : 80,
-                          height: isAndroid ? 75 : 80,
-                          child: Column(
-                            children: <Widget>[
-                              SizedBox(
-                                height: 50.0,
-                                width: 50.0,
-                                child: FittedBox(
-                                  child: FloatingActionButton(
-                                    heroTag: "3",
-                                    elevation: 0,
-                                    shape: const CircleBorder(),
-                                    backgroundColor:
-                                        theme.cardColor.withOpacity(0),
-                                    hoverColor:
-                                        theme.primaryColor.withOpacity(0.6),
-                                    onPressed: () => _muteMic(theme),
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(0),
-                                      child: Icon(
-                                        _muteMicIcon,
-                                        size: isAndroid ? 30 : 40,
-                                        color: _muteMicColor,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Text(
-                                _i18n.get("mute_call"),
-                                style: theme.textTheme.titleSmall,
-                              ),
-                            ],
-                          ),
-                        ),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-            );
-    }
   }
 
   Future<void> _switchCamera(ThemeData theme) async {
-    _switchCameraColor = !await callRepo.switchCamera()
-        ? theme.buttonTheme.colorScheme!.primary
-        : null;
+    await callRepo.switchCamera();
     setState(() {});
   }
 
   void _muteMic(ThemeData theme) {
-    _muteMicColor =
-        callRepo.muteMicrophone() ? Colors.green : theme.shadowColor;
+    callRepo.muteMicrophone();
     setState(() {});
   }
 
   void _offVideoCam(ThemeData theme) {
-    _offVideoCamColor =
-        callRepo.muteCamera() ? theme.shadowColor : Colors.green;
+    callRepo.muteCamera();
     setState(() {});
   }
 
@@ -582,14 +407,11 @@ class CallBottomRowState extends State<CallBottomRow>
     } else {
       await callRepo.shareScreen();
     }
-    _screenShareColor =
-        callRepo.isSharing ? theme.buttonTheme.colorScheme!.primary : null;
     setState(() {});
   }
 
   void _enableSpeaker(ThemeData theme) {
-    _speakerColor =
-        callRepo.enableSpeakerVoice() ? Colors.green : theme.shadowColor;
+    callRepo.enableSpeakerVoice();
     setState(() {});
   }
 
