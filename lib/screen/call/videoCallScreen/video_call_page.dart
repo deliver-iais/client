@@ -66,7 +66,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
       ),
       appBar: _buildAppBar(),
       body: Stack(
-        alignment: Alignment.center,
+        alignment: Alignment.topCenter,
         children: [
           const AnimatedGradient(),
           StreamBuilder<bool>(
