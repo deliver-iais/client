@@ -66,7 +66,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
       ),
       appBar: _buildAppBar(),
       body: Stack(
-        alignment: Alignment.center,
+        alignment: Alignment.topCenter,
         children: [
           const AnimatedGradient(),
           StreamBuilder<bool>(
@@ -85,6 +85,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                           padding: const EdgeInsets.only(
                             left: 8.0,
                             right: 8.0,
+                            top: 20,
                           ),
                           child: SizedBox(
                             width: MediaQuery.of(context).size.width,
