@@ -1,27 +1,24 @@
-import 'package:deliver/models/call_timer.dart';
+import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/callRepo.dart';
+import 'package:deliver/screen/call/call_bottom_icons.dart';
+import 'package:deliver/screen/call/call_status.dart';
+import 'package:deliver/screen/call/center_avatar_image_in_call.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/widgets/animated_gradient.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
 
-import '../../../localization/i18n.dart';
-import '../../../repository/authRepo.dart';
-import '../../../repository/callRepo.dart';
-import '../../../shared/methods/platform.dart';
-import '../../../shared/widgets/animated_gradient.dart';
-import '../../../shared/widgets/dot_animation/dot_animation.dart';
-import '../../../theme/theme.dart';
-import '../call_bottom_icons.dart';
-import '../center_avatar_image-in-call.dart';
-
 class VideoCallScreen extends StatefulWidget {
   final Uid roomUid;
   final RTCVideoRenderer localRenderer;
-  final String text;
+  final CallStatus callStatus;
   final String callStatusOnScreen;
   final RTCVideoRenderer remoteRenderer;
   final void Function() hangUp;
@@ -29,7 +26,7 @@ class VideoCallScreen extends StatefulWidget {
 
   const VideoCallScreen({
     super.key,
-    required this.text,
+    required this.callStatus,
     required this.roomUid,
     required this.localRenderer,
     required this.remoteRenderer,
@@ -46,48 +43,32 @@ class VideoCallScreenState extends State<VideoCallScreen>
     with TickerProviderStateMixin {
   final _logger = GetIt.I.get<Logger>();
   final _callRepo = GetIt.I.get<CallRepo>();
-  final _i18n = GetIt.I.get<I18N>();
+  final _uxService = GetIt.I.get<UxService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
-  late AnimationController _repeatEndCallAnimationController;
-  late AnimationController animationController;
   BehaviorSubject<bool> switching = BehaviorSubject.seeded(false);
 
   Offset position = const Offset(20, 95);
 
   @override
-  void initState() {
-    _initRepeatEndCallAnimation();
-    super.initState();
-    animationController = AnimationController(
-      duration: const Duration(seconds: 2),
-      vsync: this,
-    )..repeat();
-  }
-
-  @override
   Future<void> dispose() async {
-    _repeatEndCallAnimationController.dispose();
-    animationController.dispose();
     super.dispose();
-    _logger.i("call dispose in start call status=${widget.text}");
-  }
-
-  void _initRepeatEndCallAnimation() {
-    _repeatEndCallAnimationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
-    _repeatEndCallAnimationController.repeat(reverse: true);
+    _logger.i("call dispose in start call status=${widget.callStatus}");
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(
+        _uxService
+            .getCorePalette()
+            .primary
+            .get(_uxService.themeIsDark ? 50 : 70),
+      ),
       appBar: _buildAppBar(),
       body: Stack(
         alignment: Alignment.center,
         children: [
-          AnimatedGradient(isConnected: _callRepo.isConnected),
+          const AnimatedGradient(),
           StreamBuilder<bool>(
             stream: MergeStream([
               _callRepo.incomingSharing,
@@ -450,124 +431,15 @@ class VideoCallScreenState extends State<VideoCallScreen>
     );
   }
 
-  Row callTimerWidget(
-    ThemeData theme,
-    CallTimer callTimer, {
-    required bool isEnd,
-  }) {
-    var callHour = callTimer.hours.toString();
-    var callMin = callTimer.minutes.toString();
-    var callSecond = callTimer.seconds.toString();
-    callHour = callHour.length != 2 ? '0$callHour' : callHour;
-    callMin = callMin.length != 2 ? '0$callMin' : callMin;
-    callSecond = callSecond.length != 2 ? '0$callSecond' : callSecond;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(
-          CupertinoIcons.phone_fill,
-          size: 25,
-          color: isEnd ? theme.errorColor : theme.primaryColor,
-        ),
-        Text(
-          '$callHour:$callMin:$callSecond',
-          style: theme.textTheme.titleLarge!.copyWith(
-            color: isEnd ? theme.errorColor : theme.primaryColor,
-            fontStyle: FontStyle.italic,
-          ),
-        ),
-      ],
-    );
-  }
-
-  Animatable<Color?> background = TweenSequence<Color?>([
-    TweenSequenceItem(
-      weight: 1.0,
-      tween: ColorTween(
-        begin: Colors.blueAccent,
-        end: Colors.greenAccent,
-      ),
-    ),
-    TweenSequenceItem(
-      weight: 1.0,
-      tween: ColorTween(
-        begin: Colors.greenAccent,
-        end: Colors.blueAccent,
-      ),
-    ),
-  ]);
-
-  PreferredSize _buildAppBar() {
-    final theme = Theme.of(context);
-    return PreferredSize(
-      preferredSize: const Size.fromHeight(50),
-      child: AppBar(
-        backgroundColor: background.evaluate(
-          AlwaysStoppedAnimation(animationController.value),
-        ),
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        centerTitle: true,
-        title: Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            if (widget.text == "Connected")
-              StreamBuilder<CallTimer>(
-                stream: _callRepo.callTimer,
-                builder: (context, snapshot) {
-                  if (snapshot.hasData && snapshot.data != null) {
-                    return callTimerWidget(
-                      theme,
-                      snapshot.data!,
-                      isEnd: false,
-                    );
-                  } else {
-                    return const SizedBox.shrink();
-                  }
-                },
-              )
-            else
-              Directionality(
-                textDirection:
-                    _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if (widget.text != "Ended")
-                      Text(
-                        widget.callStatusOnScreen,
-                        style: theme.textTheme.titleLarge!
-                            .copyWith(color: theme.primaryColor),
-                      )
-                    else
-                      FadeTransition(
-                        opacity: _repeatEndCallAnimationController,
-                        child: (_callRepo.isConnected)
-                            ? Directionality(
-                                textDirection: TextDirection.ltr,
-                                child: callTimerWidget(
-                                  theme,
-                                  _callRepo.callTimer.value,
-                                  isEnd: true,
-                                ),
-                              )
-                            : Text(
-                                widget.callStatusOnScreen,
-                                style: theme.textTheme.titleLarge!
-                                    .copyWith(color: Colors.red),
-                              ),
-                      ),
-                    if (widget.text == "Connecting" ||
-                        widget.text == "Reconnecting" ||
-                        widget.text == "Ringing" ||
-                        widget.text == "Calling")
-                      const DotAnimation()
-                  ],
-                ),
-              ),
-          ],
-        ),
+  AppBar _buildAppBar() {
+    return AppBar(
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      scrolledUnderElevation: 0,
+      centerTitle: true,
+      title: CallStatusWidget(
+        callStatus: widget.callStatus,
+        callStatusOnScreen: widget.callStatusOnScreen,
       ),
     );
   }
