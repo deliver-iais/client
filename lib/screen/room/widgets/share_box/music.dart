@@ -37,6 +37,7 @@ class ShareBoxMusicState extends State<ShareBoxMusic> {
 
   @override
   Widget build(BuildContext context) {
+    final theme=Theme.of(context);
     return FutureBuilder<List<File>?>(
       future: _future,
       builder: (context, audios) {
@@ -46,16 +47,16 @@ class ShareBoxMusicState extends State<ShareBoxMusic> {
             itemCount: audios.data!.length,
             itemBuilder: (ctx, index) {
               final fileItem = audios.data![index];
-              final selected = widget.selectedAudio[index] ?? false;
+              final isItemSelected = widget.selectedAudio[index] ?? false;
               return GestureDetector(
                 child: Container(
-                  color: selected ? Colors.black12 : Colors.white,
+                  color: isItemSelected ? theme.primaryColor.withOpacity(0.3) : null,
                   child: Row(
                     children: <Widget>[
                       IconButton(
                         icon: Icon(
-                          widget.icons[index] ?? Icons.play_circle_filled,
-                          color: Colors.blue,
+                          widget.icons[index] ?? Icons.play_circle_filled_rounded,
+                          color:theme.primaryColor,
                           size: 40,
                         ),
                         onPressed: () => widget.playMusic(index, fileItem.path),
@@ -68,7 +69,6 @@ class ShareBoxMusicState extends State<ShareBoxMusic> {
                           fileItem.path.split("/").last,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
-                            color: Colors.black,
                             fontSize: 14,
                           ),
                           maxLines: 1,

@@ -428,38 +428,40 @@ void showDeleteMsgDialog(
   final messageRepo = GetIt.I.get<MessageRepo>();
   showDialog(
     context: context,
-    builder: (c) => AlertDialog(
-      title: Text(
-        "${i18n.get("delete")} ${messages.length > 1 ? messages.length : ""} ${i18n.get("message")}",
-        style: theme.textTheme.bodyText2,
-      ),
-      content: Text(
-        messages.length > 1
-            ? i18n.get("sure_delete_messages")
-            : i18n.get("sure_delete_message"),
-      ),
-      actions: [
-        TextButton(
-          child: Text(i18n.get("cancel"), style: theme.textTheme.bodyText2),
-          onPressed: () {
-            onDelete();
-            Navigator.pop(c);
-          },
+    builder: (c) => Directionality(
+      textDirection: i18n.defaultTextDirection,
+      child: AlertDialog(
+        title: Text(
+          "${i18n.get("delete")} ${messages.length > 1 ? messages.length : ""}${i18n.get("message")}",
+          style: theme.textTheme.bodyLarge,
         ),
-        TextButton(
-          style: TextButton.styleFrom(
-            foregroundColor: Theme.of(context).colorScheme.error,
+        content: Text(
+          messages.length > 1
+              ? i18n.get("sure_delete_messages")
+              : i18n.get("sure_delete_message"),
+        ),
+        actions: [
+          TextButton(
+            child: Text(i18n.get("cancel"), style: theme.textTheme.bodyText2),
+            onPressed: () {
+              onDelete();
+              Navigator.pop(c);
+            },
           ),
-          child: Text(i18n.get("delete")),
-          onPressed: () async {
-            // ignore: use_build_context_synchronously
-            Navigator.pop(c);
-            await messageRepo.deleteMessage(messages);
-            onDelete();
-          },
-        ),
-      ],
-      actionsPadding: const EdgeInsets.only(right: 12, bottom: 5),
+          TextButton(
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: Text(i18n.get("delete")),
+            onPressed: () async {
+              // ignore: use_build_context_synchronously
+              Navigator.pop(c);
+              await messageRepo.deleteMessage(messages);
+              onDelete();
+            },
+          ),
+        ],
+      ),
     ),
   );
 }

@@ -71,7 +71,6 @@ class RawKeyboardService {
                 : null
             : null,
         roomUid: roomUid,
-        type: fileList.length == 1 ? name.split(".").last : "file",
       );
       Timer(Duration.zero, () {
         controller.clear();

@@ -102,7 +102,6 @@ class DragDropWidget extends StatelessWidget {
       showDialogInDesktop(
         inputFiles,
         context,
-        inputFiles.first.extension!,
         replyMessageId,
         resetRoomPageDetails,
       );
@@ -116,7 +115,6 @@ class DragDropWidget extends StatelessWidget {
         showDialogInDesktop(
           inputFiles,
           context,
-          inputFiles.first.extension!,
           replyMessageId,
           resetRoomPageDetails,
         );
@@ -127,12 +125,10 @@ class DragDropWidget extends StatelessWidget {
   void showDialogInDesktop(
     List<model.File> files,
     BuildContext context,
-    String type,
     int? replyMessageId,
     void Function()? resetRoomPageDetails,
   ) {
     showCaptionDialog(
-      type: type,
       context: context,
       files: files,
       roomUid: roomUid.asUid(),

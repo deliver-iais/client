@@ -139,18 +139,18 @@ class _AllVideoPageState extends State<AllVideoPage> {
                                     );
                                   }
                                 } else {
-                                  return const Center(
+                                  return  Center(
                                     child: CircularProgressIndicator(
-                                      color: Colors.blue,
+                                      color: theme.primaryColor,
                                     ),
                                   );
                                 }
                               },
                             );
                           } else {
-                            return const Center(
+                            return  Center(
                               child: CircularProgressIndicator(
-                                color: Colors.blue,
+                                color: theme.primaryColor,
                               ),
                             );
                           }

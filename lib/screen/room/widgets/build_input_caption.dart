@@ -49,7 +49,7 @@ class BuildInputCaption extends StatelessWidget {
                           Icons.check_circle_outline,
                           size: 35,
                         ),
-                        color: Colors.lightBlue,
+                        color: theme.primaryColor,
                       );
                     } else {
                       return const SizedBox.shrink();
