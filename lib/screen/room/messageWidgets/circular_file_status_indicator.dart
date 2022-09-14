@@ -1,3 +1,5 @@
+import 'package:deliver/box/dao/media_dao.dart';
+import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/audio_message/play_audio_status.dart';
@@ -33,6 +35,7 @@ class _CircularFileStatusIndicatorState
   static final _fileServices = GetIt.I.get<FileService>();
   static final _fileRepo = GetIt.I.get<FileRepo>();
   static final _audioPlayerService = GetIt.I.get<AudioService>();
+  static final _mediaDao = GetIt.I.get<MediaDao>();
 
   @override
   void initState() {
@@ -112,13 +115,25 @@ class _CircularFileStatusIndicatorState
 
   Widget showExitFile(File file, String filePath) {
     return file.type.contains("audio")
-        ? PlayAudioStatus(
-            uuid: file.uuid,
-            filePath: filePath,
-            name: file.name,
-            duration: file.duration,
-            backgroundColor: widget.backgroundColor,
-            foregroundColor: widget.foregroundColor,
+        ? StreamBuilder<int>(
+            stream: _mediaDao.getIndexOfMediaAsStream(
+              widget.message.roomUid,
+              widget.message.id ?? 0,
+              MediaType.MUSIC,
+            ),
+            builder: (context, mediaIndex) {
+              return PlayAudioStatus(
+                uuid: file.uuid,
+                filePath: filePath,
+                name: file.name,
+                duration: file.duration,
+                backgroundColor: widget.backgroundColor,
+                foregroundColor: widget.foregroundColor,
+                roomUid: widget.message.roomUid,
+                mediaIndex: mediaIndex.data ?? 0,
+                messageId: widget.message.id ,
+              );
+            },
           )
         : OpenFileStatus(
             filePath: filePath,

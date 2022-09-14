@@ -80,6 +80,9 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                     backgroundColor:
                                         theme.colorScheme.onPrimary,
                                     foregroundColor: theme.colorScheme.primary,
+                                    roomUid: widget.roomUid.asString(),
+                                    mediaIndex: index,
+                                    type: widget.type,
                                   ),
                                   Expanded(
                                     child: Stack(
