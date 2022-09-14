@@ -55,6 +55,7 @@ class VideoMessageState extends State<VideoMessage> {
     final video = widget.message.json.toFile();
     final duration = Duration(seconds: video.duration.round());
     final videoLength = formatDuration(duration);
+    final theme = Theme.of(context);
     return Container(
       constraints: BoxConstraints(
         minWidth: widget.minWidth,
@@ -62,10 +63,6 @@ class VideoMessageState extends State<VideoMessage> {
         maxHeight: widget.maxWidth,
       ),
       padding: const EdgeInsets.all(4),
-      decoration: const BoxDecoration(
-        color: Colors.black,
-        borderRadius: secondaryBorder,
-      ),
       child: AspectRatio(
         aspectRatio: video.width > 0 ? video.width / video.height : 1,
         child: StreamBuilder(
@@ -129,11 +126,11 @@ class VideoMessageState extends State<VideoMessage> {
                                 }
                               },
                             ),
-                            progressColor: Colors.blue,
+                            progressColor: theme.primaryColor,
                           );
                         } else {
-                          return const CircularProgressIndicator(
-                            color: Colors.blue,
+                          return CircularProgressIndicator(
+                            color: theme.primaryColor,
                           );
                         }
                       },

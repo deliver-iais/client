@@ -127,8 +127,9 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                   controller: idController,
                                   validator: validateUsername,
                                   decoration: InputDecoration(
-                                    disabledBorder: const OutlineInputBorder(
-                                      borderSide: BorderSide(color: Colors.red),
+                                    disabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Theme.of(context).errorColor),
                                       borderRadius: mainBorder,
                                     ),
                                     suffixIcon: const Padding(
@@ -150,8 +151,9 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                           if (e.hasData && e.data!) {
                             return Text(
                               _i18n.get("channel_id_is_exist"),
-                              style: theme.textTheme.overline!
-                                  .copyWith(color: Colors.red),
+                              style: theme.textTheme.overline!.copyWith(
+                                color: Theme.of(context).errorColor,
+                              ),
                             );
                           } else {
                             return const SizedBox.shrink();
@@ -329,8 +331,8 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                         ),
                       )
                     else
-                      const CircularProgressIndicator(
-                        color: Colors.blueAccent,
+                      CircularProgressIndicator(
+                        color: Theme.of(context).primaryColor,
                       ),
                   ],
                 )
@@ -348,8 +350,10 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
     bool isOptional = false,
   }) {
     return InputDecoration(
-      disabledBorder: const OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.red),
+      disabledBorder: OutlineInputBorder(
+        borderSide: BorderSide(
+          color: Theme.of(context).errorColor,
+        ),
         borderRadius: mainBorder,
       ),
       suffixIcon: isOptional
