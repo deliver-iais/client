@@ -1,6 +1,9 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:deliver/box/media.dart';
+import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/shared/methods/find_file_type.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:get_it/get_it.dart';
@@ -142,17 +145,40 @@ IntermediatePlayerModule getIntermediatePlayerModule() {
 }
 
 class AudioService {
+  List<Media> autoPlayMediaList = [];
+  int autoPlayMediaIndex = 0;
   final _mainPlayer = getAudioPlayerModule();
   final _intermediatePlayer = getIntermediatePlayerModule();
   final _temporaryPlayer = TemporaryAudioPlayer();
   final _recorder = RecorderModule();
+  final _fileRepo = GetIt.I.get<FileRepo>();
 
   final _trackStream = BehaviorSubject<AudioTrack?>();
 
   final _onDoneCallbackStream = BehaviorSubject<OnDoneCallback?>();
 
   AudioService() {
-    _mainPlayer.completedStream.listen((_) => stopAudio());
+    _mainPlayer.completedStream.listen((_) async {
+      stopAudio();
+      if (autoPlayMediaList.isNotEmpty &&
+          autoPlayMediaIndex != autoPlayMediaList.length) {
+        final json =
+            jsonDecode(autoPlayMediaList[autoPlayMediaIndex].json) as Map;
+        final fileUuid = json["uuid"];
+        final fileName = json["name"];
+        final fileDuration = json["duration"];
+        var filePath = await _fileRepo.getFileIfExist(fileUuid, fileName);
+        filePath ??= await _fileRepo.getFile(
+          fileUuid,
+          fileName,
+        );
+        if (filePath != null) {
+          playAudioMessage(filePath, fileUuid, fileName, fileDuration);
+
+          autoPlayMediaIndex++;
+        }
+      }
+    });
   }
 
   ValueStream<AudioPlayerState> get playerState => _mainPlayer.stateStream;
@@ -316,7 +342,7 @@ class AudioService {
 
   void toggleRecorderPause() => _recorder.togglePause();
 
-  Future<bool> endRecording() async =>  _recorder.end();
+  Future<bool> endRecording() async => _recorder.end();
 
   void cancelRecording() => _recorder.cancel();
 
