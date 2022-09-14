@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 
 class HoleAnimation extends StatefulWidget {
@@ -22,9 +24,11 @@ class HoleAnimationState extends State<HoleAnimation>
 
   @override
   void initState() {
+    final width = window.physicalSize.longestSide / window.devicePixelRatio;
     _animationController =
         AnimationController(vsync: this, duration: const Duration(seconds: 3));
-    _animation = Tween<double>(begin: 0, end: 40).animate(_animationController);
+    _animation =
+        Tween<double>(begin: 0, end: width).animate(_animationController);
     _animationController.forward();
 
     super.initState();
@@ -40,8 +44,8 @@ class HoleAnimationState extends State<HoleAnimation>
 
 class HoleAnimatedBackground extends AnimatedWidget {
   const HoleAnimatedBackground({
-    super.key,
-    required Animation<double> animation,
+  super.key,
+  required Animation<double> animation,
   }) : super(listenable: animation);
 
   @override
@@ -51,7 +55,7 @@ class HoleAnimatedBackground extends AnimatedWidget {
       child: CustomPaint(
         painter: HolePainter(
           color: Colors.black12,
-          holeSize: 30 * (animation.value),
+          holeSize: (animation.value),
         ),
       ),
     );
@@ -92,4 +96,3 @@ class HolePainter extends CustomPainter {
     return true;
   }
 }
-
