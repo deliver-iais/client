@@ -1,4 +1,13 @@
+import 'dart:convert';
+
+import 'package:deliver/box/dao/media_dao.dart';
+import 'package:deliver/box/media.dart';
+import 'package:deliver/box/media_type.dart';
+
+import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/services/audio_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -12,6 +21,10 @@ class PlayAudioStatus extends StatefulWidget {
   final double duration;
   final Color backgroundColor;
   final Color foregroundColor;
+  final String roomUid;
+  final MediaType type;
+  final int mediaIndex;
+  final int? messageId;
 
   const PlayAudioStatus({
     super.key,
@@ -21,6 +34,10 @@ class PlayAudioStatus extends StatefulWidget {
     required this.duration,
     required this.backgroundColor,
     required this.foregroundColor,
+    required this.roomUid,
+    this.type = MediaType.MUSIC,
+    required this.mediaIndex,
+    this.messageId,
   });
 
   @override
@@ -29,6 +46,9 @@ class PlayAudioStatus extends StatefulWidget {
 
 class PlayAudioStatusState extends State<PlayAudioStatus> {
   static final _audioPlayerService = GetIt.I.get<AudioService>();
+  static final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
+  static final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _mediaDao = GetIt.I.get<MediaDao>();
 
   @override
   Widget build(BuildContext context) {
@@ -85,7 +105,7 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
         color: widget.foregroundColor,
         size: 42,
       ),
-      onPressed: () {
+      onPressed: () async {
         if (isAndroid || isIOS || isMacOS || isWindows) {
           _audioPlayerService.playAudioMessage(
             audioPath,
@@ -93,10 +113,57 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
             widget.name,
             widget.duration,
           );
+          final nextAudiosList = await _getMedia();
+          if (nextAudiosList != null) {
+            final json = jsonDecode(nextAudiosList.first.json) as Map;
+            final fileUuid = json["uuid"];
+            final fileName = json["name"];
+            var filePath = await _fileRepo.getFileIfExist(fileUuid, fileName);
+
+            //download next audio
+            filePath ??= await _fileRepo.getFile(
+              fileUuid,
+              fileName,
+            );
+
+            _audioPlayerService.autoPlayMediaList = nextAudiosList;
+            _audioPlayerService.autoPlayMediaIndex = 0;
+          }
         } else {
-          OpenFile.open(audioPath);
+          await OpenFile.open(audioPath);
         }
       },
     );
+  }
+
+  Future<List<Media>?> _getMedia() async {
+    final page = (widget.mediaIndex / MEDIA_PAGE_SIZE).floor();
+    if (widget.mediaIndex == -1) {
+      final res = await _mediaQueryRepo.fetchMoreMedia(
+        widget.roomUid,
+        _mediaQueryRepo.convertType(widget.type),
+        null,
+      );
+      final index = await _mediaDao.getIndexOfMedia(
+        widget.roomUid,
+        widget.messageId!,
+        widget.type,
+      );
+      if (index != null && index != 0) {
+        return res?.toList().sublist(0, index).reversed.toList();
+      } else {
+        return null;
+      }
+    } else {
+      final res = await _mediaQueryRepo.getMediaPage(
+        widget.roomUid,
+        widget.type,
+        page,
+        widget.mediaIndex,
+      );
+      return widget.mediaIndex == 0
+          ? null
+          : res?.toList().sublist(0, widget.mediaIndex).reversed.toList();
+    }
   }
 }
