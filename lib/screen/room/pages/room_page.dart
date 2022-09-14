@@ -679,7 +679,6 @@ class RoomPageState extends State<RoomPage> {
         resetRoomPageDetails: _resetRoomPageDetails,
         roomUid: widget.roomId.asUid(),
         editableMessage: message,
-        files: [],
         context: context,
       );
     }

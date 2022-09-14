@@ -36,7 +36,9 @@ class SelectMucTypeState extends State<SelectMucType> {
       textDirection: _i18n.defaultTextDirection,
       child: Container(
         decoration: BoxDecoration(
-          border: Border.all(color: Colors.grey),
+          border: Border.all(
+            color: theme.colorScheme.outline,
+          ),
           borderRadius: BorderRadius.circular(15),
         ),
         child: Column(
@@ -116,7 +118,8 @@ class SelectMucTypeState extends State<SelectMucType> {
                 ),
                 Text(
                   description,
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  style:
+                      TextStyle(fontSize: 12, color: theme.colorScheme.outline),
                 )
               ],
             ),

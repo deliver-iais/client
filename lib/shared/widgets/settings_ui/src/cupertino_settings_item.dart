@@ -300,7 +300,7 @@ class CupertinoSettingsItemState extends State<CupertinoSettingsItem> {
 
     switch (theme.brightness) {
       case Brightness.light:
-        return Colors.black45;
+        return theme.colorScheme.onPrimaryContainer.withOpacity(0.45);
       case Brightness.dark:
         return null; // null - use current icon theme color
     }

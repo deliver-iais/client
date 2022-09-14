@@ -43,6 +43,7 @@ class ShareBoxFileState extends State<ShareBoxFile> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return FutureBuilder<List<String>>(
       future: _future,
       builder: (context, files) {
@@ -61,9 +62,9 @@ class ShareBoxFileState extends State<ShareBoxFile> {
                     child: GestureDetector(
                       child: Row(
                         children: [
-                          const Icon(
+                          Icon(
                             Icons.add_circle_outlined,
-                            color: Colors.cyanAccent,
+                            color: theme.primaryColor,
                             size: 39,
                           ),
                           const SizedBox(
@@ -72,7 +73,6 @@ class ShareBoxFileState extends State<ShareBoxFile> {
                           Text(
                             _i18n.get("choose_other_files"),
                             style: const TextStyle(
-                              color: Colors.black,
                               fontSize: 17,
                             ),
                           ),
@@ -90,10 +90,14 @@ class ShareBoxFileState extends State<ShareBoxFile> {
                             replyMessageId: widget.replyMessageId,
                             roomUid: widget.roomUid,
                             context: context,
-                            type: result.files.first.path!.split(".").last,
                             files: result.files
                                 .map(
-                                  (e) => File(e.path!, e.name, size: e.size),
+                                  (e) => File(
+                                    e.path!,
+                                    e.name,
+                                    size: e.size,
+                                    extension: e.extension,
+                                  ),
                                 )
                                 .toList(),
                           );
@@ -111,9 +115,9 @@ class ShareBoxFileState extends State<ShareBoxFile> {
                       child: Row(
                         children: <Widget>[
                           IconButton(
-                            icon: const Icon(
+                            icon: Icon(
                               Icons.insert_drive_file,
-                              color: Colors.deepOrange,
+                              color: theme.primaryColor,
                               size: 33,
                             ),
                             onPressed: () =>
@@ -127,7 +131,6 @@ class ShareBoxFileState extends State<ShareBoxFile> {
                               fileItem.split("/").last,
                               overflow: TextOverflow.ellipsis,
                               style: const TextStyle(
-                                color: Colors.black,
                                 fontSize: 16,
                               ),
                               maxLines: 1,
@@ -143,8 +146,8 @@ class ShareBoxFileState extends State<ShareBoxFile> {
             ),
           );
         }
-        return const CircularProgressIndicator(
-          color: Colors.blue,
+        return CircularProgressIndicator(
+          color: theme.primaryColor,
         );
       },
     );

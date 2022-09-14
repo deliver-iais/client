@@ -610,9 +610,9 @@ class InputMessageWidgetState extends State<InputMessage> {
               ),
             if (showSendButton || widget.waitingForForward)
               IconButton(
-                icon: const Icon(
+                icon:  Icon(
                   CupertinoIcons.paperplane_fill,
-                  color: Colors.blue,
+                  color:theme.primaryColor,
                 ),
                 onPressed: widget.textController.text.isEmpty &&
                         !widget.waitingForForward
@@ -999,8 +999,6 @@ class InputMessageWidgetState extends State<InputMessage> {
           resetRoomPageDetails: widget.resetRoomPageDetails,
           replyMessageId: _replyMessageId,
           files: files,
-          type:
-              isWeb ? files.first.extension : files.first.path.split(".").last,
           currentRoom: currentRoom.uid.asUid(),
         );
       },

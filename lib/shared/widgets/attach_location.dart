@@ -36,11 +36,11 @@ class AttachLocation {
                 behavior: HitTestBehavior.translucent,
                 child: Row(
                   children: [
-                    const SizedBox(
+                    SizedBox(
                       width: 40,
                       child: Icon(
                         Icons.location_on_sharp,
-                        color: Colors.blueAccent,
+                        color: Theme.of(context).primaryColor,
                         size: 28,
                       ),
                     ),
@@ -119,9 +119,9 @@ class AttachLocation {
                 position.latitude,
                 position.longitude,
               ),
-              builder: (ctx) => const Icon(
+              builder: (ctx) => Icon(
                 Icons.location_pin,
-                color: Colors.red,
+                color: Theme.of(context).errorColor,
                 size: 28,
               ),
             ),
@@ -230,6 +230,7 @@ class AttachLocation {
   }
 
   void liveLocation(I18N i18n, BuildContext context, Position position) {
+    final theme = Theme.of(context);
     final time = BehaviorSubject<String>.seeded("10");
     showDialog(
       context: context,
@@ -244,79 +245,70 @@ class AttachLocation {
                   children: [
                     Container(
                       height: 50,
-                      color: Colors.blue,
-                      child: const Icon(
+                      color: theme.primaryColor,
+                      child: Icon(
                         Icons.location_on,
-                        color: Colors.greenAccent,
+                        color: theme.primaryColorLight,
                         size: 40,
                       ),
                     ),
-                    Container(
-                      color: Colors.white,
-                      child: Text(
-                        i18n.get("choose_live_location_time"),
-                        style: const TextStyle(fontSize: 20),
-                      ),
+                    Text(
+                      i18n.get("choose_live_location_time"),
+                      style: const TextStyle(fontSize: 20),
                     ),
-                    Container(
-                      color: Colors.white,
-                      child: SizedBox(
-                        height: 200,
-                        child: ListView(
-                          children: [
-                            Section(
-                              children: [
-                                settingsTile(snapshot.data!, "10", () {
-                                  time.add("10");
-                                }),
-                                settingsTile(snapshot.data!, "15", () {
-                                  time.add("15");
-                                }),
-                                settingsTile(snapshot.data!, "30", () {
-                                  time.add("30");
-                                }),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Container(
-                      color: Colors.white,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    SizedBox(
+                      height: 200,
+                      child: ListView(
                         children: [
-                          GestureDetector(
-                            child: Text(
-                              i18n.get("cancel"),
-                              style: const TextStyle(
-                                fontSize: 20,
-                                color: Colors.blue,
-                              ),
-                            ),
-                            onTap: () {
-                              Navigator.pop(context);
-                            },
-                          ),
-                          GestureDetector(
-                            child: Text(
-                              i18n.get("share"),
-                              style: const TextStyle(
-                                fontSize: 20,
-                                color: Colors.red,
-                              ),
-                            ),
-                            onTap: () {
-                              Navigator.pop(context);
-                              _messageRepo.sendLiveLocationMessage(
-                                roomUid,
-                                int.parse(time.value),
-                                position,
-                              );
-                            },
+                          Section(
+                            children: [
+                              settingsTile(snapshot.data!, "10", () {
+                                time.add("10");
+                              }),
+                              settingsTile(snapshot.data!, "15", () {
+                                time.add("15");
+                              }),
+                              settingsTile(snapshot.data!, "30", () {
+                                time.add("30");
+                              }),
+                            ],
                           ),
                         ],
                       ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        GestureDetector(
+                          child: Text(
+                            i18n.get("cancel"),
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: theme.primaryColor,
+                            ),
+                          ),
+                          onTap: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                        GestureDetector(
+                          child: Text(
+                            i18n.get("share"),
+                            style: TextStyle(
+                              fontSize: 20,
+                              color: Theme.of(context).errorColor,
+                            ),
+                          ),
+                          onTap: () {
+                            Navigator.pop(context);
+                            _messageRepo.sendLiveLocationMessage(
+                              roomUid,
+                              int.parse(time.value),
+                              position,
+                            );
+                          },
+                        ),
+                      ],
                     ),
                     const SizedBox(
                       height: 20,
@@ -332,16 +324,17 @@ class AttachLocation {
   }
 
   SettingsTile settingsTile(String data, String t, void Function() on) {
+    final theme = Theme.of(context);
     return SettingsTile(
       title: t,
-      leading: const Icon(
+      leading: Icon(
         Icons.alarm,
-        color: Colors.blueAccent,
+        color: theme.primaryColor,
       ),
       trailing: data == t
-          ? const Icon(
+          ? Icon(
               Icons.done,
-              color: Colors.blueAccent,
+              color: theme.primaryColor,
             )
           : const SizedBox.shrink(),
       onPressed: (context) {

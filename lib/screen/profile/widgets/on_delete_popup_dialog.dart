@@ -32,140 +32,100 @@ class OnDeletePopupDialogState extends State<OnDeletePopupDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Focus(
-      autofocus: true,
-      child: Container(
-        child: widget.selected == "delete_room"
-            ? AlertDialog(
-                titlePadding: EdgeInsets.zero,
-                backgroundColor: Colors.white,
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        CircleAvatarWidget(widget.roomUid, 25),
-                        const SizedBox(
-                          width: 10,
-                        ),
-                        Text(
-                          !widget.roomUid.isMuc()
-                              ? _i18n.get("delete_chat")
-                              : widget.roomUid.isChannel()
-                                  ? _i18n.get("left_channel")
-                                  : _i18n.get("left_group"),
-                          style: theme.textTheme.headline6
-                              ?.copyWith(color: theme.errorColor),
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: 5),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            textDirection: _i18n.defaultTextDirection,
-                            !widget.roomUid.isMuc()
-                                ? "${_i18n.get("sure_delete_room1")} \"${widget.roomName}\" ${_i18n.get("sure_delete_room2")}"
-                                : widget.roomUid.isChannel()
-                                    ? "${_i18n.get("sure_left_channel1")} \"${widget.roomName}\" ${_i18n.get("sure_left_channel2")}"
-                                    : "${_i18n.get("sure_left_group1")} \"${widget.roomName}\" ${_i18n.get("sure_left_group2")}",
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 18,
-                            ),
-                            overflow: TextOverflow.fade,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+    return Directionality(
+      textDirection: _i18n.defaultTextDirection,
+      child: Focus(
+        autofocus: true,
+        child: Container(
+          child: widget.selected == "delete_room"
+              ? deletePopupDialog(
+                  title: !widget.roomUid.isMuc()
+                      ? _i18n.get("delete_chat")
+                      : widget.roomUid.isChannel()
+                          ? _i18n.get("left_channel")
+                          : _i18n.get("left_group"),
+                  description: !widget.roomUid.isMuc()
+                      ? "${_i18n.get("sure_delete_room1")} \"${widget.roomName}\" ${_i18n.get("sure_delete_room2")}"
+                      : widget.roomUid.isChannel()
+                          ? "${_i18n.get("sure_left_channel1")} \"${widget.roomName}\" ${_i18n.get("sure_left_channel2")}"
+                          : "${_i18n.get("sure_left_group1")} \"${widget.roomName}\" ${_i18n.get("sure_left_group2")}",
+                  onPressed: () {
+                    widget.roomUid.isMuc() ? _leftMuc() : _deleteRoom();
+                  },
+                )
+              : deletePopupDialog(
+                  title: widget.roomUid.isChannel()
+                      ? _i18n.get("delete_channel")
+                      : _i18n.get("delete_group"),
+                  description: widget.roomUid.isGroup()
+                      ? "${_i18n.get("sure_delete_group1")} \"${widget.roomName}\" ${_i18n.get("sure_delete_group2")}"
+                      : "${_i18n.get("sure_delete_channel1")} \"${widget.roomName}\" ${_i18n.get("sure_delete_channel2")}",
+                  onPressed: () {
+                    _deleteMuc();
+                  },
                 ),
-                actions: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      TextButton(
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                        child: Text(_i18n.get("cancel")),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          widget.roomUid.isMuc() ? _leftMuc() : _deleteRoom();
-                        },
-                        style: TextButton.styleFrom(foregroundColor: theme.errorColor),
-                        child: Text(_i18n.get("ok")),
-                      ),
-                    ],
-                  ),
-                ],
-              )
-            : AlertDialog(
-                titlePadding: EdgeInsets.zero,
-                backgroundColor: Colors.white,
-                content: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Row(
-                      children: [
-                        CircleAvatarWidget(widget.roomUid, 25),
-                        const SizedBox(width: 5),
-                        Text(
-                          widget.roomUid.isChannel()
-                              ? _i18n.get("delete_channel")
-                              : _i18n.get("delete_group"),
-                          style: theme.textTheme.headline6
-                              ?.copyWith(color: theme.errorColor),
-                        )
-                      ],
-                    ),
-                    const SizedBox(height: 5),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Text(
-                            textDirection: _i18n.defaultTextDirection,
-                            widget.roomUid.isGroup()
-                                ? "${_i18n.get("sure_delete_group1")} \"${widget.roomName}\" ${_i18n.get("sure_delete_group2")}"
-                                : "${_i18n.get("sure_delete_channel1")} \"${widget.roomName}\" ${_i18n.get("sure_delete_channel2")}",
-                            style: const TextStyle(
-                              color: Colors.black,
-                              fontSize: 18,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-                actions: <Widget>[
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      TextButton(
-                        child: Text(_i18n.get("cancel")),
-                        onPressed: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _deleteMuc();
-                        },
-                        style: TextButton.styleFrom(foregroundColor: theme.errorColor),
-                        child: Text(_i18n.get("ok")),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+        ),
       ),
+    );
+  }
+
+  AlertDialog deletePopupDialog({
+    required String title,
+    required String description,
+    required VoidCallback onPressed,
+  }) {
+    final theme = Theme.of(context);
+    return AlertDialog(
+      titlePadding: EdgeInsets.zero,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              CircleAvatarWidget(widget.roomUid, 25),
+              const SizedBox(
+                width: 12,
+              ),
+              Text(
+                title,
+                style: theme.textTheme.headline6,
+              )
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  description,
+                  style: const TextStyle(
+                    fontSize: 16,
+                  ),
+                  overflow: TextOverflow.fade,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+      actions: <Widget>[
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+          child: Text(_i18n.get("cancel")),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+            onPressed();
+          },
+          style: TextButton.styleFrom(
+            foregroundColor: theme.colorScheme.error,
+          ),
+          child: Text(_i18n.get("ok")),
+        ),
+      ],
     );
   }
 

@@ -55,7 +55,11 @@ final patterns = [
 ];
 
 ThemeScheme getThemeScheme(int index) =>
-    ThemeScheme(CorePalette.of(palettes[index % palettes.length].value));
+    ThemeScheme(getCorePalette(index));
+
+CorePalette getCorePalette(int index) =>
+    CorePalette.of(palettes[index % palettes.length].value);
+
 
 class ThemeScheme {
   final Material3ColorScheme _dark;

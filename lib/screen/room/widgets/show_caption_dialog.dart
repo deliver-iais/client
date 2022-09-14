@@ -24,7 +24,6 @@ import 'package:get_it/get_it.dart';
 
 // TODO(hasan): refactor ShowCaptionDialog class, https://gitlab.iais.co/deliver/wiki/-/issues/432
 class ShowCaptionDialog extends StatefulWidget {
-  final String? type;
   final List<model.File>? files;
   final Uid currentRoom;
   final Message? editableMessage;
@@ -36,7 +35,6 @@ class ShowCaptionDialog extends StatefulWidget {
   const ShowCaptionDialog({
     super.key,
     this.files,
-    this.type,
     required this.currentRoom,
     this.showSelectedImage = false,
     this.editableMessage,
@@ -58,7 +56,6 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
   final TextEditingController _editingController = TextEditingController();
 
   late file_pb.File _editableFile;
-  String _type = "";
   final FocusNode _captionFocusNode = FocusNode();
   bool _isFileFormatAccept = false;
   bool _isFileSizeAccept = false;
@@ -71,7 +68,6 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
     _isFileFormatAccept = widget.editableMessage != null;
     _isFileSizeAccept = widget.editableMessage != null;
     if (widget.editableMessage == null) {
-      _type = widget.type!;
       for (final element in widget.files!) {
         element.path = element.path.replaceAll("\\", "/");
         _isFileFormatAccept = _fileService.isFileFormatAccepted(
@@ -94,222 +90,53 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
     } else {
       _editableFile = widget.editableMessage!.json.toFile();
       _editingController.text = synthesizeToOriginalWord(_editableFile.caption);
-      _type = _editableFile.type;
     }
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
     return !_isFileFormatAccept || !_isFileSizeAccept
         ? FileErrorDialog(
             isFileFormatAccept: _isFileFormatAccept,
             invalidFormatFileName: _invalidFormatFileName,
             invalidSizeFileName: _invalidSizeFileName,
           )
-        : (widget.files != null && widget.files!.isNotEmpty) ||
-                widget.editableMessage != null
+        : ((widget.files?.isNotEmpty ?? false) ||
+                widget.editableMessage != null)
             ? Directionality(
                 textDirection: _i18n.defaultTextDirection,
                 child: SingleChildScrollView(
                   child: AlertDialog(
-                    content: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: <Widget>[
-                        if (isSingleImage())
-                          imageUi(null)
-                        else
-                          SizedBox(
-                            height: widget.editableMessage != null
-                                ? 50
-                                : widget.files!.length * 80.toDouble() >
-                                        MediaQuery.of(context).size.height - 300
-                                    ? MediaQuery.of(context).size.height - 300
-                                    : widget.files!.length * 80.toDouble(),
-                            width: 350,
-                            child: ListView.separated(
-                              shrinkWrap: true,
-                              itemCount: widget.editableMessage != null
-                                  ? 1
-                                  : widget.files!.length,
-                              itemBuilder: (c, index) {
-                                return Row(
-                                  children: [
-                                    if (isImageFile(
-                                      widget.files![index].extension,
-                                    ))
-                                      buildImage(
-                                        widget.files![index].path,
-                                        width: 80,
-                                        height: 80,
-                                      )
-                                    else
-                                      ClipOval(
-                                        child: Material(
-                                          color: theme
-                                              .primaryColor, // button color
-                                          child: const InkWell(
-                                            splashColor:
-                                                Colors.blue, // inkwell color
-                                            child: SizedBox(
-                                              width: 40,
-                                              height: 40,
-                                              child: Icon(
-                                                Icons.insert_drive_file,
-                                                size: 20,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-                                    const SizedBox(
-                                      width: 3,
-                                    ),
-                                    Expanded(
-                                      child: Text(
-                                        widget.editableMessage != null
-                                            ? _editedFile != null
-                                                ? _editedFile!.name
-                                                : widget.editableMessage!.json
-                                                    .toFile()
-                                                    .name
-                                            : widget.files![index].name,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    Align(
-                                      alignment: Alignment.topRight,
-                                      child: buildManage(index: index),
-                                    )
-                                  ],
-                                );
-                              },
-                              separatorBuilder: (context, index) {
-                                return const SizedBox(
-                                  height: 6,
-                                );
-                              },
-                            ),
+                    content: Container(
+                      constraints: BoxConstraints(
+                        maxHeight: MediaQuery.of(context).size.height - 300,
+                      ),
+                      width: 300,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          buildFilesListWidget(),
+                          const SizedBox(
+                            height: 5,
                           ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        RawKeyboardListener(
-                          focusNode: _captionFocusNode,
-                          onKey: (event) {
-                            if (event.physicalKey ==
-                                PhysicalKeyboardKey.enter) {
-                              send();
-                            }
-                          },
-                          child: Container(
-                            constraints: const BoxConstraints(maxWidth: 350),
-                            child: AutoDirectionTextForm(
-                              controller: _editingController,
-                              keyboardType: TextInputType.multiline,
-                              minLines: 1,
-                              maxLines: 5,
-                              autofocus: true,
-                              style: const TextStyle(
-                                fontSize: 15,
-                              ),
-                              decoration: InputDecoration(
-                                border: const UnderlineInputBorder(),
-                                labelText: _i18n.get("caption"),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                          buildCaptionInputBox(),
+                        ],
+                      ),
                     ),
-                    actions: [
-                      Padding(
-                        padding: const EdgeInsets.only(left: 20),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            if (widget.editableMessage == null)
-                              TextButton(
-                                onPressed: () async {
-                                  final res =
-                                      await getFile(allowMultiple: true);
-                                  if (res != null) {
-                                    for (final element in res.files) {
-                                      widget.files!.add(
-                                        model.File(
-                                          isWeb
-                                              ? Uri.dataFromBytes(
-                                                  element.bytes!.toList(),
-                                                ).toString()
-                                              : element.path!,
-                                          element.name,
-                                          extension: element.extension,
-                                          size: element.size,
-                                        ),
-                                      );
-                                    }
-                                    setState(() {});
-                                  }
-                                },
-                                child: Text(
-                                  _i18n.get("add"),
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: theme.primaryColor,
-                                  ),
-                                ),
-                              ),
-                            if (widget.editableMessage != null)
-                              const SizedBox(
-                                width: 40,
-                              ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    _i18n.get("cancel"),
-                                    style: TextStyle(
-                                      color: theme.primaryColor,
-                                      fontSize: 15,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(
-                                  width: 16,
-                                ),
-                                TextButton(
-                                  onPressed: () {
-                                    send();
-                                  },
-                                  child: Text(
-                                    _i18n.get("send"),
-                                    style: TextStyle(
-                                      color: theme.primaryColor,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 10)
-                              ],
-                            )
-                          ],
-                        ),
-                      )
-                    ],
+                    actions: [buildActionButtonsRow()],
                   ),
                 ),
               )
             : const SizedBox.shrink();
   }
 
-  bool isImageFile(String? extension) {
+  bool isImageFile(int index) {
+    final extension = _editedFile != null
+        ? _editedFile!.extension
+        : widget.editableMessage != null
+            ? _editableFile.type
+            : widget.files?[index].extension;
     return (extension != null &&
         (extension.contains("image") ||
             extension.contains("jpg") ||
@@ -319,97 +146,216 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
             extension.contains("jpeg")));
   }
 
-  Future<void> openEditImagePage(int? index) async {
+  Widget buildActionButtonsRow() {
+    final theme = Theme.of(context);
+    return Row(
+      children: [
+        if (widget.editableMessage == null)
+          TextButton(
+            onPressed: () async {
+              final res = await getFile(allowMultiple: true);
+              if (res != null) {
+                for (final element in res.files) {
+                  widget.files!.add(
+                    model.File(
+                      isWeb
+                          ? Uri.dataFromBytes(
+                              element.bytes!.toList(),
+                            ).toString()
+                          : element.path!,
+                      element.name,
+                      extension: element.extension,
+                      size: element.size,
+                    ),
+                  );
+                }
+                setState(() {});
+              }
+            },
+            child: Text(
+              _i18n.get("add"),
+              style: TextStyle(
+                fontSize: 16,
+                color: theme.primaryColor,
+              ),
+            ),
+          ),
+        const Spacer(),
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          child: Text(
+            _i18n.get("cancel"),
+            style: TextStyle(
+              color: theme.primaryColor,
+              fontSize: 15,
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: () {
+            send();
+          },
+          child: Text(
+            _i18n.get("send"),
+            style: TextStyle(
+              color: theme.primaryColor,
+              fontSize: 16,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget buildFilesListWidget() {
+    return Flexible(
+      child: ListView.separated(
+        shrinkWrap: true,
+        itemCount: widget.editableMessage != null ? 1 : widget.files!.length,
+        itemBuilder: (c, index) {
+          if (isImageFile(
+            index,
+          )) {
+            return GestureDetector(
+              onTap: () => openEditImagePage(index),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: tertiaryBorder,
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                ),
+                child: Stack(
+                  children: [
+                    Center(child: buildImageFileUi(index)),
+                    Positioned(
+                      right: 3,
+                      top: 3,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: tertiaryBorder,
+                          color: Theme.of(context)
+                              .colorScheme
+                              .secondaryContainer
+                              .withOpacity(0.9),
+                        ),
+                        child: Center(
+                          child: buildManageFilesRow(index: index),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          } else {
+            return buildSimpleFileUi(index);
+          }
+        },
+        separatorBuilder: (context, index) {
+          return const SizedBox(
+            height: 20,
+            child: Center(child: Divider()),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget buildImageFileUi(int index) {
+    if (widget.editableMessage != null && _editedFile == null) {
+      return FutureBuilder<String?>(
+        future: _fileRepo.getFileIfExist(
+          _editableFile.uuid,
+          _editableFile.name,
+        ),
+        builder: (c, s) {
+          if (s.hasData && s.data != null) {
+            return Image.file(
+              File(s.data!),
+              width: 180,
+            );
+          } else {
+            return buildSimpleFileUi(
+              0,
+              showManage: false,
+            );
+          }
+        },
+      );
+    } else {
+      return buildImage(
+        _editedFile?.path ?? widget.files![index].path,
+        width: 180,
+      );
+    }
+  }
+
+  Widget buildCaptionInputBox() {
+    return RawKeyboardListener(
+      focusNode: _captionFocusNode,
+      onKey: (event) {
+        if (event.physicalKey == PhysicalKeyboardKey.enter) {
+          send();
+        }
+      },
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 350),
+        child: AutoDirectionTextForm(
+          controller: _editingController,
+          keyboardType: TextInputType.multiline,
+          minLines: 1,
+          maxLines: 5,
+          autofocus: true,
+          style: const TextStyle(
+            fontSize: 15,
+          ),
+          decoration: InputDecoration(
+            border: const UnderlineInputBorder(),
+            labelText: _i18n.get("caption"),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> openEditImagePage(int index) async {
     final navigatorState = Navigator.of(context);
     String? path = "";
-    if (widget.files!.isEmpty && _editedFile == null) {
+    if (widget.editableMessage != null) {
       path = await _fileRepo.getFileIfExist(
         _editableFile.uuid,
         _editableFile.name,
       );
     }
-    if (widget.files!.isNotEmpty || _editedFile != null || path != null) {
-      navigatorState.push(
-        MaterialPageRoute(
-          builder: (c) {
-            return OpenImagePage(
-              onEditEnd: (path) {
-                widget.files!.isEmpty
-                    ? _editedFile != null
-                        ? _editedFile!.path = path
-                        : _editedFile = model.File(path, path.split(".").last)
-                    : index == null
-                        ? widget.files!.first.path = path
-                        : widget.files![index].path = path;
-                Navigator.pop(context);
-                setState(() {});
-              },
-              imagePath: widget.files!.isEmpty
-                  ? _editedFile != null
-                      ? _editedFile!.path
-                      : path!
-                  : index == null
-                      ? widget.files!.first.path
-                      : widget.files![index].path,
-            );
-          },
-        ),
-      ).ignore();
-    }
-  }
 
-  bool isSingleImage() {
-    return ((widget.editableMessage != null || widget.files!.length <= 1) &&
-        (isImageFile(_type)));
-  }
-
-  Widget imageUi(int? index) {
-    //if index==null isSingleImage
-    return GestureDetector(
-      onTap: () => openEditImagePage(index),
-      child: Container(
-        constraints: const BoxConstraints(maxWidth: 350),
-        height: index == null ? MediaQuery.of(context).size.height / 3 : null,
-        child: Stack(
-          children: [
-            Center(
-              child: widget.files!.isNotEmpty
-                  ? buildImage(
-                      index == null
-                          ? widget.files!.first.path
-                          : widget.files![index].path,
-                    )
-                  : _editedFile != null
-                      ? buildImage(_editedFile!.path)
-                      : FutureBuilder<String?>(
-                          future: _fileRepo.getFileIfExist(
-                            _editableFile.uuid,
-                            _editableFile.name,
-                          ),
-                          builder: (c, s) {
-                            if (s.hasData && s.data != null) {
-                              return Image.file(File(s.data!));
-                            } else {
-                              return buildRow(0, showManage: false);
-                            }
-                          },
-                        ),
-            ),
-            Positioned(
-              right: 5,
-              top: 2,
-              child: Container(
-                decoration: const BoxDecoration(
-                  borderRadius: secondaryBorder,
-                  color: Colors.black12,
-                ),
-                child: buildManage(index: 0),
-              ),
-            ),
-          ],
-        ),
+    navigatorState.push(
+      MaterialPageRoute(
+        builder: (c) {
+          return OpenImagePage(
+            onEditEnd: (path) {
+              if (widget.files != null) {
+                widget.files![index].path = path;
+              } else if (_editedFile != null) {
+                _editedFile!.path = path;
+              } else if (widget.editableMessage != null) {
+                _editedFile = model.File(
+                  path,
+                  extension: _editableFile.type,
+                  path.split(".").first,
+                );
+              }
+              Navigator.pop(context);
+              setState(() {});
+            },
+            imagePath: (_editedFile?.path) ??
+                (widget.editableMessage != null
+                    ? path!
+                    : widget.files![index].path),
+          );
+        },
       ),
-    );
+    ).ignore();
   }
 
   Widget buildImage(String path, {double? width, double? height}) => kIsWeb
@@ -438,45 +384,51 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
     widget.resetRoomPageDetails?.call();
   }
 
-  Row buildRow(int index, {bool showManage = true}) {
+  Row buildSimpleFileUi(int index, {bool showManage = true}) {
     final theme = Theme.of(context);
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         ClipOval(
           child: Material(
             color: theme.primaryColor, // button color
-            child: const InkWell(
-              splashColor: Colors.blue, // inkwell color
+            child: InkWell(
               child: SizedBox(
-                width: 30,
+                width: 40,
                 height: 40,
                 child: Icon(
                   Icons.insert_drive_file,
                   size: 20,
-                  color: Colors.white,
+                  color: theme.dialogBackgroundColor,
                 ),
               ),
             ),
           ),
         ),
         const SizedBox(
-          width: 3,
+          width: 8,
         ),
         Expanded(
           child: Text(
-            widget.files != null && widget.files!.isNotEmpty
-                ? widget.files![index].name
-                : _editableFile.name,
+            widget.editableMessage != null
+                ? _editedFile != null
+                    ? _editedFile!.name
+                    : widget.editableMessage!.json.toFile().name
+                : widget.files![index].name,
             overflow: TextOverflow.ellipsis,
           ),
         ),
         if (showManage)
-          Align(alignment: Alignment.topRight, child: buildManage(index: index))
+          Align(
+            alignment: Alignment.topRight,
+            child: buildManageFilesRow(index: index),
+          )
       ],
     );
   }
 
-  Widget buildManage({required int index}) {
+  Widget buildManageFilesRow({required int index}) {
+    final theme = Theme.of(context);
     return Row(
       children: [
         IconButton(
@@ -495,7 +447,6 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
                   extension: result.files.first.extension,
                   size: result.files.first.size,
                 );
-                _type = _editedFile!.extension.toString();
               } else {
                 widget.files![index] = model.File(
                   isWeb
@@ -507,16 +458,14 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
                   extension: result.files.first.extension,
                   size: result.files.first.size,
                 );
-
-                _type = result.files.first.extension!;
               }
 
               setState(() {});
             }
           },
-          icon: const Icon(
+          icon: Icon(
             Icons.wifi_protected_setup,
-            color: Colors.blue,
+            color: theme.primaryColor,
             size: 16,
           ),
         ),
@@ -529,20 +478,20 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
               }
               setState(() {});
             },
-            icon: const Icon(
+            icon: Icon(
               Icons.delete,
-              color: Colors.blue,
+              color: theme.primaryColor,
               size: 16,
             ),
           ),
-        if (widget.editableMessage == null)
+        if (isImageFile(index))
           IconButton(
             onPressed: () {
               openEditImagePage(index);
             },
-            icon: const Icon(
+            icon: Icon(
               Icons.edit,
-              color: Colors.blue,
+              color: theme.primaryColor,
               size: 16,
             ),
           )
@@ -601,35 +550,44 @@ class FileErrorDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(
-        _i18n.get("error"),
-        style: const TextStyle(fontSize: 16, color: Colors.blue),
-      ),
-      content: SizedBox(
-        width: 150,
-        child: Text(
-          !_isFileFormatAccept
-              ? "${_i18n.get("cant_sent")} $_invalidFormatFileName"
-              : "$_invalidSizeFileName ${_i18n.get("file_size_error")}",
+    return Directionality(
+      textDirection: _i18n.defaultTextDirection,
+      child: AlertDialog(
+        title: Text(
+          _i18n.get("error"),
+          style: const TextStyle(
+            fontSize: 18,
+          ),
         ),
-      ),
-      actions: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            GestureDetector(
-              onTap: () {
-                Navigator.pop(context);
-              },
-              child: Text(
-                _i18n.get("ok"),
-                style: const TextStyle(fontSize: 16, color: Colors.blue),
+        actions: [
+          GestureDetector(
+            onTap: () {
+              Navigator.pop(context);
+            },
+            child: Text(
+              _i18n.get("ok"),
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).primaryColor,
               ),
             ),
-          ],
+          ),
+        ],
+        content: SizedBox(
+          width: 150,
+          child: Wrap(
+            children: [
+              if (!_isFileFormatAccept) ...[
+                Text(_invalidFormatFileName),
+                Text(_i18n.get("cant_sent"))
+              ] else ...[
+                Text(_invalidSizeFileName),
+                Text(_i18n.get("file_size_error")),
+              ]
+            ],
+          ),
         ),
-      ],
+      ),
     );
   }
 }

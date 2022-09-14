@@ -1,8 +1,11 @@
 import 'dart:io';
 import 'package:chewie/chewie.dart';
-import 'package:deliver/shared/constants.dart';
+import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoPlayerWidget extends StatefulWidget {
@@ -20,6 +23,8 @@ class VideoPlayerWidget extends StatefulWidget {
 }
 
 class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
+  final _uxService = GetIt.I.get<UxService>();
+  final _routingService = GetIt.I.get<RoutingService>();
   late VideoPlayerController _controller;
   late final ChewieController _chewieController;
 
@@ -40,6 +45,11 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
       showOptions: false,
       aspectRatio: _controller.value.aspectRatio,
       looping: true,
+      materialProgressColors: ChewieProgressColors(
+        bufferedColor: _uxService.theme.shadowColor.withOpacity(0.4),
+        handleColor: Colors.white,
+        playedColor: _uxService.theme.primaryColor,
+      ),
     );
     setState(() {});
   }
@@ -52,28 +62,35 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: widget.showAppBar ? AppBar() : null,
-      body: Container(
-        decoration: const BoxDecoration(
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        systemNavigationBarColor: Colors.black,
+      ),
+      child: Scaffold(
+        appBar: widget.showAppBar
+            ? AppBar(
+                backgroundColor: Colors.black,
+                leading: _routingService.backButtonLeading(color: Colors.white),
+              )
+            : null,
+        body: Container(
           color: Colors.black,
-          borderRadius: secondaryBorder,
-        ),
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-          child: Stack(
-            children: [
-              Center(
-                child: _controller.value.isInitialized
-                    ? AspectRatio(
-                        aspectRatio: _controller.value.aspectRatio,
-                        child: Chewie(
-                          controller: _chewieController,
-                        ),
-                      )
-                    : Container(),
-              ),
-            ],
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+            child: Stack(
+              children: [
+                Center(
+                  child: _controller.value.isInitialized
+                      ? AspectRatio(
+                          aspectRatio: _controller.value.aspectRatio,
+                          child: Chewie(
+                            controller: _chewieController,
+                          ),
+                        )
+                      : Container(),
+                ),
+              ],
+            ),
           ),
         ),
       ),

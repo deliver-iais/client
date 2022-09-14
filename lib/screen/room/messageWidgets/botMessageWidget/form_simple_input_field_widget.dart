@@ -107,11 +107,11 @@ class FormSimpleInputFieldWidgetState
     return InputDecoration(
       suffixIcon: widget.formField.isOptional
           ? const SizedBox.shrink()
-          : const Padding(
-              padding: EdgeInsets.only(top: 20, left: 25),
+          : Padding(
+              padding: const EdgeInsets.only(top: 20, left: 25),
               child: Text(
                 "*",
-                style: TextStyle(color: Colors.red),
+                style: TextStyle(color: Theme.of(context).errorColor),
               ),
             ),
       labelText: widget.formField.id,

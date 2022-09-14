@@ -3,6 +3,7 @@ import 'package:clock/clock.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/widgets/edit_image/change_image_color/color_filter_generator.dart';
+import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
@@ -39,24 +40,32 @@ class _ColorFilterPageState extends State<ColorFilterPage> {
       ),
       child: Scaffold(
         extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          backgroundColor: Colors.black.withAlpha(120),
-          iconTheme: const IconThemeData(
-            color: Colors.white, //change your color here
+        appBar: BlurredPreferredSizedWidget(
+          child: AppBar(
+            backgroundColor: Colors.black.withAlpha(120),
+            leading: BackButton(
+              color: Colors.white,
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            title: Text(
+              _i18n.get("image_filter"),
+              style: const TextStyle(color: Colors.white),
+            ),
+            actions: [
+              if (!showLoading)
+                IconButton(
+                  icon: const Icon(
+                    Icons.done_rounded,
+                    color: Colors.white,
+                  ),
+                  onPressed: () async {
+                    await _saveImage(context);
+                  },
+                )
+            ],
           ),
-          title: Text(
-            _i18n.get("image_filter"),
-            style: const TextStyle(color: Colors.white),
-          ),
-          actions: [
-            if (!showLoading)
-              IconButton(
-                icon: const Icon(Icons.done_rounded),
-                onPressed: () async {
-                  await _saveImage(context);
-                },
-              )
-          ],
         ),
         body: Container(
           color: Colors.black,

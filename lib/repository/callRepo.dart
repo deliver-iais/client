@@ -913,9 +913,10 @@ class CallRepo {
 
   Future<bool> switchCamera() async {
     if (_localStream != null) {
-      final switching =
+      final isCameraSwitched =
           await Helper.switchCamera(_localStream!.getVideoTracks()[0]);
-      return switching;
+      switching.add(!isCameraSwitched);
+      return isCameraSwitched;
     }
     return false;
   }

@@ -30,7 +30,6 @@ class _ScanQrCode extends State<ScanQrCode> {
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
-        color: Colors.black,
         child: _buildQrView(context),
       ),
     );
