@@ -123,6 +123,7 @@ message_pb.Message _decodeMessage(String notificationBody) {
   return m;
 }
 
+@pragma('vm:entry-point')
 Future<void> _backgroundRemoteMessageHandler(
   RemoteMessage remoteMessage,
 ) async {
