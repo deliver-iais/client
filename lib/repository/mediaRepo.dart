@@ -413,7 +413,8 @@ class MediaRepo {
         "width": media.file.width,
         "height": media.file.height,
         "blurHash": media.file.blurHash,
-        "duration": media.file.duration
+        "duration": media.file.duration,
+        "audioWaveData": media.file.audioWaveform.data
       };
     }
     return jsonEncode(json);
