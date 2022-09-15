@@ -56,6 +56,8 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
               final fileUuid = json["uuid"];
               final fileName = json["name"];
               final fileDuration = json["duration"];
+              final audioWave = List<int>.from(json["audioWaveData"]);
+
               return GestureDetector(
                 onLongPress: () => widget.addSelectedMedia(snapShot.data!),
                 onTap: () => widget.addSelectedMedia(snapShot.data!),
@@ -107,6 +109,7 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                           child: MusicPlayProgress(
                                             audioUuid: fileUuid,
                                             duration: fileDuration,
+                                            audioWaveData: audioWave,
                                           ),
                                         ),
                                       ],
@@ -167,6 +170,7 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                         MusicPlayProgress(
                                           audioUuid: fileUuid,
                                           duration: fileDuration,
+                                          audioWaveData: audioWave,
                                         ),
                                       ],
                                     ),
