@@ -55,6 +55,7 @@ class BotFormMessageState extends State<BotFormMessage> {
   @override
   void initState() {
     form = widget.message.json.toForm();
+    _formResult.id = form.id;
     if (!form.lockAfter.isZero &&
         DateTime.now().millisecondsSinceEpoch - widget.message.time >
             form.lockAfter.toInt()) {
