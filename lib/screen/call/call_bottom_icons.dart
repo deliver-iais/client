@@ -84,7 +84,7 @@ class CallBottomRowState extends State<CallBottomRow>
       child: Align(
         alignment: Alignment.bottomCenter,
         child: Container(
-          width: 400,
+          width: isWindows ? 600 : 400,
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
@@ -258,8 +258,6 @@ class CallBottomRowState extends State<CallBottomRow>
                   color: _muteMicColor,
                 ),
               ),
-
-              // TODO(AmirHossein): enable it after fixing 3 issues in flutter-webRtc project itself, https://gitlab.iais.co/deliver/wiki/-/issues/425
               FloatingActionButton(
                 heroTag: 55,
                 elevation: 0,
