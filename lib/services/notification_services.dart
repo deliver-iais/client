@@ -184,7 +184,9 @@ class NotificationServices {
 
   void cancelRoomNotifications(String roomUid) {
     _notifier.cancel(roomUid);
-    _activeNotificationDao.removeRoomActiveNotification(roomUid);
+    if (isAndroid) {
+      _activeNotificationDao.removeRoomActiveNotification(roomUid);
+    }
   }
 
   void cancelNotificationById(int id, String roomUid) {
@@ -193,7 +195,9 @@ class NotificationServices {
 
   void cancelAllNotifications() {
     _notifier.cancelAll();
-    _activeNotificationDao.removeAllActiveNotification();
+    if (isAndroid) {
+      _activeNotificationDao.removeAllActiveNotification();
+    }
   }
 
   Future<void> _showTextNotification(
