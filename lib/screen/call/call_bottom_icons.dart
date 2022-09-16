@@ -109,7 +109,7 @@ class CallBottomRowState extends State<CallBottomRow>
                 color: theme.colorScheme.outline.withOpacity(0.6),
               ),
             ],
-            gradient: _gradientBoxBackground,
+            color:  theme.colorScheme.tertiaryContainer,
             borderRadius: BorderRadius.circular(35.0),
           ),
           child: Padding(
@@ -145,7 +145,7 @@ class CallBottomRowState extends State<CallBottomRow>
                   height: isAndroid ? 65 : 80,
                   width: isAndroid ? 65 : 80,
                   child: FloatingActionButton(
-                    backgroundColor: theme.errorColor,
+                    backgroundColor: theme.colorScheme.tertiary,
                     heroTag: "2",
                     elevation: 0,
                     shape: const CircleBorder(),
@@ -345,15 +345,15 @@ class CallBottomRowState extends State<CallBottomRow>
 
   void initializeIcons() {
     final theme = Theme.of(context);
-    _speakerColor = callRepo.isSpeaker ? theme.primaryColor : theme.shadowColor;
+    _speakerColor = callRepo.isSpeaker ? theme.primaryColor : theme.colorScheme.onTertiaryContainer;
     _muteMicColor =
-        callRepo.isMicMuted ? theme.primaryColor : theme.shadowColor;
+        callRepo.isMicMuted ? theme.primaryColor : theme.colorScheme.onTertiaryContainer;
     _offVideoCamColor =
-        callRepo.mute_camera.value ? theme.shadowColor : theme.primaryColor;
+        callRepo.mute_camera.value ? theme.shadowColor : theme.colorScheme.onTertiaryContainer;
     _switchCameraColor =
-        callRepo.switching.value ? theme.primaryColor : theme.shadowColor;
+        callRepo.switching.value ? theme.primaryColor : theme.colorScheme.onTertiaryContainer;
     _screenShareColor =
-        callRepo.isSharing ? theme.primaryColor : theme.shadowColor;
+        callRepo.isSharing ? theme.primaryColor : theme.colorScheme.onTertiaryContainer;
 
     _speakerIcon = callRepo.isSpeaker
         ? CupertinoIcons.speaker_3
