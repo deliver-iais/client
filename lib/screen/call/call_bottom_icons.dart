@@ -1,7 +1,6 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/shareScreen/screen_select_dialog.dart';
-import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/theme.dart';
@@ -28,23 +27,7 @@ class CallBottomRowState extends State<CallBottomRow>
     with SingleTickerProviderStateMixin {
   final _i18n = GetIt.I.get<I18N>();
   final _iconsSize = isAndroid ? 30.0 : 40.0;
-  final _uxService = GetIt.I.get<UxService>();
-  late final _gradientBoxBackground = LinearGradient(
-    begin: Alignment.topRight,
-    end: Alignment.bottomLeft,
-    colors: [
-      Color(
-        _uxService.getCorePalette().tertiary.get(
-              _uxService.themeIsDark ? 65 : 80,
-            ),
-      ),
-      Color(
-        _uxService.getCorePalette().primary.get(
-              _uxService.themeIsDark ? 65 : 80,
-            ),
-      )
-    ],
-  );
+
 
   Color? _switchCameraColor;
   Color? _offVideoCamColor;
@@ -208,7 +191,7 @@ class CallBottomRowState extends State<CallBottomRow>
               ),
             ],
             borderRadius: BorderRadius.circular(35.0),
-            gradient: _gradientBoxBackground,
+           color:  theme.colorScheme.tertiaryContainer,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -249,7 +232,7 @@ class CallBottomRowState extends State<CallBottomRow>
                 width: 65,
                 height: 65,
                 child: FloatingActionButton(
-                  backgroundColor: theme.errorColor,
+                  backgroundColor:  theme.colorScheme.tertiary,
                   heroTag: 66,
                   elevation: 0,
                   shape: const CircleBorder(),
@@ -349,7 +332,7 @@ class CallBottomRowState extends State<CallBottomRow>
     _muteMicColor =
         callRepo.isMicMuted ? theme.primaryColor : theme.colorScheme.onTertiaryContainer;
     _offVideoCamColor =
-        callRepo.mute_camera.value ? theme.shadowColor : theme.colorScheme.onTertiaryContainer;
+        callRepo.mute_camera.value ?  theme.colorScheme.onTertiaryContainer:theme.primaryColor;
     _switchCameraColor =
         callRepo.switching.value ? theme.primaryColor : theme.colorScheme.onTertiaryContainer;
     _screenShareColor =
