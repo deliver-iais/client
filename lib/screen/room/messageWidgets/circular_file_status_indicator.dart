@@ -1,7 +1,10 @@
+import 'dart:convert';
+
 import 'package:deliver/box/dao/media_dao.dart';
 import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/audio_message/play_audio_status.dart';
 import 'package:deliver/screen/room/messageWidgets/file_message.dart/open_file_status.dart';
 import 'package:deliver/screen/room/messageWidgets/load_file_status.dart';
@@ -34,12 +37,15 @@ class _CircularFileStatusIndicatorState
     extends State<CircularFileStatusIndicator> {
   static final _fileServices = GetIt.I.get<FileService>();
   static final _fileRepo = GetIt.I.get<FileRepo>();
+  static final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   static final _audioPlayerService = GetIt.I.get<AudioService>();
   static final _mediaDao = GetIt.I.get<MediaDao>();
 
   @override
   void initState() {
-    _fileServices.initProgressBar(widget.message.json.toFile().uuid);
+    _fileServices.initProgressBar(
+      widget.message.json.toFile().uuid,
+    );
     super.initState();
   }
 
@@ -99,6 +105,7 @@ class _CircularFileStatusIndicatorState
                         file.name,
                         file.duration,
                       );
+                      await initMediaAutoPlay();
                     }
                     setState(() {});
                   },
@@ -129,9 +136,7 @@ class _CircularFileStatusIndicatorState
                 duration: file.duration,
                 backgroundColor: widget.backgroundColor,
                 foregroundColor: widget.foregroundColor,
-                roomUid: widget.message.roomUid,
-                mediaIndex: mediaIndex.data ?? 0,
-                messageId: widget.message.id ,
+                onAudioPlay: () => initMediaAutoPlay(),
               );
             },
           )
@@ -141,5 +146,30 @@ class _CircularFileStatusIndicatorState
             backgroundColor: widget.backgroundColor,
             foregroundColor: widget.foregroundColor,
           );
+  }
+
+  Future<void> initMediaAutoPlay() async {
+    {
+      final autoPlayMediaList =
+          await _mediaQueryRepo.getMediaAutoPlayListPageByMessageId(
+        messageId: widget.message.id ?? 0,
+        roomUid: widget.message.roomUid,
+        messageTime: widget.message.time,
+      );
+      if (autoPlayMediaList != null) {
+        final json = jsonDecode(
+          autoPlayMediaList.first.json,
+        ) as Map;
+        final fileUuid = json["uuid"];
+        final fileName = json["name"];
+        //download next audio
+        await _fileRepo.getFile(
+          fileUuid,
+          fileName,
+        );
+        _audioPlayerService.autoPlayMediaIndex = 0;
+        _audioPlayerService.autoPlayMediaList = autoPlayMediaList;
+      }
+    }
   }
 }
