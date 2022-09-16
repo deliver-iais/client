@@ -33,7 +33,7 @@ class AnimatedGradientState extends State<AnimatedGradient>
     _animationController =
         AnimationController(vsync: this, duration: const Duration(seconds: 3));
     _animation =
-        Tween<double>(begin: 10, end: 50).animate(_animationController);
+        Tween<double>(begin: 10, end:80).animate(_animationController);
     _animation.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         _animationController.reverse();
@@ -73,7 +73,7 @@ class AnimatedBackground extends AnimatedWidget {
     final animation = listenable as Animation<double>;
     final gradientColors = <Color>[
       Color(
-        uxService.getCorePalette().primary.get(uxService.themeIsDark ? 50 : 70),
+        uxService.getCorePalette().primary.get(uxService.themeIsDark ? 50 : 80),
       ),
       Color(
         uxService
@@ -97,7 +97,7 @@ class AnimatedBackground extends AnimatedWidget {
             Container(
               height:
                   MediaQuery.of(context).size.height * (animation.value / 100),
-              color: gradientColors[0].withOpacity(0.9),
+              color: gradientColors[0],
             ),
             Transform.translate(
               offset: const Offset(0, 0),
