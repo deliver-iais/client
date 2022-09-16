@@ -146,6 +146,8 @@ IntermediatePlayerModule getIntermediatePlayerModule() {
 
 class AudioService {
   List<Media> autoPlayMediaList = [];
+
+  //index of next media
   int autoPlayMediaIndex = 0;
   final _mainPlayer = getAudioPlayerModule();
   final _intermediatePlayer = getIntermediatePlayerModule();
@@ -167,18 +169,27 @@ class AudioService {
         final fileUuid = json["uuid"];
         final fileName = json["name"];
         final fileDuration = json["duration"];
-        var filePath = await _fileRepo.getFileIfExist(fileUuid, fileName);
-        filePath ??= await _fileRepo.getFile(
-          fileUuid,
-          fileName,
-        );
+        final filePath = await _getFilePathFromMedia();
         if (filePath != null) {
           playAudioMessage(filePath, fileUuid, fileName, fileDuration);
-
           autoPlayMediaIndex++;
+          //download next file
+          if (autoPlayMediaIndex != autoPlayMediaList.length) {
+            await _getFilePathFromMedia();
+          }
         }
       }
     });
+  }
+
+  Future<String?> _getFilePathFromMedia() {
+    final json = jsonDecode(autoPlayMediaList[autoPlayMediaIndex].json) as Map;
+    final fileUuid = json["uuid"];
+    final fileName = json["name"];
+    return _fileRepo.getFile(
+      fileUuid,
+      fileName,
+    );
   }
 
   ValueStream<AudioPlayerState> get playerState => _mainPlayer.stateStream;
