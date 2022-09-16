@@ -128,6 +128,7 @@ const SHARE_DAO_HOST_SET_BY_USER = "SHARE_DAO_HOST_SET_BY_USER";
 // FEATURE FLAGS
 const SHARED_DAO_FEATURE_FLAGS_VOICE_CALL =
     "SHARED_DAO_FEATURE_FLAGS_VOICE_CALL";
+const SHARED_DAO_FIREBASE_TOKEN = "SHARED_DAO_FIREBASE_TOKEN";
 
 const ACCESS_TO_CALL_UID_LIST = [
   "0:0fe14dcc-52e9-41c2-be8b-b995c28d8310", // "Esmael Dansi"
@@ -223,7 +224,6 @@ const REPLY_KEYBOARD_MARKUP_ID = 34;
 const REPLY_KEYBOARD_ROW_ID = 35;
 const REPLY_KEYBOARD_BUTTON_ID = 36;
 
-
 //FEATURE DISCOVERY ID
 const FEATURE_1 = 'feature1';
 const FEATURE_2 = 'feature2';
@@ -278,8 +278,9 @@ double animationSquareSize(BuildContext context) => isLarge(context)
 
 double maxWidthOfMessage(BuildContext context) => min(
       (MediaQuery.of(context).size.width -
-              (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
-          0.8 - SELECTED_MESSAGE_CHECKBOX_WIDTH,
+                  (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
+              0.8 -
+          SELECTED_MESSAGE_CHECKBOX_WIDTH,
       450,
     );
 
