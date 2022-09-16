@@ -12,6 +12,7 @@ import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
@@ -43,6 +44,64 @@ class MediaRepo {
 
   void saveMediaMetaData(MediaMetaData metaData) {
     _mediaMetaDataDao.save(metaData);
+  }
+
+  Future<List<Media>?> getMediaAutoPlayListPageByMessageId({
+    required int messageId,
+    required String roomUid,
+    required int messageTime,
+    MediaType type = MediaType.MUSIC,
+  }) async {
+    var index = await _mediaDao.getIndexOfMedia(
+      roomUid,
+      messageId,
+      type,
+    );
+    // we don't have media
+    if (index == -1 || index == null) {
+      //fetch media
+      final res = await fetchMoreMedia(
+        roomUid,
+        convertType(type),
+        messageTime,
+        fetchingDirectionType:
+            FetchMediasReq_FetchingDirectionType.FORWARD_FETCH,
+      );
+      //find media index
+      index = await _mediaDao.getIndexOfMedia(
+        roomUid,
+        messageId,
+        type,
+      );
+      if (res != null && res.isNotEmpty && index != 0 && index != null) {
+        return res.sublist(1);
+      }
+    } else {
+      return getMediaAutoPlayListPageByIndex(
+        roomUid: roomUid,
+        type: type,
+        mediaIndex: index,
+      );
+    }
+    return null;
+  }
+
+  Future<List<Media>?> getMediaAutoPlayListPageByIndex({
+    required String roomUid,
+    required int mediaIndex,
+    MediaType type = MediaType.MUSIC,
+  }) async {
+    final page = (mediaIndex / MEDIA_PAGE_SIZE).floor();
+    final res = await getMediaPage(
+      roomUid,
+      type,
+      page,
+      mediaIndex,
+    );
+    if (mediaIndex != 0 && res != null) {
+      return res.sublist(0, mediaIndex).reversed.toList();
+    }
+    return null;
   }
 
   Future<MediaMetaData?> getMediaMetaData(String roomUid) async =>
@@ -360,8 +419,10 @@ class MediaRepo {
   Future<List<Media>?> fetchMoreMedia(
     String roomUid,
     FetchMediasReq_MediaType mediaType,
-    int? pointer,
-  ) async {
+    int? pointer, {
+    FetchMediasReq_FetchingDirectionType fetchingDirectionType =
+        FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH,
+  }) async {
     try {
       if (pointer == null) {
         final room = await _roomRepo.getRoom(roomUid);
@@ -378,8 +439,7 @@ class MediaRepo {
           ..roomUid = roomUid.asUid()
           ..limit = 40
           ..year = DateTime.fromMillisecondsSinceEpoch(pointer).year
-          ..fetchingDirectionType =
-              FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH,
+          ..fetchingDirectionType = fetchingDirectionType,
       );
       if (result.medias.isNotEmpty) {
         return _saveFetchedMedias(result.medias, roomUid.asUid(), mediaType);
