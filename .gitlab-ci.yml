@@ -2,19 +2,31 @@ include:
   - project: deliver/gitlab-templates
     file: flutter.gitlab-ci.yml
 
+stages:
+  - test
+  - publish
+  - deploy
 
 variables:
   PROJECT_NAME: deliver-web
   PROJECT_VERSION: $CI_COMMIT_SHORT_SHA
-  RESOLVER_VERSION: 2
   PROJECT_BUILD_NAME: "1.9.2"
   PROJECT_BUILD_NUMBER: "62"
 
-fake-test:
+test:
+  needs: [ ]
   extends: [ .test-definition ]
   script:
-    - echo "Flutter Test not passing for Now"
-#    - flutter test
+    - echo "Flutter Test not passing for Now - Use `flutter test` instead"
 
 publish-we-android:
+  needs: [ test ]
   extends: [ .publish-android-definition ]
+
+publish-we-web:
+  needs: [ test ]
+  extends: [ .publish-web-definition ]
+
+deploy-we-web:
+  needs: [ publish-we-web ]
+  extends: [ .deploy-web-definition ]
