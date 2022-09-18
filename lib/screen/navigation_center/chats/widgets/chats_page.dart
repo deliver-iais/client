@@ -185,9 +185,8 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
         .watchAllRooms()
         .distinct(const ListEquality().equals)
         .switchMap((roomsList) {
-
           _pinRoomsList.clear();
-          if (roomsList.first.pinned) {
+          if (roomsList.isNotEmpty && roomsList.first.pinned) {
             _pinRoomsList.addAll(
               roomsList.sublist(0, 5).where((element) => element.pinned),
             );

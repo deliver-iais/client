@@ -18,6 +18,7 @@ import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/connection_status.dart';
 import 'package:deliver/shared/widgets/out_of_date.dart';
 import 'package:deliver/shared/widgets/tgs.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:feature_discovery/feature_discovery.dart';
@@ -29,7 +30,6 @@ import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:window_size/window_size.dart';
-import 'package:deliver/theme/theme.dart';
 
 BehaviorSubject<String> modifyRoutingByNotificationTapInBackgroundInAndroid =
     BehaviorSubject.seeded("");
@@ -38,8 +38,10 @@ class CallNotificationActionInBackground {
   final String roomId;
   final bool isCallAccepted;
 
-  CallNotificationActionInBackground(
-      {required this.roomId, required this.isCallAccepted,});
+  CallNotificationActionInBackground({
+    required this.roomId,
+    required this.isCallAccepted,
+  });
 }
 
 BehaviorSubject<CallNotificationActionInBackground?>
@@ -476,11 +478,12 @@ class NavigationCenterState extends State<NavigationCenter> {
                       builder: (context, snapshot) {
                         if (snapshot.hasData && snapshot.data!) {
                           return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                            padding:
+                                const EdgeInsets.symmetric(horizontal: 4.0),
                             child: Icon(
                               CupertinoIcons.checkmark_seal,
-                              size: ((theme.textTheme.subtitle2)?.fontSize ??
-                                  14),
+                              size:
+                                  ((theme.textTheme.subtitle2)?.fontSize ?? 14),
                               color: ACTIVE_COLOR,
                             ),
                           );
