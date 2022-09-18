@@ -76,12 +76,12 @@ class CenterAvatarInCallState extends State<CenterAvatarInCall> {
                         colors: [
                           Color(
                             _uxService.getCorePalette().tertiary.get(
-                                  _uxService.themeIsDark ? 60 : 80,
+                                  _uxService.themeIsDark ? 60 : 75,
                                 ),
                           ),
                           Color(
                             _uxService.getCorePalette().primary.get(
-                                  _uxService.themeIsDark ? 60 : 80,
+                                  _uxService.themeIsDark ? 60 : 75,
                                 ),
                           ),
                         ],
