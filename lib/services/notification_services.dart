@@ -888,14 +888,15 @@ class AndroidNotifier implements Notifier {
     final ceJson = callEventJson ?? "";
     await ConnectycubeFlutterCallKit.showCallNotification(
       CallEvent(
-        sessionId: clock.now().millisecondsSinceEpoch.toString(),
-        callerId: 123456789,
-        callType: callType == CallEvent_CallType.AUDIO ? 0 : 1,
-        callerName: roomName,
-        userInfo: {"uid": roomUid, "callEventJson": ceJson},
-        avatarPath: path,
-        opponentsIds: const {1},
-      ),
+          sessionId: clock.now().millisecondsSinceEpoch.toString(),
+          callerId: 123456789,
+          callType: callType == CallEvent_CallType.AUDIO ? 0 : 1,
+          callerName: roomName,
+          userInfo: {"uid": roomUid, "callEventJson": ceJson},
+          avatarPath: path,
+          opponentsIds: const {1},
+          rejectActionText: _i18n.get("decline"),
+          acceptActionText: _i18n.get("accept"),),
     );
     await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
   }
