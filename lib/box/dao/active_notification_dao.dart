@@ -59,20 +59,23 @@ class ActiveNotificationDaoImpl implements ActiveNotificationDao {
   static String _key(String roomUid) => "active-notification-$roomUid";
 
   static Future<BoxPlus<ActiveNotification>> _open(String uid) {
-    BoxInfo.addBox(_key(uid.replaceAll(":", "-")));
+    BoxInfo.addBox(_key(uid));
     return gen(
-      Hive.openBox<ActiveNotification>(_key(uid.replaceAll(":", "-"))),
+      Hive.openBox<ActiveNotification>(_key(uid)),
     );
   }
 
   @override
   Future<void> removeAllActiveNotification() async {
     final box = await Hive.openBox<String>("box_info");
-    box.values.toList().forEach((key) async {
-      if (key.contains("active-notification")) {
-        await BoxInfo.deleteBox(key);
-      }
-    });
+    final keys = box.values
+        .toList()
+        .where((element) => element.contains("active-notification"));
+    for (final element in keys) {
+      await removeRoomActiveNotification(
+        element.substring("active-notification-".length),
+      );
+    }
   }
 
   List<ActiveNotification> sorted(List<ActiveNotification> list) {
