@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/shared/methods/find_file_type.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:get_it/get_it.dart';
@@ -150,6 +151,7 @@ class AudioService {
   //index of next media
   int autoPlayMediaIndex = 0;
   final _mainPlayer = getAudioPlayerModule();
+  final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _intermediatePlayer = getIntermediatePlayerModule();
   final _temporaryPlayer = TemporaryAudioPlayer();
   final _recorder = RecorderModule();
@@ -161,6 +163,8 @@ class AudioService {
 
   AudioService() {
     _mainPlayer.completedStream.listen((_) async {
+
+      //todo check to see if message has been edited or deleted
       stopAudio();
       if (autoPlayMediaList.isNotEmpty &&
           autoPlayMediaIndex != autoPlayMediaList.length) {
@@ -173,6 +177,23 @@ class AudioService {
         if (filePath != null) {
           playAudioMessage(filePath, fileUuid, fileName, fileDuration);
           autoPlayMediaIndex++;
+
+          //looking for new media
+          // ignore: invariant_booleans
+          if (autoPlayMediaList.length == autoPlayMediaIndex) {
+            final list =
+                await _mediaQueryRepo.getMediaAutoPlayListPageByMessageId(
+              messageId: autoPlayMediaList.last.messageId,
+              roomUid: autoPlayMediaList.last.roomId,
+              messageTime: autoPlayMediaList.last.createdOn,
+            );
+
+            if (list != null && list.isNotEmpty) {
+              autoPlayMediaList = list;
+              autoPlayMediaIndex = 0;
+            }
+          }
+
           //download next file
           if (autoPlayMediaIndex != autoPlayMediaList.length) {
             await _getFilePathFromMedia();
