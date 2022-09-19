@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:clock/clock.dart';
+import 'package:collection/collection.dart';
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
 import 'package:deliver/box/active_notification.dart' as active_notificaton;
 import 'package:deliver/box/call_event.dart' as call_event;
@@ -693,63 +694,51 @@ class AndroidNotifier implements Notifier {
 
   @override
   Future<void> cancelById(int id, String roomUid) async {
-    final activeNotifications =
-        await _activeNotificationDao.getRoomActiveNotification(roomUid);
+    //if we don't have that message in our active notification table
+    if ((await _activeNotificationDao.getActiveNotification(roomUid, id)) ==
+        null) {
+      return;
+    }
 
-    final notification =
-        (await _flutterLocalNotificationsPlugin.getActiveNotifications())
-            .where((element) => element.id == roomUid.hashCode);
-
-    if (notification.isEmpty) {
+    // if android(local notification) doesn't have any active notification for that room
+    if ((await _flutterLocalNotificationsPlugin.getActiveNotifications())
+        .where((element) => element.id == roomUid.hashCode)
+        .isEmpty) {
       await _activeNotificationDao.removeRoomActiveNotification(roomUid);
       return;
     }
-    if (activeNotifications.isNotEmpty) {
-      if (activeNotifications.length == 1) {
-        await cancel(roomUid);
-        await _activeNotificationDao.removeActiveNotification(roomUid, id);
-      } else {
-        final notification =
-            (await _flutterLocalNotificationsPlugin.getActiveNotifications())
-                .where((element) => element.id == roomUid.hashCode)
-                .first;
-        await _activeNotificationDao.removeActiveNotification(roomUid, id);
-        final lines = <String>[];
-        for (final element in activeNotifications) {
-          if (element.messageId != id) {
-            if (notification.body!.split("\n").contains(element.messageText)) {
-              lines.add("${element.messageText}\n");
-            } else {
-              await _activeNotificationDao.removeActiveNotification(
-                roomUid,
-                element.messageId,
-              );
-            }
-          }
-        }
-        if (lines.isNotEmpty) {
-          final text = lines.join("\n");
-          final inboxStyleInformation = _createInboxStyleInformation(
-            lines,
-            activeNotifications.last.roomName,
-          );
-
-          await _flutterLocalNotificationsPlugin.show(
-            roomUid.hashCode,
-            activeNotifications.last.roomName,
-            text,
-            notificationDetails: await _createAndroidNotificationDetails(
-              roomUid,
-              activeNotifications.last.roomName,
-              inboxStyleInformation,
-            ),
-            payload: Notifier.genPayload(
-              roomUid,
-              activeNotifications.last.messageId,
-            ),
-          );
-        }
+    final activeNotifications =
+        await _activeNotificationDao.getRoomActiveNotification(roomUid);
+    await _activeNotificationDao.removeActiveNotification(roomUid, id);
+    final lines = <String>[];
+    for (final element in activeNotifications) {
+      if (element.messageId != id) {
+        lines.add("${element.messageText}\n");
       }
+    }
+    if (lines.isNotEmpty) {
+      final text = lines.join("\n");
+      final inboxStyleInformation = _createInboxStyleInformation(
+        lines,
+        activeNotifications.last.roomName,
+      );
+
+      await _flutterLocalNotificationsPlugin.show(
+        roomUid.hashCode,
+        activeNotifications.last.roomName,
+        text,
+        notificationDetails: await _createAndroidNotificationDetails(
+          roomUid,
+          activeNotifications.last.roomName,
+          inboxStyleInformation,
+        ),
+        payload: Notifier.genPayload(
+          roomUid,
+          activeNotifications.last.messageId,
+        ),
+      );
+    } else {
+      await cancel(roomUid);
     }
   }
 
@@ -760,14 +749,17 @@ class AndroidNotifier implements Notifier {
     final lines = <String>[];
 
     final res = await _flutterLocalNotificationsPlugin.getActiveNotifications();
-    for (final element in res) {
-      if (element.groupKey == message.roomUid.asString() &&
+    final roomActiveNotification = res.lastWhereOrNull(
+      (element) => (element.groupKey == message.roomUid.asString() &&
           element.body != null &&
-          element.body!.isNotEmpty) {
-        lines.addAll(element.body!.split("\n"));
-      }
+          element.body!.isNotEmpty),
+    );
+    if (roomActiveNotification != null) {
+      lines.addAll(roomActiveNotification.body!.split("\n"));
+    } else {
+      await _activeNotificationDao
+          .removeRoomActiveNotification(message.roomUid.asString());
     }
-
     lines.add(createNotificationTextFromMessageBrief(message));
 
     final text = lines.join("\n");
@@ -888,15 +880,16 @@ class AndroidNotifier implements Notifier {
     final ceJson = callEventJson ?? "";
     await ConnectycubeFlutterCallKit.showCallNotification(
       CallEvent(
-          sessionId: clock.now().millisecondsSinceEpoch.toString(),
-          callerId: 123456789,
-          callType: callType == CallEvent_CallType.AUDIO ? 0 : 1,
-          callerName: roomName,
-          userInfo: {"uid": roomUid, "callEventJson": ceJson},
-          avatarPath: path,
-          opponentsIds: const {1},
-          rejectActionText: _i18n.get("decline"),
-          acceptActionText: _i18n.get("accept"),),
+        sessionId: clock.now().millisecondsSinceEpoch.toString(),
+        callerId: 123456789,
+        callType: callType == CallEvent_CallType.AUDIO ? 0 : 1,
+        callerName: roomName,
+        userInfo: {"uid": roomUid, "callEventJson": ceJson},
+        avatarPath: path,
+        opponentsIds: const {1},
+        rejectActionText: _i18n.get("decline"),
+        acceptActionText: _i18n.get("accept"),
+      ),
     );
     await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
   }
