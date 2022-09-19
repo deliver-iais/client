@@ -166,17 +166,12 @@ class DataStreamServices {
       final callEvents = CallEvents.callEvent(
         message.callEvent,
         roomUid: message.from,
-        callId: message.callEvent.id,
+        callId: message.callEvent.callId,
         time: message.time.toInt(),
       );
-      if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
-          message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
-        _callService.addGroupCallEvent(callEvents);
-      } else {
-        _callService
-          ..addCallEvent(callEvents)
-          ..shouldRemoveData = isFirebaseMessage;
-      }
+      _callService
+        ..addCallEvent(callEvents)
+        ..shouldRemoveData = isFirebaseMessage;
     }
 
     final msg = (await saveMessageInMessagesDB(message))!;
@@ -505,12 +500,7 @@ class DataStreamServices {
       roomUid: getRoomUidOf(_authRepo, callOffer.from, callOffer.to),
       callId: callOffer.id,
     );
-    if (callOffer.callType == call_pb.CallEvent_CallType.GROUP_AUDIO ||
-        callOffer.callType == call_pb.CallEvent_CallType.GROUP_VIDEO) {
-      _callService.addGroupCallEvent(callEvents);
-    } else {
-      _callService.addCallEvent(callEvents);
-    }
+    _callService.addCallEvent(callEvents);
   }
 
   void handleCallAnswer(call_pb.CallAnswer callAnswer) {
@@ -519,12 +509,7 @@ class DataStreamServices {
       roomUid: getRoomUidOf(_authRepo, callAnswer.from, callAnswer.to),
       callId: callAnswer.id,
     );
-    if (callAnswer.callType == call_pb.CallEvent_CallType.GROUP_AUDIO ||
-        callAnswer.callType == call_pb.CallEvent_CallType.GROUP_VIDEO) {
-      _callService.addGroupCallEvent(callEvents);
-    } else {
-      _callService.addCallEvent(callEvents);
-    }
+    _callService.addCallEvent(callEvents);
   }
 
   Future<bool> shouldNotifyForThisMessage(Message message) async {
@@ -685,16 +670,10 @@ class DataStreamServices {
           final callEvents = CallEvents.callEvent(
             message.callEvent,
             roomUid: message.from,
-            callId: message.callEvent.id,
+            callId: message.callEvent.callId,
             time: message.time.toInt(),
           );
-          if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
-              message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
-            // its group Call
-            _callService.addGroupCallEvent(callEvents);
-          } else {
-            _callService.addCallEvent(callEvents);
-          }
+          _callService.addCallEvent(callEvents);
           break;
         }
       }

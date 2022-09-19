@@ -526,34 +526,7 @@ void main() {
           from: testUid,
           to: testUid,
           callEvent: CallEvent(
-            id: "0",
-            callType: CallEvent_CallType.GROUP_VIDEO,
-          ),
-        );
-        final callService = getAndRegisterCallService();
-        await DataStreamServices().handleIncomingMessage(
-          message,
-          isOnlineMessage: true,
-        );
-        verify(
-          callService.addGroupCallEvent(
-            CallEvents.callEvent(
-              message.callEvent,
-              roomUid: testUid,
-              callId: "0",
-              time: 0,
-            ),
-          ),
-        );
-      });
-      test(
-          'When called if message type is callEvent should add event to callService',
-          () async {
-        final message = Message(
-          from: testUid,
-          to: testUid,
-          callEvent: CallEvent(
-            id: "0",
+            callId: "0",
             callType: CallEvent_CallType.AUDIO,
           ),
         );
@@ -994,34 +967,10 @@ void main() {
     });
     group('handleCallOffer -', () {
       test(
-          'When called if callType is group call should addGroupCallEvent to callService',
-          () async {
-        final callOffer = CallOffer(
-          id: "0",
-          callType: CallEvent_CallType.GROUP_VIDEO,
-          to: testUid,
-          from: testUid,
-        );
-        final callService = getAndRegisterCallService();
-        DataStreamServices().handleCallOffer(
-          callOffer,
-        );
-        verify(
-          callService.addGroupCallEvent(
-            CallEvents.callOffer(
-              callOffer,
-              roomUid: testUid,
-              callId: "0",
-            ),
-          ),
-        );
-      });
-      test(
           'When called if callType is normal call should addGroupCallEvent to callService',
           () async {
         final callOffer = CallOffer(
           id: "0",
-          callType: CallEvent_CallType.AUDIO,
           to: testUid,
           from: testUid,
         );
@@ -1042,34 +991,10 @@ void main() {
     });
     group('handleCallAnswer -', () {
       test(
-          'When called if callType is group call should addGroupCallEvent to callService',
-          () async {
-        final callAnswer = CallAnswer(
-          id: "0",
-          callType: CallEvent_CallType.GROUP_VIDEO,
-          to: testUid,
-          from: testUid,
-        );
-        final callService = getAndRegisterCallService();
-        DataStreamServices().handleCallAnswer(
-          callAnswer,
-        );
-        verify(
-          callService.addGroupCallEvent(
-            CallEvents.callAnswer(
-              callAnswer,
-              roomUid: testUid,
-              callId: "0",
-            ),
-          ),
-        );
-      });
-      test(
           'When called if callType is normal call should addGroupCallEvent to callService',
           () async {
         final callAnswer = CallAnswer(
           id: "0",
-          callType: CallEvent_CallType.AUDIO,
           to: testUid,
           from: testUid,
         );

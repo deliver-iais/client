@@ -474,43 +474,16 @@ class MessageRepo {
   }
 
   Future<void> sendCallMessage(
-    call_pb.CallEvent_CallStatus newStatus,
+    call_pb.CallEvent_CallStatus callStatus,
     Uid room,
     String callId,
     int callDuration,
-    int endOfCallDuration,
     call_pb.CallEvent_CallType callType,
   ) async {
     final json = (call_pb.CallEvent()
-          ..newStatus = newStatus
-          ..id = callId
+          ..callStatus = callStatus
+          ..callId = callId
           ..callDuration = Int64(callDuration)
-          ..endOfCallTime = Int64(endOfCallDuration)
-          ..callType = callType)
-        .writeToJson();
-
-    final msg =
-        _createMessage(room).copyWith(type: MessageType.CALL, json: json);
-
-    final pm = _createPendingMessage(msg, SendingStatus.PENDING);
-    _saveAndSend(pm);
-  }
-
-  Future<void> sendCallMessageWithMemberOrCallOwnerPvp(
-    call_pb.CallEvent_CallStatus newStatus,
-    Uid room,
-    String callId,
-    int callDuration,
-    int endOfCallDuration,
-    Uid memberOrCallOwnerPvp,
-    call_pb.CallEvent_CallType callType,
-  ) async {
-    final json = (call_pb.CallEvent()
-          ..newStatus = newStatus
-          ..id = callId
-          ..callDuration = Int64(callDuration)
-          ..endOfCallTime = Int64(endOfCallDuration)
-          ..memberOrCallOwnerPvp = memberOrCallOwnerPvp
           ..callType = callType)
         .writeToJson();
 

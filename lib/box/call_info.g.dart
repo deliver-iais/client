@@ -20,19 +20,22 @@ class CallInfoAdapter extends TypeAdapter<CallInfo> {
       callEvent: fields[2] as CallEvent,
       from: fields[0] as String,
       to: fields[1] as String,
+      time: fields[3] as int,
     );
   }
 
   @override
   void write(BinaryWriter writer, CallInfo obj) {
     writer
-      ..writeByte(3)
+      ..writeByte(4)
       ..writeByte(0)
       ..write(obj.from)
       ..writeByte(1)
       ..write(obj.to)
       ..writeByte(2)
-      ..write(obj.callEvent);
+      ..write(obj.callEvent)
+      ..writeByte(3)
+      ..write(obj.time);
   }
 
   @override

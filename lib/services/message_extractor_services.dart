@@ -193,7 +193,7 @@ class MessageExtractorServices {
         break;
       case message_pb.Message_Type.callEvent:
         ignoreNotification = true;
-        final callStatus = msg.callEvent.newStatus;
+        final callStatus = msg.callEvent.callStatus;
         final time = msg.callEvent.callDuration.toInt();
         final fromCurrentUser = _authRepo.isCurrentUserUid(msg.from);
         typeDetails = getCallText(

@@ -17,28 +17,25 @@ class CallEventAdapter extends TypeAdapter<CallEvent> {
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
     return CallEvent(
+      id: fields[0] as String,
       callDuration: fields[1] as int,
-      endOfCallTime: fields[0] as int,
       callType: fields[2] as CallType,
-      newStatus: fields[3] as CallStatus,
-      id: fields[4] as String,
+      callStatus: fields[3] as CallStatus,
     );
   }
 
   @override
   void write(BinaryWriter writer, CallEvent obj) {
     writer
-      ..writeByte(5)
+      ..writeByte(4)
       ..writeByte(0)
-      ..write(obj.endOfCallTime)
+      ..write(obj.id)
       ..writeByte(1)
       ..write(obj.callDuration)
       ..writeByte(2)
       ..write(obj.callType)
       ..writeByte(3)
-      ..write(obj.newStatus)
-      ..writeByte(4)
-      ..write(obj.id);
+      ..write(obj.callStatus);
   }
 
   @override
