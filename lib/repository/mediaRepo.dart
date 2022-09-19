@@ -58,7 +58,7 @@ class MediaRepo {
       type,
     );
     // we don't have media
-    if (index == -1 || index == null) {
+    if (index == null || index <= 0) {
       //fetch media
       final res = await fetchMoreMedia(
         roomUid,
