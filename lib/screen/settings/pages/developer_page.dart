@@ -1,9 +1,11 @@
+import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
@@ -22,6 +24,7 @@ class DeveloperPageState extends State<DeveloperPage> {
   final _uxService = GetIt.I.get<UxService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _analyticsRepo = GetIt.I.get<AnalyticsRepo>();
+  final _shareDao = GetIt.I.get<SharedDao>();
 
   @override
   Widget build(BuildContext context) {
@@ -260,7 +263,33 @@ class DeveloperPageState extends State<DeveloperPage> {
                   ),
                 )
               ],
-            )
+            ),
+            if (hasFirebaseCapability)
+              FutureBuilder<String?>(
+                future: _shareDao.get(SHARED_DAO_FIREBASE_TOKEN),
+                builder: (c, ft) {
+                  if (ft.hasData && ft.data != null) {
+                    return Section(
+                      title: "Firebase Token",
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Wrap(
+                            runSpacing: 8,
+                            children: [
+                              Debug(
+                                ft.data,
+                                label: "Token",
+                              ),
+                            ],
+                          ),
+                        )
+                      ],
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+              ),
           ],
         ),
       ),
