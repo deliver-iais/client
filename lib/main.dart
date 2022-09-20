@@ -109,6 +109,7 @@ import 'box/dao/message_dao.dart';
 import 'box/dao/muc_dao.dart';
 import 'box/media.dart';
 import 'repository/mucRepo.dart';
+import 'repository/show_case_repo.dart';
 
 void registerSingleton<T extends Object>(T instance) {
   if (!GetIt.I.isRegistered<T>()) {
