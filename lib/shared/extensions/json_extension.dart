@@ -7,6 +7,7 @@ import 'package:deliver_public_protocol/pub/v1/models/payment.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/poll.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/share_private_data.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/sticker.pb.dart';
 
 extension JsonMapper on String {
@@ -43,4 +44,8 @@ extension JsonMapper on String {
       SharePrivateDataRequest.fromJson(this);
 
   CallEvent toCallEvent() => CallEvent.fromJson(this);
+
+  Showcase toShowCase() {
+    return Showcase.fromJson(this);
+  }
 }
