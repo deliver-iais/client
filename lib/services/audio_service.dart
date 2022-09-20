@@ -527,13 +527,19 @@ class JustAudioAudioPlayer implements AudioPlayerModule {
 
   final _audioCurrentState = BehaviorSubject.seeded(AudioPlayerState.stopped);
 
+  final _isProcessCompleted = BehaviorSubject.seeded(false);
+
   @override
   ValueStream<AudioPlayerState> get stateStream => _audioCurrentState;
 
   JustAudioAudioPlayer() {
     _audioPlayer.playerStateStream.listen((event) async {
-      if (event.processingState == just_audio.ProcessingState.completed) {
+      if (event.processingState == just_audio.ProcessingState.completed &&
+          _isProcessCompleted.value != true) {
+        _isProcessCompleted.add(true);
         _playerCompleted.add(null);
+      } else {
+        _isProcessCompleted.add(false);
       }
     });
   }
