@@ -1719,17 +1719,6 @@ class MockQueryServiceClient extends _i1.Mock
                       #deleteMessage, [request], {#options: options})))
           as _i8.ResponseFuture<_i14.DeleteMessageRes>);
   @override
-  _i8.ResponseFuture<_i14.ForwardMessagesRes> forwardMessages(
-          _i14.ForwardMessagesReq? request,
-          {_i8.CallOptions? options}) =>
-      (super.noSuchMethod(
-          Invocation.method(#forwardMessages, [request], {#options: options}),
-          returnValue: _FakeResponseFuture_6<_i14.ForwardMessagesRes>(
-              this,
-              Invocation.method(
-                  #forwardMessages, [request], {#options: options}))) as _i8
-          .ResponseFuture<_i14.ForwardMessagesRes>);
-  @override
   _i8.ResponseFuture<_i14.AddAvatarRes> addAvatar(_i14.AddAvatarReq? request,
           {_i8.CallOptions? options}) =>
       (super.noSuchMethod(
@@ -1782,28 +1771,6 @@ class MockQueryServiceClient extends _i1.Mock
                   Invocation.method(
                       #sendGlitch, [request], {#options: options})))
           as _i8.ResponseFuture<_i14.SendGlitchRes>);
-  @override
-  _i8.ResponseFuture<_i14.CreateGroupCallRes> createGroupCall(
-          _i14.CreateGroupCallReq? request,
-          {_i8.CallOptions? options}) =>
-      (super.noSuchMethod(
-          Invocation.method(#createGroupCall, [request], {#options: options}),
-          returnValue: _FakeResponseFuture_6<_i14.CreateGroupCallRes>(
-              this,
-              Invocation.method(
-                  #createGroupCall, [request], {#options: options}))) as _i8
-          .ResponseFuture<_i14.CreateGroupCallRes>);
-  @override
-  _i8.ResponseFuture<_i14.EndGroupCallRes> endGroupCall(
-          _i14.EndGroupCallReq? request,
-          {_i8.CallOptions? options}) =>
-      (super.noSuchMethod(
-              Invocation.method(#endGroupCall, [request], {#options: options}),
-              returnValue: _FakeResponseFuture_6<_i14.EndGroupCallRes>(
-                  this,
-                  Invocation.method(
-                      #endGroupCall, [request], {#options: options})))
-          as _i8.ResponseFuture<_i14.EndGroupCallRes>);
   @override
   _i9.ClientCall<Q, R> $createCall<Q, R>(
           _i8.ClientMethod<Q, R>? method, _i21.Stream<Q>? requests,
@@ -2959,6 +2926,12 @@ class MockCallService extends _i1.Mock implements _i77.CallService {
                   this, Invocation.getter(#callEvents)))
           as _i4.BehaviorSubject<_i78.CallEvents>);
   @override
+  _i4.BehaviorSubject<_i78.CallEvents> get groupCallEvents =>
+      (super.noSuchMethod(Invocation.getter(#groupCallEvents),
+              returnValue: _FakeBehaviorSubject_2<_i78.CallEvents>(
+                  this, Invocation.getter(#groupCallEvents)))
+          as _i4.BehaviorSubject<_i78.CallEvents>);
+  @override
   bool get shouldRemoveData =>
       (super.noSuchMethod(Invocation.getter(#shouldRemoveData),
           returnValue: false) as bool);
@@ -2974,6 +2947,11 @@ class MockCallService extends _i1.Mock implements _i77.CallService {
   _i3.Uid get getRoomUid => (super.noSuchMethod(Invocation.getter(#getRoomUid),
           returnValue: _FakeUid_1(this, Invocation.getter(#getRoomUid)))
       as _i3.Uid);
+  @override
+  _i3.Uid get getCallOwner =>
+      (super.noSuchMethod(Invocation.getter(#getCallOwner),
+              returnValue: _FakeUid_1(this, Invocation.getter(#getCallOwner)))
+          as _i3.Uid);
   @override
   String get getCallId =>
       (super.noSuchMethod(Invocation.getter(#getCallId), returnValue: '')
@@ -2991,12 +2969,20 @@ class MockCallService extends _i1.Mock implements _i77.CallService {
       super.noSuchMethod(Invocation.setter(#setRoomUid, ru),
           returnValueForMissingStub: null);
   @override
+  set setCallOwner(_i3.Uid? uid) =>
+      super.noSuchMethod(Invocation.setter(#setCallOwner, uid),
+          returnValueForMissingStub: null);
+  @override
   set setCallId(String? callId) =>
       super.noSuchMethod(Invocation.setter(#setCallId, callId),
           returnValueForMissingStub: null);
   @override
   void addCallEvent(_i78.CallEvents? event) =>
       super.noSuchMethod(Invocation.method(#addCallEvent, [event]),
+          returnValueForMissingStub: null);
+  @override
+  void addGroupCallEvent(_i78.CallEvents? event) =>
+      super.noSuchMethod(Invocation.method(#addGroupCallEvent, [event]),
           returnValueForMissingStub: null);
   @override
   _i21.Future<void> saveCallOnDb(_i80.CurrentCallInfo? callInfo) =>
@@ -3103,9 +3089,9 @@ class MockNotificationServices extends _i1.Mock
       super.noSuchMethod(Invocation.method(#cancelRoomNotifications, [roomUid]),
           returnValueForMissingStub: null);
   @override
-  void cancelNotificationById(int? id) =>
-      super.noSuchMethod(Invocation.method(#cancelNotificationById, [id]),
-          returnValueForMissingStub: null);
+  void cancelNotificationById(int? id, String? roomUid) => super.noSuchMethod(
+      Invocation.method(#cancelNotificationById, [id, roomUid]),
+      returnValueForMissingStub: null);
   @override
   void cancelAllNotifications() =>
       super.noSuchMethod(Invocation.method(#cancelAllNotifications, []),

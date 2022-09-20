@@ -40,7 +40,7 @@ dependencies:
   connectivity_plus: 2.3.6+1
   connectycube_flutter_call_kit:
     git:
-      ref: fbfe3a539c70fe2f9fed19f6a42497bbe8de1894
+      ref: 49be185aefaf6ae910f7359306ec12423d443efa
       url: https://github.com/deliveriais/connectycube_flutter_call_kit
   contacts_service: 0.6.3
   custom_image_crop: 0.0.4

@@ -315,6 +315,7 @@ class DataStreamServices {
             lastMessage: lastNotHiddenMessage ?? savedMsg,
           );
         }
+        _notificationServices.cancelNotificationById(id, roomUid.asString());
       }
       messageEventSubject.add(
         MessageEvent(

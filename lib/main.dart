@@ -1,4 +1,5 @@
 import 'package:deliver/box/account.dart';
+import 'package:deliver/box/active_notification.dart';
 import 'package:deliver/box/auto_download.dart';
 import 'package:deliver/box/auto_download_room_category.dart';
 import 'package:deliver/box/avatar.dart';
@@ -10,6 +11,7 @@ import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/box/current_call_info.dart';
 import 'package:deliver/box/dao/account_dao.dart';
+import 'package:deliver/box/dao/active_notification_dao.dart';
 import 'package:deliver/box/dao/auto_download_dao.dart';
 import 'package:deliver/box/dao/avatar_dao.dart';
 import 'package:deliver/box/dao/block_dao.dart';
@@ -65,7 +67,6 @@ import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
-import 'package:deliver/repository/show_case_repo.dart';
 import 'package:deliver/repository/stickerRepo.dart';
 import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/audio_service.dart';
@@ -169,6 +170,7 @@ Future<void> setupDI() async {
     ..registerAdapter(ReplyKeyboardMarkupAdapter())
     ..registerAdapter(ReplyKeyboardRowAdapter())
     ..registerAdapter(InlineKeyboardRowAdapter())
+    ..registerAdapter(ActiveNotificationAdapter())
     ..registerAdapter(ShowCaseAdapter());
 
   registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
@@ -193,6 +195,7 @@ Future<void> setupDI() async {
   registerSingleton<CallInfoDao>(CallInfoDaoImpl());
   registerSingleton<AutoDownloadDao>(AutoDownloadDaoImpl());
   registerSingleton<CurrentCallInfoDao>(CurrentCallInfoDaoImpl());
+  registerSingleton<ActiveNotificationDao>(ActiveNotificationDaoImpl());
   registerSingleton<ShowCaseDao>(ShowCaseDaoImpl());
 
   registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
@@ -263,7 +266,8 @@ Future<void> setupDI() async {
 }
 
 Future initializeFirebase() async {
-  await Firebase.initializeApp(name: APPLICATION_NAME, options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(
+      name: APPLICATION_NAME, options: DefaultFirebaseOptions.currentPlatform);
 }
 
 // ignore: avoid_void_async
