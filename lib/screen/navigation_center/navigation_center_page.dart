@@ -8,6 +8,7 @@ import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chats_page.dart';
 import 'package:deliver/screen/navigation_center/widgets/feature_discovery_description_widget.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
+import 'package:deliver/screen/show_case/show_case_page.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -67,6 +68,8 @@ class NavigationCenterState extends State<NavigationCenter> {
 
   final ScrollController _scrollController = ScrollController();
   final BehaviorSubject<String> _searchMode = BehaviorSubject.seeded("");
+  final BehaviorSubject<int> _bottomNavigationBarIndex =
+      BehaviorSubject.seeded(0);
   final TextEditingController _controller = TextEditingController();
   final BehaviorSubject<String> _queryTermDebouncedSubject =
       BehaviorSubject<String>.seeded("");
@@ -119,6 +122,7 @@ class NavigationCenterState extends State<NavigationCenter> {
         child: Scaffold(
           backgroundColor: theme.colorScheme.background,
           appBar: _buildAppBar(),
+          bottomNavigationBar: _buildNavigationBar(),
           body: RepaintBoundary(
             child: Column(
               children: <Widget>[
@@ -132,20 +136,33 @@ class NavigationCenterState extends State<NavigationCenter> {
                   ),
                 ),
                 if (!isLarge(context)) const AudioPlayerAppBar(),
-                StreamBuilder<String>(
-                  stream: _searchMode,
-                  builder: (c, s) {
-                    if (s.hasData && s.data!.isNotEmpty) {
-                      _onNavigationCenterBackPressed = () {
-                        _queryTermDebouncedSubject.add("");
-                        _controller.clear();
-                      };
-                      return searchResult(s.data!);
-                    } else {
-                      _onNavigationCenterBackPressed = null;
-                      return Expanded(
-                        child: ChatsPage(scrollController: _scrollController),
+                StreamBuilder<int>(
+                  stream: _bottomNavigationBarIndex,
+                  builder: (context, snapshot) {
+                    if (snapshot.data == 1) {
+                      return StreamBuilder<String>(
+                        stream: _searchMode,
+                        builder: (c, s) {
+                          if (s.hasData && s.data!.isNotEmpty) {
+                            _onNavigationCenterBackPressed = () {
+                              _queryTermDebouncedSubject.add("");
+                              _controller.clear();
+                            };
+                            return searchResult(s.data!);
+                          } else {
+                            _onNavigationCenterBackPressed = null;
+                            return Expanded(
+                              child: ChatsPage(
+                                scrollController: _scrollController,
+                              ),
+                            );
+                          }
+                        },
                       );
+                    } else if (snapshot.data == 0) {
+                      return const ShowCasePage();
+                    } else {
+                      return const Center(child: CircularProgressIndicator());
                     }
                   },
                 ),
@@ -504,6 +521,34 @@ class NavigationCenterState extends State<NavigationCenter> {
     );
   }
 
+  Widget _buildNavigationBar() {
+    final theme = Theme.of(context);
+    return StreamBuilder<int>(
+      stream: _bottomNavigationBarIndex,
+      builder: (context, snapshot) {
+        return NavigationBar(
+          backgroundColor: theme.colorScheme.onInverseSurface,
+          selectedIndex: _bottomNavigationBarIndex.value,
+          onDestinationSelected: (index) {
+            _bottomNavigationBarIndex.add(index);
+          },
+          surfaceTintColor: theme.colorScheme.onInverseSurface,
+          height: 60,
+          destinations: [
+            NavigationDestination(
+              icon: const Icon(Icons.storefront_outlined),
+              label: _i18n.get("show_case"),
+            ),
+            NavigationDestination(
+              icon: const Icon(CupertinoIcons.chat_bubble_2),
+              label: _i18n.get("chats"),
+            )
+          ],
+        );
+      },
+    );
+  }
+
   PreferredSize _buildAppBar() {
     final theme = Theme.of(context);
     return PreferredSize(
@@ -581,10 +626,21 @@ class NavigationCenterState extends State<NavigationCenter> {
             ],
           ),
           titleSpacing: 8.0,
-          title: Text(
-            _i18n.get("chats"),
-            style: theme.textTheme.headline6,
-            key: ValueKey(randomString(10)),
+          title: StreamBuilder<int>(
+            stream: _bottomNavigationBarIndex,
+            builder: (context, snapshot) {
+              if (snapshot.data == 0) {
+                return Text(
+                  _i18n.get("show_case"),
+                  style: theme.textTheme.headline6,
+                );
+              }
+              return Text(
+                _i18n.get("chats"),
+                style: theme.textTheme.headline6,
+                key: ValueKey(randomString(10)),
+              );
+            },
           ),
           actions: [
             if (!isDesktop)
