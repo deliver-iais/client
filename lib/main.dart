@@ -22,6 +22,7 @@ import 'package:deliver/box/dao/mute_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
+import 'package:deliver/box/dao/show_case_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/file_info.dart';
@@ -47,6 +48,7 @@ import 'package:deliver/box/role.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/box/sending_status.dart';
+import 'package:deliver/box/show_case.dart';
 import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
@@ -63,6 +65,7 @@ import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
+import 'package:deliver/repository/show_case_repo.dart';
 import 'package:deliver/repository/stickerRepo.dart';
 import 'package:deliver/screen/splash/splash_screen.dart';
 import 'package:deliver/services/audio_service.dart';
@@ -165,7 +168,8 @@ Future<void> setupDI() async {
     ..registerAdapter(ReplyKeyboardButtonAdapter())
     ..registerAdapter(ReplyKeyboardMarkupAdapter())
     ..registerAdapter(ReplyKeyboardRowAdapter())
-    ..registerAdapter(InlineKeyboardRowAdapter());
+    ..registerAdapter(InlineKeyboardRowAdapter())
+    ..registerAdapter(ShowCaseAdapter());
 
   registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
   registerSingleton<AccountDao>(AccountDaoImpl());
@@ -189,6 +193,7 @@ Future<void> setupDI() async {
   registerSingleton<CallInfoDao>(CallInfoDaoImpl());
   registerSingleton<AutoDownloadDao>(AutoDownloadDaoImpl());
   registerSingleton<CurrentCallInfoDao>(CurrentCallInfoDaoImpl());
+  registerSingleton<ShowCaseDao>(ShowCaseDaoImpl());
 
   registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
 
@@ -254,6 +259,7 @@ Future<void> setupDI() async {
 
   registerSingleton<CallRepo>(CallRepo());
   registerSingleton<UrlHandlerService>(UrlHandlerService());
+  registerSingleton<ShowCaseRepo>(ShowCaseRepo());
 }
 
 Future initializeFirebase() async {
