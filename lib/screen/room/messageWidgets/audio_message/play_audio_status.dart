@@ -12,6 +12,7 @@ class PlayAudioStatus extends StatefulWidget {
   final double duration;
   final Color backgroundColor;
   final Color foregroundColor;
+  final VoidCallback onAudioPlay;
 
   const PlayAudioStatus({
     super.key,
@@ -21,6 +22,7 @@ class PlayAudioStatus extends StatefulWidget {
     required this.duration,
     required this.backgroundColor,
     required this.foregroundColor,
+    required this.onAudioPlay,
   });
 
   @override
@@ -85,7 +87,7 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
         color: widget.foregroundColor,
         size: 42,
       ),
-      onPressed: () {
+      onPressed: () async {
         if (isAndroid || isIOS || isMacOS || isWindows) {
           _audioPlayerService.playAudioMessage(
             audioPath,
@@ -93,8 +95,9 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
             widget.name,
             widget.duration,
           );
+          widget.onAudioPlay();
         } else {
-          OpenFile.open(audioPath);
+          await OpenFile.open(audioPath);
         }
       },
     );

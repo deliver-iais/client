@@ -1,6 +1,10 @@
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:audioplayers/audioplayers.dart';
+import 'package:deliver/box/media.dart';
+import 'package:deliver/repository/fileRepo.dart';
+import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/shared/methods/find_file_type.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:get_it/get_it.dart';
@@ -142,17 +146,71 @@ IntermediatePlayerModule getIntermediatePlayerModule() {
 }
 
 class AudioService {
+  List<Media> autoPlayMediaList = [];
+
+  //index of next media
+  int autoPlayMediaIndex = 0;
   final _mainPlayer = getAudioPlayerModule();
+  final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _intermediatePlayer = getIntermediatePlayerModule();
   final _temporaryPlayer = TemporaryAudioPlayer();
   final _recorder = RecorderModule();
+  final _fileRepo = GetIt.I.get<FileRepo>();
 
   final _trackStream = BehaviorSubject<AudioTrack?>();
 
   final _onDoneCallbackStream = BehaviorSubject<OnDoneCallback?>();
 
   AudioService() {
-    _mainPlayer.completedStream.listen((_) => stopAudio());
+    _mainPlayer.completedStream.listen((_) async {
+
+      //todo check to see if message has been edited or deleted
+      stopAudio();
+      if (autoPlayMediaList.isNotEmpty &&
+          autoPlayMediaIndex != autoPlayMediaList.length) {
+        final json =
+            jsonDecode(autoPlayMediaList[autoPlayMediaIndex].json) as Map;
+        final fileUuid = json["uuid"];
+        final fileName = json["name"];
+        final fileDuration = json["duration"];
+        final filePath = await _getFilePathFromMedia();
+        if (filePath != null) {
+          playAudioMessage(filePath, fileUuid, fileName, fileDuration);
+          autoPlayMediaIndex++;
+
+          //looking for new media
+          // ignore: invariant_booleans
+          if (autoPlayMediaList.length == autoPlayMediaIndex) {
+            final list =
+                await _mediaQueryRepo.getMediaAutoPlayListPageByMessageId(
+              messageId: autoPlayMediaList.last.messageId,
+              roomUid: autoPlayMediaList.last.roomId,
+              messageTime: autoPlayMediaList.last.createdOn,
+            );
+
+            if (list != null && list.isNotEmpty) {
+              autoPlayMediaList = list;
+              autoPlayMediaIndex = 0;
+            }
+          }
+
+          //download next file
+          if (autoPlayMediaIndex != autoPlayMediaList.length) {
+            await _getFilePathFromMedia();
+          }
+        }
+      }
+    });
+  }
+
+  Future<String?> _getFilePathFromMedia() {
+    final json = jsonDecode(autoPlayMediaList[autoPlayMediaIndex].json) as Map;
+    final fileUuid = json["uuid"];
+    final fileName = json["name"];
+    return _fileRepo.getFile(
+      fileUuid,
+      fileName,
+    );
   }
 
   ValueStream<AudioPlayerState> get playerState => _mainPlayer.stateStream;
@@ -316,7 +374,7 @@ class AudioService {
 
   void toggleRecorderPause() => _recorder.togglePause();
 
-  Future<bool> endRecording() async =>  _recorder.end();
+  Future<bool> endRecording() async => _recorder.end();
 
   void cancelRecording() => _recorder.cancel();
 
@@ -469,13 +527,19 @@ class JustAudioAudioPlayer implements AudioPlayerModule {
 
   final _audioCurrentState = BehaviorSubject.seeded(AudioPlayerState.stopped);
 
+  final _isProcessCompleted = BehaviorSubject.seeded(false);
+
   @override
   ValueStream<AudioPlayerState> get stateStream => _audioCurrentState;
 
   JustAudioAudioPlayer() {
     _audioPlayer.playerStateStream.listen((event) async {
-      if (event.processingState == just_audio.ProcessingState.completed) {
+      if (event.processingState == just_audio.ProcessingState.completed &&
+          _isProcessCompleted.value != true) {
+        _isProcessCompleted.add(true);
         _playerCompleted.add(null);
+      } else {
+        _isProcessCompleted.add(false);
       }
     });
   }
