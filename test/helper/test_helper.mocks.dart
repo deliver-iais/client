@@ -2832,6 +2832,31 @@ class MockMediaRepo extends _i1.Mock implements _i73.MediaRepo {
       super.noSuchMethod(Invocation.method(#saveMediaMetaData, [metaData]),
           returnValueForMissingStub: null);
   @override
+  _i21.Future<List<_i71.Media>?> getMediaAutoPlayListPageByMessageId(
+          {int? messageId,
+          String? roomUid,
+          int? messageTime,
+          _i72.MediaType? type = _i72.MediaType.MUSIC}) =>
+      (super.noSuchMethod(
+              Invocation.method(#getMediaAutoPlayListPageByMessageId, [], {
+                #messageId: messageId,
+                #roomUid: roomUid,
+                #messageTime: messageTime,
+                #type: type
+              }),
+              returnValue: _i21.Future<List<_i71.Media>?>.value())
+          as _i21.Future<List<_i71.Media>?>);
+  @override
+  _i21.Future<List<_i71.Media>?> getMediaAutoPlayListPageByIndex(
+          {String? roomUid,
+          int? mediaIndex,
+          _i72.MediaType? type = _i72.MediaType.MUSIC}) =>
+      (super.noSuchMethod(
+              Invocation.method(#getMediaAutoPlayListPageByIndex, [],
+                  {#roomUid: roomUid, #mediaIndex: mediaIndex, #type: type}),
+              returnValue: _i21.Future<List<_i71.Media>?>.value())
+          as _i21.Future<List<_i71.Media>?>);
+  @override
   _i21.Future<_i74.MediaMetaData?> getMediaMetaData(String? roomUid) =>
       (super.noSuchMethod(Invocation.method(#getMediaMetaData, [roomUid]),
               returnValue: _i21.Future<_i74.MediaMetaData?>.value())
@@ -2902,9 +2927,12 @@ class MockMediaRepo extends _i1.Mock implements _i73.MediaRepo {
           returnValueForMissingStub: null);
   @override
   _i21.Future<List<_i71.Media>?> fetchMoreMedia(String? roomUid,
-          _i14.FetchMediasReq_MediaType? mediaType, int? pointer) =>
+          _i14.FetchMediasReq_MediaType? mediaType, int? pointer,
+          {_i14.FetchMediasReq_FetchingDirectionType? fetchingDirectionType =
+              _i14.FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH}) =>
       (super.noSuchMethod(
-              Invocation.method(#fetchMoreMedia, [roomUid, mediaType, pointer]),
+              Invocation.method(#fetchMoreMedia, [roomUid, mediaType, pointer],
+                  {#fetchingDirectionType: fetchingDirectionType}),
               returnValue: _i21.Future<List<_i71.Media>?>.value())
           as _i21.Future<List<_i71.Media>?>);
   @override
