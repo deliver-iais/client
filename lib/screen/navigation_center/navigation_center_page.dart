@@ -136,33 +136,34 @@ class NavigationCenterState extends State<NavigationCenter> {
                   ),
                 ),
                 if (!isLarge(context)) const AudioPlayerAppBar(),
-                StreamBuilder<int>(
-                  stream: _bottomNavigationBarIndex,
-                  builder: (context, snapshot) {
-                    if (snapshot.data == 1) {
-                      return StreamBuilder<String>(
-                        stream: _searchMode,
-                        builder: (c, s) {
-                          if (s.hasData && s.data!.isNotEmpty) {
-                            _onNavigationCenterBackPressed = () {
-                              _queryTermDebouncedSubject.add("");
-                              _controller.clear();
-                            };
-                            return searchResult(s.data!);
-                          } else {
-                            _onNavigationCenterBackPressed = null;
+                StreamBuilder<String>(
+                  stream: _searchMode,
+                  builder: (c, s) {
+                    if (s.hasData && s.data!.isNotEmpty) {
+                      _onNavigationCenterBackPressed = () {
+                        _queryTermDebouncedSubject.add("");
+                        _controller.clear();
+                      };
+                      return searchResult(s.data!);
+                    } else {
+                      _onNavigationCenterBackPressed = null;
+                      return StreamBuilder<int>(
+                        stream: _bottomNavigationBarIndex,
+                        builder: (context, snapshot) {
+                          if (snapshot.data == 1) {
                             return Expanded(
                               child: ChatsPage(
                                 scrollController: _scrollController,
                               ),
                             );
+                          } else if (snapshot.data == 0) {
+                            return const ShowCasePage();
+                          } else {
+                            return const Center(
+                                child: CircularProgressIndicator());
                           }
                         },
                       );
-                    } else if (snapshot.data == 0) {
-                      return const ShowCasePage();
-                    } else {
-                      return const Center(child: CircularProgressIndicator());
                     }
                   },
                 ),
