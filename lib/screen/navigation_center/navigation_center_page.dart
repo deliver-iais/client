@@ -8,7 +8,7 @@ import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chats_page.dart';
 import 'package:deliver/screen/navigation_center/widgets/feature_discovery_description_widget.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
-import 'package:deliver/screen/show_case/show_case_page.dart';
+import 'package:deliver/screen/show_case/pages/show_case_page.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -157,10 +157,13 @@ class NavigationCenterState extends State<NavigationCenter> {
                               ),
                             );
                           } else if (snapshot.data == 0) {
-                            return const ShowCasePage();
+                            return Directionality(
+                                textDirection: _i18n.defaultTextDirection,
+                                child: const ShowCasePage());
                           } else {
                             return const Center(
-                                child: CircularProgressIndicator());
+                              child: CircularProgressIndicator(),
+                            );
                           }
                         },
                       );
