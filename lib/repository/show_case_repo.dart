@@ -50,7 +50,7 @@ class ShowCaseRepo {
       ),
       Showcase(
         singleBanner: BannerCase(
-          uid: "2:d84dcfee-49db-4f39-962f-dc04e62037c8".asUid(),
+          uid: "3:f508a026-071b-4d65-ba75-82fdd83756b0".asUid(),
           bannerImg: File(
             uuid: "91f84af0-deac-416f-a1e5-996ca513da63",
             name: "1663694559011.webp",
@@ -89,7 +89,7 @@ class ShowCaseRepo {
       ),
       Showcase(
         singleBanner: BannerCase(
-          uid: "2:d84dcfee-49db-4f39-962f-dc04e62037c8".asUid(),
+          uid: "3:f508a026-071b-4d65-ba75-82fdd83756b0".asUid(),
           bannerImg: File(
             uuid: "91f84af0-deac-416f-a1e5-996ca513da63",
             name: "1663694559011.webp",

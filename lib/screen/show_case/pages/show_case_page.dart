@@ -1,6 +1,7 @@
 import 'package:deliver/box/show_case.dart';
 import 'package:deliver/repository/show_case_repo.dart';
 import 'package:deliver/screen/show_case/widgets/grouped_rooms_widget.dart';
+import 'package:deliver/screen/show_case/widgets/grouped_url_widget.dart';
 import 'package:deliver/screen/show_case/widgets/single_banner_widget.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
@@ -90,8 +91,9 @@ class _ShowCasePageState extends State<ShowCasePage> {
         // todo: Handle this case.
         return const SizedBox.shrink();
       case Showcase_Type.groupedUrl:
-        // todo: Handle this case.
-        return const SizedBox.shrink();
+        return GroupedUrlWidget(
+          groupedUrls: showCase.groupedUrl,
+        );
       case Showcase_Type.notSet:
         return const SizedBox.shrink();
     }
