@@ -1,5 +1,4 @@
 import 'package:deliver/box/show_case.dart';
-import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/show_case_repo.dart';
 import 'package:deliver/screen/show_case/widgets/grouped_rooms_widget.dart';
 import 'package:deliver/screen/show_case/widgets/single_banner_widget.dart';
@@ -21,7 +20,6 @@ class _ShowCasePageState extends State<ShowCasePage> {
     [],
   );
   final _showCaseRepo = GetIt.I.get<ShowCaseRepo>();
-  final _i18n = GetIt.I.get<I18N>();
 
   @override
   void initState() {
@@ -47,31 +45,28 @@ class _ShowCasePageState extends State<ShowCasePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Directionality(
-      textDirection: _i18n.defaultTextDirection,
-      child: Expanded(
-        child: StreamBuilder<List<ShowCase>>(
-          stream: _showCaseCache,
-          builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data != null) {
-              return ListView.separated(
-                separatorBuilder: (context, index) {
-                  return const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Divider(),
-                  );
-                },
-                itemCount: snapshot.data!.length,
-                itemBuilder: (ctx, index) {
-                  return _buildShowCaseItem(
-                    snapshot.data![index].json,
-                  );
-                },
-              );
-            }
-            return const Center(child: CircularProgressIndicator());
-          },
-        ),
+    return Expanded(
+      child: StreamBuilder<List<ShowCase>>(
+        stream: _showCaseCache,
+        builder: (context, snapshot) {
+          if (snapshot.hasData && snapshot.data != null) {
+            return ListView.separated(
+              separatorBuilder: (context, index) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: Divider(),
+                );
+              },
+              itemCount: snapshot.data!.length,
+              itemBuilder: (ctx, index) {
+                return _buildShowCaseItem(
+                  snapshot.data![index].json,
+                );
+              },
+            );
+          }
+          return const Center(child: CircularProgressIndicator());
+        },
       ),
     );
   }
