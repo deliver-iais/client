@@ -268,7 +268,7 @@ Future<void> setupDI() async {
 
 Future initializeFirebase() async {
   await Firebase.initializeApp(
-      name: APPLICATION_NAME, options: DefaultFirebaseOptions.currentPlatform);
+      name: APPLICATION_NAME, options: DefaultFirebaseOptions.currentPlatform,);
 }
 
 // ignore: avoid_void_async
