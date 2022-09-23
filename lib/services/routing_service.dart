@@ -32,6 +32,7 @@ import 'package:deliver/screen/settings/pages/security_settings.dart';
 import 'package:deliver/screen/settings/pages/theme_settings_page.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/share_input_file/share_input_file.dart';
+import 'package:deliver/screen/show_case/pages/all_grouped_rooms_grid_page.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
@@ -39,6 +40,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/scan_qr_code.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
+import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -263,6 +265,16 @@ class RoutingService {
           forwardedMessages: forwardedMessages,
           medias: medias,
           shareUid: sharedUid,
+        ),
+      );
+
+  void openAllGroupedRoomsGridPage({
+    required GroupedRooms groupedRooms,
+  }) =>
+      _push(
+        AllGroupedRoomsGridPage(
+          key: const ValueKey("/all-grouped-rooms-grid-page"),
+          groupedRooms: groupedRooms,
         ),
       );
 
