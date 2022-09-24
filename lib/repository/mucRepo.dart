@@ -234,7 +234,8 @@ class MucRepo {
       final channel = await getChannelInfo(mucUid);
       final c = await _mucDao.get(mucUid.asString());
       if (channel != null) {
-        if (createNewRoom) {
+        final cType = pbMucTypeToHiveMucType(channel.info.type);
+        if (createNewRoom || cType == MucType.Public) {
           await _roomDao.updateRoom(
             uid: mucUid.asString(),
             lastMessageId: channel.lastMessageId.toInt(),
@@ -261,7 +262,7 @@ class MucRepo {
             pinMessagesIdList:
                 channel.pinMessages.map((e) => e.toInt()).toList(),
             id: channel.info.id,
-            mucType: pbMucTypeToHiveMucType(channel.info.type),
+            mucType: cType,
           ),
         );
 
