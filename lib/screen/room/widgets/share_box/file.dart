@@ -1,7 +1,10 @@
+import 'dart:io' as io;
+
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/file.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
-import 'package:deliver/screen/room/widgets/share_box/helper_classes.dart';
+import 'package:deliver/screen/room/widgets/share_box/file_item.dart';
+import 'package:deliver/services/ext_storage_services.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
@@ -30,13 +33,27 @@ class ShareBoxFile extends StatefulWidget {
 }
 
 class ShareBoxFileState extends State<ShareBoxFile> {
-  // ignore: prefer_typing_uninitialized_variables
-  late var _future;
 
-  @override
-  void initState() {
-    _future = FileItem.getFiles();
-    super.initState();
+  Future<List<io.FileSystemEntity>> getRecentFile() async {
+    final files = <io.FileSystemEntity>[];
+    final d = io.Directory((await ExtStorage.getExternalStoragePublicDirectory(
+        ExtStorage.download,))!,);
+    final l = d.listSync();
+    for (final file in l) {
+      if (io.FileSystemEntity.isFileSync(file.path)) {
+        files.add(file);
+      } else {
+        if (!file.path.contains('/storage/emulated/0/Android')) {
+          files.addAll(await getRecentFile());
+        }
+      }
+    }
+    files.sort(
+      (a, b) => io.File(a.path)
+          .lastAccessedSync()
+          .compareTo(io.File(b.path).lastAccessedSync()),
+    );
+    return files.reversed.toList();
   }
 
   static final _i18n = GetIt.I.get<I18N>();
@@ -44,8 +61,8 @@ class ShareBoxFileState extends State<ShareBoxFile> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return FutureBuilder<List<String>>(
-      future: _future,
+    return FutureBuilder<List<io.FileSystemEntity>>(
+      future: getRecentFile(),
       builder: (context, files) {
         if (files.hasData && files.data != null) {
           return Padding(
@@ -57,53 +74,74 @@ class ShareBoxFileState extends State<ShareBoxFile> {
               itemCount: files.data!.length + 1,
               itemBuilder: (ctx, index) {
                 if (index == 0) {
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: GestureDetector(
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.add_circle_outlined,
-                            color: theme.primaryColor,
-                            size: 39,
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: GestureDetector(
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.add_circle_outlined,
+                                color: theme.primaryColor,
+                                size: 39,
+                              ),
+                              const SizedBox(
+                                width: 10,
+                              ),
+                              Text(
+                                _i18n.get("choose_other_files"),
+                                style: const TextStyle(
+                                  fontSize: 17,
+                                ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(
-                            width: 10,
-                          ),
-                          Text(
-                            _i18n.get("choose_other_files"),
-                            style: const TextStyle(
-                              fontSize: 17,
-                            ),
-                          ),
-                        ],
+                          onTap: () async {
+                            final result = await FilePicker.platform
+                                .pickFiles(allowMultiple: true);
+                            if (result != null && result.files.isNotEmpty) {
+                              if (mounted) {
+                                Navigator.pop(context);
+                              }
+                              showCaptionDialog(
+                                resetRoomPageDetails:
+                                    widget.resetRoomPageDetails,
+                                replyMessageId: widget.replyMessageId,
+                                roomUid: widget.roomUid,
+                                context: context,
+                                files: result.files
+                                    .map(
+                                      (e) => File(
+                                        e.path!,
+                                        e.name,
+                                        size: e.size,
+                                        extension: e.extension,
+                                      ),
+                                    )
+                                    .toList(),
+                              );
+                            }
+                          },
+                        ),
                       ),
-                      onTap: () async {
-                        final result = await FilePicker.platform
-                            .pickFiles(allowMultiple: true);
-                        if (result != null && result.files.isNotEmpty) {
-                          if (mounted) {
-                            Navigator.pop(context);
-                          }
-                          showCaptionDialog(
-                            resetRoomPageDetails: widget.resetRoomPageDetails,
-                            replyMessageId: widget.replyMessageId,
-                            roomUid: widget.roomUid,
-                            context: context,
-                            files: result.files
-                                .map(
-                                  (e) => File(
-                                    e.path!,
-                                    e.name,
-                                    size: e.size,
-                                    extension: e.extension,
-                                  ),
-                                )
-                                .toList(),
-                          );
-                        }
-                      },
-                    ),
+                      Container(
+                        height: 15,
+                        color: theme.highlightColor,
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          "Recent files",
+                          style: TextStyle(
+                            color: theme.primaryColor,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                          ),
+                        ),
+                      )
+                    ],
                   );
                 } else {
                   final fileItem = files.data![index - 1];
@@ -111,43 +149,23 @@ class ShareBoxFileState extends State<ShareBoxFile> {
 
                   return GestureDetector(
                     child: Container(
-                      color: selected ? Colors.black12 : Colors.white,
-                      child: Row(
-                        children: <Widget>[
-                          IconButton(
-                            icon: Icon(
-                              Icons.insert_drive_file,
-                              color: theme.primaryColor,
-                              size: 33,
-                            ),
-                            onPressed: () =>
-                                widget.onClick(index - 1, fileItem),
-                          ),
-                          const SizedBox(
-                            width: 22,
-                          ),
-                          Flexible(
-                            child: Text(
-                              fileItem.split("/").last,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 16,
-                              ),
-                              maxLines: 1,
-                            ),
-                          ),
-                        ],
+                      color:
+                          selected ? theme.primaryColor.withOpacity(0.3) : null,
+                      child: FileItem(
+                        file: fileItem,
                       ),
                     ),
-                    onTap: () => widget.onClick(index - 1, fileItem),
+                    onTap: () => widget.onClick(index - 1, fileItem.path),
                   );
                 }
               },
             ),
           );
         }
-        return CircularProgressIndicator(
-          color: theme.primaryColor,
+        return Center(
+          child: CircularProgressIndicator(
+            color: theme.primaryColor,
+          ),
         );
       },
     );
