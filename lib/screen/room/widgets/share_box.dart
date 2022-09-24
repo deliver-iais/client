@@ -89,224 +89,240 @@ class ShareBoxState extends State<ShareBox> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return StreamBuilder<double>(
-      stream: initialChildSize,
-      builder: (c, initialSize) {
-        if (initialSize.hasData && initialSize.data != null) {
-          return DraggableScrollableSheet(
-            initialChildSize: initialSize.data!,
-            minChildSize: initialSize.data!,
-            builder: (co, scrollController) {
-              return Container(
-                color: theme.colorScheme.background,
-                child: Stack(
-                  children: <Widget>[
-                    Container(
-                      padding: !isSelected()
-                          ? const EdgeInsetsDirectional.only(bottom: 70)
-                          : const EdgeInsets.all(0),
-                      child: currentPage == Page.music
-                          ? ShareBoxMusic(
-                              scrollController: scrollController,
-                              onClick: (index, path) {
-                                setState(() {
-                                  selectedAudio[index] =
-                                      !(selectedAudio[index] ?? false);
-                                  selectedAudio[index]!
-                                      ? finalSelected[index] = path
-                                      : finalSelected.remove(index);
-                                });
-                              },
-                              playMusic: (index, path) {
-                                setState(() {
-                                  if (playAudioIndex == index) {
-                                    _audioPlayer.pause();
-                                    icons[index] =
-                                        Icons.play_circle_filled_rounded;
-                                    playAudioIndex = -1;
-                                  } else {
-                                    _audioPlayer.play(DeviceFileSource(path));
-                                    icons.remove(playAudioIndex);
-                                    icons[index] =
-                                        Icons.pause_circle_filled_rounded;
-                                    playAudioIndex = index;
-                                  }
-                                });
-                              },
-                              selectedAudio: selectedAudio,
-                              icons: icons,
-                            )
-                          : currentPage == Page.files
-                              ? ShareBoxFile(
-                                  roomUid: widget.currentRoomId,
-                                  scrollController: scrollController,
-                                  onClick: (index, path) {
-                                    setState(() {
-                                      selectedFiles[index] =
-                                          !(selectedFiles[index] ?? false);
-                                      selectedFiles[index]!
-                                          ? finalSelected[index] = path
-                                          : finalSelected.remove(index);
-                                    });
-                                  },
-                                  selectedFiles: selectedFiles,
-                                  resetRoomPageDetails:
-                                      widget.resetRoomPageDetails,
-                                  replyMessageId: widget.replyMessageId,
-                                )
-                              : currentPage == Page.gallery
-                                  ? ShareBoxGallery(
-                                      replyMessageId: widget.replyMessageId,
-                                      scrollController: scrollController,
-                                      pop: () {
-                                        Navigator.pop(context);
-                                      },
-                                      roomUid: widget.currentRoomId,
-                                      resetRoomPageDetails:
-                                          widget.resetRoomPageDetails,
-                                    )
-                                  : currentPage == Page.location
-                                      ? AttachLocation(
-                                          context,
-                                          widget.currentRoomId,
-                                        ).showLocation()
-                                      : const SizedBox.shrink(),
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: <Widget>[
-                        if (isSelected())
-                          Padding(
-                            padding: EdgeInsets.only(
-                              bottom: MediaQuery.of(context).viewInsets.bottom,
-                            ),
-                            child: SizedBox(
-                              height: 80,
-                              child: BuildInputCaption(
-                                insertCaption: _insertCaption,
-                                count: finalSelected.length,
-                                send: () {
-                                  _audioPlayer.stop();
-                                  Navigator.pop(co);
-                                  messageRepo.sendMultipleFilesMessages(
-                                    widget.currentRoomId,
-                                    finalSelected.values
-                                        .toList()
-                                        .map(
-                                          (path) => model.File(
-                                            path,
-                                            path.split("/").last,
-                                          ),
-                                        )
-                                        .toList(),
-                                    replyToId: widget.replyMessageId,
-                                    caption: _captionEditingController.text,
-                                  );
-
+    return WillPopScope(
+      onWillPop: () async {
+        if (isSelected()) {
+          setState(() {
+            finalSelected.clear();
+            selectedAudio.clear();
+            selectedImages.clear();
+            selectedFiles.clear();
+          });
+          return false;
+        }
+        return true;
+      },
+      child: StreamBuilder<double>(
+        stream: initialChildSize,
+        builder: (c, initialSize) {
+          if (initialSize.hasData && initialSize.data != null) {
+            return DraggableScrollableSheet(
+              initialChildSize: initialSize.data!,
+              minChildSize: initialSize.data!,
+              builder: (co, scrollController) {
+                return Container(
+                  color: theme.colorScheme.background,
+                  child: Stack(
+                    children: <Widget>[
+                      Container(
+                        padding: !isSelected()
+                            ? const EdgeInsetsDirectional.only(bottom: 70)
+                            : const EdgeInsets.all(0),
+                        child: currentPage == Page.music
+                            ? ShareBoxMusic(
+                                scrollController: scrollController,
+                                onClick: (index, path) {
                                   setState(() {
-                                    finalSelected.clear();
-                                    selectedAudio.clear();
-                                    selectedImages.clear();
-                                    selectedFiles.clear();
+                                    selectedAudio[index] =
+                                        !(selectedAudio[index] ?? false);
+                                    selectedAudio[index]!
+                                        ? finalSelected[index] = path
+                                        : finalSelected.remove(index);
                                   });
                                 },
-                                captionEditingController:
-                                    _captionEditingController,
-                              ),
-                            ),
-                          )
-                        else
-                          Container(
-                            decoration: BoxDecoration(
-                              color: theme.colorScheme.background,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: theme.shadowColor.withOpacity(0.3),
-                                  blurRadius: 10.0,
-                                )
-                              ],
-                            ),
-                            height: 70,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: <Widget>[
-                                circleButton(
-                                  () async {
-                                    setState(() {
-                                      _audioPlayer.stop();
-                                      currentPage = Page.gallery;
-                                    });
-                                  },
-                                  Icons.insert_drive_file_rounded,
-                                  i18n.get("gallery"),
-                                  40,
-                                  context: co,
-                                ),
-                                circleButton(
-                                  () async {
-                                    setState(() {
-                                      _audioPlayer.stop();
-                                      currentPage = Page.files;
-                                    });
-                                  },
-                                  Icons.file_upload_rounded,
-                                  i18n.get("file"),
-                                  40,
-                                  context: co,
-                                ),
-                                circleButton(
-                                  () async {
-                                    if (await _checkPermissionsService
-                                            .checkLocationPermission() ||
-                                        isIOS) {
-                                      if (!await Geolocator
-                                          .isLocationServiceEnabled()) {
-                                        const intent = AndroidIntent(
-                                          action:
-                                              'android.settings.LOCATION_SOURCE_SETTINGS',
-                                        );
-                                        await intent.launch();
-                                      } else {
-                                        setState(() {
-                                          _audioPlayer.stop();
-                                          currentPage = Page.location;
-                                          initialChildSize.add(0.5);
-                                        });
-                                      }
+                                playMusic: (index, path) {
+                                  setState(() {
+                                    if (playAudioIndex == index) {
+                                      _audioPlayer.pause();
+                                      icons[index] =
+                                          Icons.play_circle_filled_rounded;
+                                      playAudioIndex = -1;
+                                    } else {
+                                      _audioPlayer.play(DeviceFileSource(path));
+                                      icons.remove(playAudioIndex);
+                                      icons[index] =
+                                          Icons.pause_circle_filled_rounded;
+                                      playAudioIndex = index;
                                     }
-                                  },
-                                  Icons.location_on_rounded,
-                                  i18n.get("location"),
-                                  40,
-                                  context: co,
-                                ),
-                                circleButton(
-                                  () async {
+                                  });
+                                },
+                                selectedAudio: selectedAudio,
+                                icons: icons,
+                              )
+                            : currentPage == Page.files
+                                ? ShareBoxFile(
+                                    roomUid: widget.currentRoomId,
+                                    scrollController: scrollController,
+                                    onClick: (index, path) {
+                                      setState(() {
+                                        selectedFiles[index] =
+                                            !(selectedFiles[index] ?? false);
+                                        selectedFiles[index]!
+                                            ? finalSelected[index] = path
+                                            : finalSelected.remove(index);
+                                      });
+                                    },
+                                    selectedFiles: selectedFiles,
+                                    resetRoomPageDetails:
+                                        widget.resetRoomPageDetails,
+                                    replyMessageId: widget.replyMessageId,
+                                  )
+                                : currentPage == Page.gallery
+                                    ? ShareBoxGallery(
+                                        replyMessageId: widget.replyMessageId,
+                                        scrollController: scrollController,
+                                        pop: () {
+                                          Navigator.pop(context);
+                                        },
+                                        roomUid: widget.currentRoomId,
+                                        resetRoomPageDetails:
+                                            widget.resetRoomPageDetails,
+                                      )
+                                    : currentPage == Page.location
+                                        ? AttachLocation(
+                                            context,
+                                            widget.currentRoomId,
+                                          ).showLocation()
+                                        : const SizedBox.shrink(),
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: <Widget>[
+                          if (isSelected())
+                            Padding(
+                              padding: EdgeInsets.only(
+                                bottom:
+                                    MediaQuery.of(context).viewInsets.bottom,
+                              ),
+                              child: SizedBox(
+                                height: 80,
+                                child: BuildInputCaption(
+                                  insertCaption: _insertCaption,
+                                  count: finalSelected.length,
+                                  send: () {
+                                    _audioPlayer.stop();
+                                    Navigator.pop(co);
+                                    messageRepo.sendMultipleFilesMessages(
+                                      widget.currentRoomId,
+                                      finalSelected.values
+                                          .toList()
+                                          .map(
+                                            (path) => model.File(
+                                              path,
+                                              path.split("/").last,
+                                            ),
+                                          )
+                                          .toList(),
+                                      replyToId: widget.replyMessageId,
+                                      caption: _captionEditingController.text,
+                                    );
+
                                     setState(() {
-                                      currentPage = Page.music;
+                                      finalSelected.clear();
+                                      selectedAudio.clear();
+                                      selectedImages.clear();
+                                      selectedFiles.clear();
                                     });
                                   },
-                                  Icons.music_note_rounded,
-                                  i18n.get("music"),
-                                  40,
-                                  context: co,
+                                  captionEditingController:
+                                      _captionEditingController,
                                 ),
-                              ],
-                            ),
-                          )
-                      ],
-                    )
-                  ],
-                ),
-              );
-            },
-          );
-        } else {
-          return const SizedBox.shrink();
-        }
-      },
+                              ),
+                            )
+                          else
+                            Container(
+                              decoration: BoxDecoration(
+                                color: theme.colorScheme.background,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: theme.shadowColor.withOpacity(0.3),
+                                    blurRadius: 10.0,
+                                  )
+                                ],
+                              ),
+                              height: 70,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: <Widget>[
+                                  circleButton(
+                                    () async {
+                                      setState(() {
+                                        _audioPlayer.stop();
+                                        currentPage = Page.gallery;
+                                      });
+                                    },
+                                    Icons.insert_drive_file_rounded,
+                                    i18n.get("gallery"),
+                                    40,
+                                    context: co,
+                                  ),
+                                  circleButton(
+                                    () async {
+                                      setState(() {
+                                        _audioPlayer.stop();
+                                        currentPage = Page.files;
+                                      });
+                                    },
+                                    Icons.file_upload_rounded,
+                                    i18n.get("file"),
+                                    40,
+                                    context: co,
+                                  ),
+                                  circleButton(
+                                    () async {
+                                      if (await _checkPermissionsService
+                                              .checkLocationPermission() ||
+                                          isIOS) {
+                                        if (!await Geolocator
+                                            .isLocationServiceEnabled()) {
+                                          const intent = AndroidIntent(
+                                            action:
+                                                'android.settings.LOCATION_SOURCE_SETTINGS',
+                                          );
+                                          await intent.launch();
+                                        } else {
+                                          setState(() {
+                                            _audioPlayer.stop();
+                                            currentPage = Page.location;
+                                            initialChildSize.add(0.5);
+                                          });
+                                        }
+                                      }
+                                    },
+                                    Icons.location_on_rounded,
+                                    i18n.get("location"),
+                                    40,
+                                    context: co,
+                                  ),
+                                  circleButton(
+                                    () async {
+                                      setState(() {
+                                        currentPage = Page.music;
+                                      });
+                                    },
+                                    Icons.music_note_rounded,
+                                    i18n.get("music"),
+                                    40,
+                                    context: co,
+                                  ),
+                                ],
+                              ),
+                            )
+                        ],
+                      )
+                    ],
+                  ),
+                );
+              },
+            );
+          } else {
+            return const SizedBox.shrink();
+          }
+        },
+      ),
     );
   }
 
