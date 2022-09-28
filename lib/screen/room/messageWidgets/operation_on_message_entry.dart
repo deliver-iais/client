@@ -411,11 +411,11 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
       ),
     );
   }
+}
 
-  bool checkMessageTime(Message message) {
-    return clock.now().millisecondsSinceEpoch - message.time <=
-        3 * 24 * 60 * 60 * 1000;
-  }
+bool checkMessageTime(Message message) {
+  return clock.now().millisecondsSinceEpoch - message.time <=
+      3 * 24 * 60 * 60 * 1000;
 }
 
 void showDeleteMsgDialog(

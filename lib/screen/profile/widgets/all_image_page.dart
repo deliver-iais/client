@@ -12,9 +12,11 @@ import 'package:deliver/box/media_type.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/operation_on_message.dart';
+import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/repository/mediaRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/room/messageWidgets/operation_on_message_entry.dart';
 import 'package:deliver/screen/room/pages/build_message_box.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -65,6 +67,7 @@ class _AllImagePageState extends State<AllImagePage>
   final _mediaMetaDataDao = GetIt.I.get<MediaMetaDataDao>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _messageDao = GetIt.I.get<MessageDao>();
+  final _autRepo = GetIt.I.get<AuthRepo>();
   final _mediaDao = GetIt.I.get<MediaDao>();
   final _i18n = GetIt.I.get<I18N>();
   final BehaviorSubject<int> _currentIndex = BehaviorSubject.seeded(-1);
@@ -586,12 +589,14 @@ class _AllImagePageState extends State<AllImagePage>
                   messageId,
                 ),
                 builder: (context, message) {
-                  if (message.hasData && message.data != null) {
+                  if (message.hasData &&
+                      message.data != null &&
+                      checkMessageTime(message.data!) &&
+                      _autRepo.isCurrentUserSender(message.data!)) {
                     return IconButton(
                       onPressed: () async {
-                        final message = await getMessage();
                         await OperationOnMessageSelection(
-                          message: message!,
+                          message: message.data!,
                           context: context,
                           onEdit: widget.onEdit,
                         ).selectOperation(OperationOnMessage.EDIT);
