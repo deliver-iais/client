@@ -22,7 +22,7 @@ class GroupedShowCaseListWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 15),
               child: Text(
                 title,
                 style: const TextStyle(
