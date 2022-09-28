@@ -5,10 +5,12 @@ import 'package:deliver/models/file.dart';
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/screen/room/widgets/share_box/file_item.dart';
 import 'package:deliver/services/ext_storage_services.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:path_provider/path_provider.dart';
 
 class ShareBoxFile extends StatefulWidget {
   final ScrollController scrollController;
@@ -33,11 +35,16 @@ class ShareBoxFile extends StatefulWidget {
 }
 
 class ShareBoxFileState extends State<ShareBoxFile> {
-
   Future<List<io.FileSystemEntity>> getRecentFile() async {
     final files = <io.FileSystemEntity>[];
-    final d = io.Directory((await ExtStorage.getExternalStoragePublicDirectory(
-        ExtStorage.download,))!,);
+    var d = io.Directory(
+      (await ExtStorage.getExternalStoragePublicDirectory(
+        ExtStorage.download,
+      ))!,
+    );
+    if (isIOS) {
+      d = await getApplicationDocumentsDirectory();
+    }
     final l = d.listSync();
     for (final file in l) {
       if (io.FileSystemEntity.isFileSync(file.path)) {
