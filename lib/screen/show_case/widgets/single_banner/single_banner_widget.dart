@@ -24,9 +24,8 @@ class SingleBannerWidget extends StatelessWidget {
       child: InkWell(
         onTap: () => _routingService.openRoom(bannerCase.uid.asString()),
         child: SizedBox(
-          height: 180,
           child: ClipRRect(
-            borderRadius: mainBorder,
+            borderRadius: secondaryBorder,
             child: FutureBuilder<String?>(
               future: _fileRepo.getFileIfExist(
                 bannerCase.bannerImg.uuid,
