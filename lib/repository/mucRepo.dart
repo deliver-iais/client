@@ -235,7 +235,7 @@ class MucRepo {
       final c = await _mucDao.get(mucUid.asString());
       if (channel != null) {
         final cType = pbMucTypeToHiveMucType(channel.info.type);
-        if (createNewRoom || cType == MucType.Public) {
+        if (createNewRoom) {
           await _roomDao.updateRoom(
             uid: mucUid.asString(),
             lastMessageId: channel.lastMessageId.toInt(),
@@ -248,6 +248,25 @@ class MucRepo {
                 0,
               )
               .ignore();
+        } else if (cType == MucType.Public) {
+          final room = await _roomDao.getRoom(mucUid.asString());
+          if (room == null || createNewRoom) {
+            await _roomDao.updateRoom(
+              uid: mucUid.asString(),
+              lastMessageId: channel.lastMessageId.toInt(),
+              deleted: true,
+            );
+          }
+          GetIt.I
+              .get<DataStreamServices>()
+              .fetchLastNotHiddenMessage(
+                mucUid,
+                channel.lastMessageId.toInt(),
+                0,
+              )
+              .ignore();
+        } else if (cType == MucType.Private) {
+          //ToDO do somethings relevent like remove channel if does'nt joined
         }
 
         unawaited(

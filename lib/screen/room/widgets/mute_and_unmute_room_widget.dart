@@ -1,3 +1,4 @@
+import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
@@ -29,11 +30,12 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
   static final _mucRepo = GetIt.I.get<MucRepo>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _i18n = GetIt.I.get<I18N>();
+  late final Room _room;
 
   final FocusNode _focusNode = FocusNode();
 
   @override
-  void initState() {
+  Future<void> initState() async {
     super.initState();
     _focusNode.onKey = (c, event) {
       if (event is RawKeyUpEvent &&
@@ -46,6 +48,7 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
       }
       return KeyEventResult.handled;
     };
+    _room = (await _roomRepo.getRoom(widget.roomId))!;
   }
 
   @override
@@ -73,21 +76,42 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
         stream: _roomRepo.watchIsRoomMuted(widget.roomId),
         builder: (context, isMuted) {
           if (isMuted.hasData) {
-            return ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                shape: const RoundedRectangleBorder(),
-              ),
-              child: Text(
-                isMuted.data! ? _i18n.get("un_mute") : _i18n.get("mute"),
-              ),
-              onPressed: () {
-                if (isMuted.data!) {
-                  _roomRepo.unMute(widget.roomId);
-                } else {
-                  _roomRepo.mute(widget.roomId);
-                }
-              },
-            );
+            if(!_room.deleted) {
+              return ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: const RoundedRectangleBorder(),
+                ),
+                child: Text(
+                  isMuted.data! ? _i18n.get("un_mute") : _i18n.get("mute"),
+                ),
+                onPressed: () {
+                  if (isMuted.data!) {
+                    _roomRepo.unMute(widget.roomId);
+                  } else {
+                    _roomRepo.mute(widget.roomId);
+                  }
+                },
+              );
+            }else {
+              return ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  shape: const RoundedRectangleBorder(),
+                ),
+                child: Text(
+                  _i18n.get("join"),
+                ),
+                onPressed: () async {
+                  final res = await _mucRepo.joinChannel(
+                    widget.roomId,
+                    token,
+                  );
+                  if (res != null) {
+                    navigatorState.pop();
+                    _routingService.openRoom(roomUid.asString());
+                  }
+                },
+              );
+            }
           } else {
             return const SizedBox.shrink();
           }
