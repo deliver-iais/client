@@ -1,8 +1,9 @@
 import 'package:deliver/box/show_case.dart';
 import 'package:deliver/repository/show_case_repo.dart';
-import 'package:deliver/screen/show_case/widgets/grouped_rooms_widget.dart';
-import 'package:deliver/screen/show_case/widgets/grouped_url_widget.dart';
-import 'package:deliver/screen/show_case/widgets/single_banner_widget.dart';
+import 'package:deliver/screen/show_case/widgets/grouped_banner.dart';
+import 'package:deliver/screen/show_case/widgets/grouped_rooms/grouped_rooms_widget.dart';
+import 'package:deliver/screen/show_case/widgets/grouped_url/grouped_url_widget.dart';
+import 'package:deliver/screen/show_case/widgets/single_banner/single_banner_widget.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
 import 'package:flutter/material.dart';
@@ -77,8 +78,7 @@ class _ShowCasePageState extends State<ShowCasePage> {
     final showCase = showCaseJson.toShowCase();
     switch (showCaseType) {
       case Showcase_Type.groupedBanners:
-        // todo: Handle this case.
-        return const SizedBox.shrink();
+        return  GroupedBanner(groupedBanner: showCase.groupedBanners,);
       case Showcase_Type.groupedRooms:
         return GroupedRoomsWidget(
           groupedRooms: showCase.groupedRooms,

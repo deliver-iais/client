@@ -52,8 +52,8 @@ class ShowCaseRepo {
         singleBanner: BannerCase(
           uid: "3:f508a026-071b-4d65-ba75-82fdd83756b0".asUid(),
           bannerImg: File(
-            uuid: "91f84af0-deac-416f-a1e5-996ca513da63",
-            name: "1663694559011.webp",
+            uuid: "89ea82cd-e8fc-425f-8ff3-084870b4f864",
+            name: "1664362602484.webp",
           ),
         ),
       ),
@@ -88,12 +88,24 @@ class ShowCaseRepo {
         ),
       ),
       Showcase(
-        singleBanner: BannerCase(
-          uid: "3:f508a026-071b-4d65-ba75-82fdd83756b0".asUid(),
-          bannerImg: File(
-            uuid: "91f84af0-deac-416f-a1e5-996ca513da63",
-            name: "1663694559011.webp",
-          ),
+        groupedBanners: GroupedBanners(
+          bannersList: [
+            BannerCase(
+              uid: "3:f508a026-071b-4d65-ba75-82fdd83756b0".asUid(),
+              bannerImg: File(
+                uuid: "e5eeddb6-e59a-4b60-8c17-e27fe9f76c47",
+                name: "1664365328848.webp",
+              ),
+            ),
+            BannerCase(
+              uid: "3:f508a026-071b-4d65-ba75-82fdd83756b0".asUid(),
+              bannerImg: File(
+                uuid: "fa9f51dd-760f-4de0-8486-f44b2523132f",
+                name: "1664365332860.webp",
+              ),
+            ),
+          ],
+          name: "آگهی ها",
         ),
       ),
       Showcase(
