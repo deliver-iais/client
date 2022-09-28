@@ -1,4 +1,4 @@
-import 'package:deliver/screen/show_case/widgets/grouped_rooms_item_widget.dart';
+import 'package:deliver/screen/show_case/widgets/grouped_rooms/grouped_rooms_item_widget.dart';
 import 'package:deliver/screen/show_case/widgets/grouped_show_case_list_widget.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
