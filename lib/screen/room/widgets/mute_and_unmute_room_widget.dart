@@ -111,6 +111,7 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
                           widget.roomId.asUid(),
                           "",
                         );
+                        // TODO(bitbeter): This line of code is for rebuilding the future builder, but should be refactored!
                         _roomRepo..mute(widget.roomId)
                         ..unMute(widget.roomId);
                       },
