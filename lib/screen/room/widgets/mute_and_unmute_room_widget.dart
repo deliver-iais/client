@@ -30,12 +30,11 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
   static final _mucRepo = GetIt.I.get<MucRepo>();
   static final _authRepo = GetIt.I.get<AuthRepo>();
   static final _i18n = GetIt.I.get<I18N>();
-  late final Room _room;
 
   final FocusNode _focusNode = FocusNode();
 
   @override
-  Future<void> initState() async {
+  void initState() {
     super.initState();
     _focusNode.onKey = (c, event) {
       if (event is RawKeyUpEvent &&
@@ -48,7 +47,6 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
       }
       return KeyEventResult.handled;
     };
-    _room = (await _roomRepo.getRoom(widget.roomId))!;
   }
 
   @override
@@ -75,43 +73,54 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
       child: StreamBuilder<bool>(
         stream: _roomRepo.watchIsRoomMuted(widget.roomId),
         builder: (context, isMuted) {
-          if (isMuted.hasData) {
-            if(!_room.deleted) {
-              return ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  shape: const RoundedRectangleBorder(),
-                ),
-                child: Text(
-                  isMuted.data! ? _i18n.get("un_mute") : _i18n.get("mute"),
-                ),
-                onPressed: () {
-                  if (isMuted.data!) {
-                    _roomRepo.unMute(widget.roomId);
+          if (isMuted.data != null) {
+            return FutureBuilder<Room?>(
+              future: _roomRepo.getRoom(widget.roomId),
+              builder: (c, room) {
+                if (room.data != null) {
+                  if (!room.data!.deleted) {
+                    return ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: const RoundedRectangleBorder(),
+                      ),
+                      child: Text(
+                        isMuted.data!
+                            ? _i18n.get("un_mute")
+                            : _i18n.get(
+                                "mute",
+                              ),
+                      ),
+                      onPressed: () {
+                        if (isMuted.data!) {
+                          _roomRepo.unMute(widget.roomId);
+                        } else {
+                          _roomRepo.mute(widget.roomId);
+                        }
+                      },
+                    );
                   } else {
-                    _roomRepo.mute(widget.roomId);
+                    return ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: const RoundedRectangleBorder(),
+                      ),
+                      child: Text(
+                        _i18n.get("join"),
+                      ),
+                      onPressed: () async {
+                        await _mucRepo.joinChannel(
+                          widget.roomId.asUid(),
+                          "",
+                        );
+                        _roomRepo..mute(widget.roomId)
+                        ..unMute(widget.roomId);
+                      },
+                    );
                   }
-                },
-              );
-            }else {
-              return ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  shape: const RoundedRectangleBorder(),
-                ),
-                child: Text(
-                  _i18n.get("join"),
-                ),
-                onPressed: () async {
-                  final res = await _mucRepo.joinChannel(
-                    widget.roomId,
-                    token,
-                  );
-                  if (res != null) {
-                    navigatorState.pop();
-                    _routingService.openRoom(roomUid.asString());
-                  }
-                },
-              );
-            }
+                } else {
+                  return const SizedBox.shrink();
+                }
+              },
+            );
           } else {
             return const SizedBox.shrink();
           }
