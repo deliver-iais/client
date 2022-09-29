@@ -174,7 +174,21 @@ class ContactRepo {
       DateTime.now().millisecondsSinceEpoch - updateTime <
       MAX_SEND_CONTACT_START_TIME_EXPIRE;
 
+  String _replaceFarsiNumber(String input) {
+    const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    const farsi = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+
+    for (var i = 0; i < english.length; i++) {
+      input = input.replaceAll(farsi[i], english[i]);
+    }
+    return input;
+  }
+
   PhoneNumber? _getPhoneNumber(String phone, String name) {
+    final regex = RegExp(r'^[\u0600-\u06FF\s]+$');
+    if (regex.hasMatch(phone)) {
+      phone = _replaceFarsiNumber(phone);
+    }
     final p = getPhoneNumber(phone);
 
     if (p == null) {
@@ -197,9 +211,10 @@ class ContactRepo {
           end,
         );
         sendContactProgress.add(end / contacts.length);
-        _sendContacts(contactsSubList);
+        unawaited(_sendContacts(contactsSubList));
         i = i + MAX_CONTACT_SIZE_TO_SEND;
       }
+      isSyncingContacts.add(false);
       getContacts();
     } catch (e) {
       _logger.e(e);

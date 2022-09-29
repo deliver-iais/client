@@ -30,40 +30,15 @@ class ContactsPageState extends State<ContactsPage> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _i18n = GetIt.I.get<I18N>();
-  final _contactsBehavior = BehaviorSubject.seeded(<Contact>[]);
-  final _notMessengerContactsBehavior = BehaviorSubject.seeded(<Contact>[]);
+
+  // final _contactsBehavior = BehaviorSubject.seeded(<Contact>[]);
+  // final _notMessengerContactsBehavior = BehaviorSubject.seeded(<Contact>[]);
 
   @override
   void initState() {
     super.initState();
     _syncContacts();
-    _contactRepo.watchAllMessengerContacts().listen((contacts) {
-      _contactsBehavior.add(
-        contacts
-            .whereNot((element) => element.uid == null)
-            .where(
-              (c) => !_authRepo.isCurrentUser(c.uid!) && !c.isUsersContact(),
-            )
-            .sortedBy(
-              (element) => buildName(element.firstName, element.lastName),
-            )
-            .toList(growable: false),
-      );
-    });
 
-    _contactRepo
-        .getNotMessengerContactAsStream()
-        .listen((notMessengerContacts) {
-      if (notMessengerContacts.isNotEmpty) {
-        _notMessengerContactsBehavior.add(
-          notMessengerContacts
-              .sortedBy(
-                (element) => buildName(element.firstName, element.lastName),
-              )
-              .toList(growable: false),
-        );
-      }
-    });
   }
 
   void _syncContacts() {
@@ -98,9 +73,18 @@ class ContactsPageState extends State<ContactsPage> {
       ),
       extendBodyBehindAppBar: true,
       body: StreamBuilder<List<Contact>>(
-        stream: _contactsBehavior,
+        stream: _contactRepo.watchAllMessengerContacts(),
         builder: (context, snapshot) {
-          final contacts = snapshot.data ?? [];
+          var contacts = snapshot.data ?? [];
+          contacts = contacts
+              .whereNot((element) => element.uid == null)
+              .where(
+                (c) => !_authRepo.isCurrentUser(c.uid!) && !c.isUsersContact(),
+              )
+              .sortedBy(
+                (element) => buildName(element.firstName, element.lastName),
+              )
+              .toList(growable: false);
 
           if (!snapshot.hasData) {
             return const Center(
@@ -152,11 +136,20 @@ class ContactsPageState extends State<ContactsPage> {
                       else
                         const EmptyContacts(),
                       StreamBuilder<List<Contact>>(
-                        stream: _notMessengerContactsBehavior.stream,
+                        stream: _contactRepo.getNotMessengerContactAsStream(),
                         builder: (context, snapshot) {
                           if (snapshot.hasData &&
                               snapshot.data != null &&
                               snapshot.data!.isNotEmpty) {
+                            final contacts = snapshot.data!
+                                .sortedBy(
+                                  (element) => buildName(
+                                    element.firstName,
+                                    element.lastName,
+                                  ),
+                                )
+                                .toList(growable: false);
+
                             return Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16.0,
@@ -169,10 +162,10 @@ class ContactsPageState extends State<ContactsPage> {
                                     ],
                                   ),
                                   FlexibleFixedHeightGridView(
-                                    itemCount: snapshot.data!.length,
+                                    itemCount: contacts.length,
                                     itemBuilder: (context, index) {
                                       return NotMessengerContactWidget(
-                                        contact: snapshot.data![index],
+                                        contact: contacts[index],
                                       );
                                     },
                                   ),
