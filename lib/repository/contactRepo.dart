@@ -214,7 +214,6 @@ class ContactRepo {
         unawaited(_sendContacts(contactsSubList));
         i = i + MAX_CONTACT_SIZE_TO_SEND;
       }
-      isSyncingContacts.add(false);
       getContacts();
     } catch (e) {
       _logger.e(e);
@@ -270,6 +269,7 @@ class ContactRepo {
       _contactDao.watchNotMessengerContacts();
 
   Future<void> getContacts() async {
+    isSyncingContacts.add(false);
     try {
       final result = await _sdr.contactServiceClient
           .getContactListUsers(GetContactListUsersReq());
@@ -277,7 +277,6 @@ class ContactRepo {
     } catch (e) {
       _logger.e(e);
     }
-    isSyncingContacts.add(false);
   }
 
   void _saveUserContact(List<UserAsContact> users) {
