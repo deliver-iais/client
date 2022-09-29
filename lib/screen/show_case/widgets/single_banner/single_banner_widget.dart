@@ -11,23 +11,31 @@ import 'package:get_it/get_it.dart';
 
 class SingleBannerWidget extends StatelessWidget {
   final BannerCase bannerCase;
+  final double? height;
+  final double? width;
+  final double padding;
   static final _fileRepo = GetIt.I.get<FileRepo>();
   static final _routingService = GetIt.I.get<RoutingService>();
 
-  const SingleBannerWidget({Key? key, required this.bannerCase})
-      : super(key: key);
+  const SingleBannerWidget({
+    Key? key,
+    required this.bannerCase,
+    this.height = 180,
+    this.width,
+    this.padding = 20,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(20.0),
+      padding: EdgeInsets.all(padding),
       child: InkWell(
         onTap: () => _routingService.openRoom(bannerCase.uid.asString()),
         child: SizedBox(
           child: ClipRRect(
             borderRadius: secondaryBorder,
             child: FutureBuilder<String?>(
-              future: _fileRepo.getFileIfExist(
+              future: _fileRepo.getFile(
                 bannerCase.bannerImg.uuid,
                 bannerCase.bannerImg.name,
               ),
@@ -38,8 +46,12 @@ class SingleBannerWidget extends StatelessWidget {
                           s.data!,
                           fit: BoxFit.cover,
                         )
-                      : Image.file(File(s.data!),
-                          height: 180, fit: BoxFit.cover,);
+                      : Image.file(
+                          File(s.data!),
+                          height: height,
+                          width: width,
+                          fit: BoxFit.cover,
+                        );
                 }
                 return const Center(child: CircularProgressIndicator());
               },
