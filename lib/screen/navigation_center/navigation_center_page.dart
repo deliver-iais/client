@@ -158,8 +158,9 @@ class NavigationCenterState extends State<NavigationCenter> {
                             );
                           } else if (snapshot.data == 0) {
                             return Directionality(
-                                textDirection: _i18n.defaultTextDirection,
-                                child: const ShowCasePage());
+                              textDirection: _i18n.defaultTextDirection,
+                              child: const ShowCasePage(),
+                            );
                           } else {
                             return const Center(
                               child: CircularProgressIndicator(),

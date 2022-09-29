@@ -1,3 +1,4 @@
+import 'package:deliver/screen/show_case/widgets/grouped_banner/grouped_banner_item.dart';
 import 'package:deliver/screen/show_case/widgets/grouped_show_case_list_widget.dart';
 import 'package:deliver/screen/show_case/widgets/single_banner/single_banner_widget.dart';
 import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
@@ -12,17 +13,27 @@ class GroupedBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GroupedShowCaseListWidget(
+      height: 260,
       title: groupedBanner.name,
       listItemLength: groupedBanner.bannersList.length,
-      listItem: GroupedBannerItem,
+      listItem: (index) => _buildGroupedBannerItem(index, context),
       onArrowButtonPressed: () {},
     );
   }
 
-  Widget GroupedBannerItem(int index) {
+  Widget _buildGroupedBannerItem(int index, BuildContext context) {
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SingleBannerWidget(bannerCase:groupedBanner.bannersList[index] ),
+        SingleBannerWidget(
+          bannerCase: groupedBanner.bannersList[index],
+          width: 250,
+          height: 140,
+          padding: 10,
+        ),
+        GroupedBannerItem(
+          uid: groupedBanner.bannersList[index].uid,
+        ),
       ],
     );
   }
