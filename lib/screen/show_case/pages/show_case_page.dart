@@ -1,6 +1,6 @@
 import 'package:deliver/box/show_case.dart';
 import 'package:deliver/repository/show_case_repo.dart';
-import 'package:deliver/screen/show_case/widgets/grouped_banner.dart';
+import 'package:deliver/screen/show_case/widgets/grouped_banner/grouped_banner.dart';
 import 'package:deliver/screen/show_case/widgets/grouped_rooms/grouped_rooms_widget.dart';
 import 'package:deliver/screen/show_case/widgets/grouped_url/grouped_url_widget.dart';
 import 'package:deliver/screen/show_case/widgets/single_banner/single_banner_widget.dart';
