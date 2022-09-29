@@ -1,0 +1,104 @@
+import 'package:deliver/box/room.dart';
+import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/mucRepo.dart';
+import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver/shared/widgets/room_name.dart';
+import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
+import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
+
+class GroupedBannerItem extends StatelessWidget {
+  static final _roomRepo = GetIt.I.get<RoomRepo>();
+  static final _mucRepo = GetIt.I.get<MucRepo>();
+  static final _routingService = GetIt.I.get<RoutingService>();
+  static final _i18n = GetIt.I.get<I18N>();
+  final Uid uid;
+  static String _roomName = "";
+
+  const GroupedBannerItem({Key? key, required this.uid}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(10),
+      child: GestureDetector(
+        onTap: () => _routingService.openRoom(uid.asString()),
+        child: Row(
+          children: [
+            CircleAvatarWidget(
+              uid,
+              30,
+            ),
+            const SizedBox(
+              width: 10,
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FutureBuilder<String>(
+                  initialData: _roomRepo.fastForwardName(
+                    uid,
+                  ),
+                  future: _roomRepo.getName(uid),
+                  builder: (context, snapshot) {
+                    _roomName = snapshot.data ?? _i18n.get("loading");
+                    return SizedBox(
+                      width: 180,
+                      child: RoomName(
+                        uid: uid,
+                        name: _roomName,
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(
+                  height: 10,
+                ),
+                FutureBuilder<Room?>(
+                  //Todo change this line after branch " Bugfix/channel message fetch" was merged
+                  future: _roomRepo.getRoom(uid.asString()),
+                  builder: (context, snapshot) {
+                    if (snapshot.data != null && !snapshot.data!.deleted) {
+                      return OutlinedButton(
+                        onPressed: () {
+                          _routingService.openRoom(uid.asString());
+                        },
+                        child: Text(_i18n.get("open")),
+                      );
+                    }
+                    return OutlinedButton(
+                      onPressed: () async {
+                        if (uid.category == Categories.GROUP) {
+                          final res = await _mucRepo.joinGroup(
+                            uid,
+                            "",
+                          );
+                          if (res != null) {
+                            _routingService.openRoom(uid.asString());
+                          }
+                        } else {
+                          final res = await _mucRepo.joinChannel(
+                            uid,
+                            "",
+                          );
+                          if (res != null) {
+                            _routingService.openRoom(uid.asString());
+                          }
+                        }
+                      },
+                      child: Text(_i18n.get("join")),
+                    );
+                  },
+                )
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

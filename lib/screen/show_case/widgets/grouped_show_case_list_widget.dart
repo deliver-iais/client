@@ -5,6 +5,7 @@ class GroupedShowCaseListWidget extends StatelessWidget {
   final VoidCallback onArrowButtonPressed;
   final int listItemLength;
   final Widget Function(int) listItem;
+  final double height;
 
   const GroupedShowCaseListWidget({
     Key? key,
@@ -12,11 +13,13 @@ class GroupedShowCaseListWidget extends StatelessWidget {
     required this.onArrowButtonPressed,
     required this.listItem,
     required this.listItemLength,
+    this.height=130,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisSize:MainAxisSize.min ,
       children: [
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -44,7 +47,7 @@ class GroupedShowCaseListWidget extends StatelessWidget {
 
   Widget _buildGroupedRoomsList() {
     return SizedBox(
-      height: 130,
+      height: height,
       child: ListView.builder(
         itemCount: listItemLength,
         scrollDirection: Axis.horizontal,
