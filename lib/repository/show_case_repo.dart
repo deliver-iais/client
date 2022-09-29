@@ -91,17 +91,38 @@ class ShowCaseRepo {
         groupedBanners: GroupedBanners(
           bannersList: [
             BannerCase(
-              uid: "3:f508a026-071b-4d65-ba75-82fdd83756b0".asUid(),
+              uid: "3:e86a3be9-d3f0-423d-ba7b-59fb82525f7b".asUid(),
               bannerImg: File(
                 uuid: "e5eeddb6-e59a-4b60-8c17-e27fe9f76c47",
                 name: "1664365328848.webp",
               ),
             ),
             BannerCase(
-              uid: "3:f508a026-071b-4d65-ba75-82fdd83756b0".asUid(),
+              uid: "3:911c2734-397d-410d-81aa-a66da99b629e".asUid(),
               bannerImg: File(
                 uuid: "fa9f51dd-760f-4de0-8486-f44b2523132f",
                 name: "1664365332860.webp",
+              ),
+            ),
+            BannerCase(
+              uid: "3:f508a026-071b-4d65-ba75-82fdd83756b0".asUid(),
+              bannerImg: File(
+                uuid: "2dc29b9a-4af6-4409-9645-db1333cac542",
+                name: "1664446020902.jpeg",
+              ),
+            ),
+            BannerCase(
+              uid: "3:f508a026-071b-4d65-ba75-82fdd83756b0".asUid(),
+              bannerImg: File(
+                uuid: "5cee9920-8676-437e-994c-b0015f83f1a2",
+                name: "1664446035532.jpeg",
+              ),
+            ),
+            BannerCase(
+              uid: "3:f508a026-071b-4d65-ba75-82fdd83756b0".asUid(),
+              bannerImg: File(
+                uuid: "00394804-79a6-4d62-8a1f-1a1d41b7230e",
+                name: "1664446007055.jpeg",
               ),
             ),
           ],
