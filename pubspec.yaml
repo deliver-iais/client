@@ -24,6 +24,7 @@ environment:
   flutter: ">=3.0.0"
 
 dependencies:
+  maps_launcher: ^2.0.1
   android_intent_plus: 3.1.1+1
   audioplayers:
     git:
