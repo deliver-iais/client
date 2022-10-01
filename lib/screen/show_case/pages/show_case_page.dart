@@ -55,7 +55,7 @@ class _ShowCasePageState extends State<ShowCasePage> {
             return ListView.separated(
               separatorBuilder: (context, index) {
                 return const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  padding: EdgeInsets.only(right: 20, left: 20, top: 10),
                   child: Divider(),
                 );
               },
@@ -78,14 +78,18 @@ class _ShowCasePageState extends State<ShowCasePage> {
     final showCase = showCaseJson.toShowCase();
     switch (showCaseType) {
       case Showcase_Type.groupedBanners:
-        return  GroupedBanner(groupedBanner: showCase.groupedBanners,);
+        return GroupedBanner(
+          showCase: showCase,
+        );
       case Showcase_Type.groupedRooms:
         return GroupedRoomsWidget(
-          groupedRooms: showCase.groupedRooms,
+          showCase: showCase,
         );
       case Showcase_Type.singleBanner:
         return SingleBannerWidget(
           bannerCase: showCase.singleBanner,
+          isAdvertisement: showCase.isAdvertisement,
+          isPrimary: showCase.primary,
         );
       case Showcase_Type.singleUrl:
         // todo: Handle this case.
