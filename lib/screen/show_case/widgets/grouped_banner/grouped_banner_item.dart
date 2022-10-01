@@ -24,7 +24,7 @@ class GroupedBannerItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(10),
+      padding: const EdgeInsets.symmetric(horizontal: 10),
       child: GestureDetector(
         onTap: () => _routingService.openRoom(uid.asString()),
         child: Row(
@@ -36,66 +36,61 @@ class GroupedBannerItem extends StatelessWidget {
             const SizedBox(
               width: 10,
             ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                FutureBuilder<String>(
-                  initialData: _roomRepo.fastForwardName(
-                    uid,
+            FutureBuilder<String>(
+              initialData: _roomRepo.fastForwardName(
+                uid,
+              ),
+              future: _roomRepo.getName(uid),
+              builder: (context, snapshot) {
+                _roomName = snapshot.data ?? _i18n.get("loading");
+                return SizedBox(
+                  width: 150,
+                  child: RoomName(
+                    uid: uid,
+                    name: _roomName,
                   ),
-                  future: _roomRepo.getName(uid),
-                  builder: (context, snapshot) {
-                    _roomName = snapshot.data ?? _i18n.get("loading");
-                    return SizedBox(
-                      width: 180,
-                      child: RoomName(
-                        uid: uid,
-                        name: _roomName,
-                      ),
-                    );
-                  },
-                ),
-                const SizedBox(
-                  height: 10,
-                ),
-                FutureBuilder<Room?>(
-                  //Todo change this line after branch " Bugfix/channel message fetch" was merged
-                  future: _roomRepo.getRoom(uid.asString()),
-                  builder: (context, snapshot) {
-                    if (snapshot.data != null && !snapshot.data!.deleted) {
-                      return OutlinedButton(
-                        onPressed: () {
-                          _routingService.openRoom(uid.asString());
-                        },
-                        child: Text(_i18n.get("open")),
-                      );
-                    }
-                    return OutlinedButton(
-                      onPressed: () async {
-                        if (uid.category == Categories.GROUP) {
-                          final res = await _mucRepo.joinGroup(
-                            uid,
-                            "",
-                          );
-                          if (res != null) {
-                            _routingService.openRoom(uid.asString());
-                          }
-                        } else {
-                          final res = await _mucRepo.joinChannel(
-                            uid,
-                            "",
-                          );
-                          if (res != null) {
-                            _routingService.openRoom(uid.asString());
-                          }
-                        }
-                      },
-                      child: Text(_i18n.get("join")),
-                    );
-                  },
-                )
-              ],
+                );
+              },
             ),
+            const SizedBox(
+              height: 10,
+            ),
+            FutureBuilder<Room?>(
+              //Todo change this line after branch " Bugfix/channel message fetch" was merged
+              future: _roomRepo.getRoom(uid.asString()),
+              builder: (context, snapshot) {
+                if (snapshot.data != null && !snapshot.data!.deleted) {
+                  return OutlinedButton(
+                    onPressed: () {
+                      _routingService.openRoom(uid.asString());
+                    },
+                    child: Text(_i18n.get("open")),
+                  );
+                }
+                return OutlinedButton(
+                  onPressed: () async {
+                    if (uid.category == Categories.GROUP) {
+                      final res = await _mucRepo.joinGroup(
+                        uid,
+                        "",
+                      );
+                      if (res != null) {
+                        _routingService.openRoom(uid.asString());
+                      }
+                    } else {
+                      final res = await _mucRepo.joinChannel(
+                        uid,
+                        "",
+                      );
+                      if (res != null) {
+                        _routingService.openRoom(uid.asString());
+                      }
+                    }
+                  },
+                  child: Text(_i18n.get("join")),
+                );
+              },
+            )
           ],
         ),
       ),

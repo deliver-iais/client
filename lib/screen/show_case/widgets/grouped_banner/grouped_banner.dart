@@ -5,18 +5,19 @@ import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
 import 'package:flutter/material.dart';
 
 class GroupedBanner extends StatelessWidget {
-  final GroupedBanners groupedBanner;
+  final Showcase showCase;
 
-  const GroupedBanner({Key? key, required this.groupedBanner})
-      : super(key: key);
+  const GroupedBanner({Key? key, required this.showCase}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GroupedShowCaseListWidget(
-      height: 260,
-      title: groupedBanner.name,
-      listItemLength: groupedBanner.bannersList.length,
-      listItem: (index) => _buildGroupedBannerItem(index, context),
+      height: 270,
+      isPrimary: showCase.primary,
+      isAdvertisement: showCase.isAdvertisement,
+      title: showCase.groupedBanners.name,
+      itemListLength: showCase.groupedBanners.bannersList.length,
+      itemList: (index) => _buildGroupedBannerItem(index, context),
       onArrowButtonPressed: () {},
     );
   }
@@ -26,13 +27,13 @@ class GroupedBanner extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SingleBannerWidget(
-          bannerCase: groupedBanner.bannersList[index],
-          width: 250,
-          height: 140,
+          bannerCase: showCase.groupedBanners.bannersList[index],
+          width: 300,
+          height: 170,
           padding: 10,
         ),
         GroupedBannerItem(
-          uid: groupedBanner.bannersList[index].uid,
+          uid: showCase.groupedBanners.bannersList[index].uid,
         ),
       ],
     );
