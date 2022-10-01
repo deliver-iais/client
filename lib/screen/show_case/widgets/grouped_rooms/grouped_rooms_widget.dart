@@ -7,20 +7,22 @@ import 'package:get_it/get_it.dart';
 
 class GroupedRoomsWidget extends StatelessWidget {
   static final _routingService = GetIt.I.get<RoutingService>();
-  final GroupedRooms groupedRooms;
+  final Showcase showCase;
 
-  const GroupedRoomsWidget({Key? key, required this.groupedRooms})
+  const GroupedRoomsWidget({Key? key, required this.showCase})
       : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return GroupedShowCaseListWidget(
-      title: groupedRooms.name,
+      isPrimary: showCase.primary,
+      isAdvertisement: showCase.isAdvertisement,
+      title: showCase.groupedRooms.name,
       onArrowButtonPressed: () => _routingService.openAllGroupedRoomsGridPage(
-        groupedRooms: groupedRooms,
+        groupedRooms: showCase.groupedRooms,
       ),
-      listItemLength: groupedRooms.roomsList.length,
-      listItem: _buildGroupedRoomsItems,
+      itemListLength: showCase.groupedRooms.roomsList.length,
+      itemList: _buildGroupedRoomsItems,
     );
   }
 
@@ -29,7 +31,8 @@ class GroupedRoomsWidget extends StatelessWidget {
       width: 100,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 10),
-        child: GroupedRoomsItem(uid: groupedRooms.roomsList[index].uid),
+        child:
+            GroupedRoomsItem(uid: showCase.groupedRooms.roomsList[index].uid),
       ),
     );
   }
