@@ -58,6 +58,7 @@ class ShowCaseRepo {
         ),
       ),
       Showcase(
+        primary: true,
         groupedRooms: GroupedRooms(
           name: "جدیدترین ها",
           roomsList: [
@@ -126,10 +127,11 @@ class ShowCaseRepo {
               ),
             ),
           ],
-          name: "آگهی ها",
+          name: "مالیات",
         ),
       ),
       Showcase(
+        isAdvertisement: true,
         groupedRooms: GroupedRooms(
           name: "علم روز",
           roomsList: [
