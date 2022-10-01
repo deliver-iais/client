@@ -99,6 +99,7 @@ class RoutingService {
   final mainNavigatorState = GlobalKey<NavigatorState>();
   final _navigatorObserver = RoutingServiceNavigatorObserver();
   final _preMaybePopScope = PreMaybePopScope();
+  var _currentRoom = "";
 
   Stream<RouteEvent> get currentRouteStream => _navigatorObserver.currentRoute;
 
@@ -136,6 +137,11 @@ class RoutingService {
 
   void openConnectionSettingPage() => _push(_connectionSettingsPage);
 
+  String getCurrentRoomId() => _currentRoom;
+
+  void resetCurrentRoom() => _currentRoom = "";
+
+
   void openRoom(
     String roomId, {
     List<Message> forwardedMessages = const [],
@@ -145,6 +151,7 @@ class RoutingService {
     bool forceToOpenRoom = false,
   }) {
     //todo forwardMedia
+    _currentRoom = roomId;
     if (!isInRoom(roomId) || forceToOpenRoom) {
       _push(
         RoomPage(
@@ -327,6 +334,7 @@ class RoutingService {
   void pop() {
     if (canPop()) {
       _homeNavigatorState.currentState?.pop();
+      _currentRoom = "";
     }
   }
 
