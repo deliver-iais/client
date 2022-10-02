@@ -13,9 +13,8 @@ class GroupedRoomsItem extends StatelessWidget {
   static final _routingService = GetIt.I.get<RoutingService>();
   static final _i18n = GetIt.I.get<I18N>();
   final Uid uid;
-  String _roomName = "";
 
-  GroupedRoomsItem({Key? key, required this.uid}) : super(key: key);
+  const GroupedRoomsItem({Key? key, required this.uid}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -37,10 +36,10 @@ class GroupedRoomsItem extends StatelessWidget {
             ),
             future: _roomRepo.getName(uid),
             builder: (context, snapshot) {
-              _roomName = snapshot.data ?? _i18n.get("loading");
+              final roomName = snapshot.data ?? _i18n.get("loading");
               return RoomName(
                 uid: uid,
-                name: _roomName,
+                name: roomName,
               );
             },
           ),
