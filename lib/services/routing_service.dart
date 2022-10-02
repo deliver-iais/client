@@ -443,8 +443,8 @@ class RoutingService {
                 decoration: BoxDecoration(
                     color: Color.alphaBlend(
                         Theme.of(context).primaryColor.withOpacity(0.3),
-                        Theme.of(context).colorScheme.surface),
-                    borderRadius: BorderRadius.circular(30)),
+                        Theme.of(context).colorScheme.surface,),
+                    borderRadius: BorderRadius.circular(30),),
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: CircleAvatarWidget(
