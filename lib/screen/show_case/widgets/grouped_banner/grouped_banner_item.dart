@@ -56,7 +56,6 @@ class GroupedBannerItem extends StatelessWidget {
               height: 10,
             ),
             FutureBuilder<Room?>(
-              //Todo change this line after branch " Bugfix/channel message fetch" was merged
               future: _roomRepo.getRoom(uid.asString()),
               builder: (context, snapshot) {
                 if (snapshot.data != null && !snapshot.data!.deleted) {
