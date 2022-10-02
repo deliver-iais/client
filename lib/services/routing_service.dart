@@ -33,11 +33,13 @@ import 'package:deliver/screen/settings/pages/theme_settings_page.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/share_input_file/share_input_file.dart';
 import 'package:deliver/screen/show_case/pages/all_grouped_rooms_grid_page.dart';
+import 'package:deliver/screen/show_case/pages/show_case_page.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/scan_qr_code.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
@@ -101,6 +103,8 @@ class RoutingService {
   final mainNavigatorState = GlobalKey<NavigatorState>();
   final _navigatorObserver = RoutingServiceNavigatorObserver();
   final _preMaybePopScope = PreMaybePopScope();
+  final _i18n = GetIt.I.get<I18N>();
+  final BehaviorSubject<int> _navigationBarIndex = BehaviorSubject.seeded(2);
 
   Stream<RouteEvent> get currentRouteStream => _navigatorObserver.currentRoute;
 
@@ -355,12 +359,17 @@ class RoutingService {
   Widget outlet(BuildContext context) {
     return Row(
       children: [
-        if (isLarge(context))
+        if (isLarge(context) || isDesktop) ...[
+          _buildNavigationRail(),
+          const VerticalDivider()
+        ],
+        if (isLarge(context)) ...[
           SizedBox(
             width: NAVIGATION_PANEL_SIZE,
             child: _navigationCenter,
           ),
-        if (isLarge(context)) const VerticalDivider(),
+          const VerticalDivider()
+        ],
         Expanded(
           child: ClipRect(
             child: Navigator(
@@ -387,6 +396,78 @@ class RoutingService {
     );
   }
 
+  Widget _buildNavigationRail() {
+    final authRepo = GetIt.I.get<AuthRepo>();
+    return StreamBuilder<int>(
+      stream: _navigationBarIndex,
+      builder: (context, snapshot) {
+        return NavigationRail(
+          indicatorColor: Theme.of(context).primaryColor.withOpacity(0.2),
+          selectedIndex: snapshot.data,
+          onDestinationSelected: (index) {
+            _navigationBarIndex.add(index);
+            switch (index) {
+              case 0:
+                openSettings(popAllBeforePush: true);
+                break;
+              case 1:
+                _push(
+                  Material(
+                    key: const Key(
+                      "show_case",
+                    ),
+                    child: Directionality(
+                      textDirection: _i18n.defaultTextDirection,
+                      child: const Padding(
+                        padding: EdgeInsets.only(top: 8),
+                        child: ShowCasePage(),
+                      ),
+                    ),
+                  ),
+                );
+                break;
+              case 2:
+                popAll();
+                break;
+            }
+          },
+          labelType: NavigationRailLabelType.selected,
+          destinations: [
+            NavigationRailDestination(
+              icon: CircleAvatarWidget(
+                authRepo.currentUserUid,
+                20,
+              ),
+              label: Text(_i18n.get("settings")),
+              selectedIcon: Container(
+                decoration: BoxDecoration(
+                    color: Color.alphaBlend(
+                        Theme.of(context).primaryColor.withOpacity(0.3),
+                        Theme.of(context).colorScheme.surface),
+                    borderRadius: BorderRadius.circular(30)),
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: CircleAvatarWidget(
+                    authRepo.currentUserUid,
+                    20,
+                  ),
+                ),
+              ),
+            ),
+            NavigationRailDestination(
+              icon: const Icon(Icons.storefront_outlined),
+              label: Text(_i18n.get("show_case")),
+            ),
+            NavigationRailDestination(
+              icon: const Icon(CupertinoIcons.chat_bubble_2),
+              label: Text(_i18n.get("chats")),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> logout() async {
     final coreServices = GetIt.I.get<CoreServices>();
     final authRepo = GetIt.I.get<AuthRepo>();
@@ -409,7 +490,10 @@ class RoutingService {
     }
   }
 
-  Widget backButtonLeading({Color? color}) => BackButton(onPressed: pop,color: color,);
+  Widget backButtonLeading({Color? color}) => BackButton(
+        onPressed: pop,
+        color: color,
+      );
 }
 
 class RouteEvent {
@@ -470,20 +554,20 @@ class Empty extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-        body: Center(
-          child: Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.onPrimary,
-              borderRadius: secondaryBorder,
-            ),
-            padding:
-                const EdgeInsets.only(left: 10, right: 10, top: 6, bottom: 4),
-            child: Text(
-              _i18n.get("please_select_a_chat_to_start_messaging"),
-              style: theme.primaryTextTheme.bodyMedium,
-            ),
+      body: Center(
+        child: Container(
+          decoration: BoxDecoration(
+            color: theme.colorScheme.onPrimary,
+            borderRadius: secondaryBorder,
+          ),
+          padding:
+              const EdgeInsets.only(left: 10, right: 10, top: 6, bottom: 4),
+          child: Text(
+            _i18n.get("please_select_a_chat_to_start_messaging"),
+            style: theme.primaryTextTheme.bodyMedium,
           ),
         ),
+      ),
     );
   }
 }
