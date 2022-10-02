@@ -54,6 +54,9 @@ class MessageExtractorServices {
       case MessageType.TRANSACTION:
         text = msg.json.toTransaction().description;
         break;
+      case MessageType.PAYMENT_INFORMATION:
+        text = msg.json.toPaymentInformation().payment.description;
+        break;
       case MessageType.SHARE_PRIVATE_DATA_REQUEST:
       case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
       case MessageType.CALL:
@@ -180,6 +183,10 @@ class MessageExtractorServices {
         break;
       case message_pb.Message_Type.transaction:
         typeDetails = _i18n.get("payment_transaction");
+        text = msg.transaction.description;
+        break;
+      case message_pb.Message_Type.paymentInformation:
+        typeDetails = _i18n.get("payment_information");
         text = msg.transaction.description;
         break;
       case message_pb.Message_Type.persistEvent:
@@ -454,6 +461,9 @@ class MessageExtractorServices {
         break;
       case MessageType.TRANSACTION:
         msg.transaction = message.json.toTransaction();
+        break;
+      case MessageType.PAYMENT_INFORMATION:
+        msg.paymentInformation = message.json.toPaymentInformation();
         break;
       case MessageType.NOT_SET:
         break;

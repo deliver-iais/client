@@ -813,6 +813,7 @@ class MessageRepo {
       case MessageType.BUTTONS:
       case MessageType.SHARE_PRIVATE_DATA_REQUEST:
       case MessageType.TRANSACTION:
+      case MessageType.PAYMENT_INFORMATION:
         break;
     }
     return byClient;

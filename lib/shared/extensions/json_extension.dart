@@ -21,6 +21,9 @@ extension JsonMapper on String {
 
   Transaction toTransaction() => Transaction.fromJson(this);
 
+  PaymentInformation toPaymentInformation() =>
+      PaymentInformation.fromJson(this);
+
   Poll toPoll() => Poll.fromJson(this);
 
   Form toForm() => Form.fromJson(this);
