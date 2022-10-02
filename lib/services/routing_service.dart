@@ -401,68 +401,70 @@ class RoutingService {
     return StreamBuilder<int>(
       stream: _navigationBarIndex,
       builder: (context, snapshot) {
-        return NavigationRail(
-          indicatorColor: Theme.of(context).primaryColor.withOpacity(0.2),
-          selectedIndex: snapshot.data,
-          onDestinationSelected: (index) {
-            _navigationBarIndex.add(index);
-            switch (index) {
-              case 0:
-                openSettings(popAllBeforePush: true);
-                break;
-              case 1:
-                _push(
-                  Material(
-                    key: const Key(
-                      "show_case",
-                    ),
-                    child: Directionality(
-                      textDirection: _i18n.defaultTextDirection,
-                      child: const Padding(
-                        padding: EdgeInsets.only(top: 8),
-                        child: ShowCasePage(),
+        return SafeArea(
+          child: NavigationRail(
+            indicatorColor: Theme.of(context).primaryColor.withOpacity(0.2),
+            selectedIndex: snapshot.data,
+            onDestinationSelected: (index) {
+              _navigationBarIndex.add(index);
+              switch (index) {
+                case 0:
+                  openSettings(popAllBeforePush: true);
+                  break;
+                case 1:
+                  _push(
+                    Material(
+                      key: const Key(
+                        "show_case",
+                      ),
+                      child: Directionality(
+                        textDirection: _i18n.defaultTextDirection,
+                        child: const Padding(
+                          padding: EdgeInsets.only(top: 8),
+                          child: ShowCasePage(),
+                        ),
                       ),
                     ),
-                  ),
-                );
-                break;
-              case 2:
-                popAll();
-                break;
-            }
-          },
-          labelType: NavigationRailLabelType.selected,
-          destinations: [
-            NavigationRailDestination(
-              icon: CircleAvatarWidget(
-                authRepo.currentUserUid,
-                20,
-              ),
-              label: Text(_i18n.get("settings")),
-              selectedIcon: Container(
-                decoration: BoxDecoration(
-                    color: Color.alphaBlend(
-                        Theme.of(context).primaryColor.withOpacity(0.3),
-                        Theme.of(context).colorScheme.surface,),
-                    borderRadius: BorderRadius.circular(30),),
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: CircleAvatarWidget(
-                    authRepo.currentUserUid,
-                    20,
+                  );
+                  break;
+                case 2:
+                  popAll();
+                  break;
+              }
+            },
+            labelType: NavigationRailLabelType.selected,
+            destinations: [
+              NavigationRailDestination(
+                icon: CircleAvatarWidget(
+                  authRepo.currentUserUid,
+                  20,
+                ),
+                label: Text(_i18n.get("settings")),
+                selectedIcon: Container(
+                  decoration: BoxDecoration(
+                      color: Color.alphaBlend(
+                          Theme.of(context).primaryColor.withOpacity(0.3),
+                          Theme.of(context).colorScheme.surface,),
+                      borderRadius: BorderRadius.circular(30),),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: CircleAvatarWidget(
+                      authRepo.currentUserUid,
+                      20,
+                    ),
                   ),
                 ),
               ),
-            ),
-            NavigationRailDestination(
-              icon: const Icon(Icons.storefront_outlined),
-              label: Text(_i18n.get("show_case")),
-            ),
-            NavigationRailDestination(
-              icon: const Icon(CupertinoIcons.chat_bubble_2),
-              label: Text(_i18n.get("chats")),
-            ),
-          ],
+              NavigationRailDestination(
+                icon: const Icon(Icons.storefront_outlined),
+                label: Text(_i18n.get("show_case")),
+              ),
+              NavigationRailDestination(
+                icon: const Icon(CupertinoIcons.chat_bubble_2),
+                label: Text(_i18n.get("chats")),
+              ),
+            ],
+          ),
         );
       },
     );
