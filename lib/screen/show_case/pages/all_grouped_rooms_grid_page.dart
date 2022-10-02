@@ -22,13 +22,18 @@ class AllGroupedRoomsGridPage extends StatelessWidget {
           leading: _routingService.backButtonLeading(),
         ),
       ),
-      body: GridView.builder(
-        itemCount: groupedRooms.roomsList.length,
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-        ),
-        itemBuilder: (c, index) {
-          return GroupedRoomsItem(uid: groupedRooms.roomsList[index].uid);
+      body: LayoutBuilder(
+        builder: (ctx, constraints) {
+          return GridView.builder(
+            itemCount: groupedRooms.roomsList.length,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: (constraints.maxWidth / 130).round(),
+              mainAxisExtent: 150,
+            ),
+            itemBuilder: (c, index) {
+              return GroupedRoomsItem(uid: groupedRooms.roomsList[index].uid);
+            },
+          );
         },
       ),
     );

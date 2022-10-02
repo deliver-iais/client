@@ -47,19 +47,18 @@ class _ShowCasePageState extends State<ShowCasePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: StreamBuilder<List<ShowCase>>(
-        stream: _showCaseCache,
-        builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data != null) {
-            return ListView.separated(
-              separatorBuilder: (context, index) {
-                return const Padding(
-                  padding: EdgeInsets.only(right: 20, left: 20, top: 10),
-                  child: Divider(),
-                );
-              },
-              itemCount: snapshot.data!.length,
+    return StreamBuilder<List<ShowCase>>(
+      stream: _showCaseCache,
+      builder: (context, snapshot) {
+        if (snapshot.hasData && snapshot.data != null) {
+          return ListView.separated(
+            separatorBuilder: (context, index) {
+              return const Padding(
+                padding: EdgeInsets.only(right: 20, left: 20, top: 10),
+                child: Divider(),
+              );
+            },
+            itemCount: snapshot.data!.length,
               itemBuilder: (ctx, index) {
                 return _buildShowCaseItem(
                   snapshot.data![index].json,
@@ -69,7 +68,6 @@ class _ShowCasePageState extends State<ShowCasePage> {
           }
           return const Center(child: CircularProgressIndicator());
         },
-      ),
     );
   }
 
