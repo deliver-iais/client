@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:deliver/box/dao/muc_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
@@ -43,6 +44,7 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
   final _routingService = GetIt.I.get<RoutingService>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _roomDao = GetIt.I.get<RoomDao>();
+  final _mucDao = GetIt.I.get<MucDao>();
   final _i18n = GetIt.I.get<I18N>();
   final _controller = AnimatedListController();
   late AnimatedListDiffListDispatcher<RoomWrapper> _dispatcher;
