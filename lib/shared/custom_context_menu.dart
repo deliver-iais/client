@@ -1,4 +1,3 @@
-import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart' hide showMenu;
 import 'package:flutter/material.dart' as material show showMenu;
 
@@ -7,42 +6,42 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
   late Offset _tapPosition;
 
   /// Pass this method to an onTapDown parameter to record the tap position.
-  void storePosition(TapDownDetails details) =>
+  // ignore: type_annotate_public_apis
+  void storePosition(details) {
+    if (details is TapDownDetails ||
+        details is DragDownDetails ||
+        details is TapUpDetails) {
+      // ignore: avoid_dynamic_calls
       _tapPosition = details.globalPosition;
+    }
+  }
 
   /// Use this method to show the menu.
   // ignore: avoid_shadowing_type_parameters
   Future<T?> showMenu<T>({
     required BuildContext context,
     required List<PopupMenuEntry<T>> items,
-    T? initialValue,
-    double elevation = 4,
-    String? semanticLabel,
-    ShapeBorder? shape,
-    Color? color,
-    bool captureInheritedThemes = true,
-    bool useRootNavigator = false,
   }) {
-    final overlay = Overlay.of(context)!.context.findRenderObject();
+    final screenSize = MediaQuery.of(context).size;
+
+    final overlaySize =
+        Overlay.of(context)!.context.findRenderObject()!.semanticBounds.size;
+
+    final dx = screenSize.width - overlaySize.width;
+    final dy = screenSize.height - overlaySize.height;
+
+    final position = RelativeRect.fromLTRB(
+      _tapPosition.dx - dx,
+      _tapPosition.dy - 5 - dy,
+      overlaySize.width,
+      overlaySize.height,
+    );
 
     return material.showMenu<T>(
       context: context,
-      position: RelativeRect.fromLTRB(
-        _tapPosition.dx - (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0),
-        _tapPosition.dy - 10,
-        overlay!.semanticBounds.size.width +
-            (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0) -
-            _tapPosition.dx,
-        overlay.semanticBounds.size.height + _tapPosition.dy,
-      ),
+      position: position,
       items: items,
-      initialValue: initialValue,
-      elevation: elevation,
-      semanticLabel: semanticLabel,
-      shape: shape,
-      color: color,
-      // captureInheritedThemes: captureInheritedThemes,
-      useRootNavigator: useRootNavigator,
+      elevation: 4,
     );
   }
 }

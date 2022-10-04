@@ -56,5 +56,8 @@ enum MessageType {
   TABLE,
 
   @HiveField(16)
-  TRANSACTION
+  TRANSACTION,
+
+  @HiveField(17)
+  PAYMENT_INFORMATION
 }

@@ -16,13 +16,5 @@ enum CallStatus {
   @HiveField(3)
   ENDED,
   @HiveField(4)
-  JOINED,
-  @HiveField(5)
-  INVITE,
-  @HiveField(6)
-  KICK,
-  @HiveField(7)
-  LEFT,
-  @HiveField(8)
   DECLINED,
 }
