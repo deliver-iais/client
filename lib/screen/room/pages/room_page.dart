@@ -174,23 +174,21 @@ class RoomPageState extends State<RoomPage> {
         height: MediaQuery.of(context).size.height,
         replyMessageId: _repliedMessage.value?.id ?? 0,
         resetRoomPageDetails: _resetRoomPageDetails,
-        child: SafeArea(
-          child: Stack(
-            children: [
-              StreamBuilder<Room>(
-                stream: _room,
-                builder: (context, snapshot) => Background(
-                  id: snapshot.data?.lastMessageId ?? 0,
-                ),
+        child: Stack(
+          children: [
+            StreamBuilder<Room>(
+              stream: _room,
+              builder: (context, snapshot) => Background(
+                id: snapshot.data?.lastMessageId ?? 0,
               ),
-              Scaffold(
-                backgroundColor: Colors.transparent,
-                extendBodyBehindAppBar: true,
-                appBar: buildAppbar(),
-                body: buildBody(),
-              ),
-            ],
-          ),
+            ),
+            Scaffold(
+              backgroundColor: Colors.transparent,
+              extendBodyBehindAppBar: true,
+              appBar: buildAppbar(),
+              body: buildBody(),
+            ),
+          ],
         ),
       ),
     );

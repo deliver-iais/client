@@ -1,41 +1,35 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'call_event.dart';
+part of 'show_case.dart';
 
 // **************************************************************************
 // TypeAdapterGenerator
 // **************************************************************************
 
-class CallEventAdapter extends TypeAdapter<CallEvent> {
+class ShowCaseAdapter extends TypeAdapter<ShowCase> {
   @override
-  final int typeId = 21;
+  final int typeId = 37;
 
   @override
-  CallEvent read(BinaryReader reader) {
+  ShowCase read(BinaryReader reader) {
     final numOfFields = reader.readByte();
     final fields = <int, dynamic>{
       for (int i = 0; i < numOfFields; i++) reader.readByte(): reader.read(),
     };
-    return CallEvent(
-      id: fields[0] as String,
-      callDuration: fields[1] as int,
-      callType: fields[2] as CallType,
-      callStatus: fields[3] as CallStatus,
+    return ShowCase(
+      index: fields[0] as int,
+      json: fields[1] as String,
     );
   }
 
   @override
-  void write(BinaryWriter writer, CallEvent obj) {
+  void write(BinaryWriter writer, ShowCase obj) {
     writer
-      ..writeByte(4)
-      ..writeByte(0)
-      ..write(obj.id)
-      ..writeByte(1)
-      ..write(obj.callDuration)
       ..writeByte(2)
-      ..write(obj.callType)
-      ..writeByte(3)
-      ..write(obj.callStatus);
+      ..writeByte(0)
+      ..write(obj.index)
+      ..writeByte(1)
+      ..write(obj.json);
   }
 
   @override
@@ -44,7 +38,7 @@ class CallEventAdapter extends TypeAdapter<CallEvent> {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is CallEventAdapter &&
+      other is ShowCaseAdapter &&
           runtimeType == other.runtimeType &&
           typeId == other.typeId;
 }

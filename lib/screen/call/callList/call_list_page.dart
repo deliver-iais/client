@@ -70,9 +70,9 @@ class CallListPageState extends State<CallListPage> {
                   itemCount: calls.length,
                   itemBuilder: (ctx, index) {
                     final time = DateTime.fromMillisecondsSinceEpoch(
-                      calls[index].callEvent.endOfCallTime,
+                      calls[index].time,
                     );
-                    final isIncomingCall = calls[index].callEvent.newStatus ==
+                    final isIncomingCall = calls[index].callEvent.callStatus ==
                             call_status.CallStatus.DECLINED
                         ? _authRepo.isCurrentUser(calls[index].to)
                         : _authRepo.isCurrentUser(calls[index].from);
@@ -80,7 +80,7 @@ class CallListPageState extends State<CallListPage> {
                         ? calls[index].from.asUid()
                         : calls[index].to.asUid();
                     final prevTime = DateTime.fromMillisecondsSinceEpoch(
-                      calls[index != 0 ? index - 1 : 0].callEvent.endOfCallTime,
+                      calls[index != 0 ? index - 1 : 0].time,
                     );
                     return Column(
                       children: [

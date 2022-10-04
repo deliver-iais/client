@@ -87,6 +87,7 @@ bool isHiddenPbMessage(message_pb.Message message) {
     case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
     case MessageType.TABLE:
     case MessageType.FORM:
+    case MessageType.PAYMENT_INFORMATION:
       return false;
 
     case MessageType.PERSISTENT_EVENT:
@@ -102,18 +103,14 @@ bool isHiddenPbMessage(message_pb.Message message) {
       }
 
     case MessageType.CALL:
-      switch (message.callEvent.newStatus) {
+      switch (message.callEvent.callStatus) {
         case CallEvent_CallStatus.BUSY:
         case CallEvent_CallStatus.DECLINED:
         case CallEvent_CallStatus.ENDED:
           return false;
 
         case CallEvent_CallStatus.CREATED:
-        case CallEvent_CallStatus.INVITE:
         case CallEvent_CallStatus.IS_RINGING:
-        case CallEvent_CallStatus.JOINED:
-        case CallEvent_CallStatus.KICK:
-        case CallEvent_CallStatus.LEFT:
           return true;
       }
       return true;
@@ -140,6 +137,7 @@ bool isHiddenMessage(Message message) {
     case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
     case MessageType.TABLE:
     case MessageType.FORM:
+    case MessageType.PAYMENT_INFORMATION:
       return false;
 
     case MessageType.PERSISTENT_EVENT:
@@ -155,18 +153,14 @@ bool isHiddenMessage(Message message) {
       }
 
     case MessageType.CALL:
-      switch (message.json.toCallEvent().newStatus) {
+      switch (message.json.toCallEvent().callStatus) {
         case CallEvent_CallStatus.BUSY:
         case CallEvent_CallStatus.DECLINED:
         case CallEvent_CallStatus.ENDED:
           return false;
 
         case CallEvent_CallStatus.CREATED:
-        case CallEvent_CallStatus.INVITE:
         case CallEvent_CallStatus.IS_RINGING:
-        case CallEvent_CallStatus.JOINED:
-        case CallEvent_CallStatus.KICK:
-        case CallEvent_CallStatus.LEFT:
           return true;
       }
       return true;
@@ -228,6 +222,9 @@ String messageBodyToJson(message_pb.Message message) {
     case MessageType.TRANSACTION:
       return message.transaction.writeToJson();
 
+    case MessageType.PAYMENT_INFORMATION:
+      return message.paymentInformation.writeToJson();
+
     case MessageType.NOT_SET:
       return EMPTY_MESSAGE;
   }
@@ -269,6 +266,8 @@ MessageType getMessageType(message_pb.Message_Type messageType) {
       return MessageType.TRANSACTION;
     case message_pb.Message_Type.notSet:
       return MessageType.NOT_SET;
+    case message_pb.Message_Type.paymentInformation:
+      return MessageType.PAYMENT_INFORMATION;
   }
 }
 
