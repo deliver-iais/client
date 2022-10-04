@@ -90,7 +90,7 @@ class SearchBoxState extends State<SearchBox> {
                       onPressed: () {
                         _hasText.add(false);
                         _clearTextEditingController();
-                        _localFocusNode.unfocus();
+                        (widget.focusNode ?? _localFocusNode).unfocus();
                         widget.onCancel?.call();
                       },
                     );
