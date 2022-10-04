@@ -152,7 +152,7 @@ class HomePageState extends State<HomePage> {
     final theme = Theme.of(context);
     return WillPopScope(
       onWillPop: () async {
-        if (!_routingService.canPop()) {
+        if (!_routingService.canPop() && _routingService.preMaybePopScopeValue()) {
           if (await FlutterForegroundTask.isRunningService) {
             FlutterForegroundTask.minimizeApp();
             return false;

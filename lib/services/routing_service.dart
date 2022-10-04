@@ -347,7 +347,7 @@ class RoutingService {
       _homeNavigatorState.currentState?.pop();
     }
   }
-
+  bool  preMaybePopScopeValue ()=>_preMaybePopScope.maybePop();
   void maybePop() {
     if (_preMaybePopScope.maybePop()) {
       if (canPop()) {
