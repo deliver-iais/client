@@ -58,7 +58,6 @@ class ContactRepo {
             orderByGivenName: false,
             iOSLocalizedLabels: false,
           );
-
           final contacts = await _filterPhoneContactsToSend(
             phoneContacts
                 .map(
@@ -85,7 +84,8 @@ class ContactRepo {
 
           if (contacts.isNotEmpty) {
             _savePhoneContacts(contacts);
-            sendContacts(contacts);
+            await sendContacts(contacts);
+            unawaited(getContacts());
           } else {
             sendContactProgress.add(1);
             unawaited(getContacts());
@@ -144,7 +144,7 @@ class ContactRepo {
     final contacts = await _contactDao.getNotMessengerContacts();
     if (contacts.isNotEmpty) {
       unawaited(
-        _sendContacts(
+        sendContacts(
           contacts
               .where(
                 (element) => ((element.updateTime == null ||
@@ -174,7 +174,21 @@ class ContactRepo {
       DateTime.now().millisecondsSinceEpoch - updateTime <
       MAX_SEND_CONTACT_START_TIME_EXPIRE;
 
+  String _replaceFarsiNumber(String input) {
+    const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    const farsi = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
+
+    for (var i = 0; i < english.length; i++) {
+      input = input.replaceAll(farsi[i], english[i]);
+    }
+    return input;
+  }
+
   PhoneNumber? _getPhoneNumber(String phone, String name) {
+    final regex = RegExp(r'^[\u0600-\u06FF\s]+$');
+    if (regex.hasMatch(phone)) {
+      phone = _replaceFarsiNumber(phone);
+    }
     final p = getPhoneNumber(phone);
 
     if (p == null) {
@@ -185,22 +199,25 @@ class ContactRepo {
     }
   }
 
-  void sendContacts(List<Contact> contacts) {
+  Future<void> sendContacts(List<Contact> contacts) async {
     try {
       var i = 0;
       while (i <= contacts.length) {
-        final end = contacts.length > i + MAX_CONTACT_SIZE_TO_SEND - 1
-            ? i + MAX_CONTACT_SIZE_TO_SEND - 1
-            : contacts.length;
-        final contactsSubList = contacts.sublist(
-          i,
-          end,
-        );
-        sendContactProgress.add(end / contacts.length);
-        _sendContacts(contactsSubList);
-        i = i + MAX_CONTACT_SIZE_TO_SEND;
+        try {
+          final end = contacts.length > i + MAX_CONTACT_SIZE_TO_SEND - 1
+              ? i + MAX_CONTACT_SIZE_TO_SEND - 1
+              : contacts.length;
+          final contactsSubList = contacts.sublist(
+            i,
+            end,
+          );
+          sendContactProgress.add(end / contacts.length);
+          await _sendContacts(contactsSubList);
+          i = i + MAX_CONTACT_SIZE_TO_SEND;
+        } catch (e) {
+          _logger.e(e);
+        }
       }
-      getContacts();
     } catch (e) {
       _logger.e(e);
     }
@@ -224,7 +241,6 @@ class ContactRepo {
   Future<bool> _sendContacts(List<Contact> contacts) async {
     try {
       final sendContacts = SaveContactsReq();
-
       for (final element in contacts) {
         sendContacts.contactList.add(element);
         sendContacts.returnUserContactByPhoneNumberList
@@ -251,10 +267,11 @@ class ContactRepo {
   Future<List<contact_model.Contact>> getAllUserAsContact() =>
       _contactDao.getAllMessengerContacts();
 
-  Stream<List<contact_model.Contact>> getNotMessengerContactAsStream() =>
+  Stream<List<contact_model.Contact>> watchNotMessengerContact() =>
       _contactDao.watchNotMessengerContacts();
 
   Future<void> getContacts() async {
+    isSyncingContacts.add(false);
     try {
       final result = await _sdr.contactServiceClient
           .getContactListUsers(GetContactListUsersReq());
@@ -262,7 +279,6 @@ class ContactRepo {
     } catch (e) {
       _logger.e(e);
     }
-    isSyncingContacts.add(false);
   }
 
   void _saveUserContact(List<UserAsContact> users) {

@@ -207,6 +207,7 @@ class AutoDirectionTextField extends StatelessWidget {
           maxLines: maxLines,
           minLines: minLines,
           maxLength: maxLength,
+          onTap: onTap,
           maxLengthEnforcement: maxLengthEnforcement,
           onChanged: (value) {
             if (value.isNotEmpty) {
