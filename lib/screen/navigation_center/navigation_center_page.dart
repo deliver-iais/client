@@ -648,29 +648,31 @@ class NavigationCenterState extends State<NavigationCenter>
             const SizedBox(
               width: 8,
             ),
-            DescribedFeatureOverlay(
-              featureId: FEATURE_2,
-              tapTarget: const Icon(Icons.storefront_outlined),
-              backgroundColor: theme.colorScheme.tertiaryContainer,
-              targetColor: theme.colorScheme.tertiary,
-              title: Text(
-                _i18n.get("qr_code_feature_discovery_title"),
-                textDirection: _i18n.defaultTextDirection,
-                style: TextStyle(
-                  color: theme.colorScheme.onTertiaryContainer,
+            if (false)
+              DescribedFeatureOverlay(
+                featureId: FEATURE_2,
+                tapTarget: const Icon(Icons.storefront_outlined),
+                backgroundColor: theme.colorScheme.tertiaryContainer,
+                targetColor: theme.colorScheme.tertiary,
+                title: Text(
+                  _i18n.get("qr_code_feature_discovery_title"),
+                  textDirection: _i18n.defaultTextDirection,
+                  style: TextStyle(
+                    color: theme.colorScheme.onTertiaryContainer,
+                  ),
+                ),
+                description: FeatureDiscoveryDescriptionWidget(
+                  description:
+                      _i18n.get("qr_code_feature_discovery_description"),
+                  descriptionStyle: TextStyle(
+                    color: theme.colorScheme.onTertiaryContainer,
+                  ),
+                ),
+                child: IconButton(
+                  onPressed: () => _routingService.openShowcase(),
+                  icon: const Icon(Icons.storefront_outlined),
                 ),
               ),
-              description: FeatureDiscoveryDescriptionWidget(
-                description: _i18n.get("qr_code_feature_discovery_description"),
-                descriptionStyle: TextStyle(
-                  color: theme.colorScheme.onTertiaryContainer,
-                ),
-              ),
-              child: IconButton(
-                onPressed: () => _routingService.openShowcase(),
-                icon: const Icon(Icons.storefront_outlined),
-              ),
-            ),
             const SizedBox(
               width: 8,
             )
