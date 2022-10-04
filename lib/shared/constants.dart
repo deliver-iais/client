@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
@@ -223,7 +224,8 @@ const INLINE_KEYBOARD_BUTTON_ID = 33;
 const REPLY_KEYBOARD_MARKUP_ID = 34;
 const REPLY_KEYBOARD_ROW_ID = 35;
 const REPLY_KEYBOARD_BUTTON_ID = 36;
-const ACTIVE_NOTIFICATION_TRACK_ID = 37;
+const SHOW_CASE_TRACK_ID = 37;
+const ACTIVE_NOTIFICATION_TRACK_ID = 38;
 
 //FEATURE DISCOVERY ID
 const FEATURE_1 = 'feature1';

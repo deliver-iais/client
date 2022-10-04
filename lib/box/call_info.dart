@@ -16,9 +16,13 @@ class CallInfo {
   @HiveField(2)
   CallEvent callEvent;
 
+  @HiveField(3)
+  int time;
+
   CallInfo({
     required this.callEvent,
     required this.from,
     required this.to,
+    required this.time,
   });
 }

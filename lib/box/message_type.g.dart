@@ -47,6 +47,8 @@ class MessageTypeAdapter extends TypeAdapter<MessageType> {
         return MessageType.TABLE;
       case 16:
         return MessageType.TRANSACTION;
+      case 17:
+        return MessageType.PAYMENT_INFORMATION;
       default:
         return MessageType.TEXT;
     }
@@ -105,6 +107,9 @@ class MessageTypeAdapter extends TypeAdapter<MessageType> {
         break;
       case MessageType.TRANSACTION:
         writer.writeByte(16);
+        break;
+      case MessageType.PAYMENT_INFORMATION:
+        writer.writeByte(17);
         break;
     }
   }
