@@ -690,8 +690,8 @@ class MockRoomRepo extends _i1.Mock implements _i29.RoomRepo {
               returnValue: _i21.Future<List<_i3.Uid>>.value(<_i3.Uid>[]))
           as _i21.Future<List<_i3.Uid>>);
   @override
-  _i21.Future<List<_i3.Uid>> searchInRoomAndContacts(String? text) =>
-      (super.noSuchMethod(Invocation.method(#searchInRoomAndContacts, [text]),
+  _i21.Future<List<_i3.Uid>> searchInRooms(String? text) =>
+      (super.noSuchMethod(Invocation.method(#searchInRooms, [text]),
               returnValue: _i21.Future<List<_i3.Uid>>.value(<_i3.Uid>[]))
           as _i21.Future<List<_i3.Uid>>);
   @override
@@ -2256,8 +2256,10 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
       as _i21.Future<void>);
   @override
   _i21.Future<void> sendContacts(List<_i59.Contact>? contacts) =>
-      super.noSuchMethod(Invocation.method(#sendContacts, [contacts]),
-          returnValueForMissingStub: null);
+      (super.noSuchMethod(Invocation.method(#sendContacts, [contacts]),
+              returnValue: _i21.Future<void>.value(),
+              returnValueForMissingStub: _i21.Future<void>.value())
+          as _i21.Future<void>);
   @override
   _i21.Future<bool> sendNewContact(_i59.Contact? contact) =>
       (super.noSuchMethod(Invocation.method(#sendNewContact, [contact]),
@@ -2273,10 +2275,10 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
           returnValue: _i21.Future<List<_i60.Contact>>.value(<_i60.Contact>[]))
       as _i21.Future<List<_i60.Contact>>);
   @override
-  _i21.Stream<List<_i60.Contact>> getNotMessengerContactAsStream() => (super
-          .noSuchMethod(Invocation.method(#getNotMessengerContactAsStream, []),
+  _i21.Stream<List<_i60.Contact>> watchNotMessengerContact() =>
+      (super.noSuchMethod(Invocation.method(#watchNotMessengerContact, []),
               returnValue: _i21.Stream<List<_i60.Contact>>.empty())
-      as _i21.Stream<List<_i60.Contact>>);
+          as _i21.Stream<List<_i60.Contact>>);
   @override
   _i21.Future<void> getContacts() =>
       (super.noSuchMethod(Invocation.method(#getContacts, []),
@@ -2298,6 +2300,11 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
   @override
   _i21.Future<List<_i3.Uid>> searchUser(String? query) =>
       (super.noSuchMethod(Invocation.method(#searchUser, [query]),
+              returnValue: _i21.Future<List<_i3.Uid>>.value(<_i3.Uid>[]))
+          as _i21.Future<List<_i3.Uid>>);
+  @override
+  _i21.Future<List<_i3.Uid>> searchInContacts(String? text) =>
+      (super.noSuchMethod(Invocation.method(#searchInContacts, [text]),
               returnValue: _i21.Future<List<_i3.Uid>>.value(<_i3.Uid>[]))
           as _i21.Future<List<_i3.Uid>>);
   @override
