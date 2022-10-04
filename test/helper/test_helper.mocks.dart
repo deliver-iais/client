@@ -2211,7 +2211,7 @@ class MockContactRepo extends _i1.Mock implements _i58.ContactRepo {
           returnValueForMissingStub: _i21.Future<void>.value())
       as _i21.Future<void>);
   @override
-  void sendContacts(List<_i59.Contact>? contacts) =>
+  _i21.Future<void> sendContacts(List<_i59.Contact>? contacts) =>
       super.noSuchMethod(Invocation.method(#sendContacts, [contacts]),
           returnValueForMissingStub: null);
   @override

@@ -58,7 +58,6 @@ class ContactRepo {
             orderByGivenName: false,
             iOSLocalizedLabels: false,
           );
-
           final contacts = await _filterPhoneContactsToSend(
             phoneContacts
                 .map(
@@ -85,7 +84,8 @@ class ContactRepo {
 
           if (contacts.isNotEmpty) {
             _savePhoneContacts(contacts);
-            sendContacts(contacts);
+            await sendContacts(contacts);
+            unawaited(getContacts());
           } else {
             sendContactProgress.add(1);
             unawaited(getContacts());
@@ -144,7 +144,7 @@ class ContactRepo {
     final contacts = await _contactDao.getNotMessengerContacts();
     if (contacts.isNotEmpty) {
       unawaited(
-        _sendContacts(
+        sendContacts(
           contacts
               .where(
                 (element) => ((element.updateTime == null ||
@@ -192,29 +192,32 @@ class ContactRepo {
     final p = getPhoneNumber(phone);
 
     if (p == null) {
-      _logger.e("Not Valid Number  $name ***** $phone");
+      // _logger.e("Not Valid Number  $name ***** $phone");
       return null;
     } else {
       return p;
     }
   }
 
-  void sendContacts(List<Contact> contacts) {
+  Future<void> sendContacts(List<Contact> contacts) async {
     try {
       var i = 0;
       while (i <= contacts.length) {
-        final end = contacts.length > i + MAX_CONTACT_SIZE_TO_SEND - 1
-            ? i + MAX_CONTACT_SIZE_TO_SEND - 1
-            : contacts.length;
-        final contactsSubList = contacts.sublist(
-          i,
-          end,
-        );
-        sendContactProgress.add(end / contacts.length);
-        unawaited(_sendContacts(contactsSubList));
-        i = i + MAX_CONTACT_SIZE_TO_SEND;
+        try {
+          final end = contacts.length > i + MAX_CONTACT_SIZE_TO_SEND - 1
+              ? i + MAX_CONTACT_SIZE_TO_SEND - 1
+              : contacts.length;
+          final contactsSubList = contacts.sublist(
+            i,
+            end,
+          );
+          sendContactProgress.add(end / contacts.length);
+          await _sendContacts(contactsSubList);
+          i = i + MAX_CONTACT_SIZE_TO_SEND;
+        } catch (e) {
+          _logger.e(e);
+        }
       }
-      getContacts();
     } catch (e) {
       _logger.e(e);
     }
@@ -238,7 +241,6 @@ class ContactRepo {
   Future<bool> _sendContacts(List<Contact> contacts) async {
     try {
       final sendContacts = SaveContactsReq();
-
       for (final element in contacts) {
         sendContacts.contactList.add(element);
         sendContacts.returnUserContactByPhoneNumberList
@@ -265,7 +267,7 @@ class ContactRepo {
   Future<List<contact_model.Contact>> getAllUserAsContact() =>
       _contactDao.getAllMessengerContacts();
 
-  Stream<List<contact_model.Contact>> getNotMessengerContactAsStream() =>
+  Stream<List<contact_model.Contact>> watchNotMessengerContact() =>
       _contactDao.watchNotMessengerContacts();
 
   Future<void> getContacts() async {

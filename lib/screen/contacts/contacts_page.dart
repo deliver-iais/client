@@ -31,14 +31,47 @@ class ContactsPageState extends State<ContactsPage> {
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _i18n = GetIt.I.get<I18N>();
 
-  // final _contactsBehavior = BehaviorSubject.seeded(<Contact>[]);
-  // final _notMessengerContactsBehavior = BehaviorSubject.seeded(<Contact>[]);
+  var _messengerContacts = [];
+  var _notMessengerContacts = [];
+  final _allContactsBehavior = BehaviorSubject.seeded(<Contact>[]);
 
   @override
   void initState() {
     super.initState();
-    _syncContacts();
+    _contactRepo.watchAllMessengerContacts().listen((contacts) {
+      _messengerContacts = contacts
+          .whereNot((element) => element.uid == null)
+          .where(
+            (c) => !_authRepo.isCurrentUser(c.uid!) && !c.isUsersContact(),
+          )
+          .sortedBy(
+            (element) => buildName(element.firstName, element.lastName),
+          )
+          .toList(growable: false);
 
+      _allContactsBehavior
+          .add(<Contact>[..._messengerContacts, ..._notMessengerContacts]);
+    });
+
+    _contactRepo
+        .watchNotMessengerContact()
+        .listen((notMessengerContacts) {
+      if (notMessengerContacts.isNotEmpty) {
+        _notMessengerContacts = notMessengerContacts
+            .sortedBy(
+              (element) => buildName(element.firstName, element.lastName),
+            )
+            .toList(growable: false);
+
+        _allContactsBehavior
+            .add(<Contact>[..._messengerContacts, ..._notMessengerContacts]);
+      }
+    });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Future.delayed(const Duration(milliseconds: 800), () {
+        _syncContacts();
+      });
+    });
   }
 
   void _syncContacts() {
@@ -73,19 +106,9 @@ class ContactsPageState extends State<ContactsPage> {
       ),
       extendBodyBehindAppBar: true,
       body: StreamBuilder<List<Contact>>(
-        stream: _contactRepo.watchAllMessengerContacts(),
+        stream: _allContactsBehavior.stream,
         builder: (context, snapshot) {
-          var contacts = snapshot.data ?? [];
-          contacts = contacts
-              .whereNot((element) => element.uid == null)
-              .where(
-                (c) => !_authRepo.isCurrentUser(c.uid!) && !c.isUsersContact(),
-              )
-              .sortedBy(
-                (element) => buildName(element.firstName, element.lastName),
-              )
-              .toList(growable: false);
-
+          final contacts = snapshot.data ?? [];
           if (!snapshot.hasData) {
             return const Center(
               child: CircularProgressIndicator(),
@@ -94,7 +117,7 @@ class ContactsPageState extends State<ContactsPage> {
             return Stack(
               children: [
                 SafeArea(
-                  child: ListView(
+                  child: Column(
                     children: [
                       SyncContact.syncingStatusWidget(
                         context,
@@ -103,78 +126,42 @@ class ContactsPageState extends State<ContactsPage> {
                           vertical: 8,
                         ),
                       ),
-                      if (contacts.isNotEmpty)
-                        Padding(
+                      if (_messengerContacts.isEmpty) const EmptyContacts(),
+                      Expanded(
+                        child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 16.0),
                           child: FlexibleFixedHeightGridView(
                             itemCount: contacts.length,
                             itemBuilder: (context, index) {
                               final c = contacts[index];
-
-                              return GestureDetector(
-                                onTap: () => c.uid != null
-                                    ? _routingService.openRoom(c.uid!)
-                                    : null,
-                                child: ContactWidget(
-                                  contact: c,
-                                  // isSelected: true,
-                                  circleIcon: CupertinoIcons.qrcode,
-                                  onCircleIcon: () => showQrCode(
-                                    context,
-                                    buildShareUserUrl(
-                                      c.countryCode,
-                                      c.nationalNumber,
-                                      c.firstName!,
-                                      c.lastName!,
+                              if (c.uid != null) {
+                                return GestureDetector(
+                                  onTap: () => c.uid != null
+                                      ? _routingService.openRoom(c.uid!)
+                                      : null,
+                                  child: ContactWidget(
+                                    contact: c,
+                                    // isSelected: true,
+                                    circleIcon: CupertinoIcons.qrcode,
+                                    onCircleIcon: () => showQrCode(
+                                      context,
+                                      buildShareUserUrl(
+                                        c.countryCode,
+                                        c.nationalNumber,
+                                        c.firstName!,
+                                        c.lastName!,
+                                      ),
                                     ),
                                   ),
-                                ),
-                              );
+                                );
+                              } else {
+                                return NotMessengerContactWidget(
+                                  contact: snapshot.data![index],
+                                );
+                              }
                             },
                           ),
-                        )
-                      else
-                        const EmptyContacts(),
-                      StreamBuilder<List<Contact>>(
-                        stream: _contactRepo.getNotMessengerContactAsStream(),
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData &&
-                              snapshot.data != null &&
-                              snapshot.data!.isNotEmpty) {
-                            final contacts = snapshot.data!
-                                .sortedBy(
-                                  (element) => buildName(
-                                    element.firstName,
-                                    element.lastName,
-                                  ),
-                                )
-                                .toList(growable: false);
-
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0,
-                              ),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(_i18n.get("invite_contact")),
-                                    ],
-                                  ),
-                                  FlexibleFixedHeightGridView(
-                                    itemCount: contacts.length,
-                                    itemBuilder: (context, index) {
-                                      return NotMessengerContactWidget(
-                                        contact: contacts[index],
-                                      );
-                                    },
-                                  ),
-                                ],
-                              ),
-                            );
-                          }
-                          return const SizedBox.shrink();
-                        },
+                        ),
                       ),
                     ],
                   ),
