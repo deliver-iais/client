@@ -531,68 +531,65 @@ class NavigationCenterState extends State<NavigationCenter>
         child: AppBar(
           elevation: 0,
           scrolledUnderElevation: 0,
-          leading: !isLarge(context)
-              ? null
-              : Row(
-                  children: [
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    DescribedFeatureOverlay(
-                      featureId: FEATURE_3,
-                      tapTarget:
-                          CircleAvatarWidget(_authRepo.currentUserUid, 20),
-                      backgroundColor: theme.colorScheme.tertiaryContainer,
-                      targetColor: theme.colorScheme.tertiary,
-                      title: Text(
-                        _i18n.get("setting_icon_feature_discovery_title"),
-                        textDirection: _i18n.defaultTextDirection,
-                        style: TextStyle(
-                          color: theme.colorScheme.onTertiaryContainer,
-                        ),
-                      ),
-                      overflowMode: OverflowMode.extendBackground,
-                      description: FeatureDiscoveryDescriptionWidget(
-                        permissionWidget: (!isDesktop)
-                            ? TextButton(
-                                onPressed: () {
-                                  FeatureDiscovery.dismissAll(context);
-                                  _routingService.openContacts();
-                                },
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(_i18n.get("sync_contact")),
-                                    const Icon(
-                                      Icons.arrow_forward,
-                                    )
-                                  ],
-                                ),
-                              )
-                            : null,
-                        description: _i18n
-                            .get("setting_icon_feature_discovery_description"),
-                        descriptionStyle: TextStyle(
-                          color: theme.colorScheme.onTertiaryContainer,
-                        ),
-                      ),
-                      child: GestureDetector(
-                        child: Center(
-                          child: MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: CircleAvatarWidget(
-                              _authRepo.currentUserUid,
-                              20,
-                            ),
-                          ),
-                        ),
-                        onTap: () {
-                          _routingServices.openSettings(popAllBeforePush: true);
-                        },
-                      ),
-                    ),
-                  ],
+          leading: Row(
+            children: [
+              const SizedBox(
+                width: 10,
+              ),
+              DescribedFeatureOverlay(
+                featureId: FEATURE_3,
+                tapTarget: CircleAvatarWidget(_authRepo.currentUserUid, 20),
+                backgroundColor: theme.colorScheme.tertiaryContainer,
+                targetColor: theme.colorScheme.tertiary,
+                title: Text(
+                  _i18n.get("setting_icon_feature_discovery_title"),
+                  textDirection: _i18n.defaultTextDirection,
+                  style: TextStyle(
+                    color: theme.colorScheme.onTertiaryContainer,
+                  ),
                 ),
+                overflowMode: OverflowMode.extendBackground,
+                description: FeatureDiscoveryDescriptionWidget(
+                  permissionWidget: (!isDesktop)
+                      ? TextButton(
+                          onPressed: () {
+                            FeatureDiscovery.dismissAll(context);
+                            _routingService.openContacts();
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(_i18n.get("sync_contact")),
+                              const Icon(
+                                Icons.arrow_forward,
+                              )
+                            ],
+                          ),
+                        )
+                      : null,
+                  description:
+                      _i18n.get("setting_icon_feature_discovery_description"),
+                  descriptionStyle: TextStyle(
+                    color: theme.colorScheme.onTertiaryContainer,
+                  ),
+                ),
+                child: GestureDetector(
+                  child: Center(
+                    child: MouseRegion(
+                      cursor: SystemMouseCursors.click,
+                      child: CircleAvatarWidget(
+                        _authRepo.currentUserUid,
+                        20,
+                      ),
+                    ),
+                  ),
+                  onTap: () {
+                    _routingServices.openSettings(popAllBeforePush: true);
+                  },
+                ),
+              ),
+            ],
+          ),
           titleSpacing: 8.0,
           title: Text(
             _i18n.get("chats"),
