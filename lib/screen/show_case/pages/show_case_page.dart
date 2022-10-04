@@ -1,10 +1,14 @@
 import 'package:deliver/box/show_case.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/show_case_repo.dart';
 import 'package:deliver/screen/show_case/widgets/grouped_banner/grouped_banner.dart';
 import 'package:deliver/screen/show_case/widgets/grouped_rooms/grouped_rooms_widget.dart';
 import 'package:deliver/screen/show_case/widgets/grouped_url/grouped_url_widget.dart';
 import 'package:deliver/screen/show_case/widgets/single_banner/single_banner_widget.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
+import 'package:deliver/shared/widgets/fluid_container.dart';
+import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -18,9 +22,10 @@ class ShowcasePage extends StatefulWidget {
 }
 
 class _ShowcasePageState extends State<ShowcasePage> {
-  final BehaviorSubject<List<ShowCase>> _showCaseCache = BehaviorSubject.seeded(
-    [],
-  );
+  static final _i18n = GetIt.I.get<I18N>();
+  static final _routingService = GetIt.I.get<RoutingService>();
+  final BehaviorSubject<List<ShowCase>> _showCaseCache =
+      BehaviorSubject.seeded([]);
   final _showCaseRepo = GetIt.I.get<ShowCaseRepo>();
 
   @override
@@ -47,27 +52,42 @@ class _ShowcasePageState extends State<ShowcasePage> {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<List<ShowCase>>(
-      stream: _showCaseCache,
-      builder: (context, snapshot) {
-        if (snapshot.hasData && snapshot.data != null) {
-          return ListView.separated(
-            separatorBuilder: (context, index) {
-              return const Padding(
-                padding: EdgeInsets.only(right: 20, left: 20, top: 10),
-                child: Divider(),
-              );
-            },
-            itemCount: snapshot.data!.length,
-              itemBuilder: (ctx, index) {
-                return _buildShowCaseItem(
-                  snapshot.data![index].json,
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      appBar: BlurredPreferredSizedWidget(
+        child: AppBar(
+          titleSpacing: 8,
+          title: Text(_i18n.get("showcase")),
+          leading: _routingService.backButtonLeading(),
+        ),
+      ),
+      body: FluidContainerWidget(
+        child: Directionality(
+          textDirection: _i18n.defaultTextDirection,
+          child: StreamBuilder<List<ShowCase>>(
+            stream: _showCaseCache,
+            builder: (context, snapshot) {
+              if (snapshot.hasData && snapshot.data != null) {
+                return ListView.separated(
+                  separatorBuilder: (context, index) {
+                    return const Padding(
+                      padding: EdgeInsets.only(right: 20, left: 20, top: 10),
+                      child: Divider(),
+                    );
+                  },
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (ctx, index) {
+                    return _buildShowCaseItem(
+                      snapshot.data![index].json,
+                    );
+                  },
                 );
-              },
-            );
-          }
-          return const Center(child: CircularProgressIndicator());
-        },
+              }
+              return const Center(child: CircularProgressIndicator());
+            },
+          ),
+        ),
+      ),
     );
   }
 

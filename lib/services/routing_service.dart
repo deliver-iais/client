@@ -39,7 +39,6 @@ import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
-import 'package:deliver/shared/widgets/circle_avatar.dart';
 import 'package:deliver/shared/widgets/scan_qr_code.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
 import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
@@ -80,6 +79,9 @@ const _newContact = NewContact(key: ValueKey("/new-contact"));
 const _scanQrCode = ScanQrCode(key: ValueKey("/scan-qr-code"));
 
 const _calls = CallListPage(key: ValueKey("/calls"));
+
+const _showcase = ShowcasePage(key: ValueKey("/showcase"));
+
 const _connectionSettingsPage = ConnectionSettingPage(
   key: ValueKey("/connection_setting_page"),
 );
@@ -103,8 +105,6 @@ class RoutingService {
   final mainNavigatorState = GlobalKey<NavigatorState>();
   final _navigatorObserver = RoutingServiceNavigatorObserver();
   final _preMaybePopScope = PreMaybePopScope();
-  final _i18n = GetIt.I.get<I18N>();
-  final BehaviorSubject<int> _navigationBarIndex = BehaviorSubject.seeded(2);
 
   Stream<RouteEvent> get currentRouteStream => _navigatorObserver.currentRoute;
 
@@ -139,6 +139,8 @@ class RoutingService {
   void openScanQrCode() => _push(_scanQrCode);
 
   void openCallsList() => _push(_calls);
+
+  void openShowcase() => _push(_showcase);
 
   void openConnectionSettingPage() => _push(_connectionSettingsPage);
 
@@ -360,10 +362,6 @@ class RoutingService {
     return SafeArea(
       child: Row(
         children: [
-          if (showNavigationRailInsteadOfBar(context)) ...[
-            _buildNavigationRail(context),
-            const VerticalDivider()
-          ],
           if (isLarge(context)) ...[
             SizedBox(
               width: NAVIGATION_PANEL_SIZE,
@@ -407,67 +405,6 @@ class RoutingService {
         openMemberSelection(isChannel: true);
         break;
     }
-  }
-
-  Widget _buildNavigationRail(BuildContext context) {
-    final theme = Theme.of(context);
-    final authRepo = GetIt.I.get<AuthRepo>();
-    return StreamBuilder<int>(
-      stream: _navigationBarIndex,
-      builder: (context, snapshot) {
-        return NavigationRail(
-          // groupAlignment: 0,
-          indicatorColor: theme.colorScheme.primary.withOpacity(0.2),
-          selectedIndex: snapshot.data,
-          leading: CircleAvatarWidget(
-            authRepo.currentUserUid,
-            20,
-          ),
-          minWidth: 1,
-          // backgroundColor: theme.colorScheme.surfaceVariant,
-          onDestinationSelected: (index) {
-            _navigationBarIndex.add(index);
-            switch (index) {
-              case 0:
-                popAll();
-                break;
-              case 1:
-                _push(
-                  Material(
-                    key: const Key("show_case"),
-                    child: Directionality(
-                      textDirection: _i18n.defaultTextDirection,
-                      child: const Padding(
-                        padding: EdgeInsets.only(top: 8),
-                        child: ShowcasePage(),
-                      ),
-                    ),
-                  ),
-                );
-                break;
-              case 2:
-                openSettings(popAllBeforePush: true);
-                break;
-            }
-          },
-          labelType: NavigationRailLabelType.all,
-          destinations: [
-            NavigationRailDestination(
-              icon: const Icon(CupertinoIcons.chat_bubble_2),
-              label: Text(_i18n.get("chats")),
-            ),
-            NavigationRailDestination(
-              icon: const Icon(Icons.storefront_outlined),
-              label: Text(_i18n.get("show_case")),
-            ),
-            NavigationRailDestination(
-              icon: const Icon(Icons.settings),
-              label: Text(_i18n.get("settings")),
-            ),
-          ],
-        );
-      },
-    );
   }
 
   Future<void> logout() async {

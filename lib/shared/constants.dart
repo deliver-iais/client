@@ -271,8 +271,6 @@ bool isVeryLargeWidth(double width) => width > VERY_LARGE_BREAKDOWN_SIZE;
 bool isVeryLarge(BuildContext context) =>
     isVeryLargeWidth(MediaQuery.of(context).size.width);
 
-bool showNavigationRailInsteadOfBar(BuildContext context) => isLarge(context);
-
 // Dynamics
 double animationSquareSize(BuildContext context) => isLarge(context)
     ? min(FLUID_MAX_WIDTH * 0.7, FLUID_MAX_HEIGHT * 0.4)

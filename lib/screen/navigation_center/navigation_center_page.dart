@@ -135,7 +135,6 @@ class NavigationCenterState extends State<NavigationCenter>
                   onPressed: () {
                     this.showMenu(
                       context: context,
-                      offset: const Offset(-120, -120),
                       items: [
                         PopupMenuItem<String>(
                           key: const Key("newGroup"),
@@ -173,9 +172,6 @@ class NavigationCenterState extends State<NavigationCenter>
               ),
             ),
           ),
-          bottomNavigationBar: !showNavigationRailInsteadOfBar(context)
-              ? _buildNavigationBar()
-              : null,
           body: RepaintBoundary(
             child: Column(
               children: <Widget>[
@@ -201,24 +197,8 @@ class NavigationCenterState extends State<NavigationCenter>
                     } else {
                       _onNavigationCenterBackPressed = null;
                       return Expanded(
-                        child: StreamBuilder<int>(
-                          stream: _bottomNavigationBarIndex,
-                          builder: (context, snapshot) {
-                            if (snapshot.data == 1) {
-                              return ChatsPage(
-                                scrollController: _scrollController,
-                              );
-                            } else if (snapshot.data == 0) {
-                              return Directionality(
-                                textDirection: _i18n.defaultTextDirection,
-                                child: const ShowcasePage(),
-                              );
-                            } else {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            }
-                          },
+                        child: ChatsPage(
+                          scrollController: _scrollController,
                         ),
                       );
                     }
@@ -537,34 +517,6 @@ class NavigationCenterState extends State<NavigationCenter>
     );
   }
 
-  Widget _buildNavigationBar() {
-    final theme = Theme.of(context);
-    return StreamBuilder<int>(
-      stream: _bottomNavigationBarIndex,
-      builder: (context, snapshot) {
-        return NavigationBar(
-          backgroundColor: theme.colorScheme.surfaceVariant,
-          selectedIndex: _bottomNavigationBarIndex.value,
-          onDestinationSelected: (index) {
-            _bottomNavigationBarIndex.add(index);
-          },
-          surfaceTintColor: theme.colorScheme.onInverseSurface,
-          height: 60,
-          destinations: [
-            NavigationDestination(
-              icon: const Icon(Icons.storefront_outlined),
-              label: _i18n.get("show_case"),
-            ),
-            NavigationDestination(
-              icon: const Icon(CupertinoIcons.chat_bubble_2),
-              label: _i18n.get("chats"),
-            )
-          ],
-        );
-      },
-    );
-  }
-
   PreferredSize _buildAppBar() {
     final theme = Theme.of(context);
     return PreferredSize(
@@ -582,7 +534,7 @@ class NavigationCenterState extends State<NavigationCenter>
         child: AppBar(
           elevation: 0,
           scrolledUnderElevation: 0,
-          leading: showNavigationRailInsteadOfBar(context)
+          leading: !isLarge(context)
               ? null
               : Row(
                   children: [
@@ -645,21 +597,10 @@ class NavigationCenterState extends State<NavigationCenter>
                   ],
                 ),
           titleSpacing: 8.0,
-          title: StreamBuilder<int>(
-            stream: _bottomNavigationBarIndex,
-            builder: (context, snapshot) {
-              if (snapshot.data == 0) {
-                return Text(
-                  _i18n.get("show_case"),
-                  style: theme.textTheme.headline6,
-                );
-              }
-              return Text(
-                _i18n.get("chats"),
-                style: theme.textTheme.headline6,
-                key: ValueKey(randomString(10)),
-              );
-            },
+          title: Text(
+            _i18n.get("chats"),
+            style: theme.textTheme.headline6,
+            key: ValueKey(randomString(10)),
           ),
           actions: [
             if (!isDesktop)
@@ -695,6 +636,29 @@ class NavigationCenterState extends State<NavigationCenter>
               ),
             const SizedBox(
               width: 8,
+            ),
+            DescribedFeatureOverlay(
+              featureId: FEATURE_2,
+              tapTarget: const Icon(Icons.storefront_outlined),
+              backgroundColor: theme.colorScheme.tertiaryContainer,
+              targetColor: theme.colorScheme.tertiary,
+              title: Text(
+                _i18n.get("qr_code_feature_discovery_title"),
+                textDirection: _i18n.defaultTextDirection,
+                style: TextStyle(
+                  color: theme.colorScheme.onTertiaryContainer,
+                ),
+              ),
+              description: FeatureDiscoveryDescriptionWidget(
+                description: _i18n.get("qr_code_feature_discovery_description"),
+                descriptionStyle: TextStyle(
+                  color: theme.colorScheme.onTertiaryContainer,
+                ),
+              ),
+              child: IconButton(
+                onPressed: () => _routingService.openShowcase(),
+                icon: const Icon(Icons.storefront_outlined),
+              ),
             ),
             const SizedBox(
               width: 8,

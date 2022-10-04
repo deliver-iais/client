@@ -1,4 +1,3 @@
-import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart' hide showMenu;
 import 'package:flutter/material.dart' as material show showMenu;
 
@@ -22,33 +21,28 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
   Future<T?> showMenu<T>({
     required BuildContext context,
     required List<PopupMenuEntry<T>> items,
-    Offset offset = Offset.zero,
-    T? initialValue,
-    double elevation = 4,
-    String? semanticLabel,
-    ShapeBorder? shape,
-    Color? color,
-    bool captureInheritedThemes = true,
-    bool useRootNavigator = false,
   }) {
-    final m = MediaQuery.of(context);
+    final screenSize = MediaQuery.of(context).size;
 
-    final position = RelativeRect.fromSize(
-      _tapPosition.translate(offset.dx, offset.dy) & const Size(0, 0),
-      m.size,
+    final overlaySize =
+        Overlay.of(context)!.context.findRenderObject()!.semanticBounds.size;
+
+    final dx = screenSize.width - overlaySize.width;
+    final dy = screenSize.height - overlaySize.height;
+
+    final position = RelativeRect.fromLTRB(
+      _tapPosition.dx - dx,
+      _tapPosition.dy - 5 - dy,
+      overlaySize.width,
+      overlaySize.height,
     );
 
     return material.showMenu<T>(
       context: context,
       position: position,
       items: items,
-      initialValue: initialValue,
-      elevation: elevation,
-      semanticLabel: semanticLabel,
-      shape: shape,
-      color: color,
-      // captureInheritedThemes: captureInheritedThemes,
-      useRootNavigator: useRootNavigator,
+      elevation: 4,
+      color: Theme.of(context).colorScheme.tertiaryContainer
     );
   }
 }
