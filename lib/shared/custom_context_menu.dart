@@ -42,6 +42,11 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
       position: position,
       items: items,
       elevation: 4,
+      shape: OutlineInputBorder(
+        borderSide: BorderSide(
+          color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+        ),
+      ),
     );
   }
 }
