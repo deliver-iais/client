@@ -102,7 +102,6 @@ class ContactsPageState extends State<ContactsPage> {
           ],
         ),
       ),
-      extendBodyBehindAppBar: true,
       body: StreamBuilder<List<Contact>>(
         stream: _allContactsBehavior.stream,
         builder: (context, snapshot) {
