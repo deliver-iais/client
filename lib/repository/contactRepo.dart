@@ -192,7 +192,7 @@ class ContactRepo {
     final p = getPhoneNumber(phone);
 
     if (p == null) {
-      // _logger.e("Not Valid Number  $name ***** $phone");
+      _logger.e("Not Valid Number  $name ***** $phone");
       return null;
     } else {
       return p;
