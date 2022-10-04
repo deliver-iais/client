@@ -10,14 +10,14 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
-class ShowCasePage extends StatefulWidget {
-  const ShowCasePage({Key? key}) : super(key: key);
+class ShowcasePage extends StatefulWidget {
+  const ShowcasePage({Key? key}) : super(key: key);
 
   @override
-  State<ShowCasePage> createState() => _ShowCasePageState();
+  State<ShowcasePage> createState() => _ShowcasePageState();
 }
 
-class _ShowCasePageState extends State<ShowCasePage> {
+class _ShowcasePageState extends State<ShowcasePage> {
   final BehaviorSubject<List<ShowCase>> _showCaseCache = BehaviorSubject.seeded(
     [],
   );

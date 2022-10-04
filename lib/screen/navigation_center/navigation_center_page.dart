@@ -11,6 +11,7 @@ import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
 import 'package:deliver/screen/show_case/pages/show_case_page.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -56,7 +57,8 @@ class NavigationCenter extends StatefulWidget {
   NavigationCenterState createState() => NavigationCenterState();
 }
 
-class NavigationCenterState extends State<NavigationCenter> {
+class NavigationCenterState extends State<NavigationCenter>
+    with CustomPopupMenu {
   static final _routingServices = GetIt.I.get<RoutingService>();
   static final _contactRepo = GetIt.I.get<ContactRepo>();
   static final _i18n = GetIt.I.get<I18N>();
@@ -122,8 +124,58 @@ class NavigationCenterState extends State<NavigationCenter> {
         child: Scaffold(
           backgroundColor: theme.colorScheme.background,
           appBar: _buildAppBar(),
-          bottomNavigationBar:
-              !isLarge(context) && !isDesktop ? _buildNavigationBar() : null,
+          floatingActionButton: Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: MouseRegion(
+              hitTestBehavior: HitTestBehavior.translucent,
+              child: GestureDetector(
+                behavior: HitTestBehavior.translucent,
+                onPanDown: (e) => storePosition(e),
+                child: FloatingActionButton(
+                  onPressed: () {
+                    this.showMenu(
+                      context: context,
+                      offset: const Offset(-120, -120),
+                      items: [
+                        PopupMenuItem<String>(
+                          key: const Key("newGroup"),
+                          value: "newGroup",
+                          child: Row(
+                            children: [
+                              const Icon(CupertinoIcons.group),
+                              const SizedBox(width: 8),
+                              Text(
+                                _i18n.get("newGroup"),
+                                style: theme.primaryTextTheme.bodyText2,
+                              ),
+                            ],
+                          ),
+                        ),
+                        PopupMenuItem<String>(
+                          key: const Key("newChannel"),
+                          value: "newChannel",
+                          child: Row(
+                            children: [
+                              const Icon(CupertinoIcons.news),
+                              const SizedBox(width: 8),
+                              Text(
+                                _i18n.get("newChannel"),
+                                style: theme.primaryTextTheme.bodyText2,
+                              )
+                            ],
+                          ),
+                        )
+                      ],
+                    ).then((value) => selectChatMenu(value ?? ""));
+                  },
+                  child: const Icon(Icons.add),
+                ),
+              ),
+            ),
+          ),
+          bottomNavigationBar: !showNavigationRailInsteadOfBar(context)
+              ? _buildNavigationBar()
+              : null,
           body: RepaintBoundary(
             child: Column(
               children: <Widget>[
@@ -152,16 +204,14 @@ class NavigationCenterState extends State<NavigationCenter> {
                         child: StreamBuilder<int>(
                           stream: _bottomNavigationBarIndex,
                           builder: (context, snapshot) {
-                            if (snapshot.data == 1 ||
-                                isLarge(context) ||
-                                isDesktop) {
+                            if (snapshot.data == 1) {
                               return ChatsPage(
                                 scrollController: _scrollController,
                               );
                             } else if (snapshot.data == 0) {
                               return Directionality(
                                 textDirection: _i18n.defaultTextDirection,
-                                child: const ShowCasePage(),
+                                child: const ShowcasePage(),
                               );
                             } else {
                               return const Center(
@@ -316,71 +366,29 @@ class NavigationCenterState extends State<NavigationCenter> {
     );
   }
 
-  Widget buildMenu(BuildContext context) {
-    final theme = Theme.of(context);
-    return DescribedFeatureOverlay(
-      featureId: FEATURE_1,
-      tapTarget: Icon(CupertinoIcons.plus, color: theme.colorScheme.onSurface),
-      backgroundColor: theme.colorScheme.tertiaryContainer,
-      targetColor: theme.colorScheme.tertiary,
-      title: Text(
-        _i18n.get("create_group_feature_discovery_title"),
-        textDirection: _i18n.defaultTextDirection,
-        style: TextStyle(
-          color: theme.colorScheme.onTertiaryContainer,
-        ),
-      ),
-      description: FeatureDiscoveryDescriptionWidget(
-        description: _i18n.get("create_group_feature_description"),
-        descriptionStyle: TextStyle(
-          color: theme.colorScheme.onTertiaryContainer,
-        ),
-      ),
-      child: IconTheme(
-        data: IconThemeData(
-          size: (PopupMenuTheme.of(context).textStyle?.fontSize ?? 14) + 4,
-          color: PopupMenuTheme.of(context).textStyle?.color,
-        ),
-        child: PopupMenuButton(
-          icon: const Icon(
-            CupertinoIcons.plus_app,
-            key: Key("new_muc"),
-          ),
-          onSelected: selectChatMenu,
-          itemBuilder: (context) => [
-            PopupMenuItem<String>(
-              key: const Key("newGroup"),
-              value: "newGroup",
-              child: Row(
-                children: [
-                  const Icon(CupertinoIcons.group),
-                  const SizedBox(width: 8),
-                  Text(
-                    _i18n.get("newGroup"),
-                    style: theme.primaryTextTheme.bodyText2,
-                  ),
-                ],
-              ),
-            ),
-            PopupMenuItem<String>(
-              key: const Key("newChannel"),
-              value: "newChannel",
-              child: Row(
-                children: [
-                  const Icon(CupertinoIcons.news),
-                  const SizedBox(width: 8),
-                  Text(
-                    _i18n.get("newChannel"),
-                    style: theme.primaryTextTheme.bodyText2,
-                  )
-                ],
-              ),
-            )
-          ],
-        ),
-      ),
-    );
-  }
+  // Widget buildMenu(BuildContext context) {
+  //   final theme = Theme.of(context);
+  //   return DescribedFeatureOverlay(
+  //     featureId: FEATURE_1,
+  //     tapTarget: Icon(CupertinoIcons.plus, color: theme.colorScheme.onSurface),
+  //     backgroundColor: theme.colorScheme.tertiaryContainer,
+  //     targetColor: theme.colorScheme.tertiary,
+  //     title: Text(
+  //       _i18n.get("create_group_feature_discovery_title"),
+  //       textDirection: _i18n.defaultTextDirection,
+  //       style: TextStyle(
+  //         color: theme.colorScheme.onTertiaryContainer,
+  //       ),
+  //     ),
+  //     description: FeatureDiscoveryDescriptionWidget(
+  //       description: _i18n.get("create_group_feature_description"),
+  //       descriptionStyle: TextStyle(
+  //         color: theme.colorScheme.onTertiaryContainer,
+  //       ),
+  //     ),
+  //     child:
+  //   );
+  // }
 
   void selectChatMenu(String key) {
     switch (key) {
@@ -535,7 +543,7 @@ class NavigationCenterState extends State<NavigationCenter> {
       stream: _bottomNavigationBarIndex,
       builder: (context, snapshot) {
         return NavigationBar(
-          backgroundColor: theme.colorScheme.onInverseSurface,
+          backgroundColor: theme.colorScheme.surfaceVariant,
           selectedIndex: _bottomNavigationBarIndex.value,
           onDestinationSelected: (index) {
             _bottomNavigationBarIndex.add(index);
@@ -574,7 +582,7 @@ class NavigationCenterState extends State<NavigationCenter> {
         child: AppBar(
           elevation: 0,
           scrolledUnderElevation: 0,
-          leading: isLarge(context) || isDesktop
+          leading: showNavigationRailInsteadOfBar(context)
               ? null
               : Row(
                   children: [
@@ -688,7 +696,6 @@ class NavigationCenterState extends State<NavigationCenter> {
             const SizedBox(
               width: 8,
             ),
-            buildMenu(context),
             const SizedBox(
               width: 8,
             )

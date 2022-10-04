@@ -109,82 +109,80 @@ class ContactsPageState extends State<ContactsPage> {
           } else {
             return Stack(
               children: [
-                SafeArea(
-                  child: ListView(
-                    children: [
-                      SyncContact.syncingStatusWidget(
-                        context,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24.0,
-                          vertical: 8,
-                        ),
+                ListView(
+                  children: [
+                    SyncContact.syncingStatusWidget(
+                      context,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24.0,
+                        vertical: 8,
                       ),
-                      if (contacts.isNotEmpty)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: FlexibleFixedHeightGridView(
-                            itemCount: contacts.length,
-                            itemBuilder: (context, index) {
-                              final c = contacts[index];
+                    ),
+                    if (contacts.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: FlexibleFixedHeightGridView(
+                          itemCount: contacts.length,
+                          itemBuilder: (context, index) {
+                            final c = contacts[index];
 
-                              return GestureDetector(
-                                onTap: () => c.uid != null
-                                    ? _routingService.openRoom(c.uid!)
-                                    : null,
-                                child: ContactWidget(
-                                  contact: c,
-                                  // isSelected: true,
-                                  circleIcon: CupertinoIcons.qrcode,
-                                  onCircleIcon: () => showQrCode(
-                                    context,
-                                    buildShareUserUrl(
-                                      c.countryCode,
-                                      c.nationalNumber,
-                                      c.firstName!,
-                                      c.lastName!,
-                                    ),
+                            return GestureDetector(
+                              onTap: () => c.uid != null
+                                  ? _routingService.openRoom(c.uid!)
+                                  : null,
+                              child: ContactWidget(
+                                contact: c,
+                                // isSelected: true,
+                                circleIcon: CupertinoIcons.qrcode,
+                                onCircleIcon: () => showQrCode(
+                                  context,
+                                  buildShareUserUrl(
+                                    c.countryCode,
+                                    c.nationalNumber,
+                                    c.firstName!,
+                                    c.lastName!,
                                   ),
                                 ),
-                              );
-                            },
-                          ),
-                        )
-                      else
-                        const EmptyContacts(),
-                      StreamBuilder<List<Contact>>(
-                        stream: _notMessengerContactsBehavior.stream,
-                        builder: (context, snapshot) {
-                          if (snapshot.hasData &&
-                              snapshot.data != null &&
-                              snapshot.data!.isNotEmpty) {
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0,
-                              ),
-                              child: Column(
-                                children: [
-                                  Row(
-                                    children: [
-                                      Text(_i18n.get("invite_contact")),
-                                    ],
-                                  ),
-                                  FlexibleFixedHeightGridView(
-                                    itemCount: snapshot.data!.length,
-                                    itemBuilder: (context, index) {
-                                      return NotMessengerContactWidget(
-                                        contact: snapshot.data![index],
-                                      );
-                                    },
-                                  ),
-                                ],
                               ),
                             );
-                          }
-                          return const SizedBox.shrink();
-                        },
-                      ),
-                    ],
-                  ),
+                          },
+                        ),
+                      )
+                    else
+                      const EmptyContacts(),
+                    StreamBuilder<List<Contact>>(
+                      stream: _notMessengerContactsBehavior.stream,
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData &&
+                            snapshot.data != null &&
+                            snapshot.data!.isNotEmpty) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                            ),
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Text(_i18n.get("invite_contact")),
+                                  ],
+                                ),
+                                FlexibleFixedHeightGridView(
+                                  itemCount: snapshot.data!.length,
+                                  itemBuilder: (context, index) {
+                                    return NotMessengerContactWidget(
+                                      contact: snapshot.data![index],
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  ],
                 ),
                 Align(
                   alignment: Alignment.bottomRight,

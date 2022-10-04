@@ -357,114 +357,114 @@ class RoutingService {
   bool canPop() => _homeNavigatorState.currentState?.canPop() ?? false;
 
   Widget outlet(BuildContext context) {
-    return Row(
-      children: [
-        if (isLarge(context) || isDesktop) ...[
-          _buildNavigationRail(),
-          const VerticalDivider()
-        ],
-        if (isLarge(context)) ...[
-          SizedBox(
-            width: NAVIGATION_PANEL_SIZE,
-            child: _navigationCenter,
-          ),
-          const VerticalDivider()
-        ],
-        Expanded(
-          child: ClipRect(
-            child: Navigator(
-              key: _homeNavigatorState,
-              observers: [HeroController(), _navigatorObserver],
-              onGenerateRoute: (r) => CupertinoPageRoute(
-                settings: r.copyWith(name: "/"),
-                builder: (c) {
-                  try {
-                    if (isLarge(c)) {
+    return SafeArea(
+      child: Row(
+        children: [
+          if (showNavigationRailInsteadOfBar(context)) ...[
+            _buildNavigationRail(context),
+            const VerticalDivider()
+          ],
+          if (isLarge(context)) ...[
+            SizedBox(
+              width: NAVIGATION_PANEL_SIZE,
+              child: _navigationCenter,
+            ),
+            const VerticalDivider()
+          ],
+          Expanded(
+            child: ClipRect(
+              child: Navigator(
+                key: _homeNavigatorState,
+                observers: [HeroController(), _navigatorObserver],
+                onGenerateRoute: (r) => CupertinoPageRoute(
+                  settings: r.copyWith(name: "/"),
+                  builder: (c) {
+                    try {
+                      if (isLarge(c)) {
+                        return _empty;
+                      } else {
+                        return _navigationCenter;
+                      }
+                    } catch (_) {
                       return _empty;
-                    } else {
-                      return _navigationCenter;
                     }
-                  } catch (_) {
-                    return _empty;
-                  }
-                },
+                  },
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget _buildNavigationRail() {
+  void selectChatMenu(String key) {
+    switch (key) {
+      case "newGroup":
+        openMemberSelection(isChannel: false);
+        break;
+      case "newChannel":
+        openMemberSelection(isChannel: true);
+        break;
+    }
+  }
+
+  Widget _buildNavigationRail(BuildContext context) {
+    final theme = Theme.of(context);
     final authRepo = GetIt.I.get<AuthRepo>();
     return StreamBuilder<int>(
       stream: _navigationBarIndex,
       builder: (context, snapshot) {
-        return SafeArea(
-          child: NavigationRail(
-            indicatorColor: Theme.of(context).primaryColor.withOpacity(0.2),
-            selectedIndex: snapshot.data,
-            onDestinationSelected: (index) {
-              _navigationBarIndex.add(index);
-              switch (index) {
-                case 0:
-                  openSettings(popAllBeforePush: true);
-                  break;
-                case 1:
-                  _push(
-                    Material(
-                      key: const Key(
-                        "show_case",
+        return NavigationRail(
+          // groupAlignment: 0,
+          indicatorColor: theme.colorScheme.primary.withOpacity(0.2),
+          selectedIndex: snapshot.data,
+          leading: CircleAvatarWidget(
+            authRepo.currentUserUid,
+            20,
+          ),
+          minWidth: 1,
+          // backgroundColor: theme.colorScheme.surfaceVariant,
+          onDestinationSelected: (index) {
+            _navigationBarIndex.add(index);
+            switch (index) {
+              case 0:
+                popAll();
+                break;
+              case 1:
+                _push(
+                  Material(
+                    key: const Key("show_case"),
+                    child: Directionality(
+                      textDirection: _i18n.defaultTextDirection,
+                      child: const Padding(
+                        padding: EdgeInsets.only(top: 8),
+                        child: ShowcasePage(),
                       ),
-                      child: Directionality(
-                        textDirection: _i18n.defaultTextDirection,
-                        child: const Padding(
-                          padding: EdgeInsets.only(top: 8),
-                          child: ShowCasePage(),
-                        ),
-                      ),
-                    ),
-                  );
-                  break;
-                case 2:
-                  popAll();
-                  break;
-              }
-            },
-            labelType: NavigationRailLabelType.selected,
-            destinations: [
-              NavigationRailDestination(
-                icon: CircleAvatarWidget(
-                  authRepo.currentUserUid,
-                  20,
-                ),
-                label: Text(_i18n.get("settings")),
-                selectedIcon: Container(
-                  decoration: BoxDecoration(
-                      color: Color.alphaBlend(
-                          Theme.of(context).primaryColor.withOpacity(0.3),
-                          Theme.of(context).colorScheme.surface,),
-                      borderRadius: BorderRadius.circular(30),),
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: CircleAvatarWidget(
-                      authRepo.currentUserUid,
-                      20,
                     ),
                   ),
-                ),
-              ),
-              NavigationRailDestination(
-                icon: const Icon(Icons.storefront_outlined),
-                label: Text(_i18n.get("show_case")),
-              ),
-              NavigationRailDestination(
-                icon: const Icon(CupertinoIcons.chat_bubble_2),
-                label: Text(_i18n.get("chats")),
-              ),
-            ],
-          ),
+                );
+                break;
+              case 2:
+                openSettings(popAllBeforePush: true);
+                break;
+            }
+          },
+          labelType: NavigationRailLabelType.all,
+          destinations: [
+            NavigationRailDestination(
+              icon: const Icon(CupertinoIcons.chat_bubble_2),
+              label: Text(_i18n.get("chats")),
+            ),
+            NavigationRailDestination(
+              icon: const Icon(Icons.storefront_outlined),
+              label: Text(_i18n.get("show_case")),
+            ),
+            NavigationRailDestination(
+              icon: const Icon(Icons.settings),
+              label: Text(_i18n.get("settings")),
+            ),
+          ],
         );
       },
     );

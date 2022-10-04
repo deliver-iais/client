@@ -7,14 +7,22 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
   late Offset _tapPosition;
 
   /// Pass this method to an onTapDown parameter to record the tap position.
-  void storePosition(TapDownDetails details) =>
+  // ignore: type_annotate_public_apis
+  void storePosition(details) {
+    if (details is TapDownDetails ||
+        details is DragDownDetails ||
+        details is TapUpDetails) {
+      // ignore: avoid_dynamic_calls
       _tapPosition = details.globalPosition;
+    }
+  }
 
   /// Use this method to show the menu.
   // ignore: avoid_shadowing_type_parameters
   Future<T?> showMenu<T>({
     required BuildContext context,
     required List<PopupMenuEntry<T>> items,
+    Offset offset = Offset.zero,
     T? initialValue,
     double elevation = 4,
     String? semanticLabel,
@@ -23,18 +31,16 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
     bool captureInheritedThemes = true,
     bool useRootNavigator = false,
   }) {
-    final overlay = Overlay.of(context)!.context.findRenderObject();
+    final m = MediaQuery.of(context);
+
+    final position = RelativeRect.fromSize(
+      _tapPosition.translate(offset.dx, offset.dy) & const Size(0, 0),
+      m.size,
+    );
 
     return material.showMenu<T>(
       context: context,
-      position: RelativeRect.fromLTRB(
-        _tapPosition.dx - (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0),
-        _tapPosition.dy - 10,
-        overlay!.semanticBounds.size.width +
-            (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0) -
-            _tapPosition.dx,
-        overlay.semanticBounds.size.height + _tapPosition.dy,
-      ),
+      position: position,
       items: items,
       initialValue: initialValue,
       elevation: elevation,
