@@ -69,7 +69,8 @@ class NavigationCenterState extends State<NavigationCenter>
 
   final ScrollController _scrollController = ScrollController();
   final BehaviorSubject<String> _searchMode = BehaviorSubject.seeded("");
-  final TextEditingController _controller = TextEditingController();
+  final _searchModeFocusNode = FocusNode(canRequestFocus: false);
+  final TextEditingController _searchBoxController = TextEditingController();
   final BehaviorSubject<String> _queryTermDebouncedSubject =
       BehaviorSubject<String>.seeded("");
   void Function()? _onNavigationCenterBackPressed;
@@ -103,7 +104,7 @@ class NavigationCenterState extends State<NavigationCenter>
 
   @override
   void dispose() {
-    _controller.dispose();
+    _searchBoxController.dispose();
     _scrollController.dispose();
     _searchMode.close();
     _queryTermDebouncedSubject.close();
@@ -179,7 +180,8 @@ class NavigationCenterState extends State<NavigationCenter>
                   child: SearchBox(
                     onChange: _queryTermDebouncedSubject.add,
                     onCancel: () => _queryTermDebouncedSubject.add(""),
-                    controller: _controller,
+                    controller: _searchBoxController,
+                    focusNode: _searchModeFocusNode,
                   ),
                 ),
                 if (!isLarge(context)) const AudioPlayerAppBar(),
@@ -189,7 +191,8 @@ class NavigationCenterState extends State<NavigationCenter>
                     if (s.hasData && s.data!.isNotEmpty) {
                       _onNavigationCenterBackPressed = () {
                         _queryTermDebouncedSubject.add("");
-                        _controller.clear();
+                        _searchBoxController.clear();
+                        _searchModeFocusNode.unfocus();
                       };
                       return searchResult(s.data!);
                     } else {
@@ -400,14 +403,14 @@ class NavigationCenterState extends State<NavigationCenter>
 
           return ListView(
             children: [
-              if (global.isNotEmpty) buildTitle(_i18n.get("global_search")),
-              if (global.isNotEmpty) ...searchResultWidget(global),
-              if (bots.isNotEmpty) buildTitle(_i18n.get("bots")),
-              if (bots.isNotEmpty) ...searchResultWidget(bots),
               if (roomAndContacts.isNotEmpty)
                 buildTitle(_i18n.get("local_search")),
               if (roomAndContacts.isNotEmpty)
                 ...searchResultWidget(roomAndContacts),
+              if (bots.isNotEmpty) buildTitle(_i18n.get("bots")),
+              if (bots.isNotEmpty) ...searchResultWidget(bots),
+              if (global.isNotEmpty) buildTitle(_i18n.get("global_search")),
+              if (global.isNotEmpty) ...searchResultWidget(global),
             ],
           );
         },
