@@ -129,6 +129,7 @@ class NavigationCenterState extends State<NavigationCenter>
                 behavior: HitTestBehavior.translucent,
                 onPanDown: (e) => storePosition(e),
                 child: FloatingActionButton(
+                  heroTag: "navigation-center-fab",
                   onPressed: () {
                     this.showMenu(
                       context: context,
