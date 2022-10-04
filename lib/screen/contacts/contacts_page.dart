@@ -53,9 +53,7 @@ class ContactsPageState extends State<ContactsPage> {
           .add(<Contact>[..._messengerContacts, ..._notMessengerContacts]);
     });
 
-    _contactRepo
-        .watchNotMessengerContact()
-        .listen((notMessengerContacts) {
+    _contactRepo.watchNotMessengerContact().listen((notMessengerContacts) {
       if (notMessengerContacts.isNotEmpty) {
         _notMessengerContacts = notMessengerContacts
             .sortedBy(
@@ -116,55 +114,53 @@ class ContactsPageState extends State<ContactsPage> {
           } else {
             return Stack(
               children: [
-                SafeArea(
-                  child: Column(
-                    children: [
-                      SyncContact.syncingStatusWidget(
-                        context,
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24.0,
-                          vertical: 8,
-                        ),
+                Column(
+                  children: [
+                    SyncContact.syncingStatusWidget(
+                      context,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24.0,
+                        vertical: 8,
                       ),
-                      if (_messengerContacts.isEmpty) const EmptyContacts(),
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: FlexibleFixedHeightGridView(
-                            itemCount: contacts.length,
-                            itemBuilder: (context, index) {
-                              final c = contacts[index];
-                              if (c.uid != null) {
-                                return GestureDetector(
-                                  onTap: () => c.uid != null
-                                      ? _routingService.openRoom(c.uid!)
-                                      : null,
-                                  child: ContactWidget(
-                                    contact: c,
-                                    // isSelected: true,
-                                    circleIcon: CupertinoIcons.qrcode,
-                                    onCircleIcon: () => showQrCode(
-                                      context,
-                                      buildShareUserUrl(
-                                        c.countryCode,
-                                        c.nationalNumber,
-                                        c.firstName!,
-                                        c.lastName!,
-                                      ),
+                    ),
+                    if (_messengerContacts.isEmpty) const EmptyContacts(),
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                        child: FlexibleFixedHeightGridView(
+                          itemCount: contacts.length,
+                          itemBuilder: (context, index) {
+                            final c = contacts[index];
+                            if (c.uid != null) {
+                              return GestureDetector(
+                                onTap: () => c.uid != null
+                                    ? _routingService.openRoom(c.uid!)
+                                    : null,
+                                child: ContactWidget(
+                                  contact: c,
+                                  // isSelected: true,
+                                  circleIcon: CupertinoIcons.qrcode,
+                                  onCircleIcon: () => showQrCode(
+                                    context,
+                                    buildShareUserUrl(
+                                      c.countryCode,
+                                      c.nationalNumber,
+                                      c.firstName!,
+                                      c.lastName!,
                                     ),
                                   ),
-                                );
-                              } else {
-                                return NotMessengerContactWidget(
-                                  contact: snapshot.data![index],
-                                );
-                              }
-                            },
-                          ),
+                                ),
+                              );
+                            } else {
+                              return NotMessengerContactWidget(
+                                contact: snapshot.data![index],
+                              );
+                            }
+                          },
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
                 Align(
                   alignment: Alignment.bottomRight,
