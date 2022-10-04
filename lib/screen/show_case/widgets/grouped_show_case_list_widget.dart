@@ -36,7 +36,7 @@ class GroupedShowCaseListWidget extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
+              padding:  EdgeInsets.symmetric(horizontal: 15,vertical:needArrowIcon? 0:8 ),
               child: Row(
                 children: [
                   if (isAdvertisement) ...[
