@@ -108,19 +108,23 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
                 textDirection: _i18n.defaultTextDirection,
                 child: SingleChildScrollView(
                   child: AlertDialog(
+                    contentPadding: const EdgeInsets.all(0),
+                    actionsPadding: const EdgeInsets.all(0),
                     content: Container(
                       constraints: BoxConstraints(
                         maxHeight: MediaQuery.of(context).size.height - 300,
                       ),
-                      width: 300,
+                      width: 330,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          buildFilesListWidget(),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          buildCaptionInputBox(),
+                          if (widget.editableMessage == null) ...[
+                            _buildSelectedFileTitle(),
+                            const Divider()
+                          ],
+                          _buildFilesListWidget(),
+                          const Divider(),
+                          _buildCaptionInputBox(),
                         ],
                       ),
                     ),
@@ -146,12 +150,17 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
             extension.contains("jpeg")));
   }
 
-  Widget buildActionButtonsRow() {
-    final theme = Theme.of(context);
-    return Row(
-      children: [
-        if (widget.editableMessage == null)
-          TextButton(
+  Widget _buildSelectedFileTitle() {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            widget.files!.length.toString() + _i18n.get("files_selected"),
+            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 18),
+          ),
+          IconButton(
             onPressed: () async {
               final res = await getFile(allowMultiple: true);
               if (res != null) {
@@ -172,90 +181,94 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
                 setState(() {});
               }
             },
-            child: Text(
-              _i18n.get("add"),
-              style: TextStyle(
-                fontSize: 16,
-                color: theme.primaryColor,
-              ),
-            ),
+            icon: const Icon(Icons.add),
           ),
-        const Spacer(),
-        TextButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: Text(
-            _i18n.get("cancel"),
-            style: TextStyle(
-              color: theme.primaryColor,
-              fontSize: 15,
-            ),
-          ),
-        ),
-        TextButton(
-          onPressed: () {
-            send();
-          },
-          child: Text(
-            _i18n.get("send"),
-            style: TextStyle(
-              color: theme.primaryColor,
-              fontSize: 16,
-            ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
-  Widget buildFilesListWidget() {
+  Widget buildActionButtonsRow() {
+    final theme = Theme.of(context);
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      child: Row(
+        children: [
+          const Spacer(),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            child: Text(
+              _i18n.get("cancel"),
+              style: TextStyle(
+                color: theme.primaryColor,
+                fontSize: 15,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              send();
+            },
+            child: Text(
+              _i18n.get("send"),
+              style: TextStyle(
+                color: theme.primaryColor,
+                fontSize: 16,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFilesListWidget() {
     return Flexible(
-      child: ListView.separated(
+      child: ListView.builder(
         shrinkWrap: true,
         itemCount: widget.editableMessage != null ? 1 : widget.files!.length,
         itemBuilder: (c, index) {
-          if (isImageFile(
-            index,
-          )) {
-            return GestureDetector(
-              onTap: () => openEditImagePage(index),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: tertiaryBorder,
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                ),
-                child: Stack(
-                  children: [
-                    Center(child: buildImageFileUi(index)),
-                    Positioned(
-                      right: 3,
-                      top: 3,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: tertiaryBorder,
-                          color: Theme.of(context)
-                              .colorScheme
-                              .secondaryContainer
-                              .withOpacity(0.9),
-                        ),
-                        child: Center(
-                          child: buildManageFilesRow(index: index),
-                        ),
+          return Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: (isImageFile(
+              index,
+            ))
+                ? GestureDetector(
+                    onTap: () => openEditImagePage(index),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: tertiaryBorder,
+                        color: Theme.of(context)
+                            .colorScheme
+                            .primary
+                            .withOpacity(0.3),
+                      ),
+                      child: Stack(
+                        children: [
+                          Center(child: buildImageFileUi(index)),
+                          Positioned(
+                            right: 3,
+                            top: 3,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: tertiaryBorder,
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .secondaryContainer
+                                    .withOpacity(0.9),
+                              ),
+                              child: Center(
+                                child: buildManageFilesRow(index: index),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ],
-                ),
-              ),
-            );
-          } else {
-            return buildSimpleFileUi(index);
-          }
-        },
-        separatorBuilder: (context, index) {
-          return const SizedBox(
-            height: 20,
-            child: Center(child: Divider()),
+                  )
+                : buildSimpleFileUi(index),
           );
         },
       ),
@@ -291,7 +304,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
     }
   }
 
-  Widget buildCaptionInputBox() {
+  Widget _buildCaptionInputBox() {
     return RawKeyboardListener(
       focusNode: _captionFocusNode,
       onKey: (event) {
@@ -300,6 +313,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
         }
       },
       child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
         constraints: const BoxConstraints(maxWidth: 350),
         child: AutoDirectionTextForm(
           controller: _editingController,
