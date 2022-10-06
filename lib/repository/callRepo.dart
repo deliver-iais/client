@@ -1343,6 +1343,7 @@ class CallRepo {
     try {
       if (isAndroid) {
         _isNotificationSelected = false;
+        modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(null);
         _receivePort?.close();
         await _callService.stopForegroundTask();
         if (!_isCaller) {
@@ -1380,6 +1381,7 @@ class CallRepo {
       //reset variable valeus
       _offerSdp = "";
       _answerSdp = "";
+      _isAccepted = false;
       _isSharing = false;
       _isMicMuted = false;
       _isSpeaker = false;
