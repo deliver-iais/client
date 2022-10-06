@@ -1394,7 +1394,16 @@ class RoomPageState extends State<RoomPage> {
     final message = tuple.item2!;
 
     if (message.isHidden) {
-      return const SizedBox.shrink();
+      if (index == room.firstMessageId) {
+        return Column(
+          children: [
+            const SizedBox(height: APPBAR_HEIGHT),
+            ChatTime(currentMessageTime: date(message.time))
+          ],
+        );
+      } else {
+        return const SizedBox.shrink();
+      }
     }
 
     final msgBox = BuildMessageBox(
