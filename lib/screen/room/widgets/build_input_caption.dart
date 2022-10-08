@@ -29,9 +29,15 @@ class BuildInputCaption extends StatelessWidget {
         Align(
           alignment: Alignment.bottomLeft,
           child: Container(
-            color: needDarkBackground
-                ? Colors.black.withAlpha(120)
-                : theme.colorScheme.background,
+            decoration: BoxDecoration(
+              border: Border(
+                  top: BorderSide(
+                color: theme.colorScheme.outline.withOpacity(0.1),
+              ),),
+              color: needDarkBackground
+                  ? Colors.black.withAlpha(120)
+                  : theme.colorScheme.background,
+            ),
             child: AutoDirectionTextField(
               decoration: InputDecoration(
                 hintText: i18n.get("add_caption"),
