@@ -1394,6 +1394,7 @@ class RoomPageState extends State<RoomPage> {
     final message = tuple.item2!;
 
     if (message.isHidden) {
+      // TODO(bitbeter): یک باگی وجود داره که اگر زمان پیام هیدن اولی با پیام اولی نمایش داده شده روزشون فرق کنه این تیکه کد باگ خواهد داشت و باید درست بشه
       if (index == room.firstMessageId) {
         return Column(
           children: [
