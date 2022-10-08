@@ -35,7 +35,7 @@ class SearchBoxAndListWidget extends StatelessWidget {
             return Expanded(
               child: FutureBuilder<List<Uid>>(
                 future: query.data != null && query.data!.isNotEmpty
-                    ? roomRepo.searchInRoomAndContacts(query.data!)
+                    ? roomRepo.searchInRooms(query.data!)
                     : roomRepo.getAllRooms(),
                 builder: (context, snapshot) {
                   if (snapshot.hasData &&

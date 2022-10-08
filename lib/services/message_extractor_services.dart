@@ -54,6 +54,9 @@ class MessageExtractorServices {
       case MessageType.TRANSACTION:
         text = msg.json.toTransaction().description;
         break;
+      case MessageType.PAYMENT_INFORMATION:
+        text = msg.json.toPaymentInformation().payment.description;
+        break;
       case MessageType.SHARE_PRIVATE_DATA_REQUEST:
       case MessageType.SHARE_PRIVATE_DATA_ACCEPTANCE:
       case MessageType.CALL:
@@ -182,6 +185,10 @@ class MessageExtractorServices {
         typeDetails = _i18n.get("payment_transaction");
         text = msg.transaction.description;
         break;
+      case message_pb.Message_Type.paymentInformation:
+        typeDetails = _i18n.get("payment_information");
+        text = msg.transaction.description;
+        break;
       case message_pb.Message_Type.persistEvent:
         typeDetails = await getPersistentEventText(
           msg.persistEvent,
@@ -193,7 +200,7 @@ class MessageExtractorServices {
         break;
       case message_pb.Message_Type.callEvent:
         ignoreNotification = true;
-        final callStatus = msg.callEvent.newStatus;
+        final callStatus = msg.callEvent.callStatus;
         final time = msg.callEvent.callDuration.toInt();
         final fromCurrentUser = _authRepo.isCurrentUserUid(msg.from);
         typeDetails = getCallText(
@@ -454,6 +461,9 @@ class MessageExtractorServices {
         break;
       case MessageType.TRANSACTION:
         msg.transaction = message.json.toTransaction();
+        break;
+      case MessageType.PAYMENT_INFORMATION:
+        msg.paymentInformation = message.json.toPaymentInformation();
         break;
       case MessageType.NOT_SET:
         break;

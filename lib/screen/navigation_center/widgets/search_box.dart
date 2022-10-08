@@ -10,12 +10,14 @@ class SearchBox extends StatefulWidget {
   final void Function(String) onChange;
   final void Function()? onCancel;
   final TextEditingController? controller;
+  final FocusNode? focusNode;
 
   const SearchBox({
     super.key,
     required this.onChange,
     this.onCancel,
     this.controller,
+    this.focusNode,
   });
 
   @override
@@ -25,7 +27,7 @@ class SearchBox extends StatefulWidget {
 class SearchBoxState extends State<SearchBox> {
   final TextEditingController _localController = TextEditingController();
   final BehaviorSubject<bool> _hasText = BehaviorSubject.seeded(false);
-  final _focusNode = FocusNode(canRequestFocus: false);
+  final _localFocusNode = FocusNode(canRequestFocus: false);
   static final _i18n = GetIt.I.get<I18N>();
 
   void _clearTextEditingController() {
@@ -40,6 +42,18 @@ class SearchBoxState extends State<SearchBox> {
   }
 
   @override
+  void initState() {
+    (widget.controller ?? _localController).addListener(() {
+      if ((widget.controller ?? _localController).text.isNotEmpty) {
+        _hasText.add(true);
+      } else {
+        _hasText.add(false);
+      }
+    });
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -49,14 +63,9 @@ class SearchBoxState extends State<SearchBox> {
           height: 40,
           child: AutoDirectionTextField(
             style: const TextStyle(fontSize: 16),
-            focusNode: _focusNode,
+            focusNode: widget.focusNode ?? _localFocusNode,
             controller: widget.controller ?? _localController,
             onChanged: (str) {
-              if (str.isNotEmpty) {
-                _hasText.add(true);
-              } else {
-                _hasText.add(false);
-              }
               widget.onChange(str);
             },
             decoration: InputDecoration(
@@ -81,7 +90,7 @@ class SearchBoxState extends State<SearchBox> {
                       onPressed: () {
                         _hasText.add(false);
                         _clearTextEditingController();
-                        _focusNode.unfocus();
+                        (widget.focusNode ?? _localFocusNode).unfocus();
                         widget.onCancel?.call();
                       },
                     );

@@ -138,6 +138,7 @@ class CallRepo {
   BehaviorSubject<CallTimer> callTimer =
       BehaviorSubject.seeded(CallTimer(0, 0, 0));
   bool _isNotificationSelected = false;
+  bool _isAccepted = false;
   Timer? timer;
 
   ReceivePort? _receivePort;
@@ -146,6 +147,7 @@ class CallRepo {
     _callService.watchCurrentCall().listen((call) {
       if (call != null && !isDesktop) {
         _isNotificationSelected = call.notificationSelected;
+        _isAccepted = call.isAccepted;
         _logger.i(
           "read call from DB notificationSelected : ${call.notificationSelected}",
         );
@@ -154,11 +156,10 @@ class CallRepo {
           _callService.callEvents.add(
             CallEvents.callEvent(
               call_pb.CallEvent()
-                ..newStatus =
-                    _callService.findCallEventStatusDB(call.callEvent.newStatus)
-                ..id = call.callEvent.id
+                ..callStatus = _callService
+                    .findCallEventStatusDB(call.callEvent.callStatus)
+                ..callId = call.callEvent.id
                 ..callDuration = Int64(call.callEvent.callDuration)
-                ..endOfCallTime = Int64(call.callEvent.endOfCallTime)
                 ..callType = _callService
                     .findProtoCallEventType(call.callEvent.callType),
               roomUid: call.from.asUid(),
@@ -180,9 +181,9 @@ class CallRepo {
           break;
         case CallTypes.Event:
           final callEvent = event.callEvent;
-          switch (callEvent!.newStatus) {
+          switch (callEvent!.callStatus) {
             case CallEvent_CallStatus.IS_RINGING:
-              if (_callService.getCallId == callEvent.id) {
+              if (_callService.getCallId == callEvent.callId) {
                 callingStatus.add(CallStatus.IS_RINGING);
                 if (_isCaller) {
                   _audioService.playBeepSound();
@@ -192,12 +193,9 @@ class CallRepo {
             case CallEvent_CallStatus.CREATED:
               if (_callService.getUserCallState == UserCallState.NOCALL &&
                   (event.time - clock.now().millisecondsSinceEpoch) < 60000) {
-                // final callStatus =
-                //     await FlutterForegroundTask.getData(key: "callStatus");
                 _callService
                   ..setUserCallState = UserCallState.IN_USER_CALL
-                  ..setCallOwner = callEvent.memberOrCallOwnerPvp
-                  ..setCallId = callEvent.id;
+                  ..setCallId = callEvent.callId;
 
                 if (callEvent.callType == CallEvent_CallType.VIDEO) {
                   _logger.i("VideoCall");
@@ -205,59 +203,58 @@ class CallRepo {
                 } else {
                   _isVideo = false;
                 }
-                // if (callStatus != null && callStatus == "Accepted") {
-                //   modifyRoutingByNotificationAcceptCallInBackgroundInAndroid
-                //       .add(event.roomUid!.asString());
-                // } else {
-                //   _incomingCall(
-                //     event.roomUid!,
-                //     false,
-                //     _callService.writeCallEventsToJson(event),
-                //   );
-                // }
-                if (!isWindows) {
-                  //get call Info and Save on DB
-                  final currentCallEvent = call_event.CallEvent(
-                    callDuration: callEvent.callDuration.toInt(),
-                    endOfCallTime: callEvent.endOfCallTime.toInt(),
-                    callType: _callService.findCallEventType(
-                      callEvent.callType,
+
+                if (_isAccepted) {
+                  modifyRoutingByCallNotificationActionInBackgroundInAndroid
+                      .add(
+                    CallNotificationActionInBackground(
+                      roomId: event.roomUid!.asString(),
+                      isCallAccepted: true,
                     ),
-                    newStatus: _callService
-                        .findCallEventStatusProto(callEvent.newStatus),
-                    id: callEvent.id,
                   );
-                  final callInfo = current_call_info.CurrentCallInfo(
-                    callEvent: currentCallEvent,
-                    from: event.roomUid!.asString(),
-                    to: _authRepo.currentUserUid.asString(),
-                    expireTime: event.time + 60000,
-                    notificationSelected: _isNotificationSelected,
-                  );
+                } else {
+                  if (!isWindows) {
+                    //get call Info and Save on DB
+                    final currentCallEvent = call_event.CallEvent(
+                      callDuration: callEvent.callDuration.toInt(),
+                      callType: _callService.findCallEventType(
+                        callEvent.callType,
+                      ),
+                      callStatus: _callService
+                          .findCallEventStatusProto(callEvent.callStatus),
+                      id: callEvent.callId,
+                    );
+                    final callInfo = current_call_info.CurrentCallInfo(
+                      callEvent: currentCallEvent,
+                      from: event.roomUid!.asString(),
+                      to: _authRepo.currentUserUid.asString(),
+                      expireTime: event.time + 60000,
+                      notificationSelected: _isNotificationSelected,
+                      isAccepted: _isAccepted,
+                    );
 
-                  _callService.saveCallOnDb(callInfo);
-                  _logger.i("save call on db!");
+                    _callService.saveCallOnDb(callInfo);
+                    _logger.i("save call on db!");
+                  }
+
+                  _incomingCall(
+                    event.roomUid!,
+                    false,
+                    _callService.writeCallEventsToJson(event),
+                  );
                 }
-
-                _incomingCall(
-                  event.roomUid!,
-                  false,
-                  _callService.writeCallEventsToJson(event),
-                );
               } else if (event.roomUid == _roomUid) {
                 _incomingCall(
                   event.roomUid!,
                   true,
                   _callService.writeCallEventsToJson(event),
                 );
-              } else if (callEvent.id != _callService.getCallId) {
-                final endOfCallDuration = clock.now().millisecondsSinceEpoch;
+              } else if (callEvent.callId != _callService.getCallId) {
                 _messageRepo.sendCallMessage(
                   CallEvent_CallStatus.BUSY,
                   event.roomUid!,
-                  callEvent.id,
+                  callEvent.callId,
                   0,
-                  endOfCallDuration,
                   _isVideo
                       ? CallEvent_CallType.VIDEO
                       : CallEvent_CallType.AUDIO,
@@ -265,47 +262,19 @@ class CallRepo {
               }
               break;
             case CallEvent_CallStatus.BUSY:
-              if (_callService.getCallId == callEvent.id) {
+              if (_callService.getCallId == callEvent.callId) {
                 receivedBusyCall();
               }
               break;
             case CallEvent_CallStatus.DECLINED:
-              if (_callService.getCallId == callEvent.id) {
+              if (_callService.getCallId == callEvent.callId) {
                 receivedDeclinedCall();
               }
               break;
             case CallEvent_CallStatus.ENDED:
-              if (_callService.getCallId == callEvent.id) {
+              if (_callService.getCallId == callEvent.callId) {
                 receivedEndCall(callEvent.callDuration.toInt());
               }
-              break;
-            case CallEvent_CallStatus.JOINED:
-              modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
-                CallNotificationActionInBackground(
-                  roomId: event.roomUid!.asString(),
-                  isCallAccepted: true,
-                ),
-              );
-              if (_callService.getUserCallState == UserCallState.NOCALL) {
-                _callService
-                  ..setUserCallState = UserCallState.IN_USER_CALL
-                  ..setCallOwner = callEvent.memberOrCallOwnerPvp
-                  ..setCallId = callEvent.id;
-
-                if (callEvent.callType == CallEvent_CallType.VIDEO) {
-                  _logger.i("VideoCall");
-                  _isVideo = true;
-                } else {
-                  _isVideo = false;
-                }
-              }
-              break;
-            case CallEvent_CallStatus.INVITE:
-            case CallEvent_CallStatus.KICK:
-            case CallEvent_CallStatus.LEFT:
-              _logger.w(
-                "this case only for group call and it's a bug if happened on PvP call",
-              );
               break;
           }
           break;
@@ -978,13 +947,11 @@ class CallRepo {
       "(isDuplicated:) $isDuplicated , (notificationSelected) : $_isNotificationSelected",
     );
     callingStatus.add(CallStatus.CREATED);
-    final endOfCallDuration = clock.now().millisecondsSinceEpoch;
     await _messageRepo.sendCallMessage(
       CallEvent_CallStatus.IS_RINGING,
       _roomUid!,
       _callService.getCallId,
       0,
-      endOfCallDuration,
       _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
     );
     if (isAndroid) {
@@ -1043,14 +1010,11 @@ class CallRepo {
 
   void _sendStartCallEvent() {
     // TODO(AmirHossein): handle recivied Created on fetchMessage when User offline then go online
-    final endOfCallDuration = clock.now().millisecondsSinceEpoch;
-    _messageRepo.sendCallMessageWithMemberOrCallOwnerPvp(
+    _messageRepo.sendCallMessage(
       CallEvent_CallStatus.CREATED,
       _roomUid!,
       _callService.getCallId,
       0,
-      endOfCallDuration,
-      _authRepo.currentUserUid,
       _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
     );
   }
@@ -1110,13 +1074,11 @@ class CallRepo {
       }
       _logger.i("declineCall");
       callingStatus.add(CallStatus.DECLINED);
-      final endOfCallDuration = clock.now().millisecondsSinceEpoch;
       await _messageRepo.sendCallMessage(
         CallEvent_CallStatus.DECLINED,
         _roomUid!,
         _callService.getCallId,
         0,
-        endOfCallDuration,
         _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
       );
       await _dispose();
@@ -1182,13 +1144,11 @@ class CallRepo {
       if (_isCaller) {
         _callDuration = calculateCallEndTime();
         _logger.i("Call Duration on Caller(1): $_callDuration");
-        final endOfCallDuration = clock.now().millisecondsSinceEpoch;
         await _messageRepo.sendCallMessage(
           CallEvent_CallStatus.ENDED,
           _roomUid!,
           _callService.getCallId,
           _callDuration!,
-          endOfCallDuration,
           _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
         );
       } else {
@@ -1383,6 +1343,7 @@ class CallRepo {
     try {
       if (isAndroid) {
         _isNotificationSelected = false;
+        modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(null);
         _receivePort?.close();
         await _callService.stopForegroundTask();
         if (!_isCaller) {
@@ -1420,6 +1381,7 @@ class CallRepo {
       //reset variable valeus
       _offerSdp = "";
       _answerSdp = "";
+      _isAccepted = false;
       _isSharing = false;
       _isMicMuted = false;
       _isSpeaker = false;
@@ -1545,23 +1507,23 @@ class CallRepo {
             ..limit = 200
             ..pointer = Int64(clock.now().millisecondsSinceEpoch)
             ..fetchingDirectionType =
-                FetchMediasReq_FetchingDirectionType.BACKWARD_FETCH
+                FetchUserCallsReq_FetchingDirectionType.BACKWARD_FETCH
             ..month = date.month - 1
             ..year = date.year,
         );
         for (final call in callLists.cellEvents) {
           final callEvent = call_event.CallEvent(
             callDuration: call.callEvent.callDuration.toInt(),
-            endOfCallTime: call.callEvent.endOfCallTime.toInt(),
             callType: _callService.findCallEventType(call.callEvent.callType),
-            newStatus:
-                _callService.findCallEventStatusProto(call.callEvent.newStatus),
-            id: call.callEvent.id,
+            callStatus: _callService
+                .findCallEventStatusProto(call.callEvent.callStatus),
+            id: call.callEvent.callId,
           );
           final callList = call_info.CallInfo(
             callEvent: callEvent,
             from: call.from.asString(),
             to: call.to.asString(),
+            time: call.time.toInt(),
           );
           await _callListDao.save(callList);
         }

@@ -32,6 +32,8 @@ import 'package:deliver/screen/settings/pages/security_settings.dart';
 import 'package:deliver/screen/settings/pages/theme_settings_page.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/share_input_file/share_input_file.dart';
+import 'package:deliver/screen/show_case/pages/all_grouped_rooms_grid_page.dart';
+import 'package:deliver/screen/show_case/pages/show_case_page.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
@@ -39,6 +41,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/scan_qr_code.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
+import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -76,6 +79,9 @@ const _newContact = NewContact(key: ValueKey("/new-contact"));
 const _scanQrCode = ScanQrCode(key: ValueKey("/scan-qr-code"));
 
 const _calls = CallListPage(key: ValueKey("/calls"));
+
+const _showcase = ShowcasePage(key: ValueKey("/showcase"));
+
 const _connectionSettingsPage = ConnectionSettingPage(
   key: ValueKey("/connection_setting_page"),
 );
@@ -133,6 +139,8 @@ class RoutingService {
   void openScanQrCode() => _push(_scanQrCode);
 
   void openCallsList() => _push(_calls);
+
+  void openShowcase() => _push(_showcase);
 
   void openConnectionSettingPage() => _push(_connectionSettingsPage);
 
@@ -266,6 +274,16 @@ class RoutingService {
         ),
       );
 
+  void openAllGroupedRoomsGridPage({
+    required GroupedRooms groupedRooms,
+  }) =>
+      _push(
+        AllGroupedRoomsGridPage(
+          key: const ValueKey("/all-grouped-rooms-grid-page"),
+          groupedRooms: groupedRooms,
+        ),
+      );
+
   void openGroupInfoDeterminationPage({required bool isChannel}) => _push(
         MucInfoDeterminationPage(
           key: const ValueKey("/group-info-determination-page"),
@@ -329,7 +347,7 @@ class RoutingService {
       _homeNavigatorState.currentState?.pop();
     }
   }
-
+  bool  preMaybePopScopeValue ()=>_preMaybePopScope.maybePop();
   void maybePop() {
     if (_preMaybePopScope.maybePop()) {
       if (canPop()) {
@@ -341,38 +359,52 @@ class RoutingService {
   bool canPop() => _homeNavigatorState.currentState?.canPop() ?? false;
 
   Widget outlet(BuildContext context) {
-    return Row(
-      children: [
-        if (isLarge(context))
-          SizedBox(
-            width: NAVIGATION_PANEL_SIZE,
-            child: _navigationCenter,
-          ),
-        if (isLarge(context)) const VerticalDivider(),
-        Expanded(
-          child: ClipRect(
-            child: Navigator(
-              key: _homeNavigatorState,
-              observers: [HeroController(), _navigatorObserver],
-              onGenerateRoute: (r) => CupertinoPageRoute(
-                settings: r.copyWith(name: "/"),
-                builder: (c) {
-                  try {
-                    if (isLarge(c)) {
+    return SafeArea(
+      child: Row(
+        children: [
+          if (isLarge(context)) ...[
+            SizedBox(
+              width: NAVIGATION_PANEL_SIZE,
+              child: _navigationCenter,
+            ),
+            const VerticalDivider()
+          ],
+          Expanded(
+            child: ClipRect(
+              child: Navigator(
+                key: _homeNavigatorState,
+                observers: [HeroController(), _navigatorObserver],
+                onGenerateRoute: (r) => CupertinoPageRoute(
+                  settings: r.copyWith(name: "/"),
+                  builder: (c) {
+                    try {
+                      if (isLarge(c)) {
+                        return _empty;
+                      } else {
+                        return _navigationCenter;
+                      }
+                    } catch (_) {
                       return _empty;
-                    } else {
-                      return _navigationCenter;
                     }
-                  } catch (_) {
-                    return _empty;
-                  }
-                },
+                  },
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
+  }
+
+  void selectChatMenu(String key) {
+    switch (key) {
+      case "newGroup":
+        openMemberSelection(isChannel: false);
+        break;
+      case "newChannel":
+        openMemberSelection(isChannel: true);
+        break;
+    }
   }
 
   Future<void> logout() async {
@@ -397,7 +429,10 @@ class RoutingService {
     }
   }
 
-  Widget backButtonLeading({Color? color}) => BackButton(onPressed: pop,color: color,);
+  Widget backButtonLeading({Color? color}) => BackButton(
+        onPressed: pop,
+        color: color,
+      );
 }
 
 class RouteEvent {
@@ -458,20 +493,20 @@ class Empty extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-        body: Center(
-          child: Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.onPrimary,
-              borderRadius: secondaryBorder,
-            ),
-            padding:
-                const EdgeInsets.only(left: 10, right: 10, top: 6, bottom: 4),
-            child: Text(
-              _i18n.get("please_select_a_chat_to_start_messaging"),
-              style: theme.primaryTextTheme.bodyMedium,
-            ),
+      body: Center(
+        child: Container(
+          decoration: BoxDecoration(
+            color: theme.colorScheme.onPrimary,
+            borderRadius: secondaryBorder,
+          ),
+          padding:
+              const EdgeInsets.only(left: 10, right: 10, top: 6, bottom: 4),
+          child: Text(
+            _i18n.get("please_select_a_chat_to_start_messaging"),
+            style: theme.primaryTextTheme.bodyMedium,
           ),
         ),
+      ),
     );
   }
 }

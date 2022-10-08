@@ -198,7 +198,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           onDoubleTap: !isDesktop || widget.selectMultiMessageSubject.value
               ? null
               : widget.onReply,
-          onLongPress: ()async {
+          onLongPress: () async {
             await selectMessage();
           },
           onTapDown: storePosition,
@@ -218,8 +218,14 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     );
   }
 
-  Future<void> selectMessage()async {
-    if (widget.message.id != null && (await  _messageRepo.getPendingEditedMessage(widget.message.roomUid, widget.message.id))?.msg==null) {
+  Future<void> selectMessage() async {
+    if (widget.message.id != null &&
+        (await _messageRepo.getPendingEditedMessage(
+              widget.message.roomUid,
+              widget.message.id,
+            ))
+                ?.msg ==
+            null) {
       if (!widget.selectMultiMessageSubject.value) {
         widget.selectMultiMessageSubject.add(true);
       }
@@ -283,7 +289,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onDoubleTap: !isDesktop || widget.selectMultiMessageSubject.value
           ? null
           : widget.onReply,
-      onLongPress: () async{
+      onLongPress: () async {
         await selectMessage();
       },
       onTapDown: storePosition,
@@ -315,30 +321,33 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: <Widget>[
-        if (shouldBeAnimated()) StreamBuilder<bool>(
-          stream: animatedWidget,
-          initialData: shouldBeAnimated(),
-          builder: (context, snapshot) {
-            final isAnimated = snapshot.data ?? false;
-            return AnimatedContainer(
-              duration: SLOW_ANIMATION_DURATION,
-              // transform: Matrix4.rotationX(turns.value * pi * 2),
-              transform: isAnimated
-                  ? Matrix4.translationValues(
-                      -60,
-                      80,
-                      0,
-                    )
-                  : Matrix4.translationValues(
-                      0,
-                      0,
-                      0,
-                    ),
-              transformAlignment: Alignment.center,
-              child: messageWidget,
-            );
-          },
-        ) else messageWidget,
+        if (shouldBeAnimated())
+          StreamBuilder<bool>(
+            stream: animatedWidget,
+            initialData: shouldBeAnimated(),
+            builder: (context, snapshot) {
+              final isAnimated = snapshot.data ?? false;
+              return AnimatedContainer(
+                duration: SLOW_ANIMATION_DURATION,
+                // transform: Matrix4.rotationX(turns.value * pi * 2),
+                transform: isAnimated
+                    ? Matrix4.translationValues(
+                        -60,
+                        80,
+                        0,
+                      )
+                    : Matrix4.translationValues(
+                        0,
+                        0,
+                        0,
+                      ),
+                transformAlignment: Alignment.center,
+                child: messageWidget,
+              );
+            },
+          )
+        else
+          messageWidget,
         StreamBuilder<List<int>>(
           stream: widget.selectedMessageListIndex,
           builder: (context, snapshot) {
@@ -346,7 +355,9 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
               duration: SUPER_SLOW_ANIMATION_DURATION,
               opacity: widget.selectMultiMessageSubject.value ? 1 : 0,
               child: AnimatedContainer(
-                width: widget.selectMultiMessageSubject.value ? SELECTED_MESSAGE_CHECKBOX_WIDTH : 0,
+                width: widget.selectMultiMessageSubject.value
+                    ? SELECTED_MESSAGE_CHECKBOX_WIDTH
+                    : 0,
                 duration: SUPER_SLOW_ANIMATION_DURATION,
                 child: Checkbox(
                   checkColor: Colors.white,
@@ -510,7 +521,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onReply: widget.onReply,
       onUnPin: widget.onUnPin,
       onSelect: selectMessage,
-
     ).selectOperation(selectedValue);
   }
 
@@ -659,6 +669,7 @@ class OperationOnMessageSelection {
       case MessageType.CALL:
       case MessageType.TABLE:
       case MessageType.TRANSACTION:
+      case MessageType.PAYMENT_INFORMATION:
         break;
     }
   }
