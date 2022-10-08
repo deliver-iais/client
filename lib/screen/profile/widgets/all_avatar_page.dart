@@ -316,7 +316,7 @@ class AllAvatarPageState extends State<AllAvatarPage> {
               _fileRepo.copyFileToPasteboard(_filePath!);
               ToastDisplay.showToast(
                 toastContext: context,
-                toastText: _i18n.get("copied"),
+                toastText: _i18n.get("saved_to_clipboard"),
               );
             },
           ),
