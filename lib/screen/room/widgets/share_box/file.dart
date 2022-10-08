@@ -136,7 +136,7 @@ class ShareBoxFileState extends State<ShareBoxFile> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
-                          "Recent files",
+                          _i18n.get("recent_files"),
                           style: TextStyle(
                             color: theme.primaryColor,
                             fontWeight: FontWeight.w600,
