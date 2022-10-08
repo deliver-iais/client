@@ -49,10 +49,6 @@ class ShareBoxFileState extends State<ShareBoxFile> {
     for (final file in l) {
       if (io.FileSystemEntity.isFileSync(file.path)) {
         files.add(file);
-      } else {
-        if (!file.path.contains('/storage/emulated/0/Android')) {
-          files.addAll(await getRecentFile());
-        }
       }
     }
     files.sort(
