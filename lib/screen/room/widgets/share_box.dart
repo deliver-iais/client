@@ -10,11 +10,11 @@ import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
 import 'package:deliver/screen/room/widgets/share_box/music.dart';
 import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/services/check_permissions_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/attach_location.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
@@ -56,8 +56,6 @@ class ShareBoxState extends State<ShareBox> {
   final CheckPermissionsService _checkPermissionsService =
       GetIt.I.get<CheckPermissionsService>();
   final BehaviorSubject<bool> _insertCaption = BehaviorSubject.seeded(false);
-  final BehaviorSubject<bool> _draggableTitleVisibility =
-      BehaviorSubject.seeded(false);
   final _keyboardVisibilityController = KeyboardVisibilityController();
   final TextEditingController _captionEditingController =
       TextEditingController();
@@ -71,7 +69,6 @@ class ShareBoxState extends State<ShareBox> {
 
   Page currentPage = Page.gallery;
   final AudioPlayer _audioPlayer = AudioPlayer();
-  final _draggableScrollableController = DraggableScrollableController();
 
   I18N i18n = GetIt.I.get<I18N>();
 
@@ -93,48 +90,32 @@ class ShareBoxState extends State<ShareBox> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle(
-        systemNavigationBarColor: theme.colorScheme.background,
-      ),
-      child: WillPopScope(
-          onWillPop: () async {
-            if (isSelected()) {
-              setState(() {
-                finalSelected.clear();
-                selectedAudio.clear();
-                selectedImages.clear();
-                selectedFiles.clear();
-              });
-              return false;
-            }
-            return true;
-          },
-          child: NotificationListener<DraggableScrollableNotification>(
-            onNotification: (notification) {
-              if (notification.extent >= 0.98) {
-                _draggableTitleVisibility.value = true;
-              } else {
-                _draggableTitleVisibility.value = false;
-              }
-              return true;
-            },
-            child: DraggableScrollableSheet(
-              controller: _draggableScrollableController,
-              minChildSize: 0.5,
+    return WillPopScope(
+      onWillPop: () async {
+        if (isSelected()) {
+          setState(() {
+            finalSelected.clear();
+            selectedAudio.clear();
+            selectedImages.clear();
+            selectedFiles.clear();
+          });
+          return false;
+        }
+        return true;
+      },
+      child: StreamBuilder<double>(
+        stream: initialChildSize,
+        builder: (c, initialSize) {
+          if (initialSize.hasData && initialSize.data != null) {
+            return DraggableScrollableSheet(
+              initialChildSize: initialSize.data!,
+              minChildSize: initialSize.data!,
               builder: (co, scrollController) {
                 return Container(
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.background,
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(16.0),
-                      topRight: Radius.circular(16.0),
-                    ),
-                  ),
+                  color: theme.colorScheme.background,
                   child: Stack(
                     children: <Widget>[
                       Container(
-                        padding: const EdgeInsets.only(top: 15),
                         child: currentPage == Page.music
                             ? ShareBoxMusic(
                                 scrollController: scrollController,
@@ -246,167 +227,103 @@ class ShareBoxState extends State<ShareBox> {
                                       _captionEditingController,
                                 ),
                               ),
-                            )
-                          else
-                            Container(
-                              decoration: BoxDecoration(
-                                color: theme.colorScheme.background,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: theme.shadowColor.withOpacity(0.3),
-                                    blurRadius: 10.0,
-                                  )
-                                ],
+                            ),
+                          AnimatedContainer(
+                            duration: SLOW_ANIMATION_DURATION,
+                            decoration: BoxDecoration(
+                              color: theme.colorScheme.background,
+                              border: Border(
+                                top: BorderSide(
+                                  color: theme.colorScheme.outline
+                                      .withOpacity(0.15),
+                                ),
                               ),
-                              height: 70,
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceAround,
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: <Widget>[
-                                  circleButton(
-                                    () async {
-                                      setState(() {
-                                        _audioPlayer.stop();
-                                        currentPage = Page.gallery;
-                                      });
-                                    },
-                                    Icons.insert_drive_file_rounded,
-                                    i18n.get("gallery"),
-                                    Page.gallery,
-                                    context: co,
-                                  ),
-                                  circleButton(
-                                    () async {
-                                      setState(() {
-                                        _audioPlayer.stop();
-                                        currentPage = Page.files;
-                                      });
-                                    },
-                                    Icons.file_upload_rounded,
-                                    i18n.get("file"),
-                                    Page.files,
-                                    context: co,
-                                  ),
-                                  circleButton(
-                                    () async {
-                                      if (await _checkPermissionsService
-                                              .checkLocationPermission() ||
-                                          isIOS) {
-                                        if (!await Geolocator
-                                            .isLocationServiceEnabled()) {
-                                          const intent = AndroidIntent(
-                                            action:
-                                                'android.settings.LOCATION_SOURCE_SETTINGS',
-                                          );
-                                          await intent.launch();
-                                        } else {
-                                          setState(() {
-                                            _audioPlayer.stop();
-                                            currentPage = Page.location;
-                                            initialChildSize.add(0.5);
-                                          });
-                                        }
+                            ),
+                            height: isSelected() ? 0 : 70,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: <Widget>[
+                                circleButton(
+                                  () async {
+                                    setState(() {
+                                      _audioPlayer.stop();
+                                      currentPage = Page.gallery;
+                                    });
+                                  },
+                                  Icons.insert_drive_file_rounded,
+                                  i18n.get("gallery"),
+                                  Page.gallery,
+                                  context: co,
+                                ),
+                                circleButton(
+                                  () async {
+                                    setState(() {
+                                      _audioPlayer.stop();
+                                      currentPage = Page.files;
+                                    });
+                                  },
+                                  Icons.file_upload_rounded,
+                                  i18n.get("file"),
+                                  Page.files,
+                                  context: co,
+                                ),
+                                circleButton(
+                                  () async {
+                                    if (await _checkPermissionsService
+                                            .checkLocationPermission() ||
+                                        isIOS) {
+                                      if (!await Geolocator
+                                          .isLocationServiceEnabled()) {
+                                        const intent = AndroidIntent(
+                                          action:
+                                              'android.settings.LOCATION_SOURCE_SETTINGS',
+                                        );
+                                        await intent.launch();
+                                      } else {
+                                        setState(() {
+                                          _audioPlayer.stop();
+                                          currentPage = Page.location;
+                                          initialChildSize.add(0.5);
+                                        });
                                       }
-                                    },
-                                    Icons.location_on_rounded,
-                                    i18n.get("location"),
-                                    Page.location,
-                                    context: co,
-                                  ),
-                                  circleButton(
-                                    () async {
-                                      await scrollController
-                                          .animateTo(
-                                        0.1,
-                                        duration:
-                                            const Duration(milliseconds: 100),
-                                        curve: Curves.easeOutBack,
-                                      );
-                                      setState(() {
-                                        currentPage = Page.music;
-                                      });
-                                    },
-                                    Icons.music_note_rounded,
-                                    i18n.get("music"),
-                                    Page.music,
-                                    context: co,
-                                  ),
-                                ],
-                              ),
-                            )
+                                    }
+                                  },
+                                  Icons.location_on_rounded,
+                                  i18n.get("location"),
+                                  Page.location,
+                                  context: co,
+                                ),
+                                circleButton(
+                                  () async {
+                                    setState(() {
+                                      currentPage = Page.music;
+                                    });
+                                  },
+                                  Icons.music_note_rounded,
+                                  i18n.get("music"),
+                                  Page.music,
+                                  context: co,
+                                ),
+                              ],
+                            ),
+                          )
                         ],
-                      ),
-                      IgnorePointer(
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Container(
-                              margin: const EdgeInsets.only(
-                                top: 15,
-                                bottom: 50,
-                              ),
-                              height: 5,
-                              width: 40,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: theme.dividerColor,
-                              ),
-                            )
-                          ],
-                        ),
-                      ),
-                      Positioned(
-                        left: 0.0,
-                        top: 0.0,
-                        right: 0.0,
-                        child: StreamBuilder<bool>(
-                          stream: _draggableTitleVisibility,
-                          builder: (context, value) {
-                            return AnimatedContainer(
-                              duration: const Duration(milliseconds: 200),
-                              height: value.data ?? false ? 80 : 0,
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(
-                                    color: theme.dividerColor,
-                                  ),
-                                ),
-                                color: theme.colorScheme.surface,
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.only(top: 30),
-                                child: AppBar(
-                                  title: Text(_getDraggableTitle()),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
+                      )
                     ],
                   ),
                 );
               },
-            ),
-          )),
+            );
+          } else {
+            return const SizedBox.shrink();
+          }
+        },
+      ),
     );
   }
 
   bool isSelected() => finalSelected.values.isNotEmpty;
-
-  String _getDraggableTitle() {
-    switch (currentPage) {
-      case Page.gallery:
-        return i18n.get("gallery");
-      case Page.files:
-        return i18n.get("file");
-      case Page.location:
-        return i18n.get("location");
-      case Page.music:
-        return i18n.get("music");
-    }
-  }
 
   Widget circleButton(
     Function() onTap,
@@ -416,51 +333,53 @@ class ShareBoxState extends State<ShareBox> {
     required BuildContext context,
   }) {
     final theme = Theme.of(context);
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: <Widget>[
-        InkWell(
-          splashColor: theme.shadowColor.withOpacity(0.3),
-          onTap: onTap, // inkwell color
-          child: Container(
-            width: 48,
-            height: 48,
-            decoration: currentPage == page
-                ? BoxDecoration(
-                    border: Border.all(
-                      width: 2,
-                      color: theme.primaryColor,
-                    ),
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          InkWell(
+            splashColor: theme.shadowColor.withOpacity(0.3),
+            onTap: onTap, // inkwell color
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: currentPage == page
+                  ? BoxDecoration(
+                      border: Border.all(
+                        width: 2,
+                        color: theme.primaryColor,
+                      ),
+                      shape: BoxShape.circle,
+                    )
+                  : null,
+              child: Center(
+                child: Container(
+                  decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                  )
-                : null,
-            child: Center(
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: theme.primaryColor,
-                ),
-                width: 40,
-                height: 40,
-                child: Icon(
-                  icon,
-                  color: Colors.white,
+                    color: theme.primaryColor,
+                  ),
+                  width: 40,
+                  height: 40,
+                  child: Icon(
+                    icon,
+                    color: Colors.white,
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-        const SizedBox(
-          height: 3,
-        ),
-        Text(
-          text,
-          style: TextStyle(
-            fontSize: 10,
-            color: currentPage == page ? theme.primaryColor : null,
+          const SizedBox(
+            height: 3,
           ),
-        ),
-      ],
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 10,
+              color: currentPage == page ? theme.primaryColor : null,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
