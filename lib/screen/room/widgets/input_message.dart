@@ -320,7 +320,9 @@ class InputMessageWidgetState extends State<InputMessage> {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        vertical: 4.0, horizontal: 4.0),
+                      vertical: 4.0,
+                      horizontal: 4.0,
+                    ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: <Widget>[
@@ -676,6 +678,20 @@ class InputMessageWidgetState extends State<InputMessage> {
               ],
               style: theme.textTheme.bodyMedium,
               onTap: () {
+                // TODO(Chitsaz): This line of code is for select last character in text field in rtl languages
+                if (widget.textController.selection ==
+                    TextSelection.fromPosition(
+                      TextPosition(
+                        offset: widget.textController.text.length - 1,
+                      ),
+                    )) {
+                  widget.textController.selection = TextSelection.fromPosition(
+                    TextPosition(
+                      offset: widget.textController.text.length,
+                    ),
+                  );
+                }
+
                 if (!isDesktop) {
                   _showEmojiKeyboard.add(false);
                   _showReplyMarkUp.add(false);
