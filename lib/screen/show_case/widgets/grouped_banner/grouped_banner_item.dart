@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
@@ -114,7 +116,7 @@ class GroupedBannerItem extends StatelessWidget {
                         _routingService.openRoom(uid.asString());
                       }
                     } else if (uid.category == Categories.BOT) {
-                      _messageRepo.sendTextMessage(uid, "/start");
+                      unawaited(_messageRepo.sendTextMessage(uid, "/start"));
                       _routingService.openRoom(uid.asString());
                     }
                   },

@@ -3,6 +3,7 @@ import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direc
 import 'package:deliver/shared/constants.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -10,14 +11,12 @@ class SearchBox extends StatefulWidget {
   final void Function(String) onChange;
   final void Function()? onCancel;
   final TextEditingController? controller;
-  final FocusNode? focusNode;
 
   const SearchBox({
     super.key,
     required this.onChange,
     this.onCancel,
     this.controller,
-    this.focusNode,
   });
 
   @override
@@ -28,6 +27,7 @@ class SearchBoxState extends State<SearchBox> {
   final TextEditingController _localController = TextEditingController();
   final BehaviorSubject<bool> _hasText = BehaviorSubject.seeded(false);
   final _localFocusNode = FocusNode(canRequestFocus: false);
+  final _keyboardVisibilityController = KeyboardVisibilityController();
   static final _i18n = GetIt.I.get<I18N>();
 
   void _clearTextEditingController() {
@@ -43,6 +43,11 @@ class SearchBoxState extends State<SearchBox> {
 
   @override
   void initState() {
+    _keyboardVisibilityController.onChange.listen((event) {
+      if (!event) {
+        _localFocusNode.unfocus();
+      }
+    });
     (widget.controller ?? _localController).addListener(() {
       if ((widget.controller ?? _localController).text.isNotEmpty) {
         _hasText.add(true);
@@ -63,7 +68,7 @@ class SearchBoxState extends State<SearchBox> {
           height: 40,
           child: AutoDirectionTextField(
             style: const TextStyle(fontSize: 16),
-            focusNode: widget.focusNode ?? _localFocusNode,
+            focusNode: _localFocusNode,
             controller: widget.controller ?? _localController,
             onChanged: (str) {
               widget.onChange(str);
@@ -90,7 +95,7 @@ class SearchBoxState extends State<SearchBox> {
                       onPressed: () {
                         _hasText.add(false);
                         _clearTextEditingController();
-                        (widget.focusNode ?? _localFocusNode).unfocus();
+                        _localFocusNode.unfocus();
                         widget.onCancel?.call();
                       },
                     );
