@@ -320,7 +320,9 @@ class InputMessageWidgetState extends State<InputMessage> {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        vertical: 4.0, horizontal: 4.0),
+                      vertical: 4.0,
+                      horizontal: 4.0,
+                    ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: <Widget>[
