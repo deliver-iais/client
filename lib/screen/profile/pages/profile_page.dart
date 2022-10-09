@@ -33,6 +33,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/clipboard.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -45,7 +46,6 @@ import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as proto;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
@@ -428,8 +428,9 @@ class ProfilePageState extends State<ProfilePage>
                         leading: const Icon(Icons.alternate_email),
                         trailing: const Icon(Icons.copy),
                         subtitleTextStyle: TextStyle(color: theme.primaryColor),
-                        onPressed: (_) => Clipboard.setData(
-                          ClipboardData(text: "@${snapshot.data}"),
+                        onPressed: (_) => saveToClipboard(
+                          "@${snapshot.data}",
+                          context: context,
                         ),
                       ),
                     );
@@ -861,15 +862,7 @@ class ProfilePageState extends State<ProfilePage>
                 children: [
                   TextButton(
                     onPressed: () {
-                      Clipboard.setData(
-                        ClipboardData(
-                          text: inviteLink,
-                        ),
-                      );
-                      ToastDisplay.showToast(
-                        toastText: _i18n.get("copied"),
-                        toastContext: context,
-                      );
+                      saveToClipboard(inviteLink, context: context);
                       Navigator.pop(context);
                     },
                     child: Text(

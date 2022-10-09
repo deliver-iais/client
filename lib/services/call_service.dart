@@ -195,8 +195,6 @@ class CallService {
         channelName: 'Foreground Notification',
         channelDescription:
             'This notification appears when the foreground service is running.',
-        channelImportance: NotificationChannelImportance.HIGH,
-        priority: NotificationPriority.HIGH,
         playSound: true,
         isSticky: false,
         iconData: const NotificationIconData(

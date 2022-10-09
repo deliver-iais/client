@@ -24,6 +24,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/clipboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/animated_delete_widget.dart';
@@ -32,7 +33,6 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:process_run/shell.dart';
@@ -626,22 +626,16 @@ class OperationOnMessageSelection {
 
   void onCopy() {
     if (message.type == MessageType.TEXT) {
-      Clipboard.setData(
-        ClipboardData(
-          text: synthesizeToOriginalWord(message.json.toText().text),
-        ),
+      saveToClipboard(
+        synthesizeToOriginalWord(message.json.toText().text),
+        context: context,
       );
     } else {
-      Clipboard.setData(
-        ClipboardData(
-          text: synthesizeToOriginalWord(message.json.toFile().caption),
-        ),
+      saveToClipboard(
+        synthesizeToOriginalWord(message.json.toFile().caption),
+        context: context,
       );
     }
-    ToastDisplay.showToast(
-      toastText: _i18n.get("copied"),
-      toastContext: context,
-    );
   }
 
   void onForward() {
@@ -712,7 +706,7 @@ class OperationOnMessageSelection {
     ToastDisplay.showToast(
       toastContext: context,
       toastText: _i18n.get("photo_saved"),
-      isSaveToast: true,
+      animateDone: true,
     );
   }
 
@@ -722,7 +716,7 @@ class OperationOnMessageSelection {
     ToastDisplay.showToast(
       toastContext: context,
       toastText: _i18n.get("file_saved"),
-      isSaveToast: true,
+      animateDone: true,
     );
   }
 
@@ -732,7 +726,7 @@ class OperationOnMessageSelection {
     ToastDisplay.showToast(
       toastContext: context,
       toastText: _i18n.get("music_saved"),
-      isSaveToast: true,
+      animateDone: true,
     );
   }
 
