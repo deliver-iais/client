@@ -106,6 +106,7 @@ class CallRepo {
   bool _isEndedReceived = false;
   bool _isOfferReady = false;
   bool _isCallInitiated = false;
+  bool _isCallFromDb = false;
 
   bool get isCaller => _isCaller;
 
@@ -163,6 +164,7 @@ class CallRepo {
               time: call.expireTime - 60000,
             ),
           );
+          _isCallFromDb = true;
         }
       }
     });
@@ -214,7 +216,7 @@ class CallRepo {
                 //     _callService.writeCallEventsToJson(event),
                 //   );
                 // }
-                if (!isWindows) {
+                if (!isWindows && !_isCallFromDb) {
                   //get call Info and Save on DB
                   final currentCallEvent = call_event.CallEvent(
                     callDuration: callEvent.callDuration.toInt(),
@@ -1433,6 +1435,7 @@ class CallRepo {
       _callDuration = 0;
       _startCallTime = 0;
       _callDuration = 0;
+      _isCallFromDb = false;
 
       //reset BehaviorSubject values
       mute_camera.add(true);
