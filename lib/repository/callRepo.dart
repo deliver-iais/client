@@ -67,9 +67,6 @@ class CallRepo {
   final _audioService = GetIt.I.get<AudioService>();
   final _routingService = GetIt.I.get<RoutingService>();
 
-  final _candidateNumber = 5;
-  final _candidateTimeLimit = 100; // 0.1 sec
-
   late RTCVideoRenderer _localRenderer = RTCVideoRenderer();
   late RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
 
@@ -106,9 +103,9 @@ class CallRepo {
   bool _isDCReceived = false;
   bool _reconnectTry = false;
   bool _isEnded = false;
-  bool _isEndedRecivied = false;
+  bool _isEndedReceived = false;
   bool _isOfferReady = false;
-  bool _isCallInited = false;
+  bool _isCallInitiated = false;
 
   bool get isCaller => _isCaller;
 
@@ -190,8 +187,10 @@ class CallRepo {
               }
               break;
             case CallEvent_CallStatus.CREATED:
-              if (_callService.getUserCallState == UserCallState.NOCALL &&
-                  (event.time - clock.now().millisecondsSinceEpoch) < 60000) {
+              final from = event.roomUid!.asString();
+              final to = _authRepo.currentUserUid.asString();
+              if (from != to && _callService.getUserCallState == UserCallState.NOCALL &&
+                  ((event.time - clock.now().millisecondsSinceEpoch).abs()) < 60000) {
                 // final callStatus =
                 //     await FlutterForegroundTask.getData(key: "callStatus");
                 _callService
@@ -229,8 +228,8 @@ class CallRepo {
                   );
                   final callInfo = current_call_info.CurrentCallInfo(
                     callEvent: currentCallEvent,
-                    from: event.roomUid!.asString(),
-                    to: _authRepo.currentUserUid.asString(),
+                    from: from,
+                    to: to,
                     expireTime: event.time + 60000,
                     notificationSelected: _isNotificationSelected,
                   );
@@ -244,7 +243,8 @@ class CallRepo {
                   false,
                   _callService.writeCallEventsToJson(event),
                 );
-              } else if (event.roomUid == _roomUid) {
+              } else {
+                if (event.roomUid == _roomUid) {
                 _incomingCall(
                   event.roomUid!,
                   true,
@@ -262,6 +262,7 @@ class CallRepo {
                       ? CallEvent_CallType.VIDEO
                       : CallEvent_CallType.AUDIO,
                 );
+              }
               }
               break;
             case CallEvent_CallStatus.BUSY:
@@ -551,7 +552,7 @@ class CallRepo {
 
   void onRTCPeerConnectionDisconnected() {
     Timer(const Duration(seconds: 1), () {
-      if (!_reconnectTry && !_isEnded && !_isEndedRecivied) {
+      if (!_reconnectTry && !_isEnded && !_isEndedReceived) {
         callingStatus.add(CallStatus.DISCONNECTED);
         _audioService.stopBeepSound();
       }
@@ -571,7 +572,7 @@ class CallRepo {
   }
 
   void onRTCPeerConnectionStateFailed() {
-    if (!_reconnectTry && !_isEnded && !_isEndedRecivied && !isConnected) {
+    if (!_reconnectTry && !_isEnded && !_isEndedReceived && !isConnected) {
       _reconnectTry = true;
       callingStatus.add(CallStatus.RECONNECTING);
       _audioService.stopBeepSound();
@@ -680,7 +681,7 @@ class CallRepo {
           break;
         case STATUS_CONNECTION_ENDED:
           // this case use for prevent from disconnected state
-          _isEndedRecivied = true;
+          _isEndedReceived = true;
           break;
       }
     };
@@ -990,12 +991,12 @@ class CallRepo {
     if (isAndroid) {
       if (!_isVideo && await Permission.microphone.status.isGranted) {
         if (await getDeviceVersion() >= 31) {
-          _isCallInited = true;
+          _isCallInitiated = true;
           await initCall(isOffer: true);
         }
       }
     } else if (!_isVideo) {
-      _isCallInited = true;
+      _isCallInitiated = true;
       await initCall(isOffer: true);
     }
   }
@@ -1007,7 +1008,7 @@ class CallRepo {
       _isCaller = true;
       _isVideo = isVideo;
       _roomUid = roomId;
-      _isCallInited = true;
+      _isCallInitiated = true;
       await initCall();
       _logger.i("Start Call and Created !!!");
       callingStatus.add(CallStatus.CREATED);
@@ -1083,7 +1084,7 @@ class CallRepo {
       }
     });
     //if call come from backGround doesn't init and should be initialize
-    if (!_isCallInited) {
+    if (!_isCallInitiated) {
       await initCall(isOffer: true);
     }
 
@@ -1285,13 +1286,16 @@ class CallRepo {
   }
 
   Future<void> _waitUntilCandidateConditionDone() async {
+    final candidateNumber = (_reconnectTry || _isVideo) ? 5 : 10;
+    final candidateTimeLimit = (_reconnectTry || _isVideo) ? 100 : 500; // 0.1 sec for audio and 0.5 for video
+
     final completer = Completer();
     _logger.i(
       "Time for w8:${clock.now().millisecondsSinceEpoch - _candidateStartTime}",
     );
-    if ((_candidate.length >= _candidateNumber) ||
+    if ((_candidate.length >= candidateNumber) ||
         (clock.now().millisecondsSinceEpoch - _candidateStartTime >
-            _candidateTimeLimit)) {
+            candidateTimeLimit)) {
       completer.complete();
       _isOfferReady = true;
     } else {
@@ -1444,11 +1448,11 @@ class CallRepo {
         _roomUid = null;
         callingStatus.add(CallStatus.NO_CALL);
         _isEnded = false;
-        _isEndedRecivied = false;
+        _isEndedReceived = false;
         _reconnectTry = false;
         _isConnected = false;
         _isVideo = false;
-        _isCallInited = false;
+        _isCallInitiated = false;
         callTimer.add(CallTimer(0, 0, 0));
         await _disposeRenderer();
       });
