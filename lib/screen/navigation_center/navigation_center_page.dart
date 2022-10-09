@@ -180,7 +180,6 @@ class NavigationCenterState extends State<NavigationCenter>
                     onChange: _queryTermDebouncedSubject.add,
                     onCancel: () => _queryTermDebouncedSubject.add(""),
                     controller: _searchBoxController,
-
                   ),
                 ),
                 if (!isLarge(context)) const AudioPlayerAppBar(),
@@ -488,38 +487,46 @@ class NavigationCenterState extends State<NavigationCenter>
             const SizedBox(
               width: 20,
             ),
-            FutureBuilder<String>(
-              future: _roomRepo.getName(uid, forceToReturnSavedMessage: true),
-              builder: (c, snaps) {
-                return Row(
-                  children: [
-                    Text(
-                      snaps.data ?? "",
-                      style: theme.textTheme.subtitle1,
-                    ),
-                    FutureBuilder<bool>(
-                      initialData: _roomRepo.fastForwardIsVerified(uid),
-                      future: _roomRepo.isVerified(uid),
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData && snapshot.data!) {
-                          return Padding(
-                            padding:
-                                const EdgeInsets.symmetric(horizontal: 4.0),
-                            child: Icon(
-                              CupertinoIcons.checkmark_seal,
-                              size:
-                                  ((theme.textTheme.subtitle2)?.fontSize ?? 14),
-                              color: ACTIVE_COLOR,
-                            ),
-                          );
-                        } else {
-                          return const SizedBox.shrink();
-                        }
-                      },
-                    )
-                  ],
-                );
-              },
+            Flexible(
+              child: FutureBuilder<String>(
+                future: _roomRepo.getName(uid, forceToReturnSavedMessage: true),
+                builder: (c, snaps) {
+                  return Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          snaps.data ?? "",
+                          style: theme.textTheme.subtitle1,
+                          maxLines: 1,
+                          softWrap: false,
+                          overflow: TextOverflow.fade,
+                        ),
+                      ),
+                      FutureBuilder<bool>(
+                        initialData: _roomRepo.fastForwardIsVerified(uid),
+                        future: _roomRepo.isVerified(uid),
+                        builder: (context, snapshot) {
+                          if (snapshot.hasData && snapshot.data!) {
+                            return Padding(
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 4.0),
+                              child: Icon(
+                                CupertinoIcons.checkmark_seal,
+                                size: ((theme.textTheme.subtitle2)?.fontSize ??
+                                    14),
+                                color: ACTIVE_COLOR,
+                              ),
+                            );
+                          } else {
+                            return const SizedBox.shrink();
+                          }
+                        },
+                      )
+                    ],
+                  );
+                },
+              ),
             ),
           ],
         ),
