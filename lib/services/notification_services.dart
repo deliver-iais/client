@@ -649,8 +649,8 @@ class AndroidNotifier implements Notifier {
   Future<void> onCallAccepted(CallEvent callEvent) async {
     await GetIt.I.get<CallService>().clearCallData();
     _callService.setRoomUid = callEvent.userInfo!["uid"]!.asUid();
-    await _callService
-        .saveCallOnDb(getCallInfo(callEvent, CallEvent_CallStatus.CREATED, isAccepted: true));
+    await _callService.saveCallOnDb(
+        getCallInfo(callEvent, CallEvent_CallStatus.CREATED, isAccepted: true),);
   }
 
   current_call_info.CurrentCallInfo getCallInfo(
@@ -841,6 +841,8 @@ class AndroidNotifier implements Notifier {
       groupKey: roomUid,
       largeIcon: largeIcon,
       fullScreenIntent: true,
+      importance: Importance.max,
+      priority: Priority.high,
       styleInformation: inboxStyleInformation,
       actions: <AndroidNotificationAction>[
         AndroidNotificationAction(
