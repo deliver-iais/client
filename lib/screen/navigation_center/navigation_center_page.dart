@@ -69,7 +69,6 @@ class NavigationCenterState extends State<NavigationCenter>
 
   final ScrollController _scrollController = ScrollController();
   final BehaviorSubject<String> _searchMode = BehaviorSubject.seeded("");
-  final _searchModeFocusNode = FocusNode(canRequestFocus: false);
   final TextEditingController _searchBoxController = TextEditingController();
   final BehaviorSubject<String> _queryTermDebouncedSubject =
       BehaviorSubject<String>.seeded("");
@@ -181,7 +180,7 @@ class NavigationCenterState extends State<NavigationCenter>
                     onChange: _queryTermDebouncedSubject.add,
                     onCancel: () => _queryTermDebouncedSubject.add(""),
                     controller: _searchBoxController,
-                    focusNode: _searchModeFocusNode,
+
                   ),
                 ),
                 if (!isLarge(context)) const AudioPlayerAppBar(),
@@ -192,7 +191,6 @@ class NavigationCenterState extends State<NavigationCenter>
                       _onNavigationCenterBackPressed = () {
                         _queryTermDebouncedSubject.add("");
                         _searchBoxController.clear();
-                        _searchModeFocusNode.unfocus();
                       };
                       return searchResult(s.data!);
                     } else {

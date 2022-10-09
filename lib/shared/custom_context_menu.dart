@@ -1,3 +1,4 @@
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart' hide showMenu;
 import 'package:flutter/material.dart' as material show showMenu;
 
@@ -43,6 +44,7 @@ mixin CustomPopupMenu<T extends StatefulWidget> on State<T> {
       items: items,
       elevation: 4,
       shape: OutlineInputBorder(
+        borderRadius: buttonBorder,
         borderSide: BorderSide(
           color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
         ),
