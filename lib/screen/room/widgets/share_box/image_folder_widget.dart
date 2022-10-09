@@ -175,7 +175,9 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                               child: AnimatedPadding(
                                 duration: const Duration(milliseconds: 200),
                                 padding: EdgeInsets.all(
-                                  _selectedImage.contains(imagePath) ? 8.0 : 4.0,
+                                  _selectedImage.contains(imagePath)
+                                      ? 8.0
+                                      : 4.0,
                                 ),
                                 child: Hero(
                                   tag: imagePath,
@@ -185,10 +187,10 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                                       image: DecorationImage(
                                         image: Image.file(
                                           File(imagePath),
+                                          height: 500,
                                           cacheWidth: 500,
-                                          cacheHeight: 500,
                                         ).image,
-                                        fit: BoxFit.contain,
+                                        fit: BoxFit.cover,
                                       ),
                                     ),
                                     child: widget.setAvatar != null
@@ -213,7 +215,8 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                                                             .contains(imagePath)
                                                         ? Icons
                                                             .check_circle_outline
-                                                        : Icons.panorama_fish_eye,
+                                                        : Icons
+                                                            .panorama_fish_eye,
                                                     color: Colors.white,
                                                     size: 28,
                                                   ),
