@@ -162,10 +162,3 @@ String synthesizeToOriginalWord(String text) {
       .replaceAll("\\~", "~");
 }
 
-String synthesize(String text) {
-  return text
-      .replaceAll("*", "\\*")
-      .replaceAll("_", "\\_")
-      .replaceAll("||", "\\||")
-      .replaceAll("~", "\\~");
-}
