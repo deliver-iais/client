@@ -5,6 +5,7 @@ import 'package:clock/clock.dart';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/screen/room/widgets/share_box.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/shared/methods/clipboard.dart';
 import 'package:deliver/shared/methods/keyboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -17,12 +18,12 @@ import 'package:path_provider/path_provider.dart';
 class RawKeyboardService {
   final _routingService = GetIt.I.get<RoutingService>();
 
-  void controlFHandle() {
-  }
+  void controlFHandle() {}
 
-  void controlCHandle(TextEditingController controller) {
-    Clipboard.setData(
-      ClipboardData(text: controller.selection.textInside(controller.text)),
+  void controlCHandle(TextEditingController controller, BuildContext context) {
+    saveToClipboard(
+      controller.selection.textInside(controller.text),
+      context: context,
     );
   }
 
@@ -168,7 +169,7 @@ class RawKeyboardService {
     if (isMetaAndKeyPressed(event, PhysicalKeyboardKey.keyA)) {
       controlAHandle(controller);
     } else if (isMetaAndKeyPressed(event, PhysicalKeyboardKey.keyC)) {
-      controlCHandle(controller);
+      controlCHandle(controller, context);
     } else if (isMetaAndKeyPressed(event, PhysicalKeyboardKey.keyX)) {
       controlXHandle(controller);
     } else if (isMetaAndKeyPressed(event, PhysicalKeyboardKey.keyV)) {
