@@ -10,6 +10,7 @@ import 'package:deliver/screen/room/widgets/share_box/gallery.dart';
 import 'package:deliver/screen/room/widgets/share_box/music.dart';
 import 'package:deliver/screen/room/widgets/show_caption_dialog.dart';
 import 'package:deliver/services/check_permissions_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/attach_location.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -89,145 +90,156 @@ class ShareBoxState extends State<ShareBox> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return StreamBuilder<double>(
-      stream: initialChildSize,
-      builder: (c, initialSize) {
-        if (initialSize.hasData && initialSize.data != null) {
-          return DraggableScrollableSheet(
-            initialChildSize: initialSize.data!,
-            minChildSize: initialSize.data!,
-            builder: (co, scrollController) {
-              return Container(
-                color: theme.colorScheme.background,
-                child: Stack(
-                  children: <Widget>[
-                    Container(
-                      padding: !isSelected()
-                          ? const EdgeInsetsDirectional.only(bottom: 70)
-                          : const EdgeInsets.all(0),
-                      child: currentPage == Page.music
-                          ? ShareBoxMusic(
-                              scrollController: scrollController,
-                              onClick: (index, path) {
-                                setState(() {
-                                  selectedAudio[index] =
-                                      !(selectedAudio[index] ?? false);
-                                  selectedAudio[index]!
-                                      ? finalSelected[index] = path
-                                      : finalSelected.remove(index);
-                                });
-                              },
-                              playMusic: (index, path) {
-                                setState(() {
-                                  if (playAudioIndex == index) {
-                                    _audioPlayer.pause();
-                                    icons[index] =
-                                        Icons.play_circle_filled_rounded;
-                                    playAudioIndex = -1;
-                                  } else {
-                                    _audioPlayer.play(DeviceFileSource(path));
-                                    icons.remove(playAudioIndex);
-                                    icons[index] =
-                                        Icons.pause_circle_filled_rounded;
-                                    playAudioIndex = index;
-                                  }
-                                });
-                              },
-                              selectedAudio: selectedAudio,
-                              icons: icons,
-                            )
-                          : currentPage == Page.files
-                              ? ShareBoxFile(
-                                  roomUid: widget.currentRoomId,
-                                  scrollController: scrollController,
-                                  onClick: (index, path) {
-                                    setState(() {
-                                      selectedFiles[index] =
-                                          !(selectedFiles[index] ?? false);
-                                      selectedFiles[index]!
-                                          ? finalSelected[index] = path
-                                          : finalSelected.remove(index);
-                                    });
-                                  },
-                                  selectedFiles: selectedFiles,
-                                  resetRoomPageDetails:
-                                      widget.resetRoomPageDetails,
-                                  replyMessageId: widget.replyMessageId,
-                                )
-                              : currentPage == Page.gallery
-                                  ? ShareBoxGallery(
-                                      replyMessageId: widget.replyMessageId,
-                                      scrollController: scrollController,
-                                      pop: () {
-                                        Navigator.pop(context);
-                                      },
-                                      roomUid: widget.currentRoomId,
-                                      resetRoomPageDetails:
-                                          widget.resetRoomPageDetails,
-                                    )
-                                  : currentPage == Page.location
-                                      ? AttachLocation(
-                                          context,
-                                          widget.currentRoomId,
-                                        ).showLocation()
-                                      : const SizedBox.shrink(),
-                    ),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: <Widget>[
-                        if (isSelected())
-                          Padding(
-                            padding: EdgeInsets.only(
-                              bottom: MediaQuery.of(context).viewInsets.bottom,
-                            ),
-                            child: SizedBox(
-                              height: 80,
-                              child: BuildInputCaption(
-                                insertCaption: _insertCaption,
-                                count: finalSelected.length,
-                                send: () {
-                                  _audioPlayer.stop();
-                                  Navigator.pop(co);
-                                  messageRepo.sendMultipleFilesMessages(
-                                    widget.currentRoomId,
-                                    finalSelected.values
-                                        .toList()
-                                        .map(
-                                          (path) => model.File(
-                                            path,
-                                            path.split("/").last,
-                                          ),
-                                        )
-                                        .toList(),
-                                    replyToId: widget.replyMessageId,
-                                    caption: _captionEditingController.text,
-                                  );
-
+    return WillPopScope(
+      onWillPop: () async {
+        if (isSelected()) {
+          setState(() {
+            finalSelected.clear();
+            selectedAudio.clear();
+            selectedImages.clear();
+            selectedFiles.clear();
+          });
+          return false;
+        }
+        return true;
+      },
+      child: StreamBuilder<double>(
+        stream: initialChildSize,
+        builder: (c, initialSize) {
+          if (initialSize.hasData && initialSize.data != null) {
+            return DraggableScrollableSheet(
+              initialChildSize: initialSize.data!,
+              minChildSize: initialSize.data!,
+              builder: (co, scrollController) {
+                return Container(
+                  color: theme.colorScheme.background,
+                  child: Stack(
+                    children: <Widget>[
+                      Container(
+                        child: currentPage == Page.music
+                            ? ShareBoxMusic(
+                                scrollController: scrollController,
+                                onClick: (index, path) {
                                   setState(() {
-                                    finalSelected.clear();
-                                    selectedAudio.clear();
-                                    selectedImages.clear();
-                                    selectedFiles.clear();
+                                    selectedAudio[index] =
+                                        !(selectedAudio[index] ?? false);
+                                    selectedAudio[index]!
+                                        ? finalSelected[index] = path
+                                        : finalSelected.remove(index);
                                   });
                                 },
-                                captionEditingController:
-                                    _captionEditingController,
+                                playMusic: (index, path) {
+                                  setState(() {
+                                    if (playAudioIndex == index) {
+                                      _audioPlayer.pause();
+                                      icons[index] =
+                                          Icons.play_circle_filled_rounded;
+                                      playAudioIndex = -1;
+                                    } else {
+                                      _audioPlayer.play(DeviceFileSource(path));
+                                      icons.remove(playAudioIndex);
+                                      icons[index] =
+                                          Icons.pause_circle_filled_rounded;
+                                      playAudioIndex = index;
+                                    }
+                                  });
+                                },
+                                selectedAudio: selectedAudio,
+                                icons: icons,
+                              )
+                            : currentPage == Page.files
+                                ? ShareBoxFile(
+                                    roomUid: widget.currentRoomId,
+                                    scrollController: scrollController,
+                                    onClick: (index, path) {
+                                      setState(() {
+                                        selectedFiles[index] =
+                                            !(selectedFiles[index] ?? false);
+                                        selectedFiles[index]!
+                                            ? finalSelected[index] = path
+                                            : finalSelected.remove(index);
+                                      });
+                                    },
+                                    selectedFiles: selectedFiles,
+                                    resetRoomPageDetails:
+                                        widget.resetRoomPageDetails,
+                                    replyMessageId: widget.replyMessageId,
+                                  )
+                                : currentPage == Page.gallery
+                                    ? ShareBoxGallery(
+                                        replyMessageId: widget.replyMessageId,
+                                        scrollController: scrollController,
+                                        pop: () {
+                                          Navigator.pop(context);
+                                        },
+                                        roomUid: widget.currentRoomId,
+                                        resetRoomPageDetails:
+                                            widget.resetRoomPageDetails,
+                                      )
+                                    : currentPage == Page.location
+                                        ? AttachLocation(
+                                            context,
+                                            widget.currentRoomId,
+                                          ).showLocation()
+                                        : const SizedBox.shrink(),
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: <Widget>[
+                          if (isSelected())
+                            Padding(
+                              padding: EdgeInsets.only(
+                                bottom:
+                                    MediaQuery.of(context).viewInsets.bottom,
+                              ),
+                              child: SizedBox(
+                                height: 80,
+                                child: BuildInputCaption(
+                                  insertCaption: _insertCaption,
+                                  count: finalSelected.length,
+                                  send: () {
+                                    _audioPlayer.stop();
+                                    Navigator.pop(co);
+                                    messageRepo.sendMultipleFilesMessages(
+                                      widget.currentRoomId,
+                                      finalSelected.values
+                                          .toList()
+                                          .map(
+                                            (path) => model.File(
+                                              path,
+                                              path.split("/").last,
+                                            ),
+                                          )
+                                          .toList(),
+                                      replyToId: widget.replyMessageId,
+                                      caption: _captionEditingController.text,
+                                    );
+
+                                    setState(() {
+                                      finalSelected.clear();
+                                      selectedAudio.clear();
+                                      selectedImages.clear();
+                                      selectedFiles.clear();
+                                    });
+                                  },
+                                  captionEditingController:
+                                      _captionEditingController,
+                                ),
                               ),
                             ),
-                          )
-                        else
-                          Container(
+                          AnimatedContainer(
+                            duration: SLOW_ANIMATION_DURATION,
                             decoration: BoxDecoration(
                               color: theme.colorScheme.background,
-                              boxShadow: [
-                                BoxShadow(
-                                  color: theme.shadowColor.withOpacity(0.3),
-                                  blurRadius: 10.0,
-                                )
-                              ],
+                              border: Border(
+                                top: BorderSide(
+                                  color: theme.colorScheme.outline
+                                      .withOpacity(0.15),
+                                ),
+                              ),
                             ),
-                            height: 70,
+                            height: isSelected() ? 0 : 70,
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               crossAxisAlignment: CrossAxisAlignment.end,
@@ -241,7 +253,7 @@ class ShareBoxState extends State<ShareBox> {
                                   },
                                   Icons.insert_drive_file_rounded,
                                   i18n.get("gallery"),
-                                  40,
+                                  Page.gallery,
                                   context: co,
                                 ),
                                 circleButton(
@@ -253,7 +265,7 @@ class ShareBoxState extends State<ShareBox> {
                                   },
                                   Icons.file_upload_rounded,
                                   i18n.get("file"),
-                                  40,
+                                  Page.files,
                                   context: co,
                                 ),
                                 circleButton(
@@ -279,7 +291,7 @@ class ShareBoxState extends State<ShareBox> {
                                   },
                                   Icons.location_on_rounded,
                                   i18n.get("location"),
-                                  40,
+                                  Page.location,
                                   context: co,
                                 ),
                                 circleButton(
@@ -290,27 +302,86 @@ class ShareBoxState extends State<ShareBox> {
                                   },
                                   Icons.music_note_rounded,
                                   i18n.get("music"),
-                                  40,
+                                  Page.music,
                                   context: co,
                                 ),
                               ],
                             ),
                           )
-                      ],
-                    )
-                  ],
-                ),
-              );
-            },
-          );
-        } else {
-          return const SizedBox.shrink();
-        }
-      },
+                        ],
+                      )
+                    ],
+                  ),
+                );
+              },
+            );
+          } else {
+            return const SizedBox.shrink();
+          }
+        },
+      ),
     );
   }
 
   bool isSelected() => finalSelected.values.isNotEmpty;
+
+  Widget circleButton(
+    Function() onTap,
+    IconData icon,
+    String text,
+    Page page, {
+    required BuildContext context,
+  }) {
+    final theme = Theme.of(context);
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          InkWell(
+            splashColor: theme.shadowColor.withOpacity(0.3),
+            onTap: onTap, // inkwell color
+            child: Container(
+              width: 48,
+              height: 48,
+              decoration: currentPage == page
+                  ? BoxDecoration(
+                      border: Border.all(
+                        width: 2,
+                        color: theme.primaryColor,
+                      ),
+                      shape: BoxShape.circle,
+                    )
+                  : null,
+              child: Center(
+                child: Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: theme.primaryColor,
+                  ),
+                  width: 40,
+                  height: 40,
+                  child: Icon(
+                    icon,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(
+            height: 3,
+          ),
+          Text(
+            text,
+            style: TextStyle(
+              fontSize: 10,
+              color: currentPage == page ? theme.primaryColor : null,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 void showCaptionDialog({
@@ -337,41 +408,5 @@ void showCaptionDialog({
         files: files,
       );
     },
-  );
-}
-
-Widget circleButton(
-  Function() onTap,
-  IconData icon,
-  String text,
-  double size, {
-  required BuildContext context,
-}) {
-  final theme = Theme.of(context);
-  return Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: <Widget>[
-      ClipOval(
-        child: Material(
-          color: theme.primaryColor, // button color
-          child: InkWell(
-            splashColor: theme.shadowColor.withOpacity(0.3),
-            onTap: onTap, // inkwell color
-            child: SizedBox(
-              width: size,
-              height: size,
-              child: Icon(
-                icon,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        ),
-      ),
-      Text(
-        text,
-        style: const TextStyle(fontSize: 10),
-      ),
-    ],
   );
 }
