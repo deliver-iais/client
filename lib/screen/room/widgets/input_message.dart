@@ -13,7 +13,6 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/custom_text_selection_controller.dart';
 import 'package:deliver/screen/room/messageWidgets/input_message_text_controller.dart';
 import 'package:deliver/screen/room/messageWidgets/max_lenght_text_input_formatter.dart';
-import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/room/widgets/bot_commands.dart';
 import 'package:deliver/screen/room/widgets/emoji_keybord.dart';
@@ -35,21 +34,19 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/keyboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/attach_location.dart';
-import 'package:deliver/theme/theme.dart';
+
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:feature_discovery/feature_discovery.dart';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
-
-import '../../navigation_center/widgets/feature_discovery_description_widget.dart';
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
@@ -97,7 +94,6 @@ class InputMessageWidgetState extends State<InputMessage> {
   static final _botRepo = GetIt.I.get<BotRepo>();
   static final _audioService = GetIt.I.get<AudioService>();
   static final _routingService = GetIt.I.get<RoutingService>();
-  static final _featureFlags = GetIt.I.get<FeatureFlags>();
 
   late Room currentRoom;
   final BehaviorSubject<bool> _showEmojiKeyboard =
@@ -115,7 +111,6 @@ class InputMessageWidgetState extends State<InputMessage> {
   late String _botCommandData;
   int mentionSelectedIndex = 0;
   int botCommandSelectedIndex = 0;
-  bool _shouldSynthesize = true;
 
   final botCommandRegexp = RegExp(r"(\w)*");
   final idRegexp = RegExp(r"^[a-zA-Z]([a-zA-Z0-9_]){0,19}$");
@@ -236,7 +231,6 @@ class InputMessageWidgetState extends State<InputMessage> {
       textController: widget.textController,
       captionController: captionTextController,
       roomUid: currentRoom.uid.asUid(),
-      enableMarkDown: enableMarkdown,
     );
     super.initState();
   }
@@ -320,7 +314,9 @@ class InputMessageWidgetState extends State<InputMessage> {
                   ),
                   child: Padding(
                     padding: const EdgeInsets.symmetric(
-                        vertical: 4.0, horizontal: 4.0),
+                      vertical: 4.0,
+                      horizontal: 4.0,
+                    ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: <Widget>[
@@ -564,50 +560,6 @@ class InputMessageWidgetState extends State<InputMessage> {
 
                   showButtonSheet();
                 },
-              ),
-            if (showSendButton && !widget.waitingForForward)
-              DescribedFeatureOverlay(
-                featureId: _featureFlags
-                            .hasVoiceCallPermission(widget.currentRoom.uid) ||
-                        FeatureDiscovery.currentFeatureIdOf(context) ==
-                            FEATURE_5
-                    ? FEATURE_5
-                    : FEATURE_4,
-                useCustomPosition: true,
-                contentLocation: ContentLocation.above,
-                tapTarget: const FaIcon(
-                  FontAwesomeIcons.markdown,
-                ),
-                backgroundColor: theme.colorScheme.tertiaryContainer,
-                targetColor: theme.colorScheme.tertiary,
-                title: Text(
-                  _i18n.get("markdown_feature_discovery_title"),
-                  textDirection: _i18n.defaultTextDirection,
-                  style: TextStyle(
-                    color: theme.colorScheme.onTertiaryContainer,
-                  ),
-                ),
-                overflowMode: OverflowMode.extendBackground,
-                description: FeatureDiscoveryDescriptionWidget(
-                  description: _i18n.get("markdown_feature_description"),
-                  descriptionStyle: TextStyle(
-                    color: theme.colorScheme.onTertiaryContainer,
-                  ),
-                ),
-                child: IconButton(
-                  icon: FaIcon(
-                    FontAwesomeIcons.markdown,
-                    size: 18,
-                    color: !_shouldSynthesize ? ACTIVE_COLOR : null,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      widget.textController.isMarkDownEnable =
-                          _shouldSynthesize;
-                      _shouldSynthesize = !_shouldSynthesize;
-                    });
-                  },
-                ),
               ),
             if (showSendButton || widget.waitingForForward)
               IconButton(
@@ -916,9 +868,7 @@ class InputMessageWidgetState extends State<InputMessage> {
       widget.resetRoomPageDetails!();
     }
 
-    final text = _shouldSynthesize
-        ? synthesize(widget.textController.text.trim())
-        : widget.textController.text.trim();
+    final text = widget.textController.text.trim();
 
     if (text.isNotEmpty) {
       if (_replyMessageId > 0) {
@@ -1038,15 +988,6 @@ class InputMessageWidgetState extends State<InputMessage> {
     widget.textController.selection = TextSelection.collapsed(
       offset: widget.textController.text.length,
     );
-  }
-
-  void enableMarkdown() {
-    if (_shouldSynthesize) {
-      setState(() {
-        _shouldSynthesize = false;
-        widget.textController.isMarkDownEnable = true;
-      });
-    }
   }
 
   bool hasMarkUpPlaceHolder(MessageMarkup? markUp) {
