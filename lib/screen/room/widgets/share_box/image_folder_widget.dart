@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:deliver/models/file.dart' as model;
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/room/widgets/build_input_caption.dart';
+import 'package:deliver/screen/room/widgets/circular_check_mark_widget.dart';
 import 'package:deliver/screen/room/widgets/share_box/open_image_page.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -142,6 +143,8 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                           if (fileSnapshot.hasData &&
                               fileSnapshot.data!.existsSync()) {
                             var imagePath = fileSnapshot.data!.path;
+                            final isSelected =
+                                _selectedImage.contains(imagePath);
                             return GestureDetector(
                               onTap: () {
                                 if (widget.setAvatar != null) {
@@ -172,18 +175,23 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                                   );
                                 }
                               },
-                              child: AnimatedPadding(
+                              child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 200),
-                                padding: EdgeInsets.all(
-                                  _selectedImage.contains(imagePath)
-                                      ? 8.0
-                                      : 4.0,
+                                margin: const EdgeInsets.all(4.0),
+                                decoration: BoxDecoration(
+                                  borderRadius: secondaryBorder,
+                                  border: Border.all(
+                                    color: isSelected
+                                        ? Theme.of(context).colorScheme.primary
+                                        : Colors.transparent,
+                                    width: isSelected ? 6 : 0,
+                                  ),
                                 ),
                                 child: Hero(
                                   tag: imagePath,
                                   child: Container(
                                     decoration: BoxDecoration(
-                                      borderRadius: secondaryBorder,
+                                      borderRadius: secondaryBorder / 2,
                                       image: DecorationImage(
                                         image: Image.file(
                                           File(imagePath),
@@ -197,31 +205,19 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                                         ? const SizedBox.shrink()
                                         : Align(
                                             alignment: Alignment.bottomRight,
-                                            child: GestureDetector(
-                                              onTap: () => onTap(imagePath),
-                                              child: Container(
-                                                width: 28,
-                                                height: 28,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(24),
-                                                  color: Theme.of(context)
-                                                      .hoverColor
-                                                      .withOpacity(0.5),
-                                                ),
-                                                child: Center(
-                                                  child: Icon(
-                                                    _selectedImage
-                                                            .contains(imagePath)
-                                                        ? Icons
-                                                            .check_circle_outline
-                                                        : Icons
-                                                            .panorama_fish_eye,
-                                                    color: Colors.white,
-                                                    size: 28,
-                                                  ),
-                                                ),
-                                              ),
+                                            child: IconButton(
+                                              splashColor: Colors.transparent,
+                                              highlightColor: Colors.transparent,
+                                              enableFeedback: false,
+                                              onPressed: () {
+                                                onTap(imagePath);
+                                              },
+                                              icon: isSelected
+                                                  ? const CircularCheckMarkWidget(
+                                                shouldShowCheckMark: true,
+                                              )
+                                                  : const CircularCheckMarkWidget(),
+                                              iconSize: 30,
                                             ),
                                           ),
                                   ),
