@@ -293,7 +293,7 @@ class AllAvatarPageState extends State<AllAvatarPage> {
                 ToastDisplay.showToast(
                   toastContext: context,
                   toastText: _i18n.get("photo_saved"),
-                  isSaveToast: true,
+                  animateDone: true,
                 );
               }
             },

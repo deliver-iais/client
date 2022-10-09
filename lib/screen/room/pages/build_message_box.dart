@@ -706,7 +706,7 @@ class OperationOnMessageSelection {
     ToastDisplay.showToast(
       toastContext: context,
       toastText: _i18n.get("photo_saved"),
-      isSaveToast: true,
+      animateDone: true,
     );
   }
 
@@ -716,7 +716,7 @@ class OperationOnMessageSelection {
     ToastDisplay.showToast(
       toastContext: context,
       toastText: _i18n.get("file_saved"),
-      isSaveToast: true,
+      animateDone: true,
     );
   }
 
@@ -726,7 +726,7 @@ class OperationOnMessageSelection {
     ToastDisplay.showToast(
       toastContext: context,
       toastText: _i18n.get("music_saved"),
-      isSaveToast: true,
+      animateDone: true,
     );
   }
 
