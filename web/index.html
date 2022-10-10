@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <!--
       If you are serving your web app in a path other than the root, change the
@@ -229,15 +229,15 @@
 </script>
 
 <script>
-    var serviceWorkerVersion = null;
-    var scriptLoaded = false;
+    const serviceWorkerVersion = null;
+    let scriptLoaded = false;
 
     function loadMainDartJs() {
         if (scriptLoaded) {
             return;
         }
         scriptLoaded = true;
-        var scriptTag = document.createElement('script');
+        const scriptTag = document.createElement('script');
         scriptTag.src = 'main.dart.js';
         scriptTag.type = 'application/javascript';
         document.body.append(scriptTag);
@@ -250,24 +250,16 @@
             // Otherwise, the browser will load the script multiple times,
             // potentially different versions.
             navigator.serviceWorker.register('/firebase-messaging-sw.js');
-            var customServiceWorkerUrl = './sw.js';
-            navigator.serviceWorker.register(customServiceWorkerUrl, {scope: '.'}).then(function (registration) {
-                // Registration was successful
-                console.log('CustomServiceWorker registration successful with scope: ', registration.scope);
-            }, function (err) {
-                // registration failed
-                console.log('CustomServiceWorker registration failed: ', err);
-            });
 
+            const customServiceWorkerUrl = './sw.js';
 
-            var serviceWorkerUrl = 'flutter_service_worker.js?v=' + serviceWorkerVersion;
-
-
-            navigator.serviceWorker.register('/sw.js')
+            navigator.serviceWorker.register(customServiceWorkerUrl, {scope: '.'})
                 .then((reg) => {
+                    console.log('CustomServiceWorker registration successful with scope: ', registration.scope);
+
                     function waitForActivation(serviceWorker) {
                         serviceWorker.addEventListener('statechange', () => {
-                            if (serviceWorker.state == 'activated') {
+                            if (serviceWorker.state === 'activated') {
                                 console.log('Installed new service worker.');
                                 loadMainDartJs();
                             }
@@ -289,6 +281,9 @@
                         console.log('Loading app from service worker.');
                         loadMainDartJs();
                     }
+                }, (err) => {
+                    // registration failed
+                    console.log('CustomServiceWorker registration failed: ', err);
                 });
 
             // If service worker doesn't succeed in a reasonable amount of time,
