@@ -35,7 +35,6 @@ class NotMessengerContactWidget extends StatelessWidget {
             CupertinoIcons.person,
             size: 30,
           ),
-
           const SizedBox(
             width: 15,
           ),

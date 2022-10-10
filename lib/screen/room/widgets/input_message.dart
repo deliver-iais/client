@@ -118,7 +118,7 @@ class InputMessageWidgetState extends State<InputMessage> {
   bool _shouldSynthesize = true;
 
   final botCommandRegexp = RegExp(r"(\w)*");
-  final idRegexp = RegExp(r"^[a-zA-Z]([a-zA-Z0-9_]){0,19}$");
+  final idRegexp = RegExp(r"^[a-zA-Z](\w){0,19}$");
 
   void showButtonSheet() {
     if (isWeb || isDesktop) {
@@ -147,6 +147,12 @@ class InputMessageWidgetState extends State<InputMessage> {
     widget.focusNode.onKey = (node, evt) {
       return handleKeyPress(evt);
     };
+    widget.focusNode.addListener(() {
+      if (!isDesktop) {
+        _showEmojiKeyboard.add(false);
+        _showReplyMarkUp.add(false);
+      }
+    });
 
     keyboardRawFocusNode = FocusNode(canRequestFocus: false);
 
@@ -202,7 +208,9 @@ class InputMessageWidgetState extends State<InputMessage> {
         try {
           if (widget.textController.text.isNotEmpty &&
               widget.textController.text[start] == "@" &&
-              (start == 0 || widget.textController.text[start - 1] == " ") &&
+              (start == 0 ||
+                  widget.textController.text[start - 1] == " " ||
+                  widget.textController.text[start - 1] == "\n") &&
               widget.textController.selection.start ==
                   widget.textController.selection.end &&
               (idRegexp.hasMatch(
@@ -677,12 +685,6 @@ class InputMessageWidgetState extends State<InputMessage> {
                 //max line of text field
               ],
               style: theme.textTheme.bodyMedium,
-              onTap: () {
-                   if (!isDesktop) {
-                  _showEmojiKeyboard.add(false);
-                  _showReplyMarkUp.add(false);
-                }
-              },
               onChanged: (str) {
                 if (str.isNotEmpty) {
                   isTypingActivitySubject.add(
