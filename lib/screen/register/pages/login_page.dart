@@ -80,17 +80,21 @@ class LoginPageState extends State<LoginPage> {
         loginToken.add(randomAlphaNumeric(36));
       });
     } else if (isAndroid && !kDebugMode) {
-      SmsAutoFill().hint.then((value) {
-        if (value != null) {
-          final p = getPhoneNumber(value);
-          if (p != null) {
-            phoneNumber = p;
-            controller.text = p.nationalNumber.toString();
-            _isLoading.add(true);
-            checkAndGoNext(doNotCheckValidator: true);
+      try {
+        SmsAutoFill().hint.then((value) {
+          if (value != null) {
+            final p = getPhoneNumber(value);
+            if (p != null) {
+              phoneNumber = p;
+              controller.text = p.nationalNumber.toString();
+              _isLoading.add(true);
+              checkAndGoNext(doNotCheckValidator: true);
+            }
           }
-        }
-      });
+        });
+      } catch (e) {
+        _logger.e(e);
+      }
     }
     super.initState();
   }
