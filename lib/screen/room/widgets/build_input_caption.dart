@@ -1,4 +1,5 @@
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
@@ -28,10 +29,16 @@ class BuildInputCaption extends StatelessWidget {
         Align(
           alignment: Alignment.bottomLeft,
           child: Container(
-            color: needDarkBackground
-                ? Colors.black.withAlpha(120)
-                : theme.colorScheme.background,
-            child: TextField(
+            decoration: BoxDecoration(
+              border: Border(
+                  top: BorderSide(
+                color: theme.colorScheme.outline.withOpacity(0.1),
+              ),),
+              color: needDarkBackground
+                  ? Colors.black.withAlpha(120)
+                  : theme.colorScheme.background,
+            ),
+            child: AutoDirectionTextField(
               decoration: InputDecoration(
                 hintText: i18n.get("add_caption"),
                 border: InputBorder.none,

@@ -22,7 +22,7 @@ final isLinux = defaultTargetPlatform == TargetPlatform.linux;
 
 final isMacOS = defaultTargetPlatform == TargetPlatform.macOS;
 
-final isDesktop = isLinux || isWindows || isMacOS;
+final isDesktop = (isLinux || isWindows || isMacOS) && !isWeb;
 
 final hasFirebaseCapability = isAndroid;
 

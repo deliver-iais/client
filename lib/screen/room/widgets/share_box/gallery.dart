@@ -258,8 +258,9 @@ class ShareBoxGalleryState extends State<ShareBoxGallery> {
                       image: Image.file(
                         fileSnapshot.data!,
                         cacheWidth: 500,
-                        cacheHeight: 500,
+                        height: 500,
                       ).image,
+                      fit: BoxFit.cover,
                     ),
                   ),
                   child: i == 0
@@ -424,5 +425,3 @@ class ShareBoxGalleryState extends State<ShareBoxGallery> {
     );
   }
 }
-
-

@@ -21,7 +21,7 @@ const GROUP_URL = "group";
 const CHANNEL_URL = "channel";
 
 // Version Constants
-const VERSION = "1.9.2";
+const VERSION = "1.9.3";
 
 // Time Constants
 const ONLINE_TIME = 60000;
@@ -35,8 +35,7 @@ const PAGE_SIZE = 50;
 
 //Contacts Constants
 const MAX_CONTACT_SIZE_TO_SEND = 50;
-const MAX_SEND_CONTACT_TIME_EXPIRE = 4 * 60 * 60 * 1000;
-const MAX_SEND_CONTACT_START_TIME_EXPIRE = 12 * 60 * 60 * 1000;
+const MAX_SEND_CONTACT_START_TIME_EXPIRE = 6 * 60 * 60 * 1000;
 const INVITE_MESSAGE =
     "$APPLICATION_NAME invite link: $APPLICATION_LANDING_URL";
 

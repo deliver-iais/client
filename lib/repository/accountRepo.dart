@@ -7,6 +7,7 @@ import 'package:deliver/box/dao/account_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/name.dart';
@@ -247,6 +248,7 @@ class AccountRepo {
         await _dbManager.deleteDB(deleteSharedDao: false);
         await _sharedDao.put(SHARED_DAO_APP_VERSION, VERSION);
         await _sharedDao.putBoolean(SHARED_DAO_ALL_ROOMS_FETCHED, false);
+        unawaited(GetIt.I.get<ContactRepo>().getContacts());
       }
 
       if (shouldMigrateDB(pv)) {
