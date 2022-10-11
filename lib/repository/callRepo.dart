@@ -969,12 +969,21 @@ class CallRepo {
         ),
       );
     } else if (!isDuplicated) {
-      unawaited(
-        _notificationServices.notifyIncomingCall(
-          roomId.asString(),
-          callEventJson: callEventJson,
-        ),
-      );
+      if (_routingService.getCurrentRoomId() == roomId.asString()) {
+        modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
+          CallNotificationActionInBackground(
+            roomId: roomId.asString(),
+            isCallAccepted: false,
+          ),
+        );
+      } else {
+        unawaited(
+          _notificationServices.notifyIncomingCall(
+            roomId.asString(),
+            callEventJson: callEventJson,
+          ),
+        );
+      }
     }
     _roomUid = roomId;
     _logger.i(
