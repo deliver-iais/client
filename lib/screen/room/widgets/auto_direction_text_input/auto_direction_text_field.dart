@@ -10,6 +10,7 @@ import 'package:rxdart/rxdart.dart';
 class AutoDirectionTextField extends StatelessWidget {
   static final direction = BehaviorSubject.seeded(TextDirection.ltr);
   static final _i18n = GetIt.I.get<I18N>();
+  static final _controller = TextEditingController();
 
   final TextEditingController? controller;
 
@@ -183,7 +184,7 @@ class AutoDirectionTextField extends StatelessWidget {
       builder: (c, sn) {
         final textDir = sn.data ?? TextDirection.ltr;
         return TextField(
-          controller: controller,
+          controller: controller ?? _controller,
           focusNode: focusNode,
           decoration: decoration,
           keyboardType: keyboardType,
@@ -207,6 +208,24 @@ class AutoDirectionTextField extends StatelessWidget {
           maxLines: maxLines,
           minLines: minLines,
           maxLength: maxLength,
+          onTap: () {
+            // TODO(Chitsaz): This line of code is for select last character in text field in rtl languages
+            final localController = controller ?? _controller;
+            if (localController.selection ==
+                TextSelection.fromPosition(
+                  TextPosition(
+                    offset: localController.text.length - 1,
+                  ),
+                )) {
+              localController.selection = TextSelection.fromPosition(
+                TextPosition(
+                  offset: localController.text.length,
+                ),
+              );
+            }
+
+            onTap?.call();
+          },
           maxLengthEnforcement: maxLengthEnforcement,
           onChanged: (value) {
             if (value.isNotEmpty) {

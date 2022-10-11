@@ -22,14 +22,6 @@ class CallStatusAdapter extends TypeAdapter<CallStatus> {
       case 3:
         return CallStatus.ENDED;
       case 4:
-        return CallStatus.JOINED;
-      case 5:
-        return CallStatus.INVITE;
-      case 6:
-        return CallStatus.KICK;
-      case 7:
-        return CallStatus.LEFT;
-      case 8:
         return CallStatus.DECLINED;
       default:
         return CallStatus.CREATED;
@@ -51,20 +43,8 @@ class CallStatusAdapter extends TypeAdapter<CallStatus> {
       case CallStatus.ENDED:
         writer.writeByte(3);
         break;
-      case CallStatus.JOINED:
-        writer.writeByte(4);
-        break;
-      case CallStatus.INVITE:
-        writer.writeByte(5);
-        break;
-      case CallStatus.KICK:
-        writer.writeByte(6);
-        break;
-      case CallStatus.LEFT:
-        writer.writeByte(7);
-        break;
       case CallStatus.DECLINED:
-        writer.writeByte(8);
+        writer.writeByte(4);
         break;
     }
   }

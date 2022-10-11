@@ -174,23 +174,21 @@ class RoomPageState extends State<RoomPage> {
         height: MediaQuery.of(context).size.height,
         replyMessageId: _repliedMessage.value?.id ?? 0,
         resetRoomPageDetails: _resetRoomPageDetails,
-        child: SafeArea(
-          child: Stack(
-            children: [
-              StreamBuilder<Room>(
-                stream: _room,
-                builder: (context, snapshot) => Background(
-                  id: snapshot.data?.lastMessageId ?? 0,
-                ),
+        child: Stack(
+          children: [
+            StreamBuilder<Room>(
+              stream: _room,
+              builder: (context, snapshot) => Background(
+                id: snapshot.data?.lastMessageId ?? 0,
               ),
-              Scaffold(
-                backgroundColor: Colors.transparent,
-                extendBodyBehindAppBar: true,
-                appBar: buildAppbar(),
-                body: buildBody(),
-              ),
-            ],
-          ),
+            ),
+            Scaffold(
+              backgroundColor: Colors.transparent,
+              extendBodyBehindAppBar: true,
+              appBar: buildAppbar(),
+              body: buildBody(),
+            ),
+          ],
         ),
       ),
     );
@@ -1396,7 +1394,17 @@ class RoomPageState extends State<RoomPage> {
     final message = tuple.item2!;
 
     if (message.isHidden) {
-      return const SizedBox.shrink();
+      // TODO(bitbeter): یک باگی وجود داره که اگر زمان پیام هیدن اولی با پیام اولی نمایش داده شده روزشون فرق کنه این تیکه کد باگ خواهد داشت و باید درست بشه
+      if (index == room.firstMessageId) {
+        return Column(
+          children: [
+            const SizedBox(height: APPBAR_HEIGHT),
+            ChatTime(currentMessageTime: date(message.time))
+          ],
+        );
+      } else {
+        return const SizedBox.shrink();
+      }
     }
 
     final msgBox = BuildMessageBox(

@@ -24,6 +24,7 @@ import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/clipboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/methods/time.dart';
 import 'package:deliver/shared/widgets/animated_delete_widget.dart';
@@ -32,7 +33,6 @@ import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:process_run/shell.dart';
@@ -198,7 +198,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
           onDoubleTap: !isDesktop || widget.selectMultiMessageSubject.value
               ? null
               : widget.onReply,
-          onLongPress: ()async {
+          onLongPress: () async {
             await selectMessage();
           },
           onTapDown: storePosition,
@@ -218,8 +218,14 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
     );
   }
 
-  Future<void> selectMessage()async {
-    if (widget.message.id != null && (await  _messageRepo.getPendingEditedMessage(widget.message.roomUid, widget.message.id))?.msg==null) {
+  Future<void> selectMessage() async {
+    if (widget.message.id != null &&
+        (await _messageRepo.getPendingEditedMessage(
+              widget.message.roomUid,
+              widget.message.id,
+            ))
+                ?.msg ==
+            null) {
       if (!widget.selectMultiMessageSubject.value) {
         widget.selectMultiMessageSubject.add(true);
       }
@@ -283,7 +289,7 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onDoubleTap: !isDesktop || widget.selectMultiMessageSubject.value
           ? null
           : widget.onReply,
-      onLongPress: () async{
+      onLongPress: () async {
         await selectMessage();
       },
       onTapDown: storePosition,
@@ -315,30 +321,33 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       mainAxisAlignment: MainAxisAlignment.end,
       crossAxisAlignment: CrossAxisAlignment.end,
       children: <Widget>[
-        if (shouldBeAnimated()) StreamBuilder<bool>(
-          stream: animatedWidget,
-          initialData: shouldBeAnimated(),
-          builder: (context, snapshot) {
-            final isAnimated = snapshot.data ?? false;
-            return AnimatedContainer(
-              duration: SLOW_ANIMATION_DURATION,
-              // transform: Matrix4.rotationX(turns.value * pi * 2),
-              transform: isAnimated
-                  ? Matrix4.translationValues(
-                      -60,
-                      80,
-                      0,
-                    )
-                  : Matrix4.translationValues(
-                      0,
-                      0,
-                      0,
-                    ),
-              transformAlignment: Alignment.center,
-              child: messageWidget,
-            );
-          },
-        ) else messageWidget,
+        if (shouldBeAnimated())
+          StreamBuilder<bool>(
+            stream: animatedWidget,
+            initialData: shouldBeAnimated(),
+            builder: (context, snapshot) {
+              final isAnimated = snapshot.data ?? false;
+              return AnimatedContainer(
+                duration: SLOW_ANIMATION_DURATION,
+                // transform: Matrix4.rotationX(turns.value * pi * 2),
+                transform: isAnimated
+                    ? Matrix4.translationValues(
+                        -60,
+                        80,
+                        0,
+                      )
+                    : Matrix4.translationValues(
+                        0,
+                        0,
+                        0,
+                      ),
+                transformAlignment: Alignment.center,
+                child: messageWidget,
+              );
+            },
+          )
+        else
+          messageWidget,
         StreamBuilder<List<int>>(
           stream: widget.selectedMessageListIndex,
           builder: (context, snapshot) {
@@ -346,7 +355,9 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
               duration: SUPER_SLOW_ANIMATION_DURATION,
               opacity: widget.selectMultiMessageSubject.value ? 1 : 0,
               child: AnimatedContainer(
-                width: widget.selectMultiMessageSubject.value ? SELECTED_MESSAGE_CHECKBOX_WIDTH : 0,
+                width: widget.selectMultiMessageSubject.value
+                    ? SELECTED_MESSAGE_CHECKBOX_WIDTH
+                    : 0,
                 duration: SUPER_SLOW_ANIMATION_DURATION,
                 child: Checkbox(
                   checkColor: Colors.white,
@@ -510,7 +521,6 @@ class _BuildMessageBoxState extends State<BuildMessageBox>
       onReply: widget.onReply,
       onUnPin: widget.onUnPin,
       onSelect: selectMessage,
-
     ).selectOperation(selectedValue);
   }
 
@@ -616,22 +626,16 @@ class OperationOnMessageSelection {
 
   void onCopy() {
     if (message.type == MessageType.TEXT) {
-      Clipboard.setData(
-        ClipboardData(
-          text: synthesizeToOriginalWord(message.json.toText().text),
-        ),
+      saveToClipboard(
+        synthesizeToOriginalWord(message.json.toText().text),
+        context: context,
       );
     } else {
-      Clipboard.setData(
-        ClipboardData(
-          text: synthesizeToOriginalWord(message.json.toFile().caption),
-        ),
+      saveToClipboard(
+        synthesizeToOriginalWord(message.json.toFile().caption),
+        context: context,
       );
     }
-    ToastDisplay.showToast(
-      toastText: _i18n.get("copied"),
-      toastContext: context,
-    );
   }
 
   void onForward() {
@@ -659,6 +663,7 @@ class OperationOnMessageSelection {
       case MessageType.CALL:
       case MessageType.TABLE:
       case MessageType.TRANSACTION:
+      case MessageType.PAYMENT_INFORMATION:
         break;
     }
   }
@@ -701,7 +706,7 @@ class OperationOnMessageSelection {
     ToastDisplay.showToast(
       toastContext: context,
       toastText: _i18n.get("photo_saved"),
-      isSaveToast: true,
+      animateDone: true,
     );
   }
 
@@ -711,7 +716,7 @@ class OperationOnMessageSelection {
     ToastDisplay.showToast(
       toastContext: context,
       toastText: _i18n.get("file_saved"),
-      isSaveToast: true,
+      animateDone: true,
     );
   }
 
@@ -721,7 +726,7 @@ class OperationOnMessageSelection {
     ToastDisplay.showToast(
       toastContext: context,
       toastText: _i18n.get("music_saved"),
-      isSaveToast: true,
+      animateDone: true,
     );
   }
 

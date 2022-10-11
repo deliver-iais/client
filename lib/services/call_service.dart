@@ -40,12 +40,6 @@ class CallService {
   final BehaviorSubject<CallEvents> _callEvents =
       BehaviorSubject.seeded(CallEvents.none);
 
-  final BehaviorSubject<CallEvents> groupCallEvents =
-      BehaviorSubject.seeded(CallEvents.none);
-
-  final BehaviorSubject<CallEvents> _groupCallEvents =
-      BehaviorSubject.seeded(CallEvents.none);
-
   bool shouldRemoveData = false;
 
   CallService() {
@@ -53,17 +47,10 @@ class CallService {
       callEvents.add(event);
       _featureFlags.enableVoiceCallFeatureFlag();
     });
-    _groupCallEvents.distinct().listen((event) {
-      groupCallEvents.add(event);
-    });
   }
 
   void addCallEvent(CallEvents event) {
     _callEvents.add(event);
-  }
-
-  void addGroupCallEvent(CallEvents event) {
-    _groupCallEvents.add(event);
   }
 
   Future<void> saveCallOnDb(CurrentCallInfo callInfo) async {
@@ -84,8 +71,6 @@ class CallService {
 
   UserCallState _callState = UserCallState.NOCALL;
 
-  Uid _callOwner = Uid.getDefault();
-
   String _callId = "";
 
   Uid _roomUid = Uid.getDefault();
@@ -102,8 +87,6 @@ class CallService {
 
   Uid get getRoomUid => _roomUid;
 
-  Uid get getCallOwner => _callOwner;
-
   String get getCallId => _callId;
 
   set setUserCallState(UserCallState cs) => _callState = cs;
@@ -111,8 +94,6 @@ class CallService {
   set setSendPort(SendPort? sp) => _sendPort = sp;
 
   set setRoomUid(Uid ru) => _roomUid = ru;
-
-  set setCallOwner(Uid uid) => _callOwner = uid;
 
   set setCallId(String callId) => _callId = callId;
 
@@ -128,16 +109,8 @@ class CallService {
         return call_status.CallStatus.DECLINED;
       case CallEvent_CallStatus.ENDED:
         return call_status.CallStatus.ENDED;
-      case CallEvent_CallStatus.INVITE:
-        return call_status.CallStatus.INVITE;
       case CallEvent_CallStatus.IS_RINGING:
         return call_status.CallStatus.IS_RINGING;
-      case CallEvent_CallStatus.JOINED:
-        return call_status.CallStatus.JOINED;
-      case CallEvent_CallStatus.KICK:
-        return call_status.CallStatus.KICK;
-      case CallEvent_CallStatus.LEFT:
-        return call_status.CallStatus.LEFT;
     }
     return call_status.CallStatus.ENDED;
   }
@@ -179,26 +152,17 @@ class CallService {
         return CallEvent_CallStatus.DECLINED;
       case CallStatus.ENDED:
         return CallEvent_CallStatus.ENDED;
-      case CallStatus.INVITE:
-        return CallEvent_CallStatus.INVITE;
       case CallStatus.IS_RINGING:
         return CallEvent_CallStatus.IS_RINGING;
-      case CallStatus.JOINED:
-        return CallEvent_CallStatus.JOINED;
-      case CallStatus.KICK:
-        return CallEvent_CallStatus.KICK;
-      case CallStatus.LEFT:
-        return CallEvent_CallStatus.LEFT;
     }
   }
 
   String writeCallEventsToJson(CallEvents event) {
     return (CallEvent()
-          ..id = event.callId
+          ..callId = event.callId
           ..callType = event.callEvent!.callType
-          ..endOfCallTime = event.callEvent!.endOfCallTime
           ..callDuration = event.callEvent!.callDuration
-          ..newStatus = event.callEvent!.newStatus)
+          ..callStatus = event.callEvent!.callStatus)
         .writeToJson();
   }
 
@@ -207,7 +171,6 @@ class CallService {
       _logger.d("Clearing Call Data");
       _callId = "";
       _callState = UserCallState.NOCALL;
-      _callOwner = Uid.getDefault();
       await FlutterForegroundTask.clearAllData();
       await removeCallFromDb();
     }
@@ -232,8 +195,6 @@ class CallService {
         channelName: 'Foreground Notification',
         channelDescription:
             'This notification appears when the foreground service is running.',
-        channelImportance: NotificationChannelImportance.HIGH,
-        priority: NotificationPriority.HIGH,
         playSound: true,
         isSticky: false,
         iconData: const NotificationIconData(

@@ -267,7 +267,7 @@ class FeatureFlags {
   }
 
   bool labIsAvailable() =>
-      _voiceCallFeatureIsPossible() && !_isVoiceCallBetaUser();
+      _voiceCallFeatureIsPossible() ;
 
   bool _voiceCallFeatureIsPossible() => !isLinux;
 
@@ -307,5 +307,13 @@ class FeatureFlags {
     }
 
     return _voiceCallFeatureFlag.value;
+  }
+
+  void setICECandidateNumber(double ICECandidateNumbers){
+    _sharedDao.put("ICECandidateNumbers", ICECandidateNumbers.round().toString());
+  }
+
+  void setICECandidateTimeLimit(double ICECandidateTimeLimit){
+    _sharedDao.put("ICECandidateTimeLimit", ICECandidateTimeLimit.round().toString());
   }
 }

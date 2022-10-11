@@ -9,6 +9,7 @@ import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/clipboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -191,12 +192,11 @@ class SelectMultiMessageAppBar extends StatelessWidget {
                     )}\n";
                   }
                 }
-                Clipboard.setData(ClipboardData(text: copyText)).ignore();
-                onClose();
-                ToastDisplay.showToast(
-                  toastText: _i18n.get("copied"),
-                  toastContext: context,
+                saveToClipboard(
+                  copyText,
+                  context: context,
                 );
+                onClose();
               },
             ),
           )

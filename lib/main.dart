@@ -24,6 +24,7 @@ import 'package:deliver/box/dao/mute_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
+import 'package:deliver/box/dao/show_case_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/file_info.dart';
@@ -49,6 +50,7 @@ import 'package:deliver/box/role.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/box/sending_status.dart';
+import 'package:deliver/box/show_case.dart';
 import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
@@ -107,6 +109,7 @@ import 'box/dao/message_dao.dart';
 import 'box/dao/muc_dao.dart';
 import 'box/media.dart';
 import 'repository/mucRepo.dart';
+import 'repository/show_case_repo.dart';
 
 void registerSingleton<T extends Object>(T instance) {
   if (!GetIt.I.isRegistered<T>()) {
@@ -168,7 +171,8 @@ Future<void> setupDI() async {
     ..registerAdapter(ReplyKeyboardMarkupAdapter())
     ..registerAdapter(ReplyKeyboardRowAdapter())
     ..registerAdapter(InlineKeyboardRowAdapter())
-    ..registerAdapter(ActiveNotificationAdapter());
+    ..registerAdapter(ActiveNotificationAdapter())
+    ..registerAdapter(ShowCaseAdapter());
 
   registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
   registerSingleton<AccountDao>(AccountDaoImpl());
@@ -193,6 +197,7 @@ Future<void> setupDI() async {
   registerSingleton<AutoDownloadDao>(AutoDownloadDaoImpl());
   registerSingleton<CurrentCallInfoDao>(CurrentCallInfoDaoImpl());
   registerSingleton<ActiveNotificationDao>(ActiveNotificationDaoImpl());
+  registerSingleton<ShowCaseDao>(ShowCaseDaoImpl());
 
   registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
 
@@ -258,11 +263,12 @@ Future<void> setupDI() async {
 
   registerSingleton<CallRepo>(CallRepo());
   registerSingleton<UrlHandlerService>(UrlHandlerService());
+  registerSingleton<ShowCaseRepo>(ShowCaseRepo());
 }
 
 Future initializeFirebase() async {
   await Firebase.initializeApp(
-      name: APPLICATION_NAME, options: DefaultFirebaseOptions.currentPlatform);
+      name: APPLICATION_NAME, options: DefaultFirebaseOptions.currentPlatform,);
 }
 
 // ignore: avoid_void_async

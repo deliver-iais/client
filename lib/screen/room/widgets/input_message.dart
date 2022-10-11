@@ -319,7 +319,10 @@ class InputMessageWidgetState extends State<InputMessage> {
                     color: theme.colorScheme.surface,
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 4.0,
+                      horizontal: 4.0,
+                    ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: <Widget>[
@@ -610,9 +613,9 @@ class InputMessageWidgetState extends State<InputMessage> {
               ),
             if (showSendButton || widget.waitingForForward)
               IconButton(
-                icon:  Icon(
+                icon: Icon(
                   CupertinoIcons.paperplane_fill,
-                  color:theme.primaryColor,
+                  color: theme.primaryColor,
                 ),
                 onPressed: widget.textController.text.isEmpty &&
                         !widget.waitingForForward
@@ -642,7 +645,9 @@ class InputMessageWidgetState extends State<InputMessage> {
               controller: widget.textController,
               decoration: InputDecoration(
                 isCollapsed: true,
-                contentPadding: const EdgeInsets.only(top: 9, bottom: 9),
+                // TODO(bitbeter): باز باید بررسی بشه که چیه ماجرای این کد و به صورت کلی حل بشه و نه با شرط دسکتاپ بودن
+                contentPadding:
+                    EdgeInsets.only(top: 9, bottom: isDesktop ? 9 : 16),
                 border: InputBorder.none,
                 counterText: "",
                 hintText: hasMarkUpPlaceHolder(
@@ -673,7 +678,7 @@ class InputMessageWidgetState extends State<InputMessage> {
               ],
               style: theme.textTheme.bodyMedium,
               onTap: () {
-                if (!isDesktop) {
+                   if (!isDesktop) {
                   _showEmojiKeyboard.add(false);
                   _showReplyMarkUp.add(false);
                 }

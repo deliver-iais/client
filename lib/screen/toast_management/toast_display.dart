@@ -10,7 +10,7 @@ class ToastDisplay {
   static void showToast({
     IconData? toastIcon,
     Color? toastColor,
-    bool isSaveToast = false,
+    bool animateDone = false,
     required BuildContext toastContext,
     required String toastText,
   }) {
@@ -26,7 +26,7 @@ class ToastDisplay {
         borderRadius: tertiaryBorder,
         color: toastColor,
       ),
-      child:  Directionality(
+      child: Directionality(
         textDirection: i18n.defaultTextDirection,
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -36,8 +36,8 @@ class ToastDisplay {
               const SizedBox(
                 width: 12.0,
               ),
-            if (isSaveToast)
-              Lottie.asset("assets/animations/file-save.json", width: 40),
+            if (animateDone)
+              Lottie.asset("assets/animations/done.zip", width: 60, height: 40),
             Expanded(
               child: Text(
                 toastText,
@@ -52,7 +52,7 @@ class ToastDisplay {
     fToast.showToast(
       child: toast,
       gravity: ToastGravity.BOTTOM,
-      toastDuration: const Duration(seconds: 2),
+      toastDuration: const Duration(milliseconds: 2200),
     );
   }
 }

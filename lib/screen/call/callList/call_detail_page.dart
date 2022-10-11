@@ -73,7 +73,7 @@ class CallDetailPageState extends State<CallDetailPage> {
                   CallState(
                     textStyle: const TextStyle(fontSize: 17),
                     callStatus: _callService.findCallEventStatusDB(
-                      widget.callEvent.callEvent.newStatus,
+                      widget.callEvent.callEvent.callStatus,
                     ),
                     time: widget.callEvent.callEvent.callDuration,
                     isCurrentUser:

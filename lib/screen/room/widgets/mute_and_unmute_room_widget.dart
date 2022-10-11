@@ -1,3 +1,4 @@
+import 'package:deliver/box/room.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
@@ -72,19 +73,52 @@ class _MuteAndUnMuteRoomWidgetState extends State<MuteAndUnMuteRoomWidget> {
       child: StreamBuilder<bool>(
         stream: _roomRepo.watchIsRoomMuted(widget.roomId),
         builder: (context, isMuted) {
-          if (isMuted.hasData) {
-            return ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                shape: const RoundedRectangleBorder(),
-              ),
-              child: Text(
-                isMuted.data! ? _i18n.get("un_mute") : _i18n.get("mute"),
-              ),
-              onPressed: () {
-                if (isMuted.data!) {
-                  _roomRepo.unMute(widget.roomId);
+          if (isMuted.data != null) {
+            return FutureBuilder<Room?>(
+              future: _roomRepo.getRoom(widget.roomId),
+              builder: (c, room) {
+                if (room.data != null) {
+                  if (!room.data!.deleted) {
+                    return ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: const RoundedRectangleBorder(),
+                      ),
+                      child: Text(
+                        isMuted.data!
+                            ? _i18n.get("un_mute")
+                            : _i18n.get(
+                                "mute",
+                              ),
+                      ),
+                      onPressed: () {
+                        if (isMuted.data!) {
+                          _roomRepo.unMute(widget.roomId);
+                        } else {
+                          _roomRepo.mute(widget.roomId);
+                        }
+                      },
+                    );
+                  } else {
+                    return ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        shape: const RoundedRectangleBorder(),
+                      ),
+                      child: Text(
+                        _i18n.get("join"),
+                      ),
+                      onPressed: () async {
+                        await _mucRepo.joinChannel(
+                          widget.roomId.asUid(),
+                          "",
+                        );
+                        // TODO(bitbeter): This line of code is for rebuilding the future builder, but should be refactored!
+                        _roomRepo..mute(widget.roomId)
+                        ..unMute(widget.roomId);
+                      },
+                    );
+                  }
                 } else {
-                  _roomRepo.mute(widget.roomId);
+                  return const SizedBox.shrink();
                 }
               },
             );

@@ -48,7 +48,7 @@ dependencies:
   dcache: 0.4.0
   deliver_public_protocol:
     git:
-      ref: tags/v1.12.13-rc.29
+      ref: tags/v1.12.13-rc.54
       url: https://github.com/deliver-iais/pub-dart-artifactory
   desktop_drop: 0.3.3
   desktop_lifecycle: 0.1.0
@@ -83,7 +83,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_map: 2.2.0
-  flutter_webrtc: 0.9.7
+  flutter_webrtc: 0.9.8
   fluttertoast: 8.0.9
   font_awesome_flutter: 10.1.0
   fuzzy: 0.4.0-nullsafety.0
@@ -207,6 +207,7 @@ flutter:
     - assets/animations/file-save.json
     - assets/animations/not-found.tgs
     - assets/animations/touch.zip
+    - assets/animations/done.zip
     - assets/animations/unlock.tgs
     - assets/audios/beep_sound.mp3
     - assets/audios/busy_sound.mp3

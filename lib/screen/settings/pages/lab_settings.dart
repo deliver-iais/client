@@ -1,4 +1,6 @@
+import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/src/section.dart';
@@ -18,6 +20,27 @@ class LabSettingsPage extends StatefulWidget {
 class _LabSettingsPageState extends State<LabSettingsPage> {
   final _featureFlags = GetIt.I.get<FeatureFlags>();
   final _i18n = GetIt.I.get<I18N>();
+  final _callRepo = GetIt.I.get<CallRepo>();
+  final _sharedDao = GetIt.I.get<SharedDao>();
+
+  double ICECandidateNumber = 5;
+
+  double ICECandidateTimeLimit = 500;
+
+  @override
+  void initState() {
+    getCandidateValues();
+
+    super.initState();
+  }
+
+  Future<void> getCandidateValues() async {
+    ICECandidateNumber =
+        double.parse(await _sharedDao.get("ICECandidateNumbers") ?? "5");
+    ICECandidateTimeLimit = double.parse(
+        await _sharedDao.get("ICECandidateTimeLimit") ?? "500"); //mSec
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,8 +82,189 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                       );
                     },
                   ),
+                  Column(
+                    children: [
+                      const SettingsTile(
+                        title: "ICECandidateNumber",
+                        leading: Icon(CupertinoIcons.number_square_fill),
+                        trailing: Text(""),
+                      ),
+                      Slider(
+                        value: ICECandidateNumber,
+                        onChanged: (newICECandidateNumber) {
+                          setState(() {
+                            ICECandidateNumber = newICECandidateNumber;
+                            _featureFlags
+                                .setICECandidateNumber(ICECandidateNumber);
+                          });
+                        },
+                        divisions: 15,
+                        label: "$ICECandidateNumber",
+                        min: 5,
+                        max: 20,
+                      )
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      const SettingsTile(
+                        title: "ICECandidateTimeLimit(mSec)",
+                        leading: Icon(CupertinoIcons.timer_fill),
+                        trailing: Text(""),
+                      ),
+                      Slider(
+                        value: ICECandidateTimeLimit,
+                        onChanged: (newICECandidateTimeLimit) {
+                          setState(() {
+                            ICECandidateTimeLimit = newICECandidateTimeLimit;
+                            _featureFlags.setICECandidateTimeLimit(
+                                ICECandidateTimeLimit);
+                          });
+                        },
+                        divisions: 45,
+                        label: "$ICECandidateTimeLimit",
+                        min: 500,
+                        max: 5000,
+                      )
+                    ],
+                  ),
                 ],
               ),
+              Section(
+                title: "Call Logs",
+                children: [
+                  Column(
+                    children: [
+                      SettingsTile(
+                        title: "SelectedCandidate",
+                        leading: Icon(CupertinoIcons.check_mark_circled_solid),
+                        trailing: TextButton(
+                          onPressed: () async {
+                            await _callRepo.reset();
+                            setState(() {});
+                          },
+                          style: TextButton.styleFrom(
+                            foregroundColor: Theme.of(context).errorColor,
+                          ),
+                          child: const Text("Reset"),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: 24,
+                          right: 24,
+                          bottom: 10,
+                        ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: theme.colorScheme.outline,
+                            ),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Directionality(
+                              textDirection: TextDirection.ltr,
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text("id"),
+                                      Text(_callRepo.selectedCandidate.id),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text("timestamp"),
+                                      Text(_callRepo.selectedCandidate.timestamp
+                                          .toString()),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text("type"),
+                                      Text(_callRepo.selectedCandidate.type),
+                                    ],
+                                  ),
+                                  ..._callRepo.selectedCandidate.values.entries
+                                      .map(
+                                        (entry) => Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(entry.key),
+                                            Text(
+                                              entry.value.toString(),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                      .toList(),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      const SettingsTile(
+                        title: "Last Call Events",
+                        leading: Icon(CupertinoIcons.pencil_outline),
+                        trailing: Text(""),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: 24,
+                          right: 24,
+                          bottom: 10,
+                        ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: theme.colorScheme.outline,
+                            ),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Directionality(
+                              textDirection: TextDirection.ltr,
+                              child: Column(
+                                children: [
+                                  ..._callRepo.callEvents.entries
+                                      .map(
+                                        (entry) => Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(entry.key.toString()),
+                                            Text(
+                                              entry.value,
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                      .toList(),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              )
             ],
           ),
         ),

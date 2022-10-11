@@ -380,20 +380,31 @@ class RoomRepo {
     return finalList.values.toList();
   }
 
-  Future<List<Uid>> searchInRoomAndContacts(String text) async {
+  Future<List<Uid>> searchInRooms(String text) async {
     if (text.isEmpty) {
       return [];
     }
-
     final searchResult = <Uid>[];
-    final res = await _uidIdNameDao.search(text);
+    final res = (await _roomDao.getAllRooms()).where(
+      (element) => !element.deleted,
+    );
     for (final element in res) {
-      if (!element.uid.isUser() ||
-          (element.uid.isUser() &&
-              element.name != null &&
-              element.name!.isNotEmpty)) searchResult.add(element.uid.asUid());
+      final name = await getName(element.uid.asUid(), unknownName: "");
+      //search by name
+      if (name.toLowerCase().contains(text.toLowerCase()) && name.isNotEmpty) {
+        searchResult.add(element.uid.asUid());
+      }
+      //search by id;
+      else {
+        final id = (await _uidIdNameDao.getByUid(element.uid))?.id;
+        if (id != null && id.toLowerCase().contains(text.toLowerCase())) {
+          searchResult.add(element.uid.asUid());
+        }
+      }
     }
-    if (_i18n.get("saved_message").toLowerCase().contains(text.toLowerCase())) {
+    if (_i18n.get("saved_message").toLowerCase().contains(
+          text.toLowerCase(),
+        )) {
       searchResult.add(_authRepo.currentUserUid);
     }
 

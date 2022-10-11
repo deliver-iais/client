@@ -129,16 +129,22 @@ class HomePageState extends State<HomePage> {
     ReceiveSharingIntent.getInitialMedia().then((value) {
       _shareInputFile(value);
     });
-
-    ReceiveSharingIntent.getInitialText().then((value) async {
-      if (value != null && value.isNotEmpty) {
-        _urlHandlerService.handleApplicationUri(
-          value,
-          context,
-          shareTextMessage: true,
-        );
-      }
+    ReceiveSharingIntent.getTextStream().listen((event) {
+      _shareInputText(event, context);
     });
+    ReceiveSharingIntent.getInitialText().then((value) async {
+      _shareInputText(value, context);
+    });
+  }
+
+  void _shareInputText(String? value, BuildContext context) {
+    if (value != null && value.isNotEmpty) {
+      _urlHandlerService.handleApplicationUri(
+        value,
+        context,
+        shareTextMessage: true,
+      );
+    }
   }
 
   @override
@@ -146,11 +152,11 @@ class HomePageState extends State<HomePage> {
     final theme = Theme.of(context);
     return WillPopScope(
       onWillPop: () async {
-        if (!_routingService.canPop()) {
-          if(await FlutterForegroundTask.isRunningService){
+        if (!_routingService.canPop() && _routingService.preMaybePopScopeValue()) {
+          if (await FlutterForegroundTask.isRunningService) {
             FlutterForegroundTask.minimizeApp();
             return false;
-          }else{
+          } else {
             return true;
           }
         }

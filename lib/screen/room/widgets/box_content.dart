@@ -361,6 +361,7 @@ class BoxContentState extends State<BoxContent> {
           colorScheme: colorScheme,
         );
       case MessageType.TRANSACTION:
+      case MessageType.PAYMENT_INFORMATION:
       case MessageType.NOT_SET:
         return NotSupportedMessage(
           maxWidth: widget.maxWidth,

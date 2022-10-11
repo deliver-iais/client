@@ -63,17 +63,23 @@ class CallScreenState extends State<CallScreen> {
       );
     }
     random = randomAlphaNumeric(10);
-    _callRepo.initRenderer();
-    _localRenderer = _callRepo.getLocalRenderer;
-    _remoteRenderer = _callRepo.getRemoteRenderer;
-    if (!widget.isCallInitialized) {
-      startCall();
-      checkForSystemAlertWindowPermission();
-    }
+    renderersInit().then((value) {
+      if (!widget.isCallInitialized) {
+        startCall();
+        checkForSystemAlertWindowPermission();
+      }
+    });
     if (isAndroid) {
       _listenSensor();
     }
     super.initState();
+  }
+
+  Future<void> renderersInit() async {
+    await _callRepo.initRenderer();
+    _localRenderer = _callRepo.getLocalRenderer;
+    _remoteRenderer = _callRepo.getRemoteRenderer;
+    setState(() {});
   }
 
   void showPermissionDialog() {
