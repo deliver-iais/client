@@ -2,6 +2,7 @@ import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/services/log.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -57,6 +58,21 @@ class DeveloperPageState extends State<DeveloperPage> {
                     ),
                   )
                   .toList(),
+            ),
+            Section(
+              title: "Log in File",
+              children: [
+                SettingsTile.switchTile(
+                  title: "Log in file is Enabled",
+                  switchValue:
+                      GetIt.I.get<DeliverLogOutput>().saveInFileIsEnabled,
+                  onToggle: (value) {
+                    setState(() {
+                      _uxService.toggleLogInFileEnable();
+                    });
+                  },
+                ),
+              ],
             ),
             Section(
               title: "Analytics - Requests Frequency",
