@@ -266,8 +266,7 @@ class FeatureFlags {
         .listen((isEnable) => _voiceCallFeatureFlag.add(isEnable));
   }
 
-  bool labIsAvailable() =>
-      _voiceCallFeatureIsPossible() ;
+  bool labIsAvailable() => _voiceCallFeatureIsPossible();
 
   bool _voiceCallFeatureIsPossible() => !isLinux;
 
@@ -302,18 +301,20 @@ class FeatureFlags {
       return false;
     }
 
-    if (_isVoiceCallBetaUser()) {
-      return true;
-    }
-
     return _voiceCallFeatureFlag.value;
   }
 
-  void setICECandidateNumber(double ICECandidateNumbers){
-    _sharedDao.put("ICECandidateNumbers", ICECandidateNumbers.round().toString());
+  void setICECandidateNumber(double ICECandidateNumbers) {
+    _sharedDao.put(
+        "ICECandidateNumbers", ICECandidateNumbers.round().toString());
   }
 
-  void setICECandidateTimeLimit(double ICECandidateTimeLimit){
-    _sharedDao.put("ICECandidateTimeLimit", ICECandidateTimeLimit.round().toString());
+  void setICECandidateTimeLimit(double ICECandidateTimeLimit) {
+    _sharedDao.put(
+        "ICECandidateTimeLimit", ICECandidateTimeLimit.round().toString());
+  }
+
+  void setICEServerEnable(String server, bool status) {
+    _sharedDao.putBoolean(server, status);
   }
 }

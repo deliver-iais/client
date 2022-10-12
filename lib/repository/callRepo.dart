@@ -184,11 +184,11 @@ class CallRepo {
         case CallTypes.Answer:
           timerResendOffer!.cancel();
           _receivedCallAnswer(event.callAnswer!);
-          _callEvents[clock.now().millisecondsSinceEpoch] = "Answer";
+          _callEvents[clock.now().millisecondsSinceEpoch] = "Received Answer";
           break;
         case CallTypes.Offer:
           _receivedCallOffer(event.callOffer!);
-          _callEvents[clock.now().millisecondsSinceEpoch] = "Offer";
+          _callEvents[clock.now().millisecondsSinceEpoch] = "Received Offer";
           break;
         case CallTypes.Event:
           final callEvent = event.callEvent;
@@ -320,14 +320,30 @@ class CallRepo {
   }
 
   Future<RTCPeerConnection> _createPeerConnection(bool isOffer) async {
+    final stunLocal = await _sharedDao.getBoolean("stun:217.218.7.16:3478");
+    final turnLocal =
+        await _sharedDao.getBoolean("turn:217.218.7.16:3478?transport=udp");
+    final stunGoogle =
+        await _sharedDao.getBoolean("stun:stun.l.google.com:19302");
+    final turnGoogle =
+        await _sharedDao.getBoolean("turn:47.102.201.4:19303?transport=udp");
+
     final iceServers = <String, dynamic>{
       'iceServers': [
-        {'url': STUN_SERVER_URL},
-        {
-          'url': TURN_SERVER_URL,
-          'username': TURN_SERVER_USERNAME,
-          'credential': TURN_SERVER_PASSWORD
-        },
+        if (stunLocal) {'url': STUN_SERVER_URL},
+        if (turnLocal)
+          {
+            'url': TURN_SERVER_URL,
+            'username': TURN_SERVER_USERNAME,
+            'credential': TURN_SERVER_PASSWORD,
+          },
+        if (stunGoogle) {'url': STUN_SERVER_URL_2},
+        if (turnGoogle)
+          {
+            'url': TURN_SERVER_URL_2,
+            'username': TURN_SERVER_USERNAME_2,
+            'credential': TURN_SERVER_PASSWORD_2,
+          },
       ]
     };
 
@@ -543,7 +559,7 @@ class CallRepo {
     });
   }
 
-  void onRTCPeerConnectionConnected() async {
+  Future<void> onRTCPeerConnectionConnected() async {
     final stats = await _peerConnection!.getStats();
     var selectedCandidateId = "";
     for (final stat in stats) {
@@ -1002,6 +1018,7 @@ class CallRepo {
       if (!_isVideo && await Permission.microphone.status.isGranted) {
         if (await getDeviceVersion() >= 31) {
           _isCallInitiated = true;
+          await initRenderer();
           await initCall(isOffer: true);
         }
       }
@@ -1349,8 +1366,10 @@ class CallRepo {
       ..to = _roomUid!);
     _logger.i(_candidate);
     _coreServices.sendCallOffer(callOfferByClient);
-    timerResendOffer = Timer(const Duration(seconds: 8), () {
+    _callEvents[clock.now().millisecondsSinceEpoch] = "Send Offer";
+    timerResendOffer = Timer(const Duration(seconds: 5), () {
       _coreServices.sendCallOffer(callOfferByClient);
+      _callEvents[clock.now().millisecondsSinceEpoch] = "Retry Send Offer";
     });
   }
 
@@ -1368,13 +1387,15 @@ class CallRepo {
       ..to = _roomUid!);
     _logger.i(_candidate);
     _coreServices.sendCallAnswer(callAnswerByClient);
+    _callEvents[clock.now().millisecondsSinceEpoch] = "Send Answer";
 
     if (_reconnectTry) {
       callingStatus.add(CallStatus.RECONNECTING);
       _audioService.stopBeepSound();
     }
 
-    timerResendAnswer = Timer(const Duration(seconds: 8), () {
+    timerResendAnswer = Timer(const Duration(seconds: 5), () {
+      _callEvents[clock.now().millisecondsSinceEpoch] = "Retry Send Answer";
       _coreServices.sendCallAnswer(callAnswerByClient);
     });
 
@@ -1476,7 +1497,7 @@ class CallRepo {
     }
   }
 
-  Future<void> reset() async{
+  Future<void> reset() async {
     _callEvents = {};
     _selectedCandidate = StatsReport("id", "type", 0, {});
     await _dispose();
@@ -1526,6 +1547,15 @@ class CallRepo {
         ),
       );
     });
+  }
+
+  Future<void> _cleanRtpSender() async {
+    if(_audioSender != null){
+      await _audioSender!.dispose();
+    }
+    if(_videoSender != null){
+      await _videoSender!.dispose();
+    }
   }
 
   Future<void> _cleanLocalStream() async {

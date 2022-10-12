@@ -27,10 +27,12 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
 
   double ICECandidateTimeLimit = 500;
 
+  List<CheckBoxListTileModel> checkBoxListTileModel = [];
+
   @override
   void initState() {
     getCandidateValues();
-
+    getICEServersValues();
     super.initState();
   }
 
@@ -40,6 +42,18 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
     ICECandidateTimeLimit = double.parse(
         await _sharedDao.get("ICECandidateTimeLimit") ?? "500"); //mSec
     setState(() {});
+  }
+
+  Future<void> getICEServersValues() async {
+    checkBoxListTileModel = await getServers();
+    setState(() {});
+  }
+
+  void itemChange(bool val, int index) {
+    setState(() {
+      checkBoxListTileModel[index].isCheck = val;
+      _featureFlags.setICEServerEnable(checkBoxListTileModel[index].title, val);
+    });
   }
 
   @override
@@ -78,197 +92,287 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                         switchValue: snapshot.data ?? false,
                         onToggle: (value) {
                           _featureFlags.toggleVoiceCallFeatureFlag();
+                          setState(() {});
                         },
                       );
                     },
                   ),
-                  Column(
-                    children: [
-                      const SettingsTile(
-                        title: "ICECandidateNumber",
-                        leading: Icon(CupertinoIcons.number_square_fill),
-                        trailing: Text(""),
-                      ),
-                      Slider(
-                        value: ICECandidateNumber,
-                        onChanged: (newICECandidateNumber) {
-                          setState(() {
-                            ICECandidateNumber = newICECandidateNumber;
-                            _featureFlags
-                                .setICECandidateNumber(ICECandidateNumber);
-                          });
-                        },
-                        divisions: 15,
-                        label: "$ICECandidateNumber",
-                        min: 5,
-                        max: 20,
-                      )
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      const SettingsTile(
-                        title: "ICECandidateTimeLimit(mSec)",
-                        leading: Icon(CupertinoIcons.timer_fill),
-                        trailing: Text(""),
-                      ),
-                      Slider(
-                        value: ICECandidateTimeLimit,
-                        onChanged: (newICECandidateTimeLimit) {
-                          setState(() {
-                            ICECandidateTimeLimit = newICECandidateTimeLimit;
-                            _featureFlags.setICECandidateTimeLimit(
-                                ICECandidateTimeLimit);
-                          });
-                        },
-                        divisions: 45,
-                        label: "$ICECandidateTimeLimit",
-                        min: 500,
-                        max: 5000,
-                      )
-                    ],
-                  ),
+                  if (_featureFlags.isVoiceCallAvailable())
+                    Column(
+                      children: [
+                        const SettingsTile(
+                          title: "ICECandidateNumber",
+                          leading: Icon(CupertinoIcons.number_square_fill),
+                          trailing: Text(""),
+                        ),
+                        Slider(
+                          value: ICECandidateNumber,
+                          onChanged: (newICECandidateNumber) {
+                            setState(() {
+                              ICECandidateNumber = newICECandidateNumber;
+                              _featureFlags
+                                  .setICECandidateNumber(ICECandidateNumber);
+                            });
+                          },
+                          divisions: 15,
+                          label: "$ICECandidateNumber",
+                          min: 5,
+                          max: 20,
+                        )
+                      ],
+                    ),
+                  if (_featureFlags.isVoiceCallAvailable())
+                    Column(
+                      children: [
+                        const SettingsTile(
+                          title: "ICECandidateTimeLimit(mSec)",
+                          leading: Icon(CupertinoIcons.timer_fill),
+                          trailing: Text(""),
+                        ),
+                        Slider(
+                          value: ICECandidateTimeLimit,
+                          onChanged: (newICECandidateTimeLimit) {
+                            setState(() {
+                              ICECandidateTimeLimit = newICECandidateTimeLimit;
+                              _featureFlags.setICECandidateTimeLimit(
+                                ICECandidateTimeLimit,
+                              );
+                            });
+                          },
+                          divisions: 45,
+                          label: "$ICECandidateTimeLimit",
+                          min: 500,
+                          max: 5000,
+                        )
+                      ],
+                    ),
+                  if (_featureFlags.isVoiceCallAvailable())
+                    Column(
+                      children: [
+                        const SettingsTile(
+                          title: "Turn/Stun Servers",
+                          leading: Icon(CupertinoIcons.settings),
+                          trailing: Text(""),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: ListView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: checkBoxListTileModel.length,
+                            itemBuilder: (context, index) {
+                              return Card(
+                                child: Container(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: Column(
+                                    children: <Widget>[
+                                      CheckboxListTile(
+                                        activeColor: theme.colorScheme.primary,
+                                        dense: true,
+                                        //font change
+                                        title: Text(
+                                          checkBoxListTileModel[index].title,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
+                                        value: checkBoxListTileModel[index]
+                                            .isCheck,
+                                        onChanged: (val) {
+                                          itemChange(val!, index);
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
                 ],
               ),
-              Section(
-                title: "Call Logs",
-                children: [
-                  Column(
-                    children: [
-                      SettingsTile(
-                        title: "SelectedCandidate",
-                        leading: Icon(CupertinoIcons.check_mark_circled_solid),
-                        trailing: TextButton(
-                          onPressed: () async {
-                            await _callRepo.reset();
-                            setState(() {});
-                          },
-                          style: TextButton.styleFrom(
-                            foregroundColor: Theme.of(context).errorColor,
-                          ),
-                          child: const Text("Reset"),
-                        ),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: 24,
-                          right: 24,
-                          bottom: 10,
-                        ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: theme.colorScheme.outline,
+              if (_featureFlags.isVoiceCallAvailable())
+                Section(
+                  title: "Call Logs",
+                  children: [
+                    Column(
+                      children: [
+                        SettingsTile(
+                          title: "SelectedCandidate",
+                          leading: const Icon(
+                              CupertinoIcons.check_mark_circled_solid),
+                          trailing: TextButton(
+                            onPressed: () async {
+                              await _callRepo.reset();
+                              setState(() {});
+                            },
+                            style: TextButton.styleFrom(
+                              foregroundColor: Theme.of(context).errorColor,
                             ),
-                            borderRadius: BorderRadius.circular(15),
+                            child: const Text("Logs Reset"),
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Directionality(
-                              textDirection: TextDirection.ltr,
-                              child: Column(
-                                children: [
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      const Text("id"),
-                                      Text(_callRepo.selectedCandidate.id),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      const Text("timestamp"),
-                                      Text(_callRepo.selectedCandidate.timestamp
-                                          .toString()),
-                                    ],
-                                  ),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      const Text("type"),
-                                      Text(_callRepo.selectedCandidate.type),
-                                    ],
-                                  ),
-                                  ..._callRepo.selectedCandidate.values.entries
-                                      .map(
-                                        (entry) => Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(entry.key),
-                                            Text(
-                                              entry.value.toString(),
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                      .toList(),
-                                ],
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 24,
+                            right: 24,
+                            bottom: 10,
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: theme.colorScheme.outline,
+                              ),
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Directionality(
+                                textDirection: TextDirection.ltr,
+                                child: Column(
+                                  children: [
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const Text("id"),
+                                        Text(_callRepo.selectedCandidate.id),
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const Text("timestamp"),
+                                        Text(_callRepo
+                                            .selectedCandidate.timestamp
+                                            .toString()),
+                                      ],
+                                    ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        const Text("type"),
+                                        Text(_callRepo.selectedCandidate.type),
+                                      ],
+                                    ),
+                                    ..._callRepo
+                                        .selectedCandidate.values.entries
+                                        .map(
+                                          (entry) => Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(entry.key),
+                                              Text(
+                                                entry.value.toString(),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                        .toList(),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      const SettingsTile(
-                        title: "Last Call Events",
-                        leading: Icon(CupertinoIcons.pencil_outline),
-                        trailing: Text(""),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.only(
-                          left: 24,
-                          right: 24,
-                          bottom: 10,
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        const SettingsTile(
+                          title: "Last Call Events",
+                          leading: Icon(CupertinoIcons.pencil_outline),
+                          trailing: Text(""),
                         ),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: theme.colorScheme.outline,
-                            ),
-                            borderRadius: BorderRadius.circular(15),
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            left: 24,
+                            right: 24,
+                            bottom: 10,
                           ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(8.0),
-                            child: Directionality(
-                              textDirection: TextDirection.ltr,
-                              child: Column(
-                                children: [
-                                  ..._callRepo.callEvents.entries
-                                      .map(
-                                        (entry) => Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text(entry.key.toString()),
-                                            Text(
-                                              entry.value,
-                                            ),
-                                          ],
-                                        ),
-                                      )
-                                      .toList(),
-                                ],
+                          child: Container(
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: theme.colorScheme.outline,
+                              ),
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(8.0),
+                              child: Directionality(
+                                textDirection: TextDirection.ltr,
+                                child: Column(
+                                  children: [
+                                    ..._callRepo.callEvents.entries
+                                        .map(
+                                          (entry) => Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Text(entry.key.toString()),
+                                              Text(
+                                                entry.value,
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                        .toList(),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
-              )
+                      ],
+                    ),
+                  ],
+                )
             ],
           ),
         ),
       ),
     );
   }
+
+  Future<List<CheckBoxListTileModel>> getServers() async {
+    return <CheckBoxListTileModel>[
+      CheckBoxListTileModel(
+        checkboxId: 1,
+        title: "stun:217.218.7.16:3478",
+        isCheck: await _sharedDao.getBoolean("stun:217.218.7.16:3478"),
+      ),
+      CheckBoxListTileModel(
+        checkboxId: 3,
+        title: "turn:217.218.7.16:3478?transport=udp",
+        isCheck: await _sharedDao.getBoolean("turn:217.218.7.16:3478?transport=udp"),
+      ),
+      CheckBoxListTileModel(
+        checkboxId: 2,
+        title: "stun:stun.l.google.com:19302",
+        isCheck: await _sharedDao.getBoolean("stun:stun.l.google.com:19302"),
+      ),
+      CheckBoxListTileModel(
+        checkboxId: 4,
+        title: "turn:47.102.201.4:19303?transport=udp",
+        isCheck: await _sharedDao.getBoolean("turn:47.102.201.4:19303?transport=udp"),
+      ),
+    ];
+  }
+}
+
+class CheckBoxListTileModel {
+  int checkboxId;
+  String title;
+  bool isCheck;
+  final _sharedDao = GetIt.I.get<SharedDao>();
+
+  CheckBoxListTileModel(
+      {required this.checkboxId, required this.title, required this.isCheck});
 }
