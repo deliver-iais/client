@@ -16,13 +16,14 @@ class TextLoader extends StatelessWidget {
   }
 
   Widget buildLoader(BuildContext context) {
+    final theme = Theme.of(context).colorScheme;
     return Shimmer.fromColors(
-      baseColor: Colors.black12,
-      highlightColor: Colors.black45,
+      baseColor: theme.outline.withOpacity(0.15),
+      highlightColor: theme.onSurface.withOpacity(0.23),
       child: Container(
         width: width,
         height: (text.style?.fontSize ?? 10) + 2,
-        color: Colors.white,
+        color: theme.surface,
       ),
     );
   }
