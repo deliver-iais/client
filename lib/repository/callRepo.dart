@@ -173,15 +173,29 @@ class CallRepo {
       }
     });
     _callService.callEvents.listen((event) {
+      final from = event.roomUid!.asString();
+      final to = _authRepo.currentUserUid.asString();
       switch (event.callType) {
         case CallTypes.Answer:
-          timerResendOffer!.cancel();
-          _receivedCallAnswer(event.callAnswer!);
-          _callEvents[clock.now().millisecondsSinceEpoch] = "Received Answer";
+          if(from == to){
+            _dispose();
+          }else {
+            timerResendOffer!.cancel();
+            _receivedCallAnswer(event.callAnswer!);
+            _callEvents[clock
+                .now()
+                .millisecondsSinceEpoch] = "Received Answer";
+          }
           break;
         case CallTypes.Offer:
-          _receivedCallOffer(event.callOffer!);
-          _callEvents[clock.now().millisecondsSinceEpoch] = "Received Offer";
+          if(from == to){
+            _dispose();
+          }else {
+            _receivedCallOffer(event.callOffer!);
+            _callEvents[clock
+                .now()
+                .millisecondsSinceEpoch] = "Received Offer";
+          }
           break;
         case CallTypes.Event:
           final callEvent = event.callEvent;
@@ -197,10 +211,10 @@ class CallRepo {
               break;
             case CallEvent_CallStatus.CREATED:
               _callEvents[event.time] = "Created";
-              final from = event.roomUid!.asString();
-              final to = _authRepo.currentUserUid.asString();
-              if (from != to &&
-                  _callService.getUserCallState == UserCallState.NOCALL &&
+              if(from == to){
+                _dispose();
+              }else{
+              if (_callService.getUserCallState == UserCallState.NOCALL &&
                   ((event.time - clock.now().millisecondsSinceEpoch).abs()) <
                       60000) {
                 // final callStatus =
@@ -271,6 +285,7 @@ class CallRepo {
                       ? CallEvent_CallType.VIDEO
                       : CallEvent_CallType.AUDIO,
                 );
+              }
               }
               break;
             case CallEvent_CallStatus.BUSY:
@@ -1027,6 +1042,9 @@ class CallRepo {
       _roomUid = roomId;
       _isCallInitiated = true;
       await initCall();
+      // change location of this line from mediaStream get to this line for prevent
+      // exception on callScreen and increase call speed .
+      onLocalStream?.call(_localStream!);
       _logger.i("Start Call and Created !!!");
       callingStatus.add(CallStatus.CREATED);
       //Set Timer 50 sec for end call
@@ -1041,18 +1059,21 @@ class CallRepo {
       });
       _callIdGenerator();
       _sendStartCallEvent();
-      final foregroundStatus = await _callService.foregroundTaskInitializing();
-      if (foregroundStatus) {
-        _receivePort = _callService.getReceivePort;
-        _receivePort?.listen((message) {
-          if (message == "endCall") {
-            endCall();
-          } else if (message == 'onNotificationPressed') {
-            _routingService.openCallScreen(roomUid!, isVideoCall: isVideo);
-          } else {
-            _logger.i('receive callStatus: $message');
-          }
-        });
+      if (isAndroid) {
+        final foregroundStatus =
+            await _callService.foregroundTaskInitializing();
+        if (foregroundStatus) {
+          _receivePort = _callService.getReceivePort;
+          _receivePort?.listen((message) {
+            if (message == "endCall") {
+              endCall();
+            } else if (message == 'onNotificationPressed') {
+              _routingService.openCallScreen(roomUid!, isVideoCall: isVideo);
+            } else {
+              _logger.i('receive callStatus: $message');
+            }
+          });
+        }
       }
     } else {
       _logger.i("User on Call ... !");
@@ -1224,7 +1245,7 @@ class CallRepo {
 
 // TODO(AmirHossein): removed Force End Call and we need Handle it with third-party Service.
   void endCall() {
-    if (callingStatus.value != CallStatus.ENDED) {
+    if (callingStatus.value != CallStatus.ENDED || callingStatus.value != CallStatus.NO_CALL ) {
       if (isWindows) {
         _notificationServices.cancelRoomNotifications(roomUid!.node);
       }
@@ -1394,7 +1415,7 @@ class CallRepo {
 
     //Set Timer 30 sec for end call if Call doesn't Connected
     timerConnectionFailed = Timer(const Duration(seconds: 30), () {
-      if (callingStatus.value != CallStatus.CONNECTED) {
+      if (callingStatus.value != CallStatus.CONNECTED && callingStatus.value != CallStatus.NO_CALL) {
         _logger.i("Call Can't Connected !!");
         callingStatus.add(CallStatus.NO_ANSWER);
         _audioService.stopBeepSound();
@@ -1412,6 +1433,15 @@ class CallRepo {
 //Windows memory leak Warning!! https://github.com/flutter-webrtc/flutter-webrtc/issues/752
   Future<void> _dispose() async {
     try {
+      if(timerDisconnected != null){
+        timerDisconnected!.cancel();
+      }
+      if(timerResendOffer != null){
+        timerResendOffer!.cancel();
+      }
+      if(timerResendAnswer != null){
+        timerResendAnswer!.cancel();
+      }
       if (isAndroid) {
         _isNotificationSelected = false;
         modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(null);

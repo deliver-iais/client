@@ -26,7 +26,7 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
   final _callRepo = GetIt.I.get<CallRepo>();
   final _sharedDao = GetIt.I.get<SharedDao>();
 
-  double ICECandidateNumber = 5;
+  double ICECandidateNumber = 10;
 
   double ICECandidateTimeLimit = 500;
 
@@ -153,7 +153,7 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                           divisions: 45,
                           label: "$ICECandidateTimeLimit",
                           min: 500,
-                          max: 5000,
+                          max: 3000,
                         )
                       ],
                     ),
