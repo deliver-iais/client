@@ -41,7 +41,7 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
 
   Future<void> getCandidateValues() async {
     ICECandidateNumber =
-        double.parse(await _sharedDao.get("ICECandidateNumbers") ?? "5");
+        double.parse(await _sharedDao.get("ICECandidateNumbers") ?? "10");
     ICECandidateTimeLimit = double.parse(
         await _sharedDao.get("ICECandidateTimeLimit") ?? "500"); //mSec
     setState(() {});
@@ -127,7 +127,7 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                           },
                           divisions: 15,
                           label: "$ICECandidateNumber",
-                          min: 5,
+                          min: 10,
                           max: 20,
                         )
                       ],
