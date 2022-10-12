@@ -2,13 +2,16 @@ import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/services/ux_service.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/src/section.dart';
 import 'package:deliver/shared/widgets/settings_ui/src/settings_tile.dart';
+import 'package:deliver/shared/widgets/tgs.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class LabSettingsPage extends StatefulWidget {
   const LabSettingsPage({super.key});
@@ -54,6 +57,14 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
       checkBoxListTileModel[index].isCheck = val;
       _featureFlags.setICEServerEnable(checkBoxListTileModel[index].title, val);
     });
+  }
+
+  Future<void> checkForSystemAlertWindowPermission() async {
+    if (isAndroid &&
+        await getDeviceVersion() >= 31 &&
+        !await Permission.systemAlertWindow.status.isGranted) {
+      showPermissionDialog();
+    }
   }
 
   @override
@@ -346,12 +357,12 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
       CheckBoxListTileModel(
         checkboxId: 1,
         title: "stun:217.218.7.16:3478",
-        isCheck: await _sharedDao.getBoolean("stun:217.218.7.16:3478"),
+        isCheck: await _sharedDao.getBoolean("stun:217.218.7.16:3478", defaultValue : true),
       ),
       CheckBoxListTileModel(
         checkboxId: 3,
         title: "turn:217.218.7.16:3478?transport=udp",
-        isCheck: await _sharedDao.getBoolean("turn:217.218.7.16:3478?transport=udp"),
+        isCheck: await _sharedDao.getBoolean("turn:217.218.7.16:3478?transport=udp", defaultValue : true),
       ),
       CheckBoxListTileModel(
         checkboxId: 2,
@@ -364,6 +375,73 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
         isCheck: await _sharedDao.getBoolean("turn:47.102.201.4:19303?transport=udp"),
       ),
     ];
+  }
+
+  void showPermissionDialog() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        final theme = Theme.of(context);
+        return AlertDialog(
+          title: const Tgs.asset(
+            'assets/animations/call_permission.tgs',
+            width: 150,
+            height: 150,
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                _i18n.get(
+                  "alert_window_permission",
+                ),
+                textDirection: _i18n.defaultTextDirection,
+                style: theme.textTheme.bodyText1!
+                    .copyWith(color: theme.primaryColor),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: Text(
+                  _i18n.get(
+                    "alert_window_permission_attention",
+                  ),
+                  textDirection: _i18n.defaultTextDirection,
+                  style: theme.textTheme.bodyText1!
+                      .copyWith(color: theme.errorColor),
+                ),
+              )
+            ],
+          ),
+          alignment: Alignment.center,
+          actionsAlignment: MainAxisAlignment.spaceEvenly,
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              style: TextButton.styleFrom(
+                foregroundColor: Theme.of(context).errorColor,
+              ),
+              child: Text(
+                _i18n.get(
+                  "cancel",
+                ),
+              ),
+            ),
+            TextButton(
+              child: Text(
+                _i18n.get("go_to_setting"),
+              ),
+              onPressed: () async {
+                if (await Permission.systemAlertWindow.request().isGranted) {
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 

@@ -69,13 +69,6 @@ class CallRepo {
   final _routingService = GetIt.I.get<RoutingService>();
   final _sharedDao = GetIt.I.get<SharedDao>();
 
-  late RTCVideoRenderer _localRenderer = RTCVideoRenderer();
-  late RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
-
-  RTCVideoRenderer get getLocalRenderer => _localRenderer;
-
-  RTCVideoRenderer get getRemoteRenderer => _remoteRenderer;
-
   bool get isSpeaker => _isSpeaker;
 
   bool get isMicMuted => _isMicMuted;
@@ -763,8 +756,6 @@ class CallRepo {
 
     final stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
 
-    onLocalStream?.call(stream);
-
     return stream;
   }
 
@@ -1018,7 +1009,6 @@ class CallRepo {
       if (!_isVideo && await Permission.microphone.status.isGranted) {
         if (await getDeviceVersion() >= 31) {
           _isCallInitiated = true;
-          await initRenderer();
           await initCall(isOffer: true);
         }
       }
@@ -1111,6 +1101,9 @@ class CallRepo {
     if (!_isCallInitiated) {
       await initCall(isOffer: true);
     }
+    // change location of this line from mediaStream get to this line for prevent
+    // exception on callScreen and increase call speed .
+    onLocalStream?.call(_localStream!);
 
     unawaited(_sendOffer());
     final foregroundStatus = await _callService.foregroundTaskInitializing();
@@ -1492,7 +1485,6 @@ class CallRepo {
         _isVideo = false;
         _isCallInitiated = false;
         callTimer.add(CallTimer(0, 0, 0));
-        await _disposeRenderer();
       });
     }
   }
@@ -1501,27 +1493,6 @@ class CallRepo {
     _callEvents = {};
     _selectedCandidate = StatsReport("id", "type", 0, {});
     await _dispose();
-  }
-
-  Future<void> initRenderer() async {
-    if (!_isInitRenderer) {
-      _isInitRenderer = true;
-      await _localRenderer.initialize();
-      await _remoteRenderer.initialize();
-      _logger.i("Initialize Renderers");
-    }
-  }
-
-  Future<void> _disposeRenderer() async {
-    _logger.i("Dispose!");
-    if (_isInitRenderer) {
-      await _localRenderer.dispose();
-      await _remoteRenderer.dispose();
-      _isInitRenderer = false;
-      _logger.i("Dispose Renderers");
-      _localRenderer = RTCVideoRenderer();
-      _remoteRenderer = RTCVideoRenderer();
-    }
   }
 
   void startCallTimer() {
@@ -1550,10 +1521,10 @@ class CallRepo {
   }
 
   Future<void> _cleanRtpSender() async {
-    if(_audioSender != null){
+    if (_audioSender != null) {
       await _audioSender!.dispose();
     }
-    if(_videoSender != null){
+    if (_videoSender != null) {
       await _videoSender!.dispose();
     }
   }
