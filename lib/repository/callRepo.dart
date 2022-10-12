@@ -328,9 +328,9 @@ class CallRepo {
   }
 
   Future<RTCPeerConnection> _createPeerConnection(bool isOffer) async {
-    final stunLocal = await _sharedDao.getBoolean("stun:217.218.7.16:3478");
+    final stunLocal = await _sharedDao.getBoolean("stun:217.218.7.16:3478", defaultValue: true);
     final turnLocal =
-        await _sharedDao.getBoolean("turn:217.218.7.16:3478?transport=udp");
+        await _sharedDao.getBoolean("turn:217.218.7.16:3478?transport=udp", defaultValue: true);
     final stunGoogle =
         await _sharedDao.getBoolean("stun:stun.l.google.com:19302");
     final turnGoogle =
