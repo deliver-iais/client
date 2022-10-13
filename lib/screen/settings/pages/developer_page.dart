@@ -84,6 +84,9 @@ class DeveloperPageState extends State<DeveloperPage> {
                         _routingService.openShareInput(paths: [path]);
                       },
                     ),
+                    const Text(
+                      "You can share your log file with us for debugging and later improvements",
+                    ),
                   ],
                 )
               ],
