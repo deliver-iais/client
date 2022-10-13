@@ -125,7 +125,7 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                                   .setICECandidateNumber(ICECandidateNumber);
                             });
                           },
-                          divisions: 15,
+                          divisions: 10,
                           label: "$ICECandidateNumber",
                           min: 10,
                           max: 20,

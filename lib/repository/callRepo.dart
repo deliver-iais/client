@@ -39,6 +39,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sdp_transform/sdp_transform.dart';
+import 'package:wakelock/wakelock.dart';
 
 enum CallStatus {
   CREATED,
@@ -97,7 +98,6 @@ class CallRepo {
   bool _isConnected = false;
   bool _isSpeaker = false;
   bool _isMicMuted = false;
-  bool _isInitRenderer = false;
   bool _isDCReceived = false;
   bool _reconnectTry = false;
   bool _isEnded = false;
@@ -177,24 +177,20 @@ class CallRepo {
       final to = _authRepo.currentUserUid.asString();
       switch (event.callType) {
         case CallTypes.Answer:
-          if(from == to){
+          if (from == to) {
             _dispose();
-          }else {
+          } else {
             timerResendOffer!.cancel();
             _receivedCallAnswer(event.callAnswer!);
-            _callEvents[clock
-                .now()
-                .millisecondsSinceEpoch] = "Received Answer";
+            _callEvents[clock.now().millisecondsSinceEpoch] = "Received Answer";
           }
           break;
         case CallTypes.Offer:
-          if(from == to){
+          if (from == to) {
             _dispose();
-          }else {
+          } else {
             _receivedCallOffer(event.callOffer!);
-            _callEvents[clock
-                .now()
-                .millisecondsSinceEpoch] = "Received Offer";
+            _callEvents[clock.now().millisecondsSinceEpoch] = "Received Offer";
           }
           break;
         case CallTypes.Event:
@@ -211,81 +207,81 @@ class CallRepo {
               break;
             case CallEvent_CallStatus.CREATED:
               _callEvents[event.time] = "Created";
-              if(from == to){
+              if (from == to) {
                 _dispose();
-              }else{
-              if (_callService.getUserCallState == UserCallState.NOCALL &&
-                  ((event.time - clock.now().millisecondsSinceEpoch).abs()) <
-                      60000) {
-                // final callStatus =
-                //     await FlutterForegroundTask.getData(key: "callStatus");
-                _callService
-                  ..setUserCallState = UserCallState.IN_USER_CALL
-                  ..setCallId = callEvent.callId;
+              } else {
+                if (_callService.getUserCallState == UserCallState.NOCALL &&
+                    ((event.time - clock.now().millisecondsSinceEpoch).abs()) <
+                        60000) {
+                  // final callStatus =
+                  //     await FlutterForegroundTask.getData(key: "callStatus");
+                  _callService
+                    ..setUserCallState = UserCallState.IN_USER_CALL
+                    ..setCallId = callEvent.callId;
 
-                if (callEvent.callType == CallEvent_CallType.VIDEO) {
-                  _logger.i("VideoCall");
-                  _isVideo = true;
-                } else {
-                  _isVideo = false;
-                }
-
-                if (_isAccepted) {
-                  modifyRoutingByCallNotificationActionInBackgroundInAndroid
-                      .add(
-                    CallNotificationActionInBackground(
-                      roomId: event.roomUid!.asString(),
-                      isCallAccepted: true,
-                    ),
-                  );
-                } else {
-                  if (!isWindows && !_isCallFromDb) {
-                    //get call Info and Save on DB
-                    final currentCallEvent = call_event.CallEvent(
-                      callDuration: callEvent.callDuration.toInt(),
-                      callType: _callService.findCallEventType(
-                        callEvent.callType,
-                      ),
-                      callStatus: _callService
-                          .findCallEventStatusProto(callEvent.callStatus),
-                      id: callEvent.callId,
-                    );
-                    final callInfo = current_call_info.CurrentCallInfo(
-                      callEvent: currentCallEvent,
-                      from: from,
-                      to: to,
-                      expireTime: event.time + 60000,
-                      notificationSelected: _isNotificationSelected,
-                      isAccepted: _isAccepted,
-                    );
-
-                    _callService.saveCallOnDb(callInfo);
-                    _logger.i("save call on db!");
+                  if (callEvent.callType == CallEvent_CallType.VIDEO) {
+                    _logger.i("VideoCall");
+                    _isVideo = true;
+                  } else {
+                    _isVideo = false;
                   }
 
+                  if (_isAccepted) {
+                    modifyRoutingByCallNotificationActionInBackgroundInAndroid
+                        .add(
+                      CallNotificationActionInBackground(
+                        roomId: event.roomUid!.asString(),
+                        isCallAccepted: true,
+                      ),
+                    );
+                  } else {
+                    if (!isWindows && !_isCallFromDb) {
+                      //get call Info and Save on DB
+                      final currentCallEvent = call_event.CallEvent(
+                        callDuration: callEvent.callDuration.toInt(),
+                        callType: _callService.findCallEventType(
+                          callEvent.callType,
+                        ),
+                        callStatus: _callService
+                            .findCallEventStatusProto(callEvent.callStatus),
+                        id: callEvent.callId,
+                      );
+                      final callInfo = current_call_info.CurrentCallInfo(
+                        callEvent: currentCallEvent,
+                        from: from,
+                        to: to,
+                        expireTime: event.time + 60000,
+                        notificationSelected: _isNotificationSelected,
+                        isAccepted: _isAccepted,
+                      );
+
+                      _callService.saveCallOnDb(callInfo);
+                      _logger.i("save call on db!");
+                    }
+
+                    _incomingCall(
+                      event.roomUid!,
+                      false,
+                      _callService.writeCallEventsToJson(event),
+                    );
+                  }
+                } else if (event.roomUid == _roomUid) {
                   _incomingCall(
                     event.roomUid!,
-                    false,
+                    true,
                     _callService.writeCallEventsToJson(event),
                   );
+                } else if (callEvent.callId != _callService.getCallId) {
+                  _messageRepo.sendCallMessage(
+                    CallEvent_CallStatus.BUSY,
+                    event.roomUid!,
+                    callEvent.callId,
+                    0,
+                    _isVideo
+                        ? CallEvent_CallType.VIDEO
+                        : CallEvent_CallType.AUDIO,
+                  );
                 }
-              } else if (event.roomUid == _roomUid) {
-                _incomingCall(
-                  event.roomUid!,
-                  true,
-                  _callService.writeCallEventsToJson(event),
-                );
-              } else if (callEvent.callId != _callService.getCallId) {
-                _messageRepo.sendCallMessage(
-                  CallEvent_CallStatus.BUSY,
-                  event.roomUid!,
-                  callEvent.callId,
-                  0,
-                  _isVideo
-                      ? CallEvent_CallType.VIDEO
-                      : CallEvent_CallType.AUDIO,
-                );
-              }
               }
               break;
             case CallEvent_CallStatus.BUSY:
@@ -328,9 +324,10 @@ class CallRepo {
   }
 
   Future<RTCPeerConnection> _createPeerConnection(bool isOffer) async {
-    final stunLocal = await _sharedDao.getBoolean("stun:217.218.7.16:3478", defaultValue: true);
-    final turnLocal =
-        await _sharedDao.getBoolean("turn:217.218.7.16:3478?transport=udp", defaultValue: true);
+    final stunLocal = await _sharedDao.getBoolean("stun:217.218.7.16:3478",
+        defaultValue: true);
+    final turnLocal = await _sharedDao
+        .getBoolean("turn:217.218.7.16:3478?transport=udp", defaultValue: true);
     final stunGoogle =
         await _sharedDao.getBoolean("stun:stun.l.google.com:19302");
     final turnGoogle =
@@ -585,6 +582,9 @@ class CallRepo {
     _callEvents[clock.now().millisecondsSinceEpoch] = "Connected";
     await vibrate(duration: 50);
     _audioService.stopBeepSound();
+    if(isAndroid) {
+      await Wakelock.enable();
+    }
     if (_reconnectTry) {
       _reconnectTry = false;
       timerDisconnected?.cancel();
@@ -1245,7 +1245,8 @@ class CallRepo {
 
 // TODO(AmirHossein): removed Force End Call and we need Handle it with third-party Service.
   void endCall() {
-    if (callingStatus.value != CallStatus.ENDED || callingStatus.value != CallStatus.NO_CALL ) {
+    if (callingStatus.value != CallStatus.ENDED ||
+        callingStatus.value != CallStatus.NO_CALL) {
       if (isWindows) {
         _notificationServices.cancelRoomNotifications(roomUid!.node);
       }
@@ -1321,13 +1322,13 @@ class CallRepo {
 
   Future<void> _waitUntilCandidateConditionDone() async {
     final candidateNumber = int.parse(
-        (await _sharedDao.get("ICECandidateNumbers")) ??
-            ((_reconnectTry || _isVideo) ? "20" : "10"));
+      (await _sharedDao.get("ICECandidateNumbers")) ??
+          ((_reconnectTry || _isVideo) ? "20" : "10"),
+    );
     final candidateTimeLimit = int.parse(
-        (await _sharedDao.get("ICECandidateTimeLimit")) ??
-            ((_reconnectTry || _isVideo)
-                ? "1000"
-                : "500")); // 0.5 sec for audio and 1.0 for video
+      (await _sharedDao.get("ICECandidateTimeLimit")) ??
+          ((_reconnectTry || _isVideo) ? "1000" : "500"),
+    ); // 0.5 sec for audio and 1.0 for video
     _logger.i(
       "candidateNumber:${candidateNumber}",
       "candidateTimeLimit:${candidateTimeLimit}",
@@ -1415,7 +1416,8 @@ class CallRepo {
 
     //Set Timer 30 sec for end call if Call doesn't Connected
     timerConnectionFailed = Timer(const Duration(seconds: 30), () {
-      if (callingStatus.value != CallStatus.CONNECTED && callingStatus.value != CallStatus.NO_CALL) {
+      if (callingStatus.value != CallStatus.CONNECTED &&
+          callingStatus.value != CallStatus.NO_CALL) {
         _logger.i("Call Can't Connected !!");
         callingStatus.add(CallStatus.NO_ANSWER);
         _audioService.stopBeepSound();
@@ -1433,13 +1435,13 @@ class CallRepo {
 //Windows memory leak Warning!! https://github.com/flutter-webrtc/flutter-webrtc/issues/752
   Future<void> _dispose() async {
     try {
-      if(timerDisconnected != null){
+      if (timerDisconnected != null) {
         timerDisconnected!.cancel();
       }
-      if(timerResendOffer != null){
+      if (timerResendOffer != null) {
         timerResendOffer!.cancel();
       }
-      if(timerResendAnswer != null){
+      if (timerResendAnswer != null) {
         timerResendAnswer!.cancel();
       }
       if (isAndroid) {
@@ -1505,6 +1507,9 @@ class CallRepo {
       desktopDualVideo.add(true);
 
       await _callService.clearCallData(forceToClearData: true);
+      if(isAndroid) {
+        await Wakelock.disable();
+      }
       Timer(const Duration(milliseconds: 1500), () async {
         _roomUid = null;
         callingStatus.add(CallStatus.NO_CALL);
