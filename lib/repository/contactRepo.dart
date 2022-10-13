@@ -3,7 +3,6 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:contacts_service/contacts_service.dart' as contacts_service_pb;
 import 'package:deliver/box/contact.dart' as contact_model;
 import 'package:deliver/box/dao/contact_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
@@ -25,6 +24,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
+import 'package:fast_contacts/fast_contacts.dart' as fast_contact;
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -44,7 +44,6 @@ class ContactRepo {
   final BehaviorSubject<double> sendContactProgress = BehaviorSubject.seeded(0);
 
   Future<void> syncContacts() async {
-    isSyncingContacts.add(true);
     if (_requestLock.locked) {
       return;
     }
@@ -53,24 +52,18 @@ class ContactRepo {
           isDesktop ||
           isIOS) {
         if (!isDesktop) {
-          final phoneContacts =
-              await contacts_service_pb.ContactsService.getContacts(
-            withThumbnails: false,
-            photoHighResolution: false,
-            orderByGivenName: false,
-            iOSLocalizedLabels: false,
-          );
+          final phoneContacts = await fast_contact.FastContacts.allContacts;
           final contacts = await _filterPhoneContactsToSend(
             phoneContacts
                 .map(
-                  (p) => (p.phones ?? [])
+                  (p) => (p.phones)
                       .toSet()
-                      .map((phone) => phone.value.toString())
-                      .map((e) => _getPhoneNumber(e, p.displayName ?? ""))
+                      .map((phone) => phone)
+                      .map((e) => _getPhoneNumber(e, p.displayName))
                       .where((element) => element != null)
                       .map(
                         (e) => Contact()
-                          ..firstName = p.displayName ?? ""
+                          ..firstName = p.displayName
                           ..phoneNumber = e!,
                       ),
                 )
@@ -85,6 +78,7 @@ class ContactRepo {
           );
 
           if (contacts.isNotEmpty) {
+            isSyncingContacts.add(true);
             _savePhoneContacts(contacts);
             await sendContacts(contacts);
             unawaited(getContacts());
@@ -123,17 +117,16 @@ class ContactRepo {
     final contacts = await _contactDao.getAllContacts();
     for (final element in contacts) {
       phoneContacts.removeWhere(
-        (pc) => (element.nationalNumber ==
-                pc.phoneNumber.nationalNumber.toInt() &&
-            ((element.uid != null &&
-                    _contactHash(
-                          name: pc.firstName,
-                          nationalNumber: pc.phoneNumber.nationalNumber.toInt(),
-                        ) ==
-                        element.syncHash) ||
-                (element.uid == null &&
-                    element.updateTime != null &&
-                    _sendContactTimeExpire(element.updateTime!)))),
+        (pc) =>
+            (element.nationalNumber == pc.phoneNumber.nationalNumber.toInt() &&
+                ((element.uid != null &&
+                        _contactHash(
+                              name: pc.firstName,
+                              nationalNumber:
+                                  pc.phoneNumber.nationalNumber.toInt(),
+                            ) ==
+                            element.syncHash) ||
+                    (element.uid == null && element.updateTime != null))),
       );
     }
     return phoneContacts;
@@ -167,10 +160,6 @@ class ContactRepo {
       );
     }
   }
-
-  bool _sendContactTimeExpire(int expTime) =>
-      DateTime.now().millisecondsSinceEpoch - expTime <
-      MAX_SEND_CONTACT_TIME_EXPIRE;
 
   bool _sendContactWithStartTimeExpire(int updateTime) =>
       DateTime.now().millisecondsSinceEpoch - updateTime <

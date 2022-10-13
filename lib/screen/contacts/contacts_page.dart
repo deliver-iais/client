@@ -1,3 +1,4 @@
+
 import 'package:collection/collection.dart';
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/localization/i18n.dart';

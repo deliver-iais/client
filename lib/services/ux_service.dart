@@ -8,64 +8,10 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver/theme/theme.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:logger/logger.dart';
 import 'package:material_color_utilities/material_color_utilities.dart';
 import 'package:rxdart/rxdart.dart';
-
-class DeliverLogFilter extends LogFilter {
-  @override
-  bool shouldLog(LogEvent event) {
-    return event.level != Level.nothing && event.level.index >= level!.index;
-  }
-}
-
-class LogLevelHelper {
-  static String levelToString(Level level) {
-    switch (level) {
-      case Level.debug:
-        return "DEBUG";
-      case Level.verbose:
-        return "VERBOSE";
-      case Level.error:
-        return "ERROR";
-      case Level.info:
-        return "INFO";
-      case Level.warning:
-        return "WARNING";
-      case Level.wtf:
-        return "WTF";
-      case Level.nothing:
-        return "NOTHING";
-    }
-  }
-
-  static Level stringToLevel(String level) {
-    switch (level) {
-      case "DEBUG":
-        return Level.debug;
-      case "VERBOSE":
-        return Level.verbose;
-      case "ERROR":
-        return Level.error;
-      case "INFO":
-        return Level.info;
-      case "WARNING":
-        return Level.warning;
-      case "WTF":
-        return Level.wtf;
-      case "NOTHING":
-        return Level.nothing;
-      default:
-        return Level.debug;
-    }
-  }
-
-  static List<String> levels() =>
-      ["DEBUG", "VERBOSE", "ERROR", "INFO", "WARNING", "WTF", "NOTHING"];
-}
 
 class UxService {
   static bool isDeveloperMode = false;
@@ -96,14 +42,6 @@ class UxService {
   }
 
   UxService() {
-    _sharedDao
-        .getStream(
-          SHARED_DAO_LOG_LEVEL,
-          defaultValue: kDebugMode ? "INFO" : "NOTHING",
-        )
-        .map((event) => LogLevelHelper.stringToLevel(event!))
-        .listen((level) => GetIt.I.get<DeliverLogFilter>().level = level);
-
     _sharedDao
         .getBooleanStream(
           SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE,
@@ -246,6 +184,10 @@ class UxService {
 
   void changeLogLevel(String level) {
     _sharedDao.put(SHARED_DAO_LOG_LEVEL, level);
+  }
+
+  void toggleLogInFileEnable() {
+    _sharedDao.toggleBoolean(SHARED_DAO_LOG_IN_FILE_ENABLE);
   }
 }
 

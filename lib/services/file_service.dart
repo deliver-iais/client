@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:io' as io;
 
 import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/file_dao.dart';
@@ -45,9 +44,9 @@ class FileService {
         isDesktop ||
         isIOS) {
       final directory = await getApplicationDocumentsDirectory();
-      if (!io.Directory('${directory.path}/$APPLICATION_FOLDER_NAME')
+      if (!Directory('${directory.path}/$APPLICATION_FOLDER_NAME')
           .existsSync()) {
-        await io.Directory('${directory.path}/$APPLICATION_FOLDER_NAME')
+        await Directory('${directory.path}/$APPLICATION_FOLDER_NAME')
             .create(recursive: true);
       }
       if (isWindows) {
@@ -75,17 +74,17 @@ class FileService {
     return "$path/${enumToString(size)}-$fileUuid.$fileType";
   }
 
-  Future<io.File> localFile(String fileUuid, String fileType) async {
+  Future<File> localFile(String fileUuid, String fileType) async {
     final path = await _localPath;
-    return io.File('$path/$fileUuid.$fileType');
+    return File('$path/$fileUuid.$fileType');
   }
 
-  Future<io.File> localThumbnailFile(
+  Future<File> localThumbnailFile(
     String fileUuid,
     String fileType,
     ThumbnailSize size,
   ) async {
-    return io.File(await localThumbnailFilePath(fileUuid, fileType, size));
+    return File(await localThumbnailFilePath(fileUuid, fileType, size));
   }
 
   FileService() {
@@ -162,14 +161,14 @@ class FileService {
       ..click();
   }
 
-  Future<io.File?> getApplicationIcon() async {
+  Future<File?> getApplicationIcon() async {
     final file = await localFile("we-icon", "png");
     if (file.existsSync()) {
       return file;
     } else {
       final res = await rootBundle
           .load('assets/ic_launcher/res/mipmap-xxxhdpi/ic_launcher.png');
-      final f = io.File("${await _localPath}/we-icon.png");
+      final f = File("${await _localPath}/we-icon.png");
       try {
         await f.writeAsBytes(res.buffer.asInt8List());
         return f;
@@ -190,8 +189,8 @@ class FileService {
       } else {
         final downloadDir =
             await ExtStorage.getExternalStoragePublicDirectory(directory);
-        final f = io.File('$downloadDir/$name');
-        await f.writeAsBytes(io.File(path).readAsBytesSync());
+        final f = File('$downloadDir/$name');
+        await f.writeAsBytes(File(path).readAsBytesSync());
       }
     } catch (_) {}
   }
@@ -202,8 +201,8 @@ class FileService {
     String address,
   ) async {
     try {
-      final f = io.File(address);
-      await f.writeAsBytes(io.File(path).readAsBytesSync());
+      final f = File(address);
+      await f.writeAsBytes(File(path).readAsBytesSync());
     } catch (_) {}
   }
 
@@ -319,7 +318,7 @@ class FileService {
   }
 
   Future<void> _concurrentCloneFileInLocalDirectory(
-    io.File file,
+    File file,
     String uploadKey,
     String fileType,
   ) async {
