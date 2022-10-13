@@ -77,6 +77,7 @@ import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/firebase_services.dart';
+import 'package:deliver/services/log.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/muc_services.dart';
 import 'package:deliver/services/notification_services.dart';
@@ -119,18 +120,7 @@ void registerSingleton<T extends Object>(T instance) {
 
 Future<void> setupDI() async {
   registerSingleton<AnalyticsRepo>(AnalyticsRepo());
-  registerSingleton<AnalyticsClientInterceptor>(
-    AnalyticsClientInterceptor(),
-  );
-
-  // Setup Logger
-  registerSingleton<DeliverLogFilter>(DeliverLogFilter());
-  registerSingleton<Logger>(
-    Logger(
-      filter: GetIt.I.get<DeliverLogFilter>(),
-      level: kDebugMode ? Level.info : Level.nothing,
-    ),
-  );
+  registerSingleton<AnalyticsClientInterceptor>(AnalyticsClientInterceptor());
 
   await Hive.initFlutter("$APPLICATION_FOLDER_NAME/db");
 
@@ -198,6 +188,17 @@ Future<void> setupDI() async {
   registerSingleton<CurrentCallInfoDao>(CurrentCallInfoDaoImpl());
   registerSingleton<ActiveNotificationDao>(ActiveNotificationDaoImpl());
   registerSingleton<ShowCaseDao>(ShowCaseDaoImpl());
+
+  // Setup Logger
+  registerSingleton<DeliverLogFilter>(DeliverLogFilter());
+  registerSingleton<DeliverLogOutput>(DeliverLogOutput());
+  registerSingleton<Logger>(
+    Logger(
+      filter: GetIt.I.get<DeliverLogFilter>(),
+      level: kDebugMode ? Level.info : Level.nothing,
+      output: GetIt.I.get<DeliverLogOutput>(),
+    ),
+  );
 
   registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
 
@@ -268,28 +269,32 @@ Future<void> setupDI() async {
 
 Future initializeFirebase() async {
   await Firebase.initializeApp(
-      name: APPLICATION_NAME, options: DefaultFirebaseOptions.currentPlatform,);
+    name: APPLICATION_NAME,
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 }
 
 // ignore: avoid_void_async
 void main() async {
+  final logger = Logger();
+
   WidgetsFlutterBinding.ensureInitialized();
 
-  Logger().i("Application has been started.");
+  logger.i("Application has been started.");
 
   if (hasFirebaseCapability) {
     await initializeFirebase();
   }
 
-  Logger().i("OS based setups done.");
+  logger.i("OS based setups done.");
 
   try {
     await setupDI();
   } catch (e) {
-    Logger().e(e);
+    logger.e(e);
   }
 
-  Logger().i("Dependency Injection setup done.");
+  logger.i("Dependency Injection setup done.");
 
   if (isDesktop && !isWeb) {
     try {
@@ -297,7 +302,7 @@ void main() async {
 
       setWindowTitle(APPLICATION_NAME);
     } catch (e) {
-      Logger().e(e);
+      logger.e(e);
     }
   }
 

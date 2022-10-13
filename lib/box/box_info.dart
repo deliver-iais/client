@@ -3,8 +3,6 @@ import 'package:hive/hive.dart';
 import 'package:logger/logger.dart';
 
 class BoxInfo {
-  static final Logger _logger = GetIt.I.get<Logger>();
-
   static Future<void> addBox(String key) async {
     try {
       final box = await Hive.openBox<String>(_key());
@@ -18,7 +16,7 @@ class BoxInfo {
     try {
       return Hive.deleteBoxFromDisk(key);
     } catch (e) {
-      _logger.e(e);
+      GetIt.I.get<Logger>().e(e);
     }
   }
 
