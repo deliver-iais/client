@@ -49,13 +49,15 @@ class DeliverLogOutput extends LogOutput {
         .listen((sif) => saveInFileIsEnabled = sif);
   }
 
+  Future<String> getLogFilePath() async {
+    final appDir = await getApplicationDocumentsDirectory();
+    return join(appDir.path, APPLICATION_FOLDER_NAME, "log.txt");
+  }
+
   @override
   Future<void> init() async {
     if (!isWeb) {
-      final appDir = await getApplicationDocumentsDirectory();
-      fileOutput = FileOutput(
-        file: File(join(appDir.path, APPLICATION_FOLDER_NAME, "log.txt")),
-      );
+      fileOutput = FileOutput(file: File(await getLogFilePath()));
       fileOutput?.init();
       consoleOutput.init();
     }

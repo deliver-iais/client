@@ -72,6 +72,20 @@ class DeveloperPageState extends State<DeveloperPage> {
                     });
                   },
                 ),
+                Column(
+                  children: [
+                    SettingsTile(
+                      title: "Share Log File",
+                      onPressed: (context) async {
+                        final path = await GetIt.I
+                            .get<DeliverLogOutput>()
+                            .getLogFilePath();
+
+                        _routingService.openShareInput(paths: [path]);
+                      },
+                    ),
+                  ],
+                )
               ],
             ),
             Section(
