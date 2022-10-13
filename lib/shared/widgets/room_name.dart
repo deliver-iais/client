@@ -1,4 +1,5 @@
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/loaders/text_loader.dart';
 import 'package:deliver/shared/widgets/dot_animation/dot_animation.dart';
 import 'package:deliver/theme/theme.dart';
@@ -33,7 +34,7 @@ class RoomName extends StatelessWidget {
         final name = (snapshot.data ?? "");
         return Row(
           crossAxisAlignment: CrossAxisAlignment.baseline,
-          mainAxisSize:MainAxisSize.min ,
+          mainAxisSize: MainAxisSize.min,
           textBaseline: TextBaseline.alphabetic,
           children: [
             Flexible(
@@ -47,6 +48,7 @@ class RoomName extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 width: 170,
+                borderRadius: mainBorder,
               ),
             ),
             if (shouldShowDotAnimation)
