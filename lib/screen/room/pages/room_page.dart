@@ -166,6 +166,7 @@ class RoomPageState extends State<RoomPage> {
           _resetRoomPageDetails();
           return false;
         } else {
+          _routingService.resetCurrentRoom();
           return true;
         }
       },
