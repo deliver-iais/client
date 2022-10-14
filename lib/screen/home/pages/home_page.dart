@@ -3,6 +3,7 @@ import 'dart:async';
 import 'dart:ui';
 import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
+import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/notification_services.dart';
@@ -37,6 +38,7 @@ class HomePageState extends State<HomePage> {
   final _uxService = GetIt.I.get<UxService>();
   final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
+  final _messageRepo = GetIt.I.get<MessageRepo>();
 
   void _addLifeCycleListener() {
     if (isDesktop) {
@@ -56,8 +58,15 @@ class HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> fetch() async {
+    await _messageRepo.update(updateStatus: false);
+    unawaited(_messageRepo.connectionStatusHandler());
+  }
+
   @override
   void initState() {
+    fetch();
+
     //this means user login successfully
     if (hasFirebaseCapability) {
       //its work property without VPN
@@ -152,7 +161,8 @@ class HomePageState extends State<HomePage> {
     final theme = Theme.of(context);
     return WillPopScope(
       onWillPop: () async {
-        if (!_routingService.canPop() && _routingService.preMaybePopScopeValue()) {
+        if (!_routingService.canPop() &&
+            _routingService.preMaybePopScopeValue()) {
           if (await FlutterForegroundTask.isRunningService) {
             FlutterForegroundTask.minimizeApp();
             return false;

@@ -86,6 +86,7 @@ class ContactRepo {
             _savePhoneContacts(contacts);
             await sendContacts(contacts);
             unawaited(getContacts());
+            unawaited(sendNotSyncedContactInStartTime());
           } else {
             sendContactProgress.add(1);
             unawaited(getContacts());
@@ -96,6 +97,8 @@ class ContactRepo {
       }
     });
   }
+
+  Future<void> _splitContacts(List phoneContacts) async {}
 
   void _savePhoneContacts(
     List<Contact> contacts, {
@@ -206,6 +209,7 @@ class ContactRepo {
           i = i + MAX_CONTACT_SIZE_TO_SEND;
         } catch (e) {
           _logger.e(e);
+          isSyncingContacts.add(false);
         }
       }
     } catch (e) {
@@ -247,6 +251,7 @@ class ContactRepo {
       return true;
     } catch (e) {
       _logger.e(e);
+      isSyncingContacts.add(false);
       return false;
     }
   }
