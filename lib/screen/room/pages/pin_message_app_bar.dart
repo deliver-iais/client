@@ -10,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
+import 'package:scrollable_positioned_list/scrollable_positioned_list.dart';
 
 class PinMessageAppBar extends StatelessWidget {
   final BehaviorSubject<int> lastPinedMessage;
@@ -31,21 +32,33 @@ class PinMessageAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final itemScrollController = ItemScrollController();
     return StreamBuilder<int>(
       stream: lastPinedMessage,
       builder: (c, id) {
         if (id.hasData && id.data! > 0) {
           Message? mes;
-          for (final m in pinMessages) {
-            if (m.id == id.data) {
-              mes = m;
+          int? index;
+          for (var i = 0; i < pinMessages.length; i++) {
+            if (pinMessages[i].id == id.data) {
+              mes = pinMessages[i];
+              index = i;
             }
           }
 
+          if (itemScrollController.isAttached && index != null) {
+            itemScrollController.scrollTo(
+              index: index,
+              alignment: 0.5,
+              duration: const Duration(seconds: 1),
+            );
+          }
           return MouseRegion(
             cursor: SystemMouseCursors.click,
             child: GestureDetector(
-              onTap: onTap,
+              onTap: () {
+                onTap.call();
+              },
               child: Container(
                 margin: const EdgeInsets.all(8),
                 child: Container(
@@ -61,45 +74,29 @@ class PinMessageAppBar extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      Column(
-                        children: [
-                          if (pinMessages.length > 2)
-                            Container(
-                              width: 3,
-                              height: (52 /
-                                      min(
-                                        pinMessages.length.toDouble(),
-                                        3,
-                                      )) -
-                                  4,
-                              margin: const EdgeInsets.symmetric(vertical: 2.0),
-                              color: color(context, 0),
-                            ),
-                          if (pinMessages.length > 1)
-                            Container(
-                              width: 3,
-                              height: (52 /
-                                      min(
-                                        pinMessages.length.toDouble(),
-                                        3,
-                                      )) -
-                                  4,
-                              margin: const EdgeInsets.symmetric(vertical: 2.0),
-                              color: color(context, 1),
-                            ),
-                          if (pinMessages.length > 1)
-                            Container(
-                              width: 3,
-                              height: (52 /
-                                      min(
-                                        pinMessages.length.toDouble(),
-                                        3,
-                                      )) -
-                                  4,
-                              margin: const EdgeInsets.symmetric(vertical: 2.0),
-                              color: color(context, 2),
-                            ),
-                        ],
+                      SizedBox(
+                        width: 2,
+                        child: Center(
+                          child: ScrollablePositionedList.builder(
+                            itemScrollController: itemScrollController,
+                            initialScrollIndex: index ?? 0,
+                            itemBuilder: (context, index) {
+                              return Container(
+                                height: (40 /
+                                    min(
+                                      pinMessages.length.toDouble(),
+                                      4,
+                                    )),
+                                margin:
+                                    const EdgeInsets.symmetric(vertical: 2.0),
+                                color: color(context, index),
+                              );
+                            },
+                            itemCount: pinMessages.length,
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                          ),
+                        ),
                       ),
                       const SizedBox(width: 8.0),
                       Expanded(
@@ -150,13 +147,11 @@ class PinMessageAppBar extends StatelessWidget {
   }
 
   bool shouldHighlight(int index, int id) {
-    return (index == 2 && id == pinMessages.last.id) ||
-        (index == 0 && id == pinMessages.first.id) ||
-        (index == 1 && pinMessages.length == 2 && id == pinMessages.first.id) ||
-        (index == 1 &&
-            pinMessages.length > 2 &&
-            id != pinMessages.first.id &&
-            id != pinMessages.last.id);
+    if (pinMessages[index].id == id) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   Widget buildPinMessageActions(Message? mes, BuildContext context) {

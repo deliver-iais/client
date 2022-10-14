@@ -422,6 +422,7 @@ class RoomPageState extends State<RoomPage> {
     _itemPositionsListener.itemPositions.addListener(() {
       final position = _itemPositionsListener.itemPositions.value;
       if (position.isNotEmpty) {
+        _syncLastPinMessageWithItemPosition(position);
         if ((_itemCount - position.first.index).abs() > 5) {
           _isLastMessages = false;
         } else {
@@ -474,6 +475,19 @@ class RoomPageState extends State<RoomPage> {
     }
 
     super.initState();
+  }
+
+  void _syncLastPinMessageWithItemPosition(Iterable<ItemPosition> position) {
+      final p = position.map((e) => e.index).reduce(max);
+    if (_pinMessages.length > 1 &&
+        _lastPinedMessage.value != p &&
+        _highlightMessageId.value == -1) {
+      final index =
+          _pinMessages.lastIndexWhere((element) => element.id! < p);
+      if (index != -1 && _lastPinedMessage.value!=_pinMessages[index].id) {
+        _lastPinedMessage.add((_pinMessages[index].id!));
+      }
+    }
   }
 
   Future<void> initRoomStream() async {
@@ -1535,16 +1549,18 @@ class RoomPageState extends State<RoomPage> {
       onTap: () {
         _scrollToMessageWithHighlight(_lastPinedMessage.value);
         if (_pinMessages.length > 1) {
-          _lastPinedMessage.add(
-            _pinMessages[max(
-              _pinMessages.indexWhere(
-                    (e) => e.id == _lastPinedMessage.value,
-                  ) -
-                  1,
-              0,
-            )]
-                .id!,
-          );
+          if (_pinMessages.indexWhere((e) => e.id == _lastPinedMessage.value) ==
+              0) {
+            _lastPinedMessage.add(_pinMessages.last.id!);
+          } else {
+            _lastPinedMessage.add(
+              _pinMessages[_pinMessages.indexWhere(
+                        (e) => e.id == _lastPinedMessage.value,
+                      ) -
+                      1]
+                  .id!,
+            );
+          }
         }
       },
       onClose: () {
