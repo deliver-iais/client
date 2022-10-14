@@ -42,9 +42,9 @@ class CallScreen extends StatefulWidget {
 }
 
 class CallScreenState extends State<CallScreen> {
-  late final RTCVideoRenderer _localRenderer;
+  final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
+  final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
 
-  late final RTCVideoRenderer _remoteRenderer;
   final _callRepo = GetIt.I.get<CallRepo>();
   final _logger = GetIt.I.get<Logger>();
   final _audioService = GetIt.I.get<AudioService>();
@@ -63,17 +63,28 @@ class CallScreenState extends State<CallScreen> {
       );
     }
     random = randomAlphaNumeric(10);
-    _callRepo.initRenderer();
-    _localRenderer = _callRepo.getLocalRenderer;
-    _remoteRenderer = _callRepo.getRemoteRenderer;
-    if (!widget.isCallInitialized) {
-      startCall();
-      checkForSystemAlertWindowPermission();
-    }
+    initRenderer().then((value) {
+      if (!widget.isCallInitialized) {
+        startCall();
+        checkForSystemAlertWindowPermission();
+      }
+    });
     if (isAndroid) {
       _listenSensor();
     }
     super.initState();
+  }
+
+  Future<void> initRenderer() async {
+    await _localRenderer.initialize();
+    await _remoteRenderer.initialize();
+    _logger.i("Initialize Renderers");
+  }
+
+  Future<void> _disposeRenderer() async {
+    await _localRenderer.dispose();
+    await _remoteRenderer.dispose();
+    _logger.i("Dispose Renderers");
   }
 
   void showPermissionDialog() {
@@ -165,6 +176,7 @@ class CallScreenState extends State<CallScreen> {
       }
       setOnLockScreenVisibility();
     }
+    _disposeRenderer();
   }
 
   Future<void> setOnLockScreenVisibility() async {
