@@ -14,7 +14,6 @@ import 'package:get_it/get_it.dart';
 class CustomTextSelectionController extends CupertinoTextSelectionControls {
   TextEditingController captionController;
   TextEditingController textController;
-  VoidCallback enableMarkDown;
   BuildContext buildContext;
   Uid roomUid;
   final _rawKeyboardService = GetIt.I.get<RawKeyboardService>();
@@ -25,7 +24,6 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
     required this.buildContext,
     required this.textController,
     required this.roomUid,
-    required this.enableMarkDown,
   });
 
   @override
@@ -99,7 +97,6 @@ class CustomTextSelectionController extends CupertinoTextSelectionControls {
     if (isAnyThingSelected()) {
       final end = textController.selection.end;
       textController.text = createFormattedText(specialChar, textController);
-      enableMarkDown();
       moveCursor(
         delegate,
         end + specialChar.length * 2,

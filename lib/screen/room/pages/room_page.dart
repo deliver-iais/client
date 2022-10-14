@@ -903,12 +903,7 @@ class RoomPageState extends State<RoomPage> {
               return snapshot.hasData && !snapshot.data!
                   ? DescribedFeatureOverlay(
                       useCustomPosition: true,
-                      featureId: _featureFlags.hasVoiceCallPermission(room.uid)
-                          ? FeatureDiscovery.currentFeatureIdOf(context) ==
-                                  FEATURE_5
-                              ? FEATURE_5
-                              : FEATURE_4
-                          : FEATURE_3,
+                      featureId: FEATURE_4,
                       tapTarget: IconButton(
                         icon: const Icon(CupertinoIcons.phone),
                         onPressed: () {},
