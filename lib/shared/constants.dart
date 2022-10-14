@@ -47,6 +47,8 @@ const FETCH_ROOM_METADATA_IN_SYNCING_SIZE = 20;
 // File Constants
 const MAX_FILE_SIZE_BYTE = 104857600.0; //100MB
 const DOWNLOAD_COMPLETE = 200.0;
+const DEFAULT_FILE_TYPE = "application/octet-stream";
+const DEFAULT_FILE_DIMENSION = 200;
 
 // Text Message Limitation Constant
 const TEXT_MESSAGE_MAX_LENGTH = 50;
