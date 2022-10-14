@@ -129,7 +129,9 @@ class MessageRepo {
           updatingStatus.add(TitleStatusConditions.Disconnected);
           break;
         case ConnectionStatus.Connecting:
-          updatingStatus.add(TitleStatusConditions.Connecting);
+          if (updatingStatus.value != TitleStatusConditions.Connected) {
+            updatingStatus.add(TitleStatusConditions.Connecting);
+          }
           break;
       }
     });
@@ -161,11 +163,14 @@ class MessageRepo {
     var pointer = 0;
     final allRoomFetched =
         await _sharedDao.getBoolean(SHARED_DAO_ALL_ROOMS_FETCHED);
-    if (allRoomFetched) {
-      updatingStatus.add(TitleStatusConditions.Updating);
-    } else {
-      updatingStatus.add(TitleStatusConditions.Syncing);
+    if (updatingStatus.value != TitleStatusConditions.Connected) {
+      if (allRoomFetched) {
+        updatingStatus.add(TitleStatusConditions.Updating);
+      } else {
+        updatingStatus.add(TitleStatusConditions.Syncing);
+      }
     }
+
     while (!finished && pointer < MAX_ROOM_METADATA_SIZE) {
       try {
         final getAllUserRoomMetaRes =

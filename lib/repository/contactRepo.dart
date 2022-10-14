@@ -1,6 +1,8 @@
 // ignore_for_file: file_names
 
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:deliver/box/contact.dart' as contact_model;
@@ -25,6 +27,8 @@ import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fast_contacts/fast_contacts.dart' as fast_contact;
+import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -142,8 +146,7 @@ class ContactRepo {
         sendContacts(
           contacts
               .where(
-                (element) => ((element.updateTime == null ||
-                    _sendContactWithStartTimeExpire(element.updateTime!))),
+                (element) => ((element.updateTime == null)),
               )
               .toList()
               .map(
@@ -160,10 +163,6 @@ class ContactRepo {
       );
     }
   }
-
-  bool _sendContactWithStartTimeExpire(int updateTime) =>
-      DateTime.now().millisecondsSinceEpoch - updateTime <
-      MAX_SEND_CONTACT_START_TIME_EXPIRE;
 
   String _replaceFarsiNumber(String input) {
     const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -404,5 +403,86 @@ class ContactRepo {
   Future<bool> contactIsExist(int countryCode, int nationalNumber) async {
     final result = await _contactDao.get(countryCode, nationalNumber);
     return result != null;
+  }
+
+  Future<void> importContactsFormVcard() async {
+    try {
+      if (isLinux) {
+        final typeGroup = <XTypeGroup>[
+          XTypeGroup(mimeTypes: ["vcf"])
+        ];
+        final result = await openFiles(acceptedTypeGroups: typeGroup);
+        if (result.isNotEmpty) {
+          unawaited(_getContactFromVcfFile(File(result.first.path)));
+        }
+      } else {
+        final result = await FilePicker.platform
+            .pickFiles(type: FileType.custom, allowedExtensions: ["vcf"]);
+        if (result != null && result.files.isNotEmpty) {
+          unawaited(_getContactFromVcfFile(File(result.files.first.path!)));
+        }
+      }
+    } catch (e) {
+      _logger.d(e.toString());
+    }
+  }
+
+  Future<void> _getContactFromVcfFile(File file) async {
+    try {
+      final contactsValue = file.readAsStringSync();
+      final phoneContacts = <Contact>[];
+      for (final contactInfo in contactsValue.split("BEGIN:VCARD")) {
+        try {
+          final tags = {};
+          for (final contact in contactInfo.split("\n")) {
+            try {
+              final param = contact.replaceAll(";", "").split(":");
+              if (param.length > 1) {
+                if (param[0].contains("TEL")) {
+                  tags["TEL"] = param[1];
+                } else if (param[0].contains("FN")) {
+                  tags["NAME"] = utf8.decode(
+                    _decodeQuotedPrintable(param[1]).runes.toList(),
+                  );
+                }
+              }
+            } catch (_) {}
+          }
+          if (tags.isNotEmpty && tags["TEL"] != null && tags["NAME"] != null) {
+            final phone = _getPhoneNumber(tags["TEL"], tags["NAME"]);
+            if (phone != null) {
+              phoneContacts.add(
+                Contact()
+                  ..firstName = tags["NAME"]
+                  ..phoneNumber = phone,
+              );
+            }
+          }
+        } catch (_) {}
+      }
+
+      final contacts = await _filterPhoneContactsToSend(phoneContacts);
+      if (contacts.isNotEmpty) {
+        isSyncingContacts.add(true);
+        _savePhoneContacts(contacts);
+        await sendContacts(contacts);
+        isSyncingContacts.add(false);
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+
+  Future<bool> hasContactPermission() async {
+    return _checkPermission.checkContactPermission();
+  }
+
+  String _decodeQuotedPrintable(String input) {
+    return input
+        .replaceAll(RegExp(r'[\t\x20]$', multiLine: true), '')
+        .replaceAll(RegExp(r'=(?:\r\n?|\n|$)', multiLine: true), '')
+        .replaceAllMapped(RegExp(r'=([a-fA-F\d]{2})'), (match) {
+      return String.fromCharCode(int.parse(match[1] ?? "", radix: 16));
+    });
   }
 }

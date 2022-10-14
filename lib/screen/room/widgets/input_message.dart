@@ -120,9 +120,9 @@ class InputMessageWidgetState extends State<InputMessage> {
   final botCommandRegexp = RegExp(r"(\w)*");
   final idRegexp = RegExp(r"^[a-zA-Z](\w){0,19}$");
 
-  void showButtonSheet() {
+  void _attachFile() {
     if (isWeb || isDesktop) {
-      _attachFileInWindowsMode();
+      _attachFileInDesktopMode();
     } else {
       FocusScope.of(context).unfocus();
       showModalBottomSheet(
@@ -572,7 +572,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                   _showEmojiKeyboard.add(false);
                   _showReplyMarkUp.add(false);
 
-                  showButtonSheet();
+                  _attachFile();
                 },
               ),
             if (showSendButton && !widget.waitingForForward)
@@ -955,7 +955,7 @@ class InputMessageWidgetState extends State<InputMessage> {
     }
   }
 
-  Future<void> _attachFileInWindowsMode() async {
+  Future<void> _attachFileInDesktopMode() async {
     try {
       final res = <File>[];
       if (isLinux) {

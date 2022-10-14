@@ -50,6 +50,8 @@ class CoreServices {
 
   Timer? _connectionTimer;
 
+  Timer? _disconnectedTimer;
+
   var _lastPongTime = 0;
 
   BehaviorSubject<ConnectionStatus> connectionStatus =
@@ -76,7 +78,6 @@ class CoreServices {
 
   Future<void> initStreamConnection() async {
     retryConnection();
-
     _connectionStatus.distinct().listen((event) {
       connectionStatus.add(event);
     });
@@ -122,6 +123,9 @@ class CoreServices {
   }
 
   void gotResponse() {
+    if (_disconnectedTimer != null) {
+      _disconnectedTimer!.cancel();
+    }
     _connectionStatus.add(ConnectionStatus.Connected);
     backoffTime = MIN_BACKOFF_TIME;
     responseChecked = true;
@@ -200,7 +204,7 @@ class CoreServices {
   }
 
   void _onConnectionError() {
-    Timer(const Duration(seconds: 2), () {
+    _disconnectedTimer = Timer(const Duration(seconds: 5), () {
       _connectionStatus.add(ConnectionStatus.Disconnected);
       disconnectedTime.add(backoffTime - 1);
     });
@@ -212,10 +216,10 @@ class CoreServices {
         ..message = message
         ..id = clock.now().microsecondsSinceEpoch.toString();
       await _sendClientPacket(clientPacket);
-      if(_connectionStatus.value == ConnectionStatus.Connected){
+      if (_connectionStatus.value == ConnectionStatus.Connected) {
         Timer(
           const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
-              () => _checkPendingStatus(message.packetId),
+          () => _checkPendingStatus(message.packetId),
         );
       }
     } catch (e) {
