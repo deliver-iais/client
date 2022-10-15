@@ -204,7 +204,7 @@ class CoreServices {
   }
 
   void _onConnectionError() {
-    _disconnectedTimer = Timer(const Duration(seconds: 5), () {
+    _disconnectedTimer = Timer(const Duration(seconds: 4), () {
       _connectionStatus.add(ConnectionStatus.Disconnected);
       disconnectedTime.add(backoffTime - 1);
     });

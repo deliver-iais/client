@@ -181,47 +181,51 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
                             heroTag: "add_contact-fab",
                             onPressed: () async {
                               if (isAndroid &&
-                                  await _contactRepo.hasContactPermission()) {
+                                  _contactRepo.hasContactPermission) {
                                 _routingService.openNewContact();
                               } else {
-                                unawaited(this.showMenu(
-                                  context: context,
-                                  items: [
-                                    PopupMenuItem<String>(
-                                      key: const Key("addNewContact"),
-                                      value: "addNewContact",
-                                      child: Row(
-                                        children: [
-                                          const Icon(CupertinoIcons.person_add),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            _i18n.get("add_contact"),
-                                            style: theme
-                                                .primaryTextTheme.bodyText2,
-                                          ),
-                                        ],
+                                unawaited(
+                                  this.showMenu(
+                                    context: context,
+                                    items: [
+                                      PopupMenuItem<String>(
+                                        key: const Key("addNewContact"),
+                                        value: "addNewContact",
+                                        child: Row(
+                                          children: [
+                                            const Icon(
+                                                CupertinoIcons.person_add),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              _i18n.get("add_contact"),
+                                              style: theme
+                                                  .primaryTextTheme.bodyText2,
+                                            ),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    PopupMenuItem<String>(
-                                      key: const Key("importContact"),
-                                      value: "importContact",
-                                      child: Row(
-                                        children: [
-                                          const Icon(
-                                              CupertinoIcons.arrow_up_doc,),
-                                          const SizedBox(width: 8),
-                                          Text(
-                                            _i18n.get("import_contact"),
-                                            style: theme
-                                                .primaryTextTheme.bodyText2,
-                                          )
-                                        ],
-                                      ),
-                                    )
-                                  ],
-                                ).then(
-                                  (value) => _selectContactMenu(value ?? ""),
-                                ),);
+                                      PopupMenuItem<String>(
+                                        key: const Key("importContact"),
+                                        value: "importContact",
+                                        child: Row(
+                                          children: [
+                                            const Icon(
+                                              CupertinoIcons.arrow_up_doc,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              _i18n.get("import_contact"),
+                                              style: theme
+                                                  .primaryTextTheme.bodyText2,
+                                            )
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  ).then(
+                                    (value) => _selectContactMenu(value ?? ""),
+                                  ),
+                                );
                               }
                             },
                             child: const Icon(Icons.add),

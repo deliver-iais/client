@@ -46,6 +46,7 @@ class ContactRepo {
   final _requestLock = Lock();
   final BehaviorSubject<bool> isSyncingContacts = BehaviorSubject.seeded(false);
   final BehaviorSubject<double> sendContactProgress = BehaviorSubject.seeded(0);
+  bool hasContactPermission = false;
 
   Future<void> syncContacts() async {
     if (_requestLock.locked) {
@@ -56,6 +57,7 @@ class ContactRepo {
           isDesktop ||
           isIOS) {
         if (!isDesktop) {
+          hasContactPermission = true;
           final phoneContacts = await fast_contact.FastContacts.allContacts;
           final contacts = await _filterPhoneContactsToSend(
             phoneContacts
@@ -92,13 +94,11 @@ class ContactRepo {
             unawaited(getContacts());
           }
         } else {
-          await getContacts();
+          unawaited(getContacts());
         }
       }
     });
   }
-
-  Future<void> _splitContacts(List phoneContacts) async {}
 
   void _savePhoneContacts(
     List<Contact> contacts, {
@@ -418,13 +418,23 @@ class ContactRepo {
         ];
         final result = await openFiles(acceptedTypeGroups: typeGroup);
         if (result.isNotEmpty) {
-          unawaited(_getContactFromVcfFile(File(result.first.path)));
+          unawaited(
+            _getContactFromVcfFile(
+              File(result.first.path).readAsStringSync(),
+            ),
+          );
         }
       } else {
         final result = await FilePicker.platform
             .pickFiles(type: FileType.custom, allowedExtensions: ["vcf"]);
         if (result != null && result.files.isNotEmpty) {
-          unawaited(_getContactFromVcfFile(File(result.files.first.path!)));
+          if (isWeb) {
+            unawaited(_getContactFromVcfFile(
+                String.fromCharCodes(result.files.first.bytes!)));
+          } else {
+            unawaited(_getContactFromVcfFile(
+                File(result.files.first.path!).readAsStringSync()));
+          }
         }
       }
     } catch (e) {
@@ -432,9 +442,8 @@ class ContactRepo {
     }
   }
 
-  Future<void> _getContactFromVcfFile(File file) async {
+  Future<void> _getContactFromVcfFile(String contactsValue) async {
     try {
-      final contactsValue = file.readAsStringSync();
       final phoneContacts = <Contact>[];
       for (final contactInfo in contactsValue.split("BEGIN:VCARD")) {
         try {
@@ -476,10 +485,6 @@ class ContactRepo {
     } catch (e) {
       _logger.e(e);
     }
-  }
-
-  Future<bool> hasContactPermission() async {
-    return _checkPermission.checkContactPermission();
   }
 
   String _decodeQuotedPrintable(String input) {

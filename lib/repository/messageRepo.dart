@@ -99,18 +99,27 @@ class MessageRepo {
   final _dataStreamServices = GetIt.I.get<DataStreamServices>();
   final _sendActivitySubject = BehaviorSubject.seeded(0);
   final updatingStatus = BehaviorSubject.seeded(TitleStatusConditions.Normal);
+  bool _updateState = false;
 
-  Future<void> connectionStatusHandler() async {
+  MessageRepo() {
+    createConnectionStatusHandler();
+  }
+
+  void createConnectionStatusHandler() {
     _coreServices.connectionStatus.listen((mode) async {
       switch (mode) {
         case ConnectionStatus.Connected:
-          unawaited(update());
+          await update(updateStatus: _updateState);
+          _updateState = true;
           break;
         case ConnectionStatus.Disconnected:
-          updatingStatus.add(TitleStatusConditions.Disconnected);
+          if (_updateState) {
+            updatingStatus.add(TitleStatusConditions.Disconnected);
+          }
           break;
         case ConnectionStatus.Connecting:
-          if (updatingStatus.value != TitleStatusConditions.Normal) {
+          if (_updateState &&
+              updatingStatus.value != TitleStatusConditions.Normal) {
             updatingStatus.add(TitleStatusConditions.Connecting);
           }
           break;
@@ -169,8 +178,7 @@ class MessageRepo {
     var pointer = 0;
     final allRoomFetched =
         await _sharedDao.getBoolean(SHARED_DAO_ALL_ROOMS_FETCHED);
-    if (!allRoomFetched) {
-      updateStatus = true;
+    if (!allRoomFetched && updateStatus) {
       updatingStatus.add(TitleStatusConditions.Syncing);
     }
 
