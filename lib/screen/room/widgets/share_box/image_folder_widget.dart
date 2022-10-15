@@ -11,6 +11,7 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 import 'package:photo_manager/photo_manager.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -39,6 +40,7 @@ class ImageFolderWidget extends StatefulWidget {
 const int FETCH_IMAGE_PAGE_SIZE = 40;
 
 class _ImageFolderWidgetState extends State<ImageFolderWidget> {
+  static final _logger = GetIt.I.get<Logger>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
 
   final List<String> _selectedImage = [];
@@ -207,15 +209,16 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
                                             alignment: Alignment.bottomRight,
                                             child: IconButton(
                                               splashColor: Colors.transparent,
-                                              highlightColor: Colors.transparent,
+                                              highlightColor:
+                                                  Colors.transparent,
                                               enableFeedback: false,
                                               onPressed: () {
                                                 onTap(imagePath);
                                               },
                                               icon: isSelected
                                                   ? const CircularCheckMarkWidget(
-                                                shouldShowCheckMark: true,
-                                              )
+                                                      shouldShowCheckMark: true,
+                                                    )
                                                   : const CircularCheckMarkWidget(),
                                               iconSize: 30,
                                             ),
@@ -267,6 +270,7 @@ class _ImageFolderWidgetState extends State<ImageFolderWidget> {
       if (_selectedImage.contains(imagePath)) {
         _selectedImage.remove(imagePath);
       } else {
+        _logger.i("imagePath: $imagePath");
         _selectedImage.add(imagePath);
       }
       setState(() {});

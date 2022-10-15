@@ -83,7 +83,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_map: 2.2.0
-  flutter_webrtc: 0.9.7
+  flutter_webrtc: 0.9.9+hotfix.1
   fluttertoast: 8.0.9
   font_awesome_flutter: 10.1.0
   fuzzy: 0.4.0-nullsafety.0
@@ -163,6 +163,7 @@ dependencies:
   uuid: 3.0.6
   vibration: 1.7.6
   video_player: 2.4.7
+  wakelock: 0.6.2
   win_toast:
     git:
       path: packages/win_toast
