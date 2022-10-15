@@ -731,7 +731,7 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Future<void> watchPinMessages() async {
-    _mucRepo.watchMuc(widget.roomId).listen((muc) {
+    _mucRepo.watchMuc(widget.roomId).distinct().listen((muc) {
       if (muc != null && muc.lastCanceledPinMessageId == 0) {
         final pm = muc.pinMessagesIdList;
         _pinMessages.clear();
