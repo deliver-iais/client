@@ -256,10 +256,7 @@ class ImageUiState extends State<ImageUi> {
                             );
                             setState(() {});
                           },
-                          child: BlurHash(
-                            hash: widget.image.blurHash,
-                            imageFit: BoxFit.cover,
-                          ),
+                          child: getBlurHashWidget(),
                         ),
                       ),
                       Center(
@@ -309,6 +306,17 @@ class ImageUiState extends State<ImageUi> {
           ),
         ),
       );
+    }
+  }
+
+  Widget getBlurHashWidget() {
+    if(widget.image.blurHash != "") {
+      return BlurHash(
+        hash: widget.image.blurHash,
+        imageFit: BoxFit.cover,
+      );
+    } else {
+      return const SizedBox.shrink();
     }
   }
 

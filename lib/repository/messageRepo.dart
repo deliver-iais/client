@@ -650,38 +650,58 @@ class MessageRepo {
     String? caption,
   ) {
     var tempDimension = Size.zero;
-    int? tempFileSize;
-    final tempType = file.extension ?? _findType(file.path);
+    var tempFileSize = 0;
+    var tempType = "";
+
+    try {
+      tempType = file.extension ?? _findType(file.path);
+    } catch (e) {
+      _logger.e("Error in getting file type", e);
+    }
+
     _fileRepo.initUploadProgress(fileUuid);
 
     final f = dart_file.File(file.path);
+
+    try {
+      tempFileSize = f.statSync().size;
+      _logger.d(
+        "File size set to file size: $tempFileSize",
+      );
+    } catch (e) {
+      _logger.e("Error in fetching fake file size", e);
+    }
+
     // Get size of image
     try {
       if (tempType.split('/')[0] == 'image' ||
           tempType.contains("jpg") ||
           tempType.contains("png")) {
         tempDimension = ImageSizeGetter.getSize(FileInput(f));
+        _logger.d(
+          "File dimensions size fetched: ${tempDimension.width}x${tempDimension.height}",
+        );
         if (tempDimension == Size.zero) {
-          tempDimension = const Size(200, 200);
+          tempDimension =
+              const Size(DEFAULT_FILE_DIMENSION, DEFAULT_FILE_DIMENSION);
+          _logger.d(
+            "File dimensions set to default size because it was zero to zero, 200x200",
+          );
         }
       }
-      tempFileSize = f.statSync().size;
-    } catch (_) {}
+    } catch (e) {
+      _logger.e("Error in fetching fake file dimensions", e);
+    }
 
-    // Create MessageCompanion
-
-    // Get type with file name
-
-    final sendingFakeFile = file_pb.File()
+    return file_pb.File()
       ..uuid = fileUuid
       ..caption = caption ?? ""
       ..width = tempDimension.width
       ..height = tempDimension.height
       ..type = tempType
-      ..size = file.size != null ? Int64(file.size!) : Int64(tempFileSize!)
+      ..size = file.size != null ? Int64(file.size!) : Int64(tempFileSize)
       ..name = file.name
       ..duration = 0;
-    return sendingFakeFile;
   }
 
   Future<void> sendStickerMessage({
@@ -1097,7 +1117,7 @@ class MessageRepo {
     return messagesMap.values.toList();
   }
 
-  String _findType(String path) => mime(path) ?? "application/octet-stream";
+  String _findType(String path) => mime(path) ?? DEFAULT_FILE_TYPE;
 
   void sendActivity(Uid to, ActivityType activityType) {
     if (to.category == Categories.GROUP || to.category == Categories.USER) {

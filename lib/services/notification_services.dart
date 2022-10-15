@@ -650,7 +650,8 @@ class AndroidNotifier implements Notifier {
     await GetIt.I.get<CallService>().clearCallData();
     _callService.setRoomUid = callEvent.userInfo!["uid"]!.asUid();
     await _callService.saveCallOnDb(
-        getCallInfo(callEvent, CallEvent_CallStatus.CREATED, isAccepted: true),);
+      getCallInfo(callEvent, CallEvent_CallStatus.CREATED, isAccepted: true),
+    );
   }
 
   current_call_info.CurrentCallInfo getCallInfo(
