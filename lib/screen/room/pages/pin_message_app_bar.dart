@@ -82,6 +82,10 @@ class PinMessageAppBar extends StatelessWidget {
                             initialScrollIndex: index ?? 0,
                             itemBuilder: (context, index) {
                               return Container(
+                                decoration: BoxDecoration(
+                                  borderRadius: messageBorder,
+                                  color: color(context, index),
+                                ),
                                 height: (40 /
                                     min(
                                       pinMessages.length.toDouble(),
@@ -89,7 +93,6 @@ class PinMessageAppBar extends StatelessWidget {
                                     )),
                                 margin:
                                     const EdgeInsets.symmetric(vertical: 2.0),
-                                color: color(context, index),
                               );
                             },
                             itemCount: pinMessages.length,
@@ -104,20 +107,33 @@ class PinMessageAppBar extends StatelessWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (mes != null)
-                              Text(
-                                _i18n.get("pinned_message"),
-                                style:
-                                    theme.primaryTextTheme.subtitle2?.copyWith(
-                                  color: theme.colorScheme.primary,
-                                ),
+                            if (mes != null) ...[
+                              Row(
+                                children: [
+                                  Text(
+                                    _i18n.get("pinned_message"),
+                                    textDirection: TextDirection.ltr,
+                                    style: theme.primaryTextTheme.subtitle2
+                                        ?.copyWith(
+                                      color: theme.colorScheme.primary,
+                                    ),
+                                  ),
+                                  Text(
+                                    " #${index != null ? index + 1 : ""}",
+                                    textDirection: TextDirection.ltr,
+                                    style: theme.primaryTextTheme.subtitle2
+                                        ?.copyWith(
+                                      color: theme.colorScheme.primary,
+                                    ),
+                                  ),
+                                ],
                               ),
-                            if (mes != null)
                               AsyncLastMessage(
                                 message: mes,
                                 lastMessageId: mes.id!,
                                 showSeenStatus: false,
                               ),
+                            ]
                           ],
                         ),
                       ),
@@ -138,12 +154,8 @@ class PinMessageAppBar extends StatelessWidget {
   Color color(BuildContext context, int index) {
     final theme = Theme.of(context);
     return shouldHighlight(index, lastPinedMessage.value)
-        ? theme.colorScheme.inversePrimary
-        : Color.lerp(
-            theme.colorScheme.inversePrimary,
-            theme.colorScheme.inverseSurface,
-            0.8,
-          )!;
+        ? theme.colorScheme.primary
+        : theme.colorScheme.inversePrimary;
   }
 
   bool shouldHighlight(int index, int id) {
