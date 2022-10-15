@@ -422,7 +422,7 @@ class RoomPageState extends State<RoomPage> {
     _itemPositionsListener.itemPositions.addListener(() {
       final position = _itemPositionsListener.itemPositions.value;
       if (position.isNotEmpty) {
-        _syncLastPinMessageWithItemPosition(position);
+        _syncLastPinMessageWithItemPosition();
         if ((_itemCount - position.first.index).abs() > 5) {
           _isLastMessages = false;
         } else {
@@ -477,15 +477,21 @@ class RoomPageState extends State<RoomPage> {
     super.initState();
   }
 
-  void _syncLastPinMessageWithItemPosition(Iterable<ItemPosition> position) {
-      final p = position.map((e) => e.index).reduce(max);
+  void _syncLastPinMessageWithItemPosition() {
+    final position = _itemPositionsListener.itemPositions.value;
+    final p = position.map((e) => e.index).reduce(max) + room.firstMessageId;
     if (_pinMessages.length > 1 &&
         _lastPinedMessage.value != p &&
         _highlightMessageId.value == -1) {
-      final index =
-          _pinMessages.lastIndexWhere((element) => element.id! < p);
-      if (index != -1 && _lastPinedMessage.value!=_pinMessages[index].id) {
-        _lastPinedMessage.add((_pinMessages[index].id!));
+      if (position.last.index == 0) {
+        _lastPinedMessage.add(
+          (_pinMessages..sort((a, b) => a.id!.compareTo(b.id!))).first.id!,
+        );
+      } else {
+        final index = _pinMessages.lastIndexWhere((element) => element.id! < p);
+        if (index != -1 && _lastPinedMessage.value != _pinMessages[index].id) {
+          _lastPinedMessage.add((_pinMessages[index].id!));
+        }
       }
     }
   }
@@ -735,7 +741,11 @@ class RoomPageState extends State<RoomPage> {
               _pinMessages
                 ..add(m!)
                 ..sort((a, b) => a.time - b.time);
-              _lastPinedMessage.add(_pinMessages.last.id!);
+              if (_lastScrollPositionIndex == -1) {
+                _lastPinedMessage.add(_pinMessages.last.id!);
+              } else {
+                _syncLastPinMessageWithItemPosition();
+              }
             } catch (e) {
               _logger.e("element: $element, e: $e");
             }
@@ -1502,7 +1512,13 @@ class RoomPageState extends State<RoomPage> {
         alignment: .5,
         curve: Curves.fastOutSlowIn,
         opacityAnimationWeights: [20, 20, 60],
-      );
+      ).then((value) {
+        if (_highlightMessageId.value != -1 && shouldHighlight) {
+          highlightMessageTimer = Timer(const Duration(seconds: 2), () {
+            _highlightMessageId.add(-1);
+          });
+        }
+      });
 
       _currentScrollIndex = max(0, index);
 
@@ -1511,11 +1527,6 @@ class RoomPageState extends State<RoomPage> {
       if (index != -1) {
         highlightMessageTimer?.cancel();
         _highlightMessageId.add(index + room.firstMessageId);
-      }
-      if (_highlightMessageId.value != -1) {
-        highlightMessageTimer = Timer(const Duration(seconds: 2), () {
-          _highlightMessageId.add(-1);
-        });
       }
     }
   }
