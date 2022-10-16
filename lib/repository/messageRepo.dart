@@ -151,16 +151,13 @@ class MessageRepo {
     _logger.i('updating -----------------');
     if (updateStatus && updatingStatus.value != TitleStatusConditions.Normal) {
       updatingStatus.add(TitleStatusConditions.Connected);
-      Timer(const Duration(seconds: 1), () {
-        updatingStatus.add(TitleStatusConditions.Normal);
-      });
     }
+
     await updatingMessages(updateStatus: updateStatus);
     await updatingLastSeen();
     _roomRepo.fetchBlockedRoom().ignore();
 
     if (updateStatus && updatingStatus.value != TitleStatusConditions.Normal) {
-      updatingStatus.add(TitleStatusConditions.Connected);
       Timer(const Duration(seconds: 1), () {
         updatingStatus.add(TitleStatusConditions.Normal);
       });
