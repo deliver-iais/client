@@ -321,7 +321,7 @@ class CallRepo {
       _peerConnection = pc;
     });
 
-    if (await requestPhoneStatePermission()) {
+    if (isAndroid && await requestPhoneStatePermission()) {
       startListenToPhoneCallState();
     }
 
@@ -719,6 +719,12 @@ class CallRepo {
         case STATUS_MIC_OPEN:
           break;
         case STATUS_MIC_CLOSE:
+          break;
+        case STATUS_CALL_ON_HOLD:
+          incomingCallOnHold.add(true);
+          break;
+        case STATUS_CALL_ON_HOLD_ENDED:
+          incomingCallOnHold.add(false);
           break;
         case STATUS_SHARE_SCREEN:
           incomingSharing.add(true);
