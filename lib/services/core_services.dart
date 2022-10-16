@@ -123,9 +123,7 @@ class CoreServices {
   }
 
   void gotResponse() {
-    if (_disconnectedTimer != null) {
-      _disconnectedTimer!.cancel();
-    }
+    _disconnectedTimer?.cancel();
     _connectionStatus.add(ConnectionStatus.Connected);
     backoffTime = MIN_BACKOFF_TIME;
     responseChecked = true;
