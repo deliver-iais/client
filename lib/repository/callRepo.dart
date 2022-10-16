@@ -36,6 +36,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:phone_state/phone_state.dart';
 import 'package:random_string/random_string.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sdp_transform/sdp_transform.dart';
@@ -141,6 +142,7 @@ class CallRepo {
   bool _isNotificationSelected = false;
   bool _isAccepted = false;
   Timer? timer;
+  StreamSubscription<PhoneStateStatus?>? _phoneStateStream;
 
   ReceivePort? _receivePort;
 
@@ -173,6 +175,7 @@ class CallRepo {
       }
     });
     _callService.callEvents.listen((event) {
+      if (event.roomUid == null) return;
       final from = event.roomUid!.asString();
       final to = _authRepo.currentUserUid.asString();
       switch (event.callType) {
@@ -317,15 +320,55 @@ class CallRepo {
     await _createPeerConnection(isOffer).then((pc) {
       _peerConnection = pc;
     });
+
+    if (await requestPhoneStatePermission()) {
+      startListenToPhoneCallState();
+    }
+
     if (isOffer) {
       _dataChannel = await _createDataChannel();
       _offerSdp = await _createOffer();
     }
   }
 
+  Future<bool> requestPhoneStatePermission() async {
+    final status = await Permission.phone.request();
+
+    switch (status) {
+      case PermissionStatus.denied:
+      case PermissionStatus.restricted:
+      case PermissionStatus.limited:
+      case PermissionStatus.permanentlyDenied:
+        return false;
+      case PermissionStatus.granted:
+        return true;
+    }
+  }
+
+  void startListenToPhoneCallState() {
+    _phoneStateStream = PhoneState.phoneStateStream.listen((event) {
+      if (event != null) {
+        if (event == PhoneStateStatus.CALL_STARTED) {
+          _logger.i("PhoneState.phoneStateStream=CALL_STARTED");
+          if (_isConnected) {
+            _dataChannel!.send(RTCDataChannelMessage(STATUS_CALL_ON_HOLD));
+          }
+        } else if (event == PhoneStateStatus.CALL_ENDED) {
+          _logger.i("PhoneState.phoneStateStream=CALL_ENDED");
+          if (_isConnected) {
+            _dataChannel!
+                .send(RTCDataChannelMessage(STATUS_CALL_ON_HOLD_ENDED));
+          }
+        }
+      }
+    });
+  }
+
   Future<RTCPeerConnection> _createPeerConnection(bool isOffer) async {
-    final stunLocal = await _sharedDao.getBoolean("stun:217.218.7.16:3478",
-        defaultValue: true);
+    final stunLocal = await _sharedDao.getBoolean(
+      "stun:217.218.7.16:3478",
+      defaultValue: true,
+    );
     final turnLocal = await _sharedDao
         .getBoolean("turn:217.218.7.16:3478?transport=udp", defaultValue: true);
     final stunGoogle =
@@ -509,6 +552,12 @@ class CallRepo {
             case STATUS_SHARE_SCREEN:
               incomingSharing.add(true);
               break;
+            case STATUS_CALL_ON_HOLD:
+              incomingCallOnHold.add(true);
+              break;
+            case STATUS_CALL_ON_HOLD_ENDED:
+              incomingCallOnHold.add(false);
+              break;
             case STATUS_SHARE_VIDEO:
               incomingSharing.add(false);
               break;
@@ -582,7 +631,7 @@ class CallRepo {
     _callEvents[clock.now().millisecondsSinceEpoch] = "Connected";
     await vibrate(duration: 50);
     _audioService.stopBeepSound();
-    if(isAndroid) {
+    if (isAndroid) {
       await Wakelock.enable();
     }
     if (_reconnectTry) {
@@ -1330,8 +1379,8 @@ class CallRepo {
           ((_reconnectTry || _isVideo) ? "1000" : "500"),
     ); // 0.5 sec for audio and 1.0 for video
     _logger.i(
-      "candidateNumber:${candidateNumber}",
-      "candidateTimeLimit:${candidateTimeLimit}",
+      "candidateNumber:$candidateNumber",
+      "candidateTimeLimit:$candidateTimeLimit",
     );
 
     final completer = Completer();
@@ -1505,9 +1554,11 @@ class CallRepo {
       videoing.add(false);
       incomingVideo.add(false);
       desktopDualVideo.add(true);
+      incomingCallOnHold.add(false);
+      await _phoneStateStream?.cancel();
 
       await _callService.clearCallData(forceToClearData: true);
-      if(isAndroid) {
+      if (isAndroid) {
         await Wakelock.disable();
       }
       Timer(const Duration(milliseconds: 1500), () async {
@@ -1595,6 +1646,7 @@ class CallRepo {
   BehaviorSubject<bool> videoing = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> incomingVideo = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> desktopDualVideo = BehaviorSubject.seeded(true);
+  BehaviorSubject<bool> incomingCallOnHold = BehaviorSubject.seeded(false);
 
   Future<void> fetchUserCallList(
     Uid roomUid,
