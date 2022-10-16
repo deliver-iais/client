@@ -251,6 +251,7 @@ class ContactRepo {
       return true;
     } catch (e) {
       _logger.e(e);
+      // TODO(bitbeter): سینک شدن ادامه داره ولی چون ارور خوردیم میخواستیم لودینگ رو دیگه نشون ندیم ولی شاید این متغیر یه جای دیگه استفاده بشه که فالس کردنش باگ ایجاد کنه
       isSyncingContacts.add(false);
       return false;
     }
