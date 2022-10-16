@@ -158,6 +158,7 @@ class MessageRepo {
     _roomRepo.fetchBlockedRoom().ignore();
 
     if (updateStatus && updatingStatus.value != TitleStatusConditions.Normal) {
+      updatingStatus.add(TitleStatusConditions.Connected);
       Timer(const Duration(seconds: 1), () {
         updatingStatus.add(TitleStatusConditions.Normal);
       });
