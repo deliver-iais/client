@@ -98,7 +98,7 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
                   context: context,
                   delegate: ContactSearchDelegate(),
                 ).then((c) {
-                  if (c != null) {
+                  if (c != null && c.uid != null) {
                     _routingService.openRoom(c.uid!);
                   }
                 });
@@ -261,7 +261,7 @@ class ContactSearchDelegate extends SearchDelegate<Contact?> {
   final _contacts = <Contact>[];
 
   ContactSearchDelegate() {
-    _contactRepo.watchAllMessengerContacts().listen((contacts) {
+    _contactRepo.watchAll().listen((contacts) {
       _contacts
         ..clear()
         ..addAll(
@@ -269,13 +269,9 @@ class ContactSearchDelegate extends SearchDelegate<Contact?> {
               .where(
                 (c) => !_authRepo.isCurrentUser(c.uid!) && !c.isUsersContact(),
               )
-              .sortedBy((element) => "${element.firstName}${element.lastName}"),
+              .sortedBy((element) => "${element.firstName}${element.lastName}")
+              .sortedBy((element) => "${element.uid != null ? 1 : 0}"),
         );
-    });
-
-    _contactRepo.watchNotMessengerContact().listen((notMessengerContacts) {
-
-
     });
   }
 
@@ -322,22 +318,28 @@ class ContactSearchDelegate extends SearchDelegate<Contact?> {
         itemCount: filteredContacts.length,
         itemBuilder: (context, index) {
           final c = filteredContacts[index];
-
-          return GestureDetector(
-            onTap: () => close(context, c),
-            child: ContactWidget(
-              contact: c,
-              onCircleIcon: () => showQrCode(
-                context,
-                buildShareUserUrl(
-                  c.countryCode,
-                  c.nationalNumber,
-                  c.firstName!,
-                  c.lastName!,
+          if (c.uid != null) {
+            return GestureDetector(
+              onTap: () => close(context, c),
+              child: ContactWidget(
+                contact: c,
+                circleIcon: CupertinoIcons.qrcode,
+                onCircleIcon: () => showQrCode(
+                  context,
+                  buildShareUserUrl(
+                    c.countryCode,
+                    c.nationalNumber,
+                    c.firstName!,
+                    c.lastName!,
+                  ),
                 ),
               ),
-            ),
-          );
+            );
+          } else {
+            return NotMessengerContactWidget(
+              contact: c,
+            );
+          }
         },
       ),
     );

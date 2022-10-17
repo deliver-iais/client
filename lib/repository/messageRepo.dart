@@ -1038,7 +1038,7 @@ class MessageRepo {
         isHidden: true,
       );
 
-  String _getPacketId() => clock.now().millisecondsSinceEpoch.toString();
+  String _getPacketId() => clock.now().microsecondsSinceEpoch.toString();
 
   Future<List<Message?>> getPage(
     int page,

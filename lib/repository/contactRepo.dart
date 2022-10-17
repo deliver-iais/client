@@ -266,6 +266,8 @@ class ContactRepo {
   Stream<List<contact_model.Contact>> watchNotMessengerContact() =>
       _contactDao.watchNotMessengerContacts();
 
+  Stream<List<contact_model.Contact>> watchAll()=> _contactDao.watchAll();
+
   Future<void> getContacts() async {
     isSyncingContacts.add(false);
     try {

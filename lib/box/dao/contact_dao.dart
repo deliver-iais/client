@@ -28,6 +28,8 @@ abstract class ContactDao {
   Future<List<Contact>> getNotMessengerContacts();
 
   Stream<List<Contact>> watchNotMessengerContacts();
+
+  Stream<List<Contact>> watchAll();
 }
 
 class ContactDaoImpl implements ContactDao {
@@ -141,5 +143,20 @@ class ContactDaoImpl implements ContactDao {
           (event) =>
               box.values.where((element) => element.uid == null).toList(),
         );
+  }
+
+  @override
+  Stream<List<Contact>> watchAll() async* {
+    try {
+      final box = await _open();
+
+      yield box.values.toList();
+
+      yield* box.watch().map(
+            (event) => box.values.toList(),
+          );
+    } catch (_) {
+      yield [];
+    }
   }
 }
