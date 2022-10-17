@@ -177,16 +177,24 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       _fileIsExist.add(true);
                       final f = widget.message.json.toFile();
                       return PopupMenuItem(
-                        value: f.type.contains("image")
-                            ? OperationOnMessage.SAVE_TO_GALLERY
-                            : f.type.contains("audio") || f.type.contains("mp3")
-                                ? OperationOnMessage.SAVE_TO_MUSIC
-                                : OperationOnMessage.SAVE_TO_DOWNLOADS,
+                        value: isWeb
+                            ? OperationOnMessage.SAVE
+                            : f.type.contains("image")
+                                ? OperationOnMessage.SAVE_TO_GALLERY
+                                : f.type.contains("audio") ||
+                                        f.type.contains("mp3")
+                                    ? OperationOnMessage.SAVE_TO_MUSIC
+                                    : OperationOnMessage.SAVE_TO_DOWNLOADS,
                         child: Row(
                           children: [
                             const Icon(CupertinoIcons.down_arrow),
                             const SizedBox(width: 8),
-                            if (f.type.contains("image"))
+                            if (isWeb)
+                              Text(
+                                _i18n.get("save"),
+                                style: theme.primaryTextTheme.bodyText2,
+                              )
+                            else if (f.type.contains("image"))
                               Text(
                                 _i18n.get("save_to_gallery"),
                                 style: theme.primaryTextTheme.bodyText2,
