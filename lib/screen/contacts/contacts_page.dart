@@ -266,12 +266,16 @@ class ContactSearchDelegate extends SearchDelegate<Contact?> {
         ..clear()
         ..addAll(
           contacts
-              .whereNot((element) => element.uid == null)
               .where(
                 (c) => !_authRepo.isCurrentUser(c.uid!) && !c.isUsersContact(),
               )
               .sortedBy((element) => "${element.firstName}${element.lastName}"),
         );
+    });
+
+    _contactRepo.watchNotMessengerContact().listen((notMessengerContacts) {
+
+
     });
   }
 

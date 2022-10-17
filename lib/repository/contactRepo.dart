@@ -122,6 +122,7 @@ class ContactRepo {
     List<Contact> phoneContacts,
   ) async {
     final contacts = await _contactDao.getAllContacts();
+
     for (final element in contacts) {
       phoneContacts.removeWhere(
         (pc) =>
@@ -430,7 +431,7 @@ class ContactRepo {
         if (result != null && result.files.isNotEmpty) {
           if (isWeb) {
             unawaited(_getContactFromVcfFile(
-                String.fromCharCodes(result.files.first.bytes!)));
+                String.fromCharCodes(result.files.first.bytes!,)));
           } else {
             unawaited(_getContactFromVcfFile(
                 File(result.files.first.path!).readAsStringSync()));
