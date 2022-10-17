@@ -147,9 +147,6 @@ class MessageRepo {
     _logger.i('updating -----------------');
     if (_updateState && updatingStatus.value != TitleStatusConditions.Normal) {
       updatingStatus.add(TitleStatusConditions.Connected);
-      Timer(const Duration(seconds: 1), () {
-        updatingStatus.add(TitleStatusConditions.Normal);
-      });
     }
     if (await updatingMessages()) {
       await updatingLastSeen();
