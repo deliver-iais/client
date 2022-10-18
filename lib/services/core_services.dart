@@ -30,6 +30,7 @@ BehaviorSubject<String> connectionError = BehaviorSubject.seeded("");
 const MIN_BACKOFF_TIME = isWeb ? 16 : 4;
 final MAX_BACKOFF_TIME = (isAndroid || isIOS) ? 16 : 64;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
+const DISCONNECT_TIME = 8;
 
 class CoreServices {
   final _logger = GetIt.I.get<Logger>();
@@ -202,7 +203,8 @@ class CoreServices {
   }
 
   void _onConnectionError() {
-    _disconnectedTimer = Timer(const Duration(seconds: 4), () {
+    _disconnectedTimer?.cancel();
+    _disconnectedTimer = Timer(const Duration(seconds: 8), () {
       _connectionStatus.add(ConnectionStatus.Disconnected);
       disconnectedTime.add(backoffTime - 1);
     });

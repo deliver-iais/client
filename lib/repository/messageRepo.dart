@@ -117,7 +117,9 @@ class MessageRepo {
           updatingStatus.add(TitleStatusConditions.Disconnected);
           break;
         case ConnectionStatus.Connecting:
-          updatingStatus.add(TitleStatusConditions.Connecting);
+          if (updatingStatus.value != TitleStatusConditions.Normal) {
+            updatingStatus.add(TitleStatusConditions.Connecting);
+          }
           break;
       }
     });
@@ -1035,7 +1037,9 @@ class MessageRepo {
         isHidden: true,
       );
 
-  String _getPacketId() => clock.now().microsecondsSinceEpoch.toString()+Random().nextInt(100000).toString();
+  String _getPacketId() =>
+      clock.now().microsecondsSinceEpoch.toString() +
+      Random().nextInt(100000).toString();
 
   Future<List<Message?>> getPage(
     int page,
