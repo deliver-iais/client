@@ -88,7 +88,8 @@ class SelectMultiMessageAppBar extends StatelessWidget {
               icon: const Icon(CupertinoIcons.arrowshape_turn_up_right),
               onPressed: () {
                 _routingService.openSelectForwardMessage(
-                    forwardedMessages: _getSortedMessages());
+                  forwardedMessages: _getSortedMessages(),
+                );
                 selectedMessages.clear();
               },
             ),
