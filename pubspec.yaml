@@ -42,7 +42,6 @@ dependencies:
     git:
       ref: 49be185aefaf6ae910f7359306ec12423d443efa
       url: https://github.com/deliveriais/connectycube_flutter_call_kit
-  fast_contacts: 1.1.1
   custom_image_crop: 0.0.4
   date_time_format: 2.0.1
   dcache: 0.4.0
@@ -59,6 +58,7 @@ dependencies:
   device_info: 2.0.3
   dio: 4.0.6
   expandable: 5.0.1
+  fast_contacts: 1.1.1
   feature_discovery:
     git:
       ref: 319d1fe74fcee87eef427a6136639b3bf2537a89

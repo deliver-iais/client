@@ -118,12 +118,15 @@ class _TextUIState extends State<TextUI> {
           children: [
             Container(
               key: _textBoxKey,
-              child: RichText(
-                text:
-                    TextSpan(children: spans, style: theme.textTheme.bodyText2),
-                textDirection: widget.text.isPersian()
-                    ? TextDirection.rtl
-                    : TextDirection.ltr,
+              child: SelectionArea(
+                child: Text.rich(
+                  // selectionRegistrar: SelectionContainer.maybeOf(context),
+                  selectionColor: Colors.black12,
+                  TextSpan(children: spans, style: theme.textTheme.bodyText2),
+                  textDirection: widget.text.isPersian()
+                      ? TextDirection.rtl
+                      : TextDirection.ltr,
+                ),
               ),
             ),
             StreamBuilder<double>(
@@ -161,4 +164,3 @@ String synthesizeToOriginalWord(String text) {
       .replaceAll("\\||", "||")
       .replaceAll("\\~", "~");
 }
-

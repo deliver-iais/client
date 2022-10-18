@@ -267,7 +267,7 @@ class ContactRepo {
   Stream<List<contact_model.Contact>> watchNotMessengerContact() =>
       _contactDao.watchNotMessengerContacts();
 
-  Stream<List<contact_model.Contact>> watchAll()=> _contactDao.watchAll();
+  Stream<List<contact_model.Contact>> watchAll() => _contactDao.watchAll();
 
   Future<void> getContacts() async {
     isSyncingContacts.add(false);
@@ -433,11 +433,19 @@ class ContactRepo {
             .pickFiles(type: FileType.custom, allowedExtensions: ["vcf"]);
         if (result != null && result.files.isNotEmpty) {
           if (isWeb) {
-            unawaited(_getContactFromVcfFile(
-                String.fromCharCodes(result.files.first.bytes!,)));
+            unawaited(
+              _getContactFromVcfFile(
+                String.fromCharCodes(
+                  result.files.first.bytes!,
+                ),
+              ),
+            );
           } else {
-            unawaited(_getContactFromVcfFile(
-                File(result.files.first.path!).readAsStringSync()));
+            unawaited(
+              _getContactFromVcfFile(
+                File(result.files.first.path!).readAsStringSync(),
+              ),
+            );
           }
         }
       }

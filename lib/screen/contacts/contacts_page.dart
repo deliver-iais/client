@@ -194,7 +194,8 @@ class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
                                         child: Row(
                                           children: [
                                             const Icon(
-                                                CupertinoIcons.person_add),
+                                              CupertinoIcons.person_add,
+                                            ),
                                             const SizedBox(width: 8),
                                             Text(
                                               _i18n.get("add_contact"),
