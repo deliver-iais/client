@@ -257,7 +257,9 @@ class FileRepo {
     String dir,
   ) {
     getFileIfExist(uuid, name).then(
-      (path) => _fileService.saveFileInDownloadFolder(path!, name, dir),
+      (path) => isDesktop
+          ? _fileService.saveFileInDesktopDownloadFolder(uuid, name, path!)
+          : _fileService.saveFileInMobileDownloadFolder(path!, name, dir),
     );
   }
 

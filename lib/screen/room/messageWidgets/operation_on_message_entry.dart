@@ -166,7 +166,7 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                     ],
                   ),
                 ),
-              if (widget.message.type == MessageType.FILE && !isDesktop)
+              if (widget.message.type == MessageType.FILE)
                 FutureBuilder(
                   future: _fileRepo.getFileIfExist(
                     widget.message.json.toFile().uuid,
@@ -179,12 +179,14 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       return PopupMenuItem(
                         value: isWeb
                             ? OperationOnMessage.SAVE
-                            : f.type.contains("image")
-                                ? OperationOnMessage.SAVE_TO_GALLERY
-                                : f.type.contains("audio") ||
-                                        f.type.contains("mp3")
-                                    ? OperationOnMessage.SAVE_TO_MUSIC
-                                    : OperationOnMessage.SAVE_TO_DOWNLOADS,
+                            : isDesktop
+                                ? OperationOnMessage.SAVE_TO_DOWNLOADS
+                                : f.type.contains("image")
+                                    ? OperationOnMessage.SAVE_TO_GALLERY
+                                    : f.type.contains("audio") ||
+                                            f.type.contains("mp3")
+                                        ? OperationOnMessage.SAVE_TO_MUSIC
+                                        : OperationOnMessage.SAVE_TO_DOWNLOADS,
                         child: Row(
                           children: [
                             const Icon(CupertinoIcons.down_arrow),
@@ -192,6 +194,11 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                             if (isWeb)
                               Text(
                                 _i18n.get("save"),
+                                style: theme.primaryTextTheme.bodyText2,
+                              )
+                            else if (isDesktop)
+                              Text(
+                                _i18n.get("save_to_downloads"),
                                 style: theme.primaryTextTheme.bodyText2,
                               )
                             else if (f.type.contains("image"))
