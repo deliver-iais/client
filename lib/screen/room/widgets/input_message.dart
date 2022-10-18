@@ -12,7 +12,6 @@ import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/custom_text_selection_controller.dart';
 import 'package:deliver/screen/room/messageWidgets/input_message_text_controller.dart';
-import 'package:deliver/screen/room/messageWidgets/max_lenght_text_input_formatter.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/room/widgets/bot_commands.dart';
 import 'package:deliver/screen/room/widgets/emoji_keybord.dart';
@@ -627,13 +626,6 @@ class InputMessageWidgetState extends State<InputMessage> {
               textInputAction: TextInputAction.newline,
               minLines: 1,
               maxLines: isAndroid ? 10 : 15,
-              maxLength: INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH,
-              inputFormatters: [
-                MaxLinesTextInputFormatter(
-                  INPUT_MESSAGE_TEXT_FIELD_MAX_LINE,
-                )
-                //max line of text field
-              ],
               style: theme.textTheme.bodyMedium,
               onChanged: (str) {
                 if (str.isNotEmpty) {
