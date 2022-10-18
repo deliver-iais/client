@@ -146,7 +146,7 @@ class FileService {
       } else {
         final file = await localFile(
           uuid,
-          filename.split('.').last.replaceAll("webp", "jpg"),
+          filename.split('.').last,
         );
         file.writeAsBytesSync(res.data);
         return file.path;
