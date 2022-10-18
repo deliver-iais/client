@@ -193,7 +193,7 @@ class FileService {
     try {
       final downloadDir =
           await ExtStorage.getExternalStoragePublicDirectory(directory);
-      final f = File('$downloadDir/${name.replaceAll(".webp", "jpg")}');
+      final f = File('$downloadDir/${name.replaceAll(".webp", ".jpg")}');
       await f.writeAsBytes(File(path).readAsBytesSync());
     } catch (_) {}
   }
