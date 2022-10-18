@@ -79,7 +79,7 @@ class FileService {
     return File('$path/$fileUuid.$fileType');
   }
 
-  Future<File> _downloadedFile(String fileUuid, String fileType) async {
+  Future<File> _downloadedFileDir(String fileUuid, String fileType) async {
     final directory = await getDownloadsDirectory();
     return File('${directory!.path}/$fileUuid.$fileType');
   }
@@ -209,7 +209,7 @@ class FileService {
     String filePath,
   ) async {
     try {
-      final file = await _downloadedFile(
+      final file = await _downloadedFileDir(
         uuid,
         name.split('.').last.replaceAll("webp", "jpg"),
       );
