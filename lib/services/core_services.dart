@@ -30,7 +30,6 @@ BehaviorSubject<String> connectionError = BehaviorSubject.seeded("");
 const MIN_BACKOFF_TIME = isWeb ? 16 : 4;
 final MAX_BACKOFF_TIME = (isAndroid || isIOS) ? 16 : 64;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
-const DISCONNECT_TIME = 8;
 
 class CoreServices {
   final _logger = GetIt.I.get<Logger>();
@@ -123,6 +122,9 @@ class CoreServices {
     }
   }
 
+  CallOptions _connectionOption() =>
+      CallOptions();
+
   void gotResponse() {
     _disconnectedTimer?.cancel();
     _connectionStatus.add(ConnectionStatus.Connected);
@@ -139,9 +141,11 @@ class CoreServices {
       _responseStream = isWeb
           ? _services.coreServiceClient?.establishServerSideStream(
               EstablishServerSideStreamReq(),
+              options: _connectionOption(),
             )
           : _services.coreServiceClient?.establishStream(
               _clientPacketStream!.stream,
+              options: _connectionOption(),
             );
 
       _responseStream?.listen(
@@ -203,11 +207,16 @@ class CoreServices {
   }
 
   void _onConnectionError() {
-    _disconnectedTimer?.cancel();
-    _disconnectedTimer = Timer(const Duration(seconds: 8), () {
-      _connectionStatus.add(ConnectionStatus.Disconnected);
-      disconnectedTime.add(backoffTime - 1);
-    });
+    if (_disconnectedTimer == null || !_disconnectedTimer!.isActive) {
+      _disconnectedTimer = Timer(Duration(seconds: 2 * backoffTime), () {
+        _changeStateToDisconnected();
+      });
+    }
+  }
+
+  void _changeStateToDisconnected() {
+    _connectionStatus.add(ConnectionStatus.Disconnected);
+    disconnectedTime.add(backoffTime - 1);
   }
 
   Future<void> sendMessage(MessageByClient message) async {
@@ -221,6 +230,9 @@ class CoreServices {
           const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
           () => _checkPendingStatus(message.packetId),
         );
+      }
+      if (_disconnectedTimer != null && _disconnectedTimer!.isActive) {
+        _changeStateToDisconnected();
       }
     } catch (e) {
       _logger.e(e);

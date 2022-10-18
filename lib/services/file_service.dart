@@ -79,6 +79,11 @@ class FileService {
     return File('$path/$fileUuid.$fileType');
   }
 
+  Future<File> _downloadedFileDir(String fileUuid, String fileType) async {
+    final directory = await getDownloadsDirectory();
+    return File('${directory!.path}/$fileUuid.$fileType');
+  }
+
   Future<File> localThumbnailFile(
     String fileUuid,
     String fileType,
@@ -185,7 +190,7 @@ class FileService {
     }
   }
 
-  Future<void> saveFileInDownloadFolder(
+  Future<void> saveFileInMobileDownloadFolder(
     String path,
     String name,
     String directory,
@@ -196,6 +201,22 @@ class FileService {
       final f = File('$downloadDir/${name.replaceAll(".webp", ".jpg")}');
       await f.writeAsBytes(File(path).readAsBytesSync());
     } catch (_) {}
+  }
+
+  Future<void> saveFileInDesktopDownloadFolder(
+    String uuid,
+    String name,
+    String filePath,
+  ) async {
+    try {
+      final file = await _downloadedFileDir(
+        uuid,
+        name.split('.').last.replaceAll("webp", "jpg"),
+      );
+      file.writeAsBytesSync(File(filePath).readAsBytesSync());
+    } catch (e) {
+      _logger.e(e);
+    }
   }
 
   Future<void> saveFileToSpecifiedAddress(
