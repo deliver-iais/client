@@ -144,7 +144,10 @@ class FileService {
         final url = html.Url.createObjectUrlFromBlob(blob);
         return url;
       } else {
-        final file = await localFile(uuid, filename.split('.').last);
+        final file = await localFile(
+          uuid,
+          filename.split('.').last,
+        );
         file.writeAsBytesSync(res.data);
         return file.path;
       }
@@ -154,11 +157,15 @@ class FileService {
     }
   }
 
-  Future<void> saveDownloadedFile(String url, String filename) async {
-    html.AnchorElement(href: url)
-      ..download = url
-      ..setAttribute("download", filename)
-      ..click();
+  void saveDownloadedFile(String url, String filename) {
+    try {
+      html.AnchorElement(href: url)
+        ..download = url
+        ..setAttribute("download", filename)
+        ..click();
+    } catch (e) {
+      _logger.e(e);
+    }
   }
 
   Future<File?> getApplicationIcon() async {
@@ -184,14 +191,10 @@ class FileService {
     String directory,
   ) async {
     try {
-      if (isWeb) {
-        return saveDownloadedFile(path, name);
-      } else {
-        final downloadDir =
-            await ExtStorage.getExternalStoragePublicDirectory(directory);
-        final f = File('$downloadDir/$name');
-        await f.writeAsBytes(File(path).readAsBytesSync());
-      }
+      final downloadDir =
+          await ExtStorage.getExternalStoragePublicDirectory(directory);
+      final f = File('$downloadDir/${name.replaceAll(".webp", ".jpg")}');
+      await f.writeAsBytes(File(path).readAsBytesSync());
     } catch (_) {}
   }
 

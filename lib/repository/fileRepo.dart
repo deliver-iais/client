@@ -118,7 +118,7 @@ class FileRepo {
     return false;
   }
 
-  Future<void> saveDownloadedFile(String url, String filename) =>
+  void saveDownloadedFile(String url, String filename) =>
       _fileService.saveDownloadedFile(url, filename);
 
   Future<String?> getFileIfExist(
@@ -232,6 +232,23 @@ class FileRepo {
 
   void initUploadProgress(String uploadId) {
     _fileService.initProgressBar(uploadId);
+  }
+
+  void saveDownloadedFileInWeb(String uuid, String name, String type) {
+    getFileIfExist(uuid, name).then((url) {
+      if (url != null) {
+        if (type.contains("image") ||
+            type.contains("png") ||
+            type.contains("jpeg")) {
+          _fileService.saveDownloadedFile(
+            url,
+            name.replaceAll(".webp", ".jpg"),
+          );
+        } else {
+          _fileService.saveDownloadedFile(url, name);
+        }
+      }
+    });
   }
 
   void saveFileInDownloadDir(

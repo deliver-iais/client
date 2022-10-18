@@ -98,38 +98,28 @@ class MessageRepo {
   final _mediaRepo = GetIt.I.get<MediaRepo>();
   final _dataStreamServices = GetIt.I.get<DataStreamServices>();
   final _sendActivitySubject = BehaviorSubject.seeded(0);
-  final updatingStatus =
-      BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
+  final updatingStatus = BehaviorSubject.seeded(TitleStatusConditions.Normal);
+  bool _updateState = false;
 
   MessageRepo() {
-    connectionStatusHandler();
+    createConnectionStatusHandler();
   }
 
-  Future<void> connectionStatusHandler() async {
+  Future<void> createConnectionStatusHandler() async {
+    await update();
     _coreServices.connectionStatus.listen((mode) async {
       switch (mode) {
         case ConnectionStatus.Connected:
-          _logger.i('updating -----------------');
-          await updatingMessages();
-          await updatingLastSeen();
-          _roomRepo.fetchBlockedRoom().ignore();
-          updatingStatus.add(TitleStatusConditions.Connected);
-          Timer(const Duration(seconds: 1), () {
-            if (updatingStatus.value == TitleStatusConditions.Connected) {
-              updatingStatus.add(TitleStatusConditions.Normal);
-            }
-          });
-          sendPendingMessages().ignore();
-          sendPendingEditedMessages().ignore();
-          unawaited(_fetchNotSyncedRoom());
-
-          _logger.i('updating done -----------------');
+          unawaited(update());
+          _updateState = true;
           break;
         case ConnectionStatus.Disconnected:
           updatingStatus.add(TitleStatusConditions.Disconnected);
           break;
         case ConnectionStatus.Connecting:
-          updatingStatus.add(TitleStatusConditions.Connecting);
+          if (updatingStatus.value != TitleStatusConditions.Normal) {
+            updatingStatus.add(TitleStatusConditions.Connecting);
+          }
           break;
       }
     });
@@ -155,17 +145,38 @@ class MessageRepo {
 
   final _completerMap = <String, Completer<List<Message?>>>{};
 
+  Future<void> update() async {
+    _logger.i('updating -----------------');
+    if (_updateState && updatingStatus.value != TitleStatusConditions.Normal) {
+      updatingStatus.add(TitleStatusConditions.Connected);
+    }
+    if (await updatingMessages()) {
+      await updatingLastSeen();
+      _roomRepo.fetchBlockedRoom().ignore();
+    }
+    if (_updateState && updatingStatus.value != TitleStatusConditions.Normal) {
+      updatingStatus.add(TitleStatusConditions.Connected);
+      Timer(const Duration(seconds: 1), () {
+        updatingStatus.add(TitleStatusConditions.Normal);
+      });
+    }
+
+    sendPendingMessages().ignore();
+    sendPendingEditedMessages().ignore();
+    unawaited(_fetchNotSyncedRoom());
+    _logger.i('updating done -----------------');
+  }
+
   @visibleForTesting
-  Future<void> updatingMessages() async {
+  Future<bool> updatingMessages() async {
     var finished = false;
     var pointer = 0;
     final allRoomFetched =
         await _sharedDao.getBoolean(SHARED_DAO_ALL_ROOMS_FETCHED);
-    if (allRoomFetched) {
-      updatingStatus.add(TitleStatusConditions.Updating);
-    } else {
+    if (!allRoomFetched && _updateState) {
       updatingStatus.add(TitleStatusConditions.Syncing);
     }
+
     while (!finished && pointer < MAX_ROOM_METADATA_SIZE) {
       try {
         final getAllUserRoomMetaRes =
@@ -210,6 +221,9 @@ class MessageRepo {
               } catch (e) {
                 _logger.e(e);
               }
+              if (allRoomFetched && _updateState) {
+                updatingStatus.add(TitleStatusConditions.Updating);
+              }
               _roomDao
                   .updateRoom(
                     uid: roomMetadata.roomUid.asString(),
@@ -245,11 +259,18 @@ class MessageRepo {
             _logger.e(e);
           }
         }
+      } on GrpcError catch (e) {
+        _logger.e(e);
+        if (!_updateState) {
+          _updateState = true;
+          return false;
+        }
       } catch (e) {
         _logger.e(e);
       }
       pointer += FETCH_ROOM_METADATA_LIMIT;
     }
+    return true;
   }
 
   Future<void> fetchRoomLastMessage(
@@ -1016,7 +1037,9 @@ class MessageRepo {
         isHidden: true,
       );
 
-  String _getPacketId() => clock.now().millisecondsSinceEpoch.toString();
+  String _getPacketId() =>
+      clock.now().millisecondsSinceEpoch.toString() +
+      Random().nextInt(100000).toString();
 
   Future<List<Message?>> getPage(
     int page,
