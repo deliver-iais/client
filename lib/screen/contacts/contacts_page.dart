@@ -267,10 +267,12 @@ class ContactSearchDelegate extends SearchDelegate<Contact?> {
         ..addAll(
           contacts
               .where(
-                (c) => !_authRepo.isCurrentUser(c.uid!) && !c.isUsersContact(),
+                (c) =>
+                    c.uid == null ||
+                    (!_authRepo.isCurrentUser(c.uid!) && !c.isUsersContact()),
               )
               .sortedBy((element) => "${element.firstName}${element.lastName}")
-              .sortedBy((element) => "${element.uid != null ? 1 : 0}"),
+              .sortedBy((element) => "${element.uid != null ? 0 : 1}"),
         );
     });
   }

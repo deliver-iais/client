@@ -240,7 +240,10 @@ class FileRepo {
         if (type.contains("image") ||
             type.contains("png") ||
             type.contains("jpeg")) {
-          _fileService.saveDownloadedFile(url, name.replaceAll("webp", "jpg"));
+          _fileService.saveDownloadedFile(
+            url,
+            name.replaceAll(".webp", ".jpg"),
+          );
         } else {
           _fileService.saveDownloadedFile(url, name);
         }
