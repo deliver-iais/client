@@ -122,9 +122,6 @@ class CoreServices {
     }
   }
 
-  CallOptions _connectionOption() =>
-      CallOptions();
-
   void gotResponse() {
     _disconnectedTimer?.cancel();
     _connectionStatus.add(ConnectionStatus.Connected);
@@ -141,11 +138,9 @@ class CoreServices {
       _responseStream = isWeb
           ? _services.coreServiceClient?.establishServerSideStream(
               EstablishServerSideStreamReq(),
-              options: _connectionOption(),
             )
           : _services.coreServiceClient?.establishStream(
               _clientPacketStream!.stream,
-              options: _connectionOption(),
             );
 
       _responseStream?.listen(
