@@ -144,7 +144,10 @@ class FileService {
         final url = html.Url.createObjectUrlFromBlob(blob);
         return url;
       } else {
-        final file = await localFile(uuid, filename.split('.').last);
+        final file = await localFile(
+          uuid,
+          filename.split('.').last.replaceAll("webp", "jpg"),
+        );
         file.writeAsBytesSync(res.data);
         return file.path;
       }
@@ -190,7 +193,7 @@ class FileService {
     try {
       final downloadDir =
           await ExtStorage.getExternalStoragePublicDirectory(directory);
-      final f = File('$downloadDir/$name');
+      final f = File('$downloadDir/${name.replaceAll(".webp", "jpg")}');
       await f.writeAsBytes(File(path).readAsBytesSync());
     } catch (_) {}
   }
