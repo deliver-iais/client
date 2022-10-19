@@ -51,9 +51,9 @@ const DEFAULT_FILE_TYPE = "application/octet-stream";
 const DEFAULT_FILE_DIMENSION = 200;
 
 // Text Message Limitation Constant
-const TEXT_MESSAGE_MAX_LENGTH = 50;
-const TEXT_MESSAGE_MAX_LINE = 25;
-const INPUT_MESSAGE_TEXT_FIELD_MAX_LINE = TEXT_MESSAGE_MAX_LINE * 4;
+const TEXT_MESSAGE_MAX_LENGTH = 60;
+const TEXT_MESSAGE_MAX_LINE = 30;
+const INPUT_MESSAGE_TEXT_FIELD_MAX_LINE = TEXT_MESSAGE_MAX_LINE * 10;
 const INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH =
     INPUT_MESSAGE_TEXT_FIELD_MAX_LINE * TEXT_MESSAGE_MAX_LENGTH;
 
@@ -234,6 +234,7 @@ const FEATURE_2 = 'feature2';
 const FEATURE_3 = 'feature3';
 const FEATURE_4 = 'feature4';
 const FEATURE_5 = 'feature5';
+const FEATURE_6 = 'feature6';
 
 // Animation
 const FAST_ANIMATION_DURATION = Duration(milliseconds: 50);

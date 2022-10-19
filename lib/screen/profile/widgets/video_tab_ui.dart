@@ -13,7 +13,8 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:open_file/open_file.dart';
+import 'package:open_filex/open_filex.dart';
+
 
 class VideoTabUi extends StatefulWidget {
   final Uid roomUid;
@@ -119,7 +120,7 @@ class VideoTabUiState extends State<VideoTabUi> {
                 return GestureDetector(
                   onTap: () {
                     if (isDesktop) {
-                      OpenFile.open(snapshot.data??"");
+                      OpenFilex.open(snapshot.data??"");
                     } else {
                       _routingService.openShowAllVideos(
                         uid: widget.roomUid,

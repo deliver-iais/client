@@ -324,8 +324,10 @@ class CallRepo {
   }
 
   Future<RTCPeerConnection> _createPeerConnection(bool isOffer) async {
-    final stunLocal = await _sharedDao.getBoolean("stun:217.218.7.16:3478",
-        defaultValue: true);
+    final stunLocal = await _sharedDao.getBoolean(
+      "stun:217.218.7.16:3478",
+      defaultValue: true,
+    );
     final turnLocal = await _sharedDao
         .getBoolean("turn:217.218.7.16:3478?transport=udp", defaultValue: true);
     final stunGoogle =
@@ -582,7 +584,7 @@ class CallRepo {
     _callEvents[clock.now().millisecondsSinceEpoch] = "Connected";
     await vibrate(duration: 50);
     _audioService.stopBeepSound();
-    if(isAndroid) {
+    if (isAndroid) {
       await Wakelock.enable();
     }
     if (_reconnectTry) {
@@ -1330,8 +1332,8 @@ class CallRepo {
           ((_reconnectTry || _isVideo) ? "1000" : "500"),
     ); // 0.5 sec for audio and 1.0 for video
     _logger.i(
-      "candidateNumber:${candidateNumber}",
-      "candidateTimeLimit:${candidateTimeLimit}",
+      "candidateNumber:$candidateNumber",
+      "candidateTimeLimit:$candidateTimeLimit",
     );
 
     final completer = Completer();
@@ -1507,7 +1509,7 @@ class CallRepo {
       desktopDualVideo.add(true);
 
       await _callService.clearCallData(forceToClearData: true);
-      if(isAndroid) {
+      if (isAndroid) {
         await Wakelock.disable();
       }
       Timer(const Duration(milliseconds: 1500), () async {

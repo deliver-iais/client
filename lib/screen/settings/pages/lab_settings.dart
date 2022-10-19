@@ -43,7 +43,8 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
     ICECandidateNumber =
         double.parse(await _sharedDao.get("ICECandidateNumbers") ?? "10");
     ICECandidateTimeLimit = double.parse(
-        await _sharedDao.get("ICECandidateTimeLimit") ?? "500"); //mSec
+      await _sharedDao.get("ICECandidateTimeLimit") ?? "500",
+    ); //mSec
     setState(() {});
   }
 
@@ -215,7 +216,8 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                         SettingsTile(
                           title: "SelectedCandidate",
                           leading: const Icon(
-                              CupertinoIcons.check_mark_circled_solid),
+                            CupertinoIcons.check_mark_circled_solid,
+                          ),
                           trailing: TextButton(
                             onPressed: () async {
                               await _callRepo.reset();
@@ -259,9 +261,10 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         const Text("timestamp"),
-                                        Text(_callRepo
-                                            .selectedCandidate.timestamp
-                                            .toString()),
+                                        Text(
+                                          _callRepo.selectedCandidate.timestamp
+                                              .toString(),
+                                        ),
                                       ],
                                     ),
                                     Row(
@@ -357,12 +360,18 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
       CheckBoxListTileModel(
         checkboxId: 1,
         title: "stun:217.218.7.16:3478",
-        isCheck: await _sharedDao.getBoolean("stun:217.218.7.16:3478", defaultValue : true),
+        isCheck: await _sharedDao.getBoolean(
+          "stun:217.218.7.16:3478",
+          defaultValue: true,
+        ),
       ),
       CheckBoxListTileModel(
         checkboxId: 3,
         title: "turn:217.218.7.16:3478?transport=udp",
-        isCheck: await _sharedDao.getBoolean("turn:217.218.7.16:3478?transport=udp", defaultValue : true),
+        isCheck: await _sharedDao.getBoolean(
+          "turn:217.218.7.16:3478?transport=udp",
+          defaultValue: true,
+        ),
       ),
       CheckBoxListTileModel(
         checkboxId: 2,
@@ -372,7 +381,8 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
       CheckBoxListTileModel(
         checkboxId: 4,
         title: "turn:47.102.201.4:19303?transport=udp",
-        isCheck: await _sharedDao.getBoolean("turn:47.102.201.4:19303?transport=udp"),
+        isCheck: await _sharedDao
+            .getBoolean("turn:47.102.201.4:19303?transport=udp"),
       ),
     ];
   }
@@ -449,8 +459,10 @@ class CheckBoxListTileModel {
   int checkboxId;
   String title;
   bool isCheck;
-  final _sharedDao = GetIt.I.get<SharedDao>();
 
-  CheckBoxListTileModel(
-      {required this.checkboxId, required this.title, required this.isCheck});
+  CheckBoxListTileModel({
+    required this.checkboxId,
+    required this.title,
+    required this.isCheck,
+  });
 }

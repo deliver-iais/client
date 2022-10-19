@@ -42,7 +42,6 @@ dependencies:
     git:
       ref: 49be185aefaf6ae910f7359306ec12423d443efa
       url: https://github.com/deliveriais/connectycube_flutter_call_kit
-  fast_contacts: 1.1.1
   custom_image_crop: 0.0.4
   date_time_format: 2.0.1
   dcache: 0.4.0
@@ -59,11 +58,12 @@ dependencies:
   device_info: 2.0.3
   dio: 4.0.6
   expandable: 5.0.1
+  fast_contacts: 1.1.1
   feature_discovery:
     git:
       ref: 319d1fe74fcee87eef427a6136639b3bf2537a89
       url: https://github.com/deliveriais/feature_discovery
-  file_picker: 4.6.1
+  file_picker: 5.2.1
   file_selector: 0.8.4+3
   file_selector_linux: 0.0.2+1
   firebase_analytics: 9.3.4
@@ -79,7 +79,7 @@ dependencies:
   flutter_foreground_task: 3.8.2
   flutter_image_compress: 1.1.1
   flutter_keyboard_visibility: 5.3.0
-  flutter_local_notifications: 10.0.0-dev.20
+  flutter_local_notifications: 12.0.2
   flutter_localizations:
     sdk: flutter
   flutter_map: 2.2.0
@@ -125,7 +125,7 @@ dependencies:
   mime_type: 1.0.0
   mobile_scanner: 2.0.0
   modal_bottom_sheet: 2.1.0
-  open_file: 3.2.1
+  open_filex: 4.1.1
   pasteboard: 0.2.0
   path: 1.8.2
   path_provider: 2.0.11
@@ -188,7 +188,7 @@ dev_dependencies:
   integration_test:
     sdk: flutter
   mockito: 5.3.0
-  msix: 3.6.3
+#  msix: 3.6.3
 
 
 
