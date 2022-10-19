@@ -5,7 +5,6 @@ import 'package:deliver/repository/accountRepo.dart';
 import 'package:deliver/repository/contactRepo.dart';
 import 'package:deliver/screen/intro/widgets/new_feature_dialog.dart';
 import 'package:deliver/services/core_services.dart';
-import 'package:deliver/services/notification_foreground_service.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
@@ -38,7 +37,6 @@ class HomePageState extends State<HomePage> {
   final _uxService = GetIt.I.get<UxService>();
   final _urlHandlerService = GetIt.I.get<UrlHandlerService>();
   final _contactRepo = GetIt.I.get<ContactRepo>();
-  final _notificationForegroundService = GetIt.I.get<NotificationForegroundService>();
 
   void _addLifeCycleListener() {
     if (isDesktop) {
@@ -58,10 +56,8 @@ class HomePageState extends State<HomePage> {
     }
   }
 
-
   @override
   void initState() {
-
     //this means user login successfully
     if (hasFirebaseCapability) {
       //its work property without VPN

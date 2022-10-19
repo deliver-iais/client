@@ -1,5 +1,3 @@
-import 'dart:isolate';
-
 import 'package:deliver/box/call_status.dart' as call_status;
 import 'package:deliver/box/call_status.dart';
 import 'package:deliver/box/call_type.dart';
@@ -7,8 +5,6 @@ import 'package:deliver/box/current_call_info.dart';
 import 'package:deliver/box/dao/current_call_dao.dart';
 import 'package:deliver/models/call_event_type.dart';
 import 'package:deliver/services/ux_service.dart';
-import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
@@ -76,7 +72,7 @@ class CallService {
   }
 
   Future<void> initRenderer() async {
-    if(!isInitRenderer) {
+    if (!isInitRenderer) {
       isInitRenderer = true;
       _localRenderer = RTCVideoRenderer();
       _remoteRenderer = RTCVideoRenderer();
@@ -194,5 +190,4 @@ class CallService {
       await _disposeRenderer();
     }
   }
-
 }

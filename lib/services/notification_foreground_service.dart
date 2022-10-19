@@ -53,7 +53,7 @@ class NotificationForegroundService {
   Future<bool> callForegroundServiceStart() async {
     final foregroundNotification =
         await _sharedDao.getBoolean(SHARED_DAO_NOTIFICATION_FOREGROUND);
-    if(!foregroundNotification){
+    if (!foregroundNotification) {
       return foregroundTaskInitializing();
     }
     return false;
@@ -61,8 +61,8 @@ class NotificationForegroundService {
 
   Future<void> callForegroundServiceStop() async {
     final foregroundNotification =
-    await _sharedDao.getBoolean(SHARED_DAO_NOTIFICATION_FOREGROUND);
-    if(!foregroundNotification){
+        await _sharedDao.getBoolean(SHARED_DAO_NOTIFICATION_FOREGROUND);
+    if (!foregroundNotification) {
       await _stopForegroundTask();
     }
   }
@@ -156,7 +156,7 @@ class NotificationForegroundService {
     if (receivePort != null) {
       _receivePort = receivePort;
       if (foregroundNotification) {
-        receivePort?.listen((message) async {
+        receivePort.listen((message) async {
           if (message == "endForegroundNotification") {
             await _sharedDao.toggleBoolean(SHARED_DAO_NOTIFICATION_FOREGROUND);
             await _stopForegroundTask();
@@ -196,7 +196,8 @@ class NotificationHandler extends TaskHandler {
   Future<void> onEvent(DateTime timestamp, SendPort? sendPort) async {
     final backgroundActivationTime =
         await FlutterForegroundTask.getData<String>(
-            key: 'BackgroundActivationTime');
+      key: 'BackgroundActivationTime',
+    );
     final appStatus =
         await FlutterForegroundTask.getData<String>(key: 'AppStatus');
     final isUpdated =
@@ -222,7 +223,6 @@ class NotificationHandler extends TaskHandler {
       );
       await FlutterForegroundTask.saveData(key: "isUpdated", value: "True");
     }
-    print(backgroundActivationTime);
   }
 
   @override
