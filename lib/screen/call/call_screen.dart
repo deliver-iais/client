@@ -21,6 +21,8 @@ import 'package:random_string/random_string.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:window_size/window_size.dart';
 
+import '../../services/call_service.dart';
+
 class CallScreen extends StatefulWidget {
   final Uid roomUid;
   final bool isCallAccepted;
@@ -42,14 +44,15 @@ class CallScreen extends StatefulWidget {
 }
 
 class CallScreenState extends State<CallScreen> {
-  final RTCVideoRenderer _localRenderer = RTCVideoRenderer();
-  final RTCVideoRenderer _remoteRenderer = RTCVideoRenderer();
+  late final RTCVideoRenderer _localRenderer;
+  late final RTCVideoRenderer _remoteRenderer;
 
   final _callRepo = GetIt.I.get<CallRepo>();
   final _logger = GetIt.I.get<Logger>();
   final _audioService = GetIt.I.get<AudioService>();
   final _i18n = GetIt.I.get<I18N>();
   final _routingService = GetIt.I.get<RoutingService>();
+  final _callService = GetIt.I.get<CallService>();
   late final String random;
 
   final List<StreamSubscription<AccelerometerEvent>?> _accelerometerEvents =
@@ -63,7 +66,9 @@ class CallScreenState extends State<CallScreen> {
       );
     }
     random = randomAlphaNumeric(10);
-    initRenderer().then((value) {
+    _callService.initRenderer().then((value) {
+      _localRenderer = _callService.getLocalRenderer;
+      _remoteRenderer = _callService.getRemoteRenderer;
       if (!widget.isCallInitialized) {
         startCall();
         checkForSystemAlertWindowPermission();
@@ -73,18 +78,6 @@ class CallScreenState extends State<CallScreen> {
       _listenSensor();
     }
     super.initState();
-  }
-
-  Future<void> initRenderer() async {
-    await _localRenderer.initialize();
-    await _remoteRenderer.initialize();
-    _logger.i("Initialize Renderers");
-  }
-
-  Future<void> _disposeRenderer() async {
-    await _localRenderer.dispose();
-    await _remoteRenderer.dispose();
-    _logger.i("Dispose Renderers");
   }
 
   void showPermissionDialog() {
@@ -176,7 +169,6 @@ class CallScreenState extends State<CallScreen> {
       }
       setOnLockScreenVisibility();
     }
-    _disposeRenderer();
   }
 
   Future<void> setOnLockScreenVisibility() async {
@@ -225,6 +217,7 @@ class CallScreenState extends State<CallScreen> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<CallStatus>(
+      initialData: CallStatus.NO_CALL,
       stream: _callRepo.callingStatus,
       builder: (context, snapshot) {
         _logger.i("callStatus-$random: ${snapshot.data}");

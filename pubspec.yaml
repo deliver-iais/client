@@ -76,7 +76,7 @@ dependencies:
   flutter_audio_waveforms: 1.2.1+6
   flutter_blurhash: 0.7.0
   flutter_dropzone: 3.0.5
-  flutter_foreground_task: 3.8.2
+  flutter_foreground_task: 3.10.0
   flutter_image_compress: 1.1.1
   flutter_keyboard_visibility: 5.3.0
   flutter_local_notifications: 10.0.0-dev.20

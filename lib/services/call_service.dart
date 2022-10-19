@@ -12,6 +12,7 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
@@ -40,7 +41,12 @@ class CallService {
   final BehaviorSubject<CallEvents> _callEvents =
       BehaviorSubject.seeded(CallEvents.none);
 
+  late RTCVideoRenderer _localRenderer;
+  late RTCVideoRenderer _remoteRenderer;
+
   bool shouldRemoveData = false;
+
+  bool isInitRenderer = false;
 
   CallService() {
     _callEvents.distinct().listen((event) {
@@ -69,19 +75,28 @@ class CallService {
     return _currentCall.get();
   }
 
+  Future<void> initRenderer() async {
+    if(!isInitRenderer) {
+      isInitRenderer = true;
+      _localRenderer = RTCVideoRenderer();
+      _remoteRenderer = RTCVideoRenderer();
+      await _localRenderer.initialize();
+      await _remoteRenderer.initialize();
+      _logger.i("Initialize Renderers");
+    }
+  }
+
+  Future<void> _disposeRenderer() async {
+    await _localRenderer.dispose();
+    await _remoteRenderer.dispose();
+    _logger.i("Dispose Renderers");
+  }
+
   UserCallState _callState = UserCallState.NOCALL;
 
   String _callId = "";
 
   Uid _roomUid = Uid.getDefault();
-
-  ReceivePort? _receivePort;
-
-  SendPort? _sendPort;
-
-  ReceivePort? get getReceivePort => _receivePort;
-
-  SendPort? get getSendPort => _sendPort;
 
   UserCallState get getUserCallState => _callState;
 
@@ -89,9 +104,11 @@ class CallService {
 
   String get getCallId => _callId;
 
-  set setUserCallState(UserCallState cs) => _callState = cs;
+  RTCVideoRenderer get getLocalRenderer => _localRenderer;
 
-  set setSendPort(SendPort? sp) => _sendPort = sp;
+  RTCVideoRenderer get getRemoteRenderer => _remoteRenderer;
+
+  set setUserCallState(UserCallState cs) => _callState = cs;
 
   set setRoomUid(Uid ru) => _roomUid = ru;
 
@@ -171,123 +188,11 @@ class CallService {
       _logger.d("Clearing Call Data");
       _callId = "";
       _callState = UserCallState.NOCALL;
+      isInitRenderer = false;
       await FlutterForegroundTask.clearAllData();
       await removeCallFromDb();
+      await _disposeRenderer();
     }
   }
 
-  Future<bool> foregroundTaskInitializing() async {
-    if (isAndroid) {
-      await _initForegroundTask();
-      if (await _startForegroundTask()) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-    return false;
-  }
-
-  Future<void> _initForegroundTask() async {
-    await FlutterForegroundTask.init(
-      androidNotificationOptions: AndroidNotificationOptions(
-        channelId: 'notification_channel_id',
-        channelName: 'Foreground Notification',
-        channelDescription:
-            'This notification appears when the foreground service is running.',
-        playSound: true,
-        isSticky: false,
-        iconData: const NotificationIconData(
-          resType: ResourceType.mipmap,
-          resPrefix: ResourcePrefix.ic,
-          name: 'launcher',
-        ),
-        buttons: [
-          const NotificationButton(id: 'endCall', text: 'End Call'),
-        ],
-      ),
-      iosNotificationOptions: const IOSNotificationOptions(),
-      foregroundTaskOptions: const ForegroundTaskOptions(
-        autoRunOnBoot: true,
-        allowWifiLock: true,
-      ),
-      printDevLog: true,
-    );
-  }
-
-  Future<bool> _startForegroundTask() async {
-    ReceivePort? receivePort;
-    bool reqResult;
-    if (await FlutterForegroundTask.isRunningService) {
-      reqResult = await FlutterForegroundTask.restartService();
-    } else {
-      reqResult = await FlutterForegroundTask.startService(
-        notificationTitle: '$APPLICATION_NAME Call on BackGround',
-        notificationText: 'Tap to return to the app',
-        callback: startCallback,
-      );
-    }
-
-    if (reqResult) {
-      receivePort = await FlutterForegroundTask.receivePort;
-    }
-
-    if (receivePort != null) {
-      _receivePort = receivePort;
-      return true;
-    }
-    return false;
-  }
-
-  Future<bool> stopForegroundTask() async =>
-      FlutterForegroundTask.stopService();
-}
-
-// The callback function should always be a top-level function.
-void startCallback() {
-  // The setTaskHandler function must be called to handle the task in the background.
-  FlutterForegroundTask.setTaskHandler(FirstTaskHandler());
-}
-
-class FirstTaskHandler extends TaskHandler {
-  // ignore: prefer_typing_uninitialized_variables
-  late final SendPort? sPort;
-
-  @override
-  Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {
-    // You can use the getData function to get the data you saved.
-    sPort = sendPort;
-  }
-
-  @override
-  Future<void> onEvent(DateTime timestamp, SendPort? sendPort) async {
-    // Send data to the main isolate.
-  }
-
-  @override
-  void onButtonPressed(String id) {
-    // Called when the notification button on the Android platform is pressed.
-    if (id == "endCall") {
-      sPort?.send("endCall");
-    }
-  }
-
-  @override
-  Future<void> onDestroy(DateTime timestamp, SendPort? sendPort) async {
-    await FlutterForegroundTask.clearAllData();
-  }
-
-  @override
-  void onNotificationPressed() {
-    // Called when the notification itself on the Android platform is pressed.
-    //
-    // "android.permission.SYSTEM_ALERT_WINDOW" permission must be granted for
-    // this function to be called.
-
-    // Note that the app will only route to "/resume-route" when it is exited so
-    // it will usually be necessary to send a message through the send port to
-    // signal it to restore state when the app is already started.
-    FlutterForegroundTask.launchApp("/call-screen");
-    sPort?.send('onNotificationPressed');
-  }
 }

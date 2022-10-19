@@ -13,6 +13,8 @@ import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../../services/notification_foreground_service.dart';
+
 class DeveloperPage extends StatefulWidget {
   const DeveloperPage({super.key});
 
@@ -23,6 +25,8 @@ class DeveloperPage extends StatefulWidget {
 class DeveloperPageState extends State<DeveloperPage> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _uxService = GetIt.I.get<UxService>();
+  final _notificationForegroundService =
+      GetIt.I.get<NotificationForegroundService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _analyticsRepo = GetIt.I.get<AnalyticsRepo>();
   final _shareDao = GetIt.I.get<SharedDao>();
@@ -59,6 +63,22 @@ class DeveloperPageState extends State<DeveloperPage> {
                   )
                   .toList(),
             ),
+            if (isAndroid)
+              Section(
+                title: 'Notification',
+                children: [
+                  SettingsTile.switchTile(
+                    title: "Foreground notification Enable",
+                    switchValue:
+                        _notificationForegroundService.foregroundNotification,
+                    onToggle: (value) {
+                      setState(() {
+                        _notificationForegroundService.toggleForegroundService();
+                      });
+                    },
+                  ),
+                ],
+              ),
             Section(
               title: "Log in File",
               children: [
