@@ -1,6 +1,7 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
@@ -43,11 +44,13 @@ class SearchBoxState extends State<SearchBox> {
 
   @override
   void initState() {
-    _keyboardVisibilityController.onChange.listen((event) {
-      if (!event) {
-        _localFocusNode.unfocus();
-      }
-    });
+    if (!isDesktop) {
+      _keyboardVisibilityController.onChange.listen((event) {
+        if (!event) {
+          _localFocusNode.unfocus();
+        }
+      });
+    }
     (widget.controller ?? _localController).addListener(() {
       if ((widget.controller ?? _localController).text.isNotEmpty) {
         _hasText.add(true);
