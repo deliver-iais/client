@@ -336,8 +336,10 @@ class CallRepo {
   }
 
   Future<RTCPeerConnection> _createPeerConnection(bool isOffer) async {
-    final stunLocal = await _sharedDao.getBoolean("stun:217.218.7.16:3478",
-        defaultValue: true);
+    final stunLocal = await _sharedDao.getBoolean(
+      "stun:217.218.7.16:3478",
+      defaultValue: true,
+    );
     final turnLocal = await _sharedDao
         .getBoolean("turn:217.218.7.16:3478?transport=udp", defaultValue: true);
     final stunGoogle =
@@ -390,12 +392,7 @@ class CallRepo {
 
     final camAudioTrack = _localStream!.getAudioTracks()[0];
     if (!isWindows) {
-      if (!_isVideo) {
-        camAudioTrack.enableSpeakerphone(false);
-      } else {
-        camAudioTrack.enableSpeakerphone(true);
-        isSpekaer.add(true);
-      }
+      camAudioTrack.enableSpeakerphone(false);
     }
     _audioSender = await pc.addTrack(camAudioTrack, _localStream!);
 
@@ -620,6 +617,8 @@ class CallRepo {
       if (isAndroid) {
         await Wakelock.enable();
         switching.add(false);
+        _localStream!.getAudioTracks()[0].enableSpeakerphone(true);
+        isSpekaer.add(true);
       }
     }
     if (_reconnectTry) {
@@ -1073,13 +1072,13 @@ class CallRepo {
       _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
     );
     if (isAndroid) {
-      if (await Permission.microphone.status.isGranted) {
+      if (!_isVideo && await Permission.microphone.status.isGranted) {
         if (await getDeviceVersion() >= 31) {
           _isCallInitiated = true;
           await initCall(isOffer: true);
         }
       }
-    } else {
+    } else if (!_isVideo) {
       _isCallInitiated = true;
       await initCall(isOffer: true);
     }
@@ -1406,8 +1405,8 @@ class CallRepo {
           ((_reconnectTry || _isVideo) ? "1000" : "500"),
     ); // 0.5 sec for audio and 1.0 for video
     _logger.i(
-      "candidateNumber:${candidateNumber}",
-      "candidateTimeLimit:${candidateTimeLimit}",
+      "candidateNumber:$candidateNumber",
+      "candidateTimeLimit:$candidateTimeLimit",
     );
 
     final completer = Completer();

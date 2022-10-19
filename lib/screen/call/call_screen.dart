@@ -54,6 +54,7 @@ class CallScreenState extends State<CallScreen> {
   final _routingService = GetIt.I.get<RoutingService>();
   final _callService = GetIt.I.get<CallService>();
   late final String random;
+  Timer? endCallTimer;
 
   final List<StreamSubscription<AccelerometerEvent>?> _accelerometerEvents =
       <StreamSubscription<AccelerometerEvent>>[];
@@ -158,6 +159,7 @@ class CallScreenState extends State<CallScreen> {
   @override
   void dispose() {
     super.dispose();
+    endCallTimer?.cancel();
     if (isWindows) {
       setWindowMinSize(
         const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100),
@@ -367,7 +369,7 @@ class CallScreenState extends State<CallScreen> {
           case CallStatus.ENDED:
             _logger.i("END!");
             _audioService.playEndCallSound();
-            Timer(const Duration(milliseconds: 1500), () async {
+            endCallTimer=Timer(const Duration(milliseconds: 1500), () async {
               if (_routingService.canPop()) {
                 _routingService.pop();
               }

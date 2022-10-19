@@ -19,6 +19,7 @@ import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
 import 'package:deliver/screen/navigation_center/widgets/feature_discovery_description_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/forward_preview.dart';
@@ -170,26 +171,28 @@ class RoomPageState extends State<RoomPage> {
           return true;
         }
       },
-      child: DragDropWidget(
-        roomUid: widget.roomId,
-        height: MediaQuery.of(context).size.height,
-        replyMessageId: _repliedMessage.value?.id ?? 0,
-        resetRoomPageDetails: _resetRoomPageDetails,
-        child: Stack(
-          children: [
-            StreamBuilder<Room>(
-              stream: _room,
-              builder: (context, snapshot) => Background(
-                id: snapshot.data?.lastMessageId ?? 0,
+      child: SelectionArea(
+        child: DragDropWidget(
+          roomUid: widget.roomId,
+          height: MediaQuery.of(context).size.height,
+          replyMessageId: _repliedMessage.value?.id ?? 0,
+          resetRoomPageDetails: _resetRoomPageDetails,
+          child: Stack(
+            children: [
+              StreamBuilder<Room>(
+                stream: _room,
+                builder: (context, snapshot) => Background(
+                  id: snapshot.data?.lastMessageId ?? 0,
+                ),
               ),
-            ),
-            Scaffold(
-              backgroundColor: Colors.transparent,
-              extendBodyBehindAppBar: true,
-              appBar: buildAppbar(),
-              body: buildBody(),
-            ),
-          ],
+              Scaffold(
+                backgroundColor: Colors.transparent,
+                extendBodyBehindAppBar: true,
+                appBar: buildAppbar(),
+                body: buildBody(),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -318,6 +321,7 @@ class RoomPageState extends State<RoomPage> {
                   );
                 },
               ),
+            if (!isLarge(context)) const HasCallRow(),
             const AudioPlayerAppBar(),
             pinMessageWidget(),
           ],
@@ -423,6 +427,7 @@ class RoomPageState extends State<RoomPage> {
     _itemPositionsListener.itemPositions.addListener(() {
       final position = _itemPositionsListener.itemPositions.value;
       if (position.isNotEmpty) {
+        _syncLastPinMessageWithItemPosition();
         if ((_itemCount - position.first.index).abs() > 5) {
           _isLastMessages = false;
         } else {
@@ -475,6 +480,25 @@ class RoomPageState extends State<RoomPage> {
     }
 
     super.initState();
+  }
+
+  void _syncLastPinMessageWithItemPosition() {
+    final position = _itemPositionsListener.itemPositions.value;
+    final p = position.map((e) => e.index).reduce(max) + room.firstMessageId;
+    if (_pinMessages.length > 1 &&
+        _lastPinedMessage.value != p &&
+        _highlightMessageId.value == -1) {
+      if (position.last.index == 0) {
+        _lastPinedMessage.add(
+          (_pinMessages..sort((a, b) => a.id!.compareTo(b.id!))).first.id!,
+        );
+      } else {
+        final index = _pinMessages.lastIndexWhere((element) => element.id! < p);
+        if (index != -1 && _lastPinedMessage.value != _pinMessages[index].id) {
+          _lastPinedMessage.add((_pinMessages[index].id!));
+        }
+      }
+    }
   }
 
   Future<void> initRoomStream() async {
@@ -711,7 +735,7 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Future<void> watchPinMessages() async {
-    _mucRepo.watchMuc(widget.roomId).listen((muc) {
+    _mucRepo.watchMuc(widget.roomId).distinct().listen((muc) {
       if (muc != null && muc.lastCanceledPinMessageId == 0) {
         final pm = muc.pinMessagesIdList;
         _pinMessages.clear();
@@ -722,7 +746,11 @@ class RoomPageState extends State<RoomPage> {
               _pinMessages
                 ..add(m!)
                 ..sort((a, b) => a.time - b.time);
-              _lastPinedMessage.add(_pinMessages.last.id!);
+              if (_lastScrollPositionIndex == -1) {
+                _lastPinedMessage.add(_pinMessages.last.id!);
+              } else {
+                _syncLastPinMessageWithItemPosition();
+              }
             } catch (e) {
               _logger.e("element: $element, e: $e");
             }
@@ -1484,7 +1512,13 @@ class RoomPageState extends State<RoomPage> {
         alignment: .5,
         curve: Curves.fastOutSlowIn,
         opacityAnimationWeights: [20, 20, 60],
-      );
+      ).then((value) {
+        if (_highlightMessageId.value != -1 && shouldHighlight) {
+          highlightMessageTimer = Timer(const Duration(seconds: 2), () {
+            _highlightMessageId.add(-1);
+          });
+        }
+      });
 
       _currentScrollIndex = max(0, index);
 
@@ -1493,11 +1527,6 @@ class RoomPageState extends State<RoomPage> {
       if (index != -1) {
         highlightMessageTimer?.cancel();
         _highlightMessageId.add(index + room.firstMessageId);
-      }
-      if (_highlightMessageId.value != -1) {
-        highlightMessageTimer = Timer(const Duration(seconds: 2), () {
-          _highlightMessageId.add(-1);
-        });
       }
     }
   }
@@ -1531,16 +1560,18 @@ class RoomPageState extends State<RoomPage> {
       onTap: () {
         _scrollToMessageWithHighlight(_lastPinedMessage.value);
         if (_pinMessages.length > 1) {
-          _lastPinedMessage.add(
-            _pinMessages[max(
-              _pinMessages.indexWhere(
-                    (e) => e.id == _lastPinedMessage.value,
-                  ) -
-                  1,
-              0,
-            )]
-                .id!,
-          );
+          if (_pinMessages.indexWhere((e) => e.id == _lastPinedMessage.value) ==
+              0) {
+            _lastPinedMessage.add(_pinMessages.last.id!);
+          } else {
+            _lastPinedMessage.add(
+              _pinMessages[_pinMessages.indexWhere(
+                        (e) => e.id == _lastPinedMessage.value,
+                      ) -
+                      1]
+                  .id!,
+            );
+          }
         }
       },
       onClose: () {

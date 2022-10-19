@@ -125,7 +125,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                   maxScale: 4,
                                   child: RTCVideoView(
                                     widget.remoteRenderer,
-                                    filterQuality: FilterQuality.high,
+                                    mirror: true,
                                   ),
                                 ),
                               ),
@@ -152,7 +152,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                     maxScale: 4,
                                     child: RTCVideoView(
                                       widget.remoteRenderer,
-                                      filterQuality: FilterQuality.high,
+                                      mirror: true,
                                     ),
                                   ),
                                 ),
@@ -191,7 +191,6 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                   maxScale: 4,
                                   child: RTCVideoView(
                                     widget.localRenderer,
-                                    filterQuality: FilterQuality.high,
                                     mirror: true,
                                   ),
                                 ),
@@ -219,7 +218,6 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                     maxScale: 4,
                                     child: RTCVideoView(
                                       widget.localRenderer,
-                                      filterQuality: FilterQuality.high,
                                       mirror: true,
                                     ),
                                   ),
@@ -275,7 +273,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                                   snapshot.data!
                                       ? widget.localRenderer
                                       : widget.remoteRenderer,
-                                  mirror: !snapshot.data!,
+                                  mirror: true,
                                 ),
                               ),
                             )
@@ -389,7 +387,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                     widget.localRenderer,
                     objectFit:
                     RTCVideoViewObjectFit.RTCVideoViewObjectFitCover,
-                    mirror: isMirror,
+                    mirror: true,
                   ),
                 )
                     : inComingVideo
@@ -399,7 +397,7 @@ class VideoCallScreenState extends State<VideoCallScreen>
                   maxScale: 4,
                   child: RTCVideoView(
                     widget.remoteRenderer,
-                    mirror: isMirror,
+                    mirror: true,
                   ),
                 )
                     : Container(

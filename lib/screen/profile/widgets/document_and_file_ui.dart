@@ -11,7 +11,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:open_file/open_file.dart';
+import 'package:open_filex/open_filex.dart';
 
 class DocumentAndFileUi extends StatefulWidget {
   final Uid roomUid;
@@ -89,7 +89,7 @@ class DocumentAndFileUiState extends State<DocumentAndFileUi> {
                             ListTile(
                               title: GestureDetector(
                                 onTap: () {
-                                  OpenFile.open(filePath.data??"");
+                                  OpenFilex.open(filePath.data ?? "");
                                 },
                                 child: Row(
                                   children: <Widget>[
@@ -117,8 +117,8 @@ class DocumentAndFileUiState extends State<DocumentAndFileUi> {
                                             size: 35,
                                           ),
                                           onPressed: () {
-                                            OpenFile.open(
-                                              filePath.data??"",
+                                            OpenFilex.open(
+                                              filePath.data ?? "",
                                             );
                                           },
                                         ),

@@ -58,8 +58,10 @@ class HomePageState extends State<HomePage> {
     }
   }
 
+
   @override
   void initState() {
+
     //this means user login successfully
     if (hasFirebaseCapability) {
       //its work property without VPN
