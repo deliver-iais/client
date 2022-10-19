@@ -14,7 +14,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:open_file/open_file.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:rxdart/rxdart.dart';
 
 class AllVideoPage extends StatefulWidget {
@@ -129,7 +129,7 @@ class _AllVideoPageState extends State<AllVideoPage> {
                                 if (filePath.hasData && filePath.data != null) {
                                   _fileCache.set(index, filePath.data);
                                   if (isDesktop) {
-                                    OpenFile.open(filePath.data ?? "");
+                                    OpenFilex.open(filePath.data ?? "");
                                     _routingServices.pop();
                                     return const SizedBox.shrink();
                                   } else {

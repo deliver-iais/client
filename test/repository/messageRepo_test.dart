@@ -61,7 +61,7 @@ void main() {
           connectionStatus: ConnectionStatus.Connected,
         );
         final messageRepo = await getAndRegisterMessageRepo();
-        await messageRepo.connectionStatusHandler();
+        messageRepo.createConnectionStatusHandler();
         expect(
           messageRepo.updatingStatus.value,
           TitleStatusConditions.Syncing,
@@ -75,7 +75,7 @@ void main() {
           connectionStatus: ConnectionStatus.Connected,
         );
         final messageRepo = await getAndRegisterMessageRepo();
-        await messageRepo.connectionStatusHandler();
+        messageRepo.createConnectionStatusHandler();
         expect(
           messageRepo.updatingStatus.value,
           TitleStatusConditions.Updating,

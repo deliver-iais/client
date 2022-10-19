@@ -1,3 +1,4 @@
+import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:deliver/box/contact.dart';
@@ -8,8 +9,10 @@ import 'package:deliver/screen/contacts/empty_contacts.dart';
 import 'package:deliver/screen/contacts/sync_contact.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/url_handler_service.dart';
+import 'package:deliver/shared/custom_context_menu.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
 import 'package:deliver/shared/methods/name.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/contacts_widget.dart';
 import 'package:deliver/shared/widgets/custom_grid_view.dart';
 import 'package:deliver/shared/widgets/not_messenger_contact_widget.dart';
@@ -26,7 +29,7 @@ class ContactsPage extends StatefulWidget {
   ContactsPageState createState() => ContactsPageState();
 }
 
-class ContactsPageState extends State<ContactsPage> {
+class ContactsPageState extends State<ContactsPage> with CustomPopupMenu {
   final _contactRepo = GetIt.I.get<ContactRepo>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
@@ -79,6 +82,7 @@ class ContactsPageState extends State<ContactsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     return Scaffold(
       appBar: BlurredPreferredSizedWidget(
         child: AppBar(
@@ -94,7 +98,7 @@ class ContactsPageState extends State<ContactsPage> {
                   context: context,
                   delegate: ContactSearchDelegate(),
                 ).then((c) {
-                  if (c != null) {
+                  if (c != null && c.uid != null) {
                     _routingService.openRoom(c.uid!);
                   }
                 });
@@ -166,12 +170,69 @@ class ContactsPageState extends State<ContactsPage> {
                   alignment: Alignment.bottomRight,
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: FloatingActionButton(
-                      child: const Icon(CupertinoIcons.add),
-                      onPressed: () {
-                        _routingService.openNewContact();
-                      },
-                      // label: Text(_i18n.get("add_new_contact")),
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 8.0),
+                      child: MouseRegion(
+                        hitTestBehavior: HitTestBehavior.translucent,
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.translucent,
+                          onPanDown: (e) => storePosition(e),
+                          child: FloatingActionButton(
+                            heroTag: "add_contact-fab",
+                            onPressed: () async {
+                              if (isAndroid &&
+                                  _contactRepo.hasContactPermission) {
+                                _routingService.openNewContact();
+                              } else {
+                                unawaited(
+                                  this.showMenu(
+                                    context: context,
+                                    items: [
+                                      PopupMenuItem<String>(
+                                        key: const Key("addNewContact"),
+                                        value: "addNewContact",
+                                        child: Row(
+                                          children: [
+                                            const Icon(
+                                              CupertinoIcons.person_add,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              _i18n.get("add_contact"),
+                                              style: theme
+                                                  .primaryTextTheme.bodyText2,
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                      PopupMenuItem<String>(
+                                        key: const Key("importContact"),
+                                        value: "importContact",
+                                        child: Row(
+                                          children: [
+                                            const Icon(
+                                              CupertinoIcons.arrow_up_doc,
+                                            ),
+                                            const SizedBox(width: 8),
+                                            Text(
+                                              _i18n.get("import_contact"),
+                                              style: theme
+                                                  .primaryTextTheme.bodyText2,
+                                            )
+                                          ],
+                                        ),
+                                      )
+                                    ],
+                                  ).then(
+                                    (value) => _selectContactMenu(value ?? ""),
+                                  ),
+                                );
+                              }
+                            },
+                            child: const Icon(Icons.add),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -182,6 +243,17 @@ class ContactsPageState extends State<ContactsPage> {
       ),
     );
   }
+
+  void _selectContactMenu(String key) {
+    switch (key) {
+      case "addNewContact":
+        _routingService.openNewContact();
+        break;
+      case "importContact":
+        _contactRepo.importContactsFormVcard();
+        break;
+    }
+  }
 }
 
 class ContactSearchDelegate extends SearchDelegate<Contact?> {
@@ -190,16 +262,18 @@ class ContactSearchDelegate extends SearchDelegate<Contact?> {
   final _contacts = <Contact>[];
 
   ContactSearchDelegate() {
-    _contactRepo.watchAllMessengerContacts().listen((contacts) {
+    _contactRepo.watchAll().listen((contacts) {
       _contacts
         ..clear()
         ..addAll(
           contacts
-              .whereNot((element) => element.uid == null)
               .where(
-                (c) => !_authRepo.isCurrentUser(c.uid!) && !c.isUsersContact(),
+                (c) =>
+                    c.uid == null ||
+                    (!_authRepo.isCurrentUser(c.uid!) && !c.isUsersContact()),
               )
-              .sortedBy((element) => "${element.firstName}${element.lastName}"),
+              .sortedBy((element) => "${element.firstName}${element.lastName}")
+              .sortedBy((element) => "${element.uid != null ? 0 : 1}"),
         );
     });
   }
@@ -247,22 +321,28 @@ class ContactSearchDelegate extends SearchDelegate<Contact?> {
         itemCount: filteredContacts.length,
         itemBuilder: (context, index) {
           final c = filteredContacts[index];
-
-          return GestureDetector(
-            onTap: () => close(context, c),
-            child: ContactWidget(
-              contact: c,
-              onCircleIcon: () => showQrCode(
-                context,
-                buildShareUserUrl(
-                  c.countryCode,
-                  c.nationalNumber,
-                  c.firstName!,
-                  c.lastName!,
+          if (c.uid != null) {
+            return GestureDetector(
+              onTap: () => close(context, c),
+              child: ContactWidget(
+                contact: c,
+                circleIcon: CupertinoIcons.qrcode,
+                onCircleIcon: () => showQrCode(
+                  context,
+                  buildShareUserUrl(
+                    c.countryCode,
+                    c.nationalNumber,
+                    c.firstName!,
+                    c.lastName!,
+                  ),
                 ),
               ),
-            ),
-          );
+            );
+          } else {
+            return NotMessengerContactWidget(
+              contact: c,
+            );
+          }
         },
       ),
     );

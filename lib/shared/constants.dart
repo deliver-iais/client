@@ -236,6 +236,7 @@ const FEATURE_2 = 'feature2';
 const FEATURE_3 = 'feature3';
 const FEATURE_4 = 'feature4';
 const FEATURE_5 = 'feature5';
+const FEATURE_6 = 'feature6';
 
 // Animation
 const FAST_ANIMATION_DURATION = Duration(milliseconds: 50);

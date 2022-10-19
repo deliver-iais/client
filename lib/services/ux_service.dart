@@ -248,12 +248,16 @@ class FeatureFlags {
 
   void setICECandidateNumber(double ICECandidateNumbers) {
     _sharedDao.put(
-        "ICECandidateNumbers", ICECandidateNumbers.round().toString());
+      "ICECandidateNumbers",
+      ICECandidateNumbers.round().toString(),
+    );
   }
 
   void setICECandidateTimeLimit(double ICECandidateTimeLimit) {
     _sharedDao.put(
-        "ICECandidateTimeLimit", ICECandidateTimeLimit.round().toString());
+      "ICECandidateTimeLimit",
+      ICECandidateTimeLimit.round().toString(),
+    );
   }
 
   void setICEServerEnable(String server, bool status) {

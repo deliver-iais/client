@@ -17,5 +17,6 @@ enum OperationOnMessage {
   UN_PIN_MESSAGE,
   SHOW_IN_FOLDER,
   REPORT,
-  SELECT
+  SELECT,
+  SAVE,
 }

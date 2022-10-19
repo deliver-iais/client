@@ -621,6 +621,9 @@ class OperationOnMessageSelection {
       case OperationOnMessage.REPORT:
         onReportMessage();
         break;
+      case OperationOnMessage.SAVE:
+        onSave();
+        break;
     }
   }
 
@@ -728,6 +731,11 @@ class OperationOnMessageSelection {
       toastText: _i18n.get("music_saved"),
       animateDone: true,
     );
+  }
+
+  void onSave() {
+    final file = message.json.toFile();
+    _fileRepo.saveDownloadedFileInWeb(file.uuid, file.name, file.type);
   }
 
   void onDeleteMessage() {

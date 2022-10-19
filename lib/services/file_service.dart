@@ -79,6 +79,11 @@ class FileService {
     return File('$path/$fileUuid.$fileType');
   }
 
+  Future<File> _downloadedFileDir(String fileUuid, String fileType) async {
+    final directory = await getDownloadsDirectory();
+    return File('${directory!.path}/$fileUuid.$fileType');
+  }
+
   Future<File> localThumbnailFile(
     String fileUuid,
     String fileType,
@@ -144,7 +149,10 @@ class FileService {
         final url = html.Url.createObjectUrlFromBlob(blob);
         return url;
       } else {
-        final file = await localFile(uuid, filename.split('.').last);
+        final file = await localFile(
+          uuid,
+          filename.split('.').last,
+        );
         file.writeAsBytesSync(res.data);
         return file.path;
       }
@@ -154,11 +162,15 @@ class FileService {
     }
   }
 
-  Future<void> saveDownloadedFile(String url, String filename) async {
-    html.AnchorElement(href: url)
-      ..download = url
-      ..setAttribute("download", filename)
-      ..click();
+  void saveDownloadedFile(String url, String filename) {
+    try {
+      html.AnchorElement(href: url)
+        ..download = url
+        ..setAttribute("download", filename)
+        ..click();
+    } catch (e) {
+      _logger.e(e);
+    }
   }
 
   Future<File?> getApplicationIcon() async {
@@ -178,21 +190,33 @@ class FileService {
     }
   }
 
-  Future<void> saveFileInDownloadFolder(
+  Future<void> saveFileInMobileDownloadFolder(
     String path,
     String name,
     String directory,
   ) async {
     try {
-      if (isWeb) {
-        return saveDownloadedFile(path, name);
-      } else {
-        final downloadDir =
-            await ExtStorage.getExternalStoragePublicDirectory(directory);
-        final f = File('$downloadDir/$name');
-        await f.writeAsBytes(File(path).readAsBytesSync());
-      }
+      final downloadDir =
+          await ExtStorage.getExternalStoragePublicDirectory(directory);
+      final f = File('$downloadDir/${name.replaceAll(".webp", ".jpg")}');
+      await f.writeAsBytes(File(path).readAsBytesSync());
     } catch (_) {}
+  }
+
+  Future<void> saveFileInDesktopDownloadFolder(
+    String uuid,
+    String name,
+    String filePath,
+  ) async {
+    try {
+      final file = await _downloadedFileDir(
+        uuid,
+        name.split('.').last.replaceAll("webp", "jpg"),
+      );
+      file.writeAsBytesSync(File(filePath).readAsBytesSync());
+    } catch (e) {
+      _logger.e(e);
+    }
   }
 
   Future<void> saveFileToSpecifiedAddress(

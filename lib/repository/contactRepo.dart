@@ -1,6 +1,8 @@
 // ignore_for_file: file_names
 
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:collection/collection.dart';
 import 'package:deliver/box/contact.dart' as contact_model;
@@ -25,6 +27,8 @@ import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
 import 'package:fast_contacts/fast_contacts.dart' as fast_contact;
+import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -42,6 +46,7 @@ class ContactRepo {
   final _requestLock = Lock();
   final BehaviorSubject<bool> isSyncingContacts = BehaviorSubject.seeded(false);
   final BehaviorSubject<double> sendContactProgress = BehaviorSubject.seeded(0);
+  bool hasContactPermission = false;
 
   Future<void> syncContacts() async {
     if (_requestLock.locked) {
@@ -52,6 +57,7 @@ class ContactRepo {
           isDesktop ||
           isIOS) {
         if (!isDesktop) {
+          hasContactPermission = true;
           final phoneContacts = await fast_contact.FastContacts.allContacts;
           final contacts = await _filterPhoneContactsToSend(
             phoneContacts
@@ -82,12 +88,13 @@ class ContactRepo {
             _savePhoneContacts(contacts);
             await sendContacts(contacts);
             unawaited(getContacts());
+            unawaited(sendNotSyncedContactInStartTime());
           } else {
             sendContactProgress.add(1);
             unawaited(getContacts());
           }
         } else {
-          await getContacts();
+          unawaited(getContacts());
         }
       }
     });
@@ -115,6 +122,7 @@ class ContactRepo {
     List<Contact> phoneContacts,
   ) async {
     final contacts = await _contactDao.getAllContacts();
+
     for (final element in contacts) {
       phoneContacts.removeWhere(
         (pc) =>
@@ -142,8 +150,7 @@ class ContactRepo {
         sendContacts(
           contacts
               .where(
-                (element) => ((element.updateTime == null ||
-                    _sendContactWithStartTimeExpire(element.updateTime!))),
+                (element) => ((element.updateTime == null)),
               )
               .toList()
               .map(
@@ -160,10 +167,6 @@ class ContactRepo {
       );
     }
   }
-
-  bool _sendContactWithStartTimeExpire(int updateTime) =>
-      DateTime.now().millisecondsSinceEpoch - updateTime <
-      MAX_SEND_CONTACT_START_TIME_EXPIRE;
 
   String _replaceFarsiNumber(String input) {
     const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
@@ -207,6 +210,7 @@ class ContactRepo {
           i = i + MAX_CONTACT_SIZE_TO_SEND;
         } catch (e) {
           _logger.e(e);
+          isSyncingContacts.add(false);
         }
       }
     } catch (e) {
@@ -248,6 +252,8 @@ class ContactRepo {
       return true;
     } catch (e) {
       _logger.e(e);
+      // TODO(bitbeter): سینک شدن ادامه داره ولی چون ارور خوردیم میخواستیم لودینگ رو دیگه نشون ندیم ولی شاید این متغیر یه جای دیگه استفاده بشه که فالس کردنش باگ ایجاد کنه
+      isSyncingContacts.add(false);
       return false;
     }
   }
@@ -260,6 +266,8 @@ class ContactRepo {
 
   Stream<List<contact_model.Contact>> watchNotMessengerContact() =>
       _contactDao.watchNotMessengerContacts();
+
+  Stream<List<contact_model.Contact>> watchAll() => _contactDao.watchAll();
 
   Future<void> getContacts() async {
     isSyncingContacts.add(false);
@@ -404,5 +412,99 @@ class ContactRepo {
   Future<bool> contactIsExist(int countryCode, int nationalNumber) async {
     final result = await _contactDao.get(countryCode, nationalNumber);
     return result != null;
+  }
+
+  Future<void> importContactsFormVcard() async {
+    try {
+      if (isLinux) {
+        final typeGroup = <XTypeGroup>[
+          XTypeGroup(mimeTypes: ["vcf"])
+        ];
+        final result = await openFiles(acceptedTypeGroups: typeGroup);
+        if (result.isNotEmpty) {
+          unawaited(
+            _getContactFromVcfFile(
+              File(result.first.path).readAsStringSync(),
+            ),
+          );
+        }
+      } else {
+        final result = await FilePicker.platform
+            .pickFiles(type: FileType.custom, allowedExtensions: ["vcf"]);
+        if (result != null && result.files.isNotEmpty) {
+          if (isWeb) {
+            unawaited(
+              _getContactFromVcfFile(
+                String.fromCharCodes(
+                  result.files.first.bytes!,
+                ),
+              ),
+            );
+          } else {
+            unawaited(
+              _getContactFromVcfFile(
+                File(result.files.first.path!).readAsStringSync(),
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      _logger.d(e.toString());
+    }
+  }
+
+  Future<void> _getContactFromVcfFile(String contactsValue) async {
+    try {
+      final phoneContacts = <Contact>[];
+      for (final contactInfo in contactsValue.split("BEGIN:VCARD")) {
+        try {
+          final tags = {};
+          for (final contact in contactInfo.split("\n")) {
+            try {
+              final param = contact.replaceAll(";", "").split(":");
+              if (param.length > 1) {
+                if (param[0].contains("TEL")) {
+                  tags["TEL"] = param[1];
+                } else if (param[0].contains("FN")) {
+                  tags["NAME"] = utf8.decode(
+                    _decodeQuotedPrintable(param[1]).runes.toList(),
+                  );
+                }
+              }
+            } catch (_) {}
+          }
+          if (tags.isNotEmpty && tags["TEL"] != null && tags["NAME"] != null) {
+            final phone = _getPhoneNumber(tags["TEL"], tags["NAME"]);
+            if (phone != null) {
+              phoneContacts.add(
+                Contact()
+                  ..firstName = tags["NAME"]
+                  ..phoneNumber = phone,
+              );
+            }
+          }
+        } catch (_) {}
+      }
+
+      final contacts = await _filterPhoneContactsToSend(phoneContacts);
+      if (contacts.isNotEmpty) {
+        isSyncingContacts.add(true);
+        _savePhoneContacts(contacts);
+        await sendContacts(contacts);
+        isSyncingContacts.add(false);
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+
+  String _decodeQuotedPrintable(String input) {
+    return input
+        .replaceAll(RegExp(r'[\t\x20]$', multiLine: true), '')
+        .replaceAll(RegExp(r'=(?:\r\n?|\n|$)', multiLine: true), '')
+        .replaceAllMapped(RegExp(r'=([a-fA-F\d]{2})'), (match) {
+      return String.fromCharCode(int.parse(match[1] ?? "", radix: 16));
+    });
   }
 }
