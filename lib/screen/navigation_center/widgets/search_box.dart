@@ -44,7 +44,7 @@ class SearchBoxState extends State<SearchBox> {
 
   @override
   void initState() {
-    if (!isDesktop) {
+    if (hasVirtualKeyboardCapability) {
       _keyboardVisibilityController.onChange.listen((event) {
         if (!event) {
           _localFocusNode.unfocus();
