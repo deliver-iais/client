@@ -545,9 +545,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                   ),
                 },
               ),
-            if ((isWindows || isMacOS) &&
-                !showSendButton &&
-                !widget.waitingForForward)
+            if ((isWindows) && !showSendButton && !widget.waitingForForward)
               IconButton(
                 icon: const Icon(
                   CupertinoIcons.location,
