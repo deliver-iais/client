@@ -125,6 +125,7 @@ class ContactRepo {
     List<Contact> phoneContacts,
   ) async {
     final contacts = await _contactDao.getAllContacts();
+    return phoneContacts;
 
     for (final element in contacts) {
       phoneContacts.removeWhere(
@@ -166,9 +167,7 @@ class ContactRepo {
           )
           .toList();
       unawaited(
-        sendContacts(
-          filteredContacts,
-        ),
+        sendContacts(filteredContacts, initProgressbar: false),
       );
       unawaited(_savePhoneContacts(filteredContacts));
     }
@@ -199,7 +198,8 @@ class ContactRepo {
     }
   }
 
-  Future<void> sendContacts(List<Contact> contacts) async {
+  Future<void> sendContacts(List<Contact> contacts,
+      {bool initProgressbar = true}) async {
     try {
       var i = 0;
       while (i <= contacts.length) {
@@ -211,7 +211,9 @@ class ContactRepo {
             i,
             end,
           );
-          sendContactProgress.add(end / contacts.length);
+          if (initProgressbar) {
+            sendContactProgress.add(end / contacts.length);
+          }
           await _sendContacts(contactsSubList);
           i = i + MAX_CONTACT_SIZE_TO_SEND;
         } catch (e) {
