@@ -1642,6 +1642,7 @@ class CallRepo {
     });
   }
 
+  // ignore: unused_element
   Future<void> _cleanRtpSender() async {
     if (_audioSender != null) {
       await _audioSender!.dispose();

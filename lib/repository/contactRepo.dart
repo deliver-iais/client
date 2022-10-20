@@ -418,7 +418,7 @@ class ContactRepo {
     try {
       if (isLinux) {
         final typeGroup = <XTypeGroup>[
-          XTypeGroup(mimeTypes: ["vcf"])
+          const XTypeGroup(mimeTypes: ["vcf"])
         ];
         final result = await openFiles(acceptedTypeGroups: typeGroup);
         if (result.isNotEmpty) {

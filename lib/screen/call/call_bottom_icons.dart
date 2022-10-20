@@ -31,11 +31,13 @@ class CallBottomRowState extends State<CallBottomRow>
   Color? _switchCameraColor;
   Color? _offVideoCamColor;
   Color? _speakerColor;
+  // ignore: unused_field
   Color? _screenShareColor;
   Color? _muteMicColor;
 
   IconData? _offVideoCamIcon;
   IconData? _speakerIcon;
+  // ignore: unused_field
   IconData? _screenShareIcon;
   IconData? _muteMicIcon;
   IconData? _desktopDualVideoIcon;
@@ -398,6 +400,7 @@ class CallBottomRowState extends State<CallBottomRow>
     setState(() {});
   }
 
+  // ignore: unused_element
   Future<void> _shareScreen(ThemeData theme, BuildContext context) async {
     if (WebRTC.platformIsMacOS || WebRTC.platformIsWindows) {
       if (!callRepo.isSharing) {
