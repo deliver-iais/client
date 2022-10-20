@@ -820,12 +820,13 @@ class CallRepo {
           'sampleSize': '16',
           'channelCount': '2',
           'echoCancellation': 'true',
+          'latency': '0',
+          'noiseSuppression': 'ture',
         }
       };
     }
 
     final stream = await navigator.mediaDevices.getUserMedia(mediaConstraints);
-
     return stream;
   }
 
@@ -1054,11 +1055,9 @@ class CallRepo {
           ),
         );
       } else {
-        unawaited(
-          _notificationServices.notifyIncomingCall(
-            roomId.asString(),
-            callEventJson: callEventJson,
-          ),
+        await _notificationServices.notifyIncomingCall(
+          roomId.asString(),
+          callEventJson: callEventJson,
         );
       }
     }
@@ -1075,17 +1074,19 @@ class CallRepo {
       0,
       _isVideo ? CallEvent_CallType.VIDEO : CallEvent_CallType.AUDIO,
     );
-    if (isAndroid) {
-      if (!_isVideo && await Permission.microphone.status.isGranted) {
-        if (await getDeviceVersion() >= 31) {
-          _isCallInitiated = true;
-          await initCall(isOffer: true);
+    Timer(const Duration(milliseconds: 500), () async {
+      if (isAndroid) {
+        if (!_isVideo && await Permission.microphone.status.isGranted) {
+          if (await getDeviceVersion() >= 31) {
+            _isCallInitiated = true;
+            await initCall(isOffer: true);
+          }
         }
+      } else if (!_isVideo) {
+        _isCallInitiated = true;
+        await initCall(isOffer: true);
       }
-    } else if (!_isVideo) {
-      _isCallInitiated = true;
-      await initCall(isOffer: true);
-    }
+    });
   }
 
   Future<void> startCall(Uid roomId, {bool isVideo = false}) async {
