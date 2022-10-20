@@ -125,7 +125,7 @@ class ProfileAvatarState extends State<ProfileAvatar> {
     if (isWeb || isDesktop) {
       if (isLinux) {
         final typeGroup =
-            XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
+            const XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
         final file = await openFile(
           acceptedTypeGroups: [typeGroup],
         );
