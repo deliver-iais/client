@@ -841,7 +841,6 @@ class AndroidNotifier implements Notifier {
       channelDescription: channel.description,
       groupKey: roomUid,
       largeIcon: largeIcon,
-      fullScreenIntent: true,
       importance: Importance.max,
       priority: Priority.high,
       styleInformation: inboxStyleInformation,

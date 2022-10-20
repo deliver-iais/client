@@ -147,6 +147,7 @@ class RoomPageState extends State<RoomPage> {
   final _inputMessageFocusNode = FocusNode();
   final _scrollablePositionedListKey = GlobalKey();
   final List<int> _messageReplyHistory = [];
+  StreamSubscription<bool>? _shouldScrollToLastMessageInRoom;
   Timer? scrollEndNotificationTimer;
   Timer? highlightMessageTimer;
   bool _isArrowIconFocused = false;
@@ -156,6 +157,12 @@ class RoomPageState extends State<RoomPage> {
       _pendingMessages.valueOrNull ?? [];
 
   Room get room => _room.valueOrNull ?? Room(uid: widget.roomId);
+
+  @override
+  void dispose() {
+    _shouldScrollToLastMessageInRoom?.cancel();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -373,7 +380,8 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Future<void> _getScrollPosition() async {
-    _routingService.shouldScrollToLastMessageInRoom.listen((shouldScroll) {
+    _shouldScrollToLastMessageInRoom =
+        _routingService.shouldScrollToLastMessageInRoom.listen((shouldScroll) {
       if (shouldScroll) {
         _scrollToLastMessage(isForced: true);
       }

@@ -7,6 +7,7 @@ import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/audioCallScreen/audio_call_screen.dart';
 import 'package:deliver/screen/call/videoCallScreen/video_call_page.dart';
 import 'package:deliver/services/audio_service.dart';
+import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -20,8 +21,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:random_string/random_string.dart';
 import 'package:sensors_plus/sensors_plus.dart';
 import 'package:window_size/window_size.dart';
-
-import '../../services/call_service.dart';
 
 class CallScreen extends StatefulWidget {
   final Uid roomUid;
@@ -369,7 +368,7 @@ class CallScreenState extends State<CallScreen> {
           case CallStatus.ENDED:
             _logger.i("END!");
             _audioService.playEndCallSound();
-            endCallTimer=Timer(const Duration(milliseconds: 1500), () async {
+            endCallTimer = Timer(const Duration(milliseconds: 1500), () async {
               if (_routingService.canPop()) {
                 _routingService.pop();
               }
