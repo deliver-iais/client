@@ -147,7 +147,7 @@ class ImageUiState extends State<ImageUi> {
                                 fit: BoxFit.fill,
                               ),
                       ),
-                     FutureBuilder<PendingMessage?>(
+                      FutureBuilder<PendingMessage?>(
                         future: _messageRepo.getPendingEditedMessage(
                           widget.message.roomUid,
                           widget.message.id,
@@ -310,13 +310,18 @@ class ImageUiState extends State<ImageUi> {
   }
 
   Widget getBlurHashWidget() {
-    if(widget.image.blurHash != "") {
+    if (widget.image.blurHash != "") {
       return BlurHash(
         hash: widget.image.blurHash,
         imageFit: BoxFit.cover,
       );
     } else {
-      return const SizedBox.shrink();
+      // this is default gray hash : https://www.macmillandictionary.com/us/external/slideshow/thumb/Grey_thumb.png
+      return const BlurHash(
+        hash:
+            ";0Hewg%MM{%MM{%MM{%MM{?vfQfQfQfQfQfQfQfQM{fQfQfQfQfQfQfQfQ?vfQfQfQfQfQfQfQfQM{fQfQfQfQfQfQfQfQ?vfQfQfQfQfQfQfQfQM{fQfQfQfQfQfQfQfQ?vfQfQfQfQfQfQfQfQ",
+        imageFit: BoxFit.cover,
+      );
     }
   }
 
