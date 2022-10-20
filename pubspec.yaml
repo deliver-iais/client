@@ -66,9 +66,9 @@ dependencies:
   file_picker: 5.2.1
   file_selector: 0.8.4+3
   file_selector_linux: 0.0.2+1
-  firebase_analytics: 9.3.4
-  firebase_core: 1.22.0
-  firebase_messaging: 13.0.1
+  firebase_analytics: 10.0.1
+  firebase_core: 2.0.0
+  firebase_messaging: 14.0.1
   fixnum: 1.0.1
   flare_flutter: 3.0.2
   flutter:
@@ -83,7 +83,7 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_map: 2.2.0
-  flutter_webrtc: 0.9.9+hotfix.1
+  flutter_webrtc: 0.9.11
   fluttertoast: 8.0.9
   font_awesome_flutter: 10.1.0
   fuzzy: 0.4.0-nullsafety.0
@@ -132,7 +132,7 @@ dependencies:
   path_provider_android: 2.0.15
   patterns_canvas: 0.4.0 # UPDATABLE in FLUTTER 3
   percent_indicator: 4.2.2
-  permission_handler: 9.2.0
+  permission_handler: 10.2.0
   persian_datetime_picker: 2.5.0
   phone_state: 1.0.2
   photo_manager: 2.2.1

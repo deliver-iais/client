@@ -2,6 +2,7 @@ import 'dart:isolate';
 
 import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
@@ -11,6 +12,7 @@ import 'package:logger/logger.dart';
 class NotificationForegroundService {
   final _logger = GetIt.I.get<Logger>();
   final _sharedDao = GetIt.I.get<SharedDao>();
+  static final _i18n = GetIt.I.get<I18N>();
 
   ReceivePort? _receivePort;
 
@@ -43,10 +45,12 @@ class NotificationForegroundService {
   }
 
   Future<void> foregroundService({required bool foregroundNotification}) async {
-    if (foregroundNotification) {
-      await _foregroundTaskInitializing();
-    } else {
-      await _stopForegroundTask();
+    if (isAndroid) {
+      if (foregroundNotification) {
+        await _foregroundTaskInitializing();
+      } else {
+        await _stopForegroundTask();
+      }
     }
   }
 
@@ -99,12 +103,12 @@ class NotificationForegroundService {
         ),
         buttons: [
           if (foregroundNotification)
-            const NotificationButton(
+            NotificationButton(
               id: 'stopForegroundNotification',
-              text: 'Stop Foreground Notification',
+              text: _i18n.get("notification_foreground_stop"),
             )
           else
-            const NotificationButton(id: 'endCall', text: 'End Call'),
+            NotificationButton(id: 'stopForegroundNotification', text: _i18n.get("end_call")),
         ],
       ),
       iosNotificationOptions: const IOSNotificationOptions(
@@ -140,9 +144,9 @@ class NotificationForegroundService {
     } else {
       reqResult = await FlutterForegroundTask.startService(
         notificationTitle: foregroundNotification
-            ? '$APPLICATION_NAME Notification Received On BackGround'
-            : '$APPLICATION_NAME Call on BackGround',
-        notificationText: 'Tap to return to the app',
+            ? _i18n.get("notification_foreground")
+            : _i18n.get("notification_foreground_call"),
+        notificationText: _i18n.get("notification_tap_to_return"),
         callback: foregroundNotification
             ? startCallbackNotification
             : startCallbackCallForeground,
@@ -185,6 +189,7 @@ void startCallbackNotification() {
 class NotificationHandler extends TaskHandler {
   // ignore: prefer_typing_uninitialized_variables
   late final SendPort? sPort;
+  static final _i18n = GetIt.I.get<I18N>();
 
   @override
   Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {
@@ -206,9 +211,8 @@ class NotificationHandler extends TaskHandler {
         int.parse(backgroundActivationTime) <
             clock.now().millisecondsSinceEpoch) {
       await FlutterForegroundTask.updateService(
-        notificationText:
-            '$APPLICATION_NAME Can\'t Received Notification On Background',
-        notificationTitle: 'Please Open App Again - Tap Notification',
+        notificationText: _i18n.get("notification_foreground_not_received"),
+        notificationTitle: _i18n.get("notification_foreground_open_app"),
         callback: startCallbackNotification,
       );
       await FlutterForegroundTask.saveData(key: "isClosed", value: "True");
@@ -216,9 +220,8 @@ class NotificationHandler extends TaskHandler {
         appStatus != null &&
         appStatus == "Opened") {
       await FlutterForegroundTask.updateService(
-        notificationTitle:
-            '$APPLICATION_NAME Notification Received On BackGround',
-        notificationText: 'Tap to return to the app',
+        notificationTitle: _i18n.get("notification_foreground"),
+        notificationText: _i18n.get("notification_tap_to_return"),
         callback: startCallbackNotification,
       );
       await FlutterForegroundTask.saveData(key: "isUpdated", value: "True");
