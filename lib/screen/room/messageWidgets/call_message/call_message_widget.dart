@@ -88,7 +88,7 @@ class CallMessageWidget extends StatelessWidget {
             ],
           ),
           InkWell(
-            onTap: (_callService.getUserCallState == UserCallState.NOCALL)
+            onTap: (_callService.getUserCallState == UserCallState.NO_CALL)
                 ? () => _routingService.openCallScreen(
                       message.roomUid.asUid(),
                       isVideoCall: _isVideo,

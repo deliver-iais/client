@@ -20,6 +20,7 @@ import 'package:deliver/screen/room/widgets/share_private_data_accept_message_wi
 import 'package:deliver/screen/room/widgets/share_private_data_request_message_widget.dart';
 import 'package:deliver/screen/room/widgets/share_uid_message_widget.dart';
 import 'package:deliver/services/routing_service.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -78,6 +79,7 @@ class BoxContent extends StatefulWidget {
 class BoxContentState extends State<BoxContent> {
   static final _roomRepo = GetIt.I.get<RoomRepo>();
   static final _routingServices = GetIt.I.get<RoutingService>();
+  static final _featureFlags = GetIt.I.get<FeatureFlags>();
   final showMenuBehavior = BehaviorSubject.seeded(false);
   final GlobalKey _messageBoxKey = GlobalKey();
   final messageBoxWidth = BehaviorSubject.seeded(0.0);
@@ -107,7 +109,7 @@ class BoxContentState extends State<BoxContent> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (isDebugEnabled())
+                if (_featureFlags.showDeveloperDetails)
                   DebugC(
                     label: "message details",
                     children: [

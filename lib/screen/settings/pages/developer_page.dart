@@ -2,6 +2,7 @@ import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
+import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/services/log.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
@@ -10,10 +11,9 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-
-import '../../../services/notification_foreground_service.dart';
 
 class DeveloperPage extends StatefulWidget {
   const DeveloperPage({super.key});
@@ -23,16 +23,18 @@ class DeveloperPage extends StatefulWidget {
 }
 
 class DeveloperPageState extends State<DeveloperPage> {
+  final _featureFlags = GetIt.I.get<FeatureFlags>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _uxService = GetIt.I.get<UxService>();
-  final _notificationForegroundService =
-      GetIt.I.get<NotificationForegroundService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
   final _analyticsRepo = GetIt.I.get<AnalyticsRepo>();
   final _shareDao = GetIt.I.get<SharedDao>();
+  final _callRepo = GetIt.I.get<CallRepo>();
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: BlurredPreferredSizedWidget(
         child: AppBar(
@@ -44,6 +46,20 @@ class DeveloperPageState extends State<DeveloperPage> {
       body: FluidContainerWidget(
         child: ListView(
           children: [
+            Section(
+              title: 'Developer Options',
+              children: [
+                SettingsTile.switchTile(
+                  title: "Show Special Debugging Details",
+                  switchValue: _featureFlags.showDeveloperDetails,
+                  onToggle: (value) {
+                    setState(() {
+                      _featureFlags.toggleShowDeveloperDetails();
+                    });
+                  },
+                ),
+              ],
+            ),
             Section(
               title: 'Log Levels',
               children: LogLevelHelper.levels()
@@ -63,22 +79,6 @@ class DeveloperPageState extends State<DeveloperPage> {
                   )
                   .toList(),
             ),
-            if (isAndroid)
-              Section(
-                title: 'Notification',
-                children: [
-                  SettingsTile.switchTile(
-                    title: "Foreground notification Enable",
-                    switchValue:
-                        _notificationForegroundService.foregroundNotification,
-                    onToggle: (value) {
-                      setState(() {
-                        _notificationForegroundService.toggleForegroundService();
-                      });
-                    },
-                  ),
-                ],
-              ),
             Section(
               title: "Log in File",
               children: [
@@ -111,6 +111,146 @@ class DeveloperPageState extends State<DeveloperPage> {
                 )
               ],
             ),
+            if (_featureFlags.isVoiceCallAvailable())
+              Section(
+                title: "Call Events",
+                children: [
+                  Column(
+                    children: [
+                      SettingsTile(
+                        title: "SelectedCandidate",
+                        leading: const Icon(
+                          CupertinoIcons.check_mark_circled_solid,
+                        ),
+                        trailing: TextButton(
+                          onPressed: () async {
+                            await _callRepo.reset();
+                            setState(() {});
+                          },
+                          style: TextButton.styleFrom(
+                            foregroundColor: theme.errorColor,
+                          ),
+                          child: const Text("Logs Reset"),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: 24,
+                          right: 24,
+                          bottom: 10,
+                        ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: theme.colorScheme.outline,
+                            ),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Directionality(
+                              textDirection: TextDirection.ltr,
+                              child: Column(
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text("id"),
+                                      Text(_callRepo.selectedCandidate.id),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text("timestamp"),
+                                      Text(
+                                        _callRepo.selectedCandidate.timestamp
+                                            .toString(),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text("type"),
+                                      Text(_callRepo.selectedCandidate.type),
+                                    ],
+                                  ),
+                                  ..._callRepo.selectedCandidate.values.entries
+                                      .map(
+                                        (entry) => Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(entry.key),
+                                            Text(
+                                              entry.value.toString(),
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                      .toList(),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Column(
+                    children: [
+                      const SettingsTile(
+                        title: "Last Call Events",
+                        leading: Icon(CupertinoIcons.pencil_outline),
+                        trailing: Text(""),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          left: 24,
+                          right: 24,
+                          bottom: 10,
+                        ),
+                        child: Container(
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: theme.colorScheme.outline,
+                            ),
+                            borderRadius: BorderRadius.circular(15),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Directionality(
+                              textDirection: TextDirection.ltr,
+                              child: Column(
+                                children: [
+                                  ..._callRepo.callEvents.entries
+                                      .map(
+                                        (entry) => Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Text(entry.key.toString()),
+                                            Text(
+                                              entry.value,
+                                            ),
+                                          ],
+                                        ),
+                                      )
+                                      .toList(),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             Section(
               title: "Analytics - Requests Frequency",
               children: [

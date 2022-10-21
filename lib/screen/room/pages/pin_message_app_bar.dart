@@ -75,7 +75,7 @@ class PinMessageAppBar extends StatelessWidget {
                   child: Row(
                     children: [
                       SizedBox(
-                        width: 2,
+                        width: 5,
                         child: Center(
                           child: ScrollablePositionedList.builder(
                             itemScrollController: itemScrollController,
@@ -201,7 +201,7 @@ class PinMessageAppBar extends StatelessWidget {
         },
         icon: Icon(
           CupertinoIcons.xmark,
-          color: theme.colorScheme.inversePrimary,
+          color: theme.colorScheme.primary,
         ),
       );
     }
