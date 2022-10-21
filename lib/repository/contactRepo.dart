@@ -125,8 +125,6 @@ class ContactRepo {
     List<Contact> phoneContacts,
   ) async {
     final contacts = await _contactDao.getAllContacts();
-    return phoneContacts;
-
     for (final element in contacts) {
       phoneContacts.removeWhere(
         (pc) =>

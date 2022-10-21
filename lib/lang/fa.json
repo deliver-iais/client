@@ -487,7 +487,7 @@
   "username_granted": "اجازه دسترسی به نام کاربری  تلفن داده شد.",
   "username_helper": "حداقل 5 وحداکثر 20 حرف باشد. وشامل . نباشد و با عدد شروع نشود.",
   "username_length": "شناسه یکتا معتبر نیست.",
-  "username_not_empty": "شناسه نباید خای باشد.",
+  "username_not_empty": "شناسه نباید خالی باشد.",
   "username_not_valid": "شناسه کاربری معتبر نیست.",
   "verification": "کد اعتبار",
   "verificationCode": "کد اعتبار سنجی",

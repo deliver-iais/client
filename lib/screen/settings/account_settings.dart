@@ -20,6 +20,7 @@ import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
@@ -295,21 +296,134 @@ class AccountSettingsState extends State<AccountSettings> {
                                 key: _formKey,
                                 child: Column(
                                   children: [
-                                    Form(
-                                      key: _usernameFormKey,
-                                      child: TextFormField(
-                                        minLines: 1,
-                                        controller: _usernameTextController,
-                                        textInputAction: TextInputAction.send,
-                                        onChanged: (str) {
-                                          subject.add(str);
-                                        },
-                                        validator: validateUsername,
-                                        decoration: buildInputDecoration(
-                                          _i18n.get("username"),
-                                          isOptional: true,
-                                        ),
+                                    TextFormField(
+                                      minLines: 1,
+                                      controller: _firstnameTextController,
+                                      textInputAction: TextInputAction.send,
+                                      validator: validateFirstName,
+                                      decoration: buildInputDecoration(
+                                        _i18n.get("firstName"),
+                                        isOptional: true,
                                       ),
+                                    ),
+                                    const SizedBox(
+                                      height: 20,
+                                    ),
+                                    TextFormField(
+                                      minLines: 1,
+                                      controller: _lastnameTextController,
+                                      textInputAction: TextInputAction.send,
+                                      decoration: buildInputDecoration(
+                                        _i18n.get("lastName"),
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 20,
+                                    ),
+                                    Autocomplete<String>(
+                                      optionsBuilder: (textEditingValue) {
+                                        if (textEditingValue.text == '') {
+                                          return [
+                                            _firstnameTextController?.text ??
+                                                "",
+                                            _lastnameTextController?.text ?? ""
+                                          ];
+                                        } else {
+                                          List<String> matches = <String>[];
+                                          matches.addAll([
+                                            "USA",
+                                            "UK",
+                                            "Uganda",
+                                            "Uruguay",
+                                            "United Arab Emirates"
+                                          ]);
+                                          matches.retainWhere((s) {
+                                            return s.toLowerCase().contains(
+                                                textEditingValue.text
+                                                    .toLowerCase());
+                                          });
+                                          return matches;
+                                        }
+                                      },
+                                      initialValue: TextEditingValue(
+                                          text: _usernameTextController.text),
+                                      onSelected: (selection) {
+                                        _usernameTextController.text =
+                                            selection;
+                                        _usernameFormKey.currentState
+                                            ?.validate();
+                                      },
+                                      fieldViewBuilder: (context,
+                                          textEditingController,
+                                          focusNode,
+                                          onFieldSubmitted,) {
+                                        return GestureDetector(
+                                            onTap: () {
+                                              onFieldSubmitted();
+                                            },
+                                            child: Column(
+                                              children: [
+                                                Form(
+                                                  key: _usernameFormKey,
+                                                  child: TextFormField(
+                                                    minLines: 1,
+                                                    focusNode: focusNode,
+                                                    controller:
+                                                        textEditingController,
+                                                    textInputAction:
+                                                        TextInputAction.send,
+                                                    onChanged: (str) {
+                                                      subject.add(str);
+                                                    },
+                                                    validator: validateUsername,
+                                                    decoration:
+                                                        buildInputDecoration(
+                                                      _i18n.get("username"),
+                                                      isOptional: true,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ));
+                                      },
+                                      optionsViewBuilder: (
+                                        con,
+                                        void Function(String) onSelected,
+                                        options,
+                                      ) {
+                                        return Stack(
+                                          children: [
+                                            Material(
+                                                child: Container(
+                                              color: CupertinoColors
+                                                  .inactiveGray
+                                                  .withOpacity(0.2),
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: options.map((opt) {
+                                                  return InkWell(
+                                                      onTap: () {
+                                                        onSelected(opt);
+                                                      },
+                                                      child: Padding(
+                                                        padding:
+                                                            const EdgeInsets
+                                                                .symmetric(
+                                                          horizontal: 60,
+                                                        ),
+                                                        child: Container(
+                                                          padding:
+                                                              const EdgeInsets
+                                                                  .all(10),
+                                                          child: Text(opt),
+                                                        ),
+                                                      ));
+                                                }).toList(),
+                                              ),
+                                            )),
+                                          ],
+                                        );
+                                      },
                                     ),
                                     const SizedBox(
                                       height: 5,
@@ -353,33 +467,6 @@ class AccountSettingsState extends State<AccountSettings> {
                                           return const SizedBox.shrink();
                                         }
                                       },
-                                    ),
-                                    const SizedBox(
-                                      height: 20,
-                                    ),
-                                    TextFormField(
-                                      minLines: 1,
-                                      controller: _firstnameTextController,
-                                      textInputAction: TextInputAction.send,
-                                      validator: validateFirstName,
-                                      decoration: buildInputDecoration(
-                                        _i18n.get("firstName"),
-                                        isOptional: true,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      height: 20,
-                                    ),
-                                    TextFormField(
-                                      minLines: 1,
-                                      controller: _lastnameTextController,
-                                      textInputAction: TextInputAction.send,
-                                      decoration: buildInputDecoration(
-                                        _i18n.get("lastName"),
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      height: 20,
                                     ),
                                     if (TWO_STEP_VERIFICATION_IS_AVAILABLE)
                                       TextFormField(
@@ -426,6 +513,14 @@ class AccountSettingsState extends State<AccountSettings> {
         ),
       ),
     );
+  }
+
+  List<String> _getUsernameSuggestion(String input){
+
+
+    if(input.isEmpty){
+      return [];
+    }
   }
 
   InputDecoration buildInputDecoration(
