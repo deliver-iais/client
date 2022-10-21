@@ -19,6 +19,7 @@ import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
 import 'package:deliver/screen/navigation_center/widgets/feature_discovery_description_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/forward_preview.dart';
@@ -327,6 +328,7 @@ class RoomPageState extends State<RoomPage> {
                   );
                 },
               ),
+            if (!isLarge(context)) const HasCallRow(),
             const AudioPlayerAppBar(),
             pinMessageWidget(),
           ],

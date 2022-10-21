@@ -105,12 +105,12 @@ class AttachLocation {
         ),
         zoom: 14.0,
       ),
-      layers: [
-        TileLayerOptions(
+      children: [
+        TileLayer(
           urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-          subdomains: ['a', 'b', 'c'],
+          subdomains: const ['a', 'b', 'c'],
         ),
-        MarkerLayerOptions(
+        MarkerLayer(
           markers: [
             Marker(
               width: 170.0,
