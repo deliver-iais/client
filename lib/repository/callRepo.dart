@@ -1506,9 +1506,6 @@ class CallRepo {
 
     if (_reconnectTry) {
       callingStatus.add(CallStatus.RECONNECTING);
-      try {} catch (e) {
-        _logger.e(e);
-      }
     }
 
     timerResendAnswer = Timer(const Duration(seconds: 5), () {
