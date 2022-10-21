@@ -99,25 +99,25 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                   child: Text(_i18n.get("these_feature_arent_stable_yet")),
                 ),
               ),
-              // if (isAndroid)
-              Section(
-                title: 'Foreground Service',
-                children: [
-                  SettingsTile.switchTile(
-                    title: "Foreground Notification Enable",
-                    subtitle:
-                        "Application will be available in background for getting new messages online",
-                    switchValue:
-                        _notificationForegroundService.foregroundNotification,
-                    onToggle: (value) {
-                      setState(() {
-                        _notificationForegroundService
-                            .toggleForegroundService();
-                      });
-                    },
-                  ),
-                ],
-              ),
+              if (isAndroid)
+                Section(
+                  title: 'Foreground Service',
+                  children: [
+                    SettingsTile.switchTile(
+                      title: "Foreground Notification Enable",
+                      subtitle:
+                          "Application will be available in background for getting new messages online",
+                      switchValue:
+                          _notificationForegroundService.foregroundNotification,
+                      onToggle: (value) {
+                        setState(() {
+                          _notificationForegroundService
+                              .toggleForegroundService();
+                        });
+                      },
+                    ),
+                  ],
+                ),
               if (_featureFlags.isVoiceCallAvailable())
                 Section(
                   title: _i18n.get("calls"),
