@@ -213,10 +213,14 @@ class FeatureFlags {
   bool _isBetaUser() =>
       BETA_USERS_UID_LIST.contains(_authRepo.currentUserUid.asString());
 
-  Stream<bool> get showDeveloperDetailsFeatureFlagStream =>
-      _showDeveloperDetails.distinct();
-
   bool get showDeveloperDetails => _showDeveloperDetails.value;
+
+  Future<void> toggleShowDeveloperDetails() async {
+    _showDeveloperDetails.add(
+      await _sharedDao
+          .toggleBoolean(SHARED_DAO_FEATURE_FLAGS_SHOW_DEVELOPER_DETAILS),
+    );
+  }
 
   bool hasVoiceCallPermission(String roomUid) {
     return roomUid.asUid().isUser() &&
