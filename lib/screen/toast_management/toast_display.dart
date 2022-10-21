@@ -9,7 +9,6 @@ import 'package:lottie/lottie.dart';
 class ToastDisplay {
   static void showToast({
     IconData? toastIcon,
-    Color? toastColor,
     bool animateDone = false,
     required BuildContext toastContext,
     required String toastText,
@@ -17,14 +16,15 @@ class ToastDisplay {
     final fToast = FToast()..init(toastContext);
     final i18n = GetIt.I.get<I18N>();
 
-    toastColor ??= Theme.of(toastContext).colorScheme.surface;
+    final theme = Theme.of(toastContext);
+
     final Widget toast = Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         boxShadow: DEFAULT_BOX_SHADOWS,
         borderRadius: tertiaryBorder,
-        color: toastColor,
+        color: theme.colorScheme.inverseSurface,
       ),
       child: Directionality(
         textDirection: i18n.defaultTextDirection,
@@ -41,7 +41,10 @@ class ToastDisplay {
             Expanded(
               child: Text(
                 toastText,
-                style: const TextStyle(fontSize: 16),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: theme.colorScheme.onInverseSurface,
+                ),
               ),
             ),
           ],
@@ -52,7 +55,8 @@ class ToastDisplay {
     fToast.showToast(
       child: toast,
       gravity: ToastGravity.BOTTOM,
-      toastDuration: const Duration(milliseconds: 2200),
+      fadeDuration: SLOW_ANIMATION_DURATION,
+      toastDuration: SUPER_SLOW_ANIMATION_DURATION * 4,
     );
   }
 }

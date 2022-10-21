@@ -125,6 +125,7 @@ class ContactRepo {
     List<Contact> phoneContacts,
   ) async {
     final contacts = await _contactDao.getAllContacts();
+
     for (final element in contacts) {
       phoneContacts.removeWhere(
         (pc) =>
@@ -196,8 +197,10 @@ class ContactRepo {
     }
   }
 
-  Future<void> sendContacts(List<Contact> contacts,
-      {bool initProgressbar = true}) async {
+  Future<void> sendContacts(
+    List<Contact> contacts, {
+    bool initProgressbar = true,
+  }) async {
     try {
       var i = 0;
       while (i <= contacts.length) {
