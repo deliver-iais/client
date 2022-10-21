@@ -249,7 +249,7 @@ class CallRepo {
                       ),
                     );
                   } else {
-                    if (!isWindows && !_isCallFromDb) {
+                    if (!isDesktop && !_isCallFromDb) {
                       //get call Info and Save on DB
                       final currentCallEvent = call_event.CallEvent(
                         callDuration: callEvent.callDuration.toInt(),
@@ -431,8 +431,8 @@ class CallRepo {
     final pc = await createPeerConnection(iceServers, config);
 
     final camAudioTrack = _localStream!.getAudioTracks()[0];
-    if (!isWindows) {
-      camAudioTrack.enableSpeakerphone(false);
+    if (!isDesktop) {
+      _audioService.turnDownTheCallVolume();
     }
     _audioSender = await pc.addTrack(camAudioTrack, _localStream!);
 
@@ -595,21 +595,11 @@ class CallRepo {
               } else {
                 callingStatus.add(CallStatus.CONNECTED);
                 vibrate(duration: 50);
-                try {
-                  _audioService.stopBeepSound();
-                } catch (e) {
-                  _logger.e(e);
-                }
                 _reconnectTry = false;
               }
               break;
             case STATUS_CONNECTION_CONNECTING:
               callingStatus.add(CallStatus.CONNECTING);
-              try {
-                _audioService.stopBeepSound();
-              } catch (e) {
-                _logger.e(e);
-              }
               break;
             case STATUS_CONNECTION_ENDED:
               //received end from Callee
@@ -627,9 +617,7 @@ class CallRepo {
     Timer(const Duration(seconds: 1), () {
       if (!_reconnectTry && !_isEnded && !_isEndedReceived) {
         callingStatus.add(CallStatus.DISCONNECTED);
-        try {
-          _audioService.stopBeepSound();
-        } catch (e) {
+        try {} catch (e) {
           _logger.e(e);
         }
       }
@@ -653,20 +641,18 @@ class CallRepo {
     callingStatus.add(CallStatus.CONNECTED);
     _callEvents[clock.now().millisecondsSinceEpoch] = "Connected";
     await vibrate(duration: 50);
-    try {
-      _audioService.stopBeepSound();
-    } catch (e) {
-      _logger.e(e);
-    }
 
     if (_isVideo) {
       if (isAndroid) {
         await Wakelock.enable();
         switching.add(false);
         _localStream!.getAudioTracks()[0].enableSpeakerphone(true);
-        isSpekaer.add(true);
+        isSpeaker.add(true);
       }
+    } else {
+      _localStream!.getAudioTracks()[0].enableSpeakerphone(isSpeaker.value);
     }
+
     if (_reconnectTry) {
       _reconnectTry = false;
       timerDisconnected?.cancel();
@@ -680,11 +666,6 @@ class CallRepo {
     if (!_reconnectTry && !_isEnded && !_isEndedReceived && !isConnected) {
       _reconnectTry = true;
       callingStatus.add(CallStatus.RECONNECTING);
-      try {
-        _audioService.stopBeepSound();
-      } catch (e) {
-        _logger.e(e);
-      }
       _reconnectingAfterFailedConnection();
       timerDisconnected = Timer(const Duration(seconds: 15), () {
         if (callingStatus.value != CallStatus.CONNECTED) {
@@ -717,11 +698,6 @@ class CallRepo {
     _logger.i("Start Call $_startCallTime");
     callingStatus.add(CallStatus.CONNECTED);
     vibrate(duration: 50).ignore();
-    try {
-      _audioService.stopBeepSound();
-    } catch (e) {
-      _logger.e(e);
-    }
     if (timerConnectionFailed != null) {
       timerConnectionFailed!.cancel();
     }
@@ -735,7 +711,7 @@ class CallRepo {
         }
       }
     });
-    if (!isWindows) {
+    if (!isDesktop) {
       _localStream!.getAudioTracks()[0].enableSpeakerphone(false);
     }
   }
@@ -800,11 +776,6 @@ class CallRepo {
           break;
         case STATUS_CONNECTION_CONNECTING:
           callingStatus.add(CallStatus.CONNECTING);
-          try {
-            _audioService.stopBeepSound();
-          } catch (e) {
-            _logger.e(e);
-          }
           break;
         case STATUS_CONNECTION_ENDED:
           // this case use for prevent from disconnected state
@@ -821,7 +792,7 @@ class CallRepo {
   Future<MediaStream> _getUserMedia() async {
     // Provide your own width, height and frame rate here
     Map<String, dynamic> mediaConstraints;
-    if (isWindows) {
+    if (isDesktop) {
       mediaConstraints = {
         'video': _isVideo
             ? {
@@ -1026,15 +997,23 @@ class CallRepo {
   }
 
   bool enableSpeakerVoice() {
-    if (_localStream != null && !isWindows) {
+    if (_localStream != null && !isDesktop) {
       final camAudioTrack = _localStream!.getAudioTracks()[0];
-      final speaker = isSpekaer.value;
+      final speaker = isSpeaker.value;
       if (speaker) {
-        camAudioTrack.enableSpeakerphone(false);
+        if (_isConnected) {
+          camAudioTrack.enableSpeakerphone(false);
+        } else {
+          _audioService.turnDownTheCallVolume();
+        }
       } else {
-        camAudioTrack.enableSpeakerphone(true);
+        if (_isConnected) {
+          camAudioTrack.enableSpeakerphone(true);
+        } else {
+          _audioService.turnUpTheCallVolume();
+        }
       }
-      isSpekaer.add(!speaker);
+      isSpeaker.add(!speaker);
       return !speaker;
     }
     return false;
@@ -1161,11 +1140,6 @@ class CallRepo {
         if (callingStatus.value == CallStatus.IS_RINGING ||
             callingStatus.value == CallStatus.CREATED) {
           callingStatus.add(CallStatus.NO_ANSWER);
-          try {
-            _audioService.stopBeepSound();
-          } catch (e) {
-            _logger.e(e);
-          }
           _logger.i("User Can't Answer!");
           endCall();
         }
@@ -1221,7 +1195,7 @@ class CallRepo {
       ..add(CallStatus.ACCEPTED)
       ..add(CallStatus.CONNECTING);
     try {
-      _audioService.stopBeepSound();
+      _audioService.stopCallAudioPlayer();
     } catch (e) {
       _logger.e(e);
     }
@@ -1231,9 +1205,7 @@ class CallRepo {
       if (callingStatus.value != CallStatus.CONNECTED && !_reconnectTry) {
         _logger.i("Call Can't Connected !!");
         callingStatus.add(CallStatus.NO_ANSWER);
-        try {
-          _audioService.stopBeepSound();
-        } catch (e) {
+        try {} catch (e) {
           _logger.e(e);
         }
         endCall();
@@ -1294,17 +1266,17 @@ class CallRepo {
   Future<void> _receivedCallOffer(CallOffer callOffer) async {
     if (!_reconnectTry) {
       callingStatus.add(CallStatus.ACCEPTED);
+      try {
+        _audioService.stopCallAudioPlayer();
+      } catch (e) {
+        _logger.e(e);
+      }
     }
     //set Remote Descriptions and Candidate
     await _setRemoteDescriptionOffer(callOffer.body);
     await _setCallCandidate(callOffer.candidates);
     if (!_reconnectTry) {
       callingStatus.add(CallStatus.CONNECTING);
-      try {
-        _audioService.stopBeepSound();
-      } catch (e) {
-        _logger.e(e);
-      }
     }
     //And Create Answer for Calle
     if (!_reconnectTry) {
@@ -1534,9 +1506,7 @@ class CallRepo {
 
     if (_reconnectTry) {
       callingStatus.add(CallStatus.RECONNECTING);
-      try {
-        _audioService.stopBeepSound();
-      } catch (e) {
+      try {} catch (e) {
         _logger.e(e);
       }
     }
@@ -1552,11 +1522,6 @@ class CallRepo {
           callingStatus.value != CallStatus.NO_CALL) {
         _logger.i("Call Can't Connected !!");
         callingStatus.add(CallStatus.NO_ANSWER);
-        try {
-          _audioService.stopBeepSound();
-        } catch (e) {
-          _logger.e(e);
-        }
         endCall();
       }
     });
@@ -1613,11 +1578,6 @@ class CallRepo {
         _peerConnection = null;
       }
       _candidate = [];
-      try {
-        _audioService.stopBeepSound();
-      } catch (e) {
-        _logger.e(e);
-      }
     } catch (e) {
       _logger.e(e);
     } finally {
@@ -1646,7 +1606,7 @@ class CallRepo {
       desktopDualVideo.add(true);
       incomingCallOnHold.add(false);
       await _phoneStateStream?.cancel();
-      isSpekaer.add(false);
+      isSpeaker.add(false);
 
       await _callService.clearCallData(forceToClearData: true);
       if (isAndroid) {
@@ -1662,6 +1622,9 @@ class CallRepo {
         _isVideo = false;
         _isCallInitiated = false;
         callTimer.add(CallTimer(0, 0, 0));
+        _audioService
+          ..turnUpTheCallVolume()
+          ..stopCallAudioPlayer();
       });
     }
   }
@@ -1738,7 +1701,7 @@ class CallRepo {
   BehaviorSubject<bool> videoing = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> incomingVideo = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> desktopDualVideo = BehaviorSubject.seeded(true);
-  BehaviorSubject<bool> isSpekaer = BehaviorSubject.seeded(false);
+  BehaviorSubject<bool> isSpeaker = BehaviorSubject.seeded(false);
   BehaviorSubject<bool> incomingCallOnHold = BehaviorSubject.seeded(false);
 
   Future<void> fetchUserCallList(
