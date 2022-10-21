@@ -498,7 +498,11 @@ class RoomPageState extends State<RoomPage> {
         _highlightMessageId.value == -1) {
       if (position.last.index == 0) {
         _lastPinedMessage.add(
-          (_pinMessages..sort((a, b) => a.id!.compareTo(b.id!))).first.id!,
+          _pinMessages.first.id!,
+        );
+      } else if (p == _pinMessages.last.id) {
+        _lastPinedMessage.add(
+          _pinMessages.last.id!,
         );
       } else {
         final index = _pinMessages.lastIndexWhere((element) => element.id! < p);
@@ -690,7 +694,9 @@ class RoomPageState extends State<RoomPage> {
 
   Future<void> onPin(Message message) =>
       _messageRepo.pinMessage(message).then((value) {
-        _pinMessages.add(message);
+        _pinMessages
+          ..add(message)
+          ..sort((a, b) => a.time - b.time);
         _lastPinedMessage.add(_pinMessages.last.id!);
       }).catchError((error) {
         ToastDisplay.showToast(
@@ -754,11 +760,7 @@ class RoomPageState extends State<RoomPage> {
               _pinMessages
                 ..add(m!)
                 ..sort((a, b) => a.time - b.time);
-              if (_lastScrollPositionIndex == -1) {
                 _lastPinedMessage.add(_pinMessages.last.id!);
-              } else {
-                _syncLastPinMessageWithItemPosition();
-              }
             } catch (e) {
               _logger.e("element: $element, e: $e");
             }

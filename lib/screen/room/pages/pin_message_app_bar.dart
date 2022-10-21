@@ -132,6 +132,7 @@ class PinMessageAppBar extends StatelessWidget {
                                 message: mes,
                                 lastMessageId: mes.id!,
                                 showSeenStatus: false,
+                                maxLine: 1,
                               ),
                             ]
                           ],
