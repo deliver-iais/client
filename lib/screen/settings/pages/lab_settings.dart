@@ -61,7 +61,7 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
       checkBoxListTileModel[index].isCheck = newValue;
       _featureFlags.setICEServerEnable(
         checkBoxListTileModel[index].title,
-        newValue,
+        newStatus: newValue,
       );
     });
   }
@@ -101,44 +101,34 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
               Section(
                 title: _i18n.get("calls"),
                 children: [
-                  StreamBuilder<bool>(
-                    stream: _featureFlags.voiceCallFeatureFlagStream,
-                    builder: (context, snapshot) {
-                      return SettingsTile.switchTile(
-                        title: _i18n.get("voice_call_feature"),
-                        leading: const Icon(CupertinoIcons.phone),
-                        switchValue: snapshot.data ?? false,
-                        onToggle: (value) {
-                          _featureFlags.toggleVoiceCallFeatureFlag();
-                          setState(() {});
-                        },
-                      );
-                    },
+                  SettingsTile(
+                    title: _i18n.get("voice_call_feature"),
+                    leading: const Icon(CupertinoIcons.phone),
+                    trailing: const SizedBox.shrink(),
                   ),
-                  if (_featureFlags.isVoiceCallAvailable())
-                    Column(
-                      children: [
-                        const SettingsTile(
-                          title: "ICECandidateNumber",
-                          leading: Icon(CupertinoIcons.number_square_fill),
-                          trailing: Text(""),
-                        ),
-                        Slider(
-                          value: ICECandidateNumber,
-                          onChanged: (newICECandidateNumber) {
-                            setState(() {
-                              ICECandidateNumber = newICECandidateNumber;
-                              _featureFlags
-                                  .setICECandidateNumber(ICECandidateNumber);
-                            });
-                          },
-                          divisions: 10,
-                          label: "$ICECandidateNumber",
-                          min: 10,
-                          max: 20,
-                        )
-                      ],
-                    ),
+                  Column(
+                    children: [
+                      const SettingsTile(
+                        title: "ICECandidateNumber",
+                        leading: Icon(CupertinoIcons.number_square_fill),
+                        trailing: Text(""),
+                      ),
+                      Slider(
+                        value: ICECandidateNumber,
+                        onChanged: (newICECandidateNumber) {
+                          setState(() {
+                            ICECandidateNumber = newICECandidateNumber;
+                            _featureFlags
+                                .setICECandidateNumber(ICECandidateNumber);
+                          });
+                        },
+                        divisions: 10,
+                        label: "$ICECandidateNumber",
+                        min: 10,
+                        max: 20,
+                      )
+                    ],
+                  ),
                   if (_featureFlags.isVoiceCallAvailable())
                     Column(
                       children: [
