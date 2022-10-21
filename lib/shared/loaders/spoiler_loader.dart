@@ -29,9 +29,7 @@ class SpoilerLoader extends StatelessWidget {
       stream: showLoaderBehavior,
       builder: (context, snapshot) {
         final showLoader = snapshot.data ?? true;
-        final control = showLoader
-            ? CustomAnimationControl.stop
-            : CustomAnimationControl.play;
+        final control = showLoader ? Control.stop : Control.play;
 
         Widget loader = MouseRegion(
           cursor: showLoader ? SystemMouseCursors.click : MouseCursor.defer,
@@ -47,11 +45,11 @@ class SpoilerLoader extends StatelessWidget {
 
         return Stack(
           children: [
-            CustomAnimation<Color?>(
+            CustomAnimationBuilder<Color?>(
               duration: SLOW_ANIMATION_DURATION,
               control: control,
               tween: ColorTween(begin: Colors.transparent, end: foreground),
-              builder: (context, child, color) {
+              builder: (context, color, child) {
                 return Text(
                   text,
                   overflow: TextOverflow.ellipsis,
