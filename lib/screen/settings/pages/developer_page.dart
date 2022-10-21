@@ -47,6 +47,20 @@ class DeveloperPageState extends State<DeveloperPage> {
         child: ListView(
           children: [
             Section(
+              title: 'Developer Options',
+              children: [
+                SettingsTile.switchTile(
+                  title: "Show Special Debugging Details",
+                  switchValue: _featureFlags.showDeveloperDetails,
+                  onToggle: (value) {
+                    setState(() {
+                      _featureFlags.toggleShowDeveloperDetails();
+                    });
+                  },
+                ),
+              ],
+            ),
+            Section(
               title: 'Log Levels',
               children: LogLevelHelper.levels()
                   .map(
@@ -64,20 +78,6 @@ class DeveloperPageState extends State<DeveloperPage> {
                     ),
                   )
                   .toList(),
-            ),
-            Section(
-              title: 'Developer Options',
-              children: [
-                SettingsTile.switchTile(
-                  title: "Show Special Debugging Details",
-                  switchValue: _featureFlags.showDeveloperDetails,
-                  onToggle: (value) {
-                    setState(() {
-                      _featureFlags.toggleShowDeveloperDetails();
-                    });
-                  },
-                ),
-              ],
             ),
             Section(
               title: "Log in File",
