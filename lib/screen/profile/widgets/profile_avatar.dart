@@ -124,7 +124,7 @@ class ProfileAvatarState extends State<ProfileAvatar> {
   Future<void> selectAvatar() async {
     if (isWeb || isDesktop) {
       if (isLinux) {
-        final typeGroup =
+        const typeGroup =
             XTypeGroup(label: 'images', extensions: ['jpg', 'png']);
         final file = await openFile(
           acceptedTypeGroups: [typeGroup],

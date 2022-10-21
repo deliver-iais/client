@@ -28,15 +28,16 @@ class CallBottomRowState extends State<CallBottomRow>
   final _i18n = GetIt.I.get<I18N>();
   final _iconsSize = isAndroid ? 30.0 : 40.0;
 
-
   Color? _switchCameraColor;
   Color? _offVideoCamColor;
   Color? _speakerColor;
+  // ignore: unused_field
   Color? _screenShareColor;
   Color? _muteMicColor;
 
   IconData? _offVideoCamIcon;
   IconData? _speakerIcon;
+  // ignore: unused_field
   IconData? _screenShareIcon;
   IconData? _muteMicIcon;
   IconData? _desktopDualVideoIcon;
@@ -92,7 +93,7 @@ class CallBottomRowState extends State<CallBottomRow>
                 color: theme.colorScheme.outline.withOpacity(0.6),
               ),
             ],
-            color:  theme.colorScheme.tertiaryContainer,
+            color: theme.colorScheme.tertiaryContainer,
             borderRadius: BorderRadius.circular(35.0),
           ),
           child: Padding(
@@ -191,7 +192,7 @@ class CallBottomRowState extends State<CallBottomRow>
               ),
             ],
             borderRadius: BorderRadius.circular(35.0),
-           color:  theme.colorScheme.tertiaryContainer,
+            color: theme.colorScheme.tertiaryContainer,
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -232,7 +233,7 @@ class CallBottomRowState extends State<CallBottomRow>
                 width: 65,
                 height: 65,
                 child: FloatingActionButton(
-                  backgroundColor:  theme.colorScheme.tertiary,
+                  backgroundColor: theme.colorScheme.tertiary,
                   heroTag: 66,
                   elevation: 0,
                   shape: const CircleBorder(),
@@ -271,17 +272,26 @@ class CallBottomRowState extends State<CallBottomRow>
               //     color: _screenShareColor,
               //   ),
               // ),
-              FloatingActionButton(
-                heroTag: 55,
-                elevation: 0,
-                shape: const CircleBorder(),
-                backgroundColor: Colors.transparent,
-                onPressed: () => _enableSpeaker(theme),
-                child: Icon(
-                  _speakerIcon,
-                  size: isAndroid ? 30 : 40,
-                  color: _speakerColor,
-                ),
+              StreamBuilder<bool>(
+                stream: callRepo.isSpekaer,
+                builder: (context, snapshot) {
+                  return FloatingActionButton(
+                    heroTag: 55,
+                    elevation: 0,
+                    shape: const CircleBorder(),
+                    backgroundColor: Colors.transparent,
+                    onPressed: () => _enableSpeaker(theme),
+                    child: Icon(
+                      snapshot.data ?? false
+                          ? CupertinoIcons.speaker_3
+                          : CupertinoIcons.speaker_1,
+                      size: isAndroid ? 30 : 40,
+                      color: snapshot.data ?? false
+                          ? theme.primaryColor
+                          : theme.colorScheme.onTertiaryContainer,
+                    ),
+                  );
+                },
               ),
             ],
           ),
@@ -338,17 +348,23 @@ class CallBottomRowState extends State<CallBottomRow>
 
   void initializeIcons() {
     final theme = Theme.of(context);
-    _speakerColor = callRepo.isSpeaker ? theme.primaryColor : theme.colorScheme.onTertiaryContainer;
-    _muteMicColor =
-        callRepo.isMicMuted ? theme.primaryColor : theme.colorScheme.onTertiaryContainer;
-    _offVideoCamColor =
-        callRepo.mute_camera.value ?  theme.colorScheme.onTertiaryContainer:theme.primaryColor;
-    _switchCameraColor =
-        callRepo.switching.value ? theme.primaryColor : theme.colorScheme.onTertiaryContainer;
-    _screenShareColor =
-        callRepo.isSharing ? theme.primaryColor : theme.colorScheme.onTertiaryContainer;
+    _speakerColor = callRepo.isSpekaer.value
+        ? theme.primaryColor
+        : theme.colorScheme.onTertiaryContainer;
+    _muteMicColor = callRepo.isMicMuted
+        ? theme.primaryColor
+        : theme.colorScheme.onTertiaryContainer;
+    _offVideoCamColor = callRepo.mute_camera.value
+        ? theme.colorScheme.onTertiaryContainer
+        : theme.primaryColor;
+    _switchCameraColor = callRepo.switching.value
+        ? theme.primaryColor
+        : theme.colorScheme.onTertiaryContainer;
+    _screenShareColor = callRepo.isSharing
+        ? theme.primaryColor
+        : theme.colorScheme.onTertiaryContainer;
 
-    _speakerIcon = callRepo.isSpeaker
+    _speakerIcon = callRepo.isSpekaer.value
         ? CupertinoIcons.speaker_3
         : CupertinoIcons.speaker_1;
     _muteMicIcon =
@@ -384,6 +400,7 @@ class CallBottomRowState extends State<CallBottomRow>
     setState(() {});
   }
 
+  // ignore: unused_element
   Future<void> _shareScreen(ThemeData theme, BuildContext context) async {
     if (WebRTC.platformIsMacOS || WebRTC.platformIsWindows) {
       if (!callRepo.isSharing) {

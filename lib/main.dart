@@ -80,6 +80,7 @@ import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/services/log.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/muc_services.dart';
+import 'package:deliver/services/notification_foreground_service.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -221,6 +222,7 @@ Future<void> setupDI() async {
   registerSingleton<FileService>(FileService());
   registerSingleton<MucServices>(MucServices());
   registerSingleton<CreateMucService>(CreateMucService());
+  registerSingleton<NotificationForegroundService>(NotificationForegroundService());
   registerSingleton<BotRepo>(BotRepo());
   registerSingleton<StickerRepo>(StickerRepo());
   registerSingleton<FileRepo>(FileRepo());

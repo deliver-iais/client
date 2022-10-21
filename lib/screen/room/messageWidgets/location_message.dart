@@ -59,14 +59,14 @@ class LocationMessageWidget extends StatelessWidget {
                   );
                 },
               ),
-              layers: [
-                TileLayerOptions(
+              children: [
+                TileLayer(
                   tileProvider: NetworkTileProvider(),
                   urlTemplate:
                       "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                  subdomains: ['a', 'b', 'c'],
+                  subdomains: const ['a', 'b', 'c'],
                 ),
-                MarkerLayerOptions(
+                MarkerLayer(
                   markers: [
                     Marker(
                       point: LatLng(location.latitude, location.longitude),
@@ -117,13 +117,13 @@ class LocationDialog extends StatelessWidget {
             zoom: 15.0,
             enableMultiFingerGestureRace: true,
           ),
-          layers: [
-            TileLayerOptions(
+          children: [
+            TileLayer(
               tileProvider: NetworkTileProvider(),
               urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-              subdomains: ['a', 'b', 'c'],
+              subdomains: const ['a', 'b', 'c'],
             ),
-            MarkerLayerOptions(
+            MarkerLayer(
               markers: [
                 Marker(
                   point: LatLng(location.latitude, location.longitude),

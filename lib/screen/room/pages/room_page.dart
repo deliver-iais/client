@@ -19,6 +19,7 @@ import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
 import 'package:deliver/screen/navigation_center/widgets/feature_discovery_description_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/forward_preview.dart';
@@ -327,6 +328,7 @@ class RoomPageState extends State<RoomPage> {
                   );
                 },
               ),
+            if (!isLarge(context)) const HasCallRow(),
             const AudioPlayerAppBar(),
             pinMessageWidget(),
           ],
@@ -496,7 +498,11 @@ class RoomPageState extends State<RoomPage> {
         _highlightMessageId.value == -1) {
       if (position.last.index == 0) {
         _lastPinedMessage.add(
-          (_pinMessages..sort((a, b) => a.id!.compareTo(b.id!))).first.id!,
+          _pinMessages.first.id!,
+        );
+      } else if (p == _pinMessages.last.id) {
+        _lastPinedMessage.add(
+          _pinMessages.last.id!,
         );
       } else {
         final index = _pinMessages.lastIndexWhere((element) => element.id! < p);
@@ -688,7 +694,9 @@ class RoomPageState extends State<RoomPage> {
 
   Future<void> onPin(Message message) =>
       _messageRepo.pinMessage(message).then((value) {
-        _pinMessages.add(message);
+        _pinMessages
+          ..add(message)
+          ..sort((a, b) => a.time - b.time);
         _lastPinedMessage.add(_pinMessages.last.id!);
       }).catchError((error) {
         ToastDisplay.showToast(
@@ -752,11 +760,7 @@ class RoomPageState extends State<RoomPage> {
               _pinMessages
                 ..add(m!)
                 ..sort((a, b) => a.time - b.time);
-              if (_lastScrollPositionIndex == -1) {
                 _lastPinedMessage.add(_pinMessages.last.id!);
-              } else {
-                _syncLastPinMessageWithItemPosition();
-              }
             } catch (e) {
               _logger.e("element: $element, e: $e");
             }

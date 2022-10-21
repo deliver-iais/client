@@ -53,10 +53,16 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
     setState(() {});
   }
 
-  void itemChange(bool val, int index) {
+  void changeStunAndTurnServerEnabledStatus(
+    int index, {
+    bool newValue = false,
+  }) {
     setState(() {
-      checkBoxListTileModel[index].isCheck = val;
-      _featureFlags.setICEServerEnable(checkBoxListTileModel[index].title, val);
+      checkBoxListTileModel[index].isCheck = newValue;
+      _featureFlags.setICEServerEnable(
+        checkBoxListTileModel[index].title,
+        newValue,
+      );
     });
   }
 
@@ -193,7 +199,10 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                                         value: checkBoxListTileModel[index]
                                             .isCheck,
                                         onChanged: (val) {
-                                          itemChange(val!, index);
+                                          changeStunAndTurnServerEnabledStatus(
+                                            index,
+                                            newValue: val ?? false,
+                                          );
                                         },
                                       ),
                                     ],

@@ -58,7 +58,7 @@ class AccountSettingsState extends State<AccountSettings> {
     String? path;
     if (isWeb || isDesktop) {
       if (isLinux) {
-        final typeGroup =
+        const typeGroup =
             XTypeGroup(label: 'images', extensions: ['jpg', 'png', 'gif']);
         final file = await openFile(
           acceptedTypeGroups: [typeGroup],
