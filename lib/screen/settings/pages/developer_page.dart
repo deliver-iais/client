@@ -113,7 +113,7 @@ class DeveloperPageState extends State<DeveloperPage> {
             ),
             if (_featureFlags.isVoiceCallAvailable())
               Section(
-                title: "Call Logs",
+                title: "Call Events",
                 children: [
                   Column(
                     children: [
