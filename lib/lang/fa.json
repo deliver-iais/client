@@ -65,6 +65,7 @@
   "call_user_not_answer": "مشترک پاسخگو نیست",
   "calls": "تماس ها",
   "cancel": "لغو",
+  "cannot_contain_point": "نمی تواند شامل نقطه باشد",
   "canceled_call": "تماس بی پاسخ",
   "cancel_sending": "لغو ارسال",
   "cant_sent": "را نمیتوان ارسال کرد",

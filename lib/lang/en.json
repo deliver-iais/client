@@ -65,6 +65,7 @@
   "call_user_not_answer": "User not answer",
   "calls": "Calls",
   "cancel": "Cancel",
+  "cannot_contain_point": "Cannot contain point",
   "canceled_call": "No Answer Call",
   "cancel_sending": "Cancel Sending",
   "cant_sent": "Cant sent",

@@ -200,7 +200,6 @@ class AccountSettingsState extends State<AccountSettings> {
               if (snapshot.hasData && snapshot.data != null) {
                 _account = snapshot.data!;
               }
-
               _usernameTextController.text = _account.username ?? "";
               _firstnameTextController.text = _account.firstname ?? "";
               _lastnameTextController.text = _account.lastname ?? "";
@@ -358,6 +357,7 @@ class AccountSettingsState extends State<AccountSettings> {
                                                   onChanged: (str) {
                                                     subject.add(str);
                                                   },
+                                                  maxLength: 20,
                                                   validator: validateUsername,
                                                   decoration:
                                                       buildInputDecoration(
@@ -365,7 +365,7 @@ class AccountSettingsState extends State<AccountSettings> {
                                                       "username",
                                                     ),
                                                     isOptional: true,
-                                                    hintText: "alice_bob",
+                                                    hintText: "alic_bob",
                                                   ),
                                                 ),
                                               ),
@@ -569,6 +569,8 @@ class AccountSettingsState extends State<AccountSettings> {
     if (value!.isEmpty) {
       _usernameIsAvailable.add(true);
       return _i18n.get("username_not_empty");
+    } else if (value.contains(".")) {
+      return _i18n.get("cannot_contain_point");
     } else if (!regex.hasMatch(value)) {
       _usernameIsAvailable.add(true);
       return _i18n.get("username_not_valid");
