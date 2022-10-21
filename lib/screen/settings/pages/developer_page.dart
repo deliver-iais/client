@@ -3,6 +3,7 @@ import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/repository/analytics_repo.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/services/log.dart';
+import 'package:deliver/services/notification_foreground_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
@@ -12,8 +13,6 @@ import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver/shared/widgets/ultimate_app_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-
-import '../../../services/notification_foreground_service.dart';
 
 class DeveloperPage extends StatefulWidget {
   const DeveloperPage({super.key});
@@ -73,7 +72,8 @@ class DeveloperPageState extends State<DeveloperPage> {
                         _notificationForegroundService.foregroundNotification,
                     onToggle: (value) {
                       setState(() {
-                        _notificationForegroundService.toggleForegroundService();
+                        _notificationForegroundService
+                            .toggleForegroundService();
                       });
                     },
                   ),
