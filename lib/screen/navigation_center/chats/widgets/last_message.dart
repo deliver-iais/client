@@ -29,7 +29,8 @@ class AsyncLastMessage extends StatelessWidget {
     this.showSender = false,
     this.showSeenStatus = true,
     this.expandContent = true,
-    this.highlightColor, this.maxLine,
+    this.highlightColor,
+    this.maxLine,
   }) : messageSRF =
             _messageExtractorServices.extractMessageSimpleRepresentative(
           _messageExtractorServices.extractProtocolBufferMessage(message),
