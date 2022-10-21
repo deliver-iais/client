@@ -46,7 +46,6 @@ class AccountSettingsState extends State<AccountSettings> {
   final _lastnameTextController = TextEditingController();
   final _emailTextController = TextEditingController();
   final _descriptionTextController = TextEditingController();
-
   Account _account = Account();
   final _formKey = GlobalKey<FormState>();
   final _usernameFormKey = GlobalKey<FormState>();
@@ -148,6 +147,7 @@ class AccountSettingsState extends State<AccountSettings> {
       subject
           .debounceTime(const Duration(milliseconds: 250))
           .listen((username) async {
+        _getUsernameSuggestion(username);
         if (_usernameFormKey.currentState?.validate() ?? false) {
           if ((_account.username == null) ||
               _account.username != _usernameTextController.text) {
@@ -321,70 +321,57 @@ class AccountSettingsState extends State<AccountSettings> {
                                       height: 20,
                                     ),
                                     Autocomplete<String>(
-                                      optionsBuilder: (textEditingValue) {
-                                        if (textEditingValue.text == '') {
-                                          return [
-                                            _firstnameTextController?.text ??
-                                                "",
-                                            _lastnameTextController?.text ?? ""
-                                          ];
-                                        } else {
-                                          List<String> matches = <String>[];
-                                          matches.addAll([
-                                            "USA",
-                                            "UK",
-                                            "Uganda",
-                                            "Uruguay",
-                                            "United Arab Emirates"
-                                          ]);
-                                          matches.retainWhere((s) {
-                                            return s.toLowerCase().contains(
-                                                textEditingValue.text
-                                                    .toLowerCase());
-                                          });
-                                          return matches;
-                                        }
-                                      },
+                                      optionsBuilder: (textEditingValue) =>
+                                          _getUsernameSuggestion(
+                                        textEditingValue.text,
+                                      ),
                                       initialValue: TextEditingValue(
-                                          text: _usernameTextController.text),
+                                        text: _usernameTextController.text,
+                                      ),
                                       onSelected: (selection) {
                                         _usernameTextController.text =
                                             selection;
                                         _usernameFormKey.currentState
                                             ?.validate();
                                       },
-                                      fieldViewBuilder: (context,
-                                          textEditingController,
-                                          focusNode,
-                                          onFieldSubmitted,) {
+                                      fieldViewBuilder: (
+                                        context,
+                                        textEditingController,
+                                        focusNode,
+                                        onFieldSubmitted,
+                                      ) {
                                         return GestureDetector(
-                                            onTap: () {
-                                              onFieldSubmitted();
-                                            },
-                                            child: Column(
-                                              children: [
-                                                Form(
-                                                  key: _usernameFormKey,
-                                                  child: TextFormField(
-                                                    minLines: 1,
-                                                    focusNode: focusNode,
-                                                    controller:
-                                                        textEditingController,
-                                                    textInputAction:
-                                                        TextInputAction.send,
-                                                    onChanged: (str) {
-                                                      subject.add(str);
-                                                    },
-                                                    validator: validateUsername,
-                                                    decoration:
-                                                        buildInputDecoration(
-                                                      _i18n.get("username"),
-                                                      isOptional: true,
+                                          onTap: () {
+                                            onFieldSubmitted();
+                                          },
+                                          child: Column(
+                                            children: [
+                                              Form(
+                                                key: _usernameFormKey,
+                                                child: TextFormField(
+                                                  minLines: 1,
+                                                  focusNode: focusNode,
+                                                  controller:
+                                                      textEditingController,
+                                                  textInputAction:
+                                                      TextInputAction.send,
+                                                  onChanged: (str) {
+                                                    subject.add(str);
+                                                  },
+                                                  validator: validateUsername,
+                                                  decoration:
+                                                      buildInputDecoration(
+                                                    _i18n.get(
+                                                      "username",
                                                     ),
+                                                    isOptional: true,
+                                                    hintText: "alice_bob",
                                                   ),
                                                 ),
-                                              ],
-                                            ));
+                                              ),
+                                            ],
+                                          ),
+                                        );
                                       },
                                       optionsViewBuilder: (
                                         con,
@@ -394,14 +381,15 @@ class AccountSettingsState extends State<AccountSettings> {
                                         return Stack(
                                           children: [
                                             Material(
-                                                child: Container(
-                                              color: CupertinoColors
-                                                  .inactiveGray
-                                                  .withOpacity(0.2),
-                                              child: Column(
-                                                mainAxisSize: MainAxisSize.min,
-                                                children: options.map((opt) {
-                                                  return InkWell(
+                                              child: Container(
+                                                color: CupertinoColors
+                                                    .inactiveGray
+                                                    .withOpacity(0.2),
+                                                child: Column(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: options.map((opt) {
+                                                    return InkWell(
                                                       onTap: () {
                                                         onSelected(opt);
                                                       },
@@ -417,10 +405,12 @@ class AccountSettingsState extends State<AccountSettings> {
                                                                   .all(10),
                                                           child: Text(opt),
                                                         ),
-                                                      ));
-                                                }).toList(),
+                                                      ),
+                                                    );
+                                                  }).toList(),
+                                                ),
                                               ),
-                                            )),
+                                            ),
                                           ],
                                         );
                                       },
@@ -515,17 +505,39 @@ class AccountSettingsState extends State<AccountSettings> {
     );
   }
 
-  List<String> _getUsernameSuggestion(String input){
+  List<String> _getUsernameSuggestion(String input) {
+    final regex = RegExp(r'^[\u0600-\u06FF\s]+$');
+    var name = _firstnameTextController.text;
+    name = regex.hasMatch(name)
+        ? ""
+        : name.toLowerCase().replaceAll(RegExp(r"[^\s\w]"), "");
 
+    var lastName = _lastnameTextController.text;
+    lastName = regex.hasMatch(lastName)
+        ? ""
+        : lastName.toLowerCase().replaceAll(RegExp(r"[^\s\w]"), "");
 
-    if(input.isEmpty){
-      return [];
+    if (name.isEmpty && lastName.isEmpty) return [];
+
+    final u1 = name + lastName;
+    final u2 = "${name}_$lastName";
+    final u3 = name.isEmpty ? lastName : name;
+    final sug = <String>[u1, u2, u3];
+    if (name.isNotEmpty && lastName.isNotEmpty) {
+      sug.add("${name.substring(0, 1)}_$lastName");
     }
+    return sug
+        .map<String>(
+          (e) => e.length > 20 ? e.substring(0, 20).trim() : e.trim(),
+        )
+        .where((element) => element.length > 4 && element.contains(input))
+        .toList();
   }
 
   InputDecoration buildInputDecoration(
     String label, {
     bool isOptional = false,
+    String hintText = "",
   }) {
     return InputDecoration(
       suffixIcon: isOptional
@@ -538,6 +550,7 @@ class AccountSettingsState extends State<AccountSettings> {
             )
           : const SizedBox.shrink(),
       labelText: label,
+      hintText: hintText,
     );
   }
 

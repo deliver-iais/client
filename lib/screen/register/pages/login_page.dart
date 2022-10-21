@@ -317,10 +317,12 @@ class LoginPageState extends State<LoginPage> {
                             ? phoneNumber!.countryCode.toString()
                             : null,
                         controller: controller,
-                        validator: (value) => value!.length != 10 ||
-                                (value.isNotEmpty && value[0] == '0')
-                            ? i18n.get("invalid_mobile_number")
-                            : null,
+                        validator: (value) =>
+                            (value!.length == 11 && value[0] != '0') ||
+                                    (value.length < 10 &&
+                                        (value.isNotEmpty && value[0] == '0'))
+                                ? i18n.get("invalid_mobile_number")
+                                : null,
                         onChanged: (p) {
                           phoneNumber = p;
                         },
