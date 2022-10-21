@@ -82,8 +82,7 @@ class SyncContact {
               builder: (context, gradientSnapshot) {
                 final percent = gradientSnapshot.data ?? 0;
 
-                return AnimatedContainer(
-                  duration: ANIMATION_DURATION,
+                return Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       begin: Alignment.bottomLeft,

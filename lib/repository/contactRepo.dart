@@ -47,6 +47,7 @@ class ContactRepo {
   final BehaviorSubject<bool> isSyncingContacts = BehaviorSubject.seeded(false);
   final BehaviorSubject<double> sendContactProgress = BehaviorSubject.seeded(0);
   bool hasContactPermission = false;
+  var _syncedContacts = <Contact>[];
 
   Future<void> syncContacts() async {
     if (_requestLock.locked) {
@@ -57,6 +58,7 @@ class ContactRepo {
           isDesktop ||
           isIOS) {
         if (!isDesktop) {
+          _syncedContacts = [];
           hasContactPermission = true;
           final phoneContacts = await fast_contact.FastContacts.allContacts;
           final contacts = await _filterPhoneContactsToSend(
@@ -85,9 +87,11 @@ class ContactRepo {
 
           if (contacts.isNotEmpty) {
             isSyncingContacts.add(true);
-            _savePhoneContacts(contacts);
             await sendContacts(contacts);
             unawaited(getContacts());
+            await _savePhoneContacts(
+              contacts,
+            );
             unawaited(sendNotSyncedContactInStartTime());
           } else {
             sendContactProgress.add(1);
@@ -100,16 +104,15 @@ class ContactRepo {
     });
   }
 
-  void _savePhoneContacts(
-    List<Contact> contacts, {
-    int? expTime,
-  }) {
+  Future<void> _savePhoneContacts(List<Contact> contacts) async {
     for (final element in contacts) {
       try {
-        _contactDao.save(
+        await _contactDao.save(
           countryCode: element.phoneNumber.countryCode,
           nationalNumber: element.phoneNumber.nationalNumber.toInt(),
-          updateTime: expTime,
+          updateTime: _syncedContacts.contains(element)
+              ? DateTime.now().millisecondsSinceEpoch
+              : null,
           firstName: element.firstName,
         );
       } catch (e) {
@@ -122,6 +125,7 @@ class ContactRepo {
     List<Contact> phoneContacts,
   ) async {
     final contacts = await _contactDao.getAllContacts();
+    return phoneContacts;
 
     for (final element in contacts) {
       phoneContacts.removeWhere(
@@ -144,27 +148,28 @@ class ContactRepo {
       const DeepCollectionEquality().hash("$name$nationalNumber");
 
   Future<void> sendNotSyncedContactInStartTime() async {
+    _syncedContacts = [];
     final contacts = await _contactDao.getNotMessengerContacts();
     if (contacts.isNotEmpty) {
+      final filteredContacts = contacts
+          .where(
+            (element) => ((element.updateTime == null)),
+          )
+          .toList()
+          .map(
+            (e) => Contact(
+              phoneNumber: PhoneNumber(
+                countryCode: e.countryCode,
+                nationalNumber: Int64(e.nationalNumber),
+              ),
+              firstName: e.firstName,
+            ),
+          )
+          .toList();
       unawaited(
-        sendContacts(
-          contacts
-              .where(
-                (element) => ((element.updateTime == null)),
-              )
-              .toList()
-              .map(
-                (e) => Contact(
-                  phoneNumber: PhoneNumber(
-                    countryCode: e.countryCode,
-                    nationalNumber: Int64(e.nationalNumber),
-                  ),
-                  firstName: e.firstName,
-                ),
-              )
-              .toList(),
-        ),
+        sendContacts(filteredContacts, initProgressbar: false),
       );
+      unawaited(_savePhoneContacts(filteredContacts));
     }
   }
 
@@ -186,14 +191,15 @@ class ContactRepo {
     final p = getPhoneNumber(phone);
 
     if (p == null) {
-      _logger.e("Not Valid Number  $name ***** $phone");
+      // _logger.e("Not Valid Number  $name ***** $phone");
       return null;
     } else {
       return p;
     }
   }
 
-  Future<void> sendContacts(List<Contact> contacts) async {
+  Future<void> sendContacts(List<Contact> contacts,
+      {bool initProgressbar = true}) async {
     try {
       var i = 0;
       while (i <= contacts.length) {
@@ -205,7 +211,9 @@ class ContactRepo {
             i,
             end,
           );
-          sendContactProgress.add(end / contacts.length);
+          if (initProgressbar) {
+            sendContactProgress.add(end / contacts.length);
+          }
           await _sendContacts(contactsSubList);
           i = i + MAX_CONTACT_SIZE_TO_SEND;
         } catch (e) {
@@ -244,11 +252,7 @@ class ContactRepo {
       final saveContactRes =
           await _sdr.contactServiceClient.saveContacts(sendContacts);
       _saveUserContact(saveContactRes.userList);
-      _savePhoneContacts(
-        contacts,
-        expTime: DateTime.now().millisecondsSinceEpoch,
-      );
-
+      _syncedContacts.addAll(contacts);
       return true;
     } catch (e) {
       _logger.e(e);
@@ -370,7 +374,7 @@ class ContactRepo {
     return searchResult;
   }
 
-  // TODO(hasan): we should merge getContact and getContactFromServer functions together and refactor usages too, https://gitlab.iais.co/deliver/wiki/-/issues/421
+// TODO(hasan): we should merge getContact and getContactFromServer functions together and refactor usages too, https://gitlab.iais.co/deliver/wiki/-/issues/421
   Future<contact_model.Contact?> getContact(Uid userUid) =>
       _contactDao.getByUid(userUid.asString());
 
@@ -490,8 +494,8 @@ class ContactRepo {
       final contacts = await _filterPhoneContactsToSend(phoneContacts);
       if (contacts.isNotEmpty) {
         isSyncingContacts.add(true);
-        _savePhoneContacts(contacts);
         await sendContacts(contacts);
+        unawaited(_savePhoneContacts(contacts));
         isSyncingContacts.add(false);
       }
     } catch (e) {
