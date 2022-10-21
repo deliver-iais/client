@@ -50,7 +50,7 @@ class PinMessageAppBar extends StatelessWidget {
             itemScrollController.scrollTo(
               index: index,
               alignment: 0.5,
-              duration: const Duration(seconds: 1),
+              duration: SUPER_SLOW_ANIMATION_DURATION,
             );
           }
           return MouseRegion(
