@@ -50,6 +50,7 @@ class NewContactState extends State<NewContact> {
                       onChanged: (firstName) {
                         _firstName = firstName;
                       },
+                      controller: TextEditingController(),
                       style: theme.textTheme.bodyText1,
                       decoration:
                           InputDecoration(labelText: _i18n.get("firstName")),
@@ -62,6 +63,7 @@ class NewContactState extends State<NewContact> {
                       onChanged: (lastName) {
                         _lastName = lastName;
                       },
+                      controller: TextEditingController(),
                       style: theme.textTheme.bodyText1,
                       decoration:
                           InputDecoration(labelText: _i18n.get("lastName")),
@@ -72,10 +74,13 @@ class NewContactState extends State<NewContact> {
                     textDirection: _i18n.defaultTextDirection,
                     child: IntlPhoneField(
                       controller: TextEditingController(),
-                      validator: (value) => value!.length != 10 ||
-                              (value.isNotEmpty && value[0] == '0')
-                          ? _i18n.get("invalid_mobile_number")
-                          : null,
+                      onMaxLengthChanged: (_) {},
+                      validator: (value) =>
+                          (value!.length == 11 && value[0] != '0') ||
+                                  (value.length < 10 &&
+                                      (value.isNotEmpty && value[0] == '0'))
+                              ? _i18n.get("invalid_mobile_number")
+                              : null,
                       style: theme.textTheme.bodyText1,
                       onChanged: (ph) {
                         _phoneNumber = ph;

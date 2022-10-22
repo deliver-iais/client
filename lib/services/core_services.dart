@@ -32,9 +32,6 @@ const MIN_BACKOFF_TIME = isWeb ? 16 : 4;
 final MAX_BACKOFF_TIME = (isAndroid || isIOS) ? 16 : 64;
 const BACKOFF_TIME_INCREASE_RATIO = 2;
 
-
-
-
 class CoreServices {
   final _logger = GetIt.I.get<Logger>();
   final _services = GetIt.I.get<ServicesDiscoveryRepo>();
@@ -89,6 +86,8 @@ class CoreServices {
     Connectivity().onConnectivityChanged.listen((result) {
       if (result != ConnectivityResult.none) {
         retryConnection();
+      } else {
+        _onConnectionError();
       }
     });
   }
@@ -255,7 +254,11 @@ class CoreServices {
       ..ping = ping
       ..id = clock.now().microsecondsSinceEpoch.toString();
     _sendClientPacket(clientPacket, forceToSendEvenNotConnected: true);
-    FlutterForegroundTask.saveData(key: "BackgroundActivationTime", value: (clock.now().millisecondsSinceEpoch + backoffTime * 3 * 1000).toString());
+    FlutterForegroundTask.saveData(
+      key: "BackgroundActivationTime",
+      value: (clock.now().millisecondsSinceEpoch + backoffTime * 3 * 1000)
+          .toString(),
+    );
     FlutterForegroundTask.saveData(key: "AppStatus", value: "Opened");
   }
 
