@@ -255,9 +255,10 @@ class CoreServices {
       ..id = clock.now().microsecondsSinceEpoch.toString();
     _sendClientPacket(clientPacket, forceToSendEvenNotConnected: true);
     FlutterForegroundTask.saveData(
-        key: "BackgroundActivationTime",
-        value: (clock.now().millisecondsSinceEpoch + backoffTime * 3 * 1000)
-            .toString());
+      key: "BackgroundActivationTime",
+      value: (clock.now().millisecondsSinceEpoch + backoffTime * 3 * 1000)
+          .toString(),
+    );
     FlutterForegroundTask.saveData(key: "AppStatus", value: "Opened");
   }
 
