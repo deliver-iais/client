@@ -74,7 +74,6 @@ class NewContactState extends State<NewContact> {
                     textDirection: _i18n.defaultTextDirection,
                     child: IntlPhoneField(
                       controller: TextEditingController(),
-                      maxLength: 10,
                       onMaxLengthChanged: (_) {},
                       validator: (value) =>
                           (value!.length == 11 && value[0] != '0') ||
