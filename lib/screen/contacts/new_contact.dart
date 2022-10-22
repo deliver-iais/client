@@ -27,7 +27,7 @@ class NewContactState extends State<NewContact> {
 
   String _firstName = "";
   String _lastName = "";
-  int _maxLength = 10;
+  final int _maxLength = 10;
 
   @override
   Widget build(BuildContext context) {
