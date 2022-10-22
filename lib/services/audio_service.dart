@@ -82,6 +82,8 @@ abstract class IntermediatePlayerModule {
 
   void playBeepSound();
 
+  void playIncomingCallSound();
+
   void stopCallAudioPlayer();
 
   void playBusySound();
@@ -299,6 +301,11 @@ class AudioService {
 
   void playSoundIn() => _intermediatePlayer.playSoundIn();
 
+  void playIncomingCallSound() {
+    _temporaryReversiblePause();
+    _intermediatePlayer.playIncomingCallSound();
+  }
+
   void playBeepSound() {
     _temporaryReversiblePause();
     _intermediatePlayer.playBeepSound();
@@ -382,6 +389,7 @@ class AudioPlayersIntermediatePlayer implements IntermediatePlayerModule {
   final beepSoundSource = AssetSource("audios/beep_sound.mp3");
   final busySoundSource = AssetSource("audios/busy_sound.mp3");
   final endCallSource = AssetSource("audios/end_call.mp3");
+  final incomingCallSource = AssetSource("audios/incoming_call.mp3");
 
   final AudioPlayer _fastAudioPlayer = AudioPlayer(playerId: "fast-audio");
   final AudioPlayer _callAudioPlayer = AudioPlayer(playerId: "call-audio");
@@ -424,6 +432,11 @@ class AudioPlayersIntermediatePlayer implements IntermediatePlayerModule {
   @override
   void turnUpTheVolume() {
     _callAudioPlayer.setVolume(1);
+  }
+
+  @override
+  void playIncomingCallSound() {
+    _callAudioPlayer.play(incomingCallSource, position: Duration.zero);
   }
 }
 
@@ -632,6 +645,9 @@ class FakeIntermediatePlayer implements IntermediatePlayerModule {
 
   @override
   void turnUpTheVolume() {}
+
+  @override
+  void playIncomingCallSound() {}
 }
 
 class TemporaryAudioPlayer implements TemporaryAudioPlayerModule {

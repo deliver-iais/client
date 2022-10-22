@@ -187,7 +187,7 @@ class CallRepo {
       final to = _authRepo.currentUserUid.asString();
       switch (event.callType) {
         case CallTypes.Answer:
-          if (from == to) {
+          if (from == to || !_isAccepted) {
             _dispose();
           } else {
             timerResendOffer!.cancel();
@@ -207,14 +207,16 @@ class CallRepo {
           final callEvent = event.callEvent;
           switch (callEvent!.callStatus) {
             case CallEvent_CallStatus.IS_RINGING:
-              _callEvents[event.time] = "IsRinging";
-              if (_callService.getCallId == callEvent.callId) {
-                callingStatus.add(CallStatus.IS_RINGING);
-                if (_isCaller) {
-                  try {
-                    _audioService.playBeepSound();
-                  } catch (e) {
-                    _logger.e(e);
+              if (from != to) {
+                _callEvents[event.time] = "IsRinging";
+                if (_callService.getCallId == callEvent.callId) {
+                  callingStatus.add(CallStatus.IS_RINGING);
+                  if (_isCaller) {
+                    try {
+                      _audioService.playBeepSound();
+                    } catch (e) {
+                      _logger.e(e);
+                    }
                   }
                 }
               }
@@ -649,7 +651,7 @@ class CallRepo {
         _localStream!.getAudioTracks()[0].enableSpeakerphone(true);
         isSpeaker.add(true);
       }
-    } else {
+    } else if (isAndroid) {
       _localStream!.getAudioTracks()[0].enableSpeakerphone(isSpeaker.value);
     }
 
@@ -1085,6 +1087,9 @@ class CallRepo {
           roomId.asString(),
           callEventJson: callEventJson,
         );
+        if (!isAndroid) {
+          _audioService.playIncomingCallSound();
+        }
       }
     }
     _roomUid = roomId;
@@ -1187,6 +1192,7 @@ class CallRepo {
   }
 
   Future<void> acceptCall(Uid roomId) async {
+    _isAccepted = true;
     if (isWindows) {
       _notificationServices.cancelRoomNotifications(roomUid!.node);
     }
@@ -1194,6 +1200,7 @@ class CallRepo {
     callingStatus
       ..add(CallStatus.ACCEPTED)
       ..add(CallStatus.CONNECTING);
+
     try {
       _audioService.stopCallAudioPlayer();
     } catch (e) {
@@ -1312,7 +1319,6 @@ class CallRepo {
     if (!_isEnded) {
       _isEnded = true;
       _logger.i("Call Duration Received: $callDuration");
-      await cancelCallNotification();
       if (isWindows) {
         _notificationServices.cancelRoomNotifications(roomUid!.node);
       }
@@ -1340,6 +1346,8 @@ class CallRepo {
     if (isAndroid && !_isCaller) {
       final sessionId = await ConnectycubeFlutterCallKit.getLastCallId();
       await ConnectycubeFlutterCallKit.reportCallEnded(sessionId: sessionId);
+    } else if (isWindows) {
+      _notificationServices.cancelRoomNotifications(roomUid!.node);
     }
   }
 
@@ -1533,6 +1541,7 @@ class CallRepo {
 //Windows memory leak Warning!! https://github.com/flutter-webrtc/flutter-webrtc/issues/752
   Future<void> _dispose() async {
     try {
+      await cancelCallNotification();
       if (timerDisconnected != null) {
         timerDisconnected!.cancel();
       }
@@ -1543,6 +1552,7 @@ class CallRepo {
         timerResendAnswer!.cancel();
       }
       if (isAndroid) {
+        _localStream!.getAudioTracks()[0].enableSpeakerphone(false);
         _isNotificationSelected = false;
         modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(null);
         _receivePort?.close();
