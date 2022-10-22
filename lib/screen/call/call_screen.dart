@@ -224,7 +224,6 @@ class CallScreenState extends State<CallScreen> {
         _logger.i("callStatus-$random: ${snapshot.data}");
         switch (snapshot.data) {
           case CallStatus.CONNECTED:
-            _audioService.stopBeepSound();
             return widget.isVideoCall
                 ? VideoCallScreen(
                     localRenderer: _localRenderer,
@@ -241,7 +240,6 @@ class CallScreenState extends State<CallScreen> {
                     hangUp: _hangUp,
                   );
           case CallStatus.DISCONNECTED:
-            _audioService.stopBeepSound();
             return widget.isVideoCall
                 ? VideoCallScreen(
                     localRenderer: _localRenderer,
@@ -258,7 +256,6 @@ class CallScreenState extends State<CallScreen> {
                     hangUp: _hangUp,
                   );
           case CallStatus.CONNECTING:
-            _audioService.stopBeepSound();
             return widget.isVideoCall
                 ? VideoCallScreen(
                     localRenderer: _localRenderer,
@@ -275,7 +272,6 @@ class CallScreenState extends State<CallScreen> {
                     hangUp: _hangUp,
                   );
           case CallStatus.RECONNECTING:
-            _audioService.stopBeepSound();
             return widget.isVideoCall
                 ? VideoCallScreen(
                     localRenderer: _localRenderer,
@@ -292,7 +288,6 @@ class CallScreenState extends State<CallScreen> {
                     hangUp: _hangUp,
                   );
           case CallStatus.FAILED:
-            _audioService.stopBeepSound();
             return widget.isVideoCall
                 ? VideoCallScreen(
                     localRenderer: _localRenderer,
@@ -309,7 +304,6 @@ class CallScreenState extends State<CallScreen> {
                     hangUp: _hangUp,
                   );
           case CallStatus.IS_RINGING:
-            _audioService.playBeepSound();
             return widget.isVideoCall
                 ? VideoCallScreen(
                     roomUid: widget.roomUid,
@@ -393,8 +387,6 @@ class CallScreenState extends State<CallScreen> {
                     hangUp: _hangUp,
                   );
           case CallStatus.BUSY:
-            _audioService.stopBeepSound();
-            _audioService.playBusySound();
             return widget.isVideoCall
                 ? VideoCallScreen(
                     roomUid: widget.roomUid,
@@ -454,7 +446,7 @@ class CallScreenState extends State<CallScreen> {
 
   void _hangUp() {
     _logger.i("Call hang Up ...!");
-    _audioService.stopBeepSound();
+    _audioService.stopCallAudioPlayer();
     _callRepo.endCall();
   }
 }

@@ -120,6 +120,7 @@ class _TextUIState extends State<TextUI> {
               key: _textBoxKey,
               child: SelectionArea(
                 child: Text.rich(
+                  textAlign: TextAlign.justify,
                   // selectionRegistrar: SelectionContainer.maybeOf(context),
                   selectionColor: Colors.black12,
                   TextSpan(children: spans, style: theme.textTheme.bodyText2),

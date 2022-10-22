@@ -273,7 +273,7 @@ class CallBottomRowState extends State<CallBottomRow>
               //   ),
               // ),
               StreamBuilder<bool>(
-                stream: callRepo.isSpekaer,
+                stream: callRepo.isSpeaker,
                 builder: (context, snapshot) {
                   return FloatingActionButton(
                     heroTag: 55,
@@ -348,7 +348,7 @@ class CallBottomRowState extends State<CallBottomRow>
 
   void initializeIcons() {
     final theme = Theme.of(context);
-    _speakerColor = callRepo.isSpekaer.value
+    _speakerColor = callRepo.isSpeaker.value
         ? theme.primaryColor
         : theme.colorScheme.onTertiaryContainer;
     _muteMicColor = callRepo.isMicMuted
@@ -364,7 +364,7 @@ class CallBottomRowState extends State<CallBottomRow>
         ? theme.primaryColor
         : theme.colorScheme.onTertiaryContainer;
 
-    _speakerIcon = callRepo.isSpekaer.value
+    _speakerIcon = callRepo.isSpeaker.value
         ? CupertinoIcons.speaker_3
         : CupertinoIcons.speaker_1;
     _muteMicIcon =
