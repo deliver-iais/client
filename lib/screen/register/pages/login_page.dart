@@ -64,6 +64,7 @@ class LoginPageState extends State<LoginPage> {
   final TextEditingController controller = TextEditingController();
 
   final BehaviorSubject<bool> _networkError = BehaviorSubject.seeded(false);
+  int _maxLenght = 10;
 
   @override
   void initState() {
@@ -316,6 +317,7 @@ class LoginPageState extends State<LoginPage> {
                         initialCountryCode: phoneNumber != null
                             ? phoneNumber!.countryCode.toString()
                             : null,
+                        maxLength: _maxLenght,
                         controller: controller,
                         validator: (value) =>
                             (value!.length == 11 && value[0] != '0') ||
@@ -325,6 +327,11 @@ class LoginPageState extends State<LoginPage> {
                                 : null,
                         onChanged: (p) {
                           phoneNumber = p;
+                        },
+                        onMaxLengthChanged: (m) {
+                          setState(() {
+                            _maxLenght = m;
+                          });
                         },
                         onSubmitted: (p) {
                           phoneNumber = p;
