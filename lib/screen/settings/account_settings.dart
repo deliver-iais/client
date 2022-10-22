@@ -510,12 +510,18 @@ class AccountSettingsState extends State<AccountSettings> {
     var name = _firstnameTextController.text;
     name = regex.hasMatch(name)
         ? ""
-        : name.toLowerCase().replaceAll(RegExp(r"[^\s\w]"), "");
+        : name
+            .toLowerCase()
+            .replaceAll(RegExp(r"[^\s\w]"), "")
+            .replaceAll(" ", "");
 
     var lastName = _lastnameTextController.text;
     lastName = regex.hasMatch(lastName)
         ? ""
-        : lastName.toLowerCase().replaceAll(RegExp(r"[^\s\w]"), "");
+        : lastName
+            .toLowerCase()
+            .replaceAll(RegExp(r"[^\s\w]"), "")
+            .replaceAll(" ", "");
 
     if (name.isEmpty && lastName.isEmpty) return [];
 

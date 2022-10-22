@@ -203,10 +203,12 @@ class IntlPhoneFieldState extends State<IntlPhoneField> {
                   ..nationalNumber = Int64.parseInt(value),
               );
               setState(() {
-                if (value == "0") {
-                  maxLength = 11;
-                } else {
-                  maxLength = widget.maxLength;
+                if (value.length == 1) {
+                  if (value == "0") {
+                    maxLength = 11;
+                  } else {
+                    maxLength = widget.maxLength;
+                  }
                 }
               });
             },
