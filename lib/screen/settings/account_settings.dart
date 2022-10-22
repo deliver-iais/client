@@ -365,7 +365,7 @@ class AccountSettingsState extends State<AccountSettings> {
                                                       "username",
                                                     ),
                                                     isOptional: true,
-                                                    hintText: "alic_bob",
+                                                    hintText: "alice_bob",
                                                   ),
                                                 ),
                                               ),
