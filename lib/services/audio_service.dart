@@ -82,17 +82,17 @@ abstract class IntermediatePlayerModule {
 
   void playBeepSound();
 
-  void stopBeepSound();
+  void playIncomingCallSound();
+
+  void stopCallAudioPlayer();
 
   void playBusySound();
 
-  void stopBusySound();
-
-  void playIncomingCallSound();
-
-  void stopIncomingCallSound();
-
   void playEndCallSound();
+
+  void turnDownTheVolume();
+
+  void turnUpTheVolume();
 }
 
 abstract class AudioPlayerModule {
@@ -163,7 +163,6 @@ class AudioService {
 
   AudioService() {
     _mainPlayer.completedStream.listen((_) async {
-
       //todo check to see if message has been edited or deleted
       stopAudio();
       if (autoPlayMediaList.isNotEmpty &&
@@ -302,14 +301,22 @@ class AudioService {
 
   void playSoundIn() => _intermediatePlayer.playSoundIn();
 
+  void playIncomingCallSound() {
+    _temporaryReversiblePause();
+    _intermediatePlayer.playIncomingCallSound();
+  }
+
   void playBeepSound() {
     _temporaryReversiblePause();
     _intermediatePlayer.playBeepSound();
   }
 
-  void stopBeepSound() {
-    _intermediatePlayer.stopBeepSound();
-    _temporaryReversiblePlay();
+  void turnDownTheCallVolume() {
+    _intermediatePlayer.turnDownTheVolume();
+  }
+
+  void turnUpTheCallVolume() {
+    _intermediatePlayer.turnUpTheVolume();
   }
 
   void playBusySound() {
@@ -317,23 +324,14 @@ class AudioService {
     _intermediatePlayer.playBusySound();
   }
 
-  void stopBusySound() {
-    _intermediatePlayer.stopBusySound();
-    _temporaryReversiblePlay();
-  }
-
-  void playIncomingCallSound() {
-    _temporaryReversiblePause();
-    _intermediatePlayer.playIncomingCallSound();
-  }
-
-  void stopIncomingCallSound() {
-    _intermediatePlayer.stopIncomingCallSound();
+  void stopCallAudioPlayer() {
+    _intermediatePlayer.stopCallAudioPlayer();
     _temporaryReversiblePlay();
   }
 
   void playEndCallSound() {
     _intermediatePlayer.playEndCallSound();
+    _temporaryReversiblePlay();
   }
 
   void _temporaryReversiblePause() {
@@ -390,8 +388,8 @@ class AudioPlayersIntermediatePlayer implements IntermediatePlayerModule {
   final soundInSource = AssetSource("audios/sound_in.wav");
   final beepSoundSource = AssetSource("audios/beep_sound.mp3");
   final busySoundSource = AssetSource("audios/busy_sound.mp3");
-  final incomingCallSource = AssetSource("audios/incoming_call.mp3");
   final endCallSource = AssetSource("audios/end_call.mp3");
+  final incomingCallSource = AssetSource("audios/incoming_call.mp3");
 
   final AudioPlayer _fastAudioPlayer = AudioPlayer(playerId: "fast-audio");
   final AudioPlayer _callAudioPlayer = AudioPlayer(playerId: "call-audio");
@@ -412,33 +410,33 @@ class AudioPlayersIntermediatePlayer implements IntermediatePlayerModule {
   }
 
   @override
-  void stopBeepSound() {
-    _callAudioPlayer.stop();
-  }
-
-  @override
   void playBusySound() {
     _callAudioPlayer.play(busySoundSource, position: Duration.zero);
   }
 
   @override
-  void stopBusySound() {
+  void stopCallAudioPlayer() {
     _callAudioPlayer.stop();
+  }
+
+  @override
+  void playEndCallSound() {
+    _callAudioPlayer.play(endCallSource, position: Duration.zero);
+  }
+
+  @override
+  void turnDownTheVolume() {
+    _callAudioPlayer.setVolume(0.3);
+  }
+
+  @override
+  void turnUpTheVolume() {
+    _callAudioPlayer.setVolume(1);
   }
 
   @override
   void playIncomingCallSound() {
     _callAudioPlayer.play(incomingCallSource, position: Duration.zero);
-  }
-
-  @override
-  void playEndCallSound() {
-    _callAudioPlayer.play(endCallSource, position: Duration.zero, volume: 0.1);
-  }
-
-  @override
-  void stopIncomingCallSound() {
-    _callAudioPlayer.stop();
   }
 }
 
@@ -634,22 +632,22 @@ class FakeIntermediatePlayer implements IntermediatePlayerModule {
   void playEndCallSound() {}
 
   @override
-  void playIncomingCallSound() {}
-
-  @override
   void playSoundIn() {}
 
   @override
   void playSoundOut() {}
 
   @override
-  void stopBeepSound() {}
+  void stopCallAudioPlayer() {}
 
   @override
-  void stopBusySound() {}
+  void turnDownTheVolume() {}
 
   @override
-  void stopIncomingCallSound() {}
+  void turnUpTheVolume() {}
+
+  @override
+  void playIncomingCallSound() {}
 }
 
 class TemporaryAudioPlayer implements TemporaryAudioPlayerModule {

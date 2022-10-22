@@ -212,8 +212,8 @@ flutter:
     - assets/animations/unlock.tgs
     - assets/audios/beep_sound.mp3
     - assets/audios/busy_sound.mp3
-    - assets/audios/incoming_call.mp3
     - assets/audios/incoming_msg.mp3
+    - assets/audios/incoming_call.mp3
     - assets/audios/sound_in.wav
     - assets/audios/sound_out.wav
     - assets/backgrounds/
