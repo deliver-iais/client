@@ -576,7 +576,7 @@ class AccountSettingsState extends State<AccountSettings> {
       _usernameIsAvailable.add(true);
       return _i18n.get("username_not_empty");
     } else if (value.contains(".")) {
-      return _i18n.get("cannot_contain_point");
+      return _i18n.get("cannot_contain_dots");
     } else if (!regex.hasMatch(value)) {
       _usernameIsAvailable.add(true);
       return _i18n.get("username_not_valid");
