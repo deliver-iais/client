@@ -303,7 +303,7 @@ class SettingsPageState extends State<SettingsPage> {
                   ),
                 ],
               ),
-              if (UxService.isDeveloperMode)
+              if (UxService.showDeveloperPage)
                 Section(
                   title: 'Developer Mode',
                   children: [
@@ -332,7 +332,7 @@ class SettingsPageState extends State<SettingsPage> {
                     title: _i18n.get("version"),
                     leading:
                         const Icon(CupertinoIcons.square_stack_3d_down_right),
-                    trailing: UxService.isDeveloperMode
+                    trailing: UxService.showDeveloperPage
                         ? FutureBuilder<String?>(
                             future: SmsAutoFill().getAppSignature,
                             builder: (c, sms) => Text(sms.data ?? VERSION),
@@ -343,7 +343,7 @@ class SettingsPageState extends State<SettingsPage> {
                       developerModeCounterCountDown--;
                       if (developerModeCounterCountDown < 1) {
                         setState(() {
-                          UxService.isDeveloperMode = true;
+                          UxService.showDeveloperPage = true;
                         });
                       }
                     },

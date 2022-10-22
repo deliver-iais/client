@@ -650,7 +650,7 @@ class DataStreamServices {
     Uid roomUid,
     int lastMessageId,
   ) async {
-    if (_callService.getUserCallState != UserCallState.NOCALL) {
+    if (_callService.getUserCallState != UserCallState.NO_CALL) {
       return; // Dont do anything if there is an active call.
     }
 

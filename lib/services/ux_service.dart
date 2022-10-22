@@ -14,7 +14,7 @@ import 'package:material_color_utilities/material_color_utilities.dart';
 import 'package:rxdart/rxdart.dart';
 
 class UxService {
-  static bool isDeveloperMode = false;
+  static bool showDeveloperPage = false;
 
   final _sharedDao = GetIt.I.get<SharedDao>();
 
@@ -196,32 +196,30 @@ class FeatureFlags {
   final _authRepo = GetIt.I.get<AuthRepo>();
 
   // Flags
-  final _voiceCallFeatureFlag = BehaviorSubject.seeded(false);
+  final _showDeveloperDetails = BehaviorSubject.seeded(false);
 
   FeatureFlags() {
     _sharedDao
-        .getBooleanStream(
-          SHARED_DAO_FEATURE_FLAGS_VOICE_CALL,
-          defaultValue: _isVoiceCallBetaUser(),
-        )
+        .getBooleanStream(SHARED_DAO_FEATURE_FLAGS_SHOW_DEVELOPER_DETAILS)
         .distinct()
-        .listen((isEnable) => _voiceCallFeatureFlag.add(isEnable));
+        .listen((isEnable) => _showDeveloperDetails.add(isEnable));
   }
 
   bool labIsAvailable() => _voiceCallFeatureIsPossible();
 
   bool _voiceCallFeatureIsPossible() => !isLinux;
 
-  bool _isVoiceCallBetaUser() =>
-      ACCESS_TO_CALL_UID_LIST.contains(_authRepo.currentUserUid.asString());
+  // ignore: unused_element
+  bool _isBetaUser() =>
+      BETA_USERS_UID_LIST.contains(_authRepo.currentUserUid.asString());
 
-  Stream<bool> get voiceCallFeatureFlagStream =>
-      _voiceCallFeatureFlag.distinct();
+  bool get showDeveloperDetails => _showDeveloperDetails.value;
 
-  void toggleVoiceCallFeatureFlag() {
-    final newValue = !_voiceCallFeatureFlag.value;
-    _sharedDao.putBoolean(SHARED_DAO_FEATURE_FLAGS_VOICE_CALL, newValue);
-    _voiceCallFeatureFlag.add(newValue);
+  Future<void> toggleShowDeveloperDetails() async {
+    _showDeveloperDetails.add(
+      await _sharedDao
+          .toggleBoolean(SHARED_DAO_FEATURE_FLAGS_SHOW_DEVELOPER_DETAILS),
+    );
   }
 
   bool hasVoiceCallPermission(String roomUid) {
@@ -230,20 +228,8 @@ class FeatureFlags {
         isVoiceCallAvailable();
   }
 
-  void enableVoiceCallFeatureFlag() {
-    if (_voiceCallFeatureFlag.value == true) {
-      return;
-    }
-    _sharedDao.putBoolean(SHARED_DAO_FEATURE_FLAGS_VOICE_CALL, true);
-    _voiceCallFeatureFlag.add(true);
-  }
-
   bool isVoiceCallAvailable() {
-    if (!_voiceCallFeatureIsPossible()) {
-      return false;
-    }
-
-    return _voiceCallFeatureFlag.value;
+    return _voiceCallFeatureIsPossible();
   }
 
   void setICECandidateNumber(double ICECandidateNumbers) {
@@ -260,7 +246,10 @@ class FeatureFlags {
     );
   }
 
-  void setICEServerEnable(String server, bool status) {
-    _sharedDao.putBoolean(server, status);
+  void setICEServerEnable(
+    String server, {
+    bool newStatus = false,
+  }) {
+    _sharedDao.putBoolean(server, newStatus);
   }
 }

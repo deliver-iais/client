@@ -255,7 +255,7 @@ class RoomPageState extends State<RoomPage> {
         Column(
           children: [
             const SizedBox(height: APPBAR_HEIGHT),
-            if (isDebugEnabled())
+            if (_featureFlags.showDeveloperDetails)
               StreamBuilder<Seen>(
                 stream: _roomRepo.watchMySeen(widget.roomId),
                 builder: (context, seen) {
@@ -760,7 +760,7 @@ class RoomPageState extends State<RoomPage> {
               _pinMessages
                 ..add(m!)
                 ..sort((a, b) => a.time - b.time);
-                _lastPinedMessage.add(_pinMessages.last.id!);
+              _lastPinedMessage.add(_pinMessages.last.id!);
             } catch (e) {
               _logger.e("element: $element, e: $e");
             }
@@ -1599,7 +1599,7 @@ class RoomPageState extends State<RoomPage> {
   }
 
   void openCallScreen({bool isVideoCall = false}) {
-    if (_callService.getUserCallState == UserCallState.NOCALL) {
+    if (_callService.getUserCallState == UserCallState.NO_CALL) {
       _routingService.openCallScreen(
         room.uid.asUid(),
         isVideoCall: isVideoCall,

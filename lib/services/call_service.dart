@@ -4,7 +4,6 @@ import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/current_call_info.dart';
 import 'package:deliver/box/dao/current_call_dao.dart';
 import 'package:deliver/models/call_event_type.dart';
-import 'package:deliver/services/ux_service.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
@@ -15,20 +14,17 @@ import 'package:rxdart/rxdart.dart';
 
 enum UserCallState {
   /// User in Group Call then he Can't join any User or Start Own Call
-  // ignore: constant_identifier_names
   IN_GROUP_CALL,
 
   /// User in User Call then he Can't join any Group or Start Own Call
   IN_USER_CALL,
 
   /// User Out of Call then he Can join any Group or User Call or Start Own Call
-  // ignore: constant_identifier_names
-  NOCALL,
+  NO_CALL,
 }
 
 class CallService {
   final _currentCall = GetIt.I.get<CurrentCallInfoDao>();
-  final _featureFlags = GetIt.I.get<FeatureFlags>();
   final _logger = GetIt.I.get<Logger>();
 
   final BehaviorSubject<CallEvents> callEvents =
@@ -47,7 +43,6 @@ class CallService {
   CallService() {
     _callEvents.distinct().listen((event) {
       callEvents.add(event);
-      _featureFlags.enableVoiceCallFeatureFlag();
     });
   }
 
@@ -88,7 +83,7 @@ class CallService {
     _logger.i("Dispose Renderers");
   }
 
-  UserCallState _callState = UserCallState.NOCALL;
+  UserCallState _callState = UserCallState.NO_CALL;
 
   String _callId = "";
 
@@ -183,7 +178,7 @@ class CallService {
     if (shouldRemoveData || forceToClearData) {
       _logger.d("Clearing Call Data");
       _callId = "";
-      _callState = UserCallState.NOCALL;
+      _callState = UserCallState.NO_CALL;
       isInitRenderer = false;
       await FlutterForegroundTask.clearAllData();
       await removeCallFromDb();

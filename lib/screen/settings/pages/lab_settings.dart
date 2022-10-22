@@ -1,6 +1,6 @@
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
-import 'package:deliver/repository/callRepo.dart';
+import 'package:deliver/services/notification_foreground_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/fluid_container.dart';
@@ -23,8 +23,9 @@ class LabSettingsPage extends StatefulWidget {
 class _LabSettingsPageState extends State<LabSettingsPage> {
   final _featureFlags = GetIt.I.get<FeatureFlags>();
   final _i18n = GetIt.I.get<I18N>();
-  final _callRepo = GetIt.I.get<CallRepo>();
   final _sharedDao = GetIt.I.get<SharedDao>();
+  final _notificationForegroundService =
+      GetIt.I.get<NotificationForegroundService>();
 
   double ICECandidateNumber = 10;
 
@@ -61,7 +62,7 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
       checkBoxListTileModel[index].isCheck = newValue;
       _featureFlags.setICEServerEnable(
         checkBoxListTileModel[index].title,
-        newValue,
+        newStatus: newValue,
       );
     });
   }
@@ -98,24 +99,34 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                   child: Text(_i18n.get("these_feature_arent_stable_yet")),
                 ),
               ),
-              Section(
-                title: _i18n.get("calls"),
-                children: [
-                  StreamBuilder<bool>(
-                    stream: _featureFlags.voiceCallFeatureFlagStream,
-                    builder: (context, snapshot) {
-                      return SettingsTile.switchTile(
-                        title: _i18n.get("voice_call_feature"),
-                        leading: const Icon(CupertinoIcons.phone),
-                        switchValue: snapshot.data ?? false,
-                        onToggle: (value) {
-                          _featureFlags.toggleVoiceCallFeatureFlag();
-                          setState(() {});
-                        },
-                      );
-                    },
-                  ),
-                  if (_featureFlags.isVoiceCallAvailable())
+              if (isAndroid)
+                Section(
+                  title: 'Foreground Service',
+                  children: [
+                    SettingsTile.switchTile(
+                      title: "Foreground Notification Enable",
+                      subtitle:
+                          "Application will be available in background for getting new messages online",
+                      switchValue:
+                          _notificationForegroundService.foregroundNotification,
+                      onToggle: (value) {
+                        setState(() {
+                          _notificationForegroundService
+                              .toggleForegroundService();
+                        });
+                      },
+                    ),
+                  ],
+                ),
+              if (_featureFlags.isVoiceCallAvailable())
+                Section(
+                  title: _i18n.get("calls"),
+                  children: [
+                    SettingsTile(
+                      title: _i18n.get("voice_call_feature"),
+                      leading: const Icon(CupertinoIcons.phone),
+                      trailing: const SizedBox.shrink(),
+                    ),
                     Column(
                       children: [
                         const SettingsTile(
@@ -139,7 +150,6 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                         )
                       ],
                     ),
-                  if (_featureFlags.isVoiceCallAvailable())
                     Column(
                       children: [
                         const SettingsTile(
@@ -164,7 +174,6 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                         )
                       ],
                     ),
-                  if (_featureFlags.isVoiceCallAvailable())
                     Column(
                       children: [
                         const SettingsTile(
@@ -214,149 +223,8 @@ class _LabSettingsPageState extends State<LabSettingsPage> {
                         ),
                       ],
                     ),
-                ],
-              ),
-              if (_featureFlags.isVoiceCallAvailable())
-                Section(
-                  title: "Call Logs",
-                  children: [
-                    Column(
-                      children: [
-                        SettingsTile(
-                          title: "SelectedCandidate",
-                          leading: const Icon(
-                            CupertinoIcons.check_mark_circled_solid,
-                          ),
-                          trailing: TextButton(
-                            onPressed: () async {
-                              await _callRepo.reset();
-                              setState(() {});
-                            },
-                            style: TextButton.styleFrom(
-                              foregroundColor: Theme.of(context).errorColor,
-                            ),
-                            child: const Text("Logs Reset"),
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            left: 24,
-                            right: 24,
-                            bottom: 10,
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: theme.colorScheme.outline,
-                              ),
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Directionality(
-                                textDirection: TextDirection.ltr,
-                                child: Column(
-                                  children: [
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        const Text("id"),
-                                        Text(_callRepo.selectedCandidate.id),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        const Text("timestamp"),
-                                        Text(
-                                          _callRepo.selectedCandidate.timestamp
-                                              .toString(),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        const Text("type"),
-                                        Text(_callRepo.selectedCandidate.type),
-                                      ],
-                                    ),
-                                    ..._callRepo
-                                        .selectedCandidate.values.entries
-                                        .map(
-                                          (entry) => Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(entry.key),
-                                              Text(
-                                                entry.value.toString(),
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                        .toList(),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        const SettingsTile(
-                          title: "Last Call Events",
-                          leading: Icon(CupertinoIcons.pencil_outline),
-                          trailing: Text(""),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(
-                            left: 24,
-                            right: 24,
-                            bottom: 10,
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: theme.colorScheme.outline,
-                              ),
-                              borderRadius: BorderRadius.circular(15),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(8.0),
-                              child: Directionality(
-                                textDirection: TextDirection.ltr,
-                                child: Column(
-                                  children: [
-                                    ..._callRepo.callEvents.entries
-                                        .map(
-                                          (entry) => Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text(entry.key.toString()),
-                                              Text(
-                                                entry.value,
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                        .toList(),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
                   ],
-                )
+                ),
             ],
           ),
         ),

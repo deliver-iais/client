@@ -1,10 +1,11 @@
-import 'package:deliver/debug/commons_widgets.dart';
 import 'package:deliver/fonts/emoji_font.dart';
 import 'package:deliver/screen/room/messageWidgets/animation_widget.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/emoji.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
 class EmojiKeyboard extends StatefulWidget {
   final void Function(String) onTap;
@@ -17,6 +18,8 @@ class EmojiKeyboard extends StatefulWidget {
 }
 
 class EmojiKeyboardState extends State<EmojiKeyboard> {
+  static final _featureFlags = GetIt.I.get<FeatureFlags>();
+
   Iterable<Emoji> emojis = [];
 
   String selectedGroupIndex = "😀";
@@ -127,7 +130,7 @@ class EmojiKeyboardState extends State<EmojiKeyboard> {
                         style: EmojiFont.notoColorEmojiCompat(fontSize: 25),
                       ),
                     ),
-                    if (isDebugEnabled())
+                    if (_featureFlags.showDeveloperDetails)
                       if (isAnimatedEmoji(emoji.toString()))
                         Center(
                           child: Container(

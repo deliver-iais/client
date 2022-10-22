@@ -160,7 +160,7 @@ class CallRepo {
           "read call from DB notificationSelected : ${call.notificationSelected}",
         );
         if (call.expireTime > clock.now().millisecondsSinceEpoch &&
-            _callService.getUserCallState == UserCallState.NOCALL) {
+            _callService.getUserCallState == UserCallState.NO_CALL) {
           _callService.callEvents.add(
             CallEvents.callEvent(
               call_pb.CallEvent()
@@ -226,7 +226,7 @@ class CallRepo {
               if (from == to) {
                 _dispose();
               } else {
-                if (_callService.getUserCallState == UserCallState.NOCALL &&
+                if (_callService.getUserCallState == UserCallState.NO_CALL &&
                     ((event.time - clock.now().millisecondsSinceEpoch).abs()) <
                         60000) {
                   // final callStatus =
@@ -1122,7 +1122,7 @@ class CallRepo {
   }
 
   Future<void> startCall(Uid roomId, {bool isVideo = false}) async {
-    if (_callService.getUserCallState == UserCallState.NOCALL) {
+    if (_callService.getUserCallState == UserCallState.NO_CALL) {
       //can't call another ppl or received any call notification
       _callService.setUserCallState = UserCallState.IN_USER_CALL;
       _isCaller = true;

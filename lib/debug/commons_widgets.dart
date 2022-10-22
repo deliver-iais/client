@@ -1,9 +1,6 @@
-import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/clipboard.dart';
 import 'package:flutter/material.dart';
-
-bool isDebugEnabled() => UxService.isDeveloperMode;
 
 class Debug extends StatelessWidget {
   final String? label;
