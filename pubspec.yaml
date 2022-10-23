@@ -149,7 +149,11 @@ dependencies:
       url: https://github.com/deliveriais/record
   rxdart: 0.27.5
   screenshot: 1.2.3
-  scrollable_positioned_list: 0.3.5
+  scrollable_positioned_list:
+    git:
+      path: packages/scrollable_positioned_list
+      ref: 775e1a365637f4e625cf042be383e0d601ab13be
+      url: https://github.com/deliveriais/flutter.widgets
   sdp_transform: 0.3.2
   sensors_plus: 2.0.1
   service_worker: 0.3.0
