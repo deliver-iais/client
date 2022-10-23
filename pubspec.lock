@@ -1643,10 +1643,12 @@ packages:
   scrollable_positioned_list:
     dependency: "direct main"
     description:
-      name: scrollable_positioned_list
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "0.3.5"
+      path: "packages/scrollable_positioned_list"
+      ref: "775e1a365637f4e625cf042be383e0d601ab13be"
+      resolved-ref: "775e1a365637f4e625cf042be383e0d601ab13be"
+      url: "https://github.com/deliveriais/flutter.widgets"
+    source: git
+    version: "0.3.6"
   sdp_transform:
     dependency: "direct main"
     description:

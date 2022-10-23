@@ -1241,6 +1241,7 @@ class RoomPageState extends State<RoomPage> {
         child: ScrollablePositionedList.separated(
           itemCount: _itemCount + 1,
           initialScrollIndex: initialScrollIndex + 1,
+          extraScrollSpeed: isWindows ? 40 : null,
           key: _scrollablePositionedListKey,
           initialAlignment: initialAlignment,
           physics: const ClampingScrollPhysics(),
