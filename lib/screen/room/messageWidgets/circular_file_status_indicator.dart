@@ -60,8 +60,8 @@ class _CircularFileStatusIndicatorState
             widget.message.id != null) {
           return showExitFile(file, fileSnapShot.data!);
         } else {
-          return StreamBuilder<double>(
-            stream: _fileServices.filesProgressBarStatus[file.uuid],
+          return StreamBuilder<Map<String, double>>(
+            stream: _fileServices.filesProgressBarStatus,
             builder: (context, snapshot) {
               if (snapshot.hasData &&
                   snapshot.data != null &&

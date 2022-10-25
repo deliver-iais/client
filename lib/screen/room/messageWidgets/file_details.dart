@@ -27,7 +27,7 @@ class FileDetails extends StatelessWidget {
             colorScheme: colorScheme,
           )
         : SizedBox(
-            height: 40,
+            height: 15,
             child: Align(
               alignment: Alignment.centerLeft,
               child: Text(

@@ -66,14 +66,12 @@ class DownloadVideoWidgetState extends State<DownloadVideoWidget> {
   }
 
   Widget buildStreamBuilder() {
-    return StreamBuilder<double>(
+    return StreamBuilder<Map<String, double>>(
       key: _streamKey,
-      stream: _fileServices.filesProgressBarStatus[widget.uuid],
-      builder: (c, snapshot) {
-        if (snapshot.hasData &&
-            snapshot.data != null &&
-            snapshot.data! > 0 &&
-            snapshot.data! <= 1) {
+      stream: _fileServices.filesProgressBarStatus,
+      builder: (c, map) {
+        final progress = map.data![widget.uuid] ?? 0;
+        if (progress > 0 && progress <= 1) {
           return Container(
             decoration:
                 BoxDecoration(color: widget.background, shape: BoxShape.circle),
@@ -82,7 +80,7 @@ class DownloadVideoWidgetState extends State<DownloadVideoWidget> {
               lineWidth: 4.0,
               backgroundColor: widget.background,
               progressColor: widget.foreground,
-              percent: snapshot.data!,
+              percent: progress,
               center: MouseRegion(
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(

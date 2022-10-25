@@ -165,14 +165,14 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
                             return Center(
                               widthFactor: 1,
                               heightFactor: 1,
-                              child: StreamBuilder<double>(
-                                stream: _fileServices
-                                    .filesProgressBarStatus[widget.image.uuid],
-                                builder: (c, snap) {
-                                  if (snap.hasData &&
-                                      snap.data != null &&
-                                      snap.data! <= 1 &&
-                                      snap.data! > 0) {
+                              child: StreamBuilder<Map<String, double>>(
+                                stream:
+                                    _fileServices.filesProgressBarStatus.stream,
+                                builder: (c, map) {
+                                  final progress =
+                                      map.data![widget.image.uuid] ?? 0;
+
+                                  if (progress <= 1 && progress > 0) {
                                     return Container(
                                       decoration: BoxDecoration(
                                         color: lowlight,
@@ -187,7 +187,7 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
                                               radius: 25.0,
                                               lineWidth: 4.0,
                                               backgroundColor: lowlight,
-                                              percent: snap.data!,
+                                              percent: progress,
                                               center: _cancelSendImage(),
                                               progressColor: highlight,
                                             ),

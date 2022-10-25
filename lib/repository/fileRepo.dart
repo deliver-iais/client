@@ -167,9 +167,9 @@ class FileRepo {
           thumbnailSize != null ? enumToString(thumbnailSize) : 'real',
         );
         if (intiProgressBar) {
-          if (_fileService.filesProgressBarStatus[uuid] != null) {
-            _fileService.filesProgressBarStatus[uuid]!.add(DOWNLOAD_COMPLETE);
-          }
+          // if (_fileService.filesProgressBarStatus[uuid] != null) {
+          //   _fileService.filesProgressBarStatus[uuid]!.add(DOWNLOAD_COMPLETE);
+          // }
         }
 
         return downloadedFileUri;
@@ -182,9 +182,9 @@ class FileRepo {
         thumbnailSize != null ? enumToString(thumbnailSize) : 'real',
       );
       if (intiProgressBar) {
-        if (_fileService.filesProgressBarStatus[uuid] != null) {
-          _fileService.filesProgressBarStatus[uuid]!.add(DOWNLOAD_COMPLETE);
-        }
+        // if (_fileService.filesProgressBarStatus.value[uuid] != null) {
+        //   _fileService.filesProgressBarStatus[uuid]!.add(DOWNLOAD_COMPLETE);
+        // }
       }
 
       return downloadedFileUri;

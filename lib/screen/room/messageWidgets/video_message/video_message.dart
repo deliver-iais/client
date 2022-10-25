@@ -72,18 +72,16 @@ class VideoMessageState extends State<VideoMessage> {
               return Stack(
                 children: [
                   Center(
-                    child: StreamBuilder<double>(
-                      stream: _fileServices
-                          .filesProgressBarStatus[widget.message.packetId],
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData &&
-                            snapshot.data != null &&
-                            1 >= snapshot.data! &&
-                            snapshot.data! > 0) {
+                    child: StreamBuilder<Map<String, double>>(
+                      stream: _fileServices.filesProgressBarStatus,
+                      builder: (context, map) {
+                        final progress =
+                            map.data![widget.message.packetId] ?? 0;
+                        if (1 >= progress && progress > 0) {
                           return CircularPercentIndicator(
                             radius: 25.0,
                             lineWidth: 4.0,
-                            percent: snapshot.data!,
+                            percent: progress,
                             center: GestureDetector(
                               child: const Icon(
                                 Icons.close,
@@ -127,12 +125,12 @@ class VideoMessageState extends State<VideoMessage> {
                       video: video,
                     );
                   } else {
-                    return StreamBuilder<double>(
-                      stream: _fileServices.filesProgressBarStatus[video.uuid],
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData &&
-                            snapshot.data != null &&
-                            snapshot.data == DOWNLOAD_COMPLETE) {
+                    return StreamBuilder<Map<String, double>>(
+                      stream: _fileServices.filesProgressBarStatus,
+                      builder: (context, map) {
+                        final progress =
+                            map.data![widget.message.packetId] ?? 0;
+                        if (progress == DOWNLOAD_COMPLETE) {
                           return FutureBuilder<String?>(
                             future: _fileRepo.getFileIfExist(
                               video.uuid,
