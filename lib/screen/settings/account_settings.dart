@@ -355,6 +355,8 @@ class AccountSettingsState extends State<AccountSettings> {
                                                   textInputAction:
                                                       TextInputAction.send,
                                                   onChanged: (str) {
+                                                    _usernameTextController
+                                                        .text = str;
                                                     subject.add(str);
                                                   },
                                                   maxLength: 20,
