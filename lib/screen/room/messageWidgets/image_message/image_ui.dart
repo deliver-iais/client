@@ -17,7 +17,6 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
-import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
@@ -314,26 +313,38 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
     return Container(
       color: widget.colorScheme.primary,
       child: StreamBuilder<bool>(
-        stream: _downloadStartded.stream,
-        builder: (context, snapshot) {
-          if(snapshot.data!){
-            return GestureDetector(
-              child: Icon(
-                Icons.close,
-                color: widget.colorScheme.onPrimary,
-                size: 35,
-              ),
-              onTap: () {
-                _fileRepo.cancelUploadFile(widget.image.uuid);
-                _deletePendingMessage();
-              },
-            );
-          }else{
-
-          }
-
-        }
-      ),
+          stream: _downloadStartded.stream,
+          builder: (context, snapshot) {
+            if (snapshot.data!) {
+              return GestureDetector(
+                child: Icon(
+                  Icons.close,
+                  color: widget.colorScheme.onPrimary,
+                  size: 35,
+                ),
+                onTap: () {
+                  _fileRepo.cancelUploadFile(widget.image.uuid);
+                  _deletePendingMessage();
+                },
+              );
+            } else {
+              return LoadFileStatus(
+                fileId: widget.image.uuid,
+                fileName: widget.image.name,
+                isPendingMessage: widget.message.id == null,
+                messagePacketId: widget.message.packetId,
+                onPressed: () async {
+                  await _fileRepo.getFile(
+                    widget.image.uuid,
+                    widget.image.name,
+                  );
+                  setState(() {});
+                },
+                background: widget.colorScheme.primary,
+                foreground: widget.colorScheme.onPrimary,
+              );
+            }
+          }),
     );
   }
 
