@@ -2,7 +2,6 @@ import 'dart:io';
 
 import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/services/file_service.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -84,55 +83,19 @@ class DownloadVideoWidgetState extends State<DownloadVideoWidget> {
               backgroundColor: widget.background,
               progressColor: widget.foreground,
               percent: snapshot.data!,
-              center: StreamBuilder<CancelToken?>(
-                stream: _fileServices.cancelTokens[widget.uuid],
-                builder: (c, s) {
-                  if (s.hasData && s.data != null) {
-                    return MouseRegion(
-                      cursor: SystemMouseCursors.click,
-                      child: GestureDetector(
-                        child: Icon(
-                          Icons.close,
-                          color: widget.foreground,
-                          size: 35,
-                        ),
-                        onTap: () {
-                          _fileServices.cancelTokens[widget.uuid]!.add(null);
-                          _startDownload.add(false);
-                          s.data!.cancel();
-                        },
-                      ),
-                    );
-                  } else {
-                    return StreamBuilder<bool>(
-                      stream: _startDownload,
-                      builder: (context, snapshot) {
-                        if (snapshot.hasData &&
-                            snapshot.data != null &&
-                            snapshot.data!) {
-                          return CircularProgressIndicator(
-                            color: widget.background,
-                          );
-                        } else {
-                          return MouseRegion(
-                            cursor: SystemMouseCursors.click,
-                            child: GestureDetector(
-                              onTap: () {
-                                _startDownload.add(true);
-                                widget.download();
-                              },
-                              child: Icon(
-                                Icons.arrow_downward,
-                                color: widget.foreground,
-                                size: 35,
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                    );
-                  }
-                },
+              center: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: GestureDetector(
+                  child: Icon(
+                    Icons.close,
+                    color: widget.foreground,
+                    size: 35,
+                  ),
+                  onTap: () {
+                    _startDownload.add(false);
+                    _fileRepo.cancelUploadFile(widget.uuid);
+                  },
+                ),
               ),
             ),
           );

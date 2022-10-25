@@ -2,7 +2,6 @@ import 'dart:math';
 
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/file_service.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -35,7 +34,8 @@ class LoadFileStatus extends StatefulWidget {
   LoadFileStatusState createState() => LoadFileStatusState();
 }
 
-class LoadFileStatusState extends State<LoadFileStatus> {
+class LoadFileStatusState extends State<LoadFileStatus>
+    with SingleTickerProviderStateMixin {
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _fileService = GetIt.I.get<FileService>();
   final BehaviorSubject<bool> _starDownload = BehaviorSubject.seeded(false);
@@ -45,6 +45,10 @@ class LoadFileStatusState extends State<LoadFileStatus> {
     _fileService.initProgressBar(widget.fileId);
     super.initState();
   }
+
+  late final AnimationController _controller =
+      AnimationController(vsync: this, duration: Duration(seconds: 2))
+        ..repeat();
 
   @override
   Widget build(BuildContext context) {
@@ -65,26 +69,18 @@ class LoadFileStatusState extends State<LoadFileStatus> {
           return CircularPercentIndicator(
             radius: LOADING_INDICATOR_WIDGET_SIZE / 2,
             lineWidth: 4.0,
-            center: StreamBuilder<CancelToken?>(
-              stream: _fileService.cancelTokens[widget.fileId],
-              builder: (c, s) {
-                return MouseRegion(
-                  cursor: SystemMouseCursors.click,
-                  child: GestureDetector(
-                    child: const Icon(
-                      Icons.close,
-                      size: 35,
-                    ),
-                    onTap: () {
-                      if (s.hasData && s.data != null) {
-                        s.data!.cancel();
-                      }
-                      _messageRepo
-                          .deletePendingMessage(widget.messagePacketId!);
-                    },
-                  ),
-                );
-              },
+            center: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                child: const Icon(
+                  Icons.close,
+                  size: 35,
+                ),
+                onTap: () {
+                  _fileService.cancelUploadOrDownloadFile(widget.fileId);
+                  _messageRepo.deletePendingMessage(widget.messagePacketId!);
+                },
+              ),
             ),
             percent: snapshot.data!,
             backgroundColor: widget.background,
@@ -129,55 +125,19 @@ class LoadFileStatusState extends State<LoadFileStatus> {
             percent: min(snapshot.data!, 1.0),
             backgroundColor: widget.background,
             progressColor: widget.foreground,
-            center: StreamBuilder<CancelToken?>(
-              stream: _fileService.cancelTokens[widget.fileId],
-              builder: (c, s) {
-                if (s.hasData && s.data != null) {
-                  return MouseRegion(
-                    cursor: SystemMouseCursors.click,
-                    child: GestureDetector(
-                      child: Icon(
-                        Icons.close,
-                        color: widget.foreground,
-                        size: 35,
-                      ),
-                      onTap: () {
-                        _starDownload.add(false);
-                        s.data!.cancel();
-                        _fileService.cancelTokens[widget.fileId]!.add(null);
-                      },
-                    ),
-                  );
-                } else {
-                  return StreamBuilder<bool>(
-                    stream: _starDownload,
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData &&
-                          snapshot.data != null &&
-                          snapshot.data!) {
-                        return CircularProgressIndicator(
-                          color: widget.foreground,
-                        );
-                      } else {
-                        return MouseRegion(
-                          cursor: SystemMouseCursors.click,
-                          child: GestureDetector(
-                            onTap: () {
-                              _starDownload.add(true);
-                              widget.onPressed();
-                            },
-                            child: Icon(
-                              Icons.arrow_downward,
-                              color: widget.foreground,
-                              size: 35,
-                            ),
-                          ),
-                        );
-                      }
-                    },
-                  );
-                }
-              },
+            center: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: GestureDetector(
+                child: Icon(
+                  Icons.close,
+                  color: widget.foreground,
+                  size: 35,
+                ),
+                onTap: () {
+                  _starDownload.add(false);
+                  _fileService.cancelUploadOrDownloadFile(widget.fileId);
+                },
+              ),
             ),
           );
         } else {

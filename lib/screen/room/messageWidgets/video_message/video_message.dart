@@ -84,46 +84,18 @@ class VideoMessageState extends State<VideoMessage> {
                             radius: 25.0,
                             lineWidth: 4.0,
                             percent: snapshot.data!,
-                            center: StreamBuilder<CancelToken?>(
-                              stream: _fileServices.cancelTokens[
-                                  widget.message.json.toFile().uuid],
-                              builder: (c, s) {
-                                if (s.hasData && s.data != null) {
-                                  return GestureDetector(
-                                    child: const Icon(
-                                      Icons.close,
-                                      color: Colors.blue,
-                                      size: 35,
-                                    ),
-                                    onTap: () {
-                                      s.data!.cancel();
-                                      _messageRepo.deletePendingMessage(
-                                        widget.message.packetId,
-                                      );
-                                    },
-                                  );
-                                } else {
-                                  return Stack(
-                                    children: [
-                                      const Center(
-                                        child: CircularProgressIndicator(),
-                                      ),
-                                      Center(
-                                        child: GestureDetector(
-                                          child: const Icon(
-                                            Icons.close,
-                                            size: 35,
-                                          ),
-                                          onTap: () {
-                                            _messageRepo.deletePendingMessage(
-                                              widget.message.packetId,
-                                            );
-                                          },
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                }
+                            center: GestureDetector(
+                              child: const Icon(
+                                Icons.close,
+                                color: Colors.blue,
+                                size: 35,
+                              ),
+                              onTap: () {
+                                _fileRepo.cancelUploadFile(
+                                    widget.message.json.toFile().uuid);
+                                _messageRepo.deletePendingMessage(
+                                  widget.message.packetId,
+                                );
                               },
                             ),
                             progressColor: theme.primaryColor,

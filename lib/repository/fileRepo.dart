@@ -264,15 +264,7 @@ class FileRepo {
   }
 
   void cancelUploadFile(String uuid) {
-    try {
-      if (_fileService.cancelTokens[uuid] != null &&
-          _fileService.cancelTokens[uuid]!.value != null &&
-          !_fileService.cancelTokens[uuid]!.value!.isCancelled) {
-        _fileService.cancelTokens[uuid]!.value!.cancel('cancelled');
-      }
-    } catch (e) {
-      _logger.e(e);
-    }
+    _fileService.cancelUploadOrDownloadFile(uuid);
   }
 
   void saveFileToSpecifiedAddress(

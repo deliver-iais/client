@@ -23,6 +23,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:rxdart/rxdart.dart';
 
 class ImageUi extends StatefulWidget {
   final Message message;
@@ -50,13 +51,18 @@ class ImageUi extends StatefulWidget {
   ImageUiState createState() => ImageUiState();
 }
 
-class ImageUiState extends State<ImageUi> {
+class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
   final globalKey = GlobalKey();
 
   static final _fileRepo = GetIt.I.get<FileRepo>();
   static final _fileServices = GetIt.I.get<FileService>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _mediaDao = GetIt.I.get<MediaDao>();
+  late final AnimationController _controller =
+      AnimationController(vsync: this, duration: Duration(seconds: 1))
+        ..repeat();
+
+  BehaviorSubject<bool> _downloadStartded = BehaviorSubject.seeded(false);
 
   @override
   void initState() {
@@ -173,32 +179,21 @@ class ImageUiState extends State<ImageUi> {
                                         color: lowlight,
                                         shape: BoxShape.circle,
                                       ),
-                                      child: CircularPercentIndicator(
-                                        radius: 25.0,
-                                        lineWidth: 4.0,
-                                        backgroundColor: lowlight,
-                                        percent: snap.data!,
-                                        center: StreamBuilder<CancelToken?>(
-                                          stream: _fileServices
-                                              .cancelTokens[widget.image.uuid],
-                                          builder: (c, s) {
-                                            return GestureDetector(
-                                              child: Icon(
-                                                Icons.close,
-                                                color: highlight,
-                                                size: 35,
-                                              ),
-                                              onTap: () {
-                                                if (s.hasData &&
-                                                    s.data != null) {
-                                                  s.data!.cancel();
-                                                }
-                                                deletePendingMessage();
-                                              },
-                                            );
-                                          },
-                                        ),
-                                        progressColor: highlight,
+                                      child: AnimatedBuilder(
+                                        animation: _controller,
+                                        builder: (_, child) {
+                                          return Transform.rotate(
+                                            angle: _controller.value * 2 * pi,
+                                            child: CircularPercentIndicator(
+                                              radius: 25.0,
+                                              lineWidth: 4.0,
+                                              backgroundColor: lowlight,
+                                              percent: snap.data!,
+                                              center: _cancelSendImage(),
+                                              progressColor: highlight,
+                                            ),
+                                          );
+                                        },
                                       ),
                                     );
                                   } else {
@@ -207,17 +202,7 @@ class ImageUiState extends State<ImageUi> {
                                         const Center(
                                           child: CircularProgressIndicator(),
                                         ),
-                                        Center(
-                                          child: GestureDetector(
-                                            child: const Icon(
-                                              Icons.close,
-                                              size: 35,
-                                            ),
-                                            onTap: () {
-                                              deletePendingMessage();
-                                            },
-                                          ),
-                                        ),
+                                        _cancelSendImage()
                                       ],
                                     );
                                   }
@@ -325,7 +310,34 @@ class ImageUiState extends State<ImageUi> {
     }
   }
 
-  void deletePendingMessage() {
+  Widget _cancelSendImage() {
+    return Container(
+      color: widget.colorScheme.primary,
+      child: StreamBuilder<bool>(
+        stream: _downloadStartded.stream,
+        builder: (context, snapshot) {
+          if(snapshot.data!){
+            return GestureDetector(
+              child: Icon(
+                Icons.close,
+                color: widget.colorScheme.onPrimary,
+                size: 35,
+              ),
+              onTap: () {
+                _fileRepo.cancelUploadFile(widget.image.uuid);
+                _deletePendingMessage();
+              },
+            );
+          }else{
+
+          }
+
+        }
+      ),
+    );
+  }
+
+  void _deletePendingMessage() {
     if (widget.message.id == null) {
       _messageRepo.deletePendingMessage(
         widget.message.packetId,

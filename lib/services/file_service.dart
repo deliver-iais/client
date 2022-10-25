@@ -37,7 +37,43 @@ class FileService {
   final _dio = Dio();
   Map<String, BehaviorSubject<double>> filesProgressBarStatus = {};
 
-  Map<String, BehaviorSubject<CancelToken?>> cancelTokens = {};
+  final List<String> canceledUploadUuids = [];
+
+  void _addCancelUploadFile(String uuid) {
+    canceledUploadUuids.add(uuid);
+  }
+
+  BehaviorSubject<Map<String, CancelToken>> cancelTokens =
+      BehaviorSubject.seeded({});
+
+  void cancelUploadOrDownloadFile(String uuid) {
+    if (cancelTokens.value[uuid] != null) {
+      cancelTokens.value[uuid]?.cancel("cancelled");
+    } else {
+      _addCancelUploadFile(uuid);
+    }
+  }
+
+  void _addCancelToken(CancelToken cancelToken, String uuid) {
+    final map = cancelTokens.value;
+    map[uuid] = cancelToken;
+    cancelTokens.add(map);
+  }
+
+  void _cancelUploadFile() {
+    try {
+      cancelTokens.listen((cancelTokens) {
+        for (final uuid in cancelTokens.keys) {
+          if (canceledUploadUuids.contains(uuid)) {
+            cancelTokens[uuid]?.cancel("cancelled");
+            canceledUploadUuids.remove(uuid);
+          }
+        }
+      });
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
 
   Future<String> get _localPath async {
     if (await _checkPermission.checkMediaLibraryPermission() ||
@@ -112,6 +148,7 @@ class FileService {
         },
       ),
     );
+    _cancelUploadFile();
   }
 
   Future<String?> getFile(
@@ -131,7 +168,8 @@ class FileService {
       filesProgressBarStatus[uuid] = d;
     }
     final cancelToken = CancelToken();
-    cancelTokens[uuid] = BehaviorSubject.seeded(cancelToken);
+    _addCancelToken(cancelToken, uuid);
+
     try {
       final res = await _dio.get(
         "/$uuid/$filename",
@@ -236,7 +274,8 @@ class FileService {
     ThumbnailSize size,
   ) async {
     final cancelToken = CancelToken();
-    cancelTokens[uuid] = BehaviorSubject.seeded(cancelToken);
+    _addCancelToken(cancelToken, uuid);
+
     final res = await _dio.get(
       "/${enumToString(size)}/$uuid/.${filename.split('.').last}",
       options: Options(responseType: ResponseType.bytes),
@@ -378,7 +417,7 @@ class FileService {
         }
       }
       final cancelToken = CancelToken();
-      cancelTokens[uploadKey!] = BehaviorSubject.seeded(cancelToken);
+      _addCancelToken(cancelToken, uploadKey!);
       //concurrent save file in local directory
       if (isDesktop) {
         unawaited(
