@@ -2,6 +2,7 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
@@ -17,8 +18,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:maps_launcher/maps_launcher.dart';
-
+import 'package:map_launcher/map_launcher.dart' as map;
+import 'package:map_launcher/map_launcher.dart';
 import '../../../services/routing_service.dart';
 import '../../../shared/widgets/room_name.dart';
 
@@ -28,8 +29,9 @@ class LocationMessageWidget extends StatelessWidget {
   final bool isSeen;
   final CustomColorScheme colorScheme;
   static final _routingServices = GetIt.I.get<RoutingService>();
+  final _uxService = GetIt.I.get<UxService>();
 
-  const LocationMessageWidget({
+   LocationMessageWidget({
     super.key,
     required this.message,
     required this.isSeen,
@@ -65,39 +67,45 @@ class LocationMessageWidget extends StatelessWidget {
                   zoom: 15.0,
                   enableScrollWheel: false,
                   onTap: (_, point) async {
-                    isWeb
-                            ?
-                    //         LocationDialog(location: location, from: message.from.asUid(),);
-                            // LocationDialog(location: location, from: message.from.asUid(),);
-                            await showDialog(
-                                context: context,
-                                builder: (_) => LocationDialog(
-                                  location: location,
-                                  from: message.from.asUid(),
-                                ),
-                              )
-                            :
-                     Navigator.push(
-                                context,
-                                SlideRightRoute(
-                                    page: LocationPage(
-                                  location: location,
-                                  from: message.from.asUid(),
-                                  message: message,
-                                )),
-                              )
-                        // _routingServices.openLocation(location, message.from.asUid())
-                        ;
+                    isWeb || isDesktop
+                        ?
+                        // LocationDialog(location: location, from: message.from.asUid(),);
+                        // LocationDialog(location: location, from: message.from.asUid(),);
+                        await showDialog(
+                            context: context,
+                            builder: (_) => LocationDialog(
+                              location: location,
+                              from: message.from.asUid(),
+                            ),
+                          )
+                        :
+                        // Navigator.push(
+                        //   context,
+                        //   SlideRightRoute(
+                        //       page: LocationPage(
+                        //         location: location,
+                        //         from: message.from.asUid(),
+                        //         message: message,
+                        //       )),
+                        // )
+                        _routingServices.openLocation(
+                            location,
+                            message.from.asUid(),
+                            message,
+                          );
                   },
                 ),
-                layers: [
-                  TileLayerOptions(
+                children: [
+                  TileLayer(
                     tileProvider: NetworkTileProvider(),
+                    tilesContainerBuilder: _uxService.themeIsDark
+                        ? darkModeTilesContainerBuilder
+                        : null,
                     urlTemplate:
                         "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                     subdomains: ['a', 'b', 'c'],
                   ),
-                  MarkerLayerOptions(
+                  MarkerLayer(
                     markers: [
                       Marker(
                         point: LatLng(location.latitude, location.longitude),
@@ -105,9 +113,9 @@ class LocationMessageWidget extends StatelessWidget {
                         //     CircleAvatarWidget(message.from.asUid(), 20),
                         builder: (_) {
                           return GestureDetector(
-                            child: const Icon(
+                            child:  Icon(
                               Icons.location_pin,
-                              color: Colors.red,
+                              color: Theme.of(context).errorColor,
                             ),
                           );
                         },
@@ -134,9 +142,10 @@ class LocationMessageWidget extends StatelessWidget {
 class LocationDialog extends StatelessWidget {
   final Location location;
   final Uid from;
-
   final double size = isDesktop ? 500 : 350;
-  static final _routingServices = GetIt.I.get<RoutingService>();
+  static final _i18n = GetIt.I.get<I18N>();
+  final _uxService = GetIt.I.get<UxService>();
+  final String _roomName = "";
 
   LocationDialog({super.key, required this.location, required this.from});
 
@@ -149,36 +158,104 @@ class LocationDialog extends StatelessWidget {
         clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
           color: Theme.of(context).colorScheme.surface,
-          borderRadius: mainBorder,
+          borderRadius: messageBorder,
           boxShadow: DEFAULT_BOX_SHADOWS,
         ),
-        child: FlutterMap(
-          options: MapOptions(
-            center: LatLng(location.latitude, location.longitude),
-            zoom: 15.0,
-            enableMultiFingerGestureRace: true,
+        child: Scaffold(
+          appBar: AppBar(
+            leading: IconButton(
+              onPressed: () => Navigator.pop(context),
+              icon: const Icon(CupertinoIcons.clear_circled),
+            ),
+            title: Text(_i18n.get("location")),
           ),
-          layers: [
-            TileLayerOptions(
-              tileProvider: NetworkTileProvider(),
-              urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-              subdomains: ['a', 'b', 'c'],
-            ),
-            MarkerLayerOptions(
-              markers: [
-                Marker(
-                    point: LatLng(location.latitude, location.longitude),
-                    builder: (_) {
-                      return GestureDetector(
-                        child: const Icon(
-                          Icons.location_pin,
-                          color: Colors.red,
+          body: Stack(
+            children: [
+              FlutterMap(
+                options: MapOptions(
+                  center: LatLng(location.latitude, location.longitude),
+                  zoom: 15.0,
+                  enableMultiFingerGestureRace: true,
+                ),
+                children: [
+                  TileLayer(
+                    tileProvider: NetworkTileProvider(),
+                    tilesContainerBuilder: _uxService.themeIsDark
+                        ? darkModeTilesContainerBuilder
+                        : null,
+                    urlTemplate:
+                        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                    subdomains: ['a', 'b', 'c'],
+                  ),
+                  MarkerLayer(
+                    markers: [
+                      Marker(
+                        point: LatLng(location.latitude, location.longitude),
+                        builder: (ctx) => CircleAvatarWidget(from, 20),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Align(
+                alignment: FractionalOffset.bottomLeft,
+                child:
+                    Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+                  Padding(
+                    padding:
+                        const EdgeInsets.only(left: 10, top: 10, right: 10),
+                    child: FloatingActionButton(
+                      heroTag: 'zoomInButton',
+                      mini: true,
+                      backgroundColor: Theme.of(context).colorScheme.surface,
+                      onPressed: () {
+                        // final bounds = map.bounds;
+                        // final centerZoom = map.getBoundsCenterZoom(bounds, options);
+                        // var zoom = centerZoom.zoom + 1;
+                        // if (zoom > maxZoom) {
+                        //   zoom = maxZoom;
+                        // }
+                        // map.move(centerZoom.center, zoom,
+                        //     source: MapEventSource.custom);
+                      },
+                      child: const Icon(Icons.zoom_in, color: Colors.black),
+                    ),
+                  )
+                ]),
+              ),
+              Align(
+                alignment: FractionalOffset.bottomCenter,
+                child: SizedBox(
+                  height: 50,
+                  width: MediaQuery.of(context).size.width,
+                  child: ElevatedButton(
+                    style: ButtonStyle(
+                      fixedSize: MaterialStateProperty.all(
+                        const Size(350, 50),
+                      ),
+                      shape: MaterialStateProperty.all(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(3),
                         ),
-                      );
-                    }),
-              ],
-            ),
-          ],
+                      ),
+                      padding: MaterialStateProperty.all(
+                        const EdgeInsets.all(10),
+                      ),
+                      backgroundColor: MaterialStateProperty.all(
+                        Theme.of(context).colorScheme.surface,
+                      ),
+                    ),
+                    onPressed: () => MapLauncher.showMarker(
+                      mapType: MapType.google,
+                      coords: map.Coords(location.latitude, location.longitude),
+                      title: "$_roomName location",
+                    ),
+                    child: Text(_i18n.get("open_in")),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -191,14 +268,20 @@ class LocationPage extends StatelessWidget {
   static final _routingServices = GetIt.I.get<RoutingService>();
   static final _i18n = GetIt.I.get<I18N>();
   final _roomRepo = GetIt.I.get<RoomRepo>();
+  final _uxService = GetIt.I.get<UxService>();
   String _roomName = "";
+  final position = _determinePosition();
   final Message message;
+  late final MapController _mapController = MapController();
 
-  LocationPage(
-      {super.key,
-      required this.location,
-      required this.from,
-      required this.message});
+  // final List<AvailableMap> availableMaps =  map.MapLauncher.installedMaps();
+
+  LocationPage({
+    super.key,
+    required this.location,
+    required this.from,
+    required this.message,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -209,49 +292,189 @@ class LocationPage extends StatelessWidget {
         leading: _routingServices.backButtonLeading(),
         title: Text(_i18n.get("location")),
         actions: [
-          IconButton(
-              onPressed: () => MapsLauncher.launchCoordinates(location.latitude,
-                  location.longitude, '$_roomName location'),
-              icon: const Icon(CupertinoIcons.arrowshape_turn_up_right))
+          PopupMenuButton(
+            icon: const Icon(Icons.more_vert),
+            itemBuilder: (_) => <PopupMenuItem<String>>[
+              PopupMenuItem<String>(
+                child: Row(
+                  children: [
+                    const Icon(Icons.open_in_new),
+                    const SizedBox(width: 6),
+                    TextButton(
+                      onPressed: () async {
+                        isIOS
+                            ? await MapLauncher.showMarker(
+                                mapType: MapType.apple,
+                                coords: map.Coords(
+                                    location.latitude, location.longitude),
+                                title: "$_roomName location",
+                              )
+                            : MapLauncher.showMarker(
+                                mapType: MapType.google,
+                                coords: map.Coords(
+                                    location.latitude, location.longitude),
+                                title: "$_roomName location",
+                              );
+                      },
+
+                      // onPressed: () {
+                      //   showGeneralDialog(context: context,
+                      //       pageBuilder: (context,animation1 , animation2){
+                      //         return Align(
+                      //           alignment: Alignment.bottomCenter,
+                      //           child: Container(
+                      //             height: 200,
+                      //             width: MediaQuery.of(context).size.width,
+                      //             decoration: BoxDecoration(
+                      //               color: theme.colorScheme.surface,
+                      //               borderRadius: const BorderRadius.only(
+                      //                 topRight: Radius.circular(15.0),
+                      //                 topLeft: Radius.circular(15.0),
+                      //               ),
+                      //             ),
+                      //             child: Column(
+                      //               children:  [
+                      //                 Text(_i18n.get("open_in")),
+                      //                 Container(
+                      //
+                      //                 ),
+                      //                 TextButton(
+                      //                   onPressed: () => Navigator.pop(context),
+                      //                   child: const Text("cancel"),
+                      //
+                      //                 )
+                      //               ],
+                      //             ),
+                      //           ),
+                      //
+                      //         );
+                      //       },
+                      //     transitionBuilder: (_, animation1,animation2 , child) {
+                      //     return SlideTransition(
+                      //       position: Tween(
+                      //         begin: const Offset(0, 1),
+                      //         end: const Offset(0, 0),
+                      //       ).animate(animation1),
+                      //       child: child,
+                      //     );
+                      //   }
+                      //       // transitionBuilder: (context,animation1,animation2,child){
+                      //   );
+                      //
+                      // },
+                      child: Text(_i18n.get("open_in")),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          )
         ],
       ),
       body: Stack(
         children: [
-          FlutterMap(
-            options: MapOptions(
-              center: LatLng(location.latitude, location.longitude),
-              zoom: 15.0,
-              enableMultiFingerGestureRace: true,
-            ),
-            layers: [
-              TileLayerOptions(
-                tileProvider: NetworkTileProvider(),
-                urlTemplate:
-                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                subdomains: ['a', 'b', 'c'],
-              ),
-              MarkerLayerOptions(
-                markers: [
-                  Marker(
-                    point: LatLng(location.latitude, location.longitude),
-                    builder: (_) {
-                      return GestureDetector(
-                        child: Icon(
-                          Icons.location_on_sharp,
-                          color: Theme.of(context).errorColor,
-                          size: 28,
+          FutureBuilder<Position>(
+            future: _determinePosition(),
+            builder: (context, snapshot) {
+              final position = snapshot.data;
+              return FlutterMap(
+                mapController: _mapController,
+                options: MapOptions(
+                  center: LatLng(location.latitude, location.longitude),
+                  zoom: 15.0,
+                  enableMultiFingerGestureRace: true,
+                ),
+                children: [
+                  TileLayer(
+                    tileProvider: NetworkTileProvider(),
+                    tilesContainerBuilder: _uxService.themeIsDark
+                        ? darkModeTilesContainerBuilder
+                        : null,
+                    urlTemplate:
+                        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+                    // subdomains: ['a', 'b', 'c'],
+                    // tilesContainerBuilder:
+                    // darkMode ? darkModeTilesContainerBuilder : null,
+                  ),
+                  MarkerLayer(
+                    markers: [
+                      Marker(
+                        point: LatLng(location.latitude, location.longitude),
+                        builder: (_) {
+                          return GestureDetector(
+                            child: Icon(
+                              Icons.location_on_sharp,
+                              color: Theme.of(context).errorColor,
+                              size: 28,
+                            ),
+                          );
+                        },
+                      ),
+                      if (position != null)
+                        Marker(
+                          point: LatLng(position.latitude, position.longitude),
+                          builder: (_) {
+                            return Container(
+                              width: 1000.0,
+                              height: 1000.0,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+
+                                // borderRadius: BorderRadius.circular(48.0),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: (Colors.lightBlue[100])!,
+                                    blurRadius: 20.0,
+                                  )
+                                ],
+                              ),
+                              child:  Icon(
+                                Icons.circle_sharp,
+                                color: theme.colorScheme.primary,
+                                size: 14,
+                              ),
+                            );
+                          },
                         ),
-                      );
-                    },
+                    ],
                   ),
                 ],
+              );
+            },
+          ),
+          Positioned(
+            right: 10,
+            bottom: 144,
+            child: CircleAvatar(
+              backgroundColor: theme.colorScheme.surface,
+              child: FutureBuilder<Position>(
+                future: _determinePosition(),
+                builder: (context, snapshot) {
+                  final position = snapshot.data;
+                  return IconButton(
+                    onPressed: () {
+                      if (position != null) {
+                        _mapController.move(
+                          LatLng(position.latitude, position.longitude),
+                          15,
+                        );
+                      }
+
+                      // _mapController.
+                    },
+                    icon: const Icon(Icons.my_location_sharp),
+                    color: theme.colorScheme.primary,
+                    iconSize: 30,
+                    padding: const EdgeInsets.all(1.0),
+                  );
+                },
               ),
-            ],
+            ),
           ),
           Align(
             alignment: FractionalOffset.bottomCenter,
             child: Container(
-              height: 100,
+              height: 140,
               width: MediaQuery.of(context).size.width,
               decoration: BoxDecoration(
                 color: theme.colorScheme.surface,
@@ -261,9 +484,12 @@ class LocationPage extends StatelessWidget {
                 ),
               ),
               child: Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 10.0, horizontal: 10.0),
-                  child: Column(children: [
+                padding: const EdgeInsets.symmetric(
+                  vertical: 10.0,
+                  horizontal: 20.0,
+                ),
+                child: Column(
+                  children: [
                     Row(
                       children: [
                         CircleAvatarWidget(from, 25),
@@ -271,9 +497,10 @@ class LocationPage extends StatelessWidget {
                           width: 20,
                         ),
                         Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const SizedBox(
-                              height: 10,
+                              height: 1,
                             ),
                             FutureBuilder<String>(
                               initialData: _roomRepo
@@ -283,26 +510,89 @@ class LocationPage extends StatelessWidget {
                                 _roomName =
                                     snapshot.data ?? _i18n.get("loading");
                                 return RoomName(
-                                    uid: message.from.asUid(), name: _roomName);
+                                  uid: message.from.asUid(),
+                                  name: _roomName,
+                                );
                               },
                             ),
                             const SizedBox(
                               height: 10,
                             ),
-                            Container(
-                                child:  Text("${farAwayDestination(message)}"),
-                                )
+                            FutureBuilder(
+                              future: _distance(message),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  var distance = snapshot.data;
+                                  distance = double.parse("$distance")
+                                      .toStringAsFixed(3);
+                                  return Text("$distance ${_i18n.get("away")}");
+                                } else {
+                                  return Text(_i18n.get("locating"));
+                                }
+                              },
+                            )
                           ],
                         ),
                       ],
                     ),
-                    // const SizedBox(
-                    //   height: 10,
-                    // ),
-                    // Center(
-                    //
-                    // ),
-                  ],),),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          ElevatedButton(
+                            style: ButtonStyle(
+                              fixedSize: MaterialStateProperty.all(
+                                const Size(380, 50),
+                              ),
+                              shape: MaterialStateProperty.all(
+                                RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                              ),
+                              padding: MaterialStateProperty.all(
+                                const EdgeInsets.all(10),
+                              ),
+                              backgroundColor: MaterialStateProperty.all(
+                                  theme.colorScheme.primary),
+                              textStyle: MaterialStateProperty.all(
+                                const TextStyle(
+                                  fontSize: 14,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                            onPressed: () async {
+                              isIOS
+                                  ? await MapLauncher.showDirections(
+                                      mapType: MapType.apple,
+                                      destination: map.Coords(
+                                        location.latitude,
+                                        location.longitude,
+                                      ),
+                                    )
+                                  : MapLauncher.showDirections(
+                                      mapType: MapType.google,
+                                      destination: map.Coords(
+                                        location.latitude,
+                                        location.longitude,
+                                      ),
+                                    );
+                            },
+                            child: Text(
+                              _i18n.get("direction"),
+                              style:
+                                  TextStyle(color: theme.colorScheme.surface),
+                            ),
+                          )
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           )
         ],
@@ -311,10 +601,16 @@ class LocationPage extends StatelessWidget {
   }
 }
 
-Future<double> farAwayDestination(Message message)  async {
+Future<double> _distance(Message message) async {
   final location = message.json.toLocation();
-  final position = await _determinePosition() ;
-  return Geolocator.distanceBetween(position.latitude, position.longitude, location.latitude, location.longitude);
+  final position = await _determinePosition();
+  final distance = Geolocator.distanceBetween(
+    position.latitude,
+    position.longitude,
+    location.latitude,
+    location.longitude,
+  );
+  return distance / 1609.344;
 }
 
 Future<Position> _determinePosition() async {
@@ -346,14 +642,14 @@ Future<Position> _determinePosition() async {
   if (permission == LocationPermission.deniedForever) {
     // Permissions are denied forever, handle appropriately.
     return Future.error(
-        'Location permissions are permanently denied, we cannot request permissions.');
+      'Location permissions are permanently denied, we cannot request permissions.',
+    );
   }
 
   // When we reach here, permissions are granted and we can
   // continue accessing the position of the device.
-  return await Geolocator.getCurrentPosition();
+  return Geolocator.getCurrentPosition();
 }
-
 
 class SlideRightRoute extends PageRouteBuilder {
   final Widget page;
@@ -381,3 +677,29 @@ class SlideRightRoute extends PageRouteBuilder {
           ),
         );
 }
+
+// class BottomDialog {
+//   void showBottomDialog(BuildContext context) {
+//     showGeneralDialog(
+//       barrierLabel: "showGeneralDialog",
+//       barrierDismissible: true,
+//       barrierColor: Colors.black.withOpacity(0.6),
+//       transitionDuration: const Duration(milliseconds: 400),
+//       context: context,
+//       pageBuilder: (context, _, ) {
+//         return Align(
+//           alignment: Alignment.bottomCenter,
+//           child: _buildDialogContent(),
+//         );
+//       },
+//       transitionBuilder: (_, animation1, , child) {
+//     return SlideTransition(
+//     position: Tween(
+//     begin: const Offset(0, 1),
+//     end: const Offset(0, 0),
+//     ).animate(animation1),
+//     child: child,
+//     );
+//     },
+//     );
+//   }

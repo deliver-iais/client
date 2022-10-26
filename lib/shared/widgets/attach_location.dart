@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/shared/constants.dart';
@@ -9,6 +11,117 @@ import 'package:geolocator/geolocator.dart';
 import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:rxdart/rxdart.dart';
+
+class PointToLatLngPage extends StatefulWidget {
+  final Position position;
+
+  PointToLatLngPage({Key? key, required this.position}) : super(key: key);
+
+  @override
+  PointToLatlngPage createState() {
+    return PointToLatlngPage();
+  }
+}
+
+class PointToLatlngPage extends State<PointToLatLngPage> {
+
+  late final MapController mapController = MapController();
+  final pointSize = 10.0;
+  final pointY = 200.0;
+  LatLng? latLng ;
+
+  @override
+  void initState() {
+    super.initState();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      updatePoint(null, context);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          FlutterMap(
+            mapController: mapController,
+            options: MapOptions(
+              onMapEvent: (event) {
+                updatePoint(null, context);
+              },
+              center: LatLng(58.5, -0.09),
+              zoom: 5,
+              minZoom: 3,
+            ),
+            children: [
+              TileLayer(
+                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+              ),
+              if (latLng != null)
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      width: pointSize,
+                      height: pointSize,
+                      point: latLng!,
+                      builder: (_) {
+                        return GestureDetector(
+                          child: const Icon(
+                            Icons.location_pin,
+                            color: Colors.red,
+                          ),
+                        );
+                      },
+                    ),
+                    Marker(
+                      point: LatLng(widget.position.latitude,widget.position.longitude),
+                      builder: (_) {
+                        return GestureDetector(
+                          child: const Icon(
+                            Icons.location_pin,
+                            color: Colors.blue,
+                          ),
+                        );
+                      },
+                    )
+                  ],
+                )
+            ],
+          ),
+          // Container(
+          //     color: Colors.white,
+          //     height: 60,
+          //     child: Center(
+          //         child: Column(
+          //       mainAxisAlignment: MainAxisAlignment.center,
+          //       children: [
+          //         Text(
+          //           'flutter logo (${latLng?.latitude.toStringAsPrecision(4)},${latLng?.longitude.toStringAsPrecision(4)})',
+          //           textAlign: TextAlign.center,
+          //         ),
+          //       ],
+          //     ))),
+          Positioned(
+              top: 300 ,
+              left: _getPointX(context) - pointSize / 2,
+              child: Icon(Icons.location_on_sharp, size: pointSize))
+        ],
+      ),
+    );
+  }
+
+  void updatePoint(MapEvent? event, BuildContext context) {
+    final pointX = _getPointX(context);
+    setState(() {
+      latLng = mapController.pointToLatLng(CustomPoint(pointX, pointY));
+    });
+  }
+
+  double _getPointX(BuildContext context) {
+    return MediaQuery.of(context).size.width / 2;
+  }
+}
 
 class AttachLocation {
   final _i18n = GetIt.I.get<I18N>();
@@ -22,12 +135,15 @@ class AttachLocation {
     return FutureBuilder(
       future: Geolocator.getCurrentPosition(),
       builder: (c, position) {
+        final pos = position.data;
         if (position.hasData && position.data != null) {
           return ListView(
             children: [
               SizedBox(
-                height: MediaQuery.of(context).size.height / 3 - 40,
-                child: _buildFlutterMap(position.data!),
+                height: MediaQuery.of(context).size.height / 3 - 10,
+                child: PointToLatLngPage(
+                  position: pos!,
+                ),
               ),
               const SizedBox(
                 height: 5,
@@ -61,7 +177,7 @@ class AttachLocation {
                 },
               ),
               const SizedBox(
-                height: 5,
+                height: 30,
               ),
               const Divider(),
               //todo  liveLocation
@@ -105,12 +221,12 @@ class AttachLocation {
         ),
         zoom: 14.0,
       ),
-      layers: [
-        TileLayerOptions(
+      children: [
+        TileLayer(
           urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-          subdomains: ['a', 'b', 'c'],
+          subdomains: const ['a', 'b', 'c'],
         ),
-        MarkerLayerOptions(
+        MarkerLayer(
           markers: [
             Marker(
               width: 170.0,

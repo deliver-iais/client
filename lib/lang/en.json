@@ -487,5 +487,9 @@
   "you_create_channel": "Create Channel",
   "you_create_group": "Create Group",
   "you_have_not_contacts": "You have not contacts on messenger yet",
-  "your_password_update": "Your password updated"
+  "your_password_update": "Your password updated",
+  "away": "miles away",
+  "open_in": "Open in map",
+  "locating": "Locating...",
+  "direction" : "Direction"
 }

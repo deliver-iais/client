@@ -492,5 +492,9 @@
   "you_create_channel": "کانال را ساختید.",
   "you_create_group": "گروه را ساختید.",
   "you_have_not_contacts": "مخاطبی پیدا نشد",
-  "your_password_update": "رمز شما بروز شد."
+  "your_password_update": "رمز شما بروز شد.",
+  "away" : "مایل دورتر",
+  "open_in": "باز کردن در نقشه",
+  "locating": "در حال یافتن موقعیت مکانی...",
+  "direction" : "مسیریابی"
 }

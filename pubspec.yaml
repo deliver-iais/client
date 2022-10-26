@@ -24,7 +24,6 @@ environment:
   flutter: ">=3.0.0"
 
 dependencies:
-  maps_launcher: ^2.0.1
   android_intent_plus: 3.1.1+1
   audioplayers:
     git:
@@ -83,7 +82,7 @@ dependencies:
   flutter_local_notifications: 10.0.0-dev.20
   flutter_localizations:
     sdk: flutter
-  flutter_map: 2.2.0
+  flutter_map: 3.0.0
   flutter_webrtc: 0.9.6
   fluttertoast: 8.0.9
   font_awesome_flutter: 10.1.0
@@ -121,6 +120,8 @@ dependencies:
   lottie: 1.4.1
   marquee: 2.2.3
   material_color_utilities: 0.1.5
+  map_launcher: ^2.4.0
+  maps_launcher: ^2.0.1
   meta: 1.8.0
   metadata_fetch: 0.4.1
   mime_type: 1.0.0
@@ -174,6 +175,7 @@ dependencies:
       path: plugins/window_size
       ref: 5c51870ced62a00e809ba4b81a846a052d241c9f
       url: https://github.com/google/flutter-desktop-embedding
+  location: ^4.4.0
 
 
 

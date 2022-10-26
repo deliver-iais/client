@@ -1,3 +1,5 @@
+
+
 import 'package:collection/collection.dart';
 import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/media.dart';
@@ -45,6 +47,9 @@ import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:rxdart/rxdart.dart';
 
+import '../screen/room/messageWidgets/location_message.dart';
+import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
+
 // Pages
 final _globalKeyNavigationCenter = GlobalKey();
 final _navigationCenter = NavigationCenter(key: _globalKeyNavigationCenter);
@@ -54,12 +59,12 @@ const _empty = Empty(key: ValueKey("empty"));
 const _settings = SettingsPage(key: ValueKey("/settings"));
 
 const _languageSettings =
-    LanguageSettingsPage(key: ValueKey("/language-settings"));
+LanguageSettingsPage(key: ValueKey("/language-settings"));
 
 const _themeSettings = ThemeSettingsPage(key: ValueKey("/theme-settings"));
 
 const _securitySettings =
-    SecuritySettingsPage(key: ValueKey("/security-settings"));
+SecuritySettingsPage(key: ValueKey("/security-settings"));
 
 const _developerPage = DeveloperPage(key: ValueKey("/developer-page"));
 
@@ -103,7 +108,7 @@ class RoutingService {
   Stream<RouteEvent> get currentRouteStream => _navigatorObserver.currentRoute;
 
   BehaviorSubject<bool> shouldScrollToLastMessageInRoom =
-      BehaviorSubject.seeded(false);
+  BehaviorSubject.seeded(false);
 
   // Functions
   void openSettings({bool popAllBeforePush = false}) {
@@ -137,13 +142,13 @@ class RoutingService {
   void openConnectionSettingPage() => _push(_connectionSettingsPage);
 
   void openRoom(
-    String roomId, {
-    List<Message> forwardedMessages = const [],
-    List<Media> forwardedMedia = const [],
-    bool popAllBeforePush = false,
-    pro.ShareUid? shareUid,
-    bool forceToOpenRoom = false,
-  }) {
+      String roomId, {
+        List<Message> forwardedMessages = const [],
+        List<Media> forwardedMedia = const [],
+        bool popAllBeforePush = false,
+        pro.ShareUid? shareUid,
+        bool forceToOpenRoom = false,
+      }) {
     //todo forwardMedia
     if (!isInRoom(roomId) || forceToOpenRoom) {
       _push(
@@ -163,12 +168,12 @@ class RoutingService {
   }
 
   void openCallScreen(
-    Uid roomUid, {
-    bool isIncomingCall = false,
-    bool isCallInitialized = false,
-    bool isCallAccepted = false,
-    bool isVideoCall = false,
-  }) {
+      Uid roomUid, {
+        bool isIncomingCall = false,
+        bool isCallInitialized = false,
+        bool isCallAccepted = false,
+        bool isVideoCall = false,
+      }) {
     _push(
       CallScreen(
         key: const ValueKey("/call-screen"),
@@ -181,12 +186,22 @@ class RoutingService {
     );
   }
 
+  void openLocation(
+      final Location location,
+      Uid from,
+      Message message
+      ) => _push(
+    LocationPage(key: const ValueKey("/location"),location: location, from: from, message: message,),
+
+  );
+
+
   void openProfile(String roomId) => _push(
-        ProfilePage(
-          roomId.asUid(),
-          key: ValueKey("/room/$roomId/profile"),
-        ),
-      );
+    ProfilePage(
+      roomId.asUid(),
+      key: ValueKey("/room/$roomId/profile"),
+    ),
+  );
 
   void openShowAllAvatars({
     required Uid uid,
@@ -231,26 +246,26 @@ class RoutingService {
       );
 
   void openCustomNotificationSoundSelection(String roomId) => _push(
-        CustomNotificationSoundSelection(
-          key: const ValueKey("/custom-notification-sound-selection"),
-          roomUid: roomId,
-        ),
-      );
+    CustomNotificationSoundSelection(
+      key: const ValueKey("/custom-notification-sound-selection"),
+      roomUid: roomId,
+    ),
+  );
 
   void openAccountSettings({bool forceToSetUsernameAndName = false}) => _push(
-        AccountSettings(
-          key: const ValueKey("/account-settings"),
-          forceToSetUsernameAndName: forceToSetUsernameAndName,
-        ),
-      );
+    AccountSettings(
+      key: const ValueKey("/account-settings"),
+      forceToSetUsernameAndName: forceToSetUsernameAndName,
+    ),
+  );
 
   void openMemberSelection({required bool isChannel, Uid? mucUid}) => _push(
-        MemberSelectionPage(
-          key: const ValueKey("/member-selection-page"),
-          isChannel: isChannel,
-          mucUid: mucUid,
-        ),
-      );
+    MemberSelectionPage(
+      key: const ValueKey("/member-selection-page"),
+      isChannel: isChannel,
+      mucUid: mucUid,
+    ),
+  );
 
   void openSelectForwardMessage({
     List<Message>? forwardedMessages,
@@ -267,11 +282,11 @@ class RoutingService {
       );
 
   void openGroupInfoDeterminationPage({required bool isChannel}) => _push(
-        MucInfoDeterminationPage(
-          key: const ValueKey("/group-info-determination-page"),
-          isChannel: isChannel,
-        ),
-      );
+    MucInfoDeterminationPage(
+      key: const ValueKey("/group-info-determination-page"),
+      isChannel: isChannel,
+    ),
+  );
 
   void openShareInput({List<String> paths = const [], String text = ""}) =>
       _push(
@@ -306,7 +321,7 @@ class RoutingService {
           builder: (c) => widget,
           settings: RouteSettings(name: path),
         ),
-        (r) => r.isFirst,
+            (r) => r.isFirst,
       );
     } else {
       _homeNavigatorState.currentState?.push(
@@ -392,12 +407,12 @@ class RoutingService {
         MaterialPageRoute(
           builder: (c) => const LoginPage(key: Key("/login_page")),
         ),
-        (route) => false,
+            (route) => false,
       );
     }
   }
 
-  Widget backButtonLeading({Color? color}) => BackButton(onPressed: pop,color: color,);
+  Widget backButtonLeading({Color ? color}) => BackButton(onPressed: pop,color: color,);
 }
 
 class RouteEvent {
@@ -409,22 +424,22 @@ class RouteEvent {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      (other.runtimeType == runtimeType &&
-          other is RouteEvent &&
-          const DeepCollectionEquality().equals(other.prevRoute, prevRoute) &&
-          const DeepCollectionEquality().equals(other.nextRoute, nextRoute));
+          (other.runtimeType == runtimeType &&
+              other is RouteEvent &&
+              const DeepCollectionEquality().equals(other.prevRoute, prevRoute) &&
+              const DeepCollectionEquality().equals(other.nextRoute, nextRoute));
 
   @override
   int get hashCode => Object.hash(
-        runtimeType,
-        const DeepCollectionEquality().hash(prevRoute),
-        const DeepCollectionEquality().hash(nextRoute),
-      );
+    runtimeType,
+    const DeepCollectionEquality().hash(prevRoute),
+    const DeepCollectionEquality().hash(nextRoute),
+  );
 }
 
 class RoutingServiceNavigatorObserver extends NavigatorObserver {
   final currentRoute =
-      BehaviorSubject.seeded(RouteEvent(_emptyRoute, _emptyRoute));
+  BehaviorSubject.seeded(RouteEvent(_emptyRoute, _emptyRoute));
 
   RoutingServiceNavigatorObserver();
 
@@ -458,20 +473,20 @@ class Empty extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-        body: Center(
-          child: Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.onPrimary,
-              borderRadius: secondaryBorder,
-            ),
-            padding:
-                const EdgeInsets.only(left: 10, right: 10, top: 6, bottom: 4),
-            child: Text(
-              _i18n.get("please_select_a_chat_to_start_messaging"),
-              style: theme.primaryTextTheme.bodyMedium,
-            ),
+      body: Center(
+        child: Container(
+          decoration: BoxDecoration(
+            color: theme.colorScheme.onPrimary,
+            borderRadius: secondaryBorder,
+          ),
+          padding:
+          const EdgeInsets.only(left: 10, right: 10, top: 6, bottom: 4),
+          child: Text(
+            _i18n.get("please_select_a_chat_to_start_messaging"),
+            style: theme.primaryTextTheme.bodyMedium,
           ),
         ),
+      ),
     );
   }
 }
