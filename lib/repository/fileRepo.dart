@@ -6,7 +6,6 @@ import 'dart:io' as io;
 import 'package:deliver/box/dao/file_dao.dart';
 import 'package:deliver/box/file_info.dart';
 import 'package:deliver/services/file_service.dart';
-import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/enum.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
@@ -16,13 +15,13 @@ import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:pasteboard/pasteboard.dart';
-import 'package:rxdart/rxdart.dart';
 
 class FileRepo {
   final _logger = GetIt.I.get<Logger>();
   final _fileDao = GetIt.I.get<FileDao>();
   final _fileService = GetIt.I.get<FileService>();
-  Map<String, BehaviorSubject<int?>> uploadFileStatusCode = {};
+
+  Map<String, String> localUploadedFilePath = {};
 
   Future<void> cloneFileInLocalDirectory(
     io.File file,
@@ -38,10 +37,7 @@ class FileRepo {
     void Function(int)? sendActivity,
   }) async {
     final clonedFilePath = await _fileDao.get(uploadKey, "real");
-    if (uploadFileStatusCode[uploadKey] == null) {
-      final d = BehaviorSubject<int>.seeded(0);
-      uploadFileStatusCode[uploadKey] = d;
-    }
+
     Response? value;
     try {
       value = await _fileService.uploadFile(
@@ -51,14 +47,13 @@ class FileRepo {
         sendActivity: sendActivity,
       );
     } on DioError catch (e) {
-      if (e.response != null) {
-        uploadFileStatusCode[uploadKey]!.add(e.response!.statusCode);
-      }
       _logger.e(e);
     }
     if (value != null) {
       final json = jsonDecode(value.toString()) as Map;
-      uploadFileStatusCode[uploadKey]!.add(value.statusCode);
+      _fileService.fileStatus.add(
+        _fileService.fileStatus.value..[uploadKey] = FileStatus.CANCELED,
+      );
       try {
         var uploadedFile = file_pb.File();
         uploadedFile = file_pb.File()
@@ -89,7 +84,11 @@ class FileRepo {
           }
         }
         _logger.v(uploadedFile);
-
+        _fileService.fileStatus.add(
+          _fileService.fileStatus.value
+            ..[uploadedFile.uuid] = FileStatus.COMPLETED,
+        );
+        localUploadedFilePath[uploadedFile.uuid] = clonedFilePath!.path;
         await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
         return uploadedFile;
       } catch (e) {
@@ -126,6 +125,11 @@ class FileRepo {
     String filename, {
     ThumbnailSize? thumbnailSize,
   }) async {
+    if (localUploadedFilePath[uuid] != null &&
+        localUploadedFilePath[uuid]!.isNotEmpty &&
+        io.File(localUploadedFilePath[uuid] ?? "").existsSync()) {
+      return localUploadedFilePath[uuid];
+    }
     final fileInfo = await _getFileInfoInDB(
       (thumbnailSize == null) ? 'real' : enumToString(thumbnailSize),
       uuid,
@@ -166,12 +170,6 @@ class FileRepo {
           filename,
           thumbnailSize != null ? enumToString(thumbnailSize) : 'real',
         );
-        if (intiProgressBar) {
-          // if (_fileService.filesProgressBarStatus[uuid] != null) {
-          //   _fileService.filesProgressBarStatus[uuid]!.add(DOWNLOAD_COMPLETE);
-          // }
-        }
-
         return downloadedFileUri;
       }
 
@@ -181,11 +179,6 @@ class FileRepo {
         filename,
         thumbnailSize != null ? enumToString(thumbnailSize) : 'real',
       );
-      if (intiProgressBar) {
-        // if (_fileService.filesProgressBarStatus.value[uuid] != null) {
-        //   _fileService.filesProgressBarStatus[uuid]!.add(DOWNLOAD_COMPLETE);
-        // }
-      }
 
       return downloadedFileUri;
     } else {
@@ -221,7 +214,6 @@ class FileRepo {
     }
 
     await _fileDao.save(real.copyWith(uuid: uuid));
-
     if (medium != null) {
       await _fileDao.save(medium.copyWith(uuid: uuid));
     }

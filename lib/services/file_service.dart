@@ -28,7 +28,7 @@ import 'ext_storage_services.dart';
 
 enum ThumbnailSize { medium, small }
 
-enum FileStatus { STARTED, CANCELED }
+enum FileStatus { STARTED, CANCELED, COMPLETED }
 
 class FileService {
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
@@ -38,38 +38,44 @@ class FileService {
 
   final _dio = Dio();
 
-  BehaviorSubject<Map<String, double>> filesProgressBarStatus =
-      BehaviorSubject.seeded({});
-
   final List<String> canceledUploadUuids = [];
 
   void _addCancelUploadFile(String uuid) {
     canceledUploadUuids.add(uuid);
   }
 
-  Map<String, FileStatus> fileStatus = {};
+  BehaviorSubject<Map<String, FileStatus>> fileStatus =
+      BehaviorSubject.seeded({});
 
-  BehaviorSubject<Map<String, CancelToken>> cancelTokens =
+  final BehaviorSubject<Map<String, CancelToken>> _cancelTokens =
+      BehaviorSubject.seeded({});
+
+  BehaviorSubject<Map<String, double>> filesProgressBarStatus =
       BehaviorSubject.seeded({});
 
   void cancelUploadOrDownloadFile(String uuid) {
-    if (cancelTokens.value[uuid] != null) {
-      cancelTokens.value[uuid]?.cancel("cancelled");
+    if (_cancelTokens.value[uuid] != null) {
+      _cancelTokens.value[uuid]?.cancel("cancelled");
     } else {
       _addCancelUploadFile(uuid);
     }
-    fileStatus[uuid] = FileStatus.CANCELED;
+    _updateFileStatus(uuid, FileStatus.CANCELED);
+    filesProgressBarStatus.add(filesProgressBarStatus.value..[uuid] = 0.0);
+  }
+
+  void _updateFileStatus(String uuid, FileStatus status) {
+    fileStatus.add(fileStatus.value..[uuid] = status);
   }
 
   void _addCancelToken(CancelToken cancelToken, String uuid) {
-    final map = cancelTokens.value;
+    final map = _cancelTokens.value;
     map[uuid] = cancelToken;
-    cancelTokens.add(map);
+    _cancelTokens.add(map);
   }
 
   void _cancelUploadFile() {
     try {
-      cancelTokens.listen((cancelTokens) {
+      _cancelTokens.listen((cancelTokens) {
         for (final uuid in cancelTokens.keys) {
           if (canceledUploadUuids.contains(uuid)) {
             cancelTokens[uuid]?.cancel("cancelled");
@@ -163,7 +169,7 @@ class FileService {
     String filename, {
     ThumbnailSize? size,
   }) async {
-    fileStatus[uuid] = FileStatus.STARTED;
+    _updateFileStatus(uuid, FileStatus.STARTED);
     if (size != null) {
       return _getFileThumbnail(uuid, filename, size);
     }
@@ -204,6 +210,7 @@ class FileService {
         return file.path;
       }
     } catch (e) {
+      _updateFileStatus(uuid, FileStatus.CANCELED);
       _logger.e(e);
       return null;
     }
@@ -277,31 +284,37 @@ class FileService {
     } catch (_) {}
   }
 
-  Future<String> _getFileThumbnail(
+  Future<String?> _getFileThumbnail(
     String uuid,
     String filename,
     ThumbnailSize size,
   ) async {
-    final cancelToken = CancelToken();
-    _addCancelToken(cancelToken, uuid);
+    try {
+      final cancelToken = CancelToken();
+      _addCancelToken(cancelToken, uuid);
 
-    final res = await _dio.get(
-      "/${enumToString(size)}/$uuid/.${filename.split('.').last}",
-      options: Options(responseType: ResponseType.bytes),
-      cancelToken: cancelToken,
-    );
-    if (isWeb) {
-      final blob = html.Blob(
-        <Object>[res.data],
-        "application/${filename.split(".").last}",
+      final res = await _dio.get(
+        "/${enumToString(size)}/$uuid/.${filename.split('.').last}",
+        options: Options(responseType: ResponseType.bytes),
+        cancelToken: cancelToken,
       );
-      final url = html.Url.createObjectUrlFromBlob(blob);
-      return url;
-    } else {
-      final file =
-          await localThumbnailFile(uuid, filename.split(".").last, size);
-      file.writeAsBytesSync(res.data);
-      return file.path;
+      if (isWeb) {
+        final blob = html.Blob(
+          <Object>[res.data],
+          "application/${filename.split(".").last}",
+        );
+        final url = html.Url.createObjectUrlFromBlob(blob);
+        return url;
+      } else {
+        final file =
+            await localThumbnailFile(uuid, filename.split(".").last, size);
+        file.writeAsBytesSync(res.data);
+        return file.path;
+      }
+    } catch (e) {
+      _updateFileStatus(uuid, FileStatus.CANCELED);
+      _logger.e(e);
+      return null;
     }
   }
 
@@ -410,7 +423,7 @@ class FileService {
     String? uploadKey,
     void Function(int)? sendActivity,
   }) async {
-    fileStatus[uploadKey!] = FileStatus.STARTED;
+    _updateFileStatus(uploadKey!, FileStatus.STARTED);
     try {
       if (!isWeb) {
         try {
@@ -431,7 +444,7 @@ class FileService {
         }
       }
       final cancelToken = CancelToken();
-      _addCancelToken(cancelToken, uploadKey!);
+      _addCancelToken(cancelToken, uploadKey);
       //concurrent save file in local directory
       if (isDesktop) {
         unawaited(
@@ -476,12 +489,12 @@ class FileService {
               if (i / j < 1) {
                 sendActivity?.call(i);
                 if (filesProgressBarStatus.value[uploadKey] == null) {
-                  final value = filesProgressBarStatus.value..[uploadKey] = 0;
-                  filesProgressBarStatus.add(value);
+                  filesProgressBarStatus
+                      .add(filesProgressBarStatus.value..[uploadKey] = 0);
                 }
-                final value = filesProgressBarStatus.value
-                  ..[uploadKey] = (i / j);
-                filesProgressBarStatus.add(value);
+                filesProgressBarStatus.add(
+                  filesProgressBarStatus.value..[uploadKey] = (i / j),
+                );
               }
             };
             handler.next(options);
@@ -490,6 +503,7 @@ class FileService {
       );
       return _dio.post("/upload", data: formData, cancelToken: cancelToken);
     } catch (e) {
+      _updateFileStatus(uploadKey, FileStatus.CANCELED);
       _logger.e(e);
       return null;
     }

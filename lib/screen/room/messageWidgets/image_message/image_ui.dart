@@ -18,11 +18,8 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:get_it/get_it.dart';
-import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:rxdart/rxdart.dart';
 
 class ImageUi extends StatefulWidget {
   final Message message;
@@ -57,11 +54,6 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
   static final _fileServices = GetIt.I.get<FileService>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _mediaDao = GetIt.I.get<MediaDao>();
-  late final AnimationController _controller =
-      AnimationController(vsync: this, duration: Duration(seconds: 1))
-        ..repeat();
-
-  BehaviorSubject<bool> _downloadStartded = BehaviorSubject.seeded(false);
 
   @override
   void initState() {
@@ -73,8 +65,6 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
-    final lowlight = widget.colorScheme.onPrimary;
-    final highlight = widget.colorScheme.primary;
     try {
       return Hero(
         tag: "${widget.message.id}-${widget.image.uuid}",
@@ -162,54 +152,15 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
                               pendingEditedMessage.data?.status !=
                                       SendingStatus.PENDING &&
                                   pendingEditedMessage.data != null) {
-                            return Center(
-                              widthFactor: 1,
-                              heightFactor: 1,
-                              child: StreamBuilder<Map<String, double>>(
-                                stream:
-                                    _fileServices.filesProgressBarStatus.stream,
-                                builder: (c, map) {
-                                  final progress =
-                                      map.data![widget.image.uuid] ?? 0;
-
-                                  if (progress <= 1 && progress > 0) {
-                                    return Container(
-                                      decoration: BoxDecoration(
-                                        color: lowlight,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: AnimatedBuilder(
-                                        animation: _controller,
-                                        builder: (_, child) {
-                                          return Transform.rotate(
-                                            angle: _controller.value * 2 * pi,
-                                            child: CircularPercentIndicator(
-                                              radius: 25.0,
-                                              lineWidth: 4.0,
-                                              backgroundColor: lowlight,
-                                              percent: progress,
-                                              center: _cancelSendImage(),
-                                              progressColor: highlight,
-                                            ),
-                                          );
-                                        },
-                                      ),
-                                    );
-                                  } else {
-                                    return Stack(
-                                      children: [
-                                        const Center(
-                                          child: CircularProgressIndicator(),
-                                        ),
-                                        _cancelSendImage()
-                                      ],
-                                    );
-                                  }
-                                },
-                              ),
+                            return buildLoadFileStatus(
+                              () {
+                                _fileRepo.cancelUploadFile(widget.image.uuid);
+                                _deletePendingMessage();
+                              },
+                              isPendingMessage: true,
                             );
                           }
-                          return const SizedBox.shrink();
+                          return const SizedBox();
                         },
                       ),
                       if (widget.image.caption.isEmpty)
@@ -243,23 +194,13 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
                           child: getBlurHashWidget(),
                         ),
                       ),
-                      Center(
-                        child: LoadFileStatus(
-                          fileId: widget.image.uuid,
-                          fileName: widget.image.name,
-                          isPendingMessage: widget.message.id == null,
-                          messagePacketId: widget.message.packetId,
-                          onPressed: () async {
-                            await _fileRepo.getFile(
-                              widget.image.uuid,
-                              widget.image.name,
-                            );
-                            setState(() {});
-                          },
-                          background: lowlight,
-                          foreground: highlight,
-                        ),
-                      ),
+                      buildLoadFileStatus(() async {
+                        await _fileRepo.getFile(
+                          widget.image.uuid,
+                          widget.image.name,
+                        );
+                        setState(() {});
+                      }),
                       if (widget.image.caption.isEmpty)
                         TimeAndSeenStatus(
                           widget.message,
@@ -293,6 +234,23 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
     }
   }
 
+  Widget buildLoadFileStatus(
+    Function() onTap, {
+    bool isPendingMessage = false,
+  }) {
+    return Center(
+      child: LoadFileStatus(
+        fileId: widget.image.uuid,
+        fileName: widget.image.name,
+        isPendingMessage: isPendingMessage,
+        messagePacketId: widget.message.packetId,
+        onPressed: () => onTap(),
+        background: widget.colorScheme.onPrimary.withOpacity(0.8),
+        foreground: widget.colorScheme.primary,
+      ),
+    );
+  }
+
   Widget getBlurHashWidget() {
     if (widget.image.blurHash != "") {
       return BlurHash(
@@ -307,45 +265,6 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
         imageFit: BoxFit.cover,
       );
     }
-  }
-
-  Widget _cancelSendImage() {
-    return Container(
-      color: widget.colorScheme.primary,
-      child: StreamBuilder<bool>(
-          stream: _downloadStartded.stream,
-          builder: (context, snapshot) {
-            if (snapshot.data!) {
-              return GestureDetector(
-                child: Icon(
-                  Icons.close,
-                  color: widget.colorScheme.onPrimary,
-                  size: 35,
-                ),
-                onTap: () {
-                  _fileRepo.cancelUploadFile(widget.image.uuid);
-                  _deletePendingMessage();
-                },
-              );
-            } else {
-              return LoadFileStatus(
-                fileId: widget.image.uuid,
-                fileName: widget.image.name,
-                isPendingMessage: widget.message.id == null,
-                messagePacketId: widget.message.packetId,
-                onPressed: () async {
-                  await _fileRepo.getFile(
-                    widget.image.uuid,
-                    widget.image.name,
-                  );
-                  setState(() {});
-                },
-                background: widget.colorScheme.primary,
-                foreground: widget.colorScheme.onPrimary,
-              );
-            }
-          }),
-    );
   }
 
   void _deletePendingMessage() {

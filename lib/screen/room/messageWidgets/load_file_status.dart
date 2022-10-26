@@ -5,7 +5,6 @@ import 'package:deliver/services/file_service.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
-import 'package:rxdart/rxdart.dart';
 
 const LOADING_INDICATOR_WIDGET_SIZE = 50.0;
 const LOADING_INDICATOR_PADDING = 2.0;
@@ -38,13 +37,11 @@ class LoadFileStatusState extends State<LoadFileStatus>
     with SingleTickerProviderStateMixin {
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _fileService = GetIt.I.get<FileService>();
-  final BehaviorSubject<bool> _starDownload = BehaviorSubject.seeded(false);
 
   @override
   void initState() {
     _fileService.initProgressBar(widget.fileId);
-    _starDownload
-        .add(_fileService.fileStatus[widget.fileId] == FileStatus.STARTED);
+
     super.initState();
   }
 
@@ -74,76 +71,71 @@ class LoadFileStatusState extends State<LoadFileStatus>
   }
 
   Widget buildDownload() {
-    return StreamBuilder<bool>(
-      initialData: false,
-      stream: _starDownload.stream,
-      builder: (c, start) {
-        if (start.data!) {
-          return buildFileStatus();
-        } else {
-          return Container(
-            width: LOADING_INDICATOR_WIDGET_SIZE,
-            height: LOADING_INDICATOR_WIDGET_SIZE,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: widget.background,
-            ),
-            child: StreamBuilder<bool>(
-              stream: _starDownload,
-              builder: (context, snapshot) {
-                if (snapshot.hasData &&
-                    snapshot.data != null &&
-                    snapshot.data!) {
-                  return CircularProgressIndicator(
-                    color: widget.foreground,
-                  );
-                } else {
-                  return IconButton(
-                    padding: const EdgeInsets.all(0),
-                    icon: Icon(
-                      Icons.arrow_downward,
-                      color: widget.foreground,
-                      size: 35,
-                    ),
-                    onPressed: () {
-                      _starDownload.add(true);
-                      widget.onPressed();
-                    },
-                  );
-                }
+    return Container(
+      width: LOADING_INDICATOR_WIDGET_SIZE,
+      height: LOADING_INDICATOR_WIDGET_SIZE,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: widget.background,
+      ),
+      child: StreamBuilder<Map<String, FileStatus>>(
+        stream: _fileService.fileStatus.stream,
+        builder: (context, snapshot) {
+          if (_fileService.fileStatus.value[widget.fileId] ==
+                  FileStatus.COMPLETED ||
+              snapshot.hasData &&
+                  snapshot.data != null &&
+                  snapshot.data![widget.fileId] == FileStatus.STARTED) {
+            return buildFileStatus();
+          } else {
+            return IconButton(
+              padding: const EdgeInsets.all(0),
+              icon: Icon(
+                Icons.arrow_downward,
+                color: widget.foreground,
+                size: 35,
+              ),
+              onPressed: () {
+                widget.onPressed();
               },
-            ),
-          );
-        }
-      },
+            );
+          }
+        },
+      ),
     );
   }
 
   Widget buildFileStatus() {
     return StreamBuilder<Map<String, double>>(
+      initialData: const {},
       stream: _fileService.filesProgressBarStatus,
       builder: (c, map) {
-        final progress = map.data![widget.fileId] ?? 0;
+        final progress =
+            _fileService.fileStatus.value[widget.fileId] == FileStatus.COMPLETED
+                ? 100.0
+                : map.data![widget.fileId] ?? 0;
         return Stack(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(LOADING_INDICATOR_PADDING),
-              child: AnimatedBuilder(
-                animation: _controller,
-                builder: (_, child) {
-                  return Transform.rotate(
-                    angle: _controller.value * 2 * pi,
-                    child: child,
-                  );
-                },
-                child: CircularPercentIndicator(
-                  radius: (LOADING_INDICATOR_WIDGET_SIZE / 2) -
-                      LOADING_INDICATOR_PADDING,
-                  lineWidth: 4.0,
-                  circularStrokeCap: CircularStrokeCap.round,
-                  percent: max(min(progress ?? 0, 1), 0.0001),
-                  backgroundColor: widget.background,
-                  progressColor: widget.foreground,
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(LOADING_INDICATOR_PADDING),
+                child: AnimatedBuilder(
+                  animation: _controller,
+                  builder: (_, child) {
+                    return Transform.rotate(
+                      angle: _controller.value * 2 * pi,
+                      child: child,
+                    );
+                  },
+                  child: CircularPercentIndicator(
+                    radius: (LOADING_INDICATOR_WIDGET_SIZE / 2) -
+                        LOADING_INDICATOR_PADDING,
+                    lineWidth: 4.0,
+                    circularStrokeCap: CircularStrokeCap.round,
+                    percent: max(min(progress, 1), 0.0001),
+                    backgroundColor: widget.background,
+                    progressColor: widget.foreground,
+                  ),
                 ),
               ),
             ),
@@ -161,7 +153,7 @@ class LoadFileStatusState extends State<LoadFileStatus>
                       _messageRepo
                           .deletePendingMessage(widget.messagePacketId!);
                     } else {
-                      _starDownload.add(false);
+                      // _starDownload.add(false);
                     }
 
                     _fileService.cancelUploadOrDownloadFile(widget.fileId);
