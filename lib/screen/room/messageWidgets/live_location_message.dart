@@ -82,14 +82,14 @@ class LiveLocationMessageWidgetState extends State<LiveLocationMessageWidget> {
               center: LatLng(location.latitude, location.longitude),
               zoom: 15.0,
             ),
-            layers: [
-              TileLayerOptions(
+            children: [
+              TileLayer(
                 tileProvider: NetworkTileProvider(),
                 urlTemplate:
                     "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
                 subdomains: ['a', 'b', 'c'],
               ),
-              MarkerLayerOptions(
+              MarkerLayer(
                 markers: [
                   Marker(
                     point: LatLng(location.latitude, location.longitude),

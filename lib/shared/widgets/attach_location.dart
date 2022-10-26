@@ -64,7 +64,7 @@ class PointToLatlngPage extends State<PointToLatLngPage> {
                     Marker(
                       width: pointSize,
                       height: pointSize,
-                      point: latLng!,
+                      point: LatLng(widget.position.latitude,widget.position.longitude),
                       builder: (_) {
                         return GestureDetector(
                           child: const Icon(
