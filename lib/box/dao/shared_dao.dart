@@ -17,6 +17,8 @@ abstract class SharedDao {
 
   // ignore: avoid_positional_boolean_parameters
   Future<void> putBoolean(String key, bool value);
+
+  Future<bool> toggleBoolean(String key);
 }
 
 class SharedDaoImpl implements SharedDao {
@@ -62,6 +64,13 @@ class SharedDaoImpl implements SharedDao {
   @override
   Future<void> putBoolean(String key, bool value) =>
       put(key, value ? "t" : "f");
+
+  @override
+  Future<bool> toggleBoolean(String key) async {
+    final toggledBoolean = !(await getBoolean(key));
+    await put(key, toggledBoolean ? "t" : "f");
+    return toggledBoolean;
+  }
 
   static Future<BoxPlus> _open() {
     BoxInfo.addBox("shared");

@@ -24,31 +24,30 @@ environment:
   flutter: ">=3.0.0"
 
 dependencies:
-  android_intent_plus: 3.1.1+1
+  android_intent_plus: 3.1.5
   audioplayers:
     git:
       ref: b661c7d4c6f28b08773eba5cdfcc9ecabd61c151
       url: https://github.com/deliveriais/audioplayers
       path: packages/audioplayers
   badges: 2.0.3
-  camera: 0.10.0+1
+  camera: 0.10.0+3
   card_swiper: 2.0.4
   chewie: 1.3.5
   circular_countdown_timer: 0.2.2
   clock: 1.1.1
   collection: 1.16.0
-  connectivity_plus: 2.3.6+1
+  connectivity_plus: 3.0.1
   connectycube_flutter_call_kit:
     git:
-      ref: fbfe3a539c70fe2f9fed19f6a42497bbe8de1894
+      ref: 49be185aefaf6ae910f7359306ec12423d443efa
       url: https://github.com/deliveriais/connectycube_flutter_call_kit
-  contacts_service: 0.6.3
   custom_image_crop: 0.0.4
   date_time_format: 2.0.1
   dcache: 0.4.0
   deliver_public_protocol:
     git:
-      ref: tags/v1.12.13-rc.29
+      ref: tags/v1.12.13-rc.54
       url: https://github.com/deliver-iais/pub-dart-artifactory
   desktop_drop: 0.3.3
   desktop_lifecycle: 0.1.0
@@ -59,35 +58,36 @@ dependencies:
   device_info: 2.0.3
   dio: 4.0.6
   expandable: 5.0.1
+  fast_contacts: 1.1.1
   feature_discovery:
     git:
       ref: 319d1fe74fcee87eef427a6136639b3bf2537a89
       url: https://github.com/deliveriais/feature_discovery
-  file_picker: 4.6.1
-  file_selector: 0.8.4+3
-  file_selector_linux: 0.0.2+1
-  firebase_analytics: 9.3.4
-  firebase_core: 1.22.0
-  firebase_messaging: 13.0.1
+  file_picker: 5.2.2
+  file_selector: 0.9.2+1
+  file_selector_linux: 0.9.0+1
+  firebase_analytics: 10.0.2
+  firebase_core: 2.1.0
+  firebase_messaging: 14.0.2
   fixnum: 1.0.1
   flare_flutter: 3.0.2
   flutter:
     sdk: flutter
-  flutter_audio_waveforms: 1.2.1+6
+  flutter_audio_waveforms: 1.2.1+7
   flutter_blurhash: 0.7.0
   flutter_dropzone: 3.0.5
-  flutter_foreground_task: 3.8.2
-  flutter_image_compress: 1.1.1
-  flutter_keyboard_visibility: 5.3.0
-  flutter_local_notifications: 10.0.0-dev.20
+  flutter_foreground_task: 3.10.0
+  flutter_image_compress: 1.1.3
+  flutter_keyboard_visibility: 5.4.0
+  flutter_local_notifications: 12.0.2
   flutter_localizations:
     sdk: flutter
   flutter_map: 3.0.0
-  flutter_webrtc: 0.9.6
-  fluttertoast: 8.0.9
-  font_awesome_flutter: 10.1.0
+  flutter_webrtc: 0.9.11
+  fluttertoast: 8.1.1
+  font_awesome_flutter: 10.2.1
   fuzzy: 0.4.0-nullsafety.0
-  geolocator: 9.0.1
+  geolocator: 9.0.2
   get_it: 7.2.0
   google_fonts: 3.0.1
   great_list_view:
@@ -102,13 +102,13 @@ dependencies:
   hive_flutter: 1.1.0
   hovering: 1.0.4
   http: 0.13.5
-  http_parser: 4.0.1
+  http_parser: 4.0.2
   image_compression_flutter: 1.0.2
   image_cropper: 3.0.0
   image_size_getter: 2.1.2
   intl: 0.17.0
   js: 0.6.4
-  just_audio: 0.9.28
+  just_audio: 0.9.29
   just_audio_windows:
     git:
       path: just_audio_windows
@@ -117,26 +117,26 @@ dependencies:
   jwt_decoder: 2.0.1
   latlong2: 0.8.1
   logger: 1.1.0
-  lottie: 1.4.1
+  lottie: 1.4.3
   marquee: 2.2.3
   material_color_utilities: 0.1.5
   map_launcher: ^2.4.0
-  maps_launcher: ^2.0.1
   meta: 1.8.0
   metadata_fetch: 0.4.1
   mime_type: 1.0.0
   mobile_scanner: 2.0.0
-  modal_bottom_sheet: 2.1.0
-  open_file: 3.2.1
+  modal_bottom_sheet: 2.1.2
+  open_filex: 4.1.1
   pasteboard: 0.2.0
   path: 1.8.2
   path_provider: 2.0.11
-  path_provider_android: 2.0.15
+  path_provider_android: 2.0.20
   patterns_canvas: 0.4.0 # UPDATABLE in FLUTTER 3
   percent_indicator: 4.2.2
-  permission_handler: 9.2.0
+  permission_handler: 10.2.0
   persian_datetime_picker: 2.5.0
-  photo_manager: 2.2.1
+  phone_state: 1.0.2
+  photo_manager: 2.4.1
   photo_view: 0.14.0
   platform_detect: 2.0.7
   process_run: 0.12.3+2
@@ -150,21 +150,26 @@ dependencies:
       url: https://github.com/deliveriais/record
   rxdart: 0.27.5
   screenshot: 1.2.3
-  scrollable_positioned_list: 0.3.2
+  scrollable_positioned_list:
+    git:
+      path: packages/scrollable_positioned_list
+      ref: 775e1a365637f4e625cf042be383e0d601ab13be
+      url: https://github.com/deliveriais/flutter.widgets
   sdp_transform: 0.3.2
-  sensors_plus: 1.3.4+1
-  service_worker: 0.2.4
+  sensors_plus: 2.0.1
+  service_worker: 0.3.0
   share: 2.0.4
   shimmer: 2.0.0
-  simple_animations: 4.1.0
+  simple_animations: 5.0.0+2
   sms_autofill: 2.2.0
-  synchronized: 3.0.0+2
-  tuple: 2.0.0
+  synchronized: 3.0.0+3
+  tuple: 2.0.1
   universal_html: 2.0.8
-  url_launcher: 6.1.5
+  url_launcher: 6.1.6
   uuid: 3.0.6
   vibration: 1.7.6
   video_player: 2.4.7
+  wakelock: 0.6.2
   win_toast:
     git:
       path: packages/win_toast
@@ -180,17 +185,16 @@ dependencies:
 
 
 dev_dependencies:
-  build_runner: 2.2.0
+  build_runner: 2.3.2
   dependency_validator: 3.2.2  # flutter pub run dependency_validator
   flutter_lints: 2.0.1
   flutter_test:
     sdk: flutter
-  hive_generator: 1.1.3
+  hive_generator: 2.0.0
 
   integration_test:
     sdk: flutter
-  mockito: 5.3.0
-  msix: 3.6.3
+  mockito: 5.3.2
 
 
 
@@ -210,11 +214,12 @@ flutter:
     - assets/animations/file-save.json
     - assets/animations/not-found.tgs
     - assets/animations/touch.zip
+    - assets/animations/done.zip
     - assets/animations/unlock.tgs
     - assets/audios/beep_sound.mp3
     - assets/audios/busy_sound.mp3
-    - assets/audios/incoming_call.mp3
     - assets/audios/incoming_msg.mp3
+    - assets/audios/incoming_call.mp3
     - assets/audios/sound_in.wav
     - assets/audios/sound_out.wav
     - assets/backgrounds/

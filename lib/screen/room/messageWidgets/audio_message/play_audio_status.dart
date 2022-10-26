@@ -2,8 +2,7 @@ import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-
-import 'package:open_file/open_file.dart';
+import 'package:open_filex/open_filex.dart';
 
 class PlayAudioStatus extends StatefulWidget {
   final String uuid;
@@ -12,6 +11,7 @@ class PlayAudioStatus extends StatefulWidget {
   final double duration;
   final Color backgroundColor;
   final Color foregroundColor;
+  final VoidCallback onAudioPlay;
 
   const PlayAudioStatus({
     super.key,
@@ -21,6 +21,7 @@ class PlayAudioStatus extends StatefulWidget {
     required this.duration,
     required this.backgroundColor,
     required this.foregroundColor,
+    required this.onAudioPlay,
   });
 
   @override
@@ -85,7 +86,7 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
         color: widget.foregroundColor,
         size: 42,
       ),
-      onPressed: () {
+      onPressed: () async {
         if (isAndroid || isIOS || isMacOS || isWindows) {
           _audioPlayerService.playAudioMessage(
             audioPath,
@@ -93,8 +94,9 @@ class PlayAudioStatusState extends State<PlayAudioStatus> {
             widget.name,
             widget.duration,
           );
+          widget.onAudioPlay();
         } else {
-          OpenFile.open(audioPath);
+          await OpenFilex.open(audioPath);
         }
       },
     );

@@ -26,6 +26,7 @@ class IntlPhoneField extends StatefulWidget {
   final bool enabled;
   final Brightness keyboardAppearance;
   final String? initialValue;
+  final ValueChanged<int> onMaxLengthChanged;
 
   /// 2 Letter ISO Code
   final String? initialCountryCode;
@@ -46,6 +47,7 @@ class IntlPhoneField extends StatefulWidget {
     required this.controller,
     this.focusNode,
     this.style,
+    required this.onMaxLengthChanged,
     required this.onSubmitted,
     required this.validator,
     required this.onChanged,
@@ -63,6 +65,7 @@ class IntlPhoneField extends StatefulWidget {
 
 class IntlPhoneFieldState extends State<IntlPhoneField> {
   final _i18n = GetIt.I.get<I18N>();
+  int _maxLength = 10;
 
   Map<String, String> _selectedCountry =
       countries.firstWhere((item) => item['code'] == 'IR');
@@ -71,6 +74,7 @@ class IntlPhoneFieldState extends State<IntlPhoneField> {
   @override
   void initState() {
     super.initState();
+    _maxLength = widget.maxLength;
   }
 
   Future<void> _changeCountry(BuildContext context) async {
@@ -184,6 +188,7 @@ class IntlPhoneFieldState extends State<IntlPhoneField> {
                 "${_selectedCountry['dial_code']}  ",
               ),
               labelText: _i18n.get("phone_number"),
+              hintText: "9121234567",
             ),
             onSaved: (value) {
               if (widget.onSaved != null && value != null) {
@@ -195,17 +200,30 @@ class IntlPhoneFieldState extends State<IntlPhoneField> {
               }
             },
             onChanged: (value) {
-              widget.onChanged(
-                PhoneNumber()
-                  ..countryCode = int.parse(_selectedCountry['dial_code']!)
-                  ..nationalNumber = Int64.parseInt(value),
-              );
+              try {
+                widget.onChanged(
+                  PhoneNumber()
+                    ..countryCode = int.parse(_selectedCountry['dial_code']!)
+                    ..nationalNumber = Int64.parseInt(value),
+                );
+              } catch (_) {}
+
+              setState(() {
+                if (value.length == 1) {
+                  if (value == "0") {
+                    _maxLength = 11;
+                  } else {
+                    _maxLength = 10;
+                  }
+                  widget.onMaxLengthChanged(_maxLength);
+                }
+              });
             },
             validator: widget.validator,
             keyboardType: widget.keyboardType,
             inputFormatters: widget.inputFormatters,
             enabled: widget.enabled,
-            maxLength: widget.maxLength,
+            maxLength: _maxLength,
             autofocus: true,
             keyboardAppearance: widget.keyboardAppearance,
           ),

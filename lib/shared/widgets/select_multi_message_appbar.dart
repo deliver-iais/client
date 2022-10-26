@@ -9,6 +9,7 @@ import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/clipboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +39,17 @@ class SelectMultiMessageAppBar extends StatelessWidget {
   final _roomRepo = GetIt.I.get<RoomRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
   final _i18n = GetIt.I.get<I18N>();
+
+  List<Message> _getSortedMessages() {
+    return selectedMessages.values.toList()
+      ..sort(
+        (a, b) => a.id == null
+            ? 1
+            : b.id == null
+                ? -1
+                : a.id!.compareTo(b.id!),
+      );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -76,7 +88,7 @@ class SelectMultiMessageAppBar extends StatelessWidget {
               icon: const Icon(CupertinoIcons.arrowshape_turn_up_right),
               onPressed: () {
                 _routingService.openSelectForwardMessage(
-                  forwardedMessages: selectedMessages.values.toList(),
+                  forwardedMessages: _getSortedMessages(),
                 );
                 selectedMessages.clear();
               },
@@ -101,14 +113,7 @@ class SelectMultiMessageAppBar extends StatelessWidget {
                 icon: const Icon(Icons.share),
                 onPressed: () async {
                   var copyText = "";
-                  final messages = selectedMessages.values.toList()
-                    ..sort(
-                      (a, b) => a.id == null
-                          ? 1
-                          : b.id == null
-                              ? -1
-                              : a.id!.compareTo(b.id!),
-                    );
+                  final messages = _getSortedMessages();
                   if (shareType == MessageType.TEXT) {
                     for (final message in messages) {
                       if (message.type == MessageType.TEXT) {
@@ -171,14 +176,7 @@ class SelectMultiMessageAppBar extends StatelessWidget {
               icon: const Icon(CupertinoIcons.doc_on_clipboard),
               onPressed: () async {
                 var copyText = "";
-                final messages = selectedMessages.values.toList()
-                  ..sort(
-                    (a, b) => a.id == null
-                        ? 1
-                        : b.id == null
-                            ? -1
-                            : a.id!.compareTo(b.id!),
-                  );
+                final messages = _getSortedMessages();
                 for (final message in messages) {
                   if (message.type == MessageType.TEXT) {
                     copyText =
@@ -191,12 +189,11 @@ class SelectMultiMessageAppBar extends StatelessWidget {
                     )}\n";
                   }
                 }
-                Clipboard.setData(ClipboardData(text: copyText)).ignore();
-                onClose();
-                ToastDisplay.showToast(
-                  toastText: _i18n.get("copied"),
-                  toastContext: context,
+                saveToClipboard(
+                  copyText,
+                  context: context,
                 );
+                onClose();
               },
             ),
           )

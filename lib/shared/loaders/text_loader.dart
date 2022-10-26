@@ -5,8 +5,9 @@ class TextLoader extends StatelessWidget {
   final Text text;
 
   final double width;
+  final BorderRadius? borderRadius;
 
-  const TextLoader(this.text, {super.key, this.width = 80});
+  const TextLoader(this.text, {super.key, this.width = 80, this.borderRadius});
 
   @override
   Widget build(BuildContext context) {
@@ -16,13 +17,17 @@ class TextLoader extends StatelessWidget {
   }
 
   Widget buildLoader(BuildContext context) {
+    final theme = Theme.of(context).colorScheme;
     return Shimmer.fromColors(
-      baseColor: Colors.black12,
-      highlightColor: Colors.black45,
+      baseColor: theme.outline.withOpacity(0.15),
+      highlightColor: theme.onSurface.withOpacity(0.23),
       child: Container(
+        decoration: BoxDecoration(
+          borderRadius: borderRadius,
+          color: theme.surface,
+        ),
         width: width,
         height: (text.style?.fontSize ?? 10) + 2,
-        color: Colors.white,
       ),
     );
   }

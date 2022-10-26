@@ -1,5 +1,3 @@
-
-
 import 'package:collection/collection.dart';
 import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/media.dart';
@@ -34,6 +32,8 @@ import 'package:deliver/screen/settings/pages/security_settings.dart';
 import 'package:deliver/screen/settings/pages/theme_settings_page.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/share_input_file/share_input_file.dart';
+import 'package:deliver/screen/show_case/pages/all_grouped_rooms_grid_page.dart';
+import 'package:deliver/screen/show_case/pages/show_case_page.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
@@ -41,6 +41,7 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/scan_qr_code.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
+import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -59,12 +60,12 @@ const _empty = Empty(key: ValueKey("empty"));
 const _settings = SettingsPage(key: ValueKey("/settings"));
 
 const _languageSettings =
-LanguageSettingsPage(key: ValueKey("/language-settings"));
+    LanguageSettingsPage(key: ValueKey("/language-settings"));
 
 const _themeSettings = ThemeSettingsPage(key: ValueKey("/theme-settings"));
 
 const _securitySettings =
-SecuritySettingsPage(key: ValueKey("/security-settings"));
+    SecuritySettingsPage(key: ValueKey("/security-settings"));
 
 const _developerPage = DeveloperPage(key: ValueKey("/developer-page"));
 
@@ -81,6 +82,9 @@ const _newContact = NewContact(key: ValueKey("/new-contact"));
 const _scanQrCode = ScanQrCode(key: ValueKey("/scan-qr-code"));
 
 const _calls = CallListPage(key: ValueKey("/calls"));
+
+const _showcase = ShowcasePage(key: ValueKey("/showcase"));
+
 const _connectionSettingsPage = ConnectionSettingPage(
   key: ValueKey("/connection_setting_page"),
 );
@@ -104,11 +108,12 @@ class RoutingService {
   final mainNavigatorState = GlobalKey<NavigatorState>();
   final _navigatorObserver = RoutingServiceNavigatorObserver();
   final _preMaybePopScope = PreMaybePopScope();
+  var _currentRoom = "";
 
   Stream<RouteEvent> get currentRouteStream => _navigatorObserver.currentRoute;
 
   BehaviorSubject<bool> shouldScrollToLastMessageInRoom =
-  BehaviorSubject.seeded(false);
+      BehaviorSubject.seeded(false);
 
   // Functions
   void openSettings({bool popAllBeforePush = false}) {
@@ -139,17 +144,25 @@ class RoutingService {
 
   void openCallsList() => _push(_calls);
 
+  void openShowcase() => _push(_showcase);
+
   void openConnectionSettingPage() => _push(_connectionSettingsPage);
 
+  String getCurrentRoomId() => _currentRoom;
+
+  void resetCurrentRoom() => _currentRoom = "";
+
+
   void openRoom(
-      String roomId, {
-        List<Message> forwardedMessages = const [],
-        List<Media> forwardedMedia = const [],
-        bool popAllBeforePush = false,
-        pro.ShareUid? shareUid,
-        bool forceToOpenRoom = false,
-      }) {
+    String roomId, {
+    List<Message> forwardedMessages = const [],
+    List<Media> forwardedMedia = const [],
+    bool popAllBeforePush = false,
+    pro.ShareUid? shareUid,
+    bool forceToOpenRoom = false,
+  }) {
     //todo forwardMedia
+    _currentRoom = roomId;
     if (!isInRoom(roomId) || forceToOpenRoom) {
       _push(
         RoomPage(
@@ -168,12 +181,12 @@ class RoutingService {
   }
 
   void openCallScreen(
-      Uid roomUid, {
-        bool isIncomingCall = false,
-        bool isCallInitialized = false,
-        bool isCallAccepted = false,
-        bool isVideoCall = false,
-      }) {
+    Uid roomUid, {
+    bool isIncomingCall = false,
+    bool isCallInitialized = false,
+    bool isCallAccepted = false,
+    bool isVideoCall = false,
+  }) {
     _push(
       CallScreen(
         key: const ValueKey("/call-screen"),
@@ -197,11 +210,11 @@ class RoutingService {
 
 
   void openProfile(String roomId) => _push(
-    ProfilePage(
-      roomId.asUid(),
-      key: ValueKey("/room/$roomId/profile"),
-    ),
-  );
+        ProfilePage(
+          roomId.asUid(),
+          key: ValueKey("/room/$roomId/profile"),
+        ),
+      );
 
   void openShowAllAvatars({
     required Uid uid,
@@ -246,26 +259,26 @@ class RoutingService {
       );
 
   void openCustomNotificationSoundSelection(String roomId) => _push(
-    CustomNotificationSoundSelection(
-      key: const ValueKey("/custom-notification-sound-selection"),
-      roomUid: roomId,
-    ),
-  );
+        CustomNotificationSoundSelection(
+          key: const ValueKey("/custom-notification-sound-selection"),
+          roomUid: roomId,
+        ),
+      );
 
   void openAccountSettings({bool forceToSetUsernameAndName = false}) => _push(
-    AccountSettings(
-      key: const ValueKey("/account-settings"),
-      forceToSetUsernameAndName: forceToSetUsernameAndName,
-    ),
-  );
+        AccountSettings(
+          key: const ValueKey("/account-settings"),
+          forceToSetUsernameAndName: forceToSetUsernameAndName,
+        ),
+      );
 
   void openMemberSelection({required bool isChannel, Uid? mucUid}) => _push(
-    MemberSelectionPage(
-      key: const ValueKey("/member-selection-page"),
-      isChannel: isChannel,
-      mucUid: mucUid,
-    ),
-  );
+        MemberSelectionPage(
+          key: const ValueKey("/member-selection-page"),
+          isChannel: isChannel,
+          mucUid: mucUid,
+        ),
+      );
 
   void openSelectForwardMessage({
     List<Message>? forwardedMessages,
@@ -281,12 +294,22 @@ class RoutingService {
         ),
       );
 
+  void openAllGroupedRoomsGridPage({
+    required GroupedRooms groupedRooms,
+  }) =>
+      _push(
+        AllGroupedRoomsGridPage(
+          key: const ValueKey("/all-grouped-rooms-grid-page"),
+          groupedRooms: groupedRooms,
+        ),
+      );
+
   void openGroupInfoDeterminationPage({required bool isChannel}) => _push(
-    MucInfoDeterminationPage(
-      key: const ValueKey("/group-info-determination-page"),
-      isChannel: isChannel,
-    ),
-  );
+        MucInfoDeterminationPage(
+          key: const ValueKey("/group-info-determination-page"),
+          isChannel: isChannel,
+        ),
+      );
 
   void openShareInput({List<String> paths = const [], String text = ""}) =>
       _push(
@@ -321,7 +344,7 @@ class RoutingService {
           builder: (c) => widget,
           settings: RouteSettings(name: path),
         ),
-            (r) => r.isFirst,
+        (r) => r.isFirst,
       );
     } else {
       _homeNavigatorState.currentState?.push(
@@ -342,9 +365,10 @@ class RoutingService {
   void pop() {
     if (canPop()) {
       _homeNavigatorState.currentState?.pop();
+      _currentRoom = "";
     }
   }
-
+  bool  preMaybePopScopeValue ()=>_preMaybePopScope.maybePop();
   void maybePop() {
     if (_preMaybePopScope.maybePop()) {
       if (canPop()) {
@@ -356,38 +380,52 @@ class RoutingService {
   bool canPop() => _homeNavigatorState.currentState?.canPop() ?? false;
 
   Widget outlet(BuildContext context) {
-    return Row(
-      children: [
-        if (isLarge(context))
-          SizedBox(
-            width: NAVIGATION_PANEL_SIZE,
-            child: _navigationCenter,
-          ),
-        if (isLarge(context)) const VerticalDivider(),
-        Expanded(
-          child: ClipRect(
-            child: Navigator(
-              key: _homeNavigatorState,
-              observers: [HeroController(), _navigatorObserver],
-              onGenerateRoute: (r) => CupertinoPageRoute(
-                settings: r.copyWith(name: "/"),
-                builder: (c) {
-                  try {
-                    if (isLarge(c)) {
+    return SafeArea(
+      child: Row(
+        children: [
+          if (isLarge(context)) ...[
+            SizedBox(
+              width: NAVIGATION_PANEL_SIZE,
+              child: _navigationCenter,
+            ),
+            const VerticalDivider()
+          ],
+          Expanded(
+            child: ClipRect(
+              child: Navigator(
+                key: _homeNavigatorState,
+                observers: [HeroController(), _navigatorObserver],
+                onGenerateRoute: (r) => CupertinoPageRoute(
+                  settings: r.copyWith(name: "/"),
+                  builder: (c) {
+                    try {
+                      if (isLarge(c)) {
+                        return _empty;
+                      } else {
+                        return _navigationCenter;
+                      }
+                    } catch (_) {
                       return _empty;
-                    } else {
-                      return _navigationCenter;
                     }
-                  } catch (_) {
-                    return _empty;
-                  }
-                },
+                  },
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
+  }
+
+  void selectChatMenu(String key) {
+    switch (key) {
+      case "newGroup":
+        openMemberSelection(isChannel: false);
+        break;
+      case "newChannel":
+        openMemberSelection(isChannel: true);
+        break;
+    }
   }
 
   Future<void> logout() async {
@@ -407,12 +445,15 @@ class RoutingService {
         MaterialPageRoute(
           builder: (c) => const LoginPage(key: Key("/login_page")),
         ),
-            (route) => false,
+        (route) => false,
       );
     }
   }
 
-  Widget backButtonLeading({Color ? color}) => BackButton(onPressed: pop,color: color,);
+  Widget backButtonLeading({Color? color}) => BackButton(
+        onPressed: pop,
+        color: color,
+      );
 }
 
 class RouteEvent {
@@ -424,22 +465,22 @@ class RouteEvent {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-          (other.runtimeType == runtimeType &&
-              other is RouteEvent &&
-              const DeepCollectionEquality().equals(other.prevRoute, prevRoute) &&
-              const DeepCollectionEquality().equals(other.nextRoute, nextRoute));
+      (other.runtimeType == runtimeType &&
+          other is RouteEvent &&
+          const DeepCollectionEquality().equals(other.prevRoute, prevRoute) &&
+          const DeepCollectionEquality().equals(other.nextRoute, nextRoute));
 
   @override
   int get hashCode => Object.hash(
-    runtimeType,
-    const DeepCollectionEquality().hash(prevRoute),
-    const DeepCollectionEquality().hash(nextRoute),
-  );
+        runtimeType,
+        const DeepCollectionEquality().hash(prevRoute),
+        const DeepCollectionEquality().hash(nextRoute),
+      );
 }
 
 class RoutingServiceNavigatorObserver extends NavigatorObserver {
   final currentRoute =
-  BehaviorSubject.seeded(RouteEvent(_emptyRoute, _emptyRoute));
+      BehaviorSubject.seeded(RouteEvent(_emptyRoute, _emptyRoute));
 
   RoutingServiceNavigatorObserver();
 
@@ -480,7 +521,7 @@ class Empty extends StatelessWidget {
             borderRadius: secondaryBorder,
           ),
           padding:
-          const EdgeInsets.only(left: 10, right: 10, top: 6, bottom: 4),
+              const EdgeInsets.only(left: 10, right: 10, top: 6, bottom: 4),
           child: Text(
             _i18n.get("please_select_a_chat_to_start_messaging"),
             style: theme.primaryTextTheme.bodyMedium,

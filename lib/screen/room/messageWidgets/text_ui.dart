@@ -7,6 +7,7 @@ import 'package:deliver/services/url_handler_service.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/is_persian.dart';
+import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/parsers/detectors.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
 import 'package:deliver/shared/parsers/transformers.dart';
@@ -106,6 +107,13 @@ class _TextUIState extends State<TextUI> {
       ),
     );
 
+    final text = Text.rich(
+      textAlign: TextAlign.justify,
+      TextSpan(children: spans, style: theme.textTheme.bodyText2),
+      textDirection:
+          widget.text.isPersian() ? TextDirection.rtl : TextDirection.ltr,
+    );
+
     return Container(
       constraints:
           BoxConstraints(maxWidth: widget.maxWidth, minWidth: widget.minWidth),
@@ -118,13 +126,7 @@ class _TextUIState extends State<TextUI> {
           children: [
             Container(
               key: _textBoxKey,
-              child: RichText(
-                text:
-                    TextSpan(children: spans, style: theme.textTheme.bodyText2),
-                textDirection: widget.text.isPersian()
-                    ? TextDirection.rtl
-                    : TextDirection.ltr,
-              ),
+              child: isDesktop ? SelectionArea(child: text) : text,
             ),
             StreamBuilder<double>(
               stream: _textBoxWidth,
@@ -160,12 +162,4 @@ String synthesizeToOriginalWord(String text) {
       .replaceAll("\\_", "_")
       .replaceAll("\\||", "||")
       .replaceAll("\\~", "~");
-}
-
-String synthesize(String text) {
-  return text
-      .replaceAll("*", "\\*")
-      .replaceAll("_", "\\_")
-      .replaceAll("||", "\\||")
-      .replaceAll("~", "\\~");
 }

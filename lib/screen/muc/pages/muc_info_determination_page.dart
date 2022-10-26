@@ -129,7 +129,8 @@ class MucInfoDeterminationPageState extends State<MucInfoDeterminationPage> {
                                   decoration: InputDecoration(
                                     disabledBorder: OutlineInputBorder(
                                       borderSide: BorderSide(
-                                          color: Theme.of(context).errorColor),
+                                        color: Theme.of(context).errorColor,
+                                      ),
                                       borderRadius: mainBorder,
                                     ),
                                     suffixIcon: const Padding(

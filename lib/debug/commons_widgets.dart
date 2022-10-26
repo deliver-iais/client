@@ -1,12 +1,6 @@
-import 'dart:math';
-
-import 'package:deliver/screen/toast_management/toast_display.dart';
-import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/methods/clipboard.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
-bool isDebugEnabled() => UxService.isDeveloperMode;
 
 class Debug extends StatelessWidget {
   final String? label;
@@ -23,11 +17,7 @@ class Debug extends StatelessWidget {
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
-          Clipboard.setData(ClipboardData(text: text));
-          ToastDisplay.showToast(
-            toastText: "copied '${text.substring(0, min(4, text.length))}...'",
-            toastContext: context,
-          );
+          saveToClipboard(text, context: context);
         },
         child: Container(
           constraints: const BoxConstraints(maxWidth: 350),

@@ -12,6 +12,7 @@ import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/floating_modal_bottom_sheet.dart';
+import 'package:deliver/shared/methods/clipboard.dart';
 import 'package:deliver/shared/methods/name.dart';
 import 'package:deliver/shared/methods/phone.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
@@ -517,10 +518,15 @@ class UrlHandlerService {
             actionsAlignment: MainAxisAlignment.spaceBetween,
             actions: [
               TextButton(
+                onPressed: () => Navigator.pop(c),
+                child: Text(_i18n.get("cancel")),
+              ),
+              TextButton(
                 onPressed: () {
+                  saveToClipboard(uri, context: c);
                   Navigator.pop(c);
                 },
-                child: Text(_i18n.get("cancel")),
+                child: Text(_i18n.get("copy")),
               ),
               TextButton(
                 onPressed: () async {

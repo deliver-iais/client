@@ -22,11 +22,15 @@ class CurrentCallInfo {
   @HiveField(4)
   bool notificationSelected;
 
+  @HiveField(5)
+  bool isAccepted;
+
   CurrentCallInfo({
     required this.callEvent,
     required this.from,
     required this.to,
     required this.expireTime,
     required this.notificationSelected,
+    required this.isAccepted,
   });
 }

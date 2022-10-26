@@ -64,6 +64,7 @@ class LoginPageState extends State<LoginPage> {
   final TextEditingController controller = TextEditingController();
 
   final BehaviorSubject<bool> _networkError = BehaviorSubject.seeded(false);
+  int _maxLength = 10;
 
   @override
   void initState() {
@@ -80,17 +81,21 @@ class LoginPageState extends State<LoginPage> {
         loginToken.add(randomAlphaNumeric(36));
       });
     } else if (isAndroid && !kDebugMode) {
-      SmsAutoFill().hint.then((value) {
-        if (value != null) {
-          final p = getPhoneNumber(value);
-          if (p != null) {
-            phoneNumber = p;
-            controller.text = p.nationalNumber.toString();
-            _isLoading.add(true);
-            checkAndGoNext(doNotCheckValidator: true);
+      try {
+        SmsAutoFill().hint.then((value) {
+          if (value != null) {
+            final p = getPhoneNumber(value);
+            if (p != null) {
+              phoneNumber = p;
+              controller.text = p.nationalNumber.toString();
+              _isLoading.add(true);
+              checkAndGoNext(doNotCheckValidator: true);
+            }
           }
-        }
-      });
+        });
+      } catch (e) {
+        _logger.e(e);
+      }
     }
     super.initState();
   }
@@ -312,13 +317,21 @@ class LoginPageState extends State<LoginPage> {
                         initialCountryCode: phoneNumber != null
                             ? phoneNumber!.countryCode.toString()
                             : null,
+                        maxLength: _maxLength,
                         controller: controller,
-                        validator: (value) => value!.length != 10 ||
-                                (value.isNotEmpty && value[0] == '0')
-                            ? i18n.get("invalid_mobile_number")
-                            : null,
+                        validator: (value) =>
+                            (value!.length == 11 && value[0] != '0') ||
+                                    (value.length < 10 &&
+                                        (value.isNotEmpty && value[0] == '0'))
+                                ? i18n.get("invalid_mobile_number")
+                                : null,
                         onChanged: (p) {
                           phoneNumber = p;
+                        },
+                        onMaxLengthChanged: (m) {
+                          setState(() {
+                            _maxLength = m;
+                          });
                         },
                         onSubmitted: (p) {
                           phoneNumber = p;

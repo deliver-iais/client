@@ -7,6 +7,7 @@ import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/screen/call/audioCallScreen/audio_call_screen.dart';
 import 'package:deliver/screen/call/videoCallScreen/video_call_page.dart';
 import 'package:deliver/services/audio_service.dart';
+import 'package:deliver/services/call_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
@@ -43,14 +44,16 @@ class CallScreen extends StatefulWidget {
 
 class CallScreenState extends State<CallScreen> {
   late final RTCVideoRenderer _localRenderer;
-
   late final RTCVideoRenderer _remoteRenderer;
+
   final _callRepo = GetIt.I.get<CallRepo>();
   final _logger = GetIt.I.get<Logger>();
   final _audioService = GetIt.I.get<AudioService>();
   final _i18n = GetIt.I.get<I18N>();
   final _routingService = GetIt.I.get<RoutingService>();
+  final _callService = GetIt.I.get<CallService>();
   late final String random;
+  Timer? endCallTimer;
 
   final List<StreamSubscription<AccelerometerEvent>?> _accelerometerEvents =
       <StreamSubscription<AccelerometerEvent>>[];
@@ -63,13 +66,14 @@ class CallScreenState extends State<CallScreen> {
       );
     }
     random = randomAlphaNumeric(10);
-    _callRepo.initRenderer();
-    _localRenderer = _callRepo.getLocalRenderer;
-    _remoteRenderer = _callRepo.getRemoteRenderer;
-    if (!widget.isCallInitialized) {
-      startCall();
-      checkForSystemAlertWindowPermission();
-    }
+    _callService.initRenderer().then((value) {
+      _localRenderer = _callService.getLocalRenderer;
+      _remoteRenderer = _callService.getRemoteRenderer;
+      if (!widget.isCallInitialized) {
+        startCall();
+        checkForSystemAlertWindowPermission();
+      }
+    });
     if (isAndroid) {
       _listenSensor();
     }
@@ -154,6 +158,7 @@ class CallScreenState extends State<CallScreen> {
   @override
   void dispose() {
     super.dispose();
+    endCallTimer?.cancel();
     if (isWindows) {
       setWindowMinSize(
         const Size(FLUID_MAX_WIDTH + 100, FLUID_MAX_HEIGHT + 100),
@@ -213,12 +218,12 @@ class CallScreenState extends State<CallScreen> {
   @override
   Widget build(BuildContext context) {
     return StreamBuilder<CallStatus>(
+      initialData: CallStatus.NO_CALL,
       stream: _callRepo.callingStatus,
       builder: (context, snapshot) {
         _logger.i("callStatus-$random: ${snapshot.data}");
         switch (snapshot.data) {
           case CallStatus.CONNECTED:
-            _audioService.stopBeepSound();
             return widget.isVideoCall
                 ? VideoCallScreen(
                     localRenderer: _localRenderer,
@@ -235,7 +240,6 @@ class CallScreenState extends State<CallScreen> {
                     hangUp: _hangUp,
                   );
           case CallStatus.DISCONNECTED:
-            _audioService.stopBeepSound();
             return widget.isVideoCall
                 ? VideoCallScreen(
                     localRenderer: _localRenderer,
@@ -252,7 +256,6 @@ class CallScreenState extends State<CallScreen> {
                     hangUp: _hangUp,
                   );
           case CallStatus.CONNECTING:
-            _audioService.stopBeepSound();
             return widget.isVideoCall
                 ? VideoCallScreen(
                     localRenderer: _localRenderer,
@@ -269,7 +272,6 @@ class CallScreenState extends State<CallScreen> {
                     hangUp: _hangUp,
                   );
           case CallStatus.RECONNECTING:
-            _audioService.stopBeepSound();
             return widget.isVideoCall
                 ? VideoCallScreen(
                     localRenderer: _localRenderer,
@@ -286,7 +288,6 @@ class CallScreenState extends State<CallScreen> {
                     hangUp: _hangUp,
                   );
           case CallStatus.FAILED:
-            _audioService.stopBeepSound();
             return widget.isVideoCall
                 ? VideoCallScreen(
                     localRenderer: _localRenderer,
@@ -303,7 +304,6 @@ class CallScreenState extends State<CallScreen> {
                     hangUp: _hangUp,
                   );
           case CallStatus.IS_RINGING:
-            _audioService.playBeepSound();
             return widget.isVideoCall
                 ? VideoCallScreen(
                     roomUid: widget.roomUid,
@@ -362,7 +362,7 @@ class CallScreenState extends State<CallScreen> {
           case CallStatus.ENDED:
             _logger.i("END!");
             _audioService.playEndCallSound();
-            Timer(const Duration(milliseconds: 1500), () async {
+            endCallTimer = Timer(const Duration(milliseconds: 1500), () async {
               if (_routingService.canPop()) {
                 _routingService.pop();
               }
@@ -387,8 +387,6 @@ class CallScreenState extends State<CallScreen> {
                     hangUp: _hangUp,
                   );
           case CallStatus.BUSY:
-            _audioService.stopBeepSound();
-            _audioService.playBusySound();
             return widget.isVideoCall
                 ? VideoCallScreen(
                     roomUid: widget.roomUid,
@@ -448,7 +446,7 @@ class CallScreenState extends State<CallScreen> {
 
   void _hangUp() {
     _logger.i("Call hang Up ...!");
-    _audioService.stopBeepSound();
+    _audioService.stopCallAudioPlayer();
     _callRepo.endCall();
   }
 }

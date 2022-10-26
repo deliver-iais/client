@@ -22,11 +22,13 @@ final isLinux = defaultTargetPlatform == TargetPlatform.linux;
 
 final isMacOS = defaultTargetPlatform == TargetPlatform.macOS;
 
-final isDesktop = isLinux || isWindows || isMacOS;
+final isDesktop = (isLinux || isWindows || isMacOS) && !isWeb;
 
 final hasFirebaseCapability = isAndroid;
 
 final hasVibrationCapability = isAndroid || isIOS || isWeb;
+
+final hasVirtualKeyboardCapability = isAndroid || isIOS;
 
 Future<platform_pb.Platform> getPlatformPB() async {
   final platform = platform_pb.Platform()..clientVersion = VERSION;

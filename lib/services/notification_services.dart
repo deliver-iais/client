@@ -1,9 +1,12 @@
 import 'dart:async';
 
 import 'package:clock/clock.dart';
+import 'package:collection/collection.dart';
 import 'package:connectycube_flutter_call_kit/connectycube_flutter_call_kit.dart';
+import 'package:deliver/box/active_notification.dart' as active_notificaton;
 import 'package:deliver/box/call_event.dart' as call_event;
 import 'package:deliver/box/current_call_info.dart' as current_call_info;
+import 'package:deliver/box/dao/active_notification_dao.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/main.dart';
 import 'package:deliver/repository/authRepo.dart';
@@ -82,6 +85,9 @@ abstract class Notifier {
           messageId: payload.item2,
           hiddenMessageCount: 0,
         );
+    GetIt.I
+        .get<ActiveNotificationDao>()
+        .removeActiveNotification(payload.item1, payload.item2);
   }
 
   static void openChat(
@@ -134,11 +140,11 @@ abstract class Notifier {
     String? callEventJson,
   );
 
-  Future<void> cancel(int id, String roomUid);
+  Future<void> cancel(String roomUid);
 
   Future<void> cancelAll();
 
-  Future<void> cancelById(int id);
+  Future<void> cancelById(int id, String roomUid);
 }
 
 class NotificationServices {
@@ -147,6 +153,7 @@ class NotificationServices {
   final _notifier = GetIt.I.get<Notifier>();
   final _audioService = GetIt.I.get<AudioService>();
   final _routingService = GetIt.I.get<RoutingService>();
+  final _activeNotificationDao = GetIt.I.get<ActiveNotificationDao>();
 
   void notifyOutgoingMessage(String roomUid) {
     if (_routingService.isInRoom(roomUid)) {
@@ -177,15 +184,21 @@ class NotificationServices {
   }
 
   void cancelRoomNotifications(String roomUid) {
-    _notifier.cancel(roomUid.hashCode, roomUid);
+    _notifier.cancel(roomUid);
+    if (isAndroid) {
+      _activeNotificationDao.removeRoomActiveNotification(roomUid);
+    }
   }
 
-  void cancelNotificationById(int id) {
-    _notifier.cancelById(id);
+  void cancelNotificationById(int id, String roomUid) {
+    _notifier.cancelById(id, roomUid);
   }
 
   void cancelAllNotifications() {
     _notifier.cancelAll();
+    if (isAndroid) {
+      _activeNotificationDao.removeAllActiveNotification();
+    }
   }
 
   Future<void> _showTextNotification(
@@ -236,13 +249,13 @@ class FakeNotifier implements Notifier {
   ) async {}
 
   @override
-  Future<void> cancel(int id, String roomUid) async {}
+  Future<void> cancel(String roomUid) async {}
 
   @override
   Future<void> cancelAll() async {}
 
   @override
-  Future<void> cancelById(int id) async {}
+  Future<void> cancelById(int id, String roomUid) async {}
 }
 
 //init on Home_Page init because can't load Deliver Icon and should be init inside initState() function
@@ -382,7 +395,7 @@ class WindowsNotifier implements Notifier {
   }
 
   @override
-  Future<void> cancel(int id, String roomUid) async {
+  Future<void> cancel(String roomUid) async {
     if (toastByRoomId.containsKey(roomUid)) {
       final roomIdToast = toastByRoomId[roomUid];
       for (final element in roomIdToast!.keys.toList()) {
@@ -396,15 +409,15 @@ class WindowsNotifier implements Notifier {
   Future<void> cancelAll() async {}
 
   @override
-  Future<void> cancelById(int id) async {}
+  Future<void> cancelById(int id, String roomUid) async {}
 }
 
 class WebNotifier implements Notifier {
   @override
-  Future<void> cancel(int id, String roomUid) async {}
+  Future<void> cancel(String roomUid) async {}
 
   @override
-  Future<void> cancelById(int id) async {}
+  Future<void> cancelById(int id, String roomUid) async {}
 
   @override
   Future<void> cancelAll() async {}
@@ -434,7 +447,7 @@ class LinuxNotifier implements Notifier {
   final _i18n = GetIt.I.get<I18N>();
 
   @override
-  Future<void> cancelById(int id) async {}
+  Future<void> cancelById(int id, String roomUid) async {}
 
   LinuxNotifier() {
     const notificationSetting =
@@ -514,9 +527,9 @@ class LinuxNotifier implements Notifier {
   ) async {}
 
   @override
-  Future<void> cancel(int id, String roomUid) async {
+  Future<void> cancel(String roomUid) async {
     try {
-      await _flutterLocalNotificationsPlugin.cancel(id);
+      await _flutterLocalNotificationsPlugin.cancel(roomUid.hashCode);
     } catch (e) {
       _logger.e(e);
     }
@@ -534,6 +547,7 @@ class LinuxNotifier implements Notifier {
 
 class AndroidNotifier implements Notifier {
   final _logger = GetIt.I.get<Logger>();
+  final _activeNotificationDao = GetIt.I.get<ActiveNotificationDao>();
   final _flutterLocalNotificationsPlugin =
       AndroidFlutterLocalNotificationsPlugin();
   final _avatarRepo = GetIt.I.get<AvatarRepo>();
@@ -635,14 +649,16 @@ class AndroidNotifier implements Notifier {
   Future<void> onCallAccepted(CallEvent callEvent) async {
     await GetIt.I.get<CallService>().clearCallData();
     _callService.setRoomUid = callEvent.userInfo!["uid"]!.asUid();
-    await _callService
-        .saveCallOnDb(getCallInfo(callEvent, CallEvent_CallStatus.JOINED));
+    await _callService.saveCallOnDb(
+      getCallInfo(callEvent, CallEvent_CallStatus.CREATED, isAccepted: true),
+    );
   }
 
   current_call_info.CurrentCallInfo getCallInfo(
     CallEvent callEvent,
     CallEvent_CallStatus callEvent_CallStatus, {
     bool isNotificationSelected = false,
+    bool isAccepted = false,
   }) {
     final callEventInfo =
         call_pro.CallEvent.fromJson(callEvent.userInfo!["callEventJson"]!);
@@ -663,10 +679,9 @@ class AndroidNotifier implements Notifier {
     //here status be JOINED means ACCEPT CALL and when app Start should go on accepting status
     final currentCallEvent = call_event.CallEvent(
       callDuration: callEventInfo.callDuration.toInt(),
-      endOfCallTime: callEventInfo.endOfCallTime.toInt(),
       callType: _callService.findCallEventType(callEventInfo.callType),
-      newStatus: _callService.findCallEventStatusProto(callEvent_CallStatus),
-      id: callEventInfo.id,
+      callStatus: _callService.findCallEventStatusProto(callEvent_CallStatus),
+      id: callEventInfo.callId,
     );
 
     return current_call_info.CurrentCallInfo(
@@ -675,23 +690,134 @@ class AndroidNotifier implements Notifier {
       to: _authRepo.currentUserUid.toString(),
       expireTime: clock.now().millisecondsSinceEpoch + 60000,
       notificationSelected: isNotificationSelected,
+      isAccepted: isAccepted,
     );
   }
 
   @override
-  Future<void> cancelById(int id) {
-    return _flutterLocalNotificationsPlugin.cancel(id);
+  Future<void> cancelById(int id, String roomUid) async {
+    //if we don't have that message in our active notification table
+    if ((await _activeNotificationDao.getActiveNotification(roomUid, id)) ==
+        null) {
+      return;
+    }
+
+    // if android(local notification) doesn't have any active notification for that room
+    if ((await _flutterLocalNotificationsPlugin.getActiveNotifications())
+        .where((element) => element.id == roomUid.hashCode)
+        .isEmpty) {
+      await _activeNotificationDao.removeRoomActiveNotification(roomUid);
+      return;
+    }
+    final activeNotifications =
+        await _activeNotificationDao.getRoomActiveNotification(roomUid);
+    await _activeNotificationDao.removeActiveNotification(roomUid, id);
+    final lines = <String>[];
+    for (final element in activeNotifications) {
+      if (element.messageId != id) {
+        lines.add("${element.messageText}\n");
+      }
+    }
+    if (lines.isNotEmpty) {
+      final text = lines.join("\n");
+      final inboxStyleInformation = _createInboxStyleInformation(
+        lines,
+        activeNotifications.last.roomName,
+      );
+
+      await _flutterLocalNotificationsPlugin.show(
+        roomUid.hashCode,
+        activeNotifications.last.roomName,
+        text,
+        notificationDetails: await _createAndroidNotificationDetails(
+          roomUid,
+          activeNotifications.last.roomName,
+          inboxStyleInformation,
+        ),
+        payload: Notifier.genPayload(
+          roomUid,
+          activeNotifications.last.messageId,
+        ),
+      );
+    } else {
+      await cancel(roomUid);
+    }
   }
 
   @override
   Future<void> notifyText(MessageSimpleRepresentative message) async {
     if (message.ignoreNotification) return;
+
+    final lines = <String>[];
+
+    final res = await _flutterLocalNotificationsPlugin.getActiveNotifications();
+    final roomActiveNotification = res.lastWhereOrNull(
+      (element) => (element.groupKey == message.roomUid.asString() &&
+          element.body != null &&
+          element.body!.isNotEmpty),
+    );
+    if (roomActiveNotification != null) {
+      lines.addAll(roomActiveNotification.body!.split("\n"));
+    } else {
+      await _activeNotificationDao
+          .removeRoomActiveNotification(message.roomUid.asString());
+    }
+    lines.add(createNotificationTextFromMessageBrief(message));
+
+    final text = lines.join("\n");
+
+    final inboxStyleInformation =
+        _createInboxStyleInformation(lines, message.roomName);
+    final platformChannelSpecifics = await _createAndroidNotificationDetails(
+      message.roomUid.asString(),
+      message.roomName,
+      inboxStyleInformation,
+      shouldBeQuiet: message.shouldBeQuiet,
+    );
+
+    await _activeNotificationDao.save(
+      active_notificaton.ActiveNotification(
+        roomUid: message.roomUid.asString(),
+        messageId: message.id ?? 0,
+        messageText: createNotificationTextFromMessageBrief(message),
+        roomName: message.roomName,
+      ),
+    );
+
+    _flutterLocalNotificationsPlugin
+        .show(
+          message.roomUid.asString().hashCode,
+          message.roomName,
+          text,
+          notificationDetails: platformChannelSpecifics,
+          payload: Notifier.genPayload(message.roomUid.asString(), message.id!),
+        )
+        .ignore();
+  }
+
+  InboxStyleInformation _createInboxStyleInformation(
+    List<String> lines,
+    String roomName,
+  ) {
+    return InboxStyleInformation(
+      lines,
+      contentTitle:
+          lines.length > 1 ? '${lines.length} messages' : "New messages",
+      summaryText: roomName,
+    );
+  }
+
+  Future<AndroidNotificationDetails> _createAndroidNotificationDetails(
+    String roomUid,
+    String roomName,
+    StyleInformation inboxStyleInformation, {
+    bool shouldBeQuiet = true,
+  }) async {
     AndroidBitmap<Object>? largeIcon;
     var selectedNotificationSound =
-        message.shouldBeQuiet ? "silence" : "that_was_quick";
-    final selectedSound =
-        await _roomRepo.getRoomCustomNotification(message.roomUid.asString());
-    final la = await _avatarRepo.getLastAvatar(message.roomUid);
+        shouldBeQuiet ? "silence" : "that_was_quick";
+    final selectedSound = await _roomRepo.getRoomCustomNotification(roomUid);
+    final la = await _avatarRepo.getLastAvatar(roomUid.asUid());
     if (la != null && la.fileId != null && la.fileName != null) {
       final path = await _fileRepo.getFileIfExist(
         la.fileId!,
@@ -703,46 +829,25 @@ class AndroidNotifier implements Notifier {
         largeIcon = FilePathAndroidBitmap(path);
       }
     }
-    if (selectedSound != null && !message.shouldBeQuiet) {
+    if (selectedSound != null && !shouldBeQuiet) {
       if (selectedSound != "-") {
         selectedNotificationSound = selectedSound;
       }
     }
 
-    final lines = <String>[];
-
-    final res = await _flutterLocalNotificationsPlugin.getActiveNotifications();
-    for (final element in res) {
-      if (element.groupKey == message.roomUid.asString() &&
-          element.body != null &&
-          element.body!.isNotEmpty) {
-        lines.addAll(element.body!.split("\n"));
-      }
-    }
-
-    lines.add(createNotificationTextFromMessageBrief(message));
-
-    final text = lines.join("\n");
-
-    final inboxStyleInformation = InboxStyleInformation(
-      lines,
-      contentTitle:
-          lines.length > 1 ? '${lines.length} messages' : "New messages",
-      summaryText: message.roomName,
-    );
-
-    final platformChannelSpecifics = AndroidNotificationDetails(
-      selectedNotificationSound + message.roomUid.asString(),
+    return AndroidNotificationDetails(
+      selectedNotificationSound + roomUid,
       channel.name,
       channelDescription: channel.description,
-      groupKey: message.roomUid.asString(),
+      groupKey: roomUid,
       largeIcon: largeIcon,
-      fullScreenIntent: true,
+      importance: Importance.max,
+      priority: Priority.high,
       styleInformation: inboxStyleInformation,
       actions: <AndroidNotificationAction>[
         AndroidNotificationAction(
           REPLY_ACTION_ID,
-          '${_i18n.get("reply_to")} ${message.roomName}',
+          '${_i18n.get("reply_to")} $roomName',
           inputs: <AndroidNotificationActionInput>[
             AndroidNotificationActionInput(
               label: _i18n.get("enter_a_message"),
@@ -756,16 +861,6 @@ class AndroidNotifier implements Notifier {
       ],
       sound: RawResourceAndroidNotificationSound(selectedNotificationSound),
     );
-
-    _flutterLocalNotificationsPlugin
-        .show(
-          message.roomUid.asString().hashCode,
-          message.roomName,
-          text,
-          notificationDetails: platformChannelSpecifics,
-          payload: Notifier.genPayload(message.roomUid.asString(), message.id!),
-        )
-        .ignore();
   }
 
   @override
@@ -795,21 +890,17 @@ class AndroidNotifier implements Notifier {
         userInfo: {"uid": roomUid, "callEventJson": ceJson},
         avatarPath: path,
         opponentsIds: const {1},
+        rejectActionText: _i18n.get("decline"),
+        acceptActionText: _i18n.get("accept"),
       ),
     );
     await ConnectycubeFlutterCallKit.setOnLockScreenVisibility(isVisible: true);
   }
 
   @override
-  Future<void> cancel(int id, String roomUid) async {
+  Future<void> cancel(String roomUid) async {
     try {
-      final activeNotification =
-          await _flutterLocalNotificationsPlugin.getActiveNotifications();
-      for (final element in activeNotification) {
-        if (element.channelId!.contains(roomUid) && element.id != 0) {
-          await _flutterLocalNotificationsPlugin.cancel(element.id);
-        }
-      }
+      await _flutterLocalNotificationsPlugin.cancel(roomUid.hashCode);
     } catch (e) {
       _logger.e(e);
     }
@@ -937,9 +1028,9 @@ class IOSNotifier implements Notifier {
   ) async {}
 
   @override
-  Future<void> cancel(int id, String roomUid) async {
+  Future<void> cancel(String roomUid) async {
     try {
-      await _flutterLocalNotificationsPlugin.cancel(id);
+      await _flutterLocalNotificationsPlugin.cancel(roomUid.hashCode);
     } catch (e) {
       _logger.e(e);
     }
@@ -955,7 +1046,7 @@ class IOSNotifier implements Notifier {
   }
 
   @override
-  Future<void> cancelById(int id) async {}
+  Future<void> cancelById(int id, String roomUid) async {}
 }
 
 class MacOSNotifier implements Notifier {
@@ -1054,9 +1145,9 @@ class MacOSNotifier implements Notifier {
   ) async {}
 
   @override
-  Future<void> cancel(int id, String roomUid) async {
+  Future<void> cancel(String roomUid) async {
     try {
-      await _flutterLocalNotificationsPlugin.cancel(id);
+      await _flutterLocalNotificationsPlugin.cancel(roomUid.hashCode);
     } catch (e) {
       _logger.e(e);
     }
@@ -1072,7 +1163,7 @@ class MacOSNotifier implements Notifier {
   }
 
   @override
-  Future<void> cancelById(int id) async {}
+  Future<void> cancelById(int id, String roomUid) async {}
 }
 
 String createNotificationTextFromMessageBrief(MessageSimpleRepresentative mb) {

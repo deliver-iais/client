@@ -98,38 +98,28 @@ class MessageRepo {
   final _mediaRepo = GetIt.I.get<MediaRepo>();
   final _dataStreamServices = GetIt.I.get<DataStreamServices>();
   final _sendActivitySubject = BehaviorSubject.seeded(0);
-  final updatingStatus =
-      BehaviorSubject.seeded(TitleStatusConditions.Disconnected);
+  final updatingStatus = BehaviorSubject.seeded(TitleStatusConditions.Normal);
+  bool _updateState = false;
 
   MessageRepo() {
-    connectionStatusHandler();
+    createConnectionStatusHandler();
   }
 
-  Future<void> connectionStatusHandler() async {
+  Future<void> createConnectionStatusHandler() async {
+    await update();
     _coreServices.connectionStatus.listen((mode) async {
       switch (mode) {
         case ConnectionStatus.Connected:
-          _logger.i('updating -----------------');
-          await updatingMessages();
-          await updatingLastSeen();
-          _roomRepo.fetchBlockedRoom().ignore();
-          updatingStatus.add(TitleStatusConditions.Connected);
-          Timer(const Duration(seconds: 1), () {
-            if (updatingStatus.value == TitleStatusConditions.Connected) {
-              updatingStatus.add(TitleStatusConditions.Normal);
-            }
-          });
-          sendPendingMessages().ignore();
-          sendPendingEditedMessages().ignore();
-          unawaited(_fetchNotSyncedRoom());
-
-          _logger.i('updating done -----------------');
+          unawaited(update());
+          _updateState = true;
           break;
         case ConnectionStatus.Disconnected:
           updatingStatus.add(TitleStatusConditions.Disconnected);
           break;
         case ConnectionStatus.Connecting:
-          updatingStatus.add(TitleStatusConditions.Connecting);
+          if (updatingStatus.value != TitleStatusConditions.Normal) {
+            updatingStatus.add(TitleStatusConditions.Connecting);
+          }
           break;
       }
     });
@@ -155,17 +145,38 @@ class MessageRepo {
 
   final _completerMap = <String, Completer<List<Message?>>>{};
 
+  Future<void> update() async {
+    _logger.i('updating -----------------');
+    if (_updateState && updatingStatus.value != TitleStatusConditions.Normal) {
+      updatingStatus.add(TitleStatusConditions.Connected);
+    }
+    if (await updatingMessages()) {
+      await updatingLastSeen();
+      _roomRepo.fetchBlockedRoom().ignore();
+    }
+    if (_updateState && updatingStatus.value != TitleStatusConditions.Normal) {
+      updatingStatus.add(TitleStatusConditions.Connected);
+      Timer(const Duration(seconds: 1), () {
+        updatingStatus.add(TitleStatusConditions.Normal);
+      });
+    }
+
+    sendPendingMessages().ignore();
+    sendPendingEditedMessages().ignore();
+    unawaited(_fetchNotSyncedRoom());
+    _logger.i('updating done -----------------');
+  }
+
   @visibleForTesting
-  Future<void> updatingMessages() async {
+  Future<bool> updatingMessages() async {
     var finished = false;
     var pointer = 0;
     final allRoomFetched =
         await _sharedDao.getBoolean(SHARED_DAO_ALL_ROOMS_FETCHED);
-    if (allRoomFetched) {
-      updatingStatus.add(TitleStatusConditions.Updating);
-    } else {
+    if (!allRoomFetched && _updateState) {
       updatingStatus.add(TitleStatusConditions.Syncing);
     }
+
     while (!finished && pointer < MAX_ROOM_METADATA_SIZE) {
       try {
         final getAllUserRoomMetaRes =
@@ -210,6 +221,9 @@ class MessageRepo {
               } catch (e) {
                 _logger.e(e);
               }
+              if (allRoomFetched && _updateState) {
+                updatingStatus.add(TitleStatusConditions.Updating);
+              }
               _roomDao
                   .updateRoom(
                     uid: roomMetadata.roomUid.asString(),
@@ -245,11 +259,18 @@ class MessageRepo {
             _logger.e(e);
           }
         }
+      } on GrpcError catch (e) {
+        _logger.e(e);
+        if (!_updateState) {
+          _updateState = true;
+          return false;
+        }
       } catch (e) {
         _logger.e(e);
       }
       pointer += FETCH_ROOM_METADATA_LIMIT;
     }
+    return true;
   }
 
   Future<void> fetchRoomLastMessage(
@@ -474,43 +495,16 @@ class MessageRepo {
   }
 
   Future<void> sendCallMessage(
-    call_pb.CallEvent_CallStatus newStatus,
+    call_pb.CallEvent_CallStatus callStatus,
     Uid room,
     String callId,
     int callDuration,
-    int endOfCallDuration,
     call_pb.CallEvent_CallType callType,
   ) async {
     final json = (call_pb.CallEvent()
-          ..newStatus = newStatus
-          ..id = callId
+          ..callStatus = callStatus
+          ..callId = callId
           ..callDuration = Int64(callDuration)
-          ..endOfCallTime = Int64(endOfCallDuration)
-          ..callType = callType)
-        .writeToJson();
-
-    final msg =
-        _createMessage(room).copyWith(type: MessageType.CALL, json: json);
-
-    final pm = _createPendingMessage(msg, SendingStatus.PENDING);
-    _saveAndSend(pm);
-  }
-
-  Future<void> sendCallMessageWithMemberOrCallOwnerPvp(
-    call_pb.CallEvent_CallStatus newStatus,
-    Uid room,
-    String callId,
-    int callDuration,
-    int endOfCallDuration,
-    Uid memberOrCallOwnerPvp,
-    call_pb.CallEvent_CallType callType,
-  ) async {
-    final json = (call_pb.CallEvent()
-          ..newStatus = newStatus
-          ..id = callId
-          ..callDuration = Int64(callDuration)
-          ..endOfCallTime = Int64(endOfCallDuration)
-          ..memberOrCallOwnerPvp = memberOrCallOwnerPvp
           ..callType = callType)
         .writeToJson();
 
@@ -658,38 +652,58 @@ class MessageRepo {
     String? caption,
   ) {
     var tempDimension = Size.zero;
-    int? tempFileSize;
-    final tempType = file.extension ?? _findType(file.path);
+    var tempFileSize = 0;
+    var tempType = "";
+
+    try {
+      tempType = file.extension ?? _findType(file.path);
+    } catch (e) {
+      _logger.e("Error in getting file type", e);
+    }
+
     _fileRepo.initUploadProgress(fileUuid);
 
     final f = dart_file.File(file.path);
+
+    try {
+      tempFileSize = f.statSync().size;
+      _logger.d(
+        "File size set to file size: $tempFileSize",
+      );
+    } catch (e) {
+      _logger.e("Error in fetching fake file size", e);
+    }
+
     // Get size of image
     try {
       if (tempType.split('/')[0] == 'image' ||
           tempType.contains("jpg") ||
           tempType.contains("png")) {
         tempDimension = ImageSizeGetter.getSize(FileInput(f));
+        _logger.d(
+          "File dimensions size fetched: ${tempDimension.width}x${tempDimension.height}",
+        );
         if (tempDimension == Size.zero) {
-          tempDimension = const Size(200, 200);
+          tempDimension =
+              const Size(DEFAULT_FILE_DIMENSION, DEFAULT_FILE_DIMENSION);
+          _logger.d(
+            "File dimensions set to default size because it was zero to zero, 200x200",
+          );
         }
       }
-      tempFileSize = f.statSync().size;
-    } catch (_) {}
+    } catch (e) {
+      _logger.e("Error in fetching fake file dimensions", e);
+    }
 
-    // Create MessageCompanion
-
-    // Get type with file name
-
-    final sendingFakeFile = file_pb.File()
+    return file_pb.File()
       ..uuid = fileUuid
       ..caption = caption ?? ""
       ..width = tempDimension.width
       ..height = tempDimension.height
       ..type = tempType
-      ..size = file.size != null ? Int64(file.size!) : Int64(tempFileSize!)
+      ..size = file.size != null ? Int64(file.size!) : Int64(tempFileSize)
       ..name = file.name
       ..duration = 0;
-    return sendingFakeFile;
   }
 
   Future<void> sendStickerMessage({
@@ -840,6 +854,7 @@ class MessageRepo {
       case MessageType.BUTTONS:
       case MessageType.SHARE_PRIVATE_DATA_REQUEST:
       case MessageType.TRANSACTION:
+      case MessageType.PAYMENT_INFORMATION:
         break;
     }
     return byClient;
@@ -1022,7 +1037,9 @@ class MessageRepo {
         isHidden: true,
       );
 
-  String _getPacketId() => clock.now().millisecondsSinceEpoch.toString();
+  String _getPacketId() =>
+      clock.now().millisecondsSinceEpoch.toString() +
+      Random().nextInt(100000).toString();
 
   Future<List<Message?>> getPage(
     int page,
@@ -1104,7 +1121,7 @@ class MessageRepo {
     return messagesMap.values.toList();
   }
 
-  String _findType(String path) => mime(path) ?? "application/octet-stream";
+  String _findType(String path) => mime(path) ?? DEFAULT_FILE_TYPE;
 
   void sendActivity(Uid to, ActivityType activityType) {
     if (to.category == Categories.GROUP || to.category == Categories.USER) {

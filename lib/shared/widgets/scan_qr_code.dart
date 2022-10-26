@@ -27,7 +27,7 @@ class _ScanQrCode extends State<ScanQrCode> {
         title: Text(i18n.get("scan_qr_code")),
         leading: _routingServices.backButtonLeading(),
       ),
-      body: Container(
+      body: SizedBox(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
         child: _buildQrView(context),

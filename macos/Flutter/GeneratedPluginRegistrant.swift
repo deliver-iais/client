@@ -7,7 +7,7 @@ import Foundation
 
 import audio_session
 import audioplayers_darwin
-import connectivity_plus_macos
+import connectivity_plus
 import desktop_drop
 import desktop_lifecycle
 import desktop_window

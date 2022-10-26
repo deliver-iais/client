@@ -19,6 +19,7 @@ import 'package:deliver/repository/callRepo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/repository/mucRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
+import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/unread_message_counter.dart';
 import 'package:deliver/screen/navigation_center/widgets/feature_discovery_description_widget.dart';
 import 'package:deliver/screen/room/messageWidgets/forward_widgets/forward_preview.dart';
@@ -146,6 +147,7 @@ class RoomPageState extends State<RoomPage> {
   final _inputMessageFocusNode = FocusNode();
   final _scrollablePositionedListKey = GlobalKey();
   final List<int> _messageReplyHistory = [];
+  StreamSubscription<bool>? _shouldScrollToLastMessageInRoom;
   Timer? scrollEndNotificationTimer;
   Timer? highlightMessageTimer;
   bool _isArrowIconFocused = false;
@@ -157,6 +159,12 @@ class RoomPageState extends State<RoomPage> {
   Room get room => _room.valueOrNull ?? Room(uid: widget.roomId);
 
   @override
+  void dispose() {
+    _shouldScrollToLastMessageInRoom?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
@@ -166,15 +174,16 @@ class RoomPageState extends State<RoomPage> {
           _resetRoomPageDetails();
           return false;
         } else {
+          _routingService.resetCurrentRoom();
           return true;
         }
       },
-      child: DragDropWidget(
-        roomUid: widget.roomId,
-        height: MediaQuery.of(context).size.height,
-        replyMessageId: _repliedMessage.value?.id ?? 0,
-        resetRoomPageDetails: _resetRoomPageDetails,
-        child: SafeArea(
+      child: SelectionArea(
+        child: DragDropWidget(
+          roomUid: widget.roomId,
+          height: MediaQuery.of(context).size.height,
+          replyMessageId: _repliedMessage.value?.id ?? 0,
+          resetRoomPageDetails: _resetRoomPageDetails,
           child: Stack(
             children: [
               StreamBuilder<Room>(
@@ -246,7 +255,7 @@ class RoomPageState extends State<RoomPage> {
         Column(
           children: [
             const SizedBox(height: APPBAR_HEIGHT),
-            if (isDebugEnabled())
+            if (_featureFlags.showDeveloperDetails)
               StreamBuilder<Seen>(
                 stream: _roomRepo.watchMySeen(widget.roomId),
                 builder: (context, seen) {
@@ -319,6 +328,7 @@ class RoomPageState extends State<RoomPage> {
                   );
                 },
               ),
+            if (!isLarge(context)) const HasCallRow(),
             const AudioPlayerAppBar(),
             pinMessageWidget(),
           ],
@@ -370,7 +380,8 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Future<void> _getScrollPosition() async {
-    _routingService.shouldScrollToLastMessageInRoom.listen((shouldScroll) {
+    _shouldScrollToLastMessageInRoom =
+        _routingService.shouldScrollToLastMessageInRoom.listen((shouldScroll) {
       if (shouldScroll) {
         _scrollToLastMessage(isForced: true);
       }
@@ -424,6 +435,7 @@ class RoomPageState extends State<RoomPage> {
     _itemPositionsListener.itemPositions.addListener(() {
       final position = _itemPositionsListener.itemPositions.value;
       if (position.isNotEmpty) {
+        _syncLastPinMessageWithItemPosition();
         if ((_itemCount - position.first.index).abs() > 5) {
           _isLastMessages = false;
         } else {
@@ -476,6 +488,29 @@ class RoomPageState extends State<RoomPage> {
     }
 
     super.initState();
+  }
+
+  void _syncLastPinMessageWithItemPosition() {
+    final position = _itemPositionsListener.itemPositions.value;
+    final p = position.map((e) => e.index).reduce(max) + room.firstMessageId;
+    if (_pinMessages.length > 1 &&
+        _lastPinedMessage.value != p &&
+        _highlightMessageId.value == -1) {
+      if (position.last.index == 0) {
+        _lastPinedMessage.add(
+          _pinMessages.first.id!,
+        );
+      } else if (p == _pinMessages.last.id) {
+        _lastPinedMessage.add(
+          _pinMessages.last.id!,
+        );
+      } else {
+        final index = _pinMessages.lastIndexWhere((element) => element.id! < p);
+        if (index != -1 && _lastPinedMessage.value != _pinMessages[index].id) {
+          _lastPinedMessage.add((_pinMessages[index].id!));
+        }
+      }
+    }
   }
 
   Future<void> initRoomStream() async {
@@ -659,7 +694,9 @@ class RoomPageState extends State<RoomPage> {
 
   Future<void> onPin(Message message) =>
       _messageRepo.pinMessage(message).then((value) {
-        _pinMessages.add(message);
+        _pinMessages
+          ..add(message)
+          ..sort((a, b) => a.time - b.time);
         _lastPinedMessage.add(_pinMessages.last.id!);
       }).catchError((error) {
         ToastDisplay.showToast(
@@ -712,7 +749,7 @@ class RoomPageState extends State<RoomPage> {
   }
 
   Future<void> watchPinMessages() async {
-    _mucRepo.watchMuc(widget.roomId).listen((muc) {
+    _mucRepo.watchMuc(widget.roomId).distinct().listen((muc) {
       if (muc != null && muc.lastCanceledPinMessageId == 0) {
         final pm = muc.pinMessagesIdList;
         _pinMessages.clear();
@@ -904,12 +941,7 @@ class RoomPageState extends State<RoomPage> {
               return snapshot.hasData && !snapshot.data!
                   ? DescribedFeatureOverlay(
                       useCustomPosition: true,
-                      featureId: _featureFlags.hasVoiceCallPermission(room.uid)
-                          ? FeatureDiscovery.currentFeatureIdOf(context) ==
-                                  FEATURE_5
-                              ? FEATURE_5
-                              : FEATURE_4
-                          : FEATURE_3,
+                      featureId: FEATURE_4,
                       tapTarget: IconButton(
                         icon: const Icon(CupertinoIcons.phone),
                         onPressed: () {},
@@ -1209,6 +1241,7 @@ class RoomPageState extends State<RoomPage> {
         child: ScrollablePositionedList.separated(
           itemCount: _itemCount + 1,
           initialScrollIndex: initialScrollIndex + 1,
+          extraScrollSpeed: isWindows ? 40 : null,
           key: _scrollablePositionedListKey,
           initialAlignment: initialAlignment,
           physics: const ClampingScrollPhysics(),
@@ -1396,7 +1429,17 @@ class RoomPageState extends State<RoomPage> {
     final message = tuple.item2!;
 
     if (message.isHidden) {
-      return const SizedBox.shrink();
+      // TODO(bitbeter): یک باگی وجود داره که اگر زمان پیام هیدن اولی با پیام اولی نمایش داده شده روزشون فرق کنه این تیکه کد باگ خواهد داشت و باید درست بشه
+      if (index == room.firstMessageId) {
+        return Column(
+          children: [
+            const SizedBox(height: APPBAR_HEIGHT),
+            ChatTime(currentMessageTime: date(message.time))
+          ],
+        );
+      } else {
+        return const SizedBox.shrink();
+      }
     }
 
     final msgBox = BuildMessageBox(
@@ -1480,7 +1523,13 @@ class RoomPageState extends State<RoomPage> {
         alignment: .5,
         curve: Curves.fastOutSlowIn,
         opacityAnimationWeights: [20, 20, 60],
-      );
+      ).then((value) {
+        if (_highlightMessageId.value != -1 && shouldHighlight) {
+          highlightMessageTimer = Timer(const Duration(seconds: 2), () {
+            _highlightMessageId.add(-1);
+          });
+        }
+      });
 
       _currentScrollIndex = max(0, index);
 
@@ -1489,11 +1538,6 @@ class RoomPageState extends State<RoomPage> {
       if (index != -1) {
         highlightMessageTimer?.cancel();
         _highlightMessageId.add(index + room.firstMessageId);
-      }
-      if (_highlightMessageId.value != -1) {
-        highlightMessageTimer = Timer(const Duration(seconds: 2), () {
-          _highlightMessageId.add(-1);
-        });
       }
     }
   }
@@ -1527,16 +1571,18 @@ class RoomPageState extends State<RoomPage> {
       onTap: () {
         _scrollToMessageWithHighlight(_lastPinedMessage.value);
         if (_pinMessages.length > 1) {
-          _lastPinedMessage.add(
-            _pinMessages[max(
-              _pinMessages.indexWhere(
-                    (e) => e.id == _lastPinedMessage.value,
-                  ) -
-                  1,
-              0,
-            )]
-                .id!,
-          );
+          if (_pinMessages.indexWhere((e) => e.id == _lastPinedMessage.value) ==
+              0) {
+            _lastPinedMessage.add(_pinMessages.last.id!);
+          } else {
+            _lastPinedMessage.add(
+              _pinMessages[_pinMessages.indexWhere(
+                        (e) => e.id == _lastPinedMessage.value,
+                      ) -
+                      1]
+                  .id!,
+            );
+          }
         }
       },
       onClose: () {
@@ -1554,7 +1600,7 @@ class RoomPageState extends State<RoomPage> {
   }
 
   void openCallScreen({bool isVideoCall = false}) {
-    if (_callService.getUserCallState == UserCallState.NOCALL) {
+    if (_callService.getUserCallState == UserCallState.NO_CALL) {
       _routingService.openCallScreen(
         room.uid.asUid(),
         isVideoCall: isVideoCall,

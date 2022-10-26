@@ -1,4 +1,5 @@
 import 'package:deliver/box/account.dart';
+import 'package:deliver/box/active_notification.dart';
 import 'package:deliver/box/auto_download.dart';
 import 'package:deliver/box/auto_download_room_category.dart';
 import 'package:deliver/box/avatar.dart';
@@ -10,6 +11,7 @@ import 'package:deliver/box/call_type.dart';
 import 'package:deliver/box/contact.dart';
 import 'package:deliver/box/current_call_info.dart';
 import 'package:deliver/box/dao/account_dao.dart';
+import 'package:deliver/box/dao/active_notification_dao.dart';
 import 'package:deliver/box/dao/auto_download_dao.dart';
 import 'package:deliver/box/dao/avatar_dao.dart';
 import 'package:deliver/box/dao/block_dao.dart';
@@ -22,6 +24,7 @@ import 'package:deliver/box/dao/mute_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
+import 'package:deliver/box/dao/show_case_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/file_info.dart';
@@ -47,6 +50,7 @@ import 'package:deliver/box/role.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/box/seen.dart';
 import 'package:deliver/box/sending_status.dart';
+import 'package:deliver/box/show_case.dart';
 import 'package:deliver/box/uid_id_name.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/accountRepo.dart';
@@ -73,8 +77,10 @@ import 'package:deliver/services/create_muc_service.dart';
 import 'package:deliver/services/data_stream_services.dart';
 import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/firebase_services.dart';
+import 'package:deliver/services/log.dart';
 import 'package:deliver/services/message_extractor_services.dart';
 import 'package:deliver/services/muc_services.dart';
+import 'package:deliver/services/notification_foreground_service.dart';
 import 'package:deliver/services/notification_services.dart';
 import 'package:deliver/services/raw_keyboard_service.dart';
 import 'package:deliver/services/routing_service.dart';
@@ -105,6 +111,7 @@ import 'box/dao/message_dao.dart';
 import 'box/dao/muc_dao.dart';
 import 'box/media.dart';
 import 'repository/mucRepo.dart';
+import 'repository/show_case_repo.dart';
 
 void registerSingleton<T extends Object>(T instance) {
   if (!GetIt.I.isRegistered<T>()) {
@@ -114,18 +121,7 @@ void registerSingleton<T extends Object>(T instance) {
 
 Future<void> setupDI() async {
   registerSingleton<AnalyticsRepo>(AnalyticsRepo());
-  registerSingleton<AnalyticsClientInterceptor>(
-    AnalyticsClientInterceptor(),
-  );
-
-  // Setup Logger
-  registerSingleton<DeliverLogFilter>(DeliverLogFilter());
-  registerSingleton<Logger>(
-    Logger(
-      filter: GetIt.I.get<DeliverLogFilter>(),
-      level: kDebugMode ? Level.info : Level.nothing,
-    ),
-  );
+  registerSingleton<AnalyticsClientInterceptor>(AnalyticsClientInterceptor());
 
   await Hive.initFlutter("$APPLICATION_FOLDER_NAME/db");
 
@@ -165,7 +161,9 @@ Future<void> setupDI() async {
     ..registerAdapter(ReplyKeyboardButtonAdapter())
     ..registerAdapter(ReplyKeyboardMarkupAdapter())
     ..registerAdapter(ReplyKeyboardRowAdapter())
-    ..registerAdapter(InlineKeyboardRowAdapter());
+    ..registerAdapter(InlineKeyboardRowAdapter())
+    ..registerAdapter(ActiveNotificationAdapter())
+    ..registerAdapter(ShowCaseAdapter());
 
   registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
   registerSingleton<AccountDao>(AccountDaoImpl());
@@ -189,6 +187,19 @@ Future<void> setupDI() async {
   registerSingleton<CallInfoDao>(CallInfoDaoImpl());
   registerSingleton<AutoDownloadDao>(AutoDownloadDaoImpl());
   registerSingleton<CurrentCallInfoDao>(CurrentCallInfoDaoImpl());
+  registerSingleton<ActiveNotificationDao>(ActiveNotificationDaoImpl());
+  registerSingleton<ShowCaseDao>(ShowCaseDaoImpl());
+
+  // Setup Logger
+  registerSingleton<DeliverLogFilter>(DeliverLogFilter());
+  registerSingleton<DeliverLogOutput>(DeliverLogOutput());
+  registerSingleton<Logger>(
+    Logger(
+      filter: GetIt.I.get<DeliverLogFilter>(),
+      level: kDebugMode ? Level.info : Level.nothing,
+      output: GetIt.I.get<DeliverLogOutput>(),
+    ),
+  );
 
   registerSingleton<ServicesDiscoveryRepo>(ServicesDiscoveryRepo());
 
@@ -211,6 +222,7 @@ Future<void> setupDI() async {
   registerSingleton<FileService>(FileService());
   registerSingleton<MucServices>(MucServices());
   registerSingleton<CreateMucService>(CreateMucService());
+  registerSingleton<NotificationForegroundService>(NotificationForegroundService());
   registerSingleton<BotRepo>(BotRepo());
   registerSingleton<StickerRepo>(StickerRepo());
   registerSingleton<FileRepo>(FileRepo());
@@ -254,31 +266,37 @@ Future<void> setupDI() async {
 
   registerSingleton<CallRepo>(CallRepo());
   registerSingleton<UrlHandlerService>(UrlHandlerService());
+  registerSingleton<ShowCaseRepo>(ShowCaseRepo());
 }
 
 Future initializeFirebase() async {
-  await Firebase.initializeApp(name: APPLICATION_NAME, options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(
+    name: APPLICATION_NAME,
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 }
 
 // ignore: avoid_void_async
 void main() async {
+  final logger = Logger();
+
   WidgetsFlutterBinding.ensureInitialized();
 
-  Logger().i("Application has been started.");
+  logger.i("Application has been started.");
 
   if (hasFirebaseCapability) {
     await initializeFirebase();
   }
 
-  Logger().i("OS based setups done.");
+  logger.i("OS based setups done.");
 
   try {
     await setupDI();
   } catch (e) {
-    Logger().e(e);
+    logger.e(e);
   }
 
-  Logger().i("Dependency Injection setup done.");
+  logger.i("Dependency Injection setup done.");
 
   if (isDesktop && !isWeb) {
     try {
@@ -286,7 +304,7 @@ void main() async {
 
       setWindowTitle(APPLICATION_NAME);
     } catch (e) {
-      Logger().e(e);
+      logger.e(e);
     }
   }
 
