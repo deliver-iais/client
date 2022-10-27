@@ -606,6 +606,7 @@ class NavigationCenterState extends State<NavigationCenter>
                     ),
                   ),
                   onTap: () {
+                    FocusManager.instance.primaryFocus?.unfocus();
                     _routingServices.openSettings(popAllBeforePush: true);
                   },
                 ),

@@ -138,6 +138,7 @@ class ChatsPageState extends State<ChatsPage> with CustomPopupMenu {
     return GestureDetector(
       behavior: HitTestBehavior.translucent,
       onTap: () {
+        FocusManager.instance.primaryFocus?.unfocus();
         _routingService.openRoom(
           rw.room.uid,
           popAllBeforePush: true,
