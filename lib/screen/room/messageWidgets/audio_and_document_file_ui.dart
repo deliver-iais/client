@@ -76,6 +76,7 @@ class AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
                           maxWidth: widget.maxWidth * 0.55,
                           file: file,
                           colorScheme: widget.colorScheme,
+                          withColor: false,
                         )
                       ],
                     ),

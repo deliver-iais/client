@@ -1,7 +1,7 @@
 import 'dart:math';
 
-import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/services/file_service.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
@@ -10,23 +10,23 @@ const LOADING_INDICATOR_WIDGET_SIZE = 50.0;
 const LOADING_INDICATOR_PADDING = 2.0;
 
 class LoadFileStatus extends StatefulWidget {
-  final String fileId;
-  final String fileName;
+  final String uuid;
+  final String name;
   final Color background;
   final bool isPendingMessage;
   final Color foreground;
-  final String? messagePacketId;
   final void Function() onPressed;
+  final void Function() onCancel;
 
   const LoadFileStatus({
     super.key,
-    required this.fileId,
-    required this.fileName,
+    required this.uuid,
+    required this.name,
     required this.onPressed,
     required this.background,
     required this.isPendingMessage,
     required this.foreground,
-    this.messagePacketId,
+    required this.onCancel,
   });
 
   @override
@@ -35,13 +35,16 @@ class LoadFileStatus extends StatefulWidget {
 
 class LoadFileStatusState extends State<LoadFileStatus>
     with SingleTickerProviderStateMixin {
-  static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _fileService = GetIt.I.get<FileService>();
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  late AnimationController _controller;
 
   @override
   void initState() {
-    _fileService.initProgressBar(widget.fileId);
-
+    _controller =
+        AnimationController(vsync: this, duration: const Duration(seconds: 2))
+          ..repeat();
     super.initState();
   }
 
@@ -51,13 +54,10 @@ class LoadFileStatusState extends State<LoadFileStatus>
     super.dispose();
   }
 
-  late final AnimationController _controller =
-      AnimationController(vsync: this, duration: const Duration(seconds: 2))
-        ..repeat();
-
   @override
   Widget build(BuildContext context) {
     return Container(
+      key: _scaffoldKey,
       width: LOADING_INDICATOR_WIDGET_SIZE,
       height: LOADING_INDICATOR_WIDGET_SIZE,
       decoration:
@@ -79,27 +79,31 @@ class LoadFileStatusState extends State<LoadFileStatus>
         color: widget.background,
       ),
       child: StreamBuilder<Map<String, FileStatus>>(
-        stream: _fileService.fileStatus.stream,
+        stream: _fileService.watchFileStatus(),
         builder: (context, snapshot) {
-          if (_fileService.fileStatus.value[widget.fileId] ==
-                  FileStatus.COMPLETED ||
-              snapshot.hasData &&
-                  snapshot.data != null &&
-                  snapshot.data![widget.fileId] == FileStatus.STARTED) {
-            return buildFileStatus();
+          Widget child = const SizedBox();
+          if (snapshot.hasData &&
+              snapshot.data != null &&
+              snapshot.data![widget.uuid] == FileStatus.STARTED) {
+            child = buildFileStatus();
           } else {
-            return IconButton(
+            child = IconButton(
               padding: const EdgeInsets.all(0),
               icon: Icon(
                 Icons.arrow_downward,
                 color: widget.foreground,
                 size: 35,
               ),
-              onPressed: () {
-                widget.onPressed();
-              },
+              onPressed: () => widget.onPressed(),
             );
           }
+          return AnimatedSwitcher(
+            duration: VERY_SLOW_ANIMATION_DURATION,
+            transitionBuilder: (child, animation) {
+              return ScaleTransition(scale: animation, child: child);
+            },
+            child: child,
+          );
         },
       ),
     );
@@ -111,9 +115,9 @@ class LoadFileStatusState extends State<LoadFileStatus>
       stream: _fileService.filesProgressBarStatus,
       builder: (c, map) {
         final progress =
-            _fileService.fileStatus.value[widget.fileId] == FileStatus.COMPLETED
+            _fileService.getFileStatus(widget.uuid) == FileStatus.COMPLETED
                 ? 100.0
-                : map.data![widget.fileId] ?? 0;
+                : map.data![widget.uuid] ?? 0;
         return Stack(
           children: [
             Center(
@@ -149,14 +153,8 @@ class LoadFileStatusState extends State<LoadFileStatus>
                     size: 35,
                   ),
                   onTap: () {
-                    if (widget.isPendingMessage) {
-                      _messageRepo
-                          .deletePendingMessage(widget.messagePacketId!);
-                    } else {
-                      // _starDownload.add(false);
-                    }
-
-                    _fileService.cancelUploadOrDownloadFile(widget.fileId);
+                    widget.onCancel();
+                    _fileService.cancelUploadOrDownloadFile(widget.uuid);
                   },
                 ),
               ),

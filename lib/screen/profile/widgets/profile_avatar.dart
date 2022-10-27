@@ -110,8 +110,7 @@ class ProfileAvatarState extends State<ProfileAvatar> {
   Future<void> _setAvatar(String avatarPath) async {
     _newAvatarPath.add(avatarPath);
     await _avatarRepo.setMucAvatar(widget.roomUid, avatarPath);
-
-    if (_fileService.fileStatus.value[widget.roomUid.node] !=
+    if (_fileService.getFileStatus(widget.roomUid.node) !=
         FileStatus.COMPLETED) {
       ToastDisplay.showToast(
         toastContext: context,

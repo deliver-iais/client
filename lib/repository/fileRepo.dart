@@ -51,9 +51,8 @@ class FileRepo {
     }
     if (value != null) {
       final json = jsonDecode(value.toString()) as Map;
-      _fileService.fileStatus.add(
-        _fileService.fileStatus.value..[uploadKey] = FileStatus.CANCELED,
-      );
+      _fileService.updateFileStatus(uploadKey, FileStatus.COMPLETED);
+
       try {
         var uploadedFile = file_pb.File();
         uploadedFile = file_pb.File()
@@ -84,14 +83,13 @@ class FileRepo {
           }
         }
         _logger.v(uploadedFile);
-        _fileService.fileStatus.add(
-          _fileService.fileStatus.value
-            ..[uploadedFile.uuid] = FileStatus.COMPLETED,
-        );
+
         localUploadedFilePath[uploadedFile.uuid] = clonedFilePath!.path;
         await _updateFileInfoWithRealUuid(uploadKey, uploadedFile.uuid);
+        _fileService.updateFileStatus(uploadedFile.uuid, FileStatus.COMPLETED);
         return uploadedFile;
       } catch (e) {
+        _fileService.updateFileStatus(uploadKey, FileStatus.CANCELED);
         _logger.e(e);
         return null;
       }
@@ -151,15 +149,19 @@ class FileRepo {
     String uuid,
     String filename, {
     ThumbnailSize? thumbnailSize,
-    bool intiProgressBar = true,
+    bool intiProgressbar = true,
   }) async {
     final path =
         await getFileIfExist(uuid, filename, thumbnailSize: thumbnailSize);
     if (path != null) {
       return isWeb ? Uri.parse(path).toString() : path;
     }
-    final downloadedFileUri =
-        await _fileService.getFile(uuid, filename, size: thumbnailSize);
+    final downloadedFileUri = await _fileService.getFile(
+      uuid,
+      filename,
+      size: thumbnailSize,
+      initProgressbar: intiProgressbar,
+    );
     if (downloadedFileUri != null) {
       if (isWeb) {
         final res = await http.get(Uri.parse(downloadedFileUri));
@@ -179,6 +181,9 @@ class FileRepo {
         filename,
         thumbnailSize != null ? enumToString(thumbnailSize) : 'real',
       );
+      if (intiProgressbar) {
+        _fileService.updateFileStatus(uuid, FileStatus.COMPLETED);
+      }
 
       return downloadedFileUri;
     } else {
@@ -222,9 +227,7 @@ class FileRepo {
   Future<FileInfo?> _getFileInfoInDB(String size, String uuid) async =>
       _fileDao.get(uuid, enumToString(size));
 
-  void initUploadProgress(String uploadId) {
-    _fileService.initProgressBar(uploadId);
-  }
+
 
   void saveDownloadedFileInWeb(String uuid, String name, String type) {
     getFileIfExist(uuid, name).then((url) {

@@ -1,8 +1,11 @@
 import 'dart:io';
+import 'package:deliver/repository/fileRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/video_message/video_player_widget.dart';
+import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as pb;
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:video_player/video_player.dart';
 
@@ -28,6 +31,7 @@ class VideoUi extends StatefulWidget {
 
 class VideoUiState extends State<VideoUi> {
   late final VideoPlayerController _videoPlayerController;
+  static final _fileRepo = GetIt.I.get<FileRepo>();
 
   @override
   void initState() {
@@ -43,11 +47,13 @@ class VideoUiState extends State<VideoUi> {
   }
 
   Future<void> _init() async {
-    _videoPlayerController = isWeb
-        ? VideoPlayerController.network(widget.videoFilePath)
-        : VideoPlayerController.file(File(widget.videoFilePath));
-    await _videoPlayerController.initialize();
-    setState(() {});
+    try {
+      _videoPlayerController = isWeb
+          ? VideoPlayerController.network(widget.videoFilePath)
+          : VideoPlayerController.file(File(widget.videoFilePath));
+      await _videoPlayerController.initialize();
+      setState(() {});
+    } catch (_) {}
   }
 
   @override
@@ -79,9 +85,35 @@ class VideoUiState extends State<VideoUi> {
             maxWidth: MediaQuery.of(context).size.width,
             maxHeight: MediaQuery.of(context).size.height / 2,
             child: Center(
-              child: VideoPlayer(
-                _videoPlayerController,
-              ),
+              child: isDesktop
+                  ? FutureBuilder<String?>(
+                      future: _fileRepo.getFile(
+                        widget.videoMessage.uuid,
+                        "${widget.videoMessage.name}.png",
+                        thumbnailSize: ThumbnailSize.small,
+                        intiProgressbar: false,
+                      ),
+                      builder: (c, path) {
+                        if (path.hasData && path.data != null) {
+                          return Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(4.0),
+                              image: DecorationImage(
+                                image: Image.file(File(path.data!)).image,
+                                fit: BoxFit.cover,
+                              ),
+                              color: Colors.black.withOpacity(0.5),
+                            ),
+                            // child: Image.file(File(path.data!),width: 400,),
+                          );
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      },
+                    )
+                  : VideoPlayer(
+                      _videoPlayerController,
+                    ),
             ),
           ),
         ),
