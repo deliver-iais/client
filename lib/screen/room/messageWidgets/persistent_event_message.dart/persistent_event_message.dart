@@ -381,6 +381,7 @@ class PersistentEventMessage extends StatelessWidget {
         case MessageType.CALL:
         case MessageType.TABLE:
         case MessageType.TRANSACTION:
+        case MessageType.PAYMENT_INFORMATION:
         case MessageType.NOT_SET:
           return "";
       }

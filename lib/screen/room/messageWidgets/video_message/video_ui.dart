@@ -3,7 +3,7 @@ import 'package:deliver/screen/room/messageWidgets/video_message/video_player_wi
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as pb;
 import 'package:flutter/material.dart';
-import 'package:open_file/open_file.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:video_player/video_player.dart';
 
 class VideoUi extends StatefulWidget {
@@ -57,7 +57,7 @@ class VideoUiState extends State<VideoUi> {
         GestureDetector(
           onTap: () {
             if (isDesktop) {
-              OpenFile.open(widget.videoFilePath);
+              OpenFilex.open(widget.videoFilePath);
             } else {
               Navigator.push(
                 context,
@@ -99,7 +99,7 @@ class VideoUiState extends State<VideoUi> {
               iconSize: 42,
               onPressed: () {
                 if (isDesktop) {
-                  OpenFile.open(widget.videoFilePath);
+                  OpenFilex.open(widget.videoFilePath);
                 } else {
                   Navigator.push(
                     context,

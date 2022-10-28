@@ -5,27 +5,32 @@ String buildPhoneNumber(int countryCode, int nationalNumber) =>
     "+$countryCode-$nationalNumber";
 
 PhoneNumber? getPhoneNumber(String pStr) {
-  final phone = pStr
-      .replaceAll(RegExp(r"\s+\b|\b\s"), '')
-      .replaceAll('+', '')
-      .replaceAll('(', '')
-      .replaceAll(')', '')
-      .replaceAll('-', '');
+  try{
+    final phone = pStr
+        .replaceAll(RegExp(r"\s+\b|\b\s"), '')
+        .replaceAll('+', '')
+        .replaceAll('(', '')
+        .replaceAll(')', '')
+        .replaceAll('-', '');
 
-  final phoneNumber = PhoneNumber();
-  switch (phone.length) {
-    case 11:
-      phoneNumber.countryCode = 98;
-      phoneNumber.nationalNumber = Int64.parseInt(phone.substring(1, 11));
-      return phoneNumber;
-    case 12:
-      phoneNumber.countryCode = int.parse(phone.substring(0, 2));
-      phoneNumber.nationalNumber = Int64.parseInt(phone.substring(2, 12));
-      return phoneNumber;
-    case 10:
-      phoneNumber.countryCode = 98;
-      phoneNumber.nationalNumber = Int64.parseInt(phone.substring(0, 10));
-      return phoneNumber;
+    final phoneNumber = PhoneNumber();
+    switch (phone.length) {
+      case 11:
+        phoneNumber.countryCode = 98;
+        phoneNumber.nationalNumber = Int64.parseInt(phone.substring(1, 11));
+        return phoneNumber;
+      case 12:
+        phoneNumber.countryCode = int.parse(phone.substring(0, 2));
+        phoneNumber.nationalNumber = Int64.parseInt(phone.substring(2, 12));
+        return phoneNumber;
+      case 10:
+        phoneNumber.countryCode = 98;
+        phoneNumber.nationalNumber = Int64.parseInt(phone.substring(0, 10));
+        return phoneNumber;
+    }
+  }catch(_){
+
   }
+
   return null;
 }

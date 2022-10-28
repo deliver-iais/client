@@ -8,67 +8,13 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/extra_theme.dart';
 import 'package:deliver/theme/theme.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:logger/logger.dart';
 import 'package:material_color_utilities/material_color_utilities.dart';
 import 'package:rxdart/rxdart.dart';
 
-class DeliverLogFilter extends LogFilter {
-  @override
-  bool shouldLog(LogEvent event) {
-    return event.level != Level.nothing && event.level.index >= level!.index;
-  }
-}
-
-class LogLevelHelper {
-  static String levelToString(Level level) {
-    switch (level) {
-      case Level.debug:
-        return "DEBUG";
-      case Level.verbose:
-        return "VERBOSE";
-      case Level.error:
-        return "ERROR";
-      case Level.info:
-        return "INFO";
-      case Level.warning:
-        return "WARNING";
-      case Level.wtf:
-        return "WTF";
-      case Level.nothing:
-        return "NOTHING";
-    }
-  }
-
-  static Level stringToLevel(String level) {
-    switch (level) {
-      case "DEBUG":
-        return Level.debug;
-      case "VERBOSE":
-        return Level.verbose;
-      case "ERROR":
-        return Level.error;
-      case "INFO":
-        return Level.info;
-      case "WARNING":
-        return Level.warning;
-      case "WTF":
-        return Level.wtf;
-      case "NOTHING":
-        return Level.nothing;
-      default:
-        return Level.debug;
-    }
-  }
-
-  static List<String> levels() =>
-      ["DEBUG", "VERBOSE", "ERROR", "INFO", "WARNING", "WTF", "NOTHING"];
-}
-
 class UxService {
-  static bool isDeveloperMode = false;
+  static bool showDeveloperPage = false;
 
   final _sharedDao = GetIt.I.get<SharedDao>();
 
@@ -96,14 +42,6 @@ class UxService {
   }
 
   UxService() {
-    _sharedDao
-        .getStream(
-          SHARED_DAO_LOG_LEVEL,
-          defaultValue: kDebugMode ? "INFO" : "NOTHING",
-        )
-        .map((event) => LogLevelHelper.stringToLevel(event!))
-        .listen((level) => GetIt.I.get<DeliverLogFilter>().level = level);
-
     _sharedDao
         .getBooleanStream(
           SHARED_DAO_IS_AUTO_NIGHT_MODE_ENABLE,
@@ -247,6 +185,10 @@ class UxService {
   void changeLogLevel(String level) {
     _sharedDao.put(SHARED_DAO_LOG_LEVEL, level);
   }
+
+  void toggleLogInFileEnable() {
+    _sharedDao.toggleBoolean(SHARED_DAO_LOG_IN_FILE_ENABLE);
+  }
 }
 
 class FeatureFlags {
@@ -254,33 +196,30 @@ class FeatureFlags {
   final _authRepo = GetIt.I.get<AuthRepo>();
 
   // Flags
-  final _voiceCallFeatureFlag = BehaviorSubject.seeded(false);
+  final _showDeveloperDetails = BehaviorSubject.seeded(false);
 
   FeatureFlags() {
     _sharedDao
-        .getBooleanStream(
-          SHARED_DAO_FEATURE_FLAGS_VOICE_CALL,
-          defaultValue: _isVoiceCallBetaUser(),
-        )
+        .getBooleanStream(SHARED_DAO_FEATURE_FLAGS_SHOW_DEVELOPER_DETAILS)
         .distinct()
-        .listen((isEnable) => _voiceCallFeatureFlag.add(isEnable));
+        .listen((isEnable) => _showDeveloperDetails.add(isEnable));
   }
 
-  bool labIsAvailable() =>
-      _voiceCallFeatureIsPossible() && !_isVoiceCallBetaUser();
+  bool labIsAvailable() => _voiceCallFeatureIsPossible();
 
   bool _voiceCallFeatureIsPossible() => !isLinux;
 
-  bool _isVoiceCallBetaUser() =>
-      ACCESS_TO_CALL_UID_LIST.contains(_authRepo.currentUserUid.asString());
+  // ignore: unused_element
+  bool _isBetaUser() =>
+      BETA_USERS_UID_LIST.contains(_authRepo.currentUserUid.asString());
 
-  Stream<bool> get voiceCallFeatureFlagStream =>
-      _voiceCallFeatureFlag.distinct();
+  bool get showDeveloperDetails => _showDeveloperDetails.value;
 
-  void toggleVoiceCallFeatureFlag() {
-    final newValue = !_voiceCallFeatureFlag.value;
-    _sharedDao.putBoolean(SHARED_DAO_FEATURE_FLAGS_VOICE_CALL, newValue);
-    _voiceCallFeatureFlag.add(newValue);
+  Future<void> toggleShowDeveloperDetails() async {
+    _showDeveloperDetails.add(
+      await _sharedDao
+          .toggleBoolean(SHARED_DAO_FEATURE_FLAGS_SHOW_DEVELOPER_DETAILS),
+    );
   }
 
   bool hasVoiceCallPermission(String roomUid) {
@@ -289,23 +228,28 @@ class FeatureFlags {
         isVoiceCallAvailable();
   }
 
-  void enableVoiceCallFeatureFlag() {
-    if (_voiceCallFeatureFlag.value == true) {
-      return;
-    }
-    _sharedDao.putBoolean(SHARED_DAO_FEATURE_FLAGS_VOICE_CALL, true);
-    _voiceCallFeatureFlag.add(true);
+  bool isVoiceCallAvailable() {
+    return _voiceCallFeatureIsPossible();
   }
 
-  bool isVoiceCallAvailable() {
-    if (!_voiceCallFeatureIsPossible()) {
-      return false;
-    }
+  void setICECandidateNumber(double ICECandidateNumbers) {
+    _sharedDao.put(
+      "ICECandidateNumbers",
+      ICECandidateNumbers.round().toString(),
+    );
+  }
 
-    if (_isVoiceCallBetaUser()) {
-      return true;
-    }
+  void setICECandidateTimeLimit(double ICECandidateTimeLimit) {
+    _sharedDao.put(
+      "ICECandidateTimeLimit",
+      ICECandidateTimeLimit.round().toString(),
+    );
+  }
 
-    return _voiceCallFeatureFlag.value;
+  void setICEServerEnable(
+    String server, {
+    bool newStatus = false,
+  }) {
+    _sharedDao.putBoolean(server, newStatus);
   }
 }

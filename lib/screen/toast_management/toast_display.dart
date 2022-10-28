@@ -9,24 +9,24 @@ import 'package:lottie/lottie.dart';
 class ToastDisplay {
   static void showToast({
     IconData? toastIcon,
-    Color? toastColor,
-    bool isSaveToast = false,
+    bool animateDone = false,
     required BuildContext toastContext,
     required String toastText,
   }) {
     final fToast = FToast()..init(toastContext);
     final i18n = GetIt.I.get<I18N>();
 
-    toastColor ??= Theme.of(toastContext).colorScheme.surface;
+    final theme = Theme.of(toastContext);
+
     final Widget toast = Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
         boxShadow: DEFAULT_BOX_SHADOWS,
         borderRadius: tertiaryBorder,
-        color: toastColor,
+        color: theme.colorScheme.inverseSurface,
       ),
-      child:  Directionality(
+      child: Directionality(
         textDirection: i18n.defaultTextDirection,
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -36,12 +36,15 @@ class ToastDisplay {
               const SizedBox(
                 width: 12.0,
               ),
-            if (isSaveToast)
-              Lottie.asset("assets/animations/file-save.json", width: 40),
+            if (animateDone)
+              Lottie.asset("assets/animations/done.zip", width: 60, height: 40),
             Expanded(
               child: Text(
                 toastText,
-                style: const TextStyle(fontSize: 16),
+                style: TextStyle(
+                  fontSize: 16,
+                  color: theme.colorScheme.onInverseSurface,
+                ),
               ),
             ),
           ],
@@ -52,7 +55,8 @@ class ToastDisplay {
     fToast.showToast(
       child: toast,
       gravity: ToastGravity.BOTTOM,
-      toastDuration: const Duration(seconds: 2),
+      fadeDuration: SLOW_ANIMATION_DURATION,
+      toastDuration: SUPER_SLOW_ANIMATION_DURATION * 4,
     );
   }
 }

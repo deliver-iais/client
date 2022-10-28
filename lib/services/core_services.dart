@@ -17,6 +17,7 @@ import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/seen.pb.dart' as seen_pb;
 import 'package:fixnum/fixnum.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:logger/logger.dart';
@@ -50,6 +51,8 @@ class CoreServices {
 
   Timer? _connectionTimer;
 
+  Timer? _disconnectedTimer;
+
   var _lastPongTime = 0;
 
   BehaviorSubject<ConnectionStatus> connectionStatus =
@@ -76,7 +79,6 @@ class CoreServices {
 
   Future<void> initStreamConnection() async {
     retryConnection();
-
     _connectionStatus.distinct().listen((event) {
       connectionStatus.add(event);
     });
@@ -84,6 +86,8 @@ class CoreServices {
     Connectivity().onConnectivityChanged.listen((result) {
       if (result != ConnectivityResult.none) {
         retryConnection();
+      } else {
+        _onConnectionError();
       }
     });
   }
@@ -122,6 +126,7 @@ class CoreServices {
   }
 
   void gotResponse() {
+    _disconnectedTimer?.cancel();
     _connectionStatus.add(ConnectionStatus.Connected);
     backoffTime = MIN_BACKOFF_TIME;
     responseChecked = true;
@@ -200,10 +205,16 @@ class CoreServices {
   }
 
   void _onConnectionError() {
-    Timer(const Duration(seconds: 2), () {
-      _connectionStatus.add(ConnectionStatus.Disconnected);
-      disconnectedTime.add(backoffTime - 1);
-    });
+    if (_disconnectedTimer == null || !_disconnectedTimer!.isActive) {
+      _disconnectedTimer = Timer(Duration(seconds: 2 * backoffTime), () {
+        _changeStateToDisconnected();
+      });
+    }
+  }
+
+  void _changeStateToDisconnected() {
+    _connectionStatus.add(ConnectionStatus.Disconnected);
+    disconnectedTime.add(backoffTime - 1);
   }
 
   Future<void> sendMessage(MessageByClient message) async {
@@ -212,11 +223,14 @@ class CoreServices {
         ..message = message
         ..id = clock.now().microsecondsSinceEpoch.toString();
       await _sendClientPacket(clientPacket);
-      if(_connectionStatus.value == ConnectionStatus.Connected){
+      if (_connectionStatus.value == ConnectionStatus.Connected) {
         Timer(
           const Duration(seconds: MIN_BACKOFF_TIME ~/ 2),
-              () => _checkPendingStatus(message.packetId),
+          () => _checkPendingStatus(message.packetId),
         );
+      }
+      if (_disconnectedTimer != null && _disconnectedTimer!.isActive) {
+        _changeStateToDisconnected();
       }
     } catch (e) {
       _logger.e(e);
@@ -240,6 +254,12 @@ class CoreServices {
       ..ping = ping
       ..id = clock.now().microsecondsSinceEpoch.toString();
     _sendClientPacket(clientPacket, forceToSendEvenNotConnected: true);
+    FlutterForegroundTask.saveData(
+      key: "BackgroundActivationTime",
+      value: (clock.now().millisecondsSinceEpoch + backoffTime * 3 * 1000)
+          .toString(),
+    );
+    FlutterForegroundTask.saveData(key: "AppStatus", value: "Opened");
   }
 
   void sendSeen(seen_pb.SeenByClient seen) {

@@ -113,6 +113,7 @@ List<Partition> _grayOutDetector(
 Detector urlDetector() => simpleRegexDetectorWithGenerator(
       UrlFeature.urlRegex,
       (match) => {UrlFeature(match)},
+      lockToMoreParsing: true,
     );
 
 Detector inlineUrlDetector() => simpleRegexDetectorWithGenerator(
@@ -204,8 +205,8 @@ Detector simpleRegexDetector(
         .allMatches(synthesizeToOriginalWord(block.text))
         .map(
           (e) => Partition(
-            findOriginalMatchPosition(e.start, block.text),
-            findOriginalMatchPosition(e.end, block.text),
+            e.start,
+            e.end,
             features,
             replacedText: replacer?.call(
               block.text.substring(e.start, e.end),
@@ -214,16 +215,11 @@ Detector simpleRegexDetector(
         )
         .toList();
 
-int findOriginalMatchPosition(int end, String text) {
-  return end +
-      (text.substring(0, end).length -
-          synthesizeToOriginalWord(text.substring(0, end)).length);
-}
-
 Detector simpleRegexDetectorWithGenerator(
   String source,
   Set<Feature> Function(String) generateFeatures, {
   String Function(String)? replacer,
+  bool lockToMoreParsing = false,
 }) =>
     (block) => RegExp(source)
         .allMatches(block.text)
@@ -237,6 +233,7 @@ Detector simpleRegexDetectorWithGenerator(
             replacedText: replacer?.call(
               block.text.substring(e.start, e.end),
             ),
+            lockToMoreParsing: lockToMoreParsing,
           ),
         )
         .toList();

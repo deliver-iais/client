@@ -21,7 +21,7 @@ const GROUP_URL = "group";
 const CHANNEL_URL = "channel";
 
 // Version Constants
-const VERSION = "1.9.1";
+const VERSION = "1.9.6";
 
 // Time Constants
 const ONLINE_TIME = 60000;
@@ -35,8 +35,7 @@ const PAGE_SIZE = 50;
 
 //Contacts Constants
 const MAX_CONTACT_SIZE_TO_SEND = 50;
-const MAX_SEND_CONTACT_TIME_EXPIRE = 4 * 60 * 60 * 1000;
-const MAX_SEND_CONTACT_START_TIME_EXPIRE = 24 * 60 * 60 * 1000;
+const MAX_SEND_CONTACT_START_TIME_EXPIRE = 6 * 60 * 60 * 1000;
 const INVITE_MESSAGE =
     "$APPLICATION_NAME invite link: $APPLICATION_LANDING_URL";
 
@@ -48,11 +47,13 @@ const FETCH_ROOM_METADATA_IN_SYNCING_SIZE = 20;
 // File Constants
 const MAX_FILE_SIZE_BYTE = 104857600.0; //100MB
 const DOWNLOAD_COMPLETE = 200.0;
+const DEFAULT_FILE_TYPE = "application/octet-stream";
+const DEFAULT_FILE_DIMENSION = 200;
 
 // Text Message Limitation Constant
-const TEXT_MESSAGE_MAX_LENGTH = 50;
-const TEXT_MESSAGE_MAX_LINE = 25;
-const INPUT_MESSAGE_TEXT_FIELD_MAX_LINE = TEXT_MESSAGE_MAX_LINE * 4;
+const TEXT_MESSAGE_MAX_LENGTH = 60;
+const TEXT_MESSAGE_MAX_LINE = 30;
+const INPUT_MESSAGE_TEXT_FIELD_MAX_LINE = TEXT_MESSAGE_MAX_LINE * 10;
 const INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH =
     INPUT_MESSAGE_TEXT_FIELD_MAX_LINE * TEXT_MESSAGE_MAX_LENGTH;
 
@@ -83,6 +84,8 @@ const STATUS_CAMERA_OPEN = "camera-open";
 const STATUS_CAMERA_CLOSE = "camera-close";
 const STATUS_MIC_OPEN = "mic-open";
 const STATUS_MIC_CLOSE = "mic-close";
+const STATUS_CALL_ON_HOLD = "call-on-hold";
+const STATUS_CALL_ON_HOLD_ENDED = "call-ended";
 const STATUS_SHARE_SCREEN = "share-screen";
 const STATUS_SHARE_VIDEO = "share-video";
 const STATUS_CONNECTION_CONNECTING = "connection-connecting";
@@ -112,6 +115,8 @@ const SHARED_DAO_REFRESH_TOKEN_KEY = "SHARED_DAO_REFRESH_TOKEN_KEY";
 const SHARED_DAO_LOCAL_PASSWORD = "SHARED_DAO_LOCAL_PASSWORD";
 const SHARED_DAO_ALL_ROOMS_FETCHED = "SHARED_DAO_ALL_ROOMS_FETCHED";
 const SHARED_DAO_LOG_LEVEL = "SHARED_DAO_LOG_LEVEL";
+const SHARED_DAO_LOG_IN_FILE_ENABLE = "SHARED_DAO_LOG_IN_FILE_ENABLE";
+const SHARED_DAO_NOTIFICATION_FOREGROUND = "SHARED_DAO_NOTIFICATION_FOREGROUND";
 const SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED =
     "SHARED_DAO_IS_ALL_NOTIFICATION_DISABLED";
 const SHARED_DAO_APP_VERSION = "SHARED_DAO_APP_VERSION";
@@ -124,12 +129,13 @@ const SHARED_DAO_WINDOWS_SIZE = "SHARED_DAO_WINDOWS_SIZE";
 const SHARED_DAO_BAD_CERTIFICATE_CONNECTION =
     "SHARED_DAO_USE_CERTIFICATE_CONNECTION";
 const SHARE_DAO_HOST_SET_BY_USER = "SHARE_DAO_HOST_SET_BY_USER";
+const SHARED_DAO_FIREBASE_TOKEN = "SHARED_DAO_FIREBASE_TOKEN";
 
 // FEATURE FLAGS
-const SHARED_DAO_FEATURE_FLAGS_VOICE_CALL =
-    "SHARED_DAO_FEATURE_FLAGS_VOICE_CALL";
+const SHARED_DAO_FEATURE_FLAGS_SHOW_DEVELOPER_DETAILS =
+    "SHARED_DAO_FEATURE_FLAGS_SHOW_DEVELOPER_DETAILS";
 
-const ACCESS_TO_CALL_UID_LIST = [
+const BETA_USERS_UID_LIST = [
   "0:0fe14dcc-52e9-41c2-be8b-b995c28d8310", // "Esmael Dansi"
   "0:3e85b94e-1a0b-4b11-b7e2-3b5e96bcabfd", // "dansi"
   "0:db8ab0da-d0cb-4aaf-b642-2419ef59f05d", // "Esmael Dansi2"
@@ -222,7 +228,8 @@ const INLINE_KEYBOARD_BUTTON_ID = 33;
 const REPLY_KEYBOARD_MARKUP_ID = 34;
 const REPLY_KEYBOARD_ROW_ID = 35;
 const REPLY_KEYBOARD_BUTTON_ID = 36;
-
+const SHOW_CASE_TRACK_ID = 37;
+const ACTIVE_NOTIFICATION_TRACK_ID = 38;
 
 //FEATURE DISCOVERY ID
 const FEATURE_1 = 'feature1';
@@ -230,6 +237,7 @@ const FEATURE_2 = 'feature2';
 const FEATURE_3 = 'feature3';
 const FEATURE_4 = 'feature4';
 const FEATURE_5 = 'feature5';
+const FEATURE_6 = 'feature6';
 
 // Animation
 const FAST_ANIMATION_DURATION = Duration(milliseconds: 50);
@@ -278,8 +286,9 @@ double animationSquareSize(BuildContext context) => isLarge(context)
 
 double maxWidthOfMessage(BuildContext context) => min(
       (MediaQuery.of(context).size.width -
-              (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
-          0.8 - SELECTED_MESSAGE_CHECKBOX_WIDTH,
+                  (isLarge(context) ? NAVIGATION_PANEL_SIZE : 0)) *
+              0.8 -
+          SELECTED_MESSAGE_CHECKBOX_WIDTH,
       450,
     );
 

@@ -13,7 +13,6 @@ import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/custom_text_selection_controller.dart';
 import 'package:deliver/screen/room/messageWidgets/input_message_text_controller.dart';
 import 'package:deliver/screen/room/messageWidgets/max_lenght_text_input_formatter.dart';
-import 'package:deliver/screen/room/messageWidgets/text_ui.dart';
 import 'package:deliver/screen/room/widgets/auto_direction_text_input/auto_direction_text_field.dart';
 import 'package:deliver/screen/room/widgets/bot_commands.dart';
 import 'package:deliver/screen/room/widgets/emoji_keybord.dart';
@@ -35,21 +34,19 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/keyboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/attach_location.dart';
-import 'package:deliver/theme/theme.dart';
+
 import 'package:deliver_public_protocol/pub/v1/models/activity.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
-import 'package:feature_discovery/feature_discovery.dart';
+
 import 'package:file_picker/file_picker.dart';
 import 'package:file_selector/file_selector.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:rxdart/rxdart.dart';
-
-import '../../navigation_center/widgets/feature_discovery_description_widget.dart';
 
 class InputMessage extends StatefulWidget {
   final Room currentRoom;
@@ -97,7 +94,6 @@ class InputMessageWidgetState extends State<InputMessage> {
   static final _botRepo = GetIt.I.get<BotRepo>();
   static final _audioService = GetIt.I.get<AudioService>();
   static final _routingService = GetIt.I.get<RoutingService>();
-  static final _featureFlags = GetIt.I.get<FeatureFlags>();
 
   late Room currentRoom;
   final BehaviorSubject<bool> _showEmojiKeyboard =
@@ -115,14 +111,13 @@ class InputMessageWidgetState extends State<InputMessage> {
   late String _botCommandData;
   int mentionSelectedIndex = 0;
   int botCommandSelectedIndex = 0;
-  bool _shouldSynthesize = true;
 
   final botCommandRegexp = RegExp(r"(\w)*");
-  final idRegexp = RegExp(r"^[a-zA-Z]([a-zA-Z0-9_]){0,19}$");
+  final idRegexp = RegExp(r"^[a-zA-Z](\w){0,19}$");
 
-  void showButtonSheet() {
+  void _attachFile() {
     if (isWeb || isDesktop) {
-      _attachFileInWindowsMode();
+      _attachFileInDesktopMode();
     } else {
       FocusScope.of(context).unfocus();
       showModalBottomSheet(
@@ -147,6 +142,12 @@ class InputMessageWidgetState extends State<InputMessage> {
     widget.focusNode.onKey = (node, evt) {
       return handleKeyPress(evt);
     };
+    widget.focusNode.addListener(() {
+      if (!isDesktop) {
+        _showEmojiKeyboard.add(false);
+        _showReplyMarkUp.add(false);
+      }
+    });
 
     keyboardRawFocusNode = FocusNode(canRequestFocus: false);
 
@@ -202,7 +203,9 @@ class InputMessageWidgetState extends State<InputMessage> {
         try {
           if (widget.textController.text.isNotEmpty &&
               widget.textController.text[start] == "@" &&
-              (start == 0 || widget.textController.text[start - 1] == " ") &&
+              (start == 0 ||
+                  widget.textController.text[start - 1] == " " ||
+                  widget.textController.text[start - 1] == "\n") &&
               widget.textController.selection.start ==
                   widget.textController.selection.end &&
               (idRegexp.hasMatch(
@@ -236,7 +239,6 @@ class InputMessageWidgetState extends State<InputMessage> {
       textController: widget.textController,
       captionController: captionTextController,
       roomUid: currentRoom.uid.asUid(),
-      enableMarkDown: enableMarkdown,
     );
     super.initState();
   }
@@ -319,7 +321,10 @@ class InputMessageWidgetState extends State<InputMessage> {
                     color: theme.colorScheme.surface,
                   ),
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 4.0, horizontal: 4.0),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 4.0,
+                      horizontal: 4.0,
+                    ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: <Widget>[
@@ -540,9 +545,7 @@ class InputMessageWidgetState extends State<InputMessage> {
                   ),
                 },
               ),
-            if ((isWindows || isMacOS) &&
-                !showSendButton &&
-                !widget.waitingForForward)
+            if ((isWindows) && !showSendButton && !widget.waitingForForward)
               IconButton(
                 icon: const Icon(
                   CupertinoIcons.location,
@@ -561,58 +564,14 @@ class InputMessageWidgetState extends State<InputMessage> {
                   _showEmojiKeyboard.add(false);
                   _showReplyMarkUp.add(false);
 
-                  showButtonSheet();
+                  _attachFile();
                 },
-              ),
-            if (showSendButton && !widget.waitingForForward)
-              DescribedFeatureOverlay(
-                featureId: _featureFlags
-                            .hasVoiceCallPermission(widget.currentRoom.uid) ||
-                        FeatureDiscovery.currentFeatureIdOf(context) ==
-                            FEATURE_5
-                    ? FEATURE_5
-                    : FEATURE_4,
-                useCustomPosition: true,
-                contentLocation: ContentLocation.above,
-                tapTarget: const FaIcon(
-                  FontAwesomeIcons.markdown,
-                ),
-                backgroundColor: theme.colorScheme.tertiaryContainer,
-                targetColor: theme.colorScheme.tertiary,
-                title: Text(
-                  _i18n.get("markdown_feature_discovery_title"),
-                  textDirection: _i18n.defaultTextDirection,
-                  style: TextStyle(
-                    color: theme.colorScheme.onTertiaryContainer,
-                  ),
-                ),
-                overflowMode: OverflowMode.extendBackground,
-                description: FeatureDiscoveryDescriptionWidget(
-                  description: _i18n.get("markdown_feature_description"),
-                  descriptionStyle: TextStyle(
-                    color: theme.colorScheme.onTertiaryContainer,
-                  ),
-                ),
-                child: IconButton(
-                  icon: FaIcon(
-                    FontAwesomeIcons.markdown,
-                    size: 18,
-                    color: !_shouldSynthesize ? ACTIVE_COLOR : null,
-                  ),
-                  onPressed: () {
-                    setState(() {
-                      widget.textController.isMarkDownEnable =
-                          _shouldSynthesize;
-                      _shouldSynthesize = !_shouldSynthesize;
-                    });
-                  },
-                ),
               ),
             if (showSendButton || widget.waitingForForward)
               IconButton(
-                icon:  Icon(
+                icon: Icon(
                   CupertinoIcons.paperplane_fill,
-                  color:theme.primaryColor,
+                  color: theme.primaryColor,
                 ),
                 onPressed: widget.textController.text.isEmpty &&
                         !widget.waitingForForward
@@ -642,7 +601,9 @@ class InputMessageWidgetState extends State<InputMessage> {
               controller: widget.textController,
               decoration: InputDecoration(
                 isCollapsed: true,
-                contentPadding: const EdgeInsets.only(top: 9, bottom: 9),
+                // TODO(bitbeter): باز باید بررسی بشه که چیه ماجرای این کد و به صورت کلی حل بشه و نه با شرط دسکتاپ بودن
+                contentPadding:
+                    EdgeInsets.only(top: 9, bottom: isDesktop ? 9 : 16),
                 border: InputBorder.none,
                 counterText: "",
                 hintText: hasMarkUpPlaceHolder(
@@ -672,12 +633,6 @@ class InputMessageWidgetState extends State<InputMessage> {
                 //max line of text field
               ],
               style: theme.textTheme.bodyMedium,
-              onTap: () {
-                if (!isDesktop) {
-                  _showEmojiKeyboard.add(false);
-                  _showReplyMarkUp.add(false);
-                }
-              },
               onChanged: (str) {
                 if (str.isNotEmpty) {
                   isTypingActivitySubject.add(
@@ -913,9 +868,7 @@ class InputMessageWidgetState extends State<InputMessage> {
       widget.resetRoomPageDetails!();
     }
 
-    final text = _shouldSynthesize
-        ? synthesize(widget.textController.text.trim())
-        : widget.textController.text.trim();
+    final text = widget.textController.text.trim();
 
     if (text.isNotEmpty) {
       if (_replyMessageId > 0) {
@@ -948,7 +901,7 @@ class InputMessageWidgetState extends State<InputMessage> {
     }
   }
 
-  Future<void> _attachFileInWindowsMode() async {
+  Future<void> _attachFileInDesktopMode() async {
     try {
       final res = <File>[];
       if (isLinux) {
@@ -1035,15 +988,6 @@ class InputMessageWidgetState extends State<InputMessage> {
     widget.textController.selection = TextSelection.collapsed(
       offset: widget.textController.text.length,
     );
-  }
-
-  void enableMarkdown() {
-    if (_shouldSynthesize) {
-      setState(() {
-        _shouldSynthesize = false;
-        widget.textController.isMarkDownEnable = true;
-      });
-    }
   }
 
   bool hasMarkUpPlaceHolder(MessageMarkup? markUp) {

@@ -1,14 +1,16 @@
 // ignore_for_file: file_names
 
 import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 
 import 'package:collection/collection.dart';
-import 'package:contacts_service/contacts_service.dart' as contacts_service_pb;
 import 'package:deliver/box/contact.dart' as contact_model;
 import 'package:deliver/box/dao/contact_dao.dart';
 import 'package:deliver/box/dao/room_dao.dart';
 import 'package:deliver/box/dao/uid_id_name_dao.dart';
 import 'package:deliver/box/member.dart';
+import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/check_permissions_service.dart';
@@ -24,6 +26,9 @@ import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/user.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/profile.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/query.pbgrpc.dart';
+import 'package:fast_contacts/fast_contacts.dart' as fast_contact;
+import 'package:file_picker/file_picker.dart';
+import 'package:file_selector/file_selector.dart';
 import 'package:fixnum/fixnum.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -33,6 +38,7 @@ import 'package:synchronized/synchronized.dart';
 class ContactRepo {
   final _logger = GetIt.I.get<Logger>();
   final _contactDao = GetIt.I.get<ContactDao>();
+  final _authRepo = GetIt.I.get<AuthRepo>();
   final _roomDao = GetIt.I.get<RoomDao>();
   final _uidIdNameDao = GetIt.I.get<UidIdNameDao>();
   final _sdr = GetIt.I.get<ServicesDiscoveryRepo>();
@@ -40,9 +46,10 @@ class ContactRepo {
   final _requestLock = Lock();
   final BehaviorSubject<bool> isSyncingContacts = BehaviorSubject.seeded(false);
   final BehaviorSubject<double> sendContactProgress = BehaviorSubject.seeded(0);
+  bool hasContactPermission = false;
+  var _syncedContacts = <Contact>[];
 
   Future<void> syncContacts() async {
-    isSyncingContacts.add(true);
     if (_requestLock.locked) {
       return;
     }
@@ -51,25 +58,20 @@ class ContactRepo {
           isDesktop ||
           isIOS) {
         if (!isDesktop) {
-          final phoneContacts =
-              await contacts_service_pb.ContactsService.getContacts(
-            withThumbnails: false,
-            photoHighResolution: false,
-            orderByGivenName: false,
-            iOSLocalizedLabels: false,
-          );
-
+          _syncedContacts = [];
+          hasContactPermission = true;
+          final phoneContacts = await fast_contact.FastContacts.allContacts;
           final contacts = await _filterPhoneContactsToSend(
             phoneContacts
                 .map(
-                  (p) => (p.phones ?? [])
+                  (p) => (p.phones)
                       .toSet()
-                      .map((phone) => phone.value.toString())
-                      .map((e) => _getPhoneNumber(e, p.displayName ?? ""))
+                      .map((phone) => phone)
+                      .map((e) => _getPhoneNumber(e, p.displayName))
                       .where((element) => element != null)
                       .map(
                         (e) => Contact()
-                          ..firstName = p.displayName ?? ""
+                          ..firstName = p.displayName
                           ..phoneNumber = e!,
                       ),
                 )
@@ -84,29 +86,33 @@ class ContactRepo {
           );
 
           if (contacts.isNotEmpty) {
-            _savePhoneContacts(contacts);
-            sendContacts(contacts);
+            isSyncingContacts.add(true);
+            await sendContacts(contacts);
+            unawaited(getContacts());
+            await _savePhoneContacts(
+              contacts,
+            );
+            unawaited(sendNotSyncedContactInStartTime());
           } else {
             sendContactProgress.add(1);
             unawaited(getContacts());
           }
         } else {
-          await getContacts();
+          unawaited(getContacts());
         }
       }
     });
   }
 
-  void _savePhoneContacts(
-    List<Contact> contacts, {
-    int? expTime,
-  }) {
+  Future<void> _savePhoneContacts(List<Contact> contacts) async {
     for (final element in contacts) {
       try {
-        _contactDao.save(
+        await _contactDao.save(
           countryCode: element.phoneNumber.countryCode,
           nationalNumber: element.phoneNumber.nationalNumber.toInt(),
-          updateTime: expTime,
+          updateTime: _syncedContacts.contains(element)
+              ? DateTime.now().millisecondsSinceEpoch
+              : null,
           firstName: element.firstName,
         );
       } catch (e) {
@@ -119,19 +125,19 @@ class ContactRepo {
     List<Contact> phoneContacts,
   ) async {
     final contacts = await _contactDao.getAllContacts();
+
     for (final element in contacts) {
       phoneContacts.removeWhere(
-        (pc) => (element.nationalNumber ==
-                pc.phoneNumber.nationalNumber.toInt() &&
-            ((element.uid != null &&
-                    _contactHash(
-                          name: pc.firstName,
-                          nationalNumber: pc.phoneNumber.nationalNumber.toInt(),
-                        ) ==
-                        element.syncHash) ||
-                (element.uid == null &&
-                    element.updateTime != null &&
-                    _sendContactTimeExpire(element.updateTime!)))),
+        (pc) =>
+            (element.nationalNumber == pc.phoneNumber.nationalNumber.toInt() &&
+                ((element.uid != null &&
+                        _contactHash(
+                              name: pc.firstName,
+                              nationalNumber:
+                                  pc.phoneNumber.nationalNumber.toInt(),
+                            ) ==
+                            element.syncHash) ||
+                    (element.uid == null && element.updateTime != null))),
       );
     }
     return phoneContacts;
@@ -141,66 +147,81 @@ class ContactRepo {
       const DeepCollectionEquality().hash("$name$nationalNumber");
 
   Future<void> sendNotSyncedContactInStartTime() async {
+    _syncedContacts = [];
     final contacts = await _contactDao.getNotMessengerContacts();
     if (contacts.isNotEmpty) {
+      final filteredContacts = contacts
+          .where(
+            (element) => ((element.updateTime == null)),
+          )
+          .toList()
+          .map(
+            (e) => Contact(
+              phoneNumber: PhoneNumber(
+                countryCode: e.countryCode,
+                nationalNumber: Int64(e.nationalNumber),
+              ),
+              firstName: e.firstName,
+            ),
+          )
+          .toList();
       unawaited(
-        _sendContacts(
-          contacts
-              .where(
-                (element) => ((element.updateTime == null ||
-                    _sendContactWithStartTimeExpire(element.updateTime!))),
-              )
-              .toList()
-              .map(
-                (e) => Contact(
-                  phoneNumber: PhoneNumber(
-                    countryCode: e.countryCode,
-                    nationalNumber: Int64(e.nationalNumber),
-                  ),
-                  firstName: e.firstName,
-                ),
-              )
-              .toList(),
-        ),
+        sendContacts(filteredContacts, initProgressbar: false),
       );
+      unawaited(_savePhoneContacts(filteredContacts));
     }
   }
 
-  bool _sendContactTimeExpire(int expTime) =>
-      DateTime.now().millisecondsSinceEpoch - expTime <
-      MAX_SEND_CONTACT_TIME_EXPIRE;
+  String _replaceFarsiNumber(String input) {
+    const english = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    const farsi = ['۰', '۱', '۲', '۳', '۴', '۵', '۶', '۷', '۸', '۹'];
 
-  bool _sendContactWithStartTimeExpire(int updateTime) =>
-      DateTime.now().millisecondsSinceEpoch - updateTime <
-      MAX_SEND_CONTACT_START_TIME_EXPIRE;
+    for (var i = 0; i < english.length; i++) {
+      input = input.replaceAll(farsi[i], english[i]);
+    }
+    return input;
+  }
 
   PhoneNumber? _getPhoneNumber(String phone, String name) {
+    final regex = RegExp(r'^[\u0600-\u06FF\s]+$');
+    if (regex.hasMatch(phone)) {
+      phone = _replaceFarsiNumber(phone);
+    }
     final p = getPhoneNumber(phone);
 
     if (p == null) {
-      _logger.e("Not Valid Number  $name ***** $phone");
+      // _logger.e("Not Valid Number  $name ***** $phone");
       return null;
     } else {
       return p;
     }
   }
 
-  void sendContacts(List<Contact> contacts) {
+  Future<void> sendContacts(
+    List<Contact> contacts, {
+    bool initProgressbar = true,
+  }) async {
     try {
       var i = 0;
       while (i <= contacts.length) {
-        final end = contacts.length > i + MAX_CONTACT_SIZE_TO_SEND - 1
-            ? i + MAX_CONTACT_SIZE_TO_SEND - 1
-            : contacts.length;
-        final contactsSubList = contacts.sublist(
-          i,
-          end,
-        );
-        sendContactProgress.add(end / contacts.length);
-        _sendContacts(contactsSubList);
-        i = i + MAX_CONTACT_SIZE_TO_SEND;
+        try {
+          final end = contacts.length > i + MAX_CONTACT_SIZE_TO_SEND - 1
+              ? i + MAX_CONTACT_SIZE_TO_SEND - 1
+              : contacts.length;
+          final contactsSubList = contacts.sublist(
+            i,
+            end,
+          );
+          if (initProgressbar) {
+            sendContactProgress.add(end / contacts.length);
+          }
+          await _sendContacts(contactsSubList);
+          i = i + MAX_CONTACT_SIZE_TO_SEND;
+        } catch (e) {
+          _logger.e(e);
+          isSyncingContacts.add(false);
+        }
       }
-      getContacts();
     } catch (e) {
       _logger.e(e);
     }
@@ -224,7 +245,6 @@ class ContactRepo {
   Future<bool> _sendContacts(List<Contact> contacts) async {
     try {
       final sendContacts = SaveContactsReq();
-
       for (final element in contacts) {
         sendContacts.contactList.add(element);
         sendContacts.returnUserContactByPhoneNumberList
@@ -233,14 +253,12 @@ class ContactRepo {
       final saveContactRes =
           await _sdr.contactServiceClient.saveContacts(sendContacts);
       _saveUserContact(saveContactRes.userList);
-      _savePhoneContacts(
-        contacts,
-        expTime: DateTime.now().millisecondsSinceEpoch,
-      );
-
+      _syncedContacts.addAll(contacts);
       return true;
     } catch (e) {
       _logger.e(e);
+      // TODO(bitbeter): سینک شدن ادامه داره ولی چون ارور خوردیم میخواستیم لودینگ رو دیگه نشون ندیم ولی شاید این متغیر یه جای دیگه استفاده بشه که فالس کردنش باگ ایجاد کنه
+      isSyncingContacts.add(false);
       return false;
     }
   }
@@ -251,10 +269,13 @@ class ContactRepo {
   Future<List<contact_model.Contact>> getAllUserAsContact() =>
       _contactDao.getAllMessengerContacts();
 
-  Stream<List<contact_model.Contact>> getNotMessengerContactAsStream() =>
+  Stream<List<contact_model.Contact>> watchNotMessengerContact() =>
       _contactDao.watchNotMessengerContacts();
 
+  Stream<List<contact_model.Contact>> watchAll() => _contactDao.watchAll();
+
   Future<void> getContacts() async {
+    isSyncingContacts.add(false);
     try {
       final result = await _sdr.contactServiceClient
           .getContactListUsers(GetContactListUsersReq());
@@ -262,7 +283,6 @@ class ContactRepo {
     } catch (e) {
       _logger.e(e);
     }
-    isSyncingContacts.add(false);
   }
 
   void _saveUserContact(List<UserAsContact> users) {
@@ -335,7 +355,27 @@ class ContactRepo {
     }
   }
 
-  // TODO(hasan): we should merge getContact and getContactFromServer functions together and refactor usages too, https://gitlab.iais.co/deliver/wiki/-/issues/421
+  Future<List<Uid>> searchInContacts(String text) async {
+    if (text.isEmpty) {
+      return [];
+    }
+    final searchResult = (await _contactDao.getAllContacts())
+        .where(
+          (element) =>
+              element.uid != null &&
+              "${element.firstName}${element.lastName}"
+                  .toLowerCase()
+                  .contains(text.toLowerCase()) &&
+              !_authRepo.isCurrentUser(element.uid!) &&
+              !element.isUsersContact(),
+        )
+        .map((e) => e.uid!.asUid())
+        .toList();
+
+    return searchResult;
+  }
+
+// TODO(hasan): we should merge getContact and getContactFromServer functions together and refactor usages too, https://gitlab.iais.co/deliver/wiki/-/issues/421
   Future<contact_model.Contact?> getContact(Uid userUid) =>
       _contactDao.getByUid(userUid.asString());
 
@@ -377,5 +417,99 @@ class ContactRepo {
   Future<bool> contactIsExist(int countryCode, int nationalNumber) async {
     final result = await _contactDao.get(countryCode, nationalNumber);
     return result != null;
+  }
+
+  Future<void> importContactsFormVcard() async {
+    try {
+      if (isLinux) {
+        final typeGroup = <XTypeGroup>[
+          const XTypeGroup(mimeTypes: ["vcf"])
+        ];
+        final result = await openFiles(acceptedTypeGroups: typeGroup);
+        if (result.isNotEmpty) {
+          unawaited(
+            _getContactFromVcfFile(
+              File(result.first.path).readAsStringSync(),
+            ),
+          );
+        }
+      } else {
+        final result = await FilePicker.platform
+            .pickFiles(type: FileType.custom, allowedExtensions: ["vcf"]);
+        if (result != null && result.files.isNotEmpty) {
+          if (isWeb) {
+            unawaited(
+              _getContactFromVcfFile(
+                String.fromCharCodes(
+                  result.files.first.bytes!,
+                ),
+              ),
+            );
+          } else {
+            unawaited(
+              _getContactFromVcfFile(
+                File(result.files.first.path!).readAsStringSync(),
+              ),
+            );
+          }
+        }
+      }
+    } catch (e) {
+      _logger.d(e.toString());
+    }
+  }
+
+  Future<void> _getContactFromVcfFile(String contactsValue) async {
+    try {
+      final phoneContacts = <Contact>[];
+      for (final contactInfo in contactsValue.split("BEGIN:VCARD")) {
+        try {
+          final tags = {};
+          for (final contact in contactInfo.split("\n")) {
+            try {
+              final param = contact.replaceAll(";", "").split(":");
+              if (param.length > 1) {
+                if (param[0].contains("TEL")) {
+                  tags["TEL"] = param[1];
+                } else if (param[0].contains("FN")) {
+                  tags["NAME"] = utf8.decode(
+                    _decodeQuotedPrintable(param[1]).runes.toList(),
+                  );
+                }
+              }
+            } catch (_) {}
+          }
+          if (tags.isNotEmpty && tags["TEL"] != null && tags["NAME"] != null) {
+            final phone = _getPhoneNumber(tags["TEL"], tags["NAME"]);
+            if (phone != null) {
+              phoneContacts.add(
+                Contact()
+                  ..firstName = tags["NAME"]
+                  ..phoneNumber = phone,
+              );
+            }
+          }
+        } catch (_) {}
+      }
+
+      final contacts = await _filterPhoneContactsToSend(phoneContacts);
+      if (contacts.isNotEmpty) {
+        isSyncingContacts.add(true);
+        await sendContacts(contacts);
+        unawaited(_savePhoneContacts(contacts));
+        isSyncingContacts.add(false);
+      }
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
+
+  String _decodeQuotedPrintable(String input) {
+    return input
+        .replaceAll(RegExp(r'[\t\x20]$', multiLine: true), '')
+        .replaceAll(RegExp(r'=(?:\r\n?|\n|$)', multiLine: true), '')
+        .replaceAllMapped(RegExp(r'=([a-fA-F\d]{2})'), (match) {
+      return String.fromCharCode(int.parse(match[1] ?? "", radix: 16));
+    });
   }
 }

@@ -18,7 +18,8 @@ import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:dismissible_page/dismissible_page.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:get_it/get_it.dart';
@@ -72,7 +73,7 @@ class ImageUiState extends State<ImageUi> {
     final highlight = widget.colorScheme.primary;
     try {
       return Hero(
-        tag: "${widget.message.id}-${widget.image.uuid}",
+        tag: widget.image.uuid,
         child: Container(
           clipBehavior: Clip.hardEdge,
           decoration: const BoxDecoration(borderRadius: messageBorder),
@@ -100,7 +101,10 @@ class ImageUiState extends State<ImageUi> {
                         onTap: () {
                           Navigator.push(
                             context,
-                            CupertinoPageRoute(
+                            TransparentRoute(
+                              backgroundColor: Colors.transparent,
+                              transitionDuration: SLOW_ANIMATION_DURATION,
+                              reverseTransitionDuration: SLOW_ANIMATION_DURATION,
                               builder: (context) {
                                 return FutureBuilder<int?>(
                                   future: _mediaDao.getIndexOfMedia(
@@ -147,7 +151,7 @@ class ImageUiState extends State<ImageUi> {
                                 fit: BoxFit.fill,
                               ),
                       ),
-                     FutureBuilder<PendingMessage?>(
+                      FutureBuilder<PendingMessage?>(
                         future: _messageRepo.getPendingEditedMessage(
                           widget.message.roomUid,
                           widget.message.id,
@@ -256,10 +260,7 @@ class ImageUiState extends State<ImageUi> {
                             );
                             setState(() {});
                           },
-                          child: BlurHash(
-                            hash: widget.image.blurHash,
-                            imageFit: BoxFit.cover,
-                          ),
+                          child: getBlurHashWidget(),
                         ),
                       ),
                       Center(
@@ -308,6 +309,22 @@ class ImageUiState extends State<ImageUi> {
             aspectRatio: widget.image.width / widget.image.height,
           ),
         ),
+      );
+    }
+  }
+
+  Widget getBlurHashWidget() {
+    if (widget.image.blurHash != "") {
+      return BlurHash(
+        hash: widget.image.blurHash,
+        imageFit: BoxFit.cover,
+      );
+    } else {
+      // this is default gray hash : https://www.macmillandictionary.com/us/external/slideshow/thumb/Grey_thumb.png
+      return const BlurHash(
+        hash:
+            ";0Hewg%MM{%MM{%MM{%MM{?vfQfQfQfQfQfQfQfQM{fQfQfQfQfQfQfQfQ?vfQfQfQfQfQfQfQfQM{fQfQfQfQfQfQfQfQ?vfQfQfQfQfQfQfQfQM{fQfQfQfQfQfQfQfQ?vfQfQfQfQfQfQfQfQ",
+        imageFit: BoxFit.cover,
       );
     }
   }

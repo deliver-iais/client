@@ -3,8 +3,6 @@ import 'package:hive/hive.dart';
 import 'package:logger/logger.dart';
 
 class BoxInfo {
-  static final Logger _logger = GetIt.I.get<Logger>();
-
   static Future<void> addBox(String key) async {
     try {
       final box = await Hive.openBox<String>(_key());
@@ -14,23 +12,23 @@ class BoxInfo {
     }
   }
 
-  static Future<void> _deleteBox(String key) async {
+  static Future<void> deleteBox(String key) async {
     try {
       return Hive.deleteBoxFromDisk(key);
     } catch (e) {
-      _logger.e(e);
+      GetIt.I.get<Logger>().e(e);
     }
   }
 
   static String _key() => "box_info";
 
-  static Future<void> deleteAllBox({bool deleteSharedDao=true}) async {
+  static Future<void> deleteAllBox({bool deleteSharedDao = true}) async {
     final box = await Hive.openBox<String>(_key());
     box.values.toList().forEach((key) async {
-      if(deleteSharedDao || key != 'shared') {
-        await _deleteBox(key);
+      if (deleteSharedDao || key != 'shared') {
+        await deleteBox(key);
       }
     });
-    return _deleteBox(_key());
+    return deleteBox(_key());
   }
 }

@@ -29,7 +29,6 @@ import 'package:deliver/shared/methods/message.dart';
 import 'package:deliver_public_protocol/pub/v1/core.pbgrpc.dart';
 import 'package:deliver_public_protocol/pub/v1/models/activity.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/call.pb.dart' as call_pb;
-import 'package:deliver_public_protocol/pub/v1/models/call.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pbenum.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/persistent_event.pb.dart';
@@ -166,17 +165,12 @@ class DataStreamServices {
       final callEvents = CallEvents.callEvent(
         message.callEvent,
         roomUid: message.from,
-        callId: message.callEvent.id,
+        callId: message.callEvent.callId,
         time: message.time.toInt(),
       );
-      if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
-          message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
-        _callService.addGroupCallEvent(callEvents);
-      } else {
-        _callService
-          ..addCallEvent(callEvents)
-          ..shouldRemoveData = isFirebaseMessage;
-      }
+      _callService
+        ..addCallEvent(callEvents)
+        ..shouldRemoveData = isFirebaseMessage;
     }
 
     final msg = (await saveMessageInMessagesDB(message))!;
@@ -320,6 +314,7 @@ class DataStreamServices {
             lastMessage: lastNotHiddenMessage ?? savedMsg,
           );
         }
+        _notificationServices.cancelNotificationById(id, roomUid.asString());
       }
       messageEventSubject.add(
         MessageEvent(
@@ -505,12 +500,7 @@ class DataStreamServices {
       roomUid: getRoomUidOf(_authRepo, callOffer.from, callOffer.to),
       callId: callOffer.id,
     );
-    if (callOffer.callType == call_pb.CallEvent_CallType.GROUP_AUDIO ||
-        callOffer.callType == call_pb.CallEvent_CallType.GROUP_VIDEO) {
-      _callService.addGroupCallEvent(callEvents);
-    } else {
-      _callService.addCallEvent(callEvents);
-    }
+    _callService.addCallEvent(callEvents);
   }
 
   void handleCallAnswer(call_pb.CallAnswer callAnswer) {
@@ -519,12 +509,7 @@ class DataStreamServices {
       roomUid: getRoomUidOf(_authRepo, callAnswer.from, callAnswer.to),
       callId: callAnswer.id,
     );
-    if (callAnswer.callType == call_pb.CallEvent_CallType.GROUP_AUDIO ||
-        callAnswer.callType == call_pb.CallEvent_CallType.GROUP_VIDEO) {
-      _callService.addGroupCallEvent(callEvents);
-    } else {
-      _callService.addCallEvent(callEvents);
-    }
+    _callService.addCallEvent(callEvents);
   }
 
   Future<bool> shouldNotifyForThisMessage(Message message) async {
@@ -665,7 +650,7 @@ class DataStreamServices {
     Uid roomUid,
     int lastMessageId,
   ) async {
-    if (_callService.getUserCallState != UserCallState.NOCALL) {
+    if (_callService.getUserCallState != UserCallState.NO_CALL) {
       return; // Dont do anything if there is an active call.
     }
 
@@ -685,16 +670,10 @@ class DataStreamServices {
           final callEvents = CallEvents.callEvent(
             message.callEvent,
             roomUid: message.from,
-            callId: message.callEvent.id,
+            callId: message.callEvent.callId,
             time: message.time.toInt(),
           );
-          if (message.callEvent.callType == CallEvent_CallType.GROUP_AUDIO ||
-              message.callEvent.callType == CallEvent_CallType.GROUP_VIDEO) {
-            // its group Call
-            _callService.addGroupCallEvent(callEvents);
-          } else {
-            _callService.addCallEvent(callEvents);
-          }
+          _callService.addCallEvent(callEvents);
           break;
         }
       }

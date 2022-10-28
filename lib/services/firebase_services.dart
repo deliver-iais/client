@@ -65,6 +65,7 @@ class FireBaseServices {
         try {
           await _services.firebaseServiceClient
               .registration(RegistrationReq()..tokenId = fireBaseToken!);
+          unawaited(_sharedDao.put(SHARED_DAO_FIREBASE_TOKEN, fireBaseToken));
           return _sharedDao.putBoolean(
             SHARED_DAO_FIREBASE_SETTING_IS_SET,
             true,
@@ -122,6 +123,7 @@ message_pb.Message _decodeMessage(String notificationBody) {
   return m;
 }
 
+@pragma('vm:entry-point')
 Future<void> _backgroundRemoteMessageHandler(
   RemoteMessage remoteMessage,
 ) async {

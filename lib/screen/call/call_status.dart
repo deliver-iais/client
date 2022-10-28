@@ -1,6 +1,7 @@
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/models/call_timer.dart';
 import 'package:deliver/repository/callRepo.dart';
+import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/dot_animation/dot_animation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -56,10 +57,27 @@ class _CallStatusWidgetState extends State<CallStatusWidget>
         initialData: CallTimer(0, 0, 0),
         stream: _callRepo.callTimer,
         builder: (context, snapshot) {
-          return callTimerWidget(
-            theme,
-            snapshot.data!,
-            isEnd: false,
+          return StreamBuilder<bool>(
+            stream: _callRepo.incomingCallOnHold,
+            builder: (context, isCallOnHold) {
+              return AnimatedSwitcher(
+                duration: SUPER_SLOW_ANIMATION_DURATION,
+                child: (isCallOnHold.data ?? false)
+                    ? Text(
+                        _i18n.get("call_on_hold"),
+                        style: theme.textTheme.titleLarge!.copyWith(
+                          color: theme.colorScheme.surface,
+                          fontStyle: FontStyle.italic,
+                        ),
+                        key: const Key("hold_on"),
+                      )
+                    : callTimerWidget(
+                        theme,
+                        snapshot.data!,
+                        isEnd: false,
+                      ),
+              );
+            },
           );
         },
       );
@@ -67,7 +85,7 @@ class _CallStatusWidgetState extends State<CallStatusWidget>
       return Directionality(
         textDirection: _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
         child: Row(
-          mainAxisSize:MainAxisSize.min ,
+          mainAxisSize: MainAxisSize.min,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             if (widget.callStatus != CallStatus.ENDED)
@@ -118,7 +136,8 @@ class _CallStatusWidgetState extends State<CallStatusWidget>
     callMin = callMin.length != 2 ? '0$callMin' : callMin;
     callSecond = callSecond.length != 2 ? '0$callSecond' : callSecond;
     return Row(
-      mainAxisSize:MainAxisSize.min ,
+      key: const Key("timer"),
+      mainAxisSize: MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

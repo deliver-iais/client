@@ -32,6 +32,8 @@ import 'package:deliver/screen/settings/pages/security_settings.dart';
 import 'package:deliver/screen/settings/pages/theme_settings_page.dart';
 import 'package:deliver/screen/settings/settings_page.dart';
 import 'package:deliver/screen/share_input_file/share_input_file.dart';
+import 'package:deliver/screen/show_case/pages/all_grouped_rooms_grid_page.dart';
+import 'package:deliver/screen/show_case/pages/show_case_page.dart';
 import 'package:deliver/services/core_services.dart';
 import 'package:deliver/services/firebase_services.dart';
 import 'package:deliver/shared/constants.dart';
@@ -39,7 +41,9 @@ import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/scan_qr_code.dart';
 import 'package:deliver_public_protocol/pub/v1/models/message.pb.dart' as pro;
+import 'package:deliver_public_protocol/pub/v1/models/showcase.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:dismissible_page/dismissible_page.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
@@ -76,6 +80,9 @@ const _newContact = NewContact(key: ValueKey("/new-contact"));
 const _scanQrCode = ScanQrCode(key: ValueKey("/scan-qr-code"));
 
 const _calls = CallListPage(key: ValueKey("/calls"));
+
+const _showcase = ShowcasePage(key: ValueKey("/showcase"));
+
 const _connectionSettingsPage = ConnectionSettingPage(
   key: ValueKey("/connection_setting_page"),
 );
@@ -99,6 +106,7 @@ class RoutingService {
   final mainNavigatorState = GlobalKey<NavigatorState>();
   final _navigatorObserver = RoutingServiceNavigatorObserver();
   final _preMaybePopScope = PreMaybePopScope();
+  var _currentRoom = "";
 
   Stream<RouteEvent> get currentRouteStream => _navigatorObserver.currentRoute;
 
@@ -134,7 +142,13 @@ class RoutingService {
 
   void openCallsList() => _push(_calls);
 
+  void openShowcase() => _push(_showcase);
+
   void openConnectionSettingPage() => _push(_connectionSettingsPage);
+
+  String getCurrentRoomId() => _currentRoom;
+
+  void resetCurrentRoom() => _currentRoom = "";
 
   void openRoom(
     String roomId, {
@@ -145,6 +159,7 @@ class RoutingService {
     bool forceToOpenRoom = false,
   }) {
     //todo forwardMedia
+    _currentRoom = roomId;
     if (!isInRoom(roomId) || forceToOpenRoom) {
       _push(
         RoomPage(
@@ -228,6 +243,7 @@ class RoutingService {
           initIndex: initIndex,
           roomUid: uid,
         ),
+        useTransparentRoute: true,
       );
 
   void openCustomNotificationSoundSelection(String roomId) => _push(
@@ -266,6 +282,16 @@ class RoutingService {
         ),
       );
 
+  void openAllGroupedRoomsGridPage({
+    required GroupedRooms groupedRooms,
+  }) =>
+      _push(
+        AllGroupedRoomsGridPage(
+          key: const ValueKey("/all-grouped-rooms-grid-page"),
+          groupedRooms: groupedRooms,
+        ),
+      );
+
   void openGroupInfoDeterminationPage({required bool isChannel}) => _push(
         MucInfoDeterminationPage(
           key: const ValueKey("/group-info-determination-page"),
@@ -295,25 +321,34 @@ class RoutingService {
     _homeNavigatorState.currentState?.popUntil((route) => route.isFirst);
   }
 
-  void _push(Widget widget, {bool popAllBeforePush = false}) {
+  void _push(
+    Widget widget, {
+    bool popAllBeforePush = false,
+    bool useTransparentRoute = false,
+  }) {
     final path = (widget.key! as ValueKey).value;
 
     _analyticsRepo.incPVF(path);
-
+    final route = useTransparentRoute
+        ? TransparentRoute(
+            backgroundColor: Colors.transparent,
+            transitionDuration: SLOW_ANIMATION_DURATION,
+            reverseTransitionDuration: SLOW_ANIMATION_DURATION,
+            builder: (c) => widget,
+            settings: RouteSettings(name: path),
+          )
+        : CupertinoPageRoute(
+            builder: (c) => widget,
+            settings: RouteSettings(name: path),
+          );
     if (popAllBeforePush) {
       _homeNavigatorState.currentState?.pushAndRemoveUntil(
-        CupertinoPageRoute(
-          builder: (c) => widget,
-          settings: RouteSettings(name: path),
-        ),
+        route,
         (r) => r.isFirst,
       );
     } else {
       _homeNavigatorState.currentState?.push(
-        CupertinoPageRoute(
-          builder: (c) => widget,
-          settings: RouteSettings(name: path),
-        ),
+        route,
       );
     }
   }
@@ -327,8 +362,11 @@ class RoutingService {
   void pop() {
     if (canPop()) {
       _homeNavigatorState.currentState?.pop();
+      _currentRoom = "";
     }
   }
+
+  bool preMaybePopScopeValue() => _preMaybePopScope.maybePop();
 
   void maybePop() {
     if (_preMaybePopScope.maybePop()) {
@@ -341,38 +379,52 @@ class RoutingService {
   bool canPop() => _homeNavigatorState.currentState?.canPop() ?? false;
 
   Widget outlet(BuildContext context) {
-    return Row(
-      children: [
-        if (isLarge(context))
-          SizedBox(
-            width: NAVIGATION_PANEL_SIZE,
-            child: _navigationCenter,
-          ),
-        if (isLarge(context)) const VerticalDivider(),
-        Expanded(
-          child: ClipRect(
-            child: Navigator(
-              key: _homeNavigatorState,
-              observers: [HeroController(), _navigatorObserver],
-              onGenerateRoute: (r) => CupertinoPageRoute(
-                settings: r.copyWith(name: "/"),
-                builder: (c) {
-                  try {
-                    if (isLarge(c)) {
+    return SafeArea(
+      child: Row(
+        children: [
+          if (isLarge(context)) ...[
+            SizedBox(
+              width: NAVIGATION_PANEL_SIZE,
+              child: _navigationCenter,
+            ),
+            const VerticalDivider()
+          ],
+          Expanded(
+            child: ClipRect(
+              child: Navigator(
+                key: _homeNavigatorState,
+                observers: [HeroController(), _navigatorObserver],
+                onGenerateRoute: (r) => CupertinoPageRoute(
+                  settings: r.copyWith(name: "/"),
+                  builder: (c) {
+                    try {
+                      if (isLarge(c)) {
+                        return _empty;
+                      } else {
+                        return _navigationCenter;
+                      }
+                    } catch (_) {
                       return _empty;
-                    } else {
-                      return _navigationCenter;
                     }
-                  } catch (_) {
-                    return _empty;
-                  }
-                },
+                  },
+                ),
               ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
+  }
+
+  void selectChatMenu(String key) {
+    switch (key) {
+      case "newGroup":
+        openMemberSelection(isChannel: false);
+        break;
+      case "newChannel":
+        openMemberSelection(isChannel: true);
+        break;
+    }
   }
 
   Future<void> logout() async {
@@ -397,7 +449,10 @@ class RoutingService {
     }
   }
 
-  Widget backButtonLeading({Color? color}) => BackButton(onPressed: pop,color: color,);
+  Widget backButtonLeading({Color? color}) => BackButton(
+        onPressed: pop,
+        color: color,
+      );
 }
 
 class RouteEvent {
@@ -458,20 +513,20 @@ class Empty extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Scaffold(
-        body: Center(
-          child: Container(
-            decoration: BoxDecoration(
-              color: theme.colorScheme.onPrimary,
-              borderRadius: secondaryBorder,
-            ),
-            padding:
-                const EdgeInsets.only(left: 10, right: 10, top: 6, bottom: 4),
-            child: Text(
-              _i18n.get("please_select_a_chat_to_start_messaging"),
-              style: theme.primaryTextTheme.bodyMedium,
-            ),
+      body: Center(
+        child: Container(
+          decoration: BoxDecoration(
+            color: theme.colorScheme.onPrimary,
+            borderRadius: secondaryBorder,
+          ),
+          padding:
+              const EdgeInsets.only(left: 10, right: 10, top: 6, bottom: 4),
+          child: Text(
+            _i18n.get("please_select_a_chat_to_start_messaging"),
+            style: theme.primaryTextTheme.bodyMedium,
           ),
         ),
+      ),
     );
   }
 }

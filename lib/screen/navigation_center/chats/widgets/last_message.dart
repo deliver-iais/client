@@ -20,6 +20,7 @@ class AsyncLastMessage extends StatelessWidget {
   final bool showSeenStatus;
   final bool expandContent;
   final Color? highlightColor;
+  final int? maxLine;
 
   AsyncLastMessage({
     super.key,
@@ -29,6 +30,7 @@ class AsyncLastMessage extends StatelessWidget {
     this.showSeenStatus = true,
     this.expandContent = true,
     this.highlightColor,
+    this.maxLine,
   }) : messageSRF =
             _messageExtractorServices.extractMessageSimpleRepresentative(
           _messageExtractorServices.extractProtocolBufferMessage(message),
@@ -53,6 +55,7 @@ class AsyncLastMessage extends StatelessWidget {
           showSeenStatus: showSeenStatus,
           expandContent: expandContent,
           highlightColor: highlightColor,
+          maxLine: maxLine,
         );
       },
     );
@@ -65,6 +68,7 @@ class LastMessage extends StatelessWidget {
   final MessageSimpleRepresentative messageSR;
   final int lastMessageId;
   final bool showSender;
+  final int? maxLine;
   final bool showSeenStatus;
   final bool expandContent;
   final Color? highlightColor;
@@ -77,6 +81,7 @@ class LastMessage extends StatelessWidget {
     this.showSeenStatus = true,
     this.expandContent = true,
     this.highlightColor,
+    this.maxLine,
   });
 
   @override
@@ -120,7 +125,7 @@ class LastMessage extends StatelessWidget {
             Flexible(
               fit: expandContent ? FlexFit.tight : FlexFit.loose,
               child: RichText(
-                maxLines: showSender ? 1 : 2,
+                maxLines: maxLine ?? (showSender ? 1 : 2),
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.end,
                 textDirection: TextDirection.rtl,

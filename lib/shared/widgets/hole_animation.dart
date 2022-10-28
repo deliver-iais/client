@@ -28,7 +28,7 @@ class HoleAnimationState extends State<HoleAnimation>
     _animationController =
         AnimationController(vsync: this, duration: const Duration(seconds: 3));
     _animation =
-        Tween<double>(begin: 0, end: width).animate(_animationController);
+        Tween<double>(begin: 0, end: 2 * width).animate(_animationController);
     _animationController.forward();
 
     super.initState();
@@ -44,8 +44,8 @@ class HoleAnimationState extends State<HoleAnimation>
 
 class HoleAnimatedBackground extends AnimatedWidget {
   const HoleAnimatedBackground({
-  super.key,
-  required Animation<double> animation,
+    super.key,
+    required Animation<double> animation,
   }) : super(listenable: animation);
 
   @override
