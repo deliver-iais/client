@@ -728,22 +728,6 @@ void main() {
         failed: false,
       );
 
-      test('When called should initUploadProgress', () async {
-        withClock(
-          Clock.fixed(DateTime(2000)),
-          () async {
-            final fileRepo = getAndRegisterFileRepo();
-            // always clock.now => 2000-01-01 00:00:00 =====> 946672200000.
-            final messageRepo = await getAndRegisterMessageRepo();
-            await messageRepo.sendMultipleFilesMessages(
-              testUid,
-              [model.File("test", "test")],
-              caption: "test",
-            );
-            verify(fileRepo.initUploadProgress("946672200000000"));
-          },
-        );
-      });
       test('When called should uploadClonedFile', () async {
         withClock(
           Clock.fixed(DateTime(2000)),

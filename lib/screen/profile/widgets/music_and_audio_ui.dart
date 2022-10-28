@@ -129,9 +129,10 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                               title: Row(
                                 children: [
                                   LoadFileStatus(
-                                    fileId: fileUuid,
-                                    fileName: fileName,
+                                    uuid: fileUuid,
+                                    name: fileName,
                                     isPendingMessage: false,
+                                    onCancel: (){},
                                     onPressed: () async {
                                       final audioPath = await _fileRepo.getFile(
                                         fileUuid,
