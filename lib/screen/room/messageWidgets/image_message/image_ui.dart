@@ -17,11 +17,8 @@ import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
-import 'package:dio/dio.dart';
 import 'package:dismissible_page/dismissible_page.dart';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_blurhash/flutter_blurhash.dart';
 import 'package:get_it/get_it.dart';
 
@@ -55,15 +52,11 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
   final globalKey = GlobalKey();
 
   static final _fileRepo = GetIt.I.get<FileRepo>();
-  static final _fileServices = GetIt.I.get<FileService>();
   static final _messageRepo = GetIt.I.get<MessageRepo>();
   static final _mediaDao = GetIt.I.get<MediaDao>();
 
   @override
   void initState() {
-    if (widget.message.id == null) {
-      _fileServices.initProgressBar(widget.message.json.toFile().uuid);
-    }
     super.initState();
   }
 
@@ -102,7 +95,8 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
                             TransparentRoute(
                               backgroundColor: Colors.transparent,
                               transitionDuration: SLOW_ANIMATION_DURATION,
-                              reverseTransitionDuration: SLOW_ANIMATION_DURATION,
+                              reverseTransitionDuration:
+                                  SLOW_ANIMATION_DURATION,
                               builder: (context) {
                                 return FutureBuilder<int?>(
                                   future: _mediaDao.getIndexOfMedia(
@@ -160,8 +154,8 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
                                       SendingStatus.PENDING &&
                                   pendingEditedMessage.data != null) {
                             return buildLoadFileStatus(
+                              () {},
                               () {
-                                _fileRepo.cancelUploadFile(widget.image.uuid);
                                 _deletePendingMessage();
                               },
                               isPendingMessage: true,
@@ -201,13 +195,16 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
                           child: getBlurHashWidget(),
                         ),
                       ),
-                      buildLoadFileStatus(() async {
-                        await _fileRepo.getFile(
-                          widget.image.uuid,
-                          widget.image.name,
-                        );
-                        setState(() {});
-                      }),
+                      buildLoadFileStatus(
+                        () async {
+                          await _fileRepo.getFile(
+                            widget.image.uuid,
+                            widget.image.name,
+                          );
+                          setState(() {});
+                        },
+                        () {},
+                      ),
                       if (widget.image.caption.isEmpty)
                         TimeAndSeenStatus(
                           widget.message,
@@ -242,16 +239,17 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
   }
 
   Widget buildLoadFileStatus(
-    Function() onTap, {
+    Function() onTap,
+    Function() onCancel, {
     bool isPendingMessage = false,
   }) {
     return Center(
       child: LoadFileStatus(
-        fileId: widget.image.uuid,
-        fileName: widget.image.name,
+        uuid: widget.image.uuid,
+        name: widget.image.name,
         isPendingMessage: isPendingMessage,
-        messagePacketId: widget.message.packetId,
         onPressed: () => onTap(),
+        onCancel: () => onCancel(),
         background: widget.colorScheme.onPrimary.withOpacity(0.8),
         foreground: widget.colorScheme.primary,
       ),
