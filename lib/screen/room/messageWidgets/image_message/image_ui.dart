@@ -133,14 +133,8 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
                           );
                         },
                         child: isWeb
-                            ? Image.network(
-                                s.data!,
-                                fit: BoxFit.fill,
-                              )
-                            : Image.file(
-                                File(s.data!),
-                                fit: BoxFit.fill,
-                              ),
+                            ? Image.network(s.data!, fit: BoxFit.fill)
+                            : Image.file(File(s.data!), fit: BoxFit.fill),
                       ),
                       FutureBuilder<PendingMessage?>(
                         future: _messageRepo.getPendingEditedMessage(
