@@ -221,7 +221,6 @@ class FileService {
 
   Future<void> saveFileToSpecifiedAddress(
     String path,
-    String name,
     String address,
   ) async {
     try {
