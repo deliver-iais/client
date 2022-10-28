@@ -178,19 +178,18 @@ class RoomPageState extends State<RoomPage> {
           return true;
         }
       },
-      child: SelectionArea(
-        child: DragDropWidget(
-          roomUid: widget.roomId,
-          height: MediaQuery.of(context).size.height,
-          replyMessageId: _repliedMessage.value?.id ?? 0,
-          resetRoomPageDetails: _resetRoomPageDetails,
-          child: Stack(
-            children: [
-              StreamBuilder<Room>(
-                stream: _room,
-                builder: (context, snapshot) => Background(
-                  id: snapshot.data?.lastMessageId ?? 0,
-                ),
+      child: DragDropWidget(
+        roomUid: widget.roomId,
+        height: MediaQuery.of(context).size.height,
+        replyMessageId: _repliedMessage.value?.id ?? 0,
+        resetRoomPageDetails: _resetRoomPageDetails,
+        child: Stack(
+          children: [
+            StreamBuilder<Room>(
+              stream: _room,
+              builder: (context, snapshot) => Background(
+                id: snapshot.data?.lastMessageId ?? 0,
+              ),
               ),
               Scaffold(
                 backgroundColor: Colors.transparent,
@@ -200,7 +199,6 @@ class RoomPageState extends State<RoomPage> {
               ),
             ],
           ),
-        ),
       ),
     );
   }
