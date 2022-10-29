@@ -3,6 +3,7 @@ import 'dart:isolate';
 import 'package:clock/clock.dart';
 import 'package:deliver/box/dao/shared_dao.dart';
 import 'package:deliver/localization/i18n.dart';
+import 'package:deliver/main.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
@@ -108,7 +109,8 @@ class NotificationForegroundService {
               text: _i18n.get("notification_foreground_stop"),
             )
           else
-            NotificationButton(id: 'stopForegroundNotification', text: _i18n.get("end_call")),
+            NotificationButton(
+                id: 'stopForegroundNotification', text: _i18n.get("end_call")),
         ],
       ),
       iosNotificationOptions: const IOSNotificationOptions(
@@ -189,7 +191,6 @@ void startCallbackNotification() {
 class NotificationHandler extends TaskHandler {
   // ignore: prefer_typing_uninitialized_variables
   late final SendPort? sPort;
-  static final _i18n = GetIt.I.get<I18N>();
 
   @override
   Future<void> onStart(DateTime timestamp, SendPort? sendPort) async {
@@ -205,26 +206,55 @@ class NotificationHandler extends TaskHandler {
     );
     final appStatus =
         await FlutterForegroundTask.getData<String>(key: 'AppStatus');
-    final isUpdated =
-        await FlutterForegroundTask.getData<String>(key: 'isUpdated');
+    final isClosed =
+        await FlutterForegroundTask.getData<String>(key: 'isClosed');
+    final isReopen =
+        await FlutterForegroundTask.getData<String>(key: 'isReopen');
     if (backgroundActivationTime != null &&
         int.parse(backgroundActivationTime) <
-            clock.now().millisecondsSinceEpoch) {
+            clock.now().millisecondsSinceEpoch &&
+        isClosed == null) {
+      print(backgroundActivationTime);
+      await dbSetupDI();
+      registerSingleton<I18N>(I18N());
       await FlutterForegroundTask.updateService(
-        notificationText: _i18n.get("notification_foreground_not_received"),
-        notificationTitle: _i18n.get("notification_foreground_open_app"),
+        notificationText: await getForeground("notification_foreground_not_received"),
+        notificationTitle: await getForeground("notification_foreground_open_app"),
         callback: startCallbackNotification,
       );
       await FlutterForegroundTask.saveData(key: "isClosed", value: "True");
-    } else if (isUpdated == null &&
-        appStatus != null &&
-        appStatus == "Opened") {
+      await FlutterForegroundTask.removeData(key: "isReopen");
+    } else if (appStatus != null &&
+        isReopen == null &&
+        appStatus == "Opened" &&
+        backgroundActivationTime != null &&
+        int.parse(backgroundActivationTime) >
+            clock.now().millisecondsSinceEpoch) {
+      await dbSetupDI();
+      registerSingleton<I18N>(I18N());
+
       await FlutterForegroundTask.updateService(
-        notificationTitle: _i18n.get("notification_foreground"),
-        notificationText: _i18n.get("notification_tap_to_return"),
+        notificationTitle: await getForeground("notification_foreground"),
+        notificationText: await getForeground("notification_tap_to_return"),
         callback: startCallbackNotification,
       );
-      await FlutterForegroundTask.saveData(key: "isUpdated", value: "True");
+      await FlutterForegroundTask.saveData(key: "isReopen", value: "True");
+    }
+  }
+
+  Future<String> getForeground(String key) async {
+    final isPersian = await FlutterForegroundTask.getData<bool>(key: 'Language') ?? true;
+    switch(key){
+      case "notification_foreground":
+        return isPersian ? "دریافت نوتیفیکیشن های برنامه در پس زمینه فعال است" : "Notification Received On BackGround";
+      case "notification_tap_to_return":
+        return isPersian ? "برای بازگشت به برنامه کلیک کنید" : "Tap to return to the app";
+      case "notification_foreground_not_received":
+        return isPersian ? "نوتیفیکیشن های برنامه در پس زمینه فعال نمی باشند" : "Can't Received Notification On Background";
+      case "notification_foreground_open_app":
+        return isPersian ? "لطفا برنامه را مجدد باز کنید - بر روی نوار کلیک کنید" : "Please Open App Again - Tap Notification";
+      default:
+        return "";
     }
   }
 
