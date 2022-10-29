@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/messageRepo.dart';
+import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/widgets/settings_ui/box_ui.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
@@ -13,9 +14,11 @@ import 'package:latlong2/latlong.dart';
 import 'package:rxdart/rxdart.dart';
 
 class PointToLatLngPage extends StatefulWidget {
-  final Position position;
+  Position position;
+  Uid roomUid;
 
-  PointToLatLngPage({Key? key, required this.position}) : super(key: key);
+  PointToLatLngPage({Key? key, required this.position, required this.roomUid})
+      : super(key: key);
 
   @override
   PointToLatlngPage createState() {
@@ -24,100 +27,188 @@ class PointToLatLngPage extends StatefulWidget {
 }
 
 class PointToLatlngPage extends State<PointToLatLngPage> {
-
   late final MapController mapController = MapController();
   final pointSize = 10.0;
-  final pointY = 200.0;
-  LatLng? latLng ;
+  final pointY = 100.0;
+  late LatLng latLng;
+
+  final _i18n = GetIt.I.get<I18N>();
+  final _messageRepo = GetIt.I.get<MessageRepo>();
+
+  // late final BuildContext context;
 
   @override
   void initState() {
     super.initState();
-
+    latLng = LatLng(widget.position.latitude, widget.position.longitude);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      updatePoint(null, context);
+      // updatePoint(null, context);
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final _uxService = GetIt.I.get<UxService>();
     return Scaffold(
-      body: Stack(
+      body: ListView(
         children: [
-          FlutterMap(
-            mapController: mapController,
-            options: MapOptions(
-              onMapEvent: (event) {
-                updatePoint(null, context);
-              },
-              center: LatLng(58.5, -0.09),
-              zoom: 5,
-              minZoom: 3,
-            ),
-            children: [
-              TileLayer(
-                urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+          SizedBox(
+            height: MediaQuery.of(context).size.height / 3,
+            child: FlutterMap(
+              mapController: mapController,
+              options: MapOptions(
+                onMapEvent: (event) {
+                  updatePoint(null, context);
+                },
+                center: latLng,
+                zoom: 5,
+                minZoom: 15,
               ),
-              if (latLng != null)
+              children: [
+                TileLayer(
+                  tilesContainerBuilder: _uxService.themeIsDark
+                      ? darkModeTilesContainerBuilder
+                      : null,
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  subdomains: const ['a', 'b', 'c'],
+                ),
                 MarkerLayer(
                   markers: [
                     Marker(
-                      width: pointSize,
-                      height: pointSize,
-                      point: LatLng(widget.position.latitude,widget.position.longitude),
+                      // width: pointSize,
+                      // height: pointSize,
+                      point: LatLng(
+                          widget.position.latitude, widget.position.longitude,),
                       builder: (_) {
-                        return GestureDetector(
-                          child: const Icon(
-                            Icons.location_pin,
-                            color: Colors.red,
-                          ),
-                        );
+                        return Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              // borderRadius: BorderRadius.circular(48.0),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: (theme.colorScheme.primary
+                                      .withOpacity(0.7)),
+                                  blurRadius: 20.0,
+                                )
+                              ],
+                            ),
+                            child: Container(
+                                width: 200,
+                                height: 200,
+                                // padding: EdgeInsets.all(20),
+                                decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    border: Border.all(color: Colors.white),
+                                    color: theme.colorScheme.primary)));
                       },
                     ),
-                    Marker(
-                      point: LatLng(widget.position.latitude,widget.position.longitude),
-                      builder: (_) {
-                        return GestureDetector(
-                          child: const Icon(
-                            Icons.location_pin,
-                            color: Colors.blue,
-                          ),
-                        );
-                      },
-                    )
+                      Marker(
+                        point: latLng,
+                        builder: (_) {
+                          return GestureDetector(
+                            child: Icon(
+                              Icons.location_pin,
+                              color: Theme.of(context).errorColor,
+                              size: 28,
+                            ),
+                          );
+                        },
+                      )
                   ],
                 )
+              ],
+            ),
+          ),
+          const SizedBox(
+            height: 5,
+          ),
+          Column(
+            children: [
+              Directionality(
+                textDirection: _i18n.defaultTextDirection,
+                child: GestureDetector(
+                  behavior: HitTestBehavior.translucent,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 20.0,
+                    ),
+                    child: Row(
+                      children: [
+                        ClipOval(
+                          child: Material(
+                            color: theme.primaryColor, // button color
+                            child: InkWell(
+                              splashColor: theme.shadowColor.withOpacity(0.3),
+                              child: const SizedBox(
+                                width: 40,
+                                height: 40,
+                                child: Icon(
+                                  Icons.location_on_rounded,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          width: 20,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (widget.position.latitude != latLng.latitude || widget.position.longitude != latLng.longitude)
+                              Text(
+                                _i18n.get(
+                                  "send_this_location",
+                                ),
+                                style: const TextStyle(fontSize: 18),
+                              )
+                            else
+                              Text(
+                                _i18n.get(
+                                  "send_current_location",
+                                ),
+                                style: const TextStyle(fontSize: 18),
+                              ),
+                            if (widget.position.latitude != latLng.latitude || widget.position.longitude != latLng.longitude )
+                              Text("${latLng.latitude},${latLng.longitude}")
+                            else
+                              Text("${widget.position.accuracy}")
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _messageRepo.sendLocationMessage(
+                      // LatLng(widget.position.latitude, widget.position.longitude),
+                      latLng,
+                      widget.roomUid,
+                    );
+                  },
+                ),
+              ),
+              const Divider(),
             ],
           ),
-          // Container(
-          //     color: Colors.white,
-          //     height: 60,
-          //     child: Center(
-          //         child: Column(
-          //       mainAxisAlignment: MainAxisAlignment.center,
-          //       children: [
-          //         Text(
-          //           'flutter logo (${latLng?.latitude.toStringAsPrecision(4)},${latLng?.longitude.toStringAsPrecision(4)})',
-          //           textAlign: TextAlign.center,
-          //         ),
-          //       ],
-          //     ))),
-          Positioned(
-              top: 300 ,
-              left: _getPointX(context) - pointSize / 2,
-              child: Icon(Icons.location_on_sharp, size: pointSize))
         ],
       ),
     );
   }
-
   void updatePoint(MapEvent? event, BuildContext context) {
     final pointX = _getPointX(context);
     setState(() {
-      latLng = mapController.pointToLatLng(CustomPoint(pointX, pointY));
+      final newLocation =
+          mapController.pointToLatLng(CustomPoint(pointX, pointY));
+      if (newLocation != null) {
+        latLng = newLocation;
+      }
     });
   }
-
   double _getPointX(BuildContext context) {
     return MediaQuery.of(context).size.width / 2;
   }
@@ -135,75 +226,11 @@ class AttachLocation {
     return FutureBuilder(
       future: Geolocator.getCurrentPosition(),
       builder: (c, position) {
-        final pos = position.data;
+        print(position.data);
         if (position.hasData && position.data != null) {
-          return ListView(
-            children: [
-              SizedBox(
-                height: MediaQuery.of(context).size.height / 3 - 10,
-                child: PointToLatLngPage(
-                  position: pos!,
-                ),
-              ),
-              const SizedBox(
-                height: 5,
-              ),
-              GestureDetector(
-                behavior: HitTestBehavior.translucent,
-                child: Row(
-                  children: [
-                    SizedBox(
-                      width: 40,
-                      child: Icon(
-                        Icons.location_on_sharp,
-                        color: Theme.of(context).primaryColor,
-                        size: 28,
-                      ),
-                    ),
-                    Text(
-                      _i18n.get(
-                        "send_this_location",
-                      ),
-                      style: const TextStyle(fontSize: 18),
-                    )
-                  ],
-                ),
-                onTap: () {
-                  Navigator.of(context).pop();
-                  _messageRepo.sendLocationMessage(
-                    position.data!,
-                    roomUid,
-                  );
-                },
-              ),
-              const SizedBox(
-                height: 30,
-              ),
-              const Divider(),
-              //todo  liveLocation
-              // GestureDetector(
-              //   behavior: HitTestBehavior.translucent,
-              //   onTap: () {
-              //     liveLocation(i18n, context,position.data);
-              //   },
-              //   child: Row(
-              //     children: [
-              //       Container(
-              //           child: l.Lottie.asset(
-              //             'assets/animations/liveLocation.json',
-              //             width: 40,
-              //             height: 40,
-              //           )),
-              //       Text(
-              //         i18n.get(
-              //           "send_live_location",
-              //         ),
-              //         style: TextStyle(fontSize: 18),
-              //       )
-              //     ],
-              //   ),
-              // )
-            ],
+          return PointToLatLngPage(
+            position: position.data!,
+            roomUid: roomUid,
           );
         } else {
           return const SizedBox.shrink();
@@ -219,7 +246,7 @@ class AttachLocation {
           position.latitude,
           position.longitude,
         ),
-        zoom: 14.0,
+        zoom: 24.0,
       ),
       children: [
         TileLayer(
@@ -332,7 +359,8 @@ class AttachLocation {
                     ),
                   ),
                   onPressed: () {
-                    _messageRepo.sendLocationMessage(position, roomUid);
+                    _messageRepo.sendLocationMessage(
+                        LatLng(position.latitude, position.longitude), roomUid,);
                     Navigator.pop(c);
                   },
                   child: Text(_i18n.get("send")),

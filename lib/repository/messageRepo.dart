@@ -60,6 +60,7 @@ import 'package:get_it/get_it.dart';
 import 'package:grpc/grpc.dart';
 import 'package:image_size_getter/file_input.dart';
 import 'package:image_size_getter/image_size_getter.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:logger/logger.dart';
 import 'package:mime_type/mime_type.dart';
 import 'package:rxdart/rxdart.dart';
@@ -516,7 +517,7 @@ class MessageRepo {
   }
 
   Future<void> sendLocationMessage(
-    location.Position locationData,
+    LatLng locationData,
     Uid room, {
     String? forwardedFrom,
     int replyId = 0,

@@ -411,6 +411,7 @@
   "send_message": "SendMessage",
   "send_msg_to": "send Message To ",
   "send_this_location": "Send this location",
+  "send_current_location": "send current location",
   "sending_file_activity": "sending file ...",
   "set": "Set",
   "set_avatar": "Set Avatar",

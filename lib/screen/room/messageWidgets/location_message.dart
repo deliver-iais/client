@@ -2,12 +2,14 @@ import 'package:deliver/box/message.dart';
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/roomRepo.dart';
 import 'package:deliver/screen/room/messageWidgets/time_and_seen_status.dart';
+import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/services/ux_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/widgets/circle_avatar.dart';
+import 'package:deliver/shared/widgets/room_name.dart';
 import 'package:deliver/theme/color_scheme.dart';
 import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/location.pb.dart';
@@ -20,8 +22,6 @@ import 'package:get_it/get_it.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:map_launcher/map_launcher.dart' as map;
 import 'package:map_launcher/map_launcher.dart';
-import '../../../services/routing_service.dart';
-import '../../../shared/widgets/room_name.dart';
 
 class LocationMessageWidget extends StatelessWidget {
   final Message message;
@@ -31,7 +31,7 @@ class LocationMessageWidget extends StatelessWidget {
   static final _routingServices = GetIt.I.get<RoutingService>();
   final _uxService = GetIt.I.get<UxService>();
 
-   LocationMessageWidget({
+  LocationMessageWidget({
     super.key,
     required this.message,
     required this.isSeen,
@@ -103,7 +103,7 @@ class LocationMessageWidget extends StatelessWidget {
                         : null,
                     urlTemplate:
                         "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                    subdomains: ['a', 'b', 'c'],
+                    subdomains: const ['a', 'b', 'c'],
                   ),
                   MarkerLayer(
                     markers: [
@@ -113,7 +113,7 @@ class LocationMessageWidget extends StatelessWidget {
                         //     CircleAvatarWidget(message.from.asUid(), 20),
                         builder: (_) {
                           return GestureDetector(
-                            child:  Icon(
+                            child: Icon(
                               Icons.location_pin,
                               color: Theme.of(context).errorColor,
                             ),
@@ -316,52 +316,6 @@ class LocationPage extends StatelessWidget {
                                 title: "$_roomName location",
                               );
                       },
-
-                      // onPressed: () {
-                      //   showGeneralDialog(context: context,
-                      //       pageBuilder: (context,animation1 , animation2){
-                      //         return Align(
-                      //           alignment: Alignment.bottomCenter,
-                      //           child: Container(
-                      //             height: 200,
-                      //             width: MediaQuery.of(context).size.width,
-                      //             decoration: BoxDecoration(
-                      //               color: theme.colorScheme.surface,
-                      //               borderRadius: const BorderRadius.only(
-                      //                 topRight: Radius.circular(15.0),
-                      //                 topLeft: Radius.circular(15.0),
-                      //               ),
-                      //             ),
-                      //             child: Column(
-                      //               children:  [
-                      //                 Text(_i18n.get("open_in")),
-                      //                 Container(
-                      //
-                      //                 ),
-                      //                 TextButton(
-                      //                   onPressed: () => Navigator.pop(context),
-                      //                   child: const Text("cancel"),
-                      //
-                      //                 )
-                      //               ],
-                      //             ),
-                      //           ),
-                      //
-                      //         );
-                      //       },
-                      //     transitionBuilder: (_, animation1,animation2 , child) {
-                      //     return SlideTransition(
-                      //       position: Tween(
-                      //         begin: const Offset(0, 1),
-                      //         end: const Offset(0, 0),
-                      //       ).animate(animation1),
-                      //       child: child,
-                      //     );
-                      //   }
-                      //       // transitionBuilder: (context,animation1,animation2,child){
-                      //   );
-                      //
-                      // },
                       child: Text(_i18n.get("open_in")),
                     ),
                   ],
@@ -392,12 +346,40 @@ class LocationPage extends StatelessWidget {
                         : null,
                     urlTemplate:
                         "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                    // subdomains: ['a', 'b', 'c'],
+                    subdomains: ['a', 'b', 'c'],
                     // tilesContainerBuilder:
                     // darkMode ? darkModeTilesContainerBuilder : null,
                   ),
                   MarkerLayer(
                     markers: [
+                      if (position != null)
+                        Marker(
+                          point: LatLng(position.latitude, position.longitude),
+                          builder: (_) {
+                            return Container(
+                              alignment: Alignment.topCenter,
+                                padding: EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  // borderRadius: BorderRadius.circular(48.0),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: (theme.colorScheme.primary
+                                          .withOpacity(0.7)),
+                                      blurRadius: 20.0,
+                                    )
+                                  ],
+                                ),
+                                child: Container(
+                                    width: 200,
+                                    height: 200,
+                                    // padding: EdgeInsets.all(20),
+                                    decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(color: Colors.white),
+                                        color: theme.colorScheme.primary)));
+                          },
+                        ),
                       Marker(
                         point: LatLng(location.latitude, location.longitude),
                         builder: (_) {
@@ -410,32 +392,6 @@ class LocationPage extends StatelessWidget {
                           );
                         },
                       ),
-                      if (position != null)
-                        Marker(
-                          point: LatLng(position.latitude, position.longitude),
-                          builder: (_) {
-                            return Container(
-                              width: 1000.0,
-                              height: 1000.0,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-
-                                // borderRadius: BorderRadius.circular(48.0),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: (Colors.lightBlue[100])!,
-                                    blurRadius: 20.0,
-                                  )
-                                ],
-                              ),
-                              child:  Icon(
-                                Icons.circle_sharp,
-                                color: theme.colorScheme.primary,
-                                size: 14,
-                              ),
-                            );
-                          },
-                        ),
                     ],
                   ),
                 ],
@@ -471,130 +427,138 @@ class LocationPage extends StatelessWidget {
               ),
             ),
           ),
-          Align(
-            alignment: FractionalOffset.bottomCenter,
-            child: Container(
-              height: 140,
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surface,
-                borderRadius: const BorderRadius.only(
-                  topRight: Radius.circular(15.0),
-                  topLeft: Radius.circular(15.0),
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  vertical: 10.0,
-                  horizontal: 20.0,
-                ),
-                child: Column(
-                  children: [
-                    Row(
+          Directionality(
+              textDirection: _i18n.defaultTextDirection,
+              child: Align(
+                alignment: FractionalOffset.bottomCenter,
+                child: Container(
+                  height: 140,
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(
+                    color: theme.colorScheme.surface,
+                    borderRadius: const BorderRadius.only(
+                      topRight: Radius.circular(15.0),
+                      topLeft: Radius.circular(15.0),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10.0,
+                      horizontal: 20.0,
+                    ),
+                    child: Column(
                       children: [
-                        CircleAvatarWidget(from, 25),
-                        const SizedBox(
-                          width: 20,
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        Row(
                           children: [
+                            CircleAvatarWidget(from, 25),
                             const SizedBox(
-                              height: 1,
+                              width: 20,
                             ),
-                            FutureBuilder<String>(
-                              initialData: _roomRepo
-                                  .fastForwardName(message.from.asUid()),
-                              future: _roomRepo.getName(message.from.asUid()),
-                              builder: (context, snapshot) {
-                                _roomName =
-                                    snapshot.data ?? _i18n.get("loading");
-                                return RoomName(
-                                  uid: message.from.asUid(),
-                                  name: _roomName,
-                                );
-                              },
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(
+                                  height: 1,
+                                ),
+                                FutureBuilder<String>(
+                                  initialData: _roomRepo
+                                      .fastForwardName(message.from.asUid()),
+                                  future:
+                                      _roomRepo.getName(message.from.asUid()),
+                                  builder: (context, snapshot) {
+                                    _roomName =
+                                        snapshot.data ?? _i18n.get("loading");
+                                    return RoomName(
+                                      uid: message.from.asUid(),
+                                      name: _roomName,
+                                    );
+                                  },
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                FutureBuilder(
+                                  future: _distance(message),
+                                  builder: (context, snapshot) {
+                                    if (snapshot.hasData) {
+                                      var distance = snapshot.data;
+                                      distance = double.parse("$distance")
+                                          .toStringAsFixed(3);
+                                      return Text(
+                                        "$distance ${_i18n.get("away")}",
+                                      );
+                                    } else {
+                                      return Text(
+                                        _i18n.get("locating"),
+
+                                      );
+                                    }
+                                  },
+                                )
+                              ],
                             ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            FutureBuilder(
-                              future: _distance(message),
-                              builder: (context, snapshot) {
-                                if (snapshot.hasData) {
-                                  var distance = snapshot.data;
-                                  distance = double.parse("$distance")
-                                      .toStringAsFixed(3);
-                                  return Text("$distance ${_i18n.get("away")}");
-                                } else {
-                                  return Text(_i18n.get("locating"));
-                                }
-                              },
-                            )
                           ],
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton(
+                                style: ButtonStyle(
+                                  fixedSize: MaterialStateProperty.all(
+                                    const Size(380, 50),
+                                  ),
+                                  shape: MaterialStateProperty.all(
+                                    RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                  ),
+                                  padding: MaterialStateProperty.all(
+                                    const EdgeInsets.all(10),
+                                  ),
+                                  backgroundColor: MaterialStateProperty.all(
+                                      theme.colorScheme.primary),
+                                  textStyle: MaterialStateProperty.all(
+                                    const TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  isIOS
+                                      ? await MapLauncher.showDirections(
+                                          mapType: MapType.apple,
+                                          destination: map.Coords(
+                                            location.latitude,
+                                            location.longitude,
+                                          ),
+                                        )
+                                      : MapLauncher.showDirections(
+                                          mapType: MapType.google,
+                                          destination: map.Coords(
+                                            location.latitude,
+                                            location.longitude,
+                                          ),
+                                        );
+                                },
+                                child: Text(
+                                  _i18n.get("direction"),
+                                  style: TextStyle(
+                                      color: theme.colorScheme.surface),
+                                ),
+                              )
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ElevatedButton(
-                            style: ButtonStyle(
-                              fixedSize: MaterialStateProperty.all(
-                                const Size(380, 50),
-                              ),
-                              shape: MaterialStateProperty.all(
-                                RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                              ),
-                              padding: MaterialStateProperty.all(
-                                const EdgeInsets.all(10),
-                              ),
-                              backgroundColor: MaterialStateProperty.all(
-                                  theme.colorScheme.primary),
-                              textStyle: MaterialStateProperty.all(
-                                const TextStyle(
-                                  fontSize: 14,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                            onPressed: () async {
-                              isIOS
-                                  ? await MapLauncher.showDirections(
-                                      mapType: MapType.apple,
-                                      destination: map.Coords(
-                                        location.latitude,
-                                        location.longitude,
-                                      ),
-                                    )
-                                  : MapLauncher.showDirections(
-                                      mapType: MapType.google,
-                                      destination: map.Coords(
-                                        location.latitude,
-                                        location.longitude,
-                                      ),
-                                    );
-                            },
-                            child: Text(
-                              _i18n.get("direction"),
-                              style:
-                                  TextStyle(color: theme.colorScheme.surface),
-                            ),
-                          )
-                        ],
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-            ),
-          )
+              ))
         ],
       ),
     );
