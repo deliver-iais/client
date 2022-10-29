@@ -1,7 +1,10 @@
+import 'dart:ui';
+
 import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/screen/room/messageWidgets/custom_text_selection/methods/custom_text_selection_methods.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver/shared/parsers/parsers.dart';
+import 'package:deliver/theme/theme.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:flutter/foundation.dart' show clampDouble;
 import 'package:flutter/material.dart';
@@ -9,7 +12,7 @@ import 'package:flutter/rendering.dart';
 import 'package:get_it/get_it.dart';
 
 const double _kToolbarScreenPadding = 8.0;
-const double _kToolbarWidth = 222.0;
+const double _kToolbarWidth = 180.0;
 
 class CustomDesktopTextSelectionControls extends TextSelectionControls {
   TextEditingController textController;
@@ -238,55 +241,97 @@ class _DesktopTextSelectionControlsToolbarState
     void addToolbarButton(
       String text,
       VoidCallback onPressed,
-    ) {
+      IconData iconData, {
+      Color? textColor,
+    }) {
       items.add(
         _DesktopTextSelectionToolbarButton.text(
           context: context,
           onPressed: onPressed,
           text: text,
+          iconData: iconData,
+          textColor: textColor,
         ),
       );
     }
 
+    void addDivider() {
+      items.add(
+        Padding(
+          padding:
+              EdgeInsets.symmetric(horizontal: _kToolbarButtonPadding.left),
+          child: const Divider(),
+        ),
+      );
+    }
+
+    Color? color;
+    if (!widget.isAnyThingSelected()) color = Colors.grey;
+
     if (widget.handleCut != null) {
-      addToolbarButton(localizations.cutButtonLabel, widget.handleCut!);
+      addToolbarButton(
+        localizations.cutButtonLabel,
+        widget.handleCut!,
+        Icons.cut_rounded,
+      );
     }
     if (widget.handleCopy != null) {
-      addToolbarButton(localizations.copyButtonLabel, widget.handleCopy!);
+      addToolbarButton(
+        localizations.copyButtonLabel,
+        widget.handleCopy!,
+        Icons.copy_all_rounded,
+      );
     }
-    if (widget.handlePaste != null &&
-        widget.clipboardStatus?.value == ClipboardStatus.pasteable) {
-      addToolbarButton(localizations.pasteButtonLabel, widget.handlePaste!);
+    if (widget.handlePaste != null) {
+      addToolbarButton(
+        localizations.pasteButtonLabel,
+        widget.handlePaste!,
+        Icons.paste_outlined,
+      );
     }
     if (widget.handleSelectAll != null) {
       addToolbarButton(
         localizations.selectAllButtonLabel,
         widget.handleSelectAll!,
+        Icons.select_all_rounded,
       );
     }
+    addDivider();
     addToolbarButton(
       _i18n.get("bold"),
       widget.handleBold,
+      Icons.format_bold_rounded,
+      textColor: color,
     );
     addToolbarButton(
       _i18n.get("italic"),
       widget.handleItalic,
+      Icons.format_italic_rounded,
+      textColor: color,
     );
     addToolbarButton(
       _i18n.get("strike_through"),
       widget.handleStrikethrough,
+      Icons.strikethrough_s_rounded,
+      textColor: color,
     );
     addToolbarButton(
       _i18n.get("spoiler"),
       widget.handleSpoiler,
+      Icons.hide_source_rounded,
+      textColor: color,
     );
     addToolbarButton(
       _i18n.get("underline"),
       widget.handleUnderline,
+      Icons.format_underline_rounded,
+      textColor: color,
     );
+    addDivider();
     addToolbarButton(
       _i18n.get("create_link"),
       widget.handleCreateLink,
+      Icons.link_rounded,
     );
 
     // If there is no option available, build an empty widget.
@@ -294,9 +339,12 @@ class _DesktopTextSelectionControlsToolbarState
       return const SizedBox.shrink();
     }
 
-    return _DesktopTextSelectionToolbar(
-      anchor: widget.lastSecondaryTapDownPosition ?? midpointAnchor,
-      children: items,
+    return Directionality(
+      textDirection: _i18n.defaultTextDirection,
+      child: _DesktopTextSelectionToolbar(
+        anchor: widget.lastSecondaryTapDownPosition ?? midpointAnchor,
+        children: items,
+      ),
     );
   }
 }
@@ -335,14 +383,27 @@ class _DesktopTextSelectionToolbar extends StatelessWidget {
 
   // Builds a desktop toolbar in the Material style.
   static Widget _defaultToolbarBuilder(BuildContext context, Widget child) {
-    return SizedBox(
+    return Container(
       width: _kToolbarWidth,
-      child: Material(
-        borderRadius: const BorderRadius.all(Radius.circular(7.0)),
-        clipBehavior: Clip.antiAlias,
-        elevation: 1.0,
-        type: MaterialType.card,
-        child: child,
+      decoration: BoxDecoration(
+        boxShadow: DEFAULT_BOX_SHADOWS,
+        borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+        border: Border.all(
+          color: Colors.grey.withOpacity(0.5),
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.all(Radius.circular(10.0)),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Material(
+            color: Theme.of(context).scaffoldBackgroundColor.withOpacity(0.6),
+            clipBehavior: Clip.antiAlias,
+            elevation: 1.0,
+            type: MaterialType.card,
+            child: child,
+          ),
+        ),
       ),
     );
   }
@@ -378,17 +439,10 @@ class _DesktopTextSelectionToolbar extends StatelessWidget {
   }
 }
 
-const TextStyle _kToolbarButtonFontStyle = TextStyle(
-  inherit: false,
-  fontSize: 14.0,
-  letterSpacing: -0.15,
-  fontWeight: FontWeight.w400,
-);
-
 const EdgeInsets _kToolbarButtonPadding = EdgeInsets.fromLTRB(
-  20.0,
+  15.0,
   0.0,
-  20.0,
+  15.0,
   3.0,
 );
 
@@ -405,15 +459,30 @@ class _DesktopTextSelectionToolbarButton extends StatelessWidget {
   _DesktopTextSelectionToolbarButton.text({
     required BuildContext context,
     required this.onPressed,
+    required IconData iconData,
+    Color? textColor,
     required String text,
-  }) : child = Text(
-          text,
-          overflow: TextOverflow.ellipsis,
-          style: _kToolbarButtonFontStyle.copyWith(
-            color: Theme.of(context).colorScheme.brightness == Brightness.dark
-                ? Colors.white
-                : Colors.black87,
-          ),
+  }) : child = Row(
+          children: [
+            Icon(
+              iconData,
+              size: 15,
+              color: textColor,
+            ),
+            SizedBox(
+              width: _kToolbarButtonPadding.right,
+            ),
+            Text(
+              text,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: textColor ??
+                    (Theme.of(context).colorScheme.brightness == Brightness.dark
+                        ? Colors.white
+                        : Colors.black87),
+              ),
+            ),
+          ],
         );
 
   /// {@macro flutter.material.TextSelectionToolbarTextButton.onPressed}
@@ -424,10 +493,8 @@ class _DesktopTextSelectionToolbarButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO(hansmuller): Should be colorScheme.onSurface
     final theme = Theme.of(context);
-    final isDark = theme.colorScheme.brightness == Brightness.dark;
-    final primary = isDark ? Colors.white : Colors.black87;
+    final primary = theme.colorScheme.onSurface;
 
     return SizedBox(
       width: double.infinity,
