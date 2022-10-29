@@ -122,7 +122,7 @@ class RoomPageState extends State<RoomPage> {
   final Map<int, Message> _selectedMessages = {};
 
   final _messageWidgetCache =
-      LruCache<int, Widget?>(storage: InMemoryStorage(200));
+      LruCache<int, Widget?>(storage: InMemoryStorage(0));
   final _messageCache = LruCache<int, Message>(storage: InMemoryStorage(1000));
 
   final _highlightMessageId = BehaviorSubject.seeded(-1);
@@ -178,28 +178,26 @@ class RoomPageState extends State<RoomPage> {
           return true;
         }
       },
-      child: SelectionArea(
-        child: DragDropWidget(
-          roomUid: widget.roomId,
-          height: MediaQuery.of(context).size.height,
-          replyMessageId: _repliedMessage.value?.id ?? 0,
-          resetRoomPageDetails: _resetRoomPageDetails,
-          child: Stack(
-            children: [
-              StreamBuilder<Room>(
-                stream: _room,
-                builder: (context, snapshot) => Background(
-                  id: snapshot.data?.lastMessageId ?? 0,
-                ),
+      child: DragDropWidget(
+        roomUid: widget.roomId,
+        height: MediaQuery.of(context).size.height,
+        replyMessageId: _repliedMessage.value?.id ?? 0,
+        resetRoomPageDetails: _resetRoomPageDetails,
+        child: Stack(
+          children: [
+            StreamBuilder<Room>(
+              stream: _room,
+              builder: (context, snapshot) => Background(
+                id: snapshot.data?.lastMessageId ?? 0,
               ),
-              Scaffold(
-                backgroundColor: Colors.transparent,
-                extendBodyBehindAppBar: true,
-                appBar: buildAppbar(),
-                body: buildBody(),
-              ),
-            ],
-          ),
+            ),
+            Scaffold(
+              backgroundColor: Colors.transparent,
+              extendBodyBehindAppBar: true,
+              appBar: buildAppbar(),
+              body: buildBody(),
+            ),
+          ],
         ),
       ),
     );
