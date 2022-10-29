@@ -46,6 +46,7 @@ class AudioPlayProgress extends StatelessWidget {
                     audioUuid: track.uuid,
                     audioPath: track.path,
                     audioDuration: track.duration,
+                    audioWaveData: audio.audioWaveform.data,
                   );
                 } else {
                   return buildPadding(context);

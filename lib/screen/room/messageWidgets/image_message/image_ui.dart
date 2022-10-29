@@ -135,14 +135,8 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
                           }
                         },
                         child: isWeb
-                            ? Image.network(
-                                s.data!,
-                                fit: BoxFit.fill,
-                              )
-                            : Image.file(
-                                File(s.data!),
-                                fit: BoxFit.fill,
-                              ),
+                            ? Image.network(s.data!, fit: BoxFit.fill)
+                            : Image.file(File(s.data!), fit: BoxFit.fill),
                       ),
                       if (widget.message.id == null)
                         FutureBuilder<PendingMessage?>(
@@ -185,7 +179,11 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
                             );
                             setState(() {});
                           },
-                          child: getBlurHashWidget(),
+                          child: SizedBox(
+                            width: max(widget.image.width, 1) * 1.0,
+                            height: max(widget.image.height, 1) * 1.0,
+                            child: getBlurHashWidget(),
+                          ),
                         ),
                       ),
                       buildLoadFileStatus(
@@ -283,14 +281,10 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
     if (widget.image.blurHash != "") {
       return BlurHash(
         hash: widget.image.blurHash,
-        imageFit: BoxFit.cover,
       );
     } else {
-      // this is default gray hash : https://www.macmillandictionary.com/us/external/slideshow/thumb/Grey_thumb.png
       return const BlurHash(
-        hash:
-            ";0Hewg%MM{%MM{%MM{%MM{?vfQfQfQfQfQfQfQfQM{fQfQfQfQfQfQfQfQ?vfQfQfQfQfQfQfQfQM{fQfQfQfQfQfQfQfQ?vfQfQfQfQfQfQfQfQM{fQfQfQfQfQfQfQfQ?vfQfQfQfQfQfQfQfQ",
-        imageFit: BoxFit.cover,
+        hash: "L0Hewg%MM{%M?bfQfQfQM{fQfQfQ",
       );
     }
   }
