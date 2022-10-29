@@ -159,8 +159,9 @@ class DocumentAndFileUiState extends State<DocumentAndFileUi> {
                               title: Row(
                                 children: <Widget>[
                                   LoadFileStatus(
-                                    fileId: json["uuid"],
-                                    fileName: json["name"],
+                                    uuid: json["uuid"],
+                                    name: json["name"],
+                                    onCancel: () {},
                                     isPendingMessage: false,
                                     onPressed: () async {
                                       await _fileRepo.getFile(

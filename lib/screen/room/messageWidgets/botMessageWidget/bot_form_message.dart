@@ -236,8 +236,8 @@ class BotFormMessageState extends State<BotFormMessage> {
                       children: [
                         Lottie.asset(
                           "assets/animations/touch.zip",
-                          width: 80,
-                          height: 80,
+                          width: 90,
+                          height: 70,
                           delegates: LottieDelegates(
                             values: [
                               ValueDelegate.color(

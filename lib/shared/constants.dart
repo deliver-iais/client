@@ -21,7 +21,7 @@ const GROUP_URL = "group";
 const CHANNEL_URL = "channel";
 
 // Version Constants
-const VERSION = "1.9.5";
+const VERSION = "1.9.6";
 
 // Time Constants
 const ONLINE_TIME = 60000;
@@ -46,7 +46,6 @@ const FETCH_ROOM_METADATA_IN_SYNCING_SIZE = 20;
 
 // File Constants
 const MAX_FILE_SIZE_BYTE = 104857600.0; //100MB
-const DOWNLOAD_COMPLETE = 200.0;
 const DEFAULT_FILE_TYPE = "application/octet-stream";
 const DEFAULT_FILE_DIMENSION = 200;
 
@@ -59,6 +58,7 @@ const INPUT_MESSAGE_TEXT_FIELD_MAX_LENGTH =
 
 // Feature Flags
 const bool TWO_STEP_VERIFICATION_IS_AVAILABLE = false;
+const bool SHOWCASES_IS_AVAILABLE = false;
 
 // Fake User Constants
 final FAKE_USER_UID = Uid()
