@@ -381,6 +381,7 @@ class LocationPage extends StatelessWidget {
                           },
                         ),
                       Marker(
+
                         point: LatLng(location.latitude, location.longitude),
                         builder: (_) {
                           return GestureDetector(
