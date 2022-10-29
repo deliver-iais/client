@@ -15,14 +15,14 @@ const double _kToolbarScreenPadding = 8.0;
 const double _kToolbarWidth = 180.0;
 
 class CustomDesktopTextSelectionControls extends TextSelectionControls {
-  TextEditingController textController;
-  BuildContext buildContext;
-  Uid roomUid;
+  TextEditingController? textController;
+  BuildContext? buildContext;
+  Uid? roomUid;
 
   CustomDesktopTextSelectionControls({
-    required this.buildContext,
-    required this.textController,
-    required this.roomUid,
+    this.buildContext,
+    this.textController,
+    this.roomUid,
   });
 
   /// Desktop has no text selection handles.
@@ -56,50 +56,63 @@ class CustomDesktopTextSelectionControls extends TextSelectionControls {
       textLineHeight: textLineHeight,
       handlePaste: canPaste(delegate)
           ? () {
-              if (!isDesktop) {
+        if (!isDesktop || roomUid == null) {
                 handlePaste(delegate);
               } else {
                 CustomTextSelectionMethods.desktopPastHandle(
                   delegate,
-                  textController,
-                  roomUid,
-                  buildContext,
+                  textController!,
+                  roomUid!,
+                  buildContext!,
                 );
               }
             }
           : null,
-      handleUnderline: () => CustomTextSelectionMethods.handleFormatting(
-        delegate,
-        UnderlineFeature.specialChar,
-        textController,
-      ),
-      handleSpoiler: () => CustomTextSelectionMethods.handleFormatting(
-        delegate,
-        SpoilerFeature.specialChar,
-        textController,
-      ),
-      handleBold: () => CustomTextSelectionMethods.handleFormatting(
-        delegate,
-        BoldFeature.specialChar,
-        textController,
-      ),
-      handleItalic: () => CustomTextSelectionMethods.handleFormatting(
-        delegate,
-        ItalicFeature.specialChar,
-        textController,
-      ),
-      handleStrikethrough: () => CustomTextSelectionMethods.handleFormatting(
-        delegate,
-        StrikethroughFeature.specialChar,
-        textController,
-      ),
-      isAnyThingSelected: () =>
-          CustomTextSelectionMethods.isAnyThingSelected(textController),
-      handleCreateLink: () => CustomTextSelectionMethods.handleCreateLink(
-        delegate,
-        buildContext,
-        textController,
-      ),
+      handleUnderline: textController != null
+          ? () => CustomTextSelectionMethods.handleFormatting(
+                delegate,
+                UnderlineFeature.specialChar,
+                textController!,
+              )
+          : null,
+      handleSpoiler: textController != null
+          ? () => CustomTextSelectionMethods.handleFormatting(
+                delegate,
+                SpoilerFeature.specialChar,
+                textController!,
+              )
+          : null,
+      handleBold: textController != null
+          ? () => CustomTextSelectionMethods.handleFormatting(
+                delegate,
+                BoldFeature.specialChar,
+                textController!,
+              )
+          : null,
+      handleItalic: textController != null
+          ? () => CustomTextSelectionMethods.handleFormatting(
+                delegate,
+                ItalicFeature.specialChar,
+                textController!,
+              )
+          : null,
+      handleStrikethrough: textController != null
+          ? () => CustomTextSelectionMethods.handleFormatting(
+                delegate,
+                StrikethroughFeature.specialChar,
+                textController!,
+              )
+          : null,
+      isAnyThingSelected: textController != null
+          ? () => CustomTextSelectionMethods.isAnyThingSelected(textController!)
+          : null,
+      handleCreateLink: textController != null
+          ? () => CustomTextSelectionMethods.handleCreateLink(
+                delegate,
+                buildContext!,
+                textController!,
+              )
+          : null,
     );
   }
 
@@ -151,13 +164,13 @@ class _DesktopTextSelectionControlsToolbar extends StatefulWidget {
     required this.selectionMidpoint,
     required this.textLineHeight,
     required this.lastSecondaryTapDownPosition,
-    required this.handleBold,
-    required this.handleItalic,
-    required this.handleStrikethrough,
-    required this.handleSpoiler,
-    required this.handleUnderline,
-    required this.handleCreateLink,
-    required this.isAnyThingSelected,
+    this.handleBold,
+    this.handleItalic,
+    this.handleStrikethrough,
+    this.handleSpoiler,
+    this.handleUnderline,
+    this.handleCreateLink,
+    this.isAnyThingSelected,
   });
 
   final ClipboardStatusNotifier? clipboardStatus;
@@ -170,13 +183,13 @@ class _DesktopTextSelectionControlsToolbar extends StatefulWidget {
   final Offset? lastSecondaryTapDownPosition;
   final Offset selectionMidpoint;
   final double textLineHeight;
-  final VoidCallback handleBold;
-  final VoidCallback handleItalic;
-  final VoidCallback handleStrikethrough;
-  final VoidCallback handleSpoiler;
-  final VoidCallback handleUnderline;
-  final VoidCallback handleCreateLink;
-  final bool Function() isAnyThingSelected;
+  final VoidCallback? handleBold;
+  final VoidCallback? handleItalic;
+  final VoidCallback? handleStrikethrough;
+  final VoidCallback? handleSpoiler;
+  final VoidCallback? handleUnderline;
+  final VoidCallback? handleCreateLink;
+  final bool Function()? isAnyThingSelected;
 
   @override
   _DesktopTextSelectionControlsToolbarState createState() =>
@@ -266,7 +279,8 @@ class _DesktopTextSelectionControlsToolbarState
     }
 
     Color? color;
-    if (!widget.isAnyThingSelected()) color = Colors.grey;
+    if (!(widget.isAnyThingSelected != null && widget.isAnyThingSelected!()))
+      color = Colors.grey;
 
     if (widget.handleCut != null) {
       addToolbarButton(
@@ -296,43 +310,59 @@ class _DesktopTextSelectionControlsToolbarState
         Icons.select_all_rounded,
       );
     }
-    addDivider();
-    addToolbarButton(
-      _i18n.get("bold"),
-      widget.handleBold,
-      Icons.format_bold_rounded,
-      textColor: color,
-    );
-    addToolbarButton(
-      _i18n.get("italic"),
-      widget.handleItalic,
-      Icons.format_italic_rounded,
-      textColor: color,
-    );
-    addToolbarButton(
-      _i18n.get("strike_through"),
-      widget.handleStrikethrough,
-      Icons.strikethrough_s_rounded,
-      textColor: color,
-    );
-    addToolbarButton(
-      _i18n.get("spoiler"),
-      widget.handleSpoiler,
-      Icons.hide_source_rounded,
-      textColor: color,
-    );
-    addToolbarButton(
-      _i18n.get("underline"),
-      widget.handleUnderline,
-      Icons.format_underline_rounded,
-      textColor: color,
-    );
-    addDivider();
-    addToolbarButton(
-      _i18n.get("create_link"),
-      widget.handleCreateLink,
-      Icons.link_rounded,
-    );
+    if (widget.handleBold != null) {
+      addDivider();
+    }
+    if (widget.handleBold != null) {
+      addToolbarButton(
+        _i18n.get("bold"),
+        widget.handleBold!,
+        Icons.format_bold_rounded,
+        textColor: color,
+      );
+    }
+    if (widget.handleItalic != null) {
+      addToolbarButton(
+        _i18n.get("italic"),
+        widget.handleItalic!,
+        Icons.format_italic_rounded,
+        textColor: color,
+      );
+    }
+    if (widget.handleStrikethrough != null) {
+      addToolbarButton(
+        _i18n.get("strike_through"),
+        widget.handleStrikethrough!,
+        Icons.strikethrough_s_rounded,
+        textColor: color,
+      );
+    }
+    if (widget.handleSpoiler != null) {
+      addToolbarButton(
+        _i18n.get("spoiler"),
+        widget.handleSpoiler!,
+        Icons.hide_source_rounded,
+        textColor: color,
+      );
+    }
+    if (widget.handleUnderline != null) {
+      addToolbarButton(
+        _i18n.get("underline"),
+        widget.handleUnderline!,
+        Icons.format_underline_rounded,
+        textColor: color,
+      );
+    }
+    if (widget.handleUnderline != null) {
+      addDivider();
+    }
+    if (widget.handleCreateLink != null) {
+      addToolbarButton(
+        _i18n.get("create_link"),
+        widget.handleCreateLink!,
+        Icons.link_rounded,
+      );
+    }
 
     // If there is no option available, build an empty widget.
     if (items.isEmpty) {
