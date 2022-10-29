@@ -72,65 +72,67 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
             maxWidth: widget.maxWidth,
             maxHeight: widget.maxWidth,
           ),
-          child: FutureBuilder<String?>(
-            key: globalKey,
-            future: _fileRepo.getFileIfExist(
-              widget.image.uuid,
-              widget.image.name,
-            ),
-            builder: (c, s) {
-              if (s.hasData && s.data != null) {
-                return AspectRatio(
-                  aspectRatio:
-                      max(widget.image.width, 1) / max(widget.image.height, 1),
-                  child: Stack(
+          child: AspectRatio(
+            aspectRatio:
+                max(widget.image.width, 1) / max(widget.image.height, 1),
+            child: FutureBuilder<String?>(
+              key: globalKey,
+              future: _fileRepo.getFileIfExist(
+                widget.image.uuid,
+                widget.image.name,
+              ),
+              builder: (c, s) {
+                if (s.hasData && s.data != null) {
+                  return Stack(
                     fit: StackFit.passthrough,
                     alignment: Alignment.center,
                     children: [
                       GestureDetector(
                         onTap: () {
-                          Navigator.push(
-                            context,
-                            TransparentRoute(
-                              backgroundColor: Colors.transparent,
-                              transitionDuration: SLOW_ANIMATION_DURATION,
-                              reverseTransitionDuration:
-                                  SLOW_ANIMATION_DURATION,
-                              builder: (context) {
-                                return FutureBuilder<int?>(
-                                  future: _mediaDao.getIndexOfMedia(
-                                    widget.message.roomUid,
-                                    widget.message.id!,
-                                    MediaType.IMAGE,
-                                  ),
-                                  builder: (context, snapshot) {
-                                    final hasIndex = snapshot.hasData &&
-                                        snapshot.data != null &&
-                                        snapshot.data! >= 0;
-                                    final isSingleImage =
-                                        snapshot.connectionState ==
-                                                ConnectionState.done &&
-                                            snapshot.data! <= 0;
-                                    if (hasIndex || isSingleImage) {
-                                      return AllImagePage(
-                                        key: const Key("/all_image_page"),
-                                        roomUid: widget.message.roomUid,
-                                        filePath: s.data,
-                                        message: widget.message,
-                                        initIndex:
-                                            hasIndex ? snapshot.data : null,
-                                        isSingleImage: isSingleImage,
-                                        messageId: widget.message.id!,
-                                        onEdit: widget.onEdit,
-                                      );
-                                    } else {
-                                      return const SizedBox.shrink();
-                                    }
-                                  },
-                                );
-                              },
-                            ),
-                          );
+                          if (widget.message.id != null) {
+                            Navigator.push(
+                              context,
+                              TransparentRoute(
+                                backgroundColor: Colors.transparent,
+                                transitionDuration: SLOW_ANIMATION_DURATION,
+                                reverseTransitionDuration:
+                                    SLOW_ANIMATION_DURATION,
+                                builder: (context) {
+                                  return FutureBuilder<int?>(
+                                    future: _mediaDao.getIndexOfMedia(
+                                      widget.message.roomUid,
+                                      widget.message.id!,
+                                      MediaType.IMAGE,
+                                    ),
+                                    builder: (context, snapshot) {
+                                      final hasIndex = snapshot.hasData &&
+                                          snapshot.data != null &&
+                                          snapshot.data! >= 0;
+                                      final isSingleImage =
+                                          snapshot.connectionState ==
+                                                  ConnectionState.done &&
+                                              snapshot.data! <= 0;
+                                      if (hasIndex || isSingleImage) {
+                                        return AllImagePage(
+                                          key: const Key("/all_image_page"),
+                                          roomUid: widget.message.roomUid,
+                                          filePath: s.data,
+                                          message: widget.message,
+                                          initIndex:
+                                              hasIndex ? snapshot.data : null,
+                                          isSingleImage: isSingleImage,
+                                          messageId: widget.message.id!,
+                                          onEdit: widget.onEdit,
+                                        );
+                                      } else {
+                                        return const SizedBox.shrink();
+                                      }
+                                    },
+                                  );
+                                },
+                              ),
+                            );
+                          }
                         },
                         child: isWeb
                             ? Image.network(
@@ -142,27 +144,23 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
                                 fit: BoxFit.fill,
                               ),
                       ),
-                      FutureBuilder<PendingMessage?>(
-                        future: _messageRepo.getPendingEditedMessage(
-                          widget.message.roomUid,
-                          widget.message.id,
+                      if (widget.message.id == null)
+                        FutureBuilder<PendingMessage?>(
+                          future: _messageRepo.getPendingMessage(
+                            widget.message.packetId,
+                          ),
+                          builder: (context, pendingMessage) =>
+                              _buildPendingImageUi(pendingMessage),
+                        )
+                      else
+                        FutureBuilder<PendingMessage?>(
+                          future: _messageRepo.getPendingEditedMessage(
+                            widget.message.roomUid,
+                            widget.message.id,
+                          ),
+                          builder: (context, pendingEditedMessage) =>
+                              _buildPendingImageUi(pendingEditedMessage),
                         ),
-                        builder: (context, pendingEditedMessage) {
-                          if (widget.message.id == null ||
-                              pendingEditedMessage.data?.status !=
-                                      SendingStatus.PENDING &&
-                                  pendingEditedMessage.data != null) {
-                            return buildLoadFileStatus(
-                              () {},
-                              () {
-                                _deletePendingMessage();
-                              },
-                              isPendingMessage: true,
-                            );
-                          }
-                          return const SizedBox();
-                        },
-                      ),
                       if (widget.image.caption.isEmpty)
                         TimeAndSeenStatus(
                           widget.message,
@@ -172,13 +170,9 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
                           showBackground: true,
                         )
                     ],
-                  ),
-                );
-              } else {
-                return AspectRatio(
-                  aspectRatio:
-                      max(widget.image.width, 1) / max(widget.image.height, 1),
-                  child: Stack(
+                  );
+                } else {
+                  return Stack(
                     children: [
                       MouseRegion(
                         cursor: SystemMouseCursors.click,
@@ -195,14 +189,13 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
                         ),
                       ),
                       buildLoadFileStatus(
-                        () async {
+                        onDownload: () async {
                           await _fileRepo.getFile(
                             widget.image.uuid,
                             widget.image.name,
                           );
                           setState(() {});
                         },
-                        () {},
                       ),
                       if (widget.image.caption.isEmpty)
                         TimeAndSeenStatus(
@@ -213,10 +206,10 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
                           showBackground: true,
                         )
                     ],
-                  ),
-                );
-              }
-            },
+                  );
+                }
+              },
+            ),
           ),
         ),
       );
@@ -237,20 +230,51 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
     }
   }
 
-  Widget buildLoadFileStatus(
-    Function() onTap,
-    Function() onCancel, {
+  Widget _buildPendingImageUi(AsyncSnapshot<PendingMessage?> pendingMessage) {
+    if (pendingMessage.hasData && pendingMessage.data != null) {
+      switch (pendingMessage.data!.status) {
+        case SendingStatus.UPLOAD_FILE_COMPELED:
+          return const SizedBox.shrink();
+        case SendingStatus.UPLIOD_FILE_FAIL:
+          return buildLoadFileStatus(
+            sendingFileFailed: true,
+            onResendFileMessage: () => _messageRepo.resendFileMessage(
+              pendingMessage.data!,
+            ),
+            onCancel: () => _deletePendingMessage(),
+            isPendingMessage: true,
+          );
+
+        case SendingStatus.UPLOAD_FILE_INPROGRSS:
+        case SendingStatus.PENDING:
+          return buildLoadFileStatus(
+            onCancel: () => _deletePendingMessage(),
+            isPendingMessage: true,
+          );
+      }
+    }
+
+    return const SizedBox();
+  }
+
+  Widget buildLoadFileStatus({
+    Function()? onDownload,
+    Function()? onCancel,
+    Function()? onResendFileMessage,
     bool isPendingMessage = false,
+    bool sendingFileFailed = false,
   }) {
     return Center(
       child: LoadFileStatus(
         uuid: widget.image.uuid,
         name: widget.image.name,
         isPendingMessage: isPendingMessage,
-        onPressed: () => onTap(),
-        onCancel: () => onCancel(),
+        onDownload: () => onDownload?.call(),
+        onCancel: () => onCancel?.call(),
+        resendFileMessage: () => onResendFileMessage?.call(),
         background: widget.colorScheme.onPrimary.withOpacity(0.8),
         foreground: widget.colorScheme.primary,
+        sendingFileFailed: sendingFileFailed,
       ),
     );
   }

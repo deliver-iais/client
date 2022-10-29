@@ -23,7 +23,7 @@ class FileRepo {
 
   Map<String, String> localUploadedFilePath = {};
 
-  Future<void> cloneFileInLocalDirectory(
+  Future<void> saveInFileInfo(
     io.File file,
     String uploadKey,
     String name,
@@ -94,6 +94,9 @@ class FileRepo {
         return null;
       }
     } else {
+      _fileService.updateFileStatus(uploadKey, FileStatus.CANCELED);
+      _fileService.filesProgressBarStatus
+          .add(_fileService.filesProgressBarStatus.value..[uploadKey] = 0.0);
       return null;
     }
   }
@@ -123,7 +126,8 @@ class FileRepo {
     String filename, {
     ThumbnailSize? thumbnailSize,
   }) async {
-    if (localUploadedFilePath[uuid] != null &&
+    if (thumbnailSize == null &&
+        localUploadedFilePath[uuid] != null &&
         localUploadedFilePath[uuid]!.isNotEmpty &&
         io.File(localUploadedFilePath[uuid] ?? "").existsSync()) {
       return localUploadedFilePath[uuid];
@@ -226,8 +230,6 @@ class FileRepo {
 
   Future<FileInfo?> _getFileInfoInDB(String size, String uuid) async =>
       _fileDao.get(uuid, enumToString(size));
-
-
 
   void saveDownloadedFileInWeb(String uuid, String name, String type) {
     getFileIfExist(uuid, name).then((url) {

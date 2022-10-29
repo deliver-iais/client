@@ -133,7 +133,7 @@ class MusicAndAudioUiState extends State<MusicAndAudioUi> {
                                     name: fileName,
                                     isPendingMessage: false,
                                     onCancel: (){},
-                                    onPressed: () async {
+                                    onDownload: () async {
                                       final audioPath = await _fileRepo.getFile(
                                         fileUuid,
                                         fileName,

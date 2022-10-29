@@ -67,84 +67,79 @@ class VideoMessageState extends State<VideoMessage> {
               future: _fileRepo.getFileIfExist(video.uuid, video.name),
               builder: (c, path) {
                 if (path.hasData && path.data != null) {
-                  return FutureBuilder<PendingMessage?>(
-                    future: _messageRepo.getPendingEditedMessage(
-                      widget.message.roomUid,
-                      widget.message.id,
-                    ),
-                    builder: (context, pendingEditedMessage) {
-                      if (widget.message.id == null ||
-                          pendingEditedMessage.data?.status !=
-                                  SendingStatus.PENDING &&
-                              pendingEditedMessage.data != null) {
+                  if (widget.message.id == null) {
+                    return FutureBuilder<PendingMessage?>(
+                      future: _messageRepo
+                          .getPendingMessage(widget.message.packetId),
+                      builder: (c, pendingMessage) {
+                        if (pendingMessage.hasData &&
+                            pendingMessage.data != null) {
+                          return _buildVideoUploadUi(
+                            video,
+                            pendingMessage.data!,
+                          );
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      },
+                    );
+                  } else {
+                    return FutureBuilder<PendingMessage?>(
+                      future: _messageRepo.getPendingEditedMessage(
+                        widget.message.roomUid,
+                        widget.message.id,
+                      ),
+                      builder: (context, pendingEditedMessage) {
+                        if (pendingEditedMessage.data?.status !=
+                                SendingStatus.PENDING &&
+                            pendingEditedMessage.data != null) {
+                          return _buildVideoUploadUi(
+                            video,
+                            pendingEditedMessage.data!,
+                          );
+                        }
                         return Stack(
                           children: [
-                            buildLoadFileStatus(
-                              video,(){},
-                              () {
-                                if (widget.message.id == null) {
-                                  _messageRepo.deletePendingMessage(
-                                    widget.message.packetId,
-                                  );
-                                } else {
-                                  _messageRepo.deletePendingEditedMessage(
-                                    widget.message.roomUid,
-                                    widget.message.id,
-                                  );
-                                }
-                              },
-                              isPendingMessage: true,
+                            VideoUi(
+                              videoFilePath: path.data!,
+                              videoMessage: widget.message.json.toFile(),
+                              duration: video.duration,
+                              background: background,
+                              foreground: foreground,
                             ),
-                            FileDetails(
-                              file: video,
-                              colorScheme: widget.colorScheme,
-                              maxWidth: widget.maxWidth * 0.55,
-                              withColor: true,
-                            ),
+                            Align(
+                              alignment: Alignment.topLeft,
+                              child: Container(
+                                padding: const EdgeInsets.only(
+                                  left: 3,
+                                  right: 3,
+                                  top: 1,
+                                  bottom: 1,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context)
+                                      .backgroundColor
+                                      .withOpacity(0.2),
+                                  borderRadius: BorderRadius.circular(15.0),
+                                ),
+                                child: Text(
+                                  formatDuration(
+                                    Duration(seconds: video.duration.round()),
+                                  ),
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodySmall!
+                                      .copyWith(
+                                        fontSize: 10,
+                                      ),
+                                ),
+                              ),
+                            )
                           ],
                         );
-                      }
-                      return Stack(
-                        children: [
-                          VideoUi(
-                            videoFilePath: path.data!,
-                            videoMessage: widget.message.json.toFile(),
-                            duration: video.duration,
-                            background: background,
-                            foreground: foreground,
-                          ),
-                          Align(
-                            alignment: Alignment.topLeft,
-                            child: Container(
-                              padding: const EdgeInsets.only(
-                                left: 3,
-                                right: 3,
-                                top: 1,
-                                bottom: 1,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .backgroundColor
-                                    .withOpacity(0.2),
-                                borderRadius: BorderRadius.circular(15.0),
-                              ),
-                              child: Text(
-                                formatDuration(
-                                  Duration(seconds: video.duration.round()),
-                                ),
-                                style: Theme.of(context)
-                                    .textTheme
-                                    .bodySmall!
-                                    .copyWith(
-                                      fontSize: 10,
-                                    ),
-                              ),
-                            ),
-                          )
-                        ],
-                      );
-                    },
-                  );
+                      },
+                    );
+                  }
                 } else {
                   return DownloadVideoWidget(
                     background: background,
@@ -177,21 +172,82 @@ class VideoMessageState extends State<VideoMessage> {
     );
   }
 
-  Widget buildLoadFileStatus(
-    File file,
-    Function() onTap, Function() onCancel, {
-    bool isPendingMessage = false,
-  }) {
-    return Center(
-      child: LoadFileStatus(
-        uuid: file.uuid,
-        name: file.name,
-        isPendingMessage: isPendingMessage,
-        onPressed: () => onTap(),
-        onCancel: ()=>onCancel(),
-        background: widget.colorScheme.onPrimary.withOpacity(0.8),
-        foreground: widget.colorScheme.primary,
-      ),
-    );
+  Widget _buildVideoUploadUi(File video, PendingMessage pendingMessage) {
+    switch (pendingMessage.status) {
+      case SendingStatus.UPLOAD_FILE_INPROGRSS:
+      case SendingStatus.PENDING:
+      case SendingStatus.UPLOAD_FILE_COMPELED:
+        return Stack(
+          children: [
+            Center(
+              child: LoadFileStatus(
+                uuid: video.uuid,
+                name: video.name,
+                isPendingMessage: true,
+                onDownload: () => {},
+                onCancel: () => {
+                  if (widget.message.id == null)
+                    {
+                      _messageRepo.deletePendingMessage(
+                        widget.message.packetId,
+                      )
+                    }
+                  else
+                    {
+                      _messageRepo.deletePendingEditedMessage(
+                        widget.message.roomUid,
+                        widget.message.id,
+                      )
+                    }
+                },
+                background: widget.colorScheme.onPrimary.withOpacity(0.8),
+                foreground: widget.colorScheme.primary,
+              ),
+            ),
+            FileDetails(
+              file: video,
+              colorScheme: widget.colorScheme,
+              maxWidth: widget.maxWidth * 0.55,
+              withColor: true,
+            ),
+          ],
+        );
+      case SendingStatus.UPLIOD_FILE_FAIL:
+        return Stack(
+          children: [
+            Center(
+              child: LoadFileStatus(
+                uuid: video.uuid,
+                name: video.name,
+                isPendingMessage: true,
+                onDownload: () => {},
+                sendingFileFailed: true,
+                onCancel: () {
+                  if (widget.message.id == null) {
+                    _messageRepo.deletePendingMessage(
+                      widget.message.packetId,
+                    );
+                  } else {
+                    _messageRepo.deletePendingEditedMessage(
+                      widget.message.roomUid,
+                      widget.message.id,
+                    );
+                  }
+                },
+                resendFileMessage: () =>
+                    _messageRepo.resendFileMessage(pendingMessage),
+                background: widget.colorScheme.onPrimary.withOpacity(0.8),
+                foreground: widget.colorScheme.primary,
+              ),
+            ),
+            FileDetails(
+              file: video,
+              colorScheme: widget.colorScheme,
+              maxWidth: widget.maxWidth * 0.55,
+              withColor: true,
+            ),
+          ],
+        );
+    }
   }
 }

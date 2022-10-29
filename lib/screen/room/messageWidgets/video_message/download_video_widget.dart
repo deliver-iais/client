@@ -85,7 +85,7 @@ class DownloadVideoWidgetState extends State<DownloadVideoWidget> {
         uuid: widget.file.uuid,
         name: widget.file.name,
         isPendingMessage: isPendingMessage,
-        onPressed: () => onTap(),
+        onDownload: () => onTap(),
         onCancel: (){},
         background: widget.background.withOpacity(0.8),
         foreground: widget.foreground,

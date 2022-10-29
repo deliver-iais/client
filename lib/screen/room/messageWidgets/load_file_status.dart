@@ -15,18 +15,22 @@ class LoadFileStatus extends StatefulWidget {
   final Color background;
   final bool isPendingMessage;
   final Color foreground;
-  final void Function() onPressed;
-  final void Function() onCancel;
+  final void Function()? onDownload;
+  final void Function()? onCancel;
+  final bool sendingFileFailed;
+  final void Function()? resendFileMessage;
 
   const LoadFileStatus({
     super.key,
     required this.uuid,
     required this.name,
-    required this.onPressed,
+    required this.onDownload,
     required this.background,
     required this.isPendingMessage,
     required this.foreground,
-    required this.onCancel,
+    this.onCancel,
+    this.sendingFileFailed = false,
+    this.resendFileMessage,
   });
 
   @override
@@ -67,7 +71,30 @@ class LoadFileStatusState extends State<LoadFileStatus>
   }
 
   Widget buildUpload() {
-    return buildFileStatus();
+    return StreamBuilder<Map<String, FileStatus>>(
+      stream: _fileService.watchFileStatus(),
+      builder: (c, fileStatus) {
+        if (fileStatus.hasData &&
+            fileStatus.data != null &&
+            fileStatus.data![widget.uuid] == FileStatus.STARTED) {
+          return buildFileStatus();
+        } else {
+          if (widget.sendingFileFailed) {
+            return IconButton(
+              padding: const EdgeInsets.all(0),
+              icon: Icon(
+                Icons.arrow_upward,
+                color: widget.foreground,
+                size: 35,
+              ),
+              onPressed: () => widget.resendFileMessage?.call(),
+            );
+          } else {
+            return buildFileStatus();
+          }
+        }
+      },
+    );
   }
 
   Widget buildDownload() {
@@ -94,7 +121,7 @@ class LoadFileStatusState extends State<LoadFileStatus>
                 color: widget.foreground,
                 size: 35,
               ),
-              onPressed: () => widget.onPressed(),
+              onPressed: () => widget.onDownload?.call(),
             );
           }
           return AnimatedSwitcher(
@@ -114,10 +141,7 @@ class LoadFileStatusState extends State<LoadFileStatus>
       initialData: const {},
       stream: _fileService.filesProgressBarStatus,
       builder: (c, map) {
-        final progress =
-            _fileService.getFileStatus(widget.uuid) == FileStatus.COMPLETED
-                ? 100.0
-                : map.data![widget.uuid] ?? 0;
+        final progress = map.data![widget.uuid] ?? 0;
         return Stack(
           children: [
             Center(
@@ -153,7 +177,7 @@ class LoadFileStatusState extends State<LoadFileStatus>
                     size: 35,
                   ),
                   onTap: () {
-                    widget.onCancel();
+                    widget.onCancel?.call();
                     _fileService.cancelUploadOrDownloadFile(widget.uuid);
                   },
                 ),

@@ -17,9 +17,12 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
+
+
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -58,6 +61,7 @@ class HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    FToast().init(context);
     //this means user login successfully
     if (hasFirebaseCapability) {
       //its work property without VPN
@@ -66,6 +70,7 @@ class HomePageState extends State<HomePage> {
     if (mounted) {
       toggleTheme();
     }
+
 
     window.onPlatformBrightnessChanged = () {
       toggleTheme();

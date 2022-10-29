@@ -1672,7 +1672,7 @@ class MockFileRepo extends _i1.Mock implements _i37.FileRepo {
       );
 
   @override
-  _i22.Future<void> cloneFileInLocalDirectory(
+  _i22.Future<void> saveInFileInfo(
     _i38.File? file,
     String? uploadKey,
     String? name,

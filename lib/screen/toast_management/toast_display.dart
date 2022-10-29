@@ -10,13 +10,12 @@ class ToastDisplay {
   static void showToast({
     IconData? toastIcon,
     bool animateDone = false,
-    required BuildContext toastContext,
+    BuildContext ? toastContext,
     required String toastText,
   }) {
-    final fToast = FToast()..init(toastContext);
     final i18n = GetIt.I.get<I18N>();
 
-    final theme = Theme.of(toastContext);
+    final theme = Theme.of(FToast().context!);
 
     final Widget toast = Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -52,7 +51,7 @@ class ToastDisplay {
       ),
     );
 
-    fToast.showToast(
+    FToast().showToast(
       child: toast,
       gravity: ToastGravity.BOTTOM,
       fadeDuration: SLOW_ANIMATION_DURATION,

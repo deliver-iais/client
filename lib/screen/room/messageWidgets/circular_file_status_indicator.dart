@@ -51,52 +51,81 @@ class _CircularFileStatusIndicatorState
   @override
   Widget build(BuildContext context) {
     final file = widget.message.json.toFile();
-    return FutureBuilder<String?>(
-      future: _fileRepo.getFileIfExist(file.uuid, file.name),
-      builder: (c, fileSnapShot) {
-        Widget child = const SizedBox();
-        if (fileSnapShot.hasData &&
-            fileSnapShot.data != null &&
-            widget.message.id != null) {
-          child = showExitFile(file, fileSnapShot.data!);
-        } else if (widget.message.id == null) {
-          child = buildLoadFileStatus(
-            file,
-            () {},
-            () => _messageRepo.deletePendingMessage(widget.message.packetId),
-          );
-        } else {
-          child = FutureBuilder<PendingMessage?>(
-            future: _messageRepo.getPendingEditedMessage(
-              widget.message.roomUid,
-              widget.message.id,
+    if (widget.message.id == null) {
+      return FutureBuilder<PendingMessage?>(
+        future: _messageRepo.getPendingMessage(widget.message.packetId),
+        builder: (c, pendingMessage) {
+          if (pendingMessage.hasData &&
+              pendingMessage.data != null &&
+              pendingMessage.data!.status ==
+                  SendingStatus.UPLOAD_FILE_COMPELED) {
+            return FutureBuilder<String?>(
+              future: _fileRepo.getFileIfExist(file.uuid, file.name),
+              builder: (c, path) {
+                if (path.hasData && path.data != null) {
+                  return showExitFile(file, path.data!);
+                }
+                return buildLoadFileStatus(file: file);
+              },
+            );
+          }
+          return buildLoadFileStatus(
+            file: file,
+            onCancel: () => _messageRepo.deletePendingMessage(
+              widget.message.packetId,
             ),
-            builder: (context, pendingEditedMessage) {
-              if (widget.message.id == null ||
-                  pendingEditedMessage.data?.status != SendingStatus.PENDING &&
-                      pendingEditedMessage.data != null) {
-                return buildLoadFileStatus(
-                  file,
-                  () {},
-                  () => _messageRepo.deletePendingEditedMessage(
-                    widget.message.roomUid,
-                    widget.message.id,
-                  ),
-                );
-              }
-              return buildLoadFileStatus(file, () {}, () {});
-            },
+            sendingFileFailed: pendingMessage.data != null &&
+                pendingMessage.data!.status == SendingStatus.UPLIOD_FILE_FAIL,
+            onResendFileMessage: () =>
+                _messageRepo.resendFileMessage(pendingMessage.data!),
           );
-        }
-        return AnimatedSwitcher(
-          duration: FAST_ANIMATION_DURATION,
-          transitionBuilder: (child, animation) {
-            return ScaleTransition(scale: animation, child: child);
-          },
-          child: child,
-        );
-      },
-    );
+        },
+      );
+    } else {
+      return FutureBuilder<String?>(
+        initialData: _fileRepo.localUploadedFilePath[file.uuid],
+        future: _fileRepo.getFileIfExist(file.uuid, file.name),
+        builder: (c, fileSnapShot) {
+          Widget child = const SizedBox();
+          if (fileSnapShot.hasData && fileSnapShot.data != null) {
+            child = showExitFile(file, fileSnapShot.data!);
+          } else {
+            child = FutureBuilder<PendingMessage?>(
+              future: _messageRepo.getPendingEditedMessage(
+                widget.message.roomUid,
+                widget.message.id,
+              ),
+              builder: (context, pendingEditedMessage) {
+                if (pendingEditedMessage.data?.status !=
+                        SendingStatus.PENDING &&
+                    pendingEditedMessage.data != null) {
+                  return buildLoadFileStatus(
+                    file: file,
+                    onCancel: () => _messageRepo.deletePendingEditedMessage(
+                      widget.message.roomUid,
+                      widget.message.id,
+                    ),
+                    onResendFileMessage: () => _messageRepo
+                        .resendFileMessage(pendingEditedMessage.data!),
+                    sendingFileFailed: pendingEditedMessage.data != null &&
+                        pendingEditedMessage.data!.status ==
+                            SendingStatus.UPLIOD_FILE_FAIL,
+                  );
+                }
+                return buildLoadFileStatus(file: file);
+              },
+            );
+          }
+          return AnimatedSwitcher(
+            duration: FAST_ANIMATION_DURATION,
+            transitionBuilder: (child, animation) {
+              return ScaleTransition(scale: animation, child: child);
+            },
+            child: child,
+          );
+        },
+      );
+    }
   }
 
   Widget showExitFile(File file, String filePath) {
@@ -127,14 +156,20 @@ class _CircularFileStatusIndicatorState
           );
   }
 
-  Widget buildLoadFileStatus(File file, Function() onTap, Function() onCancel) {
+  Widget buildLoadFileStatus({
+    required File file,
+    Function()? onCancel,
+    Function()? onResendFileMessage,
+    bool sendingFileFailed = false,
+  }) {
     return LoadFileStatus(
       uuid: file.uuid,
       isPendingMessage: widget.message.id == null,
       name: file.name,
-      onCancel: onCancel,
-      onPressed: () async {
-        onTap();
+      onCancel: () => onCancel?.call(),
+      sendingFileFailed: sendingFileFailed,
+      resendFileMessage: () => onResendFileMessage?.call(),
+      onDownload: () async {
         final audioPath = await _fileRepo.getFile(file.uuid, file.name);
         if (audioPath != null &&
             (file.type == "audio/mp4" || file.type == "audio/ogg")) {

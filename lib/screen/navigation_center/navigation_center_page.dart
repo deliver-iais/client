@@ -8,6 +8,7 @@ import 'package:deliver/screen/call/has_call_row.dart';
 import 'package:deliver/screen/navigation_center/chats/widgets/chats_page.dart';
 import 'package:deliver/screen/navigation_center/widgets/feature_discovery_description_widget.dart';
 import 'package:deliver/screen/navigation_center/widgets/search_box.dart';
+import 'package:deliver/screen/toast_management/toast_display.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/custom_context_menu.dart';
@@ -371,6 +372,12 @@ class NavigationCenterState extends State<NavigationCenter>
   void selectChatMenu(String key) {
     switch (key) {
       case "newGroup":
+
+        ToastDisplay.showToast(
+          toastText: "rhgewlrhewirhwei;u",
+
+        );
+
         _routingService.openMemberSelection(isChannel: false);
         break;
       case "newChannel":
