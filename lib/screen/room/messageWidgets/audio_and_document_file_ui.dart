@@ -33,30 +33,32 @@ class AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
   Widget build(BuildContext context) {
     final file = widget.message.json.toFile();
     return Padding(
-      padding: const EdgeInsets.only(left: 8.0, top: 6),
+      padding: const EdgeInsets.only(left: 8.0, top: 3),
       child: Stack(
         children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              CircularFileStatusIndicator(
-                message: widget.message,
-                backgroundColor: widget.colorScheme.primary,
-                foregroundColor: widget.colorScheme.onPrimary,
-              ),
-              Container(
-                width: widget.maxWidth * 0.55,
-                height: isVoiceFile(file.name) ? 70 : 100,
-                margin:
-                    const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    if (!isVoiceFile(file.name))
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+          Padding(
+            padding: const EdgeInsets.all(4.0),
+            child: Row(
+              children: <Widget>[
+                CircularFileStatusIndicator(
+                  message: widget.message,
+                  backgroundColor: widget.colorScheme.primary,
+                  foregroundColor: widget.colorScheme.onPrimary,
+                ),
+                Container(
+                  width: widget.maxWidth * 0.55,
+                  margin: const EdgeInsets.symmetric(
+                    horizontal: 4.0,
+                    vertical: 2.0,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.only(
+                      left: 4,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        if (!isVoiceFile(file.name))
                           SizedBox(
                             width: widget.maxWidth * 0.5,
                             child: Text(
@@ -70,17 +72,18 @@ class AudioAndDocumentFileUIState extends State<AudioAndDocumentFileUI> {
                               maxLines: 1,
                             ),
                           ),
-                        ],
-                      ),
-                    FileDetails(
-                      maxWidth: widget.maxWidth*0.55,
-                      file: file,
-                      colorScheme: widget.colorScheme,
-                    )
-                  ],
+                        FileDetails(
+                          maxWidth: widget.maxWidth * 0.55,
+                          file: file,
+                          colorScheme: widget.colorScheme,
+                          withColor: false,
+                        )
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           if (file.caption.isEmpty)
             TimeAndSeenStatus(

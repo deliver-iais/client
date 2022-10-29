@@ -28,6 +28,8 @@ import 'ext_storage_services.dart';
 
 enum ThumbnailSize { medium, small }
 
+enum FileStatus { NONE, STARTED, CANCELED, COMPLETED }
+
 class FileService {
   final _checkPermission = GetIt.I.get<CheckPermissionsService>();
   final _authRepo = GetIt.I.get<AuthRepo>();
@@ -35,9 +37,60 @@ class FileService {
   final _logger = GetIt.I.get<Logger>();
 
   final _dio = Dio();
-  Map<String, BehaviorSubject<double>> filesProgressBarStatus = {};
 
-  Map<String, BehaviorSubject<CancelToken?>> cancelTokens = {};
+  final List<String> canceledUploadUuids = [];
+
+  void _addCancelUploadFile(String uuid) {
+    canceledUploadUuids.add(uuid);
+  }
+
+  final BehaviorSubject<Map<String, FileStatus>> _fileStatus =
+      BehaviorSubject.seeded({});
+
+  Stream<Map<String, FileStatus>> watchFileStatus() => _fileStatus;
+
+  FileStatus getFileStatus(String uuid) =>
+      _fileStatus.value[uuid] ?? FileStatus.NONE;
+
+  void updateFileStatus(String uuid, FileStatus status) =>
+      _fileStatus.add(_fileStatus.value..[uuid] = status);
+
+  final BehaviorSubject<Map<String, CancelToken>> _cancelTokens =
+      BehaviorSubject.seeded({});
+
+  BehaviorSubject<Map<String, double>> filesProgressBarStatus =
+      BehaviorSubject.seeded({});
+
+  void cancelUploadOrDownloadFile(String uuid) {
+    if (_cancelTokens.value[uuid] != null) {
+      _cancelTokens.value[uuid]?.cancel("cancelled");
+    } else {
+      _addCancelUploadFile(uuid);
+    }
+    filesProgressBarStatus.add(filesProgressBarStatus.value..[uuid] = 0.0);
+    updateFileStatus(uuid, FileStatus.CANCELED);
+  }
+
+  void _addCancelToken(CancelToken cancelToken, String uuid) {
+    final map = _cancelTokens.value;
+    map[uuid] = cancelToken;
+    _cancelTokens.add(map);
+  }
+
+  void _cancelUploadFile() {
+    try {
+      _cancelTokens.listen((cancelTokens) {
+        for (final uuid in cancelTokens.keys) {
+          if (canceledUploadUuids.contains(uuid)) {
+            cancelTokens[uuid]?.cancel("cancelled");
+            canceledUploadUuids.remove(uuid);
+          }
+        }
+      });
+    } catch (e) {
+      _logger.e(e);
+    }
+  }
 
   Future<String> get _localPath async {
     if (await _checkPermission.checkMediaLibraryPermission() ||
@@ -112,31 +165,50 @@ class FileService {
         },
       ),
     );
+    _cancelUploadFile();
   }
 
   Future<String?> getFile(
     String uuid,
     String filename, {
     ThumbnailSize? size,
+    bool initProgressbar = true,
   }) async {
-    if (size != null) {
-      return _getFileThumbnail(uuid, filename, size);
+    if (initProgressbar) {
+      updateFileStatus(uuid, FileStatus.STARTED);
     }
-    return _getFile(uuid, filename);
+
+    if (size != null) {
+      return _getFileThumbnail(
+        uuid,
+        filename,
+        size,
+        initProgressbar: initProgressbar,
+      );
+    }
+    return _getFile(uuid, filename, initProgressbar: initProgressbar);
   }
 
-  Future<String?> _getFile(String uuid, String filename) async {
-    if (filesProgressBarStatus[uuid] == null) {
-      final d = BehaviorSubject<double>.seeded(0);
-      filesProgressBarStatus[uuid] = d;
-    }
+  Future<String?> _getFile(
+    String uuid,
+    String filename, {
+    bool initProgressbar = true,
+  }) async {
     final cancelToken = CancelToken();
-    cancelTokens[uuid] = BehaviorSubject.seeded(cancelToken);
+    _addCancelToken(cancelToken, uuid);
+
     try {
       final res = await _dio.get(
         "/$uuid/$filename",
         onReceiveProgress: (i, j) {
-          filesProgressBarStatus[uuid]!.add((i / j));
+          if (initProgressbar) {
+            if (filesProgressBarStatus.value[uuid] == null) {
+              filesProgressBarStatus
+                  .add(filesProgressBarStatus.value..[uuid] = 0);
+            }
+            filesProgressBarStatus
+                .add(filesProgressBarStatus.value..[uuid] = (i / j));
+          }
         },
         options: Options(responseType: ResponseType.bytes),
         cancelToken: cancelToken,
@@ -157,6 +229,10 @@ class FileService {
         return file.path;
       }
     } catch (e) {
+      if (initProgressbar) {
+        updateFileStatus(uuid, FileStatus.CANCELED);
+      }
+
       _logger.e(e);
       return null;
     }
@@ -230,36 +306,41 @@ class FileService {
     } catch (_) {}
   }
 
-  Future<String> _getFileThumbnail(
+  Future<String?> _getFileThumbnail(
     String uuid,
     String filename,
-    ThumbnailSize size,
-  ) async {
-    final cancelToken = CancelToken();
-    cancelTokens[uuid] = BehaviorSubject.seeded(cancelToken);
-    final res = await _dio.get(
-      "/${enumToString(size)}/$uuid/.${filename.split('.').last}",
-      options: Options(responseType: ResponseType.bytes),
-      cancelToken: cancelToken,
-    );
-    if (isWeb) {
-      final blob = html.Blob(
-        <Object>[res.data],
-        "application/${filename.split(".").last}",
-      );
-      final url = html.Url.createObjectUrlFromBlob(blob);
-      return url;
-    } else {
-      final file =
-          await localThumbnailFile(uuid, filename.split(".").last, size);
-      file.writeAsBytesSync(res.data);
-      return file.path;
-    }
-  }
+    ThumbnailSize size, {
+    bool initProgressbar = true,
+  }) async {
+    try {
+      final cancelToken = CancelToken();
+      _addCancelToken(cancelToken, uuid);
 
-  void initProgressBar(String uploadId) {
-    if (filesProgressBarStatus[uploadId] == null) {
-      filesProgressBarStatus[uploadId] = BehaviorSubject.seeded(0);
+      final res = await _dio.get(
+        "/${enumToString(size)}/$uuid/.${filename.split('.').last}",
+        options: Options(responseType: ResponseType.bytes),
+        cancelToken: cancelToken,
+      );
+      if (isWeb) {
+        final blob = html.Blob(
+          <Object>[res.data],
+          "application/${filename.split(".").last}",
+        );
+        final url = html.Url.createObjectUrlFromBlob(blob);
+        return url;
+      } else {
+        final file =
+            await localThumbnailFile(uuid, filename.split(".").last, size);
+        file.writeAsBytesSync(res.data);
+        return file.path;
+      }
+    } catch (e) {
+      if (initProgressbar) {
+        updateFileStatus(uuid, FileStatus.CANCELED);
+      }
+
+      _logger.e(e);
+      return null;
     }
   }
 
@@ -341,6 +422,10 @@ class FileService {
     }
   }
 
+  bool fileInProgress() {
+    return false;
+  }
+
   Future<void> _concurrentCloneFileInLocalDirectory(
     File file,
     String uploadKey,
@@ -351,13 +436,13 @@ class FileService {
     await _updateFileInfoWithNewPath(uploadKey, f.path);
   }
 
-  // TODO(hasan): refactoring needed,
   Future<Response<dynamic>?> uploadFile(
     String filePath,
     String filename, {
     String? uploadKey,
     void Function(int)? sendActivity,
   }) async {
+    updateFileStatus(uploadKey!, FileStatus.STARTED);
     try {
       if (!isWeb) {
         try {
@@ -378,7 +463,7 @@ class FileService {
         }
       }
       final cancelToken = CancelToken();
-      cancelTokens[uploadKey!] = BehaviorSubject.seeded(cancelToken);
+      _addCancelToken(cancelToken, uploadKey);
       //concurrent save file in local directory
       if (isDesktop) {
         unawaited(
@@ -422,11 +507,13 @@ class FileService {
             options.onSendProgress = (i, j) {
               if (i / j < 1) {
                 sendActivity?.call(i);
-                if (filesProgressBarStatus[uploadKey] == null) {
-                  final d = BehaviorSubject<double>();
-                  filesProgressBarStatus[uploadKey] = d;
+                if (filesProgressBarStatus.value[uploadKey] == null) {
+                  filesProgressBarStatus
+                      .add(filesProgressBarStatus.value..[uploadKey] = 0);
                 }
-                filesProgressBarStatus[uploadKey]!.add((i / j));
+                filesProgressBarStatus.add(
+                  filesProgressBarStatus.value..[uploadKey] = (i / j),
+                );
               }
             };
             handler.next(options);
@@ -435,6 +522,7 @@ class FileService {
       );
       return _dio.post("/upload", data: formData, cancelToken: cancelToken);
     } catch (e) {
+      updateFileStatus(uploadKey, FileStatus.CANCELED);
       _logger.e(e);
       return null;
     }
