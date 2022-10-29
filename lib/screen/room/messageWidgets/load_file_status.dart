@@ -127,7 +127,9 @@ class LoadFileStatusState extends State<LoadFileStatus>
           return AnimatedSwitcher(
             duration: VERY_SLOW_ANIMATION_DURATION,
             transitionBuilder: (child, animation) {
-              return ScaleTransition(scale: animation, child: child);
+              return FadeTransition(
+                  opacity: animation,
+                  child: child);
             },
             child: child,
           );
