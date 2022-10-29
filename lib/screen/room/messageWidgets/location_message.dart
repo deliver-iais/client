@@ -69,8 +69,6 @@ class LocationMessageWidget extends StatelessWidget {
                   onTap: (_, point) async {
                     isWeb || isDesktop
                         ?
-                        // LocationDialog(location: location, from: message.from.asUid(),);
-                        // LocationDialog(location: location, from: message.from.asUid(),);
                         await showDialog(
                             context: context,
                             builder: (_) => LocationDialog(
@@ -79,15 +77,6 @@ class LocationMessageWidget extends StatelessWidget {
                             ),
                           )
                         :
-                        // Navigator.push(
-                        //   context,
-                        //   SlideRightRoute(
-                        //       page: LocationPage(
-                        //         location: location,
-                        //         from: message.from.asUid(),
-                        //         message: message,
-                        //       )),
-                        // )
                         _routingServices.openLocation(
                             location,
                             message.from.asUid(),
@@ -109,8 +98,6 @@ class LocationMessageWidget extends StatelessWidget {
                     markers: [
                       Marker(
                         point: LatLng(location.latitude, location.longitude),
-                        // builder: (ctx) =>
-                        //     CircleAvatarWidget(message.from.asUid(), 20),
                         builder: (_) {
                           return GestureDetector(
                             child: Icon(
@@ -146,9 +133,7 @@ class LocationDialog extends StatelessWidget {
   static final _i18n = GetIt.I.get<I18N>();
   final _uxService = GetIt.I.get<UxService>();
   final String _roomName = "";
-
   LocationDialog({super.key, required this.location, required this.from});
-
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -185,7 +170,7 @@ class LocationDialog extends StatelessWidget {
                         : null,
                     urlTemplate:
                         'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    subdomains: ['a', 'b', 'c'],
+                    subdomains: const ['a', 'b', 'c'],
                   ),
                   MarkerLayer(
                     markers: [
@@ -196,32 +181,6 @@ class LocationDialog extends StatelessWidget {
                     ],
                   ),
                 ],
-              ),
-              Align(
-                alignment: FractionalOffset.bottomLeft,
-                child:
-                    Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-                  Padding(
-                    padding:
-                        const EdgeInsets.only(left: 10, top: 10, right: 10),
-                    child: FloatingActionButton(
-                      heroTag: 'zoomInButton',
-                      mini: true,
-                      backgroundColor: Theme.of(context).colorScheme.surface,
-                      onPressed: () {
-                        // final bounds = map.bounds;
-                        // final centerZoom = map.getBoundsCenterZoom(bounds, options);
-                        // var zoom = centerZoom.zoom + 1;
-                        // if (zoom > maxZoom) {
-                        //   zoom = maxZoom;
-                        // }
-                        // map.move(centerZoom.center, zoom,
-                        //     source: MapEventSource.custom);
-                      },
-                      child: const Icon(Icons.zoom_in, color: Colors.black),
-                    ),
-                  )
-                ]),
               ),
               Align(
                 alignment: FractionalOffset.bottomCenter,
@@ -273,16 +232,12 @@ class LocationPage extends StatelessWidget {
   final position = _determinePosition();
   final Message message;
   late final MapController _mapController = MapController();
-
-  // final List<AvailableMap> availableMaps =  map.MapLauncher.installedMaps();
-
   LocationPage({
     super.key,
     required this.location,
     required this.from,
     required this.message,
   });
-
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -306,13 +261,13 @@ class LocationPage extends StatelessWidget {
                             ? await MapLauncher.showMarker(
                                 mapType: MapType.apple,
                                 coords: map.Coords(
-                                    location.latitude, location.longitude),
+                                    location.latitude, location.longitude,),
                                 title: "$_roomName location",
                               )
                             : MapLauncher.showMarker(
                                 mapType: MapType.google,
                                 coords: map.Coords(
-                                    location.latitude, location.longitude),
+                                    location.latitude, location.longitude,),
                                 title: "$_roomName location",
                               );
                       },
@@ -346,9 +301,7 @@ class LocationPage extends StatelessWidget {
                         : null,
                     urlTemplate:
                         "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                    subdomains: ['a', 'b', 'c'],
-                    // tilesContainerBuilder:
-                    // darkMode ? darkModeTilesContainerBuilder : null,
+                    subdomains: const ['a', 'b', 'c'],
                   ),
                   MarkerLayer(
                     markers: [
@@ -358,7 +311,7 @@ class LocationPage extends StatelessWidget {
                           builder: (_) {
                             return Container(
                               alignment: Alignment.topCenter,
-                                padding: EdgeInsets.all(8),
+                                padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
                                   // borderRadius: BorderRadius.circular(48.0),
@@ -377,7 +330,7 @@ class LocationPage extends StatelessWidget {
                                     decoration: BoxDecoration(
                                         shape: BoxShape.circle,
                                         border: Border.all(color: Colors.white),
-                                        color: theme.colorScheme.primary)));
+                                        color: theme.colorScheme.primary,),),);
                           },
                         ),
                       Marker(
@@ -416,8 +369,6 @@ class LocationPage extends StatelessWidget {
                           15,
                         );
                       }
-
-                      // _mapController.
                     },
                     icon: const Icon(Icons.my_location_sharp),
                     color: theme.colorScheme.primary,
@@ -491,7 +442,6 @@ class LocationPage extends StatelessWidget {
                                     } else {
                                       return Text(
                                         _i18n.get("locating"),
-
                                       );
                                     }
                                   },
@@ -521,7 +471,7 @@ class LocationPage extends StatelessWidget {
                                     const EdgeInsets.all(10),
                                   ),
                                   backgroundColor: MaterialStateProperty.all(
-                                      theme.colorScheme.primary),
+                                      theme.colorScheme.primary,),
                                   textStyle: MaterialStateProperty.all(
                                     const TextStyle(
                                       fontSize: 14,
@@ -549,7 +499,7 @@ class LocationPage extends StatelessWidget {
                                 child: Text(
                                   _i18n.get("direction"),
                                   style: TextStyle(
-                                      color: theme.colorScheme.surface),
+                                      color: theme.colorScheme.surface,),
                                 ),
                               )
                             ],
@@ -559,7 +509,7 @@ class LocationPage extends StatelessWidget {
                     ),
                   ),
                 ),
-              ))
+              ),)
         ],
       ),
     );
@@ -577,17 +527,11 @@ Future<double> _distance(Message message) async {
   );
   return distance / 1609.344;
 }
-
 Future<Position> _determinePosition() async {
   bool serviceEnabled;
   LocationPermission permission;
-
-  // Test if location services are enabled.
   serviceEnabled = await Geolocator.isLocationServiceEnabled();
   if (!serviceEnabled) {
-    // Location services are not enabled don't continue
-    // accessing the position and request users of the
-    // App to enable the location services.
     return Future.error('Location services are disabled.');
   }
 
@@ -595,76 +539,14 @@ Future<Position> _determinePosition() async {
   if (permission == LocationPermission.denied) {
     permission = await Geolocator.requestPermission();
     if (permission == LocationPermission.denied) {
-      // Permissions are denied, next time you could try
-      // requesting permissions again (this is also where
-      // Android's shouldShowRequestPermissionRationale
-      // returned true. According to Android guidelines
-      // your App should show an explanatory UI now.
       return Future.error('Location permissions are denied');
     }
   }
 
   if (permission == LocationPermission.deniedForever) {
-    // Permissions are denied forever, handle appropriately.
     return Future.error(
       'Location permissions are permanently denied, we cannot request permissions.',
     );
   }
-
-  // When we reach here, permissions are granted and we can
-  // continue accessing the position of the device.
   return Geolocator.getCurrentPosition();
 }
-
-class SlideRightRoute extends PageRouteBuilder {
-  final Widget page;
-
-  SlideRightRoute({required this.page})
-      : super(
-          pageBuilder: (
-            context,
-            animation,
-            secondaryAnimation,
-          ) =>
-              page,
-          transitionsBuilder: (
-            context,
-            animation,
-            secondaryAnimation,
-            child,
-          ) =>
-              SlideTransition(
-            position: Tween<Offset>(
-              begin: const Offset(0, 1),
-              end: Offset.zero,
-            ).animate(animation),
-            child: child,
-          ),
-        );
-}
-
-// class BottomDialog {
-//   void showBottomDialog(BuildContext context) {
-//     showGeneralDialog(
-//       barrierLabel: "showGeneralDialog",
-//       barrierDismissible: true,
-//       barrierColor: Colors.black.withOpacity(0.6),
-//       transitionDuration: const Duration(milliseconds: 400),
-//       context: context,
-//       pageBuilder: (context, _, ) {
-//         return Align(
-//           alignment: Alignment.bottomCenter,
-//           child: _buildDialogContent(),
-//         );
-//       },
-//       transitionBuilder: (_, animation1, , child) {
-//     return SlideTransition(
-//     position: Tween(
-//     begin: const Offset(0, 1),
-//     end: const Offset(0, 0),
-//     ).animate(animation1),
-//     child: child,
-//     );
-//     },
-//     );
-//   }
