@@ -5,6 +5,7 @@ import 'dart:async';
 import 'package:clock/clock.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:deliver/box/dao/message_dao.dart';
+import 'package:deliver/localization/i18n.dart';
 import 'package:deliver/repository/authRepo.dart';
 import 'package:deliver/repository/servicesDiscoveryRepo.dart';
 import 'package:deliver/services/data_stream_services.dart';
@@ -260,6 +261,7 @@ class CoreServices {
           .toString(),
     );
     FlutterForegroundTask.saveData(key: "AppStatus", value: "Opened");
+    FlutterForegroundTask.saveData(key: "Language", value: GetIt.I.get<I18N>().isPersian);
   }
 
   void sendSeen(seen_pb.SeenByClient seen) {

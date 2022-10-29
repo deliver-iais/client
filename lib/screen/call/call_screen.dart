@@ -374,16 +374,16 @@ class CallScreenState extends State<CallScreen> {
                     callStatus: snapshot.data!,
                     callStatusOnScreen: _i18n.get("call_ended"),
                     remoteRenderer: _remoteRenderer,
-                    isIncomingCall:
-                        widget.isIncomingCall && !_callRepo.isConnected,
+                    // isIncomingCall:
+                    //     widget.isIncomingCall && !_callRepo.isConnected,
                     hangUp: _hangUp,
                   )
                 : AudioCallScreen(
                     roomUid: widget.roomUid,
                     callStatus: snapshot.data!,
                     callStatusOnScreen: _i18n.get("call_ended"),
-                    isIncomingCall:
-                        widget.isIncomingCall && !_callRepo.isConnected,
+                    // isIncomingCall:
+                    //     widget.isIncomingCall && !_callRepo.isConnected,
                     hangUp: _hangUp,
                   );
           case CallStatus.BUSY:
