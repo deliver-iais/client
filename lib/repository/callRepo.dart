@@ -1078,6 +1078,7 @@ class CallRepo {
     bool isDuplicated,
     String callEventJson,
   ) async {
+    _audioService.audioToggleOnCall();
     if (_isNotificationSelected) {
       modifyRoutingByCallNotificationActionInBackgroundInAndroid.add(
         CallNotificationActionInBackground(
@@ -1644,7 +1645,8 @@ class CallRepo {
         callTimer.add(CallTimer(0, 0, 0));
         _audioService
           ..turnUpTheCallVolume()
-          ..stopCallAudioPlayer();
+          ..stopCallAudioPlayer()
+        ..audioToggleOnCall();
       });
     }
   }
