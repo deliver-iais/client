@@ -571,6 +571,10 @@ class RoomPageState extends State<RoomPage> {
         .distinct()
         .debounceTime(const Duration(milliseconds: 100))
         .listen((event) async {
+      // if scroll fast out of position update seen with current last messageId
+      if (event > room.lastMessageId) {
+        event = room.lastMessageId;
+      }
       final msg = await _getMessage(event);
       if (msg == null) return;
       if (_appIsActive) {
