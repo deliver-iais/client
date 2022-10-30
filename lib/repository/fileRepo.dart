@@ -121,6 +121,11 @@ class FileRepo {
   void saveDownloadedFile(String url, String filename) =>
       _fileService.saveDownloadedFile(url, filename);
 
+  bool fileExitInCache(String uuid) =>
+      localUploadedFilePath[uuid] != null &&
+      localUploadedFilePath[uuid]!.isNotEmpty &&
+      io.File(localUploadedFilePath[uuid]!).existsSync();
+
   Future<String?> getFileIfExist(
     String uuid,
     String filename, {

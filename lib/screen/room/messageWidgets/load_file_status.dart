@@ -18,6 +18,7 @@ class LoadFileStatus extends StatefulWidget {
   final void Function()? onDownload;
   final void Function()? onCancel;
   final bool sendingFileFailed;
+  final bool isPendingForwarded;
   final void Function()? resendFileMessage;
 
   const LoadFileStatus({
@@ -30,6 +31,7 @@ class LoadFileStatus extends StatefulWidget {
     required this.foreground,
     this.onCancel,
     this.sendingFileFailed = false,
+    this.isPendingForwarded = false,
     this.resendFileMessage,
   });
 
@@ -74,25 +76,27 @@ class LoadFileStatusState extends State<LoadFileStatus>
     return StreamBuilder<Map<String, FileStatus>>(
       stream: _fileService.watchFileStatus(),
       builder: (c, fileStatus) {
-        if (fileStatus.hasData &&
-            fileStatus.data != null &&
-            fileStatus.data![widget.uuid] == FileStatus.STARTED) {
-          return buildFileStatus();
+        Widget child = const SizedBox.shrink();
+        if (widget.sendingFileFailed && !widget.isPendingForwarded) {
+          child = IconButton(
+            padding: const EdgeInsets.all(0),
+            icon: Icon(
+              Icons.arrow_upward,
+              color: widget.foreground,
+              size: 35,
+            ),
+            onPressed: () => widget.resendFileMessage?.call(),
+          );
         } else {
-          if (widget.sendingFileFailed) {
-            return IconButton(
-              padding: const EdgeInsets.all(0),
-              icon: Icon(
-                Icons.arrow_upward,
-                color: widget.foreground,
-                size: 35,
-              ),
-              onPressed: () => widget.resendFileMessage?.call(),
-            );
-          } else {
-            return buildFileStatus();
-          }
+          child = buildFileStatus();
         }
+        return AnimatedSwitcher(
+          duration: VERY_SLOW_ANIMATION_DURATION,
+          transitionBuilder: (child, animation) {
+            return FadeTransition(opacity: animation, child: child);
+          },
+          child: child,
+        );
       },
     );
   }
@@ -127,9 +131,7 @@ class LoadFileStatusState extends State<LoadFileStatus>
           return AnimatedSwitcher(
             duration: VERY_SLOW_ANIMATION_DURATION,
             transitionBuilder: (child, animation) {
-              return FadeTransition(
-                  opacity: animation,
-                  child: child);
+              return FadeTransition(opacity: animation, child: child);
             },
             child: child,
           );

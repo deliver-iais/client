@@ -65,20 +65,28 @@ class _CircularFileStatusIndicatorState
                 if (path.hasData && path.data != null) {
                   return showExitFile(file, path.data!);
                 }
-                return buildLoadFileStatus(file: file);
+                if (widget.message.forwardedFrom == null ||
+                    widget.message.forwardedFrom!.isEmpty) {
+                  return buildLoadFileStatus(file: file);
+                }
+                return SizedBox.shrink();
               },
             );
           }
-          return buildLoadFileStatus(
-            file: file,
-            onCancel: () => _messageRepo.deletePendingMessage(
-              widget.message.packetId,
-            ),
-            sendingFileFailed: pendingMessage.data != null &&
-                pendingMessage.data!.status == SendingStatus.UPLIOD_FILE_FAIL,
-            onResendFileMessage: () =>
-                _messageRepo.resendFileMessage(pendingMessage.data!),
-          );
+          if (widget.message.forwardedFrom ==null ||
+              widget.message.forwardedFrom!.isEmpty) {
+            return buildLoadFileStatus(
+              file: file,
+              onCancel: () => _messageRepo.deletePendingMessage(
+                widget.message.packetId,
+              ),
+              sendingFileFailed: pendingMessage.data != null &&
+                  pendingMessage.data!.status == SendingStatus.UPLIOD_FILE_FAIL,
+              onResendFileMessage: () =>
+                  _messageRepo.resendFileMessage(pendingMessage.data!),
+            );
+          }
+          return SizedBox();
         },
       );
     } else {
@@ -161,6 +169,7 @@ class _CircularFileStatusIndicatorState
     Function()? onCancel,
     Function()? onResendFileMessage,
     bool sendingFileFailed = false,
+    bool isPendingForwarded = false,
   }) {
     return LoadFileStatus(
       uuid: file.uuid,

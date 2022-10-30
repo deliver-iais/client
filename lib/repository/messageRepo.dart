@@ -72,7 +72,6 @@ enum TitleStatusConditions {
   Connecting,
   Syncing,
   Connected,
-  Normal
 }
 
 const EMPTY_MESSAGE = "{}";
@@ -101,7 +100,8 @@ class MessageRepo {
   final _dataStreamServices = GetIt.I.get<DataStreamServices>();
   final _i18n = GetIt.I.get<I18N>();
   final _sendActivitySubject = BehaviorSubject.seeded(0);
-  final updatingStatus = BehaviorSubject.seeded(TitleStatusConditions.Normal);
+  final updatingStatus =
+      BehaviorSubject.seeded(TitleStatusConditions.Connected);
   bool _updateState = false;
 
   MessageRepo() {
@@ -120,7 +120,7 @@ class MessageRepo {
           updatingStatus.add(TitleStatusConditions.Disconnected);
           break;
         case ConnectionStatus.Connecting:
-          if (updatingStatus.value != TitleStatusConditions.Normal) {
+          if (updatingStatus.value != TitleStatusConditions.Connected) {
             updatingStatus.add(TitleStatusConditions.Connecting);
           }
           break;
@@ -150,19 +150,13 @@ class MessageRepo {
 
   Future<void> update() async {
     _logger.i('updating -----------------');
-    if (_updateState && updatingStatus.value != TitleStatusConditions.Normal) {
-      updatingStatus.add(TitleStatusConditions.Connected);
-    }
+    updatingStatus.add(TitleStatusConditions.Connected);
+
     if (await updatingMessages()) {
       await updatingLastSeen();
       _roomRepo.fetchBlockedRoom().ignore();
     }
-    if (_updateState && updatingStatus.value != TitleStatusConditions.Normal) {
-      updatingStatus.add(TitleStatusConditions.Connected);
-      Timer(const Duration(seconds: 1), () {
-        updatingStatus.add(TitleStatusConditions.Normal);
-      });
-    }
+    updatingStatus.add(TitleStatusConditions.Connected);
 
     sendPendingMessages().ignore();
     sendPendingEditedMessages().ignore();
@@ -631,7 +625,7 @@ class MessageRepo {
     } else if (m != null) {
       try {
         ToastDisplay.showToast(
-          toastText: _i18n.get("save"),
+          toastText: _i18n.get("error_occurred"),
         );
       } catch (e) {
         _logger.e(e);
@@ -666,7 +660,7 @@ class MessageRepo {
     var tempType = "";
 
     try {
-      tempType = file.extension ?? _findType(file.path);
+      tempType = _findType(isWeb ? file.name : file.path);
     } catch (e) {
       _logger.e("Error in getting file type", e);
     }

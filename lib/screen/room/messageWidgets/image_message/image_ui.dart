@@ -82,217 +82,53 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
               height: widget.image.height * 1.0,
               child: FutureBuilder<String?>(
                 key: globalKey,
+                initialData: _fileRepo.localUploadedFilePath[widget.image.uuid],
                 future: _fileRepo.getFileIfExist(
                   widget.image.uuid,
                   widget.image.name,
                 ),
-                builder: (c, s) {
-                  if (s.hasData && s.data != null) {
-                    return Stack(
-                      fit: StackFit.passthrough,
-                      alignment: Alignment.center,
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            if (widget.message.id != null) {
-                              Navigator.push(
-                                context,
-                                TransparentRoute(
-                                  backgroundColor: Colors.transparent,
-                                  transitionDuration: SLOW_ANIMATION_DURATION,
-                                  reverseTransitionDuration:
-                                      SLOW_ANIMATION_DURATION,
-                                  builder: (context) {
-                                    return FutureBuilder<int?>(
-                                      future: _mediaDao.getIndexOfMedia(
-                                        widget.message.roomUid,
-                                        widget.message.id!,
-                                        MediaType.IMAGE,
-                                      ),
-                                      builder: (context, snapshot) {
-                                        final hasIndex = snapshot.hasData &&
-                                            snapshot.data != null &&
-                                            snapshot.data! >= 0;
-                                        final isSingleImage =
-                                            snapshot.connectionState ==
-                                                    ConnectionState.done &&
-                                                snapshot.data! <= 0;
-                                        if (hasIndex || isSingleImage) {
-                                          return AllImagePage(
-                                            key: const Key("/all_image_page"),
-                                            roomUid: widget.message.roomUid,
-                                            filePath: s.data,
-                                            message: widget.message,
-                                            initIndex:
-                                                hasIndex ? snapshot.data : null,
-                                            isSingleImage: isSingleImage,
-                                            messageId: widget.message.id!,
-                                            onEdit: widget.onEdit,
-                                          );
-                                        } else {
-                                          return const SizedBox.shrink();
-                                        }
-                                      },
-                                    );
-                                  },
-                                ),
-                              );
-                            }
-                          },
-                          child: isWeb
-                              ? Image.network(s.data!, fit: BoxFit.fill)
-                              : Image.file(File(s.data!), fit: BoxFit.fill),
-                        ),
-                        if (widget.message.id == null)
-                          FutureBuilder<PendingMessage?>(
-                            future: _messageRepo.getPendingMessage(
-                              widget.message.packetId,
-                            ),
-                            builder: (context, pendingMessage) =>
-                                _buildPendingImageUi(pendingMessage),
-                          )
-                        else
-                          FutureBuilder<PendingMessage?>(
-                            future: _messageRepo.getPendingEditedMessage(
-                              widget.message.roomUid,
-                              widget.message.id,
-                            ),
-                            builder: (context, pendingEditedMessage) =>
-                                _buildPendingImageUi(pendingEditedMessage),
-                          ),
-                        if (widget.image.caption.isEmpty)
-                          TimeAndSeenStatus(
-                            widget.message,
-                            isSender: widget.isSender,
-                            isSeen: widget.isSeen,
-                            needsPadding: true,
-                            showBackground: true,
-                          )
-                      ],
-                    );
+                builder: (c, pathSnapShot) {
+                  if (pathSnapShot.hasData && pathSnapShot.data != null) {
+                    return buildImageUi(context, pathSnapShot);
                   } else {
                     return StreamBuilder<Map<String, FileStatus>>(
-                        stream: _fileService.watchFileStatus(),
-                        builder: (c, status) {
-                          Widget child = Center();
+                      stream: _fileService.watchFileStatus(),
+                      builder: (c, status) {
+                        Widget child = defaultImageUI();
+                        if (_fileRepo.fileExitInCache(widget.image.uuid) ||
+                            status.hasData &&
+                                status.data != null &&
+                                status.data![widget.image.uuid] ==
+                                    FileStatus.COMPLETED) {
+                          child = FutureBuilder<String?>(
+                            future: _fileRepo.getFileIfExist(
+                              widget.image.uuid,
+                              widget.image.name,
+                            ),
+                            builder: (c, path) {
+                              if (path.hasData && path.data != null) {
+                                return buildImageUi(context, path);
+                              }
 
-                          if (!status.hasData ||
-                              status.data == null ||
-                              status.data![widget.image.uuid] == null ||
-                              status.data![widget.image.uuid] !=
-                                  FileStatus.COMPLETED) {
-                            child = Stack(
-                              children: [
-                                MouseRegion(
-                                  cursor: SystemMouseCursors.click,
-                                  child: GestureDetector(
-                                    behavior: HitTestBehavior.translucent,
-                                    onTap: () async {
-                                      await _fileRepo.getFile(
-                                        widget.image.uuid,
-                                        widget.image.name,
-                                      );
-                                      // setState(() {});
-                                    },
-                                    child: SizedBox(
-                                      width: max(widget.image.width, 1) * 1.0,
-                                      height: max(widget.image.height, 1) * 1.0,
-                                      child: getBlurHashWidget(),
-                                    ),
-                                  ),
-                                ),
-                                buildLoadFileStatus(
-                                  onDownload: () async {
-                                    await _fileRepo.getFile(
-                                      widget.image.uuid,
-                                      widget.image.name,
-                                    );
-                                    // setState(() {});
-                                  },
-                                ),
-                                if (widget.image.caption.isEmpty)
-                                  TimeAndSeenStatus(
-                                    widget.message,
-                                    isSender: widget.isSender,
-                                    isSeen: widget.isSeen,
-                                    needsPadding: true,
-                                    showBackground: true,
-                                  )
-                              ],
-                            );
-                          } else if (status.data![widget.image.uuid] ==
-                              FileStatus.COMPLETED) {
-                            child = FutureBuilder<String?>(
-                                future: _fileRepo.getFileIfExist(
-                                    widget.image.uuid, widget.image.name),
-                                builder: (c, path) {
-                                  if (path.hasData && path.data != null) {
-                                    return isWeb
-                                        ? Image.network(path.data!,
-                                            fit: BoxFit.fill)
-                                        : Image.file(
-                                            File(path.data!),
-                                            fit: BoxFit.fill,
-                                          );
-                                  }
-                                  return SizedBox(
-                                    width: widget.image.width * 1.0,
-                                    height: widget.image.height * 1.0,
-                                  );
-                                });
-                          }
-
-                          return AnimatedSwitcher(
-                            duration: Duration(milliseconds: 350),
-                            transitionBuilder: (child, animation) {
-                              return FadeTransition(
-                                opacity: animation,
-                                child: child,
-                              );
+                              return buildDownloadImageWidget(defaultImageUI());
                             },
-                            child: child,
                           );
-                        });
+                        } else {
+                          child = buildDownloadImageWidget(child);
+                        }
 
-                    // child = Stack(
-                    //   children: [
-                    //     MouseRegion(
-                    //       cursor: SystemMouseCursors.click,
-                    //       child: GestureDetector(
-                    //         behavior: HitTestBehavior.translucent,
-                    //         onTap: () async {
-                    //           await _fileRepo.getFile(
-                    //             widget.image.uuid,
-                    //             widget.image.name,
-                    //           );
-                    //           // setState(() {});
-                    //         },
-                    //         child: SizedBox(
-                    //           width: max(widget.image.width, 1) * 1.0,
-                    //           height: max(widget.image.height, 1) * 1.0,
-                    //           child: getBlurHashWidget(),
-                    //         ),
-                    //       ),
-                    //     ),
-                    //     buildLoadFileStatus(
-                    //       onDownload: () async {
-                    //         await _fileRepo.getFile(
-                    //           widget.image.uuid,
-                    //           widget.image.name,
-                    //         );
-                    //         // setState(() {});
-                    //       },
-                    //     ),
-                    //     if (widget.image.caption.isEmpty)
-                    //       TimeAndSeenStatus(
-                    //         widget.message,
-                    //         isSender: widget.isSender,
-                    //         isSeen: widget.isSeen,
-                    //         needsPadding: true,
-                    //         showBackground: true,
-                    //       )
-                    //   ],
-                    // );
+                        return AnimatedSwitcher(
+                          duration: VERY_SLOW_ANIMATION_DURATION,
+                          transitionBuilder: (child, animation) {
+                            return FadeTransition(
+                              opacity: animation,
+                              child: child,
+                            );
+                          },
+                          child: child,
+                        );
+                      },
+                    );
                   }
                 },
               ),
@@ -317,6 +153,127 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
     }
   }
 
+  SizedBox defaultImageUI() {
+    return SizedBox(
+      width: max(widget.image.width, 1) * 1.0,
+      height: max(widget.image.height, 1) * 1.0,
+      child: getBlurHashWidget(),
+    );
+  }
+
+  Stack buildDownloadImageWidget(Widget child) {
+    return Stack(
+      children: [
+        MouseRegion(
+          cursor: SystemMouseCursors.click,
+          child: GestureDetector(
+            behavior: HitTestBehavior.translucent,
+            onTap: () => _downloadFile(),
+            child: child,
+          ),
+        ),
+        buildLoadFileStatus(
+          onDownload: () => _downloadFile(),
+        ),
+        if (widget.image.caption.isEmpty)
+          TimeAndSeenStatus(
+            widget.message,
+            isSender: widget.isSender,
+            isSeen: widget.isSeen,
+            needsPadding: true,
+            showBackground: true,
+          )
+      ],
+    );
+  }
+
+  void _downloadFile() => _fileRepo.getFile(
+        widget.image.uuid,
+        widget.image.name,
+      );
+
+  Stack buildImageUi(BuildContext context, AsyncSnapshot<String?> path) {
+    return Stack(
+      fit: StackFit.passthrough,
+      alignment: Alignment.center,
+      children: [
+        GestureDetector(
+          onTap: () {
+            if (widget.message.id != null) {
+              Navigator.push(
+                context,
+                TransparentRoute(
+                  backgroundColor: Colors.transparent,
+                  transitionDuration: SLOW_ANIMATION_DURATION,
+                  reverseTransitionDuration: SLOW_ANIMATION_DURATION,
+                  builder: (context) {
+                    return FutureBuilder<int?>(
+                      future: _mediaDao.getIndexOfMedia(
+                        widget.message.roomUid,
+                        widget.message.id!,
+                        MediaType.IMAGE,
+                      ),
+                      builder: (context, snapshot) {
+                        final hasIndex = snapshot.hasData &&
+                            snapshot.data != null &&
+                            snapshot.data! >= 0;
+                        final isSingleImage =
+                            snapshot.connectionState == ConnectionState.done &&
+                                snapshot.data! <= 0;
+                        if (hasIndex || isSingleImage) {
+                          return AllImagePage(
+                            key: const Key("/all_image_page"),
+                            roomUid: widget.message.roomUid,
+                            filePath: path.data,
+                            message: widget.message,
+                            initIndex: hasIndex ? snapshot.data : null,
+                            isSingleImage: isSingleImage,
+                            messageId: widget.message.id!,
+                            onEdit: widget.onEdit,
+                          );
+                        } else {
+                          return const SizedBox.shrink();
+                        }
+                      },
+                    );
+                  },
+                ),
+              );
+            }
+          },
+          child: isWeb
+              ? Image.network(path.data!, fit: BoxFit.fill)
+              : Image.file(File(path.data!), fit: BoxFit.fill),
+        ),
+        if (widget.message.id == null)
+          FutureBuilder<PendingMessage?>(
+            future: _messageRepo.getPendingMessage(
+              widget.message.packetId,
+            ),
+            builder: (context, pendingMessage) =>
+                _buildPendingImageUi(pendingMessage),
+          )
+        else
+          FutureBuilder<PendingMessage?>(
+            future: _messageRepo.getPendingEditedMessage(
+              widget.message.roomUid,
+              widget.message.id,
+            ),
+            builder: (context, pendingEditedMessage) =>
+                _buildPendingImageUi(pendingEditedMessage),
+          ),
+        if (widget.image.caption.isEmpty)
+          TimeAndSeenStatus(
+            widget.message,
+            isSender: widget.isSender,
+            isSeen: widget.isSeen,
+            needsPadding: true,
+            showBackground: true,
+          )
+      ],
+    );
+  }
+
   Widget _buildPendingImageUi(AsyncSnapshot<PendingMessage?> pendingMessage) {
     if (pendingMessage.hasData && pendingMessage.data != null) {
       switch (pendingMessage.data!.status) {
@@ -331,7 +288,6 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
             onCancel: () => _deletePendingMessage(),
             isPendingMessage: true,
           );
-
         case SendingStatus.UPLOAD_FILE_INPROGRSS:
         case SendingStatus.PENDING:
           return buildLoadFileStatus(

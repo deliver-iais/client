@@ -11,7 +11,7 @@ class AnimatedSwitchWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 300),
+      duration: const Duration(milliseconds: 600),
       transitionBuilder: (child, animation) {
         return RoundUpTransition(
           turns: animation,
@@ -34,7 +34,7 @@ class RoundUpTransition extends AnimatedWidget {
     this.alignment = Alignment.center,
     this.filterQuality,
     this.child,
-  })  : super(key: key, listenable: turns);
+  }) : super(key: key, listenable: turns);
 
   /// The animation that controls the rotation of the child.
   ///
@@ -67,7 +67,9 @@ class RoundUpTransition extends AnimatedWidget {
         // transform: Matrix4.rotationX(turns.value * pi * 2),
         transform: Matrix4.translationValues(
           0,
-          (1 - turns.value) * 20 * (turns.status == AnimationStatus.forward ? -1 : 1),
+          (1 - turns.value) *
+              20 *
+              (turns.status == AnimationStatus.forward ? -1 : 1),
           0,
         ),
         transformAlignment: Alignment.center,

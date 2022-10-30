@@ -46,6 +46,7 @@ import 'package:flutter/services.dart';
 
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:mime_type/mime_type.dart';
 import 'package:rxdart/rxdart.dart';
 
 class InputMessage extends StatefulWidget {
