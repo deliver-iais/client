@@ -132,9 +132,9 @@ class FileService {
     return File('$path/$fileUuid.$fileType');
   }
 
-  Future<File> _downloadedFileDir(String fileUuid, String fileType) async {
+  Future<File> _downloadedFileDir(String filePath) async {
     final directory = await getDownloadsDirectory();
-    return File('${directory!.path}/$fileUuid.$fileType');
+    return File('${directory!.path}/$filePath');
   }
 
   Future<File> localThumbnailFile(
@@ -275,7 +275,11 @@ class FileService {
       final downloadDir =
           await ExtStorage.getExternalStoragePublicDirectory(directory);
       final f = File('$downloadDir/${name.replaceAll(".webp", ".jpg")}');
-      await f.writeAsBytes(File(path).readAsBytesSync());
+      await f.writeAsBytes(
+        name.contains(".webp")
+            ? await covertImageToJpg(File(path))
+            : File(path).readAsBytesSync(),
+      );
     } catch (_) {}
   }
 
@@ -286,10 +290,13 @@ class FileService {
   ) async {
     try {
       final file = await _downloadedFileDir(
-        uuid,
-        name.split('.').last.replaceAll("webp", "jpg"),
+        name.replaceAll(".webp", ".jpg"),
       );
-      file.writeAsBytesSync(File(filePath).readAsBytesSync());
+      file.writeAsBytesSync(
+        name.contains(".webp")
+            ? (await covertImageToJpg(File(filePath)))
+            : File(filePath).readAsBytesSync(),
+      );
     } catch (e) {
       _logger.e(e);
     }
@@ -341,6 +348,20 @@ class FileService {
       _logger.e(e);
       return null;
     }
+  }
+
+  Future<Uint8List> covertImageToJpg(File file) async {
+    final bytes = await file.readAsBytes();
+    final input = ImageFile(
+      filePath: file.path,
+      rawBytes: bytes,
+    ); // set the input image file
+    const config = Configuration(
+      quality: 30,
+    );
+
+    final param = ImageFileConfiguration(input: input, config: config);
+    return (await compressor.compressJpg(param)).rawBytes;
   }
 
   Future<String> compressImageInDesktop(File file) async {
