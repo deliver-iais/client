@@ -265,10 +265,15 @@ class FileRepo {
   void saveFileToSpecifiedAddress(
     String uuid,
     String name,
-    String address,
-  ) {
+    String address, {
+    bool convertToJpg = true,
+  }) {
     getFileIfExist(uuid, name).then(
-      (path) => _fileService.saveFileToSpecifiedAddress(path!, address),
+      (path) => _fileService.saveFileToSpecifiedAddress(
+        path!,
+        address,
+        convertToJpg: convertToJpg,
+      ),
     );
   }
 
