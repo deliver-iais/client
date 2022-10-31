@@ -28,27 +28,10 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
     final theme = Theme.of(context);
 
     return StreamBuilder<TitleStatusConditions>(
+      initialData: TitleStatusConditions.Connected,
       stream: ConnectionStatus._messageRepo.updatingStatus.stream,
       builder: (c, status) {
-        var state = ConnectionStatus._i18n.get("chats");
-        if (status.hasData && status.data != null) {
-          switch (status.data!) {
-            case TitleStatusConditions.Connected:
-              break;
-            case TitleStatusConditions.Disconnected:
-              state = ConnectionStatus._i18n.get("disconnected");
-              break;
-            case TitleStatusConditions.Updating:
-              state = ConnectionStatus._i18n.get("updating");
-              break;
-            case TitleStatusConditions.Connecting:
-              state = ConnectionStatus._i18n.get("connecting");
-              break;
-            case TitleStatusConditions.Syncing:
-              state = ConnectionStatus._i18n.get("syncing");
-              break;
-          }
-        }
+        final state = title(status.data!);
 
         return AnimatedSwitchWidget(
           child: StreamBuilder<dynamic>(
@@ -76,7 +59,7 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
                     ),
                     if (status.data != TitleStatusConditions.Connected)
                       DotAnimation(
-                        dotsColor: Theme.of(context).primaryColor,
+                        dotsColor: theme.colorScheme.primary,
                       ),
                     if (status.data == TitleStatusConditions.Disconnected)
                       IconButton(
@@ -108,7 +91,7 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
       case TitleStatusConditions.Updating:
         return ConnectionStatus._i18n.get("updating").capitalCase;
       case TitleStatusConditions.Connected:
-        return ConnectionStatus._i18n.get("connected").capitalCase;
+        return ConnectionStatus._i18n.get("chats").capitalCase;
       case TitleStatusConditions.Syncing:
         return ConnectionStatus._i18n.get("syncing").capitalCase;
     }

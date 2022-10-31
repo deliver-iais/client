@@ -57,36 +57,34 @@ class _CircularFileStatusIndicatorState
         builder: (c, pendingMessage) {
           if (pendingMessage.hasData &&
               pendingMessage.data != null &&
-              pendingMessage.data!.status ==
-                  SendingStatus.UPLOAD_FILE_COMPELED) {
+              (pendingMessage.data!.status ==
+                      SendingStatus.UPLOAD_FILE_COMPELED ||
+                  !(widget.message.forwardedFrom == null ||
+                      widget.message.forwardedFrom!.isEmpty))) {
             return FutureBuilder<String?>(
               future: _fileRepo.getFileIfExist(file.uuid, file.name),
               builder: (c, path) {
                 if (path.hasData && path.data != null) {
                   return showExitFile(file, path.data!);
                 }
-                if (widget.message.forwardedFrom == null ||
-                    widget.message.forwardedFrom!.isEmpty) {
-                  return buildLoadFileStatus(file: file);
-                }
-                return SizedBox.shrink();
+
+                return buildLoadFileStatus(
+                  file: file,
+                );
               },
             );
           }
-          if (widget.message.forwardedFrom ==null ||
-              widget.message.forwardedFrom!.isEmpty) {
-            return buildLoadFileStatus(
-              file: file,
-              onCancel: () => _messageRepo.deletePendingMessage(
-                widget.message.packetId,
-              ),
-              sendingFileFailed: pendingMessage.data != null &&
-                  pendingMessage.data!.status == SendingStatus.UPLIOD_FILE_FAIL,
-              onResendFileMessage: () =>
-                  _messageRepo.resendFileMessage(pendingMessage.data!),
-            );
-          }
-          return SizedBox();
+
+          return buildLoadFileStatus(
+            file: file,
+            onCancel: () => _messageRepo.deletePendingMessage(
+              widget.message.packetId,
+            ),
+            sendingFileFailed: pendingMessage.data != null &&
+                pendingMessage.data!.status == SendingStatus.UPLIOD_FILE_FAIL,
+            onResendFileMessage: () =>
+                _messageRepo.resendFileMessage(pendingMessage.data!),
+          );
         },
       );
     } else {
@@ -169,7 +167,6 @@ class _CircularFileStatusIndicatorState
     Function()? onCancel,
     Function()? onResendFileMessage,
     bool sendingFileFailed = false,
-    bool isPendingForwarded = false,
   }) {
     return LoadFileStatus(
       uuid: file.uuid,
@@ -177,6 +174,8 @@ class _CircularFileStatusIndicatorState
       name: file.name,
       onCancel: () => onCancel?.call(),
       sendingFileFailed: sendingFileFailed,
+      isPendingForwarded: !(widget.message.forwardedFrom == null ||
+          widget.message.forwardedFrom!.isEmpty),
       resendFileMessage: () => onResendFileMessage?.call(),
       onDownload: () async {
         final audioPath = await _fileRepo.getFile(file.uuid, file.name);

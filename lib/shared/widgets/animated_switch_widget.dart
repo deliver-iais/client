@@ -11,7 +11,7 @@ class AnimatedSwitchWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 300),
       transitionBuilder: (child, animation) {
         return RoundUpTransition(
           turns: animation,

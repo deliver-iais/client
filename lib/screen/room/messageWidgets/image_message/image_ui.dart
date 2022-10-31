@@ -245,7 +245,9 @@ class ImageUiState extends State<ImageUi> with SingleTickerProviderStateMixin {
               ? Image.network(path.data!, fit: BoxFit.fill)
               : Image.file(File(path.data!), fit: BoxFit.fill),
         ),
-        if (widget.message.id == null)
+        if (widget.message.id == null &&
+            (widget.message.forwardedFrom == null ||
+                widget.message.forwardedFrom!.isEmpty))
           FutureBuilder<PendingMessage?>(
             future: _messageRepo.getPendingMessage(
               widget.message.packetId,

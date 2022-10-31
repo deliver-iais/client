@@ -183,6 +183,8 @@ class VideoMessageState extends State<VideoMessage> {
               child: LoadFileStatus(
                 uuid: video.uuid,
                 name: video.name,
+                isPendingForwarded: (widget.message.forwardedFrom != null &&
+                    widget.message.forwardedFrom!.isNotEmpty),
                 isPendingMessage: true,
                 onDownload: () => {},
                 onCancel: () => {

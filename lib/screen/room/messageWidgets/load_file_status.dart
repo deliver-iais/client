@@ -77,7 +77,11 @@ class LoadFileStatusState extends State<LoadFileStatus>
       stream: _fileService.watchFileStatus(),
       builder: (c, fileStatus) {
         Widget child = const SizedBox.shrink();
-        if (widget.sendingFileFailed && !widget.isPendingForwarded) {
+        if (fileStatus.hasData &&
+            fileStatus.data != null &&
+            fileStatus.data![widget.uuid] == FileStatus.STARTED) {
+          child = buildFileStatus();
+        } else if (widget.sendingFileFailed || widget.isPendingForwarded) {
           child = IconButton(
             padding: const EdgeInsets.all(0),
             icon: Icon(
