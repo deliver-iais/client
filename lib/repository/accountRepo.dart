@@ -241,41 +241,31 @@ class AccountRepo {
   }
 
   Future<void> checkUpdatePlatformSessionInformation() async {
-    final pv = await _sharedDao.get(SHARED_DAO_APP_VERSION);
-    if (pv != null) {
-      // Migrations
-      if (shouldRemoveDB(pv)) {
-        await _dbManager.deleteDB(deleteSharedDao: false);
-        await _sharedDao.put(SHARED_DAO_APP_VERSION, VERSION);
-        await _sharedDao.putBoolean(SHARED_DAO_ALL_ROOMS_FETCHED, false);
-        unawaited(GetIt.I.get<ContactRepo>().getContacts());
-      }
-
-      if (shouldMigrateDB(pv)) {
-        await _dbManager.migrate(pv);
-      }
-
+    final pv = await _sharedDao.get(SHARED_DAO_DB_VERSION);
+    if (pv != null && int.parse(pv) == DB_VERSION) {
+      unawaited(_sharedDao.put(SHARED_DAO_DB_VERSION, DB_VERSION.toString()));
       if (shouldUpdateSessionPlatformInformation(pv)) {
         await _sdr.sessionServiceClient.updateSessionPlatformInformation(
           UpdateSessionPlatformInformationReq()
             ..platform = await getPlatformPB(),
         );
       }
-      // Update version in DB
     } else {
-      await _sharedDao.put(SHARED_DAO_APP_VERSION, VERSION);
+      await _dbManager.migrate(
+        deleteSharedDao: false,
+        removeOld: true,
+      );
+      await _sharedDao.put(SHARED_DAO_DB_VERSION, DB_VERSION.toString());
+      await _sharedDao.putBoolean(SHARED_DAO_ALL_ROOMS_FETCHED, false);
+      unawaited(GetIt.I.get<ContactRepo>().getContacts());
     }
   }
 
-  bool shouldRemoveDB(String? previousVersion) => previousVersion != VERSION;
-
-  bool shouldMigrateDB(String? previousVersion) => false;
-
   bool shouldUpdateSessionPlatformInformation(String previousVersion) =>
-      previousVersion != VERSION;
+      previousVersion != DB_VERSION.toString();
 
   bool shouldShowNewFeaturesDialog(String? previousVersion) =>
-      previousVersion != VERSION;
+      previousVersion != DB_VERSION.toString();
 
   Future<bool> verifyQrCodeToken(String token) async {
     try {
@@ -323,7 +313,7 @@ class AccountRepo {
   }
 
   Future<bool> shouldShowNewFeatureDialog() async {
-    final pv = await _sharedDao.get(SHARED_DAO_APP_VERSION);
+    final pv = await _sharedDao.get(SHARED_DAO_DB_VERSION);
     return shouldShowNewFeaturesDialog(pv);
   }
 

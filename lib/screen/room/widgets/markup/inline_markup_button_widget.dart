@@ -1,8 +1,9 @@
-import 'dart:convert';
+
 
 import 'package:deliver/box/message.dart';
 import 'package:deliver/repository/botRepo.dart';
 import 'package:deliver/shared/constants.dart';
+import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
@@ -20,15 +21,14 @@ class InlineMarkUpButtonWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final botRepo = GetIt.I.get<BotRepo>();
     final widgetRows = <Widget>[];
-    final rows = message.markup?.inlineKeyboardMarkup?.rows;
+    final rows = message.markup?.toMessageMarkup().inlineKeyboardMarkup.rows;
     var columns = <Widget>[];
 
     if (rows != null) {
       for (final row in rows) {
         columns = [];
-        for (var i = 0; i < row.buttons.length; ++i) {
-          final json = jsonDecode(row.buttons[i].json) as Map;
-          final isUrlInlineKeyboardMarkup = json['url'] != null;
+        for (final button in row.buttons) {
+
           columns.add(
             Expanded(
               child: Padding(
@@ -53,13 +53,13 @@ class InlineMarkUpButtonWidget extends StatelessWidget {
                       clipBehavior: Clip.hardEdge,
                       onPressed: () {
                         botRepo.handleInlineMarkUpMessageCallBack(
-                            message, context, row.buttons[i].json,);
+                            message, context, button,);
                       },
                       child: Center(
                         child: Padding(
                           padding: const EdgeInsets.only(top: 5),
                           child: Text(
-                            row.buttons[i].text,
+                            button.text,
                             style: const TextStyle(
                               color: Colors.white,
                             ),
@@ -67,7 +67,7 @@ class InlineMarkUpButtonWidget extends StatelessWidget {
                         ),
                       ),
                     ),
-                    if (isUrlInlineKeyboardMarkup)
+                    if (button.hasCallback())
                       const Positioned(
                         right: 3,
                         top: 3,

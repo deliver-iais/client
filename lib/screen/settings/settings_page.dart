@@ -335,9 +335,10 @@ class SettingsPageState extends State<SettingsPage> {
                     trailing: UxService.showDeveloperPage
                         ? FutureBuilder<String?>(
                             future: SmsAutoFill().getAppSignature,
-                            builder: (c, sms) => Text(sms.data ?? VERSION),
+                            builder: (c, sms) =>
+                                Text(sms.data ?? VERSION.toString()),
                           )
-                        : const Text(VERSION),
+                        : Text(VERSION.toString()),
                     onPressed: (_) async {
                       _logger.d(developerModeCounterCountDown);
                       developerModeCounterCountDown--;

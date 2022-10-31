@@ -1,8 +1,8 @@
-import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
-abstract class SharedDao {
+abstract class SharedDao extends DBManager {
   Future<String?> get(String key);
 
   Stream<String?> getStream(String key, {String? defaultValue});
@@ -21,7 +21,7 @@ abstract class SharedDao {
   Future<bool> toggleBoolean(String key);
 }
 
-class SharedDaoImpl implements SharedDao {
+class SharedDaoImpl extends SharedDao {
   @override
   Future<String?> get(String key) async {
     final box = await _open();
@@ -72,8 +72,10 @@ class SharedDaoImpl implements SharedDao {
     return toggledBoolean;
   }
 
-  static Future<BoxPlus> _open() {
-    BoxInfo.addBox("shared");
-    return gen(Hive.openBox("shared"));
+  static String _key() => "shared";
+
+  Future<BoxPlus> _open() {
+    super.open(_key(), SHARED);
+    return gen(Hive.openBox(_key()));
   }
 }

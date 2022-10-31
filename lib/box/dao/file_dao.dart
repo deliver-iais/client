@@ -1,9 +1,9 @@
-import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/file_info.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
-abstract class FileDao {
+abstract class FileDao extends DBManager {
   Future<FileInfo?> get(String uuid, String sizeType);
 
   Future<void> save(FileInfo fileInfo);
@@ -11,7 +11,7 @@ abstract class FileDao {
   Future<void> remove(FileInfo fileInfo);
 }
 
-class FileDaoImpl implements FileDao {
+class FileDaoImpl extends FileDao {
   @override
   Future<FileInfo?> get(String uuid, String sizeType) async {
     final box = await _open(sizeType);
@@ -39,8 +39,8 @@ class FileDaoImpl implements FileDao {
 
   static String _key(String size) => "file-info-$size";
 
-  static Future<BoxPlus<FileInfo>> _open(String size) {
-    BoxInfo.addBox(_key(size));
+  Future<BoxPlus<FileInfo>> _open(String size) {
+    super.open(_key(size), FILE_INFO);
     return gen(Hive.openBox<FileInfo>(_key(size)));
   }
 }

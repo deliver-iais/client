@@ -1,12 +1,12 @@
 import 'dart:async';
-import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:hive/hive.dart';
 
-abstract class MessageDao {
+abstract class MessageDao extends DBManager {
   Future<void> saveMessage(Message message);
 
   Future<void> deleteMessage(Message message);
@@ -49,7 +49,7 @@ abstract class MessageDao {
   Stream<PendingMessage?> watchPendingEditedMessage(String roomUid, int? index);
 }
 
-class MessageDaoImpl implements MessageDao {
+class MessageDaoImpl extends MessageDao {
   @override
   Future<void> deleteMessage(Message message) async {
     final box = await _openMessages(message.roomUid);
@@ -163,9 +163,9 @@ class MessageDaoImpl implements MessageDao {
 
   static String _keyPendingEdited() => "pending-edited";
 
-  static Future<BoxPlus<Message>> _openMessages(String uid) async {
+  Future<BoxPlus<Message>> _openMessages(String uid) async {
     try {
-      unawaited(BoxInfo.addBox(_keyMessages(uid.replaceAll(":", "-"))));
+      super.open(_keyMessages(uid.replaceAll(":", "-")), MESSAGE);
       return gen(Hive.openBox<Message>(_keyMessages(uid.replaceAll(":", "-"))));
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyMessages(uid.replaceAll(":", "-")));
@@ -173,9 +173,9 @@ class MessageDaoImpl implements MessageDao {
     }
   }
 
-  static Future<BoxPlus<PendingMessage>> _openPendingMessages() async {
+  Future<BoxPlus<PendingMessage>> _openPendingMessages() async {
     try {
-      unawaited(BoxInfo.addBox(_keyPending()));
+      super.open(_keyPending(), PENDING_MESSAGE);
       return gen(Hive.openBox<PendingMessage>(_keyPending()));
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyPending());
@@ -190,9 +190,9 @@ class MessageDaoImpl implements MessageDao {
     return "$roomUid-$index";
   }
 
-  static Future<BoxPlus<PendingMessage>> _openPendingEditedMessages() async {
+  Future<BoxPlus<PendingMessage>> _openPendingEditedMessages() async {
     try {
-      unawaited(BoxInfo.addBox(_keyPendingEdited()));
+      super.open(_keyPendingEdited(), EDIT_PENDING);
       return gen(Hive.openBox<PendingMessage>(_keyPendingEdited()));
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyPendingEdited());
@@ -260,12 +260,16 @@ class MessageDaoImpl implements MessageDao {
 
   @override
   Stream<PendingMessage?> watchPendingEditedMessage(
-      String roomUid, int? index,) async* {
+    String roomUid,
+    int? index,
+  ) async* {
     final box = await _openPendingEditedMessages();
 
     yield box.get(_generatePendingEditedMessageKey(roomUid, index ?? 0));
 
-    yield* box.watch().map((event) =>
-        box.get(_generatePendingEditedMessageKey(roomUid, index ?? 0)),);
+    yield* box.watch().map(
+          (event) =>
+              box.get(_generatePendingEditedMessageKey(roomUid, index ?? 0)),
+        );
   }
 }

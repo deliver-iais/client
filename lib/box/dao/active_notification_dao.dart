@@ -1,9 +1,9 @@
 import 'package:deliver/box/active_notification.dart';
-import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
-abstract class ActiveNotificationDao {
+abstract class ActiveNotificationDao extends DBManager {
   Future<List<ActiveNotification>> getRoomActiveNotification(String roomUid);
 
   Future<ActiveNotification?> getActiveNotification(
@@ -20,7 +20,7 @@ abstract class ActiveNotificationDao {
   Future<void> removeAllActiveNotification();
 }
 
-class ActiveNotificationDaoImpl implements ActiveNotificationDao {
+class ActiveNotificationDaoImpl extends ActiveNotificationDao {
   @override
   Future<ActiveNotification?> getActiveNotification(
     String roomUid,
@@ -58,8 +58,8 @@ class ActiveNotificationDaoImpl implements ActiveNotificationDao {
 
   static String _key(String roomUid) => "active-notification-$roomUid";
 
-  static Future<BoxPlus<ActiveNotification>> _open(String uid) {
-    BoxInfo.addBox(_key(uid));
+  Future<BoxPlus<ActiveNotification>> _open(String uid) {
+    super.open(_key(uid), ACTIVE_NOTIFICATION);
     return gen(
       Hive.openBox<ActiveNotification>(_key(uid)),
     );

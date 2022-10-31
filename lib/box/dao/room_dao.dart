@@ -1,16 +1,14 @@
 import 'dart:async';
 import 'dart:math';
-
-import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/message.dart';
-import 'package:deliver/box/reply_keyboard_markup.dart';
 import 'package:deliver/box/room.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
 import 'package:deliver_public_protocol/pub/v1/models/categories.pb.dart';
 import 'package:hive/hive.dart';
 
-abstract class RoomDao {
+abstract class RoomDao extends DBManager {
   Future<void> updateRoom({
     required String uid,
     Message? lastMessage,
@@ -26,7 +24,7 @@ abstract class RoomDao {
     bool? synced,
     int? lastCurrentUserSentMessageId,
     bool? seenSynced,
-    ReplyKeyboardMarkup? replyKeyboardMarkup,
+    String? replyKeyboardMarkup,
     bool forceToUpdateReplyKeyboardMarkup = false,
   });
 
@@ -43,7 +41,7 @@ abstract class RoomDao {
   Future<List<Room>> getAllGroups();
 }
 
-class RoomDaoImpl implements RoomDao {
+class RoomDaoImpl extends RoomDao {
   @override
   Future<List<Room>> getAllRooms() async {
     try {
@@ -122,7 +120,7 @@ class RoomDaoImpl implements RoomDao {
     bool? synced,
     int? lastCurrentUserSentMessageId,
     bool? seenSynced,
-    ReplyKeyboardMarkup? replyKeyboardMarkup,
+    String? replyKeyboardMarkup,
     bool forceToUpdateReplyKeyboardMarkup = false,
   }) async {
     final box = await _openRoom();
@@ -175,9 +173,9 @@ class RoomDaoImpl implements RoomDao {
 
   static String _keyRoom() => "room";
 
-  static Future<BoxPlus<Room>> _openRoom() async {
+  Future<BoxPlus<Room>> _openRoom() async {
     try {
-      unawaited(BoxInfo.addBox(_keyRoom()));
+      super.open(_keyRoom(), ROOM);
       return gen(Hive.openBox<Room>(_keyRoom()));
     } catch (e) {
       await Hive.deleteBoxFromDisk(_keyRoom());

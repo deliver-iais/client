@@ -239,9 +239,7 @@ class DataStreamServices {
     final roomUid = getRoomUid(_authRepo, message);
     if (message.messageMarkup.replyKeyboardMarkup.rows.isNotEmpty) {
       await _roomRepo.updateReplyKeyboard(
-        _messageExtractorServices.extractReplyKeyboardMarkup(
-          message.messageMarkup.replyKeyboardMarkup,
-        ),
+        message.messageMarkup.replyKeyboardMarkup.writeToJson(),
         roomUid.asString(),
       );
     } else if (message.messageMarkup.removeReplyKeyboardMarkup) {

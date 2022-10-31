@@ -1,9 +1,9 @@
-import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/show_case.dart';
 import 'package:hive/hive.dart';
 
-abstract class ShowCaseDao {
+abstract class ShowCaseDao extends DBManager {
   Future<List<ShowCase>> getAllShowCases();
 
   Future<ShowCase?> getShowCase(int index);
@@ -11,7 +11,7 @@ abstract class ShowCaseDao {
   Future save(ShowCase showCase);
 }
 
-class ShowCaseDaoImpl implements ShowCaseDao {
+class ShowCaseDaoImpl extends ShowCaseDao {
   @override
   Future<List<ShowCase>> getAllShowCases() async {
     final box = await _open();
@@ -35,8 +35,8 @@ class ShowCaseDaoImpl implements ShowCaseDao {
 
   static String _key() => "show-case";
 
-  static Future<BoxPlus<ShowCase>> _open() {
-    BoxInfo.addBox(_key());
+  Future<BoxPlus<ShowCase>> _open() {
+    super.open(_key(), SHOW_CASE);
     return gen(Hive.openBox<ShowCase>(_key()));
   }
 }

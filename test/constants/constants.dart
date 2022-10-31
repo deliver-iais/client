@@ -58,7 +58,7 @@ final filePendingMessage = testPendingMessage.copyWith(
     json:
     "{\"1\":\"946672200000000\",\"2\":\"4096\",\"3\":\"application/octet-stream\",\"4\":\"test\",\"5\":\"test\",\"6\":0,\"7\":0,\"8\":0.0}",
   ),
-  status: SendingStatus.UPLIOD_FILE_FAIL,
+  status: SendingStatus.UPLOAD_FILE_FAIL,
 );
 Activity testActivity = Activity(
   to: testUid,

@@ -1,9 +1,11 @@
 import 'package:deliver/box/account.dart';
-import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-abstract class AccountDao {
+
+
+abstract class AccountDao extends DBManager {
   Future<void> updateAccount({
     int? countryCode,
     int? nationalNumber,
@@ -19,13 +21,14 @@ abstract class AccountDao {
   Future<Account?> getAccount();
 
   Stream<Account?> getAccountStream();
+
 }
 
-class AccountDaoImpl extends AccountDao {
+class AccountDaoImpl extends AccountDao   {
   static String _key() => "account";
 
-  static Future<BoxPlus<Account>> _open() {
-    BoxInfo.addBox(_key());
+  Future<BoxPlus<Account>> _open() {
+    super.open(_key(),ACCOUNT);
     return gen(Hive.openBox<Account>(_key()));
   }
 
@@ -38,7 +41,6 @@ class AccountDaoImpl extends AccountDao {
   @override
   Stream<Account?> getAccountStream() async* {
     final box = await _open();
-
     yield box.get(_key());
 
     yield* box.watch().map((event) => box.get(_key()));

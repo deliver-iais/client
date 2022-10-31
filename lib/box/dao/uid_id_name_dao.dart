@@ -1,10 +1,10 @@
 import 'package:clock/clock.dart';
-import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/uid_id_name.dart';
 import 'package:hive/hive.dart';
 
-abstract class UidIdNameDao {
+abstract class UidIdNameDao extends DBManager {
   Future<UidIdName?> getByUid(String uid);
 
   Stream<String?> watchIdByUid(String uid);
@@ -13,10 +13,10 @@ abstract class UidIdNameDao {
 
   Future<void> update(String uid, {String? id, String? name});
 
-  Future<List<UidIdName>> search(String text);
+  Future<List<UidIdName>> search(String term);
 }
 
-class UidIdNameDaoImpl implements UidIdNameDao {
+class UidIdNameDaoImpl extends UidIdNameDao {
   @override
   Future<UidIdName?> getByUid(String uid) async {
     final box = await _open();
@@ -100,13 +100,13 @@ class UidIdNameDaoImpl implements UidIdNameDao {
 
   static String _key2() => "id-uid-name";
 
-  static Future<BoxPlus<UidIdName>> _open() {
-    BoxInfo.addBox(_key());
+  Future<BoxPlus<UidIdName>> _open() {
+    super.open(_key(), UID_ID_NAME);
     return gen(Hive.openBox<UidIdName>(_key()));
   }
 
-  static Future<BoxPlus<String>> _open2() {
-    BoxInfo.addBox(_key2());
+  Future<BoxPlus<String>> _open2() {
+    super.open(_key2(), ID_UID_NAME);
     return gen(Hive.openBox<String>(_key2()));
   }
 }

@@ -1,10 +1,10 @@
-import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/call_info.dart';
+import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/hive_plus.dart';
 
 import 'package:hive/hive.dart';
 
-abstract class CallInfoDao {
+abstract class CallInfoDao extends DBManager {
   Future<List<CallInfo>> getAll();
 
   Future<void> save(CallInfo callList);
@@ -12,7 +12,7 @@ abstract class CallInfoDao {
   Stream<List<CallInfo>> watchAllCalls();
 }
 
-class CallInfoDaoImpl implements CallInfoDao {
+class CallInfoDaoImpl extends CallInfoDao {
   @override
   Future<List<CallInfo>> getAll() async {
     final box = await _open();
@@ -40,8 +40,8 @@ class CallInfoDaoImpl implements CallInfoDao {
 
   static String _key() => "call_list";
 
-  static Future<BoxPlus<CallInfo>> _open() {
-    BoxInfo.addBox(_key());
+  Future<BoxPlus<CallInfo>> _open() {
+    super.open(_key(), CALL_INF0);
     return gen(Hive.openBox<CallInfo>(_key()));
   }
 }

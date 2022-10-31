@@ -1,8 +1,8 @@
-import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
-abstract class MuteDao {
+abstract class MuteDao extends DBManager {
   Future<bool> isMuted(String uid);
 
   Stream<bool> watchIsMuted(String uid);
@@ -12,7 +12,7 @@ abstract class MuteDao {
   Future<void> unMute(String uid);
 }
 
-class MuteDaoImpl implements MuteDao {
+class MuteDaoImpl extends MuteDao {
   @override
   Future<bool> isMuted(String uid) async {
     final box = await _open();
@@ -45,8 +45,8 @@ class MuteDaoImpl implements MuteDao {
 
   static String _key() => "mute";
 
-  static Future<BoxPlus<bool>> _open() {
-    BoxInfo.addBox(_key());
+  Future<BoxPlus<bool>> _open() {
+    super.open(_key(),MUTE);
     return gen(Hive.openBox<bool>(_key()));
   }
 }

@@ -1,10 +1,10 @@
-import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_type.dart';
 import 'package:hive/hive.dart';
 
-abstract class MediaDao {
+abstract class MediaDao extends DBManager {
   Future<List<Media>> get(String roomId, MediaType type, int limit, int offset);
 
   Future<List<Media>> getByRoomIdAndType(String roomUid, MediaType type);
@@ -14,14 +14,17 @@ abstract class MediaDao {
   Future<int?> getIndexOfMedia(String roomUid, int messageId, MediaType type);
 
   Stream<int> getIndexOfMediaAsStream(
-      String roomUid, int messageId, MediaType type,);
+    String roomUid,
+    int messageId,
+    MediaType type,
+  );
 
   Future<void> deleteMedia(String roomId, int messageId);
 
   Future clear(String roomId);
 }
 
-class MediaDaoImpl implements MediaDao {
+class MediaDaoImpl extends MediaDao {
   @override
   Future<List<Media>> get(
     String roomId,
@@ -68,7 +71,10 @@ class MediaDaoImpl implements MediaDao {
 
   @override
   Stream<int> getIndexOfMediaAsStream(
-      String roomUid, int messageId, MediaType type,) async* {
+    String roomUid,
+    int messageId,
+    MediaType type,
+  ) async* {
     final box = await _open(roomUid);
 
     yield box.values
@@ -80,14 +86,16 @@ class MediaDaoImpl implements MediaDao {
           (element) => element.messageId == messageId,
         );
 
-    yield* box.watch().map((event) => box.values
-        .where((element) => element.type == type)
-        .toList()
-        .reversed
-        .toList()
-        .indexWhere(
-          (element) => element.messageId == messageId,
-        ),);
+    yield* box.watch().map(
+          (event) => box.values
+              .where((element) => element.type == type)
+              .toList()
+              .reversed
+              .toList()
+              .indexWhere(
+                (element) => element.messageId == messageId,
+              ),
+        );
   }
 
   @override
@@ -123,8 +131,8 @@ class MediaDaoImpl implements MediaDao {
 
   static String _key(String roomUid) => "media-$roomUid";
 
-  static Future<BoxPlus<Media>> _open(String uid) {
-    BoxInfo.addBox(_key(uid.replaceAll(":", "-")));
+  Future<BoxPlus<Media>> _open(String uid) {
+    super.open(_key(uid.replaceAll(":", "-")), MEDIA);
     return gen(Hive.openBox<Media>(_key(uid.replaceAll(":", "-"))));
   }
 }

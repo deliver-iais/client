@@ -1,9 +1,9 @@
-import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/contact.dart';
+import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:hive/hive.dart';
 
-abstract class ContactDao {
+abstract class ContactDao extends DBManager {
   Future<Contact?> get(int countryCode, int nationalNumber);
 
   Future<Contact?> getByUid(String uid);
@@ -32,7 +32,7 @@ abstract class ContactDao {
   Stream<List<Contact>> watchAll();
 }
 
-class ContactDaoImpl implements ContactDao {
+class ContactDaoImpl extends ContactDao {
   @override
   Future<Contact?> get(int countryCode, int nationalNumber) async {
     final box = await _open();
@@ -89,8 +89,8 @@ class ContactDaoImpl implements ContactDao {
 
   static String _key() => "contact";
 
-  static Future<BoxPlus<Contact>> _open() {
-    BoxInfo.addBox(_key());
+  Future<BoxPlus<Contact>> _open() {
+    super.open(_key(), CONTACT);
     return gen(Hive.openBox<Contact>(_key()));
   }
 

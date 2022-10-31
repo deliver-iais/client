@@ -1,11 +1,11 @@
-import 'package:deliver/box/box_info.dart';
+import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/member.dart';
 import 'package:deliver/box/muc.dart';
 import 'package:deliver/box/muc_type.dart';
 import 'package:hive/hive.dart';
 
-abstract class MucDao {
+abstract class MucDao extends DBManager {
   Future<Muc?> get(String uid);
 
   Stream<Muc?> watch(String uid);
@@ -39,7 +39,7 @@ abstract class MucDao {
   Future<void> deleteAllMembers(String mucUid);
 }
 
-class MucDaoImpl implements MucDao {
+class MucDaoImpl extends MucDao {
   @override
   Future<void> delete(String uid) async {
     final box = await _openMuc();
@@ -92,7 +92,7 @@ class MucDaoImpl implements MucDao {
   }
 
   @override
-  Future<Member?> getMember(String memberUid, String mucUid) async {
+  Future<Member?> getMember(String mucUid, String memberUid) async {
     final box = await _openMembers(mucUid);
     return box.get(memberUid);
   }
@@ -115,15 +115,15 @@ class MucDaoImpl implements MucDao {
 
   static String _keyMuc() => "muc";
 
-  static Future<BoxPlus<Muc>> _openMuc() {
-    BoxInfo.addBox(_keyMuc());
+  Future<BoxPlus<Muc>> _openMuc() {
+    super.open(_keyMuc(), MUC);
     return gen(Hive.openBox<Muc>(_keyMuc()));
   }
 
   static String _keyMembers(String uid) => "member-$uid";
 
-  static Future<BoxPlus<Member>> _openMembers(String uid) {
-    BoxInfo.addBox(_keyMembers(uid.replaceAll(":", "-")));
+  Future<BoxPlus<Member>> _openMembers(String uid) {
+    super.open(_keyMembers(uid.replaceAll(":", "-")), MEMBER);
     return gen(Hive.openBox<Member>(_keyMembers(uid.replaceAll(":", "-"))));
   }
 
