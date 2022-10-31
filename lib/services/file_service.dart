@@ -134,7 +134,9 @@ class FileService {
 
   Future<File> _downloadedFileDir(String filePath) async {
     final directory = await getDownloadsDirectory();
-    return File('${directory!.path}/$filePath');
+    await Directory('${directory!.path}/$APPLICATION_FOLDER_NAME')
+        .create(recursive: true);
+    return File("${directory.path}/$APPLICATION_FOLDER_NAME/$filePath");
   }
 
   Future<File> localThumbnailFile(
@@ -274,10 +276,14 @@ class FileService {
     try {
       final downloadDir =
           await ExtStorage.getExternalStoragePublicDirectory(directory);
-      final f = File('$downloadDir/${name.replaceAll(".webp", ".jpg")}');
+      await Directory('$directory/$APPLICATION_FOLDER_NAME')
+          .create(recursive: true);
+      final f = File(
+        '$downloadDir/$APPLICATION_FOLDER_NAME/${name.replaceAll(".webp", ".jpg")}',
+      );
       await f.writeAsBytes(
-        name.contains(".webp")
-            ? await covertImageToJpg(File(path))
+        name.endsWith(".webp")
+            ? await convertImageToJpg(File(path))
             : File(path).readAsBytesSync(),
       );
     } catch (_) {}
@@ -293,8 +299,8 @@ class FileService {
         name.replaceAll(".webp", ".jpg"),
       );
       file.writeAsBytesSync(
-        name.contains(".webp")
-            ? (await covertImageToJpg(File(filePath)))
+        name.endsWith(".webp")
+            ? (await convertImageToJpg(File(filePath)))
             : File(filePath).readAsBytesSync(),
       );
     } catch (e) {
@@ -304,11 +310,20 @@ class FileService {
 
   Future<void> saveFileToSpecifiedAddress(
     String path,
-    String address,
-  ) async {
+    String address, {
+    bool convertToJpg = true,
+  }) async {
     try {
-      final f = File(address);
-      await f.writeAsBytes(File(path).readAsBytesSync());
+      final fileFormat = path.split(".").last;
+      final ad = (fileFormat != address.split(".").last)
+          ? "$address.$fileFormat"
+          : address;
+      final f = File(ad.replaceAll(".webp", ".jpg"));
+      await f.writeAsBytes(
+        convertToJpg && path.endsWith(".webp")
+            ? await convertImageToJpg(File(path))
+            : File(path).readAsBytesSync(),
+      );
     } catch (_) {}
   }
 
@@ -350,7 +365,7 @@ class FileService {
     }
   }
 
-  Future<Uint8List> covertImageToJpg(File file) async {
+  Future<Uint8List> convertImageToJpg(File file) async {
     final bytes = await file.readAsBytes();
     final input = ImageFile(
       filePath: file.path,
