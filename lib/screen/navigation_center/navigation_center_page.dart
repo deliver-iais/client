@@ -37,10 +37,12 @@ BehaviorSubject<String> modifyRoutingByNotificationTapInBackgroundInAndroid =
 class CallNotificationActionInBackground {
   final String roomId;
   final bool isCallAccepted;
+  final bool isVideo;
 
   CallNotificationActionInBackground({
     required this.roomId,
     required this.isCallAccepted,
+    required this.isVideo,
   });
 }
 
@@ -85,6 +87,7 @@ class NavigationCenterState extends State<NavigationCenter>
         _routingService.openCallScreen(
           event!.roomId.asUid(),
           isCallAccepted: event.isCallAccepted,
+          isVideoCall: event.isVideo,
         );
       }
     });
