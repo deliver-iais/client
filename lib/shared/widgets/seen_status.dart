@@ -71,13 +71,14 @@ class SeenStatus extends StatelessWidget {
             return StreamBuilder<Seen?>(
               stream: _seenDao.watchOthersSeen(roomUid).distinct(),
               builder: (context, snapshot) {
-                // TODO(bitbeter): refactor this
+                // TODO(bitbeter): refactor this, place this caching set in better place
                 _cachingRepo.setLastSeenId(
                   roomUid,
                   snapshot.data?.messageId ?? -1,
                 );
                 final seen = (snapshot.data?.messageId ?? -1) >= messageId!;
 
+                // TODO(bitbeter): refactor this, add more animations in whole widget
                 return AnimatedSwitcher(
                   duration: SLOW_ANIMATION_DURATION,
                   switchInCurve: Curves.easeIn,
