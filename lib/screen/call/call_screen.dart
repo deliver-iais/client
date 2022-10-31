@@ -195,11 +195,9 @@ class CallScreenState extends State<CallScreen> {
         }
       }),
     );
-    _streamSubscription = ProximitySensor.events.listen((int event) {
-      setState(() {
-        _isNear = (event > 0);
-      });
-    });
+    _streamSubscription = ProximitySensor.events.listen(
+      (event) => setState(() => _isNear = (event > 0)),
+    );
   }
 
   Future<void> startCall() async {
