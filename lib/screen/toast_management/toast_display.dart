@@ -10,7 +10,7 @@ class ToastDisplay {
   static void showToast({
     IconData? toastIcon,
     bool animateDone = false,
-    BuildContext ? toastContext,
+    BuildContext? toastContext,
     required String toastText,
   }) {
     final i18n = GetIt.I.get<I18N>();

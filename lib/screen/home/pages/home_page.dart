@@ -22,8 +22,6 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
-
-
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -70,7 +68,6 @@ class HomePageState extends State<HomePage> {
     if (mounted) {
       toggleTheme();
     }
-
 
     window.onPlatformBrightnessChanged = () {
       toggleTheme();

@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 class AnimatedSwitchWidget extends StatelessWidget {
   final Widget child;
 
+  // TODO(bitbeter): add duration settings for better api
   const AnimatedSwitchWidget({
     super.key,
     required this.child,

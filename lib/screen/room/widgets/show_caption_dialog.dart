@@ -71,7 +71,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
       for (final element in widget.files!) {
         element.path = element.path.replaceAll("\\", "/");
         _isFileFormatAccept = _fileService.isFileFormatAccepted(
-          element.extension  ??  element.name.split(".").last,
+          element.extension ?? element.name.split(".").last,
         );
         final size = element.size ?? 0;
         _isFileSizeAccept = size < MAX_FILE_SIZE_BYTE;
