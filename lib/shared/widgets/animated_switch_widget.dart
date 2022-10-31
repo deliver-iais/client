@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 class AnimatedSwitchWidget extends StatelessWidget {
   final Widget child;
 
+  // TODO(bitbeter): add duration settings for better api
   const AnimatedSwitchWidget({
     super.key,
     required this.child,
@@ -34,7 +35,7 @@ class RoundUpTransition extends AnimatedWidget {
     this.alignment = Alignment.center,
     this.filterQuality,
     this.child,
-  })  : super(key: key, listenable: turns);
+  }) : super(key: key, listenable: turns);
 
   /// The animation that controls the rotation of the child.
   ///
@@ -67,7 +68,9 @@ class RoundUpTransition extends AnimatedWidget {
         // transform: Matrix4.rotationX(turns.value * pi * 2),
         transform: Matrix4.translationValues(
           0,
-          (1 - turns.value) * 20 * (turns.status == AnimationStatus.forward ? -1 : 1),
+          (1 - turns.value) *
+              20 *
+              (turns.status == AnimationStatus.forward ? -1 : 1),
           0,
         ),
         transformAlignment: Alignment.center,
