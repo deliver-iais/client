@@ -1,4 +1,6 @@
 import 'dart:convert';
+import 'dart:io' as io;
+
 import 'package:deliver/box/media.dart';
 import 'package:deliver/box/media_meta_data.dart';
 import 'package:deliver/box/media_type.dart';
@@ -9,12 +11,15 @@ import 'package:deliver/services/file_service.dart';
 import 'package:deliver/services/routing_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/format_duration.dart';
 import 'package:deliver/shared/methods/platform.dart';
+import 'package:deliver/theme/extra_theme.dart';
+import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart';
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:open_filex/open_filex.dart';
-
 
 class VideoTabUi extends StatefulWidget {
   final Uid roomUid;
@@ -35,7 +40,6 @@ class VideoTabUi extends StatefulWidget {
 }
 
 class VideoTabUiState extends State<VideoTabUi> {
-  final _fileServices = GetIt.I.get<FileService>();
   final _routingService = GetIt.I.get<RoutingService>();
   final _mediaQueryRepo = GetIt.I.get<MediaRepo>();
   final _fileRepo = GetIt.I.get<FileRepo>();
@@ -102,8 +106,6 @@ class VideoTabUiState extends State<VideoTabUi> {
   Container buildMediaWidget(Media media, int index, ThemeData theme) {
     final json = jsonDecode(media.json) as Map;
 
-    final duration = double.parse(json["duration"].toString());
-    final dur = Duration(seconds: duration.ceil());
     return Container(
       decoration: BoxDecoration(
         border: Border.all(
@@ -120,7 +122,7 @@ class VideoTabUiState extends State<VideoTabUi> {
                 return GestureDetector(
                   onTap: () {
                     if (isDesktop) {
-                      OpenFilex.open(snapshot.data??"");
+                      OpenFilex.open(snapshot.data ?? "");
                     } else {
                       _routingService.openShowAllVideos(
                         uid: widget.roomUid,
@@ -131,6 +133,31 @@ class VideoTabUiState extends State<VideoTabUi> {
                   },
                   child: Stack(
                     children: [
+                      FutureBuilder<String?>(
+                        future: _fileRepo.getFile(
+                          json["uuid"],
+                          "${json["name"]}.png",
+                          thumbnailSize: ThumbnailSize.small,
+                          intiProgressbar: false,
+                        ),
+                        builder: (c, path) {
+                          if (path.hasData && path.data != null) {
+                            return Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(4.0),
+                                image: DecorationImage(
+                                  image: Image.file(io.File(path.data!)).image,
+                                  fit: BoxFit.cover,
+                                ),
+                                color: Colors.black.withOpacity(0.5),
+                              ),
+                              // child: Image.file(File(path.data!),width: 400,),
+                            );
+                          } else {
+                            return const SizedBox.shrink();
+                          }
+                        },
+                      ),
                       Center(
                         child: Icon(
                           Icons.play_circle_fill,
@@ -139,14 +166,24 @@ class VideoTabUiState extends State<VideoTabUi> {
                         ),
                       ),
                       Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Text(dur.toString().substring(0, 7)),
-                      )
+                        alignment: Alignment.topLeft,
+                        child: Text(
+                          formatDuration(
+                            Duration(
+                              seconds: double.parse(json["duration"].toString())
+                                  .round(),
+                            ),
+                          ),
+                          style:
+                              Theme.of(context).textTheme.bodySmall!.copyWith(
+                                    fontSize: 10,
+                                  ),
+                        ),
+                      ),
                     ],
                   ),
                 );
               } else {
-                _fileServices.initProgressBar(json["uuid"]);
                 return downloadVideo(media, theme);
               }
             },
@@ -179,8 +216,14 @@ class VideoTabUiState extends State<VideoTabUi> {
   Widget downloadVideo(Media media, ThemeData theme) {
     final json = jsonDecode(media.json) as Map;
     return DownloadVideoWidget(
-      name: json["name"],
-      uuid: json["uuid"],
+      file: File()
+        ..name = json["name"]
+        ..uuid = json["uuid"]
+        ..type = json["type"]
+        ..size = Int64(json["size"])
+        ..duration = json["duration"],
+      maxWidth: 100,
+      colorScheme: ExtraTheme.of(context).primaryColorsScheme,
       download: () async {
         await _fileRepo.getFile(json["uuid"], json["name"]);
         setState(() {});

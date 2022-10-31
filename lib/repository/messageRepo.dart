@@ -661,7 +661,6 @@ class MessageRepo {
       _logger.e("Error in getting file type", e);
     }
 
-    _fileRepo.initUploadProgress(fileUuid);
 
     final f = dart_file.File(file.path);
 

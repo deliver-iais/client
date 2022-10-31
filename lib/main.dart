@@ -120,75 +120,7 @@ void registerSingleton<T extends Object>(T instance) {
 }
 
 Future<void> setupDI() async {
-  registerSingleton<AnalyticsRepo>(AnalyticsRepo());
-  registerSingleton<AnalyticsClientInterceptor>(AnalyticsClientInterceptor());
-
-  await Hive.initFlutter("$APPLICATION_FOLDER_NAME/db");
-
-  Hive
-    ..registerAdapter(AvatarAdapter())
-    ..registerAdapter(AccountAdapter())
-    ..registerAdapter(LastActivityAdapter())
-    ..registerAdapter(ContactAdapter())
-    ..registerAdapter(UidIdNameAdapter())
-    ..registerAdapter(SeenAdapter())
-    ..registerAdapter(FileInfoAdapter())
-    ..registerAdapter(MucAdapter())
-    ..registerAdapter(MucRoleAdapter())
-    ..registerAdapter(MemberAdapter())
-    ..registerAdapter(BotInfoAdapter())
-    ..registerAdapter(RoomAdapter())
-    ..registerAdapter(PendingMessageAdapter())
-    ..registerAdapter(MessageAdapter())
-    ..registerAdapter(MessageBriefAdapter())
-    ..registerAdapter(MessageTypeAdapter())
-    ..registerAdapter(SendingStatusAdapter())
-    ..registerAdapter(MediaAdapter())
-    ..registerAdapter(MediaMetaDataAdapter())
-    ..registerAdapter(MediaTypeAdapter())
-    ..registerAdapter(LiveLocationAdapter())
-    ..registerAdapter(CallInfoAdapter())
-    ..registerAdapter(CallEventAdapter())
-    ..registerAdapter(CallStatusAdapter())
-    ..registerAdapter(CallTypeAdapter())
-    ..registerAdapter(AutoDownloadRoomCategoryAdapter())
-    ..registerAdapter(CurrentCallInfoAdapter())
-    ..registerAdapter(MucTypeAdapter())
-    ..registerAdapter(AutoDownloadAdapter())
-    ..registerAdapter(MessageMarkupAdapter())
-    ..registerAdapter(InlineKeyboardButtonAdapter())
-    ..registerAdapter(InlineKeyboardMarkupAdapter())
-    ..registerAdapter(ReplyKeyboardButtonAdapter())
-    ..registerAdapter(ReplyKeyboardMarkupAdapter())
-    ..registerAdapter(ReplyKeyboardRowAdapter())
-    ..registerAdapter(InlineKeyboardRowAdapter())
-    ..registerAdapter(ActiveNotificationAdapter())
-    ..registerAdapter(ShowCaseAdapter());
-
-  registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
-  registerSingleton<AccountDao>(AccountDaoImpl());
-  registerSingleton<AvatarDao>(AvatarDaoImpl());
-  registerSingleton<LastActivityDao>(LastActivityDaoImpl());
-  registerSingleton<SharedDao>(SharedDaoImpl());
-  registerSingleton<UidIdNameDao>(UidIdNameDaoImpl());
-  registerSingleton<SeenDao>(SeenDaoImpl());
-  registerSingleton<FileDao>(FileDaoImpl());
-  registerSingleton<BlockDao>(BlockDaoImpl());
-  registerSingleton<MuteDao>(MuteDaoImpl());
-  registerSingleton<MucDao>(MucDaoImpl());
-  registerSingleton<BotDao>(BotDaoImpl());
-  registerSingleton<ContactDao>(ContactDaoImpl());
-  registerSingleton<MessageDao>(MessageDaoImpl());
-  registerSingleton<RoomDao>(RoomDaoImpl());
-  registerSingleton<MediaDao>(MediaDaoImpl());
-  registerSingleton<MediaMetaDataDao>(MediaMetaDataDaoImpl());
-  registerSingleton<DBManager>(DBManager());
-  registerSingleton<LiveLocationDao>(LiveLocationDaoImpl());
-  registerSingleton<CallInfoDao>(CallInfoDaoImpl());
-  registerSingleton<AutoDownloadDao>(AutoDownloadDaoImpl());
-  registerSingleton<CurrentCallInfoDao>(CurrentCallInfoDaoImpl());
-  registerSingleton<ActiveNotificationDao>(ActiveNotificationDaoImpl());
-  registerSingleton<ShowCaseDao>(ShowCaseDaoImpl());
+  await dbSetupDI();
 
   // Setup Logger
   registerSingleton<DeliverLogFilter>(DeliverLogFilter());
@@ -267,6 +199,78 @@ Future<void> setupDI() async {
   registerSingleton<CallRepo>(CallRepo());
   registerSingleton<UrlHandlerService>(UrlHandlerService());
   registerSingleton<ShowCaseRepo>(ShowCaseRepo());
+}
+
+Future<void> dbSetupDI() async {
+  registerSingleton<AnalyticsRepo>(AnalyticsRepo());
+  registerSingleton<AnalyticsClientInterceptor>(AnalyticsClientInterceptor());
+
+  await Hive.initFlutter("$APPLICATION_FOLDER_NAME/db");
+
+  Hive
+    ..registerAdapter(AvatarAdapter())
+    ..registerAdapter(AccountAdapter())
+    ..registerAdapter(LastActivityAdapter())
+    ..registerAdapter(ContactAdapter())
+    ..registerAdapter(UidIdNameAdapter())
+    ..registerAdapter(SeenAdapter())
+    ..registerAdapter(FileInfoAdapter())
+    ..registerAdapter(MucAdapter())
+    ..registerAdapter(MucRoleAdapter())
+    ..registerAdapter(MemberAdapter())
+    ..registerAdapter(BotInfoAdapter())
+    ..registerAdapter(RoomAdapter())
+    ..registerAdapter(PendingMessageAdapter())
+    ..registerAdapter(MessageAdapter())
+    ..registerAdapter(MessageBriefAdapter())
+    ..registerAdapter(MessageTypeAdapter())
+    ..registerAdapter(SendingStatusAdapter())
+    ..registerAdapter(MediaAdapter())
+    ..registerAdapter(MediaMetaDataAdapter())
+    ..registerAdapter(MediaTypeAdapter())
+    ..registerAdapter(LiveLocationAdapter())
+    ..registerAdapter(CallInfoAdapter())
+    ..registerAdapter(CallEventAdapter())
+    ..registerAdapter(CallStatusAdapter())
+    ..registerAdapter(CallTypeAdapter())
+    ..registerAdapter(AutoDownloadRoomCategoryAdapter())
+    ..registerAdapter(CurrentCallInfoAdapter())
+    ..registerAdapter(MucTypeAdapter())
+    ..registerAdapter(AutoDownloadAdapter())
+    ..registerAdapter(MessageMarkupAdapter())
+    ..registerAdapter(InlineKeyboardButtonAdapter())
+    ..registerAdapter(InlineKeyboardMarkupAdapter())
+    ..registerAdapter(ReplyKeyboardButtonAdapter())
+    ..registerAdapter(ReplyKeyboardMarkupAdapter())
+    ..registerAdapter(ReplyKeyboardRowAdapter())
+    ..registerAdapter(InlineKeyboardRowAdapter())
+    ..registerAdapter(ActiveNotificationAdapter())
+    ..registerAdapter(ShowCaseAdapter());
+
+  registerSingleton<CustomNotificationDao>(CustomNotificationDaoImpl());
+  registerSingleton<AccountDao>(AccountDaoImpl());
+  registerSingleton<AvatarDao>(AvatarDaoImpl());
+  registerSingleton<LastActivityDao>(LastActivityDaoImpl());
+  registerSingleton<SharedDao>(SharedDaoImpl());
+  registerSingleton<UidIdNameDao>(UidIdNameDaoImpl());
+  registerSingleton<SeenDao>(SeenDaoImpl());
+  registerSingleton<FileDao>(FileDaoImpl());
+  registerSingleton<BlockDao>(BlockDaoImpl());
+  registerSingleton<MuteDao>(MuteDaoImpl());
+  registerSingleton<MucDao>(MucDaoImpl());
+  registerSingleton<BotDao>(BotDaoImpl());
+  registerSingleton<ContactDao>(ContactDaoImpl());
+  registerSingleton<MessageDao>(MessageDaoImpl());
+  registerSingleton<RoomDao>(RoomDaoImpl());
+  registerSingleton<MediaDao>(MediaDaoImpl());
+  registerSingleton<MediaMetaDataDao>(MediaMetaDataDaoImpl());
+  registerSingleton<DBManager>(DBManager());
+  registerSingleton<LiveLocationDao>(LiveLocationDaoImpl());
+  registerSingleton<CallInfoDao>(CallInfoDaoImpl());
+  registerSingleton<AutoDownloadDao>(AutoDownloadDaoImpl());
+  registerSingleton<CurrentCallInfoDao>(CurrentCallInfoDaoImpl());
+  registerSingleton<ActiveNotificationDao>(ActiveNotificationDaoImpl());
+  registerSingleton<ShowCaseDao>(ShowCaseDaoImpl());
 }
 
 Future initializeFirebase() async {

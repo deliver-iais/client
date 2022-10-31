@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:math';
-import 'dart:typed_data';
 
 import 'package:deliver/services/audio_service.dart';
 import 'package:deliver/shared/methods/find_file_type.dart';
@@ -14,15 +13,17 @@ class AudioProgressIndicator extends StatefulWidget {
   final String audioPath;
   final Duration audioDuration;
   final double maxWidth;
+  final List<int> audioWaveData;
   final CustomColorScheme? colorScheme;
 
   const AudioProgressIndicator({
-    super.key,
-    required this.audioUuid,
-    required this.audioPath,
-    required this.audioDuration,
-    required this.maxWidth,
-    this.colorScheme,
+  super.key,
+  required this.audioUuid,
+  required this.audioPath,
+  required this.audioDuration,
+  required this.maxWidth,
+  this.colorScheme,
+  required this.audioWaveData,
   });
 
   @override
@@ -31,6 +32,23 @@ class AudioProgressIndicator extends StatefulWidget {
 
 class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
   static final audioPlayerService = GetIt.I.get<AudioService>();
+  List<double> _localAudioWave = [];
+
+  @override
+  void initState() {
+    // TODO(chitsaz): audioWaveData is empty in media remove this line after deploy,
+    if (widget.audioWaveData.isEmpty) {
+      _getLocalAudioWave();
+    }
+    super.initState();
+  }
+
+  Future<void> _getLocalAudioWave() async {
+    _localAudioWave = _loadParseJson(
+      (await (File(widget.audioPath).readAsBytes())).toList(),
+      100,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -47,46 +65,37 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
               Stack(
                 children: [
                   if (isVoiceFile(widget.audioPath))
-                    FutureBuilder<Uint8List>(
-                      future: File(widget.audioPath).readAsBytes(),
-                      builder: (context, snapshot) {
-                        if (snapshot.data != null) {
-                          final samplesData = loadParseJson(
-                            snapshot.data!.toList(),
-                            100,
-                          );
-                          return RectangleWaveform(
-                            isRoundedRectangle: true,
-                            isCentered: true,
-                            borderWidth: 0,
-                            inactiveBorderColor: Color.alphaBlend(
-                              widget.colorScheme?.primary.withAlpha(70) ??
-                                  theme.primaryColor.withAlpha(70),
-                              Colors.white10,
-                            ),
-                            activeBorderColor: widget.colorScheme?.primary ??
-                                theme.primaryColor,
-                            maxDuration: widget.audioDuration,
-                            inactiveColor: Color.alphaBlend(
-                              widget.colorScheme?.primary.withAlpha(70) ??
-                                  theme.primaryColor.withAlpha(70),
-                              Colors.white10,
-                            ),
-                            activeColor: widget.colorScheme?.primary ??
-                                theme.primaryColor,
-                            elapsedDuration: position.data,
-                            samples: samplesData["samples"],
-                            height: 20,
-                            width: widget.maxWidth,
-                          );
-                        }
-                        return const SizedBox(
-                          height: 20,
-                        );
-                      },
+                    RectangleWaveform(
+                      isRoundedRectangle: true,
+                      isCentered: true,
+                      borderWidth: 0,
+                      inactiveBorderColor: Color.alphaBlend(
+                        widget.colorScheme?.primary.withAlpha(70) ??
+                            theme.primaryColor.withAlpha(70),
+                        Colors.white10,
+                      ),
+                      activeBorderColor:
+                          widget.colorScheme?.primary ?? theme.primaryColor,
+                      maxDuration: widget.audioDuration,
+                      inactiveColor: Color.alphaBlend(
+                        widget.colorScheme?.primary.withAlpha(70) ??
+                            theme.primaryColor.withAlpha(70),
+                        Colors.white10,
+                      ),
+                      activeColor:
+                          widget.colorScheme?.primary ?? theme.primaryColor,
+                      elapsedDuration: position.data,
+                      // TODO(chitsaz): audioWaveData is empty in media remove this line after deploy,
+                      samples: widget.audioWaveData.isEmpty
+                          ? _localAudioWave
+                          : widget.audioWaveData
+                              .map((i) => i.toDouble())
+                              .toList(),
+                      height: 20,
+                      width: widget.maxWidth,
                     ),
                   if ((position.data!.inMilliseconds /
-                          widget.audioDuration.inMilliseconds) <=
+                      widget.audioDuration.inMilliseconds) <=
                       1)
                     Opacity(
                       opacity: isVoiceFile(widget.audioPath) ? 0 : 1,
@@ -105,7 +114,7 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
                               audioPlayerService.seekTime(
                                 Duration(
                                   milliseconds: (value *
-                                          widget.audioDuration.inMilliseconds)
+                                      widget.audioDuration.inMilliseconds)
                                       .round(),
                                 ),
                               );
@@ -132,7 +141,7 @@ class AudioProgressIndicatorState extends State<AudioProgressIndicator> {
   }
 }
 
-Map<String, dynamic> loadParseJson(List<int> rawSamples, int totalSamples) {
+List<double> _loadParseJson(List<int> rawSamples, int totalSamples) {
   final filteredData = <int>[];
   final blockSize = rawSamples.length / totalSamples;
 
@@ -152,7 +161,5 @@ Map<String, dynamic> loadParseJson(List<int> rawSamples, int totalSamples) {
 
   final samples = filteredData.map<double>((e) => (e * multiplier)).toList();
 
-  return {
-    "samples": samples,
-  };
+  return samples;
 }

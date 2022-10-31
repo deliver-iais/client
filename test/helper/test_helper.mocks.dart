@@ -1551,18 +1551,16 @@ class MockFileRepo extends _i1.Mock implements _i37.FileRepo {
   }
 
   @override
-  Map<String, _i4.BehaviorSubject<int?>> get uploadFileStatusCode =>
-      (super.noSuchMethod(
-        Invocation.getter(#uploadFileStatusCode),
-        returnValue: <String, _i4.BehaviorSubject<int?>>{},
-      ) as Map<String, _i4.BehaviorSubject<int?>>);
+  Map<String, String> get localUploadedFilePath => (super.noSuchMethod(
+        Invocation.getter(#localUploadedFilePath),
+        returnValue: <String, String>{},
+      ) as Map<String, String>);
   @override
-  set uploadFileStatusCode(
-          Map<String, _i4.BehaviorSubject<int?>>? _uploadFileStatusCode) =>
+  set localUploadedFilePath(Map<String, String>? _localUploadedFilePath) =>
       super.noSuchMethod(
         Invocation.setter(
-          #uploadFileStatusCode,
-          _uploadFileStatusCode,
+          #localUploadedFilePath,
+          _localUploadedFilePath,
         ),
         returnValueForMissingStub: null,
       );
@@ -1655,7 +1653,7 @@ class MockFileRepo extends _i1.Mock implements _i37.FileRepo {
     String? uuid,
     String? filename, {
     _i40.ThumbnailSize? thumbnailSize,
-    bool? intiProgressBar = true,
+    bool? intiProgressbar = true,
   }) =>
       (super.noSuchMethod(
         Invocation.method(
@@ -1666,19 +1664,11 @@ class MockFileRepo extends _i1.Mock implements _i37.FileRepo {
           ],
           {
             #thumbnailSize: thumbnailSize,
-            #intiProgressBar: intiProgressBar,
+            #intiProgressbar: intiProgressbar,
           },
         ),
         returnValue: _i22.Future<String?>.value(),
       ) as _i22.Future<String?>);
-  @override
-  void initUploadProgress(String? uploadId) => super.noSuchMethod(
-        Invocation.method(
-          #initUploadProgress,
-          [uploadId],
-        ),
-        returnValueForMissingStub: null,
-      );
   @override
   void saveDownloadedFileInWeb(
     String? uuid,
