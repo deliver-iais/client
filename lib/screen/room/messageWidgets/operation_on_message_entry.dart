@@ -168,23 +168,6 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                       ],
                     ),
                   ),
-                if (widget.message.type == MessageType.FILE && isDesktop)
-                  PopupMenuItem(
-                    value: OperationOnMessage.SAVE_AS,
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.save_alt_rounded,
-                          size: 18,
-                        ),
-                        const SizedBox(width: 10),
-                        Text(
-                          _i18n.get("save_as"),
-                          style: theme.primaryTextTheme.bodyText2,
-                        ),
-                      ],
-                    ),
-                  ),
                 if (widget.message.type == MessageType.FILE)
                   FutureBuilder(
                     future: _fileRepo.getFileIfExist(
@@ -282,6 +265,32 @@ class OperationOnMessageEntryState extends State<OperationOnMessageEntry> {
                         ),
                       ],
                     ),
+                  ),
+                if (widget.message.type == MessageType.FILE && isDesktop)
+                  StreamBuilder<bool>(
+                    stream: _fileIsExist,
+                    builder: (c, s) {
+                      if (s.hasData && s.data!) {
+                        return PopupMenuItem(
+                          value: OperationOnMessage.SAVE_AS,
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.save_alt_rounded,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 10),
+                              Text(
+                                _i18n.get("save_as"),
+                                style: theme.primaryTextTheme.bodyText2,
+                              ),
+                            ],
+                          ),
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
+                    },
                   ),
                 if (widget.message.roomUid.isMuc())
                   PopupMenuItem(
