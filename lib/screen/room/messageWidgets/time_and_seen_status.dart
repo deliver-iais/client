@@ -45,19 +45,21 @@ class TimeAndSeenStatus extends StatelessWidget {
   Widget buildWidget(BuildContext context) {
     final theme = Theme.of(context);
 
+    final color = theme.colorScheme.surfaceTint;
+
     return RepaintBoundary(
       child: Container(
         margin: const EdgeInsets.all(4),
         padding: needsPadding
-            ? const EdgeInsets.only(bottom: 2, right: 4, left: 4)
+            ? const EdgeInsets.only(top: 3, right: 6, left: 4)
             : null,
         decoration: BoxDecoration(
           color: showBackground ? theme.colorScheme.surface : null,
-          borderRadius: tertiaryBorder,
+          borderRadius: mainBorder,
         ),
         child: DefaultTextStyle(
           style: (theme.textTheme.bodySmall ?? const TextStyle())
-              .copyWith(color: theme.colorScheme.onSurface),
+              .copyWith(color: color, fontSize: 11),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.end,
             mainAxisSize: MainAxisSize.min,
@@ -65,14 +67,15 @@ class TimeAndSeenStatus extends StatelessWidget {
               if (message.edited) Text(_i18n.get("edited")),
               MsgTime(time: date(message.time)),
               if (isSender)
-                Padding(
-                  padding: const EdgeInsets.only(left: 2.0),
+                Container(
+                  transform: Matrix4.translationValues(0, -1, 0),
+                  padding: const EdgeInsets.only(left: 3.0, bottom: 1.0),
                   child: SeenStatus(
                     message.roomUid,
                     message.packetId,
                     messageId: message.id,
                     isSeen: isSeen,
-                    iconColor: theme.colorScheme.onSurface,
+                    iconColor: color,
                   ),
                 )
             ],

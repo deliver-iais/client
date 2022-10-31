@@ -1,15 +1,12 @@
-import 'dart:math';
-
 import 'package:deliver/box/dao/seen_dao.dart';
 import 'package:deliver/box/pending_message.dart';
 import 'package:deliver/box/seen.dart';
+import 'package:deliver/repository/caching_repo.dart';
 import 'package:deliver/repository/messageRepo.dart';
 import 'package:deliver/shared/constants.dart';
-import 'package:deliver/shared/widgets/animated_switch_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:lottie/lottie.dart';
-import 'package:rxdart/rxdart.dart';
 
 enum SeenMessageStatus {
   PENDING,
@@ -19,17 +16,17 @@ enum SeenMessageStatus {
 }
 
 class SeenStatus extends StatelessWidget {
-  static final seenDao = GetIt.I.get<SeenDao>();
-  static final messageRepo = GetIt.I.get<MessageRepo>();
+  static final _seenDao = GetIt.I.get<SeenDao>();
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _cachingRepo = GetIt.I.get<CachingRepo>();
 
   final String roomUid;
   final String messagePacketId;
   final int? messageId;
   final bool? isSeen;
   final Color? iconColor;
-  final _latestSeen = BehaviorSubject.seeded(false);
 
-  SeenStatus(
+  const SeenStatus(
     this.roomUid,
     this.messagePacketId, {
     super.key,
@@ -43,11 +40,10 @@ class SeenStatus extends StatelessWidget {
     return statusBuilder(context);
   }
 
-  FutureBuilder<PendingMessage?> statusBuilder(BuildContext context) {
+  Widget statusBuilder(BuildContext context) {
     if (messageId == null || messageId == 0) {
       return FutureBuilder<PendingMessage?>(
-        key: const ValueKey("FutureBuilder_PENDING"),
-        future: messageRepo.getPendingMessage(messagePacketId),
+        future: _messageRepo.getPendingMessage(messagePacketId),
         builder: ((c, pm) {
           if (pm.hasData && pm.data != null && pm.data!.failed) {
             return statusWidget(context, SeenMessageStatus.FAILED);
@@ -57,9 +53,11 @@ class SeenStatus extends StatelessWidget {
         }),
       );
     } else {
+      if ((_cachingRepo.getLastSeenId(roomUid) ?? -1) >= messageId!) {
+        return statusWidget(context, SeenMessageStatus.SEEN);
+      }
       return FutureBuilder<PendingMessage?>(
-        key: const ValueKey("FutureBuilder_PENDING_EDIT"),
-        future: messageRepo.getPendingEditedMessage(roomUid, messageId ?? 0),
+        future: _messageRepo.getPendingEditedMessage(roomUid, messageId ?? 0),
         builder: ((c, pm) {
           if (pm.hasData) {
             if (pm.data?.failed ?? false) {
@@ -67,23 +65,29 @@ class SeenStatus extends StatelessWidget {
             } else {
               return statusWidget(context, SeenMessageStatus.PENDING);
             }
-          } else if (false && isSeen != null && isSeen!) {
+          } else if (isSeen != null && isSeen!) {
             return statusWidget(context, SeenMessageStatus.SEEN);
           } else {
             return StreamBuilder<Seen?>(
-              stream: seenDao.watchOthersSeen(roomUid).distinct(),
+              stream: _seenDao.watchOthersSeen(roomUid).distinct(),
               builder: (context, snapshot) {
-                print("$roomUid , $messageId , ${snapshot.data?.messageId}");
-                _latestSeen.add(
-                  (snapshot.data?.messageId ?? -1) >= messageId! ||
-                      _latestSeen.value,
+                // TODO(bitbeter): refactor this
+                _cachingRepo.setLastSeenId(
+                  roomUid,
+                  snapshot.data?.messageId ?? -1,
                 );
-                final seen = _latestSeen.value;
+                final seen = (snapshot.data?.messageId ?? -1) >= messageId!;
+
                 return AnimatedSwitcher(
-                  duration: SUPER_SLOW_ANIMATION_DURATION * 10,
-                  child: statusWidget(
-                    context,
-                    seen ? SeenMessageStatus.SEEN : SeenMessageStatus.SENT,
+                  duration: SLOW_ANIMATION_DURATION,
+                  switchInCurve: Curves.easeIn,
+                  child: Stack(
+                    children: [
+                      statusWidget(
+                        context,
+                        seen ? SeenMessageStatus.SEEN : SeenMessageStatus.SEEN,
+                      )
+                    ],
                   ),
                 );
               },
@@ -99,7 +103,7 @@ class SeenStatus extends StatelessWidget {
 
     final color = iconColor ?? theme.primaryColor;
     final errorColor = theme.colorScheme.error;
-    const size = 16.0;
+    const size = 14.5;
 
     switch (status) {
       case SeenMessageStatus.PENDING:
@@ -107,8 +111,8 @@ class SeenStatus extends StatelessWidget {
           key: const ValueKey("PENDING"),
           child: Lottie.asset(
             'assets/animations/clock.json',
-            width: size + 2,
-            height: size + 2,
+            width: size,
+            height: size,
             // fit: BoxFit.fitHeight,
             delegates: LottieDelegates(
               values: [
@@ -118,7 +122,7 @@ class SeenStatus extends StatelessWidget {
                 ),
                 ValueDelegate.transformScale(
                   const ['**'],
-                  value: const Offset(1.2, 1.2),
+                  value: const Offset(1.23, 1.23),
                 )
               ],
             ),
