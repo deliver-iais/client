@@ -110,7 +110,9 @@ class NotificationForegroundService {
             )
           else
             NotificationButton(
-                id: 'stopForegroundNotification', text: _i18n.get("end_call")),
+              id: 'stopForegroundNotification',
+              text: _i18n.get("end_call"),
+            ),
         ],
       ),
       iosNotificationOptions: const IOSNotificationOptions(
@@ -214,12 +216,13 @@ class NotificationHandler extends TaskHandler {
         int.parse(backgroundActivationTime) <
             clock.now().millisecondsSinceEpoch &&
         isClosed == null) {
-      print(backgroundActivationTime);
       await dbSetupDI();
       registerSingleton<I18N>(I18N());
       await FlutterForegroundTask.updateService(
-        notificationText: await getForeground("notification_foreground_not_received"),
-        notificationTitle: await getForeground("notification_foreground_open_app"),
+        notificationText:
+            await getForeground("notification_foreground_not_received"),
+        notificationTitle:
+            await getForeground("notification_foreground_open_app"),
         callback: startCallbackNotification,
       );
       await FlutterForegroundTask.saveData(key: "isClosed", value: "True");
@@ -243,16 +246,25 @@ class NotificationHandler extends TaskHandler {
   }
 
   Future<String> getForeground(String key) async {
-    final isPersian = await FlutterForegroundTask.getData<bool>(key: 'Language') ?? true;
-    switch(key){
+    final isPersian =
+        await FlutterForegroundTask.getData<bool>(key: 'Language') ?? true;
+    switch (key) {
       case "notification_foreground":
-        return isPersian ? "دریافت نوتیفیکیشن های برنامه در پس زمینه فعال است" : "Notification Received On BackGround";
+        return isPersian
+            ? "دریافت نوتیفیکیشن های برنامه در پس زمینه فعال است"
+            : "Notification Received On BackGround";
       case "notification_tap_to_return":
-        return isPersian ? "برای بازگشت به برنامه کلیک کنید" : "Tap to return to the app";
+        return isPersian
+            ? "برای بازگشت به برنامه کلیک کنید"
+            : "Tap to return to the app";
       case "notification_foreground_not_received":
-        return isPersian ? "نوتیفیکیشن های برنامه در پس زمینه فعال نمی باشند" : "Can't Received Notification On Background";
+        return isPersian
+            ? "نوتیفیکیشن های برنامه در پس زمینه فعال نمی باشند"
+            : "Can't Received Notification On Background";
       case "notification_foreground_open_app":
-        return isPersian ? "لطفا برنامه را مجدد باز کنید - بر روی نوار کلیک کنید" : "Please Open App Again - Tap Notification";
+        return isPersian
+            ? "لطفا برنامه را مجدد باز کنید - بر روی نوار کلیک کنید"
+            : "Please Open App Again - Tap Notification";
       default:
         return "";
     }

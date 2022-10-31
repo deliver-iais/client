@@ -186,9 +186,13 @@ class IntlPhoneFieldState extends State<IntlPhoneField> {
               ),
               prefix: Text(
                 "${_selectedCountry['dial_code']}  ",
+                style: TextStyle(color: Theme.of(context).hintColor),
               ),
               labelText: _i18n.get("phone_number"),
               hintText: "9121234567",
+              hintStyle: TextStyle(
+                color: Theme.of(context).hintColor.withOpacity(0.2),
+              ),
             ),
             onSaved: (value) {
               if (widget.onSaved != null && value != null) {
