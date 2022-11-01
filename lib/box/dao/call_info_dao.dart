@@ -41,7 +41,7 @@ class CallInfoDaoImpl extends CallInfoDao {
   static String _key() => "call_list";
 
   Future<BoxPlus<CallInfo>> _open() {
-    super.open(_key(), CALL_INF0);
+    super.open(_key(), CALL_INFO_TABLE_NAME);
     return gen(Hive.openBox<CallInfo>(_key()));
   }
 }

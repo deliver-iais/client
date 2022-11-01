@@ -132,7 +132,7 @@ class MediaDaoImpl extends MediaDao {
   static String _key(String roomUid) => "media-$roomUid";
 
   Future<BoxPlus<Media>> _open(String uid) {
-    super.open(_key(uid.replaceAll(":", "-")), MEDIA);
+    super.open(_key(uid.replaceAll(":", "-")), MEDIA_TABLE_NAME);
     return gen(Hive.openBox<Media>(_key(uid.replaceAll(":", "-"))));
   }
 }

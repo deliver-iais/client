@@ -36,7 +36,7 @@ class ShowCaseDaoImpl extends ShowCaseDao {
   static String _key() => "show-case";
 
   Future<BoxPlus<ShowCase>> _open() {
-    super.open(_key(), SHOW_CASE);
+    super.open(_key(), SHOW_CASE_TABLE_NAME);
     return gen(Hive.openBox<ShowCase>(_key()));
   }
 }

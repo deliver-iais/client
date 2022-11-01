@@ -3,8 +3,6 @@ import 'package:deliver/box/db_manage.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 
-
-
 abstract class AccountDao extends DBManager {
   Future<void> updateAccount({
     int? countryCode,
@@ -21,14 +19,13 @@ abstract class AccountDao extends DBManager {
   Future<Account?> getAccount();
 
   Stream<Account?> getAccountStream();
-
 }
 
-class AccountDaoImpl extends AccountDao   {
+class AccountDaoImpl extends AccountDao {
   static String _key() => "account";
 
   Future<BoxPlus<Account>> _open() {
-    super.open(_key(),ACCOUNT);
+    super.open(_key(), ACCOUNT_TABLE_NAME);
     return gen(Hive.openBox<Account>(_key()));
   }
 

@@ -116,14 +116,14 @@ class MucDaoImpl extends MucDao {
   static String _keyMuc() => "muc";
 
   Future<BoxPlus<Muc>> _openMuc() {
-    super.open(_keyMuc(), MUC);
+    super.open(_keyMuc(), MUC_TABLE_NAME);
     return gen(Hive.openBox<Muc>(_keyMuc()));
   }
 
   static String _keyMembers(String uid) => "member-$uid";
 
   Future<BoxPlus<Member>> _openMembers(String uid) {
-    super.open(_keyMembers(uid.replaceAll(":", "-")), MEMBER);
+    super.open(_keyMembers(uid.replaceAll(":", "-")), MEMBER_TABLE_NAME);
     return gen(Hive.openBox<Member>(_keyMembers(uid.replaceAll(":", "-"))));
   }
 

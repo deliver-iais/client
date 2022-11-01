@@ -147,7 +147,7 @@ class AvatarDaoImpl extends AvatarDao {
   static String _key2() => "last-avatar";
 
   Future<BoxPlus<Avatar>> _open(String uid) {
-    super.open(_key(uid.replaceAll(":", "-")), AVATAR);
+    super.open(_key(uid.replaceAll(":", "-")), AVATAR_TABLE_NAME);
     return gen(Hive.openBox<Avatar>(_key(uid.replaceAll(":", "-"))));
   }
 
@@ -156,7 +156,7 @@ class AvatarDaoImpl extends AvatarDao {
       Hive.box<Avatar>(_key(uid)).close();
 
   Future<BoxPlus<Avatar>> _open2() {
-    super.open(_key2(), AVATAR);
+    super.open(_key2(), AVATAR_TABLE_NAME);
     return gen(Hive.openBox<Avatar>(_key2()));
   }
 

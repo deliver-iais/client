@@ -34,7 +34,7 @@ class AutoDownloadDaoImpl extends AutoDownloadDao {
   static String _key() => "auto_download";
 
   Future<BoxPlus<AutoDownload>> _open() {
-    super.open(_key(), AUTO_DOWNLOAD);
+    super.open(_key(), AUTO_DOWNLOAD_TABLE_NAME);
     return gen(Hive.openBox<AutoDownload>(_key()));
   }
 

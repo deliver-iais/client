@@ -46,7 +46,7 @@ class BlockDaoImpl extends BlockDao {
   static String _key() => "block";
 
   Future<BoxPlus<bool>> _open() {
-    super.open(_key(), BLOCK);
+    super.open(_key(), BLOCK_TABLE_NAME);
     return gen(Hive.openBox<bool>(_key()));
   }
 }

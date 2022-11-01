@@ -40,7 +40,7 @@ class FileDaoImpl extends FileDao {
   static String _key(String size) => "file-info-$size";
 
   Future<BoxPlus<FileInfo>> _open(String size) {
-    super.open(_key(size), FILE_INFO);
+    super.open(_key(size), FILE_INFO_TABLE_NAME);
     return gen(Hive.openBox<FileInfo>(_key(size)));
   }
 }

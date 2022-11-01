@@ -38,7 +38,7 @@ class LastActivityDaoImpl extends LastActivityDao {
   static String _key() => "last-activity";
 
   Future<BoxPlus<LastActivity>> _open() {
-    super.open(_key(), LAST_ACTIVITY);
+    super.open(_key(), LAST_ACTIVITY_TABLE_NAME);
     return gen(Hive.openBox<LastActivity>(_key()));
   }
 }

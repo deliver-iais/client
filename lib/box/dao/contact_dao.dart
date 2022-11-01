@@ -90,7 +90,7 @@ class ContactDaoImpl extends ContactDao {
   static String _key() => "contact";
 
   Future<BoxPlus<Contact>> _open() {
-    super.open(_key(), CONTACT);
+    super.open(_key(), CONTACT_TABLE_NAME);
     return gen(Hive.openBox<Contact>(_key()));
   }
 

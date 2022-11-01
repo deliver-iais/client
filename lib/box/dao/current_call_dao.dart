@@ -33,7 +33,7 @@ class CurrentCallInfoDaoImpl extends CurrentCallInfoDao {
   static String _key() => "current_call";
 
   Future<BoxPlus<CurrentCallInfo>> _open() {
-    super.open(_key(), CURRENT_CALL_INFO);
+    super.open(_key(), CURRENT_CALL_INFO_TABLE_NAME);
     return gen(Hive.openBox<CurrentCallInfo>(_key()));
   }
 

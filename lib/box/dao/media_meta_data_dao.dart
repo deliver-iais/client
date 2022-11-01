@@ -54,7 +54,7 @@ class MediaMetaDataDaoImpl extends MediaMetaDataDao {
   static String _key() => "media_meta_data";
 
   Future<BoxPlus<MediaMetaData>> _open() {
-    super.open(_key(), MEDIA_META_DATA);
+    super.open(_key(), MEDIA_META_DATA_TABLE_NAME);
     return gen(Hive.openBox<MediaMetaData>(_key()));
   }
 }

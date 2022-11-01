@@ -46,7 +46,7 @@ class MuteDaoImpl extends MuteDao {
   static String _key() => "mute";
 
   Future<BoxPlus<bool>> _open() {
-    super.open(_key(),MUTE);
+    super.open(_key(), MUTE_TABLE_NAME);
     return gen(Hive.openBox<bool>(_key()));
   }
 }

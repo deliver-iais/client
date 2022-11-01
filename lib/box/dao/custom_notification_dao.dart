@@ -16,7 +16,7 @@ class CustomNotificationDaoImpl extends CustomNotificationDao {
   static String _key() => "customNotification";
 
   Future<BoxPlus<String>> _open() {
-    super.open(_key(), CUSTOM_NOTIFICATION);
+    super.open(_key(), CUSTOM_NOTIFICATION_TABLE_NAME);
     return gen(Hive.openBox<String>(_key()));
   }
 
