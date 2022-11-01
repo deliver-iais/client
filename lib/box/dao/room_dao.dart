@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:math';
-import 'package:deliver/box/db_manage.dart';
+import 'package:deliver/box/db_manager.dart';
 import 'package:deliver/box/hive_plus.dart';
 import 'package:deliver/box/message.dart';
 import 'package:deliver/box/room.dart';
