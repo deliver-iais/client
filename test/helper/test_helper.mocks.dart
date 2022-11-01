@@ -4688,7 +4688,7 @@ class MockAccountRepo extends _i1.Mock implements _i62.AccountRepo {
         returnValue: _i22.Stream<_i63.Account?>.empty(),
       ) as _i22.Stream<_i63.Account?>);
   @override
-  _i22.Future<bool> checkUserName(String? username) => (super.noSuchMethod(
+  _i22.Future<bool> idIsAvailable(String? username) => (super.noSuchMethod(
         Invocation.method(
           #checkUserName,
           [username],

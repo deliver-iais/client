@@ -54,7 +54,7 @@ class SettingsPageState extends State<SettingsPage> {
   void initState() {
     _accountRepo
       ..getUserProfileFromServer()
-      ..fetchCurrentUserId(forceToUpdate: true);
+      ..fetchCurrentUserId();
     subscription = _accountRepo.getAccountAsStream().listen((event) {
       account.add(event);
     });

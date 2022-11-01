@@ -66,38 +66,21 @@ class AccountRepo {
     }
   }
 
-  Future<bool> profileInfoIsSet() async {
-    final isSet = await hasProfile(retry: true);
-    if (!isSet) {
-      return false;
-    } else {
-      return fetchCurrentUserId();
-    }
-  }
-
-  Future<bool> fetchCurrentUserId({
+  Future<void> fetchCurrentUserId({
     bool retry = false,
-    bool forceToUpdate = false,
   }) async {
     try {
       final account = await _accountDao.getAccount();
-      if ((account != null && account.username != null) && !forceToUpdate) {
-        return true;
-      }
-      final getIdRequest = await _sdr.queryServiceClient
-          .getIdByUid(GetIdByUidReq()..uid = _authRepo.currentUserUid);
-      if (getIdRequest.id.isNotEmpty) {
+      if ((account == null || account.username == null)) {
+        final getIdRequest = await _sdr.queryServiceClient
+            .getIdByUid(GetIdByUidReq()..uid = _authRepo.currentUserUid);
+
         _accountDao.updateAccount(username: getIdRequest.id).ignore();
-        return true;
-      } else {
-        return false;
       }
     } catch (e) {
       _logger.e(e);
       if (retry) {
-        return fetchCurrentUserId();
-      } else {
-        return false;
+        unawaited(fetchCurrentUserId());
       }
     }
   }
@@ -106,7 +89,7 @@ class AccountRepo {
 
   Stream<Account?> getAccountAsStream() => _accountDao.getAccountStream();
 
-  Future<bool> checkUserName(String username) async {
+  Future<bool> idIsAvailable(String username) async {
     final checkUsernameRes = await _sdr.queryServiceClient
         .idIsAvailable(IdIsAvailableReq()..id = username);
     return checkUsernameRes.isAvailable;
@@ -135,18 +118,20 @@ class AccountRepo {
     try {
       final account = await getAccount();
 
-      if (firstname == null ||
-          firstname.isEmpty ||
-          username == null ||
-          username.isEmpty) {
+      if (firstname == null || firstname.isEmpty) {
         return false;
       }
 
-      if (account == null ||
-          account.username == null ||
-          account.username != username) {
-        await _sdr.queryServiceClient.setId(SetIdReq()..id = username);
-        _saveProfilePrivateData(username: username);
+      try {
+        if (username != null &&
+            ((account == null ||
+                account.username == null ||
+                account.username != username))) {
+          await _sdr.queryServiceClient.setId(SetIdReq()..id = username);
+          _saveProfilePrivateData(username: username);
+        }
+      } catch (e) {
+        _logger.e(e);
       }
 
       if (lastname != null || description != null) {
@@ -241,31 +226,49 @@ class AccountRepo {
   }
 
   Future<void> checkUpdatePlatformSessionInformation() async {
-    final pv = await _sharedDao.get(SHARED_DAO_DB_VERSION);
-    if (pv != null && int.parse(pv) == DB_VERSION) {
-      unawaited(_sharedDao.put(SHARED_DAO_DB_VERSION, DB_VERSION.toString()));
-      if (shouldUpdateSessionPlatformInformation(pv)) {
+    final pDbVersion = await _sharedDao.get(SHARED_DAO_DB_VERSION);
+    if (pDbVersion == null ||
+        int.parse(pDbVersion) != _dbManager.getDbVersion()) {
+      try {
+        await _dbManager.migrate(
+          deleteSharedDao: false,
+          removeOld: true,
+        );
+        await _sharedDao.putBoolean(SHARED_DAO_ALL_ROOMS_FETCHED, false);
+        unawaited(GetIt.I.get<ContactRepo>().getContacts());
+      } catch (e) {
+        _logger.e(e);
+      }
+      unawaited(
+        _sharedDao.put(
+          SHARED_DAO_DB_VERSION,
+          _dbManager.getDbVersion().toString(),
+        ),
+      );
+    }
+    unawaited(_updateSessionInformationIfNeed());
+  }
+
+  Future<void> _updateSessionInformationIfNeed() async {
+    final version = await _sharedDao.get(SHARED_DAO_VERSION);
+    if (version != null && shouldUpdateSessionPlatformInformation(version)) {
+      try {
         await _sdr.sessionServiceClient.updateSessionPlatformInformation(
           UpdateSessionPlatformInformationReq()
             ..platform = await getPlatformPB(),
         );
+        unawaited(_sharedDao.put(SHARED_DAO_VERSION, VERSION));
+      } catch (e) {
+        _logger.e(e);
       }
-    } else {
-      await _dbManager.migrate(
-        deleteSharedDao: false,
-        removeOld: true,
-      );
-      await _sharedDao.put(SHARED_DAO_DB_VERSION, DB_VERSION.toString());
-      await _sharedDao.putBoolean(SHARED_DAO_ALL_ROOMS_FETCHED, false);
-      unawaited(GetIt.I.get<ContactRepo>().getContacts());
     }
   }
 
   bool shouldUpdateSessionPlatformInformation(String previousVersion) =>
-      previousVersion != DB_VERSION.toString();
+      previousVersion != VERSION;
 
   bool shouldShowNewFeaturesDialog(String? previousVersion) =>
-      previousVersion != DB_VERSION.toString();
+      previousVersion != VERSION;
 
   Future<bool> verifyQrCodeToken(String token) async {
     try {

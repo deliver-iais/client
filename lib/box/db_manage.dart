@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:collection/collection.dart';
 import 'package:deliver/box/box_info.dart';
 import 'package:deliver/box/dao/box_dao.dart';
 
@@ -28,7 +29,6 @@ const MESSAGE_BRIEF = "MESSAGE_BRIEF";
 const MESSAGE_TYPE = "MESSAGE_TYPE";
 const MUC = "MUC";
 const MUTE = "MUTE";
-const MUC_TYPE = "MUC_TYPE";
 const PENDING_MESSAGE = "PENDING_MESSAGE";
 const EDIT_PENDING = "EDIT_PENDING";
 const ROLE = "ROLE";
@@ -64,7 +64,6 @@ class DBManager {
         MESSAGE_BRIEF: 1,
         MUC: 1,
         MUTE: 1,
-        MUC_TYPE: 1,
         PENDING_MESSAGE: 1,
         ROOM: 1,
         MY_SEEN: 1,
@@ -93,7 +92,12 @@ class DBManager {
     } catch (_) {}
   }
 
-  Future<void> migrate({bool deleteSharedDao = true, bool removeOld  = false}) async {
+  int getDbVersion() => const DeepCollectionEquality().hash(_getDbVersions());
+
+  Future<void> migrate({
+    bool deleteSharedDao = true,
+    bool removeOld = false,
+  }) async {
     final boxes = await BoxDao.getAll();
     if (removeOld) {
       await (BoxDao.removeOldDb(deleteSharedDao: deleteSharedDao));

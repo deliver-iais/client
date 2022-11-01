@@ -105,7 +105,7 @@ class MessageRepo {
   bool _updateState = false;
 
   MessageRepo() {
-    createConnectionStatusHandler();
+    unawaited(createConnectionStatusHandler());
   }
 
   Future<void> createConnectionStatusHandler() async {
@@ -613,7 +613,8 @@ class MessageRepo {
       file.name,
     );
 
-    final pm = _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_IN_PROGRESS);
+    final pm =
+        _createPendingMessage(msg, SendingStatus.UPLOAD_FILE_IN_PROGRESS);
 
     await _savePendingMessage(pm);
 
