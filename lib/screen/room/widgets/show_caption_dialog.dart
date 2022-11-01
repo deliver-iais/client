@@ -13,13 +13,13 @@ import 'package:deliver/services/file_service.dart';
 import 'package:deliver/shared/constants.dart';
 import 'package:deliver/shared/extensions/json_extension.dart';
 import 'package:deliver/shared/extensions/uid_extension.dart';
+import 'package:deliver/shared/methods/keyboard.dart';
 import 'package:deliver/shared/methods/platform.dart';
 import 'package:deliver_public_protocol/pub/v1/models/file.pb.dart' as file_pb;
 import 'package:deliver_public_protocol/pub/v1/models/uid.pb.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 
 // TODO(hasan): refactor ShowCaptionDialog class, https://gitlab.iais.co/deliver/wiki/-/issues/432
@@ -71,7 +71,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
       for (final element in widget.files!) {
         element.path = element.path.replaceAll("\\", "/");
         _isFileFormatAccept = _fileService.isFileFormatAccepted(
-          element.extension  ??  element.name.split(".").last,
+          element.extension ?? element.name.split(".").last,
         );
         final size = element.size ?? 0;
         _isFileSizeAccept = size < MAX_FILE_SIZE_BYTE;
@@ -308,7 +308,7 @@ class ShowCaptionDialogState extends State<ShowCaptionDialog> {
     return RawKeyboardListener(
       focusNode: _captionFocusNode,
       onKey: (event) {
-        if (event.physicalKey == PhysicalKeyboardKey.enter) {
+        if (isEnterClicked(event) && !event.isShiftPressed) {
           send();
         }
       },

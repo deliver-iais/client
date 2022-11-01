@@ -251,38 +251,28 @@ class ProfilePageState extends State<ProfilePage>
                                       if (widget.roomUid.isGroup() ||
                                           (widget.roomUid.isChannel() &&
                                               _isMucAdminOrOwner))
-                                        Tab(
-                                          text: _i18n.get("members"),
-                                        ),
+                                        Tab(text: _i18n.get("members")),
                                       if (snapshot.hasData &&
                                           snapshot.data!.imagesCount != 0)
-                                        Tab(
-                                          text: _i18n.get("images"),
-                                        ),
+                                        Tab(text: _i18n.get("image")),
                                       if (snapshot.hasData &&
                                           snapshot.data!.videosCount != 0)
-                                        Tab(
-                                          text: _i18n.get("videos"),
-                                        ),
+                                        Tab(text: _i18n.get("video")),
                                       if (snapshot.hasData &&
                                           snapshot.data!.filesCount != 0)
-                                        Tab(
-                                          text: _i18n.get("file"),
-                                        ),
+                                        Tab(text: _i18n.get("file")),
                                       if (snapshot.hasData &&
                                           snapshot.data!.linkCount != 0)
-                                        Tab(text: _i18n.get("links")),
+                                        Tab(text: _i18n.get("link")),
                                       if (snapshot.hasData &&
                                           snapshot.data!.documentsCount != 0)
-                                        Tab(
-                                          text: _i18n.get("documents"),
-                                        ),
+                                        Tab(text: _i18n.get("document")),
                                       if (snapshot.hasData &&
                                           snapshot.data!.musicsCount != 0)
-                                        Tab(text: _i18n.get("musics")),
+                                        Tab(text: _i18n.get("music")),
                                       if (snapshot.hasData &&
                                           snapshot.data!.audiosCount != 0)
-                                        Tab(text: _i18n.get("audios")),
+                                        Tab(text: _i18n.get("audio")),
                                     ],
                                     controller: _tabController,
                                   );
