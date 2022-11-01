@@ -2527,9 +2527,9 @@ class MockCoreServices extends _i1.Mock implements _i50.CoreServices {
         returnValueForMissingStub: null,
       );
   @override
-  void retryFasterConnection() => super.noSuchMethod(
+  void fasterRetryConnection() => super.noSuchMethod(
         Invocation.method(
-          #retryFasterConnection,
+          #fasterRetryConnection,
           [],
         ),
         returnValueForMissingStub: null,

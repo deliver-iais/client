@@ -11,11 +11,6 @@ import 'package:get_it/get_it.dart';
 import 'package:random_string/random_string.dart';
 
 class ConnectionStatus extends StatefulWidget {
-  static final _messageRepo = GetIt.I.get<MessageRepo>();
-  static final _i18n = GetIt.I.get<I18N>();
-  static final _coreService = GetIt.I.get<CoreServices>();
-  static final _routingService = GetIt.I.get<RoutingService>();
-
   const ConnectionStatus({super.key});
 
   @override
@@ -23,32 +18,35 @@ class ConnectionStatus extends StatefulWidget {
 }
 
 class _ConnectionStatusState extends State<ConnectionStatus> {
+  static final _messageRepo = GetIt.I.get<MessageRepo>();
+  static final _i18n = GetIt.I.get<I18N>();
+  static final _coreService = GetIt.I.get<CoreServices>();
+  static final _routingService = GetIt.I.get<RoutingService>();
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return StreamBuilder<TitleStatusConditions>(
       initialData: TitleStatusConditions.Connected,
-      stream: ConnectionStatus._messageRepo.updatingStatus.stream,
+      stream: _messageRepo.updatingStatus.stream,
       builder: (c, status) {
         final state = title(status.data!);
 
         return AnimatedSwitchWidget(
           child: StreamBuilder<dynamic>(
             key: Key(state),
-            stream: ConnectionStatus._i18n.localeStream,
+            stream: _i18n.localeStream,
             builder: (context, snapshot) {
               return Directionality(
-                textDirection: ConnectionStatus._i18n.isPersian
-                    ? TextDirection.rtl
-                    : TextDirection.ltr,
+                textDirection:
+                    _i18n.isPersian ? TextDirection.rtl : TextDirection.ltr,
                 child: Row(
                   children: [
                     GestureDetector(
                       onTap: () {
                         if (status.data == TitleStatusConditions.Disconnected) {
-                          ConnectionStatus._routingService
-                              .openConnectionSettingPage();
+                          _routingService.openConnectionSettingPage();
                         }
                       },
                       child: Text(
@@ -66,8 +64,7 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
                       IconButton(
                         padding: EdgeInsets.zero,
                         iconSize: 23,
-                        onPressed:
-                            ConnectionStatus._coreService.retryFasterConnection,
+                        onPressed: _coreService.fasterRetryConnection,
                         icon: Icon(
                           CupertinoIcons.refresh,
                           color: theme.primaryColor,
@@ -86,15 +83,15 @@ class _ConnectionStatusState extends State<ConnectionStatus> {
   String title(TitleStatusConditions statusConditions) {
     switch (statusConditions) {
       case TitleStatusConditions.Disconnected:
-        return ConnectionStatus._i18n.get("disconnected").capitalCase;
+        return _i18n.get("disconnected").capitalCase;
       case TitleStatusConditions.Connecting:
-        return ConnectionStatus._i18n.get("connecting").capitalCase;
+        return _i18n.get("connecting").capitalCase;
       case TitleStatusConditions.Updating:
-        return ConnectionStatus._i18n.get("updating").capitalCase;
+        return _i18n.get("updating").capitalCase;
       case TitleStatusConditions.Connected:
-        return ConnectionStatus._i18n.get("chats").capitalCase;
+        return _i18n.get("chats").capitalCase;
       case TitleStatusConditions.Syncing:
-        return ConnectionStatus._i18n.get("syncing").capitalCase;
+        return _i18n.get("syncing").capitalCase;
     }
   }
 }
